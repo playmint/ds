@@ -1,0 +1,180 @@
+# this is a reusable workflow to build and deploy the crypt
+# it is called by other workflows
+
+on:
+  workflow_call:
+    inputs:
+      DEPLOYMENT_ENVIRONMENT:
+        description: Name of environment main/prod/test to deploy to
+        required: true
+        type: string
+      FRONTEND_REPLICAS:
+        description: Number of instances of frontend server
+        default: 1
+        type: number
+    secrets:
+      AZURE_REGISTRY_URL:
+        description: Docker login url for Azure Container Registry
+        required: true
+      AZURE_REGISTRY_USERNAME:
+        description: Docker login username for Azure Container Registry
+        required: true
+      AZURE_REGISTRY_PASSWORD:
+        description: Docker login password for Azure Container Registry
+        required: true
+      AZURE_CREDENTIALS:
+        description: Azure credentials for deploying to Azure Container Service
+        required: true
+      AZURE_CLUSTER_NAME:
+        description: Name of the Azure Container Service cluster
+        required: true
+      AZURE_CLUSTER_RESOURCE_GROUP:
+        description: Name of the resource group where the cluster lives
+        required: true
+      UNITY_SERIAL:
+        description: Unity licence serial
+        required: true
+      UNITY_EMAIL:
+        description: Unity email for licence
+        required: true
+      UNITY_PASSWORD:
+        description: Unity password for the licence
+        required: true
+
+
+
+jobs:
+
+
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Create LFS file list
+      run: git lfs ls-files -l | cut -d ' ' -f1 | sort > .lfs-assets-id
+
+    - name: Restore LFS cache
+      uses: actions/cache@v2
+      id: lfs-cache
+      with:
+        path: .git/lfs
+        key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
+
+    - name: Git LFS Pull
+      run: |
+        git lfs pull
+
+    - name: Restore Library cache
+      uses: actions/cache@v2
+      with:
+        path: DawnSeekersUnity/Library
+        key: Library-ds
+        restore-keys: |
+          Library-ds
+          Library-
+
+    - name: Build ds
+      uses: game-ci/unity-builder@v2
+      env:
+        UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+        UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+      with:
+        targetPlatform: WebGL
+        projectPath: DawnSeekersUnity
+        buildMethod: BuildScript.GitHubBuild
+        allowDirtyBuild: true # allows for use of LFS cache
+
+    - name: Authenticate to Azure container registry
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ secrets.AZURE_REGISTRY_URL }}
+        username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+        password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+
+    - name: Prepare container tags
+      id: meta
+      uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+      with:
+        images: ${{ secrets.AZURE_REGISTRY_URL }}/ds/frontend
+        tags: |
+          type=sha,enable=true,priority=100,prefix=git-,suffix=,format=long
+
+    - name: Prepare build context
+      run: |
+        cp -a DawnSeekersUnity/Builds/. frontend/unity-ui
+
+    - name: Build container
+      uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+      with:
+        context: frontend
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs:
+    - frontend
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Update deployment status
+      uses: bobheadxi/deployments@v0.6.2
+      id: deployment
+      with:
+        step: start
+        token: ${{ secrets.GITHUB_TOKEN }}
+        env: ${{ inputs.DEPLOYMENT_ENVIRONMENT }}
+        ref: ${{ github.head_ref }}
+
+    - name: Authenticate to Azure Container Service
+      uses: azure/aks-set-context@v1
+      with:
+        creds: '${{ secrets.AZURE_CREDENTIALS }}'
+        cluster-name: ${{ secrets.AZURE_CLUSTER_NAME }}
+        resource-group: ${{ secrets.AZURE_CLUSTER_RESOURCE_GROUP }}
+
+    - name: Prepare helm
+      uses: azure/setup-helm@v3
+      with:
+        version: '3.7.2'
+
+    - name: Deploy to Azure
+      env:
+        CHART_VERSION: ${{ github.sha }}
+        CHART_NAMESPACE: ds-${{ inputs.DEPLOYMENT_ENVIRONMENT }}
+        CHART_VALUES: |-
+          cluster:
+            domain: dev.playmint.com
+          apps:
+          - name: frontend
+            image: ${{ secrets.AZURE_REGISTRY_URL }}/ds/frontend:git-${{ github.sha }}
+            port: 80
+            replicas: ${{ inputs.FRONTEND_REPLICAS }}
+            annotations:
+              prometheus.io/scrape: "true"
+              prometheus.io/path: "/metrics"
+              prometheus.io/port: "9090"
+      run: |
+        echo "${CHART_VALUES}" > /tmp/values.yaml
+        helm upgrade --timeout "30m" --history-max 5 --install --wait ${CHART_NAMESPACE} ./chart --values /tmp/values.yaml --create-namespace -n "${CHART_NAMESPACE}"
+
+    - name: Update deployment status
+      uses: bobheadxi/deployments@v0.6.2
+      if: always()
+      with:
+        step: finish
+        token: ${{ secrets.GITHUB_TOKEN }}
+        env_url: https://frontend-ds-${{ inputs.DEPLOYMENT_ENVIRONMENT }}.dev.playmint.com/
+        status: ${{ job.status }}
+        deployment_id: ${{ steps.deployment.outputs.deployment_id }}
