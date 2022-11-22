@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+
+  hardhatdefault:
+    profiles:
+      - default
+    build:
+      context: ./blockchain/solidity
+    ports:
+      - 7545:7545
+    environment:
+      PROFILE: "default"
+      MINER_BLOCKTIME: "0"
+      HARDHAT_NETWORK: ${HARDHAT_NETWORK}
+    volumes:
+      - ./blockchain/solidity/scripts:/scripts
+      - ./blockchain/solidity/deployments:/deployments
+      - ./blockchain/solidity/contracts:/contracts
+      - ./blockchain/solidity/interfaces:/interfaces
+      - ./blockchain/solidity/artifacts:/artifacts
+      - ./blockchain/solidity/fixtures:/fixtures
+      - ./blockchain/solidity/libs:/libs
+      - ./unity/Assets:/unity-assets
+      - hardhat-db:/db
+
+  hardhatdebug:
+    profiles:
+      - debug
+    build:
+      context: ./blockchain/solidity
+    ports:
+      - 7545:7545
+    environment:
+      PROFILE: "debug"
+      MINER_BLOCKTIME: "0"
+      HARDHAT_NETWORK: ${HARDHAT_NETWORK}
+    volumes:
+      - ./blockchain/solidity/scripts:/scripts
+      - ./blockchain/solidity/deployments:/deployments
+      - ./blockchain/solidity/contracts:/contracts
+      - ./blockchain/solidity/interfaces:/interfaces
+      - ./blockchain/solidity/artifacts:/artifacts
+      - ./blockchain/solidity/fixtures:/fixtures
+      - ./blockchain/solidity/libs:/libs
+      - ./unity/Assets:/unity-assets
+      - hardhat-db:/db
+
+volumes:
+  hardhat-db:
