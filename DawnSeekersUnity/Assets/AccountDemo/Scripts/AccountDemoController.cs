@@ -14,6 +14,8 @@ public class AccountDemoController : MonoBehaviour
     [SerializeField]
     private Button _btnSignMessage;
     [SerializeField]
+    private Button _btnSignSessionMessage;
+    [SerializeField]
     private Button _btnGetAccount;
     [SerializeField]
     private TMP_Text  _lblMesssage;
@@ -26,13 +28,14 @@ public class AccountDemoController : MonoBehaviour
     protected void Start()
     {
 
-        _btnMetamaskConnect.onClick.AddListener( MetamaskConnectButton_Clicked);
-        _btnPrivateKeyConnect.onClick.AddListener( PrivateKeyConnectButton_Clicked);
-        _btnSignMessage.onClick.AddListener (SignData_Clicked);
-        _btnGetAccount.onClick.AddListener(GetAccount_Clicked);
-        AccountManager.Instance.ConnectedEvent += () => DisplayMessage("Wallet Connected");
-        AccountManager.Instance.ErrorEvent += (error) => DisplayError(error);
-        DisplayMessage("Account / Auth Demo Started");
+          _btnMetamaskConnect.onClick.AddListener( MetamaskConnectButton_Clicked);
+          _btnPrivateKeyConnect.onClick.AddListener( PrivateKeyConnectButton_Clicked);
+          _btnSignMessage.onClick.AddListener (SignData_Clicked);
+          _btnSignSessionMessage.onClick.AddListener (SignSession_Clicked);
+          _btnGetAccount.onClick.AddListener(GetAccount_Clicked);
+          AccountManager.Instance.ConnectedEvent += () => OnWalletConnected();
+          AccountManager.Instance.ErrorEvent += (error) => DisplayError(error);
+          DisplayMessage("Account / Auth Demo Started");
     }
 
     private void GetAccount_Clicked()
@@ -83,6 +86,16 @@ public class AccountDemoController : MonoBehaviour
     {
         Debug.Log("SignData_Clicked");
         AccountManager.Instance.SignMessage("Hello World", (signedMesage) => DisplayMessage(signedMesage), (error)=> DisplayError(error));
+    }
+    private void SignSession_Clicked()
+    {
+        Debug.Log("SignSession_Clicked");
+        AccountManager.Instance.SignSession("Hello World", (signedMesage) => DisplayMessage(signedMesage), (error)=> DisplayError(error));
+    }
+    public void  OnWalletConnected() 
+    {
+          DisplayMessage("Wallet Connected to "+AccountManager.Instance.Account);
+          DisplayMessage("Session Key generated for "+AccountManager.Instance.SessionPublicKey);
     }
     public void DisplayMessage(string message)
     {

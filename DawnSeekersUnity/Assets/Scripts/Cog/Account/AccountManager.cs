@@ -16,11 +16,15 @@ namespace Cog.Account
         public event Action ConnectedEvent;
         public event Action<string> ErrorEvent;
         public static AccountManager Instance;
-        private IWalletProvider _walletProvider;
+        private IWalletProvider _walletProvider;    
+        private SessionKeyWalletProvider _sessionKeyWalletProvider;
+       public string SessionPublicKey { get =>  _sessionKeyWalletProvider != null ?  _sessionKeyWalletProvider.Account : "";}
+  
 
         protected void Awake() 
         {
             Instance = this;
+            ConnectedEvent +=  OnConnectInternalHandler;
         }
         public event Action DiconnectedEvent;
 
@@ -80,6 +84,12 @@ namespace Cog.Account
             _walletProvider.Connect(() => ConnectedEvent.Invoke(), (error) => ErrorEvent.Invoke(error));
         }
 
+        public void OnConnectInternalHandler()
+        {
+           _sessionKeyWalletProvider = new SessionKeyWalletProvider();
+           
+        }
+
         public void SignMessage(string message, SignedCallBack signedCallBack, ErrorCallBack errorCallBack)
         {
             if (_walletProvider == null)
@@ -87,8 +97,16 @@ namespace Cog.Account
                 errorCallBack("No Wallet Connected");
                 return;
             }
-
             _walletProvider.SignMessage(message, signedCallBack, errorCallBack);
+        }
+        public void SignSession(string message, SignedCallBack signedCallBack, ErrorCallBack errorCallBack)
+        {
+            if (_sessionKeyWalletProvider == null)
+            {
+                errorCallBack("No Wallet Connected");
+                return;
+            }
+            _sessionKeyWalletProvider.SignMessage(message, signedCallBack, errorCallBack);
         }
     }
 }
