@@ -48,7 +48,7 @@ namespace Cog.Account
             return false;
         }
 
-        public bool IsPrivateKeyConnectAvaiable()
+        public bool IsPrivateKeyConnectAvailable()
         {
             return PrivateKeyWalletProvider.IsAvailable(); 
         }
