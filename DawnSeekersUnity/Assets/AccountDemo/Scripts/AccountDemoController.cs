@@ -22,6 +22,8 @@ public class AccountDemoController : MonoBehaviour
     [SerializeField]
     private Button _btnPrivateKeyConnect;
     [SerializeField]
+    private Button _btnWalletConnectConnect;
+    [SerializeField]
     private Button _btnSignUp;
     [SerializeField]
     private Button _btnSignIn;
@@ -49,6 +51,7 @@ public class AccountDemoController : MonoBehaviour
 
           _btnMetamaskConnect.onClick.AddListener( MetamaskConnectButton_Clicked);
           _btnPrivateKeyConnect.onClick.AddListener( PrivateKeyConnectButton_Clicked);
+          _btnWalletConnectConnect.onClick.AddListener (WalletConnectConnectButton_Clicked);
           _btnSignUp.onClick.AddListener(SignUp_Clicked);
           _btnSignIn.onClick.AddListener(SignIn_Clicked);
           _btnGetAccounts.onClick.AddListener(GetAccounts_Clicked);
@@ -205,6 +208,20 @@ public class AccountDemoController : MonoBehaviour
             DisplayError("Metamask NOT Available, if running in editor use Private Key");
        }
     }
+
+     private void WalletConnectConnectButton_Clicked()
+     {
+          Debug.Log("WalletConnectConnectButton_Clicked");   
+          if (AccountManager.Instance.IsWalletConnectAvailable())
+          {
+               AccountManager.Instance.InitProvider(WalletProviderEnum.WALLETCONNECT);
+               Connect();
+          }
+          else
+          {
+               DisplayError("WalletConnect is NOT Available, if runnning in editor use Private Key");
+          }
+     }
     private void Connect()
     {
         AccountManager.Instance.Connect();
@@ -236,8 +253,11 @@ public class AccountDemoController : MonoBehaviour
     }
     public void  OnWalletConnected() 
     {
-          DisplayMessage("Wallet Connected to "+AccountManager.Instance.Account);
-          DisplayMessage("Session Key generated for "+AccountManager.Instance.SessionPublicKey);
+          if (AccountManager.Instance.Account!="")
+          {
+               DisplayMessage("Wallet Connected to "+AccountManager.Instance.Account);
+               DisplayMessage("Session Key generated for "+AccountManager.Instance.SessionPublicKey);
+          }
     }
     public void DisplayMessage(string message)
     {
