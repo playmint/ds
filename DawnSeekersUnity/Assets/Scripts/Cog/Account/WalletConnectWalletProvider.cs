@@ -19,7 +19,7 @@ namespace Cog.Account
         public string Account { get => _selectedAccountAddress;}
         public static bool IsAvailable() 
         {
-            return true;// WalletConnectInterop.IsWalletConnectAvailable();
+            return WalletConnectInterop.IsWalletConnectAvailable();
         }
         public void Connect(ConnectedCallBack connectedCallBack, ErrorCallBack errorCallBack)
         {
