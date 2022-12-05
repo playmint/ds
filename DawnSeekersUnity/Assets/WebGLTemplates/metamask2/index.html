@@ -8,14 +8,16 @@
   <link rel="shortcut icon" href="TemplateData/favicon.ico">
   <link rel="stylesheet" href="TemplateData/style.css">
 
-  <script type="module" crossorigin src="/assets/index.1f08adf2.js"></script>
+  <script type="module" crossorigin src="/assets/index.e4ac41aa.js"></script>
 </head>
 
 <body>
   <div id="app">
-    <w3m-core-button></w3m-core-button>
+    <button name="next-button">Obi-Wan abandons the high ground to salute you</button>
+    <button name="sign-button">sign</button>
+    
 
-    <w3m-modal></w3m-modal>
+
   </div>
   <div id="unity-container" class="unity-desktop">
     <canvas id="unity-canvas" width={{{ WIDTH }}} height={{{ HEIGHT }}}></canvas>
@@ -67,6 +69,7 @@
 
     var buildUrl = "Build";
     var loaderUrl = buildUrl + "/{{{ LOADER_FILENAME }}}";
+    
     var config = {
       dataUrl: buildUrl + "/{{{ DATA_FILENAME }}}",
       frameworkUrl: buildUrl + "/{{{ FRAMEWORK_FILENAME }}}",
