@@ -1689,6 +1689,7 @@ GameObject:
   - component: {fileID: 910196452}
   - component: {fileID: 910196453}
   - component: {fileID: 910196454}
+  - component: {fileID: 910196455}
   m_Layer: 0
   m_Name: Controllers
   m_TagString: Untagged
@@ -1727,6 +1728,7 @@ MonoBehaviour:
   _btnPrivateKeyConnect: {fileID: 1199786192}
   _btnSignUp: {fileID: 1189126580}
   _btnSignIn: {fileID: 122670930}
+  _btnWalletConnectConnect: {fileID: 330754987}
   _btnSignMessage: {fileID: 819289829}
   _btnSignSessionMessage: {fileID: 1548155254}
   _btnGetAccount: {fileID: 1686100279}
@@ -1755,6 +1757,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 82e452ac3ef2f6f4caf13e3d18209b9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &910196455
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910196447}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d89102ddd9824543880b2b02544e058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1004147211

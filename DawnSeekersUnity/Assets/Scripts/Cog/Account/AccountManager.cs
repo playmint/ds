@@ -18,7 +18,7 @@ namespace Cog.Account
         public static AccountManager Instance;
         private IWalletProvider _walletProvider;    
         private SessionKeyWalletProvider _sessionKeyWalletProvider;
-       public string SessionPublicKey { get =>  _sessionKeyWalletProvider != null ?  _sessionKeyWalletProvider.Account : "";}
+        public string SessionPublicKey { get =>  _sessionKeyWalletProvider != null ?  _sessionKeyWalletProvider.Account : "";}
   
 
         protected void Awake() 
@@ -45,7 +45,7 @@ namespace Cog.Account
         // TODO
         public bool IsWalletConnectAvailable()
         {
-            return false;
+            return WalletConnectWalletProvider.IsAvailable();
         }
 
         public bool IsPrivateKeyConnectAvailable()
@@ -64,7 +64,8 @@ namespace Cog.Account
                     _walletProvider = mc;
                     break;
                 case WalletProviderEnum.WALLETCONNECT:
-                    
+                    var wc = GetComponent<WalletConnectWalletProvider>();
+                    _walletProvider = wc;
                     break;
                 case WalletProviderEnum.PRIVATE_KEY:
                     var wp = new PrivateKeyWalletProvider
@@ -87,7 +88,6 @@ namespace Cog.Account
         public void OnConnectInternalHandler()
         {
            _sessionKeyWalletProvider = new SessionKeyWalletProvider();
-           
         }
 
         public void SignMessage(string message, SignedCallBack signedCallBack, ErrorCallBack errorCallBack)
