@@ -771,8 +771,9 @@ PlayerSettings:
   webGLThreadsSupport: 0
   webGLDecompressionFallback: 0
   webGLPowerPreference: 2
-  scriptingDefineSymbols: {}
-  additionalCompilerArguments: {}
+  scriptingDefineSymbols:
+    Standalone: ACCOUNT_DEMO
+    WebGL: ACCOUNT_DEMO
   platformArchitecture: {}
   scriptingBackend: {}
   il2cppCompilerConfiguration: {}
