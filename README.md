@@ -21,7 +21,7 @@ To provision a local instance of the chain, and backend services based on the
 most recent builds using docker:
 
 ```
-docker-compose --profile=nightly up --pull=always
+docker-compose --profile=nightly up
 ```
 
 #### Provisioning backend services (Hard mode)
