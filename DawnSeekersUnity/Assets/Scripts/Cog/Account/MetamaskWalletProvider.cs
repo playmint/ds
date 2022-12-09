@@ -13,36 +13,55 @@ namespace Cog.Account
         private ConnectedCallBack _connectedCallBack;
         private ErrorCallBack _errorCallBack;
         private string _selectedAccountAddress;
-        private bool _isMetamaskInitialised= false;
+        private bool _isMetamaskInitialised = false;
         private BigInteger _currentChainId;
-        public string Account { get => _selectedAccountAddress;}
-        public static bool IsAvailable() 
+        public string Account
+        {
+            get => _selectedAccountAddress;
+        }
+
+        public static bool IsAvailable()
         {
             return MetamaskInterop.IsMetamaskAvailable();
         }
+
         public void Connect(ConnectedCallBack connectedCallBack, ErrorCallBack errorCallBack)
         {
             _connectedCallBack = connectedCallBack;
             _errorCallBack = errorCallBack;
             if (MetamaskInterop.IsMetamaskAvailable())
             {
-                MetamaskInterop.EnableEthereum(gameObject.name, nameof(EthereumEnabled), nameof(DisplayError));
+                MetamaskInterop.EnableEthereum(
+                    gameObject.name,
+                    nameof(EthereumEnabled),
+                    nameof(DisplayError)
+                );
             }
             else
             {
                 errorCallBack("Metamask is not available, please install it");
             }
         }
+
         public void DisplayError(string error)
         {
             _errorCallBack(error);
         }
+
         public void EthereumEnabled(string addressSelected)
         {
             if (!_isMetamaskInitialised)
             {
-                MetamaskInterop.EthereumInit(gameObject.name, nameof(NewAccountSelected), nameof(ChainChanged));
-                MetamaskInterop.GetChainId(gameObject.name, nameof(ChainChanged), nameof(DisplayError));
+                MetamaskInterop.EthereumInit(
+                    gameObject.name,
+                    nameof(NewAccountSelected),
+                    nameof(ChainChanged)
+                );
+                MetamaskInterop.GetChainId(
+                    gameObject.name,
+                    nameof(ChainChanged),
+                    nameof(DisplayError)
+                );
                 _isMetamaskInitialised = true;
             }
             NewAccountSelected(addressSelected);
@@ -59,7 +78,7 @@ namespace Cog.Account
                 print(_currentChainId.ToString());
                 StartCoroutine(GetBlockNumber());
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 DisplayError(ex.Message);
             }
@@ -69,23 +88,34 @@ namespace Cog.Account
         {
             _selectedAccountAddress = accountAddress;
         }
-        public void SignMessage(string message, SignedCallBack signedCallBack, ErrorCallBack errorCallBack)
+
+        public void SignMessage(
+            string message,
+            SignedCallBack signedCallBack,
+            ErrorCallBack errorCallBack
+        )
         {
             StartCoroutine(PersonalSignUnityRequest(message, signedCallBack, errorCallBack));
         }
 
-        private  IEnumerator PersonalSignUnityRequest(string message, SignedCallBack signedCallBack, ErrorCallBack errorCallBack)
+        private IEnumerator PersonalSignUnityRequest(
+            string message,
+            SignedCallBack signedCallBack,
+            ErrorCallBack errorCallBack
+        )
         {
             HexUTF8String data = new HexUTF8String(message);
             var signRequest = new EthPersonalSignUnityRequest(GetUnityRpcRequestClientFactory());
             yield return signRequest.SendRequest(data);
-            signedCallBack (signRequest.Result);
+            signedCallBack(signRequest.Result);
             print(signRequest.Result);
         }
 
         private IEnumerator GetBlockNumber()
         {
-            var blockNumberRequest = new EthBlockNumberUnityRequest(GetUnityRpcRequestClientFactory());
+            var blockNumberRequest = new EthBlockNumberUnityRequest(
+                GetUnityRpcRequestClientFactory()
+            );
             yield return blockNumberRequest.SendRequest();
             print(blockNumberRequest.Result.Value);
         }

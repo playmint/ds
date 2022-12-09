@@ -9,27 +9,35 @@ namespace Cog.Account
         public string PrivateKey { get; set; }
         private EthECKey _ethECKey;
 
-        public  SessionKeyWalletProvider()
+        public SessionKeyWalletProvider()
         {
-            _ethECKey =  EthECKey.GenerateKey();
+            _ethECKey = EthECKey.GenerateKey();
         }
+
         public static bool IsAvailable()
         {
             return true;
         }
+
         public void Connect(ConnectedCallBack connectedCallBack, ErrorCallBack errorCallBack)
         {
-           connectedCallBack();
+            connectedCallBack();
         }
 
-        public void SignMessage(string message, SignedCallBack signedCallBack, ErrorCallBack errorCallBack)
+        public void SignMessage(
+            string message,
+            SignedCallBack signedCallBack,
+            ErrorCallBack errorCallBack
+        )
         {
             var signer1 = new EthereumMessageSigner();
-            var signature1 = signer1.EncodeUTF8AndSign(message,_ethECKey);
+            var signature1 = signer1.EncodeUTF8AndSign(message, _ethECKey);
             signedCallBack(signature1);
         }
 
-         public string Account { get => _ethECKey.GetPublicAddress ();}
-
+        public string Account
+        {
+            get => _ethECKey.GetPublicAddress();
+        }
     }
 }

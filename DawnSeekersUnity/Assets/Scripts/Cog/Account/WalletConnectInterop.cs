@@ -12,17 +12,27 @@ using UnityEngine;
 
 namespace Cog.Account
 {
-
-    public  class WalletConnectInterop
+    public class WalletConnectInterop
     {
         [DllImport("__Internal")]
-        public static extern void ConnectWC(string gameObjectName, string callback, string fallback);
+        public static extern void ConnectWC(
+            string gameObjectName,
+            string callback,
+            string fallback
+        );
+
         [DllImport("__Internal")]
         public static extern bool IsWalletConnectAvailable();
+
         [DllImport("__Internal")]
         public static extern string WCGetSelectedAddress();
-         [DllImport("__Internal")]
-        public static extern void SignWC(string message, string gameObjectName, string callback, string fallback);
-    }
 
+        [DllImport("__Internal")]
+        public static extern void SignWC(
+            string message,
+            string gameObjectName,
+            string callback,
+            string fallback
+        );
+    }
 }
