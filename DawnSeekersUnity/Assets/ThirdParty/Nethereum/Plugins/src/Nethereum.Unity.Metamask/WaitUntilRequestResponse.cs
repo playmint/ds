@@ -11,7 +11,11 @@ namespace Nethereum.Unity.Metamask
         public bool HasTimedOut { get; private set; }
         private float _timeElapsed = 0;
         public int TimeOutMiliseconds { get; }
-        public WaitUntilRequestResponse(string id, int timeOuMiliseconds = DefaultTimeOutMiliSeconds) 
+
+        public WaitUntilRequestResponse(
+            string id,
+            int timeOuMiliseconds = DefaultTimeOutMiliSeconds
+        )
         {
             Id = id;
             TimeOuMiliseconds = timeOuMiliseconds;
@@ -27,17 +31,12 @@ namespace Nethereum.Unity.Metamask
             }
 
             _timeElapsed += (Time.deltaTime * 1000);
-            if(_timeElapsed > TimeOuMiliseconds)
+            if (_timeElapsed > TimeOuMiliseconds)
             {
                 HasTimedOut = true;
                 return true;
             }
             return false;
         }
-
     }
 }
-
-
-
-

@@ -6,13 +6,17 @@ namespace Nethereum.Unity.Metamask
 {
     public class MetamaskRequestRpcClientFactory : IUnityRpcRequestClientFactory
     {
-        public MetamaskRequestRpcClientFactory(string account = null, JsonSerializerSettings jsonSerializerSettings = null, int timeOuMiliseconds = WaitUntilRequestResponse.DefaultTimeOutMiliSeconds)
+        public MetamaskRequestRpcClientFactory(
+            string account = null,
+            JsonSerializerSettings jsonSerializerSettings = null,
+            int timeOuMiliseconds = WaitUntilRequestResponse.DefaultTimeOutMiliSeconds
+        )
         {
-
             Account = account;
             JsonSerializerSettings = jsonSerializerSettings;
             TimeOuMiliseconds = timeOuMiliseconds;
         }
+
         public string Account { get; set; }
         public JsonSerializerSettings JsonSerializerSettings { get; }
         public int TimeOuMiliseconds { get; }
@@ -25,8 +29,12 @@ namespace Nethereum.Unity.Metamask
 
     public class MetamaskRpcRequestMessage : RpcRequestMessage
     {
-        public MetamaskRpcRequestMessage(object id, string method, string from, params object[] parameterList) : base(id, method,
-            parameterList)
+        public MetamaskRpcRequestMessage(
+            object id,
+            string method,
+            string from,
+            params object[] parameterList
+        ) : base(id, method, parameterList)
         {
             From = from;
         }
@@ -35,6 +43,3 @@ namespace Nethereum.Unity.Metamask
         public string From { get; private set; }
     }
 }
-
-
-

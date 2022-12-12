@@ -14,8 +14,8 @@ namespace Nethereum.Unity.Metamask
 {
     public class MetamaskRequestRpcClient : UnityRequest<RpcResponseMessage>, IUnityRpcRequestClient
     {
-
-        public static ConcurrentDictionary<string, RpcResponseMessage> RequestResponses = new ConcurrentDictionary<string, RpcResponseMessage>();
+        public static ConcurrentDictionary<string, RpcResponseMessage> RequestResponses =
+            new ConcurrentDictionary<string, RpcResponseMessage>();
 
         [MonoPInvokeCallback(typeof(Action<string>))]
         public static void RequestCallBack(string responseMessage)
@@ -29,10 +29,15 @@ namespace Nethereum.Unity.Metamask
 
         private string _account;
 
-        public MetamaskRequestRpcClient(string account, JsonSerializerSettings jsonSerializerSettings = null, int timeOuMiliseconds = WaitUntilRequestResponse.DefaultTimeOutMiliSeconds)
+        public MetamaskRequestRpcClient(
+            string account,
+            JsonSerializerSettings jsonSerializerSettings = null,
+            int timeOuMiliseconds = WaitUntilRequestResponse.DefaultTimeOutMiliSeconds
+        )
         {
             if (jsonSerializerSettings == null)
-                jsonSerializerSettings = DefaultJsonSerializerSettingsFactory.BuildDefaultJsonSerializerSettings();
+                jsonSerializerSettings =
+                    DefaultJsonSerializerSettingsFactory.BuildDefaultJsonSerializerSettings();
 
             JsonSerializerSettings = jsonSerializerSettings;
             TimeOuMiliseconds = timeOuMiliseconds;
@@ -52,9 +57,11 @@ namespace Nethereum.Unity.Metamask
                     transaction.From = _account;
                     request.RawParameters[0] = transaction;
                 }
-                else if (request.Method == ApiMethods.eth_estimateGas.ToString() || request.Method == ApiMethods.eth_call.ToString())
+                else if (
+                    request.Method == ApiMethods.eth_estimateGas.ToString()
+                    || request.Method == ApiMethods.eth_call.ToString()
+                )
                 {
-
                     var callinput = (CallInput)request.RawParameters[0];
                     if (callinput.From == null)
                     {
@@ -62,27 +69,37 @@ namespace Nethereum.Unity.Metamask
                         request.RawParameters[0] = callinput;
                     }
                 }
-                else if (request.Method == ApiMethods.eth_signTypedData_v4.ToString() || request.Method == ApiMethods.personal_sign.ToString())
+                else if (
+                    request.Method == ApiMethods.eth_signTypedData_v4.ToString()
+                    || request.Method == ApiMethods.personal_sign.ToString()
+                )
                 {
                     var parameters = new object[] { _account, request.RawParameters[0] };
                     request = new RpcRequest(newUniqueRequestId, request.Method, parameters);
                 }
 
-                var metamaskRpcRequest = new MetamaskRpcRequestMessage(newUniqueRequestId, request.Method, _account,
-                request.RawParameters);
+                var metamaskRpcRequest = new MetamaskRpcRequestMessage(
+                    newUniqueRequestId,
+                    request.Method,
+                    _account,
+                    request.RawParameters
+                );
 
-                MetamaskInterop.RequestRpcClientCallback(RequestCallBack, JsonConvert.SerializeObject(metamaskRpcRequest));
-
+                MetamaskInterop.RequestRpcClientCallback(
+                    RequestCallBack,
+                    JsonConvert.SerializeObject(metamaskRpcRequest)
+                );
             }
             catch (Exception ex)
             {
                 Exception = ex;
                 yield break;
-
             }
 
-
-            var waitUntilRequestResponse = new WaitUntilRequestResponse(newUniqueRequestId, TimeOuMiliseconds);
+            var waitUntilRequestResponse = new WaitUntilRequestResponse(
+                newUniqueRequestId,
+                TimeOuMiliseconds
+            );
             yield return new WaitUntil(waitUntilRequestResponse.HasCompletedResponse);
             RpcResponseMessage responseMessage = null;
 
@@ -94,17 +111,13 @@ namespace Nethereum.Unity.Metamask
             {
                 if (waitUntilRequestResponse.HasTimedOut)
                 {
-                    Exception = new Exception($"Metamask Response has timeout after : {TimeOuMiliseconds}");
+                    Exception = new Exception(
+                        $"Metamask Response has timeout after : {TimeOuMiliseconds}"
+                    );
                     yield break;
                 }
                 Exception = new Exception("Unexpected error retrieving message");
             }
-
-            
         }
     }
 }
-
-
-
-

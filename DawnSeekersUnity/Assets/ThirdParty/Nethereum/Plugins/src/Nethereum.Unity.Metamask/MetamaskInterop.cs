@@ -12,17 +12,28 @@ using UnityEngine;
 
 namespace Nethereum.Unity.Metamask
 {
-
-    public  class MetamaskInterop
+    public class MetamaskInterop
     {
         [DllImport("__Internal")]
-        public static extern string EnableEthereum(string gameObjectName, string callback, string fallback);
+        public static extern string EnableEthereum(
+            string gameObjectName,
+            string callback,
+            string fallback
+        );
 
         [DllImport("__Internal")]
-        public static extern void EthereumInit(string gameObjectName, string callBackAccountChange, string callBackChainChange);
+        public static extern void EthereumInit(
+            string gameObjectName,
+            string callBackAccountChange,
+            string callBackChainChange
+        );
 
         [DllImport("__Internal")]
-        public static extern void GetChainId(string gameObjectName, string callback, string fallback);
+        public static extern void GetChainId(
+            string gameObjectName,
+            string callback,
+            string fallback
+        );
 
         [DllImport("__Internal")]
         public static extern bool IsMetamaskAvailable();
@@ -31,11 +42,17 @@ namespace Nethereum.Unity.Metamask
         public static extern string GetSelectedAddress();
 
         [DllImport("__Internal")]
-        public static extern string Request(string rpcRequestMessage, string gameObjectName, string callback, string fallback);
+        public static extern string Request(
+            string rpcRequestMessage,
+            string gameObjectName,
+            string callback,
+            string fallback
+        );
 
         [DllImport("__Internal")]
-        public static extern string RequestRpcClientCallback(Action<string> rpcResponse, string rpcRequest);
-
+        public static extern string RequestRpcClientCallback(
+            Action<string> rpcResponse,
+            string rpcRequest
+        );
     }
-
 }

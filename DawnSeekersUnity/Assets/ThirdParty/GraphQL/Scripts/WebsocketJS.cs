@@ -84,7 +84,8 @@ namespace GraphQL4Unity
         /* If callbacks are initialized and set */
         private static bool isInitialized = false;
 
-        private static readonly Dictionary<Int32, WebsocketJS> _instances = new Dictionary<Int32, WebsocketJS>();
+        private static readonly Dictionary<Int32, WebsocketJS> _instances =
+            new Dictionary<Int32, WebsocketJS>();
 
         private static void Initialize()
         {

@@ -11,7 +11,9 @@ using System.Collections;
 
 namespace Nethereum.Unity.Metamask
 {
-    public class MetamaskTransactionUnityRequest : UnityRequest<string>, IContractTransactionUnityRequest
+    public class MetamaskTransactionUnityRequest
+        : UnityRequest<string>,
+            IContractTransactionUnityRequest
     {
         private readonly EthEstimateGasUnityRequest _ethEstimateGasUnityRequest;
         private readonly EthSendTransactionUnityRequest _ethSendTransactionUnityRequest;
@@ -20,20 +22,28 @@ namespace Nethereum.Unity.Metamask
         public bool EstimateGas { get; set; } = true;
         public bool UseLegacyAsDefault { get; set; }
 
-        public MetamaskTransactionUnityRequest(string account, IUnityRpcRequestClientFactory unityRpcRequestClientFactory)
+        public MetamaskTransactionUnityRequest(
+            string account,
+            IUnityRpcRequestClientFactory unityRpcRequestClientFactory
+        )
         {
-
-            _ethEstimateGasUnityRequest = new EthEstimateGasUnityRequest(unityRpcRequestClientFactory);
-            _ethSendTransactionUnityRequest = new EthSendTransactionUnityRequest(unityRpcRequestClientFactory);
+            _ethEstimateGasUnityRequest = new EthEstimateGasUnityRequest(
+                unityRpcRequestClientFactory
+            );
+            _ethSendTransactionUnityRequest = new EthSendTransactionUnityRequest(
+                unityRpcRequestClientFactory
+            );
             _account = account;
             this.unityRpcRequestClientFactory = unityRpcRequestClientFactory;
         }
 
         public IEnumerator SignAndSendTransaction(TransactionInput transactionInput)
         {
-            if (transactionInput == null) throw new ArgumentNullException("transactionInput");
+            if (transactionInput == null)
+                throw new ArgumentNullException("transactionInput");
 
-            if (string.IsNullOrEmpty(transactionInput.From)) transactionInput.From = _account;
+            if (string.IsNullOrEmpty(transactionInput.From))
+                transactionInput.From = _account;
 
             if (!transactionInput.From.IsTheSameAddress(_account))
             {
@@ -72,26 +82,28 @@ namespace Nethereum.Unity.Metamask
             }
         }
 
-        public IEnumerator SignAndSendDeploymentContractTransaction<TDeploymentMessage>() where TDeploymentMessage : ContractDeploymentMessage, new()
+        public IEnumerator SignAndSendDeploymentContractTransaction<TDeploymentMessage>()
+            where TDeploymentMessage : ContractDeploymentMessage, new()
         {
             var deploymentMessage = new TDeploymentMessage();
             yield return SignAndSendDeploymentContractTransaction(deploymentMessage);
         }
 
-        public IEnumerator SignAndSendDeploymentContractTransaction<TDeploymentMessage>(TDeploymentMessage deploymentMessage) where TDeploymentMessage : ContractDeploymentMessage
+        public IEnumerator SignAndSendDeploymentContractTransaction<TDeploymentMessage>(
+            TDeploymentMessage deploymentMessage
+        ) where TDeploymentMessage : ContractDeploymentMessage
         {
             var transactionInput = deploymentMessage.CreateTransactionInput();
             yield return SignAndSendTransaction(transactionInput);
         }
 
-        public IEnumerator SignAndSendTransaction<TContractFunction>(TContractFunction function, string contractAdress) where TContractFunction : FunctionMessage
+        public IEnumerator SignAndSendTransaction<TContractFunction>(
+            TContractFunction function,
+            string contractAdress
+        ) where TContractFunction : FunctionMessage
         {
             var transactionInput = function.CreateTransactionInput(contractAdress);
             yield return SignAndSendTransaction(transactionInput);
         }
     }
 }
-
-
-
-

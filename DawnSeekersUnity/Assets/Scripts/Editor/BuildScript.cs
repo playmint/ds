@@ -15,7 +15,12 @@ public class BuildScript
         var scenes = GetScenesFromBuildSettings();
         WebGLThreadDisable();
         EditorUserBuildSettings.il2CppCodeGeneration = Il2CppCodeGeneration.OptimizeSize;
-        BuildPipeline.BuildPlayer(scenes, "Builds/Prod/Web/DawnSeekers", BuildTarget.WebGL, BuildOptions.None);
+        BuildPipeline.BuildPlayer(
+            scenes,
+            "Builds/Prod/Web/DawnSeekers",
+            BuildTarget.WebGL,
+            BuildOptions.None
+        );
     }
 
     //Debug WebGL Build
@@ -25,7 +30,12 @@ public class BuildScript
         var scenes = GetScenesFromBuildSettings();
         WebGLThreadDisable();
         EditorUserBuildSettings.il2CppCodeGeneration = Il2CppCodeGeneration.OptimizeSize;
-        BuildPipeline.BuildPlayer(scenes, "Builds/Debug/Web/DawnSeekers", BuildTarget.WebGL, BuildOptions.Development);
+        BuildPipeline.BuildPlayer(
+            scenes,
+            "Builds/Debug/Web/DawnSeekers",
+            BuildTarget.WebGL,
+            BuildOptions.Development
+        );
     }
 
     //Github actions build
@@ -41,7 +51,7 @@ public class BuildScript
     [MenuItem("Playmint/Build/Copy Deployments")]
     static void MoveJson()
     {
-        var list = new List<string>{"mumbai.json", "rinkeby.json", "ganache.json"};
+        var list = new List<string> { "mumbai.json", "rinkeby.json", "ganache.json" };
         foreach (var file in list)
         {
             string path = "../blockchain/solidity/deployments/" + file;
@@ -49,10 +59,10 @@ public class BuildScript
 
             if (!File.Exists(path))
             {
-                using (FileStream fs = File.Create(path)) {}
+                using (FileStream fs = File.Create(path)) { }
             }
 
-            if (File.Exists(path2))	
+            if (File.Exists(path2))
                 File.Delete(path2);
 
             File.Copy(path, path2);
@@ -62,31 +72,36 @@ public class BuildScript
     [MenuItem("Playmint/Build/Delete Testnet Deployments")]
     static void DeleteJson()
     {
-        var list = new List<string>{"mumbai.json", "rinkeby.json"};
+        var list = new List<string> { "mumbai.json", "rinkeby.json" };
         foreach (var file in list)
         {
             string path = "../blockchain/solidity/deployments/" + file;
             string path2 = "Assets/Resources/Deployments/" + file;
-            
-            if (File.Exists(path))	
+
+            if (File.Exists(path))
                 File.Delete(path);
 
-            if (File.Exists(path2))	
+            if (File.Exists(path2))
                 File.Delete(path2);
         }
     }
 
     private static string[] GetScenesFromBuildSettings()
     {
-        return (from scene in EditorBuildSettings.scenes where scene.enabled select scene.path).ToArray();
+        return (
+            from scene in EditorBuildSettings.scenes
+            where scene.enabled
+            select scene.path
+        ).ToArray();
     }
 
-    static void WebGLThreadDisable() {
-         PlayerSettings.WebGL.threadsSupport = false;
+    static void WebGLThreadDisable()
+    {
+        PlayerSettings.WebGL.threadsSupport = false;
     }
 
-    static void WebGLThreadEnable() {
-         PlayerSettings.WebGL.threadsSupport = true;
+    static void WebGLThreadEnable()
+    {
+        PlayerSettings.WebGL.threadsSupport = true;
     }
-
 }

@@ -8,7 +8,4 @@ namespace Cog.GraphQL
     }
 }
 
-namespace GraphQL
-{
-    
-}
+namespace GraphQL { }
