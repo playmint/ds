@@ -33,8 +33,7 @@ namespace AMMDemo.Scripts.Components.Views
 
         private void Start()
         {
-            var stateManager = WorldFacade.Instance.StateManager;
-            _ammViewModel = new AmmViewModel(stateManager);
+            _ammViewModel = new AmmViewModel(StateManager.Instance);
         }
     }
 }

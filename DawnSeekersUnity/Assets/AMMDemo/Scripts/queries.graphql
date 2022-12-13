@@ -1,0 +1,93 @@
+query getGame($gameID: ID!) {
+	game(id: $gameID) {
+		id
+	}
+}
+
+query getSessionsByOwner($gameID: ID!, $owner: String!) {
+	game(id: $gameID) {
+		router {
+			sessions(owner: $owner) {
+				id
+			}
+		}
+	}
+}
+
+query getSessionByID($gameID: ID!, $session: ID!) {
+	game(id: $gameID) {
+		router {
+			session(id: $session) {
+				owner
+				expires
+			}
+		}
+	}
+}
+
+query getSeekers($gameID: ID!) {
+	game(id: $gameID) {
+		state {
+			seekers: nodes(kinds: ["SEEKER"]) {
+				id
+				kind: attributeString(name:"kind")
+				position: node(rel: "HAS_LOCATION", kinds: ["TILE"]) {
+					x: attributeInt(name: "x")
+					y: attributeInt(name: "y")
+				}
+			}
+		}
+	}
+}
+
+query getTransactionByID($gameID: ID!, $id: ID!) {
+	game(id: $gameID) {
+		router {
+			transaction(id: $id) {
+				id
+				status
+				batch {
+					block
+					tx
+				}
+			}
+		}
+	}
+}
+
+# subscription watchTransactionByOwner($gameID: ID!, owner: String!) {
+# 	transaction(gameID: $gameID, owner: $owner) {
+# 		id
+# 		status
+# 	}
+# }
+
+mutation signin($gameID: ID!, $session: String!, $auth: String!) {
+	signin(
+		gameID: $gameID,
+		session: $session,
+		ttl: 1000,
+		scope: "0xffffffff",
+		authorization: $auth,
+	)
+}
+
+mutation signout($gameID: ID!, $session: String!, $auth: String!) {
+	signout(
+		gameID: $gameID,
+		session: $session,
+		authorization: $auth,
+	)
+}
+
+mutation dispatch($gameID: ID!, $action: String!, $auth: String!) {
+	dispatch(
+		gameID: $gameID,
+		action: $action,        # encoded action bytes
+		authorization: $auth    # session's signature of $action
+	) {
+		id
+		status
+	}
+}
+
