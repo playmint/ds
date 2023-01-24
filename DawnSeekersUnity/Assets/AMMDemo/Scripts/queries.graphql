@@ -1,58 +1,36 @@
-query getGame($gameID: ID!) {
-	game(id: $gameID) {
-		id
-	}
+fragment stateFragment on State {
+    block
+    tiles: nodes(match: {kinds: ["Tile"]}) {
+        coords: keys
+        biome: value(match: {via: [{rel: "Biome"}]})
+        seed: node(match: {kinds: ["Seed"], via: [{rel: "ProvidesEntropyTo", dir: IN}]}) {
+          key
+        }
+    }
+    seekers: nodes(match: {kinds: ["Seeker"]}) {
+        key
+        position: node(match: {kinds: ["Tile"], via:[{rel: "Location"}]}) {
+            coords: keys
+        }
+        player: node(match: {kinds: ["Player"], via:[{rel: "Owner"}]}) {
+            address: key
+        }
+        cornBalance: value(match: {via: [{rel: "Balance"}]})
+    }
 }
 
-query getSessionsByOwner($gameID: ID!, $owner: String!) {
-	game(id: $gameID) {
-		router {
-			sessions(owner: $owner) {
-				id
-			}
-		}
-	}
+query GetState {
+    game(id: "latest") {
+        state {
+            ...stateFragment
+        }
+    }
 }
 
-query getSessionByID($gameID: ID!, $session: ID!) {
-	game(id: $gameID) {
-		router {
-			session(id: $session) {
-				owner
-				expires
-			}
-		}
-	}
-}
-
-query getSeekers($gameID: ID!) {
-	game(id: $gameID) {
-		state {
-			seekers: nodes(kinds: ["SEEKER"]) {
-				id
-				kind: attributeString(name:"kind")
-				position: node(rel: "HAS_LOCATION", kinds: ["TILE"]) {
-					x: attributeInt(name: "x")
-					y: attributeInt(name: "y")
-				}
-			}
-		}
-	}
-}
-
-query getTransactionByID($gameID: ID!, $id: ID!) {
-	game(id: $gameID) {
-		router {
-			transaction(id: $id) {
-				id
-				status
-				batch {
-					block
-					tx
-				}
-			}
-		}
-	}
+subscription OnState {
+    state(gameID: "latest") {
+        ...stateFragment
+    }
 }
 
 # subscription watchTransactionByOwner($gameID: ID!, owner: String!) {

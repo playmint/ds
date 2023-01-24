@@ -29,7 +29,7 @@ namespace AMMDemo.Scripts.Components.Views
             
             if (_client != null)
             {
-                _client.URL = "http://localhost:3080/query";
+                _client.URL = "http://localhost:8080/query";
             }
         }
 

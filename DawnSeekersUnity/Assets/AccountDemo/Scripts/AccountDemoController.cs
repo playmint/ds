@@ -72,7 +72,7 @@ public class AccountDemoController : MonoBehaviour
 
         if (_client != null)
         {
-            _client.URL = "http://localhost:3081/query";
+            _client.URL = "http://localhost:8080/query";
         }
     }
 

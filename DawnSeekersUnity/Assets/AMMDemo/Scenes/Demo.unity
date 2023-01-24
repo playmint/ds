@@ -2105,7 +2105,7 @@ MonoBehaviour:
   Timestamp: 
   LogMessages: 0
   LogExceptions: 1
-  URL: http://localhost:4000/graphql
+  URL: http://localhost:8080/graphql
   Headers: []
   UseThreadPool: 0
 --- !u!4 &842408446
@@ -4114,6 +4114,7 @@ MonoBehaviour:
   _buyButton: {fileID: 1626929687}
   _sellButton: {fileID: 273376613}
   _amountInput: {fileID: 653601540}
+  _client: {fileID: 842408445}
 --- !u!1 &1649314142
 GameObject:
   m_ObjectHideFlags: 0
