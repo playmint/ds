@@ -39,6 +39,12 @@ public class MapInteractionManager : MonoBehaviour
 
     void MapClicked()
     {
-        Debug.Log("Cell Clicked at position " + grid.GridToCube(grid.WorldToCell(cursor.position)));
+        var cellPosOddR = grid.WorldToCell(cursor.position);
+        var cellPosCube = grid.GridToCube(cellPosOddR);
+        var cellPosOddRConvert = grid.CubeToGrid(cellPosCube);
+
+        Debug.Log("Cell Odd r coords: " + cellPosOddR);
+        Debug.Log("Cell Cube coords " + cellPosCube );
+        Debug.Log("Cell Odd r coords converted from cube " + cellPosOddRConvert);
     }
 }
