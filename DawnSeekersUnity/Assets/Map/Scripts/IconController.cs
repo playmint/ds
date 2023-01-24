@@ -1,10 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class IconController : MonoBehaviour
 {
-    Transform _trans, _camTrans;
+    [SerializeField]
+    private SpriteRenderer _iconRenderer;
+    [SerializeField]
+    private TextMeshPro _label;
+
+    private Transform _trans, _camTrans;
 
     private void Awake()
     {
@@ -15,5 +21,16 @@ public class IconController : MonoBehaviour
     private void LateUpdate()
     {
         _trans.rotation = _camTrans.rotation;
+    }
+
+    public void Setup(Sprite sprite, string label)
+    {
+        _iconRenderer.sprite = sprite;
+        _label.text = label;
+    }
+
+    public void DestroyIcon()
+    {
+        Destroy(gameObject);// TODO: Add pooling
     }
 }
