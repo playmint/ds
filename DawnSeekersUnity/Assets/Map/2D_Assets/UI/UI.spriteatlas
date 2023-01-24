@@ -37,6 +37,8 @@ SpriteAtlas:
     - {fileID: 21300000, guid: 4a2f68821b83749e2ba5dc37d4a6d813, type: 3}
     - {fileID: 21300000, guid: f5e2664ba959449a8b8de100a3f8d630, type: 3}
     - {fileID: 21300000, guid: 0c820ca8a14334c0f90f6f42d81b1bc7, type: 3}
+    - {fileID: 21300000, guid: 5e9b972c9964da048803f9258523d2ae, type: 3}
+    - {fileID: 21300000, guid: d753736d3ae358f4ca0a47de39e49a23, type: 3}
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
@@ -47,12 +49,16 @@ SpriteAtlas:
   - {fileID: -2413806693520163455, guid: 8ed38bd22db1e4a72988355c9d131085, type: 3}
   - {fileID: 21300000, guid: 0c820ca8a14334c0f90f6f42d81b1bc7, type: 3}
   - {fileID: 21300000, guid: f5e2664ba959449a8b8de100a3f8d630, type: 3}
+  - {fileID: 21300000, guid: 5e9b972c9964da048803f9258523d2ae, type: 3}
+  - {fileID: 21300000, guid: d753736d3ae358f4ca0a47de39e49a23, type: 3}
   m_PackedSpriteNamesToIndex:
   - MapIconBG
   - Player_Icon
   - Circle
   - White_Hex_Sprite (1)
   - Tower_Icon
+  - Sword_Icon
+  - MapIconBG02
   m_RenderDataMap: {}
   m_Tag: UI
   m_IsVariant: 0
