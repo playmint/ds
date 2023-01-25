@@ -15,6 +15,7 @@ public class MapInteractionManager : MonoBehaviour
     private void Start()
     {
         m_Plane = new Plane(Vector3.forward,0);
+        Cog.PluginController.Instance.FetchState();
     }
 
     private void Update()
@@ -60,5 +61,7 @@ public class MapInteractionManager : MonoBehaviour
         Debug.Log("Cell Odd r coords: " + cellPosOddR);
         Debug.Log("Cell Cube coords " + cellPosCube );
         Debug.Log("Cell Clicked at position " + GridExtensions.GridToCube(MapManager.instance.grid.WorldToCell(cursor.position)));
+
+        Cog.PluginController.Instance.OnTileClick(cellPosCube);
     }
 }
