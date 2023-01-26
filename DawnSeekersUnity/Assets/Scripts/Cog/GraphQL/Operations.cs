@@ -11,7 +11,7 @@ namespace Cog.GraphQL
                     key
                     time: weight
                     tile: node {
-                        keys
+                        coords: keys
                     }
                 }
             }

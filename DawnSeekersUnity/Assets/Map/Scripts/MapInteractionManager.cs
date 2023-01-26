@@ -92,6 +92,25 @@ public class MapInteractionManager : MonoBehaviour
 
             MapManager.instance.AddTile(cell);
         }
+
+        foreach(var seeker in state.Seekers) 
+        {
+            var q = System.Convert.ToInt16(seeker.Location[1].Tile.Coords[1], 16);
+            var r = System.Convert.ToInt16(seeker.Location[1].Tile.Coords[2], 16);
+            var s = System.Convert.ToInt16(seeker.Location[1].Tile.Coords[3], 16);
+
+            var cellPosCube = new Vector3Int(q,r,s);
+            // var cellPosOddR = grid.CubeToGrid(cellPosCube);
+
+            var cell = new MapManager.MapCell {
+                cubicCoords = cellPosCube, 
+                typeID = 0, 
+                iconID = 2,
+                cellName = "Seeker"
+            };
+
+            MapManager.instance.AddTile(cell);
+        }
         
     }
 }

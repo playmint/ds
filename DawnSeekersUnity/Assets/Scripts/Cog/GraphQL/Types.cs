@@ -30,6 +30,8 @@ namespace Cog.GraphQL
         public uint Block { get; set; }
         [JsonProperty("tiles")]
         public List<Tile> Tiles { get; set; }
+        [JsonProperty("seekers")]
+        public List<Seeker> Seekers { get; set; }
         #endregion 
     }
     #endregion 
@@ -40,6 +42,22 @@ namespace Cog.GraphQL
         public List<string> Coords { get; set; }
         [JsonProperty("biome")]
         public Biome Biome { get; set; }
+        #endregion
+    }
+
+    public class Seeker {
+        #region members
+        [JsonProperty("location")]
+        public List<Location> Location { get; set; }
+        #endregion
+    }
+
+    public class Location {
+        #region members
+        [JsonProperty("time")]
+        public int Time { get; set; }
+        [JsonProperty("tile")]
+        public Tile Tile { get; set; }
         #endregion
     }
 
