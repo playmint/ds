@@ -12,6 +12,15 @@ namespace Cog.GraphQL
     }
     #endregion
 
+    #region FetchStateQuery
+    public class OnStateSubscription {
+        #region members
+        [JsonProperty("state")]
+        public State State { get; set; }
+        #endregion
+    }
+    #endregion
+
     #region Game
     public class Game {
         #region members

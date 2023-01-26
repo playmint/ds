@@ -34,5 +34,13 @@ namespace Cog.GraphQL
         }
         ";
 
+        public static string OnStateSubscription = StateFragment + @"
+        subscription OnState {
+            state(gameID: ""latest"") {
+                ...stateFragment
+            }
+        }
+        ";
+
     }
 }

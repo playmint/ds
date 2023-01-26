@@ -688,6 +688,7 @@ GameObject:
   m_Component:
   - component: {fileID: 563656379}
   - component: {fileID: 563656378}
+  - component: {fileID: 563656380}
   m_Layer: 0
   m_Name: GraphQLClient
   m_TagString: Untagged
@@ -730,6 +731,39 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &563656380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 563656377}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1068023178, guid: 73fa9274496e3104388db8cbb0646d94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: 
+  Exception: 
+  Timestamp: 
+  LogMessages: 0
+  LogExceptions: 1
+  Url: http://localhost:8080/query
+  Headers: []
+  UseThreadPool: 0
+  ReconnectDelaySeconds: 5
+  ReconnectCountDown: 0
+  SubprotocolVersion: 0
+  AwsAppSync: 0
+  AwsAppSyncAuth: 
+  Connect: 1
+  Connected: 0
+  ConnectionAcknowledged: 0
+  ConnectionError: 0
+  ConnectionTerminated: 0
+  KeepAliveTime: 
+  ActiveQueries: 0
+  IncomingMessagesPerSecond: 0
 --- !u!1 &578448245
 GameObject:
   m_ObjectHideFlags: 0

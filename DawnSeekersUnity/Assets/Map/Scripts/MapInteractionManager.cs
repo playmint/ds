@@ -14,12 +14,17 @@ public class MapInteractionManager : MonoBehaviour
 
     Plane m_Plane;
 
+    private bool _hasStateUpdated;
+
     private void Start()
     {
         m_Plane = new Plane(Vector3.forward,0);
 
         Cog.PluginController.Instance.StateUpdated += OnStateUpdated;
-        Cog.PluginController.Instance.FetchState();
+        if (Cog.PluginController.Instance.State != null) 
+        {
+            OnStateUpdated(Cog.PluginController.Instance.State);
+        }
     }
 
     private void Update()
@@ -41,35 +46,18 @@ public class MapInteractionManager : MonoBehaviour
         {
             MapClicked();
         }
+
+        // As state events occur on a separate thread, the tilemap cannot be updated as a side effect
+        // of the event therefore the event will set a flag and then visual state update happens as part of the main thread
+        if (_hasStateUpdated) 
+        {
+            Debug.Log("State Updated!!");
+            RenderState(Cog.PluginController.Instance.State);
+            _hasStateUpdated = false;
+        }
     }
 
-    void MapClicked()
-    {
-        CurrentSelectedCell = CurrentMouseCell;
-        selectedMarker1.gameObject.SetActive(true);
-        if (!MapManager.isMakingMove)
-        {
-            MapManager.isMakingMove = true;
-            selectedMarker2.gameObject.SetActive(false);
-            selectedMarker1.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
-        }
-        else
-        {
-            selectedMarker2.gameObject.SetActive(true);
-            selectedMarker2.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
-            MapManager.isMakingMove = false;
-        }
-        var cellPosOddR = MapManager.instance.grid.WorldToCell(cursor.position);
-        var cellPosCube = GridExtensions.GridToCube(cellPosOddR);
-        var cellPosOddRConvert = GridExtensions.CubeToGrid(cellPosCube);
-        Debug.Log("Cell Odd r coords: " + cellPosOddR);
-        Debug.Log("Cell Cube coords " + cellPosCube );
-        Debug.Log("Cell Clicked at position " + GridExtensions.GridToCube(MapManager.instance.grid.WorldToCell(cursor.position)));
-
-        Cog.PluginController.Instance.OnTileClick(cellPosCube);
-    }
-
-    private void OnStateUpdated(State state)
+    void RenderState(State state) 
     {
         Debug.Log("State Updated!!");
         foreach(var tile in state.Tiles)
@@ -111,6 +99,36 @@ public class MapInteractionManager : MonoBehaviour
 
             MapManager.instance.AddTile(cell);
         }
-        
+    }
+
+    void MapClicked()
+    {
+        CurrentSelectedCell = CurrentMouseCell;
+        selectedMarker1.gameObject.SetActive(true);
+        if (!MapManager.isMakingMove)
+        {
+            MapManager.isMakingMove = true;
+            selectedMarker2.gameObject.SetActive(false);
+            selectedMarker1.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
+        }
+        else
+        {
+            selectedMarker2.gameObject.SetActive(true);
+            selectedMarker2.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
+            MapManager.isMakingMove = false;
+        }
+        var cellPosOddR = MapManager.instance.grid.WorldToCell(cursor.position);
+        var cellPosCube = GridExtensions.GridToCube(cellPosOddR);
+        var cellPosOddRConvert = GridExtensions.CubeToGrid(cellPosCube);
+        Debug.Log("Cell Odd r coords: " + cellPosOddR);
+        Debug.Log("Cell Cube coords " + cellPosCube );
+        Debug.Log("Cell Clicked at position " + GridExtensions.GridToCube(MapManager.instance.grid.WorldToCell(cursor.position)));
+
+        Cog.PluginController.Instance.OnTileClick(cellPosCube);
+    }
+
+    private void OnStateUpdated(State state)
+    {
+        _hasStateUpdated = true;        
     }
 }
