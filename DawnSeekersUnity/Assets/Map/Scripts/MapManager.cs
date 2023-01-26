@@ -5,6 +5,10 @@ using UnityEngine.Tilemaps;
 
 public class MapManager : MonoBehaviour
 {
+    public static MapManager instance;
+    public static bool isMakingMove;
+
+
     public struct MapCell
     {
         public Vector3Int cubicCoords;
@@ -13,10 +17,17 @@ public class MapManager : MonoBehaviour
         public string cellName;
     }
 
+    public Grid grid;
+
     [SerializeField]
     private Tilemap _tilemap;
     [SerializeField]
     private Tile[] _tileTypes;
+
+    private void Awake()
+    {
+        instance = this;
+    }
 
     public void ReceiveMapData()
     {

@@ -5,9 +5,6 @@ using UnityEngine;
 public class IconManager : MonoBehaviour
 {
     [SerializeField]
-    private Grid _grid;
-
-    [SerializeField]
     private GameObject _iconPrefab;
 
     [SerializeField]
@@ -23,7 +20,7 @@ public class IconManager : MonoBehaviour
     public void CreateMapIcon(MapManager.MapCell cell)
     {
         GameObject icon = Instantiate(_iconPrefab, transform);
-        icon.transform.position = _grid.CellToWorld(GridExtensions.CubeToGrid(cell.cubicCoords));
+        icon.transform.position = MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(cell.cubicCoords));
         _spawnedIcons.Add(icon.GetComponent<IconController>());
         _spawnedIcons[_spawnedIcons.Count - 1].Setup(_iconList.icons[cell.iconID],cell.cellName);
     }
