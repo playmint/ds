@@ -45,6 +45,7 @@ public class MapInteractionManager : MonoBehaviour
         if (!MapManager.isMakingMove)
         {
             MapManager.isMakingMove = true;
+            selectedMarker2.gameObject.SetActive(false);
             selectedMarker1.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
         }
         else
