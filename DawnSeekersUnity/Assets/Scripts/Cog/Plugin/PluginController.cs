@@ -16,6 +16,11 @@ namespace Cog
         [SerializeField]
         private string _gameID = "";
 
+        public State State {get; private set;}
+
+        // -- Events
+        public Action<State> StateUpdated;
+
         protected void Awake()
         {
             Instance = this;
@@ -63,15 +68,18 @@ namespace Cog
                         Debug.Log($"Raw response:" + response.Result.Data.ToString());
 
                         // Deserialise here
-                        var state = response.Result.Data.ToObject<FetchStateQuery>();
+                        var result = response.Result.Data.ToObject<FetchStateQuery>();
+                        UpdateState(result.Game.State);
                         
-                        Debug.Log($"Testing graphQL object. Game.State.Block: {state.Game.State.Block}");
-                        Debug.Log($"Testing graphQL object. Game.State.Tiles:");                        
-                        foreach (var tile in state.Game.State.Tiles)
-                        {
-                            Debug.Log(tile.Biome);
-                            Debug.Log($"zone: {tile.Coords[0]} q: {tile.Coords[1]} r: {tile.Coords[2]} s: {tile.Coords[3]}");
-                        }
+                        // -- Debug
+                        // Debug.Log($"Testing graphQL object. Game.State.Block: {result.Game.State.Block}");
+                        // Debug.Log($"Testing graphQL object. Game.State.Tiles:");                        
+                        // foreach (var tile in result.Game.State.Tiles)
+                        // {
+                        //     Debug.Log(tile.Biome);
+                        //     Debug.Log($"zone: {tile.Coords[0]} q: {tile.Coords[1]} r: {tile.Coords[2]} s: {tile.Coords[3]}");
+                        // }
+                        // -- //
 
                         break;
 
@@ -91,6 +99,15 @@ namespace Cog
                         throw new ArgumentOutOfRangeException();
                 }
             });
+        }
+
+        public void UpdateState(State state) 
+        {
+            State = state;
+            if (StateUpdated != null)
+            {
+                StateUpdated.Invoke(state);
+            }
         }
 
         public void OnTileClick(Vector3Int tileCubeCoords)

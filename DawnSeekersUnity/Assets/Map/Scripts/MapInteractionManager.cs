@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Cog.GraphQL;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class MapInteractionManager : MonoBehaviour
 {
@@ -15,6 +17,8 @@ public class MapInteractionManager : MonoBehaviour
     private void Start()
     {
         m_Plane = new Plane(Vector3.forward,0);
+
+        Cog.PluginController.Instance.StateUpdated += OnStateUpdated;
         Cog.PluginController.Instance.FetchState();
     }
 
@@ -63,5 +67,31 @@ public class MapInteractionManager : MonoBehaviour
         Debug.Log("Cell Clicked at position " + GridExtensions.GridToCube(MapManager.instance.grid.WorldToCell(cursor.position)));
 
         Cog.PluginController.Instance.OnTileClick(cellPosCube);
+    }
+
+    private void OnStateUpdated(State state)
+    {
+        Debug.Log("State Updated!!");
+        foreach(var tile in state.Tiles)
+        {
+            var q = System.Convert.ToInt16(tile.Coords[1], 16);
+            var r = System.Convert.ToInt16(tile.Coords[2], 16);
+            var s = System.Convert.ToInt16(tile.Coords[3], 16);
+            
+            var cellPosCube = new Vector3Int(q,r,s);
+            // var cellPosOddR = GridExtensions.CubeToGrid(cellPosCube);
+
+            // tilemap.SetTile(cellPosOddR, _tileRevealed);
+
+            var cell = new MapManager.MapCell {
+                cubicCoords = cellPosCube, 
+                typeID = 0, 
+                iconID = 0,
+                cellName = ""
+            };
+
+            MapManager.instance.AddTile(cell);
+        }
+        
     }
 }
