@@ -45,17 +45,19 @@ public class MapInteractionManager : MonoBehaviour
         if (!MapManager.isMakingMove)
         {
             MapManager.isMakingMove = true;
-        var cellPosOddR = grid.WorldToCell(cursor.position);
-        var cellPosCube = grid.GridToCube(cellPosOddR);
+        
         }
         else
         {
             selectedMarker2.gameObject.SetActive(true);
-        var cellPosOddRConvert = grid.CubeToGrid(cellPosCube);
+        
             MapManager.isMakingMove = false;
         }
+        var cellPosOddR = MapManager.instance.grid.WorldToCell(cursor.position);
+        var cellPosCube = GridExtensions.GridToCube(cellPosOddR);
+        var cellPosOddRConvert = GridExtensions.CubeToGrid(cellPosCube);
         Debug.Log("Cell Odd r coords: " + cellPosOddR);
         Debug.Log("Cell Cube coords " + cellPosCube );
-        Debug.Log("Cell Clicked at position " + GridExtensions.GridToCube(grid.WorldToCell(cursor.position)));
+        Debug.Log("Cell Clicked at position " + GridExtensions.GridToCube(MapManager.instance.grid.WorldToCell(cursor.position)));
     }
 }
