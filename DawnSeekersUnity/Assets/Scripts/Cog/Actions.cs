@@ -61,6 +61,28 @@ namespace Cog.Actions
             this.r = r;
             this.s = s;
         }
+    }
+    [Function("DEV_SPAWN_TILE")]
+    public class DevSpawnTileAction : FunctionMessage {
 
+        [Parameter("uint8", "_kind", 0)]
+        public uint kind { get; set; }
+
+        [Parameter("int16", "_q", 0)]
+        public int q { get; set; }
+
+        [Parameter("int16", "_r", 0)]
+        public int r { get; set; }
+
+        [Parameter("int16", "_s", 0)]
+        public int s { get; set; }
+
+        public DevSpawnTileAction(uint kind, int q, int r, int s)
+        {
+            this.kind = kind;
+            this.q = q;
+            this.r = r;
+            this.s = s;
+        }
     }
 }

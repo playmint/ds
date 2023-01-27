@@ -45,6 +45,10 @@ public class MapInteractionManager : MonoBehaviour
         {
             MapClicked();
         }
+        if (Input.GetMouseButtonDown(1))
+        {
+            MapClicked2();
+        }
 
         // As state events occur on a separate thread, the tilemap cannot be updated as a side effect
         // of the event therefore the event will set a flag and then visual state update happens as part of the main thread
@@ -92,7 +96,7 @@ public class MapInteractionManager : MonoBehaviour
             var cell = new MapManager.MapCell {
                 cubicCoords = cellPosCube, 
                 typeID = 0, 
-                iconID = 2,
+                iconID = (seeker.SeekerID == SeekerManager.Instance.Seeker.SeekerID)? 2 : 3,
                 cellName = "Seeker"
             };
 
@@ -129,6 +133,25 @@ public class MapInteractionManager : MonoBehaviour
         {
             var action = new Cog.Actions.MoveSeekerAction(
                 SeekerManager.Instance.Seeker.SeekerID,
+                cellPosCube.x,
+                cellPosCube.y,
+                cellPosCube.z
+            );
+            Cog.PluginController.Instance.DispatchAction(action.GetCallData());
+        }
+    }
+
+    void MapClicked2()
+    {
+        var cellPosOddR = MapManager.instance.grid.WorldToCell(cursor.position);
+        var cellPosCube = GridExtensions.GridToCube(cellPosOddR);
+
+        // --  Debug
+
+        if (SeekerManager.Instance.Seeker != null)
+        {
+            var action = new Cog.Actions.DevSpawnTileAction(
+                1,
                 cellPosCube.x,
                 cellPosCube.y,
                 cellPosCube.z
