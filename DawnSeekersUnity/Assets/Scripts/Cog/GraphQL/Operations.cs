@@ -42,5 +42,24 @@ namespace Cog.GraphQL
         }
         ";
 
+      public static string SigninDocument = @"
+        mutation signin($gameID: ID!, $session: String!, $auth: String!) {
+          signin(gameID: $gameID, session: $session, ttl: 1000, scope: ""0xffffffff"", authorization: $auth)
+        }
+        ";
+
+      public static string DispatchDocument = @"
+        mutation dispatch($gameID: ID!, $action: String!, $auth: String!) {
+            dispatch(
+                gameID: $gameID
+                action: $action
+                authorization: $auth
+            ) {
+                id
+                status
+            }
+        }
+        ";
+
     }
 }

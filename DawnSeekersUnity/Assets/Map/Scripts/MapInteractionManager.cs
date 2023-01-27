@@ -125,6 +125,11 @@ public class MapInteractionManager : MonoBehaviour
         Debug.Log("Cell Clicked at position " + GridExtensions.GridToCube(MapManager.instance.grid.WorldToCell(cursor.position)));
 
         Cog.PluginController.Instance.OnTileClick(cellPosCube);
+
+        if (SeekerManager.Instance.Seeker != null)
+        {
+            Cog.PluginController.Instance.DispatchAction("MOVE_SEEKER", SeekerManager.Instance.Seeker.SeekerID, cellPosCube.x, cellPosCube.y, cellPosCube.z);
+        }
     }
 
     private void OnStateUpdated(State state)

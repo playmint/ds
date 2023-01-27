@@ -56,6 +56,8 @@ namespace Cog.GraphQL
 
     public class Seeker {
         #region members
+        [JsonProperty("seekerID")]
+        public string SeekerID { get; set; }
         [JsonProperty("location")]
         public List<Location> Location { get; set; }
         #endregion
