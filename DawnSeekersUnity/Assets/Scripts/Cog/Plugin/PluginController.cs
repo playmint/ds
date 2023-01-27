@@ -3,7 +3,6 @@ using Cog.GraphQL;
 using GraphQL4Unity;
 using Newtonsoft.Json.Linq;
 using Cog.Account;
-using Nethereum.Util;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Contracts;
 using System;
@@ -57,7 +56,7 @@ namespace Cog
                 _clientWS.Connect = true;
             }
         }
-        public void DispatchAction(string actionName, params object[] args)
+        public void DispatchAction(byte[] action, params object[] args)
         {
             // Debug.Log($"PluginController::DispatchAction() actionName: {actionName} args:");
             // foreach(var arg in args) {
@@ -66,7 +65,7 @@ namespace Cog
 
 #if  UNITY_EDITOR
             // -- Directly dispatch the action via GraphQL
-            DirectDispatchAction(actionName, args);
+            DirectDispatchAction(action);
 #else
             // -- Send message up to shell and let it do the signing and sending
             Debug.Log("PluginController::DispatchAction() Sending Dispatch message...")
@@ -183,16 +182,11 @@ namespace Cog
             var sessionAddress = AccountManager.Instance.SessionPublicKey.HexToByteArray();
             Debug.Log("PluginController::AuthorizePublicKey(): " + sessionAddress.ToHex(true));
 
-            var signInMessage = Encoding.Unicode.GetBytes("You are signing in with session: ");
-            var authMessage = Sha3Keccack.Current.CalculateHash(
-                Encoding.Unicode.GetBytes($"\x19Ethereum Signed Message:\n{signInMessage.Length + 20}")
-                    .Concat(signInMessage)
-                    .Concat(sessionAddress)
-                    .ToArray()
-            );
+            var signInMessage = Encoding.UTF8.GetBytes("You are signing in with session: ");
+            var authMessage = signInMessage.Concat(sessionAddress).ToArray();
 
             // sign it and submit mutation
-            AccountManager.Instance.SignMessage(authMessage.ToString(), (signedMessage) =>
+            AccountManager.Instance.HashAndSignMessage(authMessage , (signedMessage) =>
             {
                 var gameID = (_gameID != "")? _gameID : DEFAULT_GAME_ID;
                 var variables = new JObject
@@ -244,71 +238,23 @@ namespace Cog
             Debug.LogError(error);
         }
 
-/*
-        const action = actions.encodeFunctionData(actionName, actionArgs);
-        const actionDigest = ethers.utils.arrayify(ethers.utils.keccak256(action));
-        const auth = await session.signMessage(actionDigest);
-        return client.mutate({ mutation: DispatchDocument, variables: { gameID, auth, action } }).then((res) => {
-            console.log('dispatched', actionName);
-            return res.data.dispatch;
-        });
-*/
-
-        private void DirectDispatchAction(string actionName, params object[] args)
+        private void DirectDispatchAction(byte[] actionBytes)
         {
-            // TODO: Use code reflection to get the action as they have decorators so should be possible?
-            switch (actionName)
+            Debug.Log("PluginController:DirectDispatchAction: " + actionBytes.ToHex(true));
+
+            AccountManager.Instance.HashAndSignSession(actionBytes, (auth) =>
             {
-                case "MOVE_SEEKER":
-                    var action = new Cog.Actions.MoveSeekerAction();
-                    action.sid = (string)args[0];
-                    action.q = (int)args[1];
-                    action.r = (int)args[2];
-                    action.s = (int)args[3];
-
-                    var actionBytes = action.GetCallData();
-                    // var actionDigest = Sha3Keccack.Current.CalculateHash(actionBytes);
-
-                    Debug.Log("PluginController:DirectDispatchAction: " + actionBytes.ToHex(true));
-
-                    AccountManager.Instance.HashAndSignSession(actionBytes, (auth) =>
-                    {
-                        var gameID = (_gameID != "")? _gameID : DEFAULT_GAME_ID;
-                        var variables = new JObject
-                        {
-                            {"gameID", gameID},
-                            {"action", actionBytes},
-                            {"auth", auth}
-                        };
-                        _client.ExecuteQuery(Operations.DispatchDocument, variables, (response) =>
-                        {
-                            switch (response.Type)
-                            {
-                                case MessageType.GQL_DATA:
-                                    DisplayMessage($"Data {response}");
-                                    Debug.Log(response.Result);
-                                    break;
-                                case MessageType.GQL_ERROR:
-                                    foreach (var error in response.Result.Errors)
-                                    {
-                                        DisplayError(error.ToString());
-                                    }
-                                    break;
-                                case MessageType.GQL_COMPLETE:
-                                    DisplayMessage($"Complete {response}");
-                                    break;
-                                case MessageType.GQL_EXCEPTION:
-                                    DisplayError($"Exception {response.Result}");
-                                    break;
-                                default:
-                                    throw new ArgumentOutOfRangeException();
-                            }
-                        });
-                    }, 
-                    DisplayError
-                    );
-                break;
-            }
+                var gameID = (_gameID != "")? _gameID : DEFAULT_GAME_ID;
+                var variables = new JObject
+                {
+                    {"gameID", gameID},
+                    {"action", actionBytes.ToHex(true)},
+                    {"auth", auth}
+                };
+                _clientWS.ExecuteQuery(Operations.DispatchDocument, variables, genericGqlHandler);
+            }, 
+            DisplayError
+            );
         }
 
         // -- LISTENERS
@@ -364,6 +310,31 @@ namespace Cog
         private void OnSocketClosed()
         {
             Debug.Log("PluginController: Socket closed");
+        }
+
+        private void genericGqlHandler(Message response) 
+        {
+            switch (response.Type)
+            {
+                case MessageType.GQL_DATA:
+                    DisplayMessage($"Data {response}");
+                    Debug.Log(response.Result);
+                    break;
+                case MessageType.GQL_ERROR:
+                    foreach (var error in response.Result.Errors)
+                    {
+                        DisplayError(error.ToString());
+                    }
+                    break;
+                case MessageType.GQL_COMPLETE:
+                    DisplayMessage($"Complete {response}");
+                    break;
+                case MessageType.GQL_EXCEPTION:
+                    DisplayError($"Exception {response.Result}");
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 

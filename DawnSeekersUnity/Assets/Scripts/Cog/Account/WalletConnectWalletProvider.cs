@@ -80,6 +80,14 @@ namespace Cog.Account
             );
         }
 
+        public void HashAndSignMessage(
+            byte[] message,
+            SignedCallBack signedCallBack,
+            ErrorCallBack errorCallBack
+        )
+        {
+        }
+
         public void WCSignedCallback(string sig)
         {
             _signedCallback(sig);

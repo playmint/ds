@@ -132,5 +132,13 @@ namespace Cog.Account
                 return null;
             }
         }
+
+        public void HashAndSignMessage(
+            byte[] message,
+            SignedCallBack signedCallBack,
+            ErrorCallBack errorCallBack
+        )
+        {
+        }
     }
 }

@@ -12,6 +12,12 @@ namespace Cog.Account
             SignedCallBack signedCallBack,
             ErrorCallBack errorCallBack
         );
+
+        public void HashAndSignMessage(
+            byte[] message,
+            SignedCallBack signedCallBack,
+            ErrorCallBack errorCallBack
+        );
         public string Account { get; }
     }
 }

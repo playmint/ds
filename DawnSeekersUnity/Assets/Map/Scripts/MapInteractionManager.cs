@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using Cog.GraphQL;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using Nethereum.Contracts;
 
 public class MapInteractionManager : MonoBehaviour
 {
@@ -128,7 +127,13 @@ public class MapInteractionManager : MonoBehaviour
 
         if (SeekerManager.Instance.Seeker != null)
         {
-            Cog.PluginController.Instance.DispatchAction("MOVE_SEEKER", SeekerManager.Instance.Seeker.SeekerID, cellPosCube.x, cellPosCube.y, cellPosCube.z);
+            var action = new Cog.Actions.MoveSeekerAction(
+                SeekerManager.Instance.Seeker.SeekerID,
+                cellPosCube.x,
+                cellPosCube.y,
+                cellPosCube.z
+            );
+            Cog.PluginController.Instance.DispatchAction(action.GetCallData());
         }
     }
 

@@ -1,8 +1,7 @@
 using Cog.GraphQL;
 using UnityEngine;
-using Nethereum.Util;
 using Nethereum.Hex.HexConvertors.Extensions;
-using System.Numerics;
+using Nethereum.Contracts;
 
 public class SeekerManager : MonoBehaviour
 {
@@ -33,7 +32,16 @@ public class SeekerManager : MonoBehaviour
         Seeker = state.Seekers.Find( seeker => seeker.SeekerID == seekerID );
         if (Seeker == null) 
         {
-            Debug.LogError("SeekerManager: No seeker found. Spawn a seeker!!");
+            Debug.Log("SeekerManager: No seeker found, spawning seeker: " + seekerID);
+            var action = new Cog.Actions.DevSpawnSeekerAction(
+                Cog.PluginController.Instance.Account,
+                seekerID,
+                0,
+                0,
+                0
+            );
+
+            Cog.PluginController.Instance.DispatchAction(action.GetCallData());
         }
         else
         {

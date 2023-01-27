@@ -43,6 +43,17 @@ namespace Cog.Account
             signedCallBack(signature1);
         }
 
+        public void HashAndSignMessage(
+            byte[] message,
+            SignedCallBack signedCallBack,
+            ErrorCallBack errorCallBack
+        )
+        {
+            var signer1 = new EthereumMessageSigner();
+            var signature1 = signer1.HashAndSign(message, _ethECKey);
+            signedCallBack(signature1);
+        }
+
         public string Account
         {
             get => _ethECKey.GetPublicAddress();
