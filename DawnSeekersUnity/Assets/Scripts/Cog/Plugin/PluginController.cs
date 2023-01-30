@@ -142,7 +142,6 @@ namespace Cog
                         // Debug.Log("GQL_DATA");
 
                         // Deserialise here
-                        Debug.Log(response.Result.Data);
                         var result = response.Result.Data.ToObject<OnStateSubscription>();
                         UpdateState(result.State);
 
@@ -175,18 +174,16 @@ namespace Cog
          */
         private void AuthorizePublicKey()
         {
-            Debug.Log("PluginController::AuthorizePublicKey()");
-
             // build a session auth message
-
             var sessionAddress = AccountManager.Instance.SessionPublicKey.HexToByteArray();
+
             Debug.Log("PluginController::AuthorizePublicKey(): " + sessionAddress.ToHex(true));
 
             var signInMessage = Encoding.UTF8.GetBytes("You are signing in with session: ");
             var authMessage = signInMessage.Concat(sessionAddress).ToArray();
 
             // sign it and submit mutation
-            AccountManager.Instance.HashAndSignMessage(authMessage , (signedMessage) =>
+            AccountManager.Instance.SignMessage(authMessage , (signedMessage) =>
             {
                 var gameID = (_gameID != "")? _gameID : DEFAULT_GAME_ID;
                 var variables = new JObject
@@ -240,7 +237,7 @@ namespace Cog
 
         private void DirectDispatchAction(byte[] actionBytes)
         {
-            Debug.Log("PluginController:DirectDispatchAction: " + actionBytes.ToHex(true));
+            // Debug.Log("PluginController:DirectDispatchAction: " + actionBytes.ToHex(true));
 
             AccountManager.Instance.HashAndSignSession(actionBytes, (auth) =>
             {
@@ -283,7 +280,6 @@ namespace Cog
         private void InitWalletProvider()
         {
             Debug.Log("PluginController::InitWalletProvider()");
-            // Debug.Log("Priv key: " + _privateKey);
             
             AccountManager.Instance.InitProvider(
                 WalletProviderEnum.PRIVATE_KEY,
@@ -303,7 +299,6 @@ namespace Cog
 
         private void OnPublicKeyAuthorized()
         {
-            Debug.Log("PluginController::OnPublicKeyAuthorized()");
             StartStateListener();
         }
 

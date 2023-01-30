@@ -30,7 +30,12 @@ public class SeekerManager : MonoBehaviour
         var seekerID = seekerIDBigInt.ToHex(false);
 
         Seeker = state.Seekers.Find( seeker => seeker.SeekerID == seekerID );
-        if (Seeker == null) 
+        if (Seeker != null) 
+        {
+            Debug.Log("SeekerManager: Seeker found: " + Seeker.SeekerID);
+        }
+#if  UNITY_EDITOR
+        else
         {
             Debug.Log("SeekerManager: No seeker found, spawning seeker: " + seekerID);
             var action = new Cog.Actions.DevSpawnSeekerAction(
@@ -43,9 +48,6 @@ public class SeekerManager : MonoBehaviour
 
             Cog.PluginController.Instance.DispatchAction(action.GetCallData());
         }
-        else
-        {
-            Debug.Log("SeekerManager: Seeker found: " + Seeker.SeekerID);
-        }
+#endif
     }
 }

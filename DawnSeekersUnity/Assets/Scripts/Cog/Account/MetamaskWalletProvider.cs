@@ -5,6 +5,7 @@ using Nethereum.Hex.HexTypes;
 using Nethereum.Unity.Rpc;
 using System.Numerics;
 using System;
+using System.Text;
 
 namespace Cog.Account
 {
@@ -90,12 +91,12 @@ namespace Cog.Account
         }
 
         public void SignMessage(
-            string message,
+            byte[] message,
             SignedCallBack signedCallBack,
             ErrorCallBack errorCallBack
         )
         {
-            StartCoroutine(PersonalSignUnityRequest(message, signedCallBack, errorCallBack));
+            StartCoroutine(PersonalSignUnityRequest(Encoding.UTF8.GetString(message), signedCallBack, errorCallBack));
         }
 
         private IEnumerator PersonalSignUnityRequest(
@@ -139,6 +140,7 @@ namespace Cog.Account
             ErrorCallBack errorCallBack
         )
         {
+            throw(new Exception("MetamaskWalletProvider::HashAndSignMessage not implemented"));
         }
     }
 }

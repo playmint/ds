@@ -54,7 +54,7 @@ public class MapInteractionManager : MonoBehaviour
         // of the event therefore the event will set a flag and then visual state update happens as part of the main thread
         if (_hasStateUpdated) 
         {
-            Debug.Log("State Updated!!");
+            Debug.Log("State Update");
             RenderState(Cog.PluginController.Instance.State);
             _hasStateUpdated = false;
         }
@@ -93,10 +93,11 @@ public class MapInteractionManager : MonoBehaviour
             var cellPosCube = new Vector3Int(q,r,s);
             // var cellPosOddR = grid.CubeToGrid(cellPosCube);
 
+            var isPlayerSeeker = (SeekerManager.Instance.Seeker != null && SeekerManager.Instance.Seeker.SeekerID == seeker.SeekerID);
             var cell = new MapManager.MapCell {
                 cubicCoords = cellPosCube, 
                 typeID = 0, 
-                iconID = (seeker.SeekerID == SeekerManager.Instance.Seeker.SeekerID)? 2 : 3,
+                iconID = isPlayerSeeker? 2 : 3,
                 cellName = "Seeker"
             };
 

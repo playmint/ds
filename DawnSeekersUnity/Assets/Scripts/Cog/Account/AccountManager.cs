@@ -99,7 +99,7 @@ namespace Cog.Account
         }
 
         public void SignMessage(
-            string message,
+            byte[] message,
             SignedCallBack signedCallBack,
             ErrorCallBack errorCallBack
         )
@@ -127,7 +127,7 @@ namespace Cog.Account
         }
 
         public void SignSession(
-            string message,
+            byte[] message,
             SignedCallBack signedCallBack,
             ErrorCallBack errorCallBack
         )

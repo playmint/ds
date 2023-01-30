@@ -8,7 +8,7 @@ namespace Cog.Account
     {
         public void Connect(ConnectedCallBack connectedCallBack, ErrorCallBack errorCallBack);
         public void SignMessage(
-            string message,
+            byte[] message,
             SignedCallBack signedCallBack,
             ErrorCallBack errorCallBack
         );

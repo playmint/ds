@@ -5,6 +5,7 @@ using Nethereum.Hex.HexTypes;
 using Nethereum.Unity.Rpc;
 using System.Numerics;
 using System;
+using System.Text;
 
 namespace Cog.Account
 {
@@ -66,14 +67,14 @@ namespace Cog.Account
         }
 
         public void SignMessage(
-            string message,
+            byte[] message,
             SignedCallBack signedCallBack,
             ErrorCallBack errorCallBack
         )
         {
             _signedCallback = signedCallBack;
             WalletConnectInterop.SignWC(
-                message,
+                Encoding.UTF8.GetString(message),
                 gameObject.name,
                 nameof(WCSignedCallback),
                 nameof(DisplayError)
