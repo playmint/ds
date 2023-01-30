@@ -5,8 +5,8 @@ using Nethereum.Contracts;
 
 public class MapInteractionManager : MonoBehaviour
 {
-    public static Vector3Int CurrentSelectedCell;
-    public static Vector3Int CurrentMouseCell;
+    public static Vector3Int CurrentSelectedCell; // Offset odd r coords
+    public static Vector3Int CurrentMouseCell; // Offset odd r coords
 
     [SerializeField]
     Transform cursor,selectedMarker1,selectedMarker2;
@@ -19,11 +19,15 @@ public class MapInteractionManager : MonoBehaviour
     {
         m_Plane = new Plane(Vector3.forward,0);
 
-        Cog.PluginController.Instance.StateUpdated += OnStateUpdated;
-        if (Cog.PluginController.Instance.State != null) 
+        Cog.PluginController.Instance.EventTileInteraction += OnTileInteraction;
+        Cog.PluginController.Instance.EventStateUpdated += OnStateUpdated;
+        if (Cog.PluginController.Instance.WorldState != null) 
         {
-            OnStateUpdated(Cog.PluginController.Instance.State);
+            OnStateUpdated(Cog.PluginController.Instance.WorldState);
         }
+
+        selectedMarker1.gameObject.SetActive(false);
+        selectedMarker2.gameObject.SetActive(false);
     }
 
     private void Update()
@@ -55,25 +59,17 @@ public class MapInteractionManager : MonoBehaviour
         if (_hasStateUpdated) 
         {
             Debug.Log("State Update");
-            RenderState(Cog.PluginController.Instance.State);
+            RenderState(Cog.PluginController.Instance.WorldState);
             _hasStateUpdated = false;
         }
     }
 
     void RenderState(State state) 
     {
-        Debug.Log("State Updated!!");
+        Debug.Log("Rending new state");
         foreach(var tile in state.Tiles)
         {
-            var q = System.Convert.ToInt16(tile.Coords[1], 16);
-            var r = System.Convert.ToInt16(tile.Coords[2], 16);
-            var s = System.Convert.ToInt16(tile.Coords[3], 16);
-            
-            var cellPosCube = new Vector3Int(q,r,s);
-            // var cellPosOddR = GridExtensions.CubeToGrid(cellPosCube);
-
-            // tilemap.SetTile(cellPosOddR, _tileRevealed);
-
+            var cellPosCube = TileHelper.GetTilePosCube(tile);
             var cell = new MapManager.MapCell {
                 cubicCoords = cellPosCube, 
                 typeID = 0, 
@@ -96,8 +92,8 @@ public class MapInteractionManager : MonoBehaviour
             var isPlayerSeeker = (SeekerManager.Instance.Seeker != null && SeekerManager.Instance.Seeker.SeekerID == seeker.SeekerID);
             var cell = new MapManager.MapCell {
                 cubicCoords = cellPosCube, 
-                typeID = 0, 
-                iconID = isPlayerSeeker? 2 : 3,
+                typeID = isPlayerSeeker? 2 : 3, 
+                iconID = 0,
                 cellName = "Seeker"
             };
 
@@ -107,39 +103,9 @@ public class MapInteractionManager : MonoBehaviour
 
     void MapClicked()
     {
-        CurrentSelectedCell = CurrentMouseCell;
-        selectedMarker1.gameObject.SetActive(true);
-        if (!MapManager.isMakingMove)
-        {
-            MapManager.isMakingMove = true;
-            selectedMarker2.gameObject.SetActive(false);
-            selectedMarker1.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
-        }
-        else
-        {
-            selectedMarker2.gameObject.SetActive(true);
-            selectedMarker2.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
-            MapManager.isMakingMove = false;
-        }
-        var cellPosOddR = MapManager.instance.grid.WorldToCell(cursor.position);
-        var cellPosCube = GridExtensions.GridToCube(cellPosOddR);
-        var cellPosOddRConvert = GridExtensions.CubeToGrid(cellPosCube);
-        Debug.Log("Cell Odd r coords: " + cellPosOddR);
-        Debug.Log("Cell Cube coords " + cellPosCube );
-        Debug.Log("Cell Clicked at position " + GridExtensions.GridToCube(MapManager.instance.grid.WorldToCell(cursor.position)));
-
-        Cog.PluginController.Instance.OnTileClick(cellPosCube);
-
-        if (SeekerManager.Instance.Seeker != null)
-        {
-            var action = new Cog.Actions.MoveSeekerAction(
-                SeekerManager.Instance.Seeker.SeekerID,
-                cellPosCube.x,
-                cellPosCube.y,
-                cellPosCube.z
-            );
-            Cog.PluginController.Instance.DispatchAction(action.GetCallData());
-        }
+        // CurrentMouseCell is using Odd R offset coords
+        var cellPosCube = GridExtensions.GridToCube(CurrentMouseCell);
+        Cog.PluginController.Instance.SendTileInteractionMsg(cellPosCube);
     }
 
     void MapClicked2()
@@ -158,6 +124,86 @@ public class MapInteractionManager : MonoBehaviour
                 cellPosCube.z
             );
             Cog.PluginController.Instance.DispatchAction(action.GetCallData());
+        }
+    }
+
+    private void MoveSeeker(Seeker seeker, Vector3Int cellPosCube)
+    {
+        var action = new Cog.Actions.MoveSeekerAction(
+            seeker.SeekerID,
+            cellPosCube.x,
+            cellPosCube.y,
+            cellPosCube.z
+        );
+        Cog.PluginController.Instance.DispatchAction(action.GetCallData());
+    }
+
+    // -- TODO: Obviously this won't scale, need to hold tiles in a dictionary  
+    private bool IsDiscoveredTile(Vector3Int cellPosCube)
+    {
+        if (Cog.PluginController.Instance.WorldState != null)
+        {
+            foreach(var tile in Cog.PluginController.Instance.WorldState.Tiles)
+            {
+                if (TileHelper.GetTilePosCube(tile) == cellPosCube) return true;
+            }
+        }
+
+        return false;
+    }
+
+    // -- LISTENERS
+
+    private void OnTileInteraction(Vector3Int cellPosCube)
+    {
+        // -- Can't select an undiscovered tile. We might need to for scouting in the future?
+        if (!IsDiscoveredTile(cellPosCube)) return;
+
+        CurrentSelectedCell = GridExtensions.CubeToGrid(cellPosCube);
+
+        bool isPlayerAtPosition = SeekerManager.Instance.IsPlayerAtPosition(cellPosCube);
+        if (isPlayerAtPosition)
+        {
+            if (MapManager.isMakingMove)
+            {
+                // Seeker already selected so deselect
+                MapManager.isMakingMove = false;
+
+                selectedMarker1.gameObject.SetActive(true);
+                selectedMarker2.gameObject.SetActive(false);
+            }
+            else
+            {
+                // Select the seeker
+                MapManager.isMakingMove = true;
+
+                selectedMarker1.gameObject.SetActive(true);
+                selectedMarker2.gameObject.SetActive(false);
+
+                selectedMarker1.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
+            }
+        }
+        else
+        {
+            // If a seeker is selected then show the destination selection
+            if (MapManager.isMakingMove && SeekerManager.Instance.Seeker != null)
+            {
+                // TODO: Show Marker 2 until the move has completed
+                // selectedMarker2.gameObject.SetActive(true);
+                // selectedMarker2.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
+                selectedMarker1.gameObject.SetActive(false);
+
+                MapManager.isMakingMove = false;
+
+                MoveSeeker(SeekerManager.Instance.Seeker, cellPosCube);
+            } 
+            else
+            {
+                selectedMarker1.gameObject.SetActive(true);
+                selectedMarker2.gameObject.SetActive(false);
+
+                selectedMarker1.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
+            }
         }
     }
 

@@ -140,7 +140,7 @@ namespace Cog.Account
             ErrorCallBack errorCallBack
         )
         {
-            throw(new Exception("MetamaskWalletProvider::HashAndSignMessage not implemented"));
+            throw(new NotImplementedException());
         }
     }
 }

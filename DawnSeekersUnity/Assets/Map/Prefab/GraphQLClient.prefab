@@ -70,7 +70,7 @@ MonoBehaviour:
   Timestamp: 
   LogMessages: 0
   LogExceptions: 1
-  Url: http://localhost:8080/query
+  Url: ws://localhost:8080/query
   Headers: []
   UseThreadPool: 0
   ReconnectDelaySeconds: 5

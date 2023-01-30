@@ -34,6 +34,10 @@ public class ParabolicLineController : MonoBehaviour
                 line.enabled = false;
             }
         }
+        else
+        {
+            line.enabled = false;
+        }
     }
 
     void DrawLine(Vector3 startPos, Vector3 endPos)

@@ -31,10 +31,11 @@ namespace Cog
 
         public string Account { get; private set; }
 
-        public State State { get; private set; }
+        public State WorldState { get; private set; }
 
         // -- Events
-        public Action<State> StateUpdated;
+        public Action<State> EventStateUpdated;
+        public Action<Vector3Int> EventTileInteraction;
 
         protected void Awake()
         {
@@ -91,9 +92,19 @@ namespace Cog
                     case MessageType.GQL_DATA:
                         // Debug.Log("GQL_DATA");
 
-                        // Deserialise here
-                        var result = response.Result.Data.ToObject<FetchStateQuery>();
-                        UpdateState(result.Game.State);
+                        try
+                        {
+                            // Deserialise here
+                            var result = response.Result.Data.ToObject<FetchStateQuery>();
+                            UpdateState(result.Game.State);
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogError("PluginController:: OnStateSubscription: Unable to deserialise state");
+                            Debug.Log(e);
+                            Debug.Log(response.Result);
+                        }
+
                         break;
 
                     case MessageType.GQL_ERROR:
@@ -116,10 +127,10 @@ namespace Cog
 
         public void UpdateState(State state) 
         {
-            State = state;
-            if (StateUpdated != null)
+            WorldState = state;
+            if (EventStateUpdated != null)
             {
-                StateUpdated.Invoke(state);
+                EventStateUpdated.Invoke(state);
             }
         }
 
@@ -142,8 +153,16 @@ namespace Cog
                         // Debug.Log("GQL_DATA");
 
                         // Deserialise here
-                        var result = response.Result.Data.ToObject<OnStateSubscription>();
-                        UpdateState(result.State);
+                        try
+                        {
+                            var result = response.Result.Data.ToObject<OnStateSubscription>();
+                            UpdateState(result.State);
+                        }
+                        catch
+                        {
+                            Debug.LogError("PluginController:: OnStateSubscription: Unable to deserialise state");
+                            Debug.Log(response.Result);
+                        }
 
                         break;
 
@@ -254,15 +273,30 @@ namespace Cog
             );
         }
 
-        // -- LISTENERS
+        // -- MESSAGE OUT
 
-        public void OnTileClick(Vector3Int tileCubeCoords)
+        public void SendTileInteractionMsg(Vector3Int tileCubeCoords)
         {
             // Debug.Log("PluginController::OnTileClick() tileCubeCoords: " + tileCubeCoords);
 
             //-- Send out message here
             // Debug.Log("PluginController::OnTileClick() Sending message TILE_INTERACTION");
+
+            // -- TODO: This should only be called when Unity is run in Editor mode. Need to implement message handling before I can do that
+            OnTileInteraction(tileCubeCoords);
         }
+
+        // -- MESSAGE IN
+
+        private void OnTileInteraction(Vector3Int tileCubeCoords)
+        {
+            if (EventTileInteraction != null)
+            {
+                EventTileInteraction.Invoke(tileCubeCoords);
+            }
+        }
+
+        // -- LISTENERS
 
         private void OnSocketOpened()
         {

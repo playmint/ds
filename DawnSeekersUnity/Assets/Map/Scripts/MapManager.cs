@@ -42,6 +42,7 @@ public class MapManager : MonoBehaviour
 
     public void AddTile(MapCell cell)
     {
+        Debug.Log($"MapManager::AddTile() Adding tile type: {cell.typeID} at: {cell.cubicCoords}");
         _tilemap.SetTile(GridExtensions.CubeToGrid(cell.cubicCoords), _tileTypes[cell.typeID]);
     }
 }

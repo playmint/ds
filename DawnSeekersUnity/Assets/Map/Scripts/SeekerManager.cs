@@ -2,6 +2,8 @@ using Cog.GraphQL;
 using UnityEngine;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Contracts;
+using System;
+using System;
 
 public class SeekerManager : MonoBehaviour
 {
@@ -16,12 +18,19 @@ public class SeekerManager : MonoBehaviour
 
     protected void Start()
     {
-        Cog.PluginController.Instance.StateUpdated += OnStateUpdated;
-        if (Cog.PluginController.Instance.State != null) 
+        Cog.PluginController.Instance.EventStateUpdated += OnStateUpdated;
+        if (Cog.PluginController.Instance.WorldState != null) 
         {
-            OnStateUpdated(Cog.PluginController.Instance.State);
+            OnStateUpdated(Cog.PluginController.Instance.WorldState);
         }
     }
+    
+    public bool IsPlayerAtPosition(Vector3Int cellPosCube)
+    {
+        return Seeker != null && TileHelper.GetTilePosCube(Seeker.Location[1].Tile) == cellPosCube;
+    }
+
+    // -- LISTENERS
 
     private void OnStateUpdated(State state)
     {
