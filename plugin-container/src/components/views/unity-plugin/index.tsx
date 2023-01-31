@@ -46,7 +46,7 @@ const UnityPlugin: FunctionComponent<UnityPluginProps> = (props: UnityPluginProp
             console.log(`plugin container: Sending message to Unity...`);
 
             broadcastMessage('EVENT_UNITY_TEST');
-            unityContext.send('RpcReceiver', 'OnTest');
+            unityContext.send('COG', 'OnTest');
         });
 
         return () => {

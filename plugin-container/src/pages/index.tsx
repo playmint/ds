@@ -23,6 +23,10 @@ const HomePage = () => {
                 case 'MSG_HELLO_CLICK':
                     console.log('Unity plugin container received hello click');
                     break;
+
+                case 'ready':
+                    console.log('Unity plugin container received ready');
+                    break;
             }
         };
 

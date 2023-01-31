@@ -9,11 +9,15 @@ using System;
 using System.Text;
 using System.Linq;
 using System.Collections;
+using System.Runtime.InteropServices;
 
 namespace Cog
 {
     public class PluginController : MonoBehaviour
     {
+        [DllImport("__Internal")]
+        private static extern void TestCallRPC();
+
         private const string DEFAULT_GAME_ID = "latest";
 
         public static PluginController Instance;
@@ -52,6 +56,11 @@ namespace Cog
 #else
             // TODO: Handle the 'ready' message from the shell
             OnReady("0xF6317cBEC2F62cF3da8CFaCE5Aef24B9DF58908b");
+#endif
+
+#if UNITY_WEBGL == true && UNITY_EDITOR == false
+            // Call out to JS Land
+            TestCallRPC();
 #endif
         }
 
@@ -407,6 +416,16 @@ namespace Cog
                 FetchState();
                 yield return new WaitForSeconds(2f);
             }
+        }
+
+        public void OnMessage()
+        {
+            Debug.Log("Message Received from JS land");
+        }
+
+        public void OnTest()
+        {
+            Debug.Log("Message Received from JS land OnTest");
         }
     }
 

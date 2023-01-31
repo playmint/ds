@@ -118,7 +118,7 @@ export const UnityContainerProvider = ({ children }: UnityContainerContextProvid
         setIsVisible(true);
         if (unityContext) {
             console.log('Resuming game');
-            unityContext.send('RpcReceiver', 'OnResumeGame');
+            // unityContext.send('RpcReceiver', 'OnResumeGame');
         }
     };
 
@@ -126,7 +126,7 @@ export const UnityContainerProvider = ({ children }: UnityContainerContextProvid
         setIsVisible(false);
         if (unityContext) {
             console.log('Pausing game');
-            unityContext.send('RpcReceiver', 'OnPauseGame');
+            // unityContext.send('RpcReceiver', 'OnPauseGame');
         }
     };
 
