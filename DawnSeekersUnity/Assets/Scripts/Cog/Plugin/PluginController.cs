@@ -69,7 +69,7 @@ namespace Cog
             DirectDispatchAction(action);
 #else
             // -- Send message up to shell and let it do the signing and sending
-            Debug.Log("PluginController::DispatchAction() Sending Dispatch message...")
+            Debug.Log("PluginController::DispatchAction() Sending Dispatch message...");
 #endif
         }
 

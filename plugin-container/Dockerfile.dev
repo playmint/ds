@@ -1,0 +1,12 @@
+
+# build
+FROM node:16.13.2-alpine as builder
+WORKDIR /app
+
+# dependencies
+RUN mkdir -p /app
+COPY ./package*.json /app/
+RUN	npm install
+
+# start
+CMD ["npm", "run", "dev"]
