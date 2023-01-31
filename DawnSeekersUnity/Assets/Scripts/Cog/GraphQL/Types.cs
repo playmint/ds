@@ -49,7 +49,7 @@ namespace Cog.GraphQL
         #region members
         [JsonProperty("coords")]
         public List<string> Coords { get; set; }
-        [JsonProperty("biome")]
+        [JsonProperty("biome", NullValueHandling = NullValueHandling.Ignore)]
         public Biome Biome { get; set; }
         #endregion
     }

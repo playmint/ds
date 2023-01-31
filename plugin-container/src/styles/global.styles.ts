@@ -3,13 +3,9 @@
 import { createGlobalStyle } from 'styled-components';
 import { colors } from './colors';
 import { resetStyles } from './reset.styles';
-import { baskervilleStyles } from './baskerville.font.styles';
-import { runeStyles } from './rune.font.styles';
 
 export const GlobalStyles = createGlobalStyle`
     ${resetStyles}
-    ${baskervilleStyles}
-    ${runeStyles}
     
     body {
         font-family: 'Baskerville', serif;

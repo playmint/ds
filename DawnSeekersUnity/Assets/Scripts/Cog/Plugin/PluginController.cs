@@ -8,6 +8,7 @@ using Nethereum.Contracts;
 using System;
 using System.Text;
 using System.Linq;
+using System.Collections;
 
 namespace Cog
 {
@@ -44,19 +45,50 @@ namespace Cog
 
         protected void Start()
         {
+            Debug.Log("PluginController::Start()");
+
+#if UNITY_EDITOR
+            InitWalletProvider();
+#else
+            // TODO: Handle the 'ready' message from the shell
+            OnReady("0xF6317cBEC2F62cF3da8CFaCE5Aef24B9DF58908b");
+#endif
+        }
+
+        // Is either trigged by READY message from shell or after the wallet is initialised if in editor
+        public void OnReady(string account)
+        {
+            Debug.Log("PluginController::OnReady() account: " + account);
+            Account = account;
+
             if (_client != null)
             {
-                _client.URL = "http://localhost:8080/query";
+                FetchState();
+
+#if UNITY_WEBGL
+                // NOTE: If in the editor but build set to WebGL, sockets don't work so we still poll
+                Debug.Log("Is Unity WEBGL");
+                StartCoroutine("PollStateUpdate");
+#endif
             }
 
+#if UNITY_EDITOR
+            Debug.Log("Is Unity editor");
             if (_clientWS != null)
             {
-                _clientWS.Url = "ws://localhost:8080/query";
                 _clientWS.OpenEvent += OnSocketOpened;
                 _clientWS.CloseEvent += OnSocketClosed;
                 _clientWS.Connect = true;
+                // NOTE: State listener is triggered after the socket is opened
             }
+            else if (_client != null)
+            {
+                Debug.Log("PluginController::OnReady() Falling back to http client for state updates");
+                StartCoroutine("PollStateUpdate");
+            }
+#endif
         }
+
         public void DispatchAction(byte[] action, params object[] args)
         {
             // Debug.Log($"PluginController::DispatchAction() actionName: {actionName} args:");
@@ -75,6 +107,8 @@ namespace Cog
 
         public void FetchState()
         {
+            // Debug.Log("PluginController:FetchState()");
+
             var gameID = "latest";
             if (_gameID != "") gameID = _gameID;
             
@@ -127,15 +161,20 @@ namespace Cog
 
         public void UpdateState(State state) 
         {
-            WorldState = state;
-            if (EventStateUpdated != null)
+            if (WorldState == null || WorldState.Block != state.Block)
             {
-                EventStateUpdated.Invoke(state);
+                WorldState = state;
+                if (EventStateUpdated != null)
+                {
+                    EventStateUpdated.Invoke(state);
+                }
             }
         }
 
         private void StartStateListener() 
         {
+            Debug.Log("PluginController::StartStateListener()");
+
             var gameID = (_gameID != "")? _gameID : DEFAULT_GAME_ID;
             
             var variables = new JObject
@@ -143,9 +182,16 @@ namespace Cog
                 {"gameID", gameID}
             };
 
-            _clientWS.ExecuteQuery(Operations.OnStateSubscription, variables, (response) =>
+            IGraphQL client;
+#if  UNITY_EDITOR
+            client = _clientWS;
+#else
+            client = _client;
+#endif
+
+            client.ExecuteQuery(Operations.OnStateSubscription, variables, (response) =>
             {
-                // Debug.Log($"Graph response: {response.Result.ToString()}");
+                Debug.Log($"Graph response: {response.Result.ToString()}");
 
                 switch (response.Type)
                 {
@@ -182,8 +228,6 @@ namespace Cog
                         throw new ArgumentOutOfRangeException();
                 }
             });
-
-            FetchState();
         }
 
         // -- AUTH FOR STANDALONE
@@ -277,7 +321,7 @@ namespace Cog
 
         public void SendTileInteractionMsg(Vector3Int tileCubeCoords)
         {
-            // Debug.Log("PluginController::OnTileClick() tileCubeCoords: " + tileCubeCoords);
+            Debug.Log("PluginController::OnTileClick() tileCubeCoords: " + tileCubeCoords);
 
             //-- Send out message here
             // Debug.Log("PluginController::OnTileClick() Sending message TILE_INTERACTION");
@@ -302,13 +346,7 @@ namespace Cog
         {
             Debug.Log("PluginController: Socket opened");
 
-#if  UNITY_EDITOR
-            // -- Authorise the public key to allow for state mutations from within the Unity editor
-            InitWalletProvider();
-#else
-            // -- State mutations handled by shell so skip auth and subscribe to state updates
             StartStateListener();
-#endif
         }
 
         private void InitWalletProvider()
@@ -322,8 +360,6 @@ namespace Cog
 
             AccountManager.Instance.ConnectedEvent += OnWalletConnect;
             AccountManager.Instance.Connect();
-
-            Account = AccountManager.Instance.Account;
         }
 
         private void OnWalletConnect()
@@ -333,7 +369,7 @@ namespace Cog
 
         private void OnPublicKeyAuthorized()
         {
-            StartStateListener();
+            OnReady(AccountManager.Instance.Account);
         }
 
         private void OnSocketClosed()
@@ -363,6 +399,13 @@ namespace Cog
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        IEnumerator PollStateUpdate() {
+            for(;;) {
+                FetchState();
+                yield return new WaitForSeconds(2f);
             }
         }
     }
