@@ -4,7 +4,6 @@ using GraphQL4Unity;
 using Newtonsoft.Json.Linq;
 using Cog.Account;
 using Nethereum.Hex.HexConvertors.Extensions;
-using Nethereum.Contracts;
 using System;
 using System.Text;
 using System.Linq;
@@ -16,7 +15,7 @@ namespace Cog
     public class PluginController : MonoBehaviour
     {
         [DllImport("__Internal")]
-        private static extern void TestCallRPC();
+        private static extern void DispatchActionEncodedRPC(string action);
 
         private const string DEFAULT_GAME_ID = "latest";
 
@@ -57,11 +56,6 @@ namespace Cog
             // TODO: Handle the 'ready' message from the shell
             OnReady("0xF6317cBEC2F62cF3da8CFaCE5Aef24B9DF58908b");
 #endif
-
-#if UNITY_WEBGL == true && UNITY_EDITOR == false
-            // Call out to JS Land
-            TestCallRPC();
-#endif
         }
 
         // Is either trigged by READY message from shell or after the wallet is initialised if in editor
@@ -98,19 +92,16 @@ namespace Cog
 #endif
         }
 
-        public void DispatchAction(byte[] action, params object[] args)
+        public void DispatchAction(byte[] action)
         {
-            // Debug.Log($"PluginController::DispatchAction() actionName: {actionName} args:");
-            // foreach(var arg in args) {
-            //     Debug.Log(arg);
-            // }
-
 #if  UNITY_EDITOR
             // -- Directly dispatch the action via GraphQL
             DirectDispatchAction(action);
-#else
+#elif UNITY_WEBGL
             // -- Send message up to shell and let it do the signing and sending
-            Debug.Log("PluginController::DispatchAction() Sending Dispatch message...");
+            var actionHex = action.ToHex(true);
+            // Debug.Log($"PluginController::DispatchAction() Sending Dispatch message len:{action.Length} action: " + actionHex);
+            DispatchActionEncodedRPC(actionHex);
 #endif
         }
 

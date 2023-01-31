@@ -14,6 +14,7 @@ export interface CogPluginContextStore {
     isReady: boolean;
     registerPlugin: (width: number, height: number, anchor: Anchor) => void;
     dispatchAction: (actionName: string, ...actionArgs: any) => void;
+    dispatchActionEncoded: (actionHex: string) => void;
     broadcastMessage: (eventName: string, ...eventArgs: any) => void;
 }
 
@@ -54,10 +55,21 @@ export const CogPluginProvider = ({ children, gameID, actions }: CogPluginContex
         if (!window.top) return;
         if (!actions) return;
 
+        // console.log(`CogPluginProvider.dispatch: gameID: ${gameID} actionName: ${actionName}`);
+
+        const action = actions.encodeFunctionData(actionName, actionArgs);
+
+        dispatchActionEncoded(action);
+    };
+
+    const dispatchActionEncoded = (action: string) => {
+        // todo handle being the top level window
+        if (!window.top) return;
+
+        // console.log(`CogPluginProvider.dispatchActionEncoded: action: ${action}`);
+
         // todo use the full url not just the path
         const url = window.location.pathname;
-        const action = actions.encodeFunctionData(actionName, actionArgs);
-        console.log(`CogPluginProvider.dispatch: gameID: ${gameID} actionName: ${actionName} action: ${action}`);
 
         window.top.postMessage(
             {
@@ -112,7 +124,8 @@ export const CogPluginProvider = ({ children, gameID, actions }: CogPluginContex
         isReady,
         registerPlugin,
         dispatchAction,
-        broadcastMessage
+        broadcastMessage,
+        dispatchActionEncoded
     };
     return <CogPluginContext.Provider value={store}>{children}</CogPluginContext.Provider>;
 };

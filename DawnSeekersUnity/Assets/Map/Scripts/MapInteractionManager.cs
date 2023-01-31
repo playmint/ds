@@ -1,7 +1,7 @@
 using Cog.GraphQL;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 using Nethereum.Contracts;
+using Nethereum.Hex.HexConvertors.Extensions;
 
 public class MapInteractionManager : MonoBehaviour
 {
@@ -135,6 +135,7 @@ public class MapInteractionManager : MonoBehaviour
             cellPosCube.y,
             cellPosCube.z
         );
+
         Cog.PluginController.Instance.DispatchAction(action.GetCallData());
     }
 

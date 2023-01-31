@@ -26,7 +26,7 @@ const UnityPlugin: FunctionComponent<UnityPluginProps> = (props: UnityPluginProp
     const { ...otherProps } = props;
     const router = useRouter();
     const { isLoading, progress, unityContext, showUnity, hideUnity } = useUnityContainerContext();
-    const { broadcastMessage } = useCogPlugin();
+    const { broadcastMessage, dispatchActionEncoded } = useCogPlugin();
 
     useEffect(() => {
         showUnity(unityContext);
@@ -39,6 +39,10 @@ const UnityPlugin: FunctionComponent<UnityPluginProps> = (props: UnityPluginProp
 
         unityContext.on('sceneLoaded', (sceneName: string) => {
             console.log(`plugin container: Received sceneLoaded event. sceneName: ${sceneName}`);
+        });
+
+        unityContext.on('dispatchActionEncoded', (actionHex: string) => {
+            dispatchActionEncoded(actionHex);
         });
 
         unityContext.on('testCall', () => {
