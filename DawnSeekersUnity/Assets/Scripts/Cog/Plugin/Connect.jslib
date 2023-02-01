@@ -10,6 +10,11 @@ mergeInto(LibraryManager.library, {
 			UTF8ToString(sceneName)
 		);
 	},
+	UnityReadyRPC: function () {
+		window.dispatchReactUnityEvent(
+			"unityReady"
+		);
+	},
 	DispatchActionEncodedRPC: function (action) {
 		window.dispatchReactUnityEvent(
 			"dispatchActionEncoded",

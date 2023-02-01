@@ -1,6 +1,6 @@
 /** @format */
 
-import { FunctionComponent, useEffect } from 'react';
+import { FunctionComponent, useEffect, useState } from 'react';
 import { ComponentProps } from '@app/types/component-props';
 import styled from 'styled-components';
 import { styles } from './unity-plugin.styles';
@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 import { useUnityContainerContext } from '@app/contexts/unity-container-provider';
 import { LoadingBar } from '@app/components/molecules/loading-bar';
 import { useCogPlugin } from '@app/contexts/cog-plugin-provider';
+import { Anchor } from '@app/types/anchor';
 
 // Stop Unity alerting error messages. gg unity
 window.alert = () => {};
@@ -26,40 +27,78 @@ const UnityPlugin: FunctionComponent<UnityPluginProps> = (props: UnityPluginProp
     const { ...otherProps } = props;
     const router = useRouter();
     const { isLoading, progress, unityContext, showUnity, hideUnity } = useUnityContainerContext();
-    const { broadcastMessage, dispatchActionEncoded } = useCogPlugin();
+    const { broadcastMessage, registerPlugin, dispatchActionEncoded } = useCogPlugin();
+    const [account, setAccount] = useState('');
+    const [isUnityReady, setIsUnityReady] = useState(false);
+
+    // -- Register plugin
+    useEffect(() => {
+        registerPlugin(500, 750, Anchor.BottomRight);
+    }, []);
+
+    // -- Messages from shell
+    useEffect(() => {
+        const handleMessage = (message: any) => {
+            // console.log(`message: `, message);
+            const { method, args } = message.data;
+            switch (method) {
+                case 'MSG_HELLO_CLICK': {
+                    console.log('Unity plugin container received hello click');
+                    break;
+                }
+
+                case 'ready': {
+                    const [account] = args;
+                    console.log('Unity container received ready. account: ', account);
+                    setAccount(account);
+                    break;
+                }
+            }
+        };
+
+        window.addEventListener('message', handleMessage);
+
+        return () => window.removeEventListener('message', handleMessage);
+    });
+
+    useEffect(() => {
+        if (account && unityContext) {
+            console.log('Unity plugin container sending OnReady to Unity');
+            unityContext.send('COG', 'OnReady', account);
+        }
+    }, [account, isUnityReady]);
 
     useEffect(() => {
         showUnity(unityContext);
     }, [unityContext]);
 
+    // -- Messages from Unity
     useEffect(() => {
         if (!unityContext) {
             return;
         }
 
-        unityContext.on('sceneLoaded', (sceneName: string) => {
-            console.log(`plugin container: Received sceneLoaded event. sceneName: ${sceneName}`);
+        unityContext.on('unityReady', () => {
+            setIsUnityReady(true);
         });
 
         unityContext.on('dispatchActionEncoded', (actionHex: string) => {
             dispatchActionEncoded(actionHex);
         });
 
+        unityContext.on('sceneLoaded', (sceneName: string) => {
+            console.log(`plugin container: Received sceneLoaded event. sceneName: ${sceneName}`);
+        });
+
         unityContext.on('testCall', () => {
             console.log(`plugin container: Received testCall event.`);
-            console.log(`plugin container: Sending message to Unity...`);
-
-            broadcastMessage('EVENT_UNITY_TEST');
-            unityContext.send('COG', 'OnTest');
         });
 
         return () => {
-            unityContext.removeEventListener('connectWallet');
             unityContext.removeEventListener('sceneLoaded');
+            unityContext.removeEventListener('registerWithShell');
+            unityContext.removeEventListener('dispatchActionEncoded');
             unityContext.removeEventListener('testCall');
-            // if (ethereum) {
-            //     ethereum.removeListener('accountsChanged', accountsChanged);
-            // }
         };
     }, [unityContext]);
 

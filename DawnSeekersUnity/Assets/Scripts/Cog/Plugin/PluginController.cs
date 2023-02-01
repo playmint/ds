@@ -16,6 +16,8 @@ namespace Cog
     {
         [DllImport("__Internal")]
         private static extern void DispatchActionEncodedRPC(string action);
+        [DllImport("__Internal")]
+        private static extern void UnityReadyRPC();
 
         private const string DEFAULT_GAME_ID = "latest";
 
@@ -52,9 +54,8 @@ namespace Cog
 
 #if UNITY_EDITOR
             InitWalletProvider();
-#else
-            // TODO: Handle the 'ready' message from the shell
-            OnReady("0xF6317cBEC2F62cF3da8CFaCE5Aef24B9DF58908b");
+#elif UNITY_WEBGL
+            UnityReadyRPC();
 #endif
         }
 
