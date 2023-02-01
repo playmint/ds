@@ -159,7 +159,7 @@ jobs:
           apps:
           - name: frontend
             image: ${{ secrets.AZURE_REGISTRY_URL }}/ds/frontend:git-${{ github.sha }}
-            port: 80
+            port: 3000
             replicas: ${{ inputs.FRONTEND_REPLICAS }}
             annotations:
               prometheus.io/scrape: "true"
