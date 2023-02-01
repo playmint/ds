@@ -107,7 +107,7 @@ jobs:
 
     - name: Prepare build context
       run: |
-        cp -a DawnSeekersUnity/Builds/. frontend/src/public/ds-unity
+        cp -a DawnSeekersUnity/Builds/. frontend/public/ds-unity
 
     - name: Build container
       uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
