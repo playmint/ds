@@ -22,7 +22,7 @@ fragment stateFragment on State {
 }
 
 query GetState {
-    game(id: "latest") {
+    game(id: "DAWNSEEKERS") {
         state {
             ...stateFragment
         }
