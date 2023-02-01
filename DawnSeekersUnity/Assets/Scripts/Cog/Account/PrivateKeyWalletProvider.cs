@@ -33,13 +33,24 @@ namespace Cog.Account
         }
 
         public void SignMessage(
-            string message,
+            byte[] message,
             SignedCallBack signedCallBack,
             ErrorCallBack errorCallBack
         )
         {
             var signer1 = new EthereumMessageSigner();
-            var signature1 = signer1.EncodeUTF8AndSign(message, _ethECKey);
+            var signature1 = signer1.Sign(message, _ethECKey); // Will add the Ethereum prefix to the message, hash then sign
+            signedCallBack(signature1);
+        }
+
+        public void HashAndSignMessage(
+            byte[] message,
+            SignedCallBack signedCallBack,
+            ErrorCallBack errorCallBack
+        )
+        {
+            var signer1 = new EthereumMessageSigner();
+            var signature1 = signer1.HashAndSign(message, _ethECKey); // Will hash the message before adding the Ethereum prefix, hash then sign
             signedCallBack(signature1);
         }
 

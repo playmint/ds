@@ -5,6 +5,7 @@ using Nethereum.Hex.HexTypes;
 using Nethereum.Unity.Rpc;
 using System.Numerics;
 using System;
+using System.Text;
 
 namespace Cog.Account
 {
@@ -90,12 +91,12 @@ namespace Cog.Account
         }
 
         public void SignMessage(
-            string message,
+            byte[] message,
             SignedCallBack signedCallBack,
             ErrorCallBack errorCallBack
         )
         {
-            StartCoroutine(PersonalSignUnityRequest(message, signedCallBack, errorCallBack));
+            StartCoroutine(PersonalSignUnityRequest(Encoding.UTF8.GetString(message), signedCallBack, errorCallBack));
         }
 
         private IEnumerator PersonalSignUnityRequest(
@@ -131,6 +132,15 @@ namespace Cog.Account
                 DisplayError("Metamask is not available, please install it");
                 return null;
             }
+        }
+
+        public void HashAndSignMessage(
+            byte[] message,
+            SignedCallBack signedCallBack,
+            ErrorCallBack errorCallBack
+        )
+        {
+            throw(new NotImplementedException());
         }
     }
 }

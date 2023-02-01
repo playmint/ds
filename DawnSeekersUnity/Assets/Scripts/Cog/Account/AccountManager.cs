@@ -99,7 +99,7 @@ namespace Cog.Account
         }
 
         public void SignMessage(
-            string message,
+            byte[] message,
             SignedCallBack signedCallBack,
             ErrorCallBack errorCallBack
         )
@@ -112,8 +112,22 @@ namespace Cog.Account
             _walletProvider.SignMessage(message, signedCallBack, errorCallBack);
         }
 
+        public void HashAndSignMessage(
+            byte[] message,
+            SignedCallBack signedCallBack,
+            ErrorCallBack errorCallBack
+        )
+        {
+            if (_walletProvider == null)
+            {
+                errorCallBack("No Wallet Connected");
+                return;
+            }
+            _walletProvider.HashAndSignMessage(message, signedCallBack, errorCallBack);
+        }
+
         public void SignSession(
-            string message,
+            byte[] message,
             SignedCallBack signedCallBack,
             ErrorCallBack errorCallBack
         )
@@ -124,6 +138,20 @@ namespace Cog.Account
                 return;
             }
             _sessionKeyWalletProvider.SignMessage(message, signedCallBack, errorCallBack);
+        }
+
+        public void HashAndSignSession(
+            byte[] messageBytes,
+            SignedCallBack signedCallBack,
+            ErrorCallBack errorCallBack
+        )
+        {
+            if (_sessionKeyWalletProvider == null)
+            {
+                errorCallBack("No Wallet Connected");
+                return;
+            }
+            _sessionKeyWalletProvider.HashAndSignMessage(messageBytes, signedCallBack, errorCallBack);
         }
     }
 }
