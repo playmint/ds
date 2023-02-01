@@ -1,50 +1,49 @@
-FROM node:16.13.2-alpine as builder
-WORKDIR /tmp
+# Install dependencies only when needed
+FROM node:16-alpine AS deps
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
 
-# dependencies
-RUN mkdir frontend
-COPY ./package*.json ./frontend/
-RUN	(cd frontend && npm install)
+# Install dependencies based on the preferred package manager
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+RUN npm ci
 
-# build config
-ARG NEXT_PUBLIC_CHAIN_ID
-ARG NEXT_PUBLIC_GOOGLE_TAG_MANAGER
-ARG NEXT_PUBLIC_ENABLE_BEST_LOOT_CALCULATION=1
-ARG NEXT_PUBLIC_MAINNET_RELAY_URL
-ARG NEXT_PUBLIC_RINKEBY_RELAY_URL
-ARG NEXT_TELEMETRY_DISABLED=1
+# Rebuild the source code only when needed
+FROM node:16-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
 
-# ensure all the required args exist
-RUN echo "checking build args" \
-	&& test -n "$NEXT_PUBLIC_CHAIN_ID" \
-	&& test -n "$NEXT_PUBLIC_GOOGLE_TAG_MANAGER" \
-	&& echo "ok"
+# Next.js collects completely anonymous telemetry data about general usage.
+# Learn more here: https://nextjs.org/telemetry
+# Uncomment the following line in case you want to disable telemetry during the build.
+ENV NEXT_TELEMETRY_DISABLED 1
 
-# build
-COPY . ./frontend
-RUN (cd frontend && npm run build)
+# If using npm comment out above and use below instead
+RUN npm run build
 
-# final image
-FROM nginx:1.21.5
-RUN rm -rf /usr/share/nginx/html
-COPY --from=builder /tmp/frontend/out /usr/share/nginx/html
-COPY unity-ui /usr/share/nginx/html/seeker-soul-minter
+# Production image, copy all the files and run next
+FROM node:16-alpine AS runner
+WORKDIR /app
 
-# nginx config for nextjs apps
-COPY ./redirects.conf /etc/nginx/redirects.conf
-RUN echo '                                               \
-	server_tokens off;                                   \
-	server {                                             \
-		listen       80;                                 \
-		root   /usr/share/nginx/html;                    \
-		include /etc/nginx/redirects.conf;               \
-		location /_next/static {                         \
-			add_header Cache-Control "max-age=31536000"; \
-		}                                                \
-		location / {                                     \
-			try_files $uri.html  $uri $uri/ /index.html; \
-			add_header Cache-Control "no-cache";         \
-		}                                                \
-	}                                                    \
-' > /etc/nginx/conf.d/default.conf
+ENV NODE_ENV production
+# Uncomment the following line in case you want to disable telemetry during runtime.
+# ENV NEXT_TELEMETRY_DISABLED 1
 
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/public ./public
+
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT 3000
+
+CMD ["node", "server.js"]

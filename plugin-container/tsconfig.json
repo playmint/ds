@@ -3,7 +3,10 @@
     "outDir": ".next",
     "module": "esnext",
     "target": "es5",
-    "lib": ["esnext", "dom"],
+    "lib": [
+      "esnext",
+      "dom"
+    ],
     "sourceMap": true,
     "allowJs": false,
     "alwaysStrict": true,
@@ -21,18 +24,26 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "esModuleInterop": true,
-    "typeRoots": ["node_modules/@types", "typings"],
-    "rootDirs": ["src"],
+    "typeRoots": [
+      "node_modules/@types",
+      "typings"
+    ],
+    "rootDirs": [
+      "src"
+    ],
     "baseUrl": "src",
     "paths": {
-      "@app/*": ["*"]
+      "@app/*": [
+        "*"
+      ]
     },
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "incremental": true
   },
   "include": [
     "next-env.d.ts",

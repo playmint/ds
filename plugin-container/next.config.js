@@ -1,5 +1,11 @@
 /** @format */
 
-module.exports = {
-    /* config options here */
+const nextConfig = {
+    reactStrictMode: false,
+    compiler: {
+        styledComponents: true
+    },
+    output: 'standalone'
 };
+
+module.exports = nextConfig;
