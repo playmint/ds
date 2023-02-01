@@ -69,15 +69,19 @@ public class MapInteractionManager : MonoBehaviour
         Debug.Log("Rending new state");
         foreach(var tile in state.Tiles)
         {
-            var cellPosCube = TileHelper.GetTilePosCube(tile);
-            var cell = new MapManager.MapCell {
-                cubicCoords = cellPosCube, 
-                typeID = 0, 
-                iconID = 0,
-                cellName = ""
-            };
+            if (tile.Biome != null)
+            {
+                var hasResource = TileHelper.HasResource(tile);
+                var cellPosCube = TileHelper.GetTilePosCube(tile);
+                var cell = new MapManager.MapCell {
+                    cubicCoords = cellPosCube, 
+                    typeID = hasResource? 4 : 0, 
+                    iconID = 0,
+                    cellName = ""
+                };
 
-            MapManager.instance.AddTile(cell);
+                MapManager.instance.AddTile(cell);
+            }
         }
 
         foreach(var seeker in state.Seekers) 
