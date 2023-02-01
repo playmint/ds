@@ -33,7 +33,7 @@ const UnityPlugin: FunctionComponent<UnityPluginProps> = (props: UnityPluginProp
 
     // -- Register plugin
     useEffect(() => {
-        registerPlugin(500, 750, Anchor.BottomRight);
+        registerPlugin(750, 500, Anchor.BottomRight);
     }, []);
 
     // -- Messages from shell
@@ -42,15 +42,18 @@ const UnityPlugin: FunctionComponent<UnityPluginProps> = (props: UnityPluginProp
             // console.log(`message: `, message);
             const { method, args } = message.data;
             switch (method) {
-                case 'MSG_HELLO_CLICK': {
-                    console.log('Unity plugin container received hello click');
-                    break;
-                }
-
                 case 'ready': {
                     const [account] = args;
-                    console.log('Unity container received ready. account: ', account);
+                    console.log('handle shell message: Unity container received ready. account: ', account);
                     setAccount(account);
+                    break;
+                }
+                case 'tileInteraction': {
+                    const [q, r, s] = args;
+                    console.log(
+                        `handle shell message: Unity container received tileInteraction. q: ${q} r: ${r} s: ${s}`
+                    );
+                    unityContext?.send('COG', 'OnTileInteraction', JSON.stringify({ q, r, s }));
                     break;
                 }
             }
@@ -90,6 +93,11 @@ const UnityPlugin: FunctionComponent<UnityPluginProps> = (props: UnityPluginProp
             console.log(`plugin container: Received sceneLoaded event. sceneName: ${sceneName}`);
         });
 
+        unityContext.on('tileInteraction', (q: number, r: number, s: number) => {
+            console.log(`plugin container: Received tileInteraction event. q: ${q} r: ${r} s: ${s} `);
+            broadcastMessage('tileInteraction', q, r, s);
+        });
+
         unityContext.on('testCall', () => {
             console.log(`plugin container: Received testCall event.`);
         });
@@ -98,6 +106,7 @@ const UnityPlugin: FunctionComponent<UnityPluginProps> = (props: UnityPluginProp
             unityContext.removeEventListener('sceneLoaded');
             unityContext.removeEventListener('registerWithShell');
             unityContext.removeEventListener('dispatchActionEncoded');
+            unityContext.removeEventListener('tileInteraction');
             unityContext.removeEventListener('testCall');
         };
     }, [unityContext]);

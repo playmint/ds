@@ -15,6 +15,14 @@ mergeInto(LibraryManager.library, {
 			"unityReady"
 		);
 	},
+	TileInteractionRPC: function (q, r, s) {
+		window.dispatchReactUnityEvent(
+			"tileInteraction",
+			q,
+			r,
+			s
+		);
+	},
 	DispatchActionEncodedRPC: function (action) {
 		window.dispatchReactUnityEvent(
 			"dispatchActionEncoded",

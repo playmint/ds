@@ -12,12 +12,20 @@ using System.Runtime.InteropServices;
 
 namespace Cog
 {
+    struct TileCubeCoords
+    {
+        public int q;
+        public int r;
+        public int s;
+    }
     public class PluginController : MonoBehaviour
     {
         [DllImport("__Internal")]
         private static extern void DispatchActionEncodedRPC(string action);
         [DllImport("__Internal")]
         private static extern void UnityReadyRPC();
+        [DllImport("__Internal")]
+        private static extern void TileInteractionRPC(int q, int r, int s);
 
         private const string DEFAULT_GAME_ID = "latest";
 
@@ -324,14 +332,22 @@ namespace Cog
         {
             Debug.Log("PluginController::OnTileClick() tileCubeCoords: " + tileCubeCoords);
 
-            //-- Send out message here
-            // Debug.Log("PluginController::OnTileClick() Sending message TILE_INTERACTION");
-
-            // -- TODO: This should only be called when Unity is run in Editor mode. Need to implement message handling before I can do that
+#if  UNITY_EDITOR
             OnTileInteraction(tileCubeCoords);
+#else
+            TileInteractionRPC(tileCubeCoords.x, tileCubeCoords.y, tileCubeCoords.z);
+#endif
         }
 
         // -- MESSAGE IN
+
+        private void OnTileInteraction(string tileCubeCoordsJson)
+        {
+            Debug.Log("OnTileInteraction(): " + tileCubeCoordsJson);
+            var tileCubeCoords = JsonUtility.FromJson<TileCubeCoords>(tileCubeCoordsJson);
+            Debug.Log("OnTileInteraction(): deserialsed: " + tileCubeCoords);
+            OnTileInteraction(new Vector3Int(tileCubeCoords.q, tileCubeCoords.r, tileCubeCoords.s));
+        }
 
         private void OnTileInteraction(Vector3Int tileCubeCoords)
         {
