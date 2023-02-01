@@ -29,8 +29,7 @@ export const CogPluginProvider = ({ children, gameID, actions }: CogPluginContex
         // todo handle being the top level window
         if (!window.top) return;
 
-        // NOTE: Perhaps not the best way of doing this but at least allows us to load from external urls
-        const url = window.location.pathname.length > 1 ? window.location.pathname : window.location.href;
+        const url = window.location.pathname;
 
         console.log('CogPluginProvider: registerPlugin() url:', url);
 
