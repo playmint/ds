@@ -27,7 +27,7 @@ namespace Cog
         [DllImport("__Internal")]
         private static extern void TileInteractionRPC(int q, int r, int s);
 
-        private const string DEFAULT_GAME_ID = "latest";
+        private const string DEFAULT_GAME_ID = "DAWNSEEKERS";
 
         public static PluginController Instance;
 
@@ -118,7 +118,7 @@ namespace Cog
         {
             // Debug.Log("PluginController:FetchState()");
 
-            var gameID = "latest";
+            var gameID = DEFAULT_GAME_ID;
             if (_gameID != "") gameID = _gameID;
             
             var variables = new JObject

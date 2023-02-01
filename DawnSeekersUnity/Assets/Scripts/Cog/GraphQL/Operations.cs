@@ -25,7 +25,7 @@ namespace Cog.GraphQL
         // ($gameID: ID!) 
         public static string FetchStateDocument = StateFragment + @"   
         query FetchState {
-            game(id: ""latest"") {
+            game(id: ""DAWNSEEKERS"") {
                 id
                 state {
                     ...stateFragment
@@ -36,7 +36,7 @@ namespace Cog.GraphQL
 
         public static string OnStateSubscription = StateFragment + @"
         subscription OnState {
-            state(gameID: ""latest"") {
+            state(gameID: ""DAWNSEEKERS"") {
                 ...stateFragment
             }
         }

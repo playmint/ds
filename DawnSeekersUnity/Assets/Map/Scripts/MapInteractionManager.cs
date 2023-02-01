@@ -117,8 +117,8 @@ public class MapInteractionManager : MonoBehaviour
 
         if (SeekerManager.Instance.Seeker != null)
         {
-            var action = new Cog.Actions.DevSpawnTileAction(
-                1,
+            var action = new Cog.Actions.ScoutSeekerAction(
+                SeekerManager.Instance.Seeker.SeekerID,
                 cellPosCube.x,
                 cellPosCube.y,
                 cellPosCube.z
