@@ -557,6 +557,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Icon_Player
       objectReference: {fileID: 0}
+    - target: {fileID: 4200293388350177078, guid: 87b00e9807c374871b1cd063b867ba6e,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87b00e9807c374871b1cd063b867ba6e, type: 3}
 --- !u!23 &485097293 stripped
@@ -581,6 +586,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Icon (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2167013614747121971, guid: d0edab06a40584c3c99d39f8057dffb4,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2167013614747121972, guid: d0edab06a40584c3c99d39f8057dffb4,
         type: 3}
@@ -1575,6 +1585,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Icon
+      objectReference: {fileID: 0}
+    - target: {fileID: 2167013614747121971, guid: d0edab06a40584c3c99d39f8057dffb4,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2167013614747121972, guid: d0edab06a40584c3c99d39f8057dffb4,
         type: 3}

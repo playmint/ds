@@ -85,4 +85,29 @@ namespace Cog.Actions
             this.s = s;
         }
     }
+
+    // function SCOUT_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
+    [Function("SCOUT_SEEKER")]
+    public class ScoutSeekerAction : FunctionMessage {
+
+        [Parameter("uint32", "_sid", 0)]
+        public string sid { get; set; }
+
+        [Parameter("int16", "_q", 0)]
+        public int q { get; set; }
+
+        [Parameter("int16", "_r", 0)]
+        public int r { get; set; }
+
+        [Parameter("int16", "_s", 0)]
+        public int s { get; set; }
+
+        public ScoutSeekerAction(string sid, int q, int r, int s)
+        {
+            this.sid = sid;
+            this.q = q;
+            this.r = r;
+            this.s = s;
+        }
+    }
 }
