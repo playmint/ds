@@ -50,7 +50,37 @@ namespace Cog.GraphQL
         [JsonProperty("coords")]
         public List<string> Coords { get; set; }
         [JsonProperty("biome", NullValueHandling = NullValueHandling.Ignore)]
-        public Biome Biome { get; set; }
+        public Biome? Biome { get; set; }
+        
+        [JsonProperty("bags")]
+        public List<Bag> Bags { get; set; }
+        #endregion
+    }
+
+    public class Bag {
+        #region members
+        [JsonProperty("id")]
+        public string ID { get; set; }
+        [JsonProperty("slots")]
+        public List<Slot> Slots { get; set; }
+        #endregion
+    }
+
+    public class Slot {
+        #region members
+        [JsonProperty("slot")]
+        public uint SlotKey { get; set; }
+        [JsonProperty("balance")]
+        public uint Balance { get; set; }
+        [JsonProperty("resource")]
+        public Resource Resource { get; set; }
+        #endregion
+    }
+
+    public class Resource {
+        #region members
+        [JsonProperty("id")]
+        public string ID { get; set; }
         #endregion
     }
 

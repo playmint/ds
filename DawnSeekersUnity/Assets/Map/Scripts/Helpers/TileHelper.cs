@@ -1,3 +1,4 @@
+using System;
 using Cog.GraphQL;
 using UnityEngine;
 
@@ -10,5 +11,10 @@ public class TileHelper
         var s = System.Convert.ToInt16(tile.Coords[3], 16);
 
         return new Vector3Int(q, r, s);
+    }
+
+    public static bool HasResource(Tile tile)
+    {
+        return tile.Bags.Find( bag => bag.Slots.Find( slot => slot.Balance > 0) != null ) != null;
     }
 }

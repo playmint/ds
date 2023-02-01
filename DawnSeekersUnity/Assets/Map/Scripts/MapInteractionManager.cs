@@ -2,6 +2,7 @@ using Cog.GraphQL;
 using UnityEngine;
 using Nethereum.Contracts;
 using Nethereum.Hex.HexConvertors.Extensions;
+using System.Collections.Generic;
 
 public class MapInteractionManager : MonoBehaviour
 {
@@ -67,34 +68,58 @@ public class MapInteractionManager : MonoBehaviour
     void RenderState(State state) 
     {
         Debug.Log("Rending new state");
+        
         foreach(var tile in state.Tiles)
         {
-            var cellPosCube = TileHelper.GetTilePosCube(tile);
-            var cell = new MapManager.MapCell {
-                cubicCoords = cellPosCube, 
-                typeID = 0, 
-                iconID = 0,
-                cellName = ""
-            };
+            if (tile.Biome != null)
+            {
+                var hasResource = TileHelper.HasResource(tile);
+                var cellPosCube = TileHelper.GetTilePosCube(tile);
+                var cell = new MapManager.MapCell {
+                    cubicCoords = cellPosCube, 
+                    typeID = hasResource? 4 : 0, 
+                    iconID = 0,
+                    cellName = ""
+                };
 
-            MapManager.instance.AddTile(cell);
+                MapManager.instance.AddTile(cell);
+            }
         }
+
+        var playerSeekerTilePos = new List<Vector3Int>();
 
         foreach(var seeker in state.Seekers) 
         {
-            var q = System.Convert.ToInt16(seeker.Location[1].Tile.Coords[1], 16);
-            var r = System.Convert.ToInt16(seeker.Location[1].Tile.Coords[2], 16);
-            var s = System.Convert.ToInt16(seeker.Location[1].Tile.Coords[3], 16);
-
-            var cellPosCube = new Vector3Int(q,r,s);
-            // var cellPosOddR = grid.CubeToGrid(cellPosCube);
+            // index 1 is destination location
+            var cellPosCube = TileHelper.GetTilePosCube(seeker.Location[1].Tile);
 
             var isPlayerSeeker = (SeekerManager.Instance.Seeker != null && SeekerManager.Instance.Seeker.SeekerID == seeker.SeekerID);
+            if (isPlayerSeeker)
+            {
+                // Render in next pass
+                playerSeekerTilePos.Add(cellPosCube);
+            }
+            else
+            {
+                var cell = new MapManager.MapCell {
+                    cubicCoords = cellPosCube, 
+                    typeID = 3, 
+                    iconID = 0,
+                    cellName = "Seeker"
+                };
+
+                MapManager.instance.AddTile(cell);
+            }
+        }
+
+        // -- Player's seekers
+        foreach(var seekerPos in playerSeekerTilePos)
+        {
             var cell = new MapManager.MapCell {
-                cubicCoords = cellPosCube, 
-                typeID = isPlayerSeeker? 2 : 3, 
+                cubicCoords = seekerPos, 
+                typeID = 2, 
                 iconID = 0,
-                cellName = "Seeker"
+                cellName = "Player Seeker"
             };
 
             MapManager.instance.AddTile(cell);
