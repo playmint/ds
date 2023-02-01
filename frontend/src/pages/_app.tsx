@@ -6,7 +6,7 @@ import { UnityContainerProvider } from '@app/contexts/unity-container-provider';
 import { CogPluginProvider } from '@app/contexts/cog-plugin-provider';
 
 function App({ Component, pageProps }: any) {
-    const gameID = 'latest';
+    const gameID = 'DAWNSEEKERS';
 
     return (
         <Fragment>

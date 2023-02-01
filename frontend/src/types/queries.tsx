@@ -499,7 +499,7 @@ export const StateFragmentFragmentDoc = gql`
 `;
 export const GetStateDocument = gql`
     query GetState {
-        game(id: "latest") {
+        game(id: "DAWNSEEKERS") {
             state {
                 ...stateFragment
             }
