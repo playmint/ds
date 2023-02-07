@@ -3,15 +3,14 @@ version: '3'
 services:
 
   contracts:
-    image: ghcr.io/playmint/ds-contracts:latest
+    image: playmint/ds-contracts:latest
     pull_policy: always
     restart: always
-    platform: linux/amd64
     ports:
-      - 3045:8545
+      - 8545:8545
 
-  cog-services:
-    image: ghcr.io/playmint/cog-services:latest
+  cog:
+    image: playmint/cog-services:latest
     pull_policy: always
     restart: always
     entrypoint:
@@ -32,6 +31,8 @@ services:
       INDEXER_PROVIDER_URL_HTTP: "http://contracts:8545"
       INDEXER_PROVIDER_URL_WS: "ws://contracts:8545"
     ports:
-      - 3080:8080
+      - 8080:8080
     depends_on:
       - contracts
+
+
