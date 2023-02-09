@@ -105,10 +105,6 @@ jobs:
         tags: |
           type=sha,enable=true,priority=100,prefix=git-,suffix=,format=long
 
-    - name: Prepare build context
-      run: |
-        cp -a DawnSeekersUnity/Builds/. frontend/public/ds-unity
-
     - name: Build container
       uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
       with:
