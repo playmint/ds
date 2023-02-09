@@ -105,10 +105,10 @@ export const UnityContainerProvider = ({ children }: UnityContainerContextProvid
         }
         const pluginName = 'ds-unity';
         const context = new UnityContext({
-            loaderUrl: `/${pluginName}/Build/Builds.loader.js`,
-            dataUrl: `/${pluginName}/Build/Builds.data`,
-            frameworkUrl: `/${pluginName}/Build/Builds.framework.js`,
-            codeUrl: `/${pluginName}/Build/Builds.wasm`
+            loaderUrl: `/${pluginName}/Build/ds-unity.loader.js`,
+            dataUrl: `/${pluginName}/Build/ds-unity.data`,
+            frameworkUrl: `/${pluginName}/Build/ds-unity.framework.js`,
+            codeUrl: `/${pluginName}/Build/ds-unity.wasm`
         });
         setUnityContext(context);
     };
