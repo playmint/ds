@@ -895,7 +895,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57459906212864552b1173753b8889ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _iconPrefab: {fileID: 2167013614747121971, guid: d0edab06a40584c3c99d39f8057dffb4,
+  _buildingIconPrefab: {fileID: 2167013614747121971, guid: d0edab06a40584c3c99d39f8057dffb4,
+    type: 3}
+  _seekerIconPrefab: {fileID: 4200293388350177078, guid: 87b00e9807c374871b1cd063b867ba6e,
     type: 3}
   _iconList: {fileID: 11400000, guid: 4531e5b43857942849c4ba116a1f3984, type: 2}
 --- !u!4 &583727436
@@ -1577,11 +1579,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2167013614155602720, guid: d0edab06a40584c3c99d39f8057dffb4,
-        type: 3}
-      propertyPath: m_renderer
-      value: 
-      objectReference: {fileID: 836048788}
     - target: {fileID: 2167013614747121971, guid: d0edab06a40584c3c99d39f8057dffb4,
         type: 3}
       propertyPath: m_Name
@@ -1649,12 +1646,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d0edab06a40584c3c99d39f8057dffb4, type: 3}
---- !u!23 &836048788 stripped
-MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 2167013614155602721, guid: d0edab06a40584c3c99d39f8057dffb4,
-    type: 3}
-  m_PrefabInstance: {fileID: 836048787}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &876533704
 GameObject:
   m_ObjectHideFlags: 0
@@ -2334,6 +2325,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 9128457702224198113, guid: 8a65ca644f5fc4faf88f204695f0a3c7,
+        type: 3}
+      propertyPath: ConnectionError
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9128457702224198113, guid: 8a65ca644f5fc4faf88f204695f0a3c7,
+        type: 3}
+      propertyPath: ConnectionTerminated
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9128457702224198113, guid: 8a65ca644f5fc4faf88f204695f0a3c7,
+        type: 3}
+      propertyPath: ConnectionAcknowledged
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9128457702224198116, guid: 8a65ca644f5fc4faf88f204695f0a3c7,
         type: 3}
       propertyPath: m_Name
@@ -2393,6 +2399,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9128457702224198119, guid: 8a65ca644f5fc4faf88f204695f0a3c7,
+        type: 3}
+      propertyPath: LogMessages
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8a65ca644f5fc4faf88f204695f0a3c7, type: 3}

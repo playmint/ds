@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2167013614155602735
 RectTransform:
   m_ObjectHideFlags: 0
@@ -306,6 +306,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _iconRenderer: {fileID: 2167013615873553285}
   _label: {fileID: 2167013614155602720}
+  _moveCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0.021317445
+      outSlope: 0.021317445
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.44254658
+    - serializedVersion: 3
+      time: 0.51635766
+      value: 0.5271025
+      inSlope: 3.002958
+      outSlope: 3.002958
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.059286393
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &2167013615873553284
 GameObject:
   m_ObjectHideFlags: 0
@@ -406,7 +439,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &3357422375005684620
 Transform:
   m_ObjectHideFlags: 0

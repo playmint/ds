@@ -81,7 +81,8 @@ public class MapInteractionManager : MonoBehaviour
                     iconID = 0,
                     cellName = ""
                 };
-
+                if(hasResource)
+                    IconManager.instance.CreateBuildingIcon(tile, cell);
                 MapManager.instance.AddTile(cell);
             }
         }
@@ -98,6 +99,15 @@ public class MapInteractionManager : MonoBehaviour
             {
                 // Render in next pass
                 playerSeekerTilePos.Add(cellPosCube);
+                var cell = new MapManager.MapCell {
+                    cubicCoords = cellPosCube, 
+                    typeID = 2, 
+                    iconID = 0,
+                    cellName = "Player Seeker"
+                };
+            
+                MapManager.instance.AddTile(cell);
+                IconManager.instance.CreateSeekerIcon(seeker, cell, true);
             }
             else
             {
@@ -107,7 +117,7 @@ public class MapInteractionManager : MonoBehaviour
                     iconID = 0,
                     cellName = "Seeker"
                 };
-
+                IconManager.instance.CreateSeekerIcon(seeker, cell, false);
                 MapManager.instance.AddTile(cell);
             }
         }
@@ -115,14 +125,7 @@ public class MapInteractionManager : MonoBehaviour
         // -- Player's seekers
         foreach(var seekerPos in playerSeekerTilePos)
         {
-            var cell = new MapManager.MapCell {
-                cubicCoords = seekerPos, 
-                typeID = 2, 
-                iconID = 0,
-                cellName = "Player Seeker"
-            };
-
-            MapManager.instance.AddTile(cell);
+            
         }
     }
 
