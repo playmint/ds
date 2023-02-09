@@ -899,6 +899,8 @@ MonoBehaviour:
     type: 3}
   _seekerIconPrefab: {fileID: 4200293388350177078, guid: 87b00e9807c374871b1cd063b867ba6e,
     type: 3}
+  _otherSeekerIconPrefab: {fileID: 7482230774540498691, guid: 9d7d926df89fb45b09a4b5b4afb48628,
+    type: 3}
   _iconList: {fileID: 11400000, guid: 4531e5b43857942849c4ba116a1f3984, type: 2}
 --- !u!4 &583727436
 Transform:
