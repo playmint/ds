@@ -7,12 +7,15 @@ public class IconController : MonoBehaviour
 {
     [SerializeField]
     private SpriteRenderer _iconRenderer;
+
     [SerializeField]
     private TextMeshPro _label;
+
     [SerializeField]
     private AnimationCurve _moveCurve;
 
-    private Transform _trans, _camTrans;
+    private Transform _trans,
+        _camTrans;
     private Vector3Int _currentCubeCoords;
 
     private void Awake()
@@ -30,7 +33,7 @@ public class IconController : MonoBehaviour
     {
         float t = 0;
         Vector3 startPos = _trans.position;
-        while(t<1)
+        while (t < 1)
         {
             t += Time.deltaTime;
             _trans.position = Vector3.Lerp(startPos, endPos, _moveCurve.Evaluate(t));
@@ -49,20 +52,28 @@ public class IconController : MonoBehaviour
     public void Setup(MapManager.MapCell cell)
     {
         _currentCubeCoords = cell.cubicCoords;
-        _trans.position = MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(_currentCubeCoords));
+        _trans.position = MapManager.instance.grid.CellToWorld(
+            GridExtensions.CubeToGrid(_currentCubeCoords)
+        );
     }
 
     public void CheckPosition(MapManager.MapCell cell)
     {
-        if(cell.cubicCoords != _currentCubeCoords)
+        if (cell.cubicCoords != _currentCubeCoords)
         {
             _currentCubeCoords = cell.cubicCoords;
-            StartCoroutine(SmoothMoveCR(MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(_currentCubeCoords))));
+            StartCoroutine(
+                SmoothMoveCR(
+                    MapManager.instance.grid.CellToWorld(
+                        GridExtensions.CubeToGrid(_currentCubeCoords)
+                    )
+                )
+            );
         }
     }
 
     public void DestroyIcon()
     {
-        Destroy(gameObject);// TODO: Add pooling
+        Destroy(gameObject); // TODO: Add pooling
     }
 }

@@ -7,7 +7,9 @@ public class IconManager : MonoBehaviour
     public static IconManager instance;
 
     [SerializeField]
-    private GameObject _buildingIconPrefab, _seekerIconPrefab, _otherSeekerIconPrefab;
+    private GameObject _buildingIconPrefab,
+        _seekerIconPrefab,
+        _otherSeekerIconPrefab;
 
     [SerializeField]
     private MapIconList _iconList;
@@ -29,9 +31,10 @@ public class IconManager : MonoBehaviour
     {
         if (!spawnedBuildingIcons.ContainsKey(cell.cubicCoords))
         {
-            IconController icon = Instantiate(_buildingIconPrefab, transform, true).GetComponent<IconController>();
+            IconController icon = Instantiate(_buildingIconPrefab, transform, true)
+                .GetComponent<IconController>();
             spawnedBuildingIcons.Add(cell.cubicCoords, icon);
-            icon.Setup(cell,_iconList.icons[cell.iconID],cell.cellName);
+            icon.Setup(cell, _iconList.icons[cell.iconID], cell.cellName);
         }
     }
 
@@ -40,10 +43,12 @@ public class IconManager : MonoBehaviour
         if (!spawnedSeekerIcons.ContainsKey(seeker.SeekerID))
         {
             IconController icon;
-            if(isPlayer)
-                icon = Instantiate(_seekerIconPrefab, transform, true).GetComponent<IconController>();
+            if (isPlayer)
+                icon = Instantiate(_seekerIconPrefab, transform, true)
+                    .GetComponent<IconController>();
             else
-                icon = Instantiate(_otherSeekerIconPrefab, transform, true).GetComponent<IconController>();
+                icon = Instantiate(_otherSeekerIconPrefab, transform, true)
+                    .GetComponent<IconController>();
             spawnedSeekerIcons.Add(seeker.SeekerID, icon);
             icon.Setup(cell);
         }
@@ -52,8 +57,6 @@ public class IconManager : MonoBehaviour
             spawnedSeekerIcons[seeker.SeekerID].CheckPosition(cell);
         }
     }
-
-
 
     //public void CreateMapIcon(MapManager.MapCell cell)
     //{
@@ -65,7 +68,7 @@ public class IconManager : MonoBehaviour
 
     public void ClearMapIcons()
     {
-        foreach(IconController icon in _spawnedIcons)
+        foreach (IconController icon in _spawnedIcons)
         {
             icon.DestroyIcon();
         }

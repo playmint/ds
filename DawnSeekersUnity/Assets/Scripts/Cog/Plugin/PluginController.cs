@@ -18,12 +18,15 @@ namespace Cog
         public int r;
         public int s;
     }
+
     public class PluginController : MonoBehaviour
     {
         [DllImport("__Internal")]
         private static extern void DispatchActionEncodedRPC(string action);
+
         [DllImport("__Internal")]
         private static extern void UnityReadyRPC();
+
         [DllImport("__Internal")]
         private static extern void TileInteractionRPC(int q, int r, int s);
 
@@ -41,7 +44,8 @@ namespace Cog
         private string _gameID = "";
 
         [SerializeField]
-        private string _privateKey = "0xc14c1284a5ff47ce38e2ad7a50ff89d55ca360b02cdf3756cdb457389b1da223";
+        private string _privateKey =
+            "0xc14c1284a5ff47ce38e2ad7a50ff89d55ca360b02cdf3756cdb457389b1da223";
 
         public string Account { get; private set; }
 
@@ -119,53 +123,57 @@ namespace Cog
             // Debug.Log("PluginController:FetchState()");
 
             var gameID = DEFAULT_GAME_ID;
-            if (_gameID != "") gameID = _gameID;
+            if (_gameID != "")
+                gameID = _gameID;
 
-            var variables = new JObject
-            {
-                {"gameID", gameID}
-            };
+            var variables = new JObject { { "gameID", gameID } };
 
-            _client.ExecuteQuery(Operations.FetchStateDocument, variables, (response) =>
-            {
-                // Debug.Log($"Graph response: {response.Result.ToString()}");
-
-                switch (response.Type)
+            _client.ExecuteQuery(
+                Operations.FetchStateDocument,
+                variables,
+                (response) =>
                 {
-                    case MessageType.GQL_DATA:
-                        // Debug.Log("GQL_DATA");
+                    // Debug.Log($"Graph response: {response.Result.ToString()}");
 
-                        try
-                        {
-                            // Deserialise here
-                            var result = response.Result.Data.ToObject<FetchStateQuery>();
-                            UpdateState(result.Game.State);
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.LogError("PluginController:: OnStateSubscription: Unable to deserialise state");
-                            Debug.Log(e);
-                            Debug.Log(response.Result);
-                        }
+                    switch (response.Type)
+                    {
+                        case MessageType.GQL_DATA:
+                            // Debug.Log("GQL_DATA");
 
-                        break;
+                            try
+                            {
+                                // Deserialise here
+                                var result = response.Result.Data.ToObject<FetchStateQuery>();
+                                UpdateState(result.Game.State);
+                            }
+                            catch (Exception e)
+                            {
+                                Debug.LogError(
+                                    "PluginController:: OnStateSubscription: Unable to deserialise state"
+                                );
+                                Debug.Log(e);
+                                Debug.Log(response.Result);
+                            }
 
-                    case MessageType.GQL_ERROR:
-                        Debug.Log("GQL_ERROR");
-                        break;
+                            break;
 
-                    case MessageType.GQL_COMPLETE:
-                        Debug.Log("GQL_COMPLETE");
+                        case MessageType.GQL_ERROR:
+                            Debug.Log("GQL_ERROR");
+                            break;
 
-                        break;
-                    case MessageType.GQL_EXCEPTION:
-                        Debug.Log("GQL_EXCEPTION");
+                        case MessageType.GQL_COMPLETE:
+                            Debug.Log("GQL_COMPLETE");
 
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                            break;
+                        case MessageType.GQL_EXCEPTION:
+                            Debug.Log("GQL_EXCEPTION");
+
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                 }
-            });
+            );
         }
 
         public void UpdateState(State state)
@@ -184,12 +192,9 @@ namespace Cog
         {
             Debug.Log("PluginController::StartStateListener()");
 
-            var gameID = (_gameID != "")? _gameID : DEFAULT_GAME_ID;
+            var gameID = (_gameID != "") ? _gameID : DEFAULT_GAME_ID;
 
-            var variables = new JObject
-            {
-                {"gameID", gameID}
-            };
+            var variables = new JObject { { "gameID", gameID } };
 
             IGraphQL client;
 #if  UNITY_EDITOR
@@ -198,45 +203,51 @@ namespace Cog
             client = _client;
 #endif
 
-            client.ExecuteQuery(Operations.OnStateSubscription, variables, (response) =>
-            {
-                Debug.Log($"Graph response: {response.Result.ToString()}");
-
-                switch (response.Type)
+            client.ExecuteQuery(
+                Operations.OnStateSubscription,
+                variables,
+                (response) =>
                 {
-                    case MessageType.GQL_DATA:
-                        // Debug.Log("GQL_DATA");
+                    Debug.Log($"Graph response: {response.Result.ToString()}");
 
-                        // Deserialise here
-                        try
-                        {
-                            var result = response.Result.Data.ToObject<OnStateSubscription>();
-                            UpdateState(result.State);
-                        }
-                        catch
-                        {
-                            Debug.LogError("PluginController:: OnStateSubscription: Unable to deserialise state");
-                            Debug.Log(response.Result);
-                        }
+                    switch (response.Type)
+                    {
+                        case MessageType.GQL_DATA:
+                            // Debug.Log("GQL_DATA");
 
-                        break;
+                            // Deserialise here
+                            try
+                            {
+                                var result = response.Result.Data.ToObject<OnStateSubscription>();
+                                UpdateState(result.State);
+                            }
+                            catch
+                            {
+                                Debug.LogError(
+                                    "PluginController:: OnStateSubscription: Unable to deserialise state"
+                                );
+                                Debug.Log(response.Result);
+                            }
 
-                    case MessageType.GQL_ERROR:
-                        foreach (var error in response.Result.Errors)
-                        {
-                            DisplayError(error.ToString());
-                        }
-                        break;
-                    case MessageType.GQL_COMPLETE:
-                        DisplayMessage($"Complete {response}");
-                        break;
-                    case MessageType.GQL_EXCEPTION:
-                        DisplayError($"Exception {response.Result}");
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                            break;
+
+                        case MessageType.GQL_ERROR:
+                            foreach (var error in response.Result.Errors)
+                            {
+                                DisplayError(error.ToString());
+                            }
+                            break;
+                        case MessageType.GQL_COMPLETE:
+                            DisplayMessage($"Complete {response}");
+                            break;
+                        case MessageType.GQL_EXCEPTION:
+                            DisplayError($"Exception {response.Result}");
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                 }
-            });
+            );
         }
 
         // -- AUTH FOR STANDALONE
@@ -255,46 +266,56 @@ namespace Cog
             var authMessage = signInMessage.Concat(sessionAddress).ToArray();
 
             // sign it and submit mutation
-            AccountManager.Instance.SignMessage(authMessage , (signedMessage) =>
-            {
-                var gameID = (_gameID != "")? _gameID : DEFAULT_GAME_ID;
-                var variables = new JObject
+            AccountManager.Instance.SignMessage(
+                authMessage,
+                (signedMessage) =>
                 {
-                    {"gameID", gameID},
-                    {"session", AccountManager.Instance.SessionPublicKey},
-                    {"auth", signedMessage},
-                };
-                _client.ExecuteQuery(Operations.SigninDocument, variables, (response) =>
-                {
-                    switch (response.Type)
+                    var gameID = (_gameID != "") ? _gameID : DEFAULT_GAME_ID;
+                    var variables = new JObject
                     {
-                        case MessageType.GQL_DATA:
-                            var success = bool.Parse(response.Result.Data["signin"]?.ToString() ?? string.Empty);
-
-                            if (success)
+                        { "gameID", gameID },
+                        { "session", AccountManager.Instance.SessionPublicKey },
+                        { "auth", signedMessage },
+                    };
+                    _client.ExecuteQuery(
+                        Operations.SigninDocument,
+                        variables,
+                        (response) =>
+                        {
+                            switch (response.Type)
                             {
-                                Debug.Log("PluginController: Successfully signed into COG");
-                                OnPublicKeyAuthorized();
-                            }
+                                case MessageType.GQL_DATA:
+                                    var success = bool.Parse(
+                                        response.Result.Data["signin"]?.ToString() ?? string.Empty
+                                    );
 
-                            break;
-                        case MessageType.GQL_ERROR:
-                            foreach (var error in response.Result.Errors)
-                            {
-                                DisplayError(error.ToString());
+                                    if (success)
+                                    {
+                                        Debug.Log("PluginController: Successfully signed into COG");
+                                        OnPublicKeyAuthorized();
+                                    }
+
+                                    break;
+                                case MessageType.GQL_ERROR:
+                                    foreach (var error in response.Result.Errors)
+                                    {
+                                        DisplayError(error.ToString());
+                                    }
+                                    break;
+                                case MessageType.GQL_COMPLETE:
+                                    DisplayMessage($"Complete {response}");
+                                    break;
+                                case MessageType.GQL_EXCEPTION:
+                                    DisplayError($"Exception {response.Result}");
+                                    break;
+                                default:
+                                    throw new ArgumentOutOfRangeException();
                             }
-                            break;
-                        case MessageType.GQL_COMPLETE:
-                            DisplayMessage($"Complete {response}");
-                            break;
-                        case MessageType.GQL_EXCEPTION:
-                            DisplayError($"Exception {response.Result}");
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                });
-            }, DisplayError);
+                        }
+                    );
+                },
+                DisplayError
+            );
         }
 
         private void DisplayMessage(object message)
@@ -311,18 +332,24 @@ namespace Cog
         {
             // Debug.Log("PluginController:DirectDispatchAction: " + actionBytes.ToHex(true));
 
-            AccountManager.Instance.HashAndSignSession(actionBytes, (auth) =>
-            {
-                var gameID = (_gameID != "")? _gameID : DEFAULT_GAME_ID;
-                var variables = new JObject
+            AccountManager.Instance.HashAndSignSession(
+                actionBytes,
+                (auth) =>
                 {
-                    {"gameID", gameID},
-                    {"action", actionBytes.ToHex(true)},
-                    {"auth", auth}
-                };
-                _clientWS.ExecuteQuery(Operations.DispatchDocument, variables, genericGqlHandler);
-            },
-            DisplayError
+                    var gameID = (_gameID != "") ? _gameID : DEFAULT_GAME_ID;
+                    var variables = new JObject
+                    {
+                        { "gameID", gameID },
+                        { "action", actionBytes.ToHex(true) },
+                        { "auth", auth }
+                    };
+                    _clientWS.ExecuteQuery(
+                        Operations.DispatchDocument,
+                        variables,
+                        genericGqlHandler
+                    );
+                },
+                DisplayError
             );
         }
 
@@ -370,10 +397,7 @@ namespace Cog
         {
             Debug.Log("PluginController::InitWalletProvider()");
 
-            AccountManager.Instance.InitProvider(
-                WalletProviderEnum.PRIVATE_KEY,
-                _privateKey
-            );
+            AccountManager.Instance.InitProvider(WalletProviderEnum.PRIVATE_KEY, _privateKey);
 
             AccountManager.Instance.ConnectedEvent += OnWalletConnect;
             AccountManager.Instance.Connect();
@@ -419,8 +443,10 @@ namespace Cog
             }
         }
 
-        IEnumerator PollStateUpdate() {
-            for(;;) {
+        IEnumerator PollStateUpdate()
+        {
+            for (; ; )
+            {
                 FetchState();
                 yield return new WaitForSeconds(2f);
             }
@@ -436,5 +462,4 @@ namespace Cog
             Debug.Log("Message Received from JS land OnTest");
         }
     }
-
 }

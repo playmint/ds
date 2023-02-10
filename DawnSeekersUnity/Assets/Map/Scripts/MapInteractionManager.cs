@@ -10,7 +10,9 @@ public class MapInteractionManager : MonoBehaviour
     public static Vector3Int CurrentMouseCell; // Offset odd r coords
 
     [SerializeField]
-    Transform cursor,selectedMarker1,selectedMarker2;
+    Transform cursor,
+        selectedMarker1,
+        selectedMarker2;
 
     Plane m_Plane;
 
@@ -18,7 +20,7 @@ public class MapInteractionManager : MonoBehaviour
 
     private void Start()
     {
-        m_Plane = new Plane(Vector3.forward,0);
+        m_Plane = new Plane(Vector3.forward, 0);
 
         Cog.PluginController.Instance.EventTileInteraction += OnTileInteraction;
         Cog.PluginController.Instance.EventStateUpdated += OnStateUpdated;
@@ -44,7 +46,9 @@ public class MapInteractionManager : MonoBehaviour
             Vector3 hitPoint = ray.GetPoint(enter);
 
             CurrentMouseCell = MapManager.instance.grid.WorldToCell(hitPoint);
-            cursor.position = MapManager.instance.grid.CellToWorld(MapManager.instance.grid.WorldToCell(hitPoint));
+            cursor.position = MapManager.instance.grid.CellToWorld(
+                MapManager.instance.grid.WorldToCell(hitPoint)
+            );
         }
         if (Input.GetMouseButtonDown(0))
         {
@@ -69,19 +73,20 @@ public class MapInteractionManager : MonoBehaviour
     {
         Debug.Log("Rending new state");
 
-        foreach(var tile in state.Tiles)
+        foreach (var tile in state.Tiles)
         {
             if (tile.Biome != null)
             {
                 var hasResource = TileHelper.HasResource(tile);
                 var cellPosCube = TileHelper.GetTilePosCube(tile);
-                var cell = new MapManager.MapCell {
+                var cell = new MapManager.MapCell
+                {
                     cubicCoords = cellPosCube,
-                    typeID = hasResource? 4 : 0,
+                    typeID = hasResource ? 4 : 0,
                     iconID = 0,
                     cellName = ""
                 };
-                if(hasResource)
+                if (hasResource)
                     IconManager.instance.CreateBuildingIcon(tile, cell);
                 MapManager.instance.AddTile(cell);
             }
@@ -89,17 +94,21 @@ public class MapInteractionManager : MonoBehaviour
 
         var playerSeekerTilePos = new List<Vector3Int>();
 
-        foreach(var seeker in state.Seekers)
+        foreach (var seeker in state.Seekers)
         {
             // index 1 is destination location
             var cellPosCube = TileHelper.GetTilePosCube(seeker.Location[1].Tile);
 
-            var isPlayerSeeker = (SeekerManager.Instance.Seeker != null && SeekerManager.Instance.Seeker.SeekerID == seeker.SeekerID);
+            var isPlayerSeeker = (
+                SeekerManager.Instance.Seeker != null
+                && SeekerManager.Instance.Seeker.SeekerID == seeker.SeekerID
+            );
             if (isPlayerSeeker)
             {
                 // Render in next pass
                 playerSeekerTilePos.Add(cellPosCube);
-                var cell = new MapManager.MapCell {
+                var cell = new MapManager.MapCell
+                {
                     cubicCoords = cellPosCube,
                     typeID = 2,
                     iconID = 0,
@@ -111,7 +120,8 @@ public class MapInteractionManager : MonoBehaviour
             }
             else
             {
-                var cell = new MapManager.MapCell {
+                var cell = new MapManager.MapCell
+                {
                     cubicCoords = cellPosCube,
                     typeID = 3,
                     iconID = 0,
@@ -123,10 +133,7 @@ public class MapInteractionManager : MonoBehaviour
         }
 
         // -- Player's seekers
-        foreach(var seekerPos in playerSeekerTilePos)
-        {
-
-        }
+        foreach (var seekerPos in playerSeekerTilePos) { }
     }
 
     void MapClicked()
@@ -172,9 +179,10 @@ public class MapInteractionManager : MonoBehaviour
     {
         if (Cog.PluginController.Instance.WorldState != null)
         {
-            foreach(var tile in Cog.PluginController.Instance.WorldState.Tiles)
+            foreach (var tile in Cog.PluginController.Instance.WorldState.Tiles)
             {
-                if (TileHelper.GetTilePosCube(tile) == cellPosCube) return true;
+                if (TileHelper.GetTilePosCube(tile) == cellPosCube)
+                    return true;
             }
         }
 
@@ -186,7 +194,8 @@ public class MapInteractionManager : MonoBehaviour
     private void OnTileInteraction(Vector3Int cellPosCube)
     {
         // -- Can't select an undiscovered tile. We might need to for scouting in the future?
-        if (!IsDiscoveredTile(cellPosCube)) return;
+        if (!IsDiscoveredTile(cellPosCube))
+            return;
 
         CurrentSelectedCell = GridExtensions.CubeToGrid(cellPosCube);
 
@@ -209,7 +218,9 @@ public class MapInteractionManager : MonoBehaviour
                 selectedMarker1.gameObject.SetActive(true);
                 selectedMarker2.gameObject.SetActive(false);
 
-                selectedMarker1.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
+                selectedMarker1.position = MapManager.instance.grid.CellToWorld(
+                    CurrentSelectedCell
+                );
             }
         }
         else
@@ -231,7 +242,9 @@ public class MapInteractionManager : MonoBehaviour
                 selectedMarker1.gameObject.SetActive(true);
                 selectedMarker2.gameObject.SetActive(false);
 
-                selectedMarker1.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
+                selectedMarker1.position = MapManager.instance.grid.CellToWorld(
+                    CurrentSelectedCell
+                );
             }
         }
     }

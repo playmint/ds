@@ -38,7 +38,7 @@ public class SeekerManager : MonoBehaviour
         var seekerIDBigInt = accountBigInt & "0xffffffff".HexToBigInteger(false);
         var seekerID = seekerIDBigInt.ToHex(false);
 
-        Seeker = state.Seekers.Find( seeker => seeker.SeekerID == seekerID );
+        Seeker = state.Seekers.Find(seeker => seeker.SeekerID == seekerID);
         if (Seeker != null)
         {
             Debug.Log("SeekerManager: Seeker found: " + Seeker.SeekerID);
