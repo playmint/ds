@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: 2a27954c0e6095e4f89a998aa0724f6a, type: 2}
+  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.09013698, g: 0.15267068, b: 0.19786632, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -182,7 +182,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 9ad3bb60d7e54d94c90dbd521f29e1ef, type: 3}
-  m_Color: {r: 0.6666667, g: 0.9362805, b: 1, a: 1}
+  m_Color: {r: 0.7216981, g: 0.89991426, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -1107,8 +1107,8 @@ Camera:
   m_GameObject: {fileID: 681872495}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.111249544, g: 0.14566272, b: 0.18867922, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.2, g: 0.28235295, b: 0.42745098, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1374,7 +1374,7 @@ LineRenderer:
   - {x: 0, y: 1, z: 0}
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 0.15824479
+    widthMultiplier: 0.07118297
     widthCurve:
       serializedVersion: 2
       m_Curve:
@@ -1392,8 +1392,8 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 1, g: 1, b: 1, a: 0.30980393}
-      key1: {r: 0, g: 0.48820448, b: 1, a: 1}
+      key0: {r: 1, g: 1, b: 1, a: 0.7058824}
+      key1: {r: 0.3537736, g: 0.66801685, b: 1, a: 1}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -1549,7 +1549,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 6da8d971b2cc2f5418472bad9888d8ec, type: 3}
-  m_Color: {r: 1, g: 0.84240025, b: 0.45882356, a: 1}
+  m_Color: {r: 0.7216981, g: 0.89991426, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Icon List
   m_EditorClassIdentifier: 
   icons:
-  - {fileID: 21300000, guid: 39f22e88ca92644a996e9d1184908a5c, type: 3}
-  - {fileID: 21300000, guid: 781e3b213c36e40d79b6602ce0b0511a, type: 3}
+  - {fileID: 21300000, guid: f3c5c6a786274804f9653ce5376ef92d, type: 3}
+  - {fileID: 21300000, guid: 9f05c4157b2e9eb42bd099bd3b821330, type: 3}
   - {fileID: 21300000, guid: 7d94ad3a0feb6401e94228f3e2545493, type: 3}
   - {fileID: 21300000, guid: d9d9fc981b66a44719b3be4aa2e2575a, type: 3}
   - {fileID: 21300000, guid: e383e6ef9fa214f9aad1624cf8a82995, type: 3}

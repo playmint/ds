@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Tile_Seeker
   m_EditorClassIdentifier: 
   m_Sprite: {fileID: 21300000, guid: 72ba8c13f0a924645bafd5109095373b, type: 3}
-  m_Color: {r: 0.33459416, g: 0.6886792, b: 0.3743939, a: 1}
+  m_Color: {r: 0.54369885, g: 0.6281467, b: 0.7735849, a: 1}
   m_Transform:
     e00: 1
     e01: 0
