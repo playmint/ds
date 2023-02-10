@@ -16,4 +16,4 @@ jobs:
         working-directory: DawnSeekersUnity
         run: |
           dotnet tool restore
-          dotnet csharpier --check
+          dotnet tool run dotnet-csharpier --check .
