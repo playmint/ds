@@ -5,7 +5,7 @@ using UnityEngine;
 public static class GridExtensions
 {
     // Maths pilfered from https://www.redblobgames.com/grids/hexagons/
-    
+
     // NOTE: Unity's grid uses Odd R offset coordinates
     public static Vector3Int GridToCube(Vector3Int gridCoords)
     {

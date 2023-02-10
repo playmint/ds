@@ -2,7 +2,7 @@ namespace Cog.GraphQL.Generated {
 
     public class GetAccountGQL {
       /// <summary>
-      /// GetAccountGQL.Request 
+      /// GetAccountGQL.Request
       /// <para>Required variables:<br/> { id=(string) }</para>
       /// <para>Optional variables:<br/> {  }</para>
       /// </summary>
@@ -18,7 +18,7 @@ namespace Cog.GraphQL.Generated {
       public static GraphQLRequest getGetAccountGQL() {
         return Request();
       }
-      
+
       public static string GetAccountDocument = @"
         query getAccount($id: String!) {
           account(id: $id) {
@@ -34,11 +34,11 @@ namespace Cog.GraphQL.Generated {
         }
         ";
     }
-    
+
 
     public class GetAccountsGQL {
       /// <summary>
-      /// GetAccountsGQL.Request 
+      /// GetAccountsGQL.Request
       /// <para>Required variables:<br/> {  }</para>
       /// <para>Optional variables:<br/> { owner=(string) }</para>
       /// </summary>
@@ -54,7 +54,7 @@ namespace Cog.GraphQL.Generated {
       public static GraphQLRequest getGetAccountsGQL() {
         return Request();
       }
-      
+
       public static string GetAccountsDocument = @"
         query getAccounts($owner: String) {
           accounts(owner: $owner) {
@@ -64,11 +64,11 @@ namespace Cog.GraphQL.Generated {
         }
         ";
     }
-    
+
 
     public class SignupGQL {
       /// <summary>
-      /// SignupGQL.Request 
+      /// SignupGQL.Request
       /// <para>Required variables:<br/> { account=(string) }</para>
       /// <para>Optional variables:<br/> {  }</para>
       /// </summary>
@@ -84,18 +84,18 @@ namespace Cog.GraphQL.Generated {
       public static GraphQLRequest getSignupGQL() {
         return Request();
       }
-      
+
       public static string SignupDocument = @"
         mutation signup($account: String!) {
           signup(account: $account)
         }
         ";
     }
-    
+
 
     public class SigninGQL {
       /// <summary>
-      /// SigninGQL.Request 
+      /// SigninGQL.Request
       /// <para>Required variables:<br/> { account=(string), session=(string), authorization=(string) }</para>
       /// <para>Optional variables:<br/> {  }</para>
       /// </summary>
@@ -111,18 +111,18 @@ namespace Cog.GraphQL.Generated {
       public static GraphQLRequest getSigninGQL() {
         return Request();
       }
-      
+
       public static string SigninDocument = @"
         mutation signin($account: String!, $session: String!, $authorization: String!) {
           signin(account: $account, session: $session, authorization: $authorization)
         }
         ";
     }
-    
+
 
     public class MintSeekerGQL {
       /// <summary>
-      /// MintSeekerGQL.Request 
+      /// MintSeekerGQL.Request
       /// <para>Required variables:<br/> { account=(string), session=(string), authorization=(string) }</para>
       /// <para>Optional variables:<br/> {  }</para>
       /// </summary>
@@ -138,12 +138,12 @@ namespace Cog.GraphQL.Generated {
       public static GraphQLRequest getMintSeekerGQL() {
         return Request();
       }
-      
+
       public static string MintSeekerDocument = @"
         mutation mintSeeker($account: String!, $session: String!, $authorization: String!) {
           mintSeeker(account: $account, session: $session, authorization: $authorization)
         }
         ";
     }
-    
+
 }

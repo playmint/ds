@@ -28,9 +28,9 @@ namespace Cog.GraphQL
         // public string ID { get; set; }
         [JsonProperty("state")]
         public State State { get; set; }
-        #endregion 
+        #endregion
     }
-    #endregion 
+    #endregion
 
     #region State
     public class State {
@@ -41,11 +41,9 @@ namespace Cog.GraphQL
         public List<Tile> Tiles { get; set; }
         [JsonProperty("seekers")]
         public List<Seeker> Seekers { get; set; }
-        [JsonProperty("buildings")]
-        public List<Building> Buildings { get; set; }
-        #endregion 
+        #endregion
     }
-    #endregion 
+    #endregion
 
     public class Tile {
         #region members
@@ -53,7 +51,7 @@ namespace Cog.GraphQL
         public List<string> Coords { get; set; }
         [JsonProperty("biome", NullValueHandling = NullValueHandling.Ignore)]
         public Biome? Biome { get; set; }
-        
+
         [JsonProperty("bags")]
         public List<Bag> Bags { get; set; }
         #endregion
@@ -101,15 +99,6 @@ namespace Cog.GraphQL
         public int Time { get; set; }
         [JsonProperty("tile")]
         public Tile Tile { get; set; }
-        #endregion
-    }
-
-    public class Building {
-        #region members
-        [JsonProperty("id")]
-        public string ID { get; set; }
-        [JsonProperty("location")]
-        public Location Location { get; set; }
         #endregion
     }
 

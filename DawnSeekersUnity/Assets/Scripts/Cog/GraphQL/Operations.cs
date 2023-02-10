@@ -52,8 +52,8 @@ namespace Cog.GraphQL
         }
         ";
 
-        // ($gameID: ID!) 
-        public static string FetchStateDocument = StateFragment + @"   
+        // ($gameID: ID!)
+        public static string FetchStateDocument = StateFragment + @"
         query FetchState {
             game(id: ""DAWNSEEKERS"") {
                 id
