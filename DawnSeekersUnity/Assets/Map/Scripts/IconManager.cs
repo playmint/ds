@@ -16,6 +16,7 @@ public class IconManager : MonoBehaviour
 
     private Dictionary<Vector3Int, IconController> spawnedBuildingIcons;
     private Dictionary<string, IconController> spawnedSeekerIcons;
+    private Dictionary<Vector3Int, int> seekerPositionCounts;
 
     private void Awake()
     {
@@ -23,10 +24,17 @@ public class IconManager : MonoBehaviour
         spawnedSeekerIcons = new Dictionary<string, IconController>();
         spawnedBuildingIcons = new Dictionary<Vector3Int, IconController>();
         _spawnedIcons = new List<IconController>();
+        ResetSeekerPositionCounts();
+    }
+
+    public void ResetSeekerPositionCounts()
+    {
+        seekerPositionCounts = new Dictionary<Vector3Int, int>();
     }
 
     public void CreateBuildingIcon(Cog.GraphQL.Tile tile, MapManager.MapCell cell)
     {
+        IncreaseSeekerPositionCount(cell);
         if (!spawnedBuildingIcons.ContainsKey(cell.cubicCoords))
         {
             IconController icon = Instantiate(_buildingIconPrefab, transform, true).GetComponent<IconController>();
@@ -35,8 +43,10 @@ public class IconManager : MonoBehaviour
         }
     }
 
-    public void CreateSeekerIcon(Cog.GraphQL.Seeker seeker, MapManager.MapCell cell, bool isPlayer)
+    public void CreateSeekerIcon(Cog.GraphQL.Seeker seeker, MapManager.MapCell cell, bool isPlayer, int numSeekersAtPos)
     {
+        IncreaseSeekerPositionCount(cell);
+        int buildingOnCell = (spawnedBuildingIcons.ContainsKey(cell.cubicCoords) ? 1 : 0);
         if (!spawnedSeekerIcons.ContainsKey(seeker.SeekerID))
         {
             IconController icon;
@@ -45,12 +55,20 @@ public class IconManager : MonoBehaviour
             else
                 icon = Instantiate(_otherSeekerIconPrefab, transform, true).GetComponent<IconController>();
             spawnedSeekerIcons.Add(seeker.SeekerID, icon);
-            icon.Setup(cell);
+            icon.Setup(cell, numSeekersAtPos + buildingOnCell, seekerPositionCounts[cell.cubicCoords] - 1);
         }
         else
         {
-            spawnedSeekerIcons[seeker.SeekerID].CheckPosition(cell);
+            spawnedSeekerIcons[seeker.SeekerID].CheckPosition(cell, numSeekersAtPos + buildingOnCell, seekerPositionCounts[cell.cubicCoords]- 1);
         }
+    }
+
+    private void IncreaseSeekerPositionCount(MapManager.MapCell cell)
+    {
+        if (!seekerPositionCounts.ContainsKey(cell.cubicCoords))
+            seekerPositionCounts.Add(cell.cubicCoords, 1);
+        else
+            seekerPositionCounts[cell.cubicCoords]++;
     }
 
 

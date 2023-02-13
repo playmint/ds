@@ -3,6 +3,7 @@ using UnityEngine;
 using Nethereum.Contracts;
 using Nethereum.Hex.HexConvertors.Extensions;
 using System.Collections.Generic;
+using System.Linq;
 
 public class MapInteractionManager : MonoBehaviour
 {
@@ -68,8 +69,8 @@ public class MapInteractionManager : MonoBehaviour
     void RenderState(State state) 
     {
         Debug.Log("Rending new state");
-        
-        foreach(var tile in state.Tiles)
+        IconManager.instance.ResetSeekerPositionCounts();
+        foreach (var tile in state.Tiles)
         {
             if (tile.Biome != null)
             {
@@ -95,31 +96,26 @@ public class MapInteractionManager : MonoBehaviour
             var cellPosCube = TileHelper.GetTilePosCube(seeker.Location[1].Tile);
 
             var isPlayerSeeker = (SeekerManager.Instance.Seeker != null && SeekerManager.Instance.Seeker.SeekerID == seeker.SeekerID);
+
+            var cell = new MapManager.MapCell
+            {
+                cubicCoords = cellPosCube,
+                typeID = 2,
+                iconID = 0,
+                cellName = "Player Seeker"
+            };
+
             if (isPlayerSeeker)
             {
                 // Render in next pass
                 playerSeekerTilePos.Add(cellPosCube);
-                var cell = new MapManager.MapCell {
-                    cubicCoords = cellPosCube, 
-                    typeID = 2, 
-                    iconID = 0,
-                    cellName = "Player Seeker"
-                };
-            
-                MapManager.instance.AddTile(cell);
-                IconManager.instance.CreateSeekerIcon(seeker, cell, true);
             }
             else
             {
-                var cell = new MapManager.MapCell {
-                    cubicCoords = cellPosCube, 
-                    typeID = 3, 
-                    iconID = 0,
-                    cellName = "Seeker"
-                };
-                IconManager.instance.CreateSeekerIcon(seeker, cell, false);
-                MapManager.instance.AddTile(cell);
+                cell.typeID = 3;
             }
+            MapManager.instance.AddTile(cell);
+            IconManager.instance.CreateSeekerIcon(seeker, cell, false, state.Seekers.Where(n=> TileHelper.GetTilePosCube(n.Location[1].Tile) == cellPosCube).Count());
         }
 
         // -- Player's seekers
