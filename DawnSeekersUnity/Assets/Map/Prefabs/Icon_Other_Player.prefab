@@ -76,22 +76,22 @@ PrefabInstance:
     - target: {fileID: 4200293388646633426, guid: 87b00e9807c374871b1cd063b867ba6e,
         type: 3}
       propertyPath: m_Color.a
-      value: 0.78431374
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4200293388646633426, guid: 87b00e9807c374871b1cd063b867ba6e,
         type: 3}
       propertyPath: m_Color.b
-      value: 0.2264151
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4200293388646633426, guid: 87b00e9807c374871b1cd063b867ba6e,
         type: 3}
       propertyPath: m_Color.g
-      value: 0.1310158
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4200293388646633426, guid: 87b00e9807c374871b1cd063b867ba6e,
         type: 3}
       propertyPath: m_Color.r
-      value: 0.048059814
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4200293389389051264, guid: 87b00e9807c374871b1cd063b867ba6e,
         type: 3}
@@ -117,22 +117,22 @@ PrefabInstance:
     - target: {fileID: 4200293389389051267, guid: 87b00e9807c374871b1cd063b867ba6e,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.122216
+      value: 0.07643083
       objectReference: {fileID: 0}
     - target: {fileID: 4200293389389051267, guid: 87b00e9807c374871b1cd063b867ba6e,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.122216
+      value: 0.07643083
       objectReference: {fileID: 0}
     - target: {fileID: 4200293389389051267, guid: 87b00e9807c374871b1cd063b867ba6e,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.122216
+      value: 0.07643083
       objectReference: {fileID: 0}
     - target: {fileID: 4200293389389051267, guid: 87b00e9807c374871b1cd063b867ba6e,
         type: 3}
       propertyPath: m_ConstrainProportionsScale
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87b00e9807c374871b1cd063b867ba6e, type: 3}
