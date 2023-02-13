@@ -90,6 +90,18 @@ public class MapInteractionManager : MonoBehaviour
         }
         var playerSeekerTilePos = new List<Vector3Int>();
 
+        foreach(var building in state.Buildings)
+        {
+            var cellPosCube = TileHelper.GetTilePosCube(building.Location.Tile);
+            var cell = new MapManager.MapCell {
+                cubicCoords = cellPosCube, 
+                typeID = 0, // TODO: I presume this might have to be linked to buildings? 
+                iconID = 0, // TODO: I presume this might have to be linked to buildings?
+                cellName = ""
+            };
+            IconManager.instance.CreateBuildingIcon(building.Location.Tile, cell);
+        }
+
         foreach(var seeker in state.Seekers) 
         {
             // index 1 is destination location

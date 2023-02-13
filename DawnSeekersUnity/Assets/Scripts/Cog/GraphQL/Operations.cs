@@ -27,6 +27,28 @@ namespace Cog.GraphQL
                     }
                 }
             }
+            buildings: nodes(match: { kinds: [""Building""] }) {
+                id
+                location: edge(match: { kinds: [""Tile""], via: [{ rel: ""Location"" }] }) {
+                    time: weight
+                    tile: node {
+                        id
+                        coords: keys
+                    }
+                }
+                owner: node(match: { kinds: [""Player""], via: [{ rel: ""Owner"" }] }) {
+                    addr: key
+                }
+                kind: node(match: { kinds: [""BuildingKind""], via: [{ rel: ""Is"" }] }) {
+                    id
+                    addr: key
+                }
+            }
+
+            buildingKinds: nodes(match: { kinds: [""BuildingKind""] }) {
+                id
+                addr: key
+            } 
         }
         ";
 

@@ -61,7 +61,6 @@
     "babel-plugin-module-resolver": "^4.1.0",
     "babel-plugin-styled-components": "^1.13.2",
     "concurrently": "^7.0.0",
-    "debug-provider": "file:../playmint/debug-provider",
     "eslint": "^7.19.0",
     "eslint-config-prettier": "^7.2.0",
     "eslint-plugin-prettier": "^3.3.1",

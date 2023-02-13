@@ -39,13 +39,14 @@ public class BuildScript
     }
 
     //Github actions build
+    [MenuItem("Playmint/Build/Pipeline Test")]
     static void GitHubBuild()
     {
         var scenes = GetScenesFromBuildSettings();
         //MoveJson();
         PlayerSettings.WebGL.threadsSupport = false;
         EditorUserBuildSettings.il2CppCodeGeneration = Il2CppCodeGeneration.OptimizeSize;
-        BuildPipeline.BuildPlayer(scenes, "Builds", BuildTarget.WebGL, BuildOptions.None);
+        BuildPipeline.BuildPlayer(scenes, "../frontend/public/ds-unity", BuildTarget.WebGL, BuildOptions.None);
     }
 
     [MenuItem("Playmint/Build/Copy Deployments")]
