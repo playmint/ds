@@ -40,9 +40,19 @@ public class MapManager : MonoBehaviour
         _tilemap.ClearAllTiles();
     }
 
+    public void UpdateMap()
+    {
+        _tilemap.RefreshAllTiles();
+    }
+
     public void AddTile(MapCell cell)
     {
         Debug.Log($"MapManager::AddTile() Adding tile type: {cell.typeID} at: {cell.cubicCoords}");
         _tilemap.SetTile(GridExtensions.CubeToGrid(cell.cubicCoords), _tileTypes[cell.typeID]);
+    }
+
+    public bool IsTileAtPosition(Vector3Int position)
+    {
+        return _tilemap.GetTile(GridExtensions.CubeToGrid(position)) != null;
     }
 }

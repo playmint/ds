@@ -17,4 +17,17 @@ public class TileHelper
     {
         return tile.Bags.Find( bag => bag.Slots.Find( slot => slot.Balance > 0) != null ) != null;
     }
+
+    public static Vector3Int[] GetTileNeighbours(Vector3Int tile)
+    {
+        return new Vector3Int[6]
+        {
+            tile + new Vector3Int(1,-1,0),
+            tile + new Vector3Int(0,1,-1),
+            tile + new Vector3Int(-1,0,1),
+            tile + new Vector3Int(-1,1,0),
+            tile + new Vector3Int(0,-1,1),
+            tile + new Vector3Int(1,0,-1)
+        };
+    }
 }

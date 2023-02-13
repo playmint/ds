@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657815, g: 0.49641192, b: 0.57481617, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1282,10 +1282,7 @@ MonoBehaviour:
   _tilemap: {fileID: 661566603}
   _tileTypes:
   - {fileID: 11400000, guid: a6379b8cdf12c48aa96e2781d9b3c085, type: 2}
-  - {fileID: 11400000, guid: 9e0336b07054444f6a7beec939a169e9, type: 2}
-  - {fileID: 11400000, guid: 9edff611d8d674a7c89829ef868c0a8b, type: 2}
-  - {fileID: 11400000, guid: 7ece34542150e467e8bcbcf96a98199f, type: 2}
-  - {fileID: 11400000, guid: 58e83352d4d6b494abbfe1992cddf37e, type: 2}
+  - {fileID: 11400000, guid: 53181886b9f9846ff91b04052554fc12, type: 2}
 --- !u!4 &755192403
 Transform:
   m_ObjectHideFlags: 0
