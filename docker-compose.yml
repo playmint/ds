@@ -3,14 +3,14 @@ version: '3'
 services:
 
   contracts:
-    image: playmint/ds-contracts:latest
+    image: ghcr.io/playmint/ds-contracts:latest
     pull_policy: always
     restart: always
     ports:
       - 8545:8545
 
   cog:
-    image: playmint/cog-services:latest
+    image: ghcr.io/playmint/cog-services:latest
     pull_policy: always
     restart: always
     entrypoint:
