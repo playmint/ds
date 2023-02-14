@@ -63,6 +63,8 @@ public class MapInteractionManager : MonoBehaviour
     {
         // CurrentMouseCell is using Odd R offset coords
         var cellPosCube = GridExtensions.GridToCube(CurrentMouseCell);
+        if (!IsDiscoveredTile(cellPosCube))
+            return;
         selectedCellPos = cellPosCube;
         Cog.PluginController.Instance.SendTileInteractionMsg(cellPosCube);
     }
