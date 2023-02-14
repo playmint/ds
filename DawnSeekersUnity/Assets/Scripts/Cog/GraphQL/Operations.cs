@@ -2,8 +2,7 @@ namespace Cog.GraphQL
 {
     public class Operations
     {
-        private static string StateFragment =
-            @"
+        private static string StateFragment = @"
         fragment stateFragment on State {
             block
             seekers: nodes(match: {kinds: [""Seeker""]}) {
@@ -53,10 +52,8 @@ namespace Cog.GraphQL
         }
         ";
 
-        // ($gameID: ID!)
-        public static string FetchStateDocument =
-            StateFragment
-            + @"
+        // ($gameID: ID!) 
+        public static string FetchStateDocument = StateFragment + @"   
         query FetchState {
             game(id: ""DAWNSEEKERS"") {
                 id
@@ -67,9 +64,7 @@ namespace Cog.GraphQL
         }
         ";
 
-        public static string OnStateSubscription =
-            StateFragment
-            + @"
+        public static string OnStateSubscription = StateFragment + @"
         subscription OnState {
             state(gameID: ""DAWNSEEKERS"") {
                 ...stateFragment
@@ -77,15 +72,13 @@ namespace Cog.GraphQL
         }
         ";
 
-        public static string SigninDocument =
-            @"
+        public static string SigninDocument = @"
         mutation signin($gameID: ID!, $session: String!, $auth: String!) {
           signin(gameID: $gameID, session: $session, ttl: 1000, scope: ""0xffffffff"", authorization: $auth)
         }
         ";
 
-        public static string DispatchDocument =
-            @"
+        public static string DispatchDocument = @"
         mutation dispatch($gameID: ID!, $action: String!, $auth: String!) {
             dispatch(
                 gameID: $gameID
@@ -97,5 +90,6 @@ namespace Cog.GraphQL
             }
         }
         ";
+
     }
 }

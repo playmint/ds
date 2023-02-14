@@ -23,6 +23,7 @@ public class CameraController : MonoBehaviour
     void Update()
     {
         Zoom();
+
     }
 
     void Zoom()
@@ -39,19 +40,11 @@ public class CameraController : MonoBehaviour
             // Allows zooming in and out via the mouse wheel
             if (Input.GetAxis("Mouse ScrollWheel") > 0 && enter > minZoom)
             {
-                transform.position = Vector3.MoveTowards(
-                    transform.position,
-                    Scrolldirection,
-                    Mathf.Clamp(Input.GetAxis("Mouse ScrollWheel"), -1, 1) * step
-                );
+                transform.position = Vector3.MoveTowards(transform.position, Scrolldirection, Mathf.Clamp(Input.GetAxis("Mouse ScrollWheel"),-1,1) * step);
             }
             if (Input.GetAxis("Mouse ScrollWheel") < 0 && enter < maxZoom)
             {
-                transform.position = Vector3.MoveTowards(
-                    transform.position,
-                    Scrolldirection,
-                    Mathf.Clamp(Input.GetAxis("Mouse ScrollWheel"), -1, 1) * step
-                );
+                transform.position = Vector3.MoveTowards(transform.position, Scrolldirection, Mathf.Clamp(Input.GetAxis("Mouse ScrollWheel"), -1, 1) * step);
             }
             cam.orthographicSize = Mathf.Lerp(1, 5, Mathf.InverseLerp(minZoom, maxZoom, enter));
         }
@@ -59,12 +52,11 @@ public class CameraController : MonoBehaviour
         //This is here because sometimes zooming glitches out for some reason:
         if (transform.position.z >= 0)
             transform.position -= Vector3.forward;
-        if (transform.position.z < -10)
-            transform.position = -Vector3.forward * 10;
+        if (transform.position.z <-10)
+            transform.position = -Vector3.forward*10;
 
-        transform.position +=
-            new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0)
-            * Time.deltaTime
-            * moveSpeed;
+        transform.position += new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0) * Time.deltaTime * moveSpeed;
+
     }
+
 }

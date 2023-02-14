@@ -151,11 +151,7 @@ namespace Cog.Account
                 errorCallBack("No Wallet Connected");
                 return;
             }
-            _sessionKeyWalletProvider.HashAndSignMessage(
-                messageBytes,
-                signedCallBack,
-                errorCallBack
-            );
+            _sessionKeyWalletProvider.HashAndSignMessage(messageBytes, signedCallBack, errorCallBack);
         }
     }
 }
