@@ -85,7 +85,9 @@ namespace Cog.Account
             byte[] message,
             SignedCallBack signedCallBack,
             ErrorCallBack errorCallBack
-        ) { }
+        )
+        {
+        }
 
         public void WCSignedCallback(string sig)
         {

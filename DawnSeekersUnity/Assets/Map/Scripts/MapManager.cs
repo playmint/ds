@@ -10,6 +10,7 @@ public class MapManager : MonoBehaviour
     public static MapManager instance;
     public static bool isMakingMove;
 
+
     public struct MapCell
     {
         public Vector3Int cubicCoords;
@@ -22,7 +23,6 @@ public class MapManager : MonoBehaviour
 
     [SerializeField]
     private Tilemap _tilemap;
-
     [SerializeField]
     private Tile[] _tileTypes;
 
@@ -40,6 +40,7 @@ public class MapManager : MonoBehaviour
         {
             OnStateUpdated(Cog.PluginController.Instance.WorldState);
         }
+
     }
 
     private void Update()
@@ -75,6 +76,8 @@ public class MapManager : MonoBehaviour
         return _tilemap.GetTile(GridExtensions.CubeToGrid(position)) != null;
     }
 
+    
+
     void RenderState(Cog.GraphQL.State state)
     {
         Debug.Log("Rending new state");
@@ -107,14 +110,12 @@ public class MapManager : MonoBehaviour
             Cog.GraphQL.Building placeholderBuilding = new Cog.GraphQL.Building();
             placeholderBuilding.Location = new Cog.GraphQL.Location();
             placeholderBuilding.Location.Tile = new Cog.GraphQL.Tile();
-            placeholderBuilding.Location.Tile.Coords = new List<string>()
+            placeholderBuilding.Location.Tile.Coords = new List<string>() { "0x0", "0xffff", "0x06", "0xfffb" };
+            state.Buildings = new List<Cog.GraphQL.Building>()
             {
-                "0x0",
-                "0xffff",
-                "0x06",
-                "0xfffb"
+                placeholderBuilding
             };
-            state.Buildings = new List<Cog.GraphQL.Building>() { placeholderBuilding };
+
         }
 
         foreach (var building in state.Buildings)
@@ -123,7 +124,7 @@ public class MapManager : MonoBehaviour
             var cell = new MapManager.MapCell
             {
                 cubicCoords = cellPosCube,
-                typeID = 0, // TODO: I presume this might have to be linked to buildings?
+                typeID = 0, // TODO: I presume this might have to be linked to buildings? 
                 iconID = 1, // TODO: I presume this might have to be linked to buildings?
                 cellName = ""
             };
@@ -135,10 +136,7 @@ public class MapManager : MonoBehaviour
             // index 1 is destination location
             var cellPosCube = TileHelper.GetTilePosCube(seeker.Location[1].Tile);
 
-            var isPlayerSeeker = (
-                SeekerManager.Instance.Seeker != null
-                && SeekerManager.Instance.Seeker.SeekerID == seeker.SeekerID
-            );
+            var isPlayerSeeker = (SeekerManager.Instance.Seeker != null && SeekerManager.Instance.Seeker.SeekerID == seeker.SeekerID);
 
             var cell = new MapManager.MapCell
             {
@@ -169,14 +167,7 @@ public class MapManager : MonoBehaviour
             {
                 cell.typeID = 3;
             }
-            IconManager.instance.CreateSeekerIcon(
-                seeker,
-                cell,
-                isPlayerSeeker,
-                state.Seekers
-                    .Where(n => TileHelper.GetTilePosCube(n.Location[1].Tile) == cellPosCube)
-                    .Count()
-            );
+            IconManager.instance.CreateSeekerIcon(seeker, cell, isPlayerSeeker, state.Seekers.Where(n => TileHelper.GetTilePosCube(n.Location[1].Tile) == cellPosCube).Count());
         }
         IconManager.instance.CheckSeekerRemoved(state.Seekers);
     }

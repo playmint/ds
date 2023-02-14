@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Tilemap/Theme")]
+[CreateAssetMenu(menuName ="Tilemap/Theme")]
 public class TileThemeSO : ScriptableObject
 {
     [System.Serializable]

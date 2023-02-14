@@ -96,13 +96,7 @@ namespace Cog.Account
             ErrorCallBack errorCallBack
         )
         {
-            StartCoroutine(
-                PersonalSignUnityRequest(
-                    Encoding.UTF8.GetString(message),
-                    signedCallBack,
-                    errorCallBack
-                )
-            );
+            StartCoroutine(PersonalSignUnityRequest(Encoding.UTF8.GetString(message), signedCallBack, errorCallBack));
         }
 
         private IEnumerator PersonalSignUnityRequest(
@@ -146,7 +140,7 @@ namespace Cog.Account
             ErrorCallBack errorCallBack
         )
         {
-            throw (new NotImplementedException());
+            throw(new NotImplementedException());
         }
     }
 }

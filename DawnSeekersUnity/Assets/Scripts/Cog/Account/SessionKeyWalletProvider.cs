@@ -43,10 +43,10 @@ namespace Cog.Account
         {
             var signer1 = new EthereumMessageSigner();
             var signature1 = signer1.HashAndSign(messageBytes, _ethECKey);
-
+            
             // var recoveredAddr = signer1.EcRecover(signer1.Hash(messageBytes), signature1);
             // Debug.Log("recovered addr: " + recoveredAddr);
-
+            
             signedCallBack(signature1);
         }
 

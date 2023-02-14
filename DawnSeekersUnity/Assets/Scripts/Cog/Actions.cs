@@ -10,8 +10,8 @@ namespace Cog.Actions
 {
     // function MOVE_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
     [Function("MOVE_SEEKER")]
-    public class MoveSeekerAction : FunctionMessage
-    {
+    public class MoveSeekerAction : FunctionMessage {
+
         [Parameter("uint32", "_sid", 0)]
         public string sid { get; set; }
 
@@ -31,12 +31,13 @@ namespace Cog.Actions
             this.r = r;
             this.s = s;
         }
+
     }
 
     // function DEV_SPAWN_SEEKER(address player, uint32 seekerID, int16 q, int16 r, int16 s) external;
     [Function("DEV_SPAWN_SEEKER")]
-    public class DevSpawnSeekerAction : FunctionMessage
-    {
+    public class DevSpawnSeekerAction : FunctionMessage {
+
         [Parameter("address", "_player", 0)]
         public string player { get; set; }
 
@@ -61,10 +62,9 @@ namespace Cog.Actions
             this.s = s;
         }
     }
-
     [Function("DEV_SPAWN_TILE")]
-    public class DevSpawnTileAction : FunctionMessage
-    {
+    public class DevSpawnTileAction : FunctionMessage {
+
         [Parameter("uint8", "_kind", 0)]
         public uint kind { get; set; }
 
@@ -88,8 +88,8 @@ namespace Cog.Actions
 
     // function SCOUT_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
     [Function("SCOUT_SEEKER")]
-    public class ScoutSeekerAction : FunctionMessage
-    {
+    public class ScoutSeekerAction : FunctionMessage {
+
         [Parameter("uint32", "_sid", 0)]
         public string sid { get; set; }
 
