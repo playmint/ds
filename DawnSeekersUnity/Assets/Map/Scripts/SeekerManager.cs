@@ -19,12 +19,12 @@ public class SeekerManager : MonoBehaviour
     protected void Start()
     {
         Cog.PluginController.Instance.EventStateUpdated += OnStateUpdated;
-        if (Cog.PluginController.Instance.WorldState != null) 
+        if (Cog.PluginController.Instance.WorldState != null)
         {
             OnStateUpdated(Cog.PluginController.Instance.WorldState);
         }
     }
-    
+
     public bool IsPlayerAtPosition(Vector3Int cellPosCube)
     {
         return Seeker != null && TileHelper.GetTilePosCube(Seeker.Location[1].Tile) == cellPosCube;
@@ -38,8 +38,8 @@ public class SeekerManager : MonoBehaviour
         var seekerIDBigInt = accountBigInt & "0xffffffff".HexToBigInteger(false);
         var seekerID = seekerIDBigInt.ToHex(false);
 
-        Seeker = state.Seekers.Find( seeker => seeker.SeekerID == seekerID );
-        if (Seeker != null) 
+        Seeker = state.Seekers.Find(seeker => seeker.SeekerID == seekerID);
+        if (Seeker != null)
         {
             Debug.Log("SeekerManager: Seeker found: " + Seeker.SeekerID);
         }
