@@ -33,7 +33,8 @@ const UnityPlugin: FunctionComponent<UnityPluginProps> = (props: UnityPluginProp
 
     // -- Register plugin
     useEffect(() => {
-        registerPlugin(750, 500, Anchor.BottomRight);
+        // The size should be irrelavent but I picked a small 16:9 ratio just in case
+        registerPlugin(640, 360, Anchor.FullScreen);
     }, []);
 
     // -- Messages from shell
