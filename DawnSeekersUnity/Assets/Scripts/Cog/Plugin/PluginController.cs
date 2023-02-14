@@ -109,7 +109,7 @@ namespace Cog
         else if (_client != null)
         {
             _activeClient = _client;
-            Debug.Log("PluginController::OnReady() No web socker client set - falling back to http client for state updates");
+            Debug.Log("PluginController::OnReady() No web socket client set - falling back to http client for state updates");
             StartCoroutine("PollStateUpdate");
         }
         else

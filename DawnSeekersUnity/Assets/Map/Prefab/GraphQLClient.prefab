@@ -78,7 +78,7 @@ MonoBehaviour:
   SubprotocolVersion: 0
   AwsAppSync: 0
   AwsAppSyncAuth: 
-  Connect: 1
+  Connect: 0
   Connected: 0
   ConnectionAcknowledged: 0
   ConnectionError: 0
