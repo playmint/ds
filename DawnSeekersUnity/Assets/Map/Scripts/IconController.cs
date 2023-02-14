@@ -14,7 +14,7 @@ public class IconController : MonoBehaviour
 
     private Transform _trans, _camTrans;
     private Vector3 _currentPosition;
-    private float _offsetRadius = 0.25f;
+    private float _offsetRadius = 0.35f;
 
     private void Awake()
     {

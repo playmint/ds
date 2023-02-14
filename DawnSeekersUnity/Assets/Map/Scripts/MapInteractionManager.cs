@@ -13,20 +13,14 @@ public class MapInteractionManager : MonoBehaviour
     [SerializeField]
     Transform cursor,selectedMarker1,selectedMarker2;
 
-    Plane m_Plane;
+    Vector3Int selectedCellPos;
 
-    private bool _hasStateUpdated;
+    Plane m_Plane;
 
     private void Start()
     {
         m_Plane = new Plane(Vector3.forward,0);
-
         Cog.PluginController.Instance.EventTileInteraction += OnTileInteraction;
-        Cog.PluginController.Instance.EventStateUpdated += OnStateUpdated;
-        if (Cog.PluginController.Instance.WorldState != null) 
-        {
-            OnStateUpdated(Cog.PluginController.Instance.WorldState);
-        }
 
         selectedMarker1.gameObject.SetActive(false);
         selectedMarker2.gameObject.SetActive(false);
@@ -43,9 +37,12 @@ public class MapInteractionManager : MonoBehaviour
         {
             //Get the point that is clicked
             Vector3 hitPoint = ray.GetPoint(enter);
-
-            CurrentMouseCell = MapManager.instance.grid.WorldToCell(hitPoint);
-            cursor.position = MapManager.instance.grid.CellToWorld(MapManager.instance.grid.WorldToCell(hitPoint));
+            Vector3Int cubePos = GridExtensions.GridToCube(MapManager.instance.grid.WorldToCell(hitPoint));
+            if (!MapManager.isMakingMove || (TileHelper.GetTileNeighbours(selectedCellPos).Contains(cubePos) || cubePos==selectedCellPos))
+            {
+                CurrentMouseCell = MapManager.instance.grid.WorldToCell(hitPoint);
+                cursor.position = MapManager.instance.grid.CellToWorld(MapManager.instance.grid.WorldToCell(hitPoint));
+            }
         }
         if (Input.GetMouseButtonDown(0))
         {
@@ -56,96 +53,16 @@ public class MapInteractionManager : MonoBehaviour
             MapClicked2();
         }
 
-        // As state events occur on a separate thread, the tilemap cannot be updated as a side effect
-        // of the event therefore the event will set a flag and then visual state update happens as part of the main thread
-        if (_hasStateUpdated) 
-        {
-            Debug.Log("State Update");
-            RenderState(Cog.PluginController.Instance.WorldState);
-            _hasStateUpdated = false;
-        }
+        
     }
 
-    void RenderState(State state) 
-    {
-        Debug.Log("Rending new state");
-        IconManager.instance.ResetSeekerPositionCounts();
-        MapManager.instance.ClearMap();
-        foreach (var tile in state.Tiles)
-        {
-            if (tile.Biome != null)
-            {
-                var hasResource = TileHelper.HasResource(tile);
-                var cellPosCube = TileHelper.GetTilePosCube(tile);
-                var cell = new MapManager.MapCell {
-                    cubicCoords = cellPosCube, 
-                    typeID = 0, 
-                    iconID = 0,
-                    cellName = ""
-                };
-                if(hasResource)
-                    IconManager.instance.CreateBuildingIcon(tile, cell);
-                MapManager.instance.AddTile(cell);
-            }
-        }
-        var playerSeekerTilePos = new List<Vector3Int>();
-
-        foreach(var building in state.Buildings)
-        {
-            var cellPosCube = TileHelper.GetTilePosCube(building.Location.Tile);
-            var cell = new MapManager.MapCell {
-                cubicCoords = cellPosCube, 
-                typeID = 0, // TODO: I presume this might have to be linked to buildings? 
-                iconID = 0, // TODO: I presume this might have to be linked to buildings?
-                cellName = ""
-            };
-            IconManager.instance.CreateBuildingIcon(building.Location.Tile, cell);
-        }
-
-        foreach(var seeker in state.Seekers) 
-        {
-            // index 1 is destination location
-            var cellPosCube = TileHelper.GetTilePosCube(seeker.Location[1].Tile);
-
-            var isPlayerSeeker = (SeekerManager.Instance.Seeker != null && SeekerManager.Instance.Seeker.SeekerID == seeker.SeekerID);
-
-            var cell = new MapManager.MapCell
-            {
-                cubicCoords = cellPosCube,
-                typeID = 2,
-                iconID = 0,
-                cellName = "Player Seeker"
-            };
-
-            if (isPlayerSeeker)
-            {
-                // Render in next pass
-                playerSeekerTilePos.Add(cellPosCube);
-                foreach(Vector3Int neighbour in TileHelper.GetTileNeighbours(cellPosCube))
-                {
-                    var neighbourCell = new MapManager.MapCell
-                    {
-                        cubicCoords = neighbour,
-                        typeID = 1,
-                        iconID = 0,
-                        cellName = ""
-                    };
-                    if (!MapManager.instance.IsTileAtPosition(neighbour))
-                        MapManager.instance.AddTile(neighbourCell);
-                }
-            }
-            else
-            {
-                cell.typeID = 3;
-            }
-            IconManager.instance.CreateSeekerIcon(seeker, cell, isPlayerSeeker, state.Seekers.Where(n=> TileHelper.GetTilePosCube(n.Location[1].Tile) == cellPosCube).Count());
-        }
-    }
+    
 
     void MapClicked()
     {
         // CurrentMouseCell is using Odd R offset coords
         var cellPosCube = GridExtensions.GridToCube(CurrentMouseCell);
+        selectedCellPos = cellPosCube;
         Cog.PluginController.Instance.SendTileInteractionMsg(cellPosCube);
     }
 
@@ -221,7 +138,6 @@ public class MapInteractionManager : MonoBehaviour
 
                 selectedMarker1.gameObject.SetActive(true);
                 selectedMarker2.gameObject.SetActive(false);
-
                 selectedMarker1.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
             }
         }
@@ -230,15 +146,22 @@ public class MapInteractionManager : MonoBehaviour
             // If a seeker is selected then show the destination selection
             if (MapManager.isMakingMove && SeekerManager.Instance.Seeker != null)
             {
+                if(!TileHelper.GetTileNeighbours(selectedCellPos).Contains(cellPosCube))
+                {
+                    MapManager.isMakingMove = false;
+
+                    selectedMarker1.gameObject.SetActive(true);
+                    selectedMarker2.gameObject.SetActive(false);
+                    return;
+                }
                 // TODO: Show Marker 2 until the move has completed
                 // selectedMarker2.gameObject.SetActive(true);
                 // selectedMarker2.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
                 selectedMarker1.gameObject.SetActive(false);
 
                 MapManager.isMakingMove = false;
-
                 MoveSeeker(SeekerManager.Instance.Seeker, cellPosCube);
-            } 
+            }
             else
             {
                 selectedMarker1.gameObject.SetActive(true);
@@ -247,10 +170,5 @@ public class MapInteractionManager : MonoBehaviour
                 selectedMarker1.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
             }
         }
-    }
-
-    private void OnStateUpdated(State state)
-    {
-        _hasStateUpdated = true;        
     }
 }

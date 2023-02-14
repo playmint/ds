@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class IconManager : MonoBehaviour
@@ -32,7 +33,7 @@ public class IconManager : MonoBehaviour
         seekerPositionCounts = new Dictionary<Vector3Int, int>();
     }
 
-    public void CreateBuildingIcon(Cog.GraphQL.Tile tile, MapManager.MapCell cell)
+    public void CreateBuildingIcon(MapManager.MapCell cell)
     {
         IncreaseSeekerPositionCount(cell);
         if (!spawnedBuildingIcons.ContainsKey(cell.cubicCoords))
@@ -40,6 +41,15 @@ public class IconManager : MonoBehaviour
             IconController icon = Instantiate(_buildingIconPrefab, transform, true).GetComponent<IconController>();
             spawnedBuildingIcons.Add(cell.cubicCoords, icon);
             icon.Setup(cell,_iconList.icons[cell.iconID],cell.cellName);
+        }
+    }
+
+    public void CheckIconRemoved(MapManager.MapCell cell)
+    {
+        if(spawnedBuildingIcons.ContainsKey(cell.cubicCoords))
+        {
+            spawnedBuildingIcons[cell.cubicCoords].DestroyIcon();
+            spawnedBuildingIcons.Remove(cell.cubicCoords);
         }
     }
 
@@ -60,6 +70,16 @@ public class IconManager : MonoBehaviour
         else
         {
             spawnedSeekerIcons[seeker.SeekerID].CheckPosition(cell, numSeekersAtPos + buildingOnCell, seekerPositionCounts[cell.cubicCoords]- 1);
+        }
+    }
+
+    public void CheckSeekerRemoved(List<Cog.GraphQL.Seeker> currentSeekers)
+    {
+        var filteredDictionary = spawnedSeekerIcons.Where(pair => !currentSeekers.Any(item => item.SeekerID == pair.Key)).ToDictionary(pair => pair.Key, pair => pair.Value);
+        foreach(KeyValuePair<string, IconController> icon in filteredDictionary)
+        {
+            icon.Value.DestroyIcon();
+            spawnedSeekerIcons.Remove(icon.Key);
         }
     }
 
