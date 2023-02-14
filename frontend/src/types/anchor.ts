@@ -9,5 +9,6 @@ export enum Anchor {
     CenterRight,
     BottomLeft,
     BottomCenter,
-    BottomRight
+    BottomRight,
+    FullScreen
 }
