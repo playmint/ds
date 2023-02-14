@@ -2324,21 +2324,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 9128457702224198113, guid: 8a65ca644f5fc4faf88f204695f0a3c7,
-        type: 3}
-      propertyPath: ConnectionError
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9128457702224198113, guid: 8a65ca644f5fc4faf88f204695f0a3c7,
-        type: 3}
-      propertyPath: ConnectionTerminated
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9128457702224198113, guid: 8a65ca644f5fc4faf88f204695f0a3c7,
-        type: 3}
-      propertyPath: ConnectionAcknowledged
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 9128457702224198116, guid: 8a65ca644f5fc4faf88f204695f0a3c7,
         type: 3}
       propertyPath: m_Name
@@ -2398,11 +2383,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9128457702224198119, guid: 8a65ca644f5fc4faf88f204695f0a3c7,
-        type: 3}
-      propertyPath: LogMessages
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8a65ca644f5fc4faf88f204695f0a3c7, type: 3}
