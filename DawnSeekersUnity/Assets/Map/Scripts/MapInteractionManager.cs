@@ -17,6 +17,8 @@ public class MapInteractionManager : MonoBehaviour
 
     Plane m_Plane;
 
+    bool validPosition;
+
     private void Start()
     {
         m_Plane = new Plane(Vector3.forward,0);
@@ -38,7 +40,8 @@ public class MapInteractionManager : MonoBehaviour
             //Get the point that is clicked
             Vector3 hitPoint = ray.GetPoint(enter);
             Vector3Int cubePos = GridExtensions.GridToCube(MapManager.instance.grid.WorldToCell(hitPoint));
-            if (!MapManager.isMakingMove || (TileHelper.GetTileNeighbours(selectedCellPos).Contains(cubePos) || cubePos==selectedCellPos))
+            validPosition = !MapManager.isMakingMove || (TileHelper.GetTileNeighbours(selectedCellPos).Contains(cubePos) || cubePos == selectedCellPos);
+            if (validPosition)
             {
                 CurrentMouseCell = MapManager.instance.grid.WorldToCell(hitPoint);
                 cursor.position = MapManager.instance.grid.CellToWorld(MapManager.instance.grid.WorldToCell(hitPoint));
@@ -52,8 +55,6 @@ public class MapInteractionManager : MonoBehaviour
         {
             MapClicked2();
         }
-
-        
     }
 
     
@@ -116,7 +117,7 @@ public class MapInteractionManager : MonoBehaviour
     private void OnTileInteraction(Vector3Int cellPosCube)
     {
         // -- Can't select an undiscovered tile. We might need to for scouting in the future?
-        if (!IsDiscoveredTile(cellPosCube)) return;
+        if (!IsDiscoveredTile(cellPosCube) || !validPosition) return;
 
         CurrentSelectedCell = GridExtensions.CubeToGrid(cellPosCube);
 
@@ -146,14 +147,6 @@ public class MapInteractionManager : MonoBehaviour
             // If a seeker is selected then show the destination selection
             if (MapManager.isMakingMove && SeekerManager.Instance.Seeker != null)
             {
-                if(!TileHelper.GetTileNeighbours(selectedCellPos).Contains(cellPosCube))
-                {
-                    MapManager.isMakingMove = false;
-
-                    selectedMarker1.gameObject.SetActive(true);
-                    selectedMarker2.gameObject.SetActive(false);
-                    return;
-                }
                 // TODO: Show Marker 2 until the move has completed
                 // selectedMarker2.gameObject.SetActive(true);
                 // selectedMarker2.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
