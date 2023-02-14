@@ -1,0 +1,8 @@
+root = true
+
+[*.bat]
+end_of_line = crlf
+
+[*.cs]
+indent_style = space
+end_of_line = lf

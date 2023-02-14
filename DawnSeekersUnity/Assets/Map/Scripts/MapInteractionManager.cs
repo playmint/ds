@@ -11,7 +11,9 @@ public class MapInteractionManager : MonoBehaviour
     public static Vector3Int CurrentMouseCell; // Offset odd r coords
 
     [SerializeField]
-    Transform cursor,selectedMarker1,selectedMarker2;
+    Transform cursor,
+        selectedMarker1,
+        selectedMarker2;
 
     Vector3Int selectedCellPos;
 
@@ -21,7 +23,7 @@ public class MapInteractionManager : MonoBehaviour
 
     private void Start()
     {
-        m_Plane = new Plane(Vector3.forward,0);
+        m_Plane = new Plane(Vector3.forward, 0);
         Cog.PluginController.Instance.EventTileInteraction += OnTileInteraction;
 
         selectedMarker1.gameObject.SetActive(false);
@@ -39,12 +41,21 @@ public class MapInteractionManager : MonoBehaviour
         {
             //Get the point that is clicked
             Vector3 hitPoint = ray.GetPoint(enter);
-            Vector3Int cubePos = GridExtensions.GridToCube(MapManager.instance.grid.WorldToCell(hitPoint));
-            validPosition = !MapManager.isMakingMove || (TileHelper.GetTileNeighbours(selectedCellPos).Contains(cubePos) || cubePos == selectedCellPos);
+            Vector3Int cubePos = GridExtensions.GridToCube(
+                MapManager.instance.grid.WorldToCell(hitPoint)
+            );
+            validPosition =
+                !MapManager.isMakingMove
+                || (
+                    TileHelper.GetTileNeighbours(selectedCellPos).Contains(cubePos)
+                    || cubePos == selectedCellPos
+                );
             if (validPosition)
             {
                 CurrentMouseCell = MapManager.instance.grid.WorldToCell(hitPoint);
-                cursor.position = MapManager.instance.grid.CellToWorld(MapManager.instance.grid.WorldToCell(hitPoint));
+                cursor.position = MapManager.instance.grid.CellToWorld(
+                    MapManager.instance.grid.WorldToCell(hitPoint)
+                );
             }
         }
         if (Input.GetMouseButtonDown(0))
@@ -56,8 +67,6 @@ public class MapInteractionManager : MonoBehaviour
             MapClicked2();
         }
     }
-
-    
 
     void MapClicked()
     {
@@ -100,14 +109,15 @@ public class MapInteractionManager : MonoBehaviour
         Cog.PluginController.Instance.DispatchAction(action.GetCallData());
     }
 
-    // -- TODO: Obviously this won't scale, need to hold tiles in a dictionary  
+    // -- TODO: Obviously this won't scale, need to hold tiles in a dictionary
     private bool IsDiscoveredTile(Vector3Int cellPosCube)
     {
         if (Cog.PluginController.Instance.WorldState != null)
         {
-            foreach(var tile in Cog.PluginController.Instance.WorldState.Tiles)
+            foreach (var tile in Cog.PluginController.Instance.WorldState.Tiles)
             {
-                if (TileHelper.GetTilePosCube(tile) == cellPosCube) return true;
+                if (TileHelper.GetTilePosCube(tile) == cellPosCube)
+                    return true;
             }
         }
 
@@ -119,7 +129,8 @@ public class MapInteractionManager : MonoBehaviour
     private void OnTileInteraction(Vector3Int cellPosCube)
     {
         // -- Can't select an undiscovered tile. We might need to for scouting in the future?
-        if (!IsDiscoveredTile(cellPosCube) || !validPosition) return;
+        if (!IsDiscoveredTile(cellPosCube) || !validPosition)
+            return;
 
         CurrentSelectedCell = GridExtensions.CubeToGrid(cellPosCube);
 
@@ -141,7 +152,9 @@ public class MapInteractionManager : MonoBehaviour
 
                 selectedMarker1.gameObject.SetActive(true);
                 selectedMarker2.gameObject.SetActive(false);
-                selectedMarker1.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
+                selectedMarker1.position = MapManager.instance.grid.CellToWorld(
+                    CurrentSelectedCell
+                );
             }
         }
         else
@@ -162,7 +175,9 @@ public class MapInteractionManager : MonoBehaviour
                 selectedMarker1.gameObject.SetActive(true);
                 selectedMarker2.gameObject.SetActive(false);
 
-                selectedMarker1.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
+                selectedMarker1.position = MapManager.instance.grid.CellToWorld(
+                    CurrentSelectedCell
+                );
             }
         }
     }
