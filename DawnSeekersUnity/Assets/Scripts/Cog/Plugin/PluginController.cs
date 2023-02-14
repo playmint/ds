@@ -37,11 +37,15 @@ namespace Cog
         [SerializeField]
         private GraphQLWebsocket _clientWS;
 
+        private IGraphQL _activeClient;
+
         [SerializeField]
         private string _gameID = "";
 
         [SerializeField]
         private string _privateKey = "0xc14c1284a5ff47ce38e2ad7a50ff89d55ca360b02cdf3756cdb457389b1da223";
+
+        private bool _isRunningStandalone = false;
 
         public string Account { get; private set; }
 
@@ -67,7 +71,13 @@ namespace Cog
 #endif
         }
 
-        // Is either trigged by READY message from shell or after the wallet is initialised if in editor
+        // Called by the generated HTML wrapper and used when testing WebGL outside of the shell
+        public void ReadyStandalone()
+        {
+            InitWalletProvider();
+        }
+
+        // Is either trigged by READY message from shell or after the wallet is initialised if run in editor or run as standalone WebGL
         public void OnReady(string account)
         {
             Debug.Log("PluginController::OnReady() account: " + account);
@@ -79,39 +89,50 @@ namespace Cog
 
 #if UNITY_WEBGL
                 // NOTE: If in the editor but build set to WebGL, sockets don't work so we still poll
-                Debug.Log("Is Unity WEBGL");
+                Debug.Log("PluginController::OnReady() Unity in WEBGL mode. Polling state using coroutine.");
+                _activeClient = _client;
                 StartCoroutine("PollStateUpdate");
 #endif
             }
 
-#if UNITY_EDITOR
-            Debug.Log("Is Unity editor");
-            if (_clientWS != null)
-            {
-                _clientWS.OpenEvent += OnSocketOpened;
-                _clientWS.CloseEvent += OnSocketClosed;
-                _clientWS.Connect = true;
-                // NOTE: State listener is triggered after the socket is opened
-            }
-            else if (_client != null)
-            {
-                Debug.Log("PluginController::OnReady() Falling back to http client for state updates");
-                StartCoroutine("PollStateUpdate");
-            }
+#if UNITY_EDITOR && !UNITY_WEBGL
+        Debug.Log("PluginController::OnReady() Unity editor running in non WebGL mode - Attempting to connect via WebSockets");
+
+        if (_clientWS != null)
+        {
+            _activeClient = _clientWS;
+            _clientWS.OpenEvent += OnSocketOpened;
+            _clientWS.CloseEvent += OnSocketClosed;
+            _clientWS.Connect = true;
+            // NOTE: State listener is triggered after the socket is opened
+        }
+        else if (_client != null)
+        {
+            _activeClient = _client;
+            Debug.Log("PluginController::OnReady() No web socket client set - falling back to http client for state updates");
+            StartCoroutine("PollStateUpdate");
+        }
+        else
+        {
+            Debug.LogError("PluginController::OnReady() No GraphQL clients set. Check COG game object in Map Scene set the GraphQL clients");
+        }
 #endif
         }
 
         public void DispatchAction(byte[] action)
         {
-#if  UNITY_EDITOR
-            // -- Directly dispatch the action via GraphQL
-            DirectDispatchAction(action);
-#elif UNITY_WEBGL
-            // -- Send message up to shell and let it do the signing and sending
-            var actionHex = action.ToHex(true);
-            // Debug.Log($"PluginController::DispatchAction() Sending Dispatch message len:{action.Length} action: " + actionHex);
-            DispatchActionEncodedRPC(actionHex);
-#endif
+            if (_isRunningStandalone)
+            {
+                // -- Directly dispatch the action via GraphQL
+                DirectDispatchAction(action);
+            }
+            else
+            {    
+                // -- Send message up to shell and let it do the signing and sending
+                var actionHex = action.ToHex(true);
+                // Debug.Log($"PluginController::DispatchAction() Sending Dispatch message len:{action.Length} action: " + actionHex);
+                DispatchActionEncodedRPC(actionHex);
+            }
         }
 
         public void FetchState()
@@ -126,7 +147,9 @@ namespace Cog
                 {"gameID", gameID}
             };
 
-            _client.ExecuteQuery(Operations.FetchStateDocument, variables, (response) =>
+            var client = _activeClient != null ? _activeClient : _client;
+
+            client.ExecuteQuery(Operations.FetchStateDocument, variables, (response) =>
             {
                 // Debug.Log($"Graph response: {response.Result.ToString()}");
 
@@ -191,14 +214,7 @@ namespace Cog
                 {"gameID", gameID}
             };
 
-            IGraphQL client;
-#if  UNITY_EDITOR
-            client = _clientWS;
-#else
-            client = _client;
-#endif
-
-            client.ExecuteQuery(Operations.OnStateSubscription, variables, (response) =>
+            _activeClient.ExecuteQuery(Operations.OnStateSubscription, variables, (response) =>
             {
                 Debug.Log($"Graph response: {response.Result.ToString()}");
 
@@ -254,6 +270,8 @@ namespace Cog
             var signInMessage = Encoding.UTF8.GetBytes("You are signing in with session: ");
             var authMessage = signInMessage.Concat(sessionAddress).ToArray();
 
+            var client = _activeClient != null ? _activeClient : _client;
+
             // sign it and submit mutation
             AccountManager.Instance.SignMessage(authMessage , (signedMessage) =>
             {
@@ -264,7 +282,7 @@ namespace Cog
                     {"session", AccountManager.Instance.SessionPublicKey},
                     {"auth", signedMessage},
                 };
-                _client.ExecuteQuery(Operations.SigninDocument, variables, (response) =>
+                client.ExecuteQuery(Operations.SigninDocument, variables, (response) =>
                 {
                     switch (response.Type)
                     {
@@ -320,7 +338,7 @@ namespace Cog
                     {"action", actionBytes.ToHex(true)},
                     {"auth", auth}
                 };
-                _clientWS.ExecuteQuery(Operations.DispatchDocument, variables, genericGqlHandler);
+                _activeClient.ExecuteQuery(Operations.DispatchDocument, variables, genericGqlHandler);
             }, 
             DisplayError
             );
@@ -332,11 +350,16 @@ namespace Cog
         {
             Debug.Log("PluginController::OnTileClick() tileCubeCoords: " + tileCubeCoords);
 
-#if  UNITY_EDITOR
-            OnTileInteraction(tileCubeCoords);
-#else
-            TileInteractionRPC(tileCubeCoords.x, tileCubeCoords.y, tileCubeCoords.z);
-#endif
+            if (_isRunningStandalone)
+            {
+                // -- Call the tile interaction handler directly as there is no shell to broadcast the message
+                OnTileInteraction(tileCubeCoords);
+            }
+            else
+            {
+                // -- Send interaction up to shell
+                TileInteractionRPC(tileCubeCoords.x, tileCubeCoords.y, tileCubeCoords.z);
+            }
         }
 
         // -- MESSAGE IN
@@ -370,6 +393,8 @@ namespace Cog
         {
             Debug.Log("PluginController::InitWalletProvider()");
             
+            _isRunningStandalone = true;
+
             AccountManager.Instance.InitProvider(
                 WalletProviderEnum.PRIVATE_KEY,
                 _privateKey
