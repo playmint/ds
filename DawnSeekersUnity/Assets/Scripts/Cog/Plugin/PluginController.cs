@@ -18,12 +18,15 @@ namespace Cog
         public int r;
         public int s;
     }
+
     public class PluginController : MonoBehaviour
     {
         [DllImport("__Internal")]
         private static extern void DispatchActionEncodedRPC(string action);
+
         [DllImport("__Internal")]
         private static extern void UnityReadyRPC();
+
         [DllImport("__Internal")]
         private static extern void TileInteractionRPC(int q, int r, int s);
 
@@ -43,7 +46,8 @@ namespace Cog
         private string _gameID = "";
 
         [SerializeField]
-        private string _privateKey = "0xc14c1284a5ff47ce38e2ad7a50ff89d55ca360b02cdf3756cdb457389b1da223";
+        private string _privateKey =
+            "0xc14c1284a5ff47ce38e2ad7a50ff89d55ca360b02cdf3756cdb457389b1da223";
 
         private bool _isRunningStandalone = false;
 
@@ -127,7 +131,7 @@ namespace Cog
                 DirectDispatchAction(action);
             }
             else
-            {    
+            {
                 // -- Send message up to shell and let it do the signing and sending
                 var actionHex = action.ToHex(true);
                 // Debug.Log($"PluginController::DispatchAction() Sending Dispatch message len:{action.Length} action: " + actionHex);
@@ -140,58 +144,62 @@ namespace Cog
             // Debug.Log("PluginController:FetchState()");
 
             var gameID = DEFAULT_GAME_ID;
-            if (_gameID != "") gameID = _gameID;
-            
-            var variables = new JObject
-            {
-                {"gameID", gameID}
-            };
+            if (_gameID != "")
+                gameID = _gameID;
+
+            var variables = new JObject { { "gameID", gameID } };
 
             var client = _activeClient != null ? _activeClient : _client;
 
-            client.ExecuteQuery(Operations.FetchStateDocument, variables, (response) =>
-            {
-                // Debug.Log($"Graph response: {response.Result.ToString()}");
-
-                switch (response.Type)
+            client.ExecuteQuery(
+                Operations.FetchStateDocument,
+                variables,
+                (response) =>
                 {
-                    case MessageType.GQL_DATA:
-                        // Debug.Log("GQL_DATA");
+                    // Debug.Log($"Graph response: {response.Result.ToString()}");
 
-                        try
-                        {
-                            // Deserialise here
-                            var result = response.Result.Data.ToObject<FetchStateQuery>();
-                            UpdateState(result.Game.State);
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.LogError("PluginController:: OnStateSubscription: Unable to deserialise state");
-                            Debug.Log(e);
-                            Debug.Log(response.Result);
-                        }
+                    switch (response.Type)
+                    {
+                        case MessageType.GQL_DATA:
+                            // Debug.Log("GQL_DATA");
 
-                        break;
+                            try
+                            {
+                                // Deserialise here
+                                var result = response.Result.Data.ToObject<FetchStateQuery>();
+                                UpdateState(result.Game.State);
+                            }
+                            catch (Exception e)
+                            {
+                                Debug.LogError(
+                                    "PluginController:: OnStateSubscription: Unable to deserialise state"
+                                );
+                                Debug.Log(e);
+                                Debug.Log(response.Result);
+                            }
 
-                    case MessageType.GQL_ERROR:
-                        Debug.Log("GQL_ERROR");
-                        break;
+                            break;
 
-                    case MessageType.GQL_COMPLETE:
-                        Debug.Log("GQL_COMPLETE");
+                        case MessageType.GQL_ERROR:
+                            Debug.Log("GQL_ERROR");
+                            break;
 
-                        break;
-                    case MessageType.GQL_EXCEPTION:
-                        Debug.Log("GQL_EXCEPTION");
+                        case MessageType.GQL_COMPLETE:
+                            Debug.Log("GQL_COMPLETE");
 
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                            break;
+                        case MessageType.GQL_EXCEPTION:
+                            Debug.Log("GQL_EXCEPTION");
+
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                 }
-            });
+            );
         }
 
-        public void UpdateState(State state) 
+        public void UpdateState(State state)
         {
             if (WorldState == null || WorldState.Block != state.Block)
             {
@@ -203,56 +211,59 @@ namespace Cog
             }
         }
 
-        private void StartStateListener() 
+        private void StartStateListener()
         {
             Debug.Log("PluginController::StartStateListener()");
 
-            var gameID = (_gameID != "")? _gameID : DEFAULT_GAME_ID;
-            
-            var variables = new JObject
-            {
-                {"gameID", gameID}
-            };
+            var gameID = (_gameID != "") ? _gameID : DEFAULT_GAME_ID;
 
-            _activeClient.ExecuteQuery(Operations.OnStateSubscription, variables, (response) =>
-            {
-                Debug.Log($"Graph response: {response.Result.ToString()}");
+            var variables = new JObject { { "gameID", gameID } };
 
-                switch (response.Type)
+            _activeClient.ExecuteQuery(
+                Operations.OnStateSubscription,
+                variables,
+                (response) =>
                 {
-                    case MessageType.GQL_DATA:
-                        // Debug.Log("GQL_DATA");
+                    Debug.Log($"Graph response: {response.Result.ToString()}");
 
-                        // Deserialise here
-                        try
-                        {
-                            var result = response.Result.Data.ToObject<OnStateSubscription>();
-                            UpdateState(result.State);
-                        }
-                        catch
-                        {
-                            Debug.LogError("PluginController:: OnStateSubscription: Unable to deserialise state");
-                            Debug.Log(response.Result);
-                        }
+                    switch (response.Type)
+                    {
+                        case MessageType.GQL_DATA:
+                            // Debug.Log("GQL_DATA");
 
-                        break;
+                            // Deserialise here
+                            try
+                            {
+                                var result = response.Result.Data.ToObject<OnStateSubscription>();
+                                UpdateState(result.State);
+                            }
+                            catch
+                            {
+                                Debug.LogError(
+                                    "PluginController:: OnStateSubscription: Unable to deserialise state"
+                                );
+                                Debug.Log(response.Result);
+                            }
 
-                    case MessageType.GQL_ERROR:
-                        foreach (var error in response.Result.Errors)
-                        {
-                            DisplayError(error.ToString());
-                        }
-                        break;
-                    case MessageType.GQL_COMPLETE:
-                        DisplayMessage($"Complete {response}");
-                        break;
-                    case MessageType.GQL_EXCEPTION:
-                        DisplayError($"Exception {response.Result}");
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                            break;
+
+                        case MessageType.GQL_ERROR:
+                            foreach (var error in response.Result.Errors)
+                            {
+                                DisplayError(error.ToString());
+                            }
+                            break;
+                        case MessageType.GQL_COMPLETE:
+                            DisplayMessage($"Complete {response}");
+                            break;
+                        case MessageType.GQL_EXCEPTION:
+                            DisplayError($"Exception {response.Result}");
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                 }
-            });
+            );
         }
 
         // -- AUTH FOR STANDALONE
@@ -273,53 +284,63 @@ namespace Cog
             var client = _activeClient != null ? _activeClient : _client;
 
             // sign it and submit mutation
-            AccountManager.Instance.SignMessage(authMessage , (signedMessage) =>
-            {
-                var gameID = (_gameID != "")? _gameID : DEFAULT_GAME_ID;
-                var variables = new JObject
+            AccountManager.Instance.SignMessage(
+                authMessage,
+                (signedMessage) =>
                 {
-                    {"gameID", gameID},
-                    {"session", AccountManager.Instance.SessionPublicKey},
-                    {"auth", signedMessage},
-                };
-                client.ExecuteQuery(Operations.SigninDocument, variables, (response) =>
-                {
-                    switch (response.Type)
+                    var gameID = (_gameID != "") ? _gameID : DEFAULT_GAME_ID;
+                    var variables = new JObject
                     {
-                        case MessageType.GQL_DATA:
-                            var success = bool.Parse(response.Result.Data["signin"]?.ToString() ?? string.Empty);
+                        { "gameID", gameID },
+                        { "session", AccountManager.Instance.SessionPublicKey },
+                        { "auth", signedMessage },
+                    };
+                    client.ExecuteQuery(
+                        Operations.SigninDocument,
+                        variables,
+                        (response) =>
+                        {
+                            switch (response.Type)
+                            {
+                                case MessageType.GQL_DATA:
+                                    var success = bool.Parse(
+                                        response.Result.Data["signin"]?.ToString() ?? string.Empty
+                                    );
 
-                            if (success)
-                            {
-                                Debug.Log("PluginController: Successfully signed into COG");
-                                OnPublicKeyAuthorized();
+                                    if (success)
+                                    {
+                                        Debug.Log("PluginController: Successfully signed into COG");
+                                        OnPublicKeyAuthorized();
+                                    }
+
+                                    break;
+                                case MessageType.GQL_ERROR:
+                                    foreach (var error in response.Result.Errors)
+                                    {
+                                        DisplayError(error.ToString());
+                                    }
+                                    break;
+                                case MessageType.GQL_COMPLETE:
+                                    DisplayMessage($"Complete {response}");
+                                    break;
+                                case MessageType.GQL_EXCEPTION:
+                                    DisplayError($"Exception {response.Result}");
+                                    break;
+                                default:
+                                    throw new ArgumentOutOfRangeException();
                             }
-                            
-                            break;
-                        case MessageType.GQL_ERROR:
-                            foreach (var error in response.Result.Errors)
-                            {
-                                DisplayError(error.ToString());
-                            }
-                            break;
-                        case MessageType.GQL_COMPLETE:
-                            DisplayMessage($"Complete {response}");
-                            break;
-                        case MessageType.GQL_EXCEPTION:
-                            DisplayError($"Exception {response.Result}");
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                });
-            }, DisplayError);
+                        }
+                    );
+                },
+                DisplayError
+            );
         }
-        
+
         private void DisplayMessage(object message)
         {
             Debug.Log(message);
         }
-        
+
         private void DisplayError(object error)
         {
             Debug.LogError(error);
@@ -329,18 +350,24 @@ namespace Cog
         {
             // Debug.Log("PluginController:DirectDispatchAction: " + actionBytes.ToHex(true));
 
-            AccountManager.Instance.HashAndSignSession(actionBytes, (auth) =>
-            {
-                var gameID = (_gameID != "")? _gameID : DEFAULT_GAME_ID;
-                var variables = new JObject
+            AccountManager.Instance.HashAndSignSession(
+                actionBytes,
+                (auth) =>
                 {
-                    {"gameID", gameID},
-                    {"action", actionBytes.ToHex(true)},
-                    {"auth", auth}
-                };
-                _activeClient.ExecuteQuery(Operations.DispatchDocument, variables, genericGqlHandler);
-            }, 
-            DisplayError
+                    var gameID = (_gameID != "") ? _gameID : DEFAULT_GAME_ID;
+                    var variables = new JObject
+                    {
+                        { "gameID", gameID },
+                        { "action", actionBytes.ToHex(true) },
+                        { "auth", auth }
+                    };
+                    _activeClient.ExecuteQuery(
+                        Operations.DispatchDocument,
+                        variables,
+                        genericGqlHandler
+                    );
+                },
+                DisplayError
             );
         }
 
@@ -392,13 +419,10 @@ namespace Cog
         private void InitWalletProvider()
         {
             Debug.Log("PluginController::InitWalletProvider()");
-            
+
             _isRunningStandalone = true;
 
-            AccountManager.Instance.InitProvider(
-                WalletProviderEnum.PRIVATE_KEY,
-                _privateKey
-            );
+            AccountManager.Instance.InitProvider(WalletProviderEnum.PRIVATE_KEY, _privateKey);
 
             AccountManager.Instance.ConnectedEvent += OnWalletConnect;
             AccountManager.Instance.Connect();
@@ -419,7 +443,7 @@ namespace Cog
             Debug.Log("PluginController: Socket closed");
         }
 
-        private void genericGqlHandler(Message response) 
+        private void genericGqlHandler(Message response)
         {
             switch (response.Type)
             {
@@ -444,8 +468,10 @@ namespace Cog
             }
         }
 
-        IEnumerator PollStateUpdate() {
-            for(;;) {
+        IEnumerator PollStateUpdate()
+        {
+            for (; ; )
+            {
                 FetchState();
                 yield return new WaitForSeconds(2f);
             }
@@ -461,5 +487,4 @@ namespace Cog
             Debug.Log("Message Received from JS land OnTest");
         }
     }
-
 }

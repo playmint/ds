@@ -46,7 +46,12 @@ public class BuildScript
         //MoveJson();
         PlayerSettings.WebGL.threadsSupport = false;
         EditorUserBuildSettings.il2CppCodeGeneration = Il2CppCodeGeneration.OptimizeSize;
-        BuildPipeline.BuildPlayer(scenes, "../frontend/public/ds-unity", BuildTarget.WebGL, BuildOptions.None);
+        BuildPipeline.BuildPlayer(
+            scenes,
+            "../frontend/public/ds-unity",
+            BuildTarget.WebGL,
+            BuildOptions.None
+        );
     }
 
     [MenuItem("Playmint/Build/Copy Deployments")]
