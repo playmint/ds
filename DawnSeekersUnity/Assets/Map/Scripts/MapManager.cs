@@ -102,21 +102,6 @@ public class MapManager : MonoBehaviour
         }
         var playerSeekerTilePos = new List<Vector3Int>();
 
-        if (state.Buildings.Count == 0)
-        {
-            Cog.GraphQL.Building placeholderBuilding = new Cog.GraphQL.Building();
-            placeholderBuilding.Location = new Cog.GraphQL.Location();
-            placeholderBuilding.Location.Tile = new Cog.GraphQL.Tile();
-            placeholderBuilding.Location.Tile.Coords = new List<string>()
-            {
-                "0x0",
-                "0xffff",
-                "0x06",
-                "0xfffb"
-            };
-            state.Buildings = new List<Cog.GraphQL.Building>() { placeholderBuilding };
-        }
-
         foreach (var building in state.Buildings)
         {
             var cellPosCube = TileHelper.GetTilePosCube(building.Location.Tile);
