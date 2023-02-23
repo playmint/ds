@@ -1168,10 +1168,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 768dca86133d541028196401b2d19f9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
-  zoomSpeed: 1000
-  minZoom: 1
-  maxZoom: 10
+  moveSpeed: 1
+  zoomSpeed: 10
+  minZoom: -1
+  maxZoom: -10
   transitionDuration: 1
 --- !u!1 &703009928
 GameObject:
