@@ -1,7 +1,9 @@
-name: Deployment (test)
+name: Deployment (main)
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
 
