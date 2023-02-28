@@ -60,7 +60,7 @@ public class IconController : MonoBehaviour
             + offset;
     }
 
-    public void CheckPosition(MapManager.MapCell cell, int numObjects, int index)
+    public void CheckPosition(MapManager.MapCell cell, int numObjects, int index, bool isPlayer)
     {
         Vector3 offset = Vector3.zero;
         if (numObjects > 1)
@@ -71,6 +71,8 @@ public class IconController : MonoBehaviour
             != _currentPosition
         )
         {
+            if (isPlayer)
+                MapInteractionManager.instance.travelMarkerController.HideLine();
             _currentPosition =
                 MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(cell.cubicCoords))
                 + offset;

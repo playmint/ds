@@ -86,7 +86,8 @@ public class IconManager : MonoBehaviour
             spawnedSeekerIcons[seeker.SeekerID].CheckPosition(
                 cell,
                 numSeekersAtPos + buildingOnCell,
-                seekerPositionCounts[cell.cubicCoords] - 1
+                seekerPositionCounts[cell.cubicCoords] - 1,
+                isPlayer
             );
         }
     }

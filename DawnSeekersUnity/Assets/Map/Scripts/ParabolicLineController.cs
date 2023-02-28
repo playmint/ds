@@ -23,31 +23,37 @@ public class ParabolicLineController : MonoBehaviour
         line.positionCount = _resolution + 1;
     }
 
-    private void Update()
-    {
-        if (MapInteractionManager.CurrentSelectedCell != null && MapManager.isMakingMove)
-        {
-            if (MapInteractionManager.CurrentSelectedCell != MapInteractionManager.CurrentMouseCell)
-            {
-                DrawLine(
-                    MapManager.instance.grid.CellToWorld(MapInteractionManager.CurrentSelectedCell),
-                    MapManager.instance.grid.CellToWorld(MapInteractionManager.CurrentMouseCell)
-                );
-                line.enabled = true;
-            }
-            else
-            {
-                line.enabled = false;
-            }
-        }
-        else
-        {
-            line.enabled = false;
-        }
-    }
+    //private void Update()
+    //{
+    //    if (MapInteractionManager.CurrentSelectedCell != null && MapManager.isMakingMove)
+    //    {
+    //        if (MapInteractionManager.CurrentSelectedCell != MapInteractionManager.CurrentMouseCell)
+    //        {
+    //            DrawLine(
+    //                MapManager.instance.grid.CellToWorld(MapInteractionManager.CurrentSelectedCell),
+    //                MapManager.instance.grid.CellToWorld(MapInteractionManager.CurrentMouseCell)
+    //            );
+    //            line.enabled = true;
+    //        }
+    //        else
+    //        {
+    //            line.enabled = false;
+    //        }
+    //    }
+    //    else
+    //    {
+    //        line.enabled = false;
+    //    }
+    //}
 
-    void DrawLine(Vector3 startPos, Vector3 endPos)
+    public void HideLine()
     {
+        line.enabled = false;
+    }
+   
+    public void DrawLine(Vector3 startPos, Vector3 endPos)
+    {
+        line.enabled = true;
         Vector3[] positions = new Vector3[_resolution + 1];
         for (int i = 0; i < _resolution; i++)
         {
