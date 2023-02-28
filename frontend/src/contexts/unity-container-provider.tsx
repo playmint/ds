@@ -94,7 +94,7 @@ export const UnityContainerProvider = ({ children }: UnityContainerContextProvid
             unityContext.removeEventListener('error');
             unityContext.removeEventListener('debug');
             unityContext.removeEventListener('canvas');
-            document.removeEventListener('wheel', onScroll);
+            //document.removeEventListener('wheel', onScroll);
             document.removeEventListener('mousemove', onMouse);
         };
     }, [unityContext]);
