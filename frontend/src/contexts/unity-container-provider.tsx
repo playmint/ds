@@ -77,15 +77,15 @@ export const UnityContainerProvider = ({ children }: UnityContainerContextProvid
             }
         };
 
-        const onScroll = () => {
-            const canvas: HTMLCanvasElement | undefined = unityContainerRef.current?.getElementsByTagName('canvas')[0];
-            if (canvas) {
-                canvas.style['pointer-events'] = 'none';
-            }
-        };
+        // const onScroll = () => {
+        //     const canvas: HTMLCanvasElement | undefined = unityContainerRef.current?.getElementsByTagName('canvas')[0];
+        //     if (canvas) {
+        //         canvas.style['pointer-events'] = 'none';
+        //     }
+        // };
 
         unityContext.on('canvas', function (_: HTMLCanvasElement) {
-            document.addEventListener('wheel', onScroll, false);
+            //document.addEventListener('wheel', onScroll, false);
             document.addEventListener('mousemove', onMouse, false);
         });
 
