@@ -7,6 +7,8 @@ using System.Linq;
 
 public class MapInteractionManager : MonoBehaviour
 {
+    public static bool clickedPlayerCell;
+
     public static Vector3Int CurrentSelectedCell; // Offset odd r coords
     public static Vector3Int CurrentMouseCell; // Offset odd r coords
 
@@ -61,6 +63,12 @@ public class MapInteractionManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             MapClicked();
+        }
+        if (Input.GetMouseButtonUp(0))
+        {
+            if (clickedPlayerCell && GridExtensions.GridToCube(CurrentMouseCell) != selectedCellPos)
+                MapClicked();
+            clickedPlayerCell = false;
         }
         if (Input.GetMouseButtonDown(1))
         {
@@ -137,6 +145,7 @@ public class MapInteractionManager : MonoBehaviour
         bool isPlayerAtPosition = SeekerManager.Instance.IsPlayerAtPosition(cellPosCube);
         if (isPlayerAtPosition)
         {
+            clickedPlayerCell = true;
             if (MapManager.isMakingMove)
             {
                 // Seeker already selected so deselect
