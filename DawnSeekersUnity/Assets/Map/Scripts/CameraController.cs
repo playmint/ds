@@ -30,7 +30,7 @@ public class CameraController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            mouseDownPos = Input.mousePosition ;
+            mouseDownPos = Input.mousePosition;
             camMouseDownPos = transform.position;
         }
         if (Input.GetMouseButton(0))
