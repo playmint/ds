@@ -74,7 +74,7 @@ public class MapInteractionManager : MonoBehaviour
         {
             if (clickedPlayerCell)
             {
-                if(validPosition)
+                if(validPosition && IsDiscoveredTile(GridExtensions.GridToCube(CurrentMouseCell)))
                     MapClicked();
                 else
                 {
