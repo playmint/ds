@@ -11,60 +11,77 @@ public class CameraController : MonoBehaviour
 
     Plane m_Plane;
 
-    public float transitionDuration = 1f;
-    private Camera cam;
+    private float prevDirection = -100;
+    private Vector3 mouseDownPos;
+    private Vector3 camMouseDownPos;
 
     void Start()
     {
-        cam = GetComponent<Camera>();
         m_Plane = new Plane(Vector3.forward, 0);
     }
 
     void Update()
     {
+        HandleMouseCameraDrag();
         Zoom();
+    }
+
+    void HandleMouseCameraDrag()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            mouseDownPos = Input.mousePosition;
+            camMouseDownPos = transform.position;
+        }
+        if (Input.GetMouseButton(0))
+        {
+            Ray mouseDownRay = Camera.main.ScreenPointToRay(mouseDownPos);
+            Ray currentMouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+            float mouseDownDist = 0.0f;
+            float currentMouseDist = 0.0f;
+            m_Plane.Raycast(mouseDownRay, out mouseDownDist);
+            m_Plane.Raycast(currentMouseRay, out currentMouseDist);
+
+            Vector3 offset = (
+                mouseDownRay.GetPoint(mouseDownDist) - currentMouseRay.GetPoint(currentMouseDist)
+            );
+            transform.position = camMouseDownPos + offset;
+        }
     }
 
     void Zoom()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        float enter = 0.0f;
 
+        float enter = 0.0f;
+        float speed = moveSpeed * Mathf.Abs(transform.position.z);
         if (m_Plane.Raycast(ray, out enter))
         {
-            Vector3 Scrolldirection = ray.GetPoint(enter);
+            Vector3 mousePosition = ray.GetPoint(enter);
 
-            float step = zoomSpeed * Time.deltaTime;
+            float z = Input.mouseScrollDelta.y;
+            float direction = 0;
+            if (z > 0)
+                direction = 1;
+            else if (z < 0)
+                direction = -1;
 
-            // Allows zooming in and out via the mouse wheel
-            if (Input.GetAxis("Mouse ScrollWheel") > 0 && enter > minZoom)
+            if (direction != prevDirection)
             {
-                transform.position = Vector3.MoveTowards(
-                    transform.position,
-                    Scrolldirection,
-                    Mathf.Clamp(Input.GetAxis("Mouse ScrollWheel"), -1, 1) * step
-                );
+                prevDirection = direction;
             }
-            if (Input.GetAxis("Mouse ScrollWheel") < 0 && enter < maxZoom)
-            {
-                transform.position = Vector3.MoveTowards(
-                    transform.position,
-                    Scrolldirection,
-                    Mathf.Clamp(Input.GetAxis("Mouse ScrollWheel"), -1, 1) * step
-                );
-            }
-            cam.orthographicSize = Mathf.Lerp(1, 5, Mathf.InverseLerp(minZoom, maxZoom, enter));
+
+            float step = zoomSpeed * Time.deltaTime * prevDirection;
+            Vector3 inputVector =
+                new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0)
+                * speed
+                * Time.deltaTime;
+
+            Vector3 movementOffset = inputVector;
+            Vector3 zoomOffset = (Vector3.Normalize(mousePosition - transform.position) * step);
+            transform.position += zoomOffset + movementOffset;
+            if (transform.position.z > minZoom || transform.position.z < maxZoom)
+                transform.position -= zoomOffset;
         }
-
-        //This is here because sometimes zooming glitches out for some reason:
-        if (transform.position.z >= 0)
-            transform.position -= Vector3.forward;
-        if (transform.position.z < -10)
-            transform.position = -Vector3.forward * 10;
-
-        transform.position +=
-            new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0)
-            * Time.deltaTime
-            * moveSpeed;
     }
 }
