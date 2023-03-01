@@ -73,7 +73,16 @@ public class MapInteractionManager : MonoBehaviour
         if (Input.GetMouseButtonUp(0))
         {
             if (clickedPlayerCell)
-                MapClicked();
+            {
+                if(validPosition)
+                    MapClicked();
+                else
+                {
+                    MapManager.isMakingMove = false;
+                    selectedMarker1.gameObject.SetActive(true);
+                    travelMarkerController.HideLine();
+                }
+            }
             clickedPlayerCell = false;
         }
         if (Input.GetMouseButtonDown(1))

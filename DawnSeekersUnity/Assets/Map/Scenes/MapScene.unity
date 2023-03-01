@@ -1822,7 +1822,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3cd71177e1f65475a9e3bed6becbf05d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  travelMarkerController: {fileID: 0}
+  travelMarkerController: {fileID: 685283806}
   cursor: {fileID: 1333271656}
   selectedMarker1: {fileID: 834498991}
 --- !u!4 &895977812
