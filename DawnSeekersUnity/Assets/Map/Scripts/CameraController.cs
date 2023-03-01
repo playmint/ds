@@ -22,8 +22,8 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
-        if(!MapInteractionManager.clickedPlayerCell)
-        HandleMouseCameraDrag();
+        if (!MapInteractionManager.clickedPlayerCell)
+            HandleMouseCameraDrag();
         Zoom();
     }
 

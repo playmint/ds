@@ -50,7 +50,7 @@ public class ParabolicLineController : MonoBehaviour
     {
         line.enabled = false;
     }
-   
+
     public void DrawLine(Vector3 startPos, Vector3 endPos)
     {
         line.enabled = true;

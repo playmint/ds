@@ -6,6 +6,7 @@ public class TravelMarkerController : MonoBehaviour
 {
     [SerializeField]
     Transform destinationMarker;
+
     [SerializeField]
     ParabolicLineController line;
 

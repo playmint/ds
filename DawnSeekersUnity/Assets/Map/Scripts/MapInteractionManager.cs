@@ -59,7 +59,6 @@ public class MapInteractionManager : MonoBehaviour
                 );
             if (validPosition)
             {
-                
                 CurrentMouseCell = MapManager.instance.grid.WorldToCell(hitPoint);
                 cursor.position = MapManager.instance.grid.CellToWorld(
                     MapManager.instance.grid.WorldToCell(hitPoint)
@@ -74,7 +73,7 @@ public class MapInteractionManager : MonoBehaviour
         {
             if (clickedPlayerCell)
             {
-                if(validPosition && IsDiscoveredTile(GridExtensions.GridToCube(CurrentMouseCell)))
+                if (validPosition && IsDiscoveredTile(GridExtensions.GridToCube(CurrentMouseCell)))
                     MapClicked();
                 else
                 {
