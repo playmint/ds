@@ -7,13 +7,16 @@ using System.Linq;
 
 public class MapInteractionManager : MonoBehaviour
 {
+    public static MapInteractionManager instance;
+    public static bool clickedPlayerCell;
+
     public static Vector3Int CurrentSelectedCell; // Offset odd r coords
     public static Vector3Int CurrentMouseCell; // Offset odd r coords
+    public TravelMarkerController travelMarkerController;
 
     [SerializeField]
     Transform cursor,
-        selectedMarker1,
-        selectedMarker2;
+        selectedMarker1;
 
     Vector3Int selectedCellPos;
 
@@ -21,13 +24,17 @@ public class MapInteractionManager : MonoBehaviour
 
     bool validPosition;
 
+    private void Awake()
+    {
+        instance = this;
+    }
+
     private void Start()
     {
         m_Plane = new Plane(Vector3.forward, 0);
         Cog.PluginController.Instance.EventTileInteraction += OnTileInteraction;
 
         selectedMarker1.gameObject.SetActive(false);
-        selectedMarker2.gameObject.SetActive(false);
     }
 
     private void Update()
@@ -61,6 +68,21 @@ public class MapInteractionManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             MapClicked();
+        }
+        if (Input.GetMouseButtonUp(0))
+        {
+            if (clickedPlayerCell)
+            {
+                if (validPosition && IsDiscoveredTile(GridExtensions.GridToCube(CurrentMouseCell)))
+                    MapClicked();
+                else
+                {
+                    MapManager.isMakingMove = false;
+                    selectedMarker1.gameObject.SetActive(true);
+                    travelMarkerController.HideLine();
+                }
+            }
+            clickedPlayerCell = false;
         }
         if (Input.GetMouseButtonDown(1))
         {
@@ -137,13 +159,13 @@ public class MapInteractionManager : MonoBehaviour
         bool isPlayerAtPosition = SeekerManager.Instance.IsPlayerAtPosition(cellPosCube);
         if (isPlayerAtPosition)
         {
+            clickedPlayerCell = true;
             if (MapManager.isMakingMove)
             {
                 // Seeker already selected so deselect
                 MapManager.isMakingMove = false;
 
                 selectedMarker1.gameObject.SetActive(true);
-                selectedMarker2.gameObject.SetActive(false);
             }
             else
             {
@@ -151,7 +173,6 @@ public class MapInteractionManager : MonoBehaviour
                 MapManager.isMakingMove = true;
 
                 selectedMarker1.gameObject.SetActive(true);
-                selectedMarker2.gameObject.SetActive(false);
                 selectedMarker1.position = MapManager.instance.grid.CellToWorld(
                     CurrentSelectedCell
                 );
@@ -173,7 +194,6 @@ public class MapInteractionManager : MonoBehaviour
             else
             {
                 selectedMarker1.gameObject.SetActive(true);
-                selectedMarker2.gameObject.SetActive(false);
 
                 selectedMarker1.position = MapManager.instance.grid.CellToWorld(
                     CurrentSelectedCell
