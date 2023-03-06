@@ -1,0 +1,16 @@
+overwrite: true
+schema: ../../cog-services/schema/*.graphqls
+documents: "src/*.graphql"
+generates:
+  src/queries-fragments.ts:
+    plugins:
+      - fragment-matcher
+  src/queries.tsx:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-react-apollo"
+hooks:
+  afterAllFileWrite:
+    - prettier --write
+    - eslint --fix
