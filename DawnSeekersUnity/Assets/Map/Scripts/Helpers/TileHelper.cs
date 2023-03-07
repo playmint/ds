@@ -1,21 +1,18 @@
 using System;
-using Cog.GraphQL;
+using Cog;
 using UnityEngine;
+using System.Linq;
 
 public class TileHelper
 {
     public static Vector3Int GetTilePosCube(Tile tile)
     {
-        var q = System.Convert.ToInt16(tile.Coords[1], 16);
-        var r = System.Convert.ToInt16(tile.Coords[2], 16);
-        var s = System.Convert.ToInt16(tile.Coords[3], 16);
-
-        return new Vector3Int(q, r, s);
+        return new Vector3Int(Convert.ToInt16(tile.Coords.Q), Convert.ToInt16(tile.Coords.R), Convert.ToInt16(tile.Coords.S));
     }
 
     public static bool HasResource(Tile tile)
     {
-        return tile.Bags.Find(bag => bag.Slots.Find(slot => slot.Balance > 0) != null) != null;
+        return false; //tile.Bags.ToList().Find(equipSlot => equipSlot.Bag..Find(slot => slot.Balance > 0) != null) != null;
     }
 
     public static Vector3Int[] GetTileNeighbours(Vector3Int tile)

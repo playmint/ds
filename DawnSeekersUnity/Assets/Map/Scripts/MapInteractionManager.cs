@@ -1,4 +1,4 @@
-using Cog.GraphQL;
+using Cog;
 using UnityEngine;
 using Nethereum.Contracts;
 using Nethereum.Hex.HexConvertors.Extensions;
@@ -110,7 +110,7 @@ public class MapInteractionManager : MonoBehaviour
         if (SeekerManager.Instance.Seeker != null)
         {
             var action = new Cog.Actions.ScoutSeekerAction(
-                SeekerManager.Instance.Seeker.SeekerID,
+                SeekerManager.Instance.Seeker.Id,
                 cellPosCube.x,
                 cellPosCube.y,
                 cellPosCube.z
@@ -122,7 +122,7 @@ public class MapInteractionManager : MonoBehaviour
     private void MoveSeeker(Seeker seeker, Vector3Int cellPosCube)
     {
         var action = new Cog.Actions.MoveSeekerAction(
-            seeker.SeekerID,
+            seeker.Id,
             cellPosCube.x,
             cellPosCube.y,
             cellPosCube.z
@@ -136,7 +136,7 @@ public class MapInteractionManager : MonoBehaviour
     {
         if (Cog.PluginController.Instance.WorldState != null)
         {
-            foreach (var tile in Cog.PluginController.Instance.WorldState.Tiles)
+            foreach (var tile in Cog.PluginController.Instance.WorldState.Game.Tiles)
             {
                 if (TileHelper.GetTilePosCube(tile) == cellPosCube)
                     return true;

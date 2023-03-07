@@ -57,7 +57,7 @@ public class IconManager : MonoBehaviour
     }
 
     public void CreateSeekerIcon(
-        Cog.GraphQL.Seeker seeker,
+        Cog.Seeker seeker,
         MapManager.MapCell cell,
         bool isPlayer,
         int numSeekersAtPos
@@ -65,7 +65,7 @@ public class IconManager : MonoBehaviour
     {
         IncreaseSeekerPositionCount(cell);
         int buildingOnCell = (spawnedBuildingIcons.ContainsKey(cell.cubicCoords) ? 1 : 0);
-        if (!spawnedSeekerIcons.ContainsKey(seeker.SeekerID))
+        if (!spawnedSeekerIcons.ContainsKey(seeker.Id))
         {
             IconController icon;
             if (isPlayer)
@@ -74,7 +74,7 @@ public class IconManager : MonoBehaviour
             else
                 icon = Instantiate(_otherSeekerIconPrefab, transform, true)
                     .GetComponent<IconController>();
-            spawnedSeekerIcons.Add(seeker.SeekerID, icon);
+            spawnedSeekerIcons.Add(seeker.Id, icon);
             icon.Setup(
                 cell,
                 numSeekersAtPos + buildingOnCell,
@@ -83,7 +83,7 @@ public class IconManager : MonoBehaviour
         }
         else
         {
-            spawnedSeekerIcons[seeker.SeekerID].CheckPosition(
+            spawnedSeekerIcons[seeker.Id].CheckPosition(
                 cell,
                 numSeekersAtPos + buildingOnCell,
                 seekerPositionCounts[cell.cubicCoords] - 1,
@@ -92,10 +92,10 @@ public class IconManager : MonoBehaviour
         }
     }
 
-    public void CheckSeekerRemoved(List<Cog.GraphQL.Seeker> currentSeekers)
+    public void CheckSeekerRemoved(List<Cog.Seeker> currentSeekers)
     {
         var filteredDictionary = spawnedSeekerIcons
-            .Where(pair => !currentSeekers.Any(item => item.SeekerID == pair.Key))
+            .Where(pair => !currentSeekers.Any(item => item.Id == pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value);
         foreach (KeyValuePair<string, IconController> icon in filteredDictionary)
         {

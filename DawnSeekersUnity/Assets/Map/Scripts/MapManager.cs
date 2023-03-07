@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using Nethereum.Contracts;
+using System;
 using System.Linq;
 
 public class MapManager : MonoBehaviour
@@ -75,14 +75,14 @@ public class MapManager : MonoBehaviour
         return _tilemap.GetTile(GridExtensions.CubeToGrid(position)) != null;
     }
 
-    void RenderState(Cog.GraphQL.State state)
+    void RenderState(Cog.State state)
     {
         Debug.Log("Rending new state");
         IconManager.instance.ResetSeekerPositionCounts();
         MapManager.instance.ClearMap();
-        foreach (var tile in state.Tiles)
+        foreach (var tile in state.Game.Tiles)
         {
-            if (tile.Biome != null)
+            if (tile.Biome != 0)
             {
                 var hasResource = TileHelper.HasResource(tile);
                 var cellPosCube = TileHelper.GetTilePosCube(tile);
@@ -102,27 +102,32 @@ public class MapManager : MonoBehaviour
         }
         var playerSeekerTilePos = new List<Vector3Int>();
 
-        foreach (var building in state.Buildings)
-        {
-            var cellPosCube = TileHelper.GetTilePosCube(building.Location.Tile);
-            var cell = new MapManager.MapCell
-            {
-                cubicCoords = cellPosCube,
-                typeID = 0, // TODO: I presume this might have to be linked to buildings?
-                iconID = 1, // TODO: I presume this might have to be linked to buildings?
-                cellName = ""
-            };
-            IconManager.instance.CreateBuildingIcon(cell);
-        }
+        // foreach (var building in state.Game.Buildings)
+        // {
+        //     var cellPosCube = TileHelper.GetTilePosCube(building.Location.Tile);
+        //     var cell = new MapManager.MapCell
+        //     {
+        //         cubicCoords = cellPosCube,
+        //         typeID = 0, // TODO: I presume this might have to be linked to buildings?
+        //         iconID = 1, // TODO: I presume this might have to be linked to buildings?
+        //         cellName = ""
+        //     };
+        //     IconManager.instance.CreateBuildingIcon(cell);
+        // }
 
-        foreach (var seeker in state.Seekers)
+        foreach (var seeker in state.Game.Seekers)
         {
+            if (seeker.Location.Next.Tile == null)
+            {
+                continue;
+            }
+            
             // index 1 is destination location
-            var cellPosCube = TileHelper.GetTilePosCube(seeker.Location[1].Tile);
+            var cellPosCube = TileHelper.GetTilePosCube(seeker.Location.Next.Tile);
 
             var isPlayerSeeker = (
                 SeekerManager.Instance.Seeker != null
-                && SeekerManager.Instance.Seeker.SeekerID == seeker.SeekerID
+                && SeekerManager.Instance.Seeker.Id == seeker.Id
             );
 
             var cell = new MapManager.MapCell
@@ -158,15 +163,15 @@ public class MapManager : MonoBehaviour
                 seeker,
                 cell,
                 isPlayerSeeker,
-                state.Seekers
-                    .Where(n => TileHelper.GetTilePosCube(n.Location[1].Tile) == cellPosCube)
+                state.Game.Seekers
+                    .Where(n => n.Location.Next.Tile != null && TileHelper.GetTilePosCube(n.Location.Next.Tile) == cellPosCube)
                     .Count()
             );
         }
-        IconManager.instance.CheckSeekerRemoved(state.Seekers);
+        IconManager.instance.CheckSeekerRemoved(state.Game.Seekers.ToList());
     }
 
-    private void OnStateUpdated(Cog.GraphQL.State state)
+    private void OnStateUpdated(Cog.State state)
     {
         _hasStateUpdated = true;
     }

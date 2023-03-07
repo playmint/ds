@@ -1,9 +1,8 @@
-using Cog.GraphQL;
+using Cog;
 using UnityEngine;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Contracts;
-using System;
-using System;
+using System.Linq;
 
 public class SeekerManager : MonoBehaviour
 {
@@ -27,35 +26,35 @@ public class SeekerManager : MonoBehaviour
 
     public bool IsPlayerAtPosition(Vector3Int cellPosCube)
     {
-        return Seeker != null && TileHelper.GetTilePosCube(Seeker.Location[1].Tile) == cellPosCube;
+        return Seeker != null && TileHelper.GetTilePosCube(Seeker.Location.Next.Tile) == cellPosCube;
     }
 
     // -- LISTENERS
 
     private void OnStateUpdated(State state)
     {
-        var accountBigInt = Cog.PluginController.Instance.Account.HexToBigInteger(false);
-        var seekerIDBigInt = accountBigInt & "0xffffffff".HexToBigInteger(false);
-        var seekerID = seekerIDBigInt.ToHex(false);
+        // var accountBigInt = Cog.PluginController.Instance.Account.HexToBigInteger(false);
+        // var seekerIDBigInt = accountBigInt & "0xffffffff".HexToBigInteger(false);
+        // var seekerID = seekerIDBigInt.ToHex(false);
 
-        Seeker = state.Seekers.Find(seeker => seeker.SeekerID == seekerID);
+        Seeker = state.Game.Seekers.ToList().Find(seeker => seeker.Owner.Id == Cog.PluginController.Instance.Account);
         if (Seeker != null)
         {
-            Debug.Log("SeekerManager: Seeker found: " + Seeker.SeekerID);
+            Debug.Log("SeekerManager: Seeker found. ID: " + Seeker.Id);
         }
 #if  UNITY_EDITOR
         else
         {
-            Debug.Log("SeekerManager: No seeker found, spawning seeker: " + seekerID);
-            var action = new Cog.Actions.DevSpawnSeekerAction(
-                Cog.PluginController.Instance.Account,
-                seekerID,
-                0,
-                0,
-                0
-            );
+            Debug.Log("SeekerManager: No seeker found");
+            // var action = new Cog.Actions.DevSpawnSeekerAction(
+            //     Cog.PluginController.Instance.Account,
+            //     seekerID,
+            //     0,
+            //     0,
+            //     0
+            // );
 
-            Cog.PluginController.Instance.DispatchAction(action.GetCallData());
+            // Cog.PluginController.Instance.DispatchAction(action.GetCallData());
         }
 #endif
     }

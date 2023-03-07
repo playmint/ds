@@ -1,6 +1,7 @@
 using UnityEngine;
 using Cog.GraphQL;
 using GraphQL4Unity;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Cog.Account;
 using Nethereum.Hex.HexConvertors.Extensions;
@@ -9,6 +10,7 @@ using System.Text;
 using System.Linq;
 using System.Collections;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace Cog
 {
@@ -17,6 +19,15 @@ namespace Cog
         public int q;
         public int r;
         public int s;
+    }
+
+    public class State
+    {
+        [Newtonsoft.Json.JsonProperty("game", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public GameState Game { get; set; }
+        
+        [Newtonsoft.Json.JsonProperty("ui", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public UIState UI { get; set; }
     }
 
     public class PluginController : MonoBehaviour
@@ -34,12 +45,6 @@ namespace Cog
 
         public static PluginController Instance;
 
-        [SerializeField]
-        private GraphQLHttp _client;
-
-        [SerializeField]
-        private GraphQLWebsocket _clientWS;
-
         private IGraphQL _activeClient;
 
         [SerializeField]
@@ -55,6 +60,9 @@ namespace Cog
 
         public State WorldState { get; private set; }
 
+        private Thread _nodeJSThread;
+        private System.Diagnostics.Process _nodeJSProcess;
+
         // -- Events
         public Action<State> EventStateUpdated;
         public Action<Vector3Int> EventTileInteraction;
@@ -69,58 +77,98 @@ namespace Cog
             Debug.Log("PluginController::Start()");
 
 #if UNITY_EDITOR
-            InitWalletProvider();
+            StartNodeProcess();
 #elif UNITY_WEBGL
             UnityReadyRPC();
 #endif
         }
 
+        protected void OnDestroy()
+        {
+#if UNITY_EDITOR
+            KillNodeProcess();
+#endif   
+        }
+
         // Called by the generated HTML wrapper and used when testing WebGL outside of the shell
         public void ReadyStandalone()
         {
-            InitWalletProvider();
+
         }
 
         // Is either trigged by READY message from shell or after the wallet is initialised if run in editor or run as standalone WebGL
         public void OnReady(string account)
         {
-            Debug.Log("PluginController::OnReady() account: " + account);
-            Account = account;
+            Debug.Log("OnReady()");
+#if UNITY_EDITOR
 
-            if (_client != null)
-            {
-                FetchState();
-
-#if UNITY_WEBGL
-                // NOTE: If in the editor but build set to WebGL, sockets don't work so we still poll
-                Debug.Log("PluginController::OnReady() Unity in WEBGL mode. Polling state using coroutine.");
-                _activeClient = _client;
-                StartCoroutine("PollStateUpdate");
 #endif
+        }
+
+        private void StartNodeProcess()
+        {
+            Debug.Log("StartNodeProcess()");
+            try
+            {
+                _nodeJSThread = new Thread(new ThreadStart(NodeProcessThread));
+                _nodeJSThread.Start();
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e.Message);
+            }
+        }
+
+        private void KillNodeProcess()
+        {
+            if (_nodeJSProcess != null)
+            {
+                _nodeJSProcess.Kill();
+            }
+        }
+
+        // FileName = "/Users/hypnoshock/.nvm/versions/node/v16.19.0/bin/node",
+        // Arguments = "build/src/index.js",
+
+        // FileName = "/bin/sh",
+        // Arguments = "npx ts-node src/index.ts",
+        public void NodeProcessThread()
+        {
+            _nodeJSProcess = new System.Diagnostics.Process
+            {
+                StartInfo = new System.Diagnostics.ProcessStartInfo
+                {
+                    WorkingDirectory = "DawnSeekersBridge",
+                    FileName = "/Users/hypnoshock/.nvm/versions/node/v16.19.0/bin/node",
+                    Arguments = "build/src/index.js",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
+                }
+            };
+
+            _nodeJSProcess.Start();
+
+            while (!_nodeJSProcess.StandardOutput.EndOfStream)
+            {
+                var line = _nodeJSProcess.StandardOutput.ReadLine();
+                Debug.Log("Node process out:\n" + line);
+                try 
+                {
+                    var state = JsonConvert.DeserializeObject<State>(line);
+                    UpdateState(state);
+                } 
+                catch (Exception e) 
+                {
+                    Debug.LogError(e);
+                }
             }
 
-#if UNITY_EDITOR && !UNITY_WEBGL
-        Debug.Log("PluginController::OnReady() Unity editor running in non WebGL mode - Attempting to connect via WebSockets");
+            Debug.Log("Node process exiting");
 
-        if (_clientWS != null)
-        {
-            _activeClient = _clientWS;
-            _clientWS.OpenEvent += OnSocketOpened;
-            _clientWS.CloseEvent += OnSocketClosed;
-            _clientWS.Connect = true;
-            // NOTE: State listener is triggered after the socket is opened
-        }
-        else if (_client != null)
-        {
-            _activeClient = _client;
-            Debug.Log("PluginController::OnReady() No web socket client set - falling back to http client for state updates");
-            StartCoroutine("PollStateUpdate");
-        }
-        else
-        {
-            Debug.LogError("PluginController::OnReady() No GraphQL clients set. Check COG game object in Map Scene set the GraphQL clients");
-        }
-#endif
+            _nodeJSProcess.WaitForExit();
+
+            Debug.Log("Kill thread");
         }
 
         public void DispatchAction(byte[] action)
@@ -141,234 +189,30 @@ namespace Cog
 
         public void FetchState()
         {
-            // Debug.Log("PluginController:FetchState()");
-
-            var gameID = DEFAULT_GAME_ID;
-            if (_gameID != "")
-                gameID = _gameID;
-
-            var variables = new JObject { { "gameID", gameID } };
-
-            var client = _activeClient != null ? _activeClient : _client;
-
-            client.ExecuteQuery(
-                Operations.FetchStateDocument,
-                variables,
-                (response) =>
-                {
-                    // Debug.Log($"Graph response: {response.Result.ToString()}");
-
-                    switch (response.Type)
-                    {
-                        case MessageType.GQL_DATA:
-                            // Debug.Log("GQL_DATA");
-
-                            try
-                            {
-                                // Deserialise here
-                                var result = response.Result.Data.ToObject<FetchStateQuery>();
-                                UpdateState(result.Game.State);
-                            }
-                            catch (Exception e)
-                            {
-                                Debug.LogError(
-                                    "PluginController:: OnStateSubscription: Unable to deserialise state"
-                                );
-                                Debug.Log(e);
-                                Debug.Log(response.Result);
-                            }
-
-                            break;
-
-                        case MessageType.GQL_ERROR:
-                            Debug.Log("GQL_ERROR");
-                            break;
-
-                        case MessageType.GQL_COMPLETE:
-                            Debug.Log("GQL_COMPLETE");
-
-                            break;
-                        case MessageType.GQL_EXCEPTION:
-                            Debug.Log("GQL_EXCEPTION");
-
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                }
-            );
+            Debug.LogError("PluginController:FetchState() deprecated");
         }
 
         public void UpdateState(State state)
         {
-            if (WorldState == null || WorldState.Block != state.Block)
+            WorldState = state;
+            if (EventStateUpdated != null)
             {
-                WorldState = state;
-                if (EventStateUpdated != null)
-                {
-                    EventStateUpdated.Invoke(state);
-                }
+                EventStateUpdated.Invoke(state);
             }
         }
 
-        private void StartStateListener()
-        {
-            Debug.Log("PluginController::StartStateListener()");
-
-            var gameID = (_gameID != "") ? _gameID : DEFAULT_GAME_ID;
-
-            var variables = new JObject { { "gameID", gameID } };
-
-            _activeClient.ExecuteQuery(
-                Operations.OnStateSubscription,
-                variables,
-                (response) =>
-                {
-                    Debug.Log($"Graph response: {response.Result.ToString()}");
-
-                    switch (response.Type)
-                    {
-                        case MessageType.GQL_DATA:
-                            // Debug.Log("GQL_DATA");
-
-                            // Deserialise here
-                            try
-                            {
-                                var result = response.Result.Data.ToObject<OnStateSubscription>();
-                                UpdateState(result.State);
-                            }
-                            catch
-                            {
-                                Debug.LogError(
-                                    "PluginController:: OnStateSubscription: Unable to deserialise state"
-                                );
-                                Debug.Log(response.Result);
-                            }
-
-                            break;
-
-                        case MessageType.GQL_ERROR:
-                            foreach (var error in response.Result.Errors)
-                            {
-                                DisplayError(error.ToString());
-                            }
-                            break;
-                        case MessageType.GQL_COMPLETE:
-                            DisplayMessage($"Complete {response}");
-                            break;
-                        case MessageType.GQL_EXCEPTION:
-                            DisplayError($"Exception {response.Result}");
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                }
-            );
-        }
-
         // -- AUTH FOR STANDALONE
-
-        /**
-         *  Used when running Unity in the editor so graphQL mutations can be made
-         */
-        private void AuthorizePublicKey()
-        {
-            // build a session auth message
-            var sessionAddress = AccountManager.Instance.SessionPublicKey.HexToByteArray();
-
-            Debug.Log("PluginController::AuthorizePublicKey(): " + sessionAddress.ToHex(true));
-
-            var signInMessage = Encoding.UTF8.GetBytes("You are signing in with session: ");
-            var authMessage = signInMessage.Concat(sessionAddress).ToArray();
-
-            var client = _activeClient != null ? _activeClient : _client;
-
-            // sign it and submit mutation
-            AccountManager.Instance.SignMessage(
-                authMessage,
-                (signedMessage) =>
-                {
-                    var gameID = (_gameID != "") ? _gameID : DEFAULT_GAME_ID;
-                    var variables = new JObject
-                    {
-                        { "gameID", gameID },
-                        { "session", AccountManager.Instance.SessionPublicKey },
-                        { "auth", signedMessage },
-                    };
-                    client.ExecuteQuery(
-                        Operations.SigninDocument,
-                        variables,
-                        (response) =>
-                        {
-                            switch (response.Type)
-                            {
-                                case MessageType.GQL_DATA:
-                                    var success = bool.Parse(
-                                        response.Result.Data["signin"]?.ToString() ?? string.Empty
-                                    );
-
-                                    if (success)
-                                    {
-                                        Debug.Log("PluginController: Successfully signed into COG");
-                                        OnPublicKeyAuthorized();
-                                    }
-
-                                    break;
-                                case MessageType.GQL_ERROR:
-                                    foreach (var error in response.Result.Errors)
-                                    {
-                                        DisplayError(error.ToString());
-                                    }
-                                    break;
-                                case MessageType.GQL_COMPLETE:
-                                    DisplayMessage($"Complete {response}");
-                                    break;
-                                case MessageType.GQL_EXCEPTION:
-                                    DisplayError($"Exception {response.Result}");
-                                    break;
-                                default:
-                                    throw new ArgumentOutOfRangeException();
-                            }
-                        }
-                    );
-                },
-                DisplayError
-            );
-        }
-
-        private void DisplayMessage(object message)
-        {
-            Debug.Log(message);
-        }
-
-        private void DisplayError(object error)
-        {
-            Debug.LogError(error);
-        }
 
         private void DirectDispatchAction(byte[] actionBytes)
         {
             // Debug.Log("PluginController:DirectDispatchAction: " + actionBytes.ToHex(true));
 
-            AccountManager.Instance.HashAndSignSession(
-                actionBytes,
-                (auth) =>
-                {
-                    var gameID = (_gameID != "") ? _gameID : DEFAULT_GAME_ID;
-                    var variables = new JObject
-                    {
-                        { "gameID", gameID },
-                        { "action", actionBytes.ToHex(true) },
-                        { "auth", auth }
-                    };
-                    _activeClient.ExecuteQuery(
-                        Operations.DispatchDocument,
-                        variables,
-                        genericGqlHandler
-                    );
-                },
-                DisplayError
-            );
+            // var variables = new JObject
+            // {
+            //     { "gameID", gameID },
+            //     { "action", actionBytes.ToHex(true) },
+            //     { "auth", auth }
+            // };
         }
 
         // -- MESSAGE OUT
@@ -409,73 +253,6 @@ namespace Cog
 
         // -- LISTENERS
 
-        private void OnSocketOpened()
-        {
-            Debug.Log("PluginController: Socket opened");
-
-            StartStateListener();
-        }
-
-        private void InitWalletProvider()
-        {
-            Debug.Log("PluginController::InitWalletProvider()");
-
-            _isRunningStandalone = true;
-
-            AccountManager.Instance.InitProvider(WalletProviderEnum.PRIVATE_KEY, _privateKey);
-
-            AccountManager.Instance.ConnectedEvent += OnWalletConnect;
-            AccountManager.Instance.Connect();
-        }
-
-        private void OnWalletConnect()
-        {
-            AuthorizePublicKey();
-        }
-
-        private void OnPublicKeyAuthorized()
-        {
-            OnReady(AccountManager.Instance.Account);
-        }
-
-        private void OnSocketClosed()
-        {
-            Debug.Log("PluginController: Socket closed");
-        }
-
-        private void genericGqlHandler(Message response)
-        {
-            switch (response.Type)
-            {
-                case MessageType.GQL_DATA:
-                    DisplayMessage($"Data {response}");
-                    Debug.Log(response.Result);
-                    break;
-                case MessageType.GQL_ERROR:
-                    foreach (var error in response.Result.Errors)
-                    {
-                        DisplayError(error.ToString());
-                    }
-                    break;
-                case MessageType.GQL_COMPLETE:
-                    DisplayMessage($"Complete {response}");
-                    break;
-                case MessageType.GQL_EXCEPTION:
-                    DisplayError($"Exception {response.Result}");
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        IEnumerator PollStateUpdate()
-        {
-            for (; ; )
-            {
-                FetchState();
-                yield return new WaitForSeconds(2f);
-            }
-        }
 
         public void OnMessage()
         {
