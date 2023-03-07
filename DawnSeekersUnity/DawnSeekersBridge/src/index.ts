@@ -30,16 +30,51 @@ class DawnSeekersBridge implements Observer<State> {
     }
 
     public next(state: State) {
-        // Break circular references
-        for (let key in state) {
-            state[key] = this.clean(state[key]);
-        }
+        state = this.breakCircularReferences(state) as State;
 
-        const json = JSON.stringify(state);
+        const json = JSON.stringify(state, (key, value) => {
+            if (typeof value === 'bigint') {
+                return "0x" + BigInt(value).toString(16);
+            }
+            return value;
+        });
+
         process.stdout.write(json + '\n');
     }
 
-    private clean(obj: any) {
+    private breakCircularReferences(obj: any, ancestorSet?: Array<any>) {       
+        const seen: Array<any> = [];
+        if (ancestorSet) {
+            seen.push(...ancestorSet);
+        }
+
+        if (seen.indexOf(obj) > -1) {
+            const idx = seen.indexOf(obj);
+            return null;
+        }
+
+        seen.push(obj);
+
+        const newObj = Array.isArray(obj) ? [] : {};
+
+        for (var key in obj) {
+            const value = obj[key];
+            if (typeof value === 'object' && value !== null) {
+                const newVal = this.breakCircularReferences(value, seen);
+                if (newVal !== null) {
+                    newObj[key] = newVal;
+                }
+            }
+            else
+            {
+                newObj[key] = obj[key];
+            }
+        }
+
+        return newObj;
+    }
+
+    private simpleBreakCircularReferences(obj: any) {
         for (let key in obj) {
             obj[key] = JSON.parse(JSON.stringify(obj[key], this.getCircularReplacer()));
         }

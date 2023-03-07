@@ -117,11 +117,6 @@ public class MapManager : MonoBehaviour
 
         foreach (var seeker in state.Game.Seekers)
         {
-            if (seeker.Location.Next.Tile == null)
-            {
-                continue;
-            }
-            
             // index 1 is destination location
             var cellPosCube = TileHelper.GetTilePosCube(seeker.Location.Next.Tile);
 

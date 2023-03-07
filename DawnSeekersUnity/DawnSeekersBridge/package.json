@@ -6,7 +6,7 @@
   "scripts": {
     "build": "rimraf ./build && tsc",
     "start:dev": "npx nodemon",
-    "start": "node build/src/index.js"
+    "start": "npm run build && node build/src/index.js"
   },
   "keywords": [],
   "author": "",
