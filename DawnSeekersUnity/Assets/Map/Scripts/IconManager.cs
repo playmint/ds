@@ -112,6 +112,18 @@ public class IconManager : MonoBehaviour
             seekerPositionCounts[cell.cubicCoords]++;
     }
 
+    public void RemoveSeekers(List<Cog.Seeker> seekers)
+    {
+        var filteredDictionary = spawnedSeekerIcons
+            .Where(pair => seekers.Any(s => s.Id == pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value);
+        foreach (KeyValuePair<string, IconController> icon in filteredDictionary)
+        {
+            icon.Value.DestroyIcon();
+            spawnedSeekerIcons.Remove(icon.Key);
+        }
+    }
+
     //public void CreateMapIcon(MapManager.MapCell cell)
     //{
     //    GameObject icon = Instantiate(_buildingIconPrefab, transform);

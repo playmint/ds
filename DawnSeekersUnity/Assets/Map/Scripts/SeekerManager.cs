@@ -1,8 +1,7 @@
 using Cog;
 using UnityEngine;
-using Nethereum.Hex.HexConvertors.Extensions;
-using Nethereum.Contracts;
 using System.Linq;
+using System.Collections.Generic;
 
 public class SeekerManager : MonoBehaviour
 {
@@ -31,18 +30,29 @@ public class SeekerManager : MonoBehaviour
 
     // -- LISTENERS
 
+    // TODO: Still assuming only one seeker
     private void OnStateUpdated(State state)
     {
-        Seeker = (state.UI.Selection.Player != null && state.UI.Selection.Player.Seekers.Count > 0)? state.UI.Selection.Player.Seekers.ToList()[0] : null;
-        if (Seeker != null)
+        var playerSeeker = (state.UI.Selection.Player != null && state.UI.Selection.Player.Seekers.Count > 0)? state.UI.Selection.Player.Seekers.ToList()[0] : null;
+        if (playerSeeker != Seeker)
         {
-            Debug.Log("SeekerManager: Seeker found. ID: " + Seeker.Id);
+            var seekersToRemove = new List<Cog.Seeker>();
+            if (Seeker != null)
+            {
+                // If we've switched accounts then remove player icon
+                seekersToRemove.Add(Seeker);
+            }
+
+            Seeker = playerSeeker;
+
+            if (playerSeeker != null)
+            {
+                // Remove 'other seeker' icon so it gets replaced with the player icon
+                seekersToRemove.Add(playerSeeker);
+                Debug.Log("SeekerManager: Seeker found. ID: " + Seeker.Id);
+            }
+
+            IconManager.instance.RemoveSeekers(seekersToRemove);
         }
-#if  UNITY_EDITOR
-        else
-        {
-            Debug.Log("SeekerManager: No seeker found");
-        }
-#endif
     }
 }
