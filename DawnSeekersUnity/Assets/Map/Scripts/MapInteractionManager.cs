@@ -55,6 +55,7 @@ public class MapInteractionManager : MonoBehaviour
             validPosition =
                 !MapManager.isMakingMove
                 || (
+                    IsDiscoveredTile(cubePos) && 
                     TileHelper.GetTileNeighbours(selectedCellPos).Contains(cubePos)
                     || cubePos == selectedCellPos
                 );
@@ -98,7 +99,8 @@ public class MapInteractionManager : MonoBehaviour
     {
         // CurrentMouseCell is using Odd R offset coords
         var cellPosCube = GridExtensions.GridToCube(CurrentMouseCell);
-        if (!IsDiscoveredTile(cellPosCube))
+        var tile = GetTile(cellPosCube);
+        if (tile == null)
             return;
 
         selectedCellPos = cellPosCube;
@@ -140,12 +142,22 @@ public class MapInteractionManager : MonoBehaviour
         {
             foreach (var tile in Cog.PluginController.Instance.WorldState.Game.Tiles)
             {
-                if (TileHelper.GetTilePosCube(tile) == cellPosCube)
+                if (TileHelper.GetTilePosCube(tile) == cellPosCube && tile.Biome != 0)
                     return true;
             }
         }
 
         return false;
+    }
+
+    private Tile GetTile(Vector3Int cellPosCube)
+    {
+        if (Cog.PluginController.Instance.WorldState == null)
+        {
+            return null;
+        }
+
+        return Cog.PluginController.Instance.WorldState.Game.Tiles.ToList().Find( tile => TileHelper.GetTilePosCube(tile) == cellPosCube);
     }
 
     // -- LISTENERS
