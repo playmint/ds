@@ -1,14 +1,23 @@
-import { inspect } from 'util';
 import { DawnseekersClient, Tile, State, PluginTrust, PluginType, useDawnseekersState, BiomeKind } from '../lib/exp-ds-worker-client/src/host';
 import fetch from 'cross-fetch';
 import WebSocket from 'ws';
 import { Observer } from 'zen-observable-ts';
+import { ethers } from 'ethers';
+
+interface Message {
+    msg: string;
+}
+
+interface DispatchMessage extends Message {
+    action: string;
+    args: any[];
+}
 
 class DawnSeekersBridge implements Observer<State> {
 
     private _ds: DawnseekersClient;
 
-    constructor() {
+    constructor(privKey: string) {
         this._ds = new DawnseekersClient({
             wsEndpoint: 'ws://localhost:8080/query',
             httpEndpoint: 'http://localhost:8080/query',
@@ -23,10 +32,31 @@ class DawnSeekersBridge implements Observer<State> {
             ],
             corePlugins: [],
             fetch,
-            webSocketImpl: WebSocket
+            webSocketImpl: WebSocket,
+            privKey
         });
 
         this._ds.subscribe(this);
+
+        this.signin();
+
+        process.stdin.on('data', (data: Buffer) => {
+            const json = data.toString('utf-8');
+            try {
+                const msgObj = JSON.parse(json) as Message;
+                if (msgObj.msg === 'dispatch') {
+                    const {action, args} = msgObj as DispatchMessage;
+                    this._ds.dispatch(action, ...args);
+                }
+            } catch (e) {
+                // Not JSON
+                // console.log(e);
+            }
+        });
+    }
+
+    private async signin() {
+        await this._ds.signin();
     }
 
     public next(state: State) {
@@ -42,8 +72,8 @@ class DawnSeekersBridge implements Observer<State> {
         process.stdout.write(json + '\n');
     }
 
-    private breakCircularReferences(obj: any, ancestorSet?: Array<any>) {       
-        const seen: Array<any> = [];
+    private breakCircularReferences(obj: any, ancestorSet?: any[]) {       
+        const seen: any[] = [];
         if (ancestorSet) {
             seen.push(...ancestorSet);
         }
@@ -102,4 +132,7 @@ class DawnSeekersBridge implements Observer<State> {
     };
 }
 
-const bridge = new DawnSeekersBridge();
+const DEFAULT_PRIV_KEY = '0xc14c1284a5ff47ce38e2ad7a50ff89d55ca360b02cdf3756cdb457389b1da223';
+const privKey = process.argv.length >= 3 ? process.argv[2] : DEFAULT_PRIV_KEY;
+
+const bridge = new DawnSeekersBridge(privKey);

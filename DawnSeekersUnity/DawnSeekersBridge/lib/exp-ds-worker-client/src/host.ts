@@ -193,6 +193,7 @@ export interface DawnseekersConfig {
     corePlugins?: PluginConfig[];
     fetch?: any;
     webSocketImpl?: any;
+    privKey?: string;
 }
 
 const NodeSelectors = {
@@ -222,6 +223,7 @@ export class DawnseekersClient {
     observers: Observer<State>[];
     stateQuery: ObservableQuery<GetStateQuery, GetStateQueryVariables>;
     session?: Session;
+    privKey?: string; // TODO: probably bad
 
     constructor({
         httpEndpoint,
@@ -230,6 +232,7 @@ export class DawnseekersClient {
         corePlugins,
         fetch,
         webSocketImpl,
+        privKey,
     }: DawnseekersConfig) {
         this.plugins = [];
         this.selection = { tileIDs: [] };
@@ -237,6 +240,7 @@ export class DawnseekersClient {
         this.autoloadablePlugins = autoloadablePlugins || [];
         this.observers = [];
         this.latestState = { game: this.game, ui: { selection: {}, plugins: [] } };
+        this.privKey = privKey;
 
         // init core plugins
         if (corePlugins) {
@@ -488,6 +492,9 @@ export class DawnseekersClient {
 
     // TODO: Support private key signer
     async getPlayerSigner(): Promise<ethers.Signer> {
+        if (this.privKey) {
+            return new ethers.Wallet(this.privKey);
+        }
         throw new Error(`metamask not installed and we havent implemented WalletConnect yet sorry`);
     }
 
