@@ -32,7 +32,7 @@ public class MapInteractionManager : MonoBehaviour
     private void Start()
     {
         m_Plane = new Plane(Vector3.forward, 0);
-        Cog.PluginController.Instance.EventTileInteraction += OnTileInteraction;
+        Cog.PluginController.Instance.EventStateUpdated += OnStateUpdated;
 
         selectedMarker1.gameObject.SetActive(false);
     }
@@ -109,26 +109,15 @@ public class MapInteractionManager : MonoBehaviour
 
         if (SeekerManager.Instance.Seeker != null)
         {
-            var action = new Cog.Actions.ScoutSeekerAction(
-                SeekerManager.Instance.Seeker.Id,
-                cellPosCube.x,
-                cellPosCube.y,
-                cellPosCube.z
-            );
-            Cog.PluginController.Instance.DispatchAction(action.GetCallData());
+            // function SCOUT_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
+            Cog.PluginController.Instance.DispatchAction("SCOUT_SEEKER", "0x" + SeekerManager.Instance.Seeker.Key, cellPosCube.x, cellPosCube.y, cellPosCube.z);
         }
     }
 
     private void MoveSeeker(Seeker seeker, Vector3Int cellPosCube)
     {
-        var action = new Cog.Actions.MoveSeekerAction(
-            seeker.Id,
-            cellPosCube.x,
-            cellPosCube.y,
-            cellPosCube.z
-        );
-
-        Cog.PluginController.Instance.DispatchAction(action.GetCallData());
+        // function MOVE_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
+        Cog.PluginController.Instance.DispatchAction("MOVE_SEEKER", "0x" + SeekerManager.Instance.Seeker.Key, cellPosCube.x, cellPosCube.y, cellPosCube.z);
     }
 
     // -- TODO: Obviously this won't scale, need to hold tiles in a dictionary
@@ -148,12 +137,22 @@ public class MapInteractionManager : MonoBehaviour
 
     // -- LISTENERS
 
+    private void OnStateUpdated(State state)
+    {
+        if (state.UI.Selection.Tiles.Count > 0)
+        {
+            var tile = state.UI.Selection.Tiles.ToList()[0];
+            var cellPosCube = TileHelper.GetTilePosCube(tile);
+            var gridCoords = GridExtensions.CubeToGrid(cellPosCube);
+            if (CurrentSelectedCell != gridCoords)
+            {
+                OnTileInteraction(cellPosCube);
+            }
+        }
+    }
+
     private void OnTileInteraction(Vector3Int cellPosCube)
     {
-        // -- Can't select an undiscovered tile. We might need to for scouting in the future?
-        if (!IsDiscoveredTile(cellPosCube) || !validPosition)
-            return;
-
         CurrentSelectedCell = GridExtensions.CubeToGrid(cellPosCube);
 
         bool isPlayerAtPosition = SeekerManager.Instance.IsPlayerAtPosition(cellPosCube);

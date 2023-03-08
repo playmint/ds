@@ -33,11 +33,7 @@ public class SeekerManager : MonoBehaviour
 
     private void OnStateUpdated(State state)
     {
-        // var accountBigInt = Cog.PluginController.Instance.Account.HexToBigInteger(false);
-        // var seekerIDBigInt = accountBigInt & "0xffffffff".HexToBigInteger(false);
-        // var seekerID = seekerIDBigInt.ToHex(false);
-
-        Seeker = state.Game.Seekers.ToList().Find(seeker => seeker.Owner.Id == Cog.PluginController.Instance.Account);
+        Seeker = (state.UI.Selection.Player != null && state.UI.Selection.Player.Seekers.Count > 0)? state.UI.Selection.Player.Seekers.ToList()[0] : null;
         if (Seeker != null)
         {
             Debug.Log("SeekerManager: Seeker found. ID: " + Seeker.Id);
@@ -46,15 +42,6 @@ public class SeekerManager : MonoBehaviour
         else
         {
             Debug.Log("SeekerManager: No seeker found");
-            // var action = new Cog.Actions.DevSpawnSeekerAction(
-            //     Cog.PluginController.Instance.Account,
-            //     seekerID,
-            //     0,
-            //     0,
-            //     0
-            // );
-
-            // Cog.PluginController.Instance.DispatchAction(action.GetCallData());
         }
 #endif
     }

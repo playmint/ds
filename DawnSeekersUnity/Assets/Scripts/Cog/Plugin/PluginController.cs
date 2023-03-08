@@ -1,14 +1,7 @@
 using UnityEngine;
-using Cog.GraphQL;
-using GraphQL4Unity;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Cog.Account;
-using Nethereum.Hex.HexConvertors.Extensions;
 using System;
-using System.Text;
-using System.Linq;
-using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 
@@ -21,6 +14,20 @@ namespace Cog
         public int s;
     }
 
+    struct SelectTileMessage
+    {
+        public string msg;
+        public List<string> tileIDs;
+    }
+
+    struct DispatchMessage
+    {
+        public string msg;
+        public string action;
+        public object[] args;
+    }
+
+    // TODO: The json schema has this structure defined, find a way to export that structure instead of definiing it manually here
     public class State
     {
         [Newtonsoft.Json.JsonProperty("game", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -33,19 +40,17 @@ namespace Cog
     public class PluginController : MonoBehaviour
     {
         [DllImport("__Internal")]
-        private static extern void DispatchActionEncodedRPC(string action);
+        private static extern void DispatchActionRPC(string action, params object[] args);
 
         [DllImport("__Internal")]
         private static extern void UnityReadyRPC();
 
         [DllImport("__Internal")]
-        private static extern void TileInteractionRPC(int q, int r, int s);
+        private static extern void SelectTilesRPC(List<string> tileIDs);
 
         private const string DEFAULT_GAME_ID = "DAWNSEEKERS";
 
         public static PluginController Instance;
-
-        private IGraphQL _activeClient;
 
         [SerializeField]
         private string _gameID = "";
@@ -60,12 +65,13 @@ namespace Cog
 
         public State WorldState { get; private set; }
 
+        private bool _hasStateUpdated;
+
         private Thread _nodeJSThread;
         private System.Diagnostics.Process _nodeJSProcess;
 
         // -- Events
         public Action<State> EventStateUpdated;
-        public Action<Vector3Int> EventTileInteraction;
 
         protected void Awake()
         {
@@ -77,10 +83,24 @@ namespace Cog
             Debug.Log("PluginController::Start()");
 
 #if UNITY_EDITOR
+            _isRunningStandalone = true;
             StartNodeProcess();
 #elif UNITY_WEBGL
             UnityReadyRPC();
 #endif
+        }
+
+        protected void Update()
+        {
+            // state events get dispatched in the update loop as so anything reacting to the event is happening in the main thread
+            if (_hasStateUpdated)
+            {
+                _hasStateUpdated = false;
+                if (EventStateUpdated != null)
+                {
+                    EventStateUpdated.Invoke(WorldState);
+                }
+            }
         }
 
         protected void OnDestroy()
@@ -140,9 +160,10 @@ namespace Cog
                 {
                     WorkingDirectory = "DawnSeekersBridge",
                     FileName = "/Users/hypnoshock/.nvm/versions/node/v16.19.0/bin/node",
-                    Arguments = "build/src/index.js",
+                    Arguments = "build/src/index.js " + _privateKey,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
+                    RedirectStandardInput = true,
                     CreateNoWindow = true
                 }
             };
@@ -152,15 +173,23 @@ namespace Cog
             while (!_nodeJSProcess.StandardOutput.EndOfStream)
             {
                 var line = _nodeJSProcess.StandardOutput.ReadLine();
-                Debug.Log("Node process out:\n" + line);
-                try 
+                
+                if (line[0] == '{')
                 {
-                    var state = JsonConvert.DeserializeObject<State>(line);
-                    UpdateState(state);
-                } 
-                catch (Exception e) 
+                    try 
+                    {
+                        var state = JsonConvert.DeserializeObject<State>(line);
+                        UpdateState(state);
+                    } 
+                    catch (Exception e) 
+                    {
+                        Debug.Log("DSBridge:\n" + line);
+                        Debug.LogError(e);
+                    }
+                }
+                else
                 {
-                    Debug.LogError(e);
+                    Debug.Log("DSBridge:\n" + line);
                 }
             }
 
@@ -171,83 +200,48 @@ namespace Cog
             Debug.Log("Kill thread");
         }
 
-        public void DispatchAction(byte[] action)
-        {
-            if (_isRunningStandalone)
-            {
-                // -- Directly dispatch the action via GraphQL
-                DirectDispatchAction(action);
-            }
-            else
-            {
-                // -- Send message up to shell and let it do the signing and sending
-                var actionHex = action.ToHex(true);
-                // Debug.Log($"PluginController::DispatchAction() Sending Dispatch message len:{action.Length} action: " + actionHex);
-                DispatchActionEncodedRPC(actionHex);
-            }
-        }
-
-        public void FetchState()
-        {
-            Debug.LogError("PluginController:FetchState() deprecated");
-        }
-
         public void UpdateState(State state)
         {
             WorldState = state;
-            if (EventStateUpdated != null)
-            {
-                EventStateUpdated.Invoke(state);
-            }
-        }
-
-        // -- AUTH FOR STANDALONE
-
-        private void DirectDispatchAction(byte[] actionBytes)
-        {
-            // Debug.Log("PluginController:DirectDispatchAction: " + actionBytes.ToHex(true));
-
-            // var variables = new JObject
-            // {
-            //     { "gameID", gameID },
-            //     { "action", actionBytes.ToHex(true) },
-            //     { "auth", auth }
-            // };
+            _hasStateUpdated = true;
         }
 
         // -- MESSAGE OUT
 
+        public void DispatchAction(string action, params object[] args)
+        {
+            if (_isRunningStandalone)
+            {
+                var dispatchActionMsg = new DispatchMessage{ msg = "dispatch", action = action, args = args};
+                var json = JsonConvert.SerializeObject(dispatchActionMsg);
+                Debug.Log(json);
+                _nodeJSProcess.StandardInput.WriteLine(json);
+            }
+            else
+            {
+                // -- Send message up to shell and let it do the signing and sending
+                DispatchActionRPC(action, args);
+            }
+        }
+
         public void SendTileInteractionMsg(Vector3Int tileCubeCoords)
         {
-            Debug.Log("PluginController::OnTileClick() tileCubeCoords: " + tileCubeCoords);
+            Debug.Log("PluginController::SendTileInteractionMsg() tileCubeCoords: " + tileCubeCoords);
+
+            var tileIDs = new List<string>();
+            tileIDs.Add(NodeKinds.TileNode.GetKey(0, tileCubeCoords.x, tileCubeCoords.y, tileCubeCoords.z));
 
             if (_isRunningStandalone)
             {
-                // -- Call the tile interaction handler directly as there is no shell to broadcast the message
-                OnTileInteraction(tileCubeCoords);
+                var tileInteractionMsg = new SelectTileMessage{ msg = "selectTile", tileIDs = tileIDs };
+                var json = JsonConvert.SerializeObject(tileInteractionMsg);
+                // Debug.Log(json);
+                _nodeJSProcess.StandardInput.WriteLine(json);
             }
             else
             {
                 // -- Send interaction up to shell
-                TileInteractionRPC(tileCubeCoords.x, tileCubeCoords.y, tileCubeCoords.z);
-            }
-        }
-
-        // -- MESSAGE IN
-
-        private void OnTileInteraction(string tileCubeCoordsJson)
-        {
-            Debug.Log("OnTileInteraction(): " + tileCubeCoordsJson);
-            var tileCubeCoords = JsonUtility.FromJson<TileCubeCoords>(tileCubeCoordsJson);
-            Debug.Log("OnTileInteraction(): deserialsed: " + tileCubeCoords);
-            OnTileInteraction(new Vector3Int(tileCubeCoords.q, tileCubeCoords.r, tileCubeCoords.s));
-        }
-
-        private void OnTileInteraction(Vector3Int tileCubeCoords)
-        {
-            if (EventTileInteraction != null)
-            {
-                EventTileInteraction.Invoke(tileCubeCoords);
+                SelectTilesRPC(tileIDs);
             }
         }
 

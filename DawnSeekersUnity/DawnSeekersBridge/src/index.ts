@@ -13,6 +13,10 @@ interface DispatchMessage extends Message {
     args: any[];
 }
 
+interface SelectTileMessage extends Message {
+    tileIDs: string[];
+}
+
 class DawnSeekersBridge implements Observer<State> {
 
     private _ds: DawnseekersClient;
@@ -48,9 +52,12 @@ class DawnSeekersBridge implements Observer<State> {
                     const {action, args} = msgObj as DispatchMessage;
                     this._ds.dispatch(action, ...args);
                 }
+                if (msgObj.msg === 'selectTile') {
+                    const {tileIDs} = msgObj as SelectTileMessage;
+                    this._ds.selectTiles(tileIDs);
+                }
             } catch (e) {
-                // Not JSON
-                // console.log(e);
+                console.log(e);
             }
         });
     }

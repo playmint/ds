@@ -48,7 +48,6 @@ public class MapManager : MonoBehaviour
         // of the event therefore the event will set a flag and then visual state update happens as part of the main thread
         if (_hasStateUpdated)
         {
-            Debug.Log("State Update");
             RenderState(Cog.PluginController.Instance.WorldState);
             _hasStateUpdated = false;
         }
