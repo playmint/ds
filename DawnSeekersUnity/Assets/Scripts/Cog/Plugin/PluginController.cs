@@ -231,11 +231,21 @@ namespace Cog
             var tileIDs = new List<string>();
             tileIDs.Add(NodeKinds.TileNode.GetKey(0, tileCubeCoords.x, tileCubeCoords.y, tileCubeCoords.z));
 
+            SendSelectTileMsg(tileIDs);
+        }
+
+        public void SendDeselectAllTilesMsg()
+        {
+            SendSelectTileMsg(new List<string>());
+        }
+
+        public void SendSelectTileMsg(List<string> tileIDs)
+        {
             if (_isRunningStandalone)
             {
                 var tileInteractionMsg = new SelectTileMessage{ msg = "selectTile", tileIDs = tileIDs };
                 var json = JsonConvert.SerializeObject(tileInteractionMsg);
-                // Debug.Log(json);
+                Debug.Log(json);
                 _nodeJSProcess.StandardInput.WriteLine(json);
             }
             else

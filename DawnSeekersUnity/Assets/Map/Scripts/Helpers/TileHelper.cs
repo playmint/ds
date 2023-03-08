@@ -12,7 +12,8 @@ public class TileHelper
 
     public static bool HasResource(Tile tile)
     {
-        return false; //tile.Bags.ToList().Find(equipSlot => equipSlot.Bag..Find(slot => slot.Balance > 0) != null) != null;
+        // TODO: Check for balance on tile (Currently not in data)
+        return tile.Bags.Count > 0;
     }
 
     public static Vector3Int[] GetTileNeighbours(Vector3Int tile)
