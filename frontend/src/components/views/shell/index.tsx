@@ -2,23 +2,15 @@
 
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
-import { HexGrid, Layout, Hexagon } from 'react-hexgrid';
 import { ComponentProps } from '@app/types/component-props';
 import { styles } from './shell.styles';
 import React from 'react';
-import {
-    BiomeKind,
-    DawnseekersClient,
-    PluginTrust,
-    PluginType,
-    State,
-    Tile,
-    useDawnseekersState
-} from '@app/contexts/dawnseekers-provider';
+import { DawnseekersClient, PluginTrust, PluginType, useDawnseekersState } from '@app/contexts/dawnseekers-provider';
 import { TileAction } from '@app/components/organisms/tile-action';
 import movePlugin from '@app/plugins/move';
 import scoutPlugin from '@app/plugins/scout';
 import { formatPlayerId, formatSeekerKey } from '@app/helpers';
+import { UnityMap } from '@app/components/organisms/unity-map';
 
 const ds = new DawnseekersClient({
     wsEndpoint: 'ws://localhost:8080/query',
@@ -133,47 +125,6 @@ ds.load({
 // `
 // });
 
-const HexMap = ({ state, ds }: { state: State; ds: DawnseekersClient }) => {
-    const { game, ui } = state;
-    const seeker = ui.selection.seeker;
-    const selectedTiles = ui.selection.tiles;
-    const selectedTile = selectedTiles && selectedTiles.length > 0 ? selectedTiles[0] : null;
-
-    const clickTile = (t: Tile) => {
-        ds.selectTiles([t.id]);
-    };
-
-    return (
-        <div>
-            <HexGrid width={1200} height={800} viewBox="-50 -50 100 100">
-                <Layout size={{ x: 5, y: 5 }} flat={false} spacing={1.05} origin={{ x: 0, y: 0 }}>
-                    {game.tiles.map((t) => (
-                        <Hexagon
-                            key={t.id}
-                            className={[
-                                t.biome == BiomeKind.DISCOVERED ? 'scouted' : 'unscouted',
-                                selectedTile?.id == t.id ? 'selected' : ''
-                            ].join(' ')}
-                            q={t.coords.q}
-                            r={t.coords.r}
-                            s={t.coords.s}
-                            onClick={() => clickTile(t)}
-                        >
-                            {seeker?.location.next.tile == t ? (
-                                <polygon
-                                    className="selected-seeker"
-                                    points="50 15, 100 100, 0 100"
-                                    transform="scale(0.01)"
-                                />
-                            ) : undefined}
-                        </Hexagon>
-                    ))}
-                </Layout>
-            </HexGrid>
-        </div>
-    );
-};
-
 export interface ShellProps extends ComponentProps {}
 
 const StyledShell = styled('div')`
@@ -187,7 +138,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
 
     return (
         <StyledShell {...otherProps}>
-            <div className="mapnav">{data && <HexMap state={data} ds={ds} />}</div>
+            <div className="mapnav">{data && <UnityMap state={data} ds={ds} />}</div>
             <div className="topnav">
                 <button className="topnav-button" onClick={() => ds.signin()}>
                     <img src="/icons/player.png" alt="" />

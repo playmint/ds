@@ -52,8 +52,6 @@ namespace Cog
         private string _privateKey =
             "0xc14c1284a5ff47ce38e2ad7a50ff89d55ca360b02cdf3756cdb457389b1da223";
 
-        private bool _isRunningStandalone = false;
-
         public State WorldState { get; private set; }
 
         private bool _hasStateUpdated;
@@ -73,7 +71,6 @@ namespace Cog
             Debug.Log("PluginController::Start()");
 
 #if UNITY_EDITOR
-            _isRunningStandalone = true;
             StartNodeProcess();
 #elif UNITY_WEBGL
             UnityReadyRPC();
@@ -94,6 +91,12 @@ namespace Cog
             }
         }
 
+        private void UpdateState(State state)
+        {
+            WorldState = state;
+            _hasStateUpdated = true;
+        }
+
 #if UNITY_EDITOR
 
         // -- Node.js process
@@ -104,12 +107,6 @@ namespace Cog
         protected void OnDestroy()
         {
             KillNodeProcess();
-        }
-
-        private void UpdateState(State state)
-        {
-            WorldState = state;
-            _hasStateUpdated = true;
         }
 
         private void StartNodeProcess()
@@ -199,15 +196,12 @@ namespace Cog
             var json = JsonConvert.SerializeObject(dispatchActionMsg);
             // Debug.Log(json);
 
-            if (_isRunningStandalone)
-            {
-                _nodeJSProcess.StandardInput.WriteLine(json);
-            }
-            else
-            {
-                // -- Send message up to shell and let it do the signing and sending
-                SendMessageRPC(json);
-            }
+#if UNITY_EDITOR
+            _nodeJSProcess.StandardInput.WriteLine(json);
+#elif UNITY_WEBGL
+            // -- Send message up to shell and let it do the signing and sending
+            SendMessageRPC(json);
+#endif
         }
 
         public void SendSelectTileMsg(List<string> tileIDs)
@@ -220,31 +214,18 @@ namespace Cog
             var json = JsonConvert.SerializeObject(tileInteractionMsg);
             // Debug.Log(json);
 
-            if (_isRunningStandalone)
-            {
-                _nodeJSProcess.StandardInput.WriteLine(json);
-            }
-            else
-            {
-                // -- Send interaction up to shell
-                SendMessageRPC(json);
-            }
+#if UNITY_EDITOR
+            _nodeJSProcess.StandardInput.WriteLine(json);
+#elif UNITY_WEBGL
+            // -- Send interaction up to shell
+            SendMessageRPC(json);
+#endif
         }
 
         public void SendDeselectAllTilesMsg()
         {
             SendSelectTileMsg(new List<string>());
         }
-
-        // public void SendTileInteractionMsg(Vector3Int tileCubeCoords)
-        // {
-        //     Debug.LogWarning("PluginController::SendTileInteractionMsg() Deprecated - Use SendSelectTileMsg instead. tileCubeCoords: " + tileCubeCoords);
-
-        //     var tileIDs = new List<string>();
-        //     tileIDs.Add(NodeKinds.TileNode.GetKey(0, tileCubeCoords.x, tileCubeCoords.y, tileCubeCoords.z));
-
-        //     SendSelectTileMsg(tileIDs);
-        // }
 
         // -- MESSAGE IN
 
@@ -260,16 +241,6 @@ namespace Cog
                 Debug.Log("PluginController::OnState():\n" + stateJson);
                 Debug.LogError(e);
             }
-        }
-
-        public void OnMessage()
-        {
-            Debug.Log("Message Received from JS land");
-        }
-
-        public void OnTest()
-        {
-            Debug.Log("Message Received from JS land OnTest");
         }
     }
 }
