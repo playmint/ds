@@ -25,7 +25,8 @@ public class SeekerManager : MonoBehaviour
 
     public bool IsPlayerAtPosition(Vector3Int cellPosCube)
     {
-        return Seeker != null && TileHelper.GetTilePosCube(Seeker.Location.Next.Tile) == cellPosCube;
+        return Seeker != null
+            && TileHelper.GetTilePosCube(Seeker.Location.Next.Tile) == cellPosCube;
     }
 
     // -- LISTENERS
@@ -33,7 +34,10 @@ public class SeekerManager : MonoBehaviour
     // TODO: Still assuming only one seeker
     private void OnStateUpdated(State state)
     {
-        var playerSeeker = (state.UI.Selection.Player != null && state.UI.Selection.Player.Seekers.Count > 0)? state.UI.Selection.Player.Seekers.ToList()[0] : null;
+        var playerSeeker =
+            (state.UI.Selection.Player != null && state.UI.Selection.Player.Seekers.Count > 0)
+                ? state.UI.Selection.Player.Seekers.ToList()[0]
+                : null;
         if (playerSeeker != Seeker)
         {
             var seekersToRemove = new List<Cog.Seeker>();

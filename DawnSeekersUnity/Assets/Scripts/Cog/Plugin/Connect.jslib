@@ -4,30 +4,18 @@ mergeInto(LibraryManager.library, {
             "testCall"
         );
     },
-	SceneLoadedRPC: function (sceneName) {
-		window.dispatchReactUnityEvent(
-			"sceneLoaded",
-			UTF8ToString(sceneName)
-		);
-	},
+
 	UnityReadyRPC: function () {
 		window.dispatchReactUnityEvent(
 			"unityReady"
 		);
 	},
-	TileInteractionRPC: function (q, r, s) {
+
+	SendMessageRPC: function (msgJson) {
 		window.dispatchReactUnityEvent(
-			"tileInteraction",
-			q,
-			r,
-			s
+			"sendMessage",
+			UTF8ToString(msgJson)
 		);
 	},
-	DispatchActionEncodedRPC: function (action) {
-		window.dispatchReactUnityEvent(
-			"dispatchActionEncoded",
-			UTF8ToString(action)
-		);
-	}
 
 });

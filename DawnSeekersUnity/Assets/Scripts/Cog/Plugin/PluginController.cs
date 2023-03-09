@@ -7,13 +7,6 @@ using System.Threading;
 
 namespace Cog
 {
-    struct TileCubeCoords
-    {
-        public int q;
-        public int r;
-        public int s;
-    }
-
     struct SelectTileMessage
     {
         public string msg;
@@ -30,30 +23,30 @@ namespace Cog
     // TODO: The json schema has this structure defined, find a way to export that structure instead of definiing it manually here
     public class State
     {
-        [Newtonsoft.Json.JsonProperty("game", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty(
+            "game",
+            Required = Newtonsoft.Json.Required.DisallowNull,
+            NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
+        )]
         public GameState Game { get; set; }
-        
-        [Newtonsoft.Json.JsonProperty("ui", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+
+        [Newtonsoft.Json.JsonProperty(
+            "ui",
+            Required = Newtonsoft.Json.Required.DisallowNull,
+            NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
+        )]
         public UIState UI { get; set; }
     }
 
     public class PluginController : MonoBehaviour
     {
         [DllImport("__Internal")]
-        private static extern void DispatchActionRPC(string action, params object[] args);
+        private static extern void SendMessageRPC(string msgJSON);
 
         [DllImport("__Internal")]
         private static extern void UnityReadyRPC();
 
-        [DllImport("__Internal")]
-        private static extern void SelectTilesRPC(List<string> tileIDs);
-
-        private const string DEFAULT_GAME_ID = "DAWNSEEKERS";
-
         public static PluginController Instance;
-
-        [SerializeField]
-        private string _gameID = "";
 
         [SerializeField]
         private string _privateKey =
@@ -61,17 +54,14 @@ namespace Cog
 
         private bool _isRunningStandalone = false;
 
-        public string Account { get; private set; }
-
         public State WorldState { get; private set; }
 
         private bool _hasStateUpdated;
 
-        private Thread _nodeJSThread;
-        private System.Diagnostics.Process _nodeJSProcess;
-
-        // -- Events
+        // -- EVENTS
         public Action<State> EventStateUpdated;
+
+        // -- //
 
         protected void Awake()
         {
@@ -92,7 +82,8 @@ namespace Cog
 
         protected void Update()
         {
-            // state events get dispatched in the update loop as so anything reacting to the event is happening in the main thread
+            // state events get dispatched in the update loop so that the event happens in the main thread which is required
+            // by anything that renders anything as a side effect of the state update
             if (_hasStateUpdated)
             {
                 _hasStateUpdated = false;
@@ -103,26 +94,22 @@ namespace Cog
             }
         }
 
+#if UNITY_EDITOR
+
+        // -- Node.js process
+
+        private Thread _nodeJSThread;
+        private System.Diagnostics.Process _nodeJSProcess;
+
         protected void OnDestroy()
         {
-#if UNITY_EDITOR
             KillNodeProcess();
-#endif   
         }
 
-        // Called by the generated HTML wrapper and used when testing WebGL outside of the shell
-        public void ReadyStandalone()
+        private void UpdateState(State state)
         {
-
-        }
-
-        // Is either trigged by READY message from shell or after the wallet is initialised if run in editor or run as standalone WebGL
-        public void OnReady(string account)
-        {
-            Debug.Log("OnReady()");
-#if UNITY_EDITOR
-
-#endif
+            WorldState = state;
+            _hasStateUpdated = true;
         }
 
         private void StartNodeProcess()
@@ -147,11 +134,6 @@ namespace Cog
             }
         }
 
-        // FileName = "/Users/hypnoshock/.nvm/versions/node/v16.19.0/bin/node",
-        // Arguments = "build/src/index.js",
-
-        // FileName = "/bin/sh",
-        // Arguments = "npx ts-node src/index.ts",
         public void NodeProcessThread()
         {
             _nodeJSProcess = new System.Diagnostics.Process
@@ -200,38 +182,53 @@ namespace Cog
             Debug.Log("Kill thread");
         }
 
-        public void UpdateState(State state)
-        {
-            WorldState = state;
-            _hasStateUpdated = true;
-        }
+        // -- End of Node.js process -- //
+
+#endif
 
         // -- MESSAGE OUT
 
         public void DispatchAction(string action, params object[] args)
         {
+            var dispatchActionMsg = new DispatchMessage
+            {
+                msg = "dispatch",
+                action = action,
+                args = args
+            };
+            var json = JsonConvert.SerializeObject(dispatchActionMsg);
+            // Debug.Log(json);
+
             if (_isRunningStandalone)
             {
-                var dispatchActionMsg = new DispatchMessage{ msg = "dispatch", action = action, args = args};
-                var json = JsonConvert.SerializeObject(dispatchActionMsg);
-                Debug.Log(json);
                 _nodeJSProcess.StandardInput.WriteLine(json);
             }
             else
             {
                 // -- Send message up to shell and let it do the signing and sending
-                DispatchActionRPC(action, args);
+                SendMessageRPC(json);
             }
         }
 
-        public void SendTileInteractionMsg(Vector3Int tileCubeCoords)
+        public void SendSelectTileMsg(List<string> tileIDs)
         {
-            Debug.Log("PluginController::SendTileInteractionMsg() tileCubeCoords: " + tileCubeCoords);
+            var tileInteractionMsg = new SelectTileMessage
+            {
+                msg = "selectTile",
+                tileIDs = tileIDs
+            };
+            var json = JsonConvert.SerializeObject(tileInteractionMsg);
+            // Debug.Log(json);
 
-            var tileIDs = new List<string>();
-            tileIDs.Add(NodeKinds.TileNode.GetKey(0, tileCubeCoords.x, tileCubeCoords.y, tileCubeCoords.z));
-
-            SendSelectTileMsg(tileIDs);
+            if (_isRunningStandalone)
+            {
+                _nodeJSProcess.StandardInput.WriteLine(json);
+            }
+            else
+            {
+                // -- Send interaction up to shell
+                SendMessageRPC(json);
+            }
         }
 
         public void SendDeselectAllTilesMsg()
@@ -239,24 +236,31 @@ namespace Cog
             SendSelectTileMsg(new List<string>());
         }
 
-        public void SendSelectTileMsg(List<string> tileIDs)
+        // public void SendTileInteractionMsg(Vector3Int tileCubeCoords)
+        // {
+        //     Debug.LogWarning("PluginController::SendTileInteractionMsg() Deprecated - Use SendSelectTileMsg instead. tileCubeCoords: " + tileCubeCoords);
+
+        //     var tileIDs = new List<string>();
+        //     tileIDs.Add(NodeKinds.TileNode.GetKey(0, tileCubeCoords.x, tileCubeCoords.y, tileCubeCoords.z));
+
+        //     SendSelectTileMsg(tileIDs);
+        // }
+
+        // -- MESSAGE IN
+
+        public void OnState(string stateJson)
         {
-            if (_isRunningStandalone)
+            try
             {
-                var tileInteractionMsg = new SelectTileMessage{ msg = "selectTile", tileIDs = tileIDs };
-                var json = JsonConvert.SerializeObject(tileInteractionMsg);
-                Debug.Log(json);
-                _nodeJSProcess.StandardInput.WriteLine(json);
+                var state = JsonConvert.DeserializeObject<State>(stateJson);
+                UpdateState(state);
             }
-            else
+            catch (Exception e)
             {
-                // -- Send interaction up to shell
-                SelectTilesRPC(tileIDs);
+                Debug.Log("PluginController::OnState():\n" + stateJson);
+                Debug.LogError(e);
             }
         }
-
-        // -- LISTENERS
-
 
         public void OnMessage()
         {

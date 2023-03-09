@@ -158,7 +158,11 @@ public class MapManager : MonoBehaviour
                 cell,
                 isPlayerSeeker,
                 state.Game.Seekers
-                    .Where(n => n.Location.Next.Tile != null && TileHelper.GetTilePosCube(n.Location.Next.Tile) == cellPosCube)
+                    .Where(
+                        n =>
+                            n.Location.Next.Tile != null
+                            && TileHelper.GetTilePosCube(n.Location.Next.Tile) == cellPosCube
+                    )
                     .Count()
             );
         }

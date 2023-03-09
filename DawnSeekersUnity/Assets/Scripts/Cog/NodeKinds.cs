@@ -2,15 +2,11 @@ using Nethereum.ABI.FunctionEncoding.Attributes;
 using Nethereum.Contracts;
 using Nethereum.ABI;
 using Nethereum.Hex.HexConvertors.Extensions;
-using Nethereum.ABI.FunctionEncoding.Attributes;
-using Nethereum.Util;
 
 namespace Cog.NodeKinds
 {
     [Function("Tile")]
-    public class Tile : FunctionMessage
-    {
-    }
+    public class Tile : FunctionMessage { }
 
     public class TileNode
     {

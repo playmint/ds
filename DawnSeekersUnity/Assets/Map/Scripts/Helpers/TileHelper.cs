@@ -7,7 +7,11 @@ public class TileHelper
 {
     public static Vector3Int GetTilePosCube(Tile tile)
     {
-        return new Vector3Int(Convert.ToInt16(tile.Coords.Q), Convert.ToInt16(tile.Coords.R), Convert.ToInt16(tile.Coords.S));
+        return new Vector3Int(
+            Convert.ToInt16(tile.Coords.Q),
+            Convert.ToInt16(tile.Coords.R),
+            Convert.ToInt16(tile.Coords.S)
+        );
     }
 
     public static bool HasResource(Tile tile)

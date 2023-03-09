@@ -55,8 +55,8 @@ public class MapInteractionManager : MonoBehaviour
             validPosition =
                 !MapManager.isMakingMove
                 || (
-                    IsDiscoveredTile(cubePos) && 
-                    TileHelper.GetTileNeighbours(selectedCellPos).Contains(cubePos)
+                    IsDiscoveredTile(cubePos)
+                        && TileHelper.GetTileNeighbours(selectedCellPos).Contains(cubePos)
                     || cubePos == selectedCellPos
                 );
             if (validPosition)
@@ -76,7 +76,11 @@ public class MapInteractionManager : MonoBehaviour
             if (MapManager.isMakingMove)
             {
                 var destPos = GridExtensions.GridToCube(CurrentMouseCell);
-                if (validPosition && IsDiscoveredTile(destPos) && !SeekerManager.Instance.IsPlayerAtPosition(destPos))
+                if (
+                    validPosition
+                    && IsDiscoveredTile(destPos)
+                    && !SeekerManager.Instance.IsPlayerAtPosition(destPos)
+                )
                 {
                     _destinationPosCube = destPos;
                     MoveSeeker(SeekerManager.Instance.Seeker, destPos);
@@ -112,7 +116,7 @@ public class MapInteractionManager : MonoBehaviour
         }
 
         // Select the tile
-        Cog.PluginController.Instance.SendTileInteractionMsg(cellPosCube);
+        Cog.PluginController.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
     }
 
     void MapClicked2()
@@ -125,14 +129,26 @@ public class MapInteractionManager : MonoBehaviour
         if (SeekerManager.Instance.Seeker != null)
         {
             // function SCOUT_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
-            Cog.PluginController.Instance.DispatchAction("SCOUT_SEEKER", "0x" + SeekerManager.Instance.Seeker.Key, cellPosCube.x, cellPosCube.y, cellPosCube.z);
+            Cog.PluginController.Instance.DispatchAction(
+                "SCOUT_SEEKER",
+                "0x" + SeekerManager.Instance.Seeker.Key,
+                cellPosCube.x,
+                cellPosCube.y,
+                cellPosCube.z
+            );
         }
     }
 
     private void MoveSeeker(Seeker seeker, Vector3Int cellPosCube)
     {
         // function MOVE_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
-        Cog.PluginController.Instance.DispatchAction("MOVE_SEEKER", "0x" + SeekerManager.Instance.Seeker.Key, cellPosCube.x, cellPosCube.y, cellPosCube.z);
+        Cog.PluginController.Instance.DispatchAction(
+            "MOVE_SEEKER",
+            "0x" + SeekerManager.Instance.Seeker.Key,
+            cellPosCube.x,
+            cellPosCube.y,
+            cellPosCube.z
+        );
     }
 
     // -- TODO: Obviously this won't scale, need to hold tiles in a dictionary
@@ -157,7 +173,9 @@ public class MapInteractionManager : MonoBehaviour
             return null;
         }
 
-        return Cog.PluginController.Instance.WorldState.Game.Tiles.ToList().Find( tile => TileHelper.GetTilePosCube(tile) == cellPosCube);
+        return Cog.PluginController.Instance.WorldState.Game.Tiles
+            .ToList()
+            .Find(tile => TileHelper.GetTilePosCube(tile) == cellPosCube);
     }
 
     // -- LISTENERS
@@ -181,7 +199,11 @@ public class MapInteractionManager : MonoBehaviour
         }
 
         var playerSeekers = state.UI.Selection.Player?.Seekers.ToList();
-        if (playerSeekers != null && playerSeekers.Count > 0 && isSeekerAtLocation(playerSeekers[0], _destinationPosCube))
+        if (
+            playerSeekers != null
+            && playerSeekers.Count > 0
+            && isSeekerAtLocation(playerSeekers[0], _destinationPosCube)
+        )
         {
             travelMarkerController.HideLine();
         }
@@ -199,8 +221,6 @@ public class MapInteractionManager : MonoBehaviour
 
         // Show tile selector
         selectedMarker1.gameObject.SetActive(true);
-        selectedMarker1.position = MapManager.instance.grid.CellToWorld(
-            CurrentSelectedCell
-        );
+        selectedMarker1.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
     }
 }
