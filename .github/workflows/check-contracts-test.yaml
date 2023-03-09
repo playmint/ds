@@ -1,0 +1,42 @@
+name: check-forge
+
+on:
+  pull_request:
+    branches:
+      - main
+
+env:
+  FOUNDRY_PROFILE: ci
+
+jobs:
+  check:
+    strategy:
+      fail-fast: true
+
+    name: forge
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: setup
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: build
+        run: |
+          forge --version
+          forge build --sizes
+        id: build
+
+      - name: test
+        run: |
+          forge test -vvv
+        id: test
+
+      - name: fmt
+        run: |
+          forge fmt --check
+        id: fmt
