@@ -2,22 +2,108 @@
 
 fragment stateFragment on State {
     block
-    tiles: nodes(match: {kinds: ["Tile"]}) {
-        coords: keys
-        biome: value(match: {via: [{rel: "Biome"}]})
-        seed: node(match: {kinds: ["Seed"], via: [{rel: "ProvidesEntropyTo", dir: IN}]}) {
-          key
+    # fetch players
+    players: nodes(match: { kinds: ["Player"] }) {
+        id
+        addr: key
+    }
+    # fetch all resources
+    resources: nodes(match: { kinds: ["Resource"] }) {
+        id
+    }
+    # fetch all the bags
+    bags: nodes(match: { kinds: ["Bag"] }) {
+        id
+        slots: edges(match: { kinds: ["Resource"], via: { rel: "Balance" } }) {
+            key
+            balance: weight
+            resource: node {
+                id
+            }
         }
     }
-    seekers: nodes(match: {kinds: ["Seeker"]}) {
-        key
-        position: node(match: {kinds: ["Tile"], via:[{rel: "Location"}]}) {
-            coords: keys
+    # fetch seekers
+    seekers: nodes(match: { kinds: ["Seeker"] }) {
+        id
+        seekerID: key
+        # there are always two location edges
+        # the "departure" is the edge with key=0
+        #     this points to the last known tile position recorded
+        #     the weight of the departure edge is the block time of the last move
+        # the "destination" is the edge with key=0
+        #     this points to the where the seeker is heading.
+        #     the weight of the destination edge is the time of arrival
+        #     if the current block time >= arrival time then this is the CURRENT LOCATION
+        #     but if not, you need to use the departure edge time to work out where we are
+        location: edges(match: { kinds: ["Tile"], via: [{ rel: "Location" }] }) {
+            key # 0=LAST_LOCATION, 1=DEST_LOCATION
+            time: weight
+            tile: node {
+                id
+            }
         }
-        player: node(match: {kinds: ["Player"], via:[{rel: "Owner"}]}) {
-            address: key
+        owner: node(match: { kinds: ["Player"], via: [{ rel: "Owner" }] }) {
+            id
         }
-        cornBalance: value(match: {via: [{rel: "Balance"}]})
+        bags: edges(match: { kinds: ["Bag"], via: { rel: "Equip" } }) {
+            key
+            bag: node {
+                id
+            }
+        }
+        # fetch balance of wood in seeker's stuff
+        wood: sum(
+            match: {
+                ids: ["0x37f9b55d0000000000000000000000000000000000000001"]
+                via: [{ rel: "Equip" }, { rel: "Balance" }]
+            }
+        )
+        owner: node(match: { kinds: ["Player"], via: [{ rel: "Owner" }] }) {
+            id
+        }
+    }
+
+    buildings: nodes(match: { kinds: ["Building"] }) {
+        id
+        location: edge(match: { kinds: ["Tile"], via: [{ rel: "Location" }] }) {
+            tile: node {
+                id
+            }
+        }
+        owner: node(match: { kinds: ["Player"], via: [{ rel: "Owner" }] }) {
+            id
+        }
+        kind: node(match: { kinds: ["BuildingKind"], via: [{ rel: "Is" }] }) {
+            id
+        }
+    }
+
+    buildingKinds: nodes(match: { kinds: ["BuildingKind"] }) {
+        id
+        addr: key
+    }
+
+    # fetch all known tiles
+    tiles: nodes(match: { kinds: ["Tile"] }) {
+        id
+        # the keys break down the coords
+        # there are 4 parts:
+        #     coords[0] is zone and always 0 for now
+        #     coords[1] is q
+        #     coords[2] is r
+        #     coords[3] is s
+        coords: keys
+        # tiles are either DISCOVERED or UNDISCOVERED
+        # this is recorded on the biome edge weight for now
+        # but this is temporary until we know what we need
+        biome: value(match: { via: [{ rel: "Biome" }] }) # 0=UNDISCOVERED, 1=DISCOVERED
+        # bags equip to tiles
+        bags: edges(match: { kinds: ["Bag"], via: { rel: "Equip" } }) {
+            key
+            bag: node {
+                id
+            }
+        }
     }
 }
 
@@ -27,23 +113,32 @@ query GetState {
             ...stateFragment
         }
     }
+    extensions: games {
+        id
+        name
+        url
+    }
+}
+
+subscription OnState {
+    state(gameID: "DAWNSEEKERS") {
+        ...stateFragment
+    }
 }
 
 mutation signin($gameID: ID!, $session: String!, $auth: String!) {
-    signin(
-        gameID: $gameID,
-        session: $session,
-        ttl: 9999,
-        scope: "0xffffffff",
-        authorization: $auth,
-    )
+    signin(gameID: $gameID, session: $session, ttl: 9999, scope: "0xffffffff", authorization: $auth)
+}
+
+mutation signout($gameID: ID!, $session: String!, $auth: String!) {
+    signout(gameID: $gameID, session: $session, authorization: $auth)
 }
 
 mutation dispatch($gameID: ID!, $action: String!, $auth: String!) {
     dispatch(
-        gameID: $gameID,
-        action: $action,        # encoded action bytes
-        authorization: $auth    # session's signature of $action
+        gameID: $gameID
+        action: $action # encoded action bytes
+        authorization: $auth # session's signature of $action
     ) {
         id
         status

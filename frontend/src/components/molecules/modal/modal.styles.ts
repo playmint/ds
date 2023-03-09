@@ -26,6 +26,15 @@ const baseStyles = (_: Partial<ModalProps>) => css`
         background: transparent;
         border: 0;
         padding: 0;
+        color: white;
+        font-size: 4rem;
+    }
+
+    > iframe {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border: 0;
     }
 `;
 

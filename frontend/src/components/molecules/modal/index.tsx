@@ -19,30 +19,40 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>((props: ModalProps, 
     const { children, closable = true, ...otherProps } = props;
     const { closeModal } = useModalContext();
 
-    function handleEscape(event: KeyboardEvent) {
-        if (!closable) {
-            return;
-        }
-        const escapeKeyCode = 27;
-        if (event.key === 'Escape' || event.keyCode === escapeKeyCode) {
-            closeModal();
-        }
-    }
-
     useEffect(() => {
+        const handleEscape = (event: KeyboardEvent) => {
+            if (!closable) {
+                return;
+            }
+            const escapeKeyCode = 27;
+            if (event.key === 'Escape' || event.keyCode === escapeKeyCode) {
+                closeModal();
+            }
+        };
+
+        const handleMessage = (message: any) => {
+            const { method } = message.data;
+
+            if (method === 'closeModal') {
+                closeModal();
+            }
+        };
+
         window.addEventListener('keydown', handleEscape);
+        window.addEventListener('message', handleMessage);
 
         return () => {
             window.removeEventListener('keydown', handleEscape);
+            window.removeEventListener('message', handleMessage);
         };
-    }, []);
+    }, [closeModal, closable]);
 
     return (
         <StyledModal {...otherProps} ref={ref}>
             {children}
             {closable && (
                 <button onClick={closeModal} className="close-modal-button">
-                    <img src="/icons/close-modal.svg" alt="Close modal" />
+                    <i className="bi bi-x" />
                 </button>
             )}
         </StyledModal>

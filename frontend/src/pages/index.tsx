@@ -1,15 +1,12 @@
 /** @format */
 import dynamic from 'next/dynamic';
-import { Fragment } from 'react';
 
-const UnityPlugin: any = dynamic(() => import('@app/components/views/unity-plugin'), { ssr: false });
+// TODO server rendered content
+const DynamicShell = dynamic(() => import('@app/components/views/shell'), {
+    loading: () => <p>Loading...</p>,
+    ssr: false
+});
 
-const HomePage = () => {
-    return (
-        <Fragment>
-            <main>{<UnityPlugin />}</main>
-        </Fragment>
-    );
-};
-
-export default HomePage;
+export default function ShellPage() {
+    return <DynamicShell />;
+}

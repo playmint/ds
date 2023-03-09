@@ -1,23 +1,22 @@
 /** @format */
+
 import { Fragment } from 'react';
+import Head from 'next/head';
 import { GlobalStyles } from '@app/styles/global.styles';
 import { ModalProvider } from '@app/contexts/modal-provider';
-import { UnityContainerProvider } from '@app/contexts/unity-container-provider';
-import { CogPluginProvider } from '@app/contexts/cog-plugin-provider';
 
 function App({ Component, pageProps }: any) {
-    const gameID = 'DAWNSEEKERS';
-
     return (
         <Fragment>
+            <Head>
+                <title>DawnSeekers</title>
+                <meta name="description" content="DawnSeekers" />
+                <link rel="icon" href="/favicon.ico" />
+            </Head>
             <GlobalStyles />
-            <CogPluginProvider gameID={gameID}>
-                <UnityContainerProvider>
-                    <ModalProvider>
-                        <Component {...pageProps} />
-                    </ModalProvider>
-                </UnityContainerProvider>
-            </CogPluginProvider>
+            <ModalProvider>
+                <Component {...pageProps} />
+            </ModalProvider>
         </Fragment>
     );
 }

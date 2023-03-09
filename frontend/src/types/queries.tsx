@@ -155,6 +155,7 @@ export type Game = {
     name: Scalars['String'];
     router: Router;
     state: State;
+    url: Scalars['String'];
 };
 
 /** match condition for traversing/filtering the graph. */
@@ -415,18 +416,41 @@ export type SubscriptionTransactionArgs = {
 export type StateFragmentFragment = {
     __typename?: 'State';
     block: number;
-    tiles: Array<{
+    players: Array<{ __typename?: 'Node'; id: string; addr?: any | null }>;
+    resources: Array<{ __typename?: 'Node'; id: string }>;
+    bags: Array<{
         __typename?: 'Node';
-        coords: Array<any>;
-        biome?: number | null;
-        seed?: { __typename?: 'Node'; key?: any | null } | null;
+        id: string;
+        slots: Array<{
+            __typename?: 'Edge';
+            key: number;
+            balance: number;
+            resource: { __typename?: 'Node'; id: string };
+        }>;
     }>;
     seekers: Array<{
         __typename?: 'Node';
-        key?: any | null;
-        cornBalance?: number | null;
-        position?: { __typename?: 'Node'; coords: Array<any> } | null;
-        player?: { __typename?: 'Node'; address?: any | null } | null;
+        id: string;
+        seekerID?: any | null;
+        wood: number;
+        location: Array<{ __typename?: 'Edge'; key: number; time: number; tile: { __typename?: 'Node'; id: string } }>;
+        owner?: { __typename?: 'Node'; id: string } | null;
+        bags: Array<{ __typename?: 'Edge'; key: number; bag: { __typename?: 'Node'; id: string } }>;
+    }>;
+    buildings: Array<{
+        __typename?: 'Node';
+        id: string;
+        location?: { __typename?: 'Edge'; tile: { __typename?: 'Node'; id: string } } | null;
+        owner?: { __typename?: 'Node'; id: string } | null;
+        kind?: { __typename?: 'Node'; id: string } | null;
+    }>;
+    buildingKinds: Array<{ __typename?: 'Node'; id: string; addr?: any | null }>;
+    tiles: Array<{
+        __typename?: 'Node';
+        id: string;
+        coords: Array<any>;
+        biome?: number | null;
+        bags: Array<{ __typename?: 'Edge'; key: number; bag: { __typename?: 'Node'; id: string } }>;
     }>;
 };
 
@@ -439,21 +463,101 @@ export type GetStateQuery = {
         state: {
             __typename?: 'State';
             block: number;
-            tiles: Array<{
+            players: Array<{ __typename?: 'Node'; id: string; addr?: any | null }>;
+            resources: Array<{ __typename?: 'Node'; id: string }>;
+            bags: Array<{
                 __typename?: 'Node';
-                coords: Array<any>;
-                biome?: number | null;
-                seed?: { __typename?: 'Node'; key?: any | null } | null;
+                id: string;
+                slots: Array<{
+                    __typename?: 'Edge';
+                    key: number;
+                    balance: number;
+                    resource: { __typename?: 'Node'; id: string };
+                }>;
             }>;
             seekers: Array<{
                 __typename?: 'Node';
-                key?: any | null;
-                cornBalance?: number | null;
-                position?: { __typename?: 'Node'; coords: Array<any> } | null;
-                player?: { __typename?: 'Node'; address?: any | null } | null;
+                id: string;
+                seekerID?: any | null;
+                wood: number;
+                location: Array<{
+                    __typename?: 'Edge';
+                    key: number;
+                    time: number;
+                    tile: { __typename?: 'Node'; id: string };
+                }>;
+                owner?: { __typename?: 'Node'; id: string } | null;
+                bags: Array<{ __typename?: 'Edge'; key: number; bag: { __typename?: 'Node'; id: string } }>;
+            }>;
+            buildings: Array<{
+                __typename?: 'Node';
+                id: string;
+                location?: { __typename?: 'Edge'; tile: { __typename?: 'Node'; id: string } } | null;
+                owner?: { __typename?: 'Node'; id: string } | null;
+                kind?: { __typename?: 'Node'; id: string } | null;
+            }>;
+            buildingKinds: Array<{ __typename?: 'Node'; id: string; addr?: any | null }>;
+            tiles: Array<{
+                __typename?: 'Node';
+                id: string;
+                coords: Array<any>;
+                biome?: number | null;
+                bags: Array<{ __typename?: 'Edge'; key: number; bag: { __typename?: 'Node'; id: string } }>;
             }>;
         };
     };
+    extensions: Array<{ __typename?: 'Game'; id: string; name: string; url: string }>;
+};
+
+export type OnStateSubscriptionVariables = Exact<{ [key: string]: never }>;
+
+export type OnStateSubscription = {
+    __typename?: 'Subscription';
+    state?: {
+        __typename?: 'State';
+        block: number;
+        players: Array<{ __typename?: 'Node'; id: string; addr?: any | null }>;
+        resources: Array<{ __typename?: 'Node'; id: string }>;
+        bags: Array<{
+            __typename?: 'Node';
+            id: string;
+            slots: Array<{
+                __typename?: 'Edge';
+                key: number;
+                balance: number;
+                resource: { __typename?: 'Node'; id: string };
+            }>;
+        }>;
+        seekers: Array<{
+            __typename?: 'Node';
+            id: string;
+            seekerID?: any | null;
+            wood: number;
+            location: Array<{
+                __typename?: 'Edge';
+                key: number;
+                time: number;
+                tile: { __typename?: 'Node'; id: string };
+            }>;
+            owner?: { __typename?: 'Node'; id: string } | null;
+            bags: Array<{ __typename?: 'Edge'; key: number; bag: { __typename?: 'Node'; id: string } }>;
+        }>;
+        buildings: Array<{
+            __typename?: 'Node';
+            id: string;
+            location?: { __typename?: 'Edge'; tile: { __typename?: 'Node'; id: string } } | null;
+            owner?: { __typename?: 'Node'; id: string } | null;
+            kind?: { __typename?: 'Node'; id: string } | null;
+        }>;
+        buildingKinds: Array<{ __typename?: 'Node'; id: string; addr?: any | null }>;
+        tiles: Array<{
+            __typename?: 'Node';
+            id: string;
+            coords: Array<any>;
+            biome?: number | null;
+            bags: Array<{ __typename?: 'Edge'; key: number; bag: { __typename?: 'Node'; id: string } }>;
+        }>;
+    } | null;
 };
 
 export type SigninMutationVariables = Exact<{
@@ -463,6 +567,14 @@ export type SigninMutationVariables = Exact<{
 }>;
 
 export type SigninMutation = { __typename?: 'Mutation'; signin: boolean };
+
+export type SignoutMutationVariables = Exact<{
+    gameID: Scalars['ID'];
+    session: Scalars['String'];
+    auth: Scalars['String'];
+}>;
+
+export type SignoutMutation = { __typename?: 'Mutation'; signout: boolean };
 
 export type DispatchMutationVariables = Exact<{
     gameID: Scalars['ID'];
@@ -478,22 +590,80 @@ export type DispatchMutation = {
 export const StateFragmentFragmentDoc = gql`
     fragment stateFragment on State {
         block
-        tiles: nodes(match: { kinds: ["Tile"] }) {
-            coords: keys
-            biome: value(match: { via: [{ rel: "Biome" }] })
-            seed: node(match: { kinds: ["Seed"], via: [{ rel: "ProvidesEntropyTo", dir: IN }] }) {
+        players: nodes(match: { kinds: ["Player"] }) {
+            id
+            addr: key
+        }
+        resources: nodes(match: { kinds: ["Resource"] }) {
+            id
+        }
+        bags: nodes(match: { kinds: ["Bag"] }) {
+            id
+            slots: edges(match: { kinds: ["Resource"], via: { rel: "Balance" } }) {
                 key
+                balance: weight
+                resource: node {
+                    id
+                }
             }
         }
         seekers: nodes(match: { kinds: ["Seeker"] }) {
-            key
-            position: node(match: { kinds: ["Tile"], via: [{ rel: "Location" }] }) {
-                coords: keys
+            id
+            seekerID: key
+            location: edges(match: { kinds: ["Tile"], via: [{ rel: "Location" }] }) {
+                key
+                time: weight
+                tile: node {
+                    id
+                }
             }
-            player: node(match: { kinds: ["Player"], via: [{ rel: "Owner" }] }) {
-                address: key
+            owner: node(match: { kinds: ["Player"], via: [{ rel: "Owner" }] }) {
+                id
             }
-            cornBalance: value(match: { via: [{ rel: "Balance" }] })
+            bags: edges(match: { kinds: ["Bag"], via: { rel: "Equip" } }) {
+                key
+                bag: node {
+                    id
+                }
+            }
+            wood: sum(
+                match: {
+                    ids: ["0x37f9b55d0000000000000000000000000000000000000001"]
+                    via: [{ rel: "Equip" }, { rel: "Balance" }]
+                }
+            )
+            owner: node(match: { kinds: ["Player"], via: [{ rel: "Owner" }] }) {
+                id
+            }
+        }
+        buildings: nodes(match: { kinds: ["Building"] }) {
+            id
+            location: edge(match: { kinds: ["Tile"], via: [{ rel: "Location" }] }) {
+                tile: node {
+                    id
+                }
+            }
+            owner: node(match: { kinds: ["Player"], via: [{ rel: "Owner" }] }) {
+                id
+            }
+            kind: node(match: { kinds: ["BuildingKind"], via: [{ rel: "Is" }] }) {
+                id
+            }
+        }
+        buildingKinds: nodes(match: { kinds: ["BuildingKind"] }) {
+            id
+            addr: key
+        }
+        tiles: nodes(match: { kinds: ["Tile"] }) {
+            id
+            coords: keys
+            biome: value(match: { via: [{ rel: "Biome" }] })
+            bags: edges(match: { kinds: ["Bag"], via: { rel: "Equip" } }) {
+                key
+                bag: node {
+                    id
+                }
+            }
         }
     }
 `;
@@ -503,6 +673,11 @@ export const GetStateDocument = gql`
             state {
                 ...stateFragment
             }
+        }
+        extensions: games {
+            id
+            name
+            url
         }
     }
     ${StateFragmentFragmentDoc}
@@ -534,6 +709,38 @@ export function useGetStateLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<G
 export type GetStateQueryHookResult = ReturnType<typeof useGetStateQuery>;
 export type GetStateLazyQueryHookResult = ReturnType<typeof useGetStateLazyQuery>;
 export type GetStateQueryResult = Apollo.QueryResult<GetStateQuery, GetStateQueryVariables>;
+export const OnStateDocument = gql`
+    subscription OnState {
+        state(gameID: "DAWNSEEKERS") {
+            ...stateFragment
+        }
+    }
+    ${StateFragmentFragmentDoc}
+`;
+
+/**
+ * __useOnStateSubscription__
+ *
+ * To run a query within a React component, call `useOnStateSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useOnStateSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useOnStateSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useOnStateSubscription(
+    baseOptions?: Apollo.SubscriptionHookOptions<OnStateSubscription, OnStateSubscriptionVariables>
+) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useSubscription<OnStateSubscription, OnStateSubscriptionVariables>(OnStateDocument, options);
+}
+export type OnStateSubscriptionHookResult = ReturnType<typeof useOnStateSubscription>;
+export type OnStateSubscriptionResult = Apollo.SubscriptionResult<OnStateSubscription>;
 export const SigninDocument = gql`
     mutation signin($gameID: ID!, $session: String!, $auth: String!) {
         signin(gameID: $gameID, session: $session, ttl: 9999, scope: "0xffffffff", authorization: $auth)
@@ -567,6 +774,41 @@ export function useSigninMutation(baseOptions?: Apollo.MutationHookOptions<Signi
 export type SigninMutationHookResult = ReturnType<typeof useSigninMutation>;
 export type SigninMutationResult = Apollo.MutationResult<SigninMutation>;
 export type SigninMutationOptions = Apollo.BaseMutationOptions<SigninMutation, SigninMutationVariables>;
+export const SignoutDocument = gql`
+    mutation signout($gameID: ID!, $session: String!, $auth: String!) {
+        signout(gameID: $gameID, session: $session, authorization: $auth)
+    }
+`;
+export type SignoutMutationFn = Apollo.MutationFunction<SignoutMutation, SignoutMutationVariables>;
+
+/**
+ * __useSignoutMutation__
+ *
+ * To run a mutation, you first call `useSignoutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSignoutMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [signoutMutation, { data, loading, error }] = useSignoutMutation({
+ *   variables: {
+ *      gameID: // value for 'gameID'
+ *      session: // value for 'session'
+ *      auth: // value for 'auth'
+ *   },
+ * });
+ */
+export function useSignoutMutation(
+    baseOptions?: Apollo.MutationHookOptions<SignoutMutation, SignoutMutationVariables>
+) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useMutation<SignoutMutation, SignoutMutationVariables>(SignoutDocument, options);
+}
+export type SignoutMutationHookResult = ReturnType<typeof useSignoutMutation>;
+export type SignoutMutationResult = Apollo.MutationResult<SignoutMutation>;
+export type SignoutMutationOptions = Apollo.BaseMutationOptions<SignoutMutation, SignoutMutationVariables>;
 export const DispatchDocument = gql`
     mutation dispatch($gameID: ID!, $action: String!, $auth: String!) {
         dispatch(gameID: $gameID, action: $action, authorization: $auth) {
