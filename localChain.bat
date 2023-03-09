@@ -10,7 +10,7 @@ if "%1%"=="hard" (
 	cd ../ds-contracts
 	docker-compose down -v
 
-	cd ../cog-services
+	cd ../cog/services
 	docker-compose down -v
 
 	cd ../ds-unity
