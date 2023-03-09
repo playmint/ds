@@ -24,6 +24,11 @@ function deploy() {
 	echo "${address}"
 }
 
+while ! curl -sf -X POST --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' ${RPC_URL} >/dev/null; do
+	echo "waiting for connection to ${RPC_URL}..."
+	sleep 1
+done
+
 GAME_ADDRESS=$(deploy ./src/Game.sol:Game)
 echo "${GAME_ADDRESS}"
 

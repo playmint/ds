@@ -21,6 +21,7 @@ const abi = ethers.AbiCoder.defaultAbiCoder();
 const ACTIONS = new ethers.Interface([
     'function MOVE_SEEKER(uint32 sid, int16 q, int16 r, int16 s)',
     'function SCOUT_SEEKER(uint32 sid, int16 q, int16 r, int16 s)',
+    'function SPAWN_SEEKER(bytes24 seeker)',
     'function DEV_SPAWN_SEEKER(address player, uint32 seekerID, int16 q, int16 r, int16 s)',
     'function DEV_SPAWN_TILE(uint8 kind, int16 q, int16 r, int16 s)'
 ]);

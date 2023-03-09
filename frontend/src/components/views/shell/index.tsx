@@ -13,7 +13,7 @@ import {
     PluginType,
     State,
     Tile,
-    useDawnSeekersState
+    useDawnseekersState
 } from '@app/contexts/dawnseekers-provider';
 import { TileAction } from '@app/components/organisms/tile-action';
 import movePlugin from '@app/plugins/move';
@@ -56,11 +56,11 @@ ds.load({
             }
 
             onClick(e) {
-                
+
             }
 
             onSubmit(e, values) {
-                
+
             }
 
             showTileActionDetails() {
@@ -182,7 +182,7 @@ const StyledShell = styled('div')`
 
 export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     const { ...otherProps } = props;
-    const { data } = useDawnSeekersState(ds);
+    const { data } = useDawnseekersState(ds);
     const player = data?.ui.selection.player;
 
     return (
@@ -212,8 +212,8 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
             </div>
             <div className="tile-actions">
                 {data?.ui.plugins
-                    .filter((p) => p.tileActionButton || p.tileActionDetails)
-                    .map((p) => (
+                    .filter((p: any) => p.tileActionButton || p.tileActionDetails)
+                    .map((p: any) => (
                         <TileAction
                             client={ds}
                             key={p.id}

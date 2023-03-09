@@ -8,11 +8,10 @@
     "start:shell": "npm run dev --workspace=frontend",
     "start:cog": "(cd contracts/lib/cog/services && make dev-local)",
     "start:chain": "npx ganache ethereum --miner.blockTime 5 --server.host 0.0.0.0 --server.port 8545 --wallet.mnemonic 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --chain.chainId 31337 --chain.networkId 31337 --chain.allowUnlimitedContractSize",
-    "start:contracts": "wait-on tcp:8545 && (cd contracts && ./init.sh)"
+    "start:contracts": "cd contracts && ./init.sh"
   },
   "devDependencies": {
     "concurrently": "^7.6.0",
-    "ganache": "^7.7.6",
-    "wait-on": "^7.0.1"
+    "ganache": "^7.7.6"
   }
 }
