@@ -3,15 +3,22 @@ version: '3'
 services:
 
   contracts:
-    image: ghcr.io/playmint/ds-contracts:latest
-    pull_policy: always
-    restart: always
+    build:
+      context: ./contracts
+    # restart: always
     ports:
       - 8545:8545
 
+  frontend:
+    build:
+      context: ./frontend
+    # restart: always
+    ports:
+      - 3000:3000
+
   cog:
-    image: ghcr.io/playmint/cog-services:latest
-    pull_policy: always
+    build:
+      context: ./contracts/lib/cog/services
     restart: always
     entrypoint:
     - /bin/ash
