@@ -1,0 +1,31 @@
+name: check-frontend
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Configure nodejs
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.19.x
+      - name: Lint
+        working-directory: frontend
+        run: |
+          npm ci
+          npx next lint --max-warnings=0
+      - name: Format
+        working-directory: frontend
+        run: |
+          npx eslint . --ext .ts --ext .tsx --quiet
+      - name: Build
+        working-directory: frontend
+        run: |
+          npx next build

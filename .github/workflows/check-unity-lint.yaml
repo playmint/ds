@@ -1,4 +1,4 @@
-name: check-lint
+name: check-unity
 on:
   pull_request:
     branches: [ main ]
