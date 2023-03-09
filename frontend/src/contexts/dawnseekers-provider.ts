@@ -16,6 +16,8 @@ import {
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
+const abi = ethers.AbiCoder.defaultAbiCoder();
+
 const ACTIONS = new ethers.Interface([
     'function MOVE_SEEKER(uint32 sid, int16 q, int16 r, int16 s)',
     'function SCOUT_SEEKER(uint32 sid, int16 q, int16 r, int16 s)',
@@ -47,13 +49,27 @@ export interface SelectionState {
     tiles?: Tile[];
 }
 
+export interface PluginStateButton {
+    text: string;
+    template: string; // TODO
+}
+
+export interface PluginStateTemplate {
+    name: string;
+    content: string;
+}
+
+export interface PluginStateSection {
+    name: 'building' | 'tile' | 'seeker' | 'nav';
+    title?: string;
+    summary?: string;
+    buttons?: PluginStateButton[];
+    content?: string;
+    templates?: PluginStateTemplate[];
+}
+
 export interface PluginState {
-    id: string;
-    tileActionButton?: string;
-    tileActionDetails?: string;
-    showTileActionDetails?: boolean;
-    seekerActionButton?: string;
-    seekerActionDetails?: string;
+    sections?: PluginStateSection[];
 }
 
 export interface Session {
@@ -61,9 +77,13 @@ export interface Session {
     key: ethers.HDNodeWallet;
 }
 
+interface PluginPublishState extends PluginState {
+    id: string; // plugin id
+}
+
 export interface UIState {
     selection: SelectionState;
-    plugins: PluginState[];
+    plugins: PluginPublishState[];
 }
 
 export interface Player extends Node {
@@ -194,8 +214,17 @@ export interface DawnseekersConfig {
     corePlugins?: PluginConfig[];
 }
 
+const getSelector = (name: string): string => {
+    const selector = new ethers.Interface([`function ${name}()`]).getFunction(name)?.selector;
+    if (!selector) {
+        throw new Error(`failed to generate selector for ${name}`);
+    }
+    return selector;
+};
+
 const NodeSelectors = {
-    Tile: new ethers.Interface([`function Tile()`]).getFunction('Tile')?.selector
+    Tile: getSelector('Tile'),
+    Seeker: getSelector('Seeker')
 };
 
 const CompoundKeyEncoder = {
@@ -208,6 +237,9 @@ const CompoundKeyEncoder = {
             ethers.getBytes(ethers.toBeHex(ethers.toTwos(BigInt(keys[2]), 16), 2)),
             ethers.getBytes(ethers.toBeHex(ethers.toTwos(BigInt(keys[3]), 16), 2))
         ]);
+    },
+    encodeUint160(nodeSelector: string, ...keys: [ethers.BigNumberish]) {
+        return ethers.concat([ethers.getBytes(nodeSelector), ethers.getBytes(ethers.toBeHex(BigInt(keys[0]), 20))]);
     }
 };
 
@@ -292,9 +324,6 @@ export class DawnseekersClient {
             const t = Object.values(tiles).find(({ coords: t }) => t.q === q && t.r === r && t.s === s);
             if (t) {
                 return null;
-            }
-            if (!NodeSelectors.Tile) {
-                throw new Error('missing Tile selector');
             }
             return {
                 id: CompoundKeyEncoder.encodeInt16(NodeSelectors.Tile, 0, q, r, s), //
@@ -511,20 +540,23 @@ export class DawnseekersClient {
                 }
                 if (type == 'render') {
                     const data = {
-                        tileActionButton: plugin.renderTileActionButtons(...args),
-                        tileActionDetails: plugin.renderTileActionDetails(...args),
-                        showTileActionDetails: plugin.showTileActionDetails(...args),
+                        tileActionButton: plugin.renderTileActionButtons ? plugin.renderTileActionButtons(...args) : null,
+                        tileActionDetails: plugin.renderTileActionDetails ? plugin.renderTileActionDetails(...args) : null,
+                        showTileActionDetails: plugin.showTileActionDetails ? plugin.showTileActionDetails(...args) : null,
                     };
                     port.postMessage({type, nonce, res:true, data, error: null});
-                } else if (type == 'onState') {
+                } else if (type == 'onState' && plugin.onState) {
                     const data = plugin.onState(...args);
                     port.postMessage({type, nonce, res:true, data, error: null});
-                } else if (type == 'onClick') {
+                } else if (type == 'onClick' && plugin.onClick) {
                     const data = plugin.onClick(...args);
                     port.postMessage({type, nonce, res:true, data, error: null});
-                } else if (type == 'onSubmit') {
+                } else if (type == 'onSubmit' && plugin.onSubmit) {
                     const data = plugin.onSubmit(...args);
                     port.postMessage({type, nonce, res:true, data, error: null});
+                } else {
+                    port.postMessage({type, nonce, res:true, data, error: 'unhandlable message type: '+type});
+                    console.error('unhandled message', e.data);
                 }
             }
 
@@ -555,12 +587,9 @@ export class DawnseekersClient {
             trust: trust,
             channel,
             worker,
-            state: { id },
+            state: {},
             resolvers: new Map<string, Resolver>()
         };
-
-        console.log('plugin', plugin);
-
         // setup the api that workers can use
         // wrapped in promise to block return until plugin says it is ready
         await new Promise((pluginIsReady) => {
@@ -679,18 +708,20 @@ export class DawnseekersClient {
     async dispatch(actionName: string, ...actionArgs: any): Promise<DispatchMutation['dispatch']> {
         console.log('dispatching:', actionName, actionArgs);
         const action = ACTIONS.encodeFunctionData(actionName, actionArgs);
-        const res = await this._dispatchEncodedAction(action);
+        const res = await this._dispatchEncodedActions([action]);
         // force an update
         await this.stateQuery.refetch();
         return res;
     }
 
-    private async _dispatchEncodedAction(action: string): Promise<DispatchMutation['dispatch']> {
+    private async _dispatchEncodedActions(actions: string[]): Promise<DispatchMutation['dispatch']> {
         const session = await this.getSession();
-        const actionDigest = ethers.getBytes(ethers.keccak256(action));
+        const actionDigest = ethers.getBytes(
+            ethers.keccak256(abi.encode(['bytes[]'], [actions.map((action) => ethers.getBytes(action))]))
+        );
         const auth = await session.key.signMessage(actionDigest);
         return this.cog
-            .mutate({ mutation: DispatchDocument, variables: { gameID, auth, action } })
+            .mutate({ mutation: DispatchDocument, variables: { gameID, auth, actions } })
             .then((res) => res.data.dispatch)
             .catch((err) => console.error(err));
     }
@@ -717,15 +748,24 @@ export class DawnseekersClient {
     private async _getSessionSigner(): Promise<Session> {
         const owner = await this.getPlayerSigner();
         const session = ethers.Wallet.createRandom();
-        const msg = ethers.concat([
-            ethers.toUtf8Bytes(`You are signing in with session: `),
-            ethers.getAddress(session.address)
-        ]);
+        const scope = '0xffffffff';
+        const ttl = 9999;
 
-        const auth = await owner.signMessage(ethers.getBytes(msg));
+        const msg = [
+            'Welcome to Dawnseekers!',
+            '\n\nThis site is requesting permission to interact with your Dawnseekers assets.',
+            '\n\nSigning this message will not incur any fees.',
+            '\n\nYou can revoke sessions and read more about them at https://dawnseekers.com/sessions',
+            '\n\nPermissions: send-actions, spend-energy',
+            '\n\nValid: ' + ttl + ' blocks',
+            '\n\nSession: ',
+            session.address.toLowerCase()
+        ].join('');
+
+        const auth = await owner.signMessage(msg);
         await this.cog.mutate({
             mutation: SigninDocument,
-            variables: { gameID, auth, session: session.address },
+            variables: { gameID, auth, ttl, scope, session: session.address },
             fetchPolicy: 'network-only'
         });
 
@@ -739,15 +779,16 @@ export class DawnseekersClient {
         // FIXME: remove this once onboarding exists
         const player = this.getSelectedPlayer();
         if (!player || player.seekers.length == 0) {
-            const seekerID = BigInt(session.owner) & BigInt('0xffffffff');
-            await this.dispatch('DEV_SPAWN_SEEKER', session.owner, seekerID, 0, 0, 0);
+            const sid = BigInt(session.owner) & BigInt('0xffffffff');
+            const seeker = CompoundKeyEncoder.encodeUint160(NodeSelectors.Seeker, sid);
+            await this.dispatch('SPAWN_SEEKER', seeker);
         }
     }
 
-    private async renderPlugins() {
+    private async renderPlugins(state: State) {
         return Promise.all(
             this.plugins.map((plugin) =>
-                postMessagePromise(plugin, 'render', []).then((res: any) => {
+                postMessagePromise(plugin, 'render', [state]).then((res: any) => {
                     // TODO: sanitise res.data html with DOMPurify
                     plugin.state = { ...plugin.state, ...res.data, id: plugin.id };
                 })
@@ -821,7 +862,7 @@ export class DawnseekersClient {
         return {
             ui: {
                 selection: this.getSelection(),
-                plugins: this.plugins.map((p) => p.state).sort()
+                plugins: this.plugins.map((p) => ({ ...p.state, id: p.id })).sort()
             },
             game: this.game
         };
@@ -835,7 +876,7 @@ export class DawnseekersClient {
         // tell all the plugins about the new state
         await Promise.all(this.plugins.map((plugin) => postMessagePromise(plugin, 'onState', [oldState])));
         // tell all the plugins to update their rendered views
-        await this.renderPlugins();
+        await this.renderPlugins(oldState);
         // rebuild the state again (since the plugins have updated)
         const latestState = this.getState();
         this.latestState = latestState;
@@ -863,6 +904,9 @@ export class DawnseekersClient {
 
     async pluginDispatch(pluginID: string, action: string, ...args: any[]) {
         await this.publish(); // let plugins update loading states
+        // if (!confirm(`plugin ${pluginID} wants to issue ${action}, let it?`)) {
+        //     return;
+        // }
         const plugin = this.plugins.find((p) => p.id == pluginID);
         if (!plugin) {
             return;
@@ -887,20 +931,20 @@ export function byEdgeKey(a: Edge, b: Edge) {
     return a.key > b.key ? -1 : 1;
 }
 
-export function useDawnSeekersState(ds: DawnseekersClient) {
+export function useDawnseekersState(ds: DawnseekersClient) {
     const [data, setData] = useState<State | null>(null);
 
     useEffect(() => {
         const sub = ds.subscribe({
             next(data) {
                 setData(data);
-                console.log(`useDawnSeekersState: next`, data);
+                console.log(`useDawnseekersState: next`, data);
             },
             error(err) {
-                console.error(`useDawnSeekersState: ${err}`);
+                console.error(`useDawnseekersState: ${err}`);
             },
             complete() {
-                console.log('useDawnSeekersState: closed');
+                console.log('useDawnseekersState: closed');
             }
         });
         return () => {
