@@ -1,8 +1,41 @@
 root = true
 
+[*]
+charset = utf-8
+
 [*.bat]
 end_of_line = crlf
 
 [*.cs]
 indent_style = space
 end_of_line = lf
+indent_size = 4
+
+[package.json]
+indent_style = space
+indent_size = 2
+
+[*.{js,ts,jsx,tsx}]
+indent_style = space
+indent_size = 4
+
+[*.sol]
+indent_style = space
+indent_size = 4
+
+[*.py]
+indent_style = space
+indent_size = 4
+
+[*.{tf,tfvars}]
+indent_style = space
+indent_size = 2
+
+[Makefile]
+indent_style = space
+indent_size = 2
+
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
