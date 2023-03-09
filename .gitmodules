@@ -1,0 +1,3 @@
+[submodule "contracts/lib/cog"]
+	path = contracts/lib/cog
+	url = https://github.com/playmint/cog
