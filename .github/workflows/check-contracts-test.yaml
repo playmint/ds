@@ -1,4 +1,4 @@
-name: check-forge
+name: check-contracts
 
 on:
   pull_request:
@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: true
 
-    name: forge
+    name: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -26,17 +26,20 @@ jobs:
           version: nightly
 
       - name: build
+        working-directory: contracts
         run: |
           forge --version
           forge build --sizes
         id: build
 
       - name: test
+        working-directory: contracts
         run: |
           forge test -vvv
         id: test
 
       - name: fmt
+        working-directory: contracts
         run: |
           forge fmt --check
         id: fmt
