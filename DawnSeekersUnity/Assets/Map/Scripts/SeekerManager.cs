@@ -1,9 +1,7 @@
-using Cog.GraphQL;
+using Cog;
 using UnityEngine;
-using Nethereum.Hex.HexConvertors.Extensions;
-using Nethereum.Contracts;
-using System;
-using System;
+using System.Linq;
+using System.Collections.Generic;
 
 public class SeekerManager : MonoBehaviour
 {
@@ -27,36 +25,38 @@ public class SeekerManager : MonoBehaviour
 
     public bool IsPlayerAtPosition(Vector3Int cellPosCube)
     {
-        return Seeker != null && TileHelper.GetTilePosCube(Seeker.Location[1].Tile) == cellPosCube;
+        return Seeker != null
+            && TileHelper.GetTilePosCube(Seeker.Location.Next.Tile) == cellPosCube;
     }
 
     // -- LISTENERS
 
+    // TODO: Still assuming only one seeker
     private void OnStateUpdated(State state)
     {
-        var accountBigInt = Cog.PluginController.Instance.Account.HexToBigInteger(false);
-        var seekerIDBigInt = accountBigInt & "0xffffffff".HexToBigInteger(false);
-        var seekerID = seekerIDBigInt.ToHex(false);
-
-        Seeker = state.Seekers.Find(seeker => seeker.SeekerID == seekerID);
-        if (Seeker != null)
+        var playerSeeker =
+            (state.UI.Selection.Player != null && state.UI.Selection.Player.Seekers.Count > 0)
+                ? state.UI.Selection.Player.Seekers.ToList()[0]
+                : null;
+        if (playerSeeker != Seeker)
         {
-            Debug.Log("SeekerManager: Seeker found: " + Seeker.SeekerID);
-        }
-#if  UNITY_EDITOR
-        else
-        {
-            Debug.Log("SeekerManager: No seeker found, spawning seeker: " + seekerID);
-            var action = new Cog.Actions.DevSpawnSeekerAction(
-                Cog.PluginController.Instance.Account,
-                seekerID,
-                0,
-                0,
-                0
-            );
+            var seekersToRemove = new List<Cog.Seeker>();
+            if (Seeker != null)
+            {
+                // If we've switched accounts then remove player icon
+                seekersToRemove.Add(Seeker);
+            }
 
-            Cog.PluginController.Instance.DispatchAction(action.GetCallData());
+            Seeker = playerSeeker;
+
+            if (playerSeeker != null)
+            {
+                // Remove 'other seeker' icon so it gets replaced with the player icon
+                seekersToRemove.Add(playerSeeker);
+                Debug.Log("SeekerManager: Seeker found. ID: " + Seeker.Id);
+            }
+
+            IconManager.instance.RemoveSeekers(seekersToRemove);
         }
-#endif
     }
 }
