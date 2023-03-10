@@ -97,8 +97,7 @@ export const UnityMap: FunctionComponent<UnityMapProps> = (props: UnityMapProps)
                 case 'dispatch': {
                     const dispatchMsg = msg as DispatchMessage;
                     const { action, args } = dispatchMsg as DispatchMessage;
-                    const [moveAction, q, r, s] = args;
-                    ds.dispatch(action, moveAction, q, r, s);
+                    ds.dispatch(action, ...args);
                     break;
                 }
                 case 'selectTiles': {

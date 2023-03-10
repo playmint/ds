@@ -95,7 +95,10 @@ namespace Cog
 
 #if UNITY_EDITOR
 
-        // -- Node.js process
+        // -- Dawnseekers Bridge node.js thread
+        private string _nodePath;
+        private string _privateKey;
+
 
         private Thread _nodeJSThread;
         private System.Diagnostics.Process _nodeJSProcess;
@@ -108,6 +111,10 @@ namespace Cog
         private void StartNodeProcess()
         {
             Debug.Log("StartNodeProcess()");
+
+            _nodePath = DawnseekersDevSettings.instance.NodePath;
+            _privateKey = DawnseekersDevSettings.instance.PrivateKey;
+
             try
             {
                 _nodeJSThread = new Thread(new ThreadStart(NodeProcessThread));
@@ -136,8 +143,8 @@ namespace Cog
                 StartInfo = new System.Diagnostics.ProcessStartInfo
                 {
                     WorkingDirectory = "../dawnseekers-bridge",
-                    FileName = DawnseekersDevSettings.instance.NodePath,
-                    Arguments = "build/index.js " + DawnseekersDevSettings.instance.PrivateKey,
+                    FileName = _nodePath,
+                    Arguments = "build/index.js " + _privateKey,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardInput = true,
