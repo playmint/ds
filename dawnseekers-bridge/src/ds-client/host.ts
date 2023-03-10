@@ -1,10 +1,17 @@
 /** @format */
-import { v4 as uuidv4 } from 'uuid';
-import { ApolloClient, ObservableQuery, NormalizedCacheObject, InMemoryCache, split, HttpLink } from '@apollo/client';
-import { getMainDefinition } from '@apollo/client/utilities';
-import { createClient } from 'graphql-ws';
-import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
-import { Observable, Observer, Subscription } from 'zen-observable-ts';
+import { v4 as uuidv4 } from "uuid";
+import {
+    ApolloClient,
+    ObservableQuery,
+    NormalizedCacheObject,
+    InMemoryCache,
+    split,
+    HttpLink,
+} from "@apollo/client";
+import { getMainDefinition } from "@apollo/client/utilities";
+import { createClient } from "graphql-ws";
+import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
+import { Observable, Observer, Subscription } from "zen-observable-ts";
 import {
     GetStateDocument,
     GetStateQuery,
@@ -12,18 +19,17 @@ import {
     SigninDocument,
     DispatchDocument,
     DispatchMutation,
-} from './queries';
-import { useState, useEffect } from 'react';
-import { ethers } from 'ethers';
+} from "./queries";
+import { ethers } from "ethers";
 
 const ACTIONS = new ethers.Interface([
-    'function MOVE_SEEKER(uint32 sid, int16 q, int16 r, int16 s)',
-    'function SCOUT_SEEKER(uint32 sid, int16 q, int16 r, int16 s)',
-    'function DEV_SPAWN_SEEKER(address player, uint32 seekerID, int16 q, int16 r, int16 s)',
-    'function DEV_SPAWN_TILE(uint8 kind, int16 q, int16 r, int16 s)',
+    "function MOVE_SEEKER(uint32 sid, int16 q, int16 r, int16 s)",
+    "function SCOUT_SEEKER(uint32 sid, int16 q, int16 r, int16 s)",
+    "function DEV_SPAWN_SEEKER(address player, uint32 seekerID, int16 q, int16 r, int16 s)",
+    "function DEV_SPAWN_TILE(uint8 kind, int16 q, int16 r, int16 s)",
 ]);
 
-const gameID = 'DAWNSEEKERS';
+const gameID = "DAWNSEEKERS";
 
 export type NodeID = string;
 
@@ -197,18 +203,30 @@ export interface DawnseekersConfig {
 }
 
 const NodeSelectors = {
-    Tile: new ethers.Interface([`function Tile()`]).getFunction('Tile')?.selector,
+    Tile: new ethers.Interface([`function Tile()`]).getFunction("Tile")
+        ?.selector,
 };
 
 const CompoundKeyEncoder = {
-    encodeInt16(nodeSelector: string, ...keys: [number, number, number, number]) {
+    encodeInt16(
+        nodeSelector: string,
+        ...keys: [number, number, number, number]
+    ) {
         return ethers.concat([
             ethers.getBytes(nodeSelector),
             ethers.getBytes(ethers.toBeHex(BigInt(0), 12)),
-            ethers.getBytes(ethers.toBeHex(ethers.toTwos(BigInt(keys[0]), 16), 2)),
-            ethers.getBytes(ethers.toBeHex(ethers.toTwos(BigInt(keys[1]), 16), 2)),
-            ethers.getBytes(ethers.toBeHex(ethers.toTwos(BigInt(keys[2]), 16), 2)),
-            ethers.getBytes(ethers.toBeHex(ethers.toTwos(BigInt(keys[3]), 16), 2)),
+            ethers.getBytes(
+                ethers.toBeHex(ethers.toTwos(BigInt(keys[0]), 16), 2)
+            ),
+            ethers.getBytes(
+                ethers.toBeHex(ethers.toTwos(BigInt(keys[1]), 16), 2)
+            ),
+            ethers.getBytes(
+                ethers.toBeHex(ethers.toTwos(BigInt(keys[2]), 16), 2)
+            ),
+            ethers.getBytes(
+                ethers.toBeHex(ethers.toTwos(BigInt(keys[3]), 16), 2)
+            ),
         ]);
     },
 };
@@ -239,12 +257,17 @@ export class DawnseekersClient {
         this.game = { seekers: [], tiles: [], players: [] };
         this.autoloadablePlugins = autoloadablePlugins || [];
         this.observers = [];
-        this.latestState = { game: this.game, ui: { selection: {}, plugins: [] } };
+        this.latestState = {
+            game: this.game,
+            ui: { selection: {}, plugins: [] },
+        };
         this.privKey = privKey;
 
         // init core plugins
         if (corePlugins) {
-            corePlugins.forEach((plug) => console.warn('loading core plugins not implemented', plug));
+            corePlugins.forEach((plug) =>
+                console.warn("loading core plugins not implemented", plug)
+            );
         }
 
         // setup graphql client for comms with cog-services
@@ -261,7 +284,10 @@ export class DawnseekersClient {
         const link = split(
             ({ query }) => {
                 const definition = getMainDefinition(query);
-                return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
+                return (
+                    definition.kind === "OperationDefinition" &&
+                    definition.operation === "subscription"
+                );
             },
             wsLink,
             httpLink
@@ -277,7 +303,7 @@ export class DawnseekersClient {
             query: GetStateDocument,
             variables: {},
             pollInterval: 1000,
-            fetchPolicy: 'network-only',
+            fetchPolicy: "network-only",
         });
         this.stateQuery.subscribe({
             next: (result) => this.onStateQueryData(result.data),
@@ -292,7 +318,7 @@ export class DawnseekersClient {
 
     private onStateQueryError(err: Error) {
         // TODO: ship this to all observers
-        console.error('graphql', err);
+        console.error("graphql", err);
     }
 
     private onStateQueryData(data: GetStateQuery) {
@@ -303,16 +329,28 @@ export class DawnseekersClient {
         const resources: { [key: string]: Resource } = {};
         const players: { [key: string]: Player } = {};
 
-        const getUnscoutedTile = (q: number, r: number, s: number): Tile | null => {
-            const t = Object.values(tiles).find(({ coords: t }) => t.q === q && t.r === r && t.s === s);
+        const getUnscoutedTile = (
+            q: number,
+            r: number,
+            s: number
+        ): Tile | null => {
+            const t = Object.values(tiles).find(
+                ({ coords: t }) => t.q === q && t.r === r && t.s === s
+            );
             if (t) {
                 return null;
             }
             if (!NodeSelectors.Tile) {
-                throw new Error('missing Tile selector');
+                throw new Error("missing Tile selector");
             }
             return {
-                id: CompoundKeyEncoder.encodeInt16(NodeSelectors.Tile, 0, q, r, s), //
+                id: CompoundKeyEncoder.encodeInt16(
+                    NodeSelectors.Tile,
+                    0,
+                    q,
+                    r,
+                    s
+                ), //
                 coords: { q, r, s },
                 bags: [],
                 biome: BiomeKind.UNDISCOVERED,
@@ -360,7 +398,10 @@ export class DawnseekersClient {
                     r: Number(ethers.fromTwos(t.coords[2], 16)),
                     s: Number(ethers.fromTwos(t.coords[3], 16)),
                 },
-                biome: t.biome === 1 ? BiomeKind.DISCOVERED : BiomeKind.UNDISCOVERED,
+                biome:
+                    t.biome === 1
+                        ? BiomeKind.DISCOVERED
+                        : BiomeKind.UNDISCOVERED,
                 bags: t.bags
                     .map((b) => ({
                         key: b.key,
@@ -380,7 +421,7 @@ export class DawnseekersClient {
 
         data.game.state.seekers.forEach((s) => {
             if (!s.owner) {
-                console.warn('ignoring ownerless seeker', s);
+                console.warn("ignoring ownerless seeker", s);
                 return;
             }
             const locations = s.location
@@ -390,7 +431,12 @@ export class DawnseekersClient {
                         return null;
                     }
                     return {
-                        kind: l.key === 0 ? LocationKind.PREV : l.key === 1 ? LocationKind.NEXT : LocationKind.UNKNOWN,
+                        kind:
+                            l.key === 0
+                                ? LocationKind.PREV
+                                : l.key === 1
+                                ? LocationKind.NEXT
+                                : LocationKind.UNKNOWN,
                         validFrom: l.time,
                         tile: tile,
                     };
@@ -398,12 +444,18 @@ export class DawnseekersClient {
                 .filter((l): l is Location => !!l);
             const next = locations.find((loc) => loc.kind == LocationKind.NEXT);
             if (!next) {
-                console.warn('invalid seeker data: missing NEXT location', s.id);
+                console.warn(
+                    "invalid seeker data: missing NEXT location",
+                    s.id
+                );
                 return;
             }
             const prev = locations.find((loc) => loc.kind == LocationKind.PREV);
             if (!prev) {
-                console.warn('invalid seeker data: missing PREV location', s.id);
+                console.warn(
+                    "invalid seeker data: missing PREV location",
+                    s.id
+                );
                 return;
             }
             seekers[s.id] = {
@@ -438,7 +490,10 @@ export class DawnseekersClient {
         if (this.selection.seekerID) {
             const selectedSeeker = seekers[this.selection.seekerID];
             if (!selectedSeeker) {
-                console.warn('selected seeker no longer found in state, removing selection', this.selection.seekerID);
+                console.warn(
+                    "selected seeker no longer found in state, removing selection",
+                    this.selection.seekerID
+                );
                 this.selection.seekerID = undefined;
             } else {
                 this.selection.seekerID = selectedSeeker.id;
@@ -450,7 +505,9 @@ export class DawnseekersClient {
                 .map((selectedTileID) => tiles[selectedTileID])
                 .filter((t): t is Tile => !!t);
             if (selectedTiles.length != this.selection.tileIDs.length) {
-                console.warn('one or more selected tiles were not found in the state, removing selection');
+                console.warn(
+                    "one or more selected tiles were not found in the state, removing selection"
+                );
                 this.selection.tileIDs = [];
             } else {
                 this.selection.tileIDs = selectedTiles.map((t) => t.id);
@@ -465,14 +522,19 @@ export class DawnseekersClient {
             this.observers.push(stateObserver);
             stateObserver.next(this.latestState); // push last known state immediately
             return () => {
-                this.observers = this.observers.filter((obs) => obs !== stateObserver);
+                this.observers = this.observers.filter(
+                    (obs) => obs !== stateObserver
+                );
             };
         });
         return observable.subscribe(observer);
     }
 
-    async dispatch(actionName: string, ...actionArgs: any): Promise<DispatchMutation['dispatch']> {
-        console.log('dispatching:', actionName, actionArgs);
+    async dispatch(
+        actionName: string,
+        ...actionArgs: any
+    ): Promise<DispatchMutation["dispatch"]> {
+        console.log("dispatching:", actionName, actionArgs);
         const action = ACTIONS.encodeFunctionData(actionName, actionArgs);
         const res = await this._dispatchEncodedAction(action);
         // force an update
@@ -480,12 +542,17 @@ export class DawnseekersClient {
         return res;
     }
 
-    private async _dispatchEncodedAction(action: string): Promise<DispatchMutation['dispatch']> {
+    private async _dispatchEncodedAction(
+        action: string
+    ): Promise<DispatchMutation["dispatch"]> {
         const session = await this.getSession();
         const actionDigest = ethers.getBytes(ethers.keccak256(action));
         const auth = await session.key.signMessage(actionDigest);
         return this.cog
-            .mutate({ mutation: DispatchDocument, variables: { gameID, auth, action } })
+            .mutate({
+                mutation: DispatchDocument,
+                variables: { gameID, auth, action },
+            })
             .then((res) => res.data.dispatch)
             .catch((err) => console.error(err));
     }
@@ -495,7 +562,9 @@ export class DawnseekersClient {
         if (this.privKey) {
             return new ethers.Wallet(this.privKey);
         }
-        throw new Error(`metamask not installed and we havent implemented WalletConnect yet sorry`);
+        throw new Error(
+            `metamask not installed and we havent implemented WalletConnect yet sorry`
+        );
     }
 
     async getSession(): Promise<Session> {
@@ -517,7 +586,7 @@ export class DawnseekersClient {
         await this.cog.mutate({
             mutation: SigninDocument,
             variables: { gameID, auth, session: session.address },
-            fetchPolicy: 'network-only',
+            fetchPolicy: "network-only",
         });
 
         return { key: session, owner: await owner.getAddress() };
@@ -530,8 +599,15 @@ export class DawnseekersClient {
         // FIXME: remove this once onboarding exists
         const player = this.getSelectedPlayer();
         if (!player || player.seekers.length == 0) {
-            const seekerID = BigInt(session.owner) & BigInt('0xffffffff');
-            await this.dispatch('DEV_SPAWN_SEEKER', session.owner, seekerID, 0, 0, 0);
+            const seekerID = BigInt(session.owner) & BigInt("0xffffffff");
+            await this.dispatch(
+                "DEV_SPAWN_SEEKER",
+                session.owner,
+                seekerID,
+                0,
+                0,
+                0
+            );
         }
     }
 
@@ -561,7 +637,9 @@ export class DawnseekersClient {
 
     private getSelectedTiles(): Tile[] {
         return this.selection.tileIDs
-            .map((selectedTileID) => this.game.tiles.find((t) => t.id == selectedTileID))
+            .map((selectedTileID) =>
+                this.game.tiles.find((t) => t.id == selectedTileID)
+            )
             .filter((t): t is Tile => t !== undefined);
     }
 
@@ -575,13 +653,17 @@ export class DawnseekersClient {
 
     async selectPlayer(address: string) {
         if (!ethers.isAddress(address)) {
-            console.error('selectPlayer: invalid address', address);
+            console.error("selectPlayer: invalid address", address);
             return;
         }
         this.selection.playerAddr = address;
         // if we have switched players we need to invalidate the seeker selection
         const s = this.getSelectedSeeker();
-        if (s && ethers.isAddress(s.owner.addr) && ethers.getAddress(s.owner.addr) != ethers.getAddress(address)) {
+        if (
+            s &&
+            ethers.isAddress(s.owner.addr) &&
+            ethers.getAddress(s.owner.addr) != ethers.getAddress(address)
+        ) {
             this.selection.seekerID = undefined;
         }
         return this.publish();
@@ -593,7 +675,9 @@ export class DawnseekersClient {
             return undefined;
         }
         return this.game.players.find(
-            (player) => ethers.isAddress(player.addr) && ethers.getAddress(player.addr) === ethers.getAddress(address)
+            (player) =>
+                ethers.isAddress(player.addr) &&
+                ethers.getAddress(player.addr) === ethers.getAddress(address)
         );
     }
 
@@ -611,7 +695,11 @@ export class DawnseekersClient {
         const latestState = this.getState();
         this.latestState = latestState;
         // emit the full state to all observers
-        this.observers.forEach((obs) => (obs.next ? obs.next(latestState) : console.warn('subscriber without a next')));
+        this.observers.forEach((obs) =>
+            obs.next
+                ? obs.next(latestState)
+                : console.warn("subscriber without a next")
+        );
     }
 
     async pluginDispatch(pluginID: string, action: string, ...args: any[]) {
@@ -633,28 +721,4 @@ export function byNodeID(a: Node, b: Node) {
 
 export function byEdgeKey(a: Edge, b: Edge) {
     return a.key > b.key ? -1 : 1;
-}
-
-export function useDawnseekersState(ds: DawnseekersClient) {
-    const [data, setData] = useState<State | null>(null);
-
-    useEffect(() => {
-        const sub = ds.subscribe({
-            next(data) {
-                setData(data);
-                console.log(`useDawnseekersState: next`, data);
-            },
-            error(err) {
-                console.error(`useDawnseekersState: ${err}`);
-            },
-            complete() {
-                console.log('useDawnseekersState: closed');
-            },
-        });
-        return () => {
-            sub.unsubscribe();
-        };
-    }, [ds]);
-
-    return { data };
 }

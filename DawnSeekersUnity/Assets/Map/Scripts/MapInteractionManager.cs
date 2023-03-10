@@ -182,7 +182,7 @@ public class MapInteractionManager : MonoBehaviour
 
     private void OnStateUpdated(State state)
     {
-        if (state.UI.Selection.Tiles.Count > 0)
+        if (state.UI.Selection.Tiles != null && state.UI.Selection.Tiles.Count > 0)
         {
             var tile = state.UI.Selection.Tiles.ToList()[0];
             var cellPosCube = TileHelper.GetTilePosCube(tile);

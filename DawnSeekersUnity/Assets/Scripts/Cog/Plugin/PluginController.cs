@@ -137,9 +137,9 @@ namespace Cog
             {
                 StartInfo = new System.Diagnostics.ProcessStartInfo
                 {
-                    WorkingDirectory = "DawnSeekersBridge",
+                    WorkingDirectory = "../dawnseekers-bridge",
                     FileName = "/Users/hypnoshock/.nvm/versions/node/v16.19.0/bin/node",
-                    Arguments = "build/src/index.js " + _privateKey,
+                    Arguments = "build/index.js " + _privateKey,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardInput = true,
