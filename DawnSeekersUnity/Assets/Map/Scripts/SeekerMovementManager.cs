@@ -12,10 +12,13 @@ public class SeekerMovementManager : MonoBehaviour
     public static SeekerMovementManager instance;
 
     [SerializeField]
-    private GameObject travelMarkerPrefab, greenHighlightPrefab, orangeHighlightPrefab;
+    private GameObject travelMarkerPrefab,
+        greenHighlightPrefab,
+        orangeHighlightPrefab;
 
-    private List<KeyValuePair<Vector3Int,TravelMarkerController>> _path;//cell positions in Cube Coordinates;
-    private Dictionary<Vector3Int, GameObject> spawnedValidCellHighlights, spawnedPathHighlights;
+    private List<KeyValuePair<Vector3Int, TravelMarkerController>> _path; //cell positions in Cube Coordinates;
+    private Dictionary<Vector3Int, GameObject> spawnedValidCellHighlights,
+        spawnedPathHighlights;
     private bool isMoving;
 
     private void Awake()
@@ -37,18 +40,29 @@ public class SeekerMovementManager : MonoBehaviour
 
     private void Update()
     {
-        if(isMoving)
+        if (isMoving)
         {
-            Vector3Int cubeMousePos = GridExtensions.GridToCube(MapInteractionManager.CurrentMouseCell);
+            Vector3Int cubeMousePos = GridExtensions.GridToCube(
+                MapInteractionManager.CurrentMouseCell
+            );
             if (MapInteractionManager.instance.IsDiscoveredTile(cubeMousePos))
             {
-                if (!spawnedPathHighlights.ContainsKey(cubeMousePos) && TileHelper.GetTileNeighbours(_path[_path.Count - 1].Key).Contains(cubeMousePos))
+                if (
+                    !spawnedPathHighlights.ContainsKey(cubeMousePos)
+                    && TileHelper
+                        .GetTileNeighbours(_path[_path.Count - 1].Key)
+                        .Contains(cubeMousePos)
+                )
                 {
-                    TooltipManager.instance.ShowTooltip("Right-click to <b>Move</b>\nLeft-click to <b>Add</b>");
+                    TooltipManager.instance.ShowTooltip(
+                        "Right-click to <b>Move</b>\nLeft-click to <b>Add</b>"
+                    );
                 }
                 else if (_path[_path.Count - 1].Key == cubeMousePos)
                 {
-                    TooltipManager.instance.ShowTooltip("Right-click to <b>Move</b>\nLeft-click to <b>Undo</b>");
+                    TooltipManager.instance.ShowTooltip(
+                        "Right-click to <b>Move</b>\nLeft-click to <b>Undo</b>"
+                    );
                 }
             }
         }
@@ -96,13 +110,18 @@ public class SeekerMovementManager : MonoBehaviour
     public void HighlightAvailableSpaces()
     {
         HideHighlights();
-        
-        foreach(Vector3Int space in TileHelper.GetTileNeighbours(_path[_path.Count - 1].Key))
+
+        foreach (Vector3Int space in TileHelper.GetTileNeighbours(_path[_path.Count - 1].Key))
         {
-            if(!spawnedPathHighlights.ContainsKey(space) && MapInteractionManager.instance.IsDiscoveredTile(space))
+            if (
+                !spawnedPathHighlights.ContainsKey(space)
+                && MapInteractionManager.instance.IsDiscoveredTile(space)
+            )
             {
                 GameObject highlight = Instantiate(greenHighlightPrefab);
-                highlight.transform.position = MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(space));
+                highlight.transform.position = MapManager.instance.grid.CellToWorld(
+                    GridExtensions.CubeToGrid(space)
+                );
                 spawnedValidCellHighlights.Add(space, highlight);
             }
         }
@@ -128,26 +147,39 @@ public class SeekerMovementManager : MonoBehaviour
 
     private void AddCellToPath(Vector3Int cellCubePos)
     {
-        bool validPosition = _path.Count == 0 || TileHelper.GetTileNeighbours(_path[_path.Count - 1].Key).Contains(cellCubePos);
-        if (!_path.Any(p=>p.Key == cellCubePos) && validPosition)
+        bool validPosition =
+            _path.Count == 0
+            || TileHelper.GetTileNeighbours(_path[_path.Count - 1].Key).Contains(cellCubePos);
+        if (!_path.Any(p => p.Key == cellCubePos) && validPosition)
         {
             bool addMarker = _path.Count > 0;
             TravelMarkerController travelMarkerController = null;
             if (addMarker)
-                 travelMarkerController = Instantiate(travelMarkerPrefab).GetComponent<TravelMarkerController>();
-            _path.Add(new KeyValuePair<Vector3Int, TravelMarkerController>(cellCubePos,travelMarkerController));
+                travelMarkerController = Instantiate(travelMarkerPrefab)
+                    .GetComponent<TravelMarkerController>();
+            _path.Add(
+                new KeyValuePair<Vector3Int, TravelMarkerController>(
+                    cellCubePos,
+                    travelMarkerController
+                )
+            );
             if (addMarker)
-                travelMarkerController.ShowTravelMarkers(_path[_path.Count - 2].Key, _path[_path.Count - 1].Key);
+                travelMarkerController.ShowTravelMarkers(
+                    _path[_path.Count - 2].Key,
+                    _path[_path.Count - 1].Key
+                );
 
             GameObject highlight = Instantiate(orangeHighlightPrefab);
-            highlight.transform.position = MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(cellCubePos));
+            highlight.transform.position = MapManager.instance.grid.CellToWorld(
+                GridExtensions.CubeToGrid(cellCubePos)
+            );
             spawnedPathHighlights.Add(cellCubePos, highlight);
         }
     }
 
     private void RemoveCellFromPath(Vector3Int cellCubePos)
     {
-        _path.FirstOrDefault(p=>p.Key == cellCubePos).Value.HideLine();
+        _path.FirstOrDefault(p => p.Key == cellCubePos).Value.HideLine();
         _path.Remove(_path.FirstOrDefault(p => p.Key == cellCubePos));
     }
 
@@ -162,11 +194,11 @@ public class SeekerMovementManager : MonoBehaviour
 
     IEnumerator TracePathCR()
     {
-        for(int i = 1; i < _path.Count; i++)
+        for (int i = 1; i < _path.Count; i++)
         {
             MoveSeeker(SeekerManager.Instance.Seeker, _path[i].Key);
             yield return new WaitForSeconds(3.5f);
-            if(_path[i].Value != null)
+            if (_path[i].Value != null)
                 _path[i].Value.HideLine();
         }
     }

@@ -42,7 +42,7 @@ public class MapInteractionManager : MonoBehaviour
     private void Update()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        
+
         //Initialise the enter variable
         float enter = 0.0f;
 
@@ -100,8 +100,17 @@ public class MapInteractionManager : MonoBehaviour
         {
             MapClicked2();
         }
-        if(SeekerManager.Instance.Seeker != null)
-        cursor.gameObject.SetActive(IsDiscoveredTile(GridExtensions.GridToCube(CurrentMouseCell)) || TileHelper.GetTileNeighbours(TileHelper.GetTilePosCube(SeekerManager.Instance.Seeker.Location[1].Tile)).Contains(GridExtensions.GridToCube(CurrentMouseCell)));
+        if (SeekerManager.Instance.Seeker != null)
+            cursor.gameObject.SetActive(
+                IsDiscoveredTile(GridExtensions.GridToCube(CurrentMouseCell))
+                    || TileHelper
+                        .GetTileNeighbours(
+                            TileHelper.GetTilePosCube(
+                                SeekerManager.Instance.Seeker.Location[1].Tile
+                            )
+                        )
+                        .Contains(GridExtensions.GridToCube(CurrentMouseCell))
+            );
     }
 
     void MapClicked()

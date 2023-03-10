@@ -37,9 +37,15 @@ public class TravelMarkerController : MonoBehaviour
     public void ShowTravelMarkers(Vector3Int startPos, Vector3Int endPos, bool isCube = true)
     {
         if (isCube)
-            ShowTravelMarkers(MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(startPos)), MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(endPos)));
+            ShowTravelMarkers(
+                MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(startPos)),
+                MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(endPos))
+            );
         else
-            ShowTravelMarkers(MapManager.instance.grid.CellToWorld(startPos), MapManager.instance.grid.CellToWorld(endPos));
+            ShowTravelMarkers(
+                MapManager.instance.grid.CellToWorld(startPos),
+                MapManager.instance.grid.CellToWorld(endPos)
+            );
     }
 
     public void ShowTravelMarkers(Vector3 startPos, Vector3 endPos)

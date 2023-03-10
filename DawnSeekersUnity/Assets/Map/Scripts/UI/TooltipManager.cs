@@ -9,6 +9,7 @@ public class TooltipManager : MonoBehaviour
 
     [SerializeField]
     Transform tooltipParent;
+
     [SerializeField]
     TextMeshProUGUI tooltipText;
 
@@ -39,11 +40,11 @@ public class TooltipManager : MonoBehaviour
 
     private void Update()
     {
-        if(tooltipParent.gameObject.activeSelf)
+        if (tooltipParent.gameObject.activeSelf)
         {
             tooltipParent.position = Input.mousePosition;
             disappearTimer += Time.deltaTime;
-            if(disappearTimer> disappearAlarm)
+            if (disappearTimer > disappearAlarm)
             {
                 HideTooltip();
             }

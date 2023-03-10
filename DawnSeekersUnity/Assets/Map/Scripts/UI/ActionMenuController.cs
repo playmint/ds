@@ -19,10 +19,12 @@ public class ActionMenuController : MonoBehaviour
     private void OnTileInteraction(Vector3Int cellPosCube)
     {
         bool isPlayerAtPosition = SeekerManager.Instance.IsPlayerAtPosition(cellPosCube);
-        if(isPlayerAtPosition)
+        if (isPlayerAtPosition)
         {
             gameObject.SetActive(true);
-            transform.position = MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(cellPosCube));
+            transform.position = MapManager.instance.grid.CellToWorld(
+                GridExtensions.CubeToGrid(cellPosCube)
+            );
         }
         else
         {
