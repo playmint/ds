@@ -48,10 +48,6 @@ namespace Cog
 
         public static PluginController Instance;
 
-        [SerializeField]
-        private string _privateKey =
-            "0xc14c1284a5ff47ce38e2ad7a50ff89d55ca360b02cdf3756cdb457389b1da223";
-
         public State WorldState { get; private set; }
 
         private bool _hasStateUpdated;
@@ -133,13 +129,15 @@ namespace Cog
 
         public void NodeProcessThread()
         {
+            Debug.Log($"PluginController:NodeProcessThread() Starting DawnseekersBridge \nNodePath: {DawnseekersDevSettings.instance.NodePath} \nPrivKey: {DawnseekersDevSettings.instance.PrivateKey}");
+
             _nodeJSProcess = new System.Diagnostics.Process
             {
                 StartInfo = new System.Diagnostics.ProcessStartInfo
                 {
                     WorkingDirectory = "../dawnseekers-bridge",
-                    FileName = "/Users/hypnoshock/.nvm/versions/node/v16.19.0/bin/node",
-                    Arguments = "build/index.js " + _privateKey,
+                    FileName = DawnseekersDevSettings.instance.NodePath,
+                    Arguments = "build/index.js " + DawnseekersDevSettings.instance.PrivateKey,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardInput = true,
