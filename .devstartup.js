@@ -18,7 +18,7 @@ const DEPLOYER_PRIVATE_KEY = "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff
 const commands = [
     {
         name: 'networks',
-        command: "anvil -m 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --code-size-limit 9999999999999 --gas-limit 9999999999999999 -b 1",
+        command: "anvil -m 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --code-size-limit 9999999999999 --gas-limit 9999999999999999",
         prefixColor: 'black',
     },
 
@@ -43,6 +43,12 @@ const commands = [
         name: ' client ',
         command: 'npm run dev --workspace=frontend -- -p 3000',
         prefixColor: 'blueBright',
+    },
+
+    {
+        name: '   sdk  ',
+        command: 'npm run watch --workspace=sdk',
+        prefixColor: 'magenta',
     },
 
 ];
