@@ -97,27 +97,15 @@ async function deployer() {
     const dirs = ['contracts/src'];
     // wait for chain to become available
     let ready = false;
-    let provider;
-    while (!ready) {
-        sleep(500);
-
-        if (isShutdown || processes.commands.some(cmd => cmd.exited)) {
-            console.error('[contracts] aborting starting watcher');
-            return;
-        }
-
-        try {
-            provider = new JsonRpcProvider('http://localhost:8545');
-            ready = await Promise.race([
-                provider.send("eth_blockNumber"),
-                sleep(1000).then(() => undefined),
-            ]);
-            console.log('[contracts] waiting');
-        } catch {
-            console.log('[contracts] waiting for rpc endpoint available');
-        } finally {
-            provider.destroy();
-        }
+    await sleep(2000);
+    const provider = new JsonRpcProvider('http://localhost:8545');
+    ready = await Promise.race([
+        provider.send("eth_blockNumber"),
+        sleep(2000).then(() => undefined),
+    ]);
+    if (!ready) {
+        console.log('[contracts] rpc endpoint unavailable');
+        shutdown('failed to connect to network');
     }
     // watch for changes to the contracts to trigger contract deployments
     const watcher = chokidar.watch(dirs, {
