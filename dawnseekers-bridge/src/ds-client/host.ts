@@ -1,5 +1,4 @@
 /** @format */
-import { v4 as uuidv4 } from "uuid";
 import {
     ApolloClient,
     ObservableQuery,
@@ -22,9 +21,12 @@ import {
 } from "./queries";
 import { ethers } from "ethers";
 
+const abi = ethers.AbiCoder.defaultAbiCoder();
+
 const ACTIONS = new ethers.Interface([
     "function MOVE_SEEKER(uint32 sid, int16 q, int16 r, int16 s)",
     "function SCOUT_SEEKER(uint32 sid, int16 q, int16 r, int16 s)",
+    "function SPAWN_SEEKER(bytes24 seeker)",
     "function DEV_SPAWN_SEEKER(address player, uint32 seekerID, int16 q, int16 r, int16 s)",
     "function DEV_SPAWN_TILE(uint8 kind, int16 q, int16 r, int16 s)",
 ]);
@@ -53,13 +55,27 @@ export interface SelectionState {
     tiles?: Tile[];
 }
 
+export interface PluginStateButton {
+    text: string;
+    template: string; // TODO
+}
+
+export interface PluginStateTemplate {
+    name: string;
+    content: string;
+}
+
+export interface PluginStateSection {
+    name: "building" | "tile" | "seeker" | "nav";
+    title?: string;
+    summary?: string;
+    buttons?: PluginStateButton[];
+    content?: string;
+    templates?: PluginStateTemplate[];
+}
+
 export interface PluginState {
-    id: string;
-    tileActionButton?: string;
-    tileActionDetails?: string;
-    showTileActionDetails?: boolean;
-    seekerActionButton?: string;
-    seekerActionDetails?: string;
+    sections?: PluginStateSection[];
 }
 
 export interface Session {
@@ -67,9 +83,13 @@ export interface Session {
     key: ethers.HDNodeWallet;
 }
 
+interface PluginPublishState extends PluginState {
+    id: string; // plugin id
+}
+
 export interface UIState {
     selection: SelectionState;
-    plugins: PluginState[];
+    plugins: PluginPublishState[];
 }
 
 export interface Player extends Node {
@@ -97,7 +117,7 @@ export interface Location {
 export interface Seeker extends Node {
     id: NodeID;
     /** @TJS-type string */
-    key: string;
+    key: bigint;
     name: string;
     owner: Player;
     bags: EquipSlot[];
@@ -176,6 +196,8 @@ export interface Plugin {
     type: PluginType;
     trust: PluginTrust;
     addr: string;
+    channel: MessageChannel;
+    worker: Worker;
     state: PluginState;
     resolvers: Map<string, Resolver>;
 }
@@ -202,9 +224,19 @@ export interface DawnseekersConfig {
     privKey?: string;
 }
 
+const getSelector = (name: string): string => {
+    const selector = new ethers.Interface([`function ${name}()`]).getFunction(
+        name
+    )?.selector;
+    if (!selector) {
+        throw new Error(`failed to generate selector for ${name}`);
+    }
+    return selector;
+};
+
 const NodeSelectors = {
-    Tile: new ethers.Interface([`function Tile()`]).getFunction("Tile")
-        ?.selector,
+    Tile: getSelector("Tile"),
+    Seeker: getSelector("Seeker"),
 };
 
 const CompoundKeyEncoder = {
@@ -229,6 +261,12 @@ const CompoundKeyEncoder = {
             ),
         ]);
     },
+    encodeUint160(nodeSelector: string, ...keys: [ethers.BigNumberish]) {
+        return ethers.concat([
+            ethers.getBytes(nodeSelector),
+            ethers.getBytes(ethers.toBeHex(BigInt(keys[0]), 20)),
+        ]);
+    },
 };
 
 export class DawnseekersClient {
@@ -241,7 +279,7 @@ export class DawnseekersClient {
     observers: Observer<State>[];
     stateQuery: ObservableQuery<GetStateQuery, GetStateQueryVariables>;
     session?: Session;
-    privKey?: string; // TODO: probably bad
+    privKey?: string;
 
     constructor({
         httpEndpoint,
@@ -310,10 +348,11 @@ export class DawnseekersClient {
             error: (err) => this.onStateQueryError(err),
         });
 
-        // TODO: Implement other provider
         // watch metamask account changes
         // const ethereum = (window as any).ethereum;
-        // ethereum.request({ method: 'eth_accounts' }).then((accounts: string[]) => this.selectPlayer(accounts[0]));
+        // ethereum
+        //     .request({ method: "eth_accounts" })
+        //     .then((accounts: string[]) => this.selectPlayer(accounts[0]));
     }
 
     private onStateQueryError(err: Error) {
@@ -339,9 +378,6 @@ export class DawnseekersClient {
             );
             if (t) {
                 return null;
-            }
-            if (!NodeSelectors.Tile) {
-                throw new Error("missing Tile selector");
             }
             return {
                 id: CompoundKeyEncoder.encodeInt16(
@@ -460,7 +496,7 @@ export class DawnseekersClient {
             }
             seekers[s.id] = {
                 id: s.id,
-                key: ethers.getBigInt(s.seekerID).toString(16),
+                key: ethers.getBigInt(s.seekerID),
                 name: s.id,
                 owner: players[s.owner.id],
                 location: {
@@ -536,34 +572,40 @@ export class DawnseekersClient {
     ): Promise<DispatchMutation["dispatch"]> {
         console.log("dispatching:", actionName, actionArgs);
         const action = ACTIONS.encodeFunctionData(actionName, actionArgs);
-        const res = await this._dispatchEncodedAction(action);
+        const res = await this._dispatchEncodedActions([action]);
         // force an update
         await this.stateQuery.refetch();
         return res;
     }
 
-    private async _dispatchEncodedAction(
-        action: string
+    private async _dispatchEncodedActions(
+        actions: string[]
     ): Promise<DispatchMutation["dispatch"]> {
         const session = await this.getSession();
-        const actionDigest = ethers.getBytes(ethers.keccak256(action));
+        const actionDigest = ethers.getBytes(
+            ethers.keccak256(
+                abi.encode(
+                    ["bytes[]"],
+                    [actions.map((action) => ethers.getBytes(action))]
+                )
+            )
+        );
         const auth = await session.key.signMessage(actionDigest);
         return this.cog
             .mutate({
                 mutation: DispatchDocument,
-                variables: { gameID, auth, action },
+                variables: { gameID, auth, actions },
             })
             .then((res) => res.data.dispatch)
             .catch((err) => console.error(err));
     }
 
-    // TODO: Support private key signer
     async getPlayerSigner(): Promise<ethers.Signer> {
         if (this.privKey) {
             return new ethers.Wallet(this.privKey);
         }
         throw new Error(
-            `metamask not installed and we havent implemented WalletConnect yet sorry`
+            `Unable to get PlayerSigner. Check that privKey has been set`
         );
     }
 
@@ -577,15 +619,24 @@ export class DawnseekersClient {
     private async _getSessionSigner(): Promise<Session> {
         const owner = await this.getPlayerSigner();
         const session = ethers.Wallet.createRandom();
-        const msg = ethers.concat([
-            ethers.toUtf8Bytes(`You are signing in with session: `),
-            ethers.getAddress(session.address),
-        ]);
+        const scope = "0xffffffff";
+        const ttl = 9999;
 
-        const auth = await owner.signMessage(ethers.getBytes(msg));
+        const msg = [
+            "Welcome to Dawnseekers!",
+            "\n\nThis site is requesting permission to interact with your Dawnseekers assets.",
+            "\n\nSigning this message will not incur any fees.",
+            "\n\nYou can revoke sessions and read more about them at https://dawnseekers.com/sessions",
+            "\n\nPermissions: send-actions, spend-energy",
+            "\n\nValid: " + ttl + " blocks",
+            "\n\nSession: ",
+            session.address.toLowerCase(),
+        ].join("");
+
+        const auth = await owner.signMessage(msg);
         await this.cog.mutate({
             mutation: SigninDocument,
-            variables: { gameID, auth, session: session.address },
+            variables: { gameID, auth, ttl, scope, session: session.address },
             fetchPolicy: "network-only",
         });
 
@@ -599,15 +650,12 @@ export class DawnseekersClient {
         // FIXME: remove this once onboarding exists
         const player = this.getSelectedPlayer();
         if (!player || player.seekers.length == 0) {
-            const seekerID = BigInt(session.owner) & BigInt("0xffffffff");
-            await this.dispatch(
-                "DEV_SPAWN_SEEKER",
-                session.owner,
-                seekerID,
-                0,
-                0,
-                0
+            const sid = BigInt(session.owner) & BigInt("0xffffffff");
+            const seeker = CompoundKeyEncoder.encodeUint160(
+                NodeSelectors.Seeker,
+                sid
             );
+            await this.dispatch("SPAWN_SEEKER", seeker);
         }
     }
 
@@ -685,13 +733,24 @@ export class DawnseekersClient {
         return {
             ui: {
                 selection: this.getSelection(),
-                plugins: this.plugins.map((p) => p.state).sort(),
+                plugins: this.plugins
+                    .map((p) => ({ ...p.state, id: p.id }))
+                    .sort(),
             },
             game: this.game,
         };
     }
 
     private async publish() {
+        // build the full state
+        // const oldState = this.getState();
+        // autoload/unload building plugins
+        // await this.autoloadBuildingPlugins();
+        // tell all the plugins about the new state
+        // await Promise.all(this.plugins.map((plugin) => postMessagePromise(plugin, 'onState', [oldState])));
+        // tell all the plugins to update their rendered views
+        // await this.renderPlugins(oldState);
+        // rebuild the state again (since the plugins have updated)
         const latestState = this.getState();
         this.latestState = latestState;
         // emit the full state to all observers
@@ -700,18 +759,6 @@ export class DawnseekersClient {
                 ? obs.next(latestState)
                 : console.warn("subscriber without a next")
         );
-    }
-
-    async pluginDispatch(pluginID: string, action: string, ...args: any[]) {
-        await this.publish(); // let plugins update loading states
-        // if (!confirm(`plugin ${pluginID} wants to issue ${action}, let it?`)) {
-        //     return;
-        // }
-        const plugin = this.plugins.find((p) => p.id == pluginID);
-        if (!plugin) {
-            return;
-        }
-        return this.dispatch(action, ...args);
     }
 }
 

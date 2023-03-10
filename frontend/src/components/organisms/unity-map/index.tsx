@@ -74,7 +74,7 @@ export const UnityMap: FunctionComponent<UnityMapProps> = (props: UnityMapProps)
     // state object with a cached reference always evalated false when doing `state === prevState`.
     const stateJson = JSON.stringify(breakCircularReferences(state), (_, value) => {
         if (typeof value === 'bigint') {
-            return BigInt(value).toString(16); // Includes the '0x' prefix unlike node.js
+            return BigInt(value).toString(16); // Includes '0x' prefix
         }
         return value;
     });
@@ -101,7 +101,7 @@ export const UnityMap: FunctionComponent<UnityMapProps> = (props: UnityMapProps)
                     ds.dispatch(action, moveAction, q, r, s);
                     break;
                 }
-                case 'selectTile': {
+                case 'selectTiles': {
                     const selectTileMsg = msg as SelectTileMessage;
                     ds.selectTiles(selectTileMsg.tileIDs);
                     break;

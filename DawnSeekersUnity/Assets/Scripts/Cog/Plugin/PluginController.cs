@@ -208,7 +208,7 @@ namespace Cog
         {
             var tileInteractionMsg = new SelectTileMessage
             {
-                msg = "selectTile",
+                msg = "selectTiles",
                 tileIDs = tileIDs
             };
             var json = JsonConvert.SerializeObject(tileInteractionMsg);

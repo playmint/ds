@@ -55,7 +55,7 @@ class DawnSeekersBridge implements Observer<State> {
                     const { action, args } = msgObj as DispatchMessage;
                     this._ds.dispatch(action, ...args);
                 }
-                if (msgObj.msg === "selectTile") {
+                if (msgObj.msg === "selectTiles") {
                     const { tileIDs } = msgObj as SelectTileMessage;
                     this._ds.selectTiles(tileIDs);
                 }
@@ -74,7 +74,7 @@ class DawnSeekersBridge implements Observer<State> {
 
         const json = JSON.stringify(state, (key, value) => {
             if (typeof value === "bigint") {
-                return "0x" + BigInt(value).toString(16);
+                return BigInt(value).toString(16);
             }
             return value;
         });
@@ -112,33 +112,33 @@ class DawnSeekersBridge implements Observer<State> {
         return newObj;
     }
 
-    private simpleBreakCircularReferences(obj: any) {
-        for (let key in obj) {
-            obj[key] = JSON.parse(
-                JSON.stringify(obj[key], this.getCircularReplacer())
-            );
-        }
+    // private simpleBreakCircularReferences(obj: any) {
+    //     for (let key in obj) {
+    //         obj[key] = JSON.parse(
+    //             JSON.stringify(obj[key], this.getCircularReplacer())
+    //         );
+    //     }
 
-        return obj;
-    }
+    //     return obj;
+    // }
 
-    private getCircularReplacer() {
-        const seen = new WeakSet();
-        return (key, value) => {
-            if (typeof value === "bigint") {
-                return "0x" + BigInt(value).toString(16);
-            }
+    // private getCircularReplacer() {
+    //     const seen = new WeakSet();
+    //     return (key, value) => {
+    //         if (typeof value === "bigint") {
+    //             return BigInt(value).toString(16);
+    //         }
 
-            if (typeof value === "object" && value !== null) {
-                if (seen.has(value)) {
-                    return;
-                }
-                seen.add(value);
-            }
+    //         if (typeof value === "object" && value !== null) {
+    //             if (seen.has(value)) {
+    //                 return;
+    //             }
+    //             seen.add(value);
+    //         }
 
-            return value;
-        };
-    }
+    //         return value;
+    //     };
+    // }
 }
 
 const DEFAULT_PRIV_KEY =

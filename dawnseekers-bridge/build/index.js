@@ -35,7 +35,7 @@ class DawnSeekersBridge {
                     const { action, args } = msgObj;
                     this._ds.dispatch(action, ...args);
                 }
-                if (msgObj.msg === "selectTile") {
+                if (msgObj.msg === "selectTiles") {
                     const { tileIDs } = msgObj;
                     this._ds.selectTiles(tileIDs);
                 }
@@ -52,7 +52,7 @@ class DawnSeekersBridge {
         state = this.breakCircularReferences(state);
         const json = JSON.stringify(state, (key, value) => {
             if (typeof value === "bigint") {
-                return "0x" + BigInt(value).toString(16);
+                return BigInt(value).toString(16);
             }
             return value;
         });
@@ -82,27 +82,6 @@ class DawnSeekersBridge {
             }
         }
         return newObj;
-    }
-    simpleBreakCircularReferences(obj) {
-        for (let key in obj) {
-            obj[key] = JSON.parse(JSON.stringify(obj[key], this.getCircularReplacer()));
-        }
-        return obj;
-    }
-    getCircularReplacer() {
-        const seen = new WeakSet();
-        return (key, value) => {
-            if (typeof value === "bigint") {
-                return "0x" + BigInt(value).toString(16);
-            }
-            if (typeof value === "object" && value !== null) {
-                if (seen.has(value)) {
-                    return;
-                }
-                seen.add(value);
-            }
-            return value;
-        };
     }
 }
 const DEFAULT_PRIV_KEY = "0xc14c1284a5ff47ce38e2ad7a50ff89d55ca360b02cdf3756cdb457389b1da223";

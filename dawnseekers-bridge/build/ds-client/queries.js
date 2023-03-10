@@ -1,4 +1,5 @@
 "use strict";
+/** @format */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -23,7 +24,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.useDispatchMutation = exports.DispatchDocument = exports.useSignoutMutation = exports.SignoutDocument = exports.useSigninMutation = exports.SigninDocument = exports.useOnStateSubscription = exports.OnStateDocument = exports.useGetStateLazyQuery = exports.useGetStateQuery = exports.GetStateDocument = exports.StateFragmentFragmentDoc = exports.RelMatchDirection = exports.AttributeKind = exports.ActionTransactionStatus = void 0;
+exports.useDispatchMutation = exports.DispatchDocument = exports.useSignoutMutation = exports.SignoutDocument = exports.useSigninMutation = exports.SigninDocument = exports.useOnStateSubscription = exports.OnStateDocument = exports.useGetPluginsLazyQuery = exports.useGetPluginsQuery = exports.GetPluginsDocument = exports.useGetStateLazyQuery = exports.useGetStateQuery = exports.GetStateDocument = exports.StateFragmentFragmentDoc = exports.RelMatchDirection = exports.AttributeKind = exports.ActionTransactionStatus = void 0;
 const client_1 = require("@apollo/client");
 const Apollo = __importStar(require("@apollo/client"));
 const defaultOptions = {};
@@ -204,6 +205,51 @@ function useGetStateLazyQuery(baseOptions) {
     return Apollo.useLazyQuery(exports.GetStateDocument, options);
 }
 exports.useGetStateLazyQuery = useGetStateLazyQuery;
+exports.GetPluginsDocument = (0, client_1.gql) `
+    query GetPlugins {
+        game(id: "DAWNSEEKERS") {
+            state {
+                nodes(match: { kinds: ["ClientPlugin"] }) {
+                    id
+                    kind
+                    metadata: annotation(name: "metadata") {
+                        name
+                        value
+                    }
+                    requiredBy: node(match: { via: [{ rel: "Plugin", dir: IN }] }) {
+                        id
+                        kind
+                    }
+                }
+            }
+        }
+    }
+`;
+/**
+ * __useGetPluginsQuery__
+ *
+ * To run a query within a React component, call `useGetPluginsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPluginsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPluginsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+function useGetPluginsQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useQuery(exports.GetPluginsDocument, options);
+}
+exports.useGetPluginsQuery = useGetPluginsQuery;
+function useGetPluginsLazyQuery(baseOptions) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useLazyQuery(exports.GetPluginsDocument, options);
+}
+exports.useGetPluginsLazyQuery = useGetPluginsLazyQuery;
 exports.OnStateDocument = (0, client_1.gql) `
     subscription OnState {
         state(gameID: "DAWNSEEKERS") {
@@ -233,8 +279,8 @@ function useOnStateSubscription(baseOptions) {
 }
 exports.useOnStateSubscription = useOnStateSubscription;
 exports.SigninDocument = (0, client_1.gql) `
-    mutation signin($gameID: ID!, $session: String!, $auth: String!) {
-        signin(gameID: $gameID, session: $session, ttl: 9999, scope: "0xffffffff", authorization: $auth)
+    mutation signin($gameID: ID!, $session: String!, $ttl: Int!, $scope: String!, $auth: String!) {
+        signin(gameID: $gameID, session: $session, ttl: $ttl, scope: $scope, authorization: $auth)
     }
 `;
 /**
@@ -252,6 +298,8 @@ exports.SigninDocument = (0, client_1.gql) `
  *   variables: {
  *      gameID: // value for 'gameID'
  *      session: // value for 'session'
+ *      ttl: // value for 'ttl'
+ *      scope: // value for 'scope'
  *      auth: // value for 'auth'
  *   },
  * });
@@ -291,8 +339,8 @@ function useSignoutMutation(baseOptions) {
 }
 exports.useSignoutMutation = useSignoutMutation;
 exports.DispatchDocument = (0, client_1.gql) `
-    mutation dispatch($gameID: ID!, $action: String!, $auth: String!) {
-        dispatch(gameID: $gameID, action: $action, authorization: $auth) {
+    mutation dispatch($gameID: ID!, $actions: [String!]!, $auth: String!) {
+        dispatch(gameID: $gameID, actions: $actions, authorization: $auth) {
             id
             status
         }
@@ -312,7 +360,7 @@ exports.DispatchDocument = (0, client_1.gql) `
  * const [dispatchMutation, { data, loading, error }] = useDispatchMutation({
  *   variables: {
  *      gameID: // value for 'gameID'
- *      action: // value for 'action'
+ *      actions: // value for 'actions'
  *      auth: // value for 'auth'
  *   },
  * });
