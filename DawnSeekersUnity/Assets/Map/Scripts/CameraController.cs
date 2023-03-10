@@ -22,8 +22,7 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
-        if (!MapManager.isMakingMove)
-            HandleMouseCameraDrag();
+        HandleMouseCameraDrag();
         Zoom();
     }
 

@@ -8,7 +8,8 @@ using System.Linq;
 public class MapManager : MonoBehaviour
 {
     public static MapManager instance;
-    public static bool isMakingMove;
+
+    //public static bool isMakingMove;
 
     public struct MapCell
     {
