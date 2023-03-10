@@ -18,7 +18,7 @@ UNITY_SRC := $(wildcard DawnSeekersUnity/**/*)
 NODE := node
 NPM := npm
 
-all: contracts/lib/cog/services/bin/ds-node frontend/public/ds-unity/Build/ds-unity.wasm node_modules
+all: contracts/lib/cog/services/bin/ds-node contracts/lib/cog/services/bin/wait-for frontend/public/ds-unity/Build/ds-unity.wasm node_modules
 
 dev: all
 	$(NODE) .devstartup.js
@@ -36,6 +36,9 @@ contracts/lib/cog/services/Makefile:
 
 contracts/lib/cog/services/bin/ds-node: contracts/lib/cog/services/Makefile
 	$(MAKE) -C contracts/lib/cog/services bin/ds-node
+
+contracts/lib/cog/services/bin/wait-for: contracts/lib/cog/services/Makefile
+	$(MAKE) -C contracts/lib/cog/services bin/wait-for
 
 clean:
 	rm -rf frontend/public/ds-unity

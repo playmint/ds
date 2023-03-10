@@ -1,31 +1,34 @@
 const concurrently = require('concurrently');
 const chokidar = require('chokidar');
 const path = require('path');
-const { exec } = require("child_process");
+const { execSync } = require("child_process");
 const { JsonRpcProvider } = require('ethers/providers');
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 // ------------------------------------------------------------------
 // this is a startup script for running a local build of dawnseekers
 // ------------------------------------------------------------------
+//
+
+const SEQUENCER_PRIVATE_KEY = "095a37ef5b5d87db7fe50551725cb64804c8c554868d3d729c0dd17f0e664c87";
+const DEPLOYER_PRIVATE_KEY = "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff9524d487fb5d57a8";
 
 // configure services to run
 
 const commands = [
-
     {
-        name: ' client ',
-        command: 'npm run dev --workspace=frontend',
-        prefixColor: 'blueBright',
+        name: 'networks',
+        command: "anvil -m 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --code-size-limit 9999999999999 --gas-limit 9999999999999999 -b 1",
+        prefixColor: 'black',
     },
 
     {
         name: 'services',
-        command: 'ds-node -debug',
+        command: './bin/wait-for -it localhost:8545 -t 300 && ./bin/ds-node -debug',
         env: {
             PORT: "8181",
             CHAIN_ID: "1337",
-            SEQUENCER_PRIVATE_KEY: "095a37ef5b5d87db7fe50551725cb64804c8c554868d3d729c0dd17f0e664c87",
+            SEQUENCER_PRIVATE_KEY,
             SEQUENCER_PROVIDER_URL_HTTP: "http://localhost:8545",
             SEQUENCER_PROVIDER_URL_WS: "ws://localhost:8545",
             INDEXER_WATCH_PENDING: "false",
@@ -33,13 +36,13 @@ const commands = [
             INDEXER_PROVIDER_URL_WS: "ws://localhost:8545",
         },
         prefixColor: 'yellow',
-        cwd: path.resolve(__dirname, path.join('contracts', 'lib', 'cog', 'services', 'bin')),
+        cwd: path.resolve(__dirname, path.join('contracts', 'lib', 'cog', 'services')),
     },
 
     {
-        name: 'networks',
-        command: "anvil -m 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --code-size-limit 9999999999999 --gas-limit 9999999999999999 -b 1",
-        prefixColor: 'black',
+        name: ' client ',
+        command: 'npm run dev --workspace=frontend -- -p 3000',
+        prefixColor: 'blueBright',
     },
 
 ];
@@ -49,13 +52,13 @@ const processes = concurrently(commands, {
     prefix: 'name',
     prefixColors: 'auto',
     killOthers: ['failure', 'success'],
-    restartTries: 1,
+    restartTries: 0,
 });
 
 // func to tell everything to shutdown
-const isAlreadyShuttingDown = false;
+const isShutdown = false;
 const shutdown = (err) => {
-    if (isAlreadyShuttingDown) {
+    if (isShutdown) {
         return;
     }
     processes.commands.forEach((cmd) => cmd.kill());
@@ -68,32 +71,56 @@ const shutdown = (err) => {
 // run the contract deploy script when network ready or on file changes
 // ------------------------------------------------------------------
 
-const deploy = () => {
+const debounce = (callback, wait) => {
+    let timeoutId = null;
+    return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            callback.apply(null, args);
+        }, wait);
+    };
+}
+
+const deploy = debounce(() => {
     console.log('[contracts] deploying contracts');
-    exec("forge build", {cwd: path.resolve(path.join(__dirname, 'contracts'))}, (error, stdout, stderr) => {
-        if (error) {
-            console.log(`[contracts] ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.log(`[contracts] ${stderr}`);
-            return;
-        }
-        console.log(`[contracts] ${stdout}`);
-    });
-};
+    const opts = {
+        cwd: path.resolve(path.join(__dirname, 'contracts')),
+        env: {
+            DEPLOYER_PRIVATE_KEY,
+            ...process.env,
+        },
+    };
+    execSync(`forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545"`, opts);
+}, 1000);
 
 async function deployer() {
+    const dirs = ['contracts/src'];
     // wait for chain to become available
-    const provider = new JsonRpcProvider('http://localhost:8545');
     let ready = false;
+    let provider;
     while (!ready) {
-        console.log('[contracts] waiting for network...');
-        await sleep(500);
-        ready = await provider.send('eth_blockNumber');
+        sleep(500);
+
+        if (isShutdown || processes.commands.some(cmd => cmd.exited)) {
+            console.error('[contracts] aborting starting watcher');
+            return;
+        }
+
+        try {
+            provider = new JsonRpcProvider('http://localhost:8545');
+            ready = await Promise.race([
+                provider.send("eth_blockNumber"),
+                sleep(1000).then(() => undefined),
+            ]);
+            console.log('[contracts] waiting');
+        } catch {
+            console.log('[contracts] waiting for rpc endpoint available');
+        } finally {
+            provider.destroy();
+        }
     }
     // watch for changes to the contracts to trigger contract deployments
-    const watcher = chokidar.watch(['contracts/src'], {
+    const watcher = chokidar.watch(dirs, {
         persistent: true
     });
     watcher
@@ -101,15 +128,17 @@ async function deployer() {
         .on('change', deploy)
         .on('unlink', deploy)
         .on('error', error => console.error(`Watcher error: ${error}`));
+    console.log(`[contracts] watching:`, dirs);
     return watcher;
 }
 const watcher = deployer()
     .catch((err) => shutdown(err))
-    .then(() => console.log('[contracts] watching'));
 
 processes.result
     .then(() => console.log('shutdown'))
     .catch(() => console.error('stopped'))
-    .finally(() => process.exit());
+    .finally(() => watcher.then(w => w ? w.close() : null))
+    .then(() => shutdown())
+    .then(() => process.exit())
 
 

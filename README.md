@@ -22,7 +22,8 @@ Client will be available at locahost:3000
 
 ### Building from source (for development)
 
-If you are working on the client, then you will need to build everything yourself.
+If you are working on the client, then you will need to build everything
+yourself.
 
 You will need the following tools installed:
 
@@ -49,9 +50,14 @@ Client will be available at localhost:3000
 
 ### Building from source (for production)
 
-Github Actions will build production ready Docker images on merge to `main` available: ghcr.io/playmint/ds
+Github Actions will build production ready Docker images on merge to `main`
+available: ghcr.io/playmint/ds
 
+To build the image yourself run:
 
+```
+docker build -t ghcr.io/playmint/ds:latest .
+```
 
 
 
