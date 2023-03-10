@@ -4,6 +4,7 @@ using Nethereum.Contracts;
 using Nethereum.Hex.HexConvertors.Extensions;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.EventSystems;
 
 public class MapInteractionManager : MonoBehaviour
 {
@@ -41,7 +42,7 @@ public class MapInteractionManager : MonoBehaviour
     private void Update()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
+        
         //Initialise the enter variable
         float enter = 0.0f;
 
@@ -67,6 +68,8 @@ public class MapInteractionManager : MonoBehaviour
                 );
             }
         }
+        if (EventSystem.current.IsPointerOverGameObject())
+            return;
         if (Input.GetMouseButtonDown(0))
         {
             MapClicked();
@@ -97,6 +100,8 @@ public class MapInteractionManager : MonoBehaviour
         {
             MapClicked2();
         }
+        if(SeekerManager.Instance.Seeker != null)
+        cursor.gameObject.SetActive(IsDiscoveredTile(GridExtensions.GridToCube(CurrentMouseCell)) || TileHelper.GetTileNeighbours(TileHelper.GetTilePosCube(SeekerManager.Instance.Seeker.Location[1].Tile)).Contains(GridExtensions.GridToCube(CurrentMouseCell)));
     }
 
     void MapClicked()
@@ -152,7 +157,7 @@ public class MapInteractionManager : MonoBehaviour
     }
 
     // -- TODO: Obviously this won't scale, need to hold tiles in a dictionary
-    private bool IsDiscoveredTile(Vector3Int cellPosCube)
+    public bool IsDiscoveredTile(Vector3Int cellPosCube)
     {
         if (Cog.PluginController.Instance.WorldState != null)
         {

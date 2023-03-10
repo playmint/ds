@@ -71,8 +71,8 @@ public class IconController : MonoBehaviour
             != _currentPosition
         )
         {
-            if (isPlayer)
-                MapInteractionManager.instance.travelMarkerController.HideLine();
+            //if (isPlayer)
+                //MapInteractionManager.instance.travelMarkerController.HideLine();
             _currentPosition =
                 MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(cell.cubicCoords))
                 + offset;
