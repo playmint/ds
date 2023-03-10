@@ -4,14 +4,10 @@
     "frontend"
   ],
   "scripts": {
-    "start": "concurrently -c auto 'npm:start:*'",
-    "start:shell": "npm run dev --workspace=frontend",
-    "start:cog": "(cd contracts/lib/cog/services && make dev-local)",
-    "start:chain": "npx ganache ethereum --miner.blockTime 5 --server.host 0.0.0.0 --server.port 8545 --wallet.mnemonic 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --chain.chainId 31337 --chain.networkId 31337 --chain.allowUnlimitedContractSize",
-    "start:contracts": "cd contracts && ./init.sh"
+    "start": "make dev"
   },
   "devDependencies": {
-    "concurrently": "^7.6.0",
-    "ganache": "^7.7.6"
+    "chokidar": "^3.5.3",
+    "concurrently": "^7.6.0"
   }
 }
