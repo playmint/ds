@@ -13,11 +13,21 @@ class DawnseekersSettingsProvider : SettingsProvider
 
     private class Styles
     {
-        public static readonly GUIContent NodePathLabel = EditorGUIUtility.TrTextContent("NodePath", "Node Path");
-        public static readonly GUIContent PrivateKeyLabel = EditorGUIUtility.TrTextContent("PrivateKey", "Private Key");
+        public static readonly GUIContent NodePathLabel = EditorGUIUtility.TrTextContent(
+            "NodePath",
+            "Node Path"
+        );
+        public static readonly GUIContent PrivateKeyLabel = EditorGUIUtility.TrTextContent(
+            "PrivateKey",
+            "Private Key"
+        );
     }
 
-    public DawnseekersSettingsProvider(string path, SettingsScope scopes, IEnumerable<string> keywords = null)
+    public DawnseekersSettingsProvider(
+        string path,
+        SettingsScope scopes,
+        IEnumerable<string> keywords = null
+    )
         : base(path, scopes, keywords) { }
 
     public override void OnActivate(string searchContext, VisualElement rootElement)
@@ -53,7 +63,11 @@ class DawnseekersSettingsProvider : SettingsProvider
     [SettingsProvider]
     public static SettingsProvider CreateMySingletonProvider()
     {
-        var provider = new DawnseekersSettingsProvider("Project/Dawnseekers", SettingsScope.Project, GetSearchKeywordsFromGUIContentProperties<Styles>());
+        var provider = new DawnseekersSettingsProvider(
+            "Project/Dawnseekers",
+            SettingsScope.Project,
+            GetSearchKeywordsFromGUIContentProperties<Styles>()
+        );
         return provider;
     }
 
