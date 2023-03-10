@@ -1,5 +1,5 @@
 overwrite: true
-schema: ../cog-services/schema/*.graphqls
+schema: ../contracts/lib/cog/services/schema/*.graphqls
 documents: "src/**/*.graphql"
 generates:
   src/types/queries-fragments.ts:

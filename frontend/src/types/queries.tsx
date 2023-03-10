@@ -37,7 +37,7 @@ export type ActionTransaction = {
     batch: ActionBatch;
     id: Scalars['ID'];
     owner: Scalars['String'];
-    payload: Scalars['String'];
+    payload: Array<Scalars['String']>;
     router: Router;
     sig: Scalars['String'];
     status: ActionTransactionStatus;
@@ -49,6 +49,22 @@ export enum ActionTransactionStatus {
     Success = 'SUCCESS',
     Unknown = 'UNKNOWN'
 }
+
+/**
+ * annotations are off-chain data attached to nodes that are guarenteed
+ * to have been made available to all clients, but are not usable within logic.
+ * for example; a "name" might be an annotation because there is no logic on-chain
+ * that expects to verify the name OR a node might be annotated with some JSON
+ * meatadata containing static details for a client to display. Since values
+ * are stored only in calldata (not in state storage), values can be larger than
+ * usually cost-effective for an equivilent value stored in state.
+ */
+export type Annotation = {
+    __typename?: 'Annotation';
+    id: Scalars['ID'];
+    name: Scalars['String'];
+    value: Scalars['String'];
+};
 
 export enum AttributeKind {
     Address = 'ADDRESS',
@@ -190,7 +206,7 @@ export type Mutation = {
 };
 
 export type MutationDispatchArgs = {
-    action: Scalars['String'];
+    actions: Array<Scalars['String']>;
     authorization: Scalars['String'];
     gameID: Scalars['ID'];
 };
@@ -216,6 +232,17 @@ export type MutationSignupArgs = {
 
 export type Node = {
     __typename?: 'Node';
+    annotation?: Maybe<Annotation>;
+    /**
+     * annotations are off-chain data attached to nodes that are guarenteed
+     * to have been made available to all clients, but are not usable within logic.
+     * for example; a "name" might be an annotation because there is no logic on-chain
+     * that expects to verify the name OR a node might be annotated with some JSON
+     * meatadata containing static details for a client to display. Since values
+     * are stored only in calldata (not in state storage), values can be larger than
+     * usually cost-effective for an equivilent value stored in state.
+     */
+    annotations: Array<Maybe<Annotation>>;
     /**
      * `count` operates like `edges` but instead of returning the edges, it
      * returns the number of matched edges.
@@ -269,6 +296,10 @@ export type Node = {
      * returns the weight value of that edge.
      */
     value?: Maybe<Scalars['Int']>;
+};
+
+export type NodeAnnotationArgs = {
+    name: Scalars['String'];
 };
 
 export type NodeCountArgs = {
@@ -509,6 +540,25 @@ export type GetStateQuery = {
     extensions: Array<{ __typename?: 'Game'; id: string; name: string; url: string }>;
 };
 
+export type GetPluginsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetPluginsQuery = {
+    __typename?: 'Query';
+    game: {
+        __typename?: 'Game';
+        state: {
+            __typename?: 'State';
+            nodes: Array<{
+                __typename?: 'Node';
+                id: string;
+                kind: string;
+                metadata?: { __typename?: 'Annotation'; name: string; value: string } | null;
+                requiredBy?: { __typename?: 'Node'; id: string; kind: string } | null;
+            }>;
+        };
+    };
+};
+
 export type OnStateSubscriptionVariables = Exact<{ [key: string]: never }>;
 
 export type OnStateSubscription = {
@@ -563,6 +613,8 @@ export type OnStateSubscription = {
 export type SigninMutationVariables = Exact<{
     gameID: Scalars['ID'];
     session: Scalars['String'];
+    ttl: Scalars['Int'];
+    scope: Scalars['String'];
     auth: Scalars['String'];
 }>;
 
@@ -578,7 +630,7 @@ export type SignoutMutation = { __typename?: 'Mutation'; signout: boolean };
 
 export type DispatchMutationVariables = Exact<{
     gameID: Scalars['ID'];
-    action: Scalars['String'];
+    actions: Array<Scalars['String']> | Scalars['String'];
     auth: Scalars['String'];
 }>;
 
@@ -709,6 +761,55 @@ export function useGetStateLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<G
 export type GetStateQueryHookResult = ReturnType<typeof useGetStateQuery>;
 export type GetStateLazyQueryHookResult = ReturnType<typeof useGetStateLazyQuery>;
 export type GetStateQueryResult = Apollo.QueryResult<GetStateQuery, GetStateQueryVariables>;
+export const GetPluginsDocument = gql`
+    query GetPlugins {
+        game(id: "DAWNSEEKERS") {
+            state {
+                nodes(match: { kinds: ["ClientPlugin"] }) {
+                    id
+                    kind
+                    metadata: annotation(name: "metadata") {
+                        name
+                        value
+                    }
+                    requiredBy: node(match: { via: [{ rel: "Plugin", dir: IN }] }) {
+                        id
+                        kind
+                    }
+                }
+            }
+        }
+    }
+`;
+
+/**
+ * __useGetPluginsQuery__
+ *
+ * To run a query within a React component, call `useGetPluginsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPluginsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPluginsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPluginsQuery(baseOptions?: Apollo.QueryHookOptions<GetPluginsQuery, GetPluginsQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useQuery<GetPluginsQuery, GetPluginsQueryVariables>(GetPluginsDocument, options);
+}
+export function useGetPluginsLazyQuery(
+    baseOptions?: Apollo.LazyQueryHookOptions<GetPluginsQuery, GetPluginsQueryVariables>
+) {
+    const options = { ...defaultOptions, ...baseOptions };
+    return Apollo.useLazyQuery<GetPluginsQuery, GetPluginsQueryVariables>(GetPluginsDocument, options);
+}
+export type GetPluginsQueryHookResult = ReturnType<typeof useGetPluginsQuery>;
+export type GetPluginsLazyQueryHookResult = ReturnType<typeof useGetPluginsLazyQuery>;
+export type GetPluginsQueryResult = Apollo.QueryResult<GetPluginsQuery, GetPluginsQueryVariables>;
 export const OnStateDocument = gql`
     subscription OnState {
         state(gameID: "DAWNSEEKERS") {
@@ -742,8 +843,8 @@ export function useOnStateSubscription(
 export type OnStateSubscriptionHookResult = ReturnType<typeof useOnStateSubscription>;
 export type OnStateSubscriptionResult = Apollo.SubscriptionResult<OnStateSubscription>;
 export const SigninDocument = gql`
-    mutation signin($gameID: ID!, $session: String!, $auth: String!) {
-        signin(gameID: $gameID, session: $session, ttl: 9999, scope: "0xffffffff", authorization: $auth)
+    mutation signin($gameID: ID!, $session: String!, $ttl: Int!, $scope: String!, $auth: String!) {
+        signin(gameID: $gameID, session: $session, ttl: $ttl, scope: $scope, authorization: $auth)
     }
 `;
 export type SigninMutationFn = Apollo.MutationFunction<SigninMutation, SigninMutationVariables>;
@@ -763,6 +864,8 @@ export type SigninMutationFn = Apollo.MutationFunction<SigninMutation, SigninMut
  *   variables: {
  *      gameID: // value for 'gameID'
  *      session: // value for 'session'
+ *      ttl: // value for 'ttl'
+ *      scope: // value for 'scope'
  *      auth: // value for 'auth'
  *   },
  * });
@@ -810,8 +913,8 @@ export type SignoutMutationHookResult = ReturnType<typeof useSignoutMutation>;
 export type SignoutMutationResult = Apollo.MutationResult<SignoutMutation>;
 export type SignoutMutationOptions = Apollo.BaseMutationOptions<SignoutMutation, SignoutMutationVariables>;
 export const DispatchDocument = gql`
-    mutation dispatch($gameID: ID!, $action: String!, $auth: String!) {
-        dispatch(gameID: $gameID, action: $action, authorization: $auth) {
+    mutation dispatch($gameID: ID!, $actions: [String!]!, $auth: String!) {
+        dispatch(gameID: $gameID, actions: $actions, authorization: $auth) {
             id
             status
         }
@@ -833,7 +936,7 @@ export type DispatchMutationFn = Apollo.MutationFunction<DispatchMutation, Dispa
  * const [dispatchMutation, { data, loading, error }] = useDispatchMutation({
  *   variables: {
  *      gameID: // value for 'gameID'
- *      action: // value for 'action'
+ *      actions: // value for 'actions'
  *      auth: // value for 'auth'
  *   },
  * });

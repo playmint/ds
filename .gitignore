@@ -69,3 +69,5 @@ Thumbs.db
 
 # Jetbrains
 .idea/
+
+/node_modules

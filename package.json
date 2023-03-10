@@ -1,0 +1,13 @@
+{
+  "name": "ds",
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "start": "make dev"
+  },
+  "devDependencies": {
+    "chokidar": "^3.5.3",
+    "concurrently": "^7.6.0"
+  }
+}
