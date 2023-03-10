@@ -1,10 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Cog.GraphQL;
+//using Cog.GraphQL;
 using Nethereum.Contracts;
 using UnityEngine;
 using System.Linq;
+using Cog;
 
 public class SeekerMovementManager : MonoBehaviour
 {
@@ -30,12 +31,12 @@ public class SeekerMovementManager : MonoBehaviour
 
     private void Start()
     {
-        Cog.PluginController.Instance.EventTileInteraction += OnTileInteraction;
+        Cog.PluginController.Instance.EventStateUpdated += OnStateUpdated;
     }
 
     private void OnDestroy()
     {
-        Cog.PluginController.Instance.EventTileInteraction -= OnTileInteraction;
+        Cog.PluginController.Instance.EventStateUpdated -= OnStateUpdated;
     }
 
     private void Update()
@@ -73,8 +74,10 @@ public class SeekerMovementManager : MonoBehaviour
         }
     }
 
-    private void OnTileInteraction(Vector3Int cellCubePos)
+    private void OnStateUpdated(State state)
     {
+        var tile = state.UI.Selection.Tiles.ToList()[0];
+        var cellCubePos = TileHelper.GetTilePosCube(tile);
         if (!isMoving)
             return;
         if (_path.Count == 0 || _path[_path.Count - 1].Key != cellCubePos)
@@ -205,13 +208,13 @@ public class SeekerMovementManager : MonoBehaviour
 
     private void MoveSeeker(Seeker seeker, Vector3Int cellPosCube)
     {
-        var action = new Cog.Actions.MoveSeekerAction(
-            seeker.SeekerID,
+        // function MOVE_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
+        Cog.PluginController.Instance.DispatchAction(
+            "MOVE_SEEKER",
+            "0x" + SeekerManager.Instance.Seeker.Key,
             cellPosCube.x,
             cellPosCube.y,
             cellPosCube.z
         );
-
-        Cog.PluginController.Instance.DispatchAction(action.GetCallData());
     }
 }

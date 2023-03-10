@@ -1,23 +1,26 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Cog;
 using UnityEngine;
 
 public class ActionMenuController : MonoBehaviour
 {
     private void Start()
     {
-        Cog.PluginController.Instance.EventTileInteraction += OnTileInteraction;
-        gameObject.SetActive(false);
+        Cog.PluginController.Instance.EventStateUpdated += OnStateUpdated;
     }
 
     private void OnDestroy()
     {
-        Cog.PluginController.Instance.EventTileInteraction -= OnTileInteraction;
+        Cog.PluginController.Instance.EventStateUpdated += OnStateUpdated;
     }
 
-    private void OnTileInteraction(Vector3Int cellPosCube)
+    private void OnStateUpdated(State state)
     {
+        var tile = state.UI.Selection.Tiles.ToList()[0];
+        var cellPosCube = TileHelper.GetTilePosCube(tile);
         bool isPlayerAtPosition = SeekerManager.Instance.IsPlayerAtPosition(cellPosCube);
         if (isPlayerAtPosition)
         {
