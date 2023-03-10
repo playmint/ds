@@ -19,7 +19,7 @@ or directly as typescript when debugging:
 
 `npm run start:dev`
 
-This will build to `dawnseekers-bridge/build`. This is the path used by `PluginController.cs` in Unity to start the process in a separate thread. (see `NodeProcessThread()` in `PluginController`)
+This will build to `bridge/build`. This is the path used by `PluginController.cs` in Unity to start the process in a separate thread. (see `NodeProcessThread()` in `PluginController`)
 
 ## Output
 

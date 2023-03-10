@@ -142,7 +142,7 @@ namespace Cog
             {
                 StartInfo = new System.Diagnostics.ProcessStartInfo
                 {
-                    WorkingDirectory = "../dawnseekers-bridge",
+                    WorkingDirectory = "../bridge",
                     FileName = _nodePath,
                     Arguments = "build/index.js " + _privateKey,
                     UseShellExecute = false,
