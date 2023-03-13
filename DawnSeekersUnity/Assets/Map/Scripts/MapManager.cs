@@ -66,7 +66,7 @@ public class MapManager : MonoBehaviour
 
     public void AddTile(MapCell cell)
     {
-        Debug.Log($"MapManager::AddTile() Adding tile type: {cell.typeID} at: {cell.cubicCoords}");
+        // Debug.Log($"MapManager::AddTile() Adding tile type: {cell.typeID} at: {cell.cubicCoords}");
         _tilemap.SetTile(GridExtensions.CubeToGrid(cell.cubicCoords), _tileTypes[cell.typeID]);
     }
 
@@ -77,7 +77,7 @@ public class MapManager : MonoBehaviour
 
     void RenderState(Cog.State state)
     {
-        Debug.Log("Rending new state");
+        Debug.Log("MapManager::RenderState()");
         IconManager.instance.ResetSeekerPositionCounts();
         MapManager.instance.ClearMap();
         foreach (var tile in state.Game.Tiles)

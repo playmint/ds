@@ -29,12 +29,21 @@ public class SeekerMovementManager : MonoBehaviour
 
     private void Start()
     {
-        Cog.PluginController.Instance.EventStateUpdated += OnStateUpdated;
+        // Cog.PluginController.Instance.EventStateUpdated += OnStateUpdated;
+
+        // NOTE: Not using the global UI state for path selection as it needs more thought due
+        //       to problems where other player's movement would cause state updates
+        //       and clicking on the same tile wouldn't change the state so Unity didn't get a state update
+        MapInteractionManager.instance.EventTileLeftClick += OnTileLeftClick;
+        MapInteractionManager.instance.EventTileRightClick += OnTileRightClick;
     }
 
     private void OnDestroy()
     {
-        Cog.PluginController.Instance.EventStateUpdated -= OnStateUpdated;
+        // Cog.PluginController.Instance.EventStateUpdated -= OnStateUpdated;
+
+        MapInteractionManager.instance.EventTileLeftClick -= OnTileLeftClick;
+        MapInteractionManager.instance.EventTileRightClick -= OnTileRightClick;
     }
 
     private void Update()
@@ -65,23 +74,13 @@ public class SeekerMovementManager : MonoBehaviour
                 }
             }
         }
-
-        if (Input.GetMouseButtonDown(1))
-        {
-            ClosePath(GridExtensions.GridToCube(MapInteractionManager.CurrentMouseCell));
-        }
     }
 
-    private void OnStateUpdated(State state)
+    private void OnTileLeftClick(Vector3Int cellCubePos)
     {
-        if (state.UI.Selection.Tiles == null || state.UI.Selection.Tiles.Count == 0)
-            return;
-
-        var tile = state.UI.Selection.Tiles.ToList()[0];
-        var cellCubePos = TileHelper.GetTilePosCube(tile);
-
         if (!isMoving)
             return;
+
         if (_path.Count == 0 || _path[_path.Count - 1].Key != cellCubePos)
         {
             AddCellToPath(cellCubePos);
@@ -101,6 +100,46 @@ public class SeekerMovementManager : MonoBehaviour
             isMoving = false;
         }
     }
+
+    private void OnTileRightClick(Vector3Int cellCubePos)
+    {
+        if (!isMoving)
+            return;
+
+        ClosePath(cellCubePos);
+    }
+
+    // -- This code was driven by the global UI state which was causing some problems
+    // private void OnStateUpdated(State state)
+    // {
+    //     if (state.UI.Selection.Tiles == null || state.UI.Selection.Tiles.Count == 0)
+    //         return;
+
+    //     var tile = state.UI.Selection.Tiles.ToList()[0];
+    //     var cellCubePos = TileHelper.GetTilePosCube(tile);
+
+    //     if (!isMoving)
+    //         return;
+
+    //     if (_path.Count == 0 || _path[_path.Count - 1].Key != cellCubePos)
+    //     {
+    //         AddCellToPath(cellCubePos);
+    //         HighlightAvailableSpaces();
+    //     }
+    //     else if (_path.Count > 1)
+    //     {
+    //         Destroy(spawnedPathHighlights[cellCubePos]);
+    //         spawnedPathHighlights.Remove(cellCubePos);
+    //         RemoveCellFromPath(cellCubePos);
+    //         HighlightAvailableSpaces();
+    //     }
+    //     else
+    //     {
+    //         HideHighlights();
+    //         HidePathHighlights();
+    //         isMoving = false;
+    //     }
+    // }
 
     public void ActivateMovementMode()
     {

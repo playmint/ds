@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.EventSystems;
+using System;
 
 public class MapInteractionManager : MonoBehaviour
 {
@@ -11,6 +12,9 @@ public class MapInteractionManager : MonoBehaviour
     public bool IsTileSelected;
     public static Vector3Int CurrentSelectedCell; // Offset odd r coords
     public static Vector3Int CurrentMouseCell; // Offset odd r coords
+
+    public Action<Vector3Int> EventTileLeftClick;
+    public Action<Vector3Int> EventTileRightClick;
 
     [SerializeField]
     Transform cursor,
@@ -61,6 +65,8 @@ public class MapInteractionManager : MonoBehaviour
         {
             MapClicked2();
         }
+
+        // Tile mouseover cursor
         if (SeekerManager.Instance.Seeker != null)
             cursor.gameObject.SetActive(
                 IsDiscoveredTile(GridExtensions.GridToCube(CurrentMouseCell))
@@ -82,7 +88,12 @@ public class MapInteractionManager : MonoBehaviour
         if (tile == null)
             return;
 
-        // Select the tile
+        if (EventTileLeftClick != null)
+        {
+            EventTileLeftClick(cellPosCube);
+        }
+
+        // Select the tile (Possible don't send this out if the player is moving)
         Cog.PluginController.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
     }
 
@@ -91,19 +102,24 @@ public class MapInteractionManager : MonoBehaviour
         var cellPosOddR = MapManager.instance.grid.WorldToCell(cursor.position);
         var cellPosCube = GridExtensions.GridToCube(cellPosOddR);
 
-        // --  Debug
-
-        if (SeekerManager.Instance.Seeker != null)
+        if (EventTileRightClick != null)
         {
-            // function SCOUT_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
-            Cog.PluginController.Instance.DispatchAction(
-                "SCOUT_SEEKER",
-                "0x" + SeekerManager.Instance.Seeker.Key,
-                cellPosCube.x,
-                cellPosCube.y,
-                cellPosCube.z
-            );
+            EventTileRightClick(cellPosCube);
         }
+
+        // --  Debug scouting
+
+        // if (SeekerManager.Instance.Seeker != null)
+        // {
+        //     // function SCOUT_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
+        //     Cog.PluginController.Instance.DispatchAction(
+        //         "SCOUT_SEEKER",
+        //         "0x" + SeekerManager.Instance.Seeker.Key,
+        //         cellPosCube.x,
+        //         cellPosCube.y,
+        //         cellPosCube.z
+        //     );
+        // }
     }
 
     // -- TODO: Obviously this won't scale, need to hold tiles in a dictionary
