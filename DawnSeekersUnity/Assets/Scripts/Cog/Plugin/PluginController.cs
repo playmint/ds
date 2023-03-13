@@ -136,6 +136,12 @@ namespace Cog
 
         public void NodeProcessThread()
         {
+            if (DawnseekersDevSettings.instance.NodePath == "") 
+            {
+                Debug.LogError("PluginController: Node path not set. Make sure the absolute path to node is set in the Edit > Project Settings > Dawnseekers panel");
+                return;
+            }
+
             Debug.Log($"PluginController:NodeProcessThread() Starting DawnseekersBridge \nNodePath: {DawnseekersDevSettings.instance.NodePath} \nPrivKey: {DawnseekersDevSettings.instance.PrivateKey}");
 
             _nodeJSProcess = new System.Diagnostics.Process
@@ -152,7 +158,16 @@ namespace Cog
                 }
             };
 
-            _nodeJSProcess.Start();
+            try 
+            {
+                _nodeJSProcess.Start();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+                Debug.LogError("PluginController: Unable to start bridge. Please check your Node path and make sure that the bridge has been built with npm run build");
+                return;
+            }
 
             while (!_nodeJSProcess.StandardOutput.EndOfStream)
             {

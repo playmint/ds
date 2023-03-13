@@ -76,8 +76,12 @@ public class SeekerMovementManager : MonoBehaviour
 
     private void OnStateUpdated(State state)
     {
+        if (state.UI.Selection.Tiles == null || state.UI.Selection.Tiles.Count == 0)
+            return;
+
         var tile = state.UI.Selection.Tiles.ToList()[0];
         var cellCubePos = TileHelper.GetTilePosCube(tile);
+
         if (!isMoving)
             return;
         if (_path.Count == 0 || _path[_path.Count - 1].Key != cellCubePos)
