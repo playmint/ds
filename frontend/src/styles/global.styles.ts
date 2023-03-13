@@ -36,8 +36,12 @@ export const GlobalStyles = createGlobalStyle`
         monospace;
     }
     
-    h3 {
+    h1, h2, h3, h4 {
         text-transform: uppercase;
+    }
+    
+    
+    h3 {
         margin-bottom: 2rem;
     }
     
@@ -108,7 +112,6 @@ export const GlobalStyles = createGlobalStyle`
         left: 0;
         bottom: 0;
         width: 30rem;
-        min-height: 25rem;
         background: #143063;
         color: #fff;
     }

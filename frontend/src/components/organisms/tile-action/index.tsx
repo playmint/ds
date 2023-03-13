@@ -36,7 +36,6 @@ const PluginContent = ({
     toggleContent: ToggleContentFunc;
 }) => {
     const saferHTML = { __html: content.html ? DOMPurify.sanitize(content.html) : '' };
-    console.log(content);
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

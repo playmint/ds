@@ -1,6 +1,6 @@
 /** @format */
 
-import { FunctionComponent } from 'react';
+import { FunctionComponent, Fragment } from 'react';
 import styled from 'styled-components';
 import { ComponentProps } from '@app/types/component-props';
 import { styles } from './shell.styles';
@@ -11,7 +11,10 @@ import movePlugin from '@app/plugins/move';
 import scoutPlugin from '@app/plugins/scout';
 import { formatPlayerId, formatSeekerKey } from '@app/helpers';
 import { UnityMap } from '@app/components/organisms/unity-map';
+import { InventoryProvider } from '@app/plugins/inventory/inventory-provider';
 import { ethers } from 'ethers';
+import { TileInventory } from '@app/plugins/inventory/tile-inventory';
+import { SeekerInventory } from '@app/plugins/inventory/seeker-inventory';
 import { SeekerList } from '@app/plugins/seeker-list';
 
 const ds = new DawnseekersClient({
@@ -38,9 +41,10 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     const { ...otherProps } = props;
     const { data } = useDawnseekersState(ds);
     const player = data?.ui.selection.player;
+    const selectedTile = data?.ui.selection.tiles?.length ? data?.ui.selection.tiles[0] : null;
+    const selectedSeeker = data?.ui.selection.seeker;
     const tileSeekers =
         data?.ui.selection.tiles && data.ui.selection.tiles.length > 0 ? data.ui.selection.tiles[0].seekers : [];
-    console.log(data);
 
     return (
         <StyledShell {...otherProps}>
@@ -51,31 +55,40 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                     <span className="text">{player ? `Player ${formatPlayerId(player.id)}` : 'Sign in'}</span>
                 </button>
             </div>
-            <div className="seeker-actions">
-                <div className="action seeker-selector">
-                    <img src="/seeker-shield-large.png" className="shield" alt="" />
-                    <div className="controls">
-                        <button className="icon-button">
-                            <img src="/icons/prev.png" alt="Previous" />
-                        </button>
-                        <span className="label">
-                            Seeker #{formatSeekerKey(data?.ui.selection.seeker?.key.toString() || '')}
-                        </span>
-                        <button className="icon-button">
-                            <img src="/icons/next.png" alt="Next" />
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div className="tile-actions">
-                {data?.ui.plugins
-                    .flatMap((p) => p.components)
-                    .filter((c) => c.type === 'tile')
-                    .map((c) => (
-                        <TileAction key={c.id} component={c} className="action" />
-                    ))}
-                {tileSeekers.length > 0 && <SeekerList seekers={tileSeekers} className="action" />}
-            </div>
+            <InventoryProvider ds={ds}>
+                {player && (
+                    <Fragment>
+                        <div className="seeker-actions">
+                            <div className="action seeker-selector">
+                                <img src="/seeker-shield-large.png" className="shield" alt="" />
+                                <div className="controls">
+                                    <button className="icon-button">
+                                        <img src="/icons/prev.png" alt="Previous" />
+                                    </button>
+                                    <span className="label">
+                                        Seeker #{formatSeekerKey(data?.ui.selection.seeker?.key.toString() || '')}
+                                    </span>
+                                    <button className="icon-button">
+                                        <img src="/icons/next.png" alt="Next" />
+                                    </button>
+                                </div>
+                            </div>
+                            {selectedSeeker && <SeekerInventory className="action" seeker={selectedSeeker} />}
+                        </div>
+
+                        <div className="tile-actions">
+                            {data?.ui.plugins
+                                .flatMap((p) => p.components)
+                                .filter((c) => c.type === 'tile')
+                                .map((c) => (
+                                    <TileAction key={c.id} component={c} className="action" />
+                                ))}
+                            {tileSeekers.length > 0 && <SeekerList seekers={tileSeekers} className="action" />}
+                            {selectedTile && <TileInventory className="action" tile={selectedTile} title="Bags" />}
+                        </div>
+                    </Fragment>
+                )}
+            </InventoryProvider>
         </StyledShell>
     );
 };

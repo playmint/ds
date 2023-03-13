@@ -63,7 +63,7 @@ export interface ItemSlot extends Edge {
 }
 
 export interface EquipSlot extends Edge {
-    bag: Node;
+    bag: Bag;
 }
 
 export interface Bag extends Node {
