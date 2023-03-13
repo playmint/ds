@@ -29,12 +29,14 @@
       "node_modules/@types",
       "typings"
     ],
-    "rootDirs": [
-      "src"
-    ],
     "baseUrl": "src",
     "paths": {
-      "@app/*": ["*"],
+      "@app/*": [
+        "*"
+      ],
+      "@core": [
+          "../../core/src/index.ts"
+      ]
     },
     "skipLibCheck": true,
     "strict": true,
@@ -51,5 +53,9 @@
   ],
   "exclude": [
     "node_modules"
+  ],
+  "references": [
+      { "path": "../core" }
   ]
+
 }

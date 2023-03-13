@@ -1,68 +1,49 @@
 /** @format */
 
-import { PluginTrust, PluginType } from 'dawnseekers';
+import { PluginConfig, PluginTrust, PluginType } from '@core';
 
-const src = `class Plugin {
-    state = {};
-    dispatching = false;
-    ds = {};
+const src = `
 
-    constructor(ds) {
-        this.ds = ds;
-    }
+import ds from 'dawnseekers';
 
-    onState(state) {
-        this.state = state;
-    }
+export default function update(state) {
+    const seeker = state.ui.selection.seeker;
+    const tile = state.ui.selection.tiles.length == 1 ? state.ui.selection.tiles[0] : undefined;
 
-    onClick() {
-        const { seeker, tiles } = this.state.ui.selection;
-        if (!seeker) {
-            return;
-        }
-        if (!tiles || tiles.length != 1) {
-            return;
-        }
-        const { q, r, s } = tiles[0].coords;
-        this.ds.dispatch('SCOUT_SEEKER', seeker.key, q, r, s).finally(() => (this.dispatching = false));
-    }
-
-    onSubmit() {
-        return false;
-    }
-
-    showTileActionDetails() {
-        return false;
-    }
-
-    renderTileActionDetails() {
-        return undefined;
-    }
-
-    renderTileActionButtons() {
-        const { seeker, tiles } = this.state.ui.selection;
-        if (!seeker) {
-            return;
-        }
-        if (!tiles || tiles.length != 1) {
-            return;
-        }
-        const tile = tiles[0];
-        if (!tile) {
-            return;
-        }
-        if (tile.biome != 0) {
+    const scout = () => {
+        if (!seeker || !tile) {
             return;
         }
         const { q, r, s } = tile.coords;
-        return '<button id="scout" class="action-button">SCOUT at ' + q + ',' + r + ',' + s + '</button>';
-    }
-};`;
+        ds.log('plugin says: scouting...', { seeker: seeker.key, q, r, s });
+        ds.dispatch('SCOUT_SEEKER', seeker.key, q, r, s);
+    };
 
-const plugin = {
+    return {
+        version: 1,
+        components: [
+            {
+                id: 'my-scout-plugin',
+                type: 'tile',
+                title: 'scouter',
+                summary: 'select a tile to scout',
+                content: [
+                    {
+                        id: 'default',
+                        type: 'inline',
+                        buttons: seeker && tile && tile.biome == 0 ? [{ text: 'scout', type: 'action', action: scout }] : [],
+                    },
+                ],
+            },
+        ],
+    };
+}
+`;
+
+const plugin: PluginConfig = {
+    id: 'scout',
     type: PluginType.CORE,
     trust: PluginTrust.TRUSTED,
-    addr: '',
     src: src
 };
 

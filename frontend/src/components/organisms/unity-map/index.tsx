@@ -4,7 +4,7 @@ import { FunctionComponent, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ComponentProps } from '@app/types/component-props';
 import { styles } from './unity-map.styles';
-import { Client as DawnseekersClient, State } from 'dawnseekers';
+import { Client as DawnseekersClient, State } from '@core';
 import { Unity, useUnityContext } from 'react-unity-webgl';
 
 export interface UnityMapProps extends ComponentProps {

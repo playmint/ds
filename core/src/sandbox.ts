@@ -409,6 +409,8 @@ export class QuickSandbox implements PluginSandbox {
             return {
                 id,
                 type: c.type,
+                title: c.title,
+                summary: c.summary,
                 content: c.content
                     ? c.content
                           .map(normalizePluginV1Content)

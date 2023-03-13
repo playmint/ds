@@ -65,11 +65,12 @@ export interface State {
 }
 
 export type ActionDispatcher = (name: string, ...args: any) => Promise<unknown>;
+export type PlayerSigner = () => Promise<ethers.Signer>;
 
 export interface ClientConfig {
     wsEndpoint: string;
     httpEndpoint: string;
-    provider: () => ethers.Provider;
+    signer?: PlayerSigner;
     logger?: StructuredLogger;
 }
 
@@ -82,13 +83,15 @@ export class Client {
     observers: Observer<State>[];
     session?: Session;
     logger: StructuredLogger;
+    signer: Promise<ethers.Signer>;
 
-    constructor({ httpEndpoint, wsEndpoint, logger }: ClientConfig) {
+    constructor({ httpEndpoint, wsEndpoint, logger, signer }: ClientConfig) {
         this.logger = logger ? logger : new Logger();
         this.sandbox = new QuickSandbox({
             dispatcher: (name: string, ...args: any) => this.dispatch(name, ...args),
             logger: this.logger,
         });
+        this.signer = signer ? signer() : Promise.reject('no signer configured');
         this.selection = { tileIDs: [] };
         this.game = { seekers: [], tiles: [], players: [] };
         this.observers = [];
@@ -104,7 +107,7 @@ export class Client {
 
         // watch metamask account changes
         // TODO: this probably should be configurable, we should not assume metamask is being used
-        const ethereum = (window as any | undefined)?.ethereum;
+        const ethereum = (globalThis.window as any | undefined)?.ethereum;
         if (ethereum) {
             ethereum.request({ method: 'eth_accounts' }).then((accounts: string[]) => this.selectPlayer(accounts[0]));
         }
@@ -248,18 +251,6 @@ export class Client {
         return res.data;
     }
 
-    async getPlayerSigner(): Promise<ethers.Signer> {
-        const ethereum = (window as any).ethereum;
-        if (ethereum) {
-            // Connect to the MetaMask EIP-1193 object. This is a standard
-            // protocol that allows Ethers access to make all read-only
-            // requests through MetaMask.
-            const provider = new ethers.BrowserProvider(ethereum);
-            return provider.getSigner();
-        }
-        throw new Error(`metamask not installed and we havent implemented WalletConnect yet sorry`);
-    }
-
     async getSession(): Promise<Session> {
         if (!this.session) {
             this.session = await this._getSessionSigner();
@@ -268,7 +259,7 @@ export class Client {
     }
 
     private async _getSessionSigner(): Promise<Session> {
-        const owner = await this.getPlayerSigner();
+        const owner = await this.signer;
         const session = ethers.Wallet.createRandom();
         const scope = '0xffffffff';
         const ttl = 9999;

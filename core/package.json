@@ -4,23 +4,17 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
+    "dev": "vite dev -c vite.preview.config.ts",
+    "preview": "vite build -c vite.preview.config.ts && vite preview -c vite.preview.config.ts",
+    "build": "vite build",
+    "build:watch": "vite build -w",
     "test": "vitest --run",
     "coverage": "vitest run --coverage"
   },
   "files": "./dist",
-  "main": "./dist/lib.umd.js",
+  "main": "./dist/lib.cjs.js",
   "module": "./dist/lib.es.js",
   "types": "./dist/lib.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/lib.es.js",
-      "require": "./dist/lib.umd.js",
-      "types": "./dist/lib.d.ts"
-    }
-  },
   "peerDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
