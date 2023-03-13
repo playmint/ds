@@ -15,23 +15,37 @@ public class TravelMarkerController : MonoBehaviour
         destinationMarker.gameObject.SetActive(false);
     }
 
-    private void Update()
+    //private void Update()
+    //{
+    //    if (MapInteractionManager.CurrentSelectedCell != null && MapManager.isMakingMove)
+    //    {
+    //        if (MapInteractionManager.CurrentSelectedCell != MapInteractionManager.CurrentMouseCell)
+    //        {
+    //            ShowTravelMarkers(
+    //                MapManager.instance.grid.CellToWorld(MapInteractionManager.CurrentSelectedCell),
+    //                MapManager.instance.grid.CellToWorld(MapInteractionManager.CurrentMouseCell)
+    //            );
+    //            line.enabled = true;
+    //        }
+    //        else
+    //        {
+    //            //HideLine();
+    //        }
+    //    }
+    //}
+
+    public void ShowTravelMarkers(Vector3Int startPos, Vector3Int endPos, bool isCube = true)
     {
-        if (MapInteractionManager.CurrentSelectedCell != null && MapManager.isMakingMove)
-        {
-            if (MapInteractionManager.CurrentSelectedCell != MapInteractionManager.CurrentMouseCell)
-            {
-                ShowTravelMarkers(
-                    MapManager.instance.grid.CellToWorld(MapInteractionManager.CurrentSelectedCell),
-                    MapManager.instance.grid.CellToWorld(MapInteractionManager.CurrentMouseCell)
-                );
-                line.enabled = true;
-            }
-            else
-            {
-                HideLine();
-            }
-        }
+        if (isCube)
+            ShowTravelMarkers(
+                MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(startPos)),
+                MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(endPos))
+            );
+        else
+            ShowTravelMarkers(
+                MapManager.instance.grid.CellToWorld(startPos),
+                MapManager.instance.grid.CellToWorld(endPos)
+            );
     }
 
     public void ShowTravelMarkers(Vector3 startPos, Vector3 endPos)
@@ -44,7 +58,7 @@ public class TravelMarkerController : MonoBehaviour
 
     public void HideLine()
     {
-        line.HideLine();
-        destinationMarker.gameObject.SetActive(false);
+        //line.HideLine();
+        Destroy(gameObject);
     }
 }

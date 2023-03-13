@@ -136,6 +136,12 @@ namespace Cog
 
         public void NodeProcessThread()
         {
+            if (DawnseekersDevSettings.instance.NodePath == "") 
+            {
+                Debug.LogError("PluginController: Node path not set. Make sure the absolute path to node is set in the Edit > Project Settings > Dawnseekers panel");
+                return;
+            }
+
             Debug.Log($"PluginController:NodeProcessThread() Starting DawnseekersBridge \nNodePath: {DawnseekersDevSettings.instance.NodePath} \nPrivKey: {DawnseekersDevSettings.instance.PrivateKey}");
 
             _nodeJSProcess = new System.Diagnostics.Process
@@ -152,7 +158,16 @@ namespace Cog
                 }
             };
 
-            _nodeJSProcess.Start();
+            try 
+            {
+                _nodeJSProcess.Start();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+                Debug.LogError("PluginController: Unable to start bridge. Please check your Node path and make sure that the bridge has been built with npm run build");
+                return;
+            }
 
             while (!_nodeJSProcess.StandardOutput.EndOfStream)
             {
@@ -189,6 +204,33 @@ namespace Cog
 #endif
 
         // -- MESSAGE OUT
+
+        public void MoveSeeker(Seeker seeker, Vector3Int cellPosCube)
+        {
+            // function MOVE_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
+            DispatchAction(
+                "MOVE_SEEKER",
+                "0x" + seeker.Key, // TODO: Do the prefixing on the JS side when state is serialised
+                cellPosCube.x,
+                cellPosCube.y,
+                cellPosCube.z
+            );
+        }
+
+        public void ScoutTile(Vector3Int cellCubePos)
+        {
+            if (SeekerManager.Instance.Seeker != null)
+            {
+                // function SCOUT_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
+                DispatchAction(
+                    "SCOUT_SEEKER", // TODO: Do the prefixing on the JS side when state is serialised
+                    "0x" + SeekerManager.Instance.Seeker.Key,
+                    cellCubePos.x,
+                    cellCubePos.y,
+                    cellCubePos.z
+                );
+            }
+        }
 
         public void DispatchAction(string action, params object[] args)
         {
