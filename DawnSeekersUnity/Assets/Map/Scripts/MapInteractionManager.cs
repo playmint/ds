@@ -106,20 +106,6 @@ public class MapInteractionManager : MonoBehaviour
         {
             EventTileRightClick(cellPosCube);
         }
-
-        // --  Debug scouting
-
-        // if (SeekerManager.Instance.Seeker != null)
-        // {
-        //     // function SCOUT_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
-        //     Cog.PluginController.Instance.DispatchAction(
-        //         "SCOUT_SEEKER",
-        //         "0x" + SeekerManager.Instance.Seeker.Key,
-        //         cellPosCube.x,
-        //         cellPosCube.y,
-        //         cellPosCube.z
-        //     );
-        // }
     }
 
     // -- TODO: Obviously this won't scale, need to hold tiles in a dictionary
@@ -137,7 +123,7 @@ public class MapInteractionManager : MonoBehaviour
         return false;
     }
 
-    private Tile GetTile(Vector3Int cellPosCube)
+    public Tile GetTile(Vector3Int cellPosCube)
     {
         if (Cog.PluginController.Instance.WorldState == null)
         {

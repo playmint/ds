@@ -205,6 +205,33 @@ namespace Cog
 
         // -- MESSAGE OUT
 
+        public void MoveSeeker(Seeker seeker, Vector3Int cellPosCube)
+        {
+            // function MOVE_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
+            DispatchAction(
+                "MOVE_SEEKER",
+                "0x" + seeker.Key, // TODO: Do the prefixing on the JS side when state is serialised
+                cellPosCube.x,
+                cellPosCube.y,
+                cellPosCube.z
+            );
+        }
+
+        public void ScoutTile(Vector3Int cellCubePos)
+        {
+            if (SeekerManager.Instance.Seeker != null)
+            {
+                // function SCOUT_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
+                DispatchAction(
+                    "SCOUT_SEEKER", // TODO: Do the prefixing on the JS side when state is serialised
+                    "0x" + SeekerManager.Instance.Seeker.Key,
+                    cellCubePos.x,
+                    cellCubePos.y,
+                    cellCubePos.z
+                );
+            }
+        }
+
         public void DispatchAction(string action, params object[] args)
         {
             var dispatchActionMsg = new DispatchMessage

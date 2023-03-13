@@ -81,6 +81,9 @@ public class SeekerMovementManager : MonoBehaviour
         if (!isMoving)
             return;
 
+        if (!isValidTile(cellCubePos))
+            return;
+
         if (_path.Count == 0 || _path[_path.Count - 1].Key != cellCubePos)
         {
             AddCellToPath(cellCubePos);
@@ -103,10 +106,26 @@ public class SeekerMovementManager : MonoBehaviour
 
     private void OnTileRightClick(Vector3Int cellCubePos)
     {
-        if (!isMoving)
-            return;
+        if (isMoving)
+        {
+            ClosePath(cellCubePos);
+        }
+        else
+        {
+#if UNITY_EDITOR
+            PluginController.Instance.ScoutTile(cellCubePos);
+#endif
+        }
+    }
 
-        ClosePath(cellCubePos);
+    private bool isValidTile(Vector3Int cellCubePos)
+    {
+        var tile = MapInteractionManager.instance.GetTile(cellCubePos);
+
+        if (tile == null)
+            return false;
+
+        return tile.Biome != 0; // 0 = UNDISCOVERED
     }
 
     // -- This code was driven by the global UI state which was causing some problems
@@ -240,22 +259,10 @@ public class SeekerMovementManager : MonoBehaviour
     {
         for (int i = 1; i < _path.Count; i++)
         {
-            MoveSeeker(SeekerManager.Instance.Seeker, _path[i].Key);
+            PluginController.Instance.MoveSeeker(SeekerManager.Instance.Seeker, _path[i].Key);
             yield return new WaitForSeconds(3.5f);
             if (_path[i].Value != null)
                 _path[i].Value.HideLine();
         }
-    }
-
-    private void MoveSeeker(Seeker seeker, Vector3Int cellPosCube)
-    {
-        // function MOVE_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
-        Cog.PluginController.Instance.DispatchAction(
-            "MOVE_SEEKER",
-            "0x" + SeekerManager.Instance.Seeker.Key,
-            cellPosCube.x,
-            cellPosCube.y,
-            cellPosCube.z
-        );
     }
 }
