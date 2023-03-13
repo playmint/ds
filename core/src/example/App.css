@@ -1,0 +1,134 @@
+body {
+	background: #335c90;
+}
+.App {
+	text-align: center;
+}
+
+svg {
+}
+svg g {
+	fill: #6c90bf;
+	fill-opacity: 0.8;
+}
+svg .unscouted g {
+	fill: #555;
+	fill-opacity: 0;
+}
+svg g:hover {
+	fill: #fff;
+	fill-opacity: 1;
+}
+svg g:hover text {
+	fill-opacity: 1;
+}
+
+svg .selectedSeeker {
+	fill: #122443;
+}
+
+svg g polygon {
+	stroke: #6d94c9;
+	stroke-width: 0.2;
+	stroke-opacity: 0.3;
+	transition: fill-opacity .2s;
+}
+svg .unscouted g polygon {
+	stroke: #6d94c9;
+	stroke-opacity: 0.1;
+	fill: #fff;
+}
+svg .myseeker g polygon {
+	fill: #f00;
+}
+svg .selected g polygon {
+	fill: #fff;
+	fill-opacity: 0.5;
+	stroke: #fff;
+	stroke-opacity: 0.3;
+	stroke-width: 1;
+}
+svg g text {
+	font-size: 0.3em;
+	fill: #FFFFFF;
+	fill-opacity: 0.4;
+	transition: fill-opacity .2s;
+}
+svg path {
+	fill: none;
+	stroke: hsl(60, 20%, 70%);
+	stroke-width: 0.4em;
+	stroke-opacity: 0.3;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.topnav {
+	position: fixed;
+	top: 0;
+	left: 0;
+    right: 0;
+	height: 30px;
+	background: #050f25;
+}
+
+.topnav-button {
+	width: 300px;
+	height: 30px;
+	overflow: hidden;
+	float: right;
+	border: 0;
+	border-left: 1px solid #314a7b;
+	background: #050f25;
+	color: #fff;
+}
+
+.components {
+	position: fixed;
+    bottom: 0;
+	top: 30px;
+	right: 0;
+	width: 300px;
+	height: 100%;
+	background: #143063;
+	color: #fff;
+	overflow: hidden;
+}
+
+.components .content {
+	border-bottom: 1px solid #2d4778;
+	background: #143063;
+	color: #fff;
+	padding: 20px 10px;
+}
+
+.components button {
+	border-radius: 20px;
+	border: none;
+	display: block;
+	width: 100%;
+	box-sizing: border-box;
+	background: #fff;
+	color: #143063;
+	padding: 8px 20px;
+}
+
+.editor {
+	position: fixed;
+    top: 0;
+	left: 0;
+	bottom: 0;
+	width: 500px;
+	background: #143063;
+	color: #fff;
+	overflow: hidden;
+    background: #161b22;
+}
+
+.mapnav {
+	position: fixed;
+	top:0;
+	left:0;
+	bottom:0;
+	right:0;
+}
