@@ -1,7 +1,5 @@
 using Cog;
 using UnityEngine;
-using Nethereum.Contracts;
-using Nethereum.Hex.HexConvertors.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.EventSystems;
@@ -68,7 +66,9 @@ public class MapInteractionManager : MonoBehaviour
                 IsDiscoveredTile(GridExtensions.GridToCube(CurrentMouseCell))
                     || TileHelper
                         .GetTileNeighbours(
-                            TileHelper.GetTilePosCube(SeekerManager.Instance.Seeker.Location.Next.Tile)
+                            TileHelper.GetTilePosCube(
+                                SeekerManager.Instance.Seeker.Location.Next.Tile
+                            )
                         )
                         .Contains(GridExtensions.GridToCube(CurrentMouseCell))
             );

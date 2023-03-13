@@ -1,8 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-//using Cog.GraphQL;
-using Nethereum.Contracts;
 using UnityEngine;
 using System.Linq;
 using Cog;
