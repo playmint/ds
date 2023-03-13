@@ -2,7 +2,7 @@
   "name": "ds",
   "workspaces": [
     "frontend",
-    "sdk"
+    "core"
   ],
   "scripts": {
     "start": "make dev"

@@ -1,7 +1,6 @@
 {
   "plugins": ["@typescript-eslint"],
   "extends": [
-    "next/core-web-vitals",
     "plugin:@typescript-eslint/recommended",
     "plugin:react/recommended",
     "plugin:prettier/recommended",
@@ -24,6 +23,19 @@
     "react/display-name": "off",
     "react/react-in-jsx-scope": "off",
     "@next/next/no-img-element": "off"
-  }
+  },
+  "overrides": [
+      {
+          "files": ["*.graphql"],
+          "parser": "@graphql-eslint/eslint-plugin",
+          "plugins": ["@graphql-eslint"],
+          "rules": {
+              "@graphql-eslint/known-type-names": "error"
+          },
+          "parserOptions": {
+              "schema": "../../cog/services/schema/*.graphqls"
+          }
+      }
+  ]
 }
 
