@@ -2,6 +2,7 @@
   "name": "ds",
   "workspaces": [
     "frontend",
+    "bridge",
     "core"
   ],
   "scripts": {

@@ -5,7 +5,8 @@ import styled from 'styled-components';
 import { ComponentProps } from '@app/types/component-props';
 import { styles } from './shell.styles';
 import React from 'react';
-import { DawnseekersClient, PluginTrust, PluginType, useDawnseekersState } from '@app/contexts/dawnseekers-provider';
+
+import { Client as DawnseekersClient, PluginTrust, PluginType, useDawnseekersState } from 'dawnseekers';
 import { TileAction } from '@app/components/organisms/tile-action';
 import movePlugin from '@app/plugins/move';
 import scoutPlugin from '@app/plugins/scout';

@@ -5,7 +5,7 @@ import { sanitize } from 'dompurify';
 import styled from 'styled-components';
 import { ComponentProps } from '@app/types/component-props';
 import { styles } from './tile-action.styles';
-import { DawnseekersClient } from '@app/contexts/dawnseekers-provider';
+import { Client as DawnseekersClient } from 'dawnseekers';
 
 export interface TileActionProps extends ComponentProps {
     id: string;

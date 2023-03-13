@@ -1,9 +1,9 @@
 import {
-    DawnseekersClient,
+    Client as DawnseekersClient,
     State,
     PluginTrust,
     PluginType,
-} from "./ds-client/host";
+} from "dawnseekers";
 import fetch from "cross-fetch";
 import WebSocket from "ws";
 import { Observer } from "zen-observable-ts";

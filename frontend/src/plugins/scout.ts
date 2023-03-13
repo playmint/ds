@@ -1,6 +1,6 @@
 /** @format */
 
-import { PluginTrust, PluginType } from '@app/contexts/dawnseekers-provider';
+import { PluginTrust, PluginType } from 'dawnseekers';
 
 const src = `class Plugin {
     state = {};

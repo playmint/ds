@@ -34,9 +34,7 @@
     ],
     "baseUrl": "src",
     "paths": {
-      "@app/*": [
-        "*"
-      ]
+      "@app/*": ["*"],
     },
     "skipLibCheck": true,
     "strict": true,
