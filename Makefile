@@ -24,7 +24,27 @@ dev: all
 	$(NODE) .devstartup.js
 
 frontend/public/ds-unity/Build/ds-unity.wasm: $(UNITY_SRC)
-	$(UNITY_EDITOR) -batchmode -quit -projectPath ./DawnSeekersUnity -executeMethod BuildScript.GitHubBuild -buildTarget WebGL -logFile -
+	$(UNITY_EDITOR) -batchmode -quit -projectPath ./DawnSeekersUnity -executeMethod BuildScript.GitHubBuild -buildTarget WebGL -logFile - || ( \
+		if [ -f "$@" ]; then \
+			echo; \
+			echo "------------------------------------------------------------------------------------"; \
+			echo "Failed to build the WebGL map, but looks like you have an old version built already"; \
+			echo "------------------------------------------------------------------------------------"; \
+			echo; \
+			echo "Continue with your previous map build? [Y/n]: "; \
+			echo; \
+			read line; if [[ $$line == "n" ]]; then \
+				echo "ERROR: failed to build map"; \
+				echo; \
+				exit 1; \
+			else \
+				echo "WARNING: using stale map build!"; \
+				echo; \
+			fi \
+		else \
+			echo "ERROR: failed to build map and no previous version found"; \
+		fi \
+	)
 
 node_modules: package.json package-lock.json
 	$(NPM) ci
