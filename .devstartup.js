@@ -47,7 +47,7 @@ const commands = [
 
     {
         name: '  core  ',
-        command: 'npm run dev --workspace=core',
+        command: 'npm run build:watch --workspace=core',
         prefixColor: 'blueBright',
     },
 
