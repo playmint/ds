@@ -18,10 +18,16 @@ UNITY_SRC := $(wildcard DawnSeekersUnity/**/*)
 NODE := node
 NPM := npm
 
-all: contracts/lib/cog/services/bin/ds-node contracts/lib/cog/services/bin/wait-for frontend/public/ds-unity/Build/ds-unity.wasm node_modules
+all: contracts/lib/cog/services/bin/ds-node contracts/lib/cog/services/bin/wait-for frontend/public/ds-unity/Build/ds-unity.wasm node_modules bridge/dist/index.js core/dist/src/index.js
 
 dev: all
 	$(NODE) .devstartup.js
+
+core/dist/src/index.js:
+	(cd core && npm run build)
+
+bridge/dist/index.js: core/dist/src/index.js
+	(cd bridge && npm run build)
 
 frontend/public/ds-unity/Build/ds-unity.wasm: $(UNITY_SRC)
 	$(UNITY_EDITOR) -batchmode -quit -projectPath ./DawnSeekersUnity -executeMethod BuildScript.GitHubBuild -buildTarget WebGL -logFile - || ( \
@@ -63,6 +69,9 @@ contracts/lib/cog/services/bin/wait-for: contracts/lib/cog/services/Makefile
 clean:
 	rm -rf frontend/public/ds-unity
 	rm -f contracts/lib/cog/services/bin/ds-node
+	rm -rf core/dist
+	rm -rf bridge/dist
+	rm -rf frontend/dist
 
 
 .PHONY: all clean

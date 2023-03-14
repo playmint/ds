@@ -3,10 +3,10 @@ import {
     State,
     PluginTrust,
     PluginType,
-} from "dawnseekers";
-import fetch from "cross-fetch";
-import WebSocket from "ws";
+} from '../../core/dist/src/index';
+import { ethers } from 'ethers';
 import { Observer } from "zen-observable-ts";
+import 'cross-fetch/polyfill';
 
 interface Message {
     msg: string;
@@ -28,19 +28,10 @@ class DawnSeekersBridge implements Observer<State> {
         this._ds = new DawnseekersClient({
             wsEndpoint: "ws://localhost:8080/query",
             httpEndpoint: "http://localhost:8080/query",
-            autoloadablePlugins: [
-                // this would be fetched from cog-services
-                {
-                    type: PluginType.BUILDING,
-                    trust: PluginTrust.UNTRUSTED,
-                    addr: "my-building-kind-addr",
-                    src: ``,
-                },
-            ],
-            corePlugins: [],
-            fetch,
-            webSocketImpl: WebSocket,
-            privKey,
+            signer: async () => {
+                const key = new ethers.SigningKey(privKey);
+                return new ethers.BaseWallet(key);
+            }
         });
 
         this._ds.subscribe(this);
@@ -95,7 +86,7 @@ class DawnSeekersBridge implements Observer<State> {
 
         seen.push(obj);
 
-        const newObj = Array.isArray(obj) ? [] : {};
+        const newObj: any = Array.isArray(obj) ? [] : {};
 
         for (var key in obj) {
             const value = obj[key];
