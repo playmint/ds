@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite dev -c vite.preview.config.ts",
     "preview": "vite build -c vite.preview.config.ts && vite preview -c vite.preview.config.ts",
-    "build": "tsc --build --verbose",
+    "build": "graphql-codegen && tsc --build --verbose",
     "build:watch": "tsc --build -w",
     "test": "vitest --run",
     "coverage": "vitest run --coverage"
