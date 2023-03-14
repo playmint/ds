@@ -18,7 +18,7 @@ UNITY_SRC := $(wildcard DawnSeekersUnity/**/*)
 NODE := node
 NPM := npm
 
-all: contracts/lib/cog/services/bin/ds-node contracts/lib/cog/services/bin/wait-for contracts/out/Actions.sol core/dist/src/index.js frontend/public/ds-unity/Build/ds-unity.wasm node_modules bridge/dist/index.js
+all: node_modules contracts/lib/cog/services/bin/ds-node contracts/lib/cog/services/bin/wait-for contracts/out/Actions.sol core/dist/src/index.js frontend/public/ds-unity/Build/ds-unity.wasm bridge/dist/index.js
 
 dev: all
 	$(NODE) .devstartup.js
