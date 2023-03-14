@@ -1,69 +1,49 @@
 /** @format */
 
-import { PluginTrust, PluginType } from '@app/contexts/dawnseekers-provider';
+import { PluginTrust, PluginType, PluginConfig } from '@core';
 
-const src = `class Plugin {
-    state = {};
-    dispatching = false;
-    ds = {};
+const src = `
 
-    constructor(ds) {
-        this.ds = ds;
-    }
+import ds from 'dawnseekers';
 
-    onState(state) {
-        this.state = state;
-    }
+export default function update(state) {
+    const seeker = state.ui.selection.seeker;
+    const tile = state.ui.selection.tiles.length == 1 ? state.ui.selection.tiles[0] : undefined;
 
-    onClick() {
-        const { seeker, tiles } = this.state.ui.selection;
-        if (!seeker) {
-            return;
-        }
-        if (!tiles || tiles.length != 1) {
-            return;
-        }
-        const { q, r, s } = tiles[0].coords;
-        this.ds.dispatch('MOVE_SEEKER', seeker.key, q, r, s).finally(() => (this.dispatching = false));
-    }
-
-    onSubmit() {
-        return false;
-    }
-
-    showTileActionDetails() {
-        return false;
-    }
-
-    renderTileActionDetails() {
-        return undefined;
-    }
-
-    renderTileActionButtons() {
-        const { seeker, tiles } = this.state.ui.selection;
-        if (!seeker) {
-            return;
-        }
-        if (!tiles || tiles.length != 1) {
-            return;
-        }
-        const tile = tiles[0];
-        if (!tile) {
-            return;
-        }
-        console.log(tile);
-        if (tile.biome != 1) {
+    const moveSeeker = () => {
+        if (!seeker || !tile) {
             return;
         }
         const { q, r, s } = tile.coords;
-        return '<button id="move" class="action-button">MOVE to ' + q + ',' + r + ',' + s + '</button>';
-    }
-};`;
+        ds.log('plugin says: moving seeker', { seeker: seeker.key, q, r, s });
+        ds.dispatch('MOVE_SEEKER', seeker.key, q, r, s);
+    };
 
-const plugin = {
+    return {
+        version: 1,
+        components: [
+            {
+                id: 'my-move-plugin',
+                type: 'tile',
+                title: 'mover',
+                summary: seeker ? 'select a tile to move to' : 'no seeker selected',
+                content: [
+                    {
+                        id: 'default',
+                        type: 'inline',
+                        buttons: seeker && tile && tile.biome != 0 && tile.id != seeker.location.next.tile.id ? [{ text: 'move', type: 'action', action: moveSeeker }] : [],
+                    },
+                ],
+            },
+        ],
+    };
+}
+`;
+
+const plugin: PluginConfig = {
+    id: 'move',
     type: PluginType.CORE,
     trust: PluginTrust.TRUSTED,
-    addr: '',
     src: src
 };
 

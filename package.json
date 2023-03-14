@@ -1,7 +1,9 @@
 {
   "name": "ds",
   "workspaces": [
-    "frontend"
+    "frontend",
+    "bridge",
+    "core"
   ],
   "scripts": {
     "start": "make dev"
