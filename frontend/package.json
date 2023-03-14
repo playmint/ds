@@ -20,6 +20,7 @@
     "@web3-react/network-connector": "^6.2.9",
     "bootstrap-icons": "^1.10.3",
     "change-case": "4.1.2",
+    "dawnseekers": "file:core",
     "dompurify": "^3.0.1",
     "ethers": "^6.0.8",
     "framer-motion": "^9.0.1",
