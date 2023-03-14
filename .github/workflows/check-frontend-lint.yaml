@@ -16,10 +16,12 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 16.19.x
+      - name: Install
+        run: |
+          npm ci
       - name: Lint
         working-directory: frontend
         run: |
-          npm ci
           npx next lint --max-warnings=0
       - name: Format
         working-directory: frontend
