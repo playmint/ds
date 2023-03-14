@@ -72,6 +72,10 @@ clean:
 	rm -rf core/dist
 	rm -rf bridge/dist
 	rm -rf frontend/dist
+	rm -rf frontend/node_modules
+	rm -rf core/node_modules
+	rm -rf bridge/node_modules
+	rm -rf node_modules
 
 
 .PHONY: all clean
