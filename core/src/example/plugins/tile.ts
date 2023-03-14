@@ -1,3 +1,5 @@
+export default `
+
 import ds from 'dawnseekers';
 
 export default function update(state) {
@@ -20,7 +22,7 @@ export default function update(state) {
                 id: 'my-tile-component',
                 type: 'tile',
                 title: 'Tile Info',
-                summary: `summary`,
+                summary: 'summary',
                 content: [
                     {
                         id: 'default',
@@ -32,7 +34,7 @@ export default function update(state) {
             {
                 id: 'my-seeker-component',
                 type: 'seeker',
-                title: `Seeker ${seeker ? seeker.id : 'none'}`,
+                title: 'Seeker '+ (seeker ? seeker.id : 'none'),
                 summary: 'Who is this',
                 content: [
                     {
@@ -45,7 +47,7 @@ export default function update(state) {
                         id: 'setName',
                         type: 'popout',
                         onSubmit: setSeekerName,
-                        html: `<input type="text" name="name" />`,
+                        html: '<input type="text" name="name" />',
                         buttons: [
                             { text: 'cancel', type: 'toggle', content: '' },
                             { text: 'set', type: 'submit', action: setSeekerName },
@@ -56,3 +58,5 @@ export default function update(state) {
         ],
     };
 }
+
+`;

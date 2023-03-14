@@ -75,7 +75,7 @@ export class Logger implements StructuredLogger {
         this.send({ level: StructuredLogLevel.WARN, text, values });
     }
 
-    error(text: string, err: any, values: StructuredLogValues) {
+    error(text: string, values: StructuredLogValues) {
         this.send({ level: StructuredLogLevel.ERROR, text, values });
     }
 

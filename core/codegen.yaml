@@ -12,4 +12,4 @@ hooks:
     - prettier --write
     - eslint --fix
 overwrite: true
-emitLegacyCommonJSImports: false
+emitLegacyCommonJSImports: true

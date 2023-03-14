@@ -1,25 +1,16 @@
-/** @format */
-import { v4 as uuidv4 } from 'uuid';
-import { createClient as createHTTPClient, Client as HTTPClient, dedupExchange, fetchExchange } from '@urql/core';
-import { cacheExchange } from '@urql/exchange-graphcache';
-import { createClient as createWSClient, Client as WSClient } from 'graphql-ws';
+import { createClient as createHTTPClient, Client as HTTPClient } from '@urql/core';
 import { Observable, Observer, Subscription } from 'zen-observable-ts';
 import { PluginState, PluginSandbox, PluginConfig, QuickSandbox } from './sandbox';
-import {
-    GetStateDocument,
-    GetStateQuery,
-    GetStateQueryVariables,
-    SigninDocument,
-    DispatchDocument,
-    DispatchMutation,
-} from './gql/graphql';
+import { GetStateDocument, GetStateQuery, SigninDocument, DispatchDocument } from './gql/graphql';
 import { ethers } from 'ethers';
-import { GameState, NodeID, Node, Seeker, Player, Tile, gameStateTransformer } from './state';
+import { GameState, NodeID, Seeker, Player, Tile, gameStateTransformer } from './state';
 import { CompoundKeyEncoder, NodeSelectors } from './utils';
 import { StructuredLogger, Logger } from './logger';
 
-import cogSchema from './gql/introspection';
-const cogCache = cacheExchange({ schema: cogSchema });
+// TODO: enable query cache
+// import { cacheExchange } from '@urql/exchange-graphcache';
+// import cogSchema from './gql/introspection';
+// const cogCache = cacheExchange({ schema: cogSchema });
 
 const abi = ethers.AbiCoder.defaultAbiCoder();
 
@@ -85,7 +76,7 @@ export class Client {
     logger: StructuredLogger;
     signer: Promise<ethers.Signer>;
 
-    constructor({ httpEndpoint, wsEndpoint, logger, signer }: ClientConfig) {
+    constructor({ httpEndpoint, logger, signer }: ClientConfig) {
         this.logger = logger ? logger : new Logger();
         this.sandbox = new QuickSandbox({
             dispatcher: (name: string, ...args: any) => this.dispatch(name, ...args),

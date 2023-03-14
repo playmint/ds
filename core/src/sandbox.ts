@@ -1,14 +1,25 @@
-import {
-    getQuickJS,
-    newAsyncRuntime,
-    QuickJSContext,
-    QuickJSAsyncRuntime,
-    QuickJSAsyncContext,
-} from 'quickjs-emscripten';
+import { newAsyncRuntime, QuickJSContext, QuickJSAsyncRuntime } from 'quickjs-emscripten';
 import { State, ActionDispatcher } from './client';
 import { StructuredLogger } from './logger';
 import { stateToJSON } from './utils';
-import dsapi from './pluginapi.js?raw';
+
+const dsapi = `
+export function dispatch(name, ...args) {
+    const req = JSON.stringify({ name, args });
+    return globalThis.__ds.dispatch(req);
+}
+
+export function log(text, o) {
+    const values = o || {};
+    const req = JSON.stringify({ level: 1, text: text.toString(), values });
+    return globalThis.__ds.log(req);
+}
+
+export default {
+    dispatch,
+    log,
+};
+`;
 
 export type PluginActionCallProxy = () => Promise<void>;
 export type PluginSubmitCallValues = { [key: string]: string };
@@ -345,7 +356,7 @@ export class QuickSandbox implements PluginSandbox {
                     fn && fn(values);
                     return JSON.stringify({ok: true});
                 })(${JSON.stringify({ ref, values })})`);
-                const pluginState = JSON.parse(context.unwrapResult(res).consume(context.getString));
+                context.unwrapResult(res).consume(context.getString);
             } finally {
                 api.enabled = false;
                 this.runtimeLock = false;
@@ -378,10 +389,13 @@ export class QuickSandbox implements PluginSandbox {
                     throw new Error(`invalid plugin response: unknown button type: ${type}`);
             }
         };
-        const normalizePluginV1Content = (
-            { id, type, html, submit, buttons }: PluginV1ComponentContent,
-            idx: number
-        ): PluginStateComponentContent | null => {
+        const normalizePluginV1Content = ({
+            id,
+            type,
+            html,
+            submit,
+            buttons,
+        }: PluginV1ComponentContent): PluginStateComponentContent | null => {
             if (!id) {
                 throw new Error(`invalid plugin response: missing content.id`);
             }

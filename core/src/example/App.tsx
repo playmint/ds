@@ -17,9 +17,9 @@ import {
     PluginType,
     State,
     Tile,
-} from '../lib';
+} from '@core';
 import { useDawnseekersState } from '../react';
-import examplePlugin from './plugins/tile.js?raw';
+import examplePlugin from './plugins/tile';
 
 const HexMap = ({ state, ds }: { state: State; ds: DawnseekersClient }) => {
     const { game, ui } = state;
@@ -162,7 +162,7 @@ const PluginComponent = ({ component }: { component: PluginStateComponent }) => 
 
     const inline = getVisibleContentForType('inline');
     const popout = getVisibleContentForType('popout');
-    const dialog = getVisibleContentForType('dialog');
+    // const dialog = getVisibleContentForType('dialog');
 
     return (
         <table className="component" style={{ marginTop: '50px', border: '1px solid black', width: '100%' }}>
@@ -257,7 +257,7 @@ const App = ({ ds }: { ds: DawnseekersClient }) => {
             </div>
             <div className="components">
                 {data?.ui.plugins
-                    .flatMap((p, idx0) => p.components)
+                    .flatMap((p) => p.components)
                     .map((c) => (
                         <PluginComponent key={c.id} component={c} />
                     ))}

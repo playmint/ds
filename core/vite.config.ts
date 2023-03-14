@@ -9,17 +9,14 @@ export default defineConfig({
     build: {
         emptyOutDir: false,
         lib: {
-            entry: [path.resolve(__dirname, 'src/lib.ts')],
+            entry: [path.resolve(__dirname, 'src/index.ts')],
             name: '[name]',
             fileName: (format) => `[name].${format}.js`,
             formats: ['cjs', 'es'],
         },
 
         rollupOptions: {
-            external: ['react', 'react-dom'],
-            input: {
-                lib: path.resolve(__dirname, 'src/lib.ts'),
-            },
+            external: ['react', 'react-dom', 'ethers', 'quickjs-emscripten', 'fs'],
             output: {
                 // Provide global variables to use in the UMD build
                 // for externalized deps

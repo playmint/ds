@@ -33,7 +33,9 @@ export const CompoundKeyEncoder = {
 export function toDAG(prev: any, maxDepth: number, depth: number): any {
     return Object.keys(prev).reduce((o, k) => {
         const v = prev[k];
-        if (typeof v === 'object') {
+        if (Array.isArray(v)) {
+            o[k] = v.map((vv) => (typeof vv == 'object' ? toDAG(vv, maxDepth, depth + 1) : vv));
+        } else if (typeof v === 'object') {
             if (depth < maxDepth) {
                 const vv = toDAG(v, maxDepth, depth + 1);
                 if (vv === null) {
@@ -51,5 +53,5 @@ export function toDAG(prev: any, maxDepth: number, depth: number): any {
 }
 
 export function stateToJSON(state: State) {
-    return JSON.stringify(toDAG(state, 6, 0), (key, value) => (typeof value === 'bigint' ? value.toString() : value));
+    return JSON.stringify(toDAG(state, 6, 0), (_key, value) => (typeof value === 'bigint' ? value.toString() : value));
 }
