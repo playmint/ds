@@ -24,6 +24,13 @@ const ACTIONS = new ethers.Interface([
     'function SPAWN_SEEKER(bytes24 seeker)',
     'function DEV_SPAWN_SEEKER(address player, uint32 seekerID, int16 q, int16 r, int16 s)',
     'function DEV_SPAWN_TILE(uint8 kind, int16 q, int16 r, int16 s)',
+    `function TRANSFER_ITEM_SEEKER(
+            bytes24 seeker,
+            bytes24[2] calldata equipees,
+            uint8[2] calldata equipSlots,
+            uint8[2] calldata itemSlots,
+            uint64 qty
+        )`,
 ]);
 
 const gameID = 'DAWNSEEKERS';
