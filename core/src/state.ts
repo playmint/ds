@@ -88,6 +88,7 @@ export interface Tile extends Node {
     coords: TileCoords;
     bags: EquipSlot[];
     biome: BiomeKind;
+    seekers: Seeker[];
 }
 
 export interface GameState {
@@ -114,6 +115,7 @@ export function gameStateTransformer(data: GetStateQuery): GameState {
             coords: { q, r, s },
             bags: [],
             biome: BiomeKind.UNDISCOVERED,
+            seekers: [],
         };
     };
 
@@ -166,6 +168,7 @@ export function gameStateTransformer(data: GetStateQuery): GameState {
                     bag: bags[b.bag.id],
                 }))
                 .sort(byEdgeKey),
+            seekers: [],
         };
     });
     // add in all the unscouted tiles around the edges
@@ -226,6 +229,12 @@ export function gameStateTransformer(data: GetStateQuery): GameState {
     Object.values(players).forEach((p) => {
         p.seekers = Object.values(seekers)
             .filter((s) => s.owner.id == p.id)
+            .sort(byNodeID);
+    });
+    // put seekers on tiles
+    Object.values(tiles).forEach((t) => {
+        t.seekers = Object.values(seekers)
+            .filter((s) => s.location.next.tile.id == t.id)
             .sort(byNodeID);
     });
     const game = {
