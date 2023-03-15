@@ -44,6 +44,10 @@ export const GlobalStyles = createGlobalStyle`
     h3 {
         margin-bottom: 2rem;
     }
+
+    form {
+        width: 100%;
+    }
     
     .topnav {
         display: flex;

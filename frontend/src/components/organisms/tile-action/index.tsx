@@ -66,13 +66,13 @@ const PluginContent = ({
                     switch (btn.type) {
                         case 'action':
                             return (
-                                <button key={btn.text} onClick={() => clickActionButton(btn)}>
+                                <button className="action-button" key={btn.text} onClick={() => clickActionButton(btn)}>
                                     {btn.text}
                                 </button>
                             );
                         case 'toggle':
                             return (
-                                <button key={btn.text} onClick={() => clickToggleButton(btn)}>
+                                <button className="action-button" key={btn.text} onClick={() => clickToggleButton(btn)}>
                                     {btn.text}
                                 </button>
                             );
@@ -126,54 +126,18 @@ export const TileAction: FunctionComponent<TileActionProps> = (props: TileAction
     const popout = getVisibleContentForType('popout');
     const dialog = getVisibleContentForType('dialog');
 
+    console.log(inline, popout, dialog);
+
+    if ((!inline || (inline && inline.buttons?.length === 0)) && !popout && !dialog) {
+        return null;
+    }
+
     return (
         <StyledTileAction {...otherProps}>
-            <table className="component" style={{ width: '100%', fontSize: '70%' }}>
-                <tbody>
-                    <tr>
-                        <td>title</td>
-                        <td>{component.title}</td>
-                    </tr>
-                    <tr>
-                        <td>summary</td>
-                        <td>{component.summary}</td>
-                    </tr>
-                    <tr>
-                        <td>type</td>
-                        <td>{component.type}</td>
-                    </tr>
-                    <tr>
-                        <td>inline:</td>
-                        <td>
-                            {inline ? (
-                                <PluginContent content={inline} toggleContent={toggleContent} />
-                            ) : (
-                                <div>no visible content</div>
-                            )}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>popout:</td>
-                        <td>
-                            {popout ? (
-                                <PluginContent content={popout} toggleContent={toggleContent} />
-                            ) : (
-                                <div>no visible content</div>
-                            )}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>dialog:</td>
-                        <td>
-                            {dialog ? (
-                                <PluginContent content={dialog} toggleContent={toggleContent} />
-                            ) : (
-                                <div>no visible content</div>
-                            )}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <h3>{component.title}</h3>
+            {inline && <PluginContent content={inline} toggleContent={toggleContent} />}
+            {popout && <PluginContent content={popout} toggleContent={toggleContent} />}
+            {dialog && <PluginContent content={dialog} toggleContent={toggleContent} />}
         </StyledTileAction>
     );
 };
