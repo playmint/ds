@@ -150,7 +150,7 @@ namespace Cog
                 {
                     WorkingDirectory = "../bridge",
                     FileName = _nodePath,
-                    Arguments = "build/index.js " + _privateKey,
+                    Arguments = "./dist/index.js " + _privateKey,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardInput = true,

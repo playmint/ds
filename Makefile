@@ -18,13 +18,42 @@ UNITY_SRC := $(wildcard DawnSeekersUnity/**/*)
 NODE := node
 NPM := npm
 
-all: contracts/lib/cog/services/bin/ds-node contracts/lib/cog/services/bin/wait-for frontend/public/ds-unity/Build/ds-unity.wasm node_modules
+all: node_modules contracts/lib/cog/services/bin/ds-node contracts/lib/cog/services/bin/wait-for contracts/out/Actions.sol core/dist/src/index.js frontend/public/ds-unity/Build/ds-unity.wasm bridge/dist/index.js
 
 dev: all
 	$(NODE) .devstartup.js
 
+contracts/out/Actions.sol:
+	(cd contracts && forge build)
+
+core/dist/src/index.js:
+	(cd core && npm run build)
+
+bridge/dist/index.js: core/dist/src/index.js
+	(cd bridge && npm run build)
+
 frontend/public/ds-unity/Build/ds-unity.wasm: $(UNITY_SRC)
-	$(UNITY_EDITOR) -batchmode -quit -projectPath ./DawnSeekersUnity -executeMethod BuildScript.GitHubBuild -buildTarget WebGL -logFile -
+	$(UNITY_EDITOR) -batchmode -quit -projectPath ./DawnSeekersUnity -executeMethod BuildScript.GitHubBuild -buildTarget WebGL -logFile - || ( \
+		if [ -f "$@" ]; then \
+			echo; \
+			echo "------------------------------------------------------------------------------------"; \
+			echo "Failed to build the WebGL map, but looks like you have an old version built already"; \
+			echo "------------------------------------------------------------------------------------"; \
+			echo; \
+			echo "Continue with your previous map build? [Y/n]: "; \
+			echo; \
+			read line; if [[ $$line == "n" ]]; then \
+				echo "ERROR: failed to build map"; \
+				echo; \
+				exit 1; \
+			else \
+				echo "WARNING: using stale map build!"; \
+				echo; \
+			fi \
+		else \
+			echo "ERROR: failed to build map and no previous version found"; \
+		fi \
+	)
 
 node_modules: package.json package-lock.json
 	$(NPM) ci
@@ -43,6 +72,15 @@ contracts/lib/cog/services/bin/wait-for: contracts/lib/cog/services/Makefile
 clean:
 	rm -rf frontend/public/ds-unity
 	rm -f contracts/lib/cog/services/bin/ds-node
+	rm -rf contracts/out
+	rm -rf core/dist
+	rm -rf bridge/dist
+	rm -rf frontend/dist
+	rm -rf frontend/node_modules
+	rm -rf core/node_modules
+	rm -rf core/src/gql
+	rm -rf bridge/node_modules
+	rm -rf node_modules
 
 
 .PHONY: all clean

@@ -18,7 +18,7 @@ const DEPLOYER_PRIVATE_KEY = "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff
 const commands = [
     {
         name: 'networks',
-        command: "anvil -m 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --code-size-limit 9999999999999 --gas-limit 9999999999999999 -b 1",
+        command: "anvil -m 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --code-size-limit 9999999999999 --gas-limit 9999999999999999",
         prefixColor: 'black',
     },
 
@@ -42,6 +42,12 @@ const commands = [
     {
         name: ' client ',
         command: 'npm run dev --workspace=frontend -- -p 3000',
+        prefixColor: 'blueBright',
+    },
+
+    {
+        name: '  core  ',
+        command: 'npm run build:watch --workspace=core',
         prefixColor: 'blueBright',
     },
 
@@ -97,15 +103,26 @@ async function deployer() {
     const dirs = ['contracts/src'];
     // wait for chain to become available
     let ready = false;
-    await sleep(2000);
-    const provider = new JsonRpcProvider('http://localhost:8545');
-    ready = await Promise.race([
-        provider.send("eth_blockNumber"),
-        sleep(2000).then(() => undefined),
-    ]);
+    let tries = 0;
+    while(tries < 2 && !isShutdown && !processes.commands.some(c => c.exited)) {
+        tries++;
+        try {
+            await sleep(2000);
+            const provider = new JsonRpcProvider('http://localhost:8545');
+            ready = await Promise.race([
+                provider.send("eth_blockNumber"),
+                sleep(2000).then(() => undefined),
+            ]);
+        } catch (err) {
+        }
+    }
     if (!ready) {
+        if (isShutdown || processes.commands.some(c => c.exited)) {
+            return;
+        }
         console.log('[contracts] rpc endpoint unavailable');
         shutdown('failed to connect to network');
+        return;
     }
     // watch for changes to the contracts to trigger contract deployments
     const watcher = chokidar.watch(dirs, {

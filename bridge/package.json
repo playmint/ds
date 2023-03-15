@@ -2,11 +2,11 @@
   "name": "dawnseekersbridge",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./dist/index.js",
   "scripts": {
-    "build": "rimraf ./build && tsc",
+    "build": "tsc --build --verbose",
     "start:dev": "npx nodemon",
-    "start": "npm run build && node build/index.js"
+    "start": "npm run build && node ./dist/index.js"
   },
   "keywords": [],
   "author": "",
@@ -22,10 +22,9 @@
     "@apollo/client": "^3.7.10",
     "cross-fetch": "^3.1.5",
     "ethers": "^6.0.8",
-    "graphql-ws": "^5.12.0",
     "react": "^18.2.0",
     "uuid": "^9.0.0",
     "ws": "^8.12.1",
-    "zen-observable-ts": "^1.1.0"
+    "zen-observable-ts": "^1.2.5"
   }
 }

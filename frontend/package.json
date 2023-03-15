@@ -1,5 +1,6 @@
 {
   "name": "plugin-demo",
+  "type": "module",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,8 +8,7 @@
     "build": "next build",
     "export": "next build && next export",
     "start": "next start",
-    "lint": "next lint",
-    "build:graphql": "graphql-codegen --config codegen.yml"
+    "lint": "next lint"
   },
   "dependencies": {
     "@apollo/client": "^3.7.3",
@@ -20,29 +20,20 @@
     "@web3-react/network-connector": "^6.2.9",
     "bootstrap-icons": "^1.10.3",
     "change-case": "4.1.2",
+    "dawnseekers": "file:core",
     "dompurify": "^3.0.1",
     "ethers": "^6.0.8",
     "framer-motion": "^9.0.1",
-    "graphql": "^16.6.0",
-    "graphql-ws": "^5.11.2",
-    "next": "12.3.4",
+    "next": "13.2.4",
     "polished": "4.2.2",
-    "react": "18.1.0",
-    "react-dom": "18.1.0",
-    "react-hexgrid": "^2.0.1",
+    "quickjs-emscripten": "^0.22.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
     "react-unity-webgl": "^9.4.0",
     "styled-components": "5.3.5",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^2.16.5",
-    "@graphql-codegen/fragment-matcher": "^3.2.1",
-    "@graphql-codegen/introspection": "2.1.1",
-    "@graphql-codegen/typescript": "2.4.8",
-    "@graphql-codegen/typescript-graphql-files-modules": "2.1.1",
-    "@graphql-codegen/typescript-operations": "2.3.5",
-    "@graphql-codegen/typescript-react-apollo": "3.2.11",
-    "@graphql-eslint/eslint-plugin": "^3.9.1",
     "@types/dompurify": "^2.4.0",
     "@types/node": "16.11.7",
     "@types/react": "18.0.9",
