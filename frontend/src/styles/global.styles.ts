@@ -36,6 +36,11 @@ export const GlobalStyles = createGlobalStyle`
         monospace;
     }
     
+    h3 {
+        text-transform: uppercase;
+        margin-bottom: 2rem;
+    }
+    
     .topnav {
         display: flex;
         justify-content: flex-start;
@@ -146,6 +151,7 @@ export const GlobalStyles = createGlobalStyle`
             
             .label {
                 padding: 0 0.5rem;
+                text-transform: uppercase;
             }
         }
     }
@@ -156,72 +162,6 @@ export const GlobalStyles = createGlobalStyle`
         left: 0;
         bottom: 0;
         right: 0;
-    }
-    
-    // map stuff
-
-    svg g {
-        fill: #6c90bf;
-        fill-opacity: 0.8;
-    }
-
-    svg .unscouted g {
-        fill: #555;
-        fill-opacity: 0;
-    }
-
-    svg g:hover {
-        fill: #fff;
-        fill-opacity: 1;
-    }
-
-    svg g:hover text {
-        fill-opacity: 1;
-    }
-
-    svg .selected-seeker {
-        fill: #122443;
-    }
-
-    svg g polygon {
-        stroke: #6d94c9;
-        stroke-width: 0.2;
-        stroke-opacity: 0.3;
-        transition: fill-opacity .2s;
-    }
-
-    svg .unscouted g polygon {
-        stroke: #6d94c9;
-        stroke-opacity: 0.1;
-        fill: #fff;
-    }
-
-    svg .myseeker g polygon {
-        fill: #f00;
-    }
-
-    svg .selected g polygon {
-        fill: #fff;
-        fill-opacity: 0.5;
-        stroke: #fff;
-        stroke-opacity: 0.3;
-        stroke-width: 1;
-    }
-
-    svg g text {
-        font-size: 0.3em;
-        fill: #FFFFFF;
-        fill-opacity: 0.4;
-        transition: fill-opacity .2s;
-    }
-
-    svg path {
-        fill: none;
-        stroke: hsl(60, 20%, 70%);
-        stroke-width: 0.4em;
-        stroke-opacity: 0.3;
-        stroke-linecap: round;
-        stroke-linejoin: round;
     }
     
 `;

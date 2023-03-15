@@ -12,6 +12,7 @@ import scoutPlugin from '@app/plugins/scout';
 import { formatPlayerId, formatSeekerKey } from '@app/helpers';
 import { UnityMap } from '@app/components/organisms/unity-map';
 import { ethers } from 'ethers';
+import { SeekerList } from '@app/plugins/seeker-list';
 
 const ds = new DawnseekersClient({
     wsEndpoint: 'ws://localhost:8080/query',
@@ -37,6 +38,9 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     const { ...otherProps } = props;
     const { data } = useDawnseekersState(ds);
     const player = data?.ui.selection.player;
+    const tileSeekers =
+        data?.ui.selection.tiles && data.ui.selection.tiles.length > 0 ? data.ui.selection.tiles[0].seekers : [];
+    console.log(data);
 
     return (
         <StyledShell {...otherProps}>
@@ -70,6 +74,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                     .map((c) => (
                         <TileAction key={c.id} component={c} className="action" />
                     ))}
+                {tileSeekers.length > 0 && <SeekerList seekers={tileSeekers} className="action" />}
             </div>
         </StyledShell>
     );
