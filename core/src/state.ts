@@ -37,6 +37,7 @@ export interface Location {
 
 export interface Seeker extends Node {
     id: NodeID;
+    /** @TJS-type string */
     key: bigint;
     name: string;
     owner: Player;

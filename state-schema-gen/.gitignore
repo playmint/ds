@@ -1,0 +1,6 @@
+bin
+obj
+
+# Need to un-ignore these files as we were ignoring them as part of Unity's generated solution
+!*.csproj
+!*.sln
