@@ -9,7 +9,11 @@ import { TileActionProps } from './index';
  * @param _ The tile action properties object
  * @return Base styles for the tile action component
  */
-const baseStyles = (_: Partial<TileActionProps>) => css``;
+const baseStyles = (_: Partial<TileActionProps>) => css`
+    button {
+        text-transform: capitalize;
+    }
+`;
 
 /**
  * The tile action component styles
