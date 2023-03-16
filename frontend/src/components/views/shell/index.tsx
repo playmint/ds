@@ -16,6 +16,7 @@ import { ethers } from 'ethers';
 import { TileInventory } from '@app/plugins/inventory/tile-inventory';
 import { SeekerInventory } from '@app/plugins/inventory/seeker-inventory';
 import { SeekerList } from '@app/plugins/seeker-list';
+import { Building } from '@app/plugins/building';
 
 const ds = new DawnseekersClient({
     wsEndpoint: 'ws://localhost:8080/query',
@@ -77,6 +78,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                         </div>
 
                         <div className="tile-actions">
+                            <Building className="action" />
                             {data?.ui.plugins
                                 .flatMap((p) => p.components)
                                 .filter((c) => c.type === 'tile')
