@@ -12,6 +12,7 @@ export interface BagProps extends ComponentProps {
     bag: BagNode;
     ownerId: string;
     equipIndex: number;
+    isInteractable: boolean;
 }
 
 const StyledBag = styled('div')`
@@ -19,7 +20,7 @@ const StyledBag = styled('div')`
 `;
 
 export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
-    const { bag, ownerId, equipIndex, ...otherProps } = props;
+    const { bag, ownerId, equipIndex, isInteractable, ...otherProps } = props;
     const numBagSlots = 4;
     const emptySlots = numBagSlots - bag.slots.length - 1;
 
@@ -35,10 +36,17 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
                         ownerId={ownerId}
                         equipIndex={equipIndex}
                         slotIndex={slot.key}
+                        isInteractable={isInteractable}
                     />
                 ))}
                 {bag.slots.length < numBagSlots && (
-                    <BagSlot as="li" ownerId={ownerId} equipIndex={equipIndex} slotIndex={bag.slots.length} />
+                    <BagSlot
+                        as="li"
+                        ownerId={ownerId}
+                        equipIndex={equipIndex}
+                        slotIndex={bag.slots.length}
+                        isInteractable={isInteractable}
+                    />
                 )}
                 <Iterate
                     component={
@@ -48,6 +56,7 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
                             ownerId={ownerId}
                             equipIndex={equipIndex}
                             slotIndex={bag.slots.length}
+                            isInteractable={isInteractable}
                         />
                     }
                     number={emptySlots}

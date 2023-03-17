@@ -15,6 +15,7 @@ export interface BagSlotProps extends ComponentProps {
     ownerId: string;
     equipIndex: number;
     slotIndex: number;
+    isInteractable: boolean;
 }
 
 const StyledBagSlot = styled('div')`
@@ -22,25 +23,37 @@ const StyledBagSlot = styled('div')`
 `;
 
 export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) => {
-    const { itemSlot, isDisabled, ownerId, equipIndex, slotIndex, ...otherProps } = props;
+    const { itemSlot, isDisabled, ownerId, equipIndex, slotIndex, isInteractable, ...otherProps } = props;
     const { dropItem, isPickedUpItemVisible } = useInventory();
 
     const item = itemSlot?.balance ? getItemDetails(itemSlot) : null;
 
     const handleClick = () => {
-        if (!isPickedUpItemVisible) {
+        if (!isPickedUpItemVisible || !isInteractable) {
             return;
         }
         dropItem({ id: ownerId, equipIndex, slotIndex });
     };
 
-    // todo only slot without content
-    // todo we can add logic here to check if the slot is on the same tile etc
-    const isDroppable = isPickedUpItemVisible;
+    const isDroppable = isPickedUpItemVisible && !item;
 
     return (
-        <StyledBagSlot {...otherProps} onClick={handleClick} isDroppable={isDroppable} isDisabled={isDisabled}>
-            {item && itemSlot && <BagItem {...item} ownerId={ownerId} equipIndex={equipIndex} slotIndex={slotIndex} />}
+        <StyledBagSlot
+            {...otherProps}
+            onClick={handleClick}
+            isDroppable={isDroppable}
+            isDisabled={isDisabled}
+            isInteractable={isInteractable}
+        >
+            {item && itemSlot && (
+                <BagItem
+                    {...item}
+                    ownerId={ownerId}
+                    equipIndex={equipIndex}
+                    slotIndex={slotIndex}
+                    isInteractable={isInteractable}
+                />
+            )}
         </StyledBagSlot>
     );
 };

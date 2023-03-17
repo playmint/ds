@@ -13,15 +13,15 @@ type BagItemStyleProps = Partial<BagItemProps> & {
  * @param _ The bag item properties object
  * @return Base styles for the bag item component
  */
-const baseStyles = ({ isPickable }: BagItemStyleProps) => css`
+const baseStyles = ({ isPickable, isInteractable }: BagItemStyleProps) => css`
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
     width: 4.8rem;
     aspect-ratio: 1 / 1;
-    background: #030f25;
-    cursor: ${isPickable ? 'pointer' : 'auto'};
+    background: ${!isInteractable ? '#19212e' : '#030f25'};
+    cursor: ${isPickable && !isInteractable ? 'pointer' : 'auto'};
 
     .icon {
     }

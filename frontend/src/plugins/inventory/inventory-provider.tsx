@@ -23,7 +23,7 @@
 // };
 
 import { createContext, useContext, useState, useRef, useEffect, ReactNode } from 'react';
-import { Client as DawnseekersClient, useDawnseekersState } from '@core';
+import { Client as DawnseekersClient, Tile, useDawnseekersState } from '@core';
 import { styles } from '@app/plugins/inventory/bag-item/bag-item.styles';
 import styled from 'styled-components';
 
@@ -49,6 +49,7 @@ interface InventoryContextStore {
     isPickedUpItemVisible: boolean;
     pickUpItem: (item: InventoryItem) => void;
     dropItem: (target: TransferInfo) => void;
+    isSeekerAtLocation: (tile: Tile) => boolean;
 }
 
 const useInventoryContext = createContext<InventoryContextStore>({} as InventoryContextStore);
@@ -89,6 +90,15 @@ export const InventoryProvider = ({ ds, children }: InventoryContextProviderProp
         };
     }, []);
 
+    /**
+     * check if the selected seeker is on the selected tile
+     * @returns true if the seeker is on the selected tile
+     */
+    const isSeekerAtLocation = (tile: Tile) => {
+        const selectedSeeker = data?.ui.selection.seeker;
+        return tile.seekers.some((s) => s.id === selectedSeeker?.id);
+    };
+
     const pickUpItem = (item: InventoryItem): void => {
         pickedUpItemRef.current = item;
         setIsPickedUpItemVisible(true);
@@ -99,6 +109,7 @@ export const InventoryProvider = ({ ds, children }: InventoryContextProviderProp
             console.error('Cannot drop an item, you are not holding an item');
             return;
         }
+
         transferItem(pickedUpItemRef.current?.transferInfo, target, pickedUpItemRef.current?.quantity);
         pickedUpItemRef.current = null;
         setIsPickedUpItemVisible(false);
@@ -122,7 +133,12 @@ export const InventoryProvider = ({ ds, children }: InventoryContextProviderProp
         ).then((result) => console.log('Transfer:', result));
     };
 
-    const inventoryContextValue: InventoryContextStore = { isPickedUpItemVisible, pickUpItem, dropItem };
+    const inventoryContextValue: InventoryContextStore = {
+        isPickedUpItemVisible,
+        pickUpItem,
+        dropItem,
+        isSeekerAtLocation
+    };
 
     return (
         <useInventoryContext.Provider value={inventoryContextValue}>
