@@ -18,7 +18,7 @@ export const SeekerInventory: FunctionComponent<SeekerInventoryProps> = (props: 
     return (
         <StyledSeekerInventory {...otherProps}>
             {seeker.bags.length > 0 ? (
-                <Inventory bags={seeker.bags} ownerId={seeker.id} />
+                <Inventory bags={seeker.bags} ownerId={seeker.id} isInteractable={true} />
             ) : (
                 <span>The selected seeker has no bags</span>
             )}

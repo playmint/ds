@@ -13,12 +13,12 @@ type BagSlotStyleProps = Partial<BagSlotProps> & {
  * @param _ The bag slot properties object
  * @return Base styles for the bag slot component
  */
-const baseStyles = ({ isDroppable, isDisabled }: BagSlotStyleProps) => css`
+const baseStyles = ({ isDroppable, isDisabled, isInteractable }: BagSlotStyleProps) => css`
     box-sizing: content-box;
     width: 4.8rem;
     height: 4.8rem;
-    background: ${isDisabled ? '#19212e' : '#030f25'};
-    border: 1px solid ${isDisabled ? '#656585' : isDroppable ? 'white' : '#6c98d4'};
+    background: ${isDisabled || !isInteractable ? '#19212e' : '#030f25'};
+    border: 1px solid ${isDisabled || !isInteractable ? '#656585' : isDroppable ? 'white' : '#6c98d4'};
 `;
 
 /**

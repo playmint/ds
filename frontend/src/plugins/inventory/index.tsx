@@ -9,6 +9,7 @@ import { EquipSlot } from '@core';
 export interface InventoryProps extends ComponentProps {
     ownerId: string;
     bags: EquipSlot[];
+    isInteractable: boolean;
 }
 
 const StyledInventory = styled('div')`
@@ -20,13 +21,20 @@ const StyledInventory = styled('div')`
 `;
 
 export const Inventory: FunctionComponent<InventoryProps> = (props: InventoryProps) => {
-    const { bags, ownerId, ...otherProps } = props;
+    const { bags, ownerId, isInteractable, ...otherProps } = props;
 
     return (
         <StyledInventory {...otherProps}>
             <ul className="bags">
                 {bags.map((equipSlot: EquipSlot) => (
-                    <Bag key={equipSlot.key} bag={equipSlot.bag} equipIndex={equipSlot.key} ownerId={ownerId} as="li" />
+                    <Bag
+                        key={equipSlot.key}
+                        bag={equipSlot.bag}
+                        equipIndex={equipSlot.key}
+                        ownerId={ownerId}
+                        isInteractable={isInteractable}
+                        as="li"
+                    />
                 ))}
             </ul>
         </StyledInventory>
