@@ -35,16 +35,27 @@ const ACTIONS = new ethers.Interface([
 
 const gameID = 'DAWNSEEKERS';
 
+export enum Intention {
+    NONE,
+    MOVE,
+    SCOUT,
+    BUILD,
+}
+
 export interface RawSelectionState {
     playerAddr?: string;
     seekerID?: NodeID;
     tileIDs: NodeID[];
+    intention: Intention;
+    intentTileIDs: NodeID[];
 }
 
 export interface SelectionState {
     player?: Player;
     seeker?: Seeker;
     tiles?: Tile[];
+    intention: Intention;
+    intentTiles?: Tile[];
 }
 
 export interface Session {
@@ -90,10 +101,10 @@ export class Client {
             logger: this.logger,
         });
         this.signer = signer ? signer() : Promise.reject('no signer configured');
-        this.selection = { tileIDs: [] };
+        this.selection = { tileIDs: [], intentTileIDs: [], intention: Intention.NONE };
         this.game = { seekers: [], tiles: [], players: [] };
         this.observers = [];
-        this.prevState = { game: this.game, ui: { selection: {}, plugins: [] } };
+        this.prevState = { game: this.game, ui: { selection: { intention: Intention.NONE }, plugins: [] } };
 
         // setup graphql client for comms with cog-services
         this.cog = createHTTPClient({
@@ -323,8 +334,26 @@ export class Client {
         return this.publish();
     }
 
+    async cancelIntention() {
+        this.selection.intentTileIDs = [];
+        this.selection.intention = Intention.NONE;
+        return this.publish();
+    }
+
+    async setIntention(intention: Intention, tileIDs: NodeID[]) {
+        this.selection.intentTileIDs = tileIDs;
+        this.selection.intention = intention;
+        return this.publish();
+    }
+
     private getSelectedTiles(): Tile[] {
         return this.selection.tileIDs
+            .map((selectedTileID) => this.game.tiles.find((t) => t.id == selectedTileID))
+            .filter((t): t is Tile => t !== undefined);
+    }
+
+    private getIntentTiles(): Tile[] {
+        return this.selection.intentTileIDs
             .map((selectedTileID) => this.game.tiles.find((t) => t.id == selectedTileID))
             .filter((t): t is Tile => t !== undefined);
     }
@@ -334,6 +363,8 @@ export class Client {
             seeker: this.getSelectedSeeker(),
             tiles: this.getSelectedTiles(),
             player: this.getSelectedPlayer(),
+            intention: this.selection.intention,
+            intentTiles: this.getIntentTiles(),
         };
     }
 
