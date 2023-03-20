@@ -45,31 +45,45 @@ class DawnSeekersBridge implements Observer<State> {
         this.signin();
 
         process.stdin.on("data", (data: Buffer) => {
-            const json = data.toString("utf-8");
-            try {
-                const msgObj = JSON.parse(json) as Message;
-                if (msgObj.msg === "dispatch") {
-                    const { action, args } = msgObj as DispatchMessage;
-                    this._ds.dispatch(action, ...args);
-                }
-                if (msgObj.msg === "selectTiles") {
-                    const { tileIDs } = msgObj as SelectTileMessage;
-                    this._ds.selectTiles(tileIDs);
-                }
+            const input = data.toString("utf-8").trim();
+            if (input.length == 0) return;
 
-                if (msgObj.msg === "setIntention") {
-                    const setIntentionMessage = msgObj as SetIntentionMessage;
-                    this._ds.setIntention(
-                        setIntentionMessage.intention,
-                        setIntentionMessage.tileIDs
-                    );
-                }
-                if (msgObj.msg === "cancelIntention") {
-                    this._ds.cancelIntention();
-                }
-            } catch (e) {
-                console.log(e);
+            if (echoOn) {
+                process.stdout.write("**" + input + "**\n");
             }
+
+            var lines = input.split("\n");
+
+            lines.forEach((json) => {
+                if (json.length > 0 && json[0] == "{") {
+                    try {
+                        const msgObj = JSON.parse(json) as Message;
+                        if (msgObj.msg === "dispatch") {
+                            const { action, args } = msgObj as DispatchMessage;
+                            this._ds.dispatch(action, ...args);
+                        }
+                        if (msgObj.msg === "selectTiles") {
+                            const { tileIDs } = msgObj as SelectTileMessage;
+                            this._ds.selectTiles(tileIDs);
+                        }
+
+                        if (msgObj.msg === "setIntention") {
+                            const setIntentionMessage =
+                                msgObj as SetIntentionMessage;
+                            this._ds.setIntention(
+                                setIntentionMessage.intention,
+                                setIntentionMessage.tileIDs
+                            );
+                        }
+                        if (msgObj.msg === "cancelIntention") {
+                            this._ds.cancelIntention();
+                        }
+                    } catch (e) {
+                        console.log("**" + json + "**");
+                        console.log(e);
+                    }
+                }
+            });
         });
     }
 
@@ -152,5 +166,6 @@ class DawnSeekersBridge implements Observer<State> {
 const DEFAULT_PRIV_KEY =
     "0xc14c1284a5ff47ce38e2ad7a50ff89d55ca360b02cdf3756cdb457389b1da223";
 const privKey = process.argv.length >= 3 ? process.argv[2] : DEFAULT_PRIV_KEY;
+const echoOn = process.argv.length >= 4 ? process.argv[3] == "--echo" : false; // TODO: proper arg parsing
 
 const bridge = new DawnSeekersBridge(privKey);
