@@ -27,8 +27,6 @@ public class MapManager : MonoBehaviour
     [SerializeField]
     private Tile[] _tileTypes;
 
-    private bool _hasStateUpdated;
-
     private void Awake()
     {
         instance = this;
@@ -40,17 +38,6 @@ public class MapManager : MonoBehaviour
         if (Cog.PluginController.Instance.WorldState != null)
         {
             OnStateUpdated(Cog.PluginController.Instance.WorldState);
-        }
-    }
-
-    private void Update()
-    {
-        // As state events occur on a separate thread, the tilemap cannot be updated as a side effect
-        // of the event therefore the event will set a flag and then visual state update happens as part of the main thread
-        if (_hasStateUpdated)
-        {
-            RenderState(Cog.PluginController.Instance.WorldState);
-            _hasStateUpdated = false;
         }
     }
 
@@ -77,7 +64,7 @@ public class MapManager : MonoBehaviour
 
     void RenderState(Cog.State state)
     {
-        Debug.Log("MapManager::RenderState()");
+        // Debug.Log("MapManager::RenderState()");
         IconManager.instance.ResetSeekerPositionCounts();
         MapManager.instance.ClearMap();
         foreach (var tile in state.Game.Tiles)
@@ -172,6 +159,6 @@ public class MapManager : MonoBehaviour
 
     private void OnStateUpdated(Cog.State state)
     {
-        _hasStateUpdated = true;
+        RenderState(Cog.PluginController.Instance.WorldState);
     }
 }

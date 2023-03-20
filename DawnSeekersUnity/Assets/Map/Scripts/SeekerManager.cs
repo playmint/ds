@@ -38,7 +38,7 @@ public class SeekerManager : MonoBehaviour
             (state.UI.Selection.Player != null && state.UI.Selection.Player.Seekers.Count > 0)
                 ? state.UI.Selection.Player.Seekers.ToList()[0]
                 : null;
-        if (playerSeeker != Seeker)
+        if (playerSeeker != null && (Seeker == null || Seeker.Id != playerSeeker.Id))
         {
             var seekersToRemove = new List<Cog.Seeker>();
             if (Seeker != null)
@@ -49,12 +49,8 @@ public class SeekerManager : MonoBehaviour
 
             Seeker = playerSeeker;
 
-            if (playerSeeker != null)
-            {
-                // Remove 'other seeker' icon so it gets replaced with the player icon
-                seekersToRemove.Add(playerSeeker);
-                Debug.Log("SeekerManager: Seeker found. ID: " + Seeker.Id);
-            }
+            // Remove 'other seeker' icon so it gets replaced with the player icon
+            seekersToRemove.Add(playerSeeker);
 
             IconManager.instance.RemoveSeekers(seekersToRemove);
         }

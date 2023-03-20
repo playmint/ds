@@ -185,7 +185,7 @@ namespace Cog
             {
                 var line = _nodeJSProcess.StandardOutput.ReadLine();
                 
-                if (line[0] == '{')
+                if (line.Length > 0 && line[0] == '{')
                 {
                     try 
                     {
@@ -272,6 +272,7 @@ namespace Cog
                 tileIDs = tileIDs
             };
             var json = JsonConvert.SerializeObject(msg);
+            Debug.Log(json);
             SendMessage(json);
         }
 

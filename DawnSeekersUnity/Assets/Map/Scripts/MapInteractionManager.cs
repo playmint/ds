@@ -67,7 +67,10 @@ public class MapInteractionManager : MonoBehaviour
         }
 
         // Tile mouseover cursor
-        if (SeekerManager.Instance.Seeker != null)
+        if (
+            SeekerManager.Instance.Seeker != null
+            && PluginController.Instance.WorldState.Game != null
+        )
             cursor.gameObject.SetActive(
                 IsDiscoveredTile(GridExtensions.GridToCube(CurrentMouseCell))
                     || TileHelper

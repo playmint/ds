@@ -54,6 +54,12 @@ public class SeekerMovementManager : MonoBehaviour
 
     private void Update()
     {
+        if (
+            PluginController.Instance.WorldState == null
+            || PluginController.Instance.WorldState.Game == null
+        )
+            return;
+
         if (isMoving && _path.Count > 0)
         {
             Vector3Int cubeMousePos = GridExtensions.GridToCube(
