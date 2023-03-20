@@ -10,19 +10,24 @@ public class SeekerMovementManager : MonoBehaviour
     public Action ClearTravelMarkers;
     public static SeekerMovementManager instance;
 
+    private const int INTENTION_MOVE = 1;
+
     [SerializeField]
     private GameObject travelMarkerPrefab,
         greenHighlightPrefab,
         orangeHighlightPrefab;
 
-    private List<KeyValuePair<Vector3Int, TravelMarkerController>> _path; //cell positions in Cube Coordinates;
+    private List<Vector3Int> _path; //cell positions in Cube Coordinates;
     private Dictionary<Vector3Int, GameObject> spawnedValidCellHighlights,
         spawnedPathHighlights;
+    private Dictionary<Vector3Int, TravelMarkerController> _travelMarkers;
     private bool isMoving;
 
     private void Awake()
     {
         instance = this;
+        _path = new List<Vector3Int>();
+        _travelMarkers = new Dictionary<Vector3Int, TravelMarkerController>();
         spawnedValidCellHighlights = new Dictionary<Vector3Int, GameObject>();
         spawnedPathHighlights = new Dictionary<Vector3Int, GameObject>();
     }
@@ -36,6 +41,7 @@ public class SeekerMovementManager : MonoBehaviour
         //       and clicking on the same tile wouldn't change the state so Unity didn't get a state update
         MapInteractionManager.instance.EventTileLeftClick += OnTileLeftClick;
         MapInteractionManager.instance.EventTileRightClick += OnTileRightClick;
+        PluginController.Instance.EventStateUpdated += OnStateUpdated;
     }
 
     private void OnDestroy()
@@ -48,7 +54,7 @@ public class SeekerMovementManager : MonoBehaviour
 
     private void Update()
     {
-        if (isMoving)
+        if (isMoving && _path.Count > 0)
         {
             Vector3Int cubeMousePos = GridExtensions.GridToCube(
                 MapInteractionManager.CurrentMouseCell
@@ -57,16 +63,14 @@ public class SeekerMovementManager : MonoBehaviour
             {
                 if (
                     !spawnedPathHighlights.ContainsKey(cubeMousePos)
-                    && TileHelper
-                        .GetTileNeighbours(_path[_path.Count - 1].Key)
-                        .Contains(cubeMousePos)
+                    && TileHelper.GetTileNeighbours(_path[_path.Count - 1]).Contains(cubeMousePos)
                 )
                 {
                     TooltipManager.instance.ShowTooltip(
                         "Right-click to <b>Move</b>\nLeft-click to <b>Add</b>"
                     );
                 }
-                else if (_path[_path.Count - 1].Key == cubeMousePos)
+                else if (_path[_path.Count - 1] == cubeMousePos)
                 {
                     TooltipManager.instance.ShowTooltip(
                         "Right-click to <b>Move</b>\nLeft-click to <b>Undo</b>"
@@ -84,23 +88,13 @@ public class SeekerMovementManager : MonoBehaviour
         if (!isValidTile(cellCubePos))
             return;
 
-        if (_path.Count == 0 || _path[_path.Count - 1].Key != cellCubePos)
+        if (_path.Count == 0 || _path[_path.Count - 1] != cellCubePos)
         {
             AddCellToPath(cellCubePos);
-            HighlightAvailableSpaces();
-        }
-        else if (_path.Count > 1)
-        {
-            Destroy(spawnedPathHighlights[cellCubePos]);
-            spawnedPathHighlights.Remove(cellCubePos);
-            RemoveCellFromPath(cellCubePos);
-            HighlightAvailableSpaces();
         }
         else
         {
-            HideHighlights();
-            HidePathHighlights();
-            isMoving = false;
+            RemoveCellFromPath(cellCubePos);
         }
     }
 
@@ -118,6 +112,88 @@ public class SeekerMovementManager : MonoBehaviour
         }
     }
 
+    private void OnStateUpdated(State state)
+    {
+        if (state.UI.Selection.Intention == INTENTION_MOVE)
+        {
+            if (!isMoving)
+            {
+                ActivateMovementMode();
+            }
+
+            _path = UpdatePath(_path, state.UI.Selection.IntentTiles.ToList<Tile>());
+            if (_path.Count == 0)
+            {
+                AddCellToPath(GridExtensions.GridToCube(MapInteractionManager.CurrentSelectedCell));
+            }
+
+            HighlightAvailableSpaces();
+        }
+
+        if (state.UI.Selection.Intention != INTENTION_MOVE && isMoving)
+        {
+            DeactivateMovementMode();
+        }
+    }
+
+    private List<Vector3Int> UpdatePath(List<Vector3Int> oldPath, List<Tile> newPathTiles)
+    {
+        var newPath = new List<Vector3Int>();
+
+        // Remove highlights for tiles that are no longer in the list
+        foreach (var cellPosCube in oldPath)
+        {
+            if (!newPathTiles.Exists((tile) => TileHelper.GetTilePosCube(tile) == cellPosCube))
+            {
+                // Destroy highlight
+                if (spawnedPathHighlights.ContainsKey(cellPosCube))
+                {
+                    Destroy(spawnedPathHighlights[cellPosCube]);
+                    spawnedPathHighlights.Remove(cellPosCube);
+                }
+
+                // Hide line.
+                if (_travelMarkers.ContainsKey(cellPosCube))
+                {
+                    _travelMarkers[cellPosCube].HideLine();
+                    // TODO: Destroy?
+                }
+            }
+        }
+
+        // Generate new path list making highlights for the new tiles
+        for (var i = 0; i < newPathTiles.Count; i++)
+        {
+            var tile = newPathTiles[i];
+            var cellPosCube = TileHelper.GetTilePosCube(tile);
+
+            // Highlights
+            if (!spawnedPathHighlights.ContainsKey(cellPosCube))
+            {
+                var highlight = Instantiate(orangeHighlightPrefab);
+                highlight.transform.position = MapManager.instance.grid.CellToWorld(
+                    GridExtensions.CubeToGrid(cellPosCube)
+                );
+                spawnedPathHighlights.Add(cellPosCube, highlight);
+            }
+
+            // Markers
+            if (newPath.Count > 0 && !_travelMarkers.ContainsKey(cellPosCube))
+            {
+                var prevTilePosCube = newPath[newPath.Count - 1];
+
+                var travelMarker = Instantiate(travelMarkerPrefab)
+                    .GetComponent<TravelMarkerController>();
+                travelMarker.ShowTravelMarkers(prevTilePosCube, cellPosCube);
+                _travelMarkers.Add(cellPosCube, travelMarker);
+            }
+
+            newPath.Add(cellPosCube);
+        }
+
+        return newPath;
+    }
+
     private bool isValidTile(Vector3Int cellCubePos)
     {
         var tile = MapInteractionManager.instance.GetTile(cellCubePos);
@@ -128,53 +204,34 @@ public class SeekerMovementManager : MonoBehaviour
         return tile.Biome != 0; // 0 = UNDISCOVERED
     }
 
-    // -- This code was driven by the global UI state which was causing some problems
-    // private void OnStateUpdated(State state)
-    // {
-    //     if (state.UI.Selection.Tiles == null || state.UI.Selection.Tiles.Count == 0)
-    //         return;
-
-    //     var tile = state.UI.Selection.Tiles.ToList()[0];
-    //     var cellCubePos = TileHelper.GetTilePosCube(tile);
-
-    //     if (!isMoving)
-    //         return;
-
-    //     if (_path.Count == 0 || _path[_path.Count - 1].Key != cellCubePos)
-    //     {
-    //         AddCellToPath(cellCubePos);
-    //         HighlightAvailableSpaces();
-    //     }
-    //     else if (_path.Count > 1)
-    //     {
-    //         Destroy(spawnedPathHighlights[cellCubePos]);
-    //         spawnedPathHighlights.Remove(cellCubePos);
-    //         RemoveCellFromPath(cellCubePos);
-    //         HighlightAvailableSpaces();
-    //     }
-    //     else
-    //     {
-    //         HideHighlights();
-    //         HidePathHighlights();
-    //         isMoving = false;
-    //     }
-    // }
-
     public void ActivateMovementMode()
     {
         if (isMoving)
             return;
+
         isMoving = true;
-        _path = new List<KeyValuePair<Vector3Int, TravelMarkerController>>();
-        AddCellToPath(GridExtensions.GridToCube(MapInteractionManager.CurrentSelectedCell));
-        HighlightAvailableSpaces();
+    }
+
+    public void DeactivateMovementMode()
+    {
+        if (!isMoving)
+            return;
+
+        isMoving = false;
+        // Path is never null. If this causes trouble with GC then we have to appropriate null checks in the state update handler
+        _path = new List<Vector3Int>();
+        HideHighlights();
+        HidePathHighlights();
     }
 
     public void HighlightAvailableSpaces()
     {
         HideHighlights();
 
-        foreach (Vector3Int space in TileHelper.GetTileNeighbours(_path[_path.Count - 1].Key))
+        if (_path.Count == 0)
+            return;
+
+        foreach (Vector3Int space in TileHelper.GetTileNeighbours(_path[_path.Count - 1]))
         {
             if (
                 !spawnedPathHighlights.ContainsKey(space)
@@ -212,38 +269,29 @@ public class SeekerMovementManager : MonoBehaviour
     {
         bool validPosition =
             _path.Count == 0
-            || TileHelper.GetTileNeighbours(_path[_path.Count - 1].Key).Contains(cellCubePos);
-        if (!_path.Any(p => p.Key == cellCubePos) && validPosition)
+            || TileHelper.GetTileNeighbours(_path[_path.Count - 1]).Contains(cellCubePos);
+        if (!_path.Any(p => p == cellCubePos) && validPosition)
         {
-            bool addMarker = _path.Count > 0;
-            TravelMarkerController travelMarkerController = null;
-            if (addMarker)
-                travelMarkerController = Instantiate(travelMarkerPrefab)
-                    .GetComponent<TravelMarkerController>();
-            _path.Add(
-                new KeyValuePair<Vector3Int, TravelMarkerController>(
-                    cellCubePos,
-                    travelMarkerController
-                )
-            );
-            if (addMarker)
-                travelMarkerController.ShowTravelMarkers(
-                    _path[_path.Count - 2].Key,
-                    _path[_path.Count - 1].Key
-                );
-
-            GameObject highlight = Instantiate(orangeHighlightPrefab);
-            highlight.transform.position = MapManager.instance.grid.CellToWorld(
-                GridExtensions.CubeToGrid(cellCubePos)
-            );
-            spawnedPathHighlights.Add(cellCubePos, highlight);
+            var tileIDs = _path.Select(cellPosCube => TileHelper.GetTileID(cellPosCube)).ToList();
+            tileIDs.Add(TileHelper.GetTileID(cellCubePos));
+            PluginController.Instance.SendSetIntentionMsg(INTENTION_MOVE, tileIDs);
         }
     }
 
     private void RemoveCellFromPath(Vector3Int cellCubePos)
     {
-        _path.FirstOrDefault(p => p.Key == cellCubePos).Value.HideLine();
-        _path.Remove(_path.FirstOrDefault(p => p.Key == cellCubePos));
+        var pathCount = _path.Count;
+
+        _path.Remove(_path.FirstOrDefault(p => p == cellCubePos));
+        var tileIDs = _path.Select(cellPosCube => TileHelper.GetTileID(cellPosCube)).ToList();
+
+        // If we click elsewhere on the map and don't alter the path then don't make a state update
+        if (pathCount != _path.Count)
+        {
+            // Removing the last tile takes stops the move intention
+            var intention = tileIDs.Count > 0 ? INTENTION_MOVE : 0;
+            PluginController.Instance.SendSetIntentionMsg(intention, tileIDs);
+        }
     }
 
     private void ClosePath(Vector3Int cellCubePos)
@@ -259,10 +307,13 @@ public class SeekerMovementManager : MonoBehaviour
     {
         for (int i = 1; i < _path.Count; i++)
         {
-            PluginController.Instance.MoveSeeker(SeekerManager.Instance.Seeker, _path[i].Key);
+            var cellPosCube = _path[i];
+            PluginController.Instance.MoveSeeker(SeekerManager.Instance.Seeker, cellPosCube);
             yield return new WaitForSeconds(3.5f);
-            if (_path[i].Value != null)
-                _path[i].Value.HideLine();
+            if (_travelMarkers.ContainsKey(cellPosCube))
+            {
+                _travelMarkers[cellPosCube].HideLine();
+            }
         }
     }
 }

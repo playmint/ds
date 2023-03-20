@@ -3,10 +3,11 @@ import {
     State,
     PluginTrust,
     PluginType,
-} from '../../core/dist/src/index';
-import { ethers } from 'ethers';
+    Intention,
+} from "../../core/dist/src/index";
+import { ethers } from "ethers";
 import { Observer } from "zen-observable-ts";
-import 'cross-fetch/polyfill';
+import "cross-fetch/polyfill";
 
 interface Message {
     msg: string;
@@ -21,6 +22,11 @@ interface SelectTileMessage extends Message {
     tileIDs: string[];
 }
 
+interface SetIntentionMessage extends Message {
+    intention: Intention;
+    tileIDs: string[];
+}
+
 class DawnSeekersBridge implements Observer<State> {
     private _ds: DawnseekersClient;
 
@@ -31,7 +37,7 @@ class DawnSeekersBridge implements Observer<State> {
             signer: async () => {
                 const key = new ethers.SigningKey(privKey);
                 return new ethers.BaseWallet(key);
-            }
+            },
         });
 
         this._ds.subscribe(this);
@@ -49,6 +55,17 @@ class DawnSeekersBridge implements Observer<State> {
                 if (msgObj.msg === "selectTiles") {
                     const { tileIDs } = msgObj as SelectTileMessage;
                     this._ds.selectTiles(tileIDs);
+                }
+
+                if (msgObj.msg === "setIntention") {
+                    const setIntentionMessage = msgObj as SetIntentionMessage;
+                    this._ds.setIntention(
+                        setIntentionMessage.intention,
+                        setIntentionMessage.tileIDs
+                    );
+                }
+                if (msgObj.msg === "cancelIntention") {
+                    this._ds.cancelIntention();
                 }
             } catch (e) {
                 console.log(e);

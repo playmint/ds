@@ -4,7 +4,7 @@ import { FunctionComponent, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ComponentProps } from '@app/types/component-props';
 import { styles } from './unity-map.styles';
-import { Client as DawnseekersClient, State } from '@core';
+import { Client as DawnseekersClient, Intention, State } from '@core';
 import { Unity, useUnityContext } from 'react-unity-webgl';
 
 export interface UnityMapProps extends ComponentProps {
@@ -22,6 +22,10 @@ interface DispatchMessage extends Message {
 }
 
 interface SelectTileMessage extends Message {
+    tileIDs: string[];
+}
+interface SetIntentionMessage extends Message {
+    intention: Intention;
     tileIDs: string[];
 }
 
@@ -105,6 +109,19 @@ export const UnityMap: FunctionComponent<UnityMapProps> = (props: UnityMapProps)
                 case 'selectTiles': {
                     const selectTileMsg = msg as SelectTileMessage;
                     ds.selectTiles(selectTileMsg.tileIDs).catch((e) => {
+                        console.error(e);
+                    });
+                    break;
+                }
+                case 'setIntention': {
+                    const setIntentionMessage = msg as SetIntentionMessage;
+                    ds.setIntention(setIntentionMessage.intention, setIntentionMessage.tileIDs).catch((e) => {
+                        console.error(e);
+                    });
+                    break;
+                }
+                case 'cancelIntention': {
+                    ds.cancelIntention().catch((e) => {
                         console.error(e);
                     });
                     break;

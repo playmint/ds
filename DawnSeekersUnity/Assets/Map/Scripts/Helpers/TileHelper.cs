@@ -32,4 +32,13 @@ public class TileHelper
             tile + new Vector3Int(1, 0, -1)
         };
     }
+
+    internal static string GetTileID(Vector3Int key)
+    {
+        // TODO: Calculate the ID using TileNode.GetKey(0, q,r,s);
+        var tile = PluginController.Instance.WorldState.Game.Tiles.FirstOrDefault(
+            tile => GetTilePosCube(tile) == key
+        );
+        return tile.Id;
+    }
 }

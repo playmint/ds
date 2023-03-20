@@ -7,9 +7,21 @@ using System.Threading;
 
 namespace Cog
 {
+    struct GenericMessage
+    {
+        public string msg;
+    }
+
     struct SelectTileMessage
     {
         public string msg;
+        public List<string> tileIDs;
+    }
+
+    struct SetIntentionMessage
+    {
+        public string msg;
+        public int intention; // The code gen doesn't deal with enums well so not typed
         public List<string> tileIDs;
     }
 
@@ -234,33 +246,49 @@ namespace Cog
 
         public void DispatchAction(string action, params object[] args)
         {
-            var dispatchActionMsg = new DispatchMessage
+            var msg = new DispatchMessage
             {
                 msg = "dispatch",
                 action = action,
                 args = args
             };
-            var json = JsonConvert.SerializeObject(dispatchActionMsg);
-            // Debug.Log(json);
-
-#if UNITY_EDITOR
-            _nodeJSProcess.StandardInput.WriteLine(json);
-#elif UNITY_WEBGL
-            // -- Send message up to shell and let it do the signing and sending
-            SendMessageRPC(json);
-#endif
+            var json = JsonConvert.SerializeObject(msg);
+            SendMessage(json);
         }
 
         public void SendSelectTileMsg(List<string> tileIDs)
         {
-            var tileInteractionMsg = new SelectTileMessage
+            var msg = new SelectTileMessage { msg = "selectTiles", tileIDs = tileIDs };
+            var json = JsonConvert.SerializeObject(msg);
+            SendMessage(json);
+        }
+
+        public void SendSetIntentionMsg(int intention, List<string> tileIDs)
+        {
+            var msg = new SetIntentionMessage
             {
-                msg = "selectTiles",
+                msg = "setIntention",
+                intention = intention,
                 tileIDs = tileIDs
             };
-            var json = JsonConvert.SerializeObject(tileInteractionMsg);
-            // Debug.Log(json);
+            var json = JsonConvert.SerializeObject(msg);
+            SendMessage(json);
+        }
 
+        public void SendCancelIntentionMsg()
+        {
+            var msg = new GenericMessage { msg = "cancelIntention" };
+            var json = JsonConvert.SerializeObject(msg);
+            SendMessage(json);
+        }
+
+        public void SendDeselectAllTilesMsg()
+        {
+            SendSelectTileMsg(new List<string>());
+        }
+
+        private new void SendMessage(string json)
+        {
 #if UNITY_EDITOR
             _nodeJSProcess.StandardInput.WriteLine(json);
 #elif UNITY_WEBGL
@@ -269,15 +297,14 @@ namespace Cog
 #endif
         }
 
-        public void SendDeselectAllTilesMsg()
-        {
-            SendSelectTileMsg(new List<string>());
-        }
-
         // -- MESSAGE IN
+        private string _prevStateJson = "";
 
         public void OnState(string stateJson)
         {
+            if (_prevStateJson == stateJson)
+                return;
+
             try
             {
                 var state = JsonConvert.DeserializeObject<State>(stateJson);
