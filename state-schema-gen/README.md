@@ -7,7 +7,7 @@ It wasn't adding as dev dependency when I tried to do this and I'm not sure why
 Build core 
 I couldn't do this in isolation and had to build the whole game
 
-Run the json schema generator
+Run the json schema generator from the `core` folder
 `npx typescript-json-schema tsconfig.json DSState -o dist/json-schema.json`
 
 NOTE: If it failes due to bigint not being serialisable, You need to add the following decorator to the field
