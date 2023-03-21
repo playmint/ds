@@ -18,7 +18,7 @@ UNITY_SRC := $(wildcard DawnSeekersUnity/**/*)
 NODE := node
 NPM := npm
 
-all: node_modules contracts/lib/cog/services/bin/ds-node contracts/lib/cog/services/bin/wait-for contracts/out/Actions.sol core/dist/src/index.js frontend/public/ds-unity/Build/ds-unity.wasm bridge/dist/index.js
+all: node_modules contracts/lib/cog/services/bin/ds-node contracts/lib/cog/services/bin/wait-for contracts/out/Actions.sol core/dist/core.js frontend/public/ds-unity/Build/ds-unity.wasm bridge/dist/index.js
 
 dev: all
 	$(NODE) .devstartup.js
@@ -26,11 +26,11 @@ dev: all
 contracts/out/Actions.sol:
 	(cd contracts && forge build)
 
-core/dist/src/index.js:
+core/dist/core.js:
 	(cd core && npm run build)
 
-bridge/dist/index.js: core/dist/src/index.js
-	(cd bridge && npm run build)
+bridge/dist/index.js: core/dist/core.js
+	# (cd bridge && npm run build)
 
 frontend/public/ds-unity/Build/ds-unity.wasm: $(UNITY_SRC)
 	$(UNITY_EDITOR) -batchmode -quit -projectPath ./DawnSeekersUnity -executeMethod BuildScript.GitHubBuild -buildTarget WebGL -logFile - || ( \

@@ -1,0 +1,11 @@
+/.idea
+/.vscode
+**/node_modules
+*.log
+.rts2_cache*
+.husky
+dist/
+package-lock.json
+.DS_Store
+/node_modules
+/src/gql

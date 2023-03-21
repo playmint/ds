@@ -1,0 +1,18 @@
+fragment SelectedTile on Node {
+    ...WorldTile
+    bags: edges(match: { kinds: "Bag", via: { rel: "Equip" } }) {
+        ...EquipmentSlot
+    }
+}
+
+query GetSelectedTile($gameID: ID!, $id: [String!]!) {
+    game(id: $gameID) {
+        id
+        state {
+            id
+            tiles: nodes(match: { kinds: "Tile", ids: $id }) {
+                ...SelectedTile
+            }
+        }
+    }
+}

@@ -1,0 +1,90 @@
+fragment Location on Edge {
+    id
+    key # 0=LAST_LOCATION, 1=DEST_LOCATION
+    time: weight # block at which location is valid
+    tile: node {
+        id
+    }
+}
+
+fragment WorldSeeker on Node {
+    id
+    key
+    # there are always two location edges
+    # the "departure" is the edge with key=0
+    #     this points to the last known tile position recorded
+    #     the weight of the departure edge is the block time of the last move
+    prevLocation: edge(match: { kinds: "Tile", via: { rel: "Location", key: 0 } }) {
+        ...Location
+    }
+    # the "destination" is the edge with key=1
+    #     this points to the where the seeker is heading.
+    #     the weight of the destination edge is the time of arrival
+    #     if the current block time >= arrival time then this is the CURRENT LOCATION
+    #     but if not, you need to use the departure edge time to work out where we are
+    nextLocation: edge(match: { kinds: "Tile", via: { rel: "Location", key: 1 } }) {
+        ...Location
+    }
+    # who owns this seeker
+    owner: node(match: { kinds: "Player", via: { rel: "Owner" } }) {
+        id
+    }
+}
+
+fragment WorldBuilding on Node {
+    id
+    kind: node(match: { kinds: "BuildingKind", via: { rel: "Is" } }) {
+        id
+        name: annotation(name: "name") {
+            id
+            value
+        }
+    }
+}
+
+fragment WorldTile on Node {
+    id
+    # the keys break down the coords
+    # there are 4 parts:
+    #     coords[0] is zone and always 0 for now
+    #     coords[1] is q
+    #     coords[2] is r
+    #     coords[3] is s
+    coords: keys
+    # tiles are either DISCOVERED or UNDISCOVERED
+    # this is recorded on the biome edge weight for now
+    # but this is temporary until we know what we need
+    biome: value(match: { via: { rel: "Biome" } }) # 0=UNDISCOVERED, 1=DISCOVERED
+    # bags equip to tiles
+    bagCount: count(match: { kinds: ["Bag"], via: { rel: "Equip" } })
+    building: node(match: { kinds: "Building", via: { rel: "Location", dir: IN } }) {
+        ...WorldBuilding
+    }
+    seekers: nodes(match: { kinds: "Seeker", via: { rel: "Location", dir: IN, key: 0 } }) {
+        ...WorldSeeker
+    }
+}
+
+fragment WorldPlayer on Node {
+    id
+    addr: key
+}
+
+fragment WorldState on State {
+    players: nodes(match: { kinds: "Player" }) {
+        ...WorldPlayer
+    }
+    tiles: nodes(match: { kinds: "Tile" }) {
+        ...WorldTile
+    }
+}
+
+query GetWorld($gameID: ID!) {
+    game(id: $gameID) {
+        id
+        state {
+            id
+            ...WorldState
+        }
+    }
+}

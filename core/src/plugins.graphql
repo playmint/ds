@@ -1,0 +1,59 @@
+fragment AvailablePlugin on Node {
+    id
+    name: annotation(name: "name") {
+        id
+        value
+    }
+    requiredBy: node(match: { via: { rel: "Plugin", dir: IN } }) {
+        id
+        kind
+        metadata: annotation(name: "name") {
+            id
+            value
+        }
+    }
+}
+
+fragment SelectedPlugin on Node {
+    id
+    name: annotation(name: "name") {
+        id
+        value
+    }
+    src: annotation(name: "src") {
+        hash: id
+        value
+    }
+    requiredBy: node(match: { via: { rel: "Plugin", dir: IN } }) {
+        id
+        kind
+        metadata: annotation(name: "name") {
+            id
+            value
+        }
+    }
+}
+
+query GetSelectedPlugins($gameID: ID!, $pluginIDs: [String!]!) {
+    game(id: $gameID) {
+        id
+        state {
+            id
+            plugins: nodes(match: { ids: $pluginIDs, kinds: "ClientPlugin" }) {
+                ...SelectedPlugin
+            }
+        }
+    }
+}
+
+query GetAvailablePlugins($gameID: ID!) {
+    game(id: $gameID) {
+        id
+        state {
+            id
+            plugins: nodes(match: { kinds: "ClientPlugin" }) {
+                ...AvailablePlugin
+            }
+        }
+    }
+}
