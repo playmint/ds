@@ -33,12 +33,8 @@ public class TileHelper
         };
     }
 
-    internal static string GetTileID(Vector3Int key)
+    internal static string GetTileID(Vector3Int tilePosCube)
     {
-        // TODO: Calculate the ID using TileNode.GetKey(0, q,r,s);
-        var tile = PluginController.Instance.WorldState.Game.Tiles.FirstOrDefault(
-            tile => GetTilePosCube(tile) == key
-        );
-        return tile.Id;
+        return Cog.NodeKinds.TileNode.GetKey(0, tilePosCube.x, tilePosCube.y, tilePosCube.z);
     }
 }
