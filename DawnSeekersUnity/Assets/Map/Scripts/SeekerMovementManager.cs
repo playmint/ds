@@ -144,6 +144,9 @@ public class SeekerMovementManager : MonoBehaviour
 
     private List<Vector3Int> UpdatePath(List<Vector3Int> oldPath, List<Tile> newPathTiles)
     {
+        if (oldPath.Count == newPathTiles.Count)
+            return oldPath;
+
         var newPath = new List<Vector3Int>();
 
         // Remove highlights for tiles that are no longer in the list
@@ -161,8 +164,8 @@ public class SeekerMovementManager : MonoBehaviour
                 // Hide line.
                 if (_travelMarkers.ContainsKey(cellPosCube))
                 {
-                    _travelMarkers[cellPosCube].HideLine();
-                    // TODO: Destroy?
+                    _travelMarkers[cellPosCube].HideLine(); // Destroys the GameObject
+                    _travelMarkers.Remove(cellPosCube);
                 }
             }
         }
@@ -286,13 +289,13 @@ public class SeekerMovementManager : MonoBehaviour
 
     private void RemoveCellFromPath(Vector3Int cellCubePos)
     {
-        var pathCount = _path.Count;
-
-        _path.Remove(_path.FirstOrDefault(p => p == cellCubePos));
-        var tileIDs = _path.Select(cellPosCube => TileHelper.GetTileID(cellPosCube)).ToList();
+        var tileIDs = _path
+            .Where(p => p != cellCubePos)
+            .Select(cellPosCube => TileHelper.GetTileID(cellPosCube))
+            .ToList();
 
         // If we click elsewhere on the map and don't alter the path then don't make a state update
-        if (pathCount != _path.Count)
+        if (tileIDs.Count != _path.Count)
         {
             // Removing the last tile takes stops the move intention
             var intention = tileIDs.Count > 0 ? INTENTION_MOVE : 0;

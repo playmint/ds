@@ -272,7 +272,6 @@ namespace Cog
                 tileIDs = tileIDs
             };
             var json = JsonConvert.SerializeObject(msg);
-            Debug.Log(json);
             SendMessage(json);
         }
 
