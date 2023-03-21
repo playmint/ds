@@ -18,11 +18,10 @@ namespace Cog
         public List<string> tileIDs;
     }
 
-    struct SetIntentionMessage
+    struct SetIntentMessage
     {
         public string msg;
-        public int intention; // The code gen doesn't deal with enums well so not typed
-        public List<string> tileIDs;
+        public string intent;
     }
 
     struct DispatchMessage
@@ -263,21 +262,16 @@ namespace Cog
             SendMessage(json);
         }
 
-        public void SendSetIntentionMsg(int intention, List<string> tileIDs)
+        public void SendSetIntentMsg(string intent)
         {
-            var msg = new SetIntentionMessage
-            {
-                msg = "setIntention",
-                intention = intention,
-                tileIDs = tileIDs
-            };
+            var msg = new SetIntentMessage { msg = "setIntent", intent = intent };
             var json = JsonConvert.SerializeObject(msg);
             SendMessage(json);
         }
 
         public void SendCancelIntentionMsg()
         {
-            var msg = new GenericMessage { msg = "cancelIntention" };
+            var msg = new GenericMessage { msg = "cancelIntent" };
             var json = JsonConvert.SerializeObject(msg);
             SendMessage(json);
         }

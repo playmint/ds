@@ -7,7 +7,6 @@ public class ActionMenuButtonController : MonoBehaviour
 {
     public void ButtonClicked()
     {
-        // SeekerMovementManager.instance.ActivateMovementMode();
-        PluginController.Instance.SendSetIntentionMsg(1, new List<string>());
+        PluginController.Instance.SendSetIntentMsg(Intent.MOVE);
     }
 }

@@ -137,28 +137,6 @@ namespace Cog
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum Intention
-    {
-
-        [System.Runtime.Serialization.EnumMember(Value = @"0")]
-        _0 = 0,
-
-
-        [System.Runtime.Serialization.EnumMember(Value = @"1")]
-        _1 = 1,
-
-
-        [System.Runtime.Serialization.EnumMember(Value = @"2")]
-        _2 = 2,
-
-
-        [System.Runtime.Serialization.EnumMember(Value = @"3")]
-        _3 = 3,
-
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class ItemSlot
     {
         [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -423,11 +401,8 @@ namespace Cog
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class SelectionState
     {
-        [Newtonsoft.Json.JsonProperty("intentTiles", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<Tile> IntentTiles { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("intention", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double Intention { get; set; }
+        [Newtonsoft.Json.JsonProperty("intent", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Intent { get; set; }
 
         [Newtonsoft.Json.JsonProperty("player", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Player Player { get; set; }

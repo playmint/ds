@@ -97,7 +97,10 @@ public class MapInteractionManager : MonoBehaviour
         }
 
         // Select the tile (Possible don't send this out if the player is moving)
-        Cog.PluginController.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
+        if (PluginController.Instance.WorldState.UI.Selection.Intent == Intent.NONE)
+        {
+            Cog.PluginController.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
+        }
     }
 
     void MapClicked2()

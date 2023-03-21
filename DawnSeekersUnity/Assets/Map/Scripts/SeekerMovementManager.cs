@@ -10,8 +10,6 @@ public class SeekerMovementManager : MonoBehaviour
     public Action ClearTravelMarkers;
     public static SeekerMovementManager instance;
 
-    private const int INTENTION_MOVE = 1;
-
     [SerializeField]
     private GameObject travelMarkerPrefab,
         greenHighlightPrefab,
@@ -120,14 +118,14 @@ public class SeekerMovementManager : MonoBehaviour
 
     private void OnStateUpdated(State state)
     {
-        if (state.UI.Selection.Intention == INTENTION_MOVE)
+        if (state.UI.Selection.Intent == Intent.MOVE)
         {
             if (!isMoving)
             {
                 ActivateMovementMode();
             }
 
-            _path = UpdatePath(_path, state.UI.Selection.IntentTiles.ToList<Tile>());
+            _path = UpdatePath(_path, state.UI.Selection.Tiles.ToList<Tile>());
             if (_path.Count == 0)
             {
                 AddCellToPath(GridExtensions.GridToCube(MapInteractionManager.CurrentSelectedCell));
@@ -136,7 +134,7 @@ public class SeekerMovementManager : MonoBehaviour
             HighlightAvailableSpaces();
         }
 
-        if (state.UI.Selection.Intention != INTENTION_MOVE && isMoving)
+        if (state.UI.Selection.Intent != Intent.MOVE && isMoving)
         {
             DeactivateMovementMode();
         }
@@ -213,6 +211,9 @@ public class SeekerMovementManager : MonoBehaviour
         return tile.Biome != 0; // 0 = UNDISCOVERED
     }
 
+    /*
+     * Puts the local context into movement mode. Does not set intent
+     */
     public void ActivateMovementMode()
     {
         if (isMoving)
@@ -221,6 +222,9 @@ public class SeekerMovementManager : MonoBehaviour
         isMoving = true;
     }
 
+    /*
+     * Takes the local context out of movement mode. Does not set intent
+     */
     public void DeactivateMovementMode()
     {
         if (!isMoving)
@@ -283,7 +287,7 @@ public class SeekerMovementManager : MonoBehaviour
         {
             var tileIDs = _path.Select(cellPosCube => TileHelper.GetTileID(cellPosCube)).ToList();
             tileIDs.Add(TileHelper.GetTileID(cellCubePos));
-            PluginController.Instance.SendSetIntentionMsg(INTENTION_MOVE, tileIDs);
+            PluginController.Instance.SendSelectTileMsg(tileIDs);
         }
     }
 
@@ -297,9 +301,12 @@ public class SeekerMovementManager : MonoBehaviour
         // If we click elsewhere on the map and don't alter the path then don't make a state update
         if (tileIDs.Count != _path.Count)
         {
-            // Removing the last tile takes stops the move intention
-            var intention = tileIDs.Count > 0 ? INTENTION_MOVE : 0;
-            PluginController.Instance.SendSetIntentionMsg(intention, tileIDs);
+            PluginController.Instance.SendSelectTileMsg(tileIDs);
+
+            if (tileIDs.Count == 0)
+            {
+                PluginController.Instance.SendSetIntentMsg(Intent.NONE);
+            }
         }
     }
 
