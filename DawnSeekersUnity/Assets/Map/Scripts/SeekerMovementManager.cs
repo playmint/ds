@@ -322,6 +322,7 @@ public class SeekerMovementManager : MonoBehaviour
             if (_travelMarkers.ContainsKey(cellPosCube))
             {
                 _travelMarkers[cellPosCube].HideLine();
+                _travelMarkers.Remove(cellPosCube);
             }
         }
     }
