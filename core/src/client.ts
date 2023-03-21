@@ -35,27 +35,24 @@ const ACTIONS = new ethers.Interface([
 
 const gameID = 'DAWNSEEKERS';
 
-export enum Intention {
-    NONE,
-    MOVE,
-    SCOUT,
-    BUILD,
+export enum Intent {
+    NONE = '',
+    MOVE = 'move',
+    SCOUT = 'scout',
+    CONSTRUCT = 'construct',
 }
-
 export interface RawSelectionState {
     playerAddr?: string;
     seekerID?: NodeID;
     tileIDs: NodeID[];
-    intention: Intention;
-    intentTileIDs: NodeID[];
+    intent: string;
 }
 
 export interface SelectionState {
     player?: Player;
     seeker?: Seeker;
     tiles?: Tile[];
-    intention: Intention;
-    intentTiles?: Tile[];
+    intent: string;
 }
 
 export interface Session {
@@ -101,10 +98,10 @@ export class Client {
             logger: this.logger,
         });
         this.signer = signer ? signer() : Promise.reject('no signer configured');
-        this.selection = { tileIDs: [], intentTileIDs: [], intention: Intention.NONE };
+        this.selection = { tileIDs: [], intent: Intent.NONE };
         this.game = { seekers: [], tiles: [], players: [] };
         this.observers = [];
-        this.prevState = { game: this.game, ui: { selection: { intention: Intention.NONE }, plugins: [] } };
+        this.prevState = { game: this.game, ui: { selection: { intent: Intent.NONE }, plugins: [] } };
 
         // setup graphql client for comms with cog-services
         this.cog = createHTTPClient({
@@ -334,15 +331,14 @@ export class Client {
         return this.publish();
     }
 
-    async cancelIntention() {
-        this.selection.intentTileIDs = [];
-        this.selection.intention = Intention.NONE;
+    async cancelIntent() {
+        this.selection.tileIDs = [];
+        this.selection.intent = Intent.NONE;
         return this.publish();
     }
 
-    async setIntention(intention: Intention, tileIDs: NodeID[]) {
-        this.selection.intentTileIDs = tileIDs;
-        this.selection.intention = intention;
+    async setIntent(intent: string) {
+        this.selection.intent = intent;
         return this.publish();
     }
 
@@ -352,19 +348,12 @@ export class Client {
             .filter((t): t is Tile => t !== undefined);
     }
 
-    private getIntentTiles(): Tile[] {
-        return this.selection.intentTileIDs
-            .map((selectedTileID) => this.game.tiles.find((t) => t.id == selectedTileID))
-            .filter((t): t is Tile => t !== undefined);
-    }
-
     private getSelection(): SelectionState {
         return {
             seeker: this.getSelectedSeeker(),
             tiles: this.getSelectedTiles(),
             player: this.getSelectedPlayer(),
-            intention: this.selection.intention,
-            intentTiles: this.getIntentTiles(),
+            intent: this.selection.intent,
         };
     }
 

@@ -1,10 +1,4 @@
-import {
-    Client as DawnseekersClient,
-    State,
-    PluginTrust,
-    PluginType,
-    Intention,
-} from "../../core/dist/src/index";
+import { Client as DawnseekersClient, State } from "../../core/dist/src/index";
 import { ethers } from "ethers";
 import { Observer } from "zen-observable-ts";
 import "cross-fetch/polyfill";
@@ -22,9 +16,8 @@ interface SelectTileMessage extends Message {
     tileIDs: string[];
 }
 
-interface SetIntentionMessage extends Message {
-    intention: Intention;
-    tileIDs: string[];
+interface SetIntentMessage extends Message {
+    intent: string;
 }
 
 class DawnSeekersBridge implements Observer<State> {
@@ -41,54 +34,70 @@ class DawnSeekersBridge implements Observer<State> {
         });
 
         this._ds.subscribe(this);
+        this._ds
+            .signin()
+            .catch((e) => {
+                console.log("Failed to sign in");
+                console.log(e);
+            })
+            .then(() => {
+                // aliased to keep processMessage code same between react version of this code
+                const ds = this._ds;
 
-        this.signin();
-
-        process.stdin.on("data", (data: Buffer) => {
-            const input = data.toString("utf-8").trim();
-            if (input.length == 0) return;
-
-            if (echoOn) {
-                process.stdout.write("**" + input + "**\n");
-            }
-
-            var lines = input.split("\n");
-
-            lines.forEach((json) => {
-                if (json.length > 0 && json[0] == "{") {
+                // Same `processMessage` func as found in `src/components/organisms/unity-map/index.tsx`
+                const processMessage = (msgJson: any) => {
+                    let msgObj: Message;
                     try {
-                        const msgObj = JSON.parse(json) as Message;
-                        if (msgObj.msg === "dispatch") {
-                            const { action, args } = msgObj as DispatchMessage;
-                            this._ds.dispatch(action, ...args);
-                        }
-                        if (msgObj.msg === "selectTiles") {
-                            const { tileIDs } = msgObj as SelectTileMessage;
-                            this._ds.selectTiles(tileIDs);
-                        }
-
-                        if (msgObj.msg === "setIntention") {
-                            const setIntentionMessage =
-                                msgObj as SetIntentionMessage;
-                            this._ds.setIntention(
-                                setIntentionMessage.intention,
-                                setIntentionMessage.tileIDs
-                            );
-                        }
-                        if (msgObj.msg === "cancelIntention") {
-                            this._ds.cancelIntention();
-                        }
+                        msgObj = JSON.parse(msgJson) as Message;
                     } catch (e) {
-                        console.log("**" + json + "**");
-                        console.log(e);
+                        console.error(e);
+                        return;
                     }
-                }
-            });
-        });
-    }
 
-    private async signin() {
-        await this._ds.signin();
+                    switch (msgObj.msg) {
+                        case "dispatch": {
+                            const { action, args } = msgObj as DispatchMessage;
+                            ds.dispatch(action, ...args).catch((e) => {
+                                console.error(e);
+                            });
+                            break;
+                        }
+                        case "selectTiles": {
+                            const { tileIDs } = msgObj as SelectTileMessage;
+                            ds.selectTiles(tileIDs).catch((e) => {
+                                console.error(e);
+                            });
+                            break;
+                        }
+                        case "setIntent": {
+                            const { intent } = msgObj as SetIntentMessage;
+                            ds.setIntent(intent).catch((e) => {
+                                console.error(e);
+                            });
+                            break;
+                        }
+                        case "cancelIntent": {
+                            ds.cancelIntent().catch((e) => {
+                                console.error(e);
+                            });
+                            break;
+                        }
+                    }
+                };
+
+                process.stdin.on("data", (data: Buffer) => {
+                    const input = data.toString("utf-8").trim();
+                    if (input.length == 0) return;
+
+                    if (echoOn) {
+                        process.stdout.write("**" + input + "**\n");
+                    }
+
+                    var lines = input.split("\n");
+
+                    lines.forEach(processMessage);
+                });
+            });
     }
 
     public next(state: State) {
@@ -133,34 +142,6 @@ class DawnSeekersBridge implements Observer<State> {
 
         return newObj;
     }
-
-    // private simpleBreakCircularReferences(obj: any) {
-    //     for (let key in obj) {
-    //         obj[key] = JSON.parse(
-    //             JSON.stringify(obj[key], this.getCircularReplacer())
-    //         );
-    //     }
-
-    //     return obj;
-    // }
-
-    // private getCircularReplacer() {
-    //     const seen = new WeakSet();
-    //     return (key, value) => {
-    //         if (typeof value === "bigint") {
-    //             return BigInt(value).toString(16);
-    //         }
-
-    //         if (typeof value === "object" && value !== null) {
-    //             if (seen.has(value)) {
-    //                 return;
-    //             }
-    //             seen.add(value);
-    //         }
-
-    //         return value;
-    //     };
-    // }
 }
 
 const DEFAULT_PRIV_KEY =
