@@ -297,6 +297,31 @@ public class SeekerMovementManager : MonoBehaviour
         }
     }
 
+    /*
+     * Used as a way to hack round our inability to wait for a state update when adding the final tile
+     */
+    private void DirectAddCellToPathHack(Vector3Int cellCubePos)
+    {
+        bool validPosition =
+            _path.Count == 0
+            || TileHelper.GetTileNeighbours(_path[_path.Count - 1]).Contains(cellCubePos);
+        if (!_path.Any(p => p == cellCubePos) && validPosition)
+        {
+            // Add marker
+            if (!_travelMarkers.ContainsKey(cellCubePos))
+            {
+                var prevTilePosCube = _path[_path.Count - 1];
+
+                var travelMarker = Instantiate(travelMarkerPrefab)
+                    .GetComponent<TravelMarkerController>();
+                travelMarker.ShowTravelMarkers(prevTilePosCube, cellCubePos);
+                _travelMarkers.Add(cellCubePos, travelMarker);
+            }
+
+            _path.Add(cellCubePos);
+        }
+    }
+
     private void RemoveCellFromPath(Vector3Int cellCubePos)
     {
         var tileIDs = _path
@@ -322,7 +347,7 @@ public class SeekerMovementManager : MonoBehaviour
     private void ClosePath(Vector3Int cellCubePos)
     {
         // AddCellToPath(cellCubePos); // TODO: This only works when we are able to wait for this to update the state
-
+        DirectAddCellToPathHack(cellCubePos); // HACK: Because of above :-/
         StartCoroutine(TracePathCR());
 
         // Select the last tile in the path and take out of move intent

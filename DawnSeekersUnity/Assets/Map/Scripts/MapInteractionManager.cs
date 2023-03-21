@@ -96,7 +96,7 @@ public class MapInteractionManager : MonoBehaviour
             EventTileLeftClick(cellPosCube);
         }
 
-        // Select the tile (Possible don't send this out if the player is moving)
+        // Select the tile
         if (PluginController.Instance.WorldState.UI.Selection.Intent == Intent.NONE)
         {
             Cog.PluginController.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
@@ -154,7 +154,6 @@ public class MapInteractionManager : MonoBehaviour
             CurrentSelectedCell = GridExtensions.CubeToGrid(cellPosCube);
             clickedPlayerCell = SeekerManager.Instance.IsPlayerAtPosition(cellPosCube);
 
-            //if (!IsTileSelected || CurrentSelectedCell != gridCoords)
             selectedMarker1.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
 
             selectedMarker1.gameObject.SetActive(true);

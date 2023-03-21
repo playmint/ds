@@ -62,7 +62,7 @@ public class MapManager : MonoBehaviour
         return _tilemap.GetTile(GridExtensions.CubeToGrid(position)) != null;
     }
 
-    void RenderState(Cog.State state)
+    private void OnStateUpdated(Cog.State state)
     {
         // Debug.Log("MapManager::RenderState()");
         IconManager.instance.ResetSeekerPositionCounts();
@@ -155,10 +155,5 @@ public class MapManager : MonoBehaviour
             );
         }
         IconManager.instance.CheckSeekerRemoved(state.Game.Seekers.ToList());
-    }
-
-    private void OnStateUpdated(Cog.State state)
-    {
-        RenderState(Cog.PluginController.Instance.WorldState);
     }
 }
