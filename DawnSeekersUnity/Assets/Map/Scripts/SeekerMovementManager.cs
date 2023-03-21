@@ -20,6 +20,7 @@ public class SeekerMovementManager : MonoBehaviour
         spawnedPathHighlights;
     private Dictionary<Vector3Int, TravelMarkerController> _travelMarkers;
     private bool isMoving;
+    private bool _isTracingPath; // HACK: Cannot make moves until the move CR has finished
 
     private void Awake()
     {
@@ -120,6 +121,13 @@ public class SeekerMovementManager : MonoBehaviour
     {
         if (state.UI.Selection.Intent == Intent.MOVE)
         {
+            // HACK: Cannot be in move intent when the movement CR is running
+            if (_isTracingPath)
+            {
+                PluginController.Instance.SendSetIntentMsg(Intent.NONE);
+                return;
+            }
+
             if (!isMoving)
             {
                 ActivateMovementMode();
@@ -231,8 +239,6 @@ public class SeekerMovementManager : MonoBehaviour
             return;
 
         isMoving = false;
-        // Path is never null. If this causes trouble with GC then we have to appropriate null checks in the state update handler
-        _path = new List<Vector3Int>();
         HideHighlights();
         HidePathHighlights();
     }
@@ -303,7 +309,10 @@ public class SeekerMovementManager : MonoBehaviour
         {
             PluginController.Instance.SendSelectTileMsg(tileIDs);
 
-            if (tileIDs.Count == 0)
+            if (
+                tileIDs.Count == 0
+                && PluginController.Instance.WorldState.UI.Selection.Intent == Intent.MOVE
+            )
             {
                 PluginController.Instance.SendSetIntentMsg(Intent.NONE);
             }
@@ -312,18 +321,26 @@ public class SeekerMovementManager : MonoBehaviour
 
     private void ClosePath(Vector3Int cellCubePos)
     {
-        HideHighlights();
-        AddCellToPath(cellCubePos);
-        HidePathHighlights();
-        isMoving = false;
+        // AddCellToPath(cellCubePos); // TODO: This only works when we are able to wait for this to update the state
+
         StartCoroutine(TracePathCR());
+
+        // Select the last tile in the path and take out of move intent
+        var lastTileID = TileHelper.GetTileID(_path[_path.Count - 1]);
+        PluginController.Instance.SendSelectTileMsg(new List<string>() { lastTileID });
+        PluginController.Instance.SendSetIntentMsg(Intent.NONE);
     }
 
     IEnumerator TracePathCR()
     {
-        for (int i = 1; i < _path.Count; i++)
+        _isTracingPath = true;
+
+        // Cloned so we aren't iterating over the path that can be manipulated outside of the CR
+        var path = new List<Vector3Int>(_path);
+
+        for (int i = 1; i < path.Count; i++)
         {
-            var cellPosCube = _path[i];
+            var cellPosCube = path[i];
             PluginController.Instance.MoveSeeker(SeekerManager.Instance.Seeker, cellPosCube);
             yield return new WaitForSeconds(3.5f);
             if (_travelMarkers.ContainsKey(cellPosCube))
@@ -332,5 +349,7 @@ public class SeekerMovementManager : MonoBehaviour
                 _travelMarkers.Remove(cellPosCube);
             }
         }
+
+        _isTracingPath = false;
     }
 }
