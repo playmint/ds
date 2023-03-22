@@ -269,13 +269,6 @@ namespace Cog
             SendMessage(json);
         }
 
-        public void SendCancelIntentionMsg()
-        {
-            var msg = new GenericMessage { msg = "cancelIntent" };
-            var json = JsonConvert.SerializeObject(msg);
-            SendMessage(json);
-        }
-
         public void SendDeselectAllTilesMsg()
         {
             SendSelectTileMsg(new List<string>());
