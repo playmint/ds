@@ -331,12 +331,6 @@ export class Client {
         return this.publish();
     }
 
-    async cancelIntent() {
-        this.selection.tileIDs = [];
-        this.selection.intent = Intent.NONE;
-        return this.publish();
-    }
-
     async setIntent(intent: string) {
         this.selection.intent = intent;
         return this.publish();

@@ -127,12 +127,6 @@ export const UnityMap: FunctionComponent<UnityMapProps> = (props: UnityMapProps)
                     });
                     break;
                 }
-                case 'cancelIntent': {
-                    ds.cancelIntent().catch((e) => {
-                        console.error(e);
-                    });
-                    break;
-                }
             }
         };
 

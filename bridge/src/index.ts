@@ -76,12 +76,6 @@ class DawnSeekersBridge implements Observer<State> {
                             });
                             break;
                         }
-                        case "cancelIntent": {
-                            ds.cancelIntent().catch((e) => {
-                                console.error(e);
-                            });
-                            break;
-                        }
                     }
                 };
 
