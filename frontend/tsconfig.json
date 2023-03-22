@@ -33,9 +33,6 @@
     "paths": {
       "@app/*": [
         "*"
-      ],
-      "@core": [
-          "../../core/src/index.ts"
       ]
     },
     "skipLibCheck": true,

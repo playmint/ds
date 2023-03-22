@@ -1,7 +1,7 @@
 /** @format */
 
+import { ItemSlotFragment } from '@dawnseekers/core';
 import { toUtf8String } from 'ethers';
-import { ItemSlot } from '@core';
 
 export const resourceRegex = /^0x37f9b55d[0-9a-f]+$/g;
 
@@ -29,7 +29,7 @@ export function isResource(id: string) {
     return id.match(resourceRegex);
 }
 
-export function getSlotName(slot: ItemSlot) {
+export function getSlotName(slot: ItemSlotFragment) {
     return isResource(slot.item.id) ? resources[slot.item.id] : getItemName(slot.item.id);
 }
 
@@ -37,7 +37,7 @@ export function getItemIcon(name: string) {
     return icons[name.toLowerCase()];
 }
 
-export function getItemDetails(itemSlot: ItemSlot) {
+export function getItemDetails(itemSlot: ItemSlotFragment) {
     const itemId = itemSlot.item.id;
     const name = getSlotName(itemSlot);
     const icon = getItemIcon(name);

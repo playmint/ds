@@ -8,7 +8,7 @@ import { robotoCondensedStyles } from '@app/styles/roboto-condensed.styles';
 export const GlobalStyles = createGlobalStyle`
     ${resetStyles}
     ${robotoCondensedStyles}
-    
+
     button {
         cursor: pointer;
     }
@@ -16,7 +16,7 @@ export const GlobalStyles = createGlobalStyle`
     i {
         color: inherit;
     }
-    
+
     // TODO tidy these styles up
 
     body {
@@ -35,12 +35,12 @@ export const GlobalStyles = createGlobalStyle`
         font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
         monospace;
     }
-    
+
     h1, h2, h3, h4 {
         text-transform: uppercase;
     }
-    
-    
+
+
     h3 {
         margin-bottom: 2rem;
     }
@@ -48,7 +48,19 @@ export const GlobalStyles = createGlobalStyle`
     form {
         width: 100%;
     }
-    
+
+    code.logs {
+        position: fixed;
+        top: 50px;
+        left 0px;
+    }
+    code.logs .log {
+        display: block;
+        background: rgba(0,0,0,0.5);
+        color:white;
+        margin: 10px;
+    }
+
     .topnav {
         display: flex;
         justify-content: flex-start;
@@ -69,11 +81,11 @@ export const GlobalStyles = createGlobalStyle`
         background: #050f25;
         color: #fff;
         padding: 0 2rem 0 1rem;
-        
+
         > img {
             margin-right: 0.3rem;
         }
-        
+
         > .text {
             display: block;
             padding-top: 5px;
@@ -98,19 +110,19 @@ export const GlobalStyles = createGlobalStyle`
             background: #143063;
             color: #fff;
             padding: 2rem 2rem;
-            
+
             > .content {
                 display: flex;
-                flex-direction: column; 
+                flex-direction: column;
                 align-items: center;
             }
         }
     }
 
     .tile-actions {
-        
+
     }
-    
+
     .seeker-actions {
         position: absolute;
         left: 0;
@@ -140,22 +152,22 @@ export const GlobalStyles = createGlobalStyle`
         border-radius: 0;
         width: auto;
     }
-    
+
     .seeker-actions .seeker-selector {
         display: flex;
         justify-content: flex-end;
         align-items: center;
         overflow: visible;
-        
+
         > .shield {
             position: absolute;
             left: 2rem
         }
-        
+
         > .controls {
             display: flex;
             flex-direction: row;
-            
+
             .label {
                 padding: 0 0.5rem;
                 text-transform: uppercase;
@@ -170,5 +182,5 @@ export const GlobalStyles = createGlobalStyle`
         bottom: 0;
         right: 0;
     }
-    
+
 `;

@@ -6,11 +6,11 @@ import { ComponentProps } from '@app/types/component-props';
 import { styles } from './bag-slot.styles';
 import { BagItem } from '@app/plugins/inventory/bag-item';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
-import { ItemSlot } from '@core';
+import { ItemSlotFragment } from '@dawnseekers/core';
 import { getItemDetails } from '@app/plugins/inventory/helpers';
 
 export interface BagSlotProps extends ComponentProps {
-    itemSlot?: ItemSlot;
+    itemSlot?: ItemSlotFragment;
     isDisabled?: boolean;
     ownerId: string;
     equipIndex: number;

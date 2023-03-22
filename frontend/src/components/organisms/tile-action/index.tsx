@@ -12,7 +12,7 @@ import {
     PluginStateButtonAction,
     PluginStateButtonToggle,
     PluginSubmitCallValues
-} from '@core';
+} from '@dawnseekers/core';
 
 type ToggleContentFunc = (contentID: string) => void;
 
@@ -125,8 +125,6 @@ export const TileAction: FunctionComponent<TileActionProps> = (props: TileAction
     const inline = getVisibleContentForType('inline');
     const popout = getVisibleContentForType('popout');
     const dialog = getVisibleContentForType('dialog');
-
-    // console.log(inline, popout, dialog);
 
     if ((!inline || (inline && inline.buttons?.length === 0)) && !popout && !dialog) {
         return null;

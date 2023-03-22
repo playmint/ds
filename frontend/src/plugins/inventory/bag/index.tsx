@@ -1,15 +1,15 @@
 /** @format */
 
-import React, { FunctionComponent } from 'react';
-import styled from 'styled-components';
-import { ComponentProps } from '@app/types/component-props';
-import { styles } from './bag.styles';
 import { BagSlot, BagSlotProps } from '@app/plugins/inventory/bag-slot';
-import { Bag as BagNode } from '@core';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
+import { ComponentProps } from '@app/types/component-props';
+import { BagFragment } from '@dawnseekers/core';
+import { FunctionComponent } from 'react';
+import styled from 'styled-components';
+import { styles } from './bag.styles';
 
 export interface BagProps extends ComponentProps {
-    bag: BagNode;
+    bag: BagFragment;
     ownerId: string;
     equipIndex: number;
     isInteractable: boolean;

@@ -3,11 +3,11 @@
 import React, { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { ComponentProps } from '@app/types/component-props';
-import { Seeker } from '@core';
+import { SelectedSeekerFragment } from '@dawnseekers/core';
 import { Inventory } from '@app/plugins/inventory/index';
 
 export interface SeekerInventoryProps extends ComponentProps {
-    seeker: Seeker;
+    seeker: SelectedSeekerFragment;
 }
 
 const StyledSeekerInventory = styled('div')``;

@@ -4,7 +4,7 @@ import { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { ComponentProps } from '@app/types/component-props';
 import { styles } from './seeker-list.styles';
-import { Seeker } from '@core';
+import { Seeker } from '@dawnseekers/core';
 
 export interface SeekerListProps extends ComponentProps {
     seekers: Seeker[];
@@ -23,7 +23,7 @@ export const SeekerList: FunctionComponent<SeekerListProps> = (props: SeekerList
             {seekers.map((seeker, index) => (
                 <div key={index} className="seeker">
                     <img src="/icons/seeker-shield-blue.png" alt="" />
-                    Seeker #{seeker.key.toString()}
+                    Seeker #{seeker.id.toString()}
                 </div>
             ))}
         </StyledSeekerList>
