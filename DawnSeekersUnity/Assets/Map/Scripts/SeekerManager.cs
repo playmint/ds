@@ -34,29 +34,35 @@ public class SeekerManager : MonoBehaviour
     // TODO: Still assuming only one seeker
     private void OnStateUpdated(State state)
     {
+        var seekersToRemove = new List<Cog.Seeker>();
+
         var playerSeeker =
             (state.UI.Selection.Player != null && state.UI.Selection.Player.Seekers.Count > 0)
                 ? state.UI.Selection.Player.Seekers.ToList()[0]
                 : null;
-        if (playerSeeker != Seeker)
+        if (playerSeeker != null)
         {
-            var seekersToRemove = new List<Cog.Seeker>();
-            if (Seeker != null)
+            if (Seeker != null && Seeker.Id != playerSeeker.Id)
             {
-                // If we've switched accounts then remove player icon
+                // If we've switched accounts then remove the previous player seeker as well as
+                // the icon for the current seeker which would have been a grey 'other' seeker
                 seekersToRemove.Add(Seeker);
+                seekersToRemove.Add(playerSeeker);
+            }
+            else if (Seeker == null)
+            {
+                // If we weren't logged in prior then remove the grey 'other' seeker which will become our red seeker
+                seekersToRemove.Add(playerSeeker);
             }
 
             Seeker = playerSeeker;
-
-            if (playerSeeker != null)
-            {
-                // Remove 'other seeker' icon so it gets replaced with the player icon
-                seekersToRemove.Add(playerSeeker);
-                Debug.Log("SeekerManager: Seeker found. ID: " + Seeker.Id);
-            }
-
-            IconManager.instance.RemoveSeekers(seekersToRemove);
         }
+        else if (Seeker != null)
+        {
+            // Signed out so remove the player seeker icon
+            seekersToRemove.Add(Seeker);
+        }
+
+        IconManager.instance.RemoveSeekers(seekersToRemove);
     }
 }

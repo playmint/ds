@@ -7,10 +7,21 @@ using System.Threading;
 
 namespace Cog
 {
+    struct GenericMessage
+    {
+        public string msg;
+    }
+
     struct SelectTileMessage
     {
         public string msg;
         public List<string> tileIDs;
+    }
+
+    struct SetIntentMessage
+    {
+        public string msg;
+        public string intent;
     }
 
     struct DispatchMessage
@@ -173,7 +184,7 @@ namespace Cog
             {
                 var line = _nodeJSProcess.StandardOutput.ReadLine();
                 
-                if (line[0] == '{')
+                if (line.Length > 0 && line[0] == '{')
                 {
                     try 
                     {
@@ -234,33 +245,37 @@ namespace Cog
 
         public void DispatchAction(string action, params object[] args)
         {
-            var dispatchActionMsg = new DispatchMessage
+            var msg = new DispatchMessage
             {
                 msg = "dispatch",
                 action = action,
                 args = args
             };
-            var json = JsonConvert.SerializeObject(dispatchActionMsg);
-            // Debug.Log(json);
-
-#if UNITY_EDITOR
-            _nodeJSProcess.StandardInput.WriteLine(json);
-#elif UNITY_WEBGL
-            // -- Send message up to shell and let it do the signing and sending
-            SendMessageRPC(json);
-#endif
+            var json = JsonConvert.SerializeObject(msg);
+            SendMessage(json);
         }
 
         public void SendSelectTileMsg(List<string> tileIDs)
         {
-            var tileInteractionMsg = new SelectTileMessage
-            {
-                msg = "selectTiles",
-                tileIDs = tileIDs
-            };
-            var json = JsonConvert.SerializeObject(tileInteractionMsg);
-            // Debug.Log(json);
+            var msg = new SelectTileMessage { msg = "selectTiles", tileIDs = tileIDs };
+            var json = JsonConvert.SerializeObject(msg);
+            SendMessage(json);
+        }
 
+        public void SendSetIntentMsg(string intent)
+        {
+            var msg = new SetIntentMessage { msg = "setIntent", intent = intent };
+            var json = JsonConvert.SerializeObject(msg);
+            SendMessage(json);
+        }
+
+        public void SendDeselectAllTilesMsg()
+        {
+            SendSelectTileMsg(new List<string>());
+        }
+
+        private new void SendMessage(string json)
+        {
 #if UNITY_EDITOR
             _nodeJSProcess.StandardInput.WriteLine(json);
 #elif UNITY_WEBGL
@@ -269,15 +284,14 @@ namespace Cog
 #endif
         }
 
-        public void SendDeselectAllTilesMsg()
-        {
-            SendSelectTileMsg(new List<string>());
-        }
-
         // -- MESSAGE IN
+        private string _prevStateJson = "";
 
         public void OnState(string stateJson)
         {
+            if (_prevStateJson == stateJson)
+                return;
+
             try
             {
                 var state = JsonConvert.DeserializeObject<State>(stateJson);

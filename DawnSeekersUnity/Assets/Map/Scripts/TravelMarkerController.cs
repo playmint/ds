@@ -58,7 +58,7 @@ public class TravelMarkerController : MonoBehaviour
 
     public void HideLine()
     {
-        //line.HideLine();
+        line.HideLine();
         Destroy(gameObject);
     }
 }

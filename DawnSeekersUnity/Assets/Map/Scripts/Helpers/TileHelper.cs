@@ -32,4 +32,9 @@ public class TileHelper
             tile + new Vector3Int(1, 0, -1)
         };
     }
+
+    internal static string GetTileID(Vector3Int tilePosCube)
+    {
+        return Cog.NodeKinds.TileNode.GetKey(0, tilePosCube.x, tilePosCube.y, tilePosCube.z);
+    }
 }

@@ -1,12 +1,7 @@
-import {
-    Client as DawnseekersClient,
-    State,
-    PluginTrust,
-    PluginType,
-} from '../../core/dist/src/index';
-import { ethers } from 'ethers';
+import { Client as DawnseekersClient, State } from "../../core/dist/src/index";
+import { ethers } from "ethers";
 import { Observer } from "zen-observable-ts";
-import 'cross-fetch/polyfill';
+import "cross-fetch/polyfill";
 
 interface Message {
     msg: string;
@@ -21,6 +16,10 @@ interface SelectTileMessage extends Message {
     tileIDs: string[];
 }
 
+interface SetIntentMessage extends Message {
+    intent: string;
+}
+
 class DawnSeekersBridge implements Observer<State> {
     private _ds: DawnseekersClient;
 
@@ -31,33 +30,68 @@ class DawnSeekersBridge implements Observer<State> {
             signer: async () => {
                 const key = new ethers.SigningKey(privKey);
                 return new ethers.BaseWallet(key);
-            }
+            },
         });
 
         this._ds.subscribe(this);
-
-        this.signin();
-
-        process.stdin.on("data", (data: Buffer) => {
-            const json = data.toString("utf-8");
-            try {
-                const msgObj = JSON.parse(json) as Message;
-                if (msgObj.msg === "dispatch") {
-                    const { action, args } = msgObj as DispatchMessage;
-                    this._ds.dispatch(action, ...args);
-                }
-                if (msgObj.msg === "selectTiles") {
-                    const { tileIDs } = msgObj as SelectTileMessage;
-                    this._ds.selectTiles(tileIDs);
-                }
-            } catch (e) {
+        this._ds
+            .signin()
+            .catch((e) => {
+                console.log("Failed to sign in");
                 console.log(e);
-            }
-        });
-    }
+            })
+            .then(() => {
+                // aliased to keep processMessage code same between react version of this code
+                const ds = this._ds;
 
-    private async signin() {
-        await this._ds.signin();
+                // Same `processMessage` func as found in `src/components/organisms/unity-map/index.tsx`
+                const processMessage = (msgJson: any) => {
+                    let msgObj: Message;
+                    try {
+                        msgObj = JSON.parse(msgJson) as Message;
+                    } catch (e) {
+                        console.error(e);
+                        return;
+                    }
+
+                    switch (msgObj.msg) {
+                        case "dispatch": {
+                            const { action, args } = msgObj as DispatchMessage;
+                            ds.dispatch(action, ...args).catch((e) => {
+                                console.error(e);
+                            });
+                            break;
+                        }
+                        case "selectTiles": {
+                            const { tileIDs } = msgObj as SelectTileMessage;
+                            ds.selectTiles(tileIDs).catch((e) => {
+                                console.error(e);
+                            });
+                            break;
+                        }
+                        case "setIntent": {
+                            const { intent } = msgObj as SetIntentMessage;
+                            ds.setIntent(intent).catch((e) => {
+                                console.error(e);
+                            });
+                            break;
+                        }
+                    }
+                };
+
+                process.stdin.on("data", (data: Buffer) => {
+                    const input = data.toString("utf-8").trim();
+                    if (input.length == 0) return;
+
+                    if (echoOn) {
+                        process.stdout.write("**" + input + "**\n");
+                    }
+
+                    var lines = input.split("\n");
+
+                    lines.forEach(processMessage);
+                });
+            });
     }
 
     public next(state: State) {
@@ -102,38 +136,11 @@ class DawnSeekersBridge implements Observer<State> {
 
         return newObj;
     }
-
-    // private simpleBreakCircularReferences(obj: any) {
-    //     for (let key in obj) {
-    //         obj[key] = JSON.parse(
-    //             JSON.stringify(obj[key], this.getCircularReplacer())
-    //         );
-    //     }
-
-    //     return obj;
-    // }
-
-    // private getCircularReplacer() {
-    //     const seen = new WeakSet();
-    //     return (key, value) => {
-    //         if (typeof value === "bigint") {
-    //             return BigInt(value).toString(16);
-    //         }
-
-    //         if (typeof value === "object" && value !== null) {
-    //             if (seen.has(value)) {
-    //                 return;
-    //             }
-    //             seen.add(value);
-    //         }
-
-    //         return value;
-    //     };
-    // }
 }
 
 const DEFAULT_PRIV_KEY =
     "0xc14c1284a5ff47ce38e2ad7a50ff89d55ca360b02cdf3756cdb457389b1da223";
 const privKey = process.argv.length >= 3 ? process.argv[2] : DEFAULT_PRIV_KEY;
+const echoOn = process.argv.length >= 4 ? process.argv[3] == "--echo" : false; // TODO: proper arg parsing
 
 const bridge = new DawnSeekersBridge(privKey);

@@ -35,16 +35,24 @@ const ACTIONS = new ethers.Interface([
 
 const gameID = 'DAWNSEEKERS';
 
+export enum Intent {
+    NONE = '',
+    MOVE = 'move',
+    SCOUT = 'scout',
+    CONSTRUCT = 'construct',
+}
 export interface RawSelectionState {
     playerAddr?: string;
     seekerID?: NodeID;
     tileIDs: NodeID[];
+    intent: string;
 }
 
 export interface SelectionState {
     player?: Player;
     seeker?: Seeker;
     tiles?: Tile[];
+    intent: string;
 }
 
 export interface Session {
@@ -90,10 +98,10 @@ export class Client {
             logger: this.logger,
         });
         this.signer = signer ? signer() : Promise.reject('no signer configured');
-        this.selection = { tileIDs: [] };
+        this.selection = { tileIDs: [], intent: Intent.NONE };
         this.game = { seekers: [], tiles: [], players: [] };
         this.observers = [];
-        this.prevState = { game: this.game, ui: { selection: {}, plugins: [] } };
+        this.prevState = { game: this.game, ui: { selection: { intent: Intent.NONE }, plugins: [] } };
 
         // setup graphql client for comms with cog-services
         this.cog = createHTTPClient({
@@ -323,6 +331,11 @@ export class Client {
         return this.publish();
     }
 
+    async setIntent(intent: string) {
+        this.selection.intent = intent;
+        return this.publish();
+    }
+
     private getSelectedTiles(): Tile[] {
         return this.selection.tileIDs
             .map((selectedTileID) => this.game.tiles.find((t) => t.id == selectedTileID))
@@ -334,6 +347,7 @@ export class Client {
             seeker: this.getSelectedSeeker(),
             tiles: this.getSelectedTiles(),
             player: this.getSelectedPlayer(),
+            intent: this.selection.intent,
         };
     }
 

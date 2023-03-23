@@ -25,6 +25,10 @@ interface SelectTileMessage extends Message {
     tileIDs: string[];
 }
 
+interface SetIntentMessage extends Message {
+    intent: string;
+}
+
 const StyledUnityMap = styled('div')`
     ${styles}
 `;
@@ -91,27 +95,42 @@ export const UnityMap: FunctionComponent<UnityMapProps> = (props: UnityMapProps)
     // -- Event handling
 
     useEffect(() => {
-        addEventListener('sendMessage', (msgJson: any) => {
-            const msg = JSON.parse(msgJson) as Message;
-            switch (msg.msg) {
+        // Export this code so it's used both here and the bridge
+        const processMessage = (msgJson: any) => {
+            let msgObj: Message;
+            try {
+                msgObj = JSON.parse(msgJson) as Message;
+            } catch (e) {
+                console.error(e);
+                return;
+            }
+
+            switch (msgObj.msg) {
                 case 'dispatch': {
-                    const dispatchMsg = msg as DispatchMessage;
-                    const { action, args } = dispatchMsg as DispatchMessage;
+                    const { action, args } = msgObj as DispatchMessage;
                     ds.dispatch(action, ...args).catch((e) => {
                         console.error(e);
                     });
                     break;
                 }
                 case 'selectTiles': {
-                    const selectTileMsg = msg as SelectTileMessage;
-                    ds.selectTiles(selectTileMsg.tileIDs).catch((e) => {
+                    const { tileIDs } = msgObj as SelectTileMessage;
+                    ds.selectTiles(tileIDs).catch((e) => {
+                        console.error(e);
+                    });
+                    break;
+                }
+                case 'setIntent': {
+                    const { intent } = msgObj as SetIntentMessage;
+                    ds.setIntent(intent).catch((e) => {
                         console.error(e);
                     });
                     break;
                 }
             }
-        });
+        };
 
+        addEventListener('sendMessage', processMessage);
         addEventListener('unityReady', () => {
             setIsReady(true);
         });
