@@ -4,7 +4,7 @@ fragment AvailablePlugin on Node {
         id
         value
     }
-    requiredBy: node(match: { via: { rel: "Plugin", dir: IN } }) {
+    supports: node(match: { via: { rel: "Supports" } }) {
         id
         kind
         metadata: annotation(name: "name") {
@@ -24,7 +24,7 @@ fragment SelectedPlugin on Node {
         hash: id
         value
     }
-    requiredBy: node(match: { via: { rel: "Plugin", dir: IN } }) {
+    supports: node(match: { via: { rel: "Supports", dir: IN } }) {
         id
         kind
         metadata: annotation(name: "name") {

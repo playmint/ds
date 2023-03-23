@@ -139,14 +139,14 @@ export function makePluginUI(
 }
 
 function isAutoloadableBuildingPlugin(p: AvailablePluginFragment, tiles?: SelectedTileFragment[]) {
-    if (!p.requiredBy) {
+    if (!p.supports) {
         return false;
     }
-    if (!p.requiredBy.metadata) {
+    if (!p.supports.metadata) {
         // FIXME: use src annotation not metadata
         return false;
     }
-    if (pluginTypeForNodeKind(p.requiredBy.kind) !== PluginType.BUILDING) {
+    if (pluginTypeForNodeKind(p.supports.kind) !== PluginType.BUILDING) {
         return false;
     }
     if (!tiles) {
@@ -163,7 +163,7 @@ function isAutoloadableBuildingPlugin(p: AvailablePluginFragment, tiles?: Select
     if (!selectedBuilding) {
         return false;
     }
-    return p.requiredBy.id == selectedBuilding.id;
+    return p.supports.id == selectedBuilding.id;
 }
 
 /**
@@ -225,7 +225,7 @@ function makeSelectedPlugins(cog: CogServices, pluginIDs: string[]) {
                               name: p.name ? p.name.value : 'unnamed',
                               src: p.src ? p.src.value : '',
                               trust: PluginTrust.UNTRUSTED,
-                              type: pluginTypeForNodeKind(p.requiredBy?.kind),
+                              type: pluginTypeForNodeKind(p.supports?.kind),
                           } satisfies PluginConfig),
                   ),
               ),
