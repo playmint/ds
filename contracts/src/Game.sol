@@ -83,7 +83,7 @@ contract Game is BaseGame {
         state.registerEdgeType(Rel.Equip.selector, "Equip", WeightKind.UINT64);
         state.registerEdgeType(Rel.Is.selector, "Is", WeightKind.UINT64);
         state.registerEdgeType(Rel.Implementation.selector, "Implementation", WeightKind.UINT64);
-        state.registerEdgeType(Rel.Plugin.selector, "Plugin", WeightKind.UINT64);
+        state.registerEdgeType(Rel.Supports.selector, "Supports", WeightKind.UINT64);
 
         // create a session router
         SessionRouter router = new DawnseekersRouter();
@@ -154,7 +154,9 @@ contract Game is BaseGame {
             abi.encodeCall(Actions.REGISTER_BUILDING_CONTRACT, (dummyBuildingKind, address(new DummyBuilding())))
         );
         dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_BUILDING_PLUGIN, (dummyBuildingKind, Node.ClientPlugin(1), "{}"))
+            abi.encodeCall(
+                Actions.REGISTER_CLIENT_PLUGIN, (Node.ClientPlugin(1), dummyBuildingKind, "DummyBuildingPlugin", "{}")
+            )
         );
     }
 }

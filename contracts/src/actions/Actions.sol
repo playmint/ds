@@ -33,9 +33,15 @@ interface Actions {
     // register contracts
     function REGISTER_BUILDING_CONTRACT(bytes24 buildingKind, address buildingKindImplementation) external;
 
-    // register plugins
-    function REGISTER_CLIENT_PLUGIN(bytes24 pluginID, string calldata pluginMetadata) external;
-    function REGISTER_BUILDING_PLUGIN(bytes24 buildingKind, bytes24 pluginID, string calldata pluginMetadata)
+    // register plugins for use within supported clients
+    //
+    // plugins always reference a thing within the state. ie a plugin for a BuildingKind
+    //
+    // example:
+    //
+    //  REGISTER_CLIENT_PLUGIN(myRandomlyPickedPluginID, myBuildingKindID, "my-plugin", "function(){}")
+    //
+    function REGISTER_CLIENT_PLUGIN(bytes24 pluginID, bytes24 targetKind, string calldata name, string calldata src)
         external;
 
     // construct a building
