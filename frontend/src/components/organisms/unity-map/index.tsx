@@ -60,7 +60,7 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
     const player = usePlayer();
     const { dispatch } = player || {};
     const world = useWorld();
-    const { seeker: selectedSeeker, tiles: selectedTiles } = useSelection();
+    const { seeker: selectedSeeker, tiles: selectedTiles, intent } = useSelection();
     const { selectTiles, selectIntent } = useSelection();
     const { unityProvider, sendMessage, addEventListener, removeEventListener } = useUnityContext({
         loaderUrl: `/ds-unity/Build/ds-unity.loader.js`,
@@ -85,7 +85,7 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
     }, []);
     if (isReady) {
         globalSender = sendMessage;
-        const newMapState = dangerouslyHackStateForMap(world, player, selectedSeeker, selectedTiles);
+        const newMapState = dangerouslyHackStateForMap(world, player, selectedSeeker, selectedTiles, intent);
         globalQueue.push(JSON.stringify(newMapState));
     }
 

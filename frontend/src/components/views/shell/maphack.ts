@@ -62,6 +62,7 @@ export interface OldPlayer {
 export interface OldMapState {
     ui: {
         selection: {
+            intent?: string;
             player?: OldPlayer;
             seeker?: OldSeeker;
             tiles: OldTile[];
@@ -89,7 +90,8 @@ export function dangerouslyHackStateForMap(
     world?: World,
     player?: SelectedPlayerFragment,
     selectedSeeker?: SelectedSeekerFragment,
-    selectedTiles?: SelectedTileFragment[]
+    selectedTiles?: SelectedTileFragment[],
+    selectedIntent?: string
 ): OldMapState {
     const toOldTile = (t: WorldTileFragment): Omit<OldTile, 'seekers'> => ({
         id: t.id,
@@ -143,6 +145,7 @@ export function dangerouslyHackStateForMap(
     return {
         ui: {
             selection: {
+                intent: selectedIntent,
                 player: player ? oldPlayers.find((p) => p.id == player.id) : undefined,
                 seeker: selectedSeeker ? oldSeekers.find((s) => s.id == selectedSeeker.id) : undefined,
                 tiles: (selectedTiles || [])
