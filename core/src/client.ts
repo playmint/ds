@@ -70,9 +70,6 @@ export interface State {
     game: GameState;
 }
 
-// Aliasing the State interface as typescript-json-schema will find the graphQL State interface
-export type DSState = State;
-
 export type ActionDispatcher = (name: string, ...args: any) => Promise<unknown>;
 export type PlayerSigner = () => Promise<ethers.Signer>;
 
