@@ -37,7 +37,7 @@ contract NewPlayerRule is Rule {
     }
 
     function _spawnBag(State state, bytes24 seeker, address owner, uint8 equipSlot) private {
-        bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode(seeker)))));
+        bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode(seeker, equipSlot)))));
         state.setOwner(bag, Node.Player(owner));
         state.setEquipSlot(seeker, equipSlot, bag);
     }
