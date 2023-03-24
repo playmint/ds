@@ -68,6 +68,10 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
         codeUrl: `/ds-unity/Build/ds-unity.wasm`
     });
     const [isReady, setIsReady] = useState(false);
+  // We'll round the loading progression to a whole number to represent the
+  // percentage of the Unity Application that has loaded.
+  const loadingPercentage = Math.round(loadingProgression * 100);
+
 
     // -- State update
 
@@ -150,6 +154,33 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
 
     return (
         <StyledUnityMap {...otherProps}>
+            {loadingPercentage < 100 && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        backgroundColor: '#030f25',
+                        height: '30px',
+                        width: '100%',
+                        maxWidth: '300px',
+                        textAlign: 'center',
+                        color: '#fff',
+                        borderRadius: '5px'
+                    }}
+                >
+                    <div
+                        style={{
+                            backgroundColor: '#143063',
+                            height: '100%',
+                            width: `${loadingPercentage}%`,
+                            transition: 'width .3s',
+                            borderRadius: '5px'
+                        }}
+                    />
+                </div>
+            )}
             <Unity unityProvider={unityProvider} />
         </StyledUnityMap>
     );
