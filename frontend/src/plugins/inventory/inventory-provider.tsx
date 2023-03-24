@@ -1,27 +1,4 @@
 /** @format */
-
-// import { createContext, ReactNode, useContext } from 'react';
-// import { DawnseekersClient } from '@app/contexts/dawnseekers-provider';
-//
-//
-// export interface InventoryContextStore {}
-//
-// export const InventoryContext = createContext<InventoryContextStore>({} as InventoryContextStore);
-//
-// export const useInventoryContext = () => useContext(InventoryContext);
-//
-// export const InventoryProvider = ({ ds, children }: InventoryContextProviderProps) => {
-//     // we want to store the currently picked up item
-//     // we need to name, amount, and icon
-//     // we set these values in our bag item that tracks the mouse
-//     // we have a flag in state to track if we have something picked up
-//     // we need an escape handler to drop the item and reset things
-//     // we need to handle dropping the item on a different slot
-//
-//     const store: InventoryContextStore = {};
-//     return <InventoryContext.Provider value={store}>{children}</InventoryContext.Provider>;
-// };
-
 import { createContext, useContext, useState, useRef, useEffect, ReactNode } from 'react';
 import { Client as DawnseekersClient, Tile, useDawnseekersState } from '@core';
 import { styles } from '@app/plugins/inventory/bag-item/bag-item.styles';
@@ -32,10 +9,12 @@ export interface InventoryContextProviderProps {
     children?: ReactNode;
 }
 
-interface TransferInfo {
+export interface TransferInfo {
     id: string;
     equipIndex: number;
     slotIndex: number;
+    newBalance: number;
+    itemId: string;
 }
 
 interface InventoryItem {
@@ -47,9 +26,11 @@ interface InventoryItem {
 
 interface InventoryContextStore {
     isPickedUpItemVisible: boolean;
+    pickedUpItem: InventoryItem | null;
     pickUpItem: (item: InventoryItem) => void;
     dropItem: (target: TransferInfo) => void;
     isSeekerAtLocation: (tile: Tile) => boolean;
+    getPendingTransfers: (ownerId: string, equipIndex: number) => [TransferInfo, TransferInfo][];
 }
 
 const useInventoryContext = createContext<InventoryContextStore>({} as InventoryContextStore);
@@ -77,6 +58,7 @@ export const InventoryProvider = ({ ds, children }: InventoryContextProviderProp
     const [isPickedUpItemVisible, setIsPickedUpItemVisible] = useState<boolean>(false);
     const pickedUpItemRef = useRef<InventoryItem | null>(null);
     const pickedUpItemElementRef = useRef<HTMLDivElement>(null);
+    const pendingTransfers = useRef<[TransferInfo, TransferInfo][]>([]);
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -89,6 +71,20 @@ export const InventoryProvider = ({ ds, children }: InventoryContextProviderProp
             window.removeEventListener('mousemove', handleMouseMove);
         };
     }, []);
+
+    useEffect(() => {
+        if (!data) {
+            return;
+        }
+
+        pendingTransfers.current = pendingTransfers.current.filter(([_, to]) => {
+            // get the owner of 'to'
+            // if we can't find the owner in the data then we have not finished
+            // the transfer, and we need to keep the pending transfer
+            const owners = [...data.game.seekers, ...data.game.tiles];
+            return !owners.some((o) => o.id === to.id);
+        });
+    }, [data, data?.game.block]);
 
     /**
      * check if the selected seeker is on the selected tile
@@ -131,13 +127,27 @@ export const InventoryProvider = ({ ds, children }: InventoryContextProviderProp
             [from.slotIndex, to.slotIndex],
             quantity
         ).then((result) => console.log('Transfer:', result));
+
+        // add pending transfer
+        pendingTransfers.current.push([from, to]);
+    };
+
+    const getPendingTransfers = (ownerId: string, equipIndex: number) => {
+        return pendingTransfers.current.filter(([from, to]) => {
+            return (
+                (from.id === ownerId && from.equipIndex === equipIndex) ||
+                (to.id === ownerId && to.equipIndex === equipIndex)
+            );
+        });
     };
 
     const inventoryContextValue: InventoryContextStore = {
         isPickedUpItemVisible,
+        pickedUpItem: pickedUpItemRef.current,
         pickUpItem,
         dropItem,
-        isSeekerAtLocation
+        isSeekerAtLocation,
+        getPendingTransfers
     };
 
     return (

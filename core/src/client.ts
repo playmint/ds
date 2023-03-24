@@ -99,7 +99,7 @@ export class Client {
         });
         this.signer = signer ? signer() : Promise.reject('no signer configured');
         this.selection = { tileIDs: [], intent: Intent.NONE };
-        this.game = { seekers: [], tiles: [], players: [] };
+        this.game = { block: 0, seekers: [], tiles: [], players: [] };
         this.observers = [];
         this.prevState = { game: this.game, ui: { selection: { intent: Intent.NONE }, plugins: [] } };
 

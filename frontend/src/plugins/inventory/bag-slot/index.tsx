@@ -16,6 +16,7 @@ export interface BagSlotProps extends ComponentProps {
     equipIndex: number;
     slotIndex: number;
     isInteractable: boolean;
+    isPending: boolean;
 }
 
 const StyledBagSlot = styled('div')`
@@ -24,15 +25,21 @@ const StyledBagSlot = styled('div')`
 
 export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) => {
     const { itemSlot, isDisabled, ownerId, equipIndex, slotIndex, isInteractable, ...otherProps } = props;
-    const { dropItem, isPickedUpItemVisible } = useInventory();
+    const { dropItem, isPickedUpItemVisible, pickedUpItem } = useInventory();
 
     const item = itemSlot?.balance ? getItemDetails(itemSlot) : null;
 
     const handleClick = () => {
-        if (!isPickedUpItemVisible || !isInteractable) {
+        if (!isPickedUpItemVisible || !isInteractable || !pickedUpItem) {
             return;
         }
-        dropItem({ id: ownerId, equipIndex, slotIndex });
+        dropItem({
+            id: ownerId,
+            equipIndex,
+            slotIndex,
+            newBalance: pickedUpItem.transferInfo.newBalance,
+            itemId: pickedUpItem.transferInfo.itemId
+        });
     };
 
     const isDroppable = isPickedUpItemVisible && !item;

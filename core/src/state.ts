@@ -92,6 +92,7 @@ export interface Tile extends Node {
 }
 
 export interface GameState {
+    block: number;
     players: Player[];
     seekers: Seeker[];
     tiles: Tile[];
@@ -238,6 +239,7 @@ export function gameStateTransformer(data: GetStateQuery): GameState {
             .sort(byNodeID);
     });
     const game = {
+        block: state.block,
         seekers: Object.values(seekers).sort(byNodeID),
         tiles: Object.values(tiles).sort(byNodeID),
         players: Object.values(players).sort(byNodeID),
