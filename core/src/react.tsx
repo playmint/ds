@@ -1,12 +1,14 @@
 import React from 'react';
-import { map, pipe, scan, Source, subscribe, tap, zip } from 'wonka';
+import { map, pipe, scan, Source, subscribe, zip } from 'wonka';
 import { makeCogClient } from './cog';
+import { makeAvailableBuildingKinds } from './kinds';
 import { Logger, makeLogger } from './logger';
 import { makeConnectedPlayer } from './player';
 import { makeAutoloadPlugins, makeAvailablePlugins, makePluginSelector, makePluginUI } from './plugins';
 import { makeSelection } from './selection';
 import { makeState } from './state';
 import {
+    AvailableBuildingKind,
     AvailablePlugin,
     ConnectedPlayer,
     GameConfig,
@@ -41,6 +43,7 @@ export interface DSContextStore {
     ui: Source<PluginState[]>;
     logger: Logger;
     logs: Source<Log>;
+    buildingKinds: Source<AvailableBuildingKind[]>;
     availablePlugins: Source<AvailablePlugin[]>;
     enabledPlugins: Source<PluginConfig[]>;
     selectPlugins: Selector<string[]>;
@@ -64,6 +67,8 @@ export const DSProvider = ({ initialConfig, defaultPlugins, children }: DSContex
         const { plugins: enabledPlugins, selectPlugins } = makePluginSelector(client, defaultPlugins);
         const { plugins: autoloadPlugins } = makeAutoloadPlugins(client, availablePlugins, selection);
 
+        const { kinds: buildingKinds } = makeAvailableBuildingKinds(client);
+
         const uiPlugins: Source<PluginConfig[]> = pipe(
             zip([enabledPlugins, autoloadPlugins]),
             map((plugins) => [...plugins[0], ...plugins[1]]),
@@ -79,6 +84,7 @@ export const DSProvider = ({ initialConfig, defaultPlugins, children }: DSContex
             selectors,
             availablePlugins,
             enabledPlugins,
+            buildingKinds,
             ui,
             logger,
             logs,

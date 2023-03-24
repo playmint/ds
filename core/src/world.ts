@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { concat, debounce, filter, fromValue, map, pipe, Source, switchMap, tap } from 'wonka';
+import { concat, debounce, filter, fromValue, map, pipe, Source, switchMap } from 'wonka';
 import { GetWorldDocument, GetWorldQuery, OnEventDocument, WorldStateFragment, WorldTileFragment } from './gql/graphql';
 import { CompoundKeyEncoder, NodeSelectors } from './helpers';
 import { BiomeKind, CogIndexer } from './types';

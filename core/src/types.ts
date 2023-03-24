@@ -4,6 +4,7 @@ import { Source } from 'wonka';
 import { configureClient } from './cog';
 import {
     AvailablePluginFragment,
+    BuildingKindFragment,
     GetSelectedPlayerQuery,
     GetWorldQuery,
     OnEventSubscription,
@@ -282,6 +283,7 @@ export type PluginSubmitProxy = (ref: string, values: PluginSubmitCallValues) =>
 export type DispatchFunc = (...actions: CogAction[]) => void;
 
 export type AvailablePlugin = AvailablePluginFragment;
+export type AvailableBuildingKind = BuildingKindFragment;
 
 export interface PluginSelection {
     available: AvailablePlugin[];
