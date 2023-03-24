@@ -4,21 +4,24 @@
 UNITY_EDITOR_VERSION := 2021.3.13f1
 ifeq ($(OS),Windows_NT)
 	UNITY_EDITOR := C:\Program Files\Unity\Hub\Editor\$(UNITY_EDITOR_VERSION)\Editor\Unity.exe
-else 
+else
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
 	UNITY_EDITOR := /Applications/Unity/Hub/Editor/$(UNITY_EDITOR_VERSION)/Unity.app/Contents/MacOS/Unity
-else 
+else
 	UNITY_EDITOR := /Applications/Unity/Hub/Editor/$(UNITY_EDITOR_VERSION)/Unity.app/Contents/Linux/Unity
 endif
 endif
-UNITY_SRC := $(wildcard DawnSeekersUnity/**/*)
+UNITY_SRC := $(wildcard DawnSeekersUnity/**/*.cs)
+
+# cog srcs
+COG_SERVICES_SRC := $(wildcard contracts/lib/cog/services/**/*.go)
 
 # paths to tools
 NODE := node
 NPM := npm
 
-all: node_modules contracts/lib/cog/services/bin/ds-node contracts/lib/cog/services/bin/wait-for contracts/out/Actions.sol core/dist/core.js frontend/public/ds-unity/Build/ds-unity.wasm bridge/dist/index.js
+all: node_modules contracts/lib/cog/services/bin/ds-node contracts/out/Actions.sol core/dist/core.js frontend/public/ds-unity/Build/ds-unity.wasm bridge/dist/index.js
 
 dev: all
 	$(NODE) .devstartup.js
@@ -26,11 +29,12 @@ dev: all
 contracts/out/Actions.sol:
 	(cd contracts && forge build)
 
-core/dist/core.js:
+core/dist/core.js: $(wildcard core/src/**/*)
 	(cd core && npm run build)
 
 bridge/dist/index.js: core/dist/core.js
-	# (cd bridge && npm run build)
+	echo "FIXME: don't commit this"
+	echo "(cd bridge && npm run build)"
 
 frontend/public/ds-unity/Build/ds-unity.wasm: $(UNITY_SRC)
 	$(UNITY_EDITOR) -batchmode -quit -projectPath ./DawnSeekersUnity -executeMethod BuildScript.GitHubBuild -buildTarget WebGL -logFile - || ( \
@@ -59,15 +63,8 @@ node_modules: package.json package-lock.json
 	$(NPM) ci
 	touch $@
 
-contracts/lib/cog/services/Makefile:
-	git submodule update --init --recursive
-	touch $@
-
-contracts/lib/cog/services/bin/ds-node: contracts/lib/cog/services/Makefile
+contracts/lib/cog/services/bin/ds-node: contracts/lib/cog/services/Makefile $(COG_SERVICES_SRC)
 	$(MAKE) -C contracts/lib/cog/services bin/ds-node
-
-contracts/lib/cog/services/bin/wait-for: contracts/lib/cog/services/Makefile
-	$(MAKE) -C contracts/lib/cog/services bin/wait-for
 
 clean:
 	rm -rf frontend/public/ds-unity
@@ -81,6 +78,8 @@ clean:
 	rm -rf core/src/gql
 	rm -rf bridge/node_modules
 	rm -rf node_modules
+	$(MAKE) -C contracts/lib/cog/services clean
 
 
-.PHONY: all clean
+.PHONY: all clean dev
+.SILENT: contracts/lib/cog/services/bin/ds-node
