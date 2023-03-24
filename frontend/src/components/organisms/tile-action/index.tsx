@@ -126,7 +126,7 @@ export const TileAction: FunctionComponent<TileActionProps> = (props: TileAction
     const popout = getVisibleContentForType('popout');
     const dialog = getVisibleContentForType('dialog');
 
-    console.log(inline, popout, dialog);
+    // console.log(inline, popout, dialog);
 
     if ((!inline || (inline && inline.buttons?.length === 0)) && !popout && !dialog) {
         return null;

@@ -38,11 +38,13 @@ export function getItemIcon(name: string) {
 }
 
 export function getItemDetails(itemSlot: ItemSlot) {
+    const itemId = itemSlot.item.id;
     const name = getSlotName(itemSlot);
     const icon = getItemIcon(name);
     const quantity = itemSlot.balance;
 
     return {
+        itemId,
         name,
         icon,
         quantity
