@@ -3,6 +3,12 @@ fragment SelectedTile on Node {
     bags: edges(match: { kinds: "Bag", via: { rel: "Equip" } }) {
         ...EquipmentSlot
     }
+    building: node(match: { kinds: "Building", via: { rel: "Location", dir: IN } }) {
+        ...WorldBuilding
+        bags: edges(match: { kinds: "Bag", via: { rel: "Equip" } }) {
+            ...EquipmentSlot
+        }
+    }
 }
 
 query GetSelectedTile($gameID: ID!, $id: [String!]!) {

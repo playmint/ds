@@ -9,3 +9,4 @@ package-lock.json
 .DS_Store
 /node_modules
 /src/gql
+/src/abi

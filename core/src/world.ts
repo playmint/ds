@@ -1,8 +1,8 @@
 import { ethers } from 'ethers';
-import { concat, debounce, filter, fromValue, map, pipe, Source, switchMap } from 'wonka';
-import { GetWorldDocument, GetWorldQuery, OnEventDocument, WorldStateFragment, WorldTileFragment } from './gql/graphql';
+import { debounce, map, pipe, Source, switchMap } from 'wonka';
+import { GetWorldDocument, GetWorldQuery, WorldStateFragment, WorldTileFragment } from './gql/graphql';
 import { CompoundKeyEncoder, NodeSelectors } from './helpers';
-import { BiomeKind, CogIndexer } from './types';
+import { BiomeKind, CogServices } from './types';
 
 /**
  * makeWorldState subscribes to changes to the world state.
@@ -13,44 +13,12 @@ import { BiomeKind, CogIndexer } from './types';
  * SelectedTile/SelectedSeeker/etc states hold more detailed information.
  *
  */
-export function makeWorld(cog: Source<CogIndexer>) {
+export function makeWorld(cog: Source<CogServices>) {
     return pipe(
         cog,
-        switchMap(() => makeSubscription(cog)),
         switchMap(({ query, gameID }) => {
-            return pipe(
-                query(GetWorldDocument, { gameID }),
-                map((res) => res.data),
-                filter((data): data is GetWorldQuery => !!data),
-                map(normalizeWorldState),
-            );
+            return pipe(query(GetWorldDocument, { gameID }), map(normalizeWorldState));
         }),
-        debounce(() => 250),
-    );
-}
-
-/**
- * makeSubscription subscribes to game events, and emits a cog client everytime
- * something changes
- *
- * right now this is mostly just used as a switchMap trigger to causes stale
- * sources to get dropped and new ones created, we don't use any of the data in
- * the subscription events.
- *
- */
-function makeSubscription(cog: Source<CogIndexer>) {
-    return pipe(
-        cog,
-        switchMap((cog) =>
-            concat([
-                fromValue(cog), // always emit one to start
-                pipe(
-                    // then subscribe to changes
-                    cog.subscription(OnEventDocument, { gameID: cog.gameID }),
-                    map(() => cog),
-                ),
-            ]),
-        ),
         debounce(() => 250),
     );
 }

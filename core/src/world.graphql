@@ -4,6 +4,7 @@ fragment Location on Edge {
     time: weight # block at which location is valid
     tile: node {
         id
+        coords: keys
     }
 }
 
@@ -71,6 +72,7 @@ fragment WorldPlayer on Node {
 }
 
 fragment WorldState on State {
+    block
     players: nodes(match: { kinds: "Player" }) {
         ...WorldPlayer
     }

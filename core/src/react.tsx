@@ -1,12 +1,13 @@
 import React from 'react';
 import { map, pipe, scan, Source, subscribe, zip } from 'wonka';
 import { makeCogClient } from './cog';
+import { BuildingKindFragment } from './gql/graphql';
 import { makeAvailableBuildingKinds } from './kinds';
 import { Logger, makeLogger } from './logger';
 import { makeConnectedPlayer } from './player';
 import { makeAutoloadPlugins, makeAvailablePlugins, makePluginSelector, makePluginUI } from './plugins';
 import { makeSelection } from './selection';
-import { makeState } from './state';
+import { makeGameState } from './state';
 import {
     AvailableBuildingKind,
     AvailablePlugin,
@@ -17,7 +18,7 @@ import {
     PluginState,
     Selection,
     Selector,
-    State,
+    GameState,
     World,
 } from './types';
 import { makeBrowserWallet } from './wallet';
@@ -75,8 +76,6 @@ export const DSProvider = ({ initialConfig, defaultPlugins, children }: DSContex
         );
         const ui = makePluginUI(player, logger, uiPlugins, world, selection);
 
-        console.log('USE MEMO');
-
         return {
             player,
             world,
@@ -124,6 +123,12 @@ export function usePluginState(): PluginState[] | undefined {
     return useSource(sources.ui);
 }
 
+// fetch the list of building kind names/ids
+export function useBuildingKinds(): BuildingKindFragment[] | undefined {
+    const sources = useSources();
+    return useSource(sources.buildingKinds);
+}
+
 // fetch everything you need to list, and select plugins
 export function usePlugins() {
     const { availablePlugins, enabledPlugins, selectPlugins } = useSources();
@@ -145,7 +150,7 @@ export function useLogs(limit: number): Log[] | undefined {
                 if (logs.length > limit) {
                     logs.shift();
                 }
-                return logs;
+                return [...logs];
             }, [] as Log[]),
             subscribe(setValue),
         );
@@ -156,12 +161,12 @@ export function useLogs(limit: number): Log[] | undefined {
 }
 
 // helper to merged togther all the state things (same shape plugins use)
-export function useState(): Partial<State> {
+export function useGameState(): Partial<GameState> {
     const sources = useSources();
-    const [state, setState] = React.useState<Partial<State>>({});
+    const [state, setState] = React.useState<Partial<GameState>>({});
 
     React.useEffect(() => {
-        const state = makeState(sources.player, sources.world, sources.selection);
+        const state = makeGameState(sources.player, sources.world, sources.selection);
         const { unsubscribe } = pipe(state, subscribe(setState));
         return unsubscribe;
     }, [sources.player, sources.world, sources.selection]);

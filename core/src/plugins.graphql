@@ -21,7 +21,8 @@ fragment SelectedPlugin on Node {
         value
     }
     src: annotation(name: "src") {
-        hash: id
+        id
+        hash: ref
         value
     }
     supports: node(match: { via: { rel: "Supports", dir: IN } }) {

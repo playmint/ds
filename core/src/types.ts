@@ -16,6 +16,7 @@ import {
     WorldStateFragment,
     WorldTileFragment,
 } from './gql/graphql';
+import { ActionsInterface } from './abi/Actions';
 
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<T>;
 
@@ -62,8 +63,9 @@ export interface GameConfig {
     httpFetchImpl?: typeof fetch;
 }
 
+export type ActionName = Parameters<ActionsInterface['getFunction']>[0];
 export interface CogAction {
-    name: string;
+    name: ActionName;
     args: any[];
 }
 
@@ -98,6 +100,19 @@ export type CogDispatcher = {
 };
 
 export type CogServices = CogDispatcher & CogRouter & CogIndexer;
+
+export interface CogQueryConfig {
+    // subscribe indicates that this query should be re-run when new data is
+    // available
+    subscribe?: boolean;
+    // if set to a number (of milliseconds), uses polling for subscription
+    // instead of events from the graphql subscription
+    poll?: number;
+}
+
+export enum CogEvent {
+    STATE_CHANGED,
+}
 
 export interface CogSession {
     key: ethers.HDNodeWallet;
@@ -203,19 +218,22 @@ export interface PluginConfig {
     type: PluginType;
     trust: PluginTrust;
     src: string;
+    hash: string;
     nodeID?: string;
 }
 
 export interface InactivePlugin {
     id: string;
+    name: string;
     src: string;
+    hash: string;
     type: PluginType;
     trust: PluginTrust;
 }
 
 export interface ActivePlugin extends InactivePlugin {
     context: QuickJSContext;
-    update: (state: State) => PluginState;
+    update: (state: GameState) => PluginState;
 }
 
 export type PluginActionCallProxy = () => Promise<void>;
@@ -305,7 +323,7 @@ export type Player = WorldPlayerFragment & Partial<SelectedPlayerFragment>;
 export type Seeker = WorldSeekerFragment & Partial<SelectedSeekerFragment>;
 export type Tile = WorldTileFragment & Partial<SelectedTileFragment>;
 
-export interface State {
+export interface GameState {
     player?: Player;
     world: World;
     selected: Selection;
@@ -317,3 +335,5 @@ export interface ConnectedPlayer extends SelectedPlayerFragment {
     pending: Source<DispatchedAction>;
     disconnect: () => void;
 }
+
+export type UnconnectedPlayer = undefined;

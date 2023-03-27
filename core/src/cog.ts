@@ -10,21 +10,31 @@ import {
 // import { devtoolsExchange } from '@urql/devtools';
 import { ethers } from 'ethers';
 import { createClient as createWSClient } from 'graphql-ws';
-import { concat, filter, fromPromise, fromValue, lazy, makeSubject, map, pipe, Source } from 'wonka';
-import { DispatchDocument, SigninDocument, SignoutDocument } from './gql/graphql';
-import { AnyGameSubscription, AnyGameVariables, CogAction, GameConfig } from './types';
+import {
+    concat,
+    debounce,
+    filter,
+    fromPromise,
+    fromValue,
+    interval,
+    lazy,
+    makeSubject,
+    map,
+    pipe,
+    share,
+    Source,
+    switchMap,
+    tap,
+} from 'wonka';
+import { Actions__factory } from './abi';
+import { DispatchDocument, OnEventDocument, SigninDocument, SignoutDocument } from './gql/graphql';
+import { AnyGameSubscription, AnyGameVariables, CogAction, CogEvent, CogQueryConfig, GameConfig } from './types';
 // import { cacheExchange } from '@urql/exchange-graphcache';
 // import cogSchema from './gql/introspection';
 
 const abi = ethers.AbiCoder.defaultAbiCoder();
 
-export const DAWNSEEKERS_GAME_ACTIONS = new ethers.Interface([
-    'function MOVE_SEEKER(uint32 sid, int16 q, int16 r, int16 s)',
-    'function SCOUT_SEEKER(uint32 sid, int16 q, int16 r, int16 s)',
-    'function SPAWN_SEEKER(bytes24 seeker)',
-    'function DEV_SPAWN_SEEKER(address player, uint32 seekerID, int16 q, int16 r, int16 s)',
-    'function DEV_SPAWN_TILE(uint8 kind, int16 q, int16 r, int16 s)',
-]);
+export const DAWNSEEKERS_GAME_ACTIONS = Actions__factory.createInterface();
 
 const DAWNSEEKERS_AUTH_MESSAGE = (addr: string, ttl: number) =>
     [
@@ -152,29 +162,6 @@ export function configureClient({
         };
     };
 
-    // TODO: fix the generics here, things that consume this func currently require
-    // a map+filter with a type gaurd to ensure they get the correct typings
-    // there must be a better way but I failed to get it work
-    const query = <Data = any, Variables extends AnyGameVariables = AnyGameVariables>(
-        doc: TypedDocumentNode<Data, Variables>,
-        vars: Variables,
-    ): Source<OperationResult<Data, Variables>> =>
-        pipe(
-            fromPromise(gql.query(doc, vars, { requestPolicy: 'network-only' }).toPromise()),
-            map((res) => {
-                if (res.error) {
-                    console.warn('cog query error:', res.error);
-                    return undefined;
-                }
-                if (!res.data) {
-                    console.warn('cog query fail: returned no data');
-                    return undefined;
-                }
-                return res;
-            }),
-            filter((res): res is OperationResult<Data, Variables> => res !== undefined),
-        );
-
     const subscription = <
         Data extends TypedDocumentNode<AnyGameSubscription, Variables>,
         Variables extends AnyGameVariables = AnyGameVariables,
@@ -196,6 +183,57 @@ export function configureClient({
                 return res.data.events;
             }),
             filter((data): data is AnyGameSubscription['events'] => !!data),
+            debounce(() => 250), // chill out
+            tap(() => console.log('NEW DATA ARRIVED!!!!!!!!!')),
+            share,
+        );
+
+    const events = subscription(OnEventDocument, { gameID });
+
+    // query executes a query which will get re-queried each time new data arrives
+    // right now this is implemented rather naively (ANY new events causes ALL
+    // queries to be re-run), we can do better with caching in the future
+    const query = <Data = any, Variables extends AnyGameVariables = AnyGameVariables>(
+        doc: TypedDocumentNode<Data, Variables>,
+        vars: Variables,
+        config?: CogQueryConfig,
+    ): Source<Data> =>
+        pipe(
+            config?.subscribe === false
+                ? lazy(() => fromValue(CogEvent.STATE_CHANGED)) // no subscription, just do the query once
+                : concat([
+                      lazy(() => fromValue(CogEvent.STATE_CHANGED)), // always emit one to start
+                      typeof config?.poll === 'undefined'
+                          ? pipe(
+                                // emit signal on notify of state update from events
+                                events,
+                                map(() => CogEvent.STATE_CHANGED),
+                            )
+                          : pipe(
+                                // emit signal periodically
+                                interval(config.poll),
+                                map(() => CogEvent.STATE_CHANGED),
+                            ),
+                  ]),
+            switchMap(() =>
+                pipe(
+                    fromPromise(gql.query(doc, vars, { requestPolicy: 'network-only' }).toPromise()),
+                    map((res) => {
+                        if (res.error) {
+                            console.warn('cog query error:', res.error);
+                            return undefined;
+                        }
+                        if (!res.data) {
+                            console.warn('cog query fail: returned no data');
+                            return undefined;
+                        }
+                        return res;
+                    }),
+                    filter((res): res is OperationResult<Data, Variables> => typeof res !== 'undefined'),
+                    map((res) => res.data),
+                    filter((data): data is Data => typeof data !== 'undefined'),
+                ),
+            ),
         );
 
     return { gameID, signin, signout, query, subscription, dispatch };
@@ -254,7 +292,7 @@ function encodeActionData(actions: ethers.Interface, name: string, givenArgs: un
  * ids/keys and so can do a pretty good job of guessing the intensions.
  *
  */
-function actionArgFromUnknown(wanted: ethers.ParamType, given: unknown): any {
+export function actionArgFromUnknown(wanted: ethers.ParamType, given: unknown): any {
     // if we are given a BigInt then assume they know what they are doing
     if (typeof given === 'bigint') {
         return given;
@@ -274,6 +312,12 @@ function actionArgFromUnknown(wanted: ethers.ParamType, given: unknown): any {
             return given;
         } else {
             return given;
+        }
+    }
+    // if wanted is bytes, then convert to bytes
+    if (wanted.baseType.startsWith('bytes')) {
+        if (typeof given === 'string') {
+            return ethers.getBytes(given);
         }
     }
     // else hope for the best

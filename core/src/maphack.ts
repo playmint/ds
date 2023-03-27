@@ -1,12 +1,4 @@
-import {
-    EquipmentSlotFragment,
-    SelectedPlayerFragment,
-    SelectedSeekerFragment,
-    SelectedTileFragment,
-    World,
-    WorldSeekerFragment,
-    WorldTileFragment
-} from '@dawnseekers/core';
+import { EquipmentSlotFragment, GameState, WorldSeekerFragment, WorldTileFragment } from '@dawnseekers/core';
 import { ethers } from 'ethers';
 
 enum OldLocationKind {
@@ -86,13 +78,8 @@ export interface OldMapState {
 //
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-export function dangerouslyHackStateForMap(
-    world?: World,
-    player?: SelectedPlayerFragment,
-    selectedSeeker?: SelectedSeekerFragment,
-    selectedTiles?: SelectedTileFragment[],
-    selectedIntent?: string
-): OldMapState {
+export function dangerouslyHackStateForMap({ player, selected, world }: Partial<GameState>): OldMapState {
+    const { seeker, tiles, intent } = selected || {};
     const toOldTile = (t: WorldTileFragment): Omit<OldTile, 'seekers'> => ({
         id: t.id,
         // building: t.building || null, // this break the map?
@@ -145,12 +132,10 @@ export function dangerouslyHackStateForMap(
     return {
         ui: {
             selection: {
-                intent: selectedIntent,
+                intent,
                 player: player ? oldPlayers.find((p) => p.id == player.id) : undefined,
-                seeker: selectedSeeker ? oldSeekers.find((s) => s.id == selectedSeeker.id) : undefined,
-                tiles: (selectedTiles || [])
-                    .map((st) => oldTiles.find((t) => st.id == t.id))
-                    .filter((t): t is OldTile => !!t)
+                seeker: seeker ? oldSeekers.find((s) => s.id == seeker.id) : undefined,
+                tiles: (tiles || []).map((st) => oldTiles.find((t) => st.id == t.id)).filter((t): t is OldTile => !!t)
             },
             plugins: []
         },

@@ -1,4 +1,4 @@
-import { concatMap, map, pipe, Source, switchMap } from 'wonka';
+import { map, pipe, Source, switchMap, zip } from 'wonka';
 import { GetSelectedTileDocument, SelectedTileFragment, WorldStateFragment, WorldTileFragment } from './gql/graphql';
 import { CogServices } from './types';
 
@@ -15,35 +15,31 @@ export function makeTiles(
     ids: Source<string[] | undefined>,
 ) {
     return pipe(
-        client,
-        switchMap(({ query, gameID }) =>
-            pipe(
-                world,
-                switchMap(({ tiles: worldTiles }) =>
-                    pipe(
-                        ids,
-                        concatMap((selectedIDs) =>
-                            pipe(
-                                query(GetSelectedTileDocument, {
-                                    gameID,
-                                    id:
-                                        selectedIDs && selectedIDs.length > 0
-                                            ? selectedIDs
-                                            : ['fixme-cog-returns-all-matches-for-empty-list'],
-                                }),
-                                map((res) => res.data),
-                                map((data) =>
-                                    data && data.game.state.tiles.length > 0
-                                        ? data.game.state.tiles
-                                        : ([] satisfies SelectedTileFragment[]),
-                                ),
-                                map((fetchedTiles) => extendWorldTileOrDrop(fetchedTiles, worldTiles, selectedIDs)),
-                            ),
-                        ),
-                    ),
+        zip<any>({ client, world }),
+        switchMap<any, SelectedTileFragment[]>(
+            ({ client, world }: { client: CogServices; world: WorldStateFragment }) =>
+                pipe(
+                    ids,
+                    switchMap((selectedIDs) => makeSelectedTileQuery(client, world, selectedIDs)),
                 ),
-            ),
         ),
+    );
+}
+
+function makeSelectedTileQuery(
+    client: CogServices,
+    world: WorldStateFragment,
+    selectedIDs?: string[],
+): Source<SelectedTileFragment[]> {
+    return pipe(
+        client.query(GetSelectedTileDocument, {
+            gameID: client.gameID,
+            id: selectedIDs && selectedIDs.length > 0 ? selectedIDs : ['fixme-cog-returns-all-matches-for-empty-list'],
+        }),
+        map(({ game }) =>
+            game && game.state.tiles.length > 0 ? game.state.tiles : ([] satisfies SelectedTileFragment[]),
+        ),
+        map((fetchedTiles) => extendWorldTileOrDrop(fetchedTiles, world.tiles, selectedIDs)),
     );
 }
 
@@ -82,5 +78,11 @@ function upgradeWorldTileToSelectedTile(t: WorldTileFragment): SelectedTileFragm
     return {
         ...t,
         bags: [],
+        building: t.building
+            ? {
+                  ...t.building,
+                  bags: [],
+              }
+            : null,
     };
 }

@@ -1,5 +1,5 @@
 import { debounce, filter, map, merge, pipe, scan, Source } from 'wonka';
-import { ConnectedPlayer, Selection, State, World } from './types';
+import { ConnectedPlayer, Selection, GameState, World } from './types';
 
 /**
  * makeState is a helper to merge player+world+selection together into the State object.
@@ -8,13 +8,13 @@ import { ConnectedPlayer, Selection, State, World } from './types';
  *
  * the resulting source will block until world has arrived.
  */
-export function makeState(
+export function makeGameState(
     player: Source<ConnectedPlayer | undefined>,
     world: Source<World>,
     selection: Source<Selection>,
 ) {
     return pipe(
-        merge<Partial<State>>([
+        merge<Partial<GameState>>([
             pipe(
                 player,
                 map((player) => ({ player })),
@@ -28,8 +28,8 @@ export function makeState(
                 map((selected) => ({ selected })),
             ),
         ]),
-        scan((inputs, v) => ({ ...inputs, ...v }), {} as Partial<State>),
-        filter((inputs): inputs is State => !!inputs.world),
+        scan((inputs, v) => ({ ...inputs, ...v }), {} as Partial<GameState>),
+        filter((inputs): inputs is GameState => !!inputs.world),
         debounce(() => 25),
-    ) satisfies Source<State>;
+    ) satisfies Source<GameState>;
 }

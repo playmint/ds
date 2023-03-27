@@ -12,6 +12,7 @@ export * from './tile';
 export * from './types';
 export * from './wallet';
 export * from './world';
+export * from './maphack';
 
 export type {
     SelectedSeekerFragment,
@@ -22,6 +23,7 @@ export type {
     WorldTileFragment,
     WorldStateFragment,
     WorldBuildingFragment,
+    BuildingKindFragment,
     ItemSlotFragment,
     EquipmentSlotFragment,
     BagFragment,

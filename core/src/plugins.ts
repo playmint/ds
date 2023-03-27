@@ -1,28 +1,16 @@
+import { ethers } from 'ethers';
 import { getQuickJS, QuickJSRuntime } from 'quickjs-emscripten';
-import {
-    concat,
-    concatMap,
-    filter,
-    fromPromise,
-    fromValue,
-    interval,
-    lazy,
-    makeSubject,
-    map,
-    pipe,
-    Source,
-    switchMap,
-} from 'wonka';
+import { concat, fromPromise, fromValue, lazy, makeSubject, map, pipe, Source, switchMap, zip } from 'wonka';
 import * as apiv1 from './api/v1';
+import { actionArgFromUnknown } from './cog';
 import {
     AvailablePluginFragment,
     GetAvailablePluginsDocument,
     GetSelectedPluginsDocument,
-    SelectedPluginFragment,
     SelectedTileFragment,
 } from './gql/graphql';
 import { Logger } from './logger';
-import { makeState } from './state';
+import { makeGameState } from './state';
 import {
     ActivePlugin,
     CogAction,
@@ -35,13 +23,18 @@ import {
     PluginTrust,
     PluginType,
     Selection,
-    State,
+    GameState,
     World,
 } from './types';
 
-const gsandbox = getQuickJS().then((js) => js.newRuntime());
+const gruntime = getQuickJS().then((js) => js.newRuntime());
+const active = new Map<string, ActivePlugin>();
+
 export function makePluginSandbox() {
-    return fromPromise(gsandbox);
+    return pipe(
+        fromPromise(gruntime),
+        map((runtime) => ({ runtime, active })),
+    );
 }
 
 /**
@@ -55,17 +48,10 @@ export function makePluginSandbox() {
 export function makeAvailablePlugins(client: Source<CogServices>) {
     const plugins = pipe(
         client,
-        switchMap((client) =>
-            pipe(
-                concat([fromValue(1), interval(1000 * 60)]),
-                map(() => client),
-            ),
-        ),
         switchMap(({ query, gameID }) =>
             pipe(
-                query(GetAvailablePluginsDocument, { gameID }),
-                map((res) => (res.data ? res.data.game.state.plugins : undefined)),
-                filter((plugins): plugins is AvailablePluginFragment[] => !!plugins),
+                query(GetAvailablePluginsDocument, { gameID }, { poll: 60 * 1000 }),
+                map(({ game }) => game.state.plugins),
             ),
         ),
     );
@@ -88,52 +74,49 @@ function noopDispatcher(...actions: CogAction[]) {
 export function makePluginUI(
     player: Source<ConnectedPlayer | undefined>,
     logger: Logger,
-    wantedPlugins: Source<PluginConfig[]>,
+    plugins: Source<PluginConfig[]>,
     world: Source<World>,
     selection: Source<Selection>,
 ) {
-    const active = new Map<string, ActivePlugin>();
     const sandbox = makePluginSandbox();
-    const state = makeState(player, world, selection);
+    const state = makeGameState(player, world, selection);
     return pipe(
-        sandbox,
-        switchMap((sandbox) =>
-            pipe(
+        zip<any>({ sandbox, player, plugins, state }),
+        map<any, PluginState[]>(
+            ({
+                sandbox,
+                state,
                 player,
-                switchMap((player) =>
-                    pipe(
-                        wantedPlugins,
-                        // onPush(deactivateUnused), // TODO
-                        concatMap((plugins) =>
-                            pipe(
-                                state,
-                                map((state) =>
-                                    plugins
-                                        .map((p) => {
-                                            try {
-                                                const log = logger.with({ name: `plugin-${p.id}` });
-                                                const dispatch = player ? player.dispatch : noopDispatcher;
-                                                const plugin = active.has(p.id)
-                                                    ? active.get(p.id)
-                                                    : loadPlugin(sandbox, dispatch, log, p);
-                                                if (!plugin) {
-                                                    console.warn(`failed to get or load plugin ${p.id}`);
-                                                    return null;
-                                                }
-                                                active.set(p.id, plugin);
-                                                return plugin.update(state);
-                                            } catch (err) {
-                                                console.error(`plugin ${p.id}:`, err);
-                                                return { components: [], version: 1, error: `${err}` };
-                                            }
-                                        })
-                                        .filter((res): res is PluginState => !!res),
-                                ),
-                            ),
-                        ),
-                    ),
-                ),
-            ),
+                plugins,
+            }: {
+                sandbox: { runtime: QuickJSRuntime; active: Map<string, ActivePlugin> };
+                state: GameState;
+                player: ConnectedPlayer | undefined;
+                plugins: PluginConfig[];
+            }) =>
+                plugins
+                    .map((p) => {
+                        try {
+                            const dispatch = player ? player.dispatch : noopDispatcher;
+                            if (!p.hash || !p.src) {
+                                console.warn(`plugin ${p.id} has no src hash, skipping`);
+                                return null;
+                            }
+                            const plugin = active.has(p.hash)
+                                ? active.get(p.hash)
+                                : loadPlugin(sandbox.runtime, dispatch, logger.with({ name: `plugin-${p.id}` }), p);
+                            if (!plugin) {
+                                console.warn(`failed to get or load plugin ${p.id}`);
+                                return null;
+                            }
+                            active.set(p.hash, plugin);
+                            return plugin.update(state);
+                        } catch (err) {
+                            console.error(`plugin ${p.id}:`, err);
+                            return { components: [], version: 1, error: `${err}` };
+                        }
+                    })
+                    .filter((res): res is PluginState => !!res),
         ),
     );
 }
@@ -163,7 +146,7 @@ function isAutoloadableBuildingPlugin(p: AvailablePluginFragment, tiles?: Select
     if (!selectedBuilding) {
         return false;
     }
-    return p.supports.id == selectedBuilding.id;
+    return p.supports.id == selectedBuilding.kind?.id;
 }
 
 /**
@@ -178,7 +161,7 @@ function makeAutoloadBuildingPlugins(
     return pipe(
         availablePlugins,
         map((plugins) => plugins.filter((p) => isAutoloadableBuildingPlugin(p, selection.tiles))),
-        concatMap((plugins) =>
+        switchMap((plugins) =>
             makeSelectedPlugins(
                 cog,
                 plugins.map((p) => p.id),
@@ -214,9 +197,8 @@ export function makeAutoloadPlugins(
 function makeSelectedPlugins(cog: CogServices, pluginIDs: string[]) {
     return pluginIDs.length > 0
         ? pipe(
-              cog.query(GetSelectedPluginsDocument, { gameID: cog.gameID, pluginIDs }),
-              map((res) => res?.data?.game.state.plugins),
-              filter((plugins): plugins is SelectedPluginFragment[] => !!plugins),
+              cog.query(GetSelectedPluginsDocument, { gameID: cog.gameID, pluginIDs }, { subscribe: false }),
+              map(({ game }) => game.state.plugins),
               map((plugins) =>
                   plugins.map(
                       (p) =>
@@ -224,13 +206,14 @@ function makeSelectedPlugins(cog: CogServices, pluginIDs: string[]) {
                               id: p.id,
                               name: p.name ? p.name.value : 'unnamed',
                               src: p.src ? p.src.value : '',
+                              hash: p.src ? p.src.hash : p.id,
                               trust: PluginTrust.UNTRUSTED,
                               type: pluginTypeForNodeKind(p.supports?.kind),
                           } satisfies PluginConfig),
                   ),
               ),
           )
-        : fromValue([] satisfies PluginConfig[]);
+        : lazy(() => fromValue([] satisfies PluginConfig[]));
 }
 
 /**
@@ -244,7 +227,7 @@ export function makePluginSelector(cog: Source<CogServices>, defaultPlugins?: Pl
         cog,
         switchMap((cog) =>
             pipe(
-                concat([fromValue([] as string[]), selectedPluginIDs]),
+                concat([lazy(() => fromValue([] as string[])), selectedPluginIDs]),
                 switchMap((pluginIDs) => makeSelectedPlugins(cog, pluginIDs)),
                 map((plugins) => [...plugins, ...(defaultPlugins || [])] satisfies PluginConfig[]),
             ),
@@ -286,7 +269,7 @@ export function loadPlugin(
     runtime: QuickJSRuntime,
     dispatch: DispatchFunc,
     logger: Logger,
-    { id: pluginId, src, type: pluginType, trust }: PluginConfig,
+    { id: pluginId, src, type: pluginType, ...otherPluginProps }: PluginConfig,
 ) {
     if (!pluginId) {
         throw new Error(`unabled to load plugin: no id provided`);
@@ -342,6 +325,33 @@ export function loadPlugin(
             }
         })
         .consume((fn: any) => context.setProp(dsHandle, 'dispatch', fn));
+
+    // expose a way for plugins to do some calldata encoding
+    // TODO: we basically want an "ethers lite" for plugins and other utils, binding just this func is not gonna be enough
+    context
+        .newFunction('encodeCall', (reqHandle) => {
+            try {
+                if (!api.enabled) {
+                    console.warn(`plugin-${pluginId}: api disabled outside of event handlers`);
+                    return context.undefined;
+                }
+                const [funcsig, args] = JSON.parse(context.getString(reqHandle));
+                const callInterface = new ethers.Interface([funcsig]);
+                const callFunc = callInterface.getFunction(funcsig);
+                if (!callFunc) {
+                    throw new Error(`no func found for signature ${funcsig}`);
+                }
+                const callArgs = callFunc.inputs.map((wanted, idx) => actionArgFromUnknown(wanted, args[idx]));
+                console.warn('ENCODE CALL!!', callFunc.name, callArgs, args);
+                const callData = callInterface.encodeFunctionData(callFunc.name, callArgs);
+                console.warn('encodeCall: returning', callData);
+                return context.newString(JSON.stringify(callData));
+            } catch (err) {
+                console.error(`plugin-${pluginId}: failure attempting to encodeCall: ${err}`);
+                return context.undefined;
+            }
+        })
+        .consume((fn: any) => context.setProp(dsHandle, 'encodeCall', fn));
 
     // setup the log binding
     context
@@ -408,7 +418,7 @@ export function loadPlugin(
     };
 
     // setup the update func
-    const updateProxy = (state: State): PluginState => {
+    const updateProxy = (state: GameState): PluginState => {
         console.debug(`[${pluginId} send]`, state);
         const res = context.evalCode(`(function(nextState){
 
@@ -468,10 +478,10 @@ export function loadPlugin(
     return {
         id: pluginId,
         type: pluginType,
-        trust,
         src,
         update: updateProxy,
         context,
+        ...otherPluginProps,
     };
 }
 
@@ -479,9 +489,15 @@ export function loadPlugin(
 // to make it feel like a "normal" library import and potentially keep compatibility
 // with any future implementation changes where modules loading might be supported
 const DS_GUEST_FUNCTIONS = `
+
 export function dispatch(...actions) {
     const req = JSON.stringify(actions);
     return globalThis.__ds.dispatch(req);
+}
+
+export function encodeCall(...args) {
+    const req = JSON.stringify(args);
+    return JSON.parse(globalThis.__ds.encodeCall(req));
 }
 
 export function log(...args) {
@@ -490,6 +506,7 @@ export function log(...args) {
 }
 
 export default {
+    encodeCall,
     dispatch,
     log,
 };

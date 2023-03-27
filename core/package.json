@@ -32,8 +32,10 @@
     "test": "vitest run",
     "check": "tsc",
     "lint": "eslint --ext=js,ts .",
-    "build": "graphql-codegen && rollup -c scripts/rollup.config.mjs",
+    "build": "npm run build:graphql && npm run build:abi && npm run build:package",
+    "build:package": "rollup -c scripts/rollup.config.mjs",
     "build:graphql": "graphql-codegen",
+    "build:abi": "typechain --target ethers-v6 --out-dir src/abi ../contracts/out/Actions.sol/Actions.json",
     "build:watch": "rollup -c scripts/rollup.config.mjs -w",
     "clean": "rimraf dist node_modules/.cache",
     "prepublishOnly": "run-s clean build check test"
@@ -73,6 +75,7 @@
     "@rollup/plugin-terser": "^0.1.0",
     "@rollup/plugin-typescript": "^10.0.1",
     "@rollup/pluginutils": "^5.0.2",
+    "@typechain/ethers-v6": "^0.3.0",
     "@types/node": "^18.15.3",
     "@types/react": "^18.0.28",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
@@ -94,6 +97,7 @@
     "rollup-plugin-cjs-check": "^1.0.1",
     "rollup-plugin-dts": "^5.1.1",
     "tslib": "^2.4.1",
+    "typechain": "^8.1.1",
     "typescript": "^4.9.5",
     "vitest": "^0.25.3",
     "ws": "^8.13.0"
