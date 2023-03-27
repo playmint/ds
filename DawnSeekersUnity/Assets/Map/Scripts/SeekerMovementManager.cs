@@ -303,8 +303,11 @@ public class SeekerMovementManager : MonoBehaviour
     private void DirectAddCellToPathHack(Vector3Int cellCubePos)
     {
         bool validPosition =
-            _path.Count == 0
-            || TileHelper.GetTileNeighbours(_path[_path.Count - 1]).Contains(cellCubePos);
+            isValidTile(cellCubePos)
+            && (
+                _path.Count == 0
+                || TileHelper.GetTileNeighbours(_path[_path.Count - 1]).Contains(cellCubePos)
+            );
         if (!_path.Any(p => p == cellCubePos) && validPosition)
         {
             // Add marker

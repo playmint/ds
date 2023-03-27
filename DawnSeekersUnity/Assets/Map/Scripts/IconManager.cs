@@ -113,6 +113,7 @@ public class IconManager : MonoBehaviour
         }
     }
 
+    // TODO: This should be called. We don't have a list of seekers the same way anymore
     public void CheckSeekerRemoved(List<Cog.Seeker> currentSeekers)
     {
         var filteredDictionary = spawnedSeekerIcons
@@ -142,6 +143,15 @@ public class IconManager : MonoBehaviour
         {
             icon.Value.DestroyIcon();
             spawnedSeekerIcons.Remove(icon.Key);
+        }
+    }
+
+    public void RemoveSeeker(Cog.Seekers seeker)
+    {
+        if (spawnedSeekerIcons.ContainsKey(seeker.Id))
+        {
+            spawnedSeekerIcons[seeker.Id].DestroyIcon();
+            spawnedSeekerIcons.Remove(seeker.Id);
         }
     }
 

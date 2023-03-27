@@ -42,16 +42,13 @@ public class SeekerManager : MonoBehaviour
             // We're either not logged in or don't have any seekers yet
             if (_playerSeekers != null)
             {
-                // TODO: Not sure if this will be handled automatically by MapManager
                 // Removed previous seekers
-                // IconManager.instance.RemoveSeekers(_playerSeekers.ToList());
+                IconManager.instance.RemoveSeekers(_playerSeekers.ToList());
                 _playerSeekers = null;
                 Seeker = null;
             }
             return;
         }
-
-        var seekersToRemove = new List<Cog.Seeker>();
 
         var playerSeeker = state.Player.Seekers.ToList()[0];
         if (playerSeeker != null)
@@ -74,7 +71,5 @@ public class SeekerManager : MonoBehaviour
                 seekerTile.Seekers.Count + 1 // HACK: because the seeker positions in the map data is one behind the player's position
             );
         }
-
-        IconManager.instance.RemoveSeekers(seekersToRemove);
     }
 }
