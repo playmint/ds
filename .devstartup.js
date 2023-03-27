@@ -1,9 +1,6 @@
 const concurrently = require('concurrently');
-const chokidar = require('chokidar');
 const path = require('path');
 const { execSync } = require("child_process");
-const { JsonRpcProvider } = require('ethers/providers');
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 // ------------------------------------------------------------------
 // this is a startup script for running a local build of dawnseekers
