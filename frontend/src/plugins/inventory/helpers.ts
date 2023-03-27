@@ -1,7 +1,7 @@
 /** @format */
 
+import { ItemSlotFragment } from '@dawnseekers/core';
 import { toUtf8String } from 'ethers';
-import { ItemSlot } from '@core';
 
 export const resourceRegex = /^0x37f9b55d[0-9a-f]+$/g;
 
@@ -15,7 +15,8 @@ export const icons = {
     wood: '/icons/wood.png',
     stone: '/icons/stone.png',
     iron: '/icons/iron.png',
-    hammer: '/icons/hammer.png'
+    hammer: '/icons/hammer.png',
+    unknown: '/icons/unknown.png'
 };
 
 export const getItemName = (itemID: string): string => {
@@ -25,19 +26,19 @@ export const getItemName = (itemID: string): string => {
     return asciiString;
 };
 
-export function isResource(id: string) {
-    return id.match(resourceRegex);
+export function isResource(slot: ItemSlotFragment) {
+    return slot.item.kind === 'Resource';
 }
 
-export function getSlotName(slot: ItemSlot) {
-    return isResource(slot.item.id) ? resources[slot.item.id] : getItemName(slot.item.id);
+export function getSlotName(slot: ItemSlotFragment) {
+    return isResource(slot) ? resources[slot.item.id] : getItemName(slot.item.id);
 }
 
 export function getItemIcon(name: string) {
-    return icons[name.toLowerCase()];
+    return icons[name.toLowerCase()] || icons.unknown;
 }
 
-export function getItemDetails(itemSlot: ItemSlot) {
+export function getItemDetails(itemSlot: ItemSlotFragment) {
     const itemId = itemSlot.item.id;
     const name = getSlotName(itemSlot);
     const icon = getItemIcon(name);
@@ -45,6 +46,7 @@ export function getItemDetails(itemSlot: ItemSlot) {
 
     return {
         itemId,
+        itemKind: itemSlot.item.kind,
         name,
         icon,
         quantity

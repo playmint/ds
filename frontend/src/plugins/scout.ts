@@ -1,22 +1,22 @@
 /** @format */
 
-import { PluginConfig, PluginTrust, PluginType } from '@core';
+import { PluginConfig, PluginTrust, PluginType } from '@dawnseekers/core';
 
 const src = `
 
 import ds from 'dawnseekers';
 
-export default function update(state) {
-    const seeker = state.ui.selection.seeker;
-    const tile = state.ui.selection.tiles.length == 1 ? state.ui.selection.tiles[0] : undefined;
+export default function update({selected}) {
+    const seeker = selected.seeker;
+    const tile = selected.tiles && selected.tiles.length == 1 ? selected.tiles[0] : undefined;
 
     const scout = () => {
         if (!seeker || !tile) {
             return;
         }
-        const { q, r, s } = tile.coords;
-        ds.log('plugin says: scouting...', { seeker: seeker.key, q, r, s });
-        ds.dispatch('SCOUT_SEEKER', seeker.key, q, r, s);
+        const [ _z, q, r, s ] = tile.coords;
+        ds.log('plugin says: scouting...', q, r, s);
+        ds.dispatch({name: 'SCOUT_SEEKER', args: [seeker.key, q, r, s]});
     };
 
     return {
@@ -41,7 +41,9 @@ export default function update(state) {
 `;
 
 const plugin: PluginConfig = {
+    name: 'scout',
     id: 'scout',
+    hash: 'scout',
     type: PluginType.CORE,
     trust: PluginTrust.TRUSTED,
     src: src

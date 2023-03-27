@@ -12,7 +12,7 @@ import {
     PluginStateButtonAction,
     PluginStateButtonToggle,
     PluginSubmitCallValues
-} from '@core';
+} from '@dawnseekers/core';
 
 type ToggleContentFunc = (contentID: string) => void;
 
@@ -22,6 +22,7 @@ type PluginContentTypeMap = {
 
 export interface TileActionProps extends ComponentProps {
     component: PluginStateComponent;
+    showTitle?: boolean;
 }
 
 const StyledTileAction = styled('div')`
@@ -86,7 +87,7 @@ const PluginContent = ({
 };
 
 export const TileAction: FunctionComponent<TileActionProps> = (props: TileActionProps) => {
-    const { component, ...otherProps } = props;
+    const { component, showTitle, ...otherProps } = props;
     const [contentIdForType, setContentIdForType] = useState<PluginContentTypeMap>({
         inline: 'default',
         popout: '',
@@ -126,15 +127,13 @@ export const TileAction: FunctionComponent<TileActionProps> = (props: TileAction
     const popout = getVisibleContentForType('popout');
     const dialog = getVisibleContentForType('dialog');
 
-    // console.log(inline, popout, dialog);
-
     if ((!inline || (inline && inline.buttons?.length === 0)) && !popout && !dialog) {
         return null;
     }
 
     return (
         <StyledTileAction {...otherProps}>
-            <h3>{component.title}</h3>
+            {showTitle !== false && component.title && <h3>{component.title}</h3>}
             {inline && <PluginContent content={inline} toggleContent={toggleContent} />}
             {popout && <PluginContent content={popout} toggleContent={toggleContent} />}
             {dialog && <PluginContent content={dialog} toggleContent={toggleContent} />}

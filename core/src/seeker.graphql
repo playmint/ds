@@ -1,0 +1,43 @@
+fragment ItemSlot on Edge {
+    key
+    balance: weight
+    item: node {
+        id
+        kind
+    }
+}
+
+fragment Bag on Node {
+    id
+    key
+    slots: edges(match: { kinds: ["Resource", "Item"], via: { rel: "Balance" } }) {
+        ...ItemSlot
+    }
+}
+
+fragment EquipmentSlot on Edge {
+    id
+    key
+    bag: node {
+        ...Bag
+    }
+}
+
+fragment SelectedSeeker on Node {
+    ...WorldSeeker
+    bags: edges(match: { kinds: "Bag", via: { rel: "Equip" } }) {
+        ...EquipmentSlot
+    }
+}
+
+query GetSelectedSeeker($gameID: ID!, $id: String!) {
+    game(id: $gameID) {
+        id
+        state {
+            id
+            seeker: node(match: { kinds: "Seeker", ids: [$id] }) {
+                ...SelectedSeeker
+            }
+        }
+    }
+}

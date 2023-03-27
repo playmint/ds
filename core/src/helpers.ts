@@ -1,17 +1,20 @@
 import { ethers } from 'ethers';
-import { State } from './client';
 
 export const getSelector = (name: string): string => {
-    const selector = new ethers.Interface([`function ${name}()`]).getFunction(name)?.selector;
-    if (!selector) {
+    const fn = new ethers.Interface([`function ${name}()`]).getFunction(name);
+    if (!fn) {
         throw new Error(`failed to generate selector for ${name}`);
     }
-    return selector;
+    if (!fn.selector) {
+        throw new Error(`failed to generate selector for ${fn}`);
+    }
+    return fn.selector;
 };
 
 export const NodeSelectors = {
     Tile: getSelector('Tile'),
     Seeker: getSelector('Seeker'),
+    Player: getSelector('Player'),
 };
 
 export const CompoundKeyEncoder = {
@@ -28,30 +31,7 @@ export const CompoundKeyEncoder = {
     encodeUint160(nodeSelector: string, ...keys: [ethers.BigNumberish]) {
         return ethers.concat([ethers.getBytes(nodeSelector), ethers.getBytes(ethers.toBeHex(BigInt(keys[0]), 20))]);
     },
+    encodeAddress(nodeSelector: string, addr: string) {
+        return ethers.concat([ethers.getBytes(nodeSelector), ethers.getBytes(ethers.getAddress(addr))]);
+    },
 };
-
-export function toDAG(prev: any, maxDepth: number, depth: number): any {
-    return Object.keys(prev).reduce((o, k) => {
-        const v = prev[k];
-        if (Array.isArray(v)) {
-            o[k] = v.map((vv) => (typeof vv == 'object' ? toDAG(vv, maxDepth, depth + 1) : vv));
-        } else if (typeof v === 'object') {
-            if (depth < maxDepth) {
-                const vv = toDAG(v, maxDepth, depth + 1);
-                if (vv === null) {
-                    return o;
-                }
-                o[k] = vv;
-            } else {
-                o[k] = null; // end the cycle
-            }
-        } else {
-            o[k] = v;
-        }
-        return o;
-    }, {} as any);
-}
-
-export function stateToJSON(state: State) {
-    return JSON.stringify(toDAG(state, 6, 0), (_key, value) => (typeof value === 'bigint' ? value.toString() : value));
-}

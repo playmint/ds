@@ -1,85 +1,134 @@
-export enum StructuredLogLevel {
-    DEBUG,
-    LOG,
-    INFO,
-    WARN,
-    ERROR,
+import { Log, LoggerConfig, LogLevel } from './types';
+import { makeSubject } from 'wonka';
+
+/**
+ * Creates a Logger which writes it's logs to a log Source that can later be subscribed to for
+ * processing.
+ *
+ * ```ts
+ *
+ *  // create a logger
+ *  const { logger, logs } = makeLogger({ name: 'main' });
+ *
+ *  // wire it up to something to consume the logs
+ *  const { unsubscribe } = pipe(
+ *      logs,
+ *      subscribe((log) => {})
+ *  );
+ *
+ *  // use it
+ *  logger.warn('arrg!');
+ *
+ *  // wrap it
+ *  sublogger = logger.with({ name: 'sub', values: {component: 'my-sublogger'} });
+ *  sublogger.error('bang!');
+ *
+ * ```
+ *
+ * there is no setLogLevel type thing, you are expected to filter the logs stream as required.
+ *
+ */
+export function makeLogger(opts: LoggerConfig) {
+    const { source: logs, next: sender } = makeSubject<Log>();
+    const logger = new Logger({ ...opts, sender });
+    return { logger, logs };
 }
 
-export type StructuredLogValue = string | number;
-export type StructuredLogValues = { [key: string]: StructuredLogValue };
-
-export interface StructuredLog {
-    level: StructuredLogLevel;
-    text: string;
-    values: StructuredLogValues;
-}
-export interface StructuredLogger {
-    send: (o: StructuredLog) => void;
-    log: (msg: string, ...args: any) => void;
-    info: (msg: string, ...args: any) => void;
-    warn: (msg: string, ...args: any) => void;
-    error: (msg: string, ...args: any) => void;
-    debug: (msg: string, ...args: any) => void;
-    with: (values: StructuredLogValues) => StructuredLogger;
-}
-
-export interface StructuredLoggerConfig {
-    values: StructuredLogValues;
-    sink: (o: StructuredLog) => void;
+/**
+ *  toConsole pretty-prints Log messages to the console.
+ *  it's useful if you need to tap into the log stream for debugging.
+ *
+ * ```ts
+ *
+ *  pipe(
+ *      logs,
+ *      tap(toConsole),
+ *      someRealSink,
+ *  )
+ *
+ * ```
+ *
+ */
+export function toConsole({ level, text, values }: Log) {
+    const style = ['color: black', 'background: red', 'padding: 2px 1px'];
+    console.log('%c%s%c%s', style.join(';'), LogLevelNames[level], [], ` ${text}`, values);
 }
 
-export class Logger implements StructuredLogger {
-    values: StructuredLogValues = {};
-    sink?: (o: StructuredLog) => void;
+export const LogLevelNames = {
+    [LogLevel.DEBUG]: 'DEBUG',
+    [LogLevel.LOG]: 'LOG',
+    [LogLevel.INFO]: 'INFO',
+    [LogLevel.WARN]: 'WARN',
+    [LogLevel.ERROR]: 'ERROR',
+} as const;
 
-    constructor(cfg?: StructuredLoggerConfig) {
-        const { values, sink } = cfg || {};
-        if (values) {
-            this.values = values;
+/**
+ * Logger is a console.log sttyle wrapper around sending Log messages to a log stream.
+ *
+ * A Logger has a name, which helps know where the log message came from.
+ *
+ * ```ts
+ *  const logger = new Logger({name: 'my-logger'});
+ *  logger.log('hello');
+ * ```
+ *
+ * A Logger can have some values that can be used to pass some structured data along with logs
+ *
+ * ```ts
+ *  const logger = new Logger({name: 'my-logger', values: {user: 'jeff'}});
+ * ```
+ *
+ * A new Logger can be created from an existing logger to inherit it's values and sender
+ *
+ * ```ts
+ *  const subLogger = parentLogger.with({name: 'sub-logger', values: {extra,vals});
+ * ```
+ *
+ */
+export class Logger {
+    constructor(readonly cfg: LoggerConfig) {}
+
+    private sendUnstructured(level: LogLevel, ...args: any[]) {
+        const text = args.map((arg) => arg.toString()).join(' ');
+        this.send({ level, text, values: {} });
+    }
+
+    public send({ level, text, values }: Omit<Log, 'name'>, subloggerName?: string): void {
+        const vs = { ...(this.cfg.values || {}), ...values };
+        const name = subloggerName ? `${this.cfg.name}: ${subloggerName}` : this.cfg.name || 'logger';
+        const log = { name, level, text, values: vs };
+        if (!this.cfg.sender) {
+            console.warn('no log sender provided', log);
+            return;
         }
-        if (sink) {
-            this.sink = sink;
-        }
+        return this.cfg.sender({ name, level, text, values: vs });
     }
 
-    send({ level, text, values }: StructuredLog) {
-        const vs = { ...this.values, ...values };
-        if (this.sink) {
-            return this.sink({ level, text, values: vs });
-        }
-        // FIXME: dumping to console log is temporary, make this emit a stream
-        // that client can listen to and render
-        if (level === StructuredLogLevel.ERROR) {
-            console.error(`[dslog] ${text}`, vs);
-        } else if (level === StructuredLogLevel.WARN) {
-            console.warn(`[dslog] ${text}`, vs);
-        } else {
-            console.log(`[dslog] ${text}`, vs);
-        }
+    public debug(...args: any[]) {
+        this.sendUnstructured(LogLevel.DEBUG, ...args);
     }
 
-    debug(text: string, values: StructuredLogValues) {
-        this.send({ level: StructuredLogLevel.LOG, text, values });
+    public log(...args: any[]) {
+        this.sendUnstructured(LogLevel.LOG, ...args);
     }
 
-    log(text: string, values: StructuredLogValues) {
-        this.send({ level: StructuredLogLevel.LOG, text, values });
+    public info(...args: any[]) {
+        this.sendUnstructured(LogLevel.INFO, ...args);
     }
 
-    info(text: string, values: StructuredLogValues) {
-        this.send({ level: StructuredLogLevel.INFO, text, values });
+    public warn(...args: any[]) {
+        this.sendUnstructured(LogLevel.WARN, ...args);
     }
 
-    warn(text: string, values: StructuredLogValues) {
-        this.send({ level: StructuredLogLevel.WARN, text, values });
+    public error(...args: any[]) {
+        this.sendUnstructured(LogLevel.ERROR, ...args);
     }
 
-    error(text: string, values: StructuredLogValues) {
-        this.send({ level: StructuredLogLevel.ERROR, text, values });
-    }
-
-    with(values: StructuredLogValues): StructuredLogger {
-        return new Logger({ values, sink: (...args) => this.send(...args) });
+    with({ name, values }: LoggerConfig): Logger {
+        return new Logger({
+            name,
+            values: { ...(this.cfg.values || {}), ...values },
+            sender: (log) => this.send(log, name),
+        });
     }
 }

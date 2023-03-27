@@ -10,7 +10,7 @@ interface Rel {
     function Balance() external;
     function Equip() external;
     function Is() external;
-    function Plugin() external;
+    function Supports() external;
     function Implementation() external;
 }
 
@@ -286,13 +286,12 @@ library Schema {
         }
     }
 
-    function setPlugin(State state, bytes24 node, bytes24 plugin, string memory metadata) internal {
-        state.set(Rel.Plugin.selector, 0x0, node, plugin, 0);
-        state.annotate(plugin, "metadata", metadata);
+    function setPlugin(State state, bytes24 plugin, bytes24 target) internal {
+        state.set(Rel.Supports.selector, 0x0, plugin, target, 0);
     }
 
     function getPlugin(State state, bytes24 node) internal view returns (bytes24) {
-        (bytes24 plugin,) = state.get(Rel.Plugin.selector, 0x0, node);
+        (bytes24 plugin,) = state.get(Rel.Supports.selector, 0x0, node);
         return plugin;
     }
 }

@@ -1,38 +1,25 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "outDir": "./dist",
-    "useDefineForClassFields": true,
-    "lib": ["dom", "dom.iterable", "esNext"],
-    "allowJs": false,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "react-jsx",
-    "sourceMap": true,
+    "useDefineForClassFields": true,
+    "importsNotUsedAsValues": "remove",
+    "noEmit": true,
+    "esModuleInterop": true,
     "noUnusedLocals": true,
+    "rootDir": "./src",
+    "baseUrl": ".",
+    "outDir": "dist/cjs",
+    "lib": ["dom", "esnext"],
+    "jsx": "react",
+    "declaration": false,
+    "module": "es2015",
+    "moduleResolution": "node",
+    "target": "esnext",
+    "strict": true,
+    "noImplicitAny": false,
     "noUnusedParameters": true,
-    "rootDirs": [
-      "src"
-    ],
-    "paths": {
-        "@core": [
-            "./src/index.ts"
-        ],
-        "@core/*": [
-            "./src/*"
-        ],
-    },
+    "skipLibCheck": true,
+    "isolatedModules": true
   },
-  "include": ["src"],
-  "references": []
+  "include": ["src"]
 }

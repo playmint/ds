@@ -144,7 +144,7 @@ contract BuildingRule is Rule {
         }
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, coords[0], coords[1], coords[2]);
         // burn resources from given slot
-        // [!] for now we are hard coding a 100 WOOD requirement to build
+        // [!] for now we are hard coding a fee of "100 of any resource"
         _payConstructionFee(
             state, ctx, seeker, resourceFromEquipee, resourceFromEquipSlot, resourceFromItemSlot, seekerTile
         );
@@ -154,6 +154,12 @@ contract BuildingRule is Rule {
         state.setOwner(buildingInstance, Node.Player(ctx.sender));
         // set building location
         state.setFixedLocation(buildingInstance, targetTile);
+        // every building gets a bag (owned by the BuildingKind)
+        // TODO: this bagID will clash one day and it will be weird, reserve
+        // some id space? allow equip directly on things other than bags?
+        bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
+        state.setOwner(bag, buildingKind);
+        state.setEquipSlot(buildingInstance, 0, bag);
     }
 
     function _payConstructionFee(
@@ -172,7 +178,7 @@ contract BuildingRule is Rule {
         _requireEquipeeLocation(state, resourceFromEquipee, seeker, seekerTile, ctx.clock);
         // check we meet the building requirements
         (bytes24 resource, uint64 balance) = state.getItemSlot(bag, resourceFromItemSlot);
-        if (resource != Node.Resource(ResourceKind.WOOD) || balance < BUILDING_COST) {
+        if (balance < BUILDING_COST) {
             revert BuildingResourceRequirementsNotMet();
         }
         balance -= BUILDING_COST;

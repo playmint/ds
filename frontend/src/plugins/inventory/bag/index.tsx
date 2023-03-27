@@ -1,15 +1,15 @@
 /** @format */
 
-import React, { FunctionComponent } from 'react';
-import styled from 'styled-components';
-import { ComponentProps } from '@app/types/component-props';
-import { styles } from './bag.styles';
 import { BagSlot, BagSlotProps } from '@app/plugins/inventory/bag-slot';
-import { Bag as BagNode } from '@core';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
+import { ComponentProps } from '@app/types/component-props';
+import { BagFragment } from '@dawnseekers/core';
+import { FunctionComponent } from 'react';
+import styled from 'styled-components';
+import { styles } from './bag.styles';
 
 export interface BagProps extends ComponentProps {
-    bag: BagNode;
+    bag: BagFragment;
     ownerId: string;
     equipIndex: number;
     isInteractable: boolean;
@@ -28,10 +28,10 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
 
     const slots: BagSlotProps[] = Array(numBagSlots)
         .fill(null)
-        .map(() => ({
+        .map((_, slotIndex) => ({
             ownerId,
             equipIndex,
-            slotIndex: bag.slots.length,
+            slotIndex,
             isDisabled: true,
             isInteractable,
             isPending: false
@@ -39,9 +39,9 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
         .map((slot: BagSlotProps, index) => {
             // we want to check if the bag has a slot for this index
             // if so then we update some props to match the slot
-            if (bag.slots.length > index) {
-                slot.itemSlot = bag.slots[index];
-                slot.slotIndex = index;
+            const itemSlot = bag.slots.find((itemSlot) => itemSlot.key === index);
+            if (itemSlot) {
+                slot.itemSlot = itemSlot;
                 slot.isDisabled = false;
             }
 
@@ -55,7 +55,8 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
                         key: index,
                         balance: from.newBalance,
                         item: {
-                            id: from.itemId
+                            id: from.itemId,
+                            kind: from.itemKind
                         }
                     };
                 }
@@ -74,7 +75,8 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
                         key: index,
                         balance: to.newBalance,
                         item: {
-                            id: to.itemId
+                            id: to.itemId,
+                            kind: to.itemKind
                         }
                     };
                 }

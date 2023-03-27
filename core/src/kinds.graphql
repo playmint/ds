@@ -1,0 +1,19 @@
+fragment BuildingKind on Node {
+    id
+    name: annotation(name: "name") {
+        id
+        value
+    }
+}
+
+query GetAvailableBuildingKinds($gameID: ID!) {
+    game(id: $gameID) {
+        id
+        state {
+            id
+            kinds: nodes(match: { kinds: "BuildingKind" }) {
+                ...BuildingKind
+            }
+        }
+    }
+}

@@ -1,15 +1,15 @@
 /** @format */
 
-import React, { FunctionComponent } from 'react';
-import { ComponentProps } from '@app/types/component-props';
-import { Tile } from '@core';
 import { Inventory } from '@app/plugins/inventory/index';
-import styled from 'styled-components';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
+import { ComponentProps } from '@app/types/component-props';
+import { SelectedTileFragment } from '@dawnseekers/core';
+import { FunctionComponent } from 'react';
+import styled from 'styled-components';
 
 export interface TileInventoryProps extends ComponentProps {
     title: string;
-    tile: Tile;
+    tile: SelectedTileFragment;
 }
 
 const StyledTileInventory = styled('div')`

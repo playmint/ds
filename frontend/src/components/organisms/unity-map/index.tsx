@@ -1,16 +1,13 @@
 /** @format */
 
-import { FunctionComponent, useEffect, useState } from 'react';
-import styled from 'styled-components';
 import { ComponentProps } from '@app/types/component-props';
-import { styles } from './unity-map.styles';
-import { Client as DawnseekersClient, State } from '@core';
+import { ActionName, dangerouslyHackStateForMap, useGameState, usePlayer, useSelection } from '@dawnseekers/core';
+import { FunctionComponent, useEffect, useState } from 'react';
 import { Unity, useUnityContext } from 'react-unity-webgl';
+import styled from 'styled-components';
+import { styles } from './unity-map.styles';
 
-export interface UnityMapProps extends ComponentProps {
-    state: State;
-    ds: DawnseekersClient;
-}
+export interface UnityMapProps extends ComponentProps {}
 
 interface Message {
     msg: string;
@@ -33,68 +30,75 @@ const StyledUnityMap = styled('div')`
     ${styles}
 `;
 
-// TODO: Probably a more efficient way of doing this. Find an NPM package that does cloning with circular refs
-const breakCircularReferences = (obj: any, ancestorSet?: any[]) => {
-    const seen: any[] = [];
-    if (ancestorSet) {
-        seen.push(...ancestorSet);
-    }
-
-    if (seen.indexOf(obj) > -1) {
-        return null;
-    }
-
-    seen.push(obj);
-
-    const newObj = Array.isArray(obj) ? [] : {};
-
-    for (const key in obj) {
-        const value = obj[key];
-        if (typeof value === 'object' && value !== null) {
-            const newVal = breakCircularReferences(value, seen);
-            if (newVal !== null) {
-                newObj[key] = newVal;
-            }
-        } else {
-            newObj[key] = obj[key];
+let globalLastBlob: string | undefined;
+let globalSender: any;
+let globalDrainTimeout: any;
+const globalQueue: string[] = [];
+function drainOne() {
+    try {
+        if (globalQueue.length == 0) {
+            return;
         }
+        if (!globalSender) {
+            return;
+        }
+        const blob = globalQueue.shift();
+        if (!blob) {
+            return;
+        }
+        const args = ['COG', 'OnState', blob];
+        globalSender(...args);
+        console.debug(`UnityMap: drained one, ${globalQueue.length} remaining`, args);
+    } catch (err) {
+        console.error('UnityMap: sendMessage', err);
+    } finally {
+        globalDrainTimeout = setTimeout(drainOne, 50);
     }
+}
 
-    return newObj;
-};
-
-export const UnityMap: FunctionComponent<UnityMapProps> = (props: UnityMapProps) => {
-    const { state, ds, ...otherProps } = props;
-    const { unityProvider, sendMessage, addEventListener } = useUnityContext({
+export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: UnityMapProps) => {
+    const player = usePlayer();
+    const { dispatch } = player || {};
+    const game = useGameState();
+    const { selectTiles, selectIntent } = useSelection();
+    const { unityProvider, sendMessage, addEventListener, removeEventListener } = useUnityContext({
         loaderUrl: `/ds-unity/Build/ds-unity.loader.js`,
         dataUrl: `/ds-unity/Build/ds-unity.data`,
         frameworkUrl: `/ds-unity/Build/ds-unity.framework.js`,
         codeUrl: `/ds-unity/Build/ds-unity.wasm`
     });
     const [isReady, setIsReady] = useState(false);
-    const [prevStateJson, setPrevStateJson] = useState('');
-
-    // TODO: Doing this on every re-render probably bad and slow. Comparing the latest
-    // state object with a cached reference always evalated false when doing `state === prevState`.
-    const stateJson = JSON.stringify(breakCircularReferences(state), (_, value) => {
-        if (typeof value === 'bigint') {
-            return BigInt(value).toString(16); // Includes '0x' prefix
-        }
-        return value;
-    });
 
     // -- State update
 
+    // [!] hack to force map update through a delayed queue this protects the
+    // map from crashing due to recving too many updates in parallel by slowing
+    // down the send rate TODO: get rid of this by debouncing the updates
+    // elsewhere or at least make the queue less laggy
     useEffect(() => {
-        if (!isReady || !stateJson || prevStateJson === stateJson) return;
+        if (!globalDrainTimeout) {
+            globalDrainTimeout = setTimeout(drainOne, 1000);
+        }
+        return () => {
+            clearTimeout(globalDrainTimeout);
+            globalDrainTimeout = null;
+        };
+    }, []);
 
-        sendMessage('COG', 'OnState', stateJson);
-        setPrevStateJson(stateJson);
-    }, [isReady, stateJson, prevStateJson, sendMessage]);
+    const newMapState = dangerouslyHackStateForMap(game);
+    const newMapBlob = JSON.stringify(newMapState);
+    if (isReady && game && globalLastBlob != newMapBlob) {
+        globalSender = sendMessage;
+        globalLastBlob = newMapBlob;
+        globalQueue.push(newMapBlob);
+    }
 
     // -- Event handling
 
     useEffect(() => {
+        if (!addEventListener || !removeEventListener) {
+            return;
+        }
         // Export this code so it's used both here and the bridge
         const processMessage = (msgJson: any) => {
             let msgObj: Message;
@@ -108,33 +112,41 @@ export const UnityMap: FunctionComponent<UnityMapProps> = (props: UnityMapProps)
             switch (msgObj.msg) {
                 case 'dispatch': {
                     const { action, args } = msgObj as DispatchMessage;
-                    ds.dispatch(action, ...args).catch((e) => {
-                        console.error(e);
-                    });
+                    if (!dispatch) {
+                        console.warn('map attempted to dispatch when there was no player to dispatch with');
+                        return;
+                    }
+                    dispatch({ name: action as ActionName, args });
                     break;
                 }
                 case 'selectTiles': {
                     const { tileIDs } = msgObj as SelectTileMessage;
-                    ds.selectTiles(tileIDs).catch((e) => {
-                        console.error(e);
-                    });
+                    selectTiles(tileIDs);
                     break;
                 }
                 case 'setIntent': {
                     const { intent } = msgObj as SetIntentMessage;
-                    ds.setIntent(intent).catch((e) => {
-                        console.error(e);
-                    });
+                    selectIntent(intent);
                     break;
+                }
+                default: {
+                    console.warn('unhandled message from map:', msgObj);
                 }
             }
         };
 
-        addEventListener('sendMessage', processMessage);
-        addEventListener('unityReady', () => {
+        const processReady = () => {
             setIsReady(true);
-        });
-    }, [ds, addEventListener]);
+        };
+
+        addEventListener('sendMessage', processMessage);
+        addEventListener('unityReady', processReady);
+
+        return () => {
+            removeEventListener('sendMessage', processMessage);
+            removeEventListener('unityReady', processReady);
+        };
+    }, [dispatch, selectTiles, selectIntent, addEventListener, removeEventListener]);
 
     return (
         <StyledUnityMap {...otherProps}>

@@ -1,11 +1,10 @@
 /** @format */
-import { createContext, useContext, useState, useRef, useEffect, ReactNode } from 'react';
-import { Client as DawnseekersClient, Tile, useDawnseekersState } from '@core';
 import { styles } from '@app/plugins/inventory/bag-item/bag-item.styles';
+import { Tile, usePlayer, useSelection } from '@dawnseekers/core';
+import { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 export interface InventoryContextProviderProps {
-    ds: DawnseekersClient;
     children?: ReactNode;
 }
 
@@ -15,6 +14,7 @@ export interface TransferInfo {
     slotIndex: number;
     newBalance: number;
     itemId: string;
+    itemKind: string;
 }
 
 interface InventoryItem {
@@ -53,8 +53,9 @@ const StyledPickedUpItem = styled('div')`
     }
 `;
 
-export const InventoryProvider = ({ ds, children }: InventoryContextProviderProps): JSX.Element => {
-    const { data } = useDawnseekersState(ds);
+export const InventoryProvider = ({ children }: InventoryContextProviderProps): JSX.Element => {
+    const player = usePlayer();
+    const { seeker: selectedSeeker, tiles: selectedTiles } = useSelection();
     const [isPickedUpItemVisible, setIsPickedUpItemVisible] = useState<boolean>(false);
     const pickedUpItemRef = useRef<InventoryItem | null>(null);
     const pickedUpItemElementRef = useRef<HTMLDivElement>(null);
@@ -73,26 +74,22 @@ export const InventoryProvider = ({ ds, children }: InventoryContextProviderProp
     }, []);
 
     useEffect(() => {
-        if (!data) {
-            return;
-        }
+        const owners = [...(player?.seekers ?? []), ...(selectedTiles ?? [])];
 
         pendingTransfers.current = pendingTransfers.current.filter(([_, to]) => {
             // get the owner of 'to'
             // if we can't find the owner in the data then we have not finished
             // the transfer, and we need to keep the pending transfer
-            const owners = [...data.game.seekers, ...data.game.tiles];
             return !owners.some((o) => o.id === to.id);
         });
-    }, [data, data?.game.block]);
+    }, [player, selectedTiles]);
 
     /**
      * check if the selected seeker is on the selected tile
      * @returns true if the seeker is on the selected tile
      */
     const isSeekerAtLocation = (tile: Tile) => {
-        const selectedSeeker = data?.ui.selection.seeker;
-        return tile.seekers.some((s) => s.id === selectedSeeker?.id);
+        return selectedSeeker?.nextLocation?.tile.id === tile.id;
     };
 
     const pickUpItem = (item: InventoryItem): void => {
@@ -112,21 +109,25 @@ export const InventoryProvider = ({ ds, children }: InventoryContextProviderProp
     };
 
     const transferItem = (from: TransferInfo, to: TransferInfo, quantity: number) => {
-        const selectedSeeker = data?.ui.selection.seeker;
-
         if (!selectedSeeker) {
             console.error('Cannot transfer item, no selected seeker');
             return;
         }
+        if (!player) {
+            console.error('Cannot transfer item, no connected player');
+            return;
+        }
 
-        ds.dispatch(
-            'TRANSFER_ITEM_SEEKER',
-            selectedSeeker.id,
-            [from.id, to.id],
-            [from.equipIndex, to.equipIndex],
-            [from.slotIndex, to.slotIndex],
-            quantity
-        ).then((result) => console.log('Transfer:', result));
+        player.dispatch({
+            name: 'TRANSFER_ITEM_SEEKER',
+            args: [
+                selectedSeeker.id,
+                [from.id, to.id],
+                [from.equipIndex, to.equipIndex],
+                [from.slotIndex, to.slotIndex],
+                quantity
+            ]
+        });
 
         // add pending transfer
         pendingTransfers.current.push([from, to]);

@@ -1,9 +1,11 @@
 schema: "../contracts/lib/cog/services/schema/*.graphqls"
-documents: ['schema/*.graphql']
+documents: ['src/*.graphql']
 ignoreNoDocuments: true
 generates:
   src/gql/:
     preset: "client"
+    presetConfig:
+      fragmentMasking: false
     plugins: []
   src/gql/introspection.ts:
     plugins: ["urql-introspection"]

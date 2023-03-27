@@ -5,7 +5,7 @@ const nextConfig = {
     },
     output: 'standalone',
 
-    transpilePackages: ['@core'],
+    // transpilePackages: ['@dawnseekers/core'],
 
     webpack: (config, options) => {
         // stub out the fs module, as we have some escripten

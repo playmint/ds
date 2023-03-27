@@ -19,6 +19,16 @@ const baseStyles = (_: Partial<BuildingProps>) => css`
         position: relative;
         left: -1rem;
     }
+
+    .secondary-button {
+        color: #ccc;
+        text-align: center;
+        display: inline-block;
+    }
+    > .action {
+        padding: 0 !important;
+        border-bottom: 0 !important;
+    }
 `;
 
 /**

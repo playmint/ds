@@ -10,8 +10,8 @@ import {
 } from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
-error PluginNotOwner();
-error PluginNotBuildingKindOwner();
+error PluginNotPluginOwner();
+error PluginNotTargetOwner();
 
 uint64 constant BUILDING_COST = 100;
 
@@ -20,22 +20,39 @@ using Schema for State;
 contract PluginRule is Rule {
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.REGISTER_CLIENT_PLUGIN.selector) {
-            (bytes24 plugin, string memory metadata) = abi.decode(action[4:], (bytes24, string));
-            bytes24 owner = state.getOwner(plugin);
-            if (owner != 0x0 && owner != Node.Player(ctx.sender)) {
-                revert PluginNotOwner();
+            // decode the payload
+            (bytes24 plugin, bytes24 target, string memory name, string memory src) =
+                abi.decode(action[4:], (bytes24, bytes24, string, string));
+
+            bytes24 player = Node.Player(ctx.sender);
+
+            // if someone has already registered this plugin id, then only allow that owner to update it
+            bytes24 pluginOwner = state.getOwner(plugin);
+            if (pluginOwner != 0x0 && pluginOwner != player) {
+                revert PluginNotPluginOwner();
             }
-            state.setOwner(plugin, Node.Player(ctx.sender));
-            state.annotate(plugin, "metadata", metadata);
-        } else if (bytes4(action) == Actions.REGISTER_BUILDING_PLUGIN.selector) {
-            (bytes24 buildingKind, bytes24 plugin, string memory metadata) =
-                abi.decode(action[4:], (bytes24, bytes24, string));
-            bytes24 owner = state.getOwner(buildingKind);
-            if (owner == 0x0 || owner != Node.Player(ctx.sender)) {
-                revert PluginNotBuildingKindOwner();
+
+            // we only allow setting plugins that target nodes that you own
+            // for example you can only set a BuildingKind plugin if you own the BuildingKind
+            // we may lift this restriction if it makes sense
+            bytes24 targetOwner = state.getOwner(target);
+            if (targetOwner != 0x0 && targetOwner != player) {
+                revert PluginNotTargetOwner();
             }
-            state.setOwner(plugin, Node.Player(ctx.sender));
-            state.setPlugin(buildingKind, plugin, metadata);
+
+            // we only support a plugin referencing a single thing right now
+            // but there is no reason why one plugin could not reference an interest
+            // in multiple things by allowing setting the edge key
+            state.setPlugin(plugin, target);
+
+            // sender owns the plugin for future updates
+            state.setOwner(plugin, player);
+
+            // set plugin metadata as annotations
+            // for now the offical client only supports src as a blob of javascript
+            // and a friendly name
+            state.annotate(plugin, "name", name);
+            state.annotate(plugin, "src", src);
         }
 
         return state;

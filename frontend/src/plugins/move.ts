@@ -1,6 +1,6 @@
 /** @format */
 
-import { PluginTrust, PluginType, PluginConfig } from '@core';
+import { PluginTrust, PluginType, PluginConfig } from '@dawnseekers/core';
 
 const src = `
 
@@ -16,7 +16,7 @@ export default function update(state) {
         }
         const { q, r, s } = tile.coords;
         ds.log('plugin says: moving seeker', { seeker: seeker.key, q, r, s });
-        ds.dispatch('MOVE_SEEKER', seeker.key, q, r, s);
+        ds.dispatch({name 'MOVE_SEEKER', args: [seeker.key, q, r, s]});
     };
 
     return {
@@ -41,7 +41,9 @@ export default function update(state) {
 `;
 
 const plugin: PluginConfig = {
+    name: 'move',
     id: 'move',
+    hash: 'move',
     type: PluginType.CORE,
     trust: PluginTrust.TRUSTED,
     src: src

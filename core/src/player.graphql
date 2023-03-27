@@ -1,0 +1,18 @@
+fragment SelectedPlayer on Node {
+    ...WorldPlayer
+    seekers: nodes(match: { kinds: "Seeker", via: { rel: "Owner", dir: IN } }) {
+        ...SelectedSeeker
+    }
+}
+
+query GetSelectedPlayer($gameID: ID!, $id: String!) {
+    game(id: $gameID) {
+        id
+        state {
+            id
+            player: node(match: { kinds: "Player", ids: [$id] }) {
+                ...SelectedPlayer
+            }
+        }
+    }
+}

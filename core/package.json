@@ -1,41 +1,117 @@
 {
-  "name": "dawnseekers",
-  "private": true,
-  "version": "0.0.1",
-  "scripts": {
-    "build": "graphql-codegen && tsc --build --verbose",
-    "build:watch": "tsc --build -w"
+  "name": "@dawnseekers/core",
+  "description": "dawnseekers client library",
+  "version": "0.1.0",
+  "author": "playmint",
+  "source": "./src/index.ts",
+  "main": "./dist/core",
+  "module": "./dist/core.mjs",
+  "types": "./dist/core.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/core.mjs",
+      "require": "./dist/core.js",
+      "types": "./dist/core.d.ts",
+      "source": "./src/index.ts"
+    },
+    "./package.json": "./package.json"
   },
-  "files": "./dist",
-  "main": "./dist/src/index.js",
-  "types": "./dist/src/index.d.ts",
-  "peerDependencies": {
-    "ethers": "^6.0.8",
-    "quickjs-emscripten": "^0.22.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+  "sideEffects": false,
+  "files": [
+    "src",
+    "dist",
+    "*.md"
+  ],
+  "keywords": [
+    "ds",
+    "dawnseekers",
+    "playmint",
+    "typescript"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "check": "tsc",
+    "lint": "eslint --ext=js,ts .",
+    "build": "npm run build:graphql && npm run build:abi && npm run build:package",
+    "build:package": "rollup -c scripts/rollup.config.mjs",
+    "build:graphql": "graphql-codegen",
+    "build:abi": "typechain --target ethers-v6 --out-dir src/abi ../contracts/out/Actions.sol/Actions.json",
+    "build:watch": "rollup -c scripts/rollup.config.mjs -w",
+    "clean": "rimraf dist node_modules/.cache",
+    "prepublishOnly": "run-s clean build check test"
+  },
+  "repository": "https://github.com/playmint/ds",
+  "bugs": {
+    "url": "https://github.com/playmint/ds/issues"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "tabWidth": 4,
+    "printWidth": 120,
+    "arrowParens": "always",
+    "trailingComma": "all"
+  },
+  "lint-staged": {
+    "*.{ts,js}": "eslint -c scripts/eslint-preset.js --fix",
+    "*.json": "prettier --write",
+    "*.md": "prettier --write"
+  },
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "./scripts/eslint-preset.js"
+    ]
   },
   "devDependencies": {
+    "@babel/core": "^7.21.3",
     "@graphql-codegen/cli": "^3.2.2",
     "@graphql-codegen/client-preset": "^2.1.1",
     "@graphql-codegen/urql-introspection": "^2.2.1",
     "@graphql-eslint/eslint-plugin": "^3.16.1",
-    "@types/react": "^18.0.27",
-    "@types/react-dom": "^18.0.10",
-    "eslint": "^8.36.0",
-    "eslint-config-prettier": "^8.7.0",
+    "@graphql-typed-document-node/core": "^3.1.2",
+    "@rollup/plugin-buble": "^1.0.1",
+    "@rollup/plugin-commonjs": "^23.0.3",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-terser": "^0.1.0",
+    "@rollup/plugin-typescript": "^10.0.1",
+    "@rollup/pluginutils": "^5.0.2",
+    "@typechain/ethers-v6": "^0.3.0",
+    "@types/node": "^18.15.3",
+    "@types/react": "^18.0.28",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "@typescript-eslint/parser": "^5.45.0",
+    "eslint": "^8.29.0",
+    "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "prettier": "^2.8.4",
-    "react-hexgrid": "^2.0.1",
-    "typescript": "^4.9.5"
+    "eslint-plugin-tsdoc": "^0.2.17",
+    "glob": "^8.0.3",
+    "graphql": "^16.6.0",
+    "isomorphic-fetch": "^3.0.0",
+    "lint-staged": "^13.0.4",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.8.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rimraf": "^3.0.2",
+    "rollup": "^3.5.1",
+    "rollup-plugin-cjs-check": "^1.0.1",
+    "rollup-plugin-dts": "^5.1.1",
+    "tslib": "^2.4.1",
+    "typechain": "^8.1.1",
+    "typescript": "^4.9.5",
+    "vitest": "^0.25.3",
+    "ws": "^8.13.0"
   },
   "dependencies": {
-    "@types/dompurify": "^2.4.0",
-    "@uiw/react-textarea-code-editor": "^2.1.1",
     "@urql/core": "^3.2.2",
     "@urql/exchange-graphcache": "^5.2.0",
-    "@urql/introspection": "^1.0.0",
-    "dompurify": "^3.0.1",
-    "graphql-ws": "^5.12.0"
+    "ethers": "^6.1.0",
+    "graphql-ws": "^5.12.0",
+    "quickjs-emscripten": "^0.22.0"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "wonka": "^6.2.5"
   }
 }
