@@ -43,7 +43,7 @@ done
 echo "+---------------------+"
 echo "| deploying contracts |"
 echo "+---------------------+"
-./init.sh
+forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545"
 
 echo "+-------+"
 echo "| ready |"
