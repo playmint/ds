@@ -13,6 +13,7 @@ WORKDIR /contracts
 
 COPY lib ./lib
 COPY src ./src
+COPY script ./script
 COPY test ./test
 COPY remappings.txt ./
 COPY foundry.toml ./

@@ -3,10 +3,8 @@
 set -eu
 set -o pipefail
 
-# this is a entrypoint for a dockerized hardhat evm node
-# it starts the hardhat node, runs our deployment scripts
-# builds the required deployment confgiuration
-# it is used for local development
+# this file is used by the docker-compose setup
+# as a way of getting a chain with the contracts deployed
 
 _term() {
   echo "Terminated by user!"
@@ -22,16 +20,14 @@ rm -f deployments/*
 # must match the value for the target hardhat networks
 ACCOUNT_MNEMONIC="thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens"
 
-# set blocktime - sometimes it is useful to simulate slower mining
-: ${MINER_BLOCKTIME:=0}
-
 echo "+-------------------+"
 echo "| starting evm node |"
 echo "+-------------------+"
 anvil \
 	--host 0.0.0.0 \
 	-m "${ACCOUNT_MNEMONIC}" \
-	-b 5 \
+    --code-size-limit 9999999999999 \
+    --gas-limit 9999999999999999 \
 	&
 
 # wait for node to start
