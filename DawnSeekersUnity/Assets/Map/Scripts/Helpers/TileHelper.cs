@@ -98,7 +98,7 @@ public class TileHelper
     internal static Tiles2 GetTileByPos(Vector3Int cellPosCube)
     {
         // BAD! This helper class shouldn't be coupled to the StateMediator like this
-        return PluginController.Instance.WorldState.World.Tiles.FirstOrDefault(
+        return GameStateMediator.Instance.gameState.World.Tiles.FirstOrDefault(
             t => GetTilePosCube(t) == cellPosCube
         );
     }

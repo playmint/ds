@@ -32,7 +32,7 @@ namespace Cog
     }
 
     // TODO: The json schema has this structure defined, find a way to export that structure instead of definiing it manually here
-    public class State
+    public class GameState
     {
         [Newtonsoft.Json.JsonProperty(
             "player",
@@ -57,7 +57,7 @@ namespace Cog
     }
 
     // TODO: No longer a PluginController. Rename to StateMediator
-    public class PluginController : MonoBehaviour
+    public class GameStateMediator : MonoBehaviour
     {
         [DllImport("__Internal")]
         private static extern void SendMessageRPC(string msgJSON);
@@ -65,14 +65,14 @@ namespace Cog
         [DllImport("__Internal")]
         private static extern void UnityReadyRPC();
 
-        public static PluginController Instance;
+        public static GameStateMediator Instance;
 
-        public State WorldState { get; private set; }
+        public GameState gameState { get; private set; }
 
         private bool _hasStateUpdated;
 
         // -- EVENTS
-        public Action<State> EventStateUpdated;
+        public Action<GameState> EventStateUpdated;
 
         // -- //
 
@@ -101,14 +101,14 @@ namespace Cog
                 _hasStateUpdated = false;
                 if (EventStateUpdated != null)
                 {
-                    EventStateUpdated.Invoke(WorldState);
+                    EventStateUpdated.Invoke(gameState);
                 }
             }
         }
 
-        private void UpdateState(State state)
+        private void UpdateState(GameState state)
         {
-            WorldState = state;
+            gameState = state;
             _hasStateUpdated = true;
         }
 
@@ -196,7 +196,7 @@ namespace Cog
                 {
                     try 
                     {
-                        var state = JsonConvert.DeserializeObject<State>(line);
+                        var state = JsonConvert.DeserializeObject<GameState>(line);
                         UpdateState(state);
                     } 
                     catch (Exception e) 
@@ -296,7 +296,7 @@ namespace Cog
 
             try
             {
-                var state = JsonConvert.DeserializeObject<State>(stateJson);
+                var state = JsonConvert.DeserializeObject<GameState>(stateJson);
                 UpdateState(state);
             }
             catch (Exception e)

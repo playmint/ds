@@ -47,7 +47,7 @@ function drainOne() {
         if (!blob) {
             return;
         }
-        const args = ['COG', 'OnState', blob];
+        const args = ['GameStateMediator', 'OnState', blob];
         globalSender(...args);
         console.debug(`UnityMap: drained one, ${globalQueue.length} remaining`, args);
     } catch (err) {

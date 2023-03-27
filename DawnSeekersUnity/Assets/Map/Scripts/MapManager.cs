@@ -31,10 +31,10 @@ public class MapManager : MonoBehaviour
 
     private void Start()
     {
-        Cog.PluginController.Instance.EventStateUpdated += OnStateUpdated;
-        if (Cog.PluginController.Instance.WorldState != null)
+        Cog.GameStateMediator.Instance.EventStateUpdated += OnStateUpdated;
+        if (Cog.GameStateMediator.Instance.gameState != null)
         {
-            OnStateUpdated(Cog.PluginController.Instance.WorldState);
+            OnStateUpdated(Cog.GameStateMediator.Instance.gameState);
         }
     }
 
@@ -59,7 +59,7 @@ public class MapManager : MonoBehaviour
         return _tilemap.GetTile(GridExtensions.CubeToGrid(position)) != null;
     }
 
-    private void OnStateUpdated(Cog.State state)
+    private void OnStateUpdated(Cog.GameState state)
     {
         // Debug.Log("MapManager::RenderState()");
         IconManager.instance.ResetSeekerPositionCounts();

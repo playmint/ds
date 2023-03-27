@@ -30,7 +30,7 @@ public class MapInteractionManager : MonoBehaviour
     private void Start()
     {
         m_Plane = new Plane(Vector3.forward, 0);
-        Cog.PluginController.Instance.EventStateUpdated += OnStateUpdated;
+        Cog.GameStateMediator.Instance.EventStateUpdated += OnStateUpdated;
 
         selectedMarker1.gameObject.SetActive(false);
     }
@@ -69,7 +69,7 @@ public class MapInteractionManager : MonoBehaviour
         // Tile mouseover cursor
         if (
             SeekerManager.Instance.Seeker != null
-            && PluginController.Instance.WorldState.World != null
+            && GameStateMediator.Instance.gameState.World != null
         )
             cursor.gameObject.SetActive(
                 IsDiscoveredTile(GridExtensions.GridToCube(CurrentMouseCell))
@@ -96,11 +96,11 @@ public class MapInteractionManager : MonoBehaviour
 
         // Select the tile
         if (
-            PluginController.Instance.WorldState.Selected.Intent == null
-            || PluginController.Instance.WorldState.Selected.Intent == Intent.NONE
+            GameStateMediator.Instance.gameState.Selected.Intent == null
+            || GameStateMediator.Instance.gameState.Selected.Intent == Intent.NONE
         )
         {
-            Cog.PluginController.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
+            Cog.GameStateMediator.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
         }
     }
 
@@ -124,7 +124,7 @@ public class MapInteractionManager : MonoBehaviour
 
     // -- LISTENERS
 
-    private void OnStateUpdated(State state)
+    private void OnStateUpdated(GameState state)
     {
         if (state.Selected.Tiles != null && state.Selected.Tiles.Count > 0)
         {

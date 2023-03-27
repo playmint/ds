@@ -9,17 +9,17 @@ public class ActionMenuController : MonoBehaviour
 {
     private void Start()
     {
-        Cog.PluginController.Instance.EventStateUpdated += OnStateUpdated;
+        Cog.GameStateMediator.Instance.EventStateUpdated += OnStateUpdated;
 
         gameObject.SetActive(false);
     }
 
     private void OnDestroy()
     {
-        Cog.PluginController.Instance.EventStateUpdated -= OnStateUpdated;
+        Cog.GameStateMediator.Instance.EventStateUpdated -= OnStateUpdated;
     }
 
-    private void OnStateUpdated(State state)
+    private void OnStateUpdated(GameState state)
     {
         if (state.Selected.Tiles != null && state.Selected.Tiles.Count > 0)
         {

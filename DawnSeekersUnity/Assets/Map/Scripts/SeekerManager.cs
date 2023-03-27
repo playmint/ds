@@ -17,10 +17,10 @@ public class SeekerManager : MonoBehaviour
 
     protected void Start()
     {
-        Cog.PluginController.Instance.EventStateUpdated += OnStateUpdated;
-        if (Cog.PluginController.Instance.WorldState != null)
+        Cog.GameStateMediator.Instance.EventStateUpdated += OnStateUpdated;
+        if (Cog.GameStateMediator.Instance.gameState != null)
         {
-            OnStateUpdated(Cog.PluginController.Instance.WorldState);
+            OnStateUpdated(Cog.GameStateMediator.Instance.gameState);
         }
     }
 
@@ -35,7 +35,7 @@ public class SeekerManager : MonoBehaviour
     // -- LISTENERS
 
     // TODO: Still assuming only one seeker
-    private void OnStateUpdated(State state)
+    private void OnStateUpdated(GameState state)
     {
         if (state.Player == null || state.Player.Seekers == null || state.Player.Seekers.Count == 0)
         {

@@ -4,7 +4,7 @@ public class SeekerHelper
 {
     public static bool IsPlayerSeeker(Seekers3 seeker)
     {
-        return PluginController.Instance.WorldState.Player.Id
+        return GameStateMediator.Instance.gameState.Player.Id
             == seeker.Owner.AdditionalProperties["id"] as string;
     }
 }
