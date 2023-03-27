@@ -6,6 +6,7 @@ import { FunctionComponent, useEffect, useState } from 'react';
 import { Unity, useUnityContext } from 'react-unity-webgl';
 import styled from 'styled-components';
 import { styles } from './unity-map.styles';
+import React from 'react';
 
 export interface UnityMapProps extends ComponentProps {}
 
