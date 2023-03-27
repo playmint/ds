@@ -23,7 +23,7 @@ export const SeekerList: FunctionComponent<SeekerListProps> = (props: SeekerList
             {seekers.map((seeker, index) => (
                 <div key={index} className="seeker">
                     <img src="/icons/seeker-shield-blue.png" alt="" />
-                    Seeker #{seeker.id.toString()}
+                    Seeker #{seeker.id.slice(-12)}
                 </div>
             ))}
         </StyledSeekerList>

@@ -49,18 +49,6 @@ export const GlobalStyles = createGlobalStyle`
         width: 100%;
     }
 
-    code.logs {
-        position: fixed;
-        top: 50px;
-        left 0px;
-    }
-    code.logs .log {
-        display: block;
-        background: rgba(0,0,0,0.5);
-        color:white;
-        margin: 10px;
-    }
-
     .topnav {
         display: flex;
         justify-content: flex-start;
@@ -70,6 +58,7 @@ export const GlobalStyles = createGlobalStyle`
         width: calc(100% - 0rem);
         height: 5rem;
         background: #030f25;
+        user-select: none;
     }
 
     .topnav-button {
@@ -116,6 +105,29 @@ export const GlobalStyles = createGlobalStyle`
                 flex-direction: column;
                 align-items: center;
             }
+
+        }
+        user-select: none;
+    }
+
+    .onboarding {
+
+        padding: 2rem 2rem;
+
+        > button {
+            border-radius: 20px;
+            border: none;
+            border-bottom: 4px solid #b7c5e0;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            background: #fff;
+            color: #143063;
+            padding: 1.2rem 2rem 0.8rem;
+            font-weight: 600;
+        }
+        > p {
+            margin: 2rem 0;
         }
     }
 
@@ -181,6 +193,20 @@ export const GlobalStyles = createGlobalStyle`
         left: 0;
         bottom: 0;
         right: 0;
+    }
+
+    form {
+        width: 100%;
+        > select, button {
+            box-sizing: border-box;
+            display: inline-block;
+            border-radius: 20px;
+            width: inherit;
+            padding: 10px;
+            border-bottom: 4px solid #b7c5e0;
+            margin: 0 0 5px 0;
+            font-weight: 600;
+        }
     }
 
 `;

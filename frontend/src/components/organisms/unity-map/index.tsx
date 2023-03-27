@@ -1,8 +1,7 @@
 /** @format */
 
-import { dangerouslyHackStateForMap } from '@app/components/views/shell/maphack';
 import { ComponentProps } from '@app/types/component-props';
-import { usePlayer, useSelection, useWorld } from '@dawnseekers/core';
+import { ActionName, dangerouslyHackStateForMap, useGameState, usePlayer, useSelection } from '@dawnseekers/core';
 import { FunctionComponent, useEffect, useState } from 'react';
 import { Unity, useUnityContext } from 'react-unity-webgl';
 import styled from 'styled-components';
@@ -31,6 +30,7 @@ const StyledUnityMap = styled('div')`
     ${styles}
 `;
 
+let globalLastBlob: string | undefined;
 let globalSender: any;
 let globalDrainTimeout: any;
 const globalQueue: string[] = [];
@@ -48,7 +48,7 @@ function drainOne() {
         }
         const args = ['COG', 'OnState', blob];
         globalSender(...args);
-        console.log(`UnityMap: drained one, ${globalQueue.length} remaining`);
+        console.debug(`UnityMap: drained one, ${globalQueue.length} remaining`, args);
     } catch (err) {
         console.error('UnityMap: sendMessage', err);
     } finally {
@@ -59,8 +59,7 @@ function drainOne() {
 export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: UnityMapProps) => {
     const player = usePlayer();
     const { dispatch } = player || {};
-    const world = useWorld();
-    const { seeker: selectedSeeker, tiles: selectedTiles, intent } = useSelection();
+    const game = useGameState();
     const { selectTiles, selectIntent } = useSelection();
     const { unityProvider, sendMessage, addEventListener, removeEventListener } = useUnityContext({
         loaderUrl: `/ds-unity/Build/ds-unity.loader.js`,
@@ -72,8 +71,10 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
 
     // -- State update
 
-    // [!] hack to munge the new world state shape into a shape the map wants
-    //     TODO: update the map to accept the new shape of the world
+    // [!] hack to force map update through a delayed queue this protects the
+    // map from crashing due to recving too many updates in parallel by slowing
+    // down the send rate TODO: get rid of this by debouncing the updates
+    // elsewhere or at least make the queue less laggy
     useEffect(() => {
         if (!globalDrainTimeout) {
             globalDrainTimeout = setTimeout(drainOne, 1000);
@@ -83,10 +84,13 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
             globalDrainTimeout = null;
         };
     }, []);
-    if (isReady) {
+
+    const newMapState = dangerouslyHackStateForMap(game);
+    const newMapBlob = JSON.stringify(newMapState);
+    if (isReady && game && globalLastBlob != newMapBlob) {
         globalSender = sendMessage;
-        const newMapState = dangerouslyHackStateForMap(world, player, selectedSeeker, selectedTiles, intent);
-        globalQueue.push(JSON.stringify(newMapState));
+        globalLastBlob = newMapBlob;
+        globalQueue.push(newMapBlob);
     }
 
     // -- Event handling
@@ -112,7 +116,7 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
                         console.warn('map attempted to dispatch when there was no player to dispatch with');
                         return;
                     }
-                    dispatch({ name: action, args });
+                    dispatch({ name: action as ActionName, args });
                     break;
                 }
                 case 'selectTiles': {
@@ -124,6 +128,9 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
                     const { intent } = msgObj as SetIntentMessage;
                     selectIntent(intent);
                     break;
+                }
+                default: {
+                    console.warn('unhandled message from map:', msgObj);
                 }
             }
         };
