@@ -56,8 +56,29 @@ public class IconManager : MonoBehaviour
         }
     }
 
+    // Because Seekers from the map and seekers in the player object are seen as different types I've had to overload this function
     public void CreateSeekerIcon(
-        Cog.Seeker seeker,
+        Cog.Seekers seeker,
+        MapManager.MapCell cell,
+        bool isPlayer,
+        int numSeekersAtPos
+    )
+    {
+        CreateSeekerIcon(seeker.Id, cell, isPlayer, numSeekersAtPos);
+    }
+
+    public void CreateSeekerIcon(
+        Cog.Seekers3 seeker,
+        MapManager.MapCell cell,
+        bool isPlayer,
+        int numSeekersAtPos
+    )
+    {
+        CreateSeekerIcon(seeker.Id, cell, isPlayer, numSeekersAtPos);
+    }
+
+    public void CreateSeekerIcon(
+        string seekerId,
         MapManager.MapCell cell,
         bool isPlayer,
         int numSeekersAtPos
@@ -65,7 +86,7 @@ public class IconManager : MonoBehaviour
     {
         IncreaseSeekerPositionCount(cell);
         int buildingOnCell = (spawnedBuildingIcons.ContainsKey(cell.cubicCoords) ? 1 : 0);
-        if (!spawnedSeekerIcons.ContainsKey(seeker.Id))
+        if (!spawnedSeekerIcons.ContainsKey(seekerId))
         {
             IconController icon;
             if (isPlayer)
@@ -74,7 +95,7 @@ public class IconManager : MonoBehaviour
             else
                 icon = Instantiate(_otherSeekerIconPrefab, transform, true)
                     .GetComponent<IconController>();
-            spawnedSeekerIcons.Add(seeker.Id, icon);
+            spawnedSeekerIcons.Add(seekerId, icon);
             icon.Setup(
                 cell,
                 numSeekersAtPos + buildingOnCell,
@@ -83,7 +104,7 @@ public class IconManager : MonoBehaviour
         }
         else
         {
-            spawnedSeekerIcons[seeker.Id].CheckPosition(
+            spawnedSeekerIcons[seekerId].CheckPosition(
                 cell,
                 numSeekersAtPos + buildingOnCell,
                 seekerPositionCounts[cell.cubicCoords] - 1,

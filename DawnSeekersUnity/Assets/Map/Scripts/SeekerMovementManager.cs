@@ -55,7 +55,7 @@ public class SeekerMovementManager : MonoBehaviour
     {
         if (
             PluginController.Instance.WorldState == null
-            || PluginController.Instance.WorldState.Game == null
+            || PluginController.Instance.WorldState.World == null
         )
             return;
 
@@ -119,7 +119,7 @@ public class SeekerMovementManager : MonoBehaviour
 
     private void OnStateUpdated(State state)
     {
-        if (state.UI.Selection.Intent == Intent.MOVE)
+        if (state.Selected.Intent == Intent.MOVE)
         {
             // HACK: Cannot be in move intent when the movement CR is running
             if (_isTracingPath)
@@ -133,7 +133,7 @@ public class SeekerMovementManager : MonoBehaviour
                 ActivateMovementMode();
             }
 
-            _path = UpdatePath(_path, state.UI.Selection.Tiles.ToList<Tile>());
+            _path = UpdatePath(_path, state.Selected.Tiles.ToList());
             if (_path.Count == 0)
             {
                 AddCellToPath(GridExtensions.GridToCube(MapInteractionManager.CurrentSelectedCell));
@@ -142,13 +142,13 @@ public class SeekerMovementManager : MonoBehaviour
             HighlightAvailableSpaces();
         }
 
-        if (state.UI.Selection.Intent != Intent.MOVE && isMoving)
+        if (state.Selected.Intent != Intent.MOVE && isMoving)
         {
             DeactivateMovementMode();
         }
     }
 
-    private List<Vector3Int> UpdatePath(List<Vector3Int> oldPath, List<Tile> newPathTiles)
+    private List<Vector3Int> UpdatePath(List<Vector3Int> oldPath, List<Tiles> newPathTiles)
     {
         if (oldPath.Count == newPathTiles.Count)
             return oldPath;
@@ -211,7 +211,7 @@ public class SeekerMovementManager : MonoBehaviour
 
     private bool isValidTile(Vector3Int cellCubePos)
     {
-        var tile = MapInteractionManager.instance.GetTile(cellCubePos);
+        var tile = TileHelper.GetTileByPos(cellCubePos);
 
         if (tile == null)
             return false;
@@ -336,7 +336,7 @@ public class SeekerMovementManager : MonoBehaviour
 
             if (
                 tileIDs.Count == 0
-                && PluginController.Instance.WorldState.UI.Selection.Intent == Intent.MOVE
+                && PluginController.Instance.WorldState.Selected.Intent == Intent.MOVE
             )
             {
                 PluginController.Instance.SendSetIntentMsg(Intent.NONE);

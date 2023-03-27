@@ -1,7 +1,29 @@
-import fetch from 'cross-fetch';
-import { tap, filter, take, skipWhile, pipe, subscribe, toPromise } from 'wonka';
-import WebSocket from 'ws';
-import { ActionName, ConnectedPlayer, dangerouslyHackStateForMap, GameState, makeCogClient, makeConnectedPlayer, makeGameState, makeKeyWallet, makeLogger, makeSelection, makeWorld } from '../../core/dist/core';
+import fetch from "cross-fetch";
+import {
+    tap,
+    filter,
+    take,
+    skipWhile,
+    pipe,
+    subscribe,
+    toPromise,
+} from "wonka";
+import WebSocket from "ws";
+import {
+    ActionName,
+    ConnectedPlayer,
+    dangerouslyHackStateForMap,
+    GameState,
+    makeCogClient,
+    makeConnectedPlayer,
+    makeGameState,
+    makeKeyWallet,
+    makeLogger,
+    makeSelection,
+    makeWorld,
+    Player,
+    World,
+} from "../../core/dist/core";
 
 interface Message {
     msg: string;
@@ -20,7 +42,7 @@ interface SetIntentMessage extends Message {
     intent: string;
 }
 
-async function main(privKey:string, echoOn:boolean) {
+async function main(privKey: string, echoOn: boolean) {
     const initialConfig = {
         wsEndpoint: "ws://localhost:8080/query",
         wsSocketImpl: WebSocket,
@@ -30,7 +52,7 @@ async function main(privKey:string, echoOn:boolean) {
 
     const wallet = makeKeyWallet(privKey);
     const { client, setConfig } = makeCogClient(initialConfig);
-    const { logger } = makeLogger({ name: 'main' });
+    const { logger } = makeLogger({ name: "main" });
     const player = makeConnectedPlayer(client, wallet, logger);
     const world = makeWorld(client);
     const { selection, ...selectors } = makeSelection(client, world, player);
@@ -38,12 +60,12 @@ async function main(privKey:string, echoOn:boolean) {
     const game = makeGameState(player, world, selection);
     const { stdout, stdin } = process;
 
-    const { dispatch } = await pipe(
+    const { dispatch } = (await pipe(
         player,
-        skipWhile((p): p is ConnectedPlayer => typeof p === 'undefined'),
+        skipWhile((p): p is ConnectedPlayer => typeof p === "undefined"),
         take(1),
-        toPromise,
-    ) as ConnectedPlayer;
+        toPromise
+    )) as ConnectedPlayer;
 
     const processMessage = (msgJson: any) => {
         let msgObj: Message;
@@ -57,7 +79,7 @@ async function main(privKey:string, echoOn:boolean) {
         switch (msgObj.msg) {
             case "dispatch": {
                 const { action, args } = msgObj as DispatchMessage;
-                dispatch({name: action, args});
+                dispatch({ name: action, args });
                 break;
             }
             case "selectTiles": {
@@ -74,9 +96,8 @@ async function main(privKey:string, echoOn:boolean) {
     };
 
     const onGameStateUpdate = (game: Partial<GameState>) => {
-        const newMapState = dangerouslyHackStateForMap(game);
-        process.stdout.write(JSON.stringify(newMapState) + "\n");
-    }
+        process.stdout.write(JSON.stringify(game) + "\n");
+    };
 
     stdin.on("data", (data: Buffer) => {
         const input = data.toString("utf-8").trim();
@@ -91,19 +112,17 @@ async function main(privKey:string, echoOn:boolean) {
         lines.forEach(processMessage);
     });
 
-    pipe(
-        game,
-        subscribe(onGameStateUpdate)
-    );
-
+    pipe(game, subscribe(onGameStateUpdate));
 }
-
 
 if (require.main === module) {
     const DEFAULT_PRIV_KEY =
         "0xc14c1284a5ff47ce38e2ad7a50ff89d55ca360b02cdf3756cdb457389b1da223";
-    const privKey = process.argv.length >= 3 ? process.argv[2] : DEFAULT_PRIV_KEY;
-    const echoOn = process.argv.length >= 4 ? process.argv[3] == "--echo" : false; // TODO: proper arg parsing
-    main(privKey, echoOn)
-        .catch((error) => console.error(JSON.stringify({error})))
+    const privKey =
+        process.argv.length >= 3 ? process.argv[2] : DEFAULT_PRIV_KEY;
+    const echoOn =
+        process.argv.length >= 4 ? process.argv[3] == "--echo" : false; // TODO: proper arg parsing
+    main(privKey, echoOn).catch((error) =>
+        console.error(JSON.stringify({ error }))
+    );
 }

@@ -7,7 +7,8 @@ public class SeekerManager : MonoBehaviour
 {
     public static SeekerManager Instance;
 
-    public Seeker Seeker { get; private set; }
+    public Seekers Seeker { get; private set; }
+    private ICollection<Seeker> _playerSeekers;
 
     protected void Awake()
     {
@@ -25,8 +26,10 @@ public class SeekerManager : MonoBehaviour
 
     public bool IsPlayerAtPosition(Vector3Int cellPosCube)
     {
-        return Seeker != null
-            && TileHelper.GetTilePosCube(Seeker.Location.Next.Tile) == cellPosCube;
+        if (Seeker == null)
+            return false;
+
+        return TileHelper.GetTilePosCube(Seeker.NextLocation) == cellPosCube;
     }
 
     // -- LISTENERS
@@ -34,33 +37,42 @@ public class SeekerManager : MonoBehaviour
     // TODO: Still assuming only one seeker
     private void OnStateUpdated(State state)
     {
+        if (state.Player == null || state.Player.Seekers == null || state.Player.Seekers.Count == 0)
+        {
+            // We're either not logged in or don't have any seekers yet
+            if (_playerSeekers != null)
+            {
+                // TODO: Not sure if this will be handled automatically by MapManager
+                // Removed previous seekers
+                // IconManager.instance.RemoveSeekers(_playerSeekers.ToList());
+                _playerSeekers = null;
+                Seeker = null;
+            }
+            return;
+        }
+
         var seekersToRemove = new List<Cog.Seeker>();
 
-        var playerSeeker =
-            (state.UI.Selection.Player != null && state.UI.Selection.Player.Seekers.Count > 0)
-                ? state.UI.Selection.Player.Seekers.ToList()[0]
-                : null;
+        var playerSeeker = state.Player.Seekers.ToList()[0];
         if (playerSeeker != null)
         {
-            if (Seeker != null && Seeker.Id != playerSeeker.Id)
-            {
-                // If we've switched accounts then remove the previous player seeker as well as
-                // the icon for the current seeker which would have been a grey 'other' seeker
-                seekersToRemove.Add(Seeker);
-                seekersToRemove.Add(playerSeeker);
-            }
-            else if (Seeker == null)
-            {
-                // If we weren't logged in prior then remove the grey 'other' seeker which will become our red seeker
-                seekersToRemove.Add(playerSeeker);
-            }
-
             Seeker = playerSeeker;
-        }
-        else if (Seeker != null)
-        {
-            // Signed out so remove the player seeker icon
-            seekersToRemove.Add(Seeker);
+            var seekerPosCube = TileHelper.GetTilePosCube(Seeker.NextLocation);
+            var seekerTile = TileHelper.GetTileByPos(seekerPosCube);
+            var cell = new MapManager.MapCell
+            {
+                cubicCoords = seekerPosCube,
+                typeID = 0,
+                iconID = 0,
+                cellName = ""
+            };
+
+            IconManager.instance.CreateSeekerIcon(
+                Seeker,
+                cell,
+                true,
+                seekerTile.Seekers.Count + 1 // HACK: because the seeker positions in the map data is one behind the player's position
+            );
         }
 
         IconManager.instance.RemoveSeekers(seekersToRemove);
