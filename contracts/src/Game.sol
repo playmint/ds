@@ -20,8 +20,6 @@ import {PluginRule} from "@ds/rules/PluginRule.sol";
 import {NewPlayerRule} from "@ds/rules/NewPlayerRule.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
-import {DummyBuilding} from "@ds/fixtures/DummyBuilding.sol";
-
 using Schema for StateGraph;
 
 // -----------------------------------------------
@@ -117,46 +115,5 @@ contract Game is BaseGame {
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_RESOURCE_KIND, (ResourceKind.STONE, atomKinds, numAtoms)));
         atomKinds[0] = AtomKind.ATK;
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_RESOURCE_KIND, (ResourceKind.IRON, atomKinds, numAtoms)));
-
-        // [TMP] init some stuff to get started...
-
-        // discover tile 0,0,0
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_TILE,
-                (
-                    BiomeKind.DISCOVERED,
-                    0, // q
-                    0, // r
-                    0 // s
-                )
-            )
-        );
-
-        // dump a seeker at that tile
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_SEEKER,
-                (
-                    address(0), // owner
-                    0, // seeker id (sid)
-                    0, // q
-                    0, // r
-                    0 // s
-                )
-            )
-        );
-
-        // deploy and register the DummyBuilding as a building kind
-        bytes24 dummyBuildingKind = Node.BuildingKind(1);
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (dummyBuildingKind, "DummyBuilding")));
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_BUILDING_CONTRACT, (dummyBuildingKind, address(new DummyBuilding())))
-        );
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.REGISTER_CLIENT_PLUGIN, (Node.ClientPlugin(1), dummyBuildingKind, "DummyBuildingPlugin", "{}")
-            )
-        );
     }
 }
