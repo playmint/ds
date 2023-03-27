@@ -38,7 +38,8 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
             equipIndex,
             slotIndex,
             newBalance: pickedUpItem.transferInfo.newBalance,
-            itemId: pickedUpItem.transferInfo.itemId
+            itemId: pickedUpItem.transferInfo.itemId,
+            itemKind: pickedUpItem.transferInfo.itemKind
         });
     };
 

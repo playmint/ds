@@ -14,6 +14,7 @@ export interface TransferInfo {
     slotIndex: number;
     newBalance: number;
     itemId: string;
+    itemKind: string;
 }
 
 interface InventoryItem {
@@ -88,7 +89,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
      * @returns true if the seeker is on the selected tile
      */
     const isSeekerAtLocation = (tile: Tile) => {
-        return tile.seekers.some((s) => s.id === selectedSeeker?.id);
+        return selectedSeeker?.nextLocation?.tile.id === tile.id;
     };
 
     const pickUpItem = (item: InventoryItem): void => {

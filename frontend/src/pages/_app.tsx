@@ -8,6 +8,7 @@ import { GlobalStyles } from '@app/styles/global.styles';
 import { ModalProvider } from '@app/contexts/modal-provider';
 import { DSProvider } from '@dawnseekers/core';
 import scout from '../plugins/scout';
+import { InventoryProvider } from '@app/plugins/inventory/inventory-provider';
 
 const initialConfig = {
     wsEndpoint: 'ws://localhost:8080/query',
@@ -26,9 +27,11 @@ const App = ({ Component, pageProps }: AppProps) => {
             </Head>
             <GlobalStyles />
             <DSProvider initialConfig={initialConfig} defaultPlugins={defaultPlugins}>
-                <ModalProvider>
-                    <Component {...pageProps} />
-                </ModalProvider>
+                <InventoryProvider>
+                    <ModalProvider>
+                        <Component {...pageProps} />
+                    </ModalProvider>
+                </InventoryProvider>
             </DSProvider>
         </Fragment>
     );
