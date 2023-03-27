@@ -1,14 +1,14 @@
-import { Client as DawnseekersClient, State } from "../../core/dist/src/index";
-import { ethers } from "ethers";
-import { Observer } from "zen-observable-ts";
-import "cross-fetch/polyfill";
+import fetch from 'cross-fetch';
+import { tap, filter, take, skipWhile, pipe, subscribe, toPromise } from 'wonka';
+import WebSocket from 'ws';
+import { ActionName, ConnectedPlayer, dangerouslyHackStateForMap, GameState, makeCogClient, makeConnectedPlayer, makeGameState, makeKeyWallet, makeLogger, makeSelection, makeWorld } from '../../core/dist/core';
 
 interface Message {
     msg: string;
 }
 
 interface DispatchMessage extends Message {
-    action: string;
+    action: ActionName;
     args: any[];
 }
 
@@ -20,127 +20,90 @@ interface SetIntentMessage extends Message {
     intent: string;
 }
 
-class DawnSeekersBridge implements Observer<State> {
-    private _ds: DawnseekersClient;
+async function main(privKey:string, echoOn:boolean) {
+    const initialConfig = {
+        wsEndpoint: "ws://localhost:8080/query",
+        wsSocketImpl: WebSocket,
+        httpEndpoint: "http://localhost:8080/query",
+        httpFetchImpl: fetch,
+    };
 
-    constructor(privKey: string) {
-        this._ds = new DawnseekersClient({
-            wsEndpoint: "ws://localhost:8080/query",
-            httpEndpoint: "http://localhost:8080/query",
-            signer: async () => {
-                const key = new ethers.SigningKey(privKey);
-                return new ethers.BaseWallet(key);
-            },
-        });
+    const wallet = makeKeyWallet(privKey);
+    const { client, setConfig } = makeCogClient(initialConfig);
+    const { logger } = makeLogger({ name: 'main' });
+    const player = makeConnectedPlayer(client, wallet, logger);
+    const world = makeWorld(client);
+    const { selection, ...selectors } = makeSelection(client, world, player);
+    const { selectTiles, selectIntent, selectSeeker } = selectors;
+    const game = makeGameState(player, world, selection);
+    const { stdout, stdin } = process;
 
-        this._ds.subscribe(this);
-        this._ds
-            .signin()
-            .catch((e) => {
-                console.log("Failed to sign in");
-                console.log(e);
-            })
-            .then(() => {
-                // aliased to keep processMessage code same between react version of this code
-                const ds = this._ds;
+    const { dispatch } = await pipe(
+        player,
+        skipWhile((p): p is ConnectedPlayer => typeof p === 'undefined'),
+        take(1),
+        toPromise,
+    ) as ConnectedPlayer;
 
-                // Same `processMessage` func as found in `src/components/organisms/unity-map/index.tsx`
-                const processMessage = (msgJson: any) => {
-                    let msgObj: Message;
-                    try {
-                        msgObj = JSON.parse(msgJson) as Message;
-                    } catch (e) {
-                        console.error(e);
-                        return;
-                    }
+    const processMessage = (msgJson: any) => {
+        let msgObj: Message;
+        try {
+            msgObj = JSON.parse(msgJson) as Message;
+        } catch (e) {
+            console.error(e);
+            return;
+        }
 
-                    switch (msgObj.msg) {
-                        case "dispatch": {
-                            const { action, args } = msgObj as DispatchMessage;
-                            ds.dispatch(action, ...args).catch((e) => {
-                                console.error(e);
-                            });
-                            break;
-                        }
-                        case "selectTiles": {
-                            const { tileIDs } = msgObj as SelectTileMessage;
-                            ds.selectTiles(tileIDs).catch((e) => {
-                                console.error(e);
-                            });
-                            break;
-                        }
-                        case "setIntent": {
-                            const { intent } = msgObj as SetIntentMessage;
-                            ds.setIntent(intent).catch((e) => {
-                                console.error(e);
-                            });
-                            break;
-                        }
-                    }
-                };
-
-                process.stdin.on("data", (data: Buffer) => {
-                    const input = data.toString("utf-8").trim();
-                    if (input.length == 0) return;
-
-                    if (echoOn) {
-                        process.stdout.write("**" + input + "**\n");
-                    }
-
-                    var lines = input.split("\n");
-
-                    lines.forEach(processMessage);
-                });
-            });
-    }
-
-    public next(state: State) {
-        state = this.breakCircularReferences(state) as State;
-
-        const json = JSON.stringify(state, (key, value) => {
-            if (typeof value === "bigint") {
-                return BigInt(value).toString(16);
+        switch (msgObj.msg) {
+            case "dispatch": {
+                const { action, args } = msgObj as DispatchMessage;
+                dispatch({name: action, args});
+                break;
             }
-            return value;
-        });
-
-        process.stdout.write(json + "\n");
-    }
-
-    private breakCircularReferences(obj: any, ancestorSet?: any[]) {
-        const seen: any[] = [];
-        if (ancestorSet) {
-            seen.push(...ancestorSet);
-        }
-
-        if (seen.indexOf(obj) > -1) {
-            const idx = seen.indexOf(obj);
-            return null;
-        }
-
-        seen.push(obj);
-
-        const newObj: any = Array.isArray(obj) ? [] : {};
-
-        for (var key in obj) {
-            const value = obj[key];
-            if (typeof value === "object" && value !== null) {
-                const newVal = this.breakCircularReferences(value, seen);
-                if (newVal !== null) {
-                    newObj[key] = newVal;
-                }
-            } else {
-                newObj[key] = obj[key];
+            case "selectTiles": {
+                const { tileIDs } = msgObj as SelectTileMessage;
+                selectTiles(tileIDs);
+                break;
+            }
+            case "setIntent": {
+                const { intent } = msgObj as SetIntentMessage;
+                selectIntent(intent);
+                break;
             }
         }
+    };
 
-        return newObj;
+    const onGameStateUpdate = (game: Partial<GameState>) => {
+        const newMapState = dangerouslyHackStateForMap(game);
+        process.stdout.write(JSON.stringify(newMapState) + "\n");
     }
+
+    stdin.on("data", (data: Buffer) => {
+        const input = data.toString("utf-8").trim();
+        if (input.length == 0) return;
+
+        if (echoOn) {
+            process.stdout.write("**" + input + "**\n");
+        }
+
+        var lines = input.split("\n");
+
+        lines.forEach(processMessage);
+    });
+
+    pipe(
+        game,
+        subscribe(onGameStateUpdate)
+    );
+
 }
 
-const DEFAULT_PRIV_KEY =
-    "0xc14c1284a5ff47ce38e2ad7a50ff89d55ca360b02cdf3756cdb457389b1da223";
-const privKey = process.argv.length >= 3 ? process.argv[2] : DEFAULT_PRIV_KEY;
-const echoOn = process.argv.length >= 4 ? process.argv[3] == "--echo" : false; // TODO: proper arg parsing
 
-const bridge = new DawnSeekersBridge(privKey);
+if (require.main === module) {
+    const DEFAULT_PRIV_KEY =
+        "0xc14c1284a5ff47ce38e2ad7a50ff89d55ca360b02cdf3756cdb457389b1da223";
+    const privKey = process.argv.length >= 3 ? process.argv[2] : DEFAULT_PRIV_KEY;
+    const echoOn = process.argv.length >= 4 ? process.argv[3] == "--echo" : false; // TODO: proper arg parsing
+    main(privKey, echoOn)
+        .catch((error) => console.error(JSON.stringify({error})))
+}
