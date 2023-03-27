@@ -12,55 +12,37 @@ else
 	UNITY_EDITOR := /Applications/Unity/Hub/Editor/$(UNITY_EDITOR_VERSION)/Unity.app/Contents/Linux/Unity
 endif
 endif
-UNITY_SRC := $(wildcard DawnSeekersUnity/**/*.cs)
 
-# cog srcs
-COG_SERVICES_SRC := $(wildcard contracts/lib/cog/services/**/*.go)
+# srcs
+COG_SERVICES_SRC := $(shell find contracts/lib/cog/services -name '*.go')
+CORE_SRC := $(shell find core/src)
 
 # paths to tools
 NODE := node
 NPM := npm
 
-all: node_modules contracts/lib/cog/services/bin/ds-node contracts/out/Actions.sol core/dist/core.js frontend/public/ds-unity/Build/ds-unity.wasm bridge/dist/index.js
+all: node_modules contracts/lib/cog/services/bin/ds-node contracts/out/Actions.sol/Actions.json core/dist/core.js frontend/public/ds-unity/Build/ds-unity.wasm bridge/dist/index.js
+
+map:
+	$(UNITY_EDITOR) -batchmode -quit -projectPath ./DawnSeekersUnity -executeMethod BuildScript.GitHubBuild -buildTarget WebGL -logFile - 
 
 dev: all
 	$(NODE) .devstartup.js
 
-contracts/out/Actions.sol:
+contracts/out/Actions.sol/Actions.json:
 	(cd contracts && forge build)
 
-core/dist/core.js: $(wildcard core/src/**/*)
+core/dist/core.js: $(CORE_SRC)
 	(cd core && npm run build)
 
-bridge/dist/index.js: core/dist/core.js
-	echo "FIXME: don't commit this"
-	echo "(cd bridge && npm run build)"
+bridge/dist/index.js: core/dist/core.js bridge/src/index.ts
+	(cd bridge && npm run build)
 
-frontend/public/ds-unity/Build/ds-unity.wasm: $(UNITY_SRC)
-	$(UNITY_EDITOR) -batchmode -quit -projectPath ./DawnSeekersUnity -executeMethod BuildScript.GitHubBuild -buildTarget WebGL -logFile - || ( \
-		if [ -f "$@" ]; then \
-			echo; \
-			echo "------------------------------------------------------------------------------------"; \
-			echo "Failed to build the WebGL map, but looks like you have an old version built already"; \
-			echo "------------------------------------------------------------------------------------"; \
-			echo; \
-			echo "Continue with your previous map build? [Y/n]: "; \
-			echo; \
-			read line; if [[ $$line == "n" ]]; then \
-				echo "ERROR: failed to build map"; \
-				echo; \
-				exit 1; \
-			else \
-				echo "WARNING: using stale map build!"; \
-				echo; \
-			fi \
-		else \
-			echo "ERROR: failed to build map and no previous version found"; \
-		fi \
-	)
+frontend/public/ds-unity/Build/ds-unity.wasm:
+	$(MAKE) map
 
 node_modules: package.json package-lock.json
-	$(NPM) ci
+	$(NPM) install
 	touch $@
 
 contracts/lib/cog/services/bin/ds-node: contracts/lib/cog/services/Makefile $(COG_SERVICES_SRC)
@@ -81,5 +63,5 @@ clean:
 	$(MAKE) -C contracts/lib/cog/services clean
 
 
-.PHONY: all clean dev
-.SILENT: contracts/lib/cog/services/bin/ds-node
+.PHONY: all clean dev map
+.SILENT: contracts/lib/cog/services/bin/ds-node frontend/public/ds-unity/Build/ds-unity.wasm

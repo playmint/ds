@@ -23,6 +23,16 @@ const commands = [
     },
 
     {
+        name: 'contract',
+        command: './lib/cog/services/bin/wait-for -it localhost:8545 -t 300 && forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545" && sleep 9999999',
+        prefixColor: 'black',
+        env: {
+            DEPLOYER_PRIVATE_KEY,
+        },
+        cwd: path.resolve(__dirname, path.join('contracts')),
+    },
+
+    {
         name: 'services',
         command: './bin/wait-for -it localhost:8545 -t 300 && ./bin/ds-node -debug',
         env: {
@@ -58,92 +68,11 @@ const processes = concurrently(commands, {
     prefix: 'name',
     prefixColors: 'auto',
     killOthers: ['failure', 'success'],
-    restartTries: 0,
+    restartTries: 1,
 });
-
-// func to tell everything to shutdown
-const isShutdown = false;
-const shutdown = (err) => {
-    if (isShutdown) {
-        return;
-    }
-    processes.commands.forEach((cmd) => cmd.kill());
-    if (err) {
-        console.error(`shutdown reason: ${err}`);
-    }
-}
-
-// ------------------------------------------------------------------
-// run the contract deploy script when network ready or on file changes
-// ------------------------------------------------------------------
-
-const debounce = (callback, wait) => {
-    let timeoutId = null;
-    return (...args) => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-            callback.apply(null, args);
-        }, wait);
-    };
-}
-
-const deploy = debounce(() => {
-    console.log('[contracts] deploying contracts');
-    const opts = {
-        cwd: path.resolve(path.join(__dirname, 'contracts')),
-        env: {
-            DEPLOYER_PRIVATE_KEY,
-            ...process.env,
-        },
-    };
-    execSync(`forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545"`, opts);
-}, 1000);
-
-async function deployer() {
-    const dirs = ['contracts/src'];
-    // wait for chain to become available
-    let ready = false;
-    let tries = 0;
-    while(tries < 2 && !isShutdown && !processes.commands.some(c => c.exited)) {
-        tries++;
-        try {
-            await sleep(2000);
-            const provider = new JsonRpcProvider('http://localhost:8545');
-            ready = await Promise.race([
-                provider.send("eth_blockNumber"),
-                sleep(2000).then(() => undefined),
-            ]);
-        } catch (err) {
-        }
-    }
-    if (!ready) {
-        if (isShutdown || processes.commands.some(c => c.exited)) {
-            return;
-        }
-        console.log('[contracts] rpc endpoint unavailable');
-        shutdown('failed to connect to network');
-        return;
-    }
-    // watch for changes to the contracts to trigger contract deployments
-    const watcher = chokidar.watch(dirs, {
-        persistent: true
-    });
-    watcher
-        .on('add', deploy)
-        .on('change', deploy)
-        .on('unlink', deploy)
-        .on('error', error => console.error(`Watcher error: ${error}`));
-    console.log(`[contracts] watching:`, dirs);
-    return watcher;
-}
-const watcher = deployer()
-    .catch((err) => shutdown(err))
 
 processes.result
     .then(() => console.log('shutdown'))
-    .catch(() => console.error('stopped'))
-    .finally(() => watcher.then(w => w ? w.close() : null))
-    .then(() => shutdown())
-    .then(() => process.exit())
+    .catch(() => console.error('stopped'));
 
 
