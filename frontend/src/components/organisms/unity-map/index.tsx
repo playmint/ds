@@ -1,7 +1,7 @@
 /** @format */
 
 import { ComponentProps } from '@app/types/component-props';
-import { ActionName, dangerouslyHackStateForMap, useGameState, usePlayer, useSelection } from '@dawnseekers/core';
+import { ActionName, useGameState, usePlayer, useSelection } from '@dawnseekers/core';
 import { FunctionComponent, useEffect, useState } from 'react';
 import { Unity, useUnityContext } from 'react-unity-webgl';
 import styled from 'styled-components';
@@ -89,8 +89,7 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
         };
     }, []);
 
-    const newMapState = dangerouslyHackStateForMap(game);
-    const newMapBlob = JSON.stringify(newMapState);
+    const newMapBlob = JSON.stringify(game);
     if (isReady && game && globalLastBlob != newMapBlob) {
         globalSender = sendMessage;
         globalLastBlob = newMapBlob;

@@ -12,7 +12,6 @@ import WebSocket from "ws";
 import {
     ActionName,
     ConnectedPlayer,
-    dangerouslyHackStateForMap,
     GameState,
     makeCogClient,
     makeConnectedPlayer,
@@ -21,8 +20,6 @@ import {
     makeLogger,
     makeSelection,
     makeWorld,
-    Player,
-    World,
 } from "../../core/dist/core";
 
 interface Message {
