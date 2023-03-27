@@ -94,6 +94,9 @@ contract BuildingRuleTest is Test {
         assertEq(state.getOwner(buildingInstance), Node.Player(aliceAccount), "expected building to be owned by alice");
         // check building has kind
         assertEq(state.getBuildingKind(buildingInstance), buildingKind, "expected building to have kind");
+        // check building has a bag equip
+        bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
+        assertEq(state.getEquipSlot(buildingInstance, 0), bag, "expected building to have a bag equip");
     }
 
     function testConstructFailPayment() public {

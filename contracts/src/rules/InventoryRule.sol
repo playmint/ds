@@ -54,7 +54,7 @@ contract InventoryRule is Rule {
         bytes24 location = state.getCurrentLocation(seeker, atTime);
 
         // check equipees are either the acting seeker
-        // or is a tile at same location as acting seeker
+        // or at the same location as the acting seeker
         _requireEquipeeLocation(state, equipee[0], seeker, location, atTime);
         _requireEquipeeLocation(state, equipee[1], seeker, location, atTime);
 
@@ -66,10 +66,8 @@ contract InventoryRule is Rule {
         _requireIsBag(bags[0]);
         _requireIsBag(bags[1]);
 
-        // check that bag is either owned by the player
-        // or owned by nobody
+        // check that the source bag is either owned by the player or nobody
         _requireCanUseBag(state, bags[0], player);
-        _requireCanUseBag(state, bags[1], player);
 
         // perform transfer between item slots
         _transferBalance(state, bags[0], itemSlot[0], bags[1], itemSlot[1], qty);
@@ -103,6 +101,12 @@ contract InventoryRule is Rule {
         } else if (bytes4(equipee) == Kind.Tile.selector) {
             // located on a tile
             if (location != equipee) {
+                revert NoTransferNotSameLocation();
+            }
+        } else if (bytes4(equipee) == Kind.Building.selector) {
+            // attached to a building with a fixed location
+            bytes24 buildingLocation = state.getFixedLocation(equipee);
+            if (location != buildingLocation) {
                 revert NoTransferNotSameLocation();
             }
         } else if (bytes4(equipee) == Kind.Seeker.selector) {

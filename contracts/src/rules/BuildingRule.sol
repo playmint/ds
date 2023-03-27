@@ -154,6 +154,12 @@ contract BuildingRule is Rule {
         state.setOwner(buildingInstance, Node.Player(ctx.sender));
         // set building location
         state.setFixedLocation(buildingInstance, targetTile);
+        // every building gets a bag (owned by the BuildingKind)
+        // TODO: this bagID will clash one day and it will be weird, reserve
+        // some id space? allow equip directly on things other than bags?
+        bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
+        state.setOwner(bag, buildingKind);
+        state.setEquipSlot(buildingInstance, 0, bag);
     }
 
     function _payConstructionFee(
