@@ -49,16 +49,18 @@ contracts/lib/cog/services/bin/ds-node: contracts/lib/cog/services/Makefile $(CO
 	$(MAKE) -C contracts/lib/cog/services bin/ds-node
 
 clean:
-	rm -rf frontend/public/ds-unity
-	rm -f contracts/lib/cog/services/bin/ds-node
+	rm -rf bridge/dist
+	rm -rf bridge/node_modules
+	rm -f  contracts/lib/cog/services/bin/ds-node
 	rm -rf contracts/out
 	rm -rf core/dist
-	rm -rf bridge/dist
+	rm -rf core/src/gql
+	rm -rf core/src/abi
+	rm -rf core/node_modules
+	rm -f  frontend/public/ds-unity/Build/ds-unity.wasm
+	rm -rf frontend/public/ds-unity
 	rm -rf frontend/dist
 	rm -rf frontend/node_modules
-	rm -rf core/node_modules
-	rm -rf core/src/gql
-	rm -rf bridge/node_modules
 	rm -rf node_modules
 	$(MAKE) -C contracts/lib/cog/services clean
 
