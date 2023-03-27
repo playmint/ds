@@ -52,14 +52,15 @@ function addUnscoutedTiles(tiles: WorldTileFragment[]): WorldTileFragment[] {
 }
 
 function getUnscoutedTile(tiles: WorldTileFragment[], q: number, r: number, s: number): WorldTileFragment | null {
-    const t = tiles.find(({ coords }) => coords[1] === q && coords[2] === r && coords[3] === s);
+    const coords = [0, q, r, s].map((n) => ethers.toBeHex(ethers.toTwos(n, 16)));
+    const id = CompoundKeyEncoder.encodeInt16(NodeSelectors.Tile, 0, q, r, s);
+    const t = tiles.find((t) => t.id === id);
     if (t) {
         return null;
     }
-    const keys = [0, q, r, s].map((n) => ethers.toBeHex(ethers.toTwos(n, 16)));
     return {
-        id: CompoundKeyEncoder.encodeInt16(NodeSelectors.Tile, 0, q, r, s),
-        coords: keys,
+        id,
+        coords,
         bagCount: 0,
         biome: BiomeKind.UNDISCOVERED,
         seekers: [],
