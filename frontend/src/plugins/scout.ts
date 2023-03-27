@@ -43,6 +43,7 @@ export default function update({selected}) {
 const plugin: PluginConfig = {
     name: 'scout',
     id: 'scout',
+    hash: 'scout',
     type: PluginType.CORE,
     trust: PluginTrust.TRUSTED,
     src: src

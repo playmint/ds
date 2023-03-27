@@ -43,6 +43,7 @@ export default function update(state) {
 const plugin: PluginConfig = {
     name: 'move',
     id: 'move',
+    hash: 'move',
     type: PluginType.CORE,
     trust: PluginTrust.TRUSTED,
     src: src
