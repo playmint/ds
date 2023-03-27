@@ -5,16 +5,17 @@ services:
   contracts:
     build:
       context: ./contracts
-    # restart: always
     ports:
       - 8545:8545
+    environment:
+      DEPLOYER_PRIVATE_KEY: "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff9524d487fb5d57a8"
 
   frontend:
     build:
-      context: ./frontend
-    # restart: always
+      context: .
+      dockerfile: ./frontend/Dockerfile
     ports:
-      - 3000:3000
+      - 3000:80
 
   cog:
     build:

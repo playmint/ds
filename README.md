@@ -12,7 +12,13 @@ If you only need a local copy of the game built (without development helpers
 like hot reloading etc), then the easist way is to provision using
 Docker Compose.
 
-To build and start the client and supporting services run:
+You need to build the unity map project first:
+
+```
+make map
+```
+
+Then to build and start the client and supporting services run:
 
 ```
 docker compose up --build

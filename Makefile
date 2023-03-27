@@ -29,6 +29,9 @@ map:
 dev: all
 	$(NODE) .devstartup.js
 
+compose: frontend/public/ds-unity/Build/ds-unity.wasm
+	docker compose up --build
+
 contracts/out/Actions.sol/Actions.json:
 	(cd contracts && forge build)
 
@@ -65,5 +68,5 @@ clean:
 	$(MAKE) -C contracts/lib/cog/services clean
 
 
-.PHONY: all clean dev map
+.PHONY: all clean dev map compose
 .SILENT: contracts/lib/cog/services/bin/ds-node frontend/public/ds-unity/Build/ds-unity.wasm
