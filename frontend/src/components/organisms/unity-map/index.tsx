@@ -62,17 +62,16 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
     const { dispatch } = player || {};
     const game = useGameState();
     const { selectTiles, selectIntent } = useSelection();
-    const { unityProvider, sendMessage, addEventListener, removeEventListener } = useUnityContext({
+    const { unityProvider, sendMessage, addEventListener, removeEventListener, loadingProgression } = useUnityContext({
         loaderUrl: `/ds-unity/Build/ds-unity.loader.js`,
         dataUrl: `/ds-unity/Build/ds-unity.data`,
         frameworkUrl: `/ds-unity/Build/ds-unity.framework.js`,
         codeUrl: `/ds-unity/Build/ds-unity.wasm`
     });
     const [isReady, setIsReady] = useState(false);
-  // We'll round the loading progression to a whole number to represent the
-  // percentage of the Unity Application that has loaded.
-  const loadingPercentage = Math.round(loadingProgression * 100);
-
+    // We'll round the loading progression to a whole number to represent the
+    // percentage of the Unity Application that has loaded.
+    const loadingPercentage = Math.round(loadingProgression * 100);
 
     // -- State update
 

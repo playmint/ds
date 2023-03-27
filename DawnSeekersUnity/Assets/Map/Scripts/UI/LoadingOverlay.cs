@@ -7,6 +7,7 @@ public class LoadingOverlay : MonoBehaviour
 {
     CanvasGroup _group;
     private bool _hidden;
+
     private void Start()
     {
         _group = GetComponent<CanvasGroup>();
@@ -23,7 +24,7 @@ public class LoadingOverlay : MonoBehaviour
     {
         if (_hidden)
             return;
-        
+
         //foreach (var seeker in state.Game.Seekers)
         //{
         //    var isPlayerSeeker = (
@@ -32,8 +33,9 @@ public class LoadingOverlay : MonoBehaviour
         //    );
 
         //}
-        if (state.Game.Seekers.Count > 0)
+        if (state.Game.Tiles.Count > 0)
         {
+            Debug.Log("Fading Overlay");
             _hidden = true;
             StartCoroutine(FadeOutCR());
             return;
@@ -43,7 +45,7 @@ public class LoadingOverlay : MonoBehaviour
     IEnumerator FadeOutCR()
     {
         float t = 0;
-        while(t<1)
+        while (t < 1)
         {
             t += Time.deltaTime;
             _group.alpha = 1 - t;
