@@ -2,7 +2,7 @@
 
 import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
-import { Fragment } from 'react';
+import { Fragment, useEffect } from 'react';
 import Head from 'next/head';
 import { GlobalStyles } from '@app/styles/global.styles';
 import { ModalProvider } from '@app/contexts/modal-provider';
@@ -18,6 +18,17 @@ const initialConfig = {
 const defaultPlugins = [scout];
 
 const App = ({ Component, pageProps }: AppProps) => {
+    useEffect(() => {
+        const handleContextMenu = (e: MouseEvent) => {
+            e.preventDefault();
+        };
+        document.addEventListener('contextmenu', handleContextMenu);
+
+        return () => {
+            document.removeEventListener('contextmenu', handleContextMenu);
+        };
+    }, []);
+
     return (
         <Fragment>
             <Head>

@@ -24,15 +24,25 @@ const StyledBagItem = styled('div')`
 `;
 
 export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) => {
-    const { name, icon, quantity, ownerId, equipIndex, slotIndex, itemId, itemKind, isPending, isInteractable, ...otherProps } =
-        props;
+    const {
+        name,
+        icon,
+        quantity,
+        ownerId,
+        equipIndex,
+        slotIndex,
+        itemId,
+        itemKind,
+        isPending,
+        isInteractable,
+        ...otherProps
+    } = props;
     const { pickUpItem, isPickedUpItemVisible } = useInventory();
 
-    const handleClick = (event: MouseEvent) => {
+    const handleClick = () => {
         if (!isInteractable) {
             return;
         }
-        event.stopPropagation();
         const transferInfo = {
             id: ownerId,
             equipIndex,

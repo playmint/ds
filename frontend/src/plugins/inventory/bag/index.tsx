@@ -4,7 +4,7 @@ import { BagSlot, BagSlotProps } from '@app/plugins/inventory/bag-slot';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { ComponentProps } from '@app/types/component-props';
 import { BagFragment } from '@dawnseekers/core';
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { styles } from './bag.styles';
 
@@ -21,8 +21,10 @@ const StyledBag = styled('div')`
 
 export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
     const { bag, ownerId, equipIndex, isInteractable, ...otherProps } = props;
-    const { getPendingTransfers } = useInventory();
-    const pending = getPendingTransfers(ownerId, equipIndex);
+    const { getPendingFromTransfers, getPendingToTransfers, addBagRef, removeBagRef } = useInventory();
+    const pendingFrom = getPendingFromTransfers(ownerId, equipIndex);
+    const pendingTo = getPendingToTransfers(ownerId, equipIndex);
+    const slotsRef = useRef<HTMLUListElement>(null);
 
     const numBagSlots = 4;
 
@@ -46,31 +48,17 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
             }
 
             // we want to check if the slot has a pending from if so we update the balance
-            const from = pending.map(([from, _]) => from).find((from) => from.slotIndex === index);
+            const from = pendingFrom.map(([from, _]) => from).find((from) => from.slotIndex === index);
             if (from) {
-                console.log('From balance', from.newBalance);
-                if (slot.itemSlot) {
-                    slot.itemSlot.balance = from.newBalance;
-                } else {
-                    slot.itemSlot = {
-                        key: index,
-                        balance: from.newBalance,
-                        item: {
-                            id: from.itemId,
-                            kind: from.itemKind
-                        }
-                    };
-                }
-                slot.isPending = true;
+                slot.isPending = false;
                 slot.isDisabled = false;
                 slot.isInteractable = false;
             }
 
             // we want to check if the slot has a pending to if so we
             // update the balance and add the item id
-            const to = pending.map(([_, to]) => to).find((to) => to.slotIndex === index);
+            const to = pendingTo.map(([_, to]) => to).find((to) => to.slotIndex === index);
             if (to) {
-                console.log('to', to);
                 if (slot.itemSlot) {
                     slot.itemSlot.balance = to.newBalance;
                 } else {
@@ -96,10 +84,15 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
         emptySlot.isDisabled = false;
     }
 
+    useEffect(() => {
+        addBagRef(slotsRef);
+        return () => removeBagRef(slotsRef);
+    });
+
     return (
         <StyledBag {...otherProps}>
             <img src="/icons/bag.png" alt="" className="icon" />
-            <ul className="slots">
+            <ul className="slots" ref={slotsRef}>
                 {slots.map((slot: BagSlotProps, index: number) => (
                     <BagSlot key={index} as="li" {...slot} />
                 ))}

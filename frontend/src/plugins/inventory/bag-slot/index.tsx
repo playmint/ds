@@ -25,7 +25,7 @@ const StyledBagSlot = styled('div')`
 
 export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) => {
     const { itemSlot, isDisabled, ownerId, equipIndex, slotIndex, isInteractable, isPending, ...otherProps } = props;
-    const { dropItem, isPickedUpItemVisible, pickedUpItem } = useInventory();
+    const { dropStack, dropSingle, isPickedUpItemVisible, pickedUpItem } = useInventory();
 
     const item = itemSlot?.balance ? getItemDetails(itemSlot) : null;
 
@@ -33,18 +33,34 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
         console.log(isPending, itemSlot, item);
     }
 
-    const handleClick = () => {
+    const handleLeftClick = () => {
         if (!isPickedUpItemVisible || !isInteractable || !pickedUpItem) {
             return;
         }
-        dropItem({
-            id: ownerId,
-            equipIndex,
-            slotIndex,
-            newBalance: pickedUpItem.quantity,
-            itemId: pickedUpItem.transferInfo.itemId,
-            itemKind: pickedUpItem.transferInfo.itemKind
-        });
+
+        dropStack(
+            {
+                id: ownerId,
+                equipIndex,
+                slotIndex
+            },
+            itemSlot?.balance || 0
+        );
+    };
+
+    const handleRightClick = () => {
+        if (!isPickedUpItemVisible || !isInteractable || !pickedUpItem) {
+            return;
+        }
+
+        dropSingle(
+            {
+                id: ownerId,
+                equipIndex,
+                slotIndex
+            },
+            itemSlot?.balance || 0
+        );
     };
 
     const isDroppable = isPickedUpItemVisible && !item;
@@ -52,7 +68,8 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
     return (
         <StyledBagSlot
             {...otherProps}
-            onClick={handleClick}
+            onClick={handleLeftClick}
+            onContextMenu={handleRightClick}
             isDroppable={isDroppable}
             isDisabled={isDisabled}
             isInteractable={isInteractable}

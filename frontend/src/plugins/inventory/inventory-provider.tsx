@@ -1,8 +1,9 @@
 /** @format */
 import { styles } from '@app/plugins/inventory/bag-item/bag-item.styles';
-import { Tile, usePlayer, useSelection } from '@dawnseekers/core';
-import { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
+import { Tile, usePlayer, useSelection, useWorld } from '@dawnseekers/core';
+import { createContext, ReactNode, RefObject, useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { useClickOutside } from '@app/plugins/inventory/use-click-outside';
 
 export interface InventoryContextProviderProps {
     children?: ReactNode;
@@ -28,9 +29,13 @@ interface InventoryContextStore {
     isPickedUpItemVisible: boolean;
     pickedUpItem: InventoryItem | null;
     pickUpItem: (item: InventoryItem) => void;
-    dropItem: (target: TransferInfo) => void;
+    dropStack: (target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotIndex'>, targetCurrentBalance: number) => void;
+    dropSingle: (target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotIndex'>, targetCurrentBalance: number) => void;
     isSeekerAtLocation: (tile: Tile) => boolean;
-    getPendingTransfers: (ownerId: string, equipIndex: number) => [TransferInfo, TransferInfo][];
+    getPendingFromTransfers: (ownerId: string, equipIndex: number) => [TransferInfo, TransferInfo][];
+    getPendingToTransfers: (ownerId: string, equipIndex: number) => [TransferInfo, TransferInfo][];
+    addBagRef: (ref: RefObject<HTMLElement>) => void;
+    removeBagRef: (ref: RefObject<HTMLElement>) => void;
 }
 
 const useInventoryContext = createContext<InventoryContextStore>({} as InventoryContextStore);
@@ -56,11 +61,12 @@ const StyledPickedUpItem = styled('div')`
 export const InventoryProvider = ({ children }: InventoryContextProviderProps): JSX.Element => {
     const player = usePlayer();
     const { seeker: selectedSeeker, tiles: selectedTiles } = useSelection();
+    const world = useWorld();
     const [isPickedUpItemVisible, setIsPickedUpItemVisible] = useState<boolean>(false);
     const pickedUpItemRef = useRef<InventoryItem | null>(null);
     const pickedUpItemElementRef = useRef<HTMLDivElement>(null);
-    //const pendingTransfers = useRef<[TransferInfo, TransferInfo][]>([]);
     const [pendingTransfers, setPendingTransfers] = useState<[TransferInfo, TransferInfo][]>([]);
+    const { addRef: addBagRef, removeRef: removeBagRef } = useClickOutside(clearPickedUpItem);
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -83,12 +89,12 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
                 // when the balance of the target slot equals our pending balance then the transfer is complete
                 // and we need to keep the pending transfer
                 const transferCompleted = owners.some(
-                    (o) => o.id === to.id && o.bags[to.equipIndex].bag.slots[to.slotIndex].balance === to.newBalance
+                    (o) => o.id === to.id && o.bags[to.equipIndex].bag.slots[to.slotIndex]?.balance === to.newBalance
                 );
                 return !transferCompleted;
-             })
+            })
         );
-    }, [player, selectedTiles]);
+    }, [player, selectedTiles, world?.block, pendingTransfers]);
 
     /**
      * check if the selected seeker is on the selected tile
@@ -103,15 +109,60 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         setIsPickedUpItemVisible(true);
     };
 
-    const dropItem = (target: TransferInfo): void => {
+    function clearPickedUpItem() {
+        pickedUpItemRef.current = null;
+        setIsPickedUpItemVisible(false);
+    }
+
+    const dropStack = (
+        target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotIndex'>,
+        targetCurrentBalance: number
+    ): void => {
         if (!pickedUpItemRef.current) {
             console.error('Cannot drop an item, you are not holding an item');
             return;
         }
 
-        transferItem(pickedUpItemRef.current?.transferInfo, target, pickedUpItemRef.current?.quantity);
-        pickedUpItemRef.current = null;
-        setIsPickedUpItemVisible(false);
+        transferItem(
+            pickedUpItemRef.current.transferInfo,
+            {
+                id: target.id,
+                equipIndex: target.equipIndex,
+                slotIndex: target.slotIndex,
+                newBalance: pickedUpItemRef.current.quantity + targetCurrentBalance,
+                itemId: pickedUpItemRef.current.transferInfo.itemId,
+                itemKind: pickedUpItemRef.current.transferInfo.itemKind
+            },
+            pickedUpItemRef.current.quantity
+        );
+        clearPickedUpItem();
+    };
+
+    const dropSingle = (
+        target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotIndex'>,
+        targetCurrentBalance: number
+    ): void => {
+        if (!pickedUpItemRef.current) {
+            console.error('Cannot drop an item, you are not holding an item');
+            return;
+        }
+
+        transferItem(
+            pickedUpItemRef.current.transferInfo,
+            {
+                id: target.id,
+                equipIndex: target.equipIndex,
+                slotIndex: target.slotIndex,
+                newBalance: targetCurrentBalance + 1,
+                itemId: pickedUpItemRef.current.transferInfo.itemId,
+                itemKind: pickedUpItemRef.current.transferInfo.itemKind
+            },
+            1
+        );
+        pickedUpItemRef.current.quantity -= 1;
+        if (pickedUpItemRef.current.quantity == 0) {
+            clearPickedUpItem();
+        }
     };
 
     const transferItem = (from: TransferInfo, to: TransferInfo, quantity: number) => {
@@ -139,12 +190,15 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         setPendingTransfers([...pendingTransfers, [from, to]]);
     };
 
-    const getPendingTransfers = (ownerId: string, equipIndex: number) => {
-        return pendingTransfers.filter(([from, to]) => {
-            return (
-                (from.id === ownerId && from.equipIndex === equipIndex) ||
-                (to.id === ownerId && to.equipIndex === equipIndex)
-            );
+    const getPendingFromTransfers = (ownerId: string, equipIndex: number) => {
+        return pendingTransfers.filter(([from, _]) => {
+            return from.id === ownerId && from.equipIndex === equipIndex;
+        });
+    };
+
+    const getPendingToTransfers = (ownerId: string, equipIndex: number) => {
+        return pendingTransfers.filter(([_, to]) => {
+            return to.id === ownerId && to.equipIndex === equipIndex;
         });
     };
 
@@ -152,9 +206,13 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         isPickedUpItemVisible,
         pickedUpItem: pickedUpItemRef.current,
         pickUpItem,
-        dropItem,
+        dropStack,
+        dropSingle,
         isSeekerAtLocation,
-        getPendingTransfers
+        getPendingFromTransfers,
+        getPendingToTransfers,
+        addBagRef,
+        removeBagRef
     };
 
     return (
