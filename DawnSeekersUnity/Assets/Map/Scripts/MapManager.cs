@@ -1,9 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using System;
-using System.Linq;
 
 public class MapManager : MonoBehaviour
 {
@@ -34,10 +31,10 @@ public class MapManager : MonoBehaviour
 
     private void Start()
     {
-        Cog.PluginController.Instance.EventStateUpdated += OnStateUpdated;
-        if (Cog.PluginController.Instance.WorldState != null)
+        Cog.GameStateMediator.Instance.EventStateUpdated += OnStateUpdated;
+        if (Cog.GameStateMediator.Instance.gameState != null)
         {
-            OnStateUpdated(Cog.PluginController.Instance.WorldState);
+            OnStateUpdated(Cog.GameStateMediator.Instance.gameState);
         }
     }
 
@@ -62,12 +59,12 @@ public class MapManager : MonoBehaviour
         return _tilemap.GetTile(GridExtensions.CubeToGrid(position)) != null;
     }
 
-    private void OnStateUpdated(Cog.State state)
+    private void OnStateUpdated(Cog.GameState state)
     {
         // Debug.Log("MapManager::RenderState()");
         IconManager.instance.ResetSeekerPositionCounts();
         MapManager.instance.ClearMap();
-        foreach (var tile in state.Game.Tiles)
+        foreach (var tile in state.World.Tiles)
         {
             if (tile.Biome != 0)
             {
@@ -76,84 +73,38 @@ public class MapManager : MonoBehaviour
                 var cell = new MapManager.MapCell
                 {
                     cubicCoords = cellPosCube,
-                    typeID = 0,
-                    iconID = 0,
+                    typeID = 0, // TODO: Ask Jack if these are used anymore
+                    iconID = 0, // TODO: Ask Jack if these are used anymore
                     cellName = ""
                 };
                 if (hasResource)
                     IconManager.instance.CreateBuildingIcon(cell);
                 else
                     IconManager.instance.CheckIconRemoved(cell);
+
+                if (tile.Building != null)
+                    IconManager.instance.CreateBuildingIcon(cell);
+
                 MapManager.instance.AddTile(cell);
+
+                // Seekers
+                foreach (var seeker in tile.Seekers)
+                {
+                    // Don't render any of the player's seekers as the SeekerManager handles that from the player data
+                    if (!SeekerHelper.IsPlayerSeeker(seeker))
+                    {
+                        IconManager.instance.CreateSeekerIcon(
+                            seeker,
+                            cell,
+                            false,
+                            tile.Seekers.Count
+                        );
+                    }
+                }
+                // Do I need to call this?
+                // IconManager.instance.CheckSeekerRemoved(state.Game.Seekers.ToList());
             }
         }
         var playerSeekerTilePos = new List<Vector3Int>();
-
-        // foreach (var building in state.Game.Buildings)
-        // {
-        //     var cellPosCube = TileHelper.GetTilePosCube(building.Location.Tile);
-        //     var cell = new MapManager.MapCell
-        //     {
-        //         cubicCoords = cellPosCube,
-        //         typeID = 0, // TODO: I presume this might have to be linked to buildings?
-        //         iconID = 1, // TODO: I presume this might have to be linked to buildings?
-        //         cellName = ""
-        //     };
-        //     IconManager.instance.CreateBuildingIcon(cell);
-        // }
-
-        foreach (var seeker in state.Game.Seekers)
-        {
-            // index 1 is destination location
-            var cellPosCube = TileHelper.GetTilePosCube(seeker.Location.Next.Tile);
-
-            var isPlayerSeeker = (
-                SeekerManager.Instance.Seeker != null
-                && SeekerManager.Instance.Seeker.Id == seeker.Id
-            );
-
-            var cell = new MapManager.MapCell
-            {
-                cubicCoords = cellPosCube,
-                typeID = 2,
-                iconID = 0,
-                cellName = "Player Seeker"
-            };
-
-            if (isPlayerSeeker)
-            {
-                // Render in next pass
-                playerSeekerTilePos.Add(cellPosCube);
-                foreach (Vector3Int neighbour in TileHelper.GetTileNeighbours(cellPosCube))
-                {
-                    var neighbourCell = new MapManager.MapCell
-                    {
-                        cubicCoords = neighbour,
-                        typeID = 1,
-                        iconID = 0,
-                        cellName = ""
-                    };
-                    if (!MapManager.instance.IsTileAtPosition(neighbour))
-                        MapManager.instance.AddTile(neighbourCell);
-                }
-            }
-            else
-            {
-                cell.typeID = 3;
-            }
-            IconManager.instance.CreateSeekerIcon(
-                seeker,
-                cell,
-                isPlayerSeeker,
-                state.Game.Seekers
-                    .Where(
-                        n =>
-                            n.Location.Next.Tile != null
-                            && TileHelper.GetTilePosCube(n.Location.Next.Tile) == cellPosCube
-                    )
-                    .Count()
-            );
-        }
-        IconManager.instance.CheckSeekerRemoved(state.Game.Seekers.ToList());
     }
 }

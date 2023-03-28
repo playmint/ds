@@ -40,7 +40,7 @@ public class SeekerMovementManager : MonoBehaviour
         //       and clicking on the same tile wouldn't change the state so Unity didn't get a state update
         MapInteractionManager.instance.EventTileLeftClick += OnTileLeftClick;
         MapInteractionManager.instance.EventTileRightClick += OnTileRightClick;
-        PluginController.Instance.EventStateUpdated += OnStateUpdated;
+        GameStateMediator.Instance.EventStateUpdated += OnStateUpdated;
     }
 
     private void OnDestroy()
@@ -54,8 +54,8 @@ public class SeekerMovementManager : MonoBehaviour
     private void Update()
     {
         if (
-            PluginController.Instance.WorldState == null
-            || PluginController.Instance.WorldState.Game == null
+            GameStateMediator.Instance.gameState == null
+            || GameStateMediator.Instance.gameState.World == null
         )
             return;
 
@@ -112,19 +112,19 @@ public class SeekerMovementManager : MonoBehaviour
         else
         {
 #if UNITY_EDITOR
-            PluginController.Instance.ScoutTile(cellCubePos);
+            GameStateMediator.Instance.ScoutTile(cellCubePos);
 #endif
         }
     }
 
-    private void OnStateUpdated(State state)
+    private void OnStateUpdated(GameState state)
     {
-        if (state.UI.Selection.Intent == Intent.MOVE)
+        if (state.Selected.Intent == Intent.MOVE)
         {
             // HACK: Cannot be in move intent when the movement CR is running
             if (_isTracingPath)
             {
-                PluginController.Instance.SendSetIntentMsg(Intent.NONE);
+                GameStateMediator.Instance.SendSetIntentMsg(Intent.NONE);
                 return;
             }
 
@@ -133,7 +133,7 @@ public class SeekerMovementManager : MonoBehaviour
                 ActivateMovementMode();
             }
 
-            _path = UpdatePath(_path, state.UI.Selection.Tiles.ToList<Tile>());
+            _path = UpdatePath(_path, state.Selected.Tiles.ToList());
             if (_path.Count == 0)
             {
                 AddCellToPath(GridExtensions.GridToCube(MapInteractionManager.CurrentSelectedCell));
@@ -142,13 +142,13 @@ public class SeekerMovementManager : MonoBehaviour
             HighlightAvailableSpaces();
         }
 
-        if (state.UI.Selection.Intent != Intent.MOVE && isMoving)
+        if (state.Selected.Intent != Intent.MOVE && isMoving)
         {
             DeactivateMovementMode();
         }
     }
 
-    private List<Vector3Int> UpdatePath(List<Vector3Int> oldPath, List<Tile> newPathTiles)
+    private List<Vector3Int> UpdatePath(List<Vector3Int> oldPath, List<Tiles> newPathTiles)
     {
         if (oldPath.Count == newPathTiles.Count)
             return oldPath;
@@ -211,7 +211,7 @@ public class SeekerMovementManager : MonoBehaviour
 
     private bool isValidTile(Vector3Int cellCubePos)
     {
-        var tile = MapInteractionManager.instance.GetTile(cellCubePos);
+        var tile = TileHelper.GetTileByPos(cellCubePos);
 
         if (tile == null)
             return false;
@@ -293,7 +293,7 @@ public class SeekerMovementManager : MonoBehaviour
         {
             var tileIDs = _path.Select(cellPosCube => TileHelper.GetTileID(cellPosCube)).ToList();
             tileIDs.Add(TileHelper.GetTileID(cellCubePos));
-            PluginController.Instance.SendSelectTileMsg(tileIDs);
+            GameStateMediator.Instance.SendSelectTileMsg(tileIDs);
         }
     }
 
@@ -303,8 +303,11 @@ public class SeekerMovementManager : MonoBehaviour
     private void DirectAddCellToPathHack(Vector3Int cellCubePos)
     {
         bool validPosition =
-            _path.Count == 0
-            || TileHelper.GetTileNeighbours(_path[_path.Count - 1]).Contains(cellCubePos);
+            isValidTile(cellCubePos)
+            && (
+                _path.Count == 0
+                || TileHelper.GetTileNeighbours(_path[_path.Count - 1]).Contains(cellCubePos)
+            );
         if (!_path.Any(p => p == cellCubePos) && validPosition)
         {
             // Add marker
@@ -332,14 +335,14 @@ public class SeekerMovementManager : MonoBehaviour
         // If we click elsewhere on the map and don't alter the path then don't make a state update
         if (tileIDs.Count != _path.Count)
         {
-            PluginController.Instance.SendSelectTileMsg(tileIDs);
+            GameStateMediator.Instance.SendSelectTileMsg(tileIDs);
 
             if (
                 tileIDs.Count == 0
-                && PluginController.Instance.WorldState.UI.Selection.Intent == Intent.MOVE
+                && GameStateMediator.Instance.gameState.Selected.Intent == Intent.MOVE
             )
             {
-                PluginController.Instance.SendSetIntentMsg(Intent.NONE);
+                GameStateMediator.Instance.SendSetIntentMsg(Intent.NONE);
             }
         }
     }
@@ -352,8 +355,8 @@ public class SeekerMovementManager : MonoBehaviour
 
         // Select the last tile in the path and take out of move intent
         var lastTileID = TileHelper.GetTileID(_path[_path.Count - 1]);
-        PluginController.Instance.SendSelectTileMsg(new List<string>() { lastTileID });
-        PluginController.Instance.SendSetIntentMsg(Intent.NONE);
+        GameStateMediator.Instance.SendSelectTileMsg(new List<string>() { lastTileID });
+        GameStateMediator.Instance.SendSetIntentMsg(Intent.NONE);
     }
 
     IEnumerator TracePathCR()
@@ -366,7 +369,7 @@ public class SeekerMovementManager : MonoBehaviour
         for (int i = 1; i < path.Count; i++)
         {
             var cellPosCube = path[i];
-            PluginController.Instance.MoveSeeker(SeekerManager.Instance.Seeker, cellPosCube);
+            GameStateMediator.Instance.MoveSeeker(SeekerManager.Instance.Seeker, cellPosCube);
             yield return new WaitForSeconds(3.5f);
             if (_travelMarkers.ContainsKey(cellPosCube))
             {

@@ -7,6 +7,6 @@ public class ActionMenuButtonController : MonoBehaviour
 {
     public void ButtonClicked()
     {
-        PluginController.Instance.SendSetIntentMsg(Intent.MOVE);
+        GameStateMediator.Instance.SendSetIntentMsg(Intent.MOVE);
     }
 }
