@@ -12,15 +12,15 @@ public class LoadingOverlay : MonoBehaviour
     {
         _group = GetComponent<CanvasGroup>();
         _hidden = false;
-        Cog.PluginController.Instance.EventStateUpdated += OnStateUpdated;
+        Cog.GameStateMediator.Instance.EventStateUpdated += OnStateUpdated;
     }
 
     private void OnDestroy()
     {
-        Cog.PluginController.Instance.EventStateUpdated -= OnStateUpdated;
+        Cog.GameStateMediator.Instance.EventStateUpdated -= OnStateUpdated;
     }
 
-    private void OnStateUpdated(State state)
+    private void OnStateUpdated(GameState state)
     {
         if (_hidden)
             return;
@@ -33,7 +33,7 @@ public class LoadingOverlay : MonoBehaviour
         //    );
 
         //}
-        if (state.Game.Tiles.Count > 0)
+        if (state.World.Tiles.Count > 0)
         {
             Debug.Log("Fading Overlay");
             _hidden = true;

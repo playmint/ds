@@ -32,24 +32,32 @@ namespace Cog
     }
 
     // TODO: The json schema has this structure defined, find a way to export that structure instead of definiing it manually here
-    public class State
+    public class GameState
     {
         [Newtonsoft.Json.JsonProperty(
-            "game",
+            "player",
             Required = Newtonsoft.Json.Required.DisallowNull,
             NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
         )]
-        public GameState Game { get; set; }
+        public Player Player { get; set; }
 
         [Newtonsoft.Json.JsonProperty(
-            "ui",
+            "selected",
             Required = Newtonsoft.Json.Required.DisallowNull,
             NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
         )]
-        public UIState UI { get; set; }
+        public Selection Selected { get; set; }
+
+        [Newtonsoft.Json.JsonProperty(
+            "world",
+            Required = Newtonsoft.Json.Required.DisallowNull,
+            NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
+        )]
+        public World World { get; set; }
     }
 
-    public class PluginController : MonoBehaviour
+    // TODO: No longer a PluginController. Rename to StateMediator
+    public class GameStateMediator : MonoBehaviour
     {
         [DllImport("__Internal")]
         private static extern void SendMessageRPC(string msgJSON);
@@ -57,14 +65,14 @@ namespace Cog
         [DllImport("__Internal")]
         private static extern void UnityReadyRPC();
 
-        public static PluginController Instance;
+        public static GameStateMediator Instance;
 
-        public State WorldState { get; private set; }
+        public GameState gameState { get; private set; }
 
         private bool _hasStateUpdated;
 
         // -- EVENTS
-        public Action<State> EventStateUpdated;
+        public Action<GameState> EventStateUpdated;
 
         // -- //
 
@@ -93,14 +101,14 @@ namespace Cog
                 _hasStateUpdated = false;
                 if (EventStateUpdated != null)
                 {
-                    EventStateUpdated.Invoke(WorldState);
+                    EventStateUpdated.Invoke(gameState);
                 }
             }
         }
 
-        private void UpdateState(State state)
+        private void UpdateState(GameState state)
         {
-            WorldState = state;
+            gameState = state;
             _hasStateUpdated = true;
         }
 
@@ -188,7 +196,7 @@ namespace Cog
                 {
                     try 
                     {
-                        var state = JsonConvert.DeserializeObject<State>(line);
+                        var state = JsonConvert.DeserializeObject<GameState>(line);
                         UpdateState(state);
                     } 
                     catch (Exception e) 
@@ -216,16 +224,10 @@ namespace Cog
 
         // -- MESSAGE OUT
 
-        public void MoveSeeker(Seeker seeker, Vector3Int cellPosCube)
+        public void MoveSeeker(Seekers seeker, Vector3Int cellPosCube)
         {
             // function MOVE_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
-            DispatchAction(
-                "MOVE_SEEKER",
-                "0x" + seeker.Key, // TODO: Do the prefixing on the JS side when state is serialised
-                cellPosCube.x,
-                cellPosCube.y,
-                cellPosCube.z
-            );
+            DispatchAction("MOVE_SEEKER", seeker.Key, cellPosCube.x, cellPosCube.y, cellPosCube.z);
         }
 
         public void ScoutTile(Vector3Int cellCubePos)
@@ -234,8 +236,8 @@ namespace Cog
             {
                 // function SCOUT_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
                 DispatchAction(
-                    "SCOUT_SEEKER", // TODO: Do the prefixing on the JS side when state is serialised
-                    "0x" + SeekerManager.Instance.Seeker.Key,
+                    "SCOUT_SEEKER",
+                    SeekerManager.Instance.Seeker.Key,
                     cellCubePos.x,
                     cellCubePos.y,
                     cellCubePos.z
@@ -294,7 +296,7 @@ namespace Cog
 
             try
             {
-                var state = JsonConvert.DeserializeObject<State>(stateJson);
+                var state = JsonConvert.DeserializeObject<GameState>(stateJson);
                 UpdateState(state);
             }
             catch (Exception e)
