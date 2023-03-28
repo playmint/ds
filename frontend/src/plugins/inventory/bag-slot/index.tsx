@@ -24,10 +24,14 @@ const StyledBagSlot = styled('div')`
 `;
 
 export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) => {
-    const { itemSlot, isDisabled, ownerId, equipIndex, slotIndex, isInteractable, ...otherProps } = props;
+    const { itemSlot, isDisabled, ownerId, equipIndex, slotIndex, isInteractable, isPending, ...otherProps } = props;
     const { dropItem, isPickedUpItemVisible, pickedUpItem } = useInventory();
 
     const item = itemSlot?.balance ? getItemDetails(itemSlot) : null;
+
+    if (isPending) {
+        console.log(isPending, itemSlot, item);
+    }
 
     const handleClick = () => {
         if (!isPickedUpItemVisible || !isInteractable || !pickedUpItem) {
@@ -37,7 +41,7 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
             id: ownerId,
             equipIndex,
             slotIndex,
-            newBalance: pickedUpItem.transferInfo.newBalance,
+            newBalance: pickedUpItem.quantity,
             itemId: pickedUpItem.transferInfo.itemId,
             itemKind: pickedUpItem.transferInfo.itemKind
         });
@@ -60,6 +64,7 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
                     equipIndex={equipIndex}
                     slotIndex={slotIndex}
                     isInteractable={isInteractable}
+                    isPending={isPending}
                 />
             )}
         </StyledBagSlot>

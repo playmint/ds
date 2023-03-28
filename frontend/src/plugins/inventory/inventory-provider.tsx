@@ -59,7 +59,8 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
     const [isPickedUpItemVisible, setIsPickedUpItemVisible] = useState<boolean>(false);
     const pickedUpItemRef = useRef<InventoryItem | null>(null);
     const pickedUpItemElementRef = useRef<HTMLDivElement>(null);
-    const pendingTransfers = useRef<[TransferInfo, TransferInfo][]>([]);
+    //const pendingTransfers = useRef<[TransferInfo, TransferInfo][]>([]);
+    const [pendingTransfers, setPendingTransfers] = useState<[TransferInfo, TransferInfo][]>([]);
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -76,12 +77,17 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
     useEffect(() => {
         const owners = [...(player?.seekers ?? []), ...(selectedTiles ?? [])];
 
-        pendingTransfers.current = pendingTransfers.current.filter(([_, to]) => {
-            // get the owner of 'to'
-            // if we can't find the owner in the data then we have not finished
-            // the transfer, and we need to keep the pending transfer
-            return !owners.some((o) => o.id === to.id);
-        });
+        setPendingTransfers(
+            pendingTransfers.filter(([_, to]) => {
+                // get the owner of 'to'
+                // when the balance of the target slot equals our pending balance then the transfer is complete
+                // and we need to keep the pending transfer
+                const transferCompleted = owners.some(
+                    (o) => o.id === to.id && o.bags[to.equipIndex].bag.slots[to.slotIndex].balance === to.newBalance
+                );
+                return !transferCompleted;
+             })
+        );
     }, [player, selectedTiles]);
 
     /**
@@ -130,11 +136,11 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         });
 
         // add pending transfer
-        pendingTransfers.current.push([from, to]);
+        setPendingTransfers([...pendingTransfers, [from, to]]);
     };
 
     const getPendingTransfers = (ownerId: string, equipIndex: number) => {
-        return pendingTransfers.current.filter(([from, to]) => {
+        return pendingTransfers.filter(([from, to]) => {
             return (
                 (from.id === ownerId && from.equipIndex === equipIndex) ||
                 (to.id === ownerId && to.equipIndex === equipIndex)
