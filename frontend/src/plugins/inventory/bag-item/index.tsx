@@ -16,6 +16,7 @@ export interface BagItemProps extends ComponentProps {
     itemId: string;
     itemKind: string;
     isInteractable: boolean;
+    isPending: boolean;
 }
 
 const StyledBagItem = styled('div')`
@@ -23,15 +24,25 @@ const StyledBagItem = styled('div')`
 `;
 
 export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) => {
-    const { name, icon, quantity, ownerId, equipIndex, slotIndex, itemId, itemKind, isInteractable, ...otherProps } =
-        props;
+    const {
+        name,
+        icon,
+        quantity,
+        ownerId,
+        equipIndex,
+        slotIndex,
+        itemId,
+        itemKind,
+        isPending,
+        isInteractable,
+        ...otherProps
+    } = props;
     const { pickUpItem, isPickedUpItemVisible } = useInventory();
 
-    const handleClick = (event: MouseEvent) => {
+    const handleClick = () => {
         if (!isInteractable) {
             return;
         }
-        event.stopPropagation();
         const transferInfo = {
             id: ownerId,
             equipIndex,
@@ -48,6 +59,7 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
 
     return (
         <StyledBagItem {...otherProps} onClick={handleClick} isPickable={isPickable} isInteractable={isInteractable}>
+            {isPending && <span className="spinner" />}
             <img src={icon} alt={name} className="icon" />
             <span className="amount">{quantity}</span>
         </StyledBagItem>

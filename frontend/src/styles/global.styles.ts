@@ -29,6 +29,7 @@ export const GlobalStyles = createGlobalStyle`
         -moz-osx-font-smoothing: grayscale;
         background: #335c90;
         font-size: 1.6rem;
+        overflow: hidden;
     }
 
     code {

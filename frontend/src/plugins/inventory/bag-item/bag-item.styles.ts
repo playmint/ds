@@ -1,6 +1,6 @@
 /** @format */
 
-import { css } from 'styled-components';
+import { css, keyframes } from 'styled-components';
 import { BagItemProps } from './index';
 
 type BagItemStyleProps = Partial<BagItemProps> & {
@@ -33,6 +33,26 @@ const baseStyles = ({ isPickable, isInteractable }: BagItemStyleProps) => css`
         font-size: 1.2rem;
         color: white;
     }
+
+    .spinner {
+        display: block;
+        width: 1rem;
+        height: 1rem;
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        border: 1px solid white;
+        border-left-color: transparent;
+        border-radius: 0.5rem;
+        animation-name: ${spinAnimation};
+        animation-duration: 0.5s;
+        animation-iteration-count: infinite;
+        animation-timing-function: linear;
+    }
+`;
+
+const spinAnimation = keyframes`
+    100% { transform:rotate(360deg); }
 `;
 
 /**
