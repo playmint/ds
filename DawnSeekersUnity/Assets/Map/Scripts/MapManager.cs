@@ -66,40 +66,32 @@ public class MapManager : MonoBehaviour
         MapManager.instance.ClearMap();
         foreach (var tile in state.World.Tiles)
         {
-            if (tile.Biome != 0)
+            var hasResource = TileHelper.HasResource(tile);
+            var cellPosCube = TileHelper.GetTilePosCube(tile);
+            var cell = new MapManager.MapCell
             {
-                var hasResource = TileHelper.HasResource(tile);
-                var cellPosCube = TileHelper.GetTilePosCube(tile);
-                var cell = new MapManager.MapCell
+                cubicCoords = cellPosCube,
+                typeID = tile.Biome == 1 ? TileType.STANDARD : TileType.SCOUT,
+                iconID = 0, // TODO: Ask Jack if this is used anymore
+                cellName = ""
+            };
+            if (hasResource)
+                IconManager.instance.CreateBuildingIcon(cell);
+            else
+                IconManager.instance.CheckIconRemoved(cell);
+
+            if (tile.Building != null)
+                IconManager.instance.CreateBuildingIcon(cell);
+
+            MapManager.instance.AddTile(cell);
+
+            // Seekers
+            foreach (var seeker in tile.Seekers)
+            {
+                // Don't render any of the player's seekers as the SeekerManager handles that from the player data
+                if (!SeekerHelper.IsPlayerSeeker(seeker))
                 {
-                    cubicCoords = cellPosCube,
-                    typeID = 0, // TODO: Ask Jack if these are used anymore
-                    iconID = 0, // TODO: Ask Jack if these are used anymore
-                    cellName = ""
-                };
-                if (hasResource)
-                    IconManager.instance.CreateBuildingIcon(cell);
-                else
-                    IconManager.instance.CheckIconRemoved(cell);
-
-                if (tile.Building != null)
-                    IconManager.instance.CreateBuildingIcon(cell);
-
-                MapManager.instance.AddTile(cell);
-
-                // Seekers
-                foreach (var seeker in tile.Seekers)
-                {
-                    // Don't render any of the player's seekers as the SeekerManager handles that from the player data
-                    if (!SeekerHelper.IsPlayerSeeker(seeker))
-                    {
-                        IconManager.instance.CreateSeekerIcon(
-                            seeker,
-                            cell,
-                            false,
-                            tile.Seekers.Count
-                        );
-                    }
+                    IconManager.instance.CreateSeekerIcon(seeker, cell, false, tile.Seekers.Count);
                 }
             }
             // TODO: Call this again after we have refactored the map data to include the seeker list
