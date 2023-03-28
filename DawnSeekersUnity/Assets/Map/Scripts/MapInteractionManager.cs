@@ -95,10 +95,7 @@ public class MapInteractionManager : MonoBehaviour
         }
 
         // Select the tile
-        if (
-            GameStateMediator.Instance.gameState.Selected.Intent == null
-            || GameStateMediator.Instance.gameState.Selected.Intent == Intent.NONE
-        )
+        if (GameStateMediator.Instance.gameState.Selected.Intent != Intent.MOVE)
         {
             Cog.GameStateMediator.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
         }
