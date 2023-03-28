@@ -101,9 +101,9 @@ public class MapManager : MonoBehaviour
                         );
                     }
                 }
-                // Do I need to call this?
-                // IconManager.instance.CheckSeekerRemoved(state.Game.Seekers.ToList());
             }
+            // TODO: Call this again after we have refactored the map data to include the seeker list
+            // IconManager.instance.CheckSeekerRemoved(state.Game.Seekers.ToList());
         }
         var playerSeekerTilePos = new List<Vector3Int>();
     }

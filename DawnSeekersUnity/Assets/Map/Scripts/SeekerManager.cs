@@ -2,13 +2,14 @@ using Cog;
 using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
+using System;
 
 public class SeekerManager : MonoBehaviour
 {
     public static SeekerManager Instance;
 
     public Seekers Seeker { get; private set; }
-    private ICollection<Seeker> _playerSeekers;
+    private ICollection<Seekers> _playerSeekers;
 
     protected void Awake()
     {
@@ -39,11 +40,13 @@ public class SeekerManager : MonoBehaviour
     {
         if (state.Player == null || state.Player.Seekers == null || state.Player.Seekers.Count == 0)
         {
-            // We're either not logged in or don't have any seekers yet
+            // if there were _playerSeekers then we have signed out
             if (_playerSeekers != null)
             {
-                // Removed previous seekers
+                // Removed seekers for previous signed in account and add back as non-player seekers
                 IconManager.instance.RemoveSeekers(_playerSeekers.ToList());
+                createSeekerIcons(_playerSeekers.ToList(), false);
+
                 _playerSeekers = null;
                 Seeker = null;
             }
@@ -51,25 +54,49 @@ public class SeekerManager : MonoBehaviour
         }
 
         var playerSeeker = state.Player.Seekers.ToList()[0];
-        if (playerSeeker != null)
-        {
-            Seeker = playerSeeker;
-            var seekerPosCube = TileHelper.GetTilePosCube(Seeker.NextLocation);
-            var seekerTile = TileHelper.GetTileByPos(seekerPosCube);
-            var cell = new MapManager.MapCell
-            {
-                cubicCoords = seekerPosCube,
-                typeID = 0,
-                iconID = 0,
-                cellName = ""
-            };
 
-            IconManager.instance.CreateSeekerIcon(
-                Seeker,
-                cell,
-                true,
-                seekerTile.Seekers.Count + 1 // HACK: because the seeker positions in the map data is one behind the player's position
-            );
+        //  If we've switched accounts;
+        if (playerSeeker != null && playerSeeker.Id != Seeker.Id && _playerSeekers != null)
+        {
+            // Removed seekers for previous signed in account and add back as non-player seekers
+            IconManager.instance.RemoveSeekers(_playerSeekers.ToList());
+            createSeekerIcons(_playerSeekers.ToList(), false);
+
+            // Remove seeker icon for current account as it'll be the dark version
+            IconManager.instance.RemoveSeeker(playerSeeker);
         }
+
+        _playerSeekers = state.Player.Seekers;
+
+        Seeker = playerSeeker;
+        createSeekerIcon(Seeker, true);
+    }
+
+    private void createSeekerIcons(List<Seekers> seekers, bool isPlayerSeeker)
+    {
+        foreach (var seeker in seekers)
+        {
+            createSeekerIcon(seeker, isPlayerSeeker);
+        }
+    }
+
+    private void createSeekerIcon(Seekers seeker, bool isPlayerSeeker)
+    {
+        var seekerPosCube = TileHelper.GetTilePosCube(Seeker.NextLocation);
+        var seekerTile = TileHelper.GetTileByPos(seekerPosCube);
+        var cell = new MapManager.MapCell
+        {
+            cubicCoords = seekerPosCube,
+            typeID = 0,
+            iconID = 0,
+            cellName = ""
+        };
+
+        IconManager.instance.CreateSeekerIcon(
+            Seeker,
+            cell,
+            isPlayerSeeker,
+            seekerTile.Seekers.Count
+        );
     }
 }

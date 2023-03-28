@@ -134,7 +134,7 @@ public class IconManager : MonoBehaviour
             seekerPositionCounts[cell.cubicCoords]++;
     }
 
-    public void RemoveSeekers(List<Cog.Seeker> seekers)
+    public void RemoveSeekers(List<Cog.Seekers> seekers)
     {
         var filteredDictionary = spawnedSeekerIcons
             .Where(pair => seekers.Any(s => s.Id == pair.Key))

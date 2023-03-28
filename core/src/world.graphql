@@ -61,7 +61,7 @@ fragment WorldTile on Node {
     building: node(match: { kinds: "Building", via: { rel: "Location", dir: IN } }) {
         ...WorldBuilding
     }
-    seekers: nodes(match: { kinds: "Seeker", via: { rel: "Location", dir: IN, key: 0 } }) {
+    seekers: nodes(match: { kinds: "Seeker", via: { rel: "Location", dir: IN, key: 1 } }) {
         ...WorldSeeker
     }
 }
