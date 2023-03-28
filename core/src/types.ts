@@ -37,6 +37,7 @@ export type LogSender = (o: Log) => void;
 
 export interface Log {
     name: string;
+    timestamp: Date;
     level: LogLevel;
     text: string;
     values: LogValues;

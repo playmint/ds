@@ -1,7 +1,7 @@
 /** @format */
 
 import { ComponentProps } from '@app/types/component-props';
-import { useLogs } from '@dawnseekers/core';
+import { useLogs, Log } from '@dawnseekers/core';
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { styles } from './logs.styles';
@@ -12,16 +12,20 @@ const StyledLogs = styled('div')`
     ${styles}
 `;
 
+const format = (log: Log): string => {
+    return `${log.timestamp.toTimeString().split(/\s/)[0]} ${log.text}`;
+};
+
 export const Logs: FunctionComponent<LogsProps> = ({ ...otherProps }: LogsProps) => {
-    const logs = useLogs(3);
+    const logs = useLogs(10);
     return (
         <StyledLogs {...otherProps}>
             <div className="logs">
                 {logs &&
                     [...logs].reverse().map((log, idx) => (
-                        <code className="log" key={idx.toString()}>
-                            [!] {log.text}
-                        </code>
+                        <div className="log" key={idx.toString()} style={{ opacity: 1 - idx * 0.12 }}>
+                            {format(log)}
+                        </div>
                     ))}
             </div>
         </StyledLogs>
