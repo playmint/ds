@@ -90,10 +90,11 @@ export class Logger {
 
     private sendUnstructured(level: LogLevel, ...args: any[]) {
         const text = args.map((arg) => arg.toString()).join(' ');
-        this.send({ level, text, values: {} });
+        const timestamp = new Date();
+        this.send({ level, text, timestamp, values: {} });
     }
 
-    public send({ level, text, values }: Omit<Log, 'name'>, subloggerName?: string): void {
+    public send({ level, text, timestamp, values }: Omit<Log, 'name'>, subloggerName?: string): void {
         const vs = { ...(this.cfg.values || {}), ...values };
         const name = subloggerName ? `${this.cfg.name}: ${subloggerName}` : this.cfg.name || 'logger';
         const log = { name, level, text, values: vs };
@@ -101,7 +102,7 @@ export class Logger {
             console.warn('no log sender provided', log);
             return;
         }
-        return this.cfg.sender({ name, level, text, values: vs });
+        return this.cfg.sender({ name, timestamp, level, text, values: vs });
     }
 
     public debug(...args: any[]) {

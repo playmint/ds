@@ -12,18 +12,29 @@ import { LogsProps } from './index';
 const baseStyles = (_: Partial<LogsProps>) => css`
     .logs {
         position: fixed;
-        top: 50px;
+        top: 55px;
         left 0px;
         width: 30vw;
         > .log {
             display: block;
-            background: rgba(0,0,0,0.5);
+            font-family: courier;
+            font-size: 1.5rem;
             color:white;
-            margin: 10px;
+            margin: 0px 0 2px 10px;
             width: 100%;
-            height: 25px;
             text-overflow: ellipsis;
-            White-Space: nowrap;
+            white-Space: nowrap;
+            overflow: hidden;
+            height: 25px;
+        }
+        > .log::before {
+            position: relative;
+            top: 3px;
+            content: url('/icons/log-info.png');
+            display: inline-block;
+            width: 30px;
+            height: 20px;
+            margin-right: 4px;
             overflow: hidden;
         }
     }
