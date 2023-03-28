@@ -56,7 +56,12 @@ public class SeekerManager : MonoBehaviour
         var playerSeeker = state.Player.Seekers.ToList()[0];
 
         //  If we've switched accounts;
-        if (playerSeeker != null && playerSeeker.Id != Seeker.Id && _playerSeekers != null)
+        if (
+            playerSeeker != null
+            && Seeker != null
+            && playerSeeker.Id != Seeker.Id
+            && _playerSeekers != null
+        )
         {
             // Removed seekers for previous signed in account and add back as non-player seekers
             IconManager.instance.RemoveSeekers(_playerSeekers.ToList());

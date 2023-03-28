@@ -85,6 +85,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b0dc1e6f7a1742e1bbcec9f22812bbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ButtonIntent: move
+  _disabledAlpha: 0.5
 --- !u!1 &4283522893403928309
 GameObject:
   m_ObjectHideFlags: 0

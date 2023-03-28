@@ -69,6 +69,9 @@ namespace Cog
 
         public GameState gameState { get; private set; }
 
+        [SerializeField]
+        private string _account;
+
         private bool _hasStateUpdated;
 
         // -- EVENTS
@@ -109,6 +112,7 @@ namespace Cog
         private void UpdateState(GameState state)
         {
             gameState = state;
+            _account = state.Player.Addr as string;
             _hasStateUpdated = true;
         }
 

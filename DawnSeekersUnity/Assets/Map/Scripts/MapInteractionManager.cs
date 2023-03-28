@@ -22,6 +22,8 @@ public class MapInteractionManager : MonoBehaviour
 
     Plane m_Plane;
 
+    private string _prevIntent;
+
     private void Awake()
     {
         instance = this;
@@ -72,7 +74,7 @@ public class MapInteractionManager : MonoBehaviour
             && GameStateMediator.Instance.gameState.World != null
         )
             cursor.gameObject.SetActive(
-                IsDiscoveredTile(GridExtensions.GridToCube(CurrentMouseCell))
+                TileHelper.IsDiscoveredTile(GridExtensions.GridToCube(CurrentMouseCell))
                     || TileHelper
                         .GetTileNeighbours(
                             TileHelper.GetTilePosCube(SeekerManager.Instance.Seeker.NextLocation)
@@ -95,7 +97,7 @@ public class MapInteractionManager : MonoBehaviour
         }
 
         // Select the tile
-        if (GameStateMediator.Instance.gameState.Selected.Intent != Intent.MOVE)
+        if (GameStateMediator.Instance.gameState.Selected.Intent == Intent.NONE)
         {
             Cog.GameStateMediator.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
         }
@@ -112,20 +114,27 @@ public class MapInteractionManager : MonoBehaviour
         }
     }
 
-    // -- TODO: Obviously this won't scale, need to hold tiles in a dictionary
-    public bool IsDiscoveredTile(Vector3Int cellPosCube)
-    {
-        var tile = TileHelper.GetTileByPos(cellPosCube);
-        return tile != null && tile.Biome != 0;
-    }
-
     // -- LISTENERS
 
     private void OnStateUpdated(GameState state)
     {
+        if (_prevIntent != state.Selected.Intent)
+        {
+            // Intent change.
+            // NOTE: For now I'm clearing the previous intent's tiles other than the first tile as flipping between intents is messy due to valid tiles
+            // for move and scout being mutually exclusive
+            if (state.Selected.Tiles != null && state.Selected.Tiles.Count > 1)
+            {
+                Cog.GameStateMediator.Instance.SendSelectTileMsg(
+                    new List<string>() { state.Selected.Tiles.First().Id }
+                );
+            }
+            _prevIntent = state.Selected.Intent;
+        }
+
         if (state.Selected.Tiles != null && state.Selected.Tiles.Count > 0)
         {
-            var tile = state.Selected.Tiles.ToList()[0];
+            var tile = state.Selected.Tiles.First();
             var cellPosCube = TileHelper.GetTilePosCube(tile);
             var gridCoords = GridExtensions.CubeToGrid(cellPosCube);
 

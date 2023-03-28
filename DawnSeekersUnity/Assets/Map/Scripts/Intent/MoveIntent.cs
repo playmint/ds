@@ -5,10 +5,10 @@ using UnityEngine;
 using System.Linq;
 using Cog;
 
-public class SeekerMovementManager : MonoBehaviour
+public class MoveIntent : MonoBehaviour
 {
     public Action ClearTravelMarkers;
-    public static SeekerMovementManager instance;
+    public static MoveIntent instance;
 
     [SerializeField]
     private GameObject travelMarkerPrefab,
@@ -33,11 +33,6 @@ public class SeekerMovementManager : MonoBehaviour
 
     private void Start()
     {
-        // Cog.PluginController.Instance.EventStateUpdated += OnStateUpdated;
-
-        // NOTE: Not using the global UI state for path selection as it needs more thought due
-        //       to problems where other player's movement would cause state updates
-        //       and clicking on the same tile wouldn't change the state so Unity didn't get a state update
         MapInteractionManager.instance.EventTileLeftClick += OnTileLeftClick;
         MapInteractionManager.instance.EventTileRightClick += OnTileRightClick;
         GameStateMediator.Instance.EventStateUpdated += OnStateUpdated;
@@ -45,8 +40,7 @@ public class SeekerMovementManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        // Cog.PluginController.Instance.EventStateUpdated -= OnStateUpdated;
-
+        GameStateMediator.Instance.EventStateUpdated -= OnStateUpdated;
         MapInteractionManager.instance.EventTileLeftClick -= OnTileLeftClick;
         MapInteractionManager.instance.EventTileRightClick -= OnTileRightClick;
     }
@@ -64,7 +58,7 @@ public class SeekerMovementManager : MonoBehaviour
             Vector3Int cubeMousePos = GridExtensions.GridToCube(
                 MapInteractionManager.CurrentMouseCell
             );
-            if (MapInteractionManager.instance.IsDiscoveredTile(cubeMousePos))
+            if (TileHelper.IsDiscoveredTile(cubeMousePos))
             {
                 if (
                     !spawnedPathHighlights.ContainsKey(cubeMousePos)
@@ -108,12 +102,6 @@ public class SeekerMovementManager : MonoBehaviour
         if (isMoving)
         {
             ClosePath(cellCubePos);
-        }
-        else
-        {
-#if UNITY_EDITOR
-            GameStateMediator.Instance.ScoutTile(cellCubePos);
-#endif
         }
     }
 
@@ -241,6 +229,10 @@ public class SeekerMovementManager : MonoBehaviour
         isMoving = false;
         HideHighlights();
         HidePathHighlights();
+        if (!_isTracingPath)
+        {
+            HideTravelMarkers();
+        }
     }
 
     public void HighlightAvailableSpaces()
@@ -252,10 +244,7 @@ public class SeekerMovementManager : MonoBehaviour
 
         foreach (Vector3Int space in TileHelper.GetTileNeighbours(_path[_path.Count - 1]))
         {
-            if (
-                !spawnedPathHighlights.ContainsKey(space)
-                && MapInteractionManager.instance.IsDiscoveredTile(space)
-            )
+            if (!spawnedPathHighlights.ContainsKey(space) && TileHelper.IsDiscoveredTile(space))
             {
                 GameObject highlight = Instantiate(greenHighlightPrefab);
                 highlight.transform.position = MapManager.instance.grid.CellToWorld(
@@ -282,6 +271,16 @@ public class SeekerMovementManager : MonoBehaviour
             Destroy(go.Value);
         }
         spawnedPathHighlights = new Dictionary<Vector3Int, GameObject>();
+    }
+
+    private void HideTravelMarkers()
+    {
+        foreach (var kvp in _travelMarkers)
+        {
+            kvp.Value.HideLine();
+        }
+
+        _travelMarkers.Clear();
     }
 
     private void AddCellToPath(Vector3Int cellCubePos)
