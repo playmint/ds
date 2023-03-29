@@ -124,17 +124,19 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
             return;
         }
 
+        const transferQuantity = pickedUpItemRef.current.quantity;
+
         transferItem(
             pickedUpItemRef.current.transferInfo,
             {
                 id: target.id,
                 equipIndex: target.equipIndex,
                 slotIndex: target.slotIndex,
-                newBalance: pickedUpItemRef.current.quantity + targetCurrentBalance,
+                newBalance: targetCurrentBalance + transferQuantity,
                 itemId: pickedUpItemRef.current.transferInfo.itemId,
                 itemKind: pickedUpItemRef.current.transferInfo.itemKind
             },
-            pickedUpItemRef.current.quantity
+            transferQuantity
         );
         clearPickedUpItem();
     };
@@ -148,25 +150,30 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
             return;
         }
 
+        const transferQuantity = 1;
+
         transferItem(
             pickedUpItemRef.current.transferInfo,
             {
                 id: target.id,
                 equipIndex: target.equipIndex,
                 slotIndex: target.slotIndex,
-                newBalance: targetCurrentBalance + 1,
+                newBalance: targetCurrentBalance + transferQuantity,
                 itemId: pickedUpItemRef.current.transferInfo.itemId,
                 itemKind: pickedUpItemRef.current.transferInfo.itemKind
             },
-            1
+            transferQuantity
         );
-        pickedUpItemRef.current.quantity -= 1;
+        pickedUpItemRef.current.quantity -= transferQuantity;
         if (pickedUpItemRef.current.quantity == 0) {
             clearPickedUpItem();
         }
     };
 
     const transferItem = (from: TransferInfo, to: TransferInfo, quantity: number) => {
+        if (from.id === to.id && from.equipIndex === to.equipIndex && from.slotIndex === to.slotIndex) {
+            return;
+        }
         if (!selectedSeeker) {
             console.error('Cannot transfer item, no selected seeker');
             return;

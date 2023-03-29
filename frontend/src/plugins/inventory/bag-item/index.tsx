@@ -40,7 +40,7 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
     const { pickUpItem, isPickedUpItemVisible } = useInventory();
 
     const handleClick = () => {
-        if (!isInteractable) {
+        if (!isInteractable || isPickedUpItemVisible) {
             return;
         }
         const transferInfo = {
