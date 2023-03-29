@@ -29,10 +29,6 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
 
     const item = itemSlot?.balance ? getItemDetails(itemSlot) : null;
 
-    if (isPending) {
-        console.log(isPending, itemSlot, item);
-    }
-
     const handleLeftClick = () => {
         if (!isPickedUpItemVisible || !isInteractable || !pickedUpItem) {
             return;
