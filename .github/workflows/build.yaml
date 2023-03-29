@@ -12,6 +12,14 @@ on:
         description: Number of instances of frontend server
         default: 1
         type: number
+      FRONTEND_IMAGE_NAME:
+        description: ghcr image package name for the shell
+        default: playmint/ds-shell
+        type: string
+      CONTRACTS_IMAGE_NAME:
+        description: ghcr image package name for the contracts
+        default: playmint/ds-contracts
+        type: string
     secrets:
       AZURE_REGISTRY_URL:
         description: Docker login url for Azure Container Registry
@@ -42,33 +50,30 @@ on:
         required: true
 
 
+env:
+  REGISTRY: ghcr.io
 
 jobs:
-
-
 
   frontend:
     name: Frontend
     runs-on: ubuntu-latest
     steps:
-
     - name: Checkout
-      uses: actions/checkout@v2
-
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
     - name: Create LFS file list
       run: git lfs ls-files -l | cut -d ' ' -f1 | sort > .lfs-assets-id
-
     - name: Restore LFS cache
       uses: actions/cache@v2
       id: lfs-cache
       with:
         path: .git/lfs
         key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
-
     - name: Git LFS Pull
       run: |
         git lfs pull
-
     - name: Restore Library cache
       uses: actions/cache@v2
       with:
@@ -77,7 +82,6 @@ jobs:
         restore-keys: |
           Library-ds
           Library-
-
     - name: Build ds
       uses: game-ci/unity-builder@v2
       env:
@@ -89,41 +93,129 @@ jobs:
         projectPath: DawnSeekersUnity
         buildMethod: BuildScript.GitHubBuild
         allowDirtyBuild: true # allows for use of LFS cache
-
-    - name: Authenticate to Azure container registry
-      uses: azure/docker-login@v1
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
       with:
-        login-server: ${{ secrets.AZURE_REGISTRY_URL }}
-        username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
-        password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
-
-    - name: Prepare container tags
+        platforms: 'arm64,arm'
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    - name: Log into registry ${{ env.REGISTRY }}
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Extract Docker metadata
       id: meta
-      uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+      uses: docker/metadata-action@v4
       with:
-        images: ${{ secrets.AZURE_REGISTRY_URL }}/ds/frontend
-        tags: |
-          type=sha,enable=true,priority=100,prefix=git-,suffix=,format=long
-
-    - name: Build container
-      uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        images: ${{ env.REGISTRY }}/${{ inputs.FRONTEND_IMAGE_NAME }}
+    - name: Finalize Docker Metadata
+      id: docker_tagging
+      run: |
+          if [[ "${{ github.event_name }}" == 'schedule' ]]; then
+            echo "cron trigger, assigning nightly tag"
+            echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:nightly,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:nightly-${GITHUB_SHA}"
+          elif [[ "${GITHUB_REF##*/}" == "main" ]] || [[ ${GITHUB_REF##*/} == "master" ]]; then
+            echo "manual trigger from master/main branch, assigning latest tag"
+            echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${GITHUB_REF##*/},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+          else
+            echo "Neither scheduled nor manual release from main branch. Just tagging as branch name"
+            echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${GITHUB_REF##*/}"
+          fi
+    - name: Inspect Docker Metadata
+      run: |
+        echo "TAGS -> ${{ steps.docker_tagging.outputs.docker_tags }}"
+        echo "LABELS ->  ${{ steps.meta.outputs.labels }}"
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v3
       with:
-        context: frontend
+        file: frontend/Dockerfile
         push: true
-        tags: ${{ steps.meta.outputs.tags }}
+        tags: ${{ steps.docker_tagging.outputs.docker_tags }}
         labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        platforms: linux/arm64/v8,linux/amd64
+        build-args: |
+            BUILDTIME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+            REVISION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
 
+  contracts:
+    name: Contracts
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      packages: write
+      contents: read
+    timeout-minutes: 60
+    steps:
+
+    - name: Checkout
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+      with:
+        platforms: 'arm64,arm'
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    - name: Log into registry ${{ env.REGISTRY }}
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Extract Docker metadata
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images: ${{ env.REGISTRY }}/${{ inputs.CONTRACTS_IMAGE_NAME }}
+    - name: Finalize Docker Metadata
+      id: docker_tagging
+      run: |
+          if [[ "${{ github.event_name }}" == 'schedule' ]]; then
+            echo "cron trigger, assigning nightly tag"
+            echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:nightly,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:nightly-${GITHUB_SHA}"
+          elif [[ "${GITHUB_REF##*/}" == "main" ]] || [[ ${GITHUB_REF##*/} == "master" ]]; then
+            echo "manual trigger from master/main branch, assigning latest tag"
+            echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${GITHUB_REF##*/},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+          else
+            echo "Neither scheduled nor manual release from main branch. Just tagging as branch name"
+            echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${GITHUB_REF##*/}"
+          fi
+    - name: Inspect Docker Metadata
+      run: |
+        echo "TAGS -> ${{ steps.docker_tagging.outputs.docker_tags }}"
+        echo "LABELS ->  ${{ steps.meta.outputs.labels }}"
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v3
+      with:
+        context: contracts
+        push: true
+        tags: ${{ steps.docker_tagging.outputs.docker_tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        platforms: linux/arm64/v8,linux/amd64
+        build-args: |
+            BUILDTIME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+            REVISION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
 
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
     needs:
     - frontend
+    - contracts
     steps:
-
     - name: Checkout
       uses: actions/checkout@v1
-
     - name: Update deployment status
       uses: bobheadxi/deployments@v0.6.2
       id: deployment
@@ -132,19 +224,16 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         env: ${{ inputs.DEPLOYMENT_ENVIRONMENT }}
         ref: ${{ github.head_ref }}
-
     - name: Authenticate to Azure Container Service
       uses: azure/aks-set-context@v1
       with:
         creds: '${{ secrets.AZURE_CREDENTIALS }}'
         cluster-name: ${{ secrets.AZURE_CLUSTER_NAME }}
         resource-group: ${{ secrets.AZURE_CLUSTER_RESOURCE_GROUP }}
-
     - name: Prepare helm
       uses: azure/setup-helm@v3
       with:
         version: '3.7.2'
-
     - name: Deploy to Azure
       env:
         CHART_VERSION: ${{ github.sha }}
@@ -154,7 +243,7 @@ jobs:
             domain: dev.playmint.com
           apps:
           - name: frontend
-            image: ${{ secrets.AZURE_REGISTRY_URL }}/ds/frontend:git-${{ github.sha }}
+            image: ${{ env.REGISTRY }}/${{ inputs.FRONTEND_IMAGE_NAME }}
             port: 3000
             replicas: ${{ inputs.FRONTEND_REPLICAS }}
             annotations:
@@ -164,7 +253,6 @@ jobs:
       run: |
         echo "${CHART_VALUES}" > /tmp/values.yaml
         helm upgrade --timeout "30m" --history-max 5 --install --wait ${CHART_NAMESPACE} ./chart --values /tmp/values.yaml --create-namespace -n "${CHART_NAMESPACE}"
-
     - name: Update deployment status
       uses: bobheadxi/deployments@v0.6.2
       if: always()
