@@ -22,11 +22,15 @@ RUN forge build
 
 # build static site
 FROM node:16-alpine AS builder
+ARG NEXT_PUBLIC_DEFAULT_COG_WS_ENDPOINT="ws://localhost:8080/query"
+ARG NEXT_PUBLIC_DEFAULT_COG_HTTP_ENDPOINT="http://localhost:8080/query"
 ENV NEXT_TELEMETRY_DISABLED 1
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY package*.json ./
 COPY frontend ./frontend
+# explicitly copy the ds-unity folder so build explodes if missing
+COPY frontend/public/ds-unity ./frontend/public/ds-unity
 COPY core ./core
 COPY contracts/lib/cog/services/schema/*.graphqls ./contracts/lib/cog/services/schema/
 COPY --from=contracts /contracts/out/Actions.sol/Actions.json ./contracts/out/Actions.sol/Actions.json

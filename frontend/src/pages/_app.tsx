@@ -11,8 +11,8 @@ import scout from '../plugins/scout';
 import { InventoryProvider } from '@app/plugins/inventory/inventory-provider';
 
 const initialConfig = {
-    wsEndpoint: 'ws://localhost:8080/query',
-    httpEndpoint: 'http://localhost:8080/query'
+    wsEndpoint: process.env.NEXT_PUBLIC_DEFAULT_COG_WS_ENDPOINT || 'ws://localhost:8080/query',
+    httpEndpoint: process.env.NEXT_PUBLIC_DEFAULT_COG_HTTP_ENDPOINT || 'http://localhost:8080/query'
 };
 
 const defaultPlugins = [scout];

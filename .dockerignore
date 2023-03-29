@@ -1,0 +1,14 @@
+.dockerignore
+.git
+/frontend/Dockerfile
+/frontend/node_modules
+/frontend/npm-debug.log
+/frontend/.next
+/frontend/out
+/frontend/dist
+/DawnSeekersUnity/
+/bridge/
+/state-schema-gen/
+/node_modules/
+/core/node_modules/
+/core/dist/

@@ -133,6 +133,7 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v3
       with:
+        context: .
         file: frontend/Dockerfile
         push: true
         tags: ${{ steps.docker_tagging.outputs.docker_tags }}
@@ -144,6 +145,8 @@ jobs:
             BUILDTIME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
             VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
             REVISION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+            NEXT_PUBLIC_DEFAULT_COG_WS_ENDPOINT=wss://frontend-ds-${{ inputs.DEPLOYMENT_ENVIRONMENT }}.dev.playmint.com/query
+            NEXT_PUBLIC_DEFAULT_COG_HTTP_ENDPOINT=https://services-ds-${{ inputs.DEPLOYMENT_ENVIRONMENT }}.dev.playmint.com/query
 
   contracts:
     name: Contracts
