@@ -13,6 +13,8 @@ spec:
     metadata:
       labels:
         app: {{ $.Release.Name }}-services
+      annotations:
+        gitsha: {{ $.Values.version | quote }}
     spec:
       containers:
         - name: services
@@ -80,6 +82,8 @@ spec:
     metadata:
       labels:
         app: {{ $.Release.Name }}-frontend
+      annotations:
+        gitsha: {{ $.Values.version | quote }}
     spec:
       containers:
         - name: frontend
@@ -169,6 +173,8 @@ spec:
             port: 80
       options:
         timeout: 120s
+        upgrades:
+        - websocket: {}
         retries:
           retryOn: gateway-error
           numRetries: 3

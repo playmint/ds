@@ -145,7 +145,7 @@ jobs:
             BUILDTIME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
             VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
             REVISION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
-            NEXT_PUBLIC_DEFAULT_COG_WS_ENDPOINT=wss://frontend-ds-${{ inputs.DEPLOYMENT_ENVIRONMENT }}.dev.playmint.com/query
+            NEXT_PUBLIC_DEFAULT_COG_WS_ENDPOINT=wss://services-ds-${{ inputs.DEPLOYMENT_ENVIRONMENT }}.dev.playmint.com/query
             NEXT_PUBLIC_DEFAULT_COG_HTTP_ENDPOINT=https://services-ds-${{ inputs.DEPLOYMENT_ENVIRONMENT }}.dev.playmint.com/query
 
   contracts:
@@ -246,6 +246,7 @@ jobs:
         CHART_VALUES: |-
           cluster:
             domain: dev.playmint.com
+          version: ${{ github.sha }}
       run: |
         echo "${CHART_VALUES}" > /tmp/values.yaml
         helm upgrade --timeout "30m" --history-max 5 --install --wait ${CHART_NAMESPACE} ./chart --values /tmp/values.yaml --create-namespace -n "${CHART_NAMESPACE}"
