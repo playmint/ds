@@ -10,6 +10,8 @@ jobs:
     uses: ./.github/workflows/build.yaml
     with:
       DEPLOYMENT_ENVIRONMENT: test
+      FRONTEND_IMAGE_NAME: playmint/ds-shell
+      CONTRACTS_IMAGE_NAME: playmint/ds-contracts
     secrets:
       AZURE_REGISTRY_URL: ${{ secrets.AZURE_REGISTRY_URL }}
       AZURE_REGISTRY_USERNAME: ${{ secrets.AZURE_REGISTRY_USERNAME }}
@@ -20,5 +22,3 @@ jobs:
       UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
       UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
       UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-      FRONTEND_IMAGE_NAME: playmint/ds-shell
-      CONTRACTS_IMAGE_NAME: playmint/ds-contracts
