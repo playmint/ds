@@ -72,16 +72,19 @@ public class MapManager : MonoBehaviour
             {
                 cubicCoords = cellPosCube,
                 typeID = tile.Biome == 1 ? TileType.STANDARD : TileType.SCOUT,
-                iconID = 0, // TODO: Ask Jack if this is used anymore
+                iconID = GetIconID(tile), // NOTE: This and the icon code below is a bit confusing, I think we need to tidy up
                 cellName = ""
             };
+
             if (hasResource)
-                IconManager.instance.CreateBuildingIcon(cell);
+                IconManager.instance.CreateBagIcon(cell);
             else
-                IconManager.instance.CheckIconRemoved(cell);
+                IconManager.instance.CheckBagIconRemoved(cell);
 
             if (TileHelper.HasBuilding(tile))
                 IconManager.instance.CreateBuildingIcon(cell);
+            else
+                IconManager.instance.CheckBuildingIconRemoved(cell);
 
             MapManager.instance.AddTile(cell);
 
@@ -98,5 +101,21 @@ public class MapManager : MonoBehaviour
             // IconManager.instance.CheckSeekerRemoved(state.Game.Seekers.ToList());
         }
         var playerSeekerTilePos = new List<Vector3Int>();
+    }
+
+    // This is all a bit weird
+    private int GetIconID(Cog.Tiles2 tile)
+    {
+        if (TileHelper.HasResource(tile))
+        {
+            return 0;
+        }
+
+        if (TileHelper.HasBuilding(tile))
+        {
+            return 1;
+        }
+
+        return 0;
     }
 }
