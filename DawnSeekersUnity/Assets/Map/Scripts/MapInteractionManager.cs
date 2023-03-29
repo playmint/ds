@@ -72,18 +72,22 @@ public class MapInteractionManager : MonoBehaviour
             MapClicked2();
         }
 
+        bool TileNeighbourValid = false;
+        if (SeekerManager.Instance.Seeker != null)
+            TileNeighbourValid = TileHelper
+                .GetTileNeighbours(
+                    TileHelper.GetTilePosCube(SeekerManager.Instance.Seeker.NextLocation)
+                )
+                .Contains(GridExtensions.GridToCube(CurrentMouseCell));
+
         // Tile mouseover cursor
         if (
-            SeekerManager.Instance.Seeker != null
+            GameStateMediator.Instance.gameState != null
             && GameStateMediator.Instance.gameState.World != null
         )
             cursor.gameObject.SetActive(
                 TileHelper.IsDiscoveredTile(GridExtensions.GridToCube(CurrentMouseCell))
-                    || TileHelper
-                        .GetTileNeighbours(
-                            TileHelper.GetTilePosCube(SeekerManager.Instance.Seeker.NextLocation)
-                        )
-                        .Contains(GridExtensions.GridToCube(CurrentMouseCell))
+                    || TileNeighbourValid
             );
     }
 
