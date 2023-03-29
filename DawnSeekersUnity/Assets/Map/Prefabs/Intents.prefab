@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6406227089287717616}
-  - component: {fileID: 7830148173117367100}
+  - component: {fileID: 5830282379756671830}
   m_Layer: 0
   m_Name: Intents
   m_TagString: Untagged
@@ -35,7 +35,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7830148173117367100
+--- !u!114 &5830282379756671830
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -44,7 +44,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6406227089287717617}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cbc32405fb37643ccb01dab4f7b10f15, type: 3}
+  m_Script: {fileID: 11500000, guid: 25bf05bcc30e1411a8a11924abe4778c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &6406227089827611954
@@ -56,6 +56,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6406227089827611953}
+  - component: {fileID: 8967175068638033150}
   m_Layer: 0
   m_Name: ConstructIntent
   m_TagString: Untagged
@@ -78,6 +79,22 @@ Transform:
   m_Father: {fileID: 6406227089287717616}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8967175068638033150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6406227089827611954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbc32405fb37643ccb01dab4f7b10f15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _validHighlightPrefab: {fileID: 9133061235819889254, guid: 7f40037dbe60e4a0d8b02da7ed0b821d,
+    type: 3}
+  _selectedHighlightPrefab: {fileID: 9133061235819889254, guid: b7c618a848ab743e6a4d96eceec155b2,
+    type: 3}
 --- !u!1 &6406227090609630104
 GameObject:
   m_ObjectHideFlags: 0

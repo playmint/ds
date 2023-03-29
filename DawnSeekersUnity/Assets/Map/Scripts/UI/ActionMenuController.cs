@@ -23,29 +23,36 @@ public class ActionMenuController : MonoBehaviour
 
     private void OnStateUpdated(GameState state)
     {
-        if (state.Selected.Tiles != null && state.Selected.Tiles.Count > 0)
+        if (ShouldShowMenu(state))
         {
-            var tile = state.Selected.Tiles.ToList()[0];
-            var cellPosCube = TileHelper.GetTilePosCube(tile);
-            bool isPlayerAtPosition = SeekerManager.Instance.IsPlayerAtPosition(cellPosCube);
-            if (isPlayerAtPosition)
-            {
-                gameObject.SetActive(true);
-                transform.position = MapManager.instance.grid.CellToWorld(
-                    GridExtensions.CubeToGrid(cellPosCube)
-                );
+            var seekerPos = TileHelper.GetTilePosCube(state.Selected.Seeker.NextLocation);
+            gameObject.SetActive(true);
+            transform.position = MapManager.instance.grid.CellToWorld(
+                GridExtensions.CubeToGrid(seekerPos)
+            );
 
-                UpdateButtonStates(state);
-            }
-            else
-            {
-                gameObject.SetActive(false);
-            }
+            UpdateButtonStates(state);
         }
         else
         {
             gameObject.SetActive(false);
         }
+    }
+
+    private bool ShouldShowMenu(GameState state)
+    {
+        if (IntentManager.Instance.IsHandledIntent(state.Selected.Intent))
+        {
+            return true;
+        }
+        else if (state.Selected.Tiles != null && state.Selected.Tiles.Count > 0)
+        {
+            var tile = state.Selected.Tiles.ToList()[0];
+            var cellPosCube = TileHelper.GetTilePosCube(tile);
+            return SeekerManager.Instance.IsPlayerAtPosition(cellPosCube);
+        }
+
+        return false;
     }
 
     private void UpdateButtonStates(GameState state)

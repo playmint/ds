@@ -77,6 +77,17 @@ public class TileHelper
         return tile.BagCount > 0;
     }
 
+    public static bool HasBuilding(Vector3Int tilePosCube)
+    {
+        var tile = GetTileByPos(tilePosCube);
+        return tile != null && HasBuilding(tile);
+    }
+
+    public static bool HasBuilding(Tiles2 tile)
+    {
+        return tile.Building != null;
+    }
+
     public static Vector3Int[] GetTileNeighbours(Vector3Int tile)
     {
         return new Vector3Int[6]

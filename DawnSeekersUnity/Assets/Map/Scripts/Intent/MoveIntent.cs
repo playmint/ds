@@ -89,20 +89,18 @@ public class MoveIntent : IntentHandler
      * Doesn't do anything clever like find the best path with the set we have but just
      * Iterates over the path and skips over any tiles that wouldn't be a valid move from the previous tile
      */
-    private List<Tiles> GetValidPath(List<Tiles> tiles)
+    private List<Vector3Int> GetValidPath(List<Tiles> tiles)
     {
-        var validPath = new List<Tiles>();
-
-        // Seeker should be at the first tile in the path
-        // TODO: Remove this quirk
-        if (tiles.Count == 0 || TileHelper.GetTilePosCube(tiles[0]) != _seekerPos)
+        // Seeker should always be at the first tile in the path
+        var validPath = new List<Vector3Int>() { _seekerPos };
+        if (tiles.Count == 0)
         {
             return validPath;
         }
 
-        validPath.Add(tiles[0]);
-
-        for (var i = 1; i < tiles.Count; i++)
+        // If the first tile in the selected tiles is the seeker then skip over it
+        var startIndex = TileHelper.GetTilePosCube(tiles[0]) == _seekerPos ? 1 : 0;
+        for (var i = startIndex; i < tiles.Count; i++)
         {
             var tile = tiles[i];
 
@@ -112,8 +110,7 @@ public class MoveIntent : IntentHandler
             var tilePosCube = TileHelper.GetTilePosCube(tile);
 
             // TODO: straight lines are actually valid so don't just check neighbour tiles
-            var prevValidTile = validPath[validPath.Count - 1];
-            var prevValidPos = TileHelper.GetTilePosCube(prevValidTile);
+            var prevValidPos = validPath[validPath.Count - 1];
             var prevNeighbours = TileHelper.GetTileNeighbours(prevValidPos);
 
             // If not adjacent then skip over this tile
@@ -121,7 +118,7 @@ public class MoveIntent : IntentHandler
                 continue;
 
             // Passed validity checks
-            validPath.Add(tile);
+            validPath.Add(tilePosCube);
         }
 
         return validPath;
@@ -192,7 +189,7 @@ public class MoveIntent : IntentHandler
      *
      * NOTE: Doesn't check the validity of the path
      */
-    private List<Vector3Int> HighlightPath(List<Vector3Int> oldPath, List<Tiles> newPathTiles)
+    private List<Vector3Int> HighlightPath(List<Vector3Int> oldPath, List<Vector3Int> newPathTiles)
     {
         // if (oldPath.Count == newPathTiles.Count)
         //     return oldPath;
@@ -200,22 +197,22 @@ public class MoveIntent : IntentHandler
         var newPath = new List<Vector3Int>();
 
         // Remove highlights for tiles that are no longer in the list
-        foreach (var cellPosCube in oldPath)
+        foreach (var oldPosCube in oldPath)
         {
-            if (!newPathTiles.Exists((tile) => TileHelper.GetTilePosCube(tile) == cellPosCube))
+            if (!newPathTiles.Exists((newPosCube) => newPosCube == oldPosCube))
             {
                 // Destroy highlight
-                if (spawnedPathHighlights.ContainsKey(cellPosCube))
+                if (spawnedPathHighlights.ContainsKey(oldPosCube))
                 {
-                    Destroy(spawnedPathHighlights[cellPosCube]);
-                    spawnedPathHighlights.Remove(cellPosCube);
+                    Destroy(spawnedPathHighlights[oldPosCube]);
+                    spawnedPathHighlights.Remove(oldPosCube);
                 }
 
                 // Hide line.
-                if (_travelMarkers.ContainsKey(cellPosCube))
+                if (_travelMarkers.ContainsKey(oldPosCube))
                 {
-                    _travelMarkers[cellPosCube].HideLine(); // Destroys the GameObject
-                    _travelMarkers.Remove(cellPosCube);
+                    _travelMarkers[oldPosCube].HideLine(); // Destroys the GameObject
+                    _travelMarkers.Remove(oldPosCube);
                 }
             }
         }
@@ -223,31 +220,30 @@ public class MoveIntent : IntentHandler
         // Generate new path list making highlights for the new tiles
         for (var i = 0; i < newPathTiles.Count; i++)
         {
-            var tile = newPathTiles[i];
-            var cellPosCube = TileHelper.GetTilePosCube(tile);
+            var newPosCube = newPathTiles[i];
 
             // Highlights
-            if (!spawnedPathHighlights.ContainsKey(cellPosCube))
+            if (!spawnedPathHighlights.ContainsKey(newPosCube))
             {
                 var highlight = Instantiate(orangeHighlightPrefab);
                 highlight.transform.position = MapManager.instance.grid.CellToWorld(
-                    GridExtensions.CubeToGrid(cellPosCube)
+                    GridExtensions.CubeToGrid(newPosCube)
                 );
-                spawnedPathHighlights.Add(cellPosCube, highlight);
+                spawnedPathHighlights.Add(newPosCube, highlight);
             }
 
             // Markers
-            if (newPath.Count > 0 && !_travelMarkers.ContainsKey(cellPosCube))
+            if (newPath.Count > 0 && !_travelMarkers.ContainsKey(newPosCube))
             {
                 var prevTilePosCube = newPath[newPath.Count - 1];
 
                 var travelMarker = Instantiate(travelMarkerPrefab)
                     .GetComponent<TravelMarkerController>();
-                travelMarker.ShowTravelMarkers(prevTilePosCube, cellPosCube);
-                _travelMarkers.Add(cellPosCube, travelMarker);
+                travelMarker.ShowTravelMarkers(prevTilePosCube, newPosCube);
+                _travelMarkers.Add(newPosCube, travelMarker);
             }
 
-            newPath.Add(cellPosCube);
+            newPath.Add(newPosCube);
         }
 
         return newPath;
