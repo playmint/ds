@@ -79,13 +79,17 @@ public class ConstructIntent : IntentHandler
 
         if (_spawnedSelectedHighlights.ContainsKey(cellPosCube))
         {
-            // Deselect tile (This is always going to yield an empty list but keeping it here for posterity)
-            var tileIDs = _spawnedSelectedHighlights
-                .Where(kvp => kvp.Key != cellPosCube)
-                .Select(kvp => TileHelper.GetTileID(kvp.Key))
-                .ToList();
+            return;
 
-            GameStateMediator.Instance.SendSelectTileMsg(tileIDs);
+            // NOTE: This code allows us to deselect a tile if we decide to reintroduce
+            //
+            // Deselect tile (This is always going to yield an empty list but keeping it here for posterity)
+            // var tileIDs = _spawnedSelectedHighlights
+            //     .Where(kvp => kvp.Key != cellPosCube)
+            //     .Select(kvp => TileHelper.GetTileID(kvp.Key))
+            //     .ToList();
+
+            // GameStateMediator.Instance.SendSelectTileMsg(tileIDs);
         }
         else if (_validTilePositions.Contains(cellPosCube))
         {
@@ -128,15 +132,18 @@ public class ConstructIntent : IntentHandler
             .Where(cellPosCube => _validTilePositions.Contains(cellPosCube))
             .ToArray();
 
+        Vector3Int[] selection;
         if (validTilePositions.Length > 0)
         {
             // We only care about the first valid tile
-            HighlightTiles(
-                new Vector3Int[1] { validTilePositions[0] },
-                _selectedHighlightPrefab,
-                _spawnedSelectedHighlights
-            );
+            selection = new Vector3Int[1] { validTilePositions[0] };
         }
+        else
+        {
+            selection = Array.Empty<Vector3Int>();
+        }
+
+        HighlightTiles(selection, _selectedHighlightPrefab, _spawnedSelectedHighlights);
     }
 
     private void RemoveAllHighlights()
