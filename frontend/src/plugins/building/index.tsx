@@ -167,7 +167,6 @@ const ConstructAvailable: FunctionComponent<ConstructAvailableProps> = ({ tile, 
         e.preventDefault();
         const form = new FormData(e.target as any);
         const data = Object.fromEntries(form.entries());
-        console.log(data);
         // TODO/FIXME: allow choosing where to pay from, not assume seeker/0/0
         player.dispatch({
             name: 'CONSTRUCT_BUILDING_SEEKER',

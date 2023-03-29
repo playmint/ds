@@ -50,7 +50,6 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
             // we want to check if the slot has a pending from if so we update the balance
             const from = pendingFrom.map(([from, _]) => from).find((from) => from.slotIndex === index);
             if (from) {
-                console.log('Transfer from');
                 slot.isPending = false;
                 slot.isDisabled = false;
                 slot.isInteractable = false;
@@ -60,7 +59,6 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
             // update the balance and add the item id
             const to = pendingTo.map(([_, to]) => to).find((to) => to.slotIndex === index);
             if (to) {
-                console.log('Transfer to');
                 if (slot.itemSlot) {
                     slot.itemSlot.balance = to.newBalance;
                 } else {
