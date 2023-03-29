@@ -87,7 +87,7 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
     useEffect(() => {
         addBagRef(slotsRef);
         return () => removeBagRef(slotsRef);
-    });
+    }, [addBagRef, removeBagRef]);
 
     return (
         <StyledBag {...otherProps}>

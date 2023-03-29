@@ -94,7 +94,8 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
                 return !transferCompleted;
             })
         );
-    }, [player, selectedTiles, world?.block, pendingTransfers]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [player, selectedTiles, world?.block]);
 
     /**
      * check if the selected seeker is on the selected tile
