@@ -130,7 +130,7 @@ metadata:
   namespace: {{ $.Release.Namespace }}
 spec:
   endpoints:
-  - dnsName: "{{ $.Release.Name }}-services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
+  - dnsName: "services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
     recordTTL: 60
     recordType: "CNAME"
     targets: ["{{ $.Values.cluster.domain }}"]
@@ -143,7 +143,7 @@ metadata:
   namespace: {{ $.Release.Namespace }}
 spec:
   endpoints:
-  - dnsName: "{{ $.Release.Name }}-frontend-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
+  - dnsName: "frontend-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
     recordTTL: 60
     recordType: "CNAME"
     targets: ["{{ $.Values.cluster.domain }}"]
@@ -156,7 +156,7 @@ metadata:
   namespace: {{ $.Release.Namespace }}
 spec:
   virtualHost:
-    domains: ["{{ $.Release.Name }}-services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"]
+    domains: ["services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"]
     routes:
     - matchers:
       - prefix: "/"
@@ -186,7 +186,7 @@ metadata:
   namespace: {{ $.Release.Namespace }}
 spec:
   virtualHost:
-    domains: ["{{ $.Release.Name }}-frontend-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"]
+    domains: ["frontend-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"]
     routes:
     - matchers:
       - prefix: "/"
