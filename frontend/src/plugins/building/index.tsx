@@ -80,26 +80,12 @@ const TileMultiSelected: FunctionComponent<BuildingProps> = (_props) => {
     );
 };
 
-interface TileAvailableProps {
-    selectIntent: Selector<string | undefined>;
-    distance: number;
-    player?: ConnectedPlayer;
-}
-const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, distance, selectIntent }) => {
-    const setConstructIntent = useCallback(() => {
-        selectIntent(CONSTRUCT_INTENT);
-    }, [selectIntent]);
-
+const TileAvailable: FunctionComponent<unknown> = () => {
     return (
         <Fragment>
             <h3>Available Tile</h3>
             <span className="sub-title">Nothing here yet</span>
             <ImageAvailable />
-            {player && distance <= 1 && (
-                <button className="action-button" onClick={setConstructIntent}>
-                    Construct
-                </button>
-            )}
         </Fragment>
     );
 };
@@ -233,7 +219,7 @@ const ConstructTooFarAway: FunctionComponent<unknown> = (_props) => {
     return (
         <Fragment>
             <h3>Construct</h3>
-            <span className="sub-title">Selected tile is too far away</span>
+            <span className="sub-title">Select an adjacent tile to start construction</span>
             <ImageConstruct />
         </Fragment>
     );
@@ -256,7 +242,7 @@ export const Building: FunctionComponent<BuildingProps> = ({ ...otherProps }) =>
                     return <ConstructUndiscovered />;
                 } else if (selectedTile.building) {
                     return <ConstructOcupied />;
-                } else if (getTileDistance(seeker.nextLocation.tile, selectedTile) > 1) {
+                } else if (getTileDistance(seeker.nextLocation.tile, selectedTile) !== 1) {
                     return <ConstructTooFarAway />;
                 } else {
                     return (
@@ -279,11 +265,7 @@ export const Building: FunctionComponent<BuildingProps> = ({ ...otherProps }) =>
                 if (selectedTile.biome == BiomeKind.UNDISCOVERED) {
                     return <TileUndiscovered />;
                 } else if (!selectedTile.building) {
-                    const distance =
-                        seeker && seeker.nextLocation
-                            ? getTileDistance(seeker?.nextLocation?.tile, selectedTile)
-                            : Infinity;
-                    return <TileAvailable selectIntent={selectIntent} distance={distance} player={player} />;
+                    return <TileAvailable />;
                 } else if (selectedTile.building) {
                     return <TileBuilding building={selectedTile.building} />;
                 } else {
