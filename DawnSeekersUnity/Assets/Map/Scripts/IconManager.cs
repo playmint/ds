@@ -9,6 +9,7 @@ public class IconManager : MonoBehaviour
 
     [SerializeField]
     private GameObject _buildingIconPrefab,
+        _bagIconPrefab,
         _seekerIconPrefab,
         _otherSeekerIconPrefab;
 
@@ -18,6 +19,7 @@ public class IconManager : MonoBehaviour
     private List<IconController> _spawnedIcons;
 
     private Dictionary<Vector3Int, IconController> spawnedBuildingIcons;
+    private Dictionary<Vector3Int, IconController> spawnedBagIcons;
     private Dictionary<string, IconController> spawnedSeekerIcons;
     private Dictionary<Vector3Int, int> seekerPositionCounts;
 
@@ -26,6 +28,7 @@ public class IconManager : MonoBehaviour
         instance = this;
         spawnedSeekerIcons = new Dictionary<string, IconController>();
         spawnedBuildingIcons = new Dictionary<Vector3Int, IconController>();
+        spawnedBagIcons = new Dictionary<Vector3Int, IconController>();
         _spawnedIcons = new List<IconController>();
         ResetSeekerPositionCounts();
     }
@@ -47,7 +50,28 @@ public class IconManager : MonoBehaviour
         }
     }
 
-    public void CheckIconRemoved(MapManager.MapCell cell)
+    public void CreateBagIcon(MapManager.MapCell cell)
+    {
+        IncreaseSeekerPositionCount(cell);
+        if (!spawnedBagIcons.ContainsKey(cell.cubicCoords))
+        {
+            IconController icon = Instantiate(_bagIconPrefab, transform, true)
+                .GetComponent<IconController>();
+            spawnedBagIcons.Add(cell.cubicCoords, icon);
+            icon.Setup(cell, _iconList.icons[cell.iconID], cell.cellName);
+        }
+    }
+
+    public void CheckBagIconRemoved(MapManager.MapCell cell)
+    {
+        if (spawnedBagIcons.ContainsKey(cell.cubicCoords))
+        {
+            spawnedBagIcons[cell.cubicCoords].DestroyIcon();
+            spawnedBagIcons.Remove(cell.cubicCoords);
+        }
+    }
+
+    public void CheckBuildingIconRemoved(MapManager.MapCell cell)
     {
         if (spawnedBuildingIcons.ContainsKey(cell.cubicCoords))
         {

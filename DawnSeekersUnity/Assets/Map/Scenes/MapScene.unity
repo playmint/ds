@@ -1419,7 +1419,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57459906212864552b1173753b8889ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _buildingIconPrefab: {fileID: 2167013614747121971, guid: d0edab06a40584c3c99d39f8057dffb4,
+  _buildingIconPrefab: {fileID: 2167013614747121971, guid: 58a41a29608144c348eb2c954e04eaef,
+    type: 3}
+  _bagIconPrefab: {fileID: 2167013614747121971, guid: 4854f4697b91040438550f6c31bacea1,
     type: 3}
   _seekerIconPrefab: {fileID: 4200293388350177078, guid: 87b00e9807c374871b1cd063b867ba6e,
     type: 3}

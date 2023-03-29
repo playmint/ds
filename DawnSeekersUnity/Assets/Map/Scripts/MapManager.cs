@@ -76,12 +76,14 @@ public class MapManager : MonoBehaviour
                 cellName = ""
             };
             if (hasResource)
-                IconManager.instance.CreateBuildingIcon(cell);
+                IconManager.instance.CreateBagIcon(cell);
             else
-                IconManager.instance.CheckIconRemoved(cell);
+                IconManager.instance.CheckBagIconRemoved(cell);
 
             if (TileHelper.HasBuilding(tile))
                 IconManager.instance.CreateBuildingIcon(cell);
+            else
+                IconManager.instance.CheckBuildingIconRemoved(cell);
 
             MapManager.instance.AddTile(cell);
 
