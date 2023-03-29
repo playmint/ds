@@ -25,12 +25,9 @@ public class MapInteractionManager : MonoBehaviour
     [SerializeField]
     private GameObject _intentContainerGO;
 
-    private IntentHandler[] IntentHandlers;
-
     private void Awake()
     {
         instance = this;
-        IntentHandlers = _intentContainerGO.GetComponentsInChildren<IntentHandler>();
     }
 
     private void Start()
@@ -105,16 +102,14 @@ public class MapInteractionManager : MonoBehaviour
         }
 
         // Do generic selection of tile if we aren't in any of our handled intents
-        if (!IsHandledIntent(GameStateMediator.Instance.gameState.Selected.Intent))
+        if (
+            !IntentManager.Instance.IsHandledIntent(
+                GameStateMediator.Instance.gameState.Selected.Intent
+            )
+        )
         {
             Cog.GameStateMediator.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
         }
-    }
-
-    private bool IsHandledIntent(string intent)
-    {
-        return IntentHandlers.FirstOrDefault(intentHandler => intentHandler.Intent == intent)
-            != null;
     }
 
     void MapClicked2()

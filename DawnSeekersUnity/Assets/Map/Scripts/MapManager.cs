@@ -80,7 +80,7 @@ public class MapManager : MonoBehaviour
             else
                 IconManager.instance.CheckIconRemoved(cell);
 
-            if (tile.Building != null)
+            if (TileHelper.HasBuilding(tile))
                 IconManager.instance.CreateBuildingIcon(cell);
 
             MapManager.instance.AddTile(cell);

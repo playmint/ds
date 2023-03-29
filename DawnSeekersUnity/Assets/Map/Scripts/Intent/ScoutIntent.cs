@@ -15,6 +15,7 @@ public class ScoutIntent : IntentHandler
     private GameObject _validHighlightPrefab,
         _selectedHighlightPrefab;
 
+    // TODO: put in base class
     private Dictionary<Vector3Int, GameObject> _spawnedValidHighlights;
     private Dictionary<Vector3Int, GameObject> _spawnedSelectedHighlights;
 
@@ -84,7 +85,6 @@ public class ScoutIntent : IntentHandler
             return;
 
         // Should clicking the seeker tile set the intent to NONE?
-        // Either way we don't want to deselect the seeker tile otherwise we lose the action menu!
         if (cellPosCube == _seekerPos)
             return;
 
@@ -137,15 +137,8 @@ public class ScoutIntent : IntentHandler
             GameStateMediator.Instance.ScoutTile(cellPosCube);
         }
 
-        // Reset the selection to just the seeker
-        GameStateMediator.Instance.SendSelectTileMsg(
-            new List<string>() { TileHelper.GetTileID(_seekerPos) }
-        );
-    }
-
-    private Vector3Int[] GetSelectedTilePositions(GameState state)
-    {
-        return state.Selected.Tiles.Select(tile => TileHelper.GetTilePosCube(tile)).ToArray();
+        // Clear the selection
+        GameStateMediator.Instance.SendDeselectAllTilesMsg();
     }
 
     protected void Update()
@@ -197,15 +190,13 @@ public class ScoutIntent : IntentHandler
     {
         // Filter selection to only contain valid scout tiles
         var validTilePositions = tilePositions
-            .Where(
-                cellPosCube =>
-                    _validTilePositions.Contains(cellPosCube) || cellPosCube == _seekerPos
-            )
+            .Where(cellPosCube => _validTilePositions.Contains(cellPosCube))
             .ToArray();
 
         HighlightTiles(validTilePositions, _selectedHighlightPrefab, _spawnedSelectedHighlights);
     }
 
+    // TODO: Move to base class or put into a seperate class all intents can use
     private void HighlightTiles(
         Vector3Int[] tilePositions,
         GameObject highlightPrefab,
