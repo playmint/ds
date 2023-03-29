@@ -11,7 +11,7 @@ jobs:
     name: Main Build
     uses: ./.github/workflows/build.yaml
     with:
-      DEPLOYMENT_ENVIRONMENT: test
+      DEPLOYMENT_ENVIRONMENT: main
     secrets:
       AZURE_REGISTRY_URL: ${{ secrets.AZURE_REGISTRY_URL }}
       AZURE_REGISTRY_USERNAME: ${{ secrets.AZURE_REGISTRY_USERNAME }}
