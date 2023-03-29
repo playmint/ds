@@ -119,7 +119,7 @@ jobs:
           if [[ "${{ github.event_name }}" == 'schedule' ]]; then
             echo "cron trigger, assigning nightly tag"
             echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ inputs.FRONTEND_IMAGE_NAME }}:nightly,${{ env.REGISTRY }}/${{ inputs.FRONTEND_IMAGE_NAME }}:nightly-${GITHUB_SHA}"
-          elif [[ "${GITHUB_REF##*/}" == "main" ]] || [[ ${GITHUB_REF##*/} == "master" ]]; then
+          elif [[ "${GITHUB_REF##*/}" == "main" ]] || [[ "${GITHUB_REF##*/}" == "master" ]]; then
             echo "manual trigger from master/main branch, assigning latest tag"
             echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ inputs.FRONTEND_IMAGE_NAME }}:${GITHUB_REF##*/},${{ env.REGISTRY }}/${{ inputs.FRONTEND_IMAGE_NAME }}:latest"
           else
@@ -183,7 +183,7 @@ jobs:
           if [[ "${{ github.event_name }}" == 'schedule' ]]; then
             echo "cron trigger, assigning nightly tag"
             echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ inputs.CONTRACTS_IMAGE_NAME }}:nightly,${{ env.REGISTRY }}/${{ inputs.CONTRACTS_IMAGE_NAME }}:nightly-${GITHUB_SHA}"
-          elif [[ "${GITHUB_REF##*/}" == "main" ]] || [[ ${GITHUB_REF##*/} == "master" ]]; then
+          elif [[ "${GITHUB_REF##*/}" == "main" ]] || [[ "${GITHUB_REF##*/}" == "master" ]]; then
             echo "manual trigger from master/main branch, assigning latest tag"
             echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ inputs.CONTRACTS_IMAGE_NAME }}:${GITHUB_REF##*/},${{ env.REGISTRY }}/${{ inputs.CONTRACTS_IMAGE_NAME }}:latest"
           else
@@ -243,15 +243,6 @@ jobs:
         CHART_VALUES: |-
           cluster:
             domain: dev.playmint.com
-          apps:
-          - name: frontend
-            image: ${{ env.REGISTRY }}/${{ inputs.FRONTEND_IMAGE_NAME }}
-            port: 3000
-            replicas: ${{ inputs.FRONTEND_REPLICAS }}
-            annotations:
-              prometheus.io/scrape: "true"
-              prometheus.io/path: "/metrics"
-              prometheus.io/port: "9090"
       run: |
         echo "${CHART_VALUES}" > /tmp/values.yaml
         helm upgrade --timeout "30m" --history-max 5 --install --wait ${CHART_NAMESPACE} ./chart --values /tmp/values.yaml --create-namespace -n "${CHART_NAMESPACE}"
