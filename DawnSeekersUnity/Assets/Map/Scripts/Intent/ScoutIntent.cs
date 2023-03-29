@@ -137,7 +137,10 @@ public class ScoutIntent : IntentHandler
             GameStateMediator.Instance.ScoutTile(cellPosCube);
         }
 
-        // Do we want to remove the tiles we have just scouted from the selection?
+        // Reset the selection to just the seeker
+        GameStateMediator.Instance.SendSelectTileMsg(
+            new List<string>() { TileHelper.GetTileID(_seekerPos) }
+        );
     }
 
     private Vector3Int[] GetSelectedTilePositions(GameState state)

@@ -10,6 +10,8 @@ public class MoveIntent : IntentHandler
     public Action ClearTravelMarkers;
     public static MoveIntent instance;
 
+    private static int BIOME_DISCOVERD = 1;
+
     [SerializeField]
     private GameObject travelMarkerPrefab,
         greenHighlightPrefab,
@@ -21,6 +23,7 @@ public class MoveIntent : IntentHandler
     private Dictionary<Vector3Int, TravelMarkerController> _travelMarkers;
     private bool isMoving;
     private bool _isTracingPath; // HACK: Cannot make moves until the move CR has finished
+    private Vector3Int _seekerPos;
 
     MoveIntent()
     {
@@ -48,6 +51,80 @@ public class MoveIntent : IntentHandler
         GameStateMediator.Instance.EventStateUpdated -= OnStateUpdated;
         MapInteractionManager.instance.EventTileLeftClick -= OnTileLeftClick;
         MapInteractionManager.instance.EventTileRightClick -= OnTileRightClick;
+    }
+
+    private void OnStateUpdated(GameState state)
+    {
+        if (state.Selected.Intent == Intent)
+        {
+            _seekerPos = TileHelper.GetTilePosCube(state.Selected.Seeker.NextLocation);
+
+            // HACK: Cannot be in move intent when the movement CR is running
+            if (_isTracingPath)
+            {
+                GameStateMediator.Instance.SendSetIntentMsg(IntentKind.NONE);
+                return;
+            }
+
+            if (!isMoving)
+            {
+                ActivateMovementMode();
+            }
+
+            var validPath = GetValidPath(state.Selected.Tiles.ToList());
+
+            _path = HighlightPath(_path, validPath);
+
+            HighlightAvailableSpaces();
+        }
+
+        if (state.Selected.Intent != Intent && isMoving)
+        {
+            DeactivateMovementMode();
+        }
+    }
+
+    /**
+     * Iterates over an unvalidated list of tiles and return a valid path
+     * Doesn't do anything clever like find the best path with the set we have but just
+     * Iterates over the path and skips over any tiles that wouldn't be a valid move from the previous tile
+     */
+    private List<Tiles> GetValidPath(List<Tiles> tiles)
+    {
+        var validPath = new List<Tiles>();
+
+        // Seeker should be at the first tile in the path
+        // TODO: Remove this quirk
+        if (tiles.Count == 0 || TileHelper.GetTilePosCube(tiles[0]) != _seekerPos)
+        {
+            return validPath;
+        }
+
+        validPath.Add(tiles[0]);
+
+        for (var i = 1; i < tiles.Count; i++)
+        {
+            var tile = tiles[i];
+
+            if (tile.Biome != BIOME_DISCOVERD)
+                continue;
+
+            var tilePosCube = TileHelper.GetTilePosCube(tile);
+
+            // TODO: straight lines are actually valid so don't just check neighbour tiles
+            var prevValidTile = validPath[validPath.Count - 1];
+            var prevValidPos = TileHelper.GetTilePosCube(prevValidTile);
+            var prevNeighbours = TileHelper.GetTileNeighbours(prevValidPos);
+
+            // If not adjacent then skip over this tile
+            if (!prevNeighbours.Contains(tilePosCube))
+                continue;
+
+            // Passed validity checks
+            validPath.Add(tile);
+        }
+
+        return validPath;
     }
 
     private void Update()
@@ -89,7 +166,7 @@ public class MoveIntent : IntentHandler
         if (!isMoving)
             return;
 
-        if (!isValidTile(cellCubePos))
+        if (!TileHelper.IsDiscoveredTile(cellCubePos))
             return;
 
         if (_path.Count == 0 || _path[_path.Count - 1] != cellCubePos)
@@ -110,41 +187,15 @@ public class MoveIntent : IntentHandler
         }
     }
 
-    private void OnStateUpdated(GameState state)
+    /**
+     * Returns a list of tiles that have been highlighted
+     *
+     * NOTE: Doesn't check the validity of the path
+     */
+    private List<Vector3Int> HighlightPath(List<Vector3Int> oldPath, List<Tiles> newPathTiles)
     {
-        if (state.Selected.Intent == Intent)
-        {
-            // HACK: Cannot be in move intent when the movement CR is running
-            if (_isTracingPath)
-            {
-                GameStateMediator.Instance.SendSetIntentMsg(IntentKind.NONE);
-                return;
-            }
-
-            if (!isMoving)
-            {
-                ActivateMovementMode();
-            }
-
-            _path = UpdatePath(_path, state.Selected.Tiles.ToList());
-            if (_path.Count == 0)
-            {
-                AddCellToPath(GridExtensions.GridToCube(MapInteractionManager.CurrentSelectedCell));
-            }
-
-            HighlightAvailableSpaces();
-        }
-
-        if (state.Selected.Intent != Intent && isMoving)
-        {
-            DeactivateMovementMode();
-        }
-    }
-
-    private List<Vector3Int> UpdatePath(List<Vector3Int> oldPath, List<Tiles> newPathTiles)
-    {
-        if (oldPath.Count == newPathTiles.Count)
-            return oldPath;
+        // if (oldPath.Count == newPathTiles.Count)
+        //     return oldPath;
 
         var newPath = new List<Vector3Int>();
 
@@ -200,16 +251,6 @@ public class MoveIntent : IntentHandler
         }
 
         return newPath;
-    }
-
-    private bool isValidTile(Vector3Int cellCubePos)
-    {
-        var tile = TileHelper.GetTileByPos(cellCubePos);
-
-        if (tile == null)
-            return false;
-
-        return tile.Biome != 0; // 0 = UNDISCOVERED
     }
 
     /*
@@ -307,7 +348,7 @@ public class MoveIntent : IntentHandler
     private void DirectAddCellToPathHack(Vector3Int cellCubePos)
     {
         bool validPosition =
-            isValidTile(cellCubePos)
+            TileHelper.IsDiscoveredTile(cellCubePos)
             && (
                 _path.Count == 0
                 || TileHelper.GetTileNeighbours(_path[_path.Count - 1]).Contains(cellCubePos)
@@ -353,7 +394,7 @@ public class MoveIntent : IntentHandler
 
     private void ClosePath(Vector3Int cellCubePos)
     {
-        // AddCellToPath(cellCubePos); // TODO: This only works when we are able to wait for this to update the state
+        // AddCellToPath(cellCubePos); // TODO: This doesn't work because we can't await for the state change
         DirectAddCellToPathHack(cellCubePos); // HACK: Because of above :-/
         StartCoroutine(TracePathCR());
 
