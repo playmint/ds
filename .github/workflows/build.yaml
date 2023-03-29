@@ -14,10 +14,12 @@ on:
         type: number
       FRONTEND_IMAGE_NAME:
         description: ghcr image package name for the shell
+        required: true
         default: playmint/ds-shell
         type: string
       CONTRACTS_IMAGE_NAME:
         description: ghcr image package name for the contracts
+        required: true
         default: playmint/ds-contracts
         type: string
     secrets:
