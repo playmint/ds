@@ -57,6 +57,9 @@ spec:
         - name: contracts
           image: ghcr.io/playmint/ds-contracts:main
           imagePullPolicy: Always
+          env:
+          - name: DEPLOYER_PRIVATE_KEY
+            value: "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff9524d487fb5d57a8"
           ports:
             - name: chain
               containerPort: 8545
