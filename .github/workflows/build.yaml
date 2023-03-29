@@ -118,13 +118,13 @@ jobs:
       run: |
           if [[ "${{ github.event_name }}" == 'schedule' ]]; then
             echo "cron trigger, assigning nightly tag"
-            echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:nightly,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:nightly-${GITHUB_SHA}"
+            echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:nightly,${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:nightly-${GITHUB_SHA}"
           elif [[ "${GITHUB_REF##*/}" == "main" ]] || [[ ${GITHUB_REF##*/} == "master" ]]; then
             echo "manual trigger from master/main branch, assigning latest tag"
-            echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${GITHUB_REF##*/},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+            echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${GITHUB_REF##*/},${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:latest"
           else
             echo "Neither scheduled nor manual release from main branch. Just tagging as branch name"
-            echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${GITHUB_REF##*/}"
+            echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${GITHUB_REF##*/}"
           fi
     - name: Inspect Docker Metadata
       run: |
@@ -182,13 +182,13 @@ jobs:
       run: |
           if [[ "${{ github.event_name }}" == 'schedule' ]]; then
             echo "cron trigger, assigning nightly tag"
-            echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:nightly,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:nightly-${GITHUB_SHA}"
+            echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ env.CONTRACTS_IMAGE_NAME }}:nightly,${{ env.REGISTRY }}/${{ env.CONTRACTS_IMAGE_NAME }}:nightly-${GITHUB_SHA}"
           elif [[ "${GITHUB_REF##*/}" == "main" ]] || [[ ${GITHUB_REF##*/} == "master" ]]; then
             echo "manual trigger from master/main branch, assigning latest tag"
-            echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${GITHUB_REF##*/},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+            echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ env.CONTRACTS_IMAGE_NAME }}:${GITHUB_REF##*/},${{ env.REGISTRY }}/${{ env.CONTRACTS_IMAGE_NAME }}:latest"
           else
             echo "Neither scheduled nor manual release from main branch. Just tagging as branch name"
-            echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${GITHUB_REF##*/}"
+            echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ env.CONTRACTS_IMAGE_NAME }}:${GITHUB_REF##*/}"
           fi
     - name: Inspect Docker Metadata
       run: |
