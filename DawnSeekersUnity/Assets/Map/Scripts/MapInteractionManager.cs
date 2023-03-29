@@ -22,11 +22,15 @@ public class MapInteractionManager : MonoBehaviour
 
     Plane m_Plane;
 
-    private string _prevIntent;
+    [SerializeField]
+    private GameObject _intentContainerGO;
+
+    private IntentHandler[] IntentHandlers;
 
     private void Awake()
     {
         instance = this;
+        IntentHandlers = _intentContainerGO.GetComponentsInChildren<IntentHandler>();
     }
 
     private void Start()
@@ -96,11 +100,17 @@ public class MapInteractionManager : MonoBehaviour
             EventTileLeftClick(cellPosCube);
         }
 
-        // Select the tile
-        if (GameStateMediator.Instance.gameState.Selected.Intent == Intent.NONE)
+        // Do generic selection of tile if we aren't in any of our handled intents
+        if (!IsHandledIntent(GameStateMediator.Instance.gameState.Selected.Intent))
         {
             Cog.GameStateMediator.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
         }
+    }
+
+    private bool IsHandledIntent(string intent)
+    {
+        return IntentHandlers.FirstOrDefault(intentHandler => intentHandler.Intent == intent)
+            != null;
     }
 
     void MapClicked2()
@@ -118,20 +128,6 @@ public class MapInteractionManager : MonoBehaviour
 
     private void OnStateUpdated(GameState state)
     {
-        if (_prevIntent != state.Selected.Intent)
-        {
-            // Intent change.
-            // NOTE: For now I'm clearing the previous intent's tiles other than the first tile as flipping between intents is messy due to valid tiles
-            // for move and scout being mutually exclusive
-            if (state.Selected.Tiles != null && state.Selected.Tiles.Count > 1)
-            {
-                Cog.GameStateMediator.Instance.SendSelectTileMsg(
-                    new List<string>() { state.Selected.Tiles.First().Id }
-                );
-            }
-            _prevIntent = state.Selected.Intent;
-        }
-
         if (state.Selected.Tiles != null && state.Selected.Tiles.Count > 0)
         {
             var tile = state.Selected.Tiles.First();

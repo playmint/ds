@@ -199,6 +199,12 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 94391803}
   m_CullTransparentMesh: 1
+--- !u!1 &136957962 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6406227089287717617, guid: 6aed245e8122049368e7ebb7195afd6e,
+    type: 3}
+  m_PrefabInstance: {fileID: 6406227089419367163}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &189031506
 GameObject:
   m_ObjectHideFlags: 0
@@ -2204,6 +2210,7 @@ MonoBehaviour:
   IsTileSelected: 0
   cursor: {fileID: 1333271656}
   selectedMarker1: {fileID: 834498991}
+  _intentContainerGO: {fileID: 136957962}
 --- !u!4 &895977812
 Transform:
   m_ObjectHideFlags: 0

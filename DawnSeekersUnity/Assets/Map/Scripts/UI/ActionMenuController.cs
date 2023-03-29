@@ -53,7 +53,7 @@ public class ActionMenuController : MonoBehaviour
         if (state.Selected == null)
             return;
 
-        if (state.Selected.Intent == Intent.NONE)
+        if (state.Selected.Intent == IntentKind.NONE)
         {
             foreach (var btn in _actionButtons)
             {

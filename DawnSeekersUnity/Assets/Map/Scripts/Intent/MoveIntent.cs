@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Linq;
 using Cog;
 
-public class MoveIntent : MonoBehaviour
+public class MoveIntent : IntentHandler
 {
     public Action ClearTravelMarkers;
     public static MoveIntent instance;
@@ -21,6 +21,11 @@ public class MoveIntent : MonoBehaviour
     private Dictionary<Vector3Int, TravelMarkerController> _travelMarkers;
     private bool isMoving;
     private bool _isTracingPath; // HACK: Cannot make moves until the move CR has finished
+
+    MoveIntent()
+    {
+        Intent = IntentKind.MOVE;
+    }
 
     private void Awake()
     {
@@ -107,12 +112,12 @@ public class MoveIntent : MonoBehaviour
 
     private void OnStateUpdated(GameState state)
     {
-        if (state.Selected.Intent == Intent.MOVE)
+        if (state.Selected.Intent == Intent)
         {
             // HACK: Cannot be in move intent when the movement CR is running
             if (_isTracingPath)
             {
-                GameStateMediator.Instance.SendSetIntentMsg(Intent.NONE);
+                GameStateMediator.Instance.SendSetIntentMsg(IntentKind.NONE);
                 return;
             }
 
@@ -130,7 +135,7 @@ public class MoveIntent : MonoBehaviour
             HighlightAvailableSpaces();
         }
 
-        if (state.Selected.Intent != Intent.MOVE && isMoving)
+        if (state.Selected.Intent != Intent && isMoving)
         {
             DeactivateMovementMode();
         }
@@ -338,10 +343,10 @@ public class MoveIntent : MonoBehaviour
 
             if (
                 tileIDs.Count == 0
-                && GameStateMediator.Instance.gameState.Selected.Intent == Intent.MOVE
+                && GameStateMediator.Instance.gameState.Selected.Intent == IntentKind.MOVE
             )
             {
-                GameStateMediator.Instance.SendSetIntentMsg(Intent.NONE);
+                GameStateMediator.Instance.SendSetIntentMsg(IntentKind.NONE);
             }
         }
     }
@@ -355,7 +360,7 @@ public class MoveIntent : MonoBehaviour
         // Select the last tile in the path and take out of move intent
         var lastTileID = TileHelper.GetTileID(_path[_path.Count - 1]);
         GameStateMediator.Instance.SendSelectTileMsg(new List<string>() { lastTileID });
-        GameStateMediator.Instance.SendSetIntentMsg(Intent.NONE);
+        GameStateMediator.Instance.SendSetIntentMsg(IntentKind.NONE);
     }
 
     IEnumerator TracePathCR()

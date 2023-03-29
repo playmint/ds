@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Linq;
 using Cog;
 
-public class ScoutIntent : MonoBehaviour
+public class ScoutIntent : IntentHandler
 {
     public static ScoutIntent instance;
     private bool _isActiveIntent;
@@ -19,6 +19,11 @@ public class ScoutIntent : MonoBehaviour
     private Dictionary<Vector3Int, GameObject> _spawnedSelectedHighlights;
 
     private Vector3Int _seekerPos;
+
+    ScoutIntent()
+    {
+        Intent = IntentKind.SCOUT;
+    }
 
     protected void Awake()
     {
@@ -45,17 +50,18 @@ public class ScoutIntent : MonoBehaviour
 
     private void OnStateUpdated(GameState state)
     {
-        if (state.Selected.Intent == Intent.SCOUT)
+        if (state.Selected.Intent == Intent)
         {
             _isActiveIntent = true;
             _seekerPos = TileHelper.GetTilePosCube(state.Selected.Seeker.NextLocation);
-
             _validTilePositions = GetValidTilePositions(state);
+
+            // NOTE: Disabled as we probably don't want to map to switch intents unless the player explicitly asked for it
             // If no valid places to scout take player out of SCOUT intent (Probably not the map's job to do this?)
-            if (_validTilePositions.Length == 0)
-            {
-                GameStateMediator.Instance.SendSetIntentMsg(Intent.NONE);
-            }
+            // if (_validTilePositions.Length == 0)
+            // {
+            //     GameStateMediator.Instance.SendSetIntentMsg(Intent.NONE);
+            // }
 
             var selection = GetSelectedTilePositions(state);
             HighlightSelectedTiles(selection);
@@ -64,17 +70,6 @@ public class ScoutIntent : MonoBehaviour
             HighlightValidTiles(
                 _validTilePositions.Where(cellPosCube => !selection.Contains(cellPosCube)).ToArray()
             );
-
-            // Clean up the selection - deselect tiles that have been scouted
-            var validSelectedTileIDs = selection
-                .Where(
-                    cellPosCube =>
-                        _validTilePositions.Contains(cellPosCube) || cellPosCube == _seekerPos
-                )
-                .Select(cellPosCube => TileHelper.GetTileID(cellPosCube))
-                .ToList();
-
-            GameStateMediator.Instance.SendSelectTileMsg(validSelectedTileIDs);
         }
         else
         {
@@ -115,11 +110,16 @@ public class ScoutIntent : MonoBehaviour
         }
     }
 
+    /**
+     * This function executes the scout action
+     *
+     * NOTE: A quirk with the way the action menu works, the seeker tile is selected which isn't a
+     * tile we want to scout so we have to check that each postion to scout isn't the seeker's
+     *
+     * NOTE: The _spwanedSelectedHighlights dictionary contains the filtered local state of what has been selected
+     */
     private void OnTileRightClick(Vector3Int cellPosCube)
     {
-        // NOTE: Quirk with the way the action menu works, the seeker tile is selected which isn't a
-        // tile we want to scout so we have to check each postion to scout isn't this postion
-
         // Right click completes the scout. We are lacking a SCOUT_MULTI atm so will just rattle off the txs sequentially
         foreach (var kvp in _spawnedSelectedHighlights)
         {
@@ -136,6 +136,8 @@ public class ScoutIntent : MonoBehaviour
         {
             GameStateMediator.Instance.ScoutTile(cellPosCube);
         }
+
+        // Do we want to remove the tiles we have just scouted from the selection?
     }
 
     private Vector3Int[] GetSelectedTilePositions(GameState state)
@@ -190,7 +192,15 @@ public class ScoutIntent : MonoBehaviour
 
     private void HighlightSelectedTiles(Vector3Int[] tilePositions)
     {
-        HighlightTiles(tilePositions, _selectedHighlightPrefab, _spawnedSelectedHighlights);
+        // Filter selection to only contain valid scout tiles
+        var validTilePositions = tilePositions
+            .Where(
+                cellPosCube =>
+                    _validTilePositions.Contains(cellPosCube) || cellPosCube == _seekerPos
+            )
+            .ToArray();
+
+        HighlightTiles(validTilePositions, _selectedHighlightPrefab, _spawnedSelectedHighlights);
     }
 
     private void HighlightTiles(

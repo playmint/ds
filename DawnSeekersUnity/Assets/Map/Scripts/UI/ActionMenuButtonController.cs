@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class ActionMenuButtonController : MonoBehaviour
 {
-    public string ButtonIntent = Intent.MOVE;
+    public string ButtonIntent = IntentKind.MOVE;
 
     [SerializeField]
     private float _disabledAlpha = 0.25f;
@@ -23,7 +23,7 @@ public class ActionMenuButtonController : MonoBehaviour
         if (GameStateMediator.Instance.gameState.Selected.Intent == ButtonIntent)
         {
             // Cancel intent if already in intent for this button
-            GameStateMediator.Instance.SendSetIntentMsg(Intent.NONE);
+            GameStateMediator.Instance.SendSetIntentMsg(IntentKind.NONE);
         }
         else
         {
