@@ -23,7 +23,7 @@ const StyledShell = styled('div')`
 export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     const { ...otherProps } = props;
     const player = usePlayer();
-    const { seeker: selectedSeeker, tiles: selectedTiles } = useSelection();
+    const { seeker: selectedSeeker, selectSeeker, tiles: selectedTiles } = useSelection();
     const ui = usePluginState();
     const selectedTile = selectedTiles?.[0];
     const tileSeekers = selectedTile?.seekers ?? [];
@@ -49,6 +49,29 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         player.dispatch({ name: 'SPAWN_SEEKER', args: [id] });
     }, [player]);
 
+    const selectNextSeeker = useCallback(
+        (n: number) => {
+            if (!player) {
+                return;
+            }
+            if (!selectedSeeker) {
+                return;
+            }
+            if (player.seekers.length === 0) {
+                return;
+            }
+            const seekerIndex = player.seekers.map((s) => s.id).indexOf(selectedSeeker.id);
+            const nextIndex =
+                seekerIndex + n > player.seekers.length - 1
+                    ? 0
+                    : seekerIndex + n < 0
+                    ? player.seekers.length - 1
+                    : seekerIndex + n;
+            selectSeeker(player.seekers[nextIndex].id);
+        },
+        [player, selectSeeker, selectedSeeker]
+    );
+
     return (
         <StyledShell {...otherProps}>
             <div className="mapnav">
@@ -67,13 +90,13 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                         <div className="action seeker-selector">
                             <img src="/seeker-shield-large.png" className="shield" alt="" />
                             <div className="controls">
-                                <button className="icon-button">
+                                <button className="icon-button" onClick={() => selectNextSeeker(-1)}>
                                     <img src="/icons/prev.png" alt="Previous" />
                                 </button>
                                 <span className="label">
                                     Seeker #{formatSeekerKey(selectedSeeker?.key.toString() || '')}
                                 </span>
-                                <button className="icon-button">
+                                <button className="icon-button" onClick={() => selectNextSeeker(+1)}>
                                     <img src="/icons/next.png" alt="Next" />
                                 </button>
                             </div>
