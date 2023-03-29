@@ -1,15 +1,17 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using Cog;
 using UnityEngine;
 
 public class ActionMenuController : MonoBehaviour
 {
+    private ActionMenuButtonController[] _actionButtons;
+
     private void Start()
     {
         Cog.GameStateMediator.Instance.EventStateUpdated += OnStateUpdated;
+
+        _actionButtons = GetComponentsInChildren<ActionMenuButtonController>();
 
         gameObject.SetActive(false);
     }
@@ -32,6 +34,8 @@ public class ActionMenuController : MonoBehaviour
                 transform.position = MapManager.instance.grid.CellToWorld(
                     GridExtensions.CubeToGrid(cellPosCube)
                 );
+
+                UpdateButtonStates(state);
             }
             else
             {
@@ -41,6 +45,34 @@ public class ActionMenuController : MonoBehaviour
         else
         {
             gameObject.SetActive(false);
+        }
+    }
+
+    private void UpdateButtonStates(GameState state)
+    {
+        if (state.Selected == null)
+            return;
+
+        if (state.Selected.Intent == IntentKind.NONE)
+        {
+            foreach (var btn in _actionButtons)
+            {
+                btn.Enable();
+            }
+        }
+        else
+        {
+            foreach (var btn in _actionButtons)
+            {
+                if (btn.ButtonIntent == state.Selected.Intent)
+                {
+                    btn.Enable();
+                }
+                else
+                {
+                    btn.Disable();
+                }
+            }
         }
     }
 }

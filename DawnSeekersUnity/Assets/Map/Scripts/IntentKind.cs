@@ -1,4 +1,4 @@
-public class Intent
+public class IntentKind
 {
     public const string NONE = null;
     public const string MOVE = "move";

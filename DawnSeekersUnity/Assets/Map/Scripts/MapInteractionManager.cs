@@ -22,9 +22,15 @@ public class MapInteractionManager : MonoBehaviour
 
     Plane m_Plane;
 
+    [SerializeField]
+    private GameObject _intentContainerGO;
+
+    private IntentHandler[] IntentHandlers;
+
     private void Awake()
     {
         instance = this;
+        IntentHandlers = _intentContainerGO.GetComponentsInChildren<IntentHandler>();
     }
 
     private void Start()
@@ -72,7 +78,7 @@ public class MapInteractionManager : MonoBehaviour
             && GameStateMediator.Instance.gameState.World != null
         )
             cursor.gameObject.SetActive(
-                IsDiscoveredTile(GridExtensions.GridToCube(CurrentMouseCell))
+                TileHelper.IsDiscoveredTile(GridExtensions.GridToCube(CurrentMouseCell))
                     || TileHelper
                         .GetTileNeighbours(
                             TileHelper.GetTilePosCube(SeekerManager.Instance.Seeker.NextLocation)
@@ -94,11 +100,17 @@ public class MapInteractionManager : MonoBehaviour
             EventTileLeftClick(cellPosCube);
         }
 
-        // Select the tile
-        if (GameStateMediator.Instance.gameState.Selected.Intent != Intent.MOVE)
+        // Do generic selection of tile if we aren't in any of our handled intents
+        if (!IsHandledIntent(GameStateMediator.Instance.gameState.Selected.Intent))
         {
             Cog.GameStateMediator.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
         }
+    }
+
+    private bool IsHandledIntent(string intent)
+    {
+        return IntentHandlers.FirstOrDefault(intentHandler => intentHandler.Intent == intent)
+            != null;
     }
 
     void MapClicked2()
@@ -112,20 +124,13 @@ public class MapInteractionManager : MonoBehaviour
         }
     }
 
-    // -- TODO: Obviously this won't scale, need to hold tiles in a dictionary
-    public bool IsDiscoveredTile(Vector3Int cellPosCube)
-    {
-        var tile = TileHelper.GetTileByPos(cellPosCube);
-        return tile != null && tile.Biome != 0;
-    }
-
     // -- LISTENERS
 
     private void OnStateUpdated(GameState state)
     {
         if (state.Selected.Tiles != null && state.Selected.Tiles.Count > 0)
         {
-            var tile = state.Selected.Tiles.ToList()[0];
+            var tile = state.Selected.Tiles.First();
             var cellPosCube = TileHelper.GetTilePosCube(tile);
             var gridCoords = GridExtensions.CubeToGrid(cellPosCube);
 

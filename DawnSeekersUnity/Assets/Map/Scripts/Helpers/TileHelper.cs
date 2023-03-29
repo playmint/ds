@@ -90,6 +90,13 @@ public class TileHelper
         };
     }
 
+    // -- TODO: Obviously this won't scale, need to hold tiles in a dictionary
+    public static bool IsDiscoveredTile(Vector3Int cellPosCube)
+    {
+        var tile = GetTileByPos(cellPosCube);
+        return tile != null && tile.Biome != 0;
+    }
+
     internal static string GetTileID(Vector3Int tilePosCube)
     {
         return Cog.NodeKinds.TileNode.GetKey(0, tilePosCube.x, tilePosCube.y, tilePosCube.z);
