@@ -1,7 +1,7 @@
 /** @format */
 import { styles } from '@app/plugins/inventory/bag-item/bag-item.styles';
 import { Tile, usePlayer, useSelection, useWorld } from '@dawnseekers/core';
-import { createContext, ReactNode, RefObject, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, ReactNode, RefObject, useContext, useEffect, useReducer, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useClickOutside } from '@app/plugins/inventory/use-click-outside';
 
@@ -65,7 +65,16 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
     const [isPickedUpItemVisible, setIsPickedUpItemVisible] = useState<boolean>(false);
     const pickedUpItemRef = useRef<InventoryItem | null>(null);
     const pickedUpItemElementRef = useRef<HTMLDivElement>(null);
-    const [pendingTransfers, setPendingTransfers] = useState<[TransferInfo, TransferInfo][]>([]);
+
+    type PendingTransfers = [TransferInfo, TransferInfo][];
+
+    const [pendingTransfers, updatePendingTransfers] = useReducer(
+        (state: PendingTransfers, action: (state: PendingTransfers) => PendingTransfers) => {
+            return action(state);
+        },
+        []
+    );
+
     const { addRef: addBagRef, removeRef: removeBagRef } = useClickOutside(clearPickedUpItem);
 
     useEffect(() => {
@@ -83,7 +92,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
     useEffect(() => {
         const owners = [...(player?.seekers ?? []), ...(selectedTiles ?? [])];
 
-        setPendingTransfers((pending) => {
+        updatePendingTransfers((pending) => {
             pending = pending.filter(([_, to]) => {
                 // get the owner of 'to'
                 // when the balance of the target slot equals our pending balance then the transfer is complete
@@ -95,7 +104,6 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
             });
             return pending;
         });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [player, selectedTiles, world?.block]);
 
     /**
@@ -228,6 +236,8 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
             });
 
             // clean up our queue
+            const queuedTransferIndex = transferQueue.current.findIndex(({ timeoutId }) => timeoutId === id);
+            transferQueue.current.splice(queuedTransferIndex, 1);
         }, 1000);
 
         // add our queued transfer
@@ -238,9 +248,10 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         });
 
         // add pending transfer, removing and combining
-        setPendingTransfers((pending) => {
+        updatePendingTransfers((pending) => {
             pending = pending.filter(([_, pendingTransferInfo]) => !isTransferInfoEqual(pendingTransferInfo, to));
             pending.push([from, to]);
+            console.log(pending);
             return pending;
         });
     };
