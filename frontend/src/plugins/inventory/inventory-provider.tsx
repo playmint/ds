@@ -12,7 +12,7 @@ export interface InventoryContextProviderProps {
 export interface TransferInfo {
     id: string;
     equipIndex: number;
-    slotIndex: number;
+    slotKey: number;
     newBalance: number;
     itemId: string;
     itemKind: string;
@@ -29,8 +29,8 @@ interface InventoryContextStore {
     isPickedUpItemVisible: boolean;
     pickedUpItem: InventoryItem | null;
     pickUpItem: (item: InventoryItem) => void;
-    dropStack: (target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotIndex'>, targetCurrentBalance: number) => void;
-    dropSingle: (target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotIndex'>, targetCurrentBalance: number) => void;
+    dropStack: (target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotKey'>, targetCurrentBalance: number) => void;
+    dropSingle: (target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotKey'>, targetCurrentBalance: number) => void;
     isSeekerAtLocation: (tile: Tile) => boolean;
     getPendingFromTransfers: (ownerId: string, equipIndex: number) => [TransferInfo, TransferInfo][];
     getPendingToTransfers: (ownerId: string, equipIndex: number) => [TransferInfo, TransferInfo][];
@@ -97,9 +97,16 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
                 // get the owner of 'to'
                 // when the balance of the target slot equals our pending balance then the transfer is complete
                 // and we need to keep the pending transfer
-                const transferCompleted = owners.some(
-                    (o) => o.id === to.id && o.bags[to.equipIndex].bag.slots[to.slotIndex]?.balance === to.newBalance
-                );
+                const transferCompleted = owners.some((o) => {
+                    const slot =
+                        o.id === to.id ? o.bags[to.equipIndex].bag.slots.find((s) => s.key === to.slotKey) : undefined;
+                    return (
+                        slot &&
+                        slot.balance === to.newBalance &&
+                        slot.item.id === to.itemId &&
+                        slot.item.kind === to.itemKind
+                    );
+                });
                 return !transferCompleted;
             });
             return pending;
@@ -125,7 +132,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
     }
 
     const dropStack = (
-        target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotIndex'>,
+        target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotKey'>,
         targetCurrentBalance: number
     ): void => {
         if (!pickedUpItemRef.current) {
@@ -140,7 +147,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
             {
                 id: target.id,
                 equipIndex: target.equipIndex,
-                slotIndex: target.slotIndex,
+                slotKey: target.slotKey,
                 newBalance: targetCurrentBalance + transferQuantity,
                 itemId: pickedUpItemRef.current.transferInfo.itemId,
                 itemKind: pickedUpItemRef.current.transferInfo.itemKind
@@ -154,7 +161,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
     // we want to push pending before we trigger transfer
 
     const dropSingle = (
-        target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotIndex'>,
+        target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotKey'>,
         targetCurrentBalance: number
     ): void => {
         if (!pickedUpItemRef.current) {
@@ -169,7 +176,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
             {
                 id: target.id,
                 equipIndex: target.equipIndex,
-                slotIndex: target.slotIndex,
+                slotKey: target.slotKey,
                 newBalance: targetCurrentBalance + transferQuantity,
                 itemId: pickedUpItemRef.current.transferInfo.itemId,
                 itemKind: pickedUpItemRef.current.transferInfo.itemKind
@@ -192,7 +199,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
     >([]);
 
     const isTransferInfoEqual = (a: TransferInfo, b: TransferInfo) => {
-        return a.id === b.id && a.equipIndex === b.equipIndex && a.slotIndex === b.slotIndex;
+        return a.id === b.id && a.equipIndex === b.equipIndex && a.slotKey === b.slotKey;
     };
 
     const transferItem = (from: TransferInfo, to: TransferInfo, quantity: number) => {
@@ -208,17 +215,19 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
             return;
         }
 
+        // see if we have any queued transfers to this slot
         const queuedTransferIndex = transferQueue.current.findIndex(({ target }) => isTransferInfoEqual(to, target));
 
         if (queuedTransferIndex > -1) {
             const queuedTransfer = transferQueue.current[queuedTransferIndex];
 
+            // cancel the existing transfer, so we can update and resend it
             clearTimeout(queuedTransfer.timeoutId);
 
             // remove the queued transfer
             transferQueue.current.splice(queuedTransferIndex, 1);
 
-            // update our quantity to include the previous number
+            // add the cancelled transfer quantity to the new transfer
             quantity += queuedTransfer.quantity;
         }
 
@@ -230,7 +239,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
                     selectedSeeker.id,
                     [from.id, to.id],
                     [from.equipIndex, to.equipIndex],
-                    [from.slotIndex, to.slotIndex],
+                    [from.slotKey, to.slotKey],
                     quantity
                 ]
             });
@@ -251,7 +260,6 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         updatePendingTransfers((pending) => {
             pending = pending.filter(([_, pendingTransferInfo]) => !isTransferInfoEqual(pendingTransferInfo, to));
             pending.push([from, to]);
-            console.log(pending);
             return pending;
         });
     };
