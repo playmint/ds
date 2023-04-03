@@ -12,7 +12,7 @@ export interface BagItemProps extends ComponentProps {
     quantity: number;
     ownerId: string;
     equipIndex: number;
-    slotIndex: number;
+    slotKey: number;
     itemId: string;
     itemKind: string;
     isInteractable: boolean;
@@ -30,7 +30,7 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
         quantity,
         ownerId,
         equipIndex,
-        slotIndex,
+        slotKey,
         itemId,
         itemKind,
         isPending,
@@ -40,13 +40,13 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
     const { pickUpItem, isPickedUpItemVisible } = useInventory();
 
     const handleClick = () => {
-        if (!isInteractable || isPickedUpItemVisible) {
+        if (!isInteractable || isPickedUpItemVisible || isPending) {
             return;
         }
         const transferInfo = {
             id: ownerId,
             equipIndex,
-            slotIndex,
+            slotKey,
             newBalance: 0,
             itemId,
             itemKind

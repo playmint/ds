@@ -14,7 +14,7 @@ export interface BagSlotProps extends ComponentProps {
     isDisabled?: boolean;
     ownerId: string;
     equipIndex: number;
-    slotIndex: number;
+    slotKey: number;
     isInteractable: boolean;
     isPending: boolean;
 }
@@ -24,7 +24,7 @@ const StyledBagSlot = styled('div')`
 `;
 
 export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) => {
-    const { itemSlot, isDisabled, ownerId, equipIndex, slotIndex, isInteractable, isPending, ...otherProps } = props;
+    const { itemSlot, isDisabled, ownerId, equipIndex, slotKey, isInteractable, isPending, ...otherProps } = props;
     const { dropStack, dropSingle, isPickedUpItemVisible, pickedUpItem } = useInventory();
 
     const item = itemSlot?.balance ? getItemDetails(itemSlot) : null;
@@ -38,7 +38,7 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
             {
                 id: ownerId,
                 equipIndex,
-                slotIndex
+                slotKey
             },
             itemSlot?.balance || 0
         );
@@ -53,7 +53,7 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
             {
                 id: ownerId,
                 equipIndex,
-                slotIndex
+                slotKey
             },
             itemSlot?.balance || 0
         );
@@ -75,7 +75,7 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
                     {...item}
                     ownerId={ownerId}
                     equipIndex={equipIndex}
-                    slotIndex={slotIndex}
+                    slotKey={slotKey}
                     isInteractable={isInteractable}
                     isPending={isPending}
                 />
