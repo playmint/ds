@@ -183,7 +183,7 @@ export function configureClient({
                 return res.data.events;
             }),
             filter((data): data is AnyGameSubscription['events'] => !!data),
-            debounce(() => 250), // chill out
+            debounce(() => 2500), // chill out
             tap(() => console.log('NEW DATA ARRIVED!!!!!!!!!')),
             share,
         );
