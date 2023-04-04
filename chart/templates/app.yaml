@@ -63,7 +63,7 @@ spec:
           - name: DEPLOYER_PRIVATE_KEY
             value: "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff9524d487fb5d57a8"
           ports:
-            - name: chain
+            - name: network
               containerPort: 8545
               protocol: TCP
 
@@ -114,6 +114,22 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  name: {{ $.Release.Name }}-network
+  namespace: {{ $.Release.Namespace }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: network
+      protocol: TCP
+      name: network
+  selector:
+    app: {{ $.Release.Name }}-services
+
+---
+apiVersion: v1
+kind: Service
+metadata:
   name: {{ $.Release.Name }}-frontend
   namespace: {{ $.Release.Namespace }}
 spec:
@@ -135,6 +151,19 @@ metadata:
 spec:
   endpoints:
   - dnsName: "services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
+    recordTTL: 60
+    recordType: "CNAME"
+    targets: ["{{ $.Values.cluster.domain }}"]
+
+---
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: {{ $.Release.Name }}-network
+  namespace: {{ $.Release.Namespace }}
+spec:
+  endpoints:
+  - dnsName: "network-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
     recordTTL: 60
     recordType: "CNAME"
     targets: ["{{ $.Values.cluster.domain }}"]
@@ -177,7 +206,39 @@ spec:
         - websocket: {}
         retries:
           retryOn: gateway-error
-          numRetries: 3
+          numRetries: 1
+          perTryTimeout: 120s
+  sslConfig:
+    secretRef:
+      name: "cluster-domain-certificate"
+      namespace: "ingress-system"
+
+---
+apiVersion: "gateway.solo.io/v1"
+kind: VirtualService
+metadata:
+  name: {{ $.Release.Name }}-network
+  namespace: {{ $.Release.Namespace }}
+spec:
+  virtualHost:
+    domains: ["network-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"]
+    routes:
+    - matchers:
+      - prefix: "/"
+      routeAction:
+        single:
+          kube:
+            ref:
+              name: {{ $.Release.Name }}-network
+              namespace: {{ $.Release.Namespace }}
+            port: 80
+      options:
+        timeout: 120s
+        upgrades:
+        - websocket: {}
+        retries:
+          retryOn: gateway-error
+          numRetries: 1
           perTryTimeout: 120s
   sslConfig:
     secretRef:
@@ -207,7 +268,7 @@ spec:
         timeout: 120s
         retries:
           retryOn: gateway-error
-          numRetries: 3
+          numRetries: 1
           perTryTimeout: 120s
   sslConfig:
     secretRef:
