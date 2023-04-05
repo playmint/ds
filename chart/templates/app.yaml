@@ -57,7 +57,7 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 5
         - name: contracts
-          image: ghcr.io/playmint/ds-contracts:main
+          image: {{ printf "ghcr.io/playmint/ds-contracts:%s-%s" $.Release.Name $.Values.version }}
           imagePullPolicy: Always
           env:
           - name: DEPLOYER_PRIVATE_KEY
@@ -87,7 +87,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: ghcr.io/playmint/ds-shell:main
+          image: {{ printf "ghcr.io/playmint/ds-shell:%s-%s" $.Release.Name $.Values.version }}
           imagePullPolicy: Always
           ports:
             - name: http
