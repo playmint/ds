@@ -38,7 +38,7 @@ MonoBehaviour:
   m_RemoteCatalogLoadPath:
     m_Id: 
   m_ContentStateBuildPath: 
-  m_BuildAddressablesWithPlayerBuild: 0
+  m_BuildAddressablesWithPlayerBuild: 1
   m_overridePlayerVersion: 
   m_GroupAssets:
   - {fileID: 11400000, guid: 551ce61ee549845d1a62e4ee993b369a, type: 2}
@@ -59,27 +59,13 @@ MonoBehaviour:
       - m_Id: f55b294221f3747f691efa597f57f212
         m_Value: '[UnityEditor.EditorUserBuildSettings.activeBuildTarget]'
       - m_Id: b140a7985d86d4c5a82d19ed7b877784
-        m_Value: /Users/jackburfield/ds-unity/frontend/public/ds-unity/StreamingAssets
+        m_Value: '[UnityEngine.AddressableAssets.Addressables.BuildPath]/[BuildTarget]'
       - m_Id: 91cc5a4408ec24fd388fabeb8d8d0ebb
-        m_Value: /Users/jackburfield/ds-unity/frontend/public/ds-unity/StreamingAssets
+        m_Value: '{UnityEngine.AddressableAssets.Addressables.RuntimePath}/[BuildTarget]'
       - m_Id: cc2c4f88578cb4f11862cd1e76d96a65
-        m_Value: ServerData/ds-unity/frontend/public/ds-unity/StreamingAssets/aa
+        m_Value: ../frontend/public/ds-unity/StreamingAssets/aa
       - m_Id: 4adf120aefafc4ed1af1edaca32849d0
-        m_Value: '{UnityEngine.Application.dataPath}/StreamingAssets/aa'
-    - m_InheritedParent: 
-      m_Id: fb90bc77d80564a0d918478445328dae
-      m_ProfileName: New Profile
-      m_Values:
-      - m_Id: f55b294221f3747f691efa597f57f212
-        m_Value: '[UnityEditor.EditorUserBuildSettings.activeBuildTarget]'
-      - m_Id: b140a7985d86d4c5a82d19ed7b877784
-        m_Value: /Users/jackburfield/ds-unity/frontend/public/ds-unity/StreamingAssets
-      - m_Id: 91cc5a4408ec24fd388fabeb8d8d0ebb
-        m_Value: /Users/jackburfield/ds-unity/frontend/public/ds-unity/StreamingAssets
-      - m_Id: cc2c4f88578cb4f11862cd1e76d96a65
-        m_Value: ServerData/ds-unity/frontend/public/ds-unity/StreamingAssets/aa
-      - m_Id: 4adf120aefafc4ed1af1edaca32849d0
-        m_Value: '{UnityEngine.Application.dataPath}/StreamingAssets/aa'
+        m_Value: '{UnityEngine.Application.absoluteURL}/ds-unity/StreamingAssets/aa'
     m_ProfileEntryNames:
     - m_Id: f55b294221f3747f691efa597f57f212
       m_Name: BuildTarget
@@ -114,7 +100,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4b6bb9016e23548f1894cbbdbb5996eb, type: 2}
   - {fileID: 11400000, guid: 09f952bd0dad441598102742f1b89221, type: 2}
   - {fileID: 11400000, guid: 182a2d5269f4e492dbd662b325364e6d, type: 2}
-  m_ActiveProfileId: fb90bc77d80564a0d918478445328dae
+  m_ActiveProfileId: 6d4b2b733bb074a4882eb57835823a48
   m_HostingServicesManager:
     m_HostingServiceInfos: []
     m_Settings: {fileID: 11400000}
