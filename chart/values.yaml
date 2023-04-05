@@ -1,13 +1,4 @@
-# cluster:
-#   domain: example.com
-# apps:
-# - name: my-app-1
-#   image: myapps/my-app:latest
-#   port: 80
-# - name: my-app-2
-#   image: myapps/my-app:latest
-#   port: 80
-#   env:
-#   - name: MY_VAR
-#     value: "my-val"
+version: dev
+cluster:
+  domain: dev.playmint.com
 
