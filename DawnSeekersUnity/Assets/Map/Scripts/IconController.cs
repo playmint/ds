@@ -19,6 +19,8 @@ public class IconController : MonoBehaviour
     private Vector3 _currentPosition;
     private float _offsetRadius = 0.35f;
 
+    private float iconHeightOffset = 0.15f;
+
     private void Awake()
     {
         _trans = transform;
@@ -52,9 +54,9 @@ public class IconController : MonoBehaviour
 
     public void Setup(MapManager.MapCell cell, int numObjects, int index)
     {
-        Vector3 offset = Vector3.zero;
+        Vector3 offset = Vector3.zero + (Vector3.forward * -iconHeightOffset); ;
         if (numObjects > 1)
-            offset = GetPositionOnCircle(_offsetRadius, numObjects, index);
+            offset = GetPositionOnCircle(_offsetRadius, numObjects, index) + (Vector3.forward * -iconHeightOffset);
         _trans.position = _currentPosition =
             MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(cell.cubicCoords))
             + offset;
@@ -62,9 +64,9 @@ public class IconController : MonoBehaviour
 
     public void CheckPosition(MapManager.MapCell cell, int numObjects, int index, bool isPlayer)
     {
-        Vector3 offset = Vector3.zero;
+        Vector3 offset = Vector3.zero + (Vector3.forward * -iconHeightOffset); ;
         if (numObjects > 1)
-            offset = GetPositionOnCircle(_offsetRadius, numObjects, index);
+            offset = GetPositionOnCircle(_offsetRadius, numObjects, index) + (Vector3.forward * -iconHeightOffset);
         if (
             MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(cell.cubicCoords))
                 + offset

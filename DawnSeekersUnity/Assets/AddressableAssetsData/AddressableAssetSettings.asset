@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: fb4b6a4b24e044ea2833567cd5b75a95
   m_CachedHash:
     serializedVersion: 2
-    Hash: 7a330da5ca651f0370ffbaa995e93db7
+    Hash: 00000000000000000000000000000000
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_BundleLocalCatalog: 0
@@ -32,14 +32,11 @@ MonoBehaviour:
   m_ShaderBundleNaming: 0
   m_ShaderBundleCustomNaming: 
   m_MonoScriptBundleNaming: 0
-  m_CheckForContentUpdateRestrictionsOption: 0
   m_MonoScriptBundleCustomNaming: 
   m_RemoteCatalogBuildPath:
     m_Id: 
   m_RemoteCatalogLoadPath:
     m_Id: 
-  m_ContentStateBuildPathProfileVariableName: <default settings path>
-  m_CustomContentStateBuildPath: 
   m_ContentStateBuildPath: 
   m_BuildAddressablesWithPlayerBuild: 0
   m_overridePlayerVersion: 
@@ -62,13 +59,27 @@ MonoBehaviour:
       - m_Id: f55b294221f3747f691efa597f57f212
         m_Value: '[UnityEditor.EditorUserBuildSettings.activeBuildTarget]'
       - m_Id: b140a7985d86d4c5a82d19ed7b877784
-        m_Value: '[UnityEngine.AddressableAssets.Addressables.BuildPath]/[BuildTarget]'
+        m_Value: /Users/jackburfield/ds-unity/frontend/public/ds-unity/StreamingAssets
       - m_Id: 91cc5a4408ec24fd388fabeb8d8d0ebb
-        m_Value: '{UnityEngine.AddressableAssets.Addressables.RuntimePath}/[BuildTarget]'
+        m_Value: /Users/jackburfield/ds-unity/frontend/public/ds-unity/StreamingAssets
       - m_Id: cc2c4f88578cb4f11862cd1e76d96a65
-        m_Value: ServerData/[BuildTarget]
+        m_Value: ServerData/ds-unity/frontend/public/ds-unity/StreamingAssets/aa
       - m_Id: 4adf120aefafc4ed1af1edaca32849d0
-        m_Value: http://[PrivateIpAddress]:[HostingServicePort]
+        m_Value: '{UnityEngine.Application.dataPath}/StreamingAssets/aa'
+    - m_InheritedParent: 
+      m_Id: fb90bc77d80564a0d918478445328dae
+      m_ProfileName: New Profile
+      m_Values:
+      - m_Id: f55b294221f3747f691efa597f57f212
+        m_Value: '[UnityEditor.EditorUserBuildSettings.activeBuildTarget]'
+      - m_Id: b140a7985d86d4c5a82d19ed7b877784
+        m_Value: /Users/jackburfield/ds-unity/frontend/public/ds-unity/StreamingAssets
+      - m_Id: 91cc5a4408ec24fd388fabeb8d8d0ebb
+        m_Value: /Users/jackburfield/ds-unity/frontend/public/ds-unity/StreamingAssets
+      - m_Id: cc2c4f88578cb4f11862cd1e76d96a65
+        m_Value: ServerData/ds-unity/frontend/public/ds-unity/StreamingAssets/aa
+      - m_Id: 4adf120aefafc4ed1af1edaca32849d0
+        m_Value: '{UnityEngine.Application.dataPath}/StreamingAssets/aa'
     m_ProfileEntryNames:
     - m_Id: f55b294221f3747f691efa597f57f212
       m_Name: BuildTarget
@@ -89,6 +100,7 @@ MonoBehaviour:
   m_LabelTable:
     m_LabelNames:
     - default
+    - environmentObjects
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 5e5bfd107c8be4ff7951884a81423d02, type: 2}
@@ -102,10 +114,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4b6bb9016e23548f1894cbbdbb5996eb, type: 2}
   - {fileID: 11400000, guid: 09f952bd0dad441598102742f1b89221, type: 2}
   - {fileID: 11400000, guid: 182a2d5269f4e492dbd662b325364e6d, type: 2}
-  m_ActiveProfileId: 6d4b2b733bb074a4882eb57835823a48
+  m_ActiveProfileId: fb90bc77d80564a0d918478445328dae
   m_HostingServicesManager:
     m_HostingServiceInfos: []
     m_Settings: {fileID: 11400000}
     m_NextInstanceId: 0
     m_RegisteredServiceTypeRefs: []
-    m_PingTimeoutInMilliseconds: 5000
