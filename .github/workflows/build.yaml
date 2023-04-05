@@ -116,7 +116,7 @@ jobs:
     - name: Finalize Docker Metadata
       id: docker_tagging
       run: |
-          echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ inputs.FRONTEND_IMAGE_NAME }}:ds-${{ env.DEPLOYMENT_ENVIRONMENT }}-${GITHUB_SHA}"
+          echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ inputs.FRONTEND_IMAGE_NAME }}:ds-${{ inputs.DEPLOYMENT_ENVIRONMENT }}-${GITHUB_SHA}"
     - name: Inspect Docker Metadata
       run: |
         echo "TAGS -> ${{ steps.docker_tagging.outputs.docker_tags }}"
@@ -174,7 +174,7 @@ jobs:
     - name: Finalize Docker Metadata
       id: docker_tagging
       run: |
-        echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ inputs.CONTRACTS_IMAGE_NAME }}:ds-${{ env.DEPLOYMENT_ENVIRONMENT }}-${GITHUB_SHA}"
+        echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ inputs.CONTRACTS_IMAGE_NAME }}:ds-${{ inputs.DEPLOYMENT_ENVIRONMENT }}-${GITHUB_SHA}"
     - name: Inspect Docker Metadata
       run: |
         echo "TAGS -> ${{ steps.docker_tagging.outputs.docker_tags }}"
