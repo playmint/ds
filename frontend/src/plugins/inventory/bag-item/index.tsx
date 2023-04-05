@@ -58,7 +58,13 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
     const isPickable = !isPickedUpItemVisible;
 
     return (
-        <StyledBagItem {...otherProps} onClick={handleClick} isPickable={isPickable} isInteractable={isInteractable}>
+        <StyledBagItem
+            {...otherProps}
+            onClick={handleClick}
+            isPickable={isPickable}
+            isInteractable={isInteractable}
+            title={name}
+        >
             {isPending && <span className="spinner" />}
             <img src={icon} alt={name} className="icon" />
             <span className="amount">{quantity}</span>
