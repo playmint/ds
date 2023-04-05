@@ -22,6 +22,12 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cd1d0eece24a941cb80c63b01adcb182
+    m_Address: Assets/Map/Prefabs/Addressables/EnvironmentPrefabs
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - environmentObjects
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 1f58d6e75013f48d5aa5adc43a151e09, type: 2}
   m_SchemaSet:

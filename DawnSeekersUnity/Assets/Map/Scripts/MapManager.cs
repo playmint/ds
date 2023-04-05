@@ -48,10 +48,14 @@ public class MapManager : MonoBehaviour
         _tilemap.RefreshAllTiles();
     }
 
-    public void AddTile(MapCell cell)
+    public async void AddTile(MapCell cell)
     {
-        // Debug.Log($"MapManager::AddTile() Adding tile type: {cell.typeID} at: {cell.cubicCoords}");
-        _tilemap.SetTile(GridExtensions.CubeToGrid(cell.cubicCoords), _tileTypes[cell.typeID]);
+        if (!IsTileAtPosition(cell.cubicCoords))
+        {
+            await EnvironmentLoaderManager.instance.AddTile(grid.CellToWorld(GridExtensions.CubeToGrid(cell.cubicCoords)));
+            // Debug.Log($"MapManager::AddTile() Adding tile type: {cell.typeID} at: {cell.cubicCoords}");
+            _tilemap.SetTile(GridExtensions.CubeToGrid(cell.cubicCoords), _tileTypes[cell.typeID]);
+        }
     }
 
     public bool IsTileAtPosition(Vector3Int position)
@@ -63,7 +67,7 @@ public class MapManager : MonoBehaviour
     {
         // Debug.Log("MapManager::RenderState()");
         IconManager.instance.ResetSeekerPositionCounts();
-        MapManager.instance.ClearMap();
+        //MapManager.instance.ClearMap();
         foreach (var tile in state.World.Tiles)
         {
             var hasResource = TileHelper.HasResource(tile);
