@@ -16,7 +16,7 @@ interface Actions {
     // to scout location
     function SCOUT_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
 
-    // transfers a balance of whatever is in fromBag/fromSlot into toBag/toSlot
+    // transfers a balance between item slots
     // bags must be at same location as seeker
     // bags must either be owned by seeker or owned by nobody
     function TRANSFER_ITEM_SEEKER(
