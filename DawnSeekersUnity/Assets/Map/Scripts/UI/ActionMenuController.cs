@@ -28,8 +28,9 @@ public class ActionMenuController : MonoBehaviour
             var seekerPos = TileHelper.GetTilePosCube(state.Selected.Seeker.NextLocation);
             gameObject.SetActive(true);
             transform.position = MapManager.instance.grid.CellToWorld(
-                GridExtensions.CubeToGrid(seekerPos)
+                GridExtensions.CubeToGrid(seekerPos) 
             );
+            transform.position -= Vector3.forward * MapHeightManager.instance.GetHeightAtPosition(transform.position);
 
             UpdateButtonStates(state);
         }

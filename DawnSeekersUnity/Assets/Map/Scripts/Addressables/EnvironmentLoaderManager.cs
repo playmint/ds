@@ -14,9 +14,16 @@ public class EnvironmentLoaderManager : MonoBehaviour
     [SerializeField]
     Transform tileContainer;
 
+    [SerializeField]
+    bool loadDynamic;
+    [SerializeField]
+    GameObject tilePrefab;
+
     private Task loadAssets;
 
     private GameObject _tilePrefab;
+
+
 
     private void Awake()
     {
@@ -33,7 +40,12 @@ public class EnvironmentLoaderManager : MonoBehaviour
 
     void Start()
     {
-        Caller();
+        if (loadDynamic)
+            Caller();
+        else
+        {
+            _tilePrefab = tilePrefab;
+        }
     }
 
     async void Caller()
@@ -53,8 +65,9 @@ public class EnvironmentLoaderManager : MonoBehaviour
 
     public async Task AddTile(Vector3 position)
     {
-        await loadAssets;
+        if(loadDynamic)
+            await loadAssets;
         Transform tile = Instantiate(_tilePrefab, tileContainer).transform;
-        tile.position = position;
+        tile.position = position - (Vector3.forward * MapHeightManager.instance.GetHeightAtPosition(position));
     }
 }

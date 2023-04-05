@@ -60,7 +60,8 @@ public class MapManager : MonoBehaviour
 
     public bool IsTileAtPosition(Vector3Int position)
     {
-        return _tilemap.GetTile(GridExtensions.CubeToGrid(position)) != null;
+        TileBase tile = _tilemap.GetTile(GridExtensions.CubeToGrid(position));
+        return tile != null && tile.name.Contains("Standard"); 
     }
 
     private void OnStateUpdated(Cog.GameState state)
