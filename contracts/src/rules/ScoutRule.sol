@@ -69,7 +69,7 @@ contract ScoutRule is Rule {
 
     function _tempSpawnResourceBag(State state, bytes24 targetTile, int16[3] memory coords) private {
         uint64 bagID = uint64(uint256(keccak256(abi.encode(coords))));
-        if (uint8(bagID) < 50) {
+        if (uint8(bagID) < 128) {
             bytes24 bag = Node.Bag(bagID);
 
             ResourceKind resourceKind = ResourceKind((_resourceSpawnCount % NUM_RESOURCE_KINDS) + 1);
