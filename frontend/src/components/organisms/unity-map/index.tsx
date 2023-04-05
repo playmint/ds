@@ -66,7 +66,8 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
         loaderUrl: `/ds-unity/Build/ds-unity.loader.js`,
         dataUrl: `/ds-unity/Build/ds-unity.data`,
         frameworkUrl: `/ds-unity/Build/ds-unity.framework.js`,
-        codeUrl: `/ds-unity/Build/ds-unity.wasm`
+        codeUrl: `/ds-unity/Build/ds-unity.wasm`,
+        streamingAssetsUrl: `/ds-unity/StreamingAssets/`
     });
     const [isReady, setIsReady] = useState(false);
     // We'll round the loading progression to a whole number to represent the
