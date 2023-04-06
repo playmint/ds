@@ -15,6 +15,7 @@ const baseStyles = (_: Partial<LogsProps>) => css`
         top: 55px;
         left 0px;
         width: 30vw;
+        pointer-events: none;
         > .log {
             display: block;
             font-family: courier;
