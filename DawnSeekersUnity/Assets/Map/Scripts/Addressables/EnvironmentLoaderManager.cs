@@ -68,6 +68,6 @@ public class EnvironmentLoaderManager : MonoBehaviour
         if(loadDynamic)
             await loadAssets;
         Transform tile = Instantiate(_tilePrefab, tileContainer).transform;
-        tile.position = position - (Vector3.forward * MapHeightManager.instance.GetHeightAtPosition(position));
+        tile.position = position - MapHeightManager.instance.GetHeightOffsetAtPosition(position);
     }
 }

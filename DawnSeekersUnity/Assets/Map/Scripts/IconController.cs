@@ -67,7 +67,7 @@ public class IconController : MonoBehaviour
         _trans.position = _currentPosition =
             MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(cell.cubicCoords))
             + offset;
-        _currentPosition -= (Vector3.forward * MapHeightManager.instance.GetHeightAtPosition(_currentPosition));
+        _currentPosition -= MapHeightManager.instance.GetHeightOffsetAtPosition(_currentPosition);
         _trans.position = _currentPosition;
     }
 
@@ -76,7 +76,7 @@ public class IconController : MonoBehaviour
         Vector3 offset = GetOffset(numObjects, index);
         Vector3 serverPosition = MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(cell.cubicCoords))
                 + offset;
-        serverPosition -= Vector3.forward * MapHeightManager.instance.GetHeightAtPosition(_currentPosition);
+        serverPosition -= MapHeightManager.instance.GetHeightOffsetAtPosition(_currentPosition);
         if (serverPosition
             != _currentPosition
         )
@@ -86,7 +86,7 @@ public class IconController : MonoBehaviour
             _currentPosition =
                 MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(cell.cubicCoords))
                 + offset;
-            _currentPosition -= Vector3.forward * MapHeightManager.instance.GetHeightAtPosition(_currentPosition);
+            _currentPosition -= MapHeightManager.instance.GetHeightOffsetAtPosition(_currentPosition);
             StartCoroutine(SmoothMoveCR(_currentPosition));
         }
     }

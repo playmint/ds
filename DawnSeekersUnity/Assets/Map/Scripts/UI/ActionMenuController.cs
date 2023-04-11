@@ -30,7 +30,7 @@ public class ActionMenuController : MonoBehaviour
             transform.position = MapManager.instance.grid.CellToWorld(
                 GridExtensions.CubeToGrid(seekerPos) 
             );
-            transform.position -= Vector3.forward * MapHeightManager.instance.GetHeightAtPosition(transform.position);
+            transform.position -= MapHeightManager.instance.GetHeightOffsetAtPosition(transform.position);
 
             UpdateButtonStates(state);
         }

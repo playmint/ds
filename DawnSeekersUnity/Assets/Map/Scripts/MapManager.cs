@@ -52,9 +52,11 @@ public class MapManager : MonoBehaviour
     {
         if (!IsTileAtPosition(cell.cubicCoords))
         {
-            await EnvironmentLoaderManager.instance.AddTile(grid.CellToWorld(GridExtensions.CubeToGrid(cell.cubicCoords)));
+            Vector3Int gridPos = GridExtensions.CubeToGrid(cell.cubicCoords);
+            Vector3 worldPos = grid.CellToWorld(gridPos);
+            await EnvironmentLoaderManager.instance.AddTile(worldPos);
             // Debug.Log($"MapManager::AddTile() Adding tile type: {cell.typeID} at: {cell.cubicCoords}");
-            _tilemap.SetTile(GridExtensions.CubeToGrid(cell.cubicCoords), _tileTypes[cell.typeID]);
+            _tilemap.SetTile(gridPos - (Vector3Int.forward * (Mathf.RoundToInt(MapHeightManager.instance.GetHeightAtPosition(worldPos) * 100)+1)), _tileTypes[cell.typeID]);
         }
     }
 

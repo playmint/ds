@@ -32,7 +32,7 @@ public class MapInteractionManager : MonoBehaviour
 
     private void Start()
     {
-        m_Plane = new Plane(Vector3.forward, 0);
+        m_Plane = new Plane(Vector3.forward, 0.4f);
         Cog.GameStateMediator.Instance.EventStateUpdated += OnStateUpdated;
 
         selectedMarker1.gameObject.SetActive(false);
@@ -53,9 +53,10 @@ public class MapInteractionManager : MonoBehaviour
                 MapManager.instance.grid.WorldToCell(hitPoint)
             );
             CurrentMouseCell = MapManager.instance.grid.WorldToCell(hitPoint);
-            cursor.position = MapManager.instance.grid.CellToWorld(
+            Vector3 cursorPos = MapManager.instance.grid.CellToWorld(
                 MapManager.instance.grid.WorldToCell(hitPoint)
             );
+            cursor.position = cursorPos - (Vector3.forward * (MapHeightManager.instance.GetHeightAtPosition(cursorPos)-0.4f));
         }
         if (EventSystem.current.IsPointerOverGameObject())
             return;
@@ -135,8 +136,8 @@ public class MapInteractionManager : MonoBehaviour
 
             CurrentSelectedCell = GridExtensions.CubeToGrid(cellPosCube);
             clickedPlayerCell = SeekerManager.Instance.IsPlayerAtPosition(cellPosCube);
-
-            selectedMarker1.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
+            Vector3 markerPos = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
+            selectedMarker1.position = markerPos - MapHeightManager.instance.GetHeightOffsetAtPosition(markerPos);
 
             selectedMarker1.gameObject.SetActive(true);
         }
@@ -154,6 +155,7 @@ public class MapInteractionManager : MonoBehaviour
 
         // Show tile selector
         selectedMarker1.gameObject.SetActive(true);
-        selectedMarker1.position = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
+        Vector3 markerPos = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
+        selectedMarker1.position = markerPos - MapHeightManager.instance.GetHeightOffsetAtPosition(markerPos);
     }
 }

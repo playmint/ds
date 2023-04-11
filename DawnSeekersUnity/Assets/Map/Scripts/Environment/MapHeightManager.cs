@@ -32,4 +32,9 @@ public class MapHeightManager : MonoBehaviour
     {
         return Mathf.PerlinNoise(position.x * heightFrequency, position.y * heightFrequency);
     }
+
+    public Vector3 GetHeightOffsetAtPosition(Vector3 position)
+    {
+        return Vector3.forward * Mathf.PerlinNoise(position.x * heightFrequency, position.y * heightFrequency);
+    }
 }
