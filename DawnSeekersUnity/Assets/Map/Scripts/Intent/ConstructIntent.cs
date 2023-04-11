@@ -185,9 +185,11 @@ public class ConstructIntent : IntentHandler
             if (!spawnedHighlights.ContainsKey(cellPosCube))
             {
                 GameObject highlight = Instantiate(highlightPrefab);
-                highlight.transform.position = MapManager.instance.grid.CellToWorld(
+                Vector3 cellPos = MapManager.instance.grid.CellToWorld(
                     GridExtensions.CubeToGrid(cellPosCube)
                 );
+                highlight.transform.position =
+                    cellPos - MapHeightManager.instance.GetHeightOffsetAtPosition(cellPos);
                 spawnedHighlights.Add(cellPosCube, highlight);
             }
         }

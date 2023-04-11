@@ -36,11 +36,14 @@ public class TravelMarkerController : MonoBehaviour
 
     public void ShowTravelMarkers(Vector3Int startPos, Vector3Int endPos, bool isCube = true)
     {
+        Vector3 startPosWorld = MapManager.instance.grid.CellToWorld(
+            GridExtensions.CubeToGrid(startPos)
+        );
+        Vector3 endPosWorld = MapManager.instance.grid.CellToWorld(
+            GridExtensions.CubeToGrid(endPos)
+        );
         if (isCube)
-            ShowTravelMarkers(
-                MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(startPos)),
-                MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(endPos))
-            );
+            ShowTravelMarkers(startPosWorld, endPosWorld);
         else
             ShowTravelMarkers(
                 MapManager.instance.grid.CellToWorld(startPos),
@@ -50,8 +53,10 @@ public class TravelMarkerController : MonoBehaviour
 
     public void ShowTravelMarkers(Vector3 startPos, Vector3 endPos)
     {
+        Vector3 startOffset = MapHeightManager.instance.GetHeightOffsetAtPosition(startPos);
+        Vector3 endOffset = MapHeightManager.instance.GetHeightOffsetAtPosition(endPos);
         Vector3 worldEndPos = endPos;
-        line.DrawLine(startPos, worldEndPos);
+        line.DrawLine(startPos - startOffset, worldEndPos - endOffset);
         destinationMarker.position = worldEndPos;
         destinationMarker.gameObject.SetActive(true);
     }

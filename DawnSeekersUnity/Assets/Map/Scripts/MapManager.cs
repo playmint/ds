@@ -26,10 +26,11 @@ public class MapManager : MonoBehaviour
 
     private void Awake()
     {
+        EnvironmentLoaderManager.EnvironmentAssetsLoaded += WaitForAssets;
         instance = this;
     }
 
-    private void Start()
+    private void WaitForAssets()
     {
         Cog.GameStateMediator.Instance.EventStateUpdated += OnStateUpdated;
         if (Cog.GameStateMediator.Instance.gameState != null)
@@ -37,6 +38,8 @@ public class MapManager : MonoBehaviour
             OnStateUpdated(Cog.GameStateMediator.Instance.gameState);
         }
     }
+
+    private void Start() { }
 
     public void ClearMap()
     {
@@ -50,20 +53,38 @@ public class MapManager : MonoBehaviour
 
     public void AddTile(MapCell cell)
     {
-        // Debug.Log($"MapManager::AddTile() Adding tile type: {cell.typeID} at: {cell.cubicCoords}");
-        _tilemap.SetTile(GridExtensions.CubeToGrid(cell.cubicCoords), _tileTypes[cell.typeID]);
+        if (!IsTileAtPosition(cell.cubicCoords))
+        {
+            Vector3Int gridPos = GridExtensions.CubeToGrid(cell.cubicCoords);
+            Vector3 worldPos = grid.CellToWorld(gridPos);
+            EnvironmentLoaderManager.instance.AddTile(worldPos);
+            // Debug.Log($"MapManager::AddTile() Adding tile type: {cell.typeID} at: {cell.cubicCoords}");
+            _tilemap.SetTile(
+                gridPos
+                    - (
+                        Vector3Int.forward
+                        * (
+                            Mathf.RoundToInt(
+                                MapHeightManager.instance.GetHeightAtPosition(worldPos) * 100
+                            ) + 1
+                        )
+                    ),
+                _tileTypes[cell.typeID]
+            );
+        }
     }
 
     public bool IsTileAtPosition(Vector3Int position)
     {
-        return _tilemap.GetTile(GridExtensions.CubeToGrid(position)) != null;
+        TileBase tile = _tilemap.GetTile(GridExtensions.CubeToGrid(position));
+        return tile != null && tile.name.Contains("Standard");
     }
 
     private void OnStateUpdated(Cog.GameState state)
     {
         // Debug.Log("MapManager::RenderState()");
         IconManager.instance.ResetSeekerPositionCounts();
-        MapManager.instance.ClearMap();
+        //MapManager.instance.ClearMap();
         foreach (var tile in state.World.Tiles)
         {
             var hasResource = TileHelper.HasResource(tile);

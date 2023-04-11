@@ -226,9 +226,11 @@ public class MoveIntent : IntentHandler
             if (!spawnedPathHighlights.ContainsKey(newPosCube))
             {
                 var highlight = Instantiate(orangeHighlightPrefab);
-                highlight.transform.position = MapManager.instance.grid.CellToWorld(
+                Vector3 cellPos = MapManager.instance.grid.CellToWorld(
                     GridExtensions.CubeToGrid(newPosCube)
                 );
+                highlight.transform.position =
+                    cellPos - MapHeightManager.instance.GetHeightOffsetAtPosition(cellPos);
                 spawnedPathHighlights.Add(newPosCube, highlight);
             }
 

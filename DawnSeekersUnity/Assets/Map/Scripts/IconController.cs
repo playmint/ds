@@ -19,6 +19,8 @@ public class IconController : MonoBehaviour
     private Vector3 _currentPosition;
     private float _offsetRadius = 0.35f;
 
+    private float iconHeightOffset = 0.15f;
+
     private void Awake()
     {
         _trans = transform;
@@ -43,6 +45,18 @@ public class IconController : MonoBehaviour
         _trans.position = endPos;
     }
 
+    private Vector3 GetOffset(int numObjects, int index)
+    {
+        Vector3 offset = Vector3.zero + (Vector3.forward * -iconHeightOffset);
+        ;
+        if (numObjects > 1)
+            offset =
+                GetPositionOnCircle(_offsetRadius, numObjects, index)
+                + (Vector3.forward * -iconHeightOffset);
+
+        return offset;
+    }
+
     public void Setup(MapManager.MapCell cell, Sprite sprite, string label)
     {
         Setup(cell, 0, 0);
@@ -52,30 +66,31 @@ public class IconController : MonoBehaviour
 
     public void Setup(MapManager.MapCell cell, int numObjects, int index)
     {
-        Vector3 offset = Vector3.zero;
-        if (numObjects > 1)
-            offset = GetPositionOnCircle(_offsetRadius, numObjects, index);
+        Vector3 offset = GetOffset(numObjects, index);
         _trans.position = _currentPosition =
             MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(cell.cubicCoords))
             + offset;
+        _currentPosition -= MapHeightManager.instance.GetHeightOffsetAtPosition(_currentPosition);
+        _trans.position = _currentPosition;
     }
 
     public void CheckPosition(MapManager.MapCell cell, int numObjects, int index, bool isPlayer)
     {
-        Vector3 offset = Vector3.zero;
-        if (numObjects > 1)
-            offset = GetPositionOnCircle(_offsetRadius, numObjects, index);
-        if (
+        Vector3 offset = GetOffset(numObjects, index);
+        Vector3 serverPosition =
             MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(cell.cubicCoords))
-                + offset
-            != _currentPosition
-        )
+            + offset;
+        serverPosition -= MapHeightManager.instance.GetHeightOffsetAtPosition(_currentPosition);
+        if (serverPosition != _currentPosition)
         {
             //if (isPlayer)
             //MapInteractionManager.instance.travelMarkerController.HideLine();
             _currentPosition =
                 MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(cell.cubicCoords))
                 + offset;
+            _currentPosition -= MapHeightManager.instance.GetHeightOffsetAtPosition(
+                _currentPosition
+            );
             StartCoroutine(SmoothMoveCR(_currentPosition));
         }
     }
