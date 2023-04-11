@@ -229,7 +229,8 @@ public class MoveIntent : IntentHandler
                 Vector3 cellPos = MapManager.instance.grid.CellToWorld(
                     GridExtensions.CubeToGrid(newPosCube)
                 );
-                highlight.transform.position = cellPos - MapHeightManager.instance.GetHeightOffsetAtPosition(cellPos);
+                highlight.transform.position =
+                    cellPos - MapHeightManager.instance.GetHeightOffsetAtPosition(cellPos);
                 spawnedPathHighlights.Add(newPosCube, highlight);
             }
 

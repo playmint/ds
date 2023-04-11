@@ -56,7 +56,12 @@ public class MapInteractionManager : MonoBehaviour
             Vector3 cursorPos = MapManager.instance.grid.CellToWorld(
                 MapManager.instance.grid.WorldToCell(hitPoint)
             );
-            cursor.position = cursorPos - (Vector3.forward * (MapHeightManager.instance.GetHeightAtPosition(cursorPos)-0.4f));
+            cursor.position =
+                cursorPos
+                - (
+                    Vector3.forward
+                    * (MapHeightManager.instance.GetHeightAtPosition(cursorPos) - 0.4f)
+                );
         }
         if (EventSystem.current.IsPointerOverGameObject())
             return;
@@ -137,7 +142,8 @@ public class MapInteractionManager : MonoBehaviour
             CurrentSelectedCell = GridExtensions.CubeToGrid(cellPosCube);
             clickedPlayerCell = SeekerManager.Instance.IsPlayerAtPosition(cellPosCube);
             Vector3 markerPos = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
-            selectedMarker1.position = markerPos - MapHeightManager.instance.GetHeightOffsetAtPosition(markerPos);
+            selectedMarker1.position =
+                markerPos - MapHeightManager.instance.GetHeightOffsetAtPosition(markerPos);
 
             selectedMarker1.gameObject.SetActive(true);
         }
@@ -156,6 +162,7 @@ public class MapInteractionManager : MonoBehaviour
         // Show tile selector
         selectedMarker1.gameObject.SetActive(true);
         Vector3 markerPos = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
-        selectedMarker1.position = markerPos - MapHeightManager.instance.GetHeightOffsetAtPosition(markerPos);
+        selectedMarker1.position =
+            markerPos - MapHeightManager.instance.GetHeightOffsetAtPosition(markerPos);
     }
 }

@@ -188,7 +188,8 @@ public class ConstructIntent : IntentHandler
                 Vector3 cellPos = MapManager.instance.grid.CellToWorld(
                     GridExtensions.CubeToGrid(cellPosCube)
                 );
-                highlight.transform.position = cellPos - MapHeightManager.instance.GetHeightOffsetAtPosition(cellPos);
+                highlight.transform.position =
+                    cellPos - MapHeightManager.instance.GetHeightOffsetAtPosition(cellPos);
                 spawnedHighlights.Add(cellPosCube, highlight);
             }
         }

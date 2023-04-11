@@ -56,14 +56,25 @@ public class MapManager : MonoBehaviour
             Vector3 worldPos = grid.CellToWorld(gridPos);
             await EnvironmentLoaderManager.instance.AddTile(worldPos);
             // Debug.Log($"MapManager::AddTile() Adding tile type: {cell.typeID} at: {cell.cubicCoords}");
-            _tilemap.SetTile(gridPos - (Vector3Int.forward * (Mathf.RoundToInt(MapHeightManager.instance.GetHeightAtPosition(worldPos) * 100)+1)), _tileTypes[cell.typeID]);
+            _tilemap.SetTile(
+                gridPos
+                    - (
+                        Vector3Int.forward
+                        * (
+                            Mathf.RoundToInt(
+                                MapHeightManager.instance.GetHeightAtPosition(worldPos) * 100
+                            ) + 1
+                        )
+                    ),
+                _tileTypes[cell.typeID]
+            );
         }
     }
 
     public bool IsTileAtPosition(Vector3Int position)
     {
         TileBase tile = _tilemap.GetTile(GridExtensions.CubeToGrid(position));
-        return tile != null && tile.name.Contains("Standard"); 
+        return tile != null && tile.name.Contains("Standard");
     }
 
     private void OnStateUpdated(Cog.GameState state)

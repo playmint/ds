@@ -8,12 +8,13 @@ public class MapHeightManager : MonoBehaviour
 
     [SerializeField]
     float heightScale = 1;
+
     [SerializeField]
     float heightFrequency = 0.25f;
 
     private void Awake()
     {
-        if(instance == null)
+        if (instance == null)
         {
             instance = this;
         }
@@ -35,6 +36,7 @@ public class MapHeightManager : MonoBehaviour
 
     public Vector3 GetHeightOffsetAtPosition(Vector3 position)
     {
-        return Vector3.forward * Mathf.PerlinNoise(position.x * heightFrequency, position.y * heightFrequency);
+        return Vector3.forward
+            * Mathf.PerlinNoise(position.x * heightFrequency, position.y * heightFrequency);
     }
 }

@@ -11,19 +11,19 @@ public class EnvironmentLoaderManager : MonoBehaviour
 
     [SerializeField]
     AssetLabelReference environmentAssetsLabel;
+
     [SerializeField]
     Transform tileContainer;
 
     [SerializeField]
     bool loadDynamic;
+
     [SerializeField]
     GameObject tilePrefab;
 
     private Task loadAssets;
 
     private GameObject _tilePrefab;
-
-
 
     private void Awake()
     {
@@ -65,7 +65,7 @@ public class EnvironmentLoaderManager : MonoBehaviour
 
     public async Task AddTile(Vector3 position)
     {
-        if(loadDynamic)
+        if (loadDynamic)
             await loadAssets;
         Transform tile = Instantiate(_tilePrefab, tileContainer).transform;
         tile.position = position - MapHeightManager.instance.GetHeightOffsetAtPosition(position);
