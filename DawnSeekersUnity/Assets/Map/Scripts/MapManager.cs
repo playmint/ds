@@ -39,10 +39,7 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        
-    }
+    private void Start() { }
 
     public void ClearMap()
     {
