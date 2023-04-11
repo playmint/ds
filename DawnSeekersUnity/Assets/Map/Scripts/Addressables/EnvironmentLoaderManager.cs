@@ -7,6 +7,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class EnvironmentLoaderManager : MonoBehaviour
 {
+    public static System.Action EnvironmentAssetsLoaded;
     public static EnvironmentLoaderManager instance;
 
     [SerializeField]
@@ -45,6 +46,7 @@ public class EnvironmentLoaderManager : MonoBehaviour
         else
         {
             _tilePrefab = tilePrefab;
+            EnvironmentAssetsLoaded?.Invoke();
         }
     }
 
@@ -60,13 +62,12 @@ public class EnvironmentLoaderManager : MonoBehaviour
         AsyncOperationHandle operationHandle = Addressables.LoadAssetAsync<GameObject>(label);
         await operationHandle.Task;
         _tilePrefab = (GameObject)operationHandle.Result;
+        EnvironmentAssetsLoaded?.Invoke();
         Debug.Log("Environment assets loaded.");
     }
 
-    public async Task AddTile(Vector3 position)
+    public void AddTile(Vector3 position)
     {
-        if (loadDynamic)
-            await loadAssets;
         Transform tile = Instantiate(_tilePrefab, tileContainer).transform;
         tile.position = position - MapHeightManager.instance.GetHeightOffsetAtPosition(position);
     }

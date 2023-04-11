@@ -26,16 +26,22 @@ public class MapManager : MonoBehaviour
 
     private void Awake()
     {
+        EnvironmentLoaderManager.EnvironmentAssetsLoaded += WaitForAssets;
         instance = this;
     }
 
-    private void Start()
+    private void WaitForAssets()
     {
         Cog.GameStateMediator.Instance.EventStateUpdated += OnStateUpdated;
         if (Cog.GameStateMediator.Instance.gameState != null)
         {
             OnStateUpdated(Cog.GameStateMediator.Instance.gameState);
         }
+    }
+
+    private void Start()
+    {
+        
     }
 
     public void ClearMap()
@@ -48,13 +54,13 @@ public class MapManager : MonoBehaviour
         _tilemap.RefreshAllTiles();
     }
 
-    public async void AddTile(MapCell cell)
+    public void AddTile(MapCell cell)
     {
         if (!IsTileAtPosition(cell.cubicCoords))
         {
             Vector3Int gridPos = GridExtensions.CubeToGrid(cell.cubicCoords);
             Vector3 worldPos = grid.CellToWorld(gridPos);
-            await EnvironmentLoaderManager.instance.AddTile(worldPos);
+            EnvironmentLoaderManager.instance.AddTile(worldPos);
             // Debug.Log($"MapManager::AddTile() Adding tile type: {cell.typeID} at: {cell.cubicCoords}");
             _tilemap.SetTile(
                 gridPos
