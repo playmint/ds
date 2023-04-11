@@ -42,14 +42,12 @@ public class TravelMarkerController : MonoBehaviour
         Vector3 endPosWorld = MapManager.instance.grid.CellToWorld(
             GridExtensions.CubeToGrid(endPos)
         );
-        Vector3 startOffset = MapHeightManager.instance.GetHeightOffsetAtPosition(startPosWorld);
-        Vector3 endOffset = MapHeightManager.instance.GetHeightOffsetAtPosition(endPosWorld);
         if (isCube)
-            ShowTravelMarkers(startPosWorld - startOffset, endPosWorld - endOffset);
+            ShowTravelMarkers(startPosWorld, endPosWorld);
         else
             ShowTravelMarkers(
-                MapManager.instance.grid.CellToWorld(startPos) - startOffset,
-                MapManager.instance.grid.CellToWorld(endPos) - endOffset
+                MapManager.instance.grid.CellToWorld(startPos),
+                MapManager.instance.grid.CellToWorld(endPos)
             );
     }
 
