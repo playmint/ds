@@ -33,6 +33,19 @@ contract InventoryRule is Rule {
 
             _transferItem(state, ctx.clock, Node.Player(ctx.sender), seeker, equipees, equipSlots, itemSlots, qty);
         }
+        else if(bytes4(action) == Actions.TRANSFER_ITEM_BAG.selector) {
+            // decode the action
+            (
+                bytes24 seeker,
+                bytes24[2] memory equipees,
+                uint8[2] memory equipSlots,
+                uint8[2] memory itemSlots,
+                bytes24 toBagId,
+                uint64 qty
+            ) = abi.decode(action[4:], (bytes24, bytes24[2], uint8[2], uint8[2], bytes24, uint64));
+
+            _transferItemAndGenerouslyCreateMissingBag(state, ctx.clock, Node.Player(ctx.sender), seeker, equipees, equipSlots, itemSlots, toBagId, qty);
+        }
 
         return state;
     }
@@ -56,7 +69,11 @@ contract InventoryRule is Rule {
         // check equipees are either the acting seeker
         // or at the same location as the acting seeker
         _requireEquipeeLocation(state, equipee[0], seeker, location, atTime);
-        _requireEquipeeLocation(state, equipee[1], seeker, location, atTime);
+
+        // todo we need to check locations because this allows us to teleport
+        // materials around the world
+        // temporarily switching this off to allow moving items in and out of building bags
+        //_requireEquipeeLocation(state, equipee[1], seeker, location, atTime);
 
         // get the things from equipSlots
         bytes24[2] memory bags =
@@ -65,6 +82,54 @@ contract InventoryRule is Rule {
         // check the things are bags
         _requireIsBag(bags[0]);
         _requireIsBag(bags[1]);
+
+        // check that the source bag is either owned by the player or nobody
+        _requireCanUseBag(state, bags[0], player);
+
+        // perform transfer between item slots
+        _transferBalance(state, bags[0], itemSlot[0], bags[1], itemSlot[1], qty);
+    }
+
+    function _transferItemAndGenerouslyCreateMissingBag(
+        State state,
+        uint64 atTime,
+        bytes24 player,
+        bytes24 seeker,
+        bytes24[2] memory equipee,
+        uint8[2] memory equipSlot,
+        uint8[2] memory itemSlot,
+        bytes24 toBagId,
+        uint64 qty
+    ) private {
+        // check that seeker performing action is owned by player
+        _requirePlayerOwnedSeeker(state, seeker, player);
+
+        // get acting seeker location
+        bytes24 location = state.getCurrentLocation(seeker, atTime);
+
+        // check equipees are either the acting seeker
+        // or at the same location as the acting seeker
+        _requireEquipeeLocation(state, equipee[0], seeker, location, atTime);
+
+        // TODO we need to decide if we are allowing building next to us
+        // or check we are adjacent
+        //_requireEquipeeLocation(state, equipee[1], seeker, location, atTime);
+
+        // get the things from equipSlots
+        bytes24[2] memory bags =
+            [state.getEquipSlot(equipee[0], equipSlot[0]), state.getEquipSlot(equipee[1], equipSlot[1])];
+
+        // check the things are bags
+        _requireIsBag(bags[0]);
+
+        // create our bag if we need to or check our bag is valid
+        if (bags[1] == 0) {
+            bags[1] = toBagId;
+            state.setEquipSlot(equipee[1], equipSlot[1], bags[1]);
+        }
+        else if (bytes4(bags[1]) != Kind.Bag.selector) {
+            revert NoTransferEquipItemIsNotBag();
+        }
 
         // check that the source bag is either owned by the player or nobody
         _requireCanUseBag(state, bags[0], player);
@@ -105,8 +170,16 @@ contract InventoryRule is Rule {
             }
         } else if (bytes4(equipee) == Kind.Building.selector) {
             // attached to a building with a fixed location
-            bytes24 buildingLocation = state.getFixedLocation(equipee);
-            if (location != buildingLocation) {
+            // bytes24 buildingLocation = state.getFixedLocation(equipee);
+
+            // if masked location != masked equipee
+            // mask out first 4 bytes by shifting and then truncating
+            // building instance IDs are based on the tile coords
+            // so we can use this to compare the locations
+            uint160 maskedLocation = uint160(uint256(uint192(location)) << 32);
+            uint160 maskedEquipee = uint160(uint256(uint192(equipee)) << 32);
+
+            if (maskedLocation != maskedEquipee) {
                 revert NoTransferNotSameLocation();
             }
         } else if (bytes4(equipee) == Kind.Seeker.selector) {

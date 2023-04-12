@@ -278,6 +278,63 @@ contract InventoryRuleTest is Test {
         assertEq(toBalanceAfter, 50, "expected seeker1-equip1-bag-item0 balance to increase to 50 after xfer");
     }
 
+    function testTransferItemBetweenEquipeeAndMissingBag() public {
+        bytes24 seeker = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
+        bytes24 fromEquipee = seeker;
+        //console2.log("from equipee", uint160(bytes20(uint160(uint256(uint192(fromEquipee)) << 32))));
+
+        // equip two bags to seeker
+        bytes24 fromBag = _spawnBagWithWood(1, aliceAccount, fromEquipee, EQUIP_SLOT_0);
+
+        bytes24 buildingInstance = Node.Building(0, 0, 0, 0);
+        bytes24 toBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
+        bytes24 toEquipee = buildingInstance;
+        //console2.log("to equipee", uint160(bytes20(uint160(uint256(uint192(toEquipee)) << 32))));
+
+        // confirm bag1 has 100 wood
+        (bytes24 fromResourceBefore, uint64 fromBalanceBefore) = state.getItemSlot(fromBag, ITEM_SLOT_0);
+        (bytes24 toResourceBefore, uint64 toBalanceBefore) = state.getItemSlot(toBag, ITEM_SLOT_0);
+        assertEq(
+            fromResourceBefore,
+            Node.Resource(ResourceKind.WOOD),
+            "expected seeker1-equip0-bag-item0 (from) resource to be wood before xfer"
+        );
+        assertEq(toResourceBefore, 0x0, "expected seeker1-equip1-bag-item0 (to) resource to be unset before xfer");
+        assertEq(fromBalanceBefore, 100, "expected seeker1-equip1-bag-item0 balance to be 100 before xfer");
+        assertEq(toBalanceBefore, 0, "expected seeker1-equip1-bag-item0 balance to be 0 before xfer");
+
+        uint8[2] memory equipSlots = [EQUIP_SLOT_0, EQUIP_SLOT_1];
+        uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
+
+        // perform xfer as alice
+        vm.startPrank(aliceAccount);
+        _transferItemToBag(
+            seeker,
+            [fromEquipee, toEquipee], // where are bags equipt
+            equipSlots, // which equipment slots
+            itemSlots, // item slots
+            toBag,
+            50 // amount to xfer
+        );
+        vm.stopPrank();
+
+        // confirm bag2 has 50 wood after xfer
+        (bytes24 fromResourceAfter, uint64 fromBalanceAfter) = state.getItemSlot(fromBag, itemSlots[0]);
+        (bytes24 toResourceAfter, uint64 toBalanceAfter) = state.getItemSlot(toBag, itemSlots[1]);
+        assertEq(
+            fromResourceAfter,
+            Node.Resource(ResourceKind.WOOD),
+            "expected seeker1-equip0-bag-item0 resource to be wood after xfer"
+        );
+        assertEq(
+            toResourceAfter,
+            Node.Resource(ResourceKind.WOOD),
+            "expected seeker1-equip1-bag-item0 resource to be wood after xfer"
+        );
+        assertEq(fromBalanceAfter, 50, "expected seeker1-equip1-bag-item0 balance to decrease to 50 after xfer");
+        assertEq(toBalanceAfter, 50, "expected seeker1-equip1-bag-item0 balance to increase to 50 after xfer");
+    }
+
     function _transferItem(
         bytes24 seeker,
         bytes24[2] memory equipees,
@@ -287,6 +344,19 @@ contract InventoryRuleTest is Test {
     ) private {
         dispatcher.dispatch(
             abi.encodeCall(Actions.TRANSFER_ITEM_SEEKER, (seeker, equipees, equipSlots, itemSlots, qty))
+        );
+    }
+
+    function _transferItemToBag(
+        bytes24 seeker,
+        bytes24[2] memory equipees,
+        uint8[2] memory equipSlots,
+        uint8[2] memory itemSlots,
+        bytes24 bag,
+        uint64 qty
+    ) private {
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.TRANSFER_ITEM_BAG, (seeker, equipees, equipSlots, itemSlots, bag, qty))
         );
     }
 

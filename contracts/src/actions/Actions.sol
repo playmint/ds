@@ -28,6 +28,19 @@ interface Actions {
         uint64 qty
     ) external;
 
+    // Transfer qty of items from an equiped item slot to a bag
+    // if the bag doesn't exist it is created
+    // bags must be at same location as seeker
+    // bags must either be owned by seeker or owned by nobody
+    function TRANSFER_ITEM_BAG(
+        bytes24 seeker,
+        bytes24[2] calldata equipees,
+        uint8[2] calldata equipSlots,
+        uint8[2] calldata itemSlots,
+        bytes24 toBagId,
+        uint64 qty
+    ) external;
+
     // register an external contract as possible building
     function REGISTER_BUILDING_KIND(bytes24 buildingKind, string calldata name) external;
 

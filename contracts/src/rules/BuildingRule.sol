@@ -175,7 +175,8 @@ contract BuildingRule is Rule {
         bytes24 bag = state.getEquipSlot(resourceFromEquipee, resourceFromEquipSlot);
         // check the seeker can use this bag
         _requireCanUseBag(state, bag, Node.Player(ctx.sender));
-        _requireEquipeeLocation(state, resourceFromEquipee, seeker, seekerTile, ctx.clock);
+        // todo we need to put this back and allow payment from the building bag
+        //_requireEquipeeLocation(state, resourceFromEquipee, seeker, seekerTile, ctx.clock);
         // check we meet the building requirements
         (bytes24 resource, uint64 balance) = state.getItemSlot(bag, resourceFromItemSlot);
         if (balance < BUILDING_COST) {
