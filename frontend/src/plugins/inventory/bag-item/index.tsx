@@ -63,7 +63,7 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
             onClick={handleClick}
             isPickable={isPickable}
             isInteractable={isInteractable}
-            title={name}
+            title={`${quantity} ${name}`}
         >
             {isPending && <span className="spinner" />}
             <img src={icon} alt={name} className="icon" />

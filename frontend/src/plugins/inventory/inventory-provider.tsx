@@ -4,6 +4,7 @@ import { Tile, usePlayer, useSelection, useWorld } from '@dawnseekers/core';
 import { createContext, ReactNode, RefObject, useContext, useEffect, useReducer, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useClickOutside } from '@app/plugins/inventory/use-click-outside';
+import { nullBagId } from '@app/fixtures/null-bag-id';
 
 export interface InventoryContextProviderProps {
     children?: ReactNode;
@@ -245,30 +246,17 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
 
         const id = setTimeout(() => {
             // make our dispatch
-            if (bagId) {
-                player.dispatch({
-                    name: 'TRANSFER_ITEM_BAG',
-                    args: [
-                        selectedSeeker.id,
-                        [from.id, to.id],
-                        [from.equipIndex, to.equipIndex],
-                        [from.slotKey, to.slotKey],
-                        bagId,
-                        quantity
-                    ]
-                });
-            } else {
-                player.dispatch({
-                    name: 'TRANSFER_ITEM_SEEKER',
-                    args: [
-                        selectedSeeker.id,
-                        [from.id, to.id],
-                        [from.equipIndex, to.equipIndex],
-                        [from.slotKey, to.slotKey],
-                        quantity
-                    ]
-                });
-            }
+            player.dispatch({
+                name: 'TRANSFER_ITEM_SEEKER',
+                args: [
+                    selectedSeeker.id,
+                    [from.id, to.id],
+                    [from.equipIndex, to.equipIndex],
+                    [from.slotKey, to.slotKey],
+                    bagId || nullBagId,
+                    quantity
+                ]
+            });
 
             // clean up our queue
             const queuedTransferIndex = transferQueue.current.findIndex(({ timeoutId }) => timeoutId === id);

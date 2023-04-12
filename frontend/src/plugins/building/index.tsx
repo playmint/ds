@@ -20,9 +20,9 @@ import { AbiCoder, ethers } from 'ethers';
 import React, { Fragment, FunctionComponent, useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { styles } from './building.styles';
-import { CraftingBagSlot } from '@app/plugins/building/crafting-bag-slot';
 import { resourceIds } from '@app/plugins/inventory/helpers';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
+import { BagSlot } from '@app/plugins/inventory/bag-slot';
 
 export interface BuildingProps extends ComponentProps {}
 
@@ -217,7 +217,7 @@ const ConstructAvailable: FunctionComponent<ConstructAvailableProps> = ({ tile, 
                 <ul ref={slotsRef} className="ingredients">
                     <li>
                         {/*// todo figure out if we are pending a resource transfer*/}
-                        <CraftingBagSlot
+                        <BagSlot
                             itemSlot={slot}
                             ownerId={buildingId}
                             bagId={bagId}
@@ -227,7 +227,7 @@ const ConstructAvailable: FunctionComponent<ConstructAvailableProps> = ({ tile, 
                                 key: 0,
                                 balance: 100,
                                 item: {
-                                    id: resourceIds.wood,
+                                    id: resourceIds.unknown,
                                     kind: 'Resource'
                                 }
                             }}

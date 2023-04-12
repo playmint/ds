@@ -25,18 +25,6 @@ interface Actions {
         bytes24[2] calldata equipees,
         uint8[2] calldata equipSlots,
         uint8[2] calldata itemSlots,
-        uint64 qty
-    ) external;
-
-    // Transfer qty of items from an equiped item slot to a bag
-    // if the bag doesn't exist it is created
-    // bags must be at same location as seeker
-    // bags must either be owned by seeker or owned by nobody
-    function TRANSFER_ITEM_BAG(
-        bytes24 seeker,
-        bytes24[2] calldata equipees,
-        uint8[2] calldata equipSlots,
-        uint8[2] calldata itemSlots,
         bytes24 toBagId,
         uint64 qty
     ) external;
@@ -62,9 +50,6 @@ interface Actions {
     function CONSTRUCT_BUILDING_SEEKER(
         bytes24 seeker, // which seeker is performing the construction
         bytes24 buildingKind, // what kind of building
-        bytes24 resourceFromEquipee, // paying from bag equip here
-        uint8 resourceFromEquipSlot, // ....from this equip slot
-        uint8 resourceFromItemSlot, // ....from this item slot
         int16 q,
         int16 r,
         int16 s // which tile to create on (can be adjacent)

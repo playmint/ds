@@ -45,25 +45,13 @@ contract BuildingRule is Rule {
             (
                 bytes24 seeker, // which seeker is performing the construction
                 bytes24 buildingKind, // what kind of building
-                bytes24 resourceFromEquipee, // paying from bag equip here
-                uint8 resourceFromEquipSlot, // ....from this equip slot
-                uint8 resourceFromItemSlot, // ....from this item slot
                 int16[3] memory coords
-            ) = abi.decode(action[4:], (bytes24, bytes24, bytes24, uint8, uint8, int16[3]));
+            ) = abi.decode(action[4:], (bytes24, bytes24, int16[3]));
             // player must own seeker
             if (state.getOwner(seeker) != Node.Player(ctx.sender)) {
                 revert SeekerNotOwnedByPlayer();
             }
-            _constructBuilding(
-                state,
-                ctx,
-                seeker,
-                buildingKind,
-                resourceFromEquipee,
-                resourceFromEquipSlot,
-                resourceFromItemSlot,
-                coords
-            );
+            _constructBuilding(state, ctx, seeker, buildingKind, coords);
         } else if (bytes4(action) == Actions.BUILDING_USE.selector) {
             (bytes24 buildingInstance, bytes24 seekerID, bytes memory payload) =
                 abi.decode(action[4:], (bytes24, bytes24, bytes));
@@ -130,9 +118,6 @@ contract BuildingRule is Rule {
         Context calldata ctx,
         bytes24 seeker,
         bytes24 buildingKind,
-        bytes24 resourceFromEquipee,
-        uint8 resourceFromEquipSlot,
-        uint8 resourceFromItemSlot,
         int16[3] memory coords
     ) private {
         // get seeker location
@@ -143,40 +128,30 @@ contract BuildingRule is Rule {
             revert BuildingMustBeAdjacentToSeeker();
         }
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, coords[0], coords[1], coords[2]);
+        uint8 resourceFromEquipSlot = 0;
+        uint8 resourceFromItemSlot = 0;
         // burn resources from given slot
         // [!] for now we are hard coding a fee of "100 of any resource"
-        _payConstructionFee(
-            state, ctx, seeker, resourceFromEquipee, resourceFromEquipSlot, resourceFromItemSlot, seekerTile
-        );
+        _payConstructionFee(state, ctx, buildingInstance, resourceFromEquipSlot, resourceFromItemSlot);
         // set type of building
         state.setBuildingKind(buildingInstance, buildingKind);
         // set building owner to player who created it
         state.setOwner(buildingInstance, Node.Player(ctx.sender));
         // set building location
         state.setFixedLocation(buildingInstance, targetTile);
-        // every building gets a bag (owned by the BuildingKind)
-        // TODO: this bagID will clash one day and it will be weird, reserve
-        // some id space? allow equip directly on things other than bags?
-        bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
-        state.setOwner(bag, buildingKind);
-        state.setEquipSlot(buildingInstance, 0, bag);
     }
 
     function _payConstructionFee(
         State state,
         Context calldata ctx,
-        bytes24 seeker,
         bytes24 resourceFromEquipee,
         uint8 resourceFromEquipSlot,
-        uint8 resourceFromItemSlot,
-        bytes24 seekerTile
+        uint8 resourceFromItemSlot
     ) private {
         // fetch the bag being used to pay
         bytes24 bag = state.getEquipSlot(resourceFromEquipee, resourceFromEquipSlot);
         // check the seeker can use this bag
         _requireCanUseBag(state, bag, Node.Player(ctx.sender));
-        // todo we need to put this back and allow payment from the building bag
-        //_requireEquipeeLocation(state, resourceFromEquipee, seeker, seekerTile, ctx.clock);
         // check we meet the building requirements
         (bytes24 resource, uint64 balance) = state.getItemSlot(bag, resourceFromItemSlot);
         if (balance < BUILDING_COST) {

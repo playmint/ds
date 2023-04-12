@@ -84,7 +84,7 @@ contract InventoryRuleTest is Test {
 
     function testTransferItemFailNotSameLocationSeeker() public {
         bytes24 seeker1 = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
-        bytes24 seeker2 = _spawnSeeker(aliceAccount, 2, 0, 1, -1);
+        bytes24 seeker2 = _spawnSeeker(aliceAccount, 2, 0, 3, -1);
         _testTransferItemFailBetweenEquipees(
             aliceAccount, // send as a stranger
             seeker1, // seeker perfoming the action
@@ -96,7 +96,7 @@ contract InventoryRuleTest is Test {
 
     function testTransferItemFailNotSameLocationTile() public {
         bytes24 seeker1 = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
-        bytes24 tile = Node.Tile(DEFAULT_ZONE, 0, 1, -1);
+        bytes24 tile = Node.Tile(DEFAULT_ZONE, 0, 3, -1);
         _testTransferItemFailBetweenEquipees(
             aliceAccount, // send as a stranger
             seeker1, // seeker perfoming the action
@@ -128,6 +128,7 @@ contract InventoryRuleTest is Test {
             [seekerStranger, seekerAlice], // where are bags equipt
             equipSlots, // which equipment slots
             itemSlots, // item slots
+            0,
             50 // amount to xfer
         );
         vm.stopPrank();
@@ -148,6 +149,7 @@ contract InventoryRuleTest is Test {
             [seeker, seeker], // where are bags equipt
             equipSlots, // which equipment slots
             itemSlots, // item slots
+            0,
             50 // amount to xfer
         );
         vm.stopPrank();
@@ -168,6 +170,7 @@ contract InventoryRuleTest is Test {
             [seeker, seeker], // where are bags equipt
             equipSlots, // which equipment slots
             itemSlots, // item slots
+            0,
             50 // amount to xfer
         );
         vm.stopPrank();
@@ -188,6 +191,7 @@ contract InventoryRuleTest is Test {
             [seeker, seeker], // where are bags equipt
             equipSlots, // which equipment slots
             itemSlots, // item slots
+            0,
             999 // way too much
         );
         vm.stopPrank();
@@ -226,6 +230,7 @@ contract InventoryRuleTest is Test {
             [fromEquipee, toEquipee], // where are bags equipt
             equipSlots, // which equipment slots
             itemSlots, // item slots
+            0,
             50 // amount to xfer
         );
         vm.stopPrank();
@@ -257,6 +262,7 @@ contract InventoryRuleTest is Test {
             [fromEquipee, toEquipee], // where are bags equipt
             equipSlots, // which equipment slots
             itemSlots, // item slots
+            0,
             50 // amount to xfer
         );
         vm.stopPrank();
@@ -281,7 +287,6 @@ contract InventoryRuleTest is Test {
     function testTransferItemBetweenEquipeeAndMissingBag() public {
         bytes24 seeker = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
         bytes24 fromEquipee = seeker;
-        //console2.log("from equipee", uint160(bytes20(uint160(uint256(uint192(fromEquipee)) << 32))));
 
         // equip two bags to seeker
         bytes24 fromBag = _spawnBagWithWood(1, aliceAccount, fromEquipee, EQUIP_SLOT_0);
@@ -289,7 +294,6 @@ contract InventoryRuleTest is Test {
         bytes24 buildingInstance = Node.Building(0, 0, 0, 0);
         bytes24 toBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
         bytes24 toEquipee = buildingInstance;
-        //console2.log("to equipee", uint160(bytes20(uint160(uint256(uint192(toEquipee)) << 32))));
 
         // confirm bag1 has 100 wood
         (bytes24 fromResourceBefore, uint64 fromBalanceBefore) = state.getItemSlot(fromBag, ITEM_SLOT_0);
@@ -308,7 +312,7 @@ contract InventoryRuleTest is Test {
 
         // perform xfer as alice
         vm.startPrank(aliceAccount);
-        _transferItemToBag(
+        _transferItem(
             seeker,
             [fromEquipee, toEquipee], // where are bags equipt
             equipSlots, // which equipment slots
@@ -340,23 +344,11 @@ contract InventoryRuleTest is Test {
         bytes24[2] memory equipees,
         uint8[2] memory equipSlots,
         uint8[2] memory itemSlots,
+        bytes24 bagID,
         uint64 qty
     ) private {
         dispatcher.dispatch(
-            abi.encodeCall(Actions.TRANSFER_ITEM_SEEKER, (seeker, equipees, equipSlots, itemSlots, qty))
-        );
-    }
-
-    function _transferItemToBag(
-        bytes24 seeker,
-        bytes24[2] memory equipees,
-        uint8[2] memory equipSlots,
-        uint8[2] memory itemSlots,
-        bytes24 bag,
-        uint64 qty
-    ) private {
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.TRANSFER_ITEM_BAG, (seeker, equipees, equipSlots, itemSlots, bag, qty))
+            abi.encodeCall(Actions.TRANSFER_ITEM_SEEKER, (seeker, equipees, equipSlots, itemSlots, bagID, qty))
         );
     }
 
