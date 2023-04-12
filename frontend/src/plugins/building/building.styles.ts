@@ -29,6 +29,17 @@ const baseStyles = (_: Partial<BuildingProps>) => css`
         padding: 0 !important;
         border-bottom: 0 !important;
     }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.2rem;
+
+        .ingredients {
+            margin: 0 auto;
+        }
+    }
 `;
 
 /**

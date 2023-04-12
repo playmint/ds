@@ -79,7 +79,7 @@ function getUnscoutedNeighbours(tiles: WorldTileFragment[], t: WorldTileFragment
     ].filter((t): t is WorldTileFragment => !!t);
 }
 
-function getCoords({ coords }) {
+export function getCoords({ coords }) {
     return {
         q: Number(ethers.fromTwos(coords[1], 16)),
         r: Number(ethers.fromTwos(coords[2], 16)),

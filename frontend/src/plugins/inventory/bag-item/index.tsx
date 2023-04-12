@@ -15,8 +15,8 @@ export interface BagItemProps extends ComponentProps {
     slotKey: number;
     itemId: string;
     itemKind: string;
-    isInteractable: boolean;
-    isPending: boolean;
+    isInteractable?: boolean;
+    isPending?: boolean;
 }
 
 const StyledBagItem = styled('div')`

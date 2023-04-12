@@ -29,8 +29,16 @@ interface InventoryContextStore {
     isPickedUpItemVisible: boolean;
     pickedUpItem: InventoryItem | null;
     pickUpItem: (item: InventoryItem) => void;
-    dropStack: (target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotKey'>, targetCurrentBalance: number) => void;
-    dropSingle: (target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotKey'>, targetCurrentBalance: number) => void;
+    dropStack: (
+        target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotKey'>,
+        targetCurrentBalance: number,
+        bagId?: string
+    ) => void;
+    dropSingle: (
+        target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotKey'>,
+        targetCurrentBalance: number,
+        bagId?: string
+    ) => void;
     isSeekerAtLocation: (tile: Tile) => boolean;
     getPendingFromTransfers: (ownerId: string, equipIndex: number) => [TransferInfo, TransferInfo][];
     getPendingToTransfers: (ownerId: string, equipIndex: number) => [TransferInfo, TransferInfo][];
@@ -90,7 +98,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
     }, []);
 
     useEffect(() => {
-        const owners = [...(player?.seekers ?? []), ...(selectedTiles ?? [])];
+        const owners = [...(player?.seekers ?? []), ...(selectedTiles ?? []), ...(world?.buildings ?? [])];
 
         updatePendingTransfers((pending) => {
             pending = pending.filter(([_, to]) => {
@@ -111,7 +119,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
             });
             return pending;
         });
-    }, [player, selectedTiles, world?.block]);
+    }, [player, selectedTiles, world?.block, world?.buildings]);
 
     /**
      * check if the selected seeker is on the selected tile
@@ -133,7 +141,8 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
 
     const dropStack = (
         target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotKey'>,
-        targetCurrentBalance: number
+        targetCurrentBalance: number,
+        bagId?: string
     ): void => {
         if (!pickedUpItemRef.current) {
             console.error('Cannot drop an item, you are not holding an item');
@@ -152,7 +161,8 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
                 itemId: pickedUpItemRef.current.transferInfo.itemId,
                 itemKind: pickedUpItemRef.current.transferInfo.itemKind
             },
-            transferQuantity
+            transferQuantity,
+            bagId
         );
         clearPickedUpItem();
     };
@@ -162,7 +172,8 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
 
     const dropSingle = (
         target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotKey'>,
-        targetCurrentBalance: number
+        targetCurrentBalance: number,
+        bagId?: string
     ): void => {
         if (!pickedUpItemRef.current) {
             console.error('Cannot drop an item, you are not holding an item');
@@ -181,7 +192,8 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
                 itemId: pickedUpItemRef.current.transferInfo.itemId,
                 itemKind: pickedUpItemRef.current.transferInfo.itemKind
             },
-            transferQuantity
+            transferQuantity,
+            bagId
         );
 
         pickedUpItemRef.current.quantity -= transferQuantity;
@@ -202,7 +214,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         return a.id === b.id && a.equipIndex === b.equipIndex && a.slotKey === b.slotKey;
     };
 
-    const transferItem = (from: TransferInfo, to: TransferInfo, quantity: number) => {
+    const transferItem = (from: TransferInfo, to: TransferInfo, quantity: number, bagId?: string) => {
         if (isTransferInfoEqual(from, to)) {
             return;
         }
@@ -233,16 +245,30 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
 
         const id = setTimeout(() => {
             // make our dispatch
-            player.dispatch({
-                name: 'TRANSFER_ITEM_SEEKER',
-                args: [
-                    selectedSeeker.id,
-                    [from.id, to.id],
-                    [from.equipIndex, to.equipIndex],
-                    [from.slotKey, to.slotKey],
-                    quantity
-                ]
-            });
+            if (bagId) {
+                player.dispatch({
+                    name: 'TRANSFER_ITEM_BAG',
+                    args: [
+                        selectedSeeker.id,
+                        [from.id, to.id],
+                        [from.equipIndex, to.equipIndex],
+                        [from.slotKey, to.slotKey],
+                        bagId,
+                        quantity
+                    ]
+                });
+            } else {
+                player.dispatch({
+                    name: 'TRANSFER_ITEM_SEEKER',
+                    args: [
+                        selectedSeeker.id,
+                        [from.id, to.id],
+                        [from.equipIndex, to.equipIndex],
+                        [from.slotKey, to.slotKey],
+                        quantity
+                    ]
+                });
+            }
 
             // clean up our queue
             const queuedTransferIndex = transferQueue.current.findIndex(({ timeoutId }) => timeoutId === id);
