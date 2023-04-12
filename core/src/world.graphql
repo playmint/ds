@@ -41,6 +41,9 @@ fragment WorldBuilding on Node {
             value
         }
     }
+    bags: edges(match: { kinds: "Bag", via: { rel: "Equip" } }) {
+        ...EquipmentSlot
+    }
 }
 
 fragment WorldTile on Node {
@@ -78,6 +81,9 @@ fragment WorldState on State {
     }
     tiles: nodes(match: { kinds: "Tile" }) {
         ...WorldTile
+    }
+    buildings: nodes(match: { kinds: "Building" }) {
+        ...WorldBuilding
     }
 }
 
