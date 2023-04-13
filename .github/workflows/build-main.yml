@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - homestar-runner
 
 jobs:
 

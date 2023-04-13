@@ -194,50 +194,50 @@ jobs:
             VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
             REVISION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
 
-  deploy:
-    name: Deploy
-    runs-on: [self-hosted]
-    needs:
-    - frontend
-    - contracts
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v1
-    - name: Update deployment status
-      uses: bobheadxi/deployments@v0.6.2
-      id: deployment
-      with:
-        step: start
-        token: ${{ secrets.GITHUB_TOKEN }}
-        env: ${{ inputs.DEPLOYMENT_ENVIRONMENT }}
-        ref: ${{ github.head_ref }}
-    - name: Authenticate to Azure Container Service
-      uses: azure/aks-set-context@v1
-      with:
-        creds: '${{ secrets.AZURE_CREDENTIALS }}'
-        cluster-name: ${{ secrets.AZURE_CLUSTER_NAME }}
-        resource-group: ${{ secrets.AZURE_CLUSTER_RESOURCE_GROUP }}
-    - name: Prepare helm
-      uses: azure/setup-helm@v3
-      with:
-        version: '3.7.2'
-    - name: Deploy to Azure
-      env:
-        CHART_VERSION: ${{ github.sha }}
-        CHART_NAMESPACE: ds-${{ inputs.DEPLOYMENT_ENVIRONMENT }}
-        CHART_VALUES: |-
-          cluster:
-            domain: dev.playmint.com
-          version: ${{ github.sha }}
-      run: |
-        echo "${CHART_VALUES}" > /tmp/values.yaml
-        helm upgrade --timeout "30m" --history-max 5 --install --wait ${CHART_NAMESPACE} ./chart --values /tmp/values.yaml --create-namespace -n "${CHART_NAMESPACE}"
-    - name: Update deployment status
-      uses: bobheadxi/deployments@v0.6.2
-      if: always()
-      with:
-        step: finish
-        token: ${{ secrets.GITHUB_TOKEN }}
-        env_url: https://frontend-ds-${{ inputs.DEPLOYMENT_ENVIRONMENT }}.dev.playmint.com/
-        status: ${{ job.status }}
-        deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+  # deploy:
+  #   name: Deploy
+  #   runs-on: [self-hosted]
+  #   needs:
+  #   - frontend
+  #   - contracts
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v1
+  #   - name: Update deployment status
+  #     uses: bobheadxi/deployments@v0.6.2
+  #     id: deployment
+  #     with:
+  #       step: start
+  #       token: ${{ secrets.GITHUB_TOKEN }}
+  #       env: ${{ inputs.DEPLOYMENT_ENVIRONMENT }}
+  #       ref: ${{ github.head_ref }}
+  #   - name: Authenticate to Azure Container Service
+  #     uses: azure/aks-set-context@v1
+  #     with:
+  #       creds: '${{ secrets.AZURE_CREDENTIALS }}'
+  #       cluster-name: ${{ secrets.AZURE_CLUSTER_NAME }}
+  #       resource-group: ${{ secrets.AZURE_CLUSTER_RESOURCE_GROUP }}
+  #   - name: Prepare helm
+  #     uses: azure/setup-helm@v3
+  #     with:
+  #       version: '3.7.2'
+  #   - name: Deploy to Azure
+  #     env:
+  #       CHART_VERSION: ${{ github.sha }}
+  #       CHART_NAMESPACE: ds-${{ inputs.DEPLOYMENT_ENVIRONMENT }}
+  #       CHART_VALUES: |-
+  #         cluster:
+  #           domain: dev.playmint.com
+  #         version: ${{ github.sha }}
+  #     run: |
+  #       echo "${CHART_VALUES}" > /tmp/values.yaml
+  #       helm upgrade --timeout "30m" --history-max 5 --install --wait ${CHART_NAMESPACE} ./chart --values /tmp/values.yaml --create-namespace -n "${CHART_NAMESPACE}"
+  #   - name: Update deployment status
+  #     uses: bobheadxi/deployments@v0.6.2
+  #     if: always()
+  #     with:
+  #       step: finish
+  #       token: ${{ secrets.GITHUB_TOKEN }}
+  #       env_url: https://frontend-ds-${{ inputs.DEPLOYMENT_ENVIRONMENT }}.dev.playmint.com/
+  #       status: ${{ job.status }}
+  #       deployment_id: ${{ steps.deployment.outputs.deployment_id }}
