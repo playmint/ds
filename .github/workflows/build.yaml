@@ -95,6 +95,7 @@ jobs:
         projectPath: DawnSeekersUnity
         buildMethod: BuildScript.GitHubBuild
         allowDirtyBuild: true # allows for use of LFS cache
+        chownFilesTo: "1000:1000"
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
       with:
