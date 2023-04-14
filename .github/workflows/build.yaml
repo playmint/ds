@@ -75,6 +75,7 @@ jobs:
     #     key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
     - name: Git LFS Pull
       run: |
+        git config --global --add safe.directory '*'
         git lfs pull
     # - name: Restore Library cache
     #   uses: actions/cache@v2
