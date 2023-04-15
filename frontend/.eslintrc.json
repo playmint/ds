@@ -24,6 +24,15 @@
     "react/display-name": "off",
     "react/react-in-jsx-scope": "off",
     "@next/next/no-img-element": "off"
-  }
+  },
+  "overrides": [
+      {
+          "files": ["src/components/organisms/r3f-map/*.tsx"], // Or *.test.js
+          "rules": {
+              "react/no-unknown-property": "off",
+              "require-jsdoc": "off"
+          }
+      }
+  ]
 }
 

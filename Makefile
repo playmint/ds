@@ -19,7 +19,7 @@ CORE_SRC := $(shell find core/src)
 
 # paths to tools
 NODE := node
-NPM := npm
+NPM := pnpm
 
 all: node_modules contracts/lib/cog/services/bin/ds-node contracts/out/Actions.sol/Actions.json core/dist/core.js frontend/public/ds-unity/Build/ds-unity.wasm bridge/dist/index.js
 
@@ -36,10 +36,10 @@ contracts/out/Actions.sol/Actions.json:
 	(cd contracts && forge build)
 
 core/dist/core.js: $(CORE_SRC)
-	(cd core && npm run build)
+	(cd core && $(NPM) run build)
 
 bridge/dist/index.js: core/dist/core.js bridge/src/index.ts
-	(cd bridge && npm run build)
+	(cd bridge && $(NPM) run build)
 
 frontend/public/ds-unity/Build/ds-unity.wasm:
 	$(MAKE) map
