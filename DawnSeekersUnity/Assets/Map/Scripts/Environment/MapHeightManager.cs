@@ -5,9 +5,13 @@ using UnityEngine;
 public class MapHeightManager : MonoBehaviour
 {
     public static MapHeightManager instance;
+    public const float UNSCOUTED_HEIGHT = 0.35f;
 
     [SerializeField]
     float heightScale = 1;
+
+    [SerializeField]
+    float heightOffset = 0.25f;
 
     [SerializeField]
     float heightFrequency = 0.25f;
@@ -31,12 +35,12 @@ public class MapHeightManager : MonoBehaviour
 
     public float GetHeightAtPosition(Vector3 position)
     {
-        return Mathf.PerlinNoise(position.x * heightFrequency, position.y * heightFrequency);
+        return heightOffset + (Mathf.PerlinNoise(position.x * heightFrequency, position.y * heightFrequency) * heightScale);
     }
 
     public Vector3 GetHeightOffsetAtPosition(Vector3 position)
     {
         return Vector3.forward
-            * Mathf.PerlinNoise(position.x * heightFrequency, position.y * heightFrequency);
+            * GetHeightAtPosition(position);
     }
 }

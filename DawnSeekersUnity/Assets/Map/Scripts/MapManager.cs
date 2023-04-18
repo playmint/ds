@@ -1,13 +1,11 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class MapManager : MonoBehaviour
 {
     public static MapManager instance;
-
-    //public static bool isMakingMove;
-
     public struct MapCell
     {
         public Vector3Int cubicCoords;
@@ -18,11 +16,7 @@ public class MapManager : MonoBehaviour
 
     public Grid grid;
 
-    [SerializeField]
-    private Tilemap _tilemap;
-
-    [SerializeField]
-    private Tile[] _tileTypes;
+    HashSet<Vector3> tilePositions = new HashSet<Vector3>();
 
     private void Awake()
     {
@@ -39,75 +33,57 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    private void Start() { }
-
-    public void ClearMap()
+    public void AddTile(Vector3Int cellCubicCoords)
     {
-        _tilemap.ClearAllTiles();
-    }
-
-    public void UpdateMap()
-    {
-        _tilemap.RefreshAllTiles();
-    }
-
-    public void AddTile(MapCell cell)
-    {
-        if (!IsTileAtPosition(cell.cubicCoords))
+        if (!IsTileAtPosition(cellCubicCoords))
         {
-            Vector3Int gridPos = GridExtensions.CubeToGrid(cell.cubicCoords);
+            tilePositions.Add(cellCubicCoords);
+
+
+            Vector3Int gridPos = GridExtensions.CubeToGrid(cellCubicCoords);
             Vector3 worldPos = grid.CellToWorld(gridPos);
-            EnvironmentLoaderManager.instance.AddTile(worldPos);
-            // Debug.Log($"MapManager::AddTile() Adding tile type: {cell.typeID} at: {cell.cubicCoords}");
-            _tilemap.SetTile(
-                gridPos
-                    - (
-                        Vector3Int.forward
-                        * (
-                            Mathf.RoundToInt(
-                                MapHeightManager.instance.GetHeightAtPosition(worldPos) * 100
-                            ) + 1
-                        )
-                    ),
-                _tileTypes[cell.typeID]
-            );
+            TileController tc = EnvironmentLoaderManager.instance.AddTile(worldPos, cellCubicCoords);
+
+            if (TileHelper.IsDiscoveredTile(cellCubicCoords))
+                tc.AppearFull();
+            else
+                tc.Appear();
+        }
+        else if(TileHelper.IsDiscoveredTile(cellCubicCoords))
+        {
+            GameObject tileGO = GameObject.Find("Tile_" + cellCubicCoords.ToString());
+            if (tileGO != null)
+            {
+                TileController tileController = tileGO.GetComponent<TileController>();
+                tileController.AppearFull();
+            }
         }
     }
 
-    public bool IsTileAtPosition(Vector3Int position)
+    public bool IsTileAtPosition(Vector3Int cubicCoords)
     {
-        TileBase tile = _tilemap.GetTile(GridExtensions.CubeToGrid(position));
-        return tile != null && tile.name.Contains("Standard");
+        return tilePositions.Contains(cubicCoords);
     }
 
     private void OnStateUpdated(Cog.GameState state)
     {
-        // Debug.Log("MapManager::RenderState()");
         IconManager.instance.ResetSeekerPositionCounts();
-        //MapManager.instance.ClearMap();
         foreach (var tile in state.World.Tiles)
         {
             var hasResource = TileHelper.HasResource(tile);
             var cellPosCube = TileHelper.GetTilePosCube(tile);
-            var cell = new MapManager.MapCell
-            {
-                cubicCoords = cellPosCube,
-                typeID = tile.Biome == 1 ? TileType.STANDARD : TileType.SCOUT,
-                iconID = GetIconID(tile), // NOTE: This and the icon code below is a bit confusing, I think we need to tidy up
-                cellName = ""
-            };
 
             if (hasResource)
-                IconManager.instance.CreateBagIcon(cell);
+                IconManager.instance.CreateBagIcon(cellPosCube);
             else
-                IconManager.instance.CheckBagIconRemoved(cell);
+                IconManager.instance.CheckBagIconRemoved(cellPosCube);
 
             if (TileHelper.HasBuilding(tile))
-                IconManager.instance.CreateBuildingIcon(cell);
+                IconManager.instance.CreateBuildingIcon(cellPosCube);
             else
-                IconManager.instance.CheckBuildingIconRemoved(cell);
+                IconManager.instance.CheckBuildingIconRemoved(cellPosCube);
 
-            MapManager.instance.AddTile(cell);
+            AddTile(cellPosCube);
 
             // Seekers
             foreach (var seeker in tile.Seekers)
@@ -115,28 +91,11 @@ public class MapManager : MonoBehaviour
                 // Don't render any of the player's seekers as the SeekerManager handles that from the player data
                 if (!SeekerHelper.IsPlayerSeeker(seeker))
                 {
-                    IconManager.instance.CreateSeekerIcon(seeker, cell, false, tile.Seekers.Count);
+                    IconManager.instance.CreateSeekerIcon(seeker, cellPosCube, false, tile.Seekers.Count);
                 }
             }
             // TODO: Call this again after we have refactored the map data to include the seeker list
             // IconManager.instance.CheckSeekerRemoved(state.Game.Seekers.ToList());
         }
-        var playerSeekerTilePos = new List<Vector3Int>();
-    }
-
-    // This is all a bit weird
-    private int GetIconID(Cog.Tiles2 tile)
-    {
-        if (TileHelper.HasResource(tile))
-        {
-            return 0;
-        }
-
-        if (TileHelper.HasBuilding(tile))
-        {
-            return 1;
-        }
-
-        return 0;
     }
 }

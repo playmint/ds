@@ -38,52 +38,52 @@ public class IconManager : MonoBehaviour
         seekerPositionCounts = new Dictionary<Vector3Int, int>();
     }
 
-    public void CreateBuildingIcon(MapManager.MapCell cell)
+    public void CreateBuildingIcon(Vector3Int cell)
     {
         IncreaseSeekerPositionCount(cell);
-        if (!spawnedBuildingIcons.ContainsKey(cell.cubicCoords))
+        if (!spawnedBuildingIcons.ContainsKey(cell))
         {
             IconController icon = Instantiate(_buildingIconPrefab, transform, true)
                 .GetComponent<IconController>();
-            spawnedBuildingIcons.Add(cell.cubicCoords, icon);
-            icon.Setup(cell, _iconList.icons[cell.iconID], cell.cellName);
+            spawnedBuildingIcons.Add(cell, icon);
+            icon.Setup(cell, _iconList.icons[1], "Building");
         }
     }
 
-    public void CreateBagIcon(MapManager.MapCell cell)
+    public void CreateBagIcon(Vector3Int cell)
     {
         IncreaseSeekerPositionCount(cell);
-        if (!spawnedBagIcons.ContainsKey(cell.cubicCoords))
+        if (!spawnedBagIcons.ContainsKey(cell))
         {
             IconController icon = Instantiate(_bagIconPrefab, transform, true)
                 .GetComponent<IconController>();
-            spawnedBagIcons.Add(cell.cubicCoords, icon);
-            icon.Setup(cell, _iconList.icons[cell.iconID], cell.cellName);
+            spawnedBagIcons.Add(cell, icon);
+            icon.Setup(cell, _iconList.icons[0], "Bag");
         }
     }
 
-    public void CheckBagIconRemoved(MapManager.MapCell cell)
+    public void CheckBagIconRemoved(Vector3Int cell)
     {
-        if (spawnedBagIcons.ContainsKey(cell.cubicCoords))
+        if (spawnedBagIcons.ContainsKey(cell))
         {
-            spawnedBagIcons[cell.cubicCoords].DestroyIcon();
-            spawnedBagIcons.Remove(cell.cubicCoords);
+            spawnedBagIcons[cell].DestroyIcon();
+            spawnedBagIcons.Remove(cell);
         }
     }
 
-    public void CheckBuildingIconRemoved(MapManager.MapCell cell)
+    public void CheckBuildingIconRemoved(Vector3Int cell)
     {
-        if (spawnedBuildingIcons.ContainsKey(cell.cubicCoords))
+        if (spawnedBuildingIcons.ContainsKey(cell))
         {
-            spawnedBuildingIcons[cell.cubicCoords].DestroyIcon();
-            spawnedBuildingIcons.Remove(cell.cubicCoords);
+            spawnedBuildingIcons[cell].DestroyIcon();
+            spawnedBuildingIcons.Remove(cell);
         }
     }
 
     // Because Seekers from the map and seekers in the player object are seen as different types I've had to overload this function
     public void CreateSeekerIcon(
         Cog.Seekers seeker,
-        MapManager.MapCell cell,
+        Vector3Int cell,
         bool isPlayer,
         int numSeekersAtPos
     )
@@ -93,7 +93,7 @@ public class IconManager : MonoBehaviour
 
     public void CreateSeekerIcon(
         Cog.Seekers3 seeker,
-        MapManager.MapCell cell,
+        Vector3Int cell,
         bool isPlayer,
         int numSeekersAtPos
     )
@@ -103,13 +103,13 @@ public class IconManager : MonoBehaviour
 
     public void CreateSeekerIcon(
         string seekerId,
-        MapManager.MapCell cell,
+        Vector3Int cell,
         bool isPlayer,
         int numSeekersAtPos
     )
     {
         IncreaseSeekerPositionCount(cell);
-        int buildingOnCell = (spawnedBuildingIcons.ContainsKey(cell.cubicCoords) ? 1 : 0);
+        int buildingOnCell = (spawnedBuildingIcons.ContainsKey(cell) ? 1 : 0);
         if (!spawnedSeekerIcons.ContainsKey(seekerId))
         {
             IconController icon;
@@ -123,7 +123,7 @@ public class IconManager : MonoBehaviour
             icon.Setup(
                 cell,
                 numSeekersAtPos + buildingOnCell,
-                seekerPositionCounts[cell.cubicCoords] - 1
+                seekerPositionCounts[cell] - 1
             );
         }
         else
@@ -131,7 +131,7 @@ public class IconManager : MonoBehaviour
             spawnedSeekerIcons[seekerId].CheckPosition(
                 cell,
                 numSeekersAtPos + buildingOnCell,
-                seekerPositionCounts[cell.cubicCoords] - 1,
+                seekerPositionCounts[cell] - 1,
                 isPlayer
             );
         }
@@ -150,12 +150,12 @@ public class IconManager : MonoBehaviour
         }
     }
 
-    private void IncreaseSeekerPositionCount(MapManager.MapCell cell)
+    private void IncreaseSeekerPositionCount(Vector3Int cell)
     {
-        if (!seekerPositionCounts.ContainsKey(cell.cubicCoords))
-            seekerPositionCounts.Add(cell.cubicCoords, 1);
+        if (!seekerPositionCounts.ContainsKey(cell))
+            seekerPositionCounts.Add(cell, 1);
         else
-            seekerPositionCounts[cell.cubicCoords]++;
+            seekerPositionCounts[cell]++;
     }
 
     public void RemoveSeekers(List<Cog.Seekers> seekers)

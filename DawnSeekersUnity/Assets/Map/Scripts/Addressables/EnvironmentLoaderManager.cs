@@ -66,9 +66,11 @@ public class EnvironmentLoaderManager : MonoBehaviour
         Debug.Log("Environment assets loaded.");
     }
 
-    public void AddTile(Vector3 position)
+    public TileController AddTile(Vector3 position, Vector3Int cellCubicCoords)
     {
         Transform tile = Instantiate(_tilePrefab, tileContainer).transform;
-        tile.position = position - MapHeightManager.instance.GetHeightOffsetAtPosition(position);
+        tile.name = "Tile_" + cellCubicCoords.ToString();
+        tile.position = new Vector3(position.x, position.y, 1) ;
+        return tile.GetComponent<TileController>();
     }
 }
