@@ -132,9 +132,9 @@ public class MapInteractionManager : MonoBehaviour
 
     private void OnStateUpdated(GameState state)
     {
+        mapReady = true;
         if (state.Selected.Tiles != null && state.Selected.Tiles.Count > 0)
         {
-            mapReady = true;
             var tile = state.Selected.Tiles.First();
             var cellPosCube = TileHelper.GetTilePosCube(tile);
             var gridCoords = GridExtensions.CubeToGrid(cellPosCube);
