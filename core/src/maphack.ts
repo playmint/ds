@@ -1,10 +1,10 @@
-import { EquipmentSlotFragment, GameState, WorldSeekerFragment, WorldTileFragment } from '@dawnseekers/core';
+import { EquipmentSlotFragment, GameState, WorldSeekerFragment, WorldTileFragment } from './index';
 import { ethers } from 'ethers';
 
 enum OldLocationKind {
     UNKNOWN,
     NEXT,
-    PREV
+    PREV,
 }
 
 export interface OldLocation {
@@ -86,14 +86,14 @@ export function dangerouslyHackStateForMap({ player, selected, world }: Partial<
         coords: {
             q: Number(ethers.fromTwos(t.coords[1], 16)),
             r: Number(ethers.fromTwos(t.coords[2], 16)),
-            s: Number(ethers.fromTwos(t.coords[3], 16))
+            s: Number(ethers.fromTwos(t.coords[3], 16)),
         },
         bags: t.bagCount > 0 ? [{ id: 'fake-equip-id', bag: { id: 'fake-bag-id', slots: [] }, key: 0 }] : [],
-        biome: t.biome || 0
+        biome: t.biome || 0,
     });
 
     const oldTilesWithoutSeekers: Omit<OldTile, 'seekers'>[] = (world?.tiles || []).map((t) => ({
-        ...toOldTile(t)
+        ...toOldTile(t),
     }));
 
     const toOldSeeker = (s: WorldSeekerFragment): OldSeeker => ({
@@ -106,27 +106,27 @@ export function dangerouslyHackStateForMap({ player, selected, world }: Partial<
             next: {
                 kind: OldLocationKind.NEXT,
                 validFrom: s.nextLocation?.time || 0,
-                tile: oldTilesWithoutSeekers.find((t) => t.id === s.nextLocation?.tile.id) || null
+                tile: oldTilesWithoutSeekers.find((t) => t.id === s.nextLocation?.tile.id) || null,
             },
             prev: {
                 kind: OldLocationKind.PREV,
                 validFrom: s.prevLocation?.time || 0,
-                tile: oldTilesWithoutSeekers.find((t) => t.id === s.prevLocation?.tile.id) || null
-            }
-        }
+                tile: oldTilesWithoutSeekers.find((t) => t.id === s.prevLocation?.tile.id) || null,
+            },
+        },
     });
 
     const oldSeekers: OldSeeker[] = (world?.tiles || []).flatMap((t) => t.seekers).map((s) => toOldSeeker(s));
 
     const oldTiles: OldTile[] = oldTilesWithoutSeekers.map((t) => ({
         ...t,
-        seekers: oldSeekers.filter((s) => s.location.next.tile?.id === t.id)
+        seekers: oldSeekers.filter((s) => s.location.next.tile?.id === t.id),
     }));
 
     const oldPlayers = (world?.players || []).map((p) => ({
         id: p.id,
         addr: p.addr,
-        seekers: oldSeekers.filter((s) => s.owner.id === p.id)
+        seekers: oldSeekers.filter((s) => s.owner.id === p.id),
     }));
 
     return {
@@ -135,14 +135,14 @@ export function dangerouslyHackStateForMap({ player, selected, world }: Partial<
                 intent,
                 player: player ? oldPlayers.find((p) => p.id == player.id) : undefined,
                 seeker: seeker ? oldSeekers.find((s) => s.id == seeker.id) : undefined,
-                tiles: (tiles || []).map((st) => oldTiles.find((t) => st.id == t.id)).filter((t): t is OldTile => !!t)
+                tiles: (tiles || []).map((st) => oldTiles.find((t) => st.id == t.id)).filter((t): t is OldTile => !!t),
             },
-            plugins: []
+            plugins: [],
         },
         game: {
             players: oldPlayers,
             seekers: oldSeekers,
-            tiles: oldTiles
-        }
+            tiles: oldTiles,
+        },
     };
 }

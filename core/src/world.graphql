@@ -61,6 +61,9 @@ fragment WorldTile on Node {
     biome: value(match: { via: { rel: "Biome" } }) # 0=UNDISCOVERED, 1=DISCOVERED
     # bags equip to tiles
     bagCount: count(match: { kinds: ["Bag"], via: { rel: "Equip" } })
+    bags: edges(match: { kinds: "Bag", via: { rel: "Equip" } }) {
+        ...EquipmentSlot
+    }
     building: node(match: { kinds: "Building", via: { rel: "Location", dir: IN } }) {
         ...WorldBuilding
     }

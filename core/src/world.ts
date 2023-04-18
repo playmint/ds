@@ -63,6 +63,7 @@ function getUnscoutedTile(tiles: WorldTileFragment[], q: number, r: number, s: n
         coords,
         bagCount: 0,
         biome: BiomeKind.UNDISCOVERED,
+        bags: [],
         seekers: [],
     };
 }
