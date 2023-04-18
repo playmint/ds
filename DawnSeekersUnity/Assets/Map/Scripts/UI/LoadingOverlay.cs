@@ -22,7 +22,7 @@ public class LoadingOverlay : MonoBehaviour
 
     private void OnStateUpdated(GameState state)
     {
-        if (_hidden)
+        if (_hidden || state.World == null || state.World.Tiles == null)
             return;
 
         //foreach (var seeker in state.Game.Seekers)
