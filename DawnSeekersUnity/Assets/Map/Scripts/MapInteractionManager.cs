@@ -26,6 +26,8 @@ public class MapInteractionManager : MonoBehaviour
     [SerializeField]
     private GameObject _intentContainerGO;
 
+    bool mapReady = false;
+
     private void Awake()
     {
         instance = this;
@@ -40,6 +42,8 @@ public class MapInteractionManager : MonoBehaviour
 
     private void Update()
     {
+        if (!mapReady)
+            return;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         RaycastHit hit;
@@ -130,6 +134,7 @@ public class MapInteractionManager : MonoBehaviour
     {
         if (state.Selected.Tiles != null && state.Selected.Tiles.Count > 0)
         {
+            mapReady = true;
             var tile = state.Selected.Tiles.First();
             var cellPosCube = TileHelper.GetTilePosCube(tile);
             var gridCoords = GridExtensions.CubeToGrid(cellPosCube);
