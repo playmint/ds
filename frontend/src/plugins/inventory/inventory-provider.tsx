@@ -38,7 +38,7 @@ interface InventoryContextStore {
     removeBagRef: (ref: RefObject<HTMLElement>) => void;
 }
 
-const useInventoryContext = createContext<InventoryContextStore>({} as InventoryContextStore);
+export const useInventoryContext = createContext<InventoryContextStore>({} as InventoryContextStore);
 
 export const useInventory = (): InventoryContextStore => {
     const inventoryContext = useContext(useInventoryContext);
@@ -300,7 +300,8 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
                         top: '0',
                         left: '0',
                         transform: 'translate(-50%, -50%)',
-                        pointerEvents: 'none'
+                        pointerEvents: 'none',
+                        zIndex: '2147483647'
                     }}
                 >
                     <StyledPickedUpItem isPickable={false}>

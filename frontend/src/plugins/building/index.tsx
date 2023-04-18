@@ -3,6 +3,7 @@ import { TileAction } from '@app/components/organisms/tile-action';
 import { ComponentProps } from '@app/types/component-props';
 import {
     BiomeKind,
+    CogAction,
     ConnectedPlayer,
     SelectedSeekerFragment,
     SelectedTileFragment,
@@ -21,6 +22,8 @@ import { styles } from './building.styles';
 export interface BuildingProps extends ComponentProps {}
 
 const CONSTRUCT_INTENT = 'construct';
+const MOVE_INTENT = 'move';
+const SCOUT_INTENT = 'scout';
 
 const StyledBuilding = styled('div')`
     ${styles}
@@ -90,11 +93,113 @@ const TileAvailable: FunctionComponent<unknown> = () => {
     );
 };
 
+function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+interface MoveProps {
+    selectedTiles: SelectedTileFragment[];
+    selectIntent: Selector<string | undefined>;
+    selectTiles: Selector<string[] | undefined>;
+    player?: ConnectedPlayer;
+    seeker?: SelectedSeekerFragment;
+}
+const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selectedTiles, player, seeker }) => {
+    const moveableTiles = selectedTiles.filter((t) => t.biome === BiomeKind.DISCOVERED);
+    const move = () => {
+        if (!player) {
+            return;
+        }
+        if (!seeker) {
+            return;
+        }
+        if (moveableTiles.length < 1) {
+            return;
+        }
+        const actions = moveableTiles.map((tile): CogAction => {
+            const [_zone, q, r, s] = tile.coords;
+            return {
+                name: 'MOVE_SEEKER',
+                args: [seeker.key, q, r, s]
+            };
+        });
+        actions.reduce(
+            (chain, action) => chain.then(() => player.dispatch(action)).then(() => sleep(5000)),
+            Promise.resolve()
+        );
+        if (selectIntent) {
+            selectIntent(undefined);
+        }
+        if (selectTiles) {
+            selectTiles([]);
+        }
+    };
+    const canMove = seeker && player && moveableTiles.length > 0;
+    return (
+        <Fragment>
+            <h3>Moving</h3>
+            <span className="sub-title">Travel to selected tile</span>
+            <ImageAvailable />
+            {canMove && (
+                <button className="action-button" onClick={move}>
+                    Move
+                </button>
+            )}
+        </Fragment>
+    );
+};
+interface ScoutProps {
+    selectedTiles: SelectedTileFragment[];
+    selectIntent: Selector<string | undefined>;
+    selectTiles: Selector<string[] | undefined>;
+    player?: ConnectedPlayer;
+    seeker?: SelectedSeekerFragment;
+}
+const Scout: FunctionComponent<ScoutProps> = ({ selectTiles, selectIntent, selectedTiles, player, seeker }) => {
+    const scoutableTiles = selectedTiles.filter((t) => t.biome === BiomeKind.UNDISCOVERED);
+    const scout = () => {
+        if (!player) {
+            return;
+        }
+        if (!seeker) {
+            return;
+        }
+        const actions = scoutableTiles.map((tile): CogAction => {
+            const [_zone, q, r, s] = tile.coords;
+            return {
+                name: 'SCOUT_SEEKER',
+                args: [seeker.key, q, r, s]
+            };
+        });
+        player.dispatch(...actions);
+        if (selectIntent) {
+            selectIntent(undefined);
+        }
+        if (selectTiles) {
+            selectTiles([]);
+        }
+    };
+    const canScout = seeker && player && scoutableTiles.length > 0;
+    const note = canScout ? 'Click scout to reveal selected tiles' : 'Select tiles you want to reveal';
+    return (
+        <Fragment>
+            <h3>Scouting</h3>
+            <span className="sub-title">{note}</span>
+            <ImageAvailable />
+            {canScout && (
+                <button className="action-button" onClick={scout}>
+                    Scout
+                </button>
+            )}
+        </Fragment>
+    );
+};
+
 const TileUndiscovered: FunctionComponent<unknown> = (_props) => {
     return (
         <Fragment>
             <h3>Undiscovered Tile</h3>
-            <span className="sub-title">What could be here? scout to find out!</span>
+            <span className="sub-title">What could be here? Scout to reveal!</span>
             <ImageAvailable />
         </Fragment>
     );
@@ -225,9 +330,9 @@ const ConstructTooFarAway: FunctionComponent<unknown> = (_props) => {
 };
 
 export const Building: FunctionComponent<BuildingProps> = ({ ...otherProps }) => {
-    const { selectIntent, intent, tiles, seeker } = useSelection();
+    const { selectIntent, intent: rawIntent, tiles, seeker, selectTiles } = useSelection();
+    const intent = (rawIntent || '').toLowerCase();
     const player = usePlayer();
-
     const selectedTiles = tiles || [];
 
     const content = (() => {
@@ -258,6 +363,26 @@ export const Building: FunctionComponent<BuildingProps> = ({ ...otherProps }) =>
             } else {
                 return <ConstructNoneSelected />;
             }
+        } else if (intent === MOVE_INTENT) {
+            return (
+                <Move
+                    selectIntent={selectIntent}
+                    selectedTiles={selectedTiles}
+                    selectTiles={selectTiles}
+                    seeker={seeker}
+                    player={player}
+                />
+            );
+        } else if (intent === SCOUT_INTENT) {
+            return (
+                <Scout
+                    selectIntent={selectIntent}
+                    selectedTiles={selectedTiles}
+                    selectTiles={selectTiles}
+                    seeker={seeker}
+                    player={player}
+                />
+            );
         } else {
             if (selectedTiles.length === 1) {
                 const selectedTile = selectedTiles[0];

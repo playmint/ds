@@ -1,8 +1,8 @@
 /** @format */
 
 import { Logs } from '@app/components/organisms/logs';
+import { R3FMap } from '@app/components/organisms/r3f-map';
 import { TileAction } from '@app/components/organisms/tile-action';
-import { UnityMap } from '@app/components/organisms/unity-map';
 import { formatPlayerId, formatSeekerKey } from '@app/helpers';
 import { Building } from '@app/plugins/building';
 import { SeekerInventory } from '@app/plugins/inventory/seeker-inventory';
@@ -75,7 +75,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     return (
         <StyledShell {...otherProps}>
             <div className="mapnav">
-                <UnityMap />
+                <R3FMap />
             </div>
             <div className="topnav">
                 <button className="topnav-button" onClick={connect}>
