@@ -46,7 +46,7 @@ const byName = (a: MaybeNamedThing, b: MaybeNamedThing) => {
 interface TileBuildingProps {
     building?: WorldBuildingFragment;
 }
-const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building }) => {
+export const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building }) => {
     const ui = usePluginState();
     const component = (ui || [])
         .flatMap((p) => p.components)

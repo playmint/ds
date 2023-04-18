@@ -1,5 +1,5 @@
 import { ComponentProps } from '@app/types/component-props';
-import { Cylinder, Html, MapControls, OrthographicCamera } from '@react-three/drei';
+import { Cylinder, Edges, GradientTexture, Html, MapControls, OrthographicCamera } from '@react-three/drei';
 import { Canvas, ThreeEvent, useFrame } from '@react-three/fiber';
 import { FunctionComponent, Suspense, useContext, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -7,18 +7,22 @@ import { styles } from './styles';
 // import { Model as Blockyman } from './Blockyman';
 import {
     BiomeKind,
+    PluginState,
     SelectedTileFragment,
     Selector,
     useGameState,
     usePlayer,
+    usePluginState,
     useSelection,
     WorldBuildingFragment,
+    WorldSeekerFragment,
     WorldTileFragment
 } from '@app/../../core/dist/core';
 import { Inventory } from '@app/plugins/inventory';
-import { useInventory, useInventoryContext } from '@app/plugins/inventory/inventory-provider';
+import { useInventoryContext } from '@app/plugins/inventory/inventory-provider';
 import { ethers } from 'ethers';
 import { Color, ShaderMaterial, Vector3 } from 'three';
+import { TileAction } from '../tile-action';
 import { Model as Box } from './Box';
 import { Model as Blockyman } from './Pirate_crew';
 import { Model as Tower } from './Unit_tower';
@@ -75,6 +79,12 @@ const Bag: FunctionComponent<TileProps> = ({ tile }) => {
             return !prev;
         });
     };
+    const itemCount = tile.bags
+        .flatMap((equip) => equip.bag.slots.map((s) => s.balance))
+        .reduce((sum, n) => sum + n, 0);
+    if (itemCount < 1) {
+        return <group />;
+    }
     return (
         <group position={[x, y, z]} onClick={handleClick}>
             <Box position={[0.5, height, 0.35]} scale={1} />
@@ -104,9 +114,21 @@ const Bag: FunctionComponent<TileProps> = ({ tile }) => {
     );
 };
 
-const PlayerSeeker: FunctionComponent<TileProps> = ({ tile, intent, selectIntent, selectTiles }) => {
+interface PlayerSeekerProps extends TileProps {
+    seeker: WorldSeekerFragment;
+    selectSeeker: Selector<string | undefined>;
+    selected: boolean;
+}
+const PlayerSeeker: FunctionComponent<PlayerSeekerProps> = ({
+    tile,
+    intent,
+    selectSeeker,
+    selected,
+    seeker,
+    selectIntent,
+    selectTiles
+}) => {
     const ref = useRef() as any;
-    const [selected, setSelected] = useState<boolean>(false);
     const coords = getCoords(tile.coords);
     const height = getHeightForCoords(tile);
     const [x, y, z] = getTileXYZ(coords);
@@ -114,9 +136,8 @@ const PlayerSeeker: FunctionComponent<TileProps> = ({ tile, intent, selectIntent
 
     const handleClick = (e: ThreeEvent<MouseEvent>) => {
         e.stopPropagation();
-        setSelected((prev) => {
-            return !prev;
-        });
+        selectSeeker(selected ? undefined : seeker.id);
+        console.log(selected);
     };
 
     useFrame(() => {
@@ -160,7 +181,11 @@ const OtherSeeker: FunctionComponent<TileProps> = ({ tile }) => {
     );
 };
 
-const Building: FunctionComponent<TileProps> = ({ tile }) => {
+interface BuildingProps {
+    tile: WorldTileFragment;
+    pluginState: PluginState[];
+}
+const Building: FunctionComponent<BuildingProps> = ({ tile, pluginState }) => {
     const [selected, setSelected] = useState<boolean>(false);
     const coords = getCoords(tile.coords);
     const height = getHeightForCoords(tile);
@@ -171,59 +196,38 @@ const Building: FunctionComponent<TileProps> = ({ tile }) => {
             return !prev;
         });
     };
+    const component = (pluginState || [])
+        .flatMap((p) => p.components)
+        .filter((c) => c.type === 'building')
+        .find(() => true);
     return (
         <group position={[x, y, z]} onClick={handleClick}>
             <Tower position={[-0.5, height, 0.35]} scale={1} />
             {selected && (
-                <Html
-                    style={{ color: 'white', background: '#143063', padding: '1rem', width: '10rem' }}
-                    center
-                    position={[-0.5, height + 1, 0.35]}
-                >
-                    Building
+                <Html center position={[-0.5, height + 2.5, 0.35]}>
+                    <div style={{ color: 'white', background: '#143063', width: '30rem', padding: '1rem 1rem' }}>
+                        <h3>{component?.title ?? tile.building?.kind?.name?.value ?? 'Unnamed Building'}</h3>
+                        <span className="sub-title">{component?.summary || ''}</span>
+                        <p>&nbsp;</p>
+                        {component && <TileAction showTitle={false} component={component} className="action" />}
+                    </div>
+                    <div
+                        className="arrow-down"
+                        style={{
+                            position: 'relative',
+                            top: '-1px',
+                            left: '44%',
+                            width: 0,
+                            height: 0,
+                            borderLeft: '20px solid transparent',
+                            borderRight: '20px solid transparent',
+                            borderTop: '20px solid #143063'
+                        }}
+                    ></div>
                 </Html>
             )}
         </group>
     );
-};
-
-interface ShaderProps {
-    attach: any;
-}
-const GradientShaderMaterial: FunctionComponent<ShaderProps> = ({ attach }) => {
-    const material = useMemo(() => {
-        return new ShaderMaterial({
-            uniforms: {
-                color1: {
-                    value: new Color('#d5def3')
-                },
-                color2: {
-                    value: new Color('#fff')
-                }
-            },
-            vertexShader: `
-            varying vec2 vUv;
-
-            void main() {
-              vUv = uv;
-              gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
-            }
-      `,
-            fragmentShader: `
-        uniform vec3 color1;
-        uniform vec3 color2;
-
-        varying vec2 vUv;
-
-        void main() {
-
-          gl_FragColor = vec4(mix(color1, color2, vUv.y), 1.0);
-        }
-      `,
-            wireframe: false
-        });
-    }, []);
-    return <shaderMaterial attach={attach} args={[material as any]} />;
 };
 
 const Tile: FunctionComponent<TileProps> = ({ selectTileForIntent, tile }) => {
@@ -251,14 +255,20 @@ const Tile: FunctionComponent<TileProps> = ({ selectTileForIntent, tile }) => {
             }
         }
     });
+    const color1 = tile.biome === BiomeKind.DISCOVERED ? '#d0d8ed' : '#6e7a94';
+    const color2 = tile.biome === BiomeKind.DISCOVERED ? '#adb6cb' : '#6e7a94';
+    const opacity = tile.biome === BiomeKind.DISCOVERED ? 1 : 1;
     return (
         <group position={[x, y, z]} onClick={click}>
             <Cylinder ref={ref} args={[TILE_SIZE, TILE_SIZE, actualHeight, 6]} position={[0, actualHeight / 2, 0]}>
-                {tile.biome === BiomeKind.UNDISCOVERED ? (
-                    <meshPhongMaterial color="#b7cee2" transparent opacity={0.2} />
-                ) : (
-                    <GradientShaderMaterial attach="material" />
-                )}
+                <meshPhongMaterial color="#b7cee2" transparent opacity={opacity}>
+                    <GradientTexture stops={[0, 1]} colors={[color1, color2]} size={10} />
+                </meshPhongMaterial>
+                <Edges
+                    scale={1.01}
+                    threshold={15} // Display edges only when the angle between two faces exceeds this value (default=15 degrees)
+                    color="#becdde"
+                />
             </Cylinder>
         </group>
     );
@@ -300,6 +310,7 @@ export const R3FMap: FunctionComponent<MapProps> = ({ ...otherProps }) => {
     const { world } = useGameState();
     const {
         selectTiles,
+        selectSeeker,
         tiles: rawSelectedTiles,
         selectIntent: rawSelectIntent,
         intent,
@@ -308,7 +319,7 @@ export const R3FMap: FunctionComponent<MapProps> = ({ ...otherProps }) => {
 
     const tiles = world?.tiles || ([] as WorldTileFragment[]);
     const playerSeekers = tiles
-        .flatMap((tile) => tile.seekers.map((seeker) => ({ tile, seeker })))
+        .flatMap((tile) => tile.seekers.map((seeker) => ({ tile, seeker: { ...seeker } })))
         .filter(({ seeker }) => !!(player?.seekers || []).find((s) => s.id === seeker.id));
     const otherSeekers = tiles
         .flatMap((tile) => tile.seekers.map((seeker) => ({ tile, seeker })))
@@ -419,6 +430,7 @@ export const R3FMap: FunctionComponent<MapProps> = ({ ...otherProps }) => {
             : '#5575a0';
 
     const inventoryContext = useContext(useInventoryContext);
+    const pluginState = usePluginState();
 
     return (
         <StyledMap {...otherProps}>
@@ -468,10 +480,13 @@ export const R3FMap: FunctionComponent<MapProps> = ({ ...otherProps }) => {
                                 selectIntent={selectIntent}
                                 intent={intent}
                                 selectTiles={selectTiles}
+                                selectSeeker={selectSeeker}
+                                seeker={seeker}
+                                selected={seeker.id === selectedSeeker?.id}
                             />
                         ))}
                         {buildingsWithTile.map(({ tile, building }) => (
-                            <Building key={building.id} tile={tile} />
+                            <Building key={building.id} pluginState={pluginState || []} tile={tile} />
                         ))}
                         {scoutableTiles.map((tile) => (
                             <TileSelection key={`scoutable-${tile.id}`} tile={tile} color="#c51773" opacity={0.5} />
