@@ -17,10 +17,11 @@ public class MapInteractionManager : MonoBehaviour
     public Action<Vector3Int> EventTileRightClick;
 
     [SerializeField]
+    LayerMask tileLayer;
+
+    [SerializeField]
     Transform cursor,
         selectedMarker1;
-
-    Plane m_Plane;
 
     [SerializeField]
     private GameObject _intentContainerGO;
@@ -32,7 +33,6 @@ public class MapInteractionManager : MonoBehaviour
 
     private void Start()
     {
-        m_Plane = new Plane(Vector3.forward, 0.4f);
         Cog.GameStateMediator.Instance.EventStateUpdated += OnStateUpdated;
 
         selectedMarker1.gameObject.SetActive(false);
@@ -42,26 +42,21 @@ public class MapInteractionManager : MonoBehaviour
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        //Initialise the enter variable
-        float enter = 0.0f;
+        RaycastHit hit;
 
-        if (m_Plane.Raycast(ray, out enter))
+        if (Physics.Raycast(ray, out hit))
         {
             //Get the point that is clicked
-            Vector3 hitPoint = ray.GetPoint(enter);
+            Vector3 hitPoint = hit.point;
             Vector3Int cubePos = GridExtensions.GridToCube(
                 MapManager.instance.grid.WorldToCell(hitPoint)
             );
             CurrentMouseCell = MapManager.instance.grid.WorldToCell(hitPoint);
-            Vector3 cursorPos = MapManager.instance.grid.CellToWorld(
-                MapManager.instance.grid.WorldToCell(hitPoint)
-            );
-            cursor.position =
-                cursorPos
-                - (
-                    Vector3.forward
-                    * (MapHeightManager.instance.GetHeightAtPosition(cursorPos) - 0.4f)
-                );
+            Vector3 cursorPos = MapManager.instance.grid.CellToWorld(CurrentMouseCell);
+            float height = MapHeightManager.UNSCOUTED_HEIGHT;
+            if (TileHelper.IsDiscoveredTile(cubePos))
+                height = MapHeightManager.instance.GetHeightAtPosition(cursorPos);
+            cursor.position = new Vector3(cursorPos.x, cursorPos.y, height);
         }
         if (EventSystem.current.IsPointerOverGameObject())
             return;
@@ -142,27 +137,12 @@ public class MapInteractionManager : MonoBehaviour
             CurrentSelectedCell = GridExtensions.CubeToGrid(cellPosCube);
             clickedPlayerCell = SeekerManager.Instance.IsPlayerAtPosition(cellPosCube);
             Vector3 markerPos = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
-            selectedMarker1.position =
-                markerPos - MapHeightManager.instance.GetHeightOffsetAtPosition(markerPos);
+            float height = MapHeightManager.UNSCOUTED_HEIGHT;
+            if (TileHelper.IsDiscoveredTile(cellPosCube))
+                height = MapHeightManager.instance.GetHeightAtPosition(markerPos);
+            selectedMarker1.position = new Vector3(markerPos.x, markerPos.y, height);
 
             selectedMarker1.gameObject.SetActive(true);
         }
-    }
-
-    private bool isSeekerAtLocation(Seeker seeker, Vector3Int cellPosCube)
-    {
-        return TileHelper.GetTilePosCube(seeker.NextLocation) == cellPosCube;
-    }
-
-    private void OnTileSelected(Vector3Int cellPosCube)
-    {
-        IsTileSelected = true;
-        CurrentSelectedCell = GridExtensions.CubeToGrid(cellPosCube);
-
-        // Show tile selector
-        selectedMarker1.gameObject.SetActive(true);
-        Vector3 markerPos = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
-        selectedMarker1.position =
-            markerPos - MapHeightManager.instance.GetHeightOffsetAtPosition(markerPos);
     }
 }

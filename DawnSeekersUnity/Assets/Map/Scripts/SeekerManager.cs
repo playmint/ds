@@ -74,32 +74,25 @@ public class SeekerManager : MonoBehaviour
         _playerSeekers = state.Player.Seekers;
 
         Seeker = playerSeeker;
-        createSeekerIcon(Seeker, true);
+        createSeekerIcon(true);
     }
 
     private void createSeekerIcons(List<Seekers> seekers, bool isPlayerSeeker)
     {
         foreach (var seeker in seekers)
         {
-            createSeekerIcon(seeker, isPlayerSeeker);
+            createSeekerIcon(isPlayerSeeker);
         }
     }
 
-    private void createSeekerIcon(Seekers seeker, bool isPlayerSeeker)
+    private void createSeekerIcon(bool isPlayerSeeker)
     {
         var seekerPosCube = TileHelper.GetTilePosCube(Seeker.NextLocation);
         var seekerTile = TileHelper.GetTileByPos(seekerPosCube);
-        var cell = new MapManager.MapCell
-        {
-            cubicCoords = seekerPosCube,
-            typeID = 0,
-            iconID = 0,
-            cellName = ""
-        };
 
         IconManager.instance.CreateSeekerIcon(
             Seeker,
-            cell,
+            seekerPosCube,
             isPlayerSeeker,
             seekerTile.Seekers.Count
         );
