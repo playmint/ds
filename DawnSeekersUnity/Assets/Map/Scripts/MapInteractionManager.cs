@@ -44,7 +44,7 @@ public class MapInteractionManager : MonoBehaviour
 
         RaycastHit hit;
 
-        if (Physics.Raycast(ray,out hit))
+        if (Physics.Raycast(ray, out hit))
         {
             //Get the point that is clicked
             Vector3 hitPoint = hit.point;
@@ -54,7 +54,7 @@ public class MapInteractionManager : MonoBehaviour
             CurrentMouseCell = MapManager.instance.grid.WorldToCell(hitPoint);
             Vector3 cursorPos = MapManager.instance.grid.CellToWorld(CurrentMouseCell);
             float height = MapHeightManager.UNSCOUTED_HEIGHT;
-            if(TileHelper.IsDiscoveredTile(cubePos))
+            if (TileHelper.IsDiscoveredTile(cubePos))
                 height = MapHeightManager.instance.GetHeightAtPosition(cursorPos);
             cursor.position = new Vector3(cursorPos.x, cursorPos.y, height);
         }

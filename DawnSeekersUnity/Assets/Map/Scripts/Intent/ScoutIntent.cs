@@ -223,7 +223,11 @@ public class ScoutIntent : IntentHandler
                 Vector3 cellPos = MapManager.instance.grid.CellToWorld(
                     GridExtensions.CubeToGrid(cellPosCube)
                 );
-                highlight.transform.position = new Vector3(cellPos.x, cellPos.y, MapHeightManager.UNSCOUTED_HEIGHT);
+                highlight.transform.position = new Vector3(
+                    cellPos.x,
+                    cellPos.y,
+                    MapHeightManager.UNSCOUTED_HEIGHT
+                );
                 spawnedHighlights.Add(cellPosCube, highlight);
             }
         }

@@ -229,7 +229,11 @@ public class MoveIntent : IntentHandler
                 Vector3 cellPos = MapManager.instance.grid.CellToWorld(
                     GridExtensions.CubeToGrid(newPosCube)
                 );
-                highlight.transform.position = new Vector3(cellPos.x, cellPos.y, MapHeightManager.instance.GetHeightAtPosition(cellPos));
+                highlight.transform.position = new Vector3(
+                    cellPos.x,
+                    cellPos.y,
+                    MapHeightManager.instance.GetHeightAtPosition(cellPos)
+                );
                 spawnedPathHighlights.Add(newPosCube, highlight);
             }
 
@@ -293,7 +297,11 @@ public class MoveIntent : IntentHandler
                 highlight.position = MapManager.instance.grid.CellToWorld(
                     GridExtensions.CubeToGrid(space)
                 );
-                highlight.position = new Vector3(highlight.position.x, highlight.position.y, MapHeightManager.instance.GetHeightAtPosition(highlight.position));
+                highlight.position = new Vector3(
+                    highlight.position.x,
+                    highlight.position.y,
+                    MapHeightManager.instance.GetHeightAtPosition(highlight.position)
+                );
                 spawnedValidCellHighlights.Add(space, highlight.gameObject);
             }
         }

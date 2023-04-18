@@ -120,11 +120,7 @@ public class IconManager : MonoBehaviour
                 icon = Instantiate(_otherSeekerIconPrefab, transform, true)
                     .GetComponent<IconController>();
             spawnedSeekerIcons.Add(seekerId, icon);
-            icon.Setup(
-                cell,
-                numSeekersAtPos + buildingOnCell,
-                seekerPositionCounts[cell] - 1
-            );
+            icon.Setup(cell, numSeekersAtPos + buildingOnCell, seekerPositionCounts[cell] - 1);
         }
         else
         {

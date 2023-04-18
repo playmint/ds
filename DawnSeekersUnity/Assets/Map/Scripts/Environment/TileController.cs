@@ -18,7 +18,7 @@ public class TileController : MonoBehaviour
             return;
         hasRisen = true;
         delayCount++;
-        
+
         StartCoroutine(AppearFullCR());
         delay += 0.05f;
     }
@@ -27,7 +27,11 @@ public class TileController : MonoBehaviour
     {
         float t = 0;
         Vector3 startPos = transform.position;
-        Vector3 endPos = new Vector3(transform.position.x, transform.position.y, MapHeightManager.instance.GetHeightAtPosition(transform.position));
+        Vector3 endPos = new Vector3(
+            transform.position.x,
+            transform.position.y,
+            MapHeightManager.instance.GetHeightAtPosition(transform.position)
+        );
         yield return new WaitForSeconds(delay);
         while (t < 1)
         {
@@ -44,18 +48,21 @@ public class TileController : MonoBehaviour
         delayCount++;
         delay += 0.05f;
         StartCoroutine(AppearCR());
-        
     }
 
     IEnumerator AppearCR()
     {
         float t = 0;
-        Vector3 startPos = new Vector3(transform.position.x,transform.position.y,1);
-        Vector3 endPos = new Vector3(transform.position.x, transform.position.y, MapHeightManager.UNSCOUTED_HEIGHT);
+        Vector3 startPos = new Vector3(transform.position.x, transform.position.y, 1);
+        Vector3 endPos = new Vector3(
+            transform.position.x,
+            transform.position.y,
+            MapHeightManager.UNSCOUTED_HEIGHT
+        );
         yield return new WaitForSeconds(delay);
-        while (t<1)
+        while (t < 1)
         {
-            t += Time.deltaTime*3;
+            t += Time.deltaTime * 3;
             transform.position = Vector3.LerpUnclamped(startPos, endPos, popInCurve.Evaluate(t));
             yield return null;
         }

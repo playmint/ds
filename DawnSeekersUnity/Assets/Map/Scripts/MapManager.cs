@@ -6,6 +6,7 @@ using UnityEngine.Tilemaps;
 public class MapManager : MonoBehaviour
 {
     public static MapManager instance;
+
     public struct MapCell
     {
         public Vector3Int cubicCoords;
@@ -39,17 +40,19 @@ public class MapManager : MonoBehaviour
         {
             tilePositions.Add(cellCubicCoords);
 
-
             Vector3Int gridPos = GridExtensions.CubeToGrid(cellCubicCoords);
             Vector3 worldPos = grid.CellToWorld(gridPos);
-            TileController tc = EnvironmentLoaderManager.instance.AddTile(worldPos, cellCubicCoords);
+            TileController tc = EnvironmentLoaderManager.instance.AddTile(
+                worldPos,
+                cellCubicCoords
+            );
 
             if (TileHelper.IsDiscoveredTile(cellCubicCoords))
                 tc.AppearFull();
             else
                 tc.Appear();
         }
-        else if(TileHelper.IsDiscoveredTile(cellCubicCoords))
+        else if (TileHelper.IsDiscoveredTile(cellCubicCoords))
         {
             GameObject tileGO = GameObject.Find("Tile_" + cellCubicCoords.ToString());
             if (tileGO != null)
@@ -91,7 +94,12 @@ public class MapManager : MonoBehaviour
                 // Don't render any of the player's seekers as the SeekerManager handles that from the player data
                 if (!SeekerHelper.IsPlayerSeeker(seeker))
                 {
-                    IconManager.instance.CreateSeekerIcon(seeker, cellPosCube, false, tile.Seekers.Count);
+                    IconManager.instance.CreateSeekerIcon(
+                        seeker,
+                        cellPosCube,
+                        false,
+                        tile.Seekers.Count
+                    );
                 }
             }
             // TODO: Call this again after we have refactored the map data to include the seeker list

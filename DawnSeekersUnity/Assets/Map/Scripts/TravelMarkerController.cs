@@ -53,8 +53,16 @@ public class TravelMarkerController : MonoBehaviour
 
     public void ShowTravelMarkers(Vector3 startPos, Vector3 endPos)
     {
-        Vector3 startOffset = new Vector3(startPos.x, startPos.y, MapHeightManager.instance.GetHeightAtPosition(startPos));
-        Vector3 endOffset = new Vector3(endPos.x, endPos.y, MapHeightManager.instance.GetHeightAtPosition(endPos));
+        Vector3 startOffset = new Vector3(
+            startPos.x,
+            startPos.y,
+            MapHeightManager.instance.GetHeightAtPosition(startPos)
+        );
+        Vector3 endOffset = new Vector3(
+            endPos.x,
+            endPos.y,
+            MapHeightManager.instance.GetHeightAtPosition(endPos)
+        );
         Vector3 worldEndPos = endPos;
         line.DrawLine(startOffset, endOffset);
         destinationMarker.position = worldEndPos;
