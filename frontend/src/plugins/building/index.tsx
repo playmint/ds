@@ -19,11 +19,14 @@ import { Fragment, FunctionComponent, useCallback } from 'react';
 import styled from 'styled-components';
 import { styles } from './building.styles';
 
-export interface BuildingProps extends ComponentProps {}
+export interface BuildingProps extends ComponentProps {
+    showFull: boolean;
+}
 
 const CONSTRUCT_INTENT = 'construct';
 const MOVE_INTENT = 'move';
 const SCOUT_INTENT = 'scout';
+const USE_INTENT = 'use';
 
 const StyledBuilding = styled('div')`
     ${styles}
@@ -38,6 +41,9 @@ interface MaybeNamedThing {
 const ImageConstruct = () => <img src="/tile-construct.png" alt="" className="building-image" />;
 const ImageAvailable = () => <img src="/tile-grass.png" alt="" className="building-image" />;
 const ImageBuilding = () => <img src="/building-with-flag.png" alt="" className="building-image" />;
+// const ImageWalking = () => <img src="/icons/walking.png" alt="" className="building-image" />;
+const ImageScouting = () => <img src="/icons/scouting.png" alt="" className="building-image" width="33%" />;
+const ImageSelecting = () => <img src="/icons/clicking.png" alt="" className="building-image" width="33%" />;
 
 const byName = (a: MaybeNamedThing, b: MaybeNamedThing) => {
     return a.name && b.name && a.name.value > b.name.value ? 1 : -1;
@@ -45,8 +51,9 @@ const byName = (a: MaybeNamedThing, b: MaybeNamedThing) => {
 
 interface TileBuildingProps {
     building?: WorldBuildingFragment;
+    showFull: boolean;
 }
-export const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building }) => {
+export const TileBuilding: FunctionComponent<TileBuildingProps> = ({ showFull, building }) => {
     const ui = usePluginState();
     const component = (ui || [])
         .flatMap((p) => p.components)
@@ -58,7 +65,7 @@ export const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building })
             <h3>{component?.title ?? building?.kind?.name?.value ?? 'Unnamed Building'}</h3>
             <span className="sub-title">{component?.summary || ''}</span>
             <ImageBuilding />
-            {component && <TileAction showTitle={false} component={component} className="action" />}
+            {showFull && component && <TileAction showTitle={false} component={component} className="action" />}
         </Fragment>
     );
 };
@@ -68,7 +75,6 @@ const TileNoneSelected: FunctionComponent<BuildingProps> = (_props) => {
         <Fragment>
             <h3>No Tile Selected</h3>
             <span className="sub-title">Select a tile to see information</span>
-            <ImageAvailable />
         </Fragment>
     );
 };
@@ -135,16 +141,27 @@ const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selecte
         }
     };
     const canMove = seeker && player && moveableTiles.length > 0;
+    const clearIntent = useCallback(
+        (e?: React.MouseEvent) => {
+            if (e) {
+                e.preventDefault();
+            }
+            selectIntent(undefined);
+            selectTiles([]);
+        },
+        [selectIntent, selectTiles]
+    );
     return (
         <Fragment>
             <h3>Moving</h3>
-            <span className="sub-title">Travel to selected tile</span>
-            <ImageAvailable />
-            {canMove && (
-                <button className="action-button" onClick={move}>
-                    Move
-                </button>
-            )}
+            <span className="sub-title">Select a tile to add to your movement path</span>
+            <ImageSelecting />
+            <button className="action-button" onClick={move} disabled={!canMove} style={{ opacity: canMove ? 1 : 0.1 }}>
+                Confirm Move
+            </button>
+            <a href="#cancel" className="secondary-button" onClick={clearIntent}>
+                Cancel
+            </a>
         </Fragment>
     );
 };
@@ -179,18 +196,52 @@ const Scout: FunctionComponent<ScoutProps> = ({ selectTiles, selectIntent, selec
             selectTiles([]);
         }
     };
+    const clearIntent = useCallback(
+        (e?: React.MouseEvent) => {
+            if (e) {
+                e.preventDefault();
+            }
+            selectIntent(undefined);
+            selectTiles([]);
+        },
+        [selectIntent, selectTiles]
+    );
     const canScout = seeker && player && scoutableTiles.length > 0;
     const note = canScout ? 'Click scout to reveal selected tiles' : 'Select tiles you want to reveal';
     return (
         <Fragment>
             <h3>Scouting</h3>
             <span className="sub-title">{note}</span>
-            <ImageAvailable />
-            {canScout && (
-                <button className="action-button" onClick={scout}>
-                    Scout
-                </button>
-            )}
+            <ImageScouting />
+            <button
+                className="action-button"
+                onClick={scout}
+                disabled={!canScout}
+                style={{ opacity: canScout ? 1 : 0.1 }}
+            >
+                Confirm Scout
+            </button>
+            <a href="#cancel" className="secondary-button" onClick={clearIntent} style={{ opacity: 0.5 }}>
+                Cancel
+            </a>
+        </Fragment>
+    );
+};
+
+interface UseProps {
+    selectedTiles: SelectedTileFragment[];
+    selectIntent: Selector<string | undefined>;
+    selectTiles: Selector<string[] | undefined>;
+    player?: ConnectedPlayer;
+    seeker?: SelectedSeekerFragment;
+}
+const Use: FunctionComponent<UseProps> = ({ selectedTiles }) => {
+    const note = selectedTiles.length === 0 ? 'Select a building to interact with...' : '';
+    return (
+        <Fragment>
+            <h3>Select building</h3>
+            <span className="sub-title">{note}</span>
+            <ImageSelecting />
         </Fragment>
     );
 };
@@ -238,10 +289,17 @@ const ConstructUndiscovered: FunctionComponent<unknown> = (_props) => {
 interface ConstructAvailableProps {
     tile: SelectedTileFragment;
     selectIntent: Selector<string | undefined>;
+    selectTiles: Selector<string[] | undefined>;
     player: ConnectedPlayer;
     seeker: SelectedSeekerFragment;
 }
-const ConstructAvailable: FunctionComponent<ConstructAvailableProps> = ({ tile, seeker, player, selectIntent }) => {
+const ConstructAvailable: FunctionComponent<ConstructAvailableProps> = ({
+    tile,
+    seeker,
+    player,
+    selectTiles,
+    selectIntent
+}) => {
     const kinds = useBuildingKinds();
 
     const clearIntent = useCallback(
@@ -250,8 +308,9 @@ const ConstructAvailable: FunctionComponent<ConstructAvailableProps> = ({ tile, 
                 e.preventDefault();
             }
             selectIntent(undefined);
+            selectTiles([]);
         },
-        [selectIntent]
+        [selectIntent, selectTiles]
     );
 
     const handleConstruct = (e: React.FormEvent<HTMLFormElement>) => {
@@ -292,7 +351,7 @@ const ConstructAvailable: FunctionComponent<ConstructAvailableProps> = ({ tile, 
                     Construct It!
                 </button>
                 <a href="#cancel" className="secondary-button" onClick={clearIntent}>
-                    Cancel Construction
+                    Cancel
                 </a>
             </form>
         </Fragment>
@@ -329,7 +388,7 @@ const ConstructTooFarAway: FunctionComponent<unknown> = (_props) => {
     );
 };
 
-export const Building: FunctionComponent<BuildingProps> = ({ ...otherProps }) => {
+export const Building: FunctionComponent<BuildingProps> = ({ showFull, ...otherProps }) => {
     const { selectIntent, intent: rawIntent, tiles, seeker, selectTiles } = useSelection();
     const intent = (rawIntent || '').toLowerCase();
     const player = usePlayer();
@@ -351,6 +410,7 @@ export const Building: FunctionComponent<BuildingProps> = ({ ...otherProps }) =>
                 } else {
                     return (
                         <ConstructAvailable
+                            selectTiles={selectTiles}
                             selectIntent={selectIntent}
                             tile={selectedTile}
                             seeker={seeker}
@@ -383,6 +443,16 @@ export const Building: FunctionComponent<BuildingProps> = ({ ...otherProps }) =>
                     player={player}
                 />
             );
+        } else if (intent === USE_INTENT && selectedTiles.length === 0) {
+            return (
+                <Use
+                    selectIntent={selectIntent}
+                    selectedTiles={selectedTiles}
+                    selectTiles={selectTiles}
+                    seeker={seeker}
+                    player={player}
+                />
+            );
         } else {
             if (selectedTiles.length === 1) {
                 const selectedTile = selectedTiles[0];
@@ -391,14 +461,14 @@ export const Building: FunctionComponent<BuildingProps> = ({ ...otherProps }) =>
                 } else if (!selectedTile.building) {
                     return <TileAvailable />;
                 } else if (selectedTile.building) {
-                    return <TileBuilding building={selectedTile.building} />;
+                    return <TileBuilding building={selectedTile.building} showFull={showFull} />;
                 } else {
-                    return <TileNoneSelected />; // fallback, don't expect this state
+                    return <TileNoneSelected showFull={showFull} />; // fallback, don't expect this state
                 }
             } else if (selectedTiles.length > 1) {
-                return <TileMultiSelected />;
+                return <TileMultiSelected showFull={showFull} />;
             } else {
-                return <TileNoneSelected />;
+                return <TileNoneSelected showFull={showFull} />;
             }
         }
     })();

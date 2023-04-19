@@ -50,10 +50,10 @@ interface ModelProps extends GroupProps {
     color: string;
 }
 
-export function Model({ color, ...groupProps }: ModelProps) {
+export function Model({ color, onClick, ...groupProps }: ModelProps) {
     const { nodes, materials } = useSkinnedMeshClone('/pirate_crew-transformed.glb') as GLTFResult;
     return (
-        <group {...groupProps} dispose={null}>
+        <group {...groupProps} dispose={null} onClick={onClick}>
             <group position={[0, 0, 0]} scale={0.1}>
                 <mesh geometry={nodes.armLeft_1.geometry} material={materials.wood} position={[-0.17, 0.7, 0]}>
                     <meshPhongMaterial color={color} />

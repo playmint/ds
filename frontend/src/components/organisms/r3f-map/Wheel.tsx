@@ -22,7 +22,7 @@ const getArcPath = (start: number, end: number, innerRadius: number, outerRadius
         L ${x4},${y4} A ${innerRadius} ${innerRadius} ${innerFlags} ${x1},${y1} Z`;
 };
 
-interface Intent {
+export interface WheelIntent {
     value: number; // how much of the wheel to take up
     intent: string; // label
 }
@@ -30,41 +30,23 @@ interface Intent {
 interface WheelProps {
     width: number;
     height: number;
-    // items: Intent[];
+    items: WheelIntent[];
     innerRadius: number;
     outerRadius: number;
     intent?: string;
     selectIntent?: Selector<string | undefined>;
-    selectTiles?: Selector<string[]>;
 }
 
 export const Wheel: FunctionComponent<WheelProps> = ({
     intent,
+    items,
     selectIntent,
-    selectTiles,
     width,
     height,
     innerRadius,
     outerRadius
 }) => {
-    const [visiblePart, setVisiblePart] = useState(0);
-
-    useEffect(() => {
-        if (visiblePart < 1) {
-            setTimeout(() => setVisiblePart(visiblePart + PROGRESS_UNIT), PROGRESS_TIMEOUT);
-        }
-    }, [visiblePart]);
-
-    const items: Intent[] = intent
-        ? [
-              { value: 100, intent: intent.toUpperCase() },
-              { value: 100, intent: 'CANCEL' }
-          ]
-        : [
-              { value: 100, intent: 'MOVE' },
-              { value: 100, intent: 'CONSTRUCT' },
-              { value: 100, intent: 'SCOUT' }
-          ];
+    const visiblePart = 1;
 
     const sum = items.reduce((sum, item) => sum + item.value, 0);
     let start = 0;
@@ -75,7 +57,8 @@ export const Wheel: FunctionComponent<WheelProps> = ({
         return { ...item, path };
     });
 
-    const handleClick = (intent: string) => {
+    const handleClick = (e: any, intent: string) => {
+        e.stopPropagation();
         if (!selectIntent) {
             return;
         }
@@ -87,7 +70,15 @@ export const Wheel: FunctionComponent<WheelProps> = ({
     };
 
     const fill =
-        intent == 'construct' ? '#ff8c16' : intent == 'move' ? '#5ba067' : intent == 'scout' ? '#c51773' : '#143063cc';
+        intent == 'construct'
+            ? '#ff8c16'
+            : intent == 'move'
+            ? '#5ba067'
+            : intent == 'scout'
+            ? '#c51773'
+            : intent == 'use'
+            ? '#3a759d'
+            : '#143063cc';
 
     return (
         <svg width={width} height={height} style={{ position: 'relative', pointerEvents: 'none' }}>
@@ -113,7 +104,7 @@ export const Wheel: FunctionComponent<WheelProps> = ({
                         }}
                         dy={20}
                         fill={'#fff'}
-                        onClick={() => handleClick(segment.intent)}
+                        onClick={(e) => handleClick(e, segment.intent)}
                     >
                         <textPath xlinkHref={`#s${idx}`} startOffset="38%" spacing="auto" textAnchor="middle">
                             {segment.intent}

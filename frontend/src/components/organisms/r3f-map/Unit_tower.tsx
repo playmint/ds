@@ -33,21 +33,27 @@ type GLTFResult = GLTF & {
     };
 };
 
-export function Model(props: JSX.IntrinsicElements['group']) {
+type GroupProps = JSX.IntrinsicElements['group'];
+
+interface ModelProps extends GroupProps {
+    color: string;
+}
+
+export function Model({ color, ...props }: ModelProps) {
     const { nodes, materials } = useSkinnedMeshClone('/unit_tower.glb') as GLTFResult;
     return (
         <group {...props} dispose={null}>
             <mesh geometry={nodes.Mesh_unit_tower.geometry} material={materials.stone}>
-                <meshPhongMaterial color={'#647591'} />
+                <meshPhongMaterial color={color} />
             </mesh>
             <mesh geometry={nodes.Mesh_unit_tower_1.geometry} material={materials.dirt}>
-                <meshPhongMaterial color={'#7a8db0'} />
+                <meshPhongMaterial color={color} />
             </mesh>
             <mesh geometry={nodes.Mesh_unit_tower_2.geometry} material={materials.wood}>
-                <meshPhongMaterial color={'#7a8db0'} />
+                <meshPhongMaterial color={color} />
             </mesh>
             <mesh geometry={nodes.Mesh_unit_tower_3.geometry} material={materials.roof}>
-                <meshPhongMaterial color={'#7a8db0'} />
+                <meshPhongMaterial color={color} />
             </mesh>
         </group>
     );

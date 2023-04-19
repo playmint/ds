@@ -2,14 +2,9 @@
 
 import { Logs } from '@app/components/organisms/logs';
 import { R3FMap } from '@app/components/organisms/r3f-map';
-import { TileAction } from '@app/components/organisms/tile-action';
-import { formatPlayerId, formatSeekerKey } from '@app/helpers';
-import { Building } from '@app/plugins/building';
-import { SeekerInventory } from '@app/plugins/inventory/seeker-inventory';
-import { TileInventory } from '@app/plugins/inventory/tile-inventory';
-import { SeekerList } from '@app/plugins/seeker-list';
+import { formatPlayerId } from '@app/helpers';
 import { ComponentProps } from '@app/types/component-props';
-import { CompoundKeyEncoder, NodeSelectors, usePlayer, usePluginState, useSelection } from '@dawnseekers/core';
+import { CompoundKeyEncoder, NodeSelectors, usePlayer } from '@dawnseekers/core';
 import { Fragment, FunctionComponent, useCallback } from 'react';
 import styled from 'styled-components';
 import { styles } from './shell.styles';
@@ -23,10 +18,6 @@ const StyledShell = styled('div')`
 export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     const { ...otherProps } = props;
     const player = usePlayer();
-    const { seeker: selectedSeeker, selectSeeker, tiles: selectedTiles } = useSelection();
-    const ui = usePluginState();
-    const selectedTile = selectedTiles?.[0];
-    const tileSeekers = selectedTile?.seekers ?? [];
 
     const connect = useCallback(() => {
         if (player) {
@@ -49,29 +40,6 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         player.dispatch({ name: 'SPAWN_SEEKER', args: [id] });
     }, [player]);
 
-    const selectNextSeeker = useCallback(
-        (n: number) => {
-            if (!player) {
-                return;
-            }
-            if (!selectedSeeker) {
-                return;
-            }
-            if (player.seekers.length === 0) {
-                return;
-            }
-            const seekerIndex = player.seekers.map((s) => s.id).indexOf(selectedSeeker.id);
-            const nextIndex =
-                seekerIndex + n > player.seekers.length - 1
-                    ? 0
-                    : seekerIndex + n < 0
-                    ? player.seekers.length - 1
-                    : seekerIndex + n;
-            selectSeeker(player.seekers[nextIndex].id);
-        },
-        [player, selectSeeker, selectedSeeker]
-    );
-
     return (
         <StyledShell {...otherProps}>
             <div className="mapnav">
@@ -87,21 +55,6 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
             {player && (
                 <Fragment>
                     <div className="seeker-actions">
-                        <div className="action seeker-selector">
-                            <img src="/seeker-shield-large.png" className="shield" alt="" />
-                            <div className="controls">
-                                <button className="icon-button" onClick={() => selectNextSeeker(-1)}>
-                                    <img src="/icons/prev.png" alt="Previous" />
-                                </button>
-                                <span className="label">
-                                    Seeker #{formatSeekerKey(selectedSeeker?.key.toString() || '')}
-                                </span>
-                                <button className="icon-button" onClick={() => selectNextSeeker(+1)}>
-                                    <img src="/icons/next.png" alt="Next" />
-                                </button>
-                            </div>
-                        </div>
-                        {selectedSeeker && <SeekerInventory className="action" seeker={selectedSeeker} />}
                         {player && player.seekers.length === 0 && (
                             <div className="onboarding">
                                 <p>Welcome to Dawnseekers</p>
@@ -109,18 +62,6 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                 <button onClick={spawnSeeker}>Spawn Seeker</button>
                             </div>
                         )}
-                    </div>
-
-                    <div className="tile-actions">
-                        <Building className="action" />
-                        {tileSeekers.length > 0 && <SeekerList seekers={tileSeekers} className="action" />}
-                        {selectedTile && <TileInventory className="action" tile={selectedTile} title="Bags" />}
-                        {ui
-                            ?.flatMap((p) => p.components)
-                            .filter((c) => c.type === 'tile')
-                            .map((c) => (
-                                <TileAction key={c.id} component={c} className="action" />
-                            ))}
                     </div>
                 </Fragment>
             )}

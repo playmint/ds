@@ -24,11 +24,8 @@ export const TileInventory: FunctionComponent<TileInventoryProps> = (props: Tile
 
     return (
         <StyledTileInventory {...otherProps}>
-            {title && <h3>{title}</h3>}
-            {tile.bags.length > 0 ? (
+            {tile.bags.length > 0 && (
                 <Inventory bags={tile.bags} ownerId={tile.id} isInteractable={isSeekerAtLocation(tile)} />
-            ) : (
-                <span>there are no bags on this tile</span>
             )}
         </StyledTileInventory>
     );

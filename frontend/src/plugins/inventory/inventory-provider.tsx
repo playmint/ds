@@ -4,6 +4,7 @@ import { Tile, usePlayer, useSelection, useWorld } from '@dawnseekers/core';
 import { createContext, ReactNode, RefObject, useContext, useEffect, useReducer, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useClickOutside } from '@app/plugins/inventory/use-click-outside';
+import { ethers } from 'ethers';
 
 export interface InventoryContextProviderProps {
     children?: ReactNode;
@@ -118,7 +119,11 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
      * @returns true if the seeker is on the selected tile
      */
     const isSeekerAtLocation = (tile: Tile) => {
-        return selectedSeeker?.nextLocation?.tile.id === tile.id;
+        const seekerLocation = selectedSeeker?.nextLocation?.tile;
+        if (!seekerLocation) {
+            return false;
+        }
+        return distance(getCoords(tile.coords), getCoords(seekerLocation.coords)) <= 1;
     };
 
     const pickUpItem = (item: InventoryItem): void => {
@@ -313,3 +318,20 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         </useInventoryContext.Provider>
     );
 };
+
+interface Coords {
+    q: number;
+    r: number;
+    s: number;
+}
+function distance(a: Coords, b: Coords): number {
+    return (Math.abs(a.q - b.q) + Math.abs(a.r - b.r) + Math.abs(a.s - b.s)) / 2;
+}
+
+function getCoords(coords: any[]): Coords {
+    return {
+        q: Number(ethers.fromTwos(coords[1], 16)),
+        r: Number(ethers.fromTwos(coords[2], 16)),
+        s: Number(ethers.fromTwos(coords[3], 16))
+    };
+}
