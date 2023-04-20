@@ -14,7 +14,7 @@ export interface BagSlotProps extends ComponentProps {
     placeholder?: ItemSlotFragment;
     isDisabled?: boolean;
     ownerId: string;
-    bagId: string;
+    bagId?: string;
     equipIndex: number;
     slotKey: number;
     isInteractable?: boolean;

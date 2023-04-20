@@ -165,16 +165,7 @@ const ConstructAvailable: FunctionComponent<ConstructAvailableProps> = ({ tile, 
 
         player.dispatch({
             name: 'CONSTRUCT_BUILDING_SEEKER',
-            args: [
-                seeker.id,
-                data.kind,
-                data.buildingId, // pay from building
-                0, // ...from bag at equip-slot
-                0, // ... from item in item-slot
-                tile.coords[1],
-                tile.coords[2],
-                tile.coords[3]
-            ]
+            args: [seeker.id, data.kind, tile.coords[1], tile.coords[2], tile.coords[3]]
         });
         clearIntent();
     };
