@@ -28,10 +28,13 @@ contract InventoryRule is Rule {
                 bytes24[2] memory equipees,
                 uint8[2] memory equipSlots,
                 uint8[2] memory itemSlots,
+                bytes24 toBagId,
                 uint64 qty
-            ) = abi.decode(action[4:], (bytes24, bytes24[2], uint8[2], uint8[2], uint64));
+            ) = abi.decode(action[4:], (bytes24, bytes24[2], uint8[2], uint8[2], bytes24, uint64));
 
-            _transferItem(state, ctx.clock, Node.Player(ctx.sender), seeker, equipees, equipSlots, itemSlots, qty);
+            _transferItem(
+                state, ctx.clock, Node.Player(ctx.sender), seeker, equipees, equipSlots, itemSlots, toBagId, qty
+            );
         }
 
         return state;
@@ -45,6 +48,7 @@ contract InventoryRule is Rule {
         bytes24[2] memory equipee,
         uint8[2] memory equipSlot,
         uint8[2] memory itemSlot,
+        bytes24 toBagId,
         uint64 qty
     ) private {
         // check that seeker performing action is owned by player
@@ -54,7 +58,8 @@ contract InventoryRule is Rule {
         bytes24 location = state.getCurrentLocation(seeker, atTime);
 
         // check equipees are either the acting seeker
-        // or at the same location as the acting seeker
+        // at the same location as the acting seeker
+        // or adjacent to the acting seeker
         _requireEquipeeLocation(state, equipee[0], seeker, location, atTime);
         _requireEquipeeLocation(state, equipee[1], seeker, location, atTime);
 
@@ -64,7 +69,14 @@ contract InventoryRule is Rule {
 
         // check the things are bags
         _requireIsBag(bags[0]);
-        _requireIsBag(bags[1]);
+
+        // create our bag if we need to or check our bag is valid
+        if (bags[1] == 0) {
+            bags[1] = toBagId;
+            state.setEquipSlot(equipee[1], equipSlot[1], bags[1]);
+        } else if (bytes4(bags[1]) != Kind.Bag.selector) {
+            revert NoTransferEquipItemIsNotBag();
+        }
 
         // check that the source bag is either owned by the player or nobody
         _requireCanUseBag(state, bags[0], player);
@@ -100,19 +112,22 @@ contract InventoryRule is Rule {
             return; // all good, it's the acting seeker's bag so locations match
         } else if (bytes4(equipee) == Kind.Tile.selector) {
             // located on a tile
-            if (location != equipee) {
+            if (TileUtils.distance(location, equipee) > 1 || !TileUtils.isDirect(location, equipee)) {
                 revert NoTransferNotSameLocation();
             }
         } else if (bytes4(equipee) == Kind.Building.selector) {
             // attached to a building with a fixed location
             bytes24 buildingLocation = state.getFixedLocation(equipee);
-            if (location != buildingLocation) {
+            if (TileUtils.distance(location, buildingLocation) > 1 || !TileUtils.isDirect(location, buildingLocation)) {
                 revert NoTransferNotSameLocation();
             }
         } else if (bytes4(equipee) == Kind.Seeker.selector) {
             // location on another seeker, check same loc
             bytes24 otherSeekerLocation = state.getCurrentLocation(equipee, atTime);
-            if (location != otherSeekerLocation) {
+            if (
+                TileUtils.distance(location, otherSeekerLocation) > 1
+                    || !TileUtils.isDirect(location, otherSeekerLocation)
+            ) {
                 revert NoTransferNotSameLocation();
             }
         } else {

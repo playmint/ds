@@ -116,7 +116,7 @@ export const GlobalStyles = createGlobalStyle`
         padding: 2rem 2rem;
 
         > button {
-            border-radius: 20px;
+            border-radius: 30px;
             border: none;
             border-bottom: 4px solid #b7c5e0;
             display: block;
@@ -146,7 +146,7 @@ export const GlobalStyles = createGlobalStyle`
     }
 
     .action-button {
-        border-radius: 20px;
+        border-radius: 30px;
         border: none;
         border-bottom: 4px solid #b7c5e0;
         display: block;
@@ -166,6 +166,16 @@ export const GlobalStyles = createGlobalStyle`
         width: auto;
     }
 
+    .link-button {
+        display: inline;
+        background: none;
+        border: 0;
+        padding: 0;
+        border-radius: 0;
+        width: auto;
+        color: white;
+    }
+    
     .seeker-actions .seeker-selector {
         display: flex;
         justify-content: flex-end;
@@ -198,15 +208,39 @@ export const GlobalStyles = createGlobalStyle`
 
     form {
         width: 100%;
-        > select, button {
-            box-sizing: border-box;
-            display: inline-block;
-            border-radius: 20px;
-            width: inherit;
-            padding: 10px;
-            border-bottom: 4px solid #b7c5e0;
-            margin: 0 0 5px 0;
-            font-weight: 600;
+        
+        .select {
+            position: relative;
+            width: 100%;
+            
+            select {
+                appearance: none;
+                box-sizing: border-box;
+                background-color: transparent;
+                border: 1px solid white;
+                border-radius: 5px;
+                padding: 1rem;
+                margin: 0;
+                width: 100%;
+                font-family: inherit;
+                font-size: inherit;
+                cursor: inherit;
+                line-height: inherit;
+                color: white;
+            }
+            
+            &:after {
+                position: absolute;
+                top: 50%;
+                right: 1.6rem;
+                transform: translateY(-50%);
+                z-index: 10;
+                content: "";
+                width: 0.8em;
+                height: 0.5em;
+                background-color: white;
+                clip-path: polygon(100% 0%, 0 0%, 50% 100%);
+            }
         }
     }
 

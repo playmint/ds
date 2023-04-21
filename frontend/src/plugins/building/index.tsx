@@ -3,7 +3,9 @@ import { TileAction } from '@app/components/organisms/tile-action';
 import { ComponentProps } from '@app/types/component-props';
 import {
     BiomeKind,
+    CompoundKeyEncoder,
     ConnectedPlayer,
+    NodeSelectors,
     SelectedSeekerFragment,
     SelectedTileFragment,
     Selector,
@@ -11,12 +13,16 @@ import {
     usePlayer,
     usePluginState,
     useSelection,
+    useWorld,
     WorldBuildingFragment
 } from '@dawnseekers/core';
-import { ethers } from 'ethers';
-import { Fragment, FunctionComponent, useCallback } from 'react';
+import { AbiCoder, ethers } from 'ethers';
+import React, { Fragment, FunctionComponent, useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { styles } from './building.styles';
+import { resourceIds } from '@app/plugins/inventory/helpers';
+import { useInventory } from '@app/plugins/inventory/inventory-provider';
+import { BagSlot } from '@app/plugins/inventory/bag-slot';
 
 export interface BuildingProps extends ComponentProps {}
 
@@ -137,6 +143,9 @@ interface ConstructAvailableProps {
     seeker: SelectedSeekerFragment;
 }
 const ConstructAvailable: FunctionComponent<ConstructAvailableProps> = ({ tile, seeker, player, selectIntent }) => {
+    const { addBagRef, removeBagRef } = useInventory();
+    const world = useWorld();
+    const slotsRef = useRef<HTMLUListElement>(null);
     const kinds = useBuildingKinds();
 
     const clearIntent = useCallback(
@@ -153,22 +162,33 @@ const ConstructAvailable: FunctionComponent<ConstructAvailableProps> = ({ tile, 
         e.preventDefault();
         const form = new FormData(e.target as any);
         const data = Object.fromEntries(form.entries());
-        // TODO/FIXME: allow choosing where to pay from, not assume seeker/0/0
+
         player.dispatch({
             name: 'CONSTRUCT_BUILDING_SEEKER',
-            args: [
-                seeker.id,
-                data.kind,
-                seeker.id, // pay from thing
-                0, // ...from bag at equip-slot
-                0, // ... from item in item-slot
-                tile.coords[1],
-                tile.coords[2],
-                tile.coords[3]
-            ]
+            args: [seeker.id, data.kind, tile.coords[1], tile.coords[2], tile.coords[3]]
         });
         clearIntent();
     };
+
+    useEffect(() => {
+        addBagRef(slotsRef);
+        return () => removeBagRef(slotsRef);
+    }, [addBagRef, removeBagRef]);
+
+    if (!tile) {
+        return null;
+    }
+
+    const coords = getCoords(tile);
+    const buildingId = CompoundKeyEncoder.encodeInt16(NodeSelectors.Building, 0, coords.q, coords.r, coords.s);
+    const keccak256Hash = ethers.keccak256(AbiCoder.defaultAbiCoder().encode(['bytes24'], [buildingId]));
+    const uint64Hash = BigInt(keccak256Hash) % BigInt(2 ** 64);
+    const bagId = CompoundKeyEncoder.encodeUint160(NodeSelectors.Bag, uint64Hash);
+
+    // fetch our building bag slot if it already exists
+    const building = world?.buildings?.find((b) => b.id === buildingId);
+    const equipSlot = building?.bags[0];
+    const slot = equipSlot && equipSlot.bag.slots[0];
 
     return (
         <Fragment>
@@ -176,19 +196,44 @@ const ConstructAvailable: FunctionComponent<ConstructAvailableProps> = ({ tile, 
             <span className="sub-title">Select what kind of building to construct</span>
             <ImageConstruct />
             <form onSubmit={handleConstruct}>
-                <select name="kind" placeholder="select kind">
-                    {(kinds || []).sort(byName).map((k) => (
-                        <option key={k.id} value={k.id}>
-                            {k.name?.value || '<unnamed>'}
-                        </option>
-                    ))}
-                </select>
+                <div className="select">
+                    <select name="kind" placeholder="select kind">
+                        {(kinds || []).sort(byName).map((k) => (
+                            <option key={k.id} value={k.id}>
+                                {k.name?.value || '<unnamed>'}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <ul ref={slotsRef} className="ingredients">
+                    <li>
+                        {/*// todo figure out if we are pending a resource transfer*/}
+                        <BagSlot
+                            itemSlot={slot}
+                            ownerId={buildingId}
+                            bagId={bagId}
+                            equipIndex={0}
+                            slotKey={0}
+                            placeholder={{
+                                key: 0,
+                                balance: 100,
+                                item: {
+                                    id: resourceIds.unknown,
+                                    kind: 'Resource'
+                                }
+                            }}
+                            isInteractable={true}
+                        />
+                    </li>
+                </ul>
+                <input name="buildingId" value={buildingId} type="hidden" />
+                {/*// todo disable the construct button if we don't have resources */}
                 <button className="action-button" type="submit">
                     Construct It!
                 </button>
-                <a href="#cancel" className="secondary-button" onClick={clearIntent}>
+                <button className="link-button" onClick={clearIntent}>
                     Cancel Construction
-                </a>
+                </button>
             </form>
         </Fragment>
     );

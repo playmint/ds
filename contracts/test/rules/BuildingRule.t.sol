@@ -59,31 +59,17 @@ contract BuildingRuleTest is Test {
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut")));
         // spawn a seeker
         bytes24 seeker = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
-        // equip the seeker with a bag with enough wood
-        _spawnBagWithWood(1, aliceAccount, seeker, EQUIP_SLOT_0, BUILDING_COST);
         // discover an adjacent tile for our building site
         (int16 q, int16 r, int16 s) = (1, -1, 0);
         _discover(q, r, s);
+        // get our building and give it the resources to construct
+        bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
+        uint64 bagID = uint64(uint256(keccak256(abi.encode(buildingInstance))));
+        bytes24 bag = _spawnBagWithWood(bagID, aliceAccount, buildingInstance, EQUIP_SLOT_0, BUILDING_COST);
         // construct our building
         vm.startPrank(aliceAccount);
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.CONSTRUCT_BUILDING_SEEKER,
-                (
-                    seeker,
-                    buildingKind,
-                    seeker, // which thing is bag attached to
-                    EQUIP_SLOT_0, // which equip slot on the thing
-                    ITEM_SLOT_0, // which item slot contains resource
-                    q,
-                    r,
-                    s
-                )
-            )
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
         vm.stopPrank();
-        // make full building id
-        bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
         // check the building has a location at q/r/s
         assertEq(
             state.getFixedLocation(buildingInstance),
@@ -95,7 +81,6 @@ contract BuildingRuleTest is Test {
         // check building has kind
         assertEq(state.getBuildingKind(buildingInstance), buildingKind, "expected building to have kind");
         // check building has a bag equip
-        bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
         assertEq(state.getEquipSlot(buildingInstance, 0), bag, "expected building to have a bag equip");
     }
 
@@ -105,35 +90,23 @@ contract BuildingRuleTest is Test {
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut")));
         // spawn a seeker
         bytes24 seeker = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
-        // equip the seeker with a bag with enough wood
-        _spawnBagWithWood(
-            1,
-            aliceAccount,
-            seeker,
-            EQUIP_SLOT_0,
-            BUILDING_COST - 1 // one less than required
-        );
-        // target building site
-        (int16 q, int16 r, int16 s) = (0, 0, 0);
+        // discover an adjacent tile for our building site
+        (int16 q, int16 r, int16 s) = (1, -1, 0);
         _discover(q, r, s);
+        // get our building and give it the resources to construct
+        bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
+        uint64 bagID = uint64(uint256(keccak256(abi.encode(buildingInstance))));
+        _spawnBagWithWood(
+            bagID,
+            aliceAccount,
+            buildingInstance,
+            EQUIP_SLOT_0,
+            BUILDING_COST - 1 // 1 less than required
+        );
         // construct our building
         vm.startPrank(aliceAccount);
         vm.expectRevert(BuildingResourceRequirementsNotMet.selector); // expect fail as one wood short
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.CONSTRUCT_BUILDING_SEEKER,
-                (
-                    seeker,
-                    buildingKind,
-                    seeker, // which thing is bag attached to
-                    EQUIP_SLOT_0, // which equip slot on the thing
-                    ITEM_SLOT_0, // which item slot contains resource
-                    q,
-                    r,
-                    s
-                )
-            )
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
         vm.stopPrank();
     }
 
@@ -171,27 +144,15 @@ contract BuildingRuleTest is Test {
         // location to do business
         (int16 q, int16 r, int16 s) = (0, 0, 0);
         _discover(q, r, s);
-        // spawn a seeker with some resources
+        // spawn a seeker
         bytes24 seeker = _spawnSeeker(aliceAccount, 1, q, r, s);
-        _spawnBagWithWood(1, aliceAccount, seeker, EQUIP_SLOT_0, BUILDING_COST);
-        // construct a building of our kind
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.CONSTRUCT_BUILDING_SEEKER,
-                (
-                    seeker,
-                    buildingKind,
-                    seeker, // which thing is bag attached to
-                    EQUIP_SLOT_0, // which equip slot on the thing
-                    ITEM_SLOT_0, // which item slot contains resource
-                    q,
-                    r,
-                    s
-                )
-            )
-        );
-        // use the building
+        // get our building and give it the resources to construct
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
+        uint64 bagID = uint64(uint256(keccak256(abi.encode(buildingInstance))));
+        _spawnBagWithWood(bagID, aliceAccount, buildingInstance, EQUIP_SLOT_0, BUILDING_COST);
+        // construct our building
+        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
+        // use the building
         bytes memory payload = bytes("CUSTOM_PAYLOAD");
         dispatcher.dispatch(abi.encodeCall(Actions.BUILDING_USE, (buildingInstance, seeker, payload)));
         // check that the building implementation was called
@@ -211,28 +172,16 @@ contract BuildingRuleTest is Test {
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut")));
         // spawn a seeker
         bytes24 seeker = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
-        // equip the seeker with a bag with enough wood
-        _spawnBagWithWood(1, aliceAccount, seeker, EQUIP_SLOT_0, BUILDING_COST);
         // target building site
         _discover(q, r, s);
+        // get our building and give it the resources to construct
+        bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
+        uint64 bagID = uint64(uint256(keccak256(abi.encode(buildingInstance))));
+        _spawnBagWithWood(bagID, aliceAccount, buildingInstance, EQUIP_SLOT_0, BUILDING_COST);
         // construct our building
         vm.startPrank(aliceAccount);
         vm.expectRevert(BuildingMustBeAdjacentToSeeker.selector); // expect fail as q/r/s not adjacent
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.CONSTRUCT_BUILDING_SEEKER,
-                (
-                    seeker,
-                    buildingKind,
-                    seeker, // which thing is bag attached to
-                    EQUIP_SLOT_0, // which equip slot on the thing
-                    ITEM_SLOT_0, // which item slot contains resource
-                    q,
-                    r,
-                    s
-                )
-            )
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
         vm.stopPrank();
     }
 

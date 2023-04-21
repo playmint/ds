@@ -15,8 +15,8 @@ export interface BagItemProps extends ComponentProps {
     slotKey: number;
     itemId: string;
     itemKind: string;
-    isInteractable: boolean;
-    isPending: boolean;
+    isInteractable?: boolean;
+    isPending?: boolean;
 }
 
 const StyledBagItem = styled('div')`
@@ -63,7 +63,7 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
             onClick={handleClick}
             isPickable={isPickable}
             isInteractable={isInteractable}
-            title={name}
+            title={`${quantity} ${name}`}
         >
             {isPending && <span className="spinner" />}
             <img src={icon} alt={name} className="icon" />

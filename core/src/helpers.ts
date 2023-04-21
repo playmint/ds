@@ -15,6 +15,8 @@ export const NodeSelectors = {
     Tile: getSelector('Tile'),
     Seeker: getSelector('Seeker'),
     Player: getSelector('Player'),
+    Building: getSelector('Building'),
+    Bag: getSelector('Bag'),
 };
 
 export const CompoundKeyEncoder = {

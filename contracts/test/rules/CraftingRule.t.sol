@@ -255,6 +255,7 @@ contract CraftingRuleTest is Test {
             [seekerAlice, seekerAlice], // where are bags equipt
             [EQUIP_SLOT_0, EQUIP_SLOT_1], // which equipment slots
             [0, 0], // item slots
+            0,
             ITEM_2_WOOD_QTY - 1
         );
         vm.stopPrank();
@@ -354,10 +355,11 @@ contract CraftingRuleTest is Test {
         bytes24[2] memory equipees,
         uint8[2] memory equipSlots,
         uint8[2] memory itemSlots,
+        bytes24 bagID,
         uint64 qty
     ) private {
         dispatcher.dispatch(
-            abi.encodeCall(Actions.TRANSFER_ITEM_SEEKER, (seeker, equipees, equipSlots, itemSlots, qty))
+            abi.encodeCall(Actions.TRANSFER_ITEM_SEEKER, (seeker, equipees, equipSlots, itemSlots, bagID, qty))
         );
     }
 }

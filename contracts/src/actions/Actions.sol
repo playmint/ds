@@ -25,6 +25,7 @@ interface Actions {
         bytes24[2] calldata equipees,
         uint8[2] calldata equipSlots,
         uint8[2] calldata itemSlots,
+        bytes24 toBagId,
         uint64 qty
     ) external;
 
@@ -49,9 +50,6 @@ interface Actions {
     function CONSTRUCT_BUILDING_SEEKER(
         bytes24 seeker, // which seeker is performing the construction
         bytes24 buildingKind, // what kind of building
-        bytes24 resourceFromEquipee, // paying from bag equip here
-        uint8 resourceFromEquipSlot, // ....from this equip slot
-        uint8 resourceFromItemSlot, // ....from this item slot
         int16 q,
         int16 r,
         int16 s // which tile to create on (can be adjacent)
