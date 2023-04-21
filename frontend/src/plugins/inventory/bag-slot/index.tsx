@@ -7,7 +7,7 @@ import { styles } from './bag-slot.styles';
 import { BagItem } from '@app/plugins/inventory/bag-item';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { ItemSlotFragment } from '@dawnseekers/core';
-import { getItemDetails, resourceIds, resources } from '@app/plugins/inventory/helpers';
+import { getItemDetails } from '@app/plugins/inventory/helpers';
 
 export interface BagSlotProps extends ComponentProps {
     itemSlot?: ItemSlotFragment;
@@ -38,44 +38,60 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
         isPending,
         ...otherProps
     } = props;
-    const { dropStack, dropSingle, isPickedUpItemVisible, pickedUpItem } = useInventory();
+    const { drop, isPickedUpItemVisible, pickedUpItem } = useInventory();
 
     const item = itemSlot?.balance ? getItemDetails(itemSlot) : null;
     const placeholderItem = placeholder?.balance ? getItemDetails(placeholder) : null;
 
-    const handleLeftClick = () => {
+    const handleDrop = (dropQuantity: number) => {
         if (!isPickedUpItemVisible || !isInteractable || !pickedUpItem) {
             return;
         }
 
-        dropStack(
+        if (placeholder && placeholder.item.id !== pickedUpItem.transferInfo.itemId) {
+            return;
+        }
+
+        const itemSlotBalance = itemSlot?.balance || 0;
+        const transferQuantity = placeholder
+            ? Math.min(dropQuantity, Math.max(placeholder.balance - itemSlotBalance, 0))
+            : dropQuantity;
+
+        if (transferQuantity === 0) {
+            return;
+        }
+
+        drop(
             {
                 id: ownerId,
                 equipIndex,
                 slotKey
             },
-            itemSlot?.balance || 0,
+            itemSlotBalance,
+            transferQuantity,
             bagId
         );
+    };
+
+    const handleLeftClick = () => {
+        if (!pickedUpItem) {
+            return;
+        }
+        const quantity = pickedUpItem.quantity;
+        handleDrop(quantity);
     };
 
     const handleRightClick = () => {
-        if (!isPickedUpItemVisible || !isInteractable || !pickedUpItem) {
-            return;
-        }
-
-        dropSingle(
-            {
-                id: ownerId,
-                equipIndex,
-                slotKey
-            },
-            itemSlot?.balance || 0,
-            bagId
-        );
+        const quantity = 1;
+        handleDrop(quantity);
     };
 
-    const isDroppable = isPickedUpItemVisible && !item;
+    // if we have a picked up item in hand and the slot is empty
+    // and if there is a placeholder make sure the placeholder matches
+    const isDroppable =
+        pickedUpItem &&
+        !item &&
+        ((placeholder && placeholder.item.id === pickedUpItem.transferInfo.itemId) || !placeholder);
 
     return (
         <StyledBagSlot
@@ -100,21 +116,9 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
                 : placeholderItem && (
                       <div
                           className="placeholder"
-                          title={`Requires ${placeholderItem.quantity} ${
-                              placeholderItem.name === resources[resourceIds.unknown]
-                                  ? 'of any resource'
-                                  : placeholderItem.name
-                          }`}
+                          title={`Requires ${placeholderItem.quantity} ${placeholderItem.name}`}
                       >
-                          <img
-                              src={placeholderItem.icon}
-                              alt={
-                                  placeholderItem.name === resources[resourceIds.unknown]
-                                      ? 'Any resource'
-                                      : placeholderItem.name
-                              }
-                              className="icon"
-                          />
+                          <img src={placeholderItem.icon} alt={placeholderItem.name} className="icon" />
                           <span className="amount">{placeholderItem.quantity}</span>
                       </div>
                   )}
