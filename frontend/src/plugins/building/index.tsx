@@ -218,7 +218,7 @@ const ConstructAvailable: FunctionComponent<ConstructAvailableProps> = ({ tile, 
                                 key: 0,
                                 balance: 100,
                                 item: {
-                                    id: resourceIds.unknown,
+                                    id: resourceIds.wood,
                                     kind: 'Resource'
                                 }
                             }}

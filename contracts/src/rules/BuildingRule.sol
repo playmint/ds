@@ -131,7 +131,7 @@ contract BuildingRule is Rule {
         uint8 resourceFromEquipSlot = 0;
         uint8 resourceFromItemSlot = 0;
         // burn resources from given slot
-        // [!] for now we are hard coding a fee of "100 of any resource"
+        // [!] for now we are hard coding a fee of "100 wood"
         _payConstructionFee(state, ctx, buildingInstance, resourceFromEquipSlot, resourceFromItemSlot);
         // set type of building
         state.setBuildingKind(buildingInstance, buildingKind);
@@ -154,7 +154,7 @@ contract BuildingRule is Rule {
         _requireCanUseBag(state, bag, Node.Player(ctx.sender));
         // check we meet the building requirements
         (bytes24 resource, uint64 balance) = state.getItemSlot(bag, resourceFromItemSlot);
-        if (balance < BUILDING_COST) {
+        if (balance < BUILDING_COST || resource != Node.Resource(ResourceKind.WOOD)) {
             revert BuildingResourceRequirementsNotMet();
         }
         balance -= BUILDING_COST;

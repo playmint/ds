@@ -30,14 +30,10 @@ interface InventoryContextStore {
     isPickedUpItemVisible: boolean;
     pickedUpItem: InventoryItem | null;
     pickUpItem: (item: InventoryItem) => void;
-    dropStack: (
+    drop: (
         target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotKey'>,
         targetCurrentBalance: number,
-        bagId?: string
-    ) => void;
-    dropSingle: (
-        target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotKey'>,
-        targetCurrentBalance: number,
+        transferQuantity: number,
         bagId?: string
     ) => void;
     isSeekerAtLocation: (tile: Tile) => boolean;
@@ -140,9 +136,10 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         setIsPickedUpItemVisible(false);
     }
 
-    const dropStack = (
+    const drop = (
         target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotKey'>,
         targetCurrentBalance: number,
+        transferQuantity: number,
         bagId?: string
     ): void => {
         if (!pickedUpItemRef.current) {
@@ -150,38 +147,8 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
             return;
         }
 
-        const transferQuantity = pickedUpItemRef.current.quantity;
-
-        transferItem(
-            pickedUpItemRef.current.transferInfo,
-            {
-                id: target.id,
-                equipIndex: target.equipIndex,
-                slotKey: target.slotKey,
-                newBalance: targetCurrentBalance + transferQuantity,
-                itemId: pickedUpItemRef.current.transferInfo.itemId,
-                itemKind: pickedUpItemRef.current.transferInfo.itemKind
-            },
-            transferQuantity,
-            bagId
-        );
-        clearPickedUpItem();
-    };
-
-    // we want to store a queue of transfers mapping target -> timeout id
-    // we want to push pending before we trigger transfer
-
-    const dropSingle = (
-        target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotKey'>,
-        targetCurrentBalance: number,
-        bagId?: string
-    ): void => {
-        if (!pickedUpItemRef.current) {
-            console.error('Cannot drop an item, you are not holding an item');
-            return;
-        }
-
-        const transferQuantity = 1;
+        // don't attempt to drop more than we are holding
+        transferQuantity = Math.min(transferQuantity, pickedUpItemRef.current.quantity);
 
         transferItem(
             pickedUpItemRef.current.transferInfo,
@@ -294,8 +261,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         isPickedUpItemVisible,
         pickedUpItem: pickedUpItemRef.current,
         pickUpItem,
-        dropStack,
-        dropSingle,
+        drop,
         isSeekerAtLocation,
         getPendingFromTransfers,
         getPendingToTransfers,
