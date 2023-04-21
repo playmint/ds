@@ -26,6 +26,9 @@ all: node_modules contracts/lib/cog/services/bin/ds-node contracts/out/Actions.s
 map:
 	$(UNITY_EDITOR) -batchmode -quit -projectPath ./DawnSeekersUnity -executeMethod BuildScript.GitHubBuild -buildTarget WebGL -logFile - 
 
+debugmap:
+	$(UNITY_EDITOR) -batchmode -quit -projectPath ./DawnSeekersUnity -executeMethod BuildScript.DevBuild -buildTarget WebGL -logFile - 
+
 dev: all
 	$(NODE) .devstartup.js
 
