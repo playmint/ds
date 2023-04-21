@@ -8,36 +8,6 @@ using System.Collections.Generic;
 
 public class BuildScript
 {
-    //WebGL Build
-    [MenuItem("Playmint/Build/Prod/WebGL")]
-    static void WebGLBuild()
-    {
-        var scenes = GetScenesFromBuildSettings();
-        WebGLThreadDisable();
-        EditorUserBuildSettings.il2CppCodeGeneration = Il2CppCodeGeneration.OptimizeSize;
-        BuildPipeline.BuildPlayer(
-            scenes,
-            "Builds/Prod/Web/DawnSeekers",
-            BuildTarget.WebGL,
-            BuildOptions.None
-        );
-    }
-
-    //Debug WebGL Build
-    [MenuItem("Playmint/Build/Debug/WebGL")]
-    static void WebGLBuildDebug()
-    {
-        var scenes = GetScenesFromBuildSettings();
-        WebGLThreadDisable();
-        EditorUserBuildSettings.il2CppCodeGeneration = Il2CppCodeGeneration.OptimizeSize;
-        BuildPipeline.BuildPlayer(
-            scenes,
-            "Builds/Debug/Web/DawnSeekers",
-            BuildTarget.WebGL,
-            BuildOptions.Development
-        );
-    }
-
     //Github actions build
     [MenuItem("Playmint/Build/Pipeline Test")]
     static void GitHubBuild()
@@ -51,6 +21,20 @@ public class BuildScript
             "../frontend/public/ds-unity",
             BuildTarget.WebGL,
             BuildOptions.None
+        );
+    }
+
+    static void DevBuild()
+    {
+        var scenes = GetScenesFromBuildSettings();
+        //MoveJson();
+        PlayerSettings.WebGL.threadsSupport = false;
+        EditorUserBuildSettings.il2CppCodeGeneration = Il2CppCodeGeneration.OptimizeSize;
+        BuildPipeline.BuildPlayer(
+            scenes,
+            "../frontend/public/ds-unity",
+            BuildTarget.WebGL,
+            BuildOptions.Development
         );
     }
 

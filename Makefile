@@ -26,6 +26,9 @@ all: node_modules contracts/lib/cog/services/bin/ds-node contracts/out/Actions.s
 map:
 	$(UNITY_EDITOR) -batchmode -quit -projectPath ./DawnSeekersUnity -executeMethod BuildScript.GitHubBuild -buildTarget WebGL -logFile - 
 
+debugmap:
+	$(UNITY_EDITOR) -batchmode -quit -projectPath ./DawnSeekersUnity -executeMethod BuildScript.DevBuild -buildTarget WebGL -logFile - 
+
 dev: all
 	$(NODE) .devstartup.js
 
@@ -68,5 +71,5 @@ clean:
 	$(MAKE) -C contracts/lib/cog/services clean
 
 
-.PHONY: all clean dev map compose
+.PHONY: all clean dev map compose debugmap
 .SILENT: contracts/lib/cog/services/bin/ds-node frontend/public/ds-unity/Build/ds-unity.wasm
