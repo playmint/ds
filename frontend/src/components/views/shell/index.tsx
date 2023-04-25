@@ -8,6 +8,7 @@ import { Building } from '@app/plugins/building';
 import { SeekerInventory } from '@app/plugins/inventory/seeker-inventory';
 import { TileInventory } from '@app/plugins/inventory/tile-inventory';
 import { SeekerList } from '@app/plugins/seeker-list';
+import { TileCoords } from '@app/plugins/tile-coords';
 import { ComponentProps } from '@app/types/component-props';
 import { CompoundKeyEncoder, NodeSelectors, usePlayer, usePluginState, useSelection } from '@dawnseekers/core';
 import { Fragment, FunctionComponent, useCallback } from 'react';
@@ -112,6 +113,9 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                     </div>
 
                     <div className="tile-actions">
+                        {selectedTiles && selectedTiles.length > 0 && (
+                            <TileCoords className="action" selectedTiles={selectedTiles} />
+                        )}
                         <Building className="action" />
                         {tileSeekers.length > 0 && <SeekerList seekers={tileSeekers} className="action" />}
                         {selectedTile && <TileInventory className="action" tile={selectedTile} title="Bags" />}
