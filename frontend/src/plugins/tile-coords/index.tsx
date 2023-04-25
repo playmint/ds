@@ -18,12 +18,15 @@ const StyledTileCoords = styled('div')`
 export const TileCoords: FunctionComponent<TileCoordsProps> = (props: TileCoordsProps) => {
     const { selectedTiles, ...otherProps } = props;
     const lastTile = selectedTiles[selectedTiles.length - 1];
-    const [q, r, s] = lastTile.coords.map((elm) => ethers.fromTwos(elm, 16));
+    const [_, q, r, s] = lastTile.coords.map((elm) => ethers.fromTwos(elm, 16));
 
     return (
         <StyledTileCoords {...otherProps}>
             <h3>Selected Tile Coordinates</h3>
-            <div>{`${q}, ${r}, ${s}`}</div>
+            {/* <div>{`Q:${q}, R:${r}, S:${s}`}</div> */}
+            <div>{`Q: ${q}`}</div>
+            <div>{`R: ${r}`}</div>
+            <div>{`S: ${s}`}</div>
         </StyledTileCoords>
     );
 };
