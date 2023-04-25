@@ -5,6 +5,7 @@ import { createContext, ReactNode, RefObject, useContext, useEffect, useReducer,
 import styled from 'styled-components';
 import { useClickOutside } from '@app/plugins/inventory/use-click-outside';
 import { nullBagId } from '@app/fixtures/null-bag-id';
+import { getTileDistance } from '@app/helpers/tile';
 
 export interface InventoryContextProviderProps {
     children?: ReactNode;
@@ -119,11 +120,16 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
     }, [player, selectedTiles, world?.block, world?.buildings]);
 
     /**
-     * check if the selected seeker is on the selected tile
-     * @returns true if the seeker is on the selected tile
+     * check if the selected seeker is on or adjacent to the selected tile
+     * @returns true if the seeker is on or adjacent to the selected tile
      */
     const isSeekerAtLocation = (tile: Tile) => {
-        return selectedSeeker?.nextLocation?.tile.id === tile.id;
+        const seekerTile = selectedSeeker?.nextLocation?.tile;
+        if (!seekerTile) {
+            return false;
+        }
+        const distance = getTileDistance(tile, seekerTile);
+        return distance < 2;
     };
 
     const pickUpItem = (item: InventoryItem): void => {

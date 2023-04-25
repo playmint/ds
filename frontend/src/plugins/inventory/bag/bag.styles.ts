@@ -18,12 +18,12 @@ const baseStyles = (_: Partial<BagProps>) => css`
     > .icon {
         width: 3.2rem;
         height: 3.2rem;
+        margin-right: 1.6rem;
     }
 
     > .slots {
         display: flex;
         flex-direction: row;
-        margin-left: 1.6rem;
 
         li:not(:first-child) {
             margin-left: 0.6rem;
