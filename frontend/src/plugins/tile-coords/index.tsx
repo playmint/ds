@@ -32,7 +32,7 @@ export const TileCoords: FunctionComponent<TileCoordsProps> = (props: TileCoords
                 <div className="axis r">{`R`}</div>
                 <div className="axis s">{`S`}</div>
             </div>
-            <div>{`${q}, ${r}, ${s}`}</div>
+            <div className="coordinates">{`Q:${q} R:${r} S:${s}`}</div>
         </StyledTileCoords>
     );
 };

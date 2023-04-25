@@ -33,19 +33,19 @@ const baseStyles = (_: Partial<TileCoordsProps>) => css`
     }
 
     .axis.q {
-        transform: translate(-53px, 28px);
+        transform: translate(-19px, -3px);
     }
 
     .axis.r {
-        transform: translate(50px, -18px);
+        transform: translate(22px, -21px);
     }
 
     .axis.s {
-        transform: translate(-51px, -63px);
+        transform: translate(-17px, -40px);
     }
 
     .element.q {
-        transform: translate(-53px, 28px);
+        transform: translate(-44px, 35px);
     }
 
     .element.r {
@@ -54,6 +54,10 @@ const baseStyles = (_: Partial<TileCoordsProps>) => css`
 
     .element.s {
         transform: translate(-51px, -63px);
+    }
+
+    .coordinates {
+        margin-top: 1em;
     }
 `;
 
