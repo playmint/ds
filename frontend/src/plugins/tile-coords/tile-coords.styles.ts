@@ -45,7 +45,9 @@ const baseStyles = (_: Partial<TileCoordsProps>) => css`
     }
 
     .element.q {
-        transform: translate(-44px, 35px);
+        width: 50px;
+        text-align: right;
+        transform: translate(-76px, 39px);
     }
 
     .element.r {
@@ -53,7 +55,9 @@ const baseStyles = (_: Partial<TileCoordsProps>) => css`
     }
 
     .element.s {
-        transform: translate(-51px, -63px);
+        width: 50px;
+        text-align: right;
+        transform: translate(-76px, -63px);
     }
 
     .coordinates {
