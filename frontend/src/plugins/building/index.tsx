@@ -43,7 +43,7 @@ interface MaybeNamedThing {
     } | null;
 }
 
-const ImageConstruct = () => <img src="/tile-construct.png" alt="" className="building-image" />;
+const ImageConstruct = () => <img src="/tile-construct.png" alt="" className="building-image" width="33%" />;
 const ImageAvailable = () => <img src="/tile-grass.png" alt="" className="building-image" />;
 const ImageBuilding = () => <img src="/building-with-flag.png" alt="" className="building-image" />;
 const ImageScouting = () => <img src="/tile-scouting.png" alt="" className="building-image" width="33%" />;
@@ -305,14 +305,21 @@ const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selecte
     return (
         <Fragment>
             <h3>Moving</h3>
-            <span className="sub-title">Select a tile to add to your movement path</span>
+            <span className="sub-title">Select a tile to add to path</span>
             <ImageSelecting />
-            <button className="action-button" onClick={move} disabled={!canMove} style={{ opacity: canMove ? 1 : 0.1 }}>
-                Confirm Move
-            </button>
-            <button className="link-button" onClick={clearIntent}>
-                Cancel Move
-            </button>
+            <form>
+                <button
+                    className="action-button"
+                    onClick={move}
+                    disabled={!canMove}
+                    style={{ opacity: canMove ? 1 : 0.1 }}
+                >
+                    Confirm Move
+                </button>
+                <button className="link-button" onClick={clearIntent}>
+                    Cancel Move
+                </button>
+            </form>
         </Fragment>
     );
 };
@@ -364,17 +371,19 @@ const Scout: FunctionComponent<ScoutProps> = ({ selectTiles, selectIntent, selec
             <h3>Scouting</h3>
             <span className="sub-title">{note}</span>
             <ImageScouting />
-            <button
-                className="action-button"
-                onClick={scout}
-                disabled={!canScout}
-                style={{ opacity: canScout ? 1 : 0.1 }}
-            >
-                Confirm Scout
-            </button>
-            <button className="link-button" onClick={clearIntent}>
-                Cancel
-            </button>
+            <form>
+                <button
+                    className="action-button"
+                    onClick={scout}
+                    disabled={!canScout}
+                    style={{ opacity: canScout ? 1 : 0.1 }}
+                >
+                    Confirm Scout
+                </button>
+                <button className="link-button" onClick={clearIntent}>
+                    Cancel Scout
+                </button>
+            </form>
         </Fragment>
     );
 };
