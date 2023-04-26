@@ -119,6 +119,9 @@ public class ScoutIntent : IntentHandler
      */
     private void OnTileRightClick(Vector3Int cellPosCube)
     {
+        if (!_isActiveIntent)
+            return;
+
         // Right click completes the scout. We are lacking a SCOUT_MULTI atm so will just rattle off the txs sequentially
         foreach (var kvp in _spawnedSelectedHighlights)
         {
