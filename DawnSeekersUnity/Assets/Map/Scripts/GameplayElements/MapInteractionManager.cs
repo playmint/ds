@@ -26,11 +26,14 @@ public class MapInteractionManager : MonoBehaviour
     [SerializeField]
     private GameObject _intentContainerGO;
 
+    private CameraController _camController;
+
     bool mapReady = false;
 
     private void Awake()
     {
         instance = this;
+        _camController = Camera.main.GetComponent<CameraController>();
     }
 
     private void Start()
@@ -64,9 +67,10 @@ public class MapInteractionManager : MonoBehaviour
         }
         if (EventSystem.current.IsPointerOverGameObject())
             return;
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonUp(0))
         {
-            MapClicked();
+            if (!_camController.hasDragged)
+                MapClicked();
         }
 
         if (Input.GetMouseButtonDown(1))
