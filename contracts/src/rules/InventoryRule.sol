@@ -116,8 +116,11 @@ contract InventoryRule is Rule {
                 revert NoTransferNotSameLocation();
             }
         } else if (bytes4(equipee) == Kind.Building.selector) {
-            // attached to a building with a fixed location
-            bytes24 buildingLocation = state.getFixedLocation(equipee);
+            // The distance method expects a tile so we can swap out the first 4 bytes
+            // of the building for a tile selector because the building ID is based on
+            // the location the same as a tile.
+            bytes24 mask = 0x00000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+            bytes24 buildingLocation = (equipee & mask) | bytes4(Kind.Tile.selector);
             if (TileUtils.distance(location, buildingLocation) > 1 || !TileUtils.isDirect(location, buildingLocation)) {
                 revert NoTransferNotSameLocation();
             }
