@@ -46,60 +46,61 @@ public class SeekerManager : MonoBehaviour
     private void OnStateUpdated(GameState state)
     {
         ResetSeekerPositionCounts();
-        if (state.Player == null || state.Player.Seekers == null || state.Player.Seekers.Count == 0)
-        {
-            // if there were _playerSeekers then we have signed out
-            if (_playerSeekers != null)
-            {
-                // Removed seekers for previous signed in account and add back as non-player seekers
-                instance.RemoveSeekers(_playerSeekers.ToList());
-                createSeekers(_playerSeekers.ToList(), false);
 
-                _playerSeekers = null;
-                Seeker = null;
-            }
-            return;
-        }
+        var selectedSeeker = state.Selected.Seeker;
 
-        var playerSeeker = state.Player.Seekers.ToList()[0];
-
-        //  If we've switched accounts;
+        //  If we've switched accounts, remove all seekers to reset
         if (
-            playerSeeker != null
-            && Seeker != null
-            && playerSeeker.Id != Seeker.Id
-            && _playerSeekers != null
+            (selectedSeeker != null && Seeker != null && selectedSeeker.Id != Seeker.Id)
+            || (Seeker == null && selectedSeeker != null)
+            || (Seeker != null && selectedSeeker == null)
         )
         {
-            // Removed seekers for previous signed in account and add back as non-player seekers
-            instance.RemoveSeekers(_playerSeekers.ToList());
-            createSeekers(_playerSeekers.ToList(), false);
-
-            // Remove seeker icon for current account as it'll be the dark version
-            instance.RemoveSeeker(playerSeeker);
+            instance.RemoveAllSeekers();
+            Seeker = null;
         }
 
         _playerSeekers = state.Player.Seekers;
 
-        Seeker = playerSeeker;
-        createSeeker(true);
-
-        foreach (var tile in state.World.Tiles)
+        if (selectedSeeker != null)
         {
-            var cellPosCube = TileHelper.GetTilePosCube(tile);
-            // Seekers
-            foreach (var seeker in tile.Seekers)
+            var selectedSeekers = _playerSeekers.Where(s => s.Id == selectedSeeker.Id);
+            if (selectedSeekers.Count() > 0)
             {
-                if (!SeekerHelper.IsPlayerSeeker(seeker))
+                Seeker = selectedSeekers.First();
+                createSeeker(true);
+            }
+        }
+
+        if (state.World != null)
+        {
+            foreach (var tile in state.World.Tiles)
+            {
+                var cellPosCube = TileHelper.GetTilePosCube(tile);
+                // Seekers
+                foreach (var seeker in tile.Seekers)
                 {
-                    SeekerManager.instance.CreateSeeker(
-                        seeker.Id,
-                        cellPosCube,
-                        false,
-                        tile.Seekers.Count
-                    );
+                    if (!SeekerHelper.IsPlayerSeeker(seeker))
+                    {
+                        SeekerManager.instance.CreateSeeker(
+                            seeker.Id,
+                            cellPosCube,
+                            false,
+                            tile.Seekers.Count
+                        );
+                    }
                 }
             }
+        }
+    }
+
+    public void RemoveAllSeekers()
+    {
+        var allSeekers = spawnedSeekers.ToDictionary(pair => pair.Key, pair => pair.Value);
+        foreach (KeyValuePair<string, SeekerController> seeker in allSeekers)
+        {
+            seeker.Value.DestroyMapElement();
+            spawnedSeekers.Remove(seeker.Key);
         }
     }
 
