@@ -72,6 +72,8 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
             if (to) {
                 if (slot.itemSlot) {
                     slot.itemSlot.balance = to.newBalance;
+                    slot.itemSlot.item.id = to.itemId;
+                    slot.itemSlot.item.kind = to.itemKind;
                 } else {
                     slot.itemSlot = {
                         key: slot.slotKey,
