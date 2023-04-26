@@ -310,6 +310,7 @@ const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selecte
             <form>
                 <button
                     className="action-button"
+                    type="button"
                     onClick={move}
                     disabled={!canMove}
                     style={{ opacity: canMove ? 1 : 0.1 }}
@@ -374,6 +375,7 @@ const Scout: FunctionComponent<ScoutProps> = ({ selectTiles, selectIntent, selec
             <form>
                 <button
                     className="action-button"
+                    type="button"
                     onClick={scout}
                     disabled={!canScout}
                     style={{ opacity: canScout ? 1 : 0.1 }}
