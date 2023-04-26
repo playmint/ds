@@ -3,9 +3,7 @@ import { TileAction } from '@app/components/organisms/tile-action';
 import { ComponentProps } from '@app/types/component-props';
 import {
     BiomeKind,
-    CompoundKeyEncoder,
     ConnectedPlayer,
-    NodeSelectors,
     SelectedSeekerFragment,
     SelectedTileFragment,
     Selector,
@@ -16,13 +14,13 @@ import {
     useWorld,
     WorldBuildingFragment
 } from '@dawnseekers/core';
-import { AbiCoder, ethers } from 'ethers';
 import React, { Fragment, FunctionComponent, useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { styles } from './building.styles';
-import { resourceIds } from '@app/plugins/inventory/helpers';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
-import { BagSlot } from '@app/plugins/inventory/bag-slot';
+import { getCoords, getTileDistance } from '@app/helpers/tile';
+import { BuildingInventory } from '@app/plugins/inventory/building-inventory';
+import { getBuildingEquipSlot, getBuildingId, resourceIds } from '@app/plugins/inventory/helpers';
 
 export interface BuildingProps extends ComponentProps {}
 
@@ -145,7 +143,7 @@ interface ConstructAvailableProps {
 const ConstructAvailable: FunctionComponent<ConstructAvailableProps> = ({ tile, seeker, player, selectIntent }) => {
     const { addBagRef, removeBagRef } = useInventory();
     const world = useWorld();
-    const slotsRef = useRef<HTMLUListElement>(null);
+    const slotsRef = useRef<HTMLDivElement>(null);
     const kinds = useBuildingKinds();
 
     const clearIntent = useCallback(
@@ -179,16 +177,24 @@ const ConstructAvailable: FunctionComponent<ConstructAvailableProps> = ({ tile, 
         return null;
     }
 
-    const coords = getCoords(tile);
-    const buildingId = CompoundKeyEncoder.encodeInt16(NodeSelectors.Building, 0, coords.q, coords.r, coords.s);
-    const keccak256Hash = ethers.keccak256(AbiCoder.defaultAbiCoder().encode(['bytes24'], [buildingId]));
-    const uint64Hash = BigInt(keccak256Hash) % BigInt(2 ** 64);
-    const bagId = CompoundKeyEncoder.encodeUint160(NodeSelectors.Bag, uint64Hash);
-
-    // fetch our building bag slot if it already exists
-    const building = world?.buildings?.find((b) => b.id === buildingId);
-    const equipSlot = building?.bags[0];
-    const slot = equipSlot && equipSlot.bag.slots[0];
+    const { q, r, s } = getCoords(tile);
+    const buildingId = getBuildingId(q, r, s);
+    const equipIndex = 0; // we don't have multi bag building recipes
+    const equipSlot = getBuildingEquipSlot(world, buildingId, equipIndex);
+    const recipe = [
+        {
+            key: 0,
+            balance: 100,
+            item: {
+                id: resourceIds.wood,
+                kind: 'Resource'
+            }
+        }
+    ];
+    const canConstruct = recipe.every((ingredient, index) => {
+        const bag = equipSlot && equipSlot.bag;
+        return bag && bag.slots[index].balance === ingredient.balance;
+    });
 
     return (
         <Fragment>
@@ -205,30 +211,11 @@ const ConstructAvailable: FunctionComponent<ConstructAvailableProps> = ({ tile, 
                         ))}
                     </select>
                 </div>
-                <ul ref={slotsRef} className="ingredients">
-                    <li>
-                        {/*// todo figure out if we are pending a resource transfer*/}
-                        <BagSlot
-                            itemSlot={slot}
-                            ownerId={buildingId}
-                            bagId={bagId}
-                            equipIndex={0}
-                            slotKey={0}
-                            placeholder={{
-                                key: 0,
-                                balance: 100,
-                                item: {
-                                    id: resourceIds.wood,
-                                    kind: 'Resource'
-                                }
-                            }}
-                            isInteractable={true}
-                        />
-                    </li>
-                </ul>
-                <input name="buildingId" value={buildingId} type="hidden" />
+                <div ref={slotsRef} className="ingredients">
+                    <BuildingInventory buildingId={buildingId} recipe={recipe} />
+                </div>
                 {/*// todo disable the construct button if we don't have resources */}
-                <button className="action-button" type="submit">
+                <button className="action-button" type="submit" disabled={!canConstruct}>
                     Construct It!
                 </button>
                 <button className="link-button" onClick={clearIntent}>
@@ -325,25 +312,3 @@ export const Building: FunctionComponent<BuildingProps> = ({ ...otherProps }) =>
 
     return <StyledBuilding {...otherProps}>{content}</StyledBuilding>;
 };
-
-type Coords = Array<any>;
-interface Locatable {
-    coords: Coords;
-}
-
-function getTileDistance(t1: Locatable, t2: Locatable): number {
-    if (!t1 || !t2) {
-        return Infinity;
-    }
-    const a = getCoords(t1);
-    const b = getCoords(t2);
-    return (Math.abs(a.q - b.q) + Math.abs(a.r - b.r) + Math.abs(a.s - b.s)) / 2;
-}
-
-function getCoords(t: Locatable) {
-    return {
-        q: Number(ethers.fromTwos(t.coords[1], 16)),
-        r: Number(ethers.fromTwos(t.coords[2], 16)),
-        s: Number(ethers.fromTwos(t.coords[3], 16))
-    };
-}

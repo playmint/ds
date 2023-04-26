@@ -1,7 +1,7 @@
 /** @format */
 
-import { BagFragment, ItemSlotFragment } from '@dawnseekers/core';
-import { toUtf8String } from 'ethers';
+import { CompoundKeyEncoder, ItemSlotFragment, NodeSelectors, WorldStateFragment } from '@dawnseekers/core';
+import { AbiCoder, ethers, toUtf8String } from 'ethers';
 
 export const resourceRegex = /^0x37f9b55d[0-9a-f]+$/g;
 
@@ -61,22 +61,17 @@ export function getItemDetails(itemSlot: ItemSlotFragment) {
     };
 }
 
-/**
- * Get the nth next available slot key in the series.
- *
- * @param bag the bag we are getting the next slot for
- * @param skip the number of next slot keys to skip over
- */
-export function getNewSlotKey(bag: BagFragment, skip: number): number {
-    const keys = bag.slots.map((s) => s.key);
-    let n = 0;
-    for (let i = 0; i < 255; i += 1) {
-        if (!keys.includes(i)) {
-            if (n === skip) {
-                return i;
-            }
-            n += 1;
-        }
-    }
-    return -1;
+export function getBuildingId(q: number, r: number, s: number) {
+    return CompoundKeyEncoder.encodeInt16(NodeSelectors.Building, 0, q, r, s);
+}
+
+export function getBagId(buildingId: string) {
+    const keccak256Hash = ethers.keccak256(AbiCoder.defaultAbiCoder().encode(['bytes24'], [buildingId]));
+    const uint64Hash = BigInt(keccak256Hash) % BigInt(2 ** 64);
+    return CompoundKeyEncoder.encodeUint160(NodeSelectors.Bag, uint64Hash);
+}
+
+export function getBuildingEquipSlot(world: WorldStateFragment | undefined, buildingId: string, equipIndex: number) {
+    const building = world?.buildings?.find((b) => b.id === buildingId);
+    return building && building.bags.length > 0 ? building.bags[equipIndex] : undefined;
 }
