@@ -9,7 +9,7 @@ export function makeBrowserWallet(): Source<Wallet | undefined> {
     const { accounts, fetchAccounts } = newBrowserAccountSource();
     let prev: string | undefined;
     return pipe(
-        concat([fromPromise(fetchAccounts().catch(() => prev)), accounts]),
+        lazy(() => concat([fromPromise(fetchAccounts().catch(() => prev)), accounts])),
         tap((address) => (prev = address)),
         map((address) =>
             address
