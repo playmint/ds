@@ -14,6 +14,10 @@ public class CameraController : MonoBehaviour
     private float prevDirection = -100;
     private Vector3 mouseDownPos;
     private Vector3 camMouseDownPos;
+    private float _dragThreshold = 0.1f;
+
+    [HideInInspector]
+    public bool hasDragged = false;
 
     void Start()
     {
@@ -32,6 +36,7 @@ public class CameraController : MonoBehaviour
         {
             mouseDownPos = Input.mousePosition;
             camMouseDownPos = transform.position;
+            hasDragged = false;
         }
         if (Input.GetMouseButton(0))
         {
@@ -46,6 +51,10 @@ public class CameraController : MonoBehaviour
                 mouseDownRay.GetPoint(mouseDownDist) - currentMouseRay.GetPoint(currentMouseDist)
             );
             transform.position = camMouseDownPos + offset;
+            if (Vector3.Distance(camMouseDownPos, camMouseDownPos + offset) > _dragThreshold)
+            {
+                hasDragged = true;
+            }
         }
     }
 
