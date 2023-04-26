@@ -2,7 +2,7 @@
 
 import { ComponentProps } from '@app/types/component-props';
 import { ActionName, useGameState, usePlayer, useSelection } from '@dawnseekers/core';
-import { FunctionComponent, useEffect, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useState } from 'react';
 import { Unity, useUnityContext } from 'react-unity-webgl';
 import styled from 'styled-components';
 import { styles } from './unity-map.styles';
@@ -61,7 +61,7 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
     const player = usePlayer();
     const { dispatch } = player || {};
     const game = useGameState();
-    const { selectTiles, selectIntent } = useSelection();
+    const { selectTiles, selectIntent: rawSelectIntent } = useSelection();
     const { unityProvider, sendMessage, addEventListener, removeEventListener, loadingProgression } = useUnityContext({
         loaderUrl: `/ds-unity/Build/ds-unity.loader.js`,
         dataUrl: `/ds-unity/Build/ds-unity.data`,
@@ -96,6 +96,14 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
         globalLastBlob = newMapBlob;
         globalQueue.push(newMapBlob);
     }
+
+    const selectIntent = useCallback(
+        (intent: string | undefined, tileId?: string) => {
+            selectTiles(tileId ? [tileId] : []);
+            rawSelectIntent(intent);
+        },
+        [selectTiles, rawSelectIntent]
+    );
 
     // -- Event handling
 

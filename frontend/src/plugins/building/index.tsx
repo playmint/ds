@@ -310,9 +310,9 @@ const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selecte
             <button className="action-button" onClick={move} disabled={!canMove} style={{ opacity: canMove ? 1 : 0.1 }}>
                 Confirm Move
             </button>
-            <a href="#cancel" className="secondary-button" onClick={clearIntent}>
-                Cancel
-            </a>
+            <button className="link-button" onClick={clearIntent}>
+                Cancel Move
+            </button>
         </Fragment>
     );
 };
@@ -372,9 +372,9 @@ const Scout: FunctionComponent<ScoutProps> = ({ selectTiles, selectIntent, selec
             >
                 Confirm Scout
             </button>
-            <a href="#cancel" className="secondary-button" onClick={clearIntent} style={{ opacity: 0.5 }}>
+            <button className="link-button" onClick={clearIntent}>
                 Cancel
-            </a>
+            </button>
         </Fragment>
     );
 };
