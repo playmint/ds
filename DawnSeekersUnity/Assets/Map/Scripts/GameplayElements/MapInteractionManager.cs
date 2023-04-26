@@ -153,5 +153,9 @@ public class MapInteractionManager : MonoBehaviour
 
             selectedMarker1.gameObject.SetActive(true);
         }
+        else
+        {
+            selectedMarker1.gameObject.SetActive(false);
+        }
     }
 }
