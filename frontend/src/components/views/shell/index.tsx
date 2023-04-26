@@ -113,9 +113,6 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                     </div>
 
                     <div className="tile-actions">
-                        {selectedTiles && selectedTiles.length > 0 && (
-                            <TileCoords className="action" selectedTiles={selectedTiles} />
-                        )}
                         <Building className="action" />
                         {tileSeekers.length > 0 && <SeekerList seekers={tileSeekers} className="action" />}
                         {selectedTile && <TileInventory className="action" tile={selectedTile} title="Bags" />}
@@ -125,6 +122,9 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                             .map((c) => (
                                 <TileAction key={c.id} component={c} className="action" />
                             ))}
+                        {selectedTiles && selectedTiles.length > 0 && (
+                            <TileCoords className="action" selectedTiles={selectedTiles} />
+                        )}
                     </div>
                 </Fragment>
             )}

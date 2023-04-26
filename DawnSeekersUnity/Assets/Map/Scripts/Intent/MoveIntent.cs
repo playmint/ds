@@ -131,31 +131,6 @@ public class MoveIntent : IntentHandler
             || GameStateMediator.Instance.gameState.World == null
         )
             return;
-
-        if (isMoving && _path.Count > 0)
-        {
-            Vector3Int cubeMousePos = GridExtensions.GridToCube(
-                MapInteractionManager.CurrentMouseCell
-            );
-            if (TileHelper.IsDiscoveredTile(cubeMousePos))
-            {
-                if (
-                    !spawnedPathHighlights.ContainsKey(cubeMousePos)
-                    && TileHelper.GetTileNeighbours(_path[_path.Count - 1]).Contains(cubeMousePos)
-                )
-                {
-                    TooltipManager.instance.ShowTooltip(
-                        "Right-click to <b>Move</b>\nLeft-click to <b>Add</b>"
-                    );
-                }
-                else if (_path[_path.Count - 1] == cubeMousePos)
-                {
-                    TooltipManager.instance.ShowTooltip(
-                        "Right-click to <b>Move</b>\nLeft-click to <b>Undo</b>"
-                    );
-                }
-            }
-        }
     }
 
     private void OnTileLeftClick(Vector3Int cellCubePos)
@@ -178,6 +153,10 @@ public class MoveIntent : IntentHandler
 
     private void OnTileRightClick(Vector3Int cellCubePos)
     {
+#if UNITY_EDITOR
+#elif UNITY_WEBGL
+        return;
+#endif
         if (isMoving)
         {
             ClosePath(cellCubePos);
