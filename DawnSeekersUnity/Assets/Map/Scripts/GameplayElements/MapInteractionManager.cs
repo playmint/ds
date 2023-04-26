@@ -137,7 +137,15 @@ public class MapInteractionManager : MonoBehaviour
     private void OnStateUpdated(GameState state)
     {
         mapReady = true;
-        if (state.Selected.Tiles != null && state.Selected.Tiles.Count > 0)
+        if (
+            IntentManager.Instance.IsHandledIntent(
+                GameStateMediator.Instance.gameState.Selected.Intent
+            )
+        )
+        {
+            selectedMarker1.gameObject.SetActive(false);
+        }
+        else if (state.Selected.Tiles != null && state.Selected.Tiles.Count > 0)
         {
             var tile = state.Selected.Tiles.First();
             var cellPosCube = TileHelper.GetTilePosCube(tile);
