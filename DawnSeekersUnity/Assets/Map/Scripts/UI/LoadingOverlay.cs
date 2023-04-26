@@ -25,17 +25,8 @@ public class LoadingOverlay : MonoBehaviour
         if (_hidden || state.World == null || state.World.Tiles == null)
             return;
 
-        //foreach (var seeker in state.Game.Seekers)
-        //{
-        //    var isPlayerSeeker = (
-        //        SeekerManager.Instance.Seeker != null
-        //        && SeekerManager.Instance.Seeker.Id == seeker.Id
-        //    );
-
-        //}
         if (state.World.Tiles.Count > 0)
         {
-            Debug.Log("Fading Overlay");
             _hidden = true;
             StartCoroutine(FadeOutCR());
             return;

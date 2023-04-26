@@ -75,10 +75,10 @@ public class MapInteractionManager : MonoBehaviour
         }
 
         bool TileNeighbourValid = false;
-        if (SeekerManager.Instance.Seeker != null)
+        if (SeekerManager.instance.Seeker != null)
             TileNeighbourValid = TileHelper
                 .GetTileNeighbours(
-                    TileHelper.GetTilePosCube(SeekerManager.Instance.Seeker.NextLocation)
+                    TileHelper.GetTilePosCube(SeekerManager.instance.Seeker.NextLocation)
                 )
                 .Contains(GridExtensions.GridToCube(CurrentMouseCell));
 
@@ -140,7 +140,7 @@ public class MapInteractionManager : MonoBehaviour
             var gridCoords = GridExtensions.CubeToGrid(cellPosCube);
 
             CurrentSelectedCell = GridExtensions.CubeToGrid(cellPosCube);
-            clickedPlayerCell = SeekerManager.Instance.IsPlayerAtPosition(cellPosCube);
+            clickedPlayerCell = SeekerManager.instance.IsPlayerAtPosition(cellPosCube);
             Vector3 markerPos = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
             float height = MapHeightManager.UNSCOUTED_HEIGHT;
             if (TileHelper.IsDiscoveredTile(cellPosCube))

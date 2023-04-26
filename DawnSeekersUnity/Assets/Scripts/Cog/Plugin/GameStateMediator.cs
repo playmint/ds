@@ -236,12 +236,12 @@ namespace Cog
 
         public void ScoutTile(Vector3Int cellCubePos)
         {
-            if (SeekerManager.Instance.Seeker != null)
+            if (SeekerManager.instance.Seeker != null)
             {
                 // function SCOUT_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
                 DispatchAction(
                     "SCOUT_SEEKER",
-                    SeekerManager.Instance.Seeker.Key,
+                    SeekerManager.instance.Seeker.Key,
                     cellCubePos.x,
                     cellCubePos.y,
                     cellCubePos.z

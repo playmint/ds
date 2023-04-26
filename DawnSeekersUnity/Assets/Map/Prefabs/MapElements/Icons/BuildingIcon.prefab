@@ -266,13 +266,14 @@ GameObject:
   m_Component:
   - component: {fileID: 2167013614747121972}
   - component: {fileID: 2167013614747121973}
+  - component: {fileID: -5602742175170028129}
   m_Layer: 0
-  m_Name: Icon
+  m_Name: BuildingIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2167013614747121972
 Transform:
   m_ObjectHideFlags: 0
@@ -339,6 +340,18 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  sortingGroup: {fileID: -5602742175170028129}
+--- !u!210 &-5602742175170028129
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2167013614747121971}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
 --- !u!1 &2167013615873553284
 GameObject:
   m_ObjectHideFlags: 0
@@ -412,7 +425,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 3
-  m_Sprite: {fileID: 21300000, guid: f3c5c6a786274804f9653ce5376ef92d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9f05c4157b2e9eb42bd099bd3b821330, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
