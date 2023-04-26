@@ -71,6 +71,20 @@ contract InventoryRuleTest is Test {
         );
     }
 
+    function testTransferItemSeekerBagToBuildingBagNotAtOrigin() public {
+        bytes24 seeker = _spawnSeeker(aliceAccount, 1, 1, 1, -2);
+        (int16 q, int16 r, int16 s) = (2, 1, -3);
+        _discover(q, r, s);
+        bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
+        bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
+        _testTransferItemBetweenEquipeesWithBag(
+            seeker, // seeker perfoming the action
+            seeker, // location of from-bag
+            buildingInstance, // location to to-bag
+            bag // building bag to create
+        );
+    }
+
     function testTransferItemFailNotOwner() public {
         bytes24 seeker = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
         _testTransferItemFailBetweenEquipees(
@@ -237,6 +251,15 @@ contract InventoryRuleTest is Test {
     }
 
     function _testTransferItemBetweenEquipees(bytes24 seeker, bytes24 fromEquipee, bytes24 toEquipee) private {
+        _testTransferItemBetweenEquipeesWithBag(seeker, fromEquipee, toEquipee, bytes24(0));
+    }
+
+    function _testTransferItemBetweenEquipeesWithBag(
+        bytes24 seeker,
+        bytes24 fromEquipee,
+        bytes24 toEquipee,
+        bytes24 bag
+    ) private {
         // equip two bags to seeker
         bytes24 fromBag = _spawnBagWithWood(1, aliceAccount, fromEquipee, EQUIP_SLOT_0);
         bytes24 toBag = _spawnBagEmpty(2, aliceAccount, toEquipee, EQUIP_SLOT_1);
@@ -262,7 +285,7 @@ contract InventoryRuleTest is Test {
             [fromEquipee, toEquipee], // where are bags equipt
             equipSlots, // which equipment slots
             itemSlots, // item slots
-            0,
+            bag,
             50 // amount to xfer
         );
         vm.stopPrank();
