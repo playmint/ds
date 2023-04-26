@@ -580,6 +580,9 @@ namespace Cog
         [Newtonsoft.Json.JsonProperty("bagCount", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double BagCount { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("bagBalances")]
+        public System.Collections.Generic.ICollection<BagBalance> BagBalances { get; set; }
+
         [Newtonsoft.Json.JsonProperty("biome", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double? Biome { get; set; }
 
@@ -606,6 +609,12 @@ namespace Cog
             set { _additionalProperties = value; }
         }
 
+    }
+
+    public partial class BagBalance
+    {
+        [Newtonsoft.Json.JsonProperty("balance")]
+        public int Balance { get; set; }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]

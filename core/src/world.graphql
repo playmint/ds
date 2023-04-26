@@ -60,7 +60,10 @@ fragment WorldTile on Node {
     # but this is temporary until we know what we need
     biome: value(match: { via: { rel: "Biome" } }) # 0=UNDISCOVERED, 1=DISCOVERED
     # bags equip to tiles
-    bagCount: count(match: { kinds: ["Bag"], via: { rel: "Equip" } })
+    bagCount: count(match: { kinds: "Bag", via: { rel: "Equip" } })
+    bagBalances: nodes(match: { kinds: "Bag", via: { rel: "Equip", dir: OUT } }) {
+        balance: sum(match: { kinds: "Resource", via: { rel: "Balance" } })
+    }
     building: node(match: { kinds: "Building", via: { rel: "Location", dir: IN } }) {
         ...WorldBuilding
     }
