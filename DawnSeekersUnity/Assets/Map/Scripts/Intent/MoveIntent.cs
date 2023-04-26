@@ -153,6 +153,10 @@ public class MoveIntent : IntentHandler
 
     private void OnTileRightClick(Vector3Int cellCubePos)
     {
+#if UNITY_EDITOR
+#elif UNITY_WEBGL
+        return;
+#endif
         if (isMoving)
         {
             ClosePath(cellCubePos);

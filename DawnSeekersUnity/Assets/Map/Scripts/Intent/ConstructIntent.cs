@@ -102,6 +102,10 @@ public class ConstructIntent : IntentHandler
 
     private void OnTileRightClick(Vector3Int cellPosCube)
     {
+#if UNITY_EDITOR
+#elif UNITY_WEBGL
+        return;
+#endif
         if (!_isActiveIntent)
             return;
     }
