@@ -6,10 +6,14 @@ public class SeekerController : MapElementController
 {
     [SerializeField]
     GameObject nonPlayerIconPrefab;
+
     [SerializeField]
     float shrinkScale;
+
     [SerializeField]
-    private AnimationCurve _moveCurve, _jumpCurve, _shrinkCurve;
+    private AnimationCurve _moveCurve,
+        _jumpCurve,
+        _shrinkCurve;
 
     protected int _currentIndex;
     private float _currentSize;
@@ -26,39 +30,35 @@ public class SeekerController : MapElementController
 
         //Shrank 'em if you gotta:
         _currentSize = isElementAtCell > 0 ? shrinkScale : 1;
-        _meshesTrans.localScale = index > 0? Vector3.zero : Vector3.one* _currentSize;
+        _meshesTrans.localScale = index > 0 ? Vector3.zero : Vector3.one * _currentSize;
 
         Vector3 pos = MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(cell));
         float height = MapHeightManager.instance.GetHeightAtPosition(pos);
         _currentPosition = pos + offset;
-        _currentPosition = new Vector3(
-            _currentPosition.x,
-            _currentPosition.y,
-            height
-        );
+        _currentPosition = new Vector3(_currentPosition.x, _currentPosition.y, height);
         transform.position = _currentPosition;
 
         // Prepare icon:
-        if(isPlayer)
+        if (isPlayer)
             _icon = MapElementManager.instance.CreateIcon(iconParent, iconPrefab);
         else
             _icon = MapElementManager.instance.CreateIcon(iconParent, nonPlayerIconPrefab);
 
-        _icon.PrepareIcon(index, numObjects- isElementAtCell);
+        _icon.PrepareIcon(index, numObjects - isElementAtCell);
         _icon.UpdateIcon();
     }
 
     public void CheckPosition(Vector3Int cell, int numObjects, int index, bool isPlayer)
     {
         int isElementAtCell = MapElementManager.instance.IsElementAtCell(cell);
-        _icon.PrepareIcon(index, numObjects- isElementAtCell);
+        _icon.PrepareIcon(index, numObjects - isElementAtCell);
         if (!isPlayer || numObjects - isElementAtCell == 1)
         {
             _icon.UpdateIcon();
         }
 
         Vector3 offset = GetOffset(isElementAtCell);
-        float targetSize = isElementAtCell>0?shrinkScale:1;
+        float targetSize = isElementAtCell > 0 ? shrinkScale : 1;
         if (index != _currentIndex || targetSize != _currentSize)
         {
             _currentIndex = index;
@@ -69,14 +69,12 @@ public class SeekerController : MapElementController
                 StartCoroutine(ShrinkCR(Vector3.one * _currentSize));
         }
 
-        Vector3 serverPosition = MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(cell));
+        Vector3 serverPosition = MapManager.instance.grid.CellToWorld(
+            GridExtensions.CubeToGrid(cell)
+        );
         float height = MapHeightManager.instance.GetHeightAtPosition(serverPosition);
         serverPosition += offset;
-        serverPosition = new Vector3(
-            serverPosition.x,
-            serverPosition.y,
-            height
-        );
+        serverPosition = new Vector3(serverPosition.x, serverPosition.y, height);
         if (serverPosition != _currentPosition)
         {
             _currentPosition = serverPosition;
@@ -87,7 +85,7 @@ public class SeekerController : MapElementController
     protected Vector3 GetOffset(int isElementAtPosition)
     {
         Vector3 offset = Vector3.zero;
-        if(isElementAtPosition > 0)
+        if (isElementAtPosition > 0)
             offset = Vector3.zero + (Vector3.down * _offsetRadius);
 
         return offset;
@@ -101,7 +99,11 @@ public class SeekerController : MapElementController
         {
             t += Time.deltaTime;
             transform.position = Vector3.Lerp(startPos, endPos, _moveCurve.Evaluate(t));
-            transform.position = Vector3.Lerp(new Vector3(transform.position.x, transform.position.y, endPos.z), new Vector3(transform.position.x, transform.position.y, endPos.z - 0.5f), _jumpCurve.Evaluate(t));
+            transform.position = Vector3.Lerp(
+                new Vector3(transform.position.x, transform.position.y, endPos.z),
+                new Vector3(transform.position.x, transform.position.y, endPos.z - 0.5f),
+                _jumpCurve.Evaluate(t)
+            );
             yield return null;
         }
         transform.position = endPos;
@@ -114,8 +116,12 @@ public class SeekerController : MapElementController
         Vector3 startScale = _meshesTrans.localScale;
         while (t < 1)
         {
-            t += Time.deltaTime*2;
-            _meshesTrans.localScale = Vector3.LerpUnclamped(startScale, endScale, _shrinkCurve.Evaluate(t));
+            t += Time.deltaTime * 2;
+            _meshesTrans.localScale = Vector3.LerpUnclamped(
+                startScale,
+                endScale,
+                _shrinkCurve.Evaluate(t)
+            );
             yield return null;
         }
     }

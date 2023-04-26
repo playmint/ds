@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class MapElementController : MonoBehaviour
 {
-    
     [SerializeField]
     protected Transform iconParent;
+
     [SerializeField]
     protected GameObject iconPrefab;
 
@@ -18,13 +18,8 @@ public class MapElementController : MonoBehaviour
         Vector3 pos = MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(cell));
         float height = MapHeightManager.instance.GetHeightAtPosition(pos);
         _currentPosition = pos;
-        _currentPosition = new Vector3(
-            _currentPosition.x,
-            _currentPosition.y,
-            height
-        );
+        _currentPosition = new Vector3(_currentPosition.x, _currentPosition.y, height);
         transform.position = _currentPosition;
-
 
         _icon = MapElementManager.instance.CreateIcon(iconParent, iconPrefab);
     }

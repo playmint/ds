@@ -7,7 +7,8 @@ public class MapElementManager : MonoBehaviour
     public static MapElementManager instance;
 
     [SerializeField]
-    private GameObject buildingPrefab, bagPrefab;
+    private GameObject buildingPrefab,
+        bagPrefab;
 
     private void Awake()
     {
@@ -47,7 +48,7 @@ public class MapElementManager : MonoBehaviour
     public void CheckBagIconRemoved(Vector3Int cubicCoords)
     {
         GameObject bag = GameObject.Find("Bag_" + cubicCoords.ToString());
-        if (bag!=null)
+        if (bag != null)
         {
             bag.GetComponent<MapElementController>().DestroyMapElement();
         }
@@ -62,14 +63,10 @@ public class MapElementManager : MonoBehaviour
         }
     }
 
-    public IconController CreateIcon(
-        Transform iconParent,
-        GameObject iconPrefab
-    )
+    public IconController CreateIcon(Transform iconParent, GameObject iconPrefab)
     {
         IconController icon;
-        icon = Instantiate(iconPrefab, transform, true)
-            .GetComponent<IconController>();
+        icon = Instantiate(iconPrefab, transform, true).GetComponent<IconController>();
         icon.Setup(iconParent);
         return icon;
     }

@@ -15,13 +15,15 @@ public class IconController : MonoBehaviour
     [SerializeField]
     SortingGroup sortingGroup;
 
-    private Transform _camTrans, _iconParent;
+    private Transform _camTrans,
+        _iconParent;
 
     private float iconHeightOffset = 0.15f;
     private float _iconHOffset = 0;
 
     private int _sortingOrder;
-    private bool _iconEnabled, _counterEnabled;
+    private bool _iconEnabled,
+        _counterEnabled;
 
     private void Awake()
     {
@@ -30,7 +32,10 @@ public class IconController : MonoBehaviour
 
     private void LateUpdate()
     {
-        transform.position = _iconParent.position + (Vector3.forward * -iconHeightOffset) + (Vector3.right * _iconHOffset);
+        transform.position =
+            _iconParent.position
+            + (Vector3.forward * -iconHeightOffset)
+            + (Vector3.right * _iconHOffset);
         transform.rotation = _camTrans.rotation;
     }
 
@@ -41,13 +46,13 @@ public class IconController : MonoBehaviour
 
     public void DestroyIcon()
     {
-        Destroy(gameObject); 
+        Destroy(gameObject);
     }
 
     public void PrepareIcon(int index, int numObjects)
     {
-        _iconHOffset = index>0 ? 0.025f:0;
-        _sortingOrder = 10-index;
+        _iconHOffset = index > 0 ? 0.025f : 0;
+        _sortingOrder = 10 - index;
         _iconEnabled = numObjects == 1;
         _counterEnabled = numObjects > 1 && index == 0;
         counter.text = numObjects.ToString();

@@ -14,7 +14,8 @@ public class SeekerManager : MonoBehaviour
     private GameObject seekerPrefab;
 
     private Dictionary<Vector3Int, int> seekerPositionCounts = new Dictionary<Vector3Int, int>();
-    private Dictionary<string, SeekerController> spawnedSeekers = new Dictionary<string, SeekerController>();
+    private Dictionary<string, SeekerController> spawnedSeekers =
+        new Dictionary<string, SeekerController>();
 
     protected void Awake()
     {
@@ -60,7 +61,6 @@ public class SeekerManager : MonoBehaviour
             return;
         }
 
-
         var playerSeeker = state.Player.Seekers.ToList()[0];
 
         //  If we've switched accounts;
@@ -92,7 +92,6 @@ public class SeekerManager : MonoBehaviour
             {
                 if (!SeekerHelper.IsPlayerSeeker(seeker))
                 {
-
                     SeekerManager.instance.CreateSeeker(
                         seeker.Id,
                         cellPosCube,
@@ -138,7 +137,6 @@ public class SeekerManager : MonoBehaviour
         var seekerPosCube = TileHelper.GetTilePosCube(Seeker.NextLocation);
         var seekerTile = TileHelper.GetTileByPos(seekerPosCube);
 
-        
         SeekerManager.instance.CreateSeeker(
             Seeker.Id,
             seekerPosCube,
@@ -147,23 +145,18 @@ public class SeekerManager : MonoBehaviour
         );
     }
 
-    public void CreateSeeker(
-        string seekerId,
-        Vector3Int cell,
-        bool isPlayer,
-        int numSeekersAtPos
-    )
+    public void CreateSeeker(string seekerId, Vector3Int cell, bool isPlayer, int numSeekersAtPos)
     {
         IncreaseSeekerPositionCount(cell);
 
-        numSeekersAtPos = Mathf.Max(numSeekersAtPos,seekerPositionCounts[cell]);
+        numSeekersAtPos = Mathf.Max(numSeekersAtPos, seekerPositionCounts[cell]);
         int buildingOnCell = MapElementManager.instance.IsElementAtCell(cell);
-        int index = seekerPositionCounts[cell]-1;
+        int index = seekerPositionCounts[cell] - 1;
 
         if (!spawnedSeekers.ContainsKey(seekerId))
         {
             SeekerController controller;
-            
+
             if (isPlayer)
                 controller = Instantiate(seekerPrefab).GetComponent<SeekerController>();
             else
