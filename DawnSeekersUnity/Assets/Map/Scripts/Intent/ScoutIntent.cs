@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
@@ -141,30 +140,7 @@ public class ScoutIntent : IntentHandler
         GameStateMediator.Instance.SendDeselectAllTilesMsg();
     }
 
-    protected void Update()
-    {
-        if (_isActiveIntent)
-        {
-            Vector3Int cubeMousePos = GridExtensions.GridToCube(
-                MapInteractionManager.CurrentMouseCell
-            );
-            if (IsValidScoutTile(cubeMousePos))
-            {
-                if (IsTileSelected(cubeMousePos))
-                {
-                    TooltipManager.instance.ShowTooltip(
-                        "Right-click to <b>Scout</b>\nLeft-click to <b>Undo</b>"
-                    );
-                }
-                else
-                {
-                    TooltipManager.instance.ShowTooltip(
-                        "Right-click to <b>Scout</b>\nLeft-click to <b>Add</b>"
-                    );
-                }
-            }
-        }
-    }
+    protected void Update() { }
 
     private void RemoveAllHighlights()
     {
