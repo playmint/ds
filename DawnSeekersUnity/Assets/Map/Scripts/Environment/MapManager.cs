@@ -5,6 +5,7 @@ using UnityEngine.Tilemaps;
 
 public class MapManager : MonoBehaviour
 {
+    public static System.Action<Cog.GameState> MapUpdated;
     public static MapManager instance;
 
     public struct MapCell
@@ -70,40 +71,26 @@ public class MapManager : MonoBehaviour
 
     private void OnStateUpdated(Cog.GameState state)
     {
-        IconManager.instance.ResetSeekerPositionCounts();
         foreach (var tile in state.World.Tiles)
         {
             var hasResource = TileHelper.HasResource(tile);
             var cellPosCube = TileHelper.GetTilePosCube(tile);
 
             if (hasResource)
-                IconManager.instance.CreateBagIcon(cellPosCube);
+                MapElementManager.instance.CreateBag(cellPosCube);
             else
-                IconManager.instance.CheckBagIconRemoved(cellPosCube);
+                MapElementManager.instance.CheckBagIconRemoved(cellPosCube);
 
             if (TileHelper.HasBuilding(tile))
-                IconManager.instance.CreateBuildingIcon(cellPosCube);
+                MapElementManager.instance.CreateBuilding(cellPosCube);
             else
-                IconManager.instance.CheckBuildingIconRemoved(cellPosCube);
+                MapElementManager.instance.CheckBuildingIconRemoved(cellPosCube);
 
             AddTile(cellPosCube);
 
-            // Seekers
-            foreach (var seeker in tile.Seekers)
-            {
-                // Don't render any of the player's seekers as the SeekerManager handles that from the player data
-                if (!SeekerHelper.IsPlayerSeeker(seeker))
-                {
-                    IconManager.instance.CreateSeekerIcon(
-                        seeker,
-                        cellPosCube,
-                        false,
-                        tile.Seekers.Count
-                    );
-                }
-            }
             // TODO: Call this again after we have refactored the map data to include the seeker list
             // IconManager.instance.CheckSeekerRemoved(state.Game.Seekers.ToList());
         }
+        MapUpdated?.Invoke(state);
     }
 }
