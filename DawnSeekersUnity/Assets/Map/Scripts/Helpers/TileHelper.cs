@@ -73,8 +73,15 @@ public class TileHelper
 
     public static bool HasResource(Tiles2 tile)
     {
-        // TODO: Check for balance on tile (Currently not in data)
-        return tile.BagCount > 0;
+        if (tile.BagBalances != null && tile.BagBalances.Count > 0)
+        {
+            double totalBalance = tile.BagBalances.Aggregate(
+                0,
+                (acc, balObj) => acc + balObj.Balance
+            );
+            return totalBalance > 0;
+        }
+        return false;
     }
 
     public static bool HasBuilding(Vector3Int tilePosCube)
