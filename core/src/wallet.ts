@@ -18,7 +18,7 @@ export function makeBrowserWallet(): Source<Wallet | undefined> {
     const provider = detectEthereumProvider();
     return pipe(
         fromPromise(provider),
-        filter((provider): provider is MetaMaskEthereumProvider => provider !== null),
+        filter((provider): provider is MetaMaskEthereumProvider => provider !== null && !!provider.isMetaMask),
         switchMap(newBrowserAccountSource),
         map(({ provider, address }) =>
             address
