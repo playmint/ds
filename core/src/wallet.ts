@@ -1,28 +1,31 @@
+import detectEthereumProvider from '@metamask/detect-provider';
 import { Eip1193Provider, ethers } from 'ethers';
-import { concat, fromPromise, fromValue, lazy, makeSubject, map, never, pipe, Source, tap } from 'wonka';
+import { concat, filter, fromPromise, fromValue, lazy, makeSubject, map, onEnd, pipe, Source, switchMap } from 'wonka';
 import { CompoundKeyEncoder, NodeSelectors } from './helpers';
 import { Wallet } from './types';
 
-const ethereum: any | undefined = globalThis.ethereum;
+interface MetaMaskEthereumProvider extends Eip1193Provider {
+    isMetaMask?: boolean;
+    once(eventName: string | symbol, listener: (...args: any[]) => void): this;
+    on(eventName: string | symbol, listener: (...args: any[]) => void): this;
+    off(eventName: string | symbol, listener: (...args: any[]) => void): this;
+    addListener(eventName: string | symbol, listener: (...args: any[]) => void): this;
+    removeListener(eventName: string | symbol, listener: (...args: any[]) => void): this;
+    removeAllListeners(event?: string | symbol): this;
+}
 
 export function makeBrowserWallet(): Source<Wallet | undefined> {
-    const { accounts, fetchAccounts } = newBrowserAccountSource();
-    let prev: string | undefined;
+    const provider = detectEthereumProvider();
     return pipe(
-        lazy(() => concat([fromPromise(fetchAccounts().catch(() => prev)), accounts])),
-        tap((address) => (prev = address)),
-        map((address) =>
+        fromPromise(provider),
+        filter((provider): provider is MetaMaskEthereumProvider => provider !== null),
+        switchMap(newBrowserAccountSource),
+        map(({ provider, address }) =>
             address
                 ? ({
                       id: CompoundKeyEncoder.encodeAddress(NodeSelectors.Player, address),
                       address,
-                      signer: async () => {
-                          if (!ethereum) {
-                              throw new Error('no injected ethereum object found');
-                          }
-                          const provider = new ethers.BrowserProvider(ethereum as Eip1193Provider);
-                          return provider.getSigner(address);
-                      },
+                      signer: async () => new ethers.BrowserProvider(provider).getSigner(address),
                   } satisfies Wallet)
                 : undefined,
         ),
@@ -41,38 +44,37 @@ export function makeKeyWallet(keyHexString: string): Source<Wallet> {
     );
 }
 
-function newBrowserAccountSource() {
+function newBrowserAccountSource(provider: MetaMaskEthereumProvider) {
     const { source, next } = makeSubject<string | undefined>();
-    if (!ethereum) {
-        console.warn('no Eip1193Provider found, this source will not work');
-        return {
-            accounts: never satisfies Source<string | undefined>,
-            fetchAccounts: () => Promise.resolve(undefined),
-        };
-    }
-    const getAddress = (accounts: string[]): string | undefined => {
-        if (!Array.isArray(accounts)) {
-            return undefined;
-        }
-        if (accounts.length === 0) {
-            return undefined;
-        }
-        if (typeof accounts[0] !== 'string') {
-            return undefined;
-        }
-        if (!ethers.isAddress(accounts[0])) {
-            return undefined;
-        }
-        return accounts[0];
-    };
     const handleAccountsChanged = (accounts: string[]) => {
-        console.warn('ACCOUNT CHANGED');
         const addr = getAddress(accounts);
         next(addr);
     };
     const fetchAccounts = async (): Promise<string | undefined> => {
-        return ethereum.request({ method: 'eth_accounts' }).then(getAddress);
+        return provider.request({ method: 'eth_accounts' }).then(getAddress);
     };
-    ethereum.on('accountsChanged', handleAccountsChanged);
-    return { accounts: source, fetchAccounts };
+    provider.addListener('accountsChanged', handleAccountsChanged);
+    return pipe(
+        lazy(() => concat([fromPromise(fetchAccounts()), source])),
+        map((address) => ({ provider, address })),
+        onEnd(() => {
+            provider.removeListener('accountsChanged', handleAccountsChanged);
+        }),
+    );
+}
+
+function getAddress(accounts: string[]): string | undefined {
+    if (!Array.isArray(accounts)) {
+        return undefined;
+    }
+    if (accounts.length === 0) {
+        return undefined;
+    }
+    if (typeof accounts[0] !== 'string') {
+        return undefined;
+    }
+    if (!ethers.isAddress(accounts[0])) {
+        return undefined;
+    }
+    return accounts[0];
 }
