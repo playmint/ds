@@ -9,12 +9,24 @@ public class CameraController : MonoBehaviour
     public bool hasDragged = false;
 
     public float moveSpeed;
-    [SerializeField] private CinemachineVirtualCamera virtualCamera;
-    [SerializeField] private Transform target;
-    [SerializeField] private float zoomSpeed = 5f;
-    [SerializeField] private float minCameraDistance = 5f;
-    [SerializeField] private float maxCameraDistance = 20f;
-    [SerializeField] private float zoomDuration = 0.2f;
+
+    [SerializeField]
+    private CinemachineVirtualCamera virtualCamera;
+
+    [SerializeField]
+    private Transform target;
+
+    [SerializeField]
+    private float zoomSpeed = 5f;
+
+    [SerializeField]
+    private float minCameraDistance = 5f;
+
+    [SerializeField]
+    private float maxCameraDistance = 20f;
+
+    [SerializeField]
+    private float zoomDuration = 0.2f;
 
     private Camera mainCamera;
     private Coroutine zoomCoroutine;
@@ -44,35 +56,56 @@ public class CameraController : MonoBehaviour
                 Vector3 mouseWorldPos = hit.point;
 
                 // Calculate the new camera distance based on the scroll input
-                float currentCameraDistance = virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>().m_CameraDistance;//.CameraDistance;
+                float currentCameraDistance = virtualCamera
+                    .GetCinemachineComponent<CinemachineFramingTransposer>()
+                    .m_CameraDistance; //.CameraDistance;
                 float newCameraDistance = currentCameraDistance - scrollInput * zoomSpeed;
-                newCameraDistance = Mathf.Clamp(newCameraDistance, minCameraDistance, maxCameraDistance);
+                newCameraDistance = Mathf.Clamp(
+                    newCameraDistance,
+                    minCameraDistance,
+                    maxCameraDistance
+                );
 
                 // Calculate the zoom factor based on the camera's current and new distances
                 float zoomFactor = newCameraDistance / currentCameraDistance;
 
                 // Calculate the new target position based on the zoom factor and the direction
-                Vector3 newTargetPos = (1 - zoomFactor) * mouseWorldPos + zoomFactor * target.position;
+                Vector3 newTargetPos =
+                    (1 - zoomFactor) * mouseWorldPos + zoomFactor * target.position;
 
                 // Smoothly interpolate the camera distance and target position
                 if (zoomCoroutine != null)
                 {
                     StopCoroutine(zoomCoroutine);
                 }
-                zoomCoroutine = StartCoroutine(SmoothZoom(currentCameraDistance, newCameraDistance, target.position, newTargetPos, zoomDuration));
+                zoomCoroutine = StartCoroutine(
+                    SmoothZoom(
+                        currentCameraDistance,
+                        newCameraDistance,
+                        target.position,
+                        newTargetPos,
+                        zoomDuration
+                    )
+                );
             }
         }
 
         HandleMouseCameraDrag();
         float speed = moveSpeed * Mathf.Abs(mainCamera.transform.position.z);
         Vector3 inputVector =
-                new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0)
-                * speed
-                * Time.deltaTime;
+            new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0)
+            * speed
+            * Time.deltaTime;
         target.position += inputVector;
     }
 
-    private IEnumerator SmoothZoom(float startDistance, float endDistance, Vector3 startPosition, Vector3 endPosition, float duration)
+    private IEnumerator SmoothZoom(
+        float startDistance,
+        float endDistance,
+        Vector3 startPosition,
+        Vector3 endPosition,
+        float duration
+    )
     {
         float elapsedTime = 0;
 
@@ -84,17 +117,19 @@ public class CameraController : MonoBehaviour
             t = Mathf.Sin(t * Mathf.PI * 0.5f); // Ease-out effect
 
             // Update the Cinemachine Virtual Camera's Follow offset and target position
-            virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>().m_CameraDistance = Mathf.Lerp(startDistance, endDistance, t);
+            virtualCamera
+                .GetCinemachineComponent<CinemachineFramingTransposer>()
+                .m_CameraDistance = Mathf.Lerp(startDistance, endDistance, t);
             target.position = Vector3.Lerp(startPosition, endPosition, t);
 
             yield return null;
         }
 
         // Ensure the final values are set
-        virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>().m_CameraDistance = endDistance;
+        virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>().m_CameraDistance =
+            endDistance;
         target.position = endPosition;
     }
-
 
     void HandleMouseCameraDrag()
     {

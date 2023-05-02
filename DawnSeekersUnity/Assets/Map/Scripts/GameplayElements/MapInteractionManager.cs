@@ -25,6 +25,7 @@ public class MapInteractionManager : MonoBehaviour
 
     [SerializeField]
     private GameObject _intentContainerGO;
+
     [SerializeField]
     private CameraController _camController;
 
