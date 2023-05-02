@@ -288,37 +288,19 @@ const ConstructUndiscovered: FunctionComponent<unknown> = (_props) => {
 
 interface ConstructAvailableProps {
     tile: SelectedTileFragment;
-    selectIntent: Selector<string | undefined>;
-    selectTiles: Selector<string[] | undefined>;
-    player: ConnectedPlayer;
     seeker: SelectedSeekerFragment;
+    clearAction?: () => void;
 }
-const ConstructAvailable: FunctionComponent<ConstructAvailableProps> = ({
-    tile,
-    seeker,
-    player,
-    selectTiles,
-    selectIntent
-}) => {
+export const ConstructAvailable: FunctionComponent<ConstructAvailableProps> = ({ tile, seeker, clearAction }) => {
+    const player = usePlayer();
     const kinds = useBuildingKinds();
-
-    const clearIntent = useCallback(
-        (e?: React.MouseEvent) => {
-            if (e) {
-                e.preventDefault();
-            }
-            selectIntent(undefined);
-            selectTiles([]);
-        },
-        [selectIntent, selectTiles]
-    );
 
     const handleConstruct = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const form = new FormData(e.target as any);
         const data = Object.fromEntries(form.entries());
         // TODO/FIXME: allow choosing where to pay from, not assume seeker/0/0
-        player.dispatch({
+        player?.dispatch({
             name: 'CONSTRUCT_BUILDING_SEEKER',
             args: [
                 seeker.id,
@@ -331,7 +313,6 @@ const ConstructAvailable: FunctionComponent<ConstructAvailableProps> = ({
                 tile.coords[3]
             ]
         });
-        clearIntent();
     };
 
     return (
@@ -350,9 +331,9 @@ const ConstructAvailable: FunctionComponent<ConstructAvailableProps> = ({
                 <button className="action-button" type="submit">
                     Construct It!
                 </button>
-                <a href="#cancel" className="secondary-button" onClick={clearIntent}>
+                <button className="link-button" onClick={clearAction}>
                     Cancel
-                </a>
+                </button>
             </form>
         </Fragment>
     );
@@ -408,15 +389,7 @@ export const Building: FunctionComponent<BuildingProps> = ({ showFull, ...otherP
                 } else if (getTileDistance(seeker.nextLocation.tile, selectedTile) !== 1) {
                     return <ConstructTooFarAway />;
                 } else {
-                    return (
-                        <ConstructAvailable
-                            selectTiles={selectTiles}
-                            selectIntent={selectIntent}
-                            tile={selectedTile}
-                            seeker={seeker}
-                            player={player}
-                        />
-                    );
+                    return <ConstructAvailable tile={selectedTile} seeker={seeker} />;
                 }
             } else if (selectedTiles.length > 1) {
                 return <ConstructMultiSelected />;

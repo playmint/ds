@@ -166,6 +166,44 @@ export const GlobalStyles = createGlobalStyle`
         width: auto;
     }
 
+    .action-icon-button {
+        border-radius: 5px;
+        border: none;
+        border-bottom: 4px solid #b7c5e0;
+        display: block;
+        width: 60px;
+        height: 60px;
+        box-sizing: border-box;
+        background: #fff;
+        color: #143063;
+        padding: 1.2rem 1rem 0.8rem;
+        font-weight: 600;
+        
+        &:disabled {
+            opacity: 0.5;
+        }
+    }
+
+    .link-button {
+        display: inline;
+        background: none;
+        border: 0;
+        padding: 0;
+        border-radius: 0;
+        width: auto;
+        color: white;
+    }
+
+    .info-box {
+        h3 {
+            margin-bottom: 0;
+        }
+        .actions {
+            display: flex;
+            gap: 0.6rem;
+        }
+    }
+    
     .seeker-actions .seeker-selector {
         display: flex;
         justify-content: flex-end;
