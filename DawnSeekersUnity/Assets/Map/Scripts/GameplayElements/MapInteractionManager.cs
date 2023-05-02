@@ -26,6 +26,7 @@ public class MapInteractionManager : MonoBehaviour
     [SerializeField]
     private GameObject _intentContainerGO;
 
+    [SerializeField]
     private CameraController _camController;
 
     bool mapReady = false;
@@ -33,7 +34,6 @@ public class MapInteractionManager : MonoBehaviour
     private void Awake()
     {
         instance = this;
-        _camController = Camera.main.GetComponent<CameraController>();
     }
 
     private void Start()
