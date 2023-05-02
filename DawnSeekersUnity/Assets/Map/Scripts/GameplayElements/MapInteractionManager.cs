@@ -34,7 +34,6 @@ public class MapInteractionManager : MonoBehaviour
     private void Awake()
     {
         instance = this;
-        //_camController = Camera.main.GetComponent<CameraController>();
     }
 
     private void Start()
