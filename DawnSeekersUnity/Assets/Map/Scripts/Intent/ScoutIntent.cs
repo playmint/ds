@@ -208,8 +208,8 @@ public class ScoutIntent : IntentHandler
                 );
                 highlight.transform.position = new Vector3(
                     cellPos.x,
-                    cellPos.y,
-                    MapHeightManager.UNSCOUTED_HEIGHT
+                    MapHeightManager.UNSCOUTED_HEIGHT,
+                    cellPos.z
                 );
                 spawnedHighlights.Add(cellPosCube, highlight);
             }

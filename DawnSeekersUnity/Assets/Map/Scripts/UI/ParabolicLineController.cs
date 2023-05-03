@@ -59,7 +59,7 @@ public class ParabolicLineController : MonoBehaviour
         {
             Vector3 dir = (endPos - startPos) / _resolution;
             positions[i] = startPos + (dir * i);
-            positions[i].z -=
+            positions[i].y +=
                 _lineCurve.Evaluate((float)i / (float)_resolution)
                 * (
                     _lineHeight

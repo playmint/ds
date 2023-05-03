@@ -34,7 +34,7 @@ public class IconController : MonoBehaviour
     {
         transform.position =
             _iconParent.position
-            + (Vector3.forward * -iconHeightOffset)
+            + (Vector3.up * -iconHeightOffset)
             + (Vector3.right * _iconHOffset);
         transform.rotation = _camTrans.rotation;
     }

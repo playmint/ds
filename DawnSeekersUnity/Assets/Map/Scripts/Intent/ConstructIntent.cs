@@ -194,8 +194,8 @@ public class ConstructIntent : IntentHandler
                 );
                 highlight.transform.position = new Vector3(
                     cellPos.x,
-                    cellPos.y,
-                    MapHeightManager.instance.GetHeightAtPosition(cellPos)
+                    MapHeightManager.instance.GetHeightAtPosition(cellPos),
+                    cellPos.z
                 );
                 spawnedHighlights.Add(cellPosCube, highlight);
             }

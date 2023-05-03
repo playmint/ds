@@ -53,6 +53,7 @@ public class MapInteractionManager : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit))
         {
+            Debug.Log(hit.transform.name);
             //Get the point that is clicked
             Vector3 hitPoint = hit.point;
             Vector3Int cubePos = GridExtensions.GridToCube(
@@ -63,7 +64,7 @@ public class MapInteractionManager : MonoBehaviour
             float height = MapHeightManager.UNSCOUTED_HEIGHT;
             if (TileHelper.IsDiscoveredTile(cubePos))
                 height = MapHeightManager.instance.GetHeightAtPosition(cursorPos);
-            cursor.position = new Vector3(cursorPos.x, cursorPos.y, height);
+            cursor.position = new Vector3(cursorPos.x, height, cursorPos.z);
         }
         if (EventSystem.current.IsPointerOverGameObject())
             return;
@@ -157,7 +158,7 @@ public class MapInteractionManager : MonoBehaviour
             float height = MapHeightManager.UNSCOUTED_HEIGHT;
             if (TileHelper.IsDiscoveredTile(cellPosCube))
                 height = MapHeightManager.instance.GetHeightAtPosition(markerPos);
-            selectedMarker1.position = new Vector3(markerPos.x, markerPos.y, height);
+            selectedMarker1.position = new Vector3(markerPos.x, height, markerPos.z);
 
             selectedMarker1.gameObject.SetActive(true);
         }

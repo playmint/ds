@@ -5,7 +5,7 @@ using UnityEngine;
 public class MapHeightManager : MonoBehaviour
 {
     public static MapHeightManager instance;
-    public const float UNSCOUTED_HEIGHT = 0.35f;
+    public const float UNSCOUTED_HEIGHT = -0.35f;
 
     [SerializeField]
     float heightScale = 1;
@@ -37,7 +37,7 @@ public class MapHeightManager : MonoBehaviour
     {
         return heightOffset
             + (
-                Mathf.PerlinNoise(position.x * heightFrequency, position.y * heightFrequency)
+                Mathf.PerlinNoise(position.x * heightFrequency, position.z * heightFrequency)
                 * heightScale
             );
     }

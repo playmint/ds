@@ -40,7 +40,7 @@ public class CameraController : MonoBehaviour
     void Start()
     {
         mainCamera = Camera.main;
-        m_Plane = new Plane(Vector3.forward, 0);
+        m_Plane = new Plane(Vector3.up, 0);
     }
 
     void Update()
@@ -91,9 +91,9 @@ public class CameraController : MonoBehaviour
         }
 
         HandleMouseCameraDrag();
-        float speed = moveSpeed * Mathf.Abs(mainCamera.transform.position.z);
+        float speed = moveSpeed * Mathf.Abs(mainCamera.transform.position.y);
         Vector3 inputVector =
-            new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0)
+            new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"))
             * speed
             * Time.deltaTime;
         target.position += inputVector;
