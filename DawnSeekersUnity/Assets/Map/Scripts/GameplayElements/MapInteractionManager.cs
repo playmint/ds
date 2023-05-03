@@ -53,7 +53,6 @@ public class MapInteractionManager : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit))
         {
-            Debug.Log(hit.transform.name);
             //Get the point that is clicked
             Vector3 hitPoint = hit.point;
             Vector3Int cubePos = GridExtensions.GridToCube(
