@@ -210,8 +210,8 @@ public class MoveIntent : IntentHandler
                 );
                 highlight.transform.position = new Vector3(
                     cellPos.x,
-                    cellPos.y,
-                    MapHeightManager.instance.GetHeightAtPosition(cellPos)
+                    MapHeightManager.instance.GetHeightAtPosition(cellPos),
+                    cellPos.z
                 );
                 spawnedPathHighlights.Add(newPosCube, highlight);
             }
@@ -278,8 +278,8 @@ public class MoveIntent : IntentHandler
                 );
                 highlight.position = new Vector3(
                     highlight.position.x,
-                    highlight.position.y,
-                    MapHeightManager.instance.GetHeightAtPosition(highlight.position)
+                    MapHeightManager.instance.GetHeightAtPosition(highlight.position),
+                    highlight.position.z
                 );
                 spawnedValidCellHighlights.Add(space, highlight.gameObject);
             }

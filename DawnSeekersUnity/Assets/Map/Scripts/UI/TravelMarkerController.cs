@@ -55,13 +55,13 @@ public class TravelMarkerController : MonoBehaviour
     {
         Vector3 startOffset = new Vector3(
             startPos.x,
-            startPos.y,
-            MapHeightManager.instance.GetHeightAtPosition(startPos)
+            MapHeightManager.instance.GetHeightAtPosition(startPos),
+            startPos.z
         );
         Vector3 endOffset = new Vector3(
             endPos.x,
-            endPos.y,
-            MapHeightManager.instance.GetHeightAtPosition(endPos)
+            MapHeightManager.instance.GetHeightAtPosition(endPos),
+            endPos.z
         );
         Vector3 worldEndPos = endPos;
         line.DrawLine(startOffset, endOffset);

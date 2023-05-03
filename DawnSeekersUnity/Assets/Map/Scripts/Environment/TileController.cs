@@ -29,8 +29,8 @@ public class TileController : MonoBehaviour
         Vector3 startPos = transform.position;
         Vector3 endPos = new Vector3(
             transform.position.x,
-            transform.position.y,
-            MapHeightManager.instance.GetHeightAtPosition(transform.position)
+            MapHeightManager.instance.GetHeightAtPosition(transform.position),
+            transform.position.z
         );
         yield return new WaitForSeconds(delay);
         while (t < 1)
@@ -44,7 +44,7 @@ public class TileController : MonoBehaviour
 
     public void Appear()
     {
-        transform.position = new Vector3(transform.position.x, transform.position.y, 1);
+        transform.position = new Vector3(transform.position.x, -1, transform.position.z);
         delayCount++;
         delay += 0.05f;
         StartCoroutine(AppearCR());
@@ -53,11 +53,11 @@ public class TileController : MonoBehaviour
     IEnumerator AppearCR()
     {
         float t = 0;
-        Vector3 startPos = new Vector3(transform.position.x, transform.position.y, 1);
+        Vector3 startPos = new Vector3(transform.position.x, -1, transform.position.z);
         Vector3 endPos = new Vector3(
             transform.position.x,
-            transform.position.y,
-            MapHeightManager.UNSCOUTED_HEIGHT
+            MapHeightManager.UNSCOUTED_HEIGHT,
+            transform.position.z
         );
         yield return new WaitForSeconds(delay);
         while (t < 1)

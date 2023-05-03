@@ -70,7 +70,7 @@ public class EnvironmentLoaderManager : MonoBehaviour
     {
         Transform tile = Instantiate(_tilePrefab, tileContainer).transform;
         tile.name = "Tile_" + cellCubicCoords.ToString();
-        tile.position = new Vector3(position.x, position.y, 1);
+        tile.position = new Vector3(position.x, -1, position.z);
         return tile.GetComponent<TileController>();
     }
 }

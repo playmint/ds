@@ -32,8 +32,8 @@ public class ActionMenuController : MonoBehaviour
             );
             transform.position = new Vector3(
                 transform.position.x,
-                transform.position.y,
-                MapHeightManager.instance.GetHeightAtPosition(transform.position)
+                MapHeightManager.instance.GetHeightAtPosition(transform.position),
+                transform.position.z
             );
 
             UpdateButtonStates(state);

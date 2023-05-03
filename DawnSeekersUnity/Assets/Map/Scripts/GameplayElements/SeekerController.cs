@@ -35,7 +35,7 @@ public class SeekerController : MapElementController
         Vector3 pos = MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(cell));
         float height = MapHeightManager.instance.GetHeightAtPosition(pos);
         _currentPosition = pos + offset;
-        _currentPosition = new Vector3(_currentPosition.x, _currentPosition.y, height);
+        _currentPosition = new Vector3(_currentPosition.x, height, _currentPosition.z);
         transform.position = _currentPosition;
 
         // Prepare icon:
@@ -74,7 +74,7 @@ public class SeekerController : MapElementController
         );
         float height = MapHeightManager.instance.GetHeightAtPosition(serverPosition);
         serverPosition += offset;
-        serverPosition = new Vector3(serverPosition.x, serverPosition.y, height);
+        serverPosition = new Vector3(serverPosition.x, height, serverPosition.z);
         if (serverPosition != _currentPosition)
         {
             _currentPosition = serverPosition;
@@ -86,7 +86,7 @@ public class SeekerController : MapElementController
     {
         Vector3 offset = Vector3.zero;
         if (isElementAtPosition > 0)
-            offset = Vector3.zero + (Vector3.down * _offsetRadius);
+            offset = Vector3.zero + (Vector3.back * _offsetRadius);
 
         return offset;
     }
@@ -100,8 +100,8 @@ public class SeekerController : MapElementController
             t += Time.deltaTime;
             transform.position = Vector3.Lerp(startPos, endPos, _moveCurve.Evaluate(t));
             transform.position = Vector3.Lerp(
-                new Vector3(transform.position.x, transform.position.y, endPos.z),
-                new Vector3(transform.position.x, transform.position.y, endPos.z - 0.5f),
+                new Vector3(transform.position.x, endPos.y, transform.position.z),
+                new Vector3(transform.position.x, endPos.y + 0.5f, transform.position.z),
                 _jumpCurve.Evaluate(t)
             );
             yield return null;
