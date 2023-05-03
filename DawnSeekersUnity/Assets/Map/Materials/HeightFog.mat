@@ -94,5 +94,5 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _FogColor: {r: 0.19607845, g: 0.28235295, b: 0.427451, a: 1}
+    - _FogColor: {r: 0.22761656, g: 0.33639717, b: 0.5188679, a: 1}
   m_BuildTextureStacks: []
