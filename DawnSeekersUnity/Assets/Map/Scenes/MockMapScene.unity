@@ -20,11 +20,11 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.5566928, g: 0.65414745, b: 0.8490566, a: 1}
+  m_AmbientSkyColor: {r: 0.45056072, g: 0.55509084, b: 0.764151, a: 1}
   m_AmbientEquatorColor: {r: 0.25258097, g: 0.30675212, b: 0.41509432, a: 1}
   m_AmbientGroundColor: {r: 1, g: 1, b: 1, a: 1}
   m_AmbientIntensity: 1
-  m_AmbientMode: 1
+  m_AmbientMode: 3
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.5
@@ -396,6 +396,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: be6d2b64e56439f40b7637907fe5bfab,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 77173a2540b42e24c9467663ca7f47f6, type: 2}
     - target: {fileID: 919132149155446097, guid: be6d2b64e56439f40b7637907fe5bfab,
         type: 3}
       propertyPath: m_Name
@@ -579,6 +584,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 07f42a4edcf229e4e992373c6b61f371,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: a597d6a4bcb191947a76ccdf92f924ed, type: 2}
     - target: {fileID: 919132149155446097, guid: 07f42a4edcf229e4e992373c6b61f371,
         type: 3}
       propertyPath: m_Name
@@ -1573,7 +1583,7 @@ PrefabInstance:
     - target: {fileID: 2265421376858709839, guid: 7983d528686114d8cb4fbc979e031ef0,
         type: 3}
       propertyPath: m_RootOrder
-      value: 24
+      value: 23
       objectReference: {fileID: 0}
     - target: {fileID: 2265421376858709839, guid: 7983d528686114d8cb4fbc979e031ef0,
         type: 3}
@@ -2074,6 +2084,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 53f89809609981f42b57d86b7a6a254b,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 0932e970ab533374eaf7b808886f95b9, type: 2}
     - target: {fileID: 919132149155446097, guid: 53f89809609981f42b57d86b7a6a254b,
         type: 3}
       propertyPath: m_Name
