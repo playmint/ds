@@ -86,7 +86,7 @@ public class SeekerController : MapElementController
     {
         Vector3 offset = Vector3.zero;
         if (isElementAtPosition > 0)
-            offset = Vector3.zero + (Vector3.down * _offsetRadius);
+            offset = Vector3.zero + (Vector3.back * _offsetRadius);
 
         return offset;
     }
