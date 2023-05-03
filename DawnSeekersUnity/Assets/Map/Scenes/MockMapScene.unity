@@ -3905,26 +3905,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: MapCamera
       objectReference: {fileID: 0}
-    - target: {fileID: 6518314203346260187, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -4.9999995
-      objectReference: {fileID: 0}
-    - target: {fileID: 6518314203346260187, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -8.6602545
-      objectReference: {fileID: 0}
-    - target: {fileID: 6518314203603543945, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -4.9999995
-      objectReference: {fileID: 0}
-    - target: {fileID: 6518314203603543945, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -8.6602545
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 13c17ec3607f94f34a8d6fc7cf4300af, type: 3}
 --- !u!1001 &7103627627158448603
@@ -3993,31 +3973,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: MapLighting
-      objectReference: {fileID: 0}
-    - target: {fileID: 7103627626649240236, guid: 8711978a6989a44e69ebe8a5a40fa057,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.9624582
-      objectReference: {fileID: 0}
-    - target: {fileID: 7103627626649240236, guid: 8711978a6989a44e69ebe8a5a40fa057,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0.12862009
-      objectReference: {fileID: 0}
-    - target: {fileID: 7103627626649240236, guid: 8711978a6989a44e69ebe8a5a40fa057,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0.23506583
-      objectReference: {fileID: 0}
-    - target: {fileID: 7103627626649240236, guid: 8711978a6989a44e69ebe8a5a40fa057,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0.04330221
-      objectReference: {fileID: 0}
-    - target: {fileID: 7103627626649240237, guid: 8711978a6989a44e69ebe8a5a40fa057,
-        type: 3}
-      propertyPath: m_Shadows.m_Strength
-      value: 0.75
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8711978a6989a44e69ebe8a5a40fa057, type: 3}
