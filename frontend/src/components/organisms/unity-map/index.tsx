@@ -74,6 +74,30 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
     // percentage of the Unity Application that has loaded.
     const loadingPercentage = Math.round(loadingProgression * 100);
 
+    // We'll use a state to store the device pixel ratio.
+    const [devicePixelRatio, setDevicePixelRatio] = useState(window.devicePixelRatio);
+
+    const handleChangePixelRatio = useCallback(
+        function () {
+            // A function which will update the device pixel ratio of the Unity
+            // Application to match the device pixel ratio of the browser.
+            const updateDevicePixelRatio = function () {
+                setDevicePixelRatio(window.devicePixelRatio);
+            };
+            // A media matcher which watches for changes in the device pixel ratio.
+            const mediaMatcher = window.matchMedia(`screen and (resolution: ${devicePixelRatio}dppx)`);
+            // Adding an event listener to the media matcher which will update the
+            // device pixel ratio of the Unity Application when the device pixel
+            // ratio changes.
+            mediaMatcher.addEventListener('change', updateDevicePixelRatio);
+            return function () {
+                // Removing the event listener when the component unmounts.
+                mediaMatcher.removeEventListener('change', updateDevicePixelRatio);
+            };
+        },
+        [devicePixelRatio]
+    );
+
     // -- State update
 
     // [!] hack to force map update through a delayed queue this protects the
@@ -189,7 +213,7 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
                     />
                 </div>
             )}
-            <Unity unityProvider={unityProvider} devicePixelRatio={2} />
+            <Unity unityProvider={unityProvider} devicePixelRatio={devicePixelRatio} />
         </StyledUnityMap>
     );
 };
