@@ -2,7 +2,7 @@ import { ComponentProps } from '@app/types/component-props';
 import { Cylinder, Edges, GradientTexture, Html, MapControls, OrthographicCamera } from '@react-three/drei';
 import { Canvas, ThreeEvent, useFrame } from '@react-three/fiber';
 import chroma from 'chroma-js';
-import { FunctionComponent, Suspense, useContext, useRef, useState } from 'react';
+import { Fragment, FunctionComponent, Suspense, useContext, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { styles } from './styles';
 // import { Model as Blockyman } from './Blockyman';
@@ -33,7 +33,8 @@ import { TileAction } from '../tile-action';
 import { Model as Box } from './Box';
 import { Model as Blockyman } from './Pirate_crew';
 import { Model as Tower } from './Unit_tower';
-import { Wheel, WheelIntent } from './Wheel';
+import { WheelIntent } from './Wheel';
+import { CogAction } from '@dawnseekers/core';
 
 const TILE_SIZE = 1;
 
@@ -64,6 +65,7 @@ interface TileProps extends ComponentProps {
     selectTiles?: Selector<string[]>;
     selectTileForIntent?: Selector<string>;
     selectedTiles?: SelectedTileFragment[];
+    selectedSeeker?: SelectedSeekerFragment;
     intent?: string;
     selectIntent?: Selector<string | undefined>;
     color?: string;
@@ -90,6 +92,9 @@ interface SelectionInfoProps {
     influenceTiles: SelectedTileFragment[];
     selectTileForIntent: Selector<string>;
     selectIntent: (intent: string | undefined, tileId?: string) => void;
+    canScout: boolean;
+    canConstruct: boolean;
+    canMove: boolean;
 }
 const SelectionInfo: FunctionComponent<SelectionInfoProps> = ({
     selectedTiles,
@@ -98,7 +103,10 @@ const SelectionInfo: FunctionComponent<SelectionInfoProps> = ({
     player,
     selectSeeker,
     intent,
-    selectIntent
+    selectIntent,
+    canScout,
+    canConstruct,
+    canMove
     // selectTileForIntent
 }) => {
     // const tile: WorldTileFragment | undefined = undefined;
@@ -148,6 +156,10 @@ const SelectionInfo: FunctionComponent<SelectionInfoProps> = ({
     const enterBuilding = (tileId: string) => {
         selectIntent(USE_INTENT, tileId);
     };
+
+    const selectedTile = selectedTiles[0]?.id ?? '';
+    const tileId = selectedSeeker?.nextLocation?.tile.id !== selectedTile ? selectedTile : '';
+
     return (
         <div className="selection-actions">
             {showSeekerInfo && (
@@ -168,37 +180,71 @@ const SelectionInfo: FunctionComponent<SelectionInfoProps> = ({
                     <SeekerInventory className="action" seeker={selectedSeeker} />
                 </div>
             )}
+            {showSeekerInfo && (
+                <div className="info-box">
+                    <h3>Actions</h3>
+                    <ul className="actions">
+                        <li>
+                            <button
+                                className="action-icon-button"
+                                disabled={!canMove}
+                                onClick={() => selectIntent(MOVE_INTENT, tileId)}
+                            >
+                                Move
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                className="action-icon-button"
+                                disabled={!canScout}
+                                onClick={() => selectIntent(SCOUT_INTENT, tileId)}
+                            >
+                                Scout
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                className="action-icon-button"
+                                disabled={!canConstruct}
+                                onClick={() => selectIntent(CONSTRUCT_INTENT, tileId)}
+                            >
+                                Build
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            )}
             {showTileInfo && (
                 <div className="info-box">
                     <TileInfo showFull={intent === USE_INTENT} />
                 </div>
             )}
-            {nearbyBuildingTiles.length > 0 && !intent && (
-                <div className="info-box">
-                    <div>Nearby buildings</div>
-                    {nearbyBuildingTiles.map((t) => (
-                        <div key={t.id} style={{ padding: '1rem' }}>
-                            {t.building?.kind?.name?.value} {(t.building?.id || '').slice(-8)}{' '}
-                            <button style={{ float: 'right' }} onClick={() => enterBuilding(t.id)}>
-                                Use
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            )}
-            {showBagInfo && influenceTiles.length > 0 && (
-                <div className="info-box">
-                    <div>Nearby bags</div>
-                    {influenceTiles.map((tile) => (
-                        <TileInventory
-                            key={`inf-inv-${tile.id}`}
-                            className="action"
-                            tile={tile}
-                            title={`Bags for ${tile.id}`}
-                        />
-                    ))}
-                </div>
-            )}
+            {/*{nearbyBuildingTiles.length > 0 && !intent && (*/}
+            {/*    <div className="info-box">*/}
+            {/*        <div>Nearby buildings</div>*/}
+            {/*        {nearbyBuildingTiles.map((t) => (*/}
+            {/*            <div key={t.id} style={{ padding: '1rem' }}>*/}
+            {/*                {t.building?.kind?.name?.value} {(t.building?.id || '').slice(-8)}{' '}*/}
+            {/*                <button style={{ float: 'right' }} onClick={() => enterBuilding(t.id)}>*/}
+            {/*                    Use*/}
+            {/*                </button>*/}
+            {/*            </div>*/}
+            {/*        ))}*/}
+            {/*    </div>*/}
+            {/*)}*/}
+            {/*{showBagInfo && influenceTiles.length > 0 && (*/}
+            {/*    <div className="info-box">*/}
+            {/*        <div>Nearby bags</div>*/}
+            {/*        {influenceTiles.map((tile) => (*/}
+            {/*            <TileInventory*/}
+            {/*                key={`inf-inv-${tile.id}`}*/}
+            {/*                className="action"*/}
+            {/*                tile={tile}*/}
+            {/*                title={`Bags for ${tile.id}`}*/}
+            {/*            />*/}
+            {/*        ))}*/}
+            {/*    </div>*/}
+            {/*)}*/}
             {showBagInfo && !intent && selectedTiles.flatMap((t) => t.bags).length > 0 && (
                 <div className="info-box">
                     <div>Bags on selected tile</div>
@@ -230,10 +276,10 @@ const Bag: FunctionComponent<TileProps> = ({ tile }) => {
     const height = getHeightForCoords(tile);
     const [x, y, z] = getTileXYZ(coords);
     const handleClick = (e: ThreeEvent<MouseEvent>) => {
-        e.stopPropagation();
-        setSelected((prev) => {
-            return !prev;
-        });
+        // e.stopPropagation();
+        // setSelected((prev) => {
+        //     return !prev;
+        // });
     };
     const itemCount = tile.bags
         .flatMap((equip) => equip.bag.slots.map((s) => s.balance))
@@ -295,11 +341,11 @@ const PlayerSeeker: FunctionComponent<PlayerSeekerProps> = ({
     const coords = getCoords(tile.coords);
     const height = getHeightForCoords(tile);
     const [x, y, z] = getTileXYZ(coords);
-    const color = '#c51773';
+    const color = selected ? '#08ce1e' : '#c51773';
 
     const handleClick = (e: ThreeEvent<MouseEvent>) => {
         e.stopPropagation();
-        selectSeeker(selected ? undefined : seeker.id);
+        selectSeeker(seeker.id);
     };
 
     useFrame(() => {
@@ -331,22 +377,22 @@ const PlayerSeeker: FunctionComponent<PlayerSeekerProps> = ({
     return (
         <group ref={ref} onClick={handleClick}>
             <Blockyman position={[0, height, zOffset]} rotation-y={0.9} scale={8} color={color} onClick={handleClick} />
-            {selected && (
-                <Html
-                    position={[0, height + 0.5, zOffset]}
-                    style={{ pointerEvents: 'none', left: '-100px', top: '-90px' }}
-                >
-                    <Wheel
-                        items={items}
-                        width={200}
-                        height={200}
-                        innerRadius={38}
-                        outerRadius={65}
-                        intent={intent}
-                        selectIntent={selectIntent}
-                    />
-                </Html>
-            )}
+            {/*{selected && (*/}
+            {/*    <Html*/}
+            {/*        position={[0, height + 0.5, zOffset]}*/}
+            {/*        style={{ pointerEvents: 'none', left: '-100px', top: '-90px' }}*/}
+            {/*    >*/}
+            {/*        <Wheel*/}
+            {/*            items={items}*/}
+            {/*            width={200}*/}
+            {/*            height={200}*/}
+            {/*            innerRadius={38}*/}
+            {/*            outerRadius={65}*/}
+            {/*            intent={intent}*/}
+            {/*            selectIntent={selectIntent}*/}
+            {/*        />*/}
+            {/*    </Html>*/}
+            {/*)}*/}
         </group>
     );
 };
@@ -360,10 +406,10 @@ const OtherSeeker: FunctionComponent<OtherSeekerProps> = ({ seeker, tile }) => {
     const height = getHeightForCoords(tile);
     const [x, y, z] = getTileXYZ(coords);
     const handleClick = (e: ThreeEvent<MouseEvent>) => {
-        e.stopPropagation();
-        setSelected((prev) => {
-            return !prev;
-        });
+        // e.stopPropagation();
+        // setSelected((prev) => {
+        //     return !prev;
+        // });
     };
     return (
         <group position={[x, y, z]} onClick={handleClick}>
@@ -452,7 +498,7 @@ const Building: FunctionComponent<BuildingProps> = ({
     );
 };
 
-const Tile: FunctionComponent<TileProps> = ({ selectTileForIntent, tile }) => {
+const Tile: FunctionComponent<TileProps> = ({ selectTileForIntent, tile, selectedSeeker }) => {
     const [hover, setHover] = useState<boolean>(false);
     const onPointerOver = () => setHover(true);
     const onPointerOut = () => setHover(false);
@@ -461,6 +507,8 @@ const Tile: FunctionComponent<TileProps> = ({ selectTileForIntent, tile }) => {
     const coords = getCoords(tile.coords);
     const height = tile.biome === BiomeKind.UNDISCOVERED ? 0.01 : getHeightForCoords(tile);
     const [x, y, z] = getTileXYZ(coords);
+    const player = usePlayer();
+
     const click = (e: ThreeEvent<MouseEvent>) => {
         if (!selectTileForIntent) {
             return;
@@ -468,6 +516,36 @@ const Tile: FunctionComponent<TileProps> = ({ selectTileForIntent, tile }) => {
         e.stopPropagation();
         selectTileForIntent(tile.id);
     };
+
+    const handleRightCLick = (e: ThreeEvent<MouseEvent>) => {
+        if (!selectTileForIntent || !selectedSeeker) {
+            return;
+        }
+        e.stopPropagation();
+        selectTileForIntent(tile.id);
+
+        // dispatch some kind of action here
+        if (tile.biome === BiomeKind.DISCOVERED) {
+            const [_zone, q, r, s] = tile.coords;
+            const action: CogAction = {
+                name: 'MOVE_SEEKER',
+                args: [selectedSeeker.key, q, r, s]
+            };
+            player?.dispatch(action);
+            return;
+        }
+
+        if (tile.biome === BiomeKind.UNDISCOVERED) {
+            const [_zone, q, r, s] = tile.coords;
+            const action: CogAction = {
+                name: 'SCOUT_SEEKER',
+                args: [selectedSeeker.key, q, r, s]
+            };
+            player?.dispatch(action);
+            return;
+        }
+    };
+
     useFrame(() => {
         if (!ref) {
             return;
@@ -491,7 +569,13 @@ const Tile: FunctionComponent<TileProps> = ({ selectTileForIntent, tile }) => {
             ? chroma('#6e7a94').luminance(heightMultiplier).hex()
             : chroma('#6e7a94').darken(0.25).hex();
     return (
-        <group position={[x, y, z]} onClick={click} onPointerOver={onPointerOver} onPointerOut={onPointerOut}>
+        <group
+            position={[x, y, z]}
+            onClick={click}
+            onPointerOver={onPointerOver}
+            onPointerOut={onPointerOut}
+            onContextMenu={handleRightCLick}
+        >
             <Cylinder ref={ref} args={[TILE_SIZE, TILE_SIZE, actualHeight, 6]} position={[0, actualHeight / 2, 0]}>
                 <meshPhongMaterial color="#b7cee2">
                     <GradientTexture stops={[0, 1]} colors={[color1, color2]} size={10} />
@@ -513,7 +597,7 @@ const TileSelection: FunctionComponent<TileProps> = ({ color, opacity, tile }) =
     const coords = getCoords(tile.coords);
     const [x, y, z] = getTileXYZ(coords);
     const tileHeight = tile.biome === BiomeKind.UNDISCOVERED ? 0.01 : getHeightForCoords(tile);
-    const height = 0.1;
+    const height = 0.001;
     const size = 0.9;
     const opacityWithDefault = opacity === undefined ? 1 : opacity;
     const opacityWithHover = hover ? Math.min(opacityWithDefault + 0.1, 1) : opacityWithDefault;
@@ -660,17 +744,34 @@ export const R3FMap: FunctionComponent<MapProps> = ({ ...otherProps }) => {
                 return;
             }
             ids = [tileId];
-        } else {
-            // default is single tile, with toggle
-            // but it will swipe out any existing seeker selection
-            selectSeeker(undefined);
+        } else if (tileId != undefined) {
+            // selecting a nearby tile or deselect the seeker
+            if (!influenceTiles.find((t) => t.id == tileId)) {
+                selectSeeker(undefined);
+            }
             const prevIds = selectedTiles.map((id) => id);
             if (prevIds.some(({ id }) => id === tileId)) {
                 ids = [];
             } else {
                 ids = tileId ? [tileId] : [];
             }
+            ids = [tileId];
+        } else {
+            // clicked in the void / not on a tile
+            selectSeeker(undefined);
+            ids = [];
         }
+        // } else {
+        //     // default is single tile, with toggle
+        //     // but it will swipe out any existing seeker selection
+        //     selectSeeker(undefined);
+        //     const prevIds = selectedTiles.map((id) => id);
+        //     if (prevIds.some(({ id }) => id === tileId)) {
+        //         ids = [];
+        //     } else {
+        //         ids = tileId ? [tileId] : [];
+        //     }
+        // }
         selectTiles(ids);
     };
 
@@ -680,6 +781,7 @@ export const R3FMap: FunctionComponent<MapProps> = ({ ...otherProps }) => {
         selectBuilding(undefined);
     };
 
+    const selectedTileInInfluence = influenceTiles.some((t) => t.id === selectedTiles[0]?.id);
     const selectionColor =
         intent == CONSTRUCT_INTENT
             ? '#ff8c16'
@@ -689,7 +791,9 @@ export const R3FMap: FunctionComponent<MapProps> = ({ ...otherProps }) => {
             ? '#c51773'
             : intent == USE_INTENT
             ? '#3a759d'
-            : '#5575a0';
+            : selectedTileInInfluence
+            ? '#aeffb7'
+            : '#3a759d';
 
     const inventoryContext = useContext(useInventoryContext);
     const pluginState = usePluginState();
@@ -736,6 +840,7 @@ export const R3FMap: FunctionComponent<MapProps> = ({ ...otherProps }) => {
                                 selectTileForIntent={selectTileForIntent}
                                 selectedTiles={selectedTiles}
                                 opacity={1}
+                                selectedSeeker={selectedSeeker}
                             />
                         ))}
                         {bagsWithTile.map(({ tile, bag }) => (
@@ -750,7 +855,10 @@ export const R3FMap: FunctionComponent<MapProps> = ({ ...otherProps }) => {
                                 tile={tile}
                                 selectIntent={selectIntent}
                                 intent={intent}
-                                selectSeeker={selectSeeker}
+                                selectSeeker={() => {
+                                    selectSeeker(seeker.id);
+                                    selectTiles([tile.id]);
+                                }}
                                 seeker={seeker}
                                 selected={seeker.id === selectedSeeker?.id}
                                 canScout={scoutableTiles.length > 0}
@@ -808,7 +916,12 @@ export const R3FMap: FunctionComponent<MapProps> = ({ ...otherProps }) => {
                         {selectedSeeker &&
                             !intent &&
                             influenceTiles.map((tile) => (
-                                <TileSelection key={`influence-${tile.id}`} tile={tile} color={'#5575a0'} opacity={1} />
+                                <TileSelection
+                                    key={`influence-${tile.id}`}
+                                    tile={tile}
+                                    color={'#5fff71'}
+                                    opacity={0.3}
+                                />
                             ))}
                     </Suspense>
                 </useInventoryContext.Provider>
@@ -822,6 +935,9 @@ export const R3FMap: FunctionComponent<MapProps> = ({ ...otherProps }) => {
                 selectedTiles={selectedTiles}
                 selectedSeeker={selectedSeeker}
                 intent={intent}
+                canScout={scoutableTiles.length > 0 && !intent}
+                canMove={moveableTiles.length > 0 && !intent}
+                canConstruct={constructableTiles.length > 0 && !intent}
             />
         </StyledMap>
     );

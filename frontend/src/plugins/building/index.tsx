@@ -159,9 +159,9 @@ const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selecte
             <button className="action-button" onClick={move} disabled={!canMove} style={{ opacity: canMove ? 1 : 0.1 }}>
                 Confirm Move
             </button>
-            <a href="#cancel" className="secondary-button" onClick={clearIntent}>
+            <button className="link-button" onClick={clearIntent}>
                 Cancel
-            </a>
+            </button>
         </Fragment>
     );
 };
