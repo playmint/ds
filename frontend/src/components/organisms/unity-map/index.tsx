@@ -189,7 +189,7 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
                     />
                 </div>
             )}
-            <Unity unityProvider={unityProvider} />
+            <Unity unityProvider={unityProvider} devicePixelRatio={2} />
         </StyledUnityMap>
     );
 };
