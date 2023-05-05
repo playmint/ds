@@ -171,12 +171,12 @@ export const GlobalStyles = createGlobalStyle`
         border: none;
         border-bottom: 4px solid #b7c5e0;
         display: block;
-        width: 60px;
-        height: 60px;
+        width: 50px;
+        height: 50px;
         box-sizing: border-box;
         background: #fff;
         color: #143063;
-        padding: 1.2rem 1rem 0.8rem;
+        padding: 1.2rem 0rem 0.8rem;
         font-weight: 600;
 
         &:disabled {

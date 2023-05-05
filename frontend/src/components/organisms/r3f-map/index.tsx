@@ -95,6 +95,7 @@ interface SelectionInfoProps {
     canScout: boolean;
     canConstruct: boolean;
     canMove: boolean;
+    canUse: boolean;
 }
 const SelectionInfo: FunctionComponent<SelectionInfoProps> = ({
     selectedTiles,
@@ -106,7 +107,8 @@ const SelectionInfo: FunctionComponent<SelectionInfoProps> = ({
     selectIntent,
     canScout,
     canConstruct,
-    canMove
+    canMove,
+    canUse
     // selectTileForIntent
 }) => {
     // const tile: WorldTileFragment | undefined = undefined;
@@ -220,6 +222,15 @@ const SelectionInfo: FunctionComponent<SelectionInfoProps> = ({
                                 Build
                             </button>
                         </li>
+                        <li>
+                            <button
+                                className={`action-icon-button ${intent === USE_INTENT ? 'active' : ''}`}
+                                disabled={!canUse || intent === USE_INTENT}
+                                onClick={() => selectIntent(USE_INTENT, tileId)}
+                            >
+                                Use
+                            </button>
+                        </li>
                     </ul>
                 </div>
             )}
@@ -269,7 +280,7 @@ const SelectionInfo: FunctionComponent<SelectionInfoProps> = ({
             )}
             {nearbySeekers.length > 0 && !intent && (
                 <div className="info-box">
-                    <div>Nearby seekers</div>
+                    <div>Seekers on selected tile</div>
                     <SeekerList seekers={nearbySeekers} className="action" />
                 </div>
             )}
@@ -947,6 +958,7 @@ export const R3FMap: FunctionComponent<MapProps> = ({ ...otherProps }) => {
                 canScout={scoutableTiles.length > 0}
                 canMove={moveableTiles.length > 0}
                 canConstruct={constructableTiles.length > 0}
+                canUse={useableTiles.length > 0}
             />
         </StyledMap>
     );
