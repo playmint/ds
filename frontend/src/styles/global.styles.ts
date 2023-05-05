@@ -187,6 +187,11 @@ export const GlobalStyles = createGlobalStyle`
             background: #ddeeff;
             opacity: 1;
         }
+        
+        &.short {
+            height: 35px;
+            padding: 0rem 0rem 0rem;
+        }
     }
 
     .link-button {
@@ -203,10 +208,16 @@ export const GlobalStyles = createGlobalStyle`
         h3 {
             margin-bottom: 0;
         }
+        
         .actions {
             display: flex;
             gap: 0.6rem;
             justify-content: center;
+        }
+        
+        .action-icon-button.short {
+            display: block;
+            margin: -4rem auto 2rem;
         }
     }
     

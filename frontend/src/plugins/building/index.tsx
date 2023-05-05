@@ -66,6 +66,7 @@ export const TileBuilding: FunctionComponent<TileBuildingProps> = ({ showFull, b
             <span className="sub-title">{component?.summary || ''}</span>
             <ImageBuilding />
             {showFull && component && <TileAction showTitle={false} component={component} className="action" />}
+            {/*{!showFull && <button className={`action-icon-button short`}>Use</button>}*/}
         </Fragment>
     );
 };
@@ -95,6 +96,7 @@ const TileAvailable: FunctionComponent<unknown> = () => {
             <h3>Available Tile</h3>
             <span className="sub-title">Nothing here yet</span>
             <ImageAvailable />
+            {/*<button className={`action-icon-button short`}>Move</button>*/}
         </Fragment>
     );
 };

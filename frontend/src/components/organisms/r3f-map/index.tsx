@@ -146,12 +146,9 @@ const SelectionInfo: FunctionComponent<SelectionInfoProps> = ({
     };
 
     const activeIntent = !!intent;
-    const nearbySeekers =
-        influenceTiles.length > 0
-            ? influenceTiles.flatMap((t) => t.seekers).filter((s) => !!s && s.id !== selectedSeeker?.id)
-            : selectedTiles.flatMap((t) => t.seekers);
+    const nearbySeekers = selectedTiles.flatMap((t) => t.seekers);
     const nearbyBuildingTiles = influenceTiles.length > 0 ? influenceTiles.filter((t) => !!t.building) : [];
-    const showTileInfo = !selectedSeeker || activeIntent;
+    const showTileInfo = true;
     const showSeekerInfo = !!selectedSeeker;
     const showBagInfo = !intent || intent === CONSTRUCT_INTENT || intent === USE_INTENT;
 
@@ -226,7 +223,7 @@ const SelectionInfo: FunctionComponent<SelectionInfoProps> = ({
                             <button
                                 className={`action-icon-button ${intent === USE_INTENT ? 'active' : ''}`}
                                 disabled={!canUse || intent === USE_INTENT}
-                                onClick={() => selectIntent(USE_INTENT, tileId)}
+                                onClick={() => selectIntent(USE_INTENT, selectedTile)}
                             >
                                 Use
                             </button>
@@ -237,6 +234,25 @@ const SelectionInfo: FunctionComponent<SelectionInfoProps> = ({
             {showTileInfo && (
                 <div className="info-box">
                     <TileInfo showFull={intent === USE_INTENT} />
+                    {showBagInfo && !intent && selectedTiles.flatMap((t) => t.bags).length > 0 && (
+                        <div>
+                            <div>Bags on selected tile</div>
+                            {selectedTiles.map((tile) => (
+                                <TileInventory
+                                    key={`sel-inv-${tile.id}`}
+                                    className="action"
+                                    tile={tile}
+                                    title={`Bags for ${tile.id}`}
+                                />
+                            ))}
+                        </div>
+                    )}
+                    {nearbySeekers.length > 0 && !intent && (
+                        <div>
+                            <div>Seekers on selected tile</div>
+                            <SeekerList seekers={nearbySeekers} className="action" />
+                        </div>
+                    )}
                 </div>
             )}
             {/*{nearbyBuildingTiles.length > 0 && !intent && (*/}
@@ -265,25 +281,6 @@ const SelectionInfo: FunctionComponent<SelectionInfoProps> = ({
             {/*        ))}*/}
             {/*    </div>*/}
             {/*)}*/}
-            {showBagInfo && !intent && selectedTiles.flatMap((t) => t.bags).length > 0 && (
-                <div className="info-box">
-                    <div>Bags on selected tile</div>
-                    {selectedTiles.map((tile) => (
-                        <TileInventory
-                            key={`sel-inv-${tile.id}`}
-                            className="action"
-                            tile={tile}
-                            title={`Bags for ${tile.id}`}
-                        />
-                    ))}
-                </div>
-            )}
-            {nearbySeekers.length > 0 && !intent && (
-                <div className="info-box">
-                    <div>Seekers on selected tile</div>
-                    <SeekerList seekers={nearbySeekers} className="action" />
-                </div>
-            )}
         </div>
     );
 };
