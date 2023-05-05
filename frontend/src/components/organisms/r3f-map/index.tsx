@@ -182,35 +182,49 @@ const SelectionInfo: FunctionComponent<SelectionInfoProps> = ({
             )}
             {showSeekerInfo && (
                 <div className="info-box">
-                    <h3>Actions</h3>
                     <ul className="actions">
                         <li>
                             <button
                                 className="action-icon-button"
-                                disabled={!canMove}
-                                onClick={() => selectIntent(MOVE_INTENT, tileId)}
+                                disabled={!intent}
+                                onClick={() => selectIntent(undefined)}
                             >
-                                Move
+                                Select
                             </button>
                         </li>
-                        <li>
-                            <button
-                                className="action-icon-button"
-                                disabled={!canScout}
-                                onClick={() => selectIntent(SCOUT_INTENT, tileId)}
-                            >
-                                Scout
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                className="action-icon-button"
-                                disabled={!canConstruct}
-                                onClick={() => selectIntent(CONSTRUCT_INTENT, tileId)}
-                            >
-                                Build
-                            </button>
-                        </li>
+                        {canMove && (
+                            <li>
+                                <button
+                                    className="action-icon-button"
+                                    disabled={intent == MOVE_INTENT}
+                                    onClick={() => selectIntent(MOVE_INTENT, tileId)}
+                                >
+                                    Move
+                                </button>
+                            </li>
+                        )}
+                        {canScout && (
+                            <li>
+                                <button
+                                    className="action-icon-button"
+                                    disabled={intent == SCOUT_INTENT}
+                                    onClick={() => selectIntent(SCOUT_INTENT, tileId)}
+                                >
+                                    Scout
+                                </button>
+                            </li>
+                        )}
+                        {canConstruct && (
+                            <li>
+                                <button
+                                    className="action-icon-button"
+                                    disabled={intent == CONSTRUCT_INTENT}
+                                    onClick={() => selectIntent(CONSTRUCT_INTENT, tileId)}
+                                >
+                                    Build
+                                </button>
+                            </li>
+                        )}
                     </ul>
                 </div>
             )}
@@ -935,9 +949,9 @@ export const R3FMap: FunctionComponent<MapProps> = ({ ...otherProps }) => {
                 selectedTiles={selectedTiles}
                 selectedSeeker={selectedSeeker}
                 intent={intent}
-                canScout={scoutableTiles.length > 0 && !intent}
-                canMove={moveableTiles.length > 0 && !intent}
-                canConstruct={constructableTiles.length > 0 && !intent}
+                canScout={scoutableTiles.length > 0}
+                canMove={moveableTiles.length > 0}
+                canConstruct={constructableTiles.length > 0}
             />
         </StyledMap>
     );
