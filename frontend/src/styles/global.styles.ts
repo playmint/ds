@@ -182,6 +182,11 @@ export const GlobalStyles = createGlobalStyle`
         &:disabled {
             opacity: 0.5;
         }
+        
+        &.active {
+            background: #ddeeff;
+            opacity: 1;
+        }
     }
 
     .link-button {
@@ -201,6 +206,7 @@ export const GlobalStyles = createGlobalStyle`
         .actions {
             display: flex;
             gap: 0.6rem;
+            justify-content: center;
         }
     }
     
