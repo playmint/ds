@@ -15,6 +15,9 @@ interface Rel {
     function Material() external;
     function Input() external;
     function Output() external;
+    function Has() external;
+    function Combat() external;
+    function IsFinalised() external;
 }
 
 interface Kind {
@@ -28,6 +31,8 @@ interface Kind {
     function Building() external;
     function Atom() external;
     function Item() external;
+    function CombatSession() external;
+    function Hash() external;
 }
 
 uint8 constant ATOM_LIFE = 0;
@@ -95,6 +100,18 @@ library Node {
 
     function Building(int16 zone, int16 q, int16 r, int16 s) internal pure returns (bytes24) {
         return CompoundKeyEncoder.INT16_ARRAY(Kind.Building.selector, [zone, q, r, s]);
+    }
+
+    function CombatSession(uint64 id) internal pure returns (bytes24) {
+        return CompoundKeyEncoder.UINT64(Kind.CombatSession.selector, id);
+    }
+
+    function Hash(bytes20 hash) internal pure returns (bytes24) {
+        return CompoundKeyEncoder.BYTES(Kind.Hash.selector, hash);
+    }
+
+    function RewardBag(bytes24 sessionID, bytes24 entityID) internal pure returns (bytes24) {
+        return Node.Bag(uint64(uint16(uint192(sessionID) & type(uint16).max) | (uint48(uint192(entityID)) << 16)));
     }
 }
 
@@ -281,6 +298,15 @@ library Schema {
         return plugin;
     }
 
+    function getHash(State state, bytes24 node, uint8 edgeIndex) internal view returns (bytes20 hash) {
+        (bytes24 hashNode,) = state.get(Rel.Has.selector, edgeIndex, node);
+        hash = bytes20(uint160(uint192(hashNode) & type(uint160).max));
+    }
+
+    function setHash(State state, bytes20 hash, bytes24 node, uint8 edgeIndex) internal {
+        state.set(Rel.Has.selector, edgeIndex, node, Node.Hash(hash), 0);
+    }
+
     function setInput(State state, bytes24 kind, uint8 slot, bytes24 item, uint64 qty) internal {
         return state.set(Rel.Input.selector, slot, kind, item, qty);
     }
@@ -303,5 +329,19 @@ library Schema {
 
     function getMaterial(State state, bytes24 kind, uint8 slot) internal view returns (bytes24 item, uint64 qty) {
         return state.get(Rel.Material.selector, slot, kind);
+    }
+
+    function getIsFinalised(State state, bytes24 sessionID) internal view returns (bool) {
+        ( /*bytes24 sessionNode*/ , uint64 isFinalised) = state.get(Rel.IsFinalised.selector, 0, sessionID);
+        return isFinalised > 0;
+    }
+
+    function setIsFinalised(State state, bytes24 sessionID, bool isFinalised) internal {
+        state.set(Rel.IsFinalised.selector, 0, sessionID, sessionID, isFinalised ? 1 : 0);
+    }
+
+    function getSid(State, /*state*/ bytes24 seekerID) internal pure returns (uint32) {
+        // NOTE: This is intentional. Where 'sid' is reauired by actions, it is typed as uint32
+        return uint32(CompoundKeyDecoder.UINT64(seekerID));
     }
 }

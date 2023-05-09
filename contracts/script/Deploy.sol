@@ -46,9 +46,9 @@ contract GameDeployer is Script {
 
         // find the base item ids
         bytes24 none = 0x0;
-        bytes24 kiki = ItemUtils.Kiki();
-        bytes24 bouba = ItemUtils.Bouba();
-        bytes24 semiote = ItemUtils.Semiote();
+        bytes24 kiki = ItemUtils.Kiki(); // Life
+        bytes24 bouba = ItemUtils.Bouba(); // Defence
+        bytes24 semiote = ItemUtils.Semiote(); // Attack
 
         // register a new item id
         bytes24 welcomeCocktail = ItemUtils.register(
@@ -57,10 +57,10 @@ contract GameDeployer is Script {
                 id: 100,
                 name: "Welcome Cocktail",
                 icon: "02-40",
-                life: 1,
+                life: 0,
                 defense: 1,
-                attack: 0,
-                stackable: true,
+                attack: 2,
+                stackable: false,
                 implementation: address(0),
                 plugin: ""
             })
@@ -79,8 +79,8 @@ contract GameDeployer is Script {
                     Material({quantity: 0, item: none})
                 ],
                 inputs: [
-                    Input({quantity: 2, item: kiki}),
                     Input({quantity: 2, item: bouba}),
+                    Input({quantity: 2, item: semiote}),
                     Input({quantity: 0, item: none}),
                     Input({quantity: 0, item: none})
                 ],

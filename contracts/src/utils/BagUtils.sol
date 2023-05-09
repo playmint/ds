@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import {State} from "cog/State.sol";
-import {Schema, Node, Kind} from "@ds/schema/Schema.sol";
+import {Schema, Node, Kind, Rel} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 
 error NoTransferUnsupportedEquipeeKind();
@@ -37,6 +37,16 @@ library BagUtils {
             if (
                 TileUtils.distance(location, otherSeekerLocation) > 1
                     || !TileUtils.isDirect(location, otherSeekerLocation)
+            ) {
+                revert NoTransferNotSameLocation();
+            }
+        } else if (bytes4(equipee) == Kind.CombatSession.selector) {
+            // Belongs to combat session. Check both tiles that belong to the session
+            (bytes24 tileA,) = state.get(Rel.Has.selector, 0, equipee);
+            (bytes24 tileB,) = state.get(Rel.Has.selector, 1, equipee);
+            if (
+                (TileUtils.distance(location, tileA) > 1 || !TileUtils.isDirect(location, tileA))
+                    && (TileUtils.distance(location, tileB) > 1 || !TileUtils.isDirect(location, tileB))
             ) {
                 revert NoTransferNotSameLocation();
             }

@@ -33,6 +33,7 @@ const CONSTRUCT_INTENT = 'construct';
 const MOVE_INTENT = 'move';
 const SCOUT_INTENT = 'scout';
 const USE_INTENT = 'use';
+const COMBAT_INTENT = 'combat';
 
 function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -425,6 +426,97 @@ const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selecte
         </Fragment>
     );
 };
+
+interface CombatProps {
+    selectedTiles: SelectedTileFragment[];
+    selectIntent: Selector<string | undefined>;
+    selectTiles: Selector<string[] | undefined>;
+    player?: ConnectedPlayer;
+    seeker?: SelectedSeekerFragment;
+}
+const Combat: FunctionComponent<CombatProps> = ({ selectTiles, selectIntent, selectedTiles, player, seeker }) => {
+    const combatTiles = selectedTiles
+        .filter((t) => t.biome === BiomeKind.DISCOVERED)
+        .filter(({ sessions }) => {
+            // cannot start combat if any of the tiles have an active session
+            return sessions.filter((session: any) => !session.isFinalised) == 0;
+        });
+
+    const startCombat = () => {
+        if (!player) {
+            return;
+        }
+        if (!seeker) {
+            return;
+        }
+        if (combatTiles.length < 2) {
+            return;
+        }
+        if (!combatTiles[1].building) {
+            return;
+        }
+
+        const attackers = combatTiles[0].seekers
+            .map((s) => s.id)
+            .concat(combatTiles[0].building ? [combatTiles[0].building.id] : []);
+        const defenders = combatTiles[1].seekers
+            .map((s) => s.id)
+            .concat(combatTiles[1].building ? [combatTiles[1].building.id] : []);
+
+        // function START_COMBAT(bytes24 seekerID, bytes24 tileID, bytes24[] calldata attackers, bytes24[] calldata defenders)
+        const action: CogAction = {
+            name: 'START_COMBAT',
+            args: [seeker.id, combatTiles[1].id, attackers, defenders]
+        };
+        player.dispatch(action);
+        if (selectIntent) {
+            selectIntent(undefined);
+        }
+        if (selectTiles) {
+            selectTiles([]);
+        }
+    };
+
+    const canAttack =
+        seeker &&
+        player &&
+        combatTiles.length > 1 &&
+        combatTiles[1].building &&
+        getTileDistance(combatTiles[0], combatTiles[1]) == 1;
+
+    const clearIntent = useCallback(
+        (e?: React.MouseEvent) => {
+            if (e) {
+                e.preventDefault();
+            }
+            selectIntent(undefined);
+            selectTiles([]);
+        },
+        [selectIntent, selectTiles]
+    );
+    return (
+        <Fragment>
+            <h3>Combat</h3>
+            <span className="sub-title">Select a tile to add to combat</span>
+            <ImageSelecting />
+            <form>
+                <button
+                    className="action-button"
+                    type="button"
+                    onClick={startCombat}
+                    disabled={!canAttack}
+                    style={{ opacity: canAttack ? 1 : 0.1 }}
+                >
+                    Start Combat
+                </button>
+                <button className="link-button" onClick={clearIntent}>
+                    Cancel Combat
+                </button>
+            </form>
+        </Fragment>
+    );
+};
+
 interface ScoutProps {
     selectedTiles: SelectedTileFragment[];
     selectIntent: Selector<string | undefined>;
@@ -537,13 +629,15 @@ export const ActionContextPanel: FunctionComponent<BuildingProps> = ({ ...otherP
             );
         } else if (intent === MOVE_INTENT) {
             return (
-                <Move
-                    selectIntent={selectIntent}
-                    selectedTiles={selectedTiles}
-                    selectTiles={selectTiles}
-                    seeker={seeker}
-                    player={player}
-                />
+                <Fragment>
+                    <Move
+                        selectIntent={selectIntent}
+                        selectedTiles={selectedTiles}
+                        selectTiles={selectTiles}
+                        seeker={seeker}
+                        player={player}
+                    />
+                </Fragment>
             );
         } else if (intent === SCOUT_INTENT) {
             return (
@@ -568,6 +662,16 @@ export const ActionContextPanel: FunctionComponent<BuildingProps> = ({ ...otherP
                 );
             }
             return <Use selectIntent={selectIntent} selectTiles={selectTiles} />;
+        } else if (intent === COMBAT_INTENT) {
+            return (
+                <Combat
+                    selectIntent={selectIntent}
+                    selectedTiles={selectedTiles}
+                    selectTiles={selectTiles}
+                    seeker={seeker}
+                    player={player}
+                />
+            );
         } else {
             if (selectedTiles.length === 1) {
                 const selectedTile = selectedTiles[0];

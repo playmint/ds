@@ -11,6 +11,7 @@ const CONSTRUCT_INTENT = 'construct';
 const USE_INTENT = 'use';
 const MOVE_INTENT = 'move';
 const SCOUT_INTENT = 'scout';
+const COMBAT_INTENT = 'combat';
 
 export interface ActionBarProps extends ComponentProps {}
 
@@ -143,6 +144,15 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
                         onClick={() => handleSelectIntent(USE_INTENT, selectedTileId)}
                     >
                         Use
+                    </button>
+                </li>
+                <li>
+                    <button
+                        className={`action-icon-button ${intent === COMBAT_INTENT ? 'active' : ''}`}
+                        disabled={!canUse || intent === COMBAT_INTENT}
+                        onClick={() => handleSelectIntent(COMBAT_INTENT, selectedTileId)}
+                    >
+                        Attack
                     </button>
                 </li>
             </ul>

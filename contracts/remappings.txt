@@ -1,2 +1,4 @@
-cog/=lib/cog/contracts/src
-@ds/=src
+@ds/=src/
+cog/=lib/cog/contracts/src/
+ds-test/=lib/forge-std/lib/ds-test/src/
+forge-std/=lib/forge-std/src/

@@ -33,7 +33,8 @@
     "paths": {
       "@app/*": [
         "*"
-      ]
+      ],
+      "*": ["../node_modules/*"]
     },
     "skipLibCheck": true,
     "strict": true,
