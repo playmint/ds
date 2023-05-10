@@ -119,7 +119,8 @@ MonoBehaviour:
     type: 3}
   nonPlayerIconPrefab: {fileID: 7482230774540498691, guid: 9d7d926df89fb45b09a4b5b4afb48628,
     type: 3}
-  shrinkScale: 0.5
+  rend: {fileID: 7673478584568408413}
+  shrinkScale: 1
   _moveCurve:
     serializedVersion: 2
     m_Curve:
@@ -221,6 +222,21 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ed67c054313d2594abada4044bb38698,
         type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.84
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ed67c054313d2594abada4044bb38698,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.84
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ed67c054313d2594abada4044bb38698,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.84
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ed67c054313d2594abada4044bb38698,
+        type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -276,3 +292,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ed67c054313d2594abada4044bb38698, type: 3}
+--- !u!23 &7673478584568408413 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: ed67c054313d2594abada4044bb38698,
+    type: 3}
+  m_PrefabInstance: {fileID: 9060180030959056345}
+  m_PrefabAsset: {fileID: 0}

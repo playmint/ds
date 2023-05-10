@@ -74,10 +74,10 @@ public class MapElementManager : MonoBehaviour
     public static Vector3 GetPositionOnCircle(float radius, int numObjects, int index)
     {
         float angle = (float)index / numObjects * 360f;
-        angle += 180;
+        angle += 240;
         float x = radius * Mathf.Sin(angle * Mathf.Deg2Rad);
-        float z = 0;
-        float y = radius * Mathf.Cos(angle * Mathf.Deg2Rad);
+        float z = radius * Mathf.Cos(angle * Mathf.Deg2Rad);
+        float y = 0;
         return new Vector3(x, y, z);
     }
 }

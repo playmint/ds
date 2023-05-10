@@ -5,7 +5,7 @@ using UnityEngine;
 public class MapHeightManager : MonoBehaviour
 {
     public static MapHeightManager instance;
-    public const float UNSCOUTED_HEIGHT = -0.35f;
+    public const float UNSCOUTED_HEIGHT = -0.17f;
 
     [SerializeField]
     float heightScale = 1;
