@@ -22,7 +22,7 @@ export const SeekerList: FunctionComponent<SeekerListProps> = (props: SeekerList
             <h3>Seekers</h3>
             {seekers.map((seeker, index) => (
                 <div key={index} className="seeker">
-                    <img src="/icons/seeker-shield-blue.png" alt="" />
+                    <img src="/seeker-theirs.png" alt="" />
                     Seeker #{seeker.id.slice(-12)}
                 </div>
             ))}

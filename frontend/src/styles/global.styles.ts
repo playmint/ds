@@ -185,10 +185,13 @@ export const GlobalStyles = createGlobalStyle`
         justify-content: flex-end;
         align-items: center;
         overflow: visible;
+        min-height: 5rem;
+        padding: 1rem;
 
         > .shield {
             position: absolute;
-            left: 2rem
+            left: 0.5rem;
+            width: 100px;
         }
 
         > .controls {
