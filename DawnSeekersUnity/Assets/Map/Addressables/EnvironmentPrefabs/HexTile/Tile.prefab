@@ -69,6 +69,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  scoutColor: {r: 0.31176567, g: 0.41419315, b: 0.5849056, a: 1}
+  normalColor: {r: 0.44522065, g: 0.5320815, b: 0.6509434, a: 1}
+  rend: {fileID: 7295057508587508784}
 --- !u!1001 &8285732189812099252
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -168,6 +171,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8235a0ada6491eb4095bfe8aed2877fb, type: 3}
+--- !u!23 &7295057508587508784 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 8235a0ada6491eb4095bfe8aed2877fb,
+    type: 3}
+  m_PrefabInstance: {fileID: 8285732189812099252}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8464072377590378335 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 8235a0ada6491eb4095bfe8aed2877fb,

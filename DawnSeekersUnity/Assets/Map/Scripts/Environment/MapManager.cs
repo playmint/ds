@@ -18,10 +18,23 @@ public class MapManager : MonoBehaviour
 
     public Grid grid;
 
+    public Color scoutColor,
+        normalColor;
+    public MaterialPropertyBlock dynamicMatProps;
+    public MaterialPropertyBlock unscoutedMatProps;
+    public MaterialPropertyBlock normalMatProps;
+
     HashSet<Vector3> tilePositions = new HashSet<Vector3>();
 
     private void Awake()
     {
+        dynamicMatProps = new MaterialPropertyBlock();
+        unscoutedMatProps = new MaterialPropertyBlock();
+        normalMatProps = new MaterialPropertyBlock();
+
+        unscoutedMatProps.SetColor("_Color", scoutColor);
+        normalMatProps.SetColor("_Color", normalColor);
+
         EnvironmentLoaderManager.EnvironmentAssetsLoaded += WaitForAssets;
         instance = this;
     }

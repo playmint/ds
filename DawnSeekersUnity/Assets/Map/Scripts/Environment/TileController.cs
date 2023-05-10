@@ -7,6 +7,9 @@ public class TileController : MonoBehaviour
     [SerializeField]
     AnimationCurve popInCurve;
 
+    [SerializeField]
+    Renderer rend;
+
     private static int delayCount;
     private static float delay;
 
@@ -37,8 +40,19 @@ public class TileController : MonoBehaviour
         {
             t += Time.deltaTime * 3;
             transform.position = Vector3.LerpUnclamped(startPos, endPos, popInCurve.Evaluate(t));
+            MapManager.instance.dynamicMatProps.SetColor(
+                "_Color",
+                Color.Lerp(
+                    MapManager.instance.scoutColor,
+                    MapManager.instance.normalColor,
+                    popInCurve.Evaluate(t)
+                )
+            );
+            rend.SetPropertyBlock(MapManager.instance.dynamicMatProps);
             yield return null;
         }
+
+        rend.SetPropertyBlock(MapManager.instance.normalMatProps);
         delayCount--;
     }
 
@@ -47,6 +61,7 @@ public class TileController : MonoBehaviour
         transform.position = new Vector3(transform.position.x, -1, transform.position.z);
         delayCount++;
         delay += 0.05f;
+        rend.SetPropertyBlock(MapManager.instance.unscoutedMatProps);
         StartCoroutine(AppearCR());
     }
 
@@ -60,12 +75,14 @@ public class TileController : MonoBehaviour
             transform.position.z
         );
         yield return new WaitForSeconds(delay);
+
         while (t < 1)
         {
             t += Time.deltaTime * 3;
             transform.position = Vector3.LerpUnclamped(startPos, endPos, popInCurve.Evaluate(t));
             yield return null;
         }
+
         delayCount--;
         if (delayCount == 0)
             delay = 0;
