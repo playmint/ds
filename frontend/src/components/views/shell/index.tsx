@@ -89,18 +89,20 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                 <Fragment>
                     <div className="seeker-actions">
                         <div className="action seeker-selector">
-                            <img src="/seeker-shield-large.png" className="shield" alt="" />
-                            <div className="controls">
-                                <button className="icon-button" onClick={() => selectNextSeeker(-1)}>
-                                    <img src="/icons/prev.png" alt="Previous" />
-                                </button>
-                                <span className="label">
-                                    Seeker #{formatSeekerKey(selectedSeeker?.key.toString() || '')}
-                                </span>
-                                <button className="icon-button" onClick={() => selectNextSeeker(+1)}>
-                                    <img src="/icons/next.png" alt="Next" />
-                                </button>
-                            </div>
+                            <img src="/seeker-yours.png" className="shield" alt="" />
+                            {(!player || (player && player.seekers.length > 0)) && (
+                                <div className="controls">
+                                    <button className="icon-button" onClick={() => selectNextSeeker(-1)}>
+                                        <img src="/icons/prev.png" alt="Previous" />
+                                    </button>
+                                    <span className="label">
+                                        Seeker #{formatSeekerKey(selectedSeeker?.key.toString() || '')}
+                                    </span>
+                                    <button className="icon-button" onClick={() => selectNextSeeker(+1)}>
+                                        <img src="/icons/next.png" alt="Next" />
+                                    </button>
+                                </div>
+                            )}
                         </div>
                         {selectedSeeker && <SeekerInventory className="action" seeker={selectedSeeker} />}
                         {player && player.seekers.length === 0 && (

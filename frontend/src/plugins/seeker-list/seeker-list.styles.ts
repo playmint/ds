@@ -20,9 +20,10 @@ const baseStyles = (_: Partial<SeekerListProps>) => css`
 
         img {
             position: absolute;
-            left: -1rem;
+            left: -2rem;
             top: 50%;
             transform: translateY(-50%);
+            width: 6.5rem;
         }
     }
 `;
