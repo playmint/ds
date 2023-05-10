@@ -34,8 +34,8 @@ SpriteAtlas:
     packables:
     - {fileID: -2413806693520163455, guid: 8ed38bd22db1e4a72988355c9d131085, type: 3}
     - {fileID: 21300000, guid: f42a84a1f34fb4e4e94223bbd6d549e4, type: 3}
-    - {fileID: 21300000, guid: 4a2f68821b83749e2ba5dc37d4a6d813, type: 3}
-    - {fileID: 21300000, guid: f5e2664ba959449a8b8de100a3f8d630, type: 3}
+    - {fileID: 102900000, guid: f56c2f0b584914e22b1502faa0369669, type: 3}
+    - {fileID: 2800000, guid: 5ca89a5f4425eb04d8c0eede0749ac2f, type: 3}
     - {fileID: 21300000, guid: 0c820ca8a14334c0f90f6f42d81b1bc7, type: 3}
     - {fileID: 21300000, guid: 5e9b972c9964da048803f9258523d2ae, type: 3}
     - {fileID: 21300000, guid: d753736d3ae358f4ca0a47de39e49a23, type: 3}
@@ -43,49 +43,42 @@ SpriteAtlas:
     - {fileID: 2800000, guid: 290419be135a6cb4fae2643c6afd83e2, type: 3}
     - {fileID: 2800000, guid: d1ae62449a84c604891eb88dec93ddc8, type: 3}
     - {fileID: 2800000, guid: c60b97ca3f844a943b19580fdcca4a18, type: 3}
-    - {fileID: 2800000, guid: 5ca89a5f4425eb04d8c0eede0749ac2f, type: 3}
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
-  - {fileID: 21300000, guid: 781e3b213c36e40d79b6602ce0b0511a, type: 3}
   - {fileID: 21300000, guid: f42a84a1f34fb4e4e94223bbd6d549e4, type: 3}
-  - {fileID: 21300000, guid: 4a2f68821b83749e2ba5dc37d4a6d813, type: 3}
   - {fileID: -2413806693520163455, guid: 8ed38bd22db1e4a72988355c9d131085, type: 3}
   - {fileID: 21300000, guid: d1ae62449a84c604891eb88dec93ddc8, type: 3}
   - {fileID: 21300000, guid: 9f05c4157b2e9eb42bd099bd3b821330, type: 3}
   - {fileID: 21300000, guid: f3c5c6a786274804f9653ce5376ef92d, type: 3}
-  - {fileID: 21300000, guid: 39f22e88ca92644a996e9d1184908a5c, type: 3}
-  - {fileID: 21300000, guid: d9d9fc981b66a44719b3be4aa2e2575a, type: 3}
   - {fileID: 21300000, guid: 0c820ca8a14334c0f90f6f42d81b1bc7, type: 3}
-  - {fileID: 21300000, guid: 7d94ad3a0feb6401e94228f3e2545493, type: 3}
+  - {fileID: 21300000, guid: 1059e22a492bd45acbf927dcb3f80937, type: 3}
+  - {fileID: 21300000, guid: 2d16a45a863784aa8a3278b8b1d9e628, type: 3}
   - {fileID: 21300000, guid: c60b97ca3f844a943b19580fdcca4a18, type: 3}
-  - {fileID: 21300000, guid: f5e2664ba959449a8b8de100a3f8d630, type: 3}
   - {fileID: 21300000, guid: 5e9b972c9964da048803f9258523d2ae, type: 3}
+  - {fileID: 21300000, guid: f301f36c02a704c91b3187414065980b, type: 3}
   - {fileID: 21300000, guid: d753736d3ae358f4ca0a47de39e49a23, type: 3}
+  - {fileID: 21300000, guid: 1d85744ec24aa483dbef77494ccc79e4, type: 3}
   - {fileID: 21300000, guid: 290419be135a6cb4fae2643c6afd83e2, type: 3}
   - {fileID: 21300000, guid: 5ca89a5f4425eb04d8c0eede0749ac2f, type: 3}
-  - {fileID: 21300000, guid: e383e6ef9fa214f9aad1624cf8a82995, type: 3}
   m_PackedSpriteNamesToIndex:
-  - Coins_Icon
   - MapIconBG
-  - Player_Icon
   - Circle
   - Seeker_bg_yours
   - Tower_Icon02
   - Bag_Icon
-  - Battle_Icon
-  - Food_Icon
   - White_Hex_Sprite (1)
-  - Fishing_Icon
+  - constructIcon
+  - LoaderSimple
   - Seeker_icon_yours
-  - Tower_Icon
   - Sword_Icon
+  - moveIcon
   - MapIconBG02
+  - scoutIcon
   - Seeker_bg_theirs
   - Seeker_icon_theirs
-  - Gambling_Icon
   m_RenderDataMap: {}
   m_Tag: UI
   m_IsVariant: 0

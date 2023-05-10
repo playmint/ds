@@ -8,6 +8,9 @@ public class SeekerController : MapElementController
     GameObject nonPlayerIconPrefab;
 
     [SerializeField]
+    Renderer rend;
+
+    [SerializeField]
     float shrinkScale;
 
     [SerializeField]
@@ -18,7 +21,7 @@ public class SeekerController : MapElementController
     protected int _currentIndex;
     private float _currentSize;
     private Transform _meshesTrans;
-    private float _offsetRadius = 0.35f;
+    private float _offsetRadius = 0.24f;
 
     public void Setup(Vector3Int cell, int numObjects, int index, bool isPlayer)
     {
@@ -64,9 +67,9 @@ public class SeekerController : MapElementController
             _currentIndex = index;
             _currentSize = targetSize;
             if (index > 0)
-                StartCoroutine(ShrinkCR(Vector3.zero));
+                StartCoroutine(ShrinkCR(Vector3.one * _currentSize, 0, 0.35f));
             else
-                StartCoroutine(ShrinkCR(Vector3.one * _currentSize));
+                StartCoroutine(ShrinkCR(Vector3.one * _currentSize, 1));
         }
 
         Vector3 serverPosition = MapManager.instance.grid.CellToWorld(
@@ -110,10 +113,12 @@ public class SeekerController : MapElementController
         _icon.UpdateIcon();
     }
 
-    IEnumerator ShrinkCR(Vector3 endScale)
+    IEnumerator ShrinkCR(Vector3 endScale, float endFade, float delay = 0)
     {
         float t = 0;
         Vector3 startScale = _meshesTrans.localScale;
+        float startFade = rend.material.GetFloat("_Fade");
+        yield return new WaitForSeconds(delay);
         while (t < 1)
         {
             t += Time.deltaTime * 2;
@@ -121,6 +126,10 @@ public class SeekerController : MapElementController
                 startScale,
                 endScale,
                 _shrinkCurve.Evaluate(t)
+            );
+            rend.material.SetFloat(
+                "_Fade",
+                Mathf.Lerp(startFade, endFade, _shrinkCurve.Evaluate(t))
             );
             yield return null;
         }
