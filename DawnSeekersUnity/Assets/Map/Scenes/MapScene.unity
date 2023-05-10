@@ -1091,7 +1091,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &564338985
@@ -1582,8 +1582,6 @@ MonoBehaviour:
   grid: {fileID: 913983447}
   scoutColor: {r: 0.31176567, g: 0.41419315, b: 0.5849056, a: 1}
   normalColor: {r: 0.44522065, g: 0.5320815, b: 0.6509434, a: 1}
-  scoutedContainer: {fileID: 823133098}
-  unscoutedContainer: {fileID: 1269189909}
 --- !u!4 &755192403
 Transform:
   m_ObjectHideFlags: 0
