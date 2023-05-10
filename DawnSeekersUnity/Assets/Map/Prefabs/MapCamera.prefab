@@ -519,6 +519,9 @@ MonoBehaviour:
   minCameraDistance: 2
   maxCameraDistance: 10
   zoomDuration: 0.025
+  PPVolume: {fileID: 6518314203581509767}
+  minAOIntensity: 0.75
+  maxAOIntensity: 3
 --- !u!1 &6518314205033195297
 GameObject:
   m_ObjectHideFlags: 0
