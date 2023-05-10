@@ -21,7 +21,7 @@ public class SeekerController : MapElementController
     protected int _currentIndex;
     private float _currentSize;
     private Transform _meshesTrans;
-    private float _offsetRadius = 0.24f;
+    private float _offsetRadius = 0.26f;
 
     public void Setup(Vector3Int cell, int numObjects, int index, bool isPlayer)
     {
@@ -55,9 +55,13 @@ public class SeekerController : MapElementController
     {
         int isElementAtCell = MapElementManager.instance.IsElementAtCell(cell);
         _icon.PrepareIcon(index, numObjects - isElementAtCell);
-        if (!isPlayer || numObjects - isElementAtCell == 1)
+        if (numObjects - isElementAtCell == 1)
         {
             _icon.UpdateIcon();
+        }
+        else if (!isPlayer)
+        {
+            StartCoroutine(UpdateIconDelayCR(1));
         }
 
         Vector3 offset = GetOffset(isElementAtCell);
@@ -89,9 +93,16 @@ public class SeekerController : MapElementController
     {
         Vector3 offset = Vector3.zero;
         if (isElementAtPosition > 0)
-            offset = Vector3.zero + (Vector3.back * _offsetRadius);
+            offset = MapElementManager.GetPositionOnCircle(_offsetRadius, 6, 0);
+        //offset = Vector3.zero + (Vector3.back * _offsetRadius);
 
         return offset;
+    }
+
+    private IEnumerator UpdateIconDelayCR(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        _icon.UpdateIcon();
     }
 
     private IEnumerator SmoothMoveCR(Vector3 endPos)
