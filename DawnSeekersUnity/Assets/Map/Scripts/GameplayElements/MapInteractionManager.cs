@@ -121,7 +121,7 @@ public class MapInteractionManager : MonoBehaviour
         }
     }
 
-    void MapClicked2()
+    public void MapClicked2()
     {
         var cellPosOddR = MapManager.instance.grid.WorldToCell(cursor.position);
         var cellPosCube = GridExtensions.GridToCube(cellPosOddR);
