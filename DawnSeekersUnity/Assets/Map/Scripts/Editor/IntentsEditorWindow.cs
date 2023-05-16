@@ -41,13 +41,20 @@ public class IntentsEditorWindow : EditorWindow
             IntentClick("scout");
         }
 
-        /*
+        
         GUILayout.Space(10f);
 
         if (GUILayout.Button("Use", GUILayout.Height(50f)))
         {
-            // Do something when Button 4 is clicked
-        }*/
+            IntentClick("use");
+        }
+
+        GUILayout.Space(10f);
+
+        if (GUILayout.Button("Combat", GUILayout.Height(50f)))
+        {
+            //IntentClick("Kick their ass, sea bass!");
+        }
 
         GUILayout.Space(10f);
         GUILayout.EndHorizontal();
