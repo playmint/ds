@@ -41,7 +41,6 @@ public class IntentsEditorWindow : EditorWindow
             IntentClick("scout");
         }
 
-        
         GUILayout.Space(10f);
 
         if (GUILayout.Button("Use", GUILayout.Height(50f)))
