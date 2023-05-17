@@ -21,7 +21,7 @@ import { styles } from './building.styles';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { getCoords, getTileDistance } from '@app/helpers/tile';
 import { BuildingInventory } from '@app/plugins/inventory/building-inventory';
-import { getBuildingEquipSlot, getBuildingId, resourceIds } from '@app/plugins/inventory/helpers';
+import { getBuildingEquipSlot, getBuildingId } from '@app/plugins/inventory/helpers';
 
 export interface BuildingProps extends ComponentProps {}
 
@@ -204,7 +204,7 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, seeker, p
             key: 0,
             balance: 100,
             item: {
-                id: resourceIds.wood,
+                id: '0x6a7a67f0b12bfa1a00000001000000020000000000000000', // hardcoding temp until construction recipe
                 kind: 'Resource'
             }
         }
