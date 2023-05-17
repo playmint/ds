@@ -5,9 +5,7 @@ import {State} from "cog/State.sol";
 import {Context, Rule} from "cog/Dispatcher.sol";
 import {Context, Rule} from "cog/Dispatcher.sol";
 
-import {
-    Schema, Node, Kind, BiomeKind, ResourceKind, TileUtils, TRAVEL_SPEED, DEFAULT_ZONE
-} from "@ds/schema/Schema.sol";
+import {Schema, Node} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
 error PluginNotPluginOwner();

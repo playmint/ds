@@ -9,8 +9,7 @@ import {
     Schema,
     Node,
     BiomeKind,
-    ResourceKind,
-    AtomKind,
+    ItemUtils,
     TileUtils,
     TRAVEL_SPEED,
     DEFAULT_ZONE
@@ -65,19 +64,26 @@ contract ScoutRule is Rule {
     }
 
     uint8 private _resourceSpawnCount = 0; // Used with modulo for round robin spawning of resouces
-    uint8 private constant NUM_RESOURCE_KINDS = 3;
 
     function _tempSpawnResourceBag(State state, bytes24 targetTile, int16[3] memory coords) private {
         uint64 bagID = uint64(uint256(keccak256(abi.encode(coords))));
         if (uint8(bagID) < 128) {
             bytes24 bag = Node.Bag(bagID);
 
-            ResourceKind resourceKind = ResourceKind((_resourceSpawnCount % NUM_RESOURCE_KINDS) + 1);
-
-            state.setItemSlot(bag, 0, Node.Resource(resourceKind), 100);
+            state.setItemSlot(bag, 0, _tempRandomResource(), 100);
             state.setEquipSlot(targetTile, 0, bag);
+        }
+    }
 
-            _resourceSpawnCount++;
+    function _tempRandomResource() private returns (bytes24) {
+        _resourceSpawnCount++;
+        uint8 n = _resourceSpawnCount % 3;
+        if (n == 0) {
+            return ItemUtils.Wood();
+        } else if (n == 1) {
+            return ItemUtils.Stone();
+        } else {
+            return ItemUtils.Iron();
         }
     }
 }

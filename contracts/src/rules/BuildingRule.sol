@@ -7,7 +7,7 @@ import {Context, Rule} from "cog/Dispatcher.sol";
 import {Context, Rule} from "cog/Dispatcher.sol";
 
 import {
-    Schema, Node, Kind, BiomeKind, ResourceKind, TileUtils, TRAVEL_SPEED, DEFAULT_ZONE
+    Schema, Node, Kind, ItemUtils, TileUtils, DEFAULT_ZONE
 } from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
@@ -154,7 +154,7 @@ contract BuildingRule is Rule {
         _requireCanUseBag(state, bag, Node.Player(ctx.sender));
         // check we meet the building requirements
         (bytes24 resource, uint64 balance) = state.getItemSlot(bag, resourceFromItemSlot);
-        if (balance < BUILDING_COST || resource != Node.Resource(ResourceKind.WOOD)) {
+        if (balance < BUILDING_COST || resource != ItemUtils.Wood()) {
             revert BuildingResourceRequirementsNotMet();
         }
         balance -= BUILDING_COST;
