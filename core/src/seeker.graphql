@@ -3,14 +3,21 @@ fragment ItemSlot on Edge {
     balance: weight
     item: node {
         id
-        kind
+        name: annotation(name: "name") {
+            id
+            value
+        }
+        icon: annotation(name: "icon") {
+            id
+            value
+        }
     }
 }
 
 fragment Bag on Node {
     id
     key
-    slots: edges(match: { kinds: ["Resource", "Item"], via: { rel: "Balance" } }) {
+    slots: edges(match: { kinds: ["Item"], via: { rel: "Balance" } }) {
         ...ItemSlot
     }
 }

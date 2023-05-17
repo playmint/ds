@@ -17,7 +17,6 @@ export interface TransferInfo {
     slotKey: number;
     newBalance: number;
     itemId: string;
-    itemKind: string;
 }
 
 interface InventoryItem {
@@ -106,12 +105,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
                 const transferCompleted = owners.some((o) => {
                     const slot =
                         o.id === to.id ? o.bags[to.equipIndex].bag.slots.find((s) => s.key === to.slotKey) : undefined;
-                    return (
-                        slot &&
-                        slot.balance === to.newBalance &&
-                        slot.item.id === to.itemId &&
-                        slot.item.kind === to.itemKind
-                    );
+                    return slot && slot.balance === to.newBalance && slot.item.id === to.itemId;
                 });
                 return !transferCompleted;
             });
@@ -163,8 +157,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
                 equipIndex: target.equipIndex,
                 slotKey: target.slotKey,
                 newBalance: targetCurrentBalance + transferQuantity,
-                itemId: pickedUpItemRef.current.transferInfo.itemId,
-                itemKind: pickedUpItemRef.current.transferInfo.itemKind
+                itemId: pickedUpItemRef.current.transferInfo.itemId
             },
             transferQuantity,
             bagId

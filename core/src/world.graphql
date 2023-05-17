@@ -62,7 +62,7 @@ fragment WorldTile on Node {
     # bags equip to tiles
     bagCount: count(match: { kinds: "Bag", via: { rel: "Equip" } })
     bagBalances: nodes(match: { kinds: "Bag", via: { rel: "Equip", dir: OUT } }) {
-        balance: sum(match: { kinds: "Resource", via: { rel: "Balance" } })
+        balance: sum(match: { kinds: "Item", via: { rel: "Balance" } })
     }
     building: node(match: { kinds: "Building", via: { rel: "Location", dir: IN } }) {
         ...WorldBuilding

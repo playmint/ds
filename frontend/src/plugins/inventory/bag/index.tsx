@@ -73,14 +73,12 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
                 if (slot.itemSlot) {
                     slot.itemSlot.balance = to.newBalance;
                     slot.itemSlot.item.id = to.itemId;
-                    slot.itemSlot.item.kind = to.itemKind;
                 } else {
                     slot.itemSlot = {
                         key: slot.slotKey,
                         balance: to.newBalance,
                         item: {
-                            id: to.itemId,
-                            kind: to.itemKind
+                            id: to.itemId
                         }
                     };
                 }
