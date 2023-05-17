@@ -12,6 +12,8 @@ interface Rel {
     function Is() external;
     function Supports() external;
     function Implementation() external;
+    function Input() external;
+    function Output() external;
 }
 
 interface Kind {
@@ -21,28 +23,15 @@ interface Kind {
     function Seeker() external;
     function Bag() external;
     function Tile() external;
-    function Resource() external;
     function BuildingKind() external;
     function Building() external;
     function Atom() external;
     function Item() external;
 }
 
-enum ResourceKind {
-    UNKNOWN,
-    WOOD,
-    STONE,
-    IRON,
-    COUNT
-} // COUNT added last to return number or items in enum
-
-enum AtomKind {
-    UNKNOWN,
-    LIFE,
-    DEF,
-    ATK,
-    COUNT
-} // COUNT added last to return number or items in enum
+uint8 constant ATOM_LIFE = 0;
+uint8 constant ATOM_DEFENSE = 1;
+uint8 constant ATOM_ATTACK = 2;
 
 enum BiomeKind {
     UNDISCOVERED,
@@ -53,11 +42,6 @@ enum LocationKey {
     PREV,
     NEXT,
     FIXED
-}
-
-struct AtomCount {
-    AtomKind atomKind;
-    uint64 count;
 }
 
 int16 constant DEFAULT_ZONE = 0;
@@ -79,25 +63,13 @@ library Node {
         return CompoundKeyEncoder.INT16_ARRAY(Kind.Tile.selector, [zone, q, r, s]);
     }
 
-    function Resource(ResourceKind rk) internal pure returns (bytes24) {
-        return CompoundKeyEncoder.UINT64(Kind.Resource.selector, uint64(rk));
-    }
-
-    function Atom(AtomKind ak) internal pure returns (bytes24) {
-        return CompoundKeyEncoder.UINT64(Kind.Atom.selector, uint64(ak));
-    }
-
-    function Item(bytes24[4] memory inputItems, uint64[4] memory inputQty, bool isStackable, string memory name)
-        internal
-        pure
-        returns (bytes24)
-    {
-        return Item(bytes4(keccak256(abi.encodePacked(inputItems, inputQty))), isStackable, name);
-    }
-
-    function Item(bytes4 recipeHash, bool isStackable, string memory name) internal pure returns (bytes24) {
-        uint8 data = isStackable ? 1 : 0;
-        return CompoundKeyEncoder.BYTES(Kind.Item.selector, bytes20(abi.encodePacked(recipeHash, data, name)));
+    function Item(string memory name, uint32[3] memory atoms, bool isStackable) internal pure returns (bytes24) {
+        uint32 uniqueID = uint32(uint256(keccak256(abi.encode(name, atoms, isStackable))));
+        uint32 stackable = 0;
+        if (isStackable) {
+            stackable = 1;
+        }
+        return bytes24(abi.encodePacked(Kind.Item.selector, uniqueID, stackable, atoms[ATOM_LIFE], atoms[ATOM_DEFENSE], atoms[ATOM_ATTACK]));
     }
 
     function Player(address addr) internal pure returns (bytes24) {
@@ -274,16 +246,17 @@ library Schema {
         return kind;
     }
 
-    function getAtoms(State state, bytes24 item) internal view returns (uint64[] memory numAtoms) {
-        // TODO: Make the COUNT a constant so that we can have fixed length arrays
-        numAtoms = new uint64[](uint8(AtomKind.COUNT));
+    function getItemStructure(State /*state*/, bytes24 item) internal pure returns (uint32[3] memory atoms, bool isStackable) {
+        isStackable = uint32(uint192(item) >> 96) == 1;
+        atoms[ATOM_LIFE] = uint32(uint192(item) >> 64);
+        atoms[ATOM_DEFENSE] = uint32(uint192(item) >> 32);
+        atoms[ATOM_ATTACK] = uint32(uint192(item));
+        return (atoms, isStackable);
+    }
 
-        for (uint8 i = 1; i < uint8(AtomKind.COUNT); i++) {
-            (bytes24 atomId, uint64 bal) = state.get(Rel.Balance.selector, i, item);
-            if (bal > 0 && bytes4(atomId) == Kind.Atom.selector) {
-                numAtoms[i] = bal;
-            }
-        }
+    function getAtoms(State state, bytes24 item) internal pure returns (uint32[3] memory atoms) {
+        (atoms, ) = getItemStructure(state, item);
+        return atoms;
     }
 
     function setPlugin(State state, bytes24 plugin, bytes24 target) internal {
@@ -293,6 +266,30 @@ library Schema {
     function getPlugin(State state, bytes24 node) internal view returns (bytes24) {
         (bytes24 plugin,) = state.get(Rel.Supports.selector, 0x0, node);
         return plugin;
+    }
+
+    function setInput(State state, bytes24 kind, uint8 slot, bytes24 item, uint64 qty) internal {
+        return state.set(Rel.Input.selector, slot, kind, item, qty);
+    }
+
+    function getInput(State state, bytes24 kind, uint8 slot)
+        internal
+        view
+        returns (bytes24 item, uint64 qty)
+    {
+        return state.get(Rel.Input.selector, slot, kind);
+    }
+
+    function setOutput(State state, bytes24 kind, uint8 slot, bytes24 item, uint64 qty) internal {
+        return state.set(Rel.Output.selector, slot, kind, item, qty);
+    }
+
+    function getOutput(State state, bytes24 kind, uint8 slot)
+        internal
+        view
+        returns (bytes24 item, uint64 qty)
+    {
+        return state.get(Rel.Input.selector, slot, kind);
     }
 }
 
@@ -317,5 +314,68 @@ library TileUtils {
 
     function abs(int256 n) internal pure returns (int256) {
         return n >= 0 ? n : -n;
+    }
+}
+
+// temp base "resource" ids used by scouting
+// these should not really be special, they are simply
+// how we seed the world with atoms at the moment by
+// dropping these per-atom resources in bags during scout
+library ItemUtils {
+    function Wood() internal pure returns (bytes24) {
+        return Node.Item("wood",  [uint32(2), uint32(0), uint32(0)], true);
+    }
+    function Stone() internal pure returns (bytes24) {
+        return Node.Item("stone", [uint32(0), uint32(2), uint32(0)], true);
+    }
+    function Iron() internal pure returns (bytes24) {
+        return Node.Item("iron",  [uint32(0), uint32(0), uint32(2)], true);
+    }
+}
+
+// TODO: stop duplicating these!
+error NoTransferPlayerNotOwner();
+error NoTransferNotYourBag();
+error NoTransferLowBalance();
+error NoTransferIncompatibleSlot();
+error NoTransferSameSlot();
+error NoTransferUnsupportedEquipeeKind();
+error NoTransferNotSameLocation();
+error NoTransferEquipItemIsNotBag();
+error NoTransferEmptySlot();
+
+library BagUtils {
+    function requireEquipeeLocation(State state, bytes24 equipee, bytes24 seeker, bytes24 location, uint64 atTime)
+        internal
+        view
+    {
+        if (equipee == seeker) {
+            return; // all good, it's the acting seeker's bag so locations match
+        } else if (bytes4(equipee) == Kind.Tile.selector) {
+            // located on a tile
+            if (TileUtils.distance(location, equipee) > 1 || !TileUtils.isDirect(location, equipee)) {
+                revert NoTransferNotSameLocation();
+            }
+        } else if (bytes4(equipee) == Kind.Building.selector) {
+            // The distance method expects a tile so we can swap out the first 4 bytes
+            // of the building for a tile selector because the building ID is based on
+            // the location the same as a tile.
+            bytes24 mask = 0x00000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+            bytes24 buildingLocation = (equipee & mask) | bytes4(Kind.Tile.selector);
+            if (TileUtils.distance(location, buildingLocation) > 1 || !TileUtils.isDirect(location, buildingLocation)) {
+                revert NoTransferNotSameLocation();
+            }
+        } else if (bytes4(equipee) == Kind.Seeker.selector) {
+            // location on another seeker, check same loc
+            bytes24 otherSeekerLocation = state.getCurrentLocation(equipee, atTime);
+            if (
+                TileUtils.distance(location, otherSeekerLocation) > 1
+                    || !TileUtils.isDirect(location, otherSeekerLocation)
+            ) {
+                revert NoTransferNotSameLocation();
+            }
+        } else {
+            revert NoTransferUnsupportedEquipeeKind();
+        }
     }
 }

@@ -9,7 +9,7 @@ import {Dispatcher} from "cog/Dispatcher.sol";
 
 import {Game as Dawnseekers} from "@ds/Game.sol";
 import {Actions} from "@ds/actions/Actions.sol";
-import {Schema, Node, Rel, LocationKey, BiomeKind, ResourceKind, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Schema, Node, Rel, LocationKey, BiomeKind, ItemUtils, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {
     BUILDING_COST,
     BuildingResourceRequirementsNotMet,
@@ -190,7 +190,7 @@ contract BuildingRuleTest is Test {
         returns (bytes24)
     {
         bytes24[] memory items = new bytes24[](1);
-        items[0] = Node.Resource(ResourceKind.WOOD);
+        items[0] = ItemUtils.Wood();
         uint64[] memory balances = new uint64[](1);
         balances[0] = qty;
         return _spawnBag(bagID, owner, equipNode, equipSlot, items, balances);

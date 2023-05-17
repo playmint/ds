@@ -8,7 +8,7 @@ import {Dispatcher} from "cog/Dispatcher.sol";
 
 import {Game} from "@ds/Game.sol";
 import {Actions} from "@ds/actions/Actions.sol";
-import {Schema, Node, Rel, LocationKey, BiomeKind, ResourceKind, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Schema, Node, Rel, LocationKey, BiomeKind, ItemUtils, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import "@ds/rules/InventoryRule.sol";
 
 using Schema for State;
@@ -226,7 +226,7 @@ contract InventoryRuleTest is Test {
         (bytes24 toResourceBefore, uint64 toBalanceBefore) = state.getItemSlot(toBag, ITEM_SLOT_0);
         assertEq(
             fromResourceBefore,
-            Node.Resource(ResourceKind.WOOD),
+            ItemUtils.Wood(),
             "expected seeker1-equip0-bag-item0 (from) resource to be wood before xfer"
         );
         assertEq(toResourceBefore, 0x0, "expected seeker1-equip1-bag-item0 (to) resource to be unset before xfer");
@@ -268,7 +268,7 @@ contract InventoryRuleTest is Test {
         (bytes24 toResourceBefore, uint64 toBalanceBefore) = state.getItemSlot(toBag, ITEM_SLOT_0);
         assertEq(
             fromResourceBefore,
-            Node.Resource(ResourceKind.WOOD),
+            ItemUtils.Wood(),
             "expected seeker1-equip0-bag-item0 (from) resource to be wood before xfer"
         );
         assertEq(toResourceBefore, 0x0, "expected seeker1-equip1-bag-item0 (to) resource to be unset before xfer");
@@ -295,12 +295,12 @@ contract InventoryRuleTest is Test {
         (bytes24 toResourceAfter, uint64 toBalanceAfter) = state.getItemSlot(toBag, itemSlots[1]);
         assertEq(
             fromResourceAfter,
-            Node.Resource(ResourceKind.WOOD),
+            ItemUtils.Wood(),
             "expected seeker1-equip0-bag-item0 resource to be wood after xfer"
         );
         assertEq(
             toResourceAfter,
-            Node.Resource(ResourceKind.WOOD),
+            ItemUtils.Wood(),
             "expected seeker1-equip1-bag-item0 resource to be wood after xfer"
         );
         assertEq(fromBalanceAfter, 50, "expected seeker1-equip1-bag-item0 balance to decrease to 50 after xfer");
@@ -323,7 +323,7 @@ contract InventoryRuleTest is Test {
         (bytes24 toResourceBefore, uint64 toBalanceBefore) = state.getItemSlot(toBag, ITEM_SLOT_0);
         assertEq(
             fromResourceBefore,
-            Node.Resource(ResourceKind.WOOD),
+            ItemUtils.Wood(),
             "expected seeker1-equip0-bag-item0 (from) resource to be wood before xfer"
         );
         assertEq(toResourceBefore, 0x0, "expected seeker1-equip1-bag-item0 (to) resource to be unset before xfer");
@@ -350,12 +350,12 @@ contract InventoryRuleTest is Test {
         (bytes24 toResourceAfter, uint64 toBalanceAfter) = state.getItemSlot(toBag, itemSlots[1]);
         assertEq(
             fromResourceAfter,
-            Node.Resource(ResourceKind.WOOD),
+            ItemUtils.Wood(),
             "expected seeker1-equip0-bag-item0 resource to be wood after xfer"
         );
         assertEq(
             toResourceAfter,
-            Node.Resource(ResourceKind.WOOD),
+            ItemUtils.Wood(),
             "expected seeker1-equip1-bag-item0 resource to be wood after xfer"
         );
         assertEq(fromBalanceAfter, 50, "expected seeker1-equip1-bag-item0 balance to decrease to 50 after xfer");
@@ -380,7 +380,7 @@ contract InventoryRuleTest is Test {
         returns (bytes24)
     {
         bytes24[] memory items = new bytes24[](1);
-        items[0] = Node.Resource(ResourceKind.WOOD);
+        items[0] = ItemUtils.Wood();
         uint64[] memory balances = new uint64[](1);
         balances[0] = 100;
         return _spawnBag(bagID, owner, equipNode, equipSlot, items, balances);
@@ -391,7 +391,7 @@ contract InventoryRuleTest is Test {
         returns (bytes24)
     {
         bytes24[] memory items = new bytes24[](1);
-        items[0] = Node.Resource(ResourceKind.STONE);
+        items[0] = ItemUtils.Stone();
         uint64[] memory balances = new uint64[](1);
         balances[0] = 100;
         return _spawnBag(bagID, owner, equipNode, equipSlot, items, balances);

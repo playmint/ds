@@ -9,7 +9,7 @@ import {StateGraph} from "cog/StateGraph.sol";
 import {BaseGame} from "cog/Game.sol";
 import {LibString} from "cog/utils/LibString.sol";
 
-import {Schema, Node, Rel, Kind, BiomeKind, ResourceKind, AtomKind} from "@ds/schema/Schema.sol";
+import {Schema, Node, Rel, Kind, ItemUtils} from "@ds/schema/Schema.sol";
 import {CheatsRule} from "@ds/rules/CheatsRule.sol";
 import {MovementRule} from "@ds/rules/MovementRule.sol";
 import {ScoutRule} from "@ds/rules/ScoutRule.sol";
@@ -65,8 +65,6 @@ contract Game is BaseGame {
         state.registerNodeType(Kind.Seeker.selector, "Seeker", CompoundKeyKind.UINT160);
         state.registerNodeType(Kind.Bag.selector, "Bag", CompoundKeyKind.UINT160);
         state.registerNodeType(Kind.Tile.selector, "Tile", CompoundKeyKind.INT16_ARRAY);
-        state.registerNodeType(Kind.Resource.selector, "Resource", CompoundKeyKind.UINT160);
-        state.registerNodeType(Kind.Atom.selector, "Atom", CompoundKeyKind.UINT160);
         state.registerNodeType(Kind.Item.selector, "Item", CompoundKeyKind.STRING);
         state.registerNodeType(Kind.BuildingKind.selector, "BuildingKind", CompoundKeyKind.UINT160);
         state.registerNodeType(Kind.Building.selector, "Building", CompoundKeyKind.INT16_ARRAY);
@@ -77,6 +75,8 @@ contract Game is BaseGame {
         state.registerEdgeType(Rel.Owner.selector, "Owner", WeightKind.UINT64);
         state.registerEdgeType(Rel.Location.selector, "Location", WeightKind.UINT64);
         state.registerEdgeType(Rel.Balance.selector, "Balance", WeightKind.UINT64);
+        state.registerEdgeType(Rel.Input.selector, "Input", WeightKind.UINT64);
+        state.registerEdgeType(Rel.Output.selector, "Output", WeightKind.UINT64);
         state.registerEdgeType(Rel.Biome.selector, "Biome", WeightKind.UINT64);
         state.registerEdgeType(Rel.Equip.selector, "Equip", WeightKind.UINT64);
         state.registerEdgeType(Rel.Is.selector, "Is", WeightKind.UINT64);
@@ -94,7 +94,7 @@ contract Game is BaseGame {
         dispatcher.registerRule(new ScoutRule());
         dispatcher.registerRule(new InventoryRule());
         dispatcher.registerRule(new BuildingRule(this));
-        dispatcher.registerRule(new CraftingRule());
+        dispatcher.registerRule(new CraftingRule(this));
         dispatcher.registerRule(new PluginRule());
         dispatcher.registerRule(new NewPlayerRule());
         dispatcher.registerRouter(router);
@@ -104,16 +104,10 @@ contract Game is BaseGame {
         _registerRouter(router);
         _registerDispatcher(dispatcher);
 
-        // register resources
-        uint64[] memory numAtoms = new uint64[](1);
-        numAtoms[0] = 2;
-        AtomKind[] memory atomKinds = new AtomKind[](1);
+        // register base resources used by temp scouting
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.Wood(), "wood", "03-123")));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.Stone(), "stone", "07-245")));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.Iron(), "iron", "07-227")));
 
-        atomKinds[0] = AtomKind.LIFE;
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_RESOURCE_KIND, (ResourceKind.WOOD, atomKinds, numAtoms)));
-        atomKinds[0] = AtomKind.DEF;
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_RESOURCE_KIND, (ResourceKind.STONE, atomKinds, numAtoms)));
-        atomKinds[0] = AtomKind.ATK;
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_RESOURCE_KIND, (ResourceKind.IRON, atomKinds, numAtoms)));
     }
 }

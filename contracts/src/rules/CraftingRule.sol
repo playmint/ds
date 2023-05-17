@@ -1,164 +1,247 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
+import {Game} from "cog/Game.sol";
 import {State} from "cog/State.sol";
 import {Context, Rule} from "cog/Dispatcher.sol";
 import {Context, Rule} from "cog/Dispatcher.sol";
 
-import {Kind, Schema, ResourceKind, AtomKind, Node, Rel} from "@ds/schema/Schema.sol";
+import {Kind, Schema, Node, Rel, BagUtils} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
+import {ItemKind} from "@ds/ext/ItemKind.sol";
 
 using Schema for State;
 
 error ItemIsNotBag(bytes4 item);
 
 contract CraftingRule is Rule {
-    function reduce(State state, bytes calldata action, Context calldata /*ctx*/ ) public returns (State) {
-        if (bytes4(action) == Actions.REGISTER_RESOURCE_KIND.selector) {
-            // decode the action
-            (ResourceKind rk, AtomKind[] memory atomKinds, uint64[] memory numAtoms) =
-                abi.decode(action[4:], (ResourceKind, AtomKind[], uint64[]));
+    Game game;
 
-            _registerResourceKind(state, rk, atomKinds, numAtoms);
+    constructor(Game g) {
+        game = g;
+    }
+
+    function reduce(State state, bytes calldata action, Context calldata ctx ) public returns (State) {
+        if (bytes4(action) == Actions.REGISTER_ITEM_KIND.selector) {
+            (bytes24 itemKind, string memory itemName, string memory itemIcon) = abi.decode(action[4:], (bytes24, string, string));
+
+            _registerItem(state, Node.Player(ctx.sender), itemKind, itemName, itemIcon);
         }
 
-        if (bytes4(action) == Actions.REGISTER_ITEM.selector) {
-            (bytes24[4] memory inputItems, uint64[4] memory inputQty, bool isStackable, string memory name) =
-                abi.decode(action[4:], (bytes24[4], uint64[4], bool, string));
+        if (bytes4(action) == Actions.REGISTER_CRAFT_RECIPE.selector) {
+            (bytes24 buildingKind, bytes24[4] memory inputItem, uint64[4] memory inputQty, bytes24 outputItem, uint64 outputQty) = abi.decode(action[4:], (bytes24, bytes24[4], uint64[4], bytes24, uint64));
 
-            _registerItem(state, inputItems, inputQty, isStackable, name);
+            _registerRecipe(state, Node.Player(ctx.sender), buildingKind, inputItem, inputQty, outputItem, outputQty);
         }
 
-        if (bytes4(action) == Actions.CRAFT_STACKABLE.selector) {
+        if (bytes4(action) == Actions.CRAFT.selector) {
             // decode the action
-            (bytes24 inBag, bytes24 outItem, uint64 outQty, bytes24 destBag, uint8 destItemSlot) =
-                abi.decode(action[4:], (bytes24, bytes24, uint64, bytes24, uint8));
+            (bytes24 buildingInstance, bytes24 outEquipee, uint8 outEquipSlot, uint8 outItemSlot) =
+                abi.decode(action[4:], (bytes24, bytes24, uint8, uint8));
 
-            _craft(state, inBag, outItem, outQty, destBag, destItemSlot, true);
-        }
-
-        if (bytes4(action) == Actions.CRAFT_EQUIPABLE.selector) {
-            // decode the action
-            (bytes24 inBag, bytes24 outItem, bytes24 destBag, uint8 destItemSlot) =
-                abi.decode(action[4:], (bytes24, bytes24, bytes24, uint8));
-
-            _craft(state, inBag, outItem, 1, destBag, destItemSlot, false);
+            _craft(state, ctx.clock, ctx.sender, buildingInstance, outEquipee, outEquipSlot, outItemSlot);
         }
 
         return state;
     }
 
-    function _registerResourceKind(State state, ResourceKind rk, AtomKind[] memory atomKinds, uint64[] memory numAtoms)
-        internal
-    {
-        bytes24 resource = Node.Resource(rk);
-        _setAtoms(state, resource, atomKinds, numAtoms);
-    }
-
     function _registerItem(
         State state,
-        bytes24[4] memory inputItems,
-        uint64[4] memory inputQty,
-        bool isStackable,
-        string memory name
+        bytes24 player,
+        bytes24 itemKind,
+        string memory name,
+        string memory icon
     ) internal {
-        // require(inputItems.length == inputQty.length, "_registerItem() inputItems and inputQty list lengths must match");
-
-        uint64[] memory totalAtoms = new uint64[](uint8(AtomKind.COUNT));
-        AtomKind[] memory atomKinds = new AtomKind[](uint8(AtomKind.COUNT));
-
-        for (uint8 i = 0; i < 4; i++) {
-            uint64[] memory numAtoms = state.getAtoms(inputItems[i]); // keyed by AtomKind
-            for (uint8 j = 1; j < uint8(AtomKind.COUNT); j++) {
-                //  We halve the number of resultant atoms as per crafting
-                // TODO: Scale this so we can have fractional units
-                totalAtoms[j] += (inputQty[i] * numAtoms[j]) / 2;
-            }
-        }
-
-        for (uint8 i = 0; i < uint8(AtomKind.COUNT); i++) {
-            atomKinds[i] = AtomKind(i);
-        }
-
-        bytes24 item = Node.Item(inputItems, inputQty, isStackable, name);
-        _setAtoms(state, item, atomKinds, totalAtoms);
+        state.setOwner(itemKind, player);
+        state.annotate(itemKind, "name", name);
+        state.annotate(itemKind, "icon", icon);
     }
 
-    // TODO: Maybe we don't have two arrays but instead one array with atomKind as index
-    function _setAtoms(State state, bytes24 item, AtomKind[] memory atomKinds, uint64[] memory numAtoms) internal {
-        require(
-            bytes4(item) == Kind.Item.selector || bytes4(item) == Kind.Resource.selector,
-            "setAtoms() Node not Item or Resource"
-        );
+    function _registerRecipe(
+        State state,
+        bytes24 player,
+        bytes24 buildingKind,
+        bytes24[4] memory inputItem,
+        uint64[4] memory inputQty,
+        bytes24 outputItem,
+        uint64 outputQty
+    ) internal {
+        (uint32[3] memory outputAtoms, bool outputStackable) = state.getItemStructure(outputItem);
+        {
+            bytes24 owner = state.getOwner(buildingKind);
+            require(owner == player, "only building kind owner can configure building crafting");
+            if (outputStackable){
+                require(outputQty > 0 && outputQty <= 100, "stackable output qty must be between 0-100"); 
+            } else {
+                require(outputQty == 1, "equipable item crafting cannot output multiple items");
+            }
 
-        require(atomKinds.length == numAtoms.length, "setAtoms() The list of atom kinds and number of atoms must match");
+            // check that the output item has been registerd
+            bytes24 outputOwner = state.getOwner(outputItem);
+            require(outputOwner != 0x0, "output item must be a registered item");
 
-        for (uint8 i = 0; i < atomKinds.length; i++) {
-            AtomKind ak = atomKinds[i];
-            bytes24 atom = Node.Atom(ak);
-            if (numAtoms[i] > 0) {
-                // The atom kind enum is used for the edge index
-                state.set(Rel.Balance.selector, uint8(ak), item, atom, numAtoms[i]);
+            // if player is not the owner of the item, then ask the item implementation contract
+            // if it's ok to use this item as an output
+            if (outputOwner != player) {
+                address implementation = state.getImplementation(outputItem);
+                require(implementation != address(0), "you are not the owner of the output item and no item contract exists to ask for permission");
+                ItemKind kind = ItemKind(implementation);
+                require(kind.onRegisterRecipeOutput(
+                    game,
+                    player,
+                    buildingKind,
+                    inputItem,
+                    inputQty,
+                    outputItem,
+                    outputQty
+                ), "owner of the output item denied use in crafting");
             }
         }
+
+        // calc total output atoms 
+        uint32[3] memory totalOutputAtoms;
+        totalOutputAtoms[0] = outputAtoms[0] * uint32(outputQty);
+        totalOutputAtoms[1] = outputAtoms[1] * uint32(outputQty);
+        totalOutputAtoms[2] = outputAtoms[2] * uint32(outputQty);
+
+        // calc total input atoms available to use
+        {
+            uint32[3] memory availableInputAtoms;
+            for (uint8 i=0; i<4; i++) {
+                if (inputItem[i] == 0x0) {
+                    continue;
+                }
+                // check input item is registered
+                require(state.getOwner(inputItem[i]) != 0x0, "input item must be registered before use in recipe");
+                // get atomic structure
+                (uint32[3] memory inputAtoms, bool inputStackable) = state.getItemStructure(inputItem[i]);
+                if (inputStackable){
+                    require(inputQty[i] > 0 && inputQty[i] <= 100, "stackable input item must be qty 0-100"); 
+                } else {
+                    require(inputQty[i] == 1, "equipable input item must have qty=1");
+                }
+                availableInputAtoms[0] = availableInputAtoms[0] + (inputAtoms[0] * uint32(inputQty[i])) / 2;
+                availableInputAtoms[1] = availableInputAtoms[1] + (inputAtoms[1] * uint32(inputQty[i])) / 2;
+                availableInputAtoms[2] = availableInputAtoms[2] + (inputAtoms[2] * uint32(inputQty[i])) / 2;
+            }
+
+            // require that the total number of each atom in the total number of
+            // output items is less than half of the total input of each atom
+            require(availableInputAtoms[0] > totalOutputAtoms[0], "cannot craft an item that outputs more 0-atoms than it inputs");
+            require(availableInputAtoms[1] > totalOutputAtoms[1], "cannot craft an item that outputs more 1-atoms than it inputs");
+            require(availableInputAtoms[2] > totalOutputAtoms[2], "cannot craft an item that outputs more 2-atoms than it inputs");
+        }
+        
+        // store the recipe
+        state.setInput(buildingKind, 0, inputItem[0], inputQty[0]);
+        state.setInput(buildingKind, 1, inputItem[1], inputQty[1]);
+        state.setInput(buildingKind, 2, inputItem[2], inputQty[2]);
+        state.setInput(buildingKind, 3, inputItem[3], inputQty[3]);
+        state.setOutput(buildingKind, 0, outputItem, outputQty);
     }
 
     function _craft(
         State state,
-        bytes24 inBag,
-        bytes24 outItem,
-        uint64 outQty,
-        bytes24 destBag,
-        uint8 destItemSlot,
-        bool isStackable
+        uint64 atTime,
+        address sender,
+        bytes24 buildingInstance,
+        bytes24 outEquipee,
+        uint8 outEquipSlot,
+        uint8 outItemSlot
     ) private {
+
+        // ensure we are given a legit building id
+        require(bytes4(buildingInstance) == Kind.Building.selector, "invalid building id");
+
+        // get building kind
+        bytes24 buildingKind = state.getBuildingKind(buildingInstance);
+        require(buildingKind != 0x0, "no building kind for building id");
+
+        // check sender is the contract that implements the building kind
+        {
+            address implementation = state.getImplementation(buildingKind);
+            require(implementation != address(0), "no implementation for building kind");
+            require(sender == implementation, "sender must be BuildingKind implementation");
+        }
+
+        // get the inBag (it's a bag equip to buildingInstance at slot 0)
+        bytes24 inBag = state.getEquipSlot(buildingInstance, 0);
         _requireIsBag(inBag);
-        _requireIsBag(destBag);
-        // TODO: Check that the inBag is owned by the account that is crafting
-        require(outQty > 0, "CraftingRule::_craft() Must craft at least 1 item");
 
-        // -- Check destination slot is either empty or is of same type (scoped due to stack limit. Yes the trick worked!)
+        // get the outBag (provided by the crafter)
+        require(outEquipee != 0x0, "invalid output equipee");
+        bytes24 outBag = state.getEquipSlot(outEquipee, outEquipSlot);
+        _requireIsBag(outBag);
+
+        // check that the outEquipee is located within reach of the building
         {
-            (bytes24 itemID, uint64 bal) = state.get(Rel.Balance.selector, destItemSlot, destBag);
-            require(
-                bal == 0 || (isStackable && bytes4(itemID) == bytes4(outItem)),
-                "CraftingRule::_craft() Destination slot expected to be either empty or of same type if stackable"
-            );
+            bytes24 buildingLocation = state.getFixedLocation(buildingInstance);
+            BagUtils.requireEquipeeLocation(state, outEquipee, 0x0, buildingLocation, atTime);
         }
 
-        bytes24[4] memory inputItems; // Capped to 4 input items
-        uint64[4] memory inQty; // Holds the quanity needed to make 1 of the item
-
-        {
-            for (uint8 i = 0; i < 4; i++) {
-                (bytes24 itemID, uint64 bal) = state.get(Rel.Balance.selector, i, inBag);
-                if (bal > 0) {
-                    inputItems[i] = itemID;
-                    inQty[i] = bal / outQty;
-
-                    // Deduct the cost (burn the resource/item)
-                    state.set(Rel.Balance.selector, i, inBag, itemID, 0);
-                }
-            }
-        }
-
-        require(
-            outItem == Node.Item(inputItems, inQty, isStackable, _getItemName(outItem)),
-            "CraftingRule::_craft() crafting recipe doesn't match output item"
-        );
-
-        ( /*bytes24 itemID*/ , uint64 destBal) = state.get(Rel.Balance.selector, destItemSlot, destBag);
-        state.set(Rel.Balance.selector, destItemSlot, destBag, outItem, destBal + outQty);
+        _craft2(state, buildingKind, inBag, outBag, outItemSlot);
     }
 
-    // TODO: Is there an easier way of doing this? I just want the last 15 bytes of the ID
-    function _getItemName(bytes24 itemID) private pure returns (string memory) {
-        bytes memory stringBytes = new bytes(15);
-        for (uint8 i = 0; i < 15; i++) {
-            stringBytes[i] = itemID[(24 - 15) + i];
+    function _craft2(
+        State state,
+        bytes24 buildingKind,
+        bytes24 inBag,
+        bytes24 outBag,
+        uint8 outItemSlot
+    ) private {
+        // fetch the recipe
+        bytes24[4] memory wantItem;
+        uint64[4] memory wantQty;
+        {
+            (wantItem[0], wantQty[0]) = state.getInput(buildingKind, 0);
+            (wantItem[1], wantQty[1]) = state.getInput(buildingKind, 1);
+            (wantItem[2], wantQty[2]) = state.getInput(buildingKind, 2);
+            (wantItem[3], wantQty[3]) = state.getInput(buildingKind, 3);
+        }
+        (bytes24 outputItem, uint64 outputQty) = state.getOutput(buildingKind, 0);
+
+        // burn input resources
+        {
+            // get stuff from the given bag
+            bytes24[4] memory gotItem;
+            uint64[4] memory gotQty;
+            for (uint8 i = 0; i<4; i++) {
+                (gotItem[i], gotQty[i]) = state.getItemSlot(inBag, i);
+            }
+
+            // check recipe
+            require(gotItem[0] == wantItem[0], "input 0 item does not match recipe");
+            require(gotItem[1] == wantItem[1], "input 1 item does not match recipe");
+            require(gotItem[2] == wantItem[2], "input 2 item does not match recipe");
+            require(gotItem[3] == wantItem[3], "input 3 item does not match recipe");
+
+            // check min input qty
+            require(gotQty[0] >= wantQty[0], "input 0 qty does not match recipe");
+            require(gotQty[1] >= wantQty[1], "input 0 qty does not match recipe");
+            require(gotQty[2] >= wantQty[2], "input 0 qty does not match recipe");
+            require(gotQty[3] >= wantQty[3], "input 0 qty does not match recipe");
+
+            // burn that many inputs
+            state.setItemSlot(inBag, 0, gotItem[0], gotQty[0] - wantQty[0]);
+            state.setItemSlot(inBag, 1, gotItem[1], gotQty[1] - wantQty[1]);
+            state.setItemSlot(inBag, 2, gotItem[2], gotQty[2] - wantQty[2]);
+            state.setItemSlot(inBag, 3, gotItem[3], gotQty[3] - wantQty[3]);
         }
 
-        return string(stringBytes);
+        // spawn the output item(s)
+        {
+            // check destination slot is either empty or is of same type
+            (, bool outputStackable) = state.getItemStructure(outputItem);
+            (bytes24 itemID, uint64 bal) = state.get(Rel.Balance.selector, outItemSlot, outBag);
+            require(
+                bal == 0 || (outputStackable && bytes4(itemID) == bytes4(outputItem)),
+                "destination slot expected to be either empty or of same type if stackable"
+            );
+
+            // update dest bag slot with item
+            (, uint64 destBal) = state.get(Rel.Balance.selector, outItemSlot, outBag);
+            state.set(Rel.Balance.selector, outItemSlot, outBag, outputItem, destBal + outputQty);
+        }
     }
 
     function _requireIsBag(bytes24 item) private pure {

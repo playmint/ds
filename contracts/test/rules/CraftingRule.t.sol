@@ -8,35 +8,48 @@ import {Dispatcher} from "cog/Dispatcher.sol";
 
 import {Game} from "@ds/Game.sol";
 import {Actions} from "@ds/actions/Actions.sol";
-import {Schema, Node, Rel, LocationKey, BiomeKind, ResourceKind, AtomKind} from "@ds/schema/Schema.sol";
+import {
+    Schema,
+    Node,
+    Rel,
+    LocationKey,
+    BiomeKind,
+    ItemUtils,
+    ATOM_LIFE,
+    ATOM_DEFENSE,
+    ATOM_ATTACK,
+    DEFAULT_ZONE
+} from "@ds/schema/Schema.sol";
+import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 
 using Schema for State;
 
-uint32 constant TEST_SEEKER_ID = 1;
+uint8 constant WOOD_SLOT = 0;
+uint8 constant STONE_SLOT = 1;
+uint8 constant IRON_SLOT = 2;
+uint8 constant OUTPUT_SLOT = 3;
 
-uint8 constant EQUIP_SLOT_0 = 0;
-uint8 constant EQUIP_SLOT_1 = 1;
-
-uint8 constant ITEM_SLOT_0 = 0;
-uint8 constant ITEM_SLOT_1 = 1;
-
-uint8 constant ITEM_QTY = 2;
 uint8 constant MAX_CRAFT_INPUT_ITEMS = 4;
 
-uint64 constant ITEM_1_WOOD_QTY = 8;
-uint64 constant ITEM_1_STONE_QTY = 12;
-uint64 constant ITEM_2_WOOD_QTY = 4;
-uint64 constant ITEM_2_IRON_QTY = 10;
+bool constant ITEM_STACKABLE = true;
+bool constant ITEM_EQUIPABLE = false;
 
-string constant ITEM_NAME = "Fancy Item";
+contract MockCraftBuildingContract {
+    function use(Game, /*ds*/ bytes24, /*buildingInstance*/ bytes24, /*seeker*/ bytes memory /*payload*/ ) public { }
+}
 
 contract CraftingRuleTest is Test {
     Game internal game;
     Dispatcher internal dispatcher;
     State internal state;
 
+    uint64 sid;
+
     // accounts
     address aliceAccount;
+
+    // mock building implementation
+    MockCraftBuildingContract mockBuildingContract;
 
     function setUp() public {
         // setup game
@@ -49,305 +62,175 @@ contract CraftingRuleTest is Test {
         // setup users
         uint256 alicePrivateKey = 0xA11CE;
         aliceAccount = vm.addr(alicePrivateKey);
+
+        // a dummy contract for proxying cract calls
+        mockBuildingContract = new MockCraftBuildingContract();
     }
 
     function testResources() public {
-        assertEq(state.getAtoms(Node.Resource(ResourceKind.WOOD))[uint8(AtomKind.LIFE)], 2);
-        assertEq(state.getAtoms(Node.Resource(ResourceKind.STONE))[uint8(AtomKind.DEF)], 2);
-        assertEq(state.getAtoms(Node.Resource(ResourceKind.IRON))[uint8(AtomKind.ATK)], 2);
+        assertEq(state.getAtoms(ItemUtils.Wood())[ATOM_LIFE], 2);
+        assertEq(state.getAtoms(ItemUtils.Stone())[ATOM_DEFENSE], 2);
+        assertEq(state.getAtoms(ItemUtils.Iron())[ATOM_ATTACK], 2);
     }
 
-    function testRegisteringItem() public {
-        bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItems;
+    function testGetAtoms() public {
+        uint32[3] memory thingAtoms = [ uint32(2), uint32(4), uint32(6) ];
+        bytes24 thingItem = Node.Item("thing", thingAtoms, ITEM_STACKABLE);
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (thingItem, "thing", "icon")));
+        uint32[3] memory gotAtoms = state.getAtoms(thingItem);
+
+        assertEq(gotAtoms[0], thingAtoms[0], "expected getAtoms()[0] to return same atoms we put in");
+        assertEq(gotAtoms[1], thingAtoms[1], "expected getAtoms()[1] to return same atoms we put in");
+        assertEq(gotAtoms[2], thingAtoms[2], "expected getAtoms()[2] to return same atoms we put in");
+    }
+
+    function testRegisteringCraftRecipe() public {
+        vm.startPrank(aliceAccount);
+        bytes24 buildingKind = _newMockBuildingKind(1001);
+
+        bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItem;
+        inputItem[WOOD_SLOT] = ItemUtils.Wood();
+        inputItem[STONE_SLOT] = ItemUtils.Stone();
+        inputItem[IRON_SLOT] = ItemUtils.Iron();
+
         uint64[MAX_CRAFT_INPUT_ITEMS] memory inputQty;
-        inputItems[0] = Node.Resource(ResourceKind.WOOD);
-        inputQty[0] = ITEM_1_WOOD_QTY;
-        inputItems[1] = Node.Resource(ResourceKind.STONE);
-        inputQty[1] = ITEM_1_STONE_QTY;
+        inputQty[WOOD_SLOT] = 2;
+        inputQty[STONE_SLOT] = 2;
+        inputQty[IRON_SLOT] = 2;
 
-        bool stackable = true;
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM, (inputItems, inputQty, stackable, ITEM_NAME)));
+        uint32[3] memory outputItemAtoms = [ uint32(1), uint32(1), uint32(1) ];
+        bytes24 outputItem = Node.Item("thing", outputItemAtoms, ITEM_STACKABLE);
+        uint64 outputQty = 1;
 
-        // Get atom count for new item
-        bytes24 itemID = Node.Item(inputItems, inputQty, stackable, ITEM_NAME);
-        uint64[] memory numAtoms = state.getAtoms(itemID);
-        assertEq(
-            numAtoms[uint8(AtomKind.LIFE)],
-            (2 * inputQty[0]) / 2,
-            "Expected LIFE atoms to equal half the total LIFE atoms used in item recipe"
-        );
-        assertEq(
-            numAtoms[uint8(AtomKind.DEF)],
-            (2 * inputQty[1]) / 2,
-            "Expected DEF atoms to equal half the total DEF atoms used in item recipe"
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (outputItem, "thing", "icon")));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_CRAFT_RECIPE, (buildingKind, inputItem, inputQty, outputItem, outputQty)));
+        vm.stopPrank();
+
+        bytes24 registeredItem;
+        uint64 registeredQty;
+
+        (registeredItem, registeredQty) = state.getInput(buildingKind, 0);
+        assertEq(registeredItem, inputItem[0]);
+        assertEq(registeredQty, inputQty[0]);
+
+        (registeredItem, registeredQty) = state.getInput(buildingKind, 1);
+        assertEq(registeredItem, inputItem[1]);
+        assertEq(registeredQty, inputQty[1]);
+
+        (registeredItem, registeredQty) = state.getInput(buildingKind, 2);
+        assertEq(registeredItem, inputItem[2]);
+        assertEq(registeredQty, inputQty[2]);
     }
 
     function testCraftingStackableItem() public {
-        // -- Register item
-        bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItems;
-        uint64[MAX_CRAFT_INPUT_ITEMS] memory inputQty;
-        inputItems[0] = Node.Resource(ResourceKind.WOOD);
-        inputQty[0] = ITEM_1_WOOD_QTY;
-        inputItems[1] = Node.Resource(ResourceKind.STONE);
-        inputQty[1] = ITEM_1_STONE_QTY;
-
-        bool isStackable = true;
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM, (inputItems, inputQty, isStackable, ITEM_NAME)));
-
-        // -- Spawn player and bag with resources
-        bytes24 seekerAlice = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
-        bytes24 destBag = _spawnBagEmpty(1, aliceAccount, seekerAlice, EQUIP_SLOT_0);
-        bytes24 paymentBag = _spawnBagWithResources(
-            2, // bagID
-            aliceAccount,
-            seekerAlice,
-            EQUIP_SLOT_1,
-            [ITEM_1_WOOD_QTY * ITEM_QTY, ITEM_1_STONE_QTY * ITEM_QTY, 0]
-        );
-
-        bytes24 craftItemID = Node.Item(inputItems, inputQty, isStackable, ITEM_NAME);
-
-        // -- Craft Item
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.CRAFT_STACKABLE,
-                (
-                    paymentBag,
-                    craftItemID,
-                    ITEM_QTY, // outQty
-                    destBag,
-                    0 // item slot
-                )
-            )
-        );
-
-        // -- Payment should be taken
-
-        for (uint8 i = 0; i < MAX_CRAFT_INPUT_ITEMS; i++) {
-            ( /*bytes24 itemID*/ , uint64 bal) = state.get(Rel.Balance.selector, i, paymentBag);
-            assertEq(bal, 0, "Expected payment to be taken from the payment bag");
-        }
-
-        // -- Item should be in the destination bag
-        {
-            (bytes24 itemID, uint64 bal) = state.get(Rel.Balance.selector, 0, destBag);
-            assertEq(itemID, craftItemID, "Expected crafted item to be in slot 0");
-            assertEq(bal, ITEM_QTY, "Expected the number of items in slot to match the requested crafted quantity");
-        }
-
-        // -- Craft more of the same item to test that balance increments
-
-        _spawnBagWithResources(
-            2, // bagID
-            aliceAccount,
-            seekerAlice,
-            EQUIP_SLOT_1,
-            [ITEM_1_WOOD_QTY * ITEM_QTY, ITEM_1_STONE_QTY * ITEM_QTY, 0]
-        );
-
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.CRAFT_STACKABLE,
-                (
-                    paymentBag,
-                    craftItemID,
-                    ITEM_QTY, // outQty
-                    destBag,
-                    0 // item slot
-                )
-            )
-        );
-
-        {
-            (bytes24 itemID, uint64 bal) = state.get(Rel.Balance.selector, 0, destBag);
-            assertEq(itemID, craftItemID, "On second craft, expected crafted item to be in slot 0");
-            assertEq(
-                bal, ITEM_QTY * 2, "On second craft, expected the number of items in slot to equal 2x the craft quanity"
-            );
-        }
-    }
-
-    function testCraftingEquipableItem() public {
-        // -- Register item
-        bytes24[4] memory inputItems;
-        uint64[4] memory inputQty;
-        inputItems[0] = Node.Resource(ResourceKind.WOOD);
-        inputQty[0] = ITEM_2_WOOD_QTY;
-        inputItems[1] = Node.Resource(ResourceKind.IRON);
-        inputQty[1] = ITEM_2_IRON_QTY;
-
-        bool isStackable = false;
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM, (inputItems, inputQty, isStackable, ITEM_NAME)));
-
-        bytes24 seekerAlice = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
-        bytes24 destBag = _spawnBagEmpty(1, aliceAccount, seekerAlice, EQUIP_SLOT_0);
-        bytes24 paymentBag = _spawnBagWithResources(
-            2, // bagID
-            aliceAccount,
-            seekerAlice,
-            EQUIP_SLOT_1,
-            [ITEM_2_WOOD_QTY, 0, ITEM_2_IRON_QTY]
-        );
-
-        bytes24 craftItemID = Node.Item(inputItems, inputQty, isStackable, ITEM_NAME);
-
-        // -- Craft Item
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.CRAFT_EQUIPABLE,
-                (
-                    paymentBag,
-                    craftItemID,
-                    destBag,
-                    0 // item slot
-                )
-            )
-        );
-
-        // -- Payment should be taken
-
-        for (uint8 i = 0; i < MAX_CRAFT_INPUT_ITEMS; i++) {
-            ( /*bytes24 itemID*/ , uint64 bal) = state.get(Rel.Balance.selector, i, paymentBag);
-            assertEq(bal, 0, "Expected payment to be taken from the payment bag");
-        }
-
-        // -- Item should be in the destination bag
-        {
-            (bytes24 itemID, uint64 bal) = state.get(Rel.Balance.selector, 0, destBag);
-            assertEq(itemID, craftItemID, "Expected crafted item to be in slot 0");
-            assertEq(bal, 1, "Expected the number of items in slot to match the requested crafted quantity");
-        }
-    }
-
-    function testCraftingToSlotOfDifferentItemKindWithZeroBal() public {
-        // -- Register item
-        bytes24[4] memory inputItems;
-        uint64[4] memory inputQty;
-        inputItems[0] = Node.Resource(ResourceKind.WOOD);
-        inputQty[0] = ITEM_2_WOOD_QTY;
-        inputItems[1] = Node.Resource(ResourceKind.IRON);
-        inputQty[1] = ITEM_2_IRON_QTY;
-
-        bool isStackable = false;
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM, (inputItems, inputQty, isStackable, ITEM_NAME)));
-
-        bytes24 seekerAlice = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
-        bytes24 destBag = _spawnBagWithResources(
-            1, // bagID
-            aliceAccount,
-            seekerAlice,
-            EQUIP_SLOT_0,
-            [ITEM_2_WOOD_QTY - 1, 0, 0]
-        );
-        bytes24 paymentBag = _spawnBagWithResources(
-            2, // bagID
-            aliceAccount,
-            seekerAlice,
-            EQUIP_SLOT_1,
-            [1, 0, ITEM_2_IRON_QTY] // Need at least 1 wood so slot 0 is reserved for wood
-        );
-
-        // -- By transferring the wood from bag 1 to 2 slot 0 on bag 1 will be of type 'wood' with a balance of zero
         vm.startPrank(aliceAccount);
+        bytes24 buildingKind = _newMockBuildingKind(1001);
+
+        bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItem;
+        inputItem[WOOD_SLOT] = ItemUtils.Wood();
+        inputItem[STONE_SLOT] = ItemUtils.Stone();
+        inputItem[IRON_SLOT] = ItemUtils.Iron();
+
+        uint64[MAX_CRAFT_INPUT_ITEMS] memory inputQty;
+        inputQty[WOOD_SLOT] = 2;
+        inputQty[STONE_SLOT] = 2;
+        inputQty[IRON_SLOT] = 2;
+
+        uint32[3] memory outputItemAtoms = [ uint32(1), uint32(1), uint32(1) ];
+        bytes24 outputItem = Node.Item("thing", outputItemAtoms, ITEM_STACKABLE);
+        uint64 outputQty = 1;
+
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (outputItem, "thing", "icon")));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_CRAFT_RECIPE, (buildingKind, inputItem, inputQty, outputItem, outputQty)));
+
+        bytes24 aliceSeeker = _spawnSeekerWithResources();
+        bytes24 aliceBag = state.getEquipSlot(aliceSeeker, 0);
+        bytes24 buildingInstance = _constructBuilding(buildingKind, aliceSeeker, -1, 1, 0);
+        bytes24 buildingBag = state.getEquipSlot(buildingInstance, 0);
+
+        // alice puts the input items into the building's bag
+        // and expects the output item in her bag
+        // alice is putting MORE than needed so is expecting leftovers
         _transferItem(
-            seekerAlice,
-            [seekerAlice, seekerAlice], // where are bags equipt
-            [EQUIP_SLOT_0, EQUIP_SLOT_1], // which equipment slots
-            [0, 0], // item slots
-            0,
-            ITEM_2_WOOD_QTY - 1
+            aliceSeeker,
+            [aliceSeeker, buildingInstance],
+            [0, 0],
+            [WOOD_SLOT, WOOD_SLOT],
+            buildingBag,
+            4 // move 4 but only need 2
+        );
+        _transferItem(
+            aliceSeeker,
+            [aliceSeeker, buildingInstance],
+            [0, 0],
+            [STONE_SLOT, STONE_SLOT],
+            buildingBag,
+            4 // move 4 but only need 2
+        );
+        _transferItem(
+            aliceSeeker,
+            [aliceSeeker, buildingInstance],
+            [0, 0],
+            [IRON_SLOT, IRON_SLOT],
+            buildingBag,
+            4 // move 4 but only need 2
         );
         vm.stopPrank();
 
-        bytes24 craftItemID = Node.Item(inputItems, inputQty, isStackable, ITEM_NAME);
 
-        // -- Craft Item
+        // pretend we are the building kind contract to send the CRAFT
+        vm.startPrank(address(mockBuildingContract));
         dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.CRAFT_EQUIPABLE,
-                (
-                    paymentBag,
-                    craftItemID,
-                    destBag,
-                    0 // item slot
-                )
-            )
+            abi.encodeCall(Actions.CRAFT, (
+                buildingInstance, // the building performing CRAFT
+                aliceSeeker, // thing with a bag where output will go
+                0, // equip slot on equipee with a bag for output 
+                OUTPUT_SLOT // slot in outBag where output item(s) will go
+            ))
         );
+        vm.stopPrank();
+
+        // check that output item now exists in aliceBag 
+        (bytes24 expItem, uint64 expBalance) = state.getOutput(buildingKind, 0);
+        (bytes24 gotItem, uint64 gotBalance) = state.getItemSlot(aliceBag, OUTPUT_SLOT);
+        assertEq(gotItem, expItem, "expected output slot to contain expected output item");
+        assertEq(gotBalance, expBalance, "expected output balance match");
+
+        // check the input slots are empty
+        (, gotBalance) = state.getItemSlot(buildingBag, WOOD_SLOT);
+        assertEq(gotBalance, 2, "expected 2 wood left in input bag");
+        (, gotBalance) = state.getItemSlot(buildingBag, STONE_SLOT);
+        assertEq(gotBalance, 2, "expected 2 stone left in input bag");
+        (, gotBalance) = state.getItemSlot(buildingBag, IRON_SLOT);
+        assertEq(gotBalance, 2, "expected 2 iron left in input bag");
+
     }
 
-    function _spawnSeeker(address owner, uint32 sid, int16 q, int16 r, int16 s) private returns (bytes24) {
-        _discover(q, r, s); // discover the tile we place seeker on
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_SEEKER,
-                (
-                    owner, // owner
-                    sid, // seeker id (sid)
-                    q, // q
-                    r, // r
-                    s // s
-                )
-            )
-        );
-        return Node.Seeker(sid);
+    function testCraftingToSlotOfDifferentItemKindWithZeroBal() public {
+        // TODO
     }
 
-    function _spawnBagEmpty(uint64 bagID, address owner, bytes24 equipNode, uint8 equipSlot)
-        private
-        returns (bytes24)
-    {
-        bytes24[] memory items = new bytes24[](0);
-        uint64[] memory balances = new uint64[](0);
-        return _spawnBag(bagID, owner, equipNode, equipSlot, items, balances);
-    }
-
-    function _spawnBagWithResources(
-        uint64 bagID,
-        address owner,
-        bytes24 equipNode,
-        uint8 equipSlot,
-        uint64[3] memory resourceQty
-    ) private returns (bytes24) {
+    // _spawnSeekerWithResources spawns a seeker for the current sender at
+    // 0,0,0 with 100 of each resource in an equiped bag
+    function _spawnSeekerWithResources() private returns (bytes24) {
+        sid++;
+        bytes24 seeker = Node.Seeker(sid);
+        _discover(0,0,0);
+        dispatcher.dispatch( abi.encodeCall( Actions.SPAWN_SEEKER, (seeker)));
         bytes24[] memory items = new bytes24[](3);
+        items[0] = ItemUtils.Wood();
+        items[1] = ItemUtils.Stone();
+        items[2] = ItemUtils.Iron();
+
         uint64[] memory balances = new uint64[](3);
+        balances[0] = 100;
+        balances[1] = 100;
+        balances[2] = 100;
 
-        uint8 slotId = 0;
-        for (uint8 i = 0; i < 3; i++) {
-            if (resourceQty[i] > 0) {
-                items[slotId] = Node.Resource(ResourceKind(i + 1));
-                balances[slotId] = resourceQty[i];
-                slotId++;
-            }
-        }
+        uint64 seekerBag = uint64(uint256(keccak256(abi.encode(seeker))));
+        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_BAG, (seekerBag, state.getOwnerAddress(seeker), seeker, 0, items, balances)));
 
-        return _spawnBag(bagID, owner, equipNode, equipSlot, items, balances);
-    }
-
-    function _spawnBag(
-        uint64 bagID,
-        address owner,
-        bytes24 equipNode,
-        uint8 equipSlot,
-        bytes24[] memory resources,
-        uint64[] memory qty
-    ) private returns (bytes24) {
-        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_BAG, (bagID, owner, equipNode, equipSlot, resources, qty)));
-        return Node.Bag(bagID);
-    }
-
-    function _discover(int16 q, int16 r, int16 s) private {
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_TILE,
-                (
-                    BiomeKind.DISCOVERED,
-                    q, // q
-                    r, // r
-                    s // s
-                )
-            )
-        );
+        return seeker;
     }
 
     function _transferItem(
@@ -361,5 +244,44 @@ contract CraftingRuleTest is Test {
         dispatcher.dispatch(
             abi.encodeCall(Actions.TRANSFER_ITEM_SEEKER, (seeker, equipees, equipSlots, itemSlots, bagID, qty))
         );
+    }
+
+    function _newMockBuildingKind(uint64 uid) private returns (bytes24) {
+        bytes24 buildingKind = Node.BuildingKind(uid);
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "TestBuilding"))
+        );
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.REGISTER_BUILDING_CONTRACT, (buildingKind, address(mockBuildingContract)))
+        );
+        return buildingKind;
+    }
+
+    function _discover(int16 q, int16 r, int16 s) private {
+        dispatcher.dispatch(
+            abi.encodeCall(
+                Actions.DEV_SPAWN_TILE,
+                (
+                    BiomeKind.DISCOVERED,
+                    0, // q
+                    0, // r
+                    0 // s
+                )
+            )
+        );
+    }
+
+    function _constructBuilding(bytes24 buildingKind, bytes24 seeker, int16 q, int16 r, int16 s) private returns (bytes24 buildingInstance) {
+        // discover an adjacent tile for our building site
+        _discover(q, r, s);
+        // get our building and give it the resources to construct
+        buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
+        // magic 100 wood into the construct slot
+        bytes24 buildingBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
+        state.setEquipSlot(buildingInstance, 0, buildingBag);
+        state.setItemSlot(buildingBag, 0, ItemUtils.Wood(), 100);
+        // construct our building
+        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
+        return buildingInstance;
     }
 }

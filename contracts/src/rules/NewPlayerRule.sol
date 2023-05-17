@@ -5,7 +5,7 @@ import {State} from "cog/State.sol";
 import {Context, Rule} from "cog/Dispatcher.sol";
 import {Context, Rule} from "cog/Dispatcher.sol";
 
-import {Schema, Node, BiomeKind, ResourceKind, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Schema, Node, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
 error SeekerIdAlreadyClaimed();

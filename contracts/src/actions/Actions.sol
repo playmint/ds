@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {BiomeKind, ResourceKind, AtomKind} from "@ds/schema/Schema.sol";
+import {BiomeKind} from "@ds/schema/Schema.sol";
 
 // ----------------------------------
 // define some actions
@@ -32,6 +32,8 @@ interface Actions {
     // register an external contract as possible building
     function REGISTER_BUILDING_KIND(bytes24 buildingKind, string calldata name) external;
 
+    function REGISTER_CRAFT_RECIPE(bytes24 buildingKind, bytes24[4] calldata inputItem, uint64[4] calldata inputQty, bytes24 outputItem, uint64 outputQty) external;
+
     // register contracts
     function REGISTER_BUILDING_CONTRACT(bytes24 buildingKind, address buildingKindImplementation) external;
 
@@ -59,29 +61,13 @@ interface Actions {
     // this action mostly just proxies through to the building kind implementation (if set)
     function BUILDING_USE(bytes24 buildingID, bytes24 seekerID, bytes calldata payload) external;
 
-    function REGISTER_RESOURCE_KIND(ResourceKind rk, AtomKind[] calldata atomKinds, uint64[] calldata numAtoms)
-        external;
+    function REGISTER_ITEM_KIND(bytes24 itemKind, string calldata name, string calldata icon) external;
 
-    function REGISTER_ITEM(
-        bytes24[4] calldata inputItems,
-        uint64[4] calldata inputQty,
-        bool isStackable,
-        string calldata name
-    ) external;
-
-    function CRAFT_STACKABLE(
-        bytes24 inBag,
-        bytes24 outItem,
-        uint64 outQty,
-        bytes24 destBag,
-        uint8 destItemSlot // is either empty or of that stackable type
-    ) external;
-
-    function CRAFT_EQUIPABLE(
-        bytes24 inBag,
-        bytes24 outItem,
-        bytes24 destBag,
-        uint8 destItemSlot // empty
+    function CRAFT(
+        bytes24 buildingInstance, // the building performing CRAFT
+        bytes24 outEquipee, // thing that is holding the output bag
+        uint8 outEquipSlot, // the equip slot on the thing holding the out bag
+        uint8 outItemSlot // slot in out bag where output item(s) will go
     ) external;
 
     // spawn a seeker for the sender
