@@ -12,6 +12,7 @@ interface Rel {
     function Is() external;
     function Supports() external;
     function Implementation() external;
+    function Material() external;
     function Input() external;
     function Output() external;
 }
@@ -290,6 +291,18 @@ library Schema {
         returns (bytes24 item, uint64 qty)
     {
         return state.get(Rel.Input.selector, slot, kind);
+    }
+
+    function setMaterial(State state, bytes24 kind, uint8 slot, bytes24 item, uint64 qty) internal {
+        return state.set(Rel.Material.selector, slot, kind, item, qty);
+    }
+
+    function getMaterial(State state, bytes24 kind, uint8 slot)
+        internal
+        view
+        returns (bytes24 item, uint64 qty)
+    {
+        return state.get(Rel.Material.selector, slot, kind);
     }
 }
 

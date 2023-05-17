@@ -247,9 +247,17 @@ contract CraftingRuleTest is Test {
     }
 
     function _newMockBuildingKind(uint64 uid) private returns (bytes24) {
+        bytes24[4] memory defaultMaterialItem;
+        defaultMaterialItem[0] = ItemUtils.Wood();
+        defaultMaterialItem[1] = ItemUtils.Stone();
+        defaultMaterialItem[2] = ItemUtils.Iron();
+        uint64[4] memory defaultMaterialQty;
+        defaultMaterialQty[0] = 25;
+        defaultMaterialQty[1] = 25;
+        defaultMaterialQty[2] = 25;
         bytes24 buildingKind = Node.BuildingKind(uid);
         dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "TestBuilding"))
+            abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "TestBuilding", defaultMaterialItem, defaultMaterialQty))
         );
         dispatcher.dispatch(
             abi.encodeCall(Actions.REGISTER_BUILDING_CONTRACT, (buildingKind, address(mockBuildingContract)))
@@ -279,7 +287,9 @@ contract CraftingRuleTest is Test {
         // magic 100 wood into the construct slot
         bytes24 buildingBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
         state.setEquipSlot(buildingInstance, 0, buildingBag);
-        state.setItemSlot(buildingBag, 0, ItemUtils.Wood(), 100);
+        state.setItemSlot(buildingBag, 0, ItemUtils.Wood(), 25);
+        state.setItemSlot(buildingBag, 1, ItemUtils.Stone(), 25);
+        state.setItemSlot(buildingBag, 2, ItemUtils.Iron(), 25);
         // construct our building
         dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
         return buildingInstance;
