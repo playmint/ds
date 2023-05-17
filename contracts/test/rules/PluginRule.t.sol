@@ -8,7 +8,7 @@ import {Dispatcher} from "cog/Dispatcher.sol";
 
 import {Game} from "@ds/Game.sol";
 import {Actions} from "@ds/actions/Actions.sol";
-import {Schema, Node, Rel, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Schema, Node, Rel, ItemUtils, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import "@ds/rules/PluginRule.sol";
 
 using Schema for State;
@@ -61,7 +61,15 @@ contract PluginRuleTest is Test {
         // register a building kind
         vm.startPrank(aliceAccount);
         bytes24 buildingKind = Node.BuildingKind(20);
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut")));
+        bytes24[4] memory defaultMaterialItem;
+        defaultMaterialItem[0] = ItemUtils.Wood();
+        defaultMaterialItem[1] = ItemUtils.Stone();
+        defaultMaterialItem[2] = ItemUtils.Iron();
+        uint64[4] memory defaultMaterialQty;
+        defaultMaterialQty[0] = 25;
+        defaultMaterialQty[1] = 25;
+        defaultMaterialQty[2] = 25;
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)));
         vm.stopPrank();
         // register a plugin for the kind
         bytes24 pluginID = Node.ClientPlugin(20);
@@ -92,7 +100,15 @@ contract PluginRuleTest is Test {
         // alice registers a building kind
         vm.startPrank(aliceAccount);
         bytes24 buildingKind = Node.BuildingKind(30);
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut")));
+        bytes24[4] memory defaultMaterialItem;
+        defaultMaterialItem[0] = ItemUtils.Wood();
+        defaultMaterialItem[1] = ItemUtils.Stone();
+        defaultMaterialItem[2] = ItemUtils.Iron();
+        uint64[4] memory defaultMaterialQty;
+        defaultMaterialQty[0] = 25;
+        defaultMaterialQty[1] = 25;
+        defaultMaterialQty[2] = 25;
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)));
         vm.stopPrank();
         //
         // then bob tries to try register a plugin for alice's kind

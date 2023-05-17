@@ -19,13 +19,9 @@ import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 
 using Schema for State;
 
-uint32 constant TEST_SEEKER_ID = 1;
-
-uint8 constant EQUIP_SLOT_0 = 0;
-uint8 constant EQUIP_SLOT_1 = 1;
-
-uint8 constant ITEM_SLOT_0 = 0;
-uint8 constant ITEM_SLOT_1 = 1;
+uint8 constant WOOD_SLOT = 0;
+uint8 constant STONE_SLOT = 1;
+uint8 constant IRON_SLOT = 2;
 
 contract BuildingRuleTest is Test {
     event AnnotationSet(bytes24 id, AnnotationKind kind, string label, bytes32 ref, string data);
@@ -36,6 +32,10 @@ contract BuildingRuleTest is Test {
 
     // accounts
     address aliceAccount;
+    uint64 sid;
+
+    bytes24[4] defaultMaterialItem;
+    uint64[4] defaultMaterialQty;
 
     function setUp() public {
         // setup game
@@ -48,6 +48,14 @@ contract BuildingRuleTest is Test {
         // setup users
         uint256 alicePrivateKey = 0xA11CE;
         aliceAccount = vm.addr(alicePrivateKey);
+
+        // setup default material construction costs
+        defaultMaterialItem[0] = ItemUtils.Wood();
+        defaultMaterialItem[1] = ItemUtils.Stone();
+        defaultMaterialItem[2] = ItemUtils.Iron();
+        defaultMaterialQty[0] = 25;
+        defaultMaterialQty[1] = 25;
+        defaultMaterialQty[2] = 25;
     }
 
     function testConstructBuilding() public {
@@ -56,18 +64,19 @@ contract BuildingRuleTest is Test {
         string memory buildingName = "hut";
         vm.expectEmit(true, true, true, true, address(state));
         emit AnnotationSet(buildingKind, AnnotationKind.CALLDATA, "name", keccak256(bytes(buildingName)), buildingName);
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut")));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)));
         // spawn a seeker
-        bytes24 seeker = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
+        vm.startPrank(aliceAccount);
+        bytes24 seeker = _spawnSeekerWithResources();
         // discover an adjacent tile for our building site
         (int16 q, int16 r, int16 s) = (1, -1, 0);
         _discover(q, r, s);
         // get our building and give it the resources to construct
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
-        uint64 bagID = uint64(uint256(keccak256(abi.encode(buildingInstance))));
-        bytes24 bag = _spawnBagWithWood(bagID, aliceAccount, buildingInstance, EQUIP_SLOT_0, BUILDING_COST);
         // construct our building
-        vm.startPrank(aliceAccount);
+        _transferFromSeeker(seeker, WOOD_SLOT, 25, buildingInstance);
+        _transferFromSeeker(seeker, STONE_SLOT, 25, buildingInstance);
+        _transferFromSeeker(seeker, IRON_SLOT, 25, buildingInstance);
         dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
         vm.stopPrank();
         // check the building has a location at q/r/s
@@ -81,31 +90,26 @@ contract BuildingRuleTest is Test {
         // check building has kind
         assertEq(state.getBuildingKind(buildingInstance), buildingKind, "expected building to have kind");
         // check building has a bag equip
-        assertEq(state.getEquipSlot(buildingInstance, 0), bag, "expected building to have a bag equip");
+        assertTrue(state.getEquipSlot(buildingInstance, 0) != 0x0, "expected building to have a bag equip");
     }
 
     function testConstructFailPayment() public {
+        vm.startPrank(aliceAccount);
         // register a building kind
         bytes24 buildingKind = Node.BuildingKind(25);
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut")));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)));
         // spawn a seeker
-        bytes24 seeker = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
+        bytes24 seeker = _spawnSeekerWithResources();
         // discover an adjacent tile for our building site
         (int16 q, int16 r, int16 s) = (1, -1, 0);
         _discover(q, r, s);
-        // get our building and give it the resources to construct
+        // get our building and give it not enough resources to construct
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
-        uint64 bagID = uint64(uint256(keccak256(abi.encode(buildingInstance))));
-        _spawnBagWithWood(
-            bagID,
-            aliceAccount,
-            buildingInstance,
-            EQUIP_SLOT_0,
-            BUILDING_COST - 1 // 1 less than required
-        );
+        _transferFromSeeker(seeker, WOOD_SLOT, 1, buildingInstance); // 1 is intentionaly too few
+        _transferFromSeeker(seeker, STONE_SLOT, 1, buildingInstance); // ...
+        _transferFromSeeker(seeker, IRON_SLOT, 1, buildingInstance); // ...
         // construct our building
-        vm.startPrank(aliceAccount);
-        vm.expectRevert(BuildingResourceRequirementsNotMet.selector); // expect fail as one wood short
+        vm.expectRevert("input 0 qty does not match construction recipe");
         dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
         vm.stopPrank();
     }
@@ -121,7 +125,7 @@ contract BuildingRuleTest is Test {
     function testRegisterBuildingKindContract() public {
         // register a building kind
         bytes24 buildingKind = Node.BuildingKind(20);
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut")));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)));
         // register a contract implementation for the building kind
         address buildingContractAddr = vm.addr(0xb001);
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_CONTRACT, (buildingKind, buildingContractAddr)));
@@ -134,22 +138,23 @@ contract BuildingRuleTest is Test {
     }
 
     function testUseBuilding() public {
-        vm.startPrank(aliceAccount);
         // register a building kind
         bytes24 buildingKind = Node.BuildingKind(100);
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut")));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)));
         // register a mock implementation for the building
         MockBuildingKind mockBuilding = new MockBuildingKind();
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_CONTRACT, (buildingKind, address(mockBuilding))));
-        // location to do business
-        (int16 q, int16 r, int16 s) = (0, 0, 0);
+        // discover an adjacent tile for our building site
+        (int16 q, int16 r, int16 s) = (1, -1, 0);
         _discover(q, r, s);
         // spawn a seeker
-        bytes24 seeker = _spawnSeeker(aliceAccount, 1, q, r, s);
+        vm.startPrank(aliceAccount);
+        bytes24 seeker = _spawnSeekerWithResources();
         // get our building and give it the resources to construct
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
-        uint64 bagID = uint64(uint256(keccak256(abi.encode(buildingInstance))));
-        _spawnBagWithWood(bagID, aliceAccount, buildingInstance, EQUIP_SLOT_0, BUILDING_COST);
+        _transferFromSeeker(seeker, WOOD_SLOT, 25, buildingInstance);
+        _transferFromSeeker(seeker, STONE_SLOT, 25, buildingInstance);
+        _transferFromSeeker(seeker, IRON_SLOT, 25, buildingInstance);
         // construct our building
         dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
         // use the building
@@ -169,60 +174,53 @@ contract BuildingRuleTest is Test {
     function _testConstructFailNotAdjacent(int16 q, int16 r, int16 s) private {
         // register a building kind
         bytes24 buildingKind = Node.BuildingKind(30);
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut")));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)));
         // spawn a seeker
-        bytes24 seeker = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
+        vm.startPrank(aliceAccount);
+        bytes24 seeker = _spawnSeekerWithResources();
         // target building site
         _discover(q, r, s);
-        // get our building and give it the resources to construct
+        // get our building and magic it the resources to construct
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
-        uint64 bagID = uint64(uint256(keccak256(abi.encode(buildingInstance))));
-        _spawnBagWithWood(bagID, aliceAccount, buildingInstance, EQUIP_SLOT_0, BUILDING_COST);
+        bytes24 buildingBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
+        state.setEquipSlot(buildingInstance, 0, buildingBag);
+        state.setItemSlot(buildingBag, 0, ItemUtils.Wood(), 100);
+        state.setItemSlot(buildingBag, 1, ItemUtils.Stone(), 100);
+        state.setItemSlot(buildingBag, 2, ItemUtils.Iron(), 100);
         // construct our building
-        vm.startPrank(aliceAccount);
         vm.expectRevert(BuildingMustBeAdjacentToSeeker.selector); // expect fail as q/r/s not adjacent
         dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
         vm.stopPrank();
     }
 
-    function _spawnBagWithWood(uint64 bagID, address owner, bytes24 equipNode, uint8 equipSlot, uint64 qty)
-        private
-        returns (bytes24)
-    {
-        bytes24[] memory items = new bytes24[](1);
+    // _spawnSeekerWithResources spawns a seeker for the current sender at
+    // 0,0,0 with 100 of each resource in an equiped bag
+    function _spawnSeekerWithResources() private returns (bytes24) {
+        sid++;
+        bytes24 seeker = Node.Seeker(sid);
+        _discover(0,0,0);
+        dispatcher.dispatch( abi.encodeCall( Actions.SPAWN_SEEKER, (seeker)));
+        bytes24[] memory items = new bytes24[](3);
         items[0] = ItemUtils.Wood();
-        uint64[] memory balances = new uint64[](1);
-        balances[0] = qty;
-        return _spawnBag(bagID, owner, equipNode, equipSlot, items, balances);
+        items[1] = ItemUtils.Stone();
+        items[2] = ItemUtils.Iron();
+
+        uint64[] memory balances = new uint64[](3);
+        balances[0] = 100;
+        balances[1] = 100;
+        balances[2] = 100;
+
+        uint64 seekerBag = uint64(uint256(keccak256(abi.encode(seeker))));
+        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_BAG, (seekerBag, state.getOwnerAddress(seeker), seeker, 0, items, balances)));
+
+        return seeker;
     }
 
-    function _spawnBag(
-        uint64 bagID,
-        address owner,
-        bytes24 equipNode,
-        uint8 equipSlot,
-        bytes24[] memory resources,
-        uint64[] memory qty
-    ) private returns (bytes24) {
-        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_BAG, (bagID, owner, equipNode, equipSlot, resources, qty)));
-        return Node.Bag(bagID);
-    }
-
-    function _spawnSeeker(address owner, uint32 sid, int16 q, int16 r, int16 s) private returns (bytes24) {
-        _discover(q, r, s); // discover the tile we place seeker on
+    function _transferFromSeeker(bytes24 seeker, uint8 slot, uint64 qty, bytes24 toBuilding) private {
+        bytes24 buildingBag = Node.Bag(uint64(uint256(keccak256(abi.encode(toBuilding)))));
         dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_SEEKER,
-                (
-                    owner, // owner
-                    sid, // seeker id (sid)
-                    q, // q
-                    r, // r
-                    s // s
-                )
-            )
+            abi.encodeCall(Actions.TRANSFER_ITEM_SEEKER, (seeker, [seeker, toBuilding], [0,0], [slot, slot], buildingBag, qty))
         );
-        return Node.Seeker(sid);
     }
 
     function _discover(int16 q, int16 r, int16 s) private {

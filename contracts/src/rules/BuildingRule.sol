@@ -36,8 +36,8 @@ contract BuildingRule is Rule {
 
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.REGISTER_BUILDING_KIND.selector) {
-            (bytes24 buildingKind, string memory buildingName) = abi.decode(action[4:], (bytes24, string));
-            _registerBuildingType(state, Node.Player(ctx.sender), buildingKind, buildingName);
+            (bytes24 buildingKind, string memory buildingName, bytes24[4] memory materialItem, uint64[4] memory materialQty) = abi.decode(action[4:], (bytes24, string, bytes24[4], uint64[4]));
+            _registerBuildingKind(state, Node.Player(ctx.sender), buildingKind, buildingName, materialItem, materialQty);
         } else if (bytes4(action) == Actions.REGISTER_BUILDING_CONTRACT.selector) {
             (bytes24 buildingKind, address buildingContractAddr) = abi.decode(action[4:], (bytes24, address));
             _registerBuildingContract(state, Node.Player(ctx.sender), buildingKind, buildingContractAddr);
@@ -75,9 +75,9 @@ contract BuildingRule is Rule {
         // get location
         bytes24 seekerTile = state.getCurrentLocation(seeker, ctx.clock);
         bytes24 buildingTile = state.getFixedLocation(buildingInstance);
-        // check that seeker is located at building
-        if (seekerTile == 0 || seekerTile != buildingTile) {
-            revert BuildingTooFarToUse();
+        // check that seeker is located at or adjacent to building
+        if (TileUtils.distance(seekerTile, buildingTile) > 1 || !TileUtils.isDirect(seekerTile, buildingTile)) {
+            revert BuildingMustBeAdjacentToSeeker();
         }
         // get building kind implementation
         bytes24 buildingKind = state.getBuildingKind(buildingInstance);
@@ -90,7 +90,14 @@ contract BuildingRule is Rule {
         buildingImplementation.use(game, buildingInstance, seeker, payload);
     }
 
-    function _registerBuildingType(State state, bytes24 player, bytes24 buildingKind, string memory buildingName)
+    function _registerBuildingKind(
+        State state,
+        bytes24 player,
+        bytes24 buildingKind,
+        string memory buildingName,
+        bytes24[4] memory materialItem,
+        uint64[4] memory materialQty
+    )
         private
     {
         // set owner of the building type
@@ -101,6 +108,38 @@ contract BuildingRule is Rule {
         }
         state.setOwner(buildingKind, player);
         state.annotate(buildingKind, "name", buildingName);
+
+        // min construction cost is 50 of each atom
+        {
+            uint32[3] memory availableInputAtoms;
+            for (uint8 i=0; i<4; i++) {
+                if (materialItem[i] == 0x0) {
+                    continue;
+                }
+                // check input item is registered
+                require(state.getOwner(materialItem[i]) != 0x0, "input item must be registered before use in recipe");
+                // get atomic structure
+                (uint32[3] memory inputAtoms, bool inputStackable) = state.getItemStructure(materialItem[i]);
+                if (inputStackable){
+                    require(materialQty[i] > 0 && materialQty[i] <= 100, "stackable input item must be qty 0-100");
+                } else {
+                    require(materialQty[i] == 1, "equipable input item must have qty=1");
+                }
+                availableInputAtoms[0] = availableInputAtoms[0] + (inputAtoms[0] * uint32(materialQty[i]));
+                availableInputAtoms[1] = availableInputAtoms[1] + (inputAtoms[1] * uint32(materialQty[i]));
+                availableInputAtoms[2] = availableInputAtoms[2] + (inputAtoms[2] * uint32(materialQty[i]));
+            }
+
+            require(availableInputAtoms[0] >= 50, "min construction cost is 50 atom[0]");
+            require(availableInputAtoms[1] >= 50, "min construction cost is 50 atom[1]");
+            require(availableInputAtoms[2] >= 50, "min construction cost is 50 atom[2]");
+        }
+
+        // store the construction materials recipe
+        state.setMaterial(buildingKind, 0, materialItem[0], materialQty[0]);
+        state.setMaterial(buildingKind, 1, materialItem[1], materialQty[1]);
+        state.setMaterial(buildingKind, 2, materialItem[2], materialQty[2]);
+        state.setMaterial(buildingKind, 3, materialItem[3], materialQty[3]);
     }
 
     function _registerBuildingContract(State state, bytes24 player, bytes24 buildingKind, address buildingContractAddr)
@@ -130,9 +169,8 @@ contract BuildingRule is Rule {
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, coords[0], coords[1], coords[2]);
         uint8 resourceFromEquipSlot = 0;
         uint8 resourceFromItemSlot = 0;
-        // burn resources from given slot
-        // [!] for now we are hard coding a fee of "100 wood"
-        _payConstructionFee(state, ctx, buildingInstance, resourceFromEquipSlot, resourceFromItemSlot);
+        // burn resources from given towards construction
+        _payConstructionFee(state, buildingKind, buildingInstance);
         // set type of building
         state.setBuildingKind(buildingInstance, buildingKind);
         // set building owner to player who created it
@@ -143,26 +181,45 @@ contract BuildingRule is Rule {
 
     function _payConstructionFee(
         State state,
-        Context calldata ctx,
-        bytes24 resourceFromEquipee,
-        uint8 resourceFromEquipSlot,
-        uint8 resourceFromItemSlot
+        bytes24 buildingKind,
+        bytes24 buildingInstance
     ) private {
-        // fetch the bag being used to pay
-        bytes24 bag = state.getEquipSlot(resourceFromEquipee, resourceFromEquipSlot);
-        // check the seeker can use this bag
-        _requireCanUseBag(state, bag, Node.Player(ctx.sender));
-        // check we meet the building requirements
-        (bytes24 resource, uint64 balance) = state.getItemSlot(bag, resourceFromItemSlot);
-        if (balance < BUILDING_COST || resource != ItemUtils.Wood()) {
-            revert BuildingResourceRequirementsNotMet();
-        }
-        balance -= BUILDING_COST;
-        // burn the resources
-        if (balance == 0) {
-            state.clearItemSlot(bag, resourceFromItemSlot);
-        } else {
-            state.setItemSlot(bag, resourceFromItemSlot, resource, balance);
+        // fetch the buildingBag
+        bytes24 buildingBag = state.getEquipSlot(buildingInstance, 0);
+        require(bytes4(buildingBag) == Kind.Bag.selector, "no construction bag found");
+        // fetch the recipe
+        bytes24[4] memory wantItem;
+        uint64[4] memory wantQty;
+        {
+            (wantItem[0], wantQty[0]) = state.getMaterial(buildingKind, 0);
+            (wantItem[1], wantQty[1]) = state.getMaterial(buildingKind, 1);
+            (wantItem[2], wantQty[2]) = state.getMaterial(buildingKind, 2);
+            (wantItem[3], wantQty[3]) = state.getMaterial(buildingKind, 3);
+            // get stuff from the given bag
+            bytes24[4] memory gotItem;
+            uint64[4] memory gotQty;
+            for (uint8 i = 0; i<4; i++) {
+                (gotItem[i], gotQty[i]) = state.getItemSlot(buildingBag, i);
+            }
+
+            // check recipe items
+            require(gotItem[0] == wantItem[0], "input 0 item does not match construction recipe");
+            require(gotItem[1] == wantItem[1], "input 1 item does not match construction recipe");
+            require(gotItem[2] == wantItem[2], "input 2 item does not match construction recipe");
+            require(gotItem[3] == wantItem[3], "input 3 item does not match construction recipe");
+
+            // check qty
+            require(gotQty[0] >= wantQty[0], "input 0 qty does not match construction recipe");
+            require(gotQty[1] >= wantQty[1], "input 0 qty does not match construction recipe");
+            require(gotQty[2] >= wantQty[2], "input 0 qty does not match construction recipe");
+            require(gotQty[3] >= wantQty[3], "input 0 qty does not match construction recipe");
+
+            // burn everything in the buildingBag so we have a nice clean bag ready
+            // to be used for other things like crafting... overpay at your peril
+            state.clearItemSlot(buildingBag, 0);
+            state.clearItemSlot(buildingBag, 1);
+            state.clearItemSlot(buildingBag, 2);
+            state.clearItemSlot(buildingBag, 3);
         }
     }
 
@@ -173,25 +230,4 @@ contract BuildingRule is Rule {
         }
     }
 
-    function _requireEquipeeLocation(State state, bytes24 equipee, bytes24 seeker, bytes24 location, uint64 atTime)
-        private
-        view
-    {
-        if (equipee == seeker) {
-            return; // all good, it's the acting seeker's bag so locations match
-        } else if (bytes4(equipee) == Kind.Tile.selector) {
-            // located on a tile
-            if (location != equipee) {
-                revert BagNotReachableBySeeker();
-            }
-        } else if (bytes4(equipee) == Kind.Seeker.selector) {
-            // location on another seeker, check same loc
-            bytes24 otherSeekerLocation = state.getCurrentLocation(equipee, atTime);
-            if (location != otherSeekerLocation) {
-                revert BagNotReachableBySeeker();
-            }
-        } else {
-            revert EquipmentNotBag();
-        }
-    }
 }

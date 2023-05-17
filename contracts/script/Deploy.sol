@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import {Game} from "@ds/Game.sol";
 import {Dispatcher} from "cog/Dispatcher.sol";
 import {Actions} from "@ds/actions/Actions.sol";
-import {Node, BiomeKind} from "@ds/schema/Schema.sol";
+import {Node, BiomeKind, ItemUtils} from "@ds/schema/Schema.sol";
 import {DummyBuilding} from "@ds/fixtures/DummyBuilding.sol";
 
 contract GameDeployer is Script {
@@ -54,7 +54,15 @@ contract GameDeployer is Script {
         bytes24 dummyBuildingKind = Node.BuildingKind(1);
         string memory dummyBuildingKindName = "DummyBuilding";
         string memory dummyBuildingKindSrc = vm.readFile("src/fixtures/DummyBuilding.js");
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (dummyBuildingKind, dummyBuildingKindName)));
+        bytes24[4] memory dummyBuildingMaterialItem;
+        dummyBuildingMaterialItem[0] = ItemUtils.Wood();
+        dummyBuildingMaterialItem[1] = ItemUtils.Stone();
+        dummyBuildingMaterialItem[2] = ItemUtils.Iron();
+        uint64[4] memory dummyBuildingMaterialQty;
+        dummyBuildingMaterialQty[0] = 25;
+        dummyBuildingMaterialQty[1] = 25;
+        dummyBuildingMaterialQty[2] = 25;
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (dummyBuildingKind, dummyBuildingKindName, dummyBuildingMaterialItem, dummyBuildingMaterialQty)));
         dispatcher.dispatch(
             abi.encodeCall(Actions.REGISTER_BUILDING_CONTRACT, (dummyBuildingKind, address(new DummyBuilding())))
         );
