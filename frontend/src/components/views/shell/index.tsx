@@ -14,6 +14,7 @@ import { CompoundKeyEncoder, NodeSelectors, usePlayer, usePluginState, useSelect
 import { Fragment, FunctionComponent, useCallback } from 'react';
 import styled from 'styled-components';
 import { styles } from './shell.styles';
+import { ActionBar } from '@app/plugins/action-bar';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -115,6 +116,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                     </div>
 
                     <div className="tile-actions">
+                        <ActionBar className="action" />
                         <Building className="action" />
                         {tileSeekers.length > 0 && <SeekerList seekers={tileSeekers} className="action" />}
                         {selectedTile && <TileInventory className="action" tile={selectedTile} title="Bags" />}
