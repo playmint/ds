@@ -179,6 +179,34 @@ export const GlobalStyles = createGlobalStyle`
         width: auto;
         color: white;
     }
+
+    .action-icon-button {
+        border-radius: 5px;
+        border: none;
+        border-bottom: 4px solid #b7c5e0;
+        display: block;
+        width: 50px;
+        height: 50px;
+        box-sizing: border-box;
+        background: #fff;
+        color: #143063;
+        padding: 1.2rem 0rem 0.8rem;
+        font-weight: 600;
+
+        &:disabled {
+            opacity: 0.5;
+        }
+
+        &.active {
+            background: #ddeeff;
+            opacity: 1;
+        }
+
+        &.short {
+            height: 35px;
+            padding: 0rem 0rem 0rem;
+        }
+    }
     
     .seeker-actions .seeker-selector {
         display: flex;
