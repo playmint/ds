@@ -25,8 +25,7 @@ const baseStyles = ({ isPickable, isInteractable }: BagItemStyleProps) => css`
 
     .icon {
         filter: invert(100%);
-        width: 60%;
-        opacity: 0.9;
+        width: 50%;
     }
 
     .amount {

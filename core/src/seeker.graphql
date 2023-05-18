@@ -1,16 +1,20 @@
+fragment Item on Node {
+    id
+    name: annotation(name: "name") {
+        id
+        value
+    }
+    icon: annotation(name: "icon") {
+        id
+        value
+    }
+}
+
 fragment ItemSlot on Edge {
     key
     balance: weight
     item: node {
-        id
-        name: annotation(name: "name") {
-            id
-            value
-        }
-        icon: annotation(name: "icon") {
-            id
-            value
-        }
+        ...Item
     }
 }
 
