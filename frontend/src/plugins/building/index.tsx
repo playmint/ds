@@ -13,9 +13,10 @@ import {
     usePluginState,
     useSelection,
     useWorld,
-    WorldBuildingFragment
+    WorldBuildingFragment,
+    BuildingKindFragment
 } from '@dawnseekers/core';
-import React, { Fragment, FunctionComponent, useCallback, useEffect, useRef } from 'react';
+import React, { Fragment, FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { styles } from './building.styles';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
@@ -43,6 +44,10 @@ interface MaybeNamedThing {
     } | null;
 }
 
+interface KeyedThing {
+    key: number;
+}
+
 const ImageConstruct = () => <img src="/tile-construct.png" alt="" className="building-image" width="33%" />;
 const ImageAvailable = () => <img src="/tile-grass.png" alt="" className="building-image" />;
 const ImageBuilding = () => <img src="/building-with-flag.png" alt="" className="building-image" />;
@@ -51,6 +56,10 @@ const ImageSelecting = () => <img src="/tile-selecting.png" alt="" className="bu
 
 const byName = (a: MaybeNamedThing, b: MaybeNamedThing) => {
     return a.name && b.name && a.name.value > b.name.value ? 1 : -1;
+};
+
+const byKey = (a: KeyedThing, b: KeyedThing) => {
+    return a.key > b.key ? 1 : -1;
 };
 
 interface TileBuildingProps {
@@ -121,19 +130,6 @@ interface ConstructProps {
     seeker?: SelectedSeekerFragment;
 }
 const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, seeker, player, selectIntent }) => {
-    // } else if (selectedTiles.length > 1) {
-    //     return <ConstructMultiSelected />;
-    // } else {
-    //     return <ConstructNoneSelected />;
-    // }
-    // if (!seeker || !seeker.nextLocation || !player) {
-    //     return <ConstructNoSeeker />;
-    // } else if (selectedTile.biome == BiomeKind.UNDISCOVERED) {
-    //     return <ConstructUndiscovered />;
-    // } else if (selectedTile.building) {
-    //     return <ConstructOcupied />;
-    // } else if (getTileDistance(seeker.nextLocation.tile, selectedTile) !== 1) {
-    //     return <ConstructTooFarAway />;
     const selectedTile = selectedTiles.find(() => true);
     const selectedTileIsAdjacent =
         selectedTile && seeker?.nextLocation?.tile
@@ -151,6 +147,15 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, seeker, p
     const world = useWorld();
     const slotsRef = useRef<HTMLDivElement>(null);
     const kinds = useBuildingKinds();
+    const availableKinds = (kinds || []).sort(byName);
+    const [selectedKindRaw, selectKind] = useState<undefined | BuildingKindFragment>();
+    const selectedKind = selectedKindRaw || availableKinds.find(() => true);
+
+    const onChangeSelectedKind = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const kindID = e.target.value;
+        const kind = kindID ? availableKinds.find((k) => k.id == kindID) : undefined;
+        selectKind(kind);
+    };
 
     const clearIntent = useCallback(
         (e?: React.MouseEvent) => {
@@ -199,20 +204,12 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, seeker, p
         : undefined;
     const equipIndex = 0; // we don't have multi bag building recipes
     const equipSlot = buildingId ? getBuildingEquipSlot(world, buildingId, equipIndex) : undefined;
-    const recipe = [
-        {
-            key: 0,
-            balance: 100,
-            item: {
-                id: '0x6a7a67f0b12bfa1a00000001000000020000000000000000', // hardcoding temp until construction recipe
-                kind: 'Resource'
-            }
-        }
-    ];
+    console.info('selectedKind', selectedKind);
+    const recipe = selectedKind?.materials.sort(byKey) || [];
     const canConstruct =
         recipe.every((ingredient, index) => {
             const bag = equipSlot && equipSlot.bag;
-            return bag && bag.slots[index].balance === ingredient.balance;
+            return bag && bag.slots[index] && bag.slots[index].balance === ingredient.balance;
         }) && selectedTiles.length > 0;
 
     const help = selectedTile?.building
@@ -228,8 +225,13 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, seeker, p
             <ImageConstruct />
             <form onSubmit={handleConstruct}>
                 <div className="select">
-                    <select name="kind" placeholder="select kind">
-                        {(kinds || []).sort(byName).map((k) => (
+                    <select
+                        name="kind"
+                        placeholder="select kind"
+                        onChange={onChangeSelectedKind}
+                        value={selectedKind?.id}
+                    >
+                        {availableKinds.map((k) => (
                             <option key={k.id} value={k.id}>
                                 {k.name?.value || '<unnamed>'}
                             </option>

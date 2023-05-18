@@ -197,6 +197,14 @@ contract CraftingRule is Rule {
             (wantItem[1], wantQty[1]) = state.getInput(buildingKind, 1);
             (wantItem[2], wantQty[2]) = state.getInput(buildingKind, 2);
             (wantItem[3], wantQty[3]) = state.getInput(buildingKind, 3);
+
+            require(
+                wantItem[0] != 0x0 || 
+                wantItem[1] != 0x0 || 
+                wantItem[2] != 0x0 || 
+                wantItem[3] != 0x0, 
+                "no crafting recipe registered for this building kind"
+            );
         }
         (bytes24 outputItem, uint64 outputQty) = state.getOutput(buildingKind, 0);
 

@@ -167,8 +167,6 @@ contract BuildingRule is Rule {
             revert BuildingMustBeAdjacentToSeeker();
         }
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, coords[0], coords[1], coords[2]);
-        uint8 resourceFromEquipSlot = 0;
-        uint8 resourceFromItemSlot = 0;
         // burn resources from given towards construction
         _payConstructionFee(state, buildingKind, buildingInstance);
         // set type of building

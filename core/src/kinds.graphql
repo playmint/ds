@@ -4,6 +4,18 @@ fragment BuildingKind on Node {
         id
         value
     }
+    # materials are the construction costs to build
+    materials: edges(match: { kinds: ["Item"], via: { rel: "Material" } }) {
+        ...ItemSlot
+    }
+    # inputs (if set) are the registered crafting inputs
+    inputs: edges(match: { kinds: ["Item"], via: { rel: "Input" } }) {
+        ...ItemSlot
+    }
+    # outputs (if set) are the registered crafting outputs
+    outputs: edges(match: { kinds: ["Item"], via: { rel: "Output" } }) {
+        ...ItemSlot
+    }
 }
 
 query GetAvailableBuildingKinds($gameID: ID!) {
