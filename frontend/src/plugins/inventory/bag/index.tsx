@@ -40,7 +40,6 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
     const pendingTo = getPendingToTransfers(ownerId, equipIndex);
     const slotsRef = useRef<HTMLUListElement>(null);
     const slotKeys = recipe ? recipe.map((r) => r.key) : Array.from(Array(numBagSlots).keys());
-    console.warn(recipe, slotKeys);
     const slots: BagSlotProps[] = slotKeys
         .map((slotKey, index) => ({
             ownerId,

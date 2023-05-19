@@ -244,18 +244,21 @@ export type PluginSubmitCallProxy = (values: PluginSubmitCallValues) => Promise<
 export type PluginStateButtonAction = {
     text: string;
     type: 'action';
+    disabled?: boolean;
     action: PluginActionCallProxy;
 };
 
 export type PluginStateButtonToggle = {
     text: string;
     type: 'toggle';
+    disabled?: boolean;
     content: string;
 };
 
 export type PluginStateButtonSubmit = {
     text: string;
     type: 'submit';
+    disabled?: boolean;
 };
 
 export type PluginStateButton = PluginStateButtonAction | PluginStateButtonToggle | PluginStateButtonSubmit;

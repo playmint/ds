@@ -20,6 +20,7 @@ export interface PluginV1Metadata {
 export interface PluginV1Button {
     text?: string;
     type?: 'submit' | 'toggle' | 'action';
+    disabled?: boolean;
     action?: unknown | PluginV1ActionCallback;
     content?: never;
 }
@@ -51,8 +52,8 @@ export type PluginResponse = PluginV1Response;
 // convert plguinresponse -> pluginstate
 // normalizes multiple version responses into compatible latest
 function normalizePluginV1Buttons(
-    { text, type, action, content }: PluginV1Button,
-    submitProxy: PluginSubmitProxy
+    { text, type, action, content, disabled }: PluginV1Button,
+    submitProxy: PluginSubmitProxy,
 ): PluginStateButton {
     if (!text) {
         text = 'action';
@@ -63,14 +64,14 @@ function normalizePluginV1Buttons(
             if (typeof ref !== 'string') {
                 throw new Error(`invalid plugin response: action should reference a function`);
             }
-            return { text, type, action: () => submitProxy(ref, {}) };
+            return { text, type, disabled, action: () => submitProxy(ref, {}) };
         case 'submit':
-            return { text, type };
+            return { text, type, disabled };
         case 'toggle':
             if (typeof content !== 'string') {
                 throw new Error(`invalid plugin response: content property must be a string referancing a content id`);
             }
-            return { text, type, content };
+            return { text, type, disabled, content };
         default:
             throw new Error(`invalid plugin response: unknown button type: ${type}`);
     }
@@ -78,7 +79,7 @@ function normalizePluginV1Buttons(
 
 function normalizePluginV1Content(
     { id, type, html, submit, buttons }: PluginV1ComponentContent,
-    submitProxy: PluginSubmitProxy
+    submitProxy: PluginSubmitProxy,
 ): PluginStateComponentContent | null {
     if (!id) {
         throw new Error(`invalid plugin response: missing content.id`);
