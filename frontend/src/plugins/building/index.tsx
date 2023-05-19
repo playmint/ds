@@ -63,20 +63,36 @@ const byKey = (a: KeyedThing, b: KeyedThing) => {
 };
 
 interface TileBuildingProps {
-    building?: WorldBuildingFragment;
+    building: WorldBuildingFragment;
 }
 const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building }) => {
     const ui = usePluginState();
+    const kinds = useBuildingKinds();
     const component = (ui || [])
         .flatMap((p) => p.components)
         .filter((c) => c.type === 'building')
         .find(() => true);
+
+    const buildingKind = (kinds || []).find((k) => k.id == building.kind?.id);
+    const recipe = buildingKind?.inputs.sort(byKey) || [];
+    const slotsRef = useRef<HTMLDivElement>(null);
+
+    const { addBagRef, removeBagRef } = useInventory();
+    useEffect(() => {
+        addBagRef(slotsRef);
+        return () => removeBagRef(slotsRef);
+    }, [addBagRef, removeBagRef]);
 
     return (
         <Fragment>
             <h3>{component?.title ?? building?.kind?.name?.value ?? 'Unnamed Building'}</h3>
             <span className="sub-title">{component?.summary || ''}</span>
             <ImageBuilding />
+            {recipe.length > 0 && (
+                <div ref={slotsRef} className="ingredients">
+                    <BuildingInventory buildingId={building.id} recipe={recipe} />
+                </div>
+            )}
             {component && <TileAction showTitle={false} component={component} className="action" />}
         </Fragment>
     );
@@ -202,9 +218,8 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, seeker, p
     const buildingId = constructionCoords
         ? getBuildingId(constructionCoords.q, constructionCoords.r, constructionCoords.s)
         : undefined;
-    const equipIndex = 0; // we don't have multi bag building recipes
+    const equipIndex = 0;
     const equipSlot = buildingId ? getBuildingEquipSlot(world, buildingId, equipIndex) : undefined;
-    console.info('selectedKind', selectedKind);
     const recipe = selectedKind?.materials.sort(byKey) || [];
     const canConstruct =
         recipe.every((ingredient, index) => {
