@@ -290,7 +290,7 @@ library Schema {
         view
         returns (bytes24 item, uint64 qty)
     {
-        return state.get(Rel.Input.selector, slot, kind);
+        return state.get(Rel.Output.selector, slot, kind);
     }
 
     function setMaterial(State state, bytes24 kind, uint8 slot, bytes24 item, uint64 qty) internal {
@@ -335,14 +335,14 @@ library TileUtils {
 // how we seed the world with atoms at the moment by
 // dropping these per-atom resources in bags during scout
 library ItemUtils {
-    function Wood() internal pure returns (bytes24) {
-        return Node.Item("wood",  [uint32(2), uint32(0), uint32(0)], true);
+    function Kiki() internal pure returns (bytes24) {
+        return Node.Item("kiki",  [uint32(2), uint32(0), uint32(0)], true);
     }
-    function Stone() internal pure returns (bytes24) {
-        return Node.Item("stone", [uint32(0), uint32(2), uint32(0)], true);
+    function Bouba() internal pure returns (bytes24) {
+        return Node.Item("bouba", [uint32(0), uint32(2), uint32(0)], true);
     }
-    function Iron() internal pure returns (bytes24) {
-        return Node.Item("iron",  [uint32(0), uint32(0), uint32(2)], true);
+    function Semiote() internal pure returns (bytes24) {
+        return Node.Item("semiote",  [uint32(0), uint32(0), uint32(2)], true);
     }
 }
 

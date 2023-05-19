@@ -77,6 +77,7 @@ contract Game is BaseGame {
         state.registerEdgeType(Rel.Balance.selector, "Balance", WeightKind.UINT64);
         state.registerEdgeType(Rel.Input.selector, "Input", WeightKind.UINT64);
         state.registerEdgeType(Rel.Output.selector, "Output", WeightKind.UINT64);
+        state.registerEdgeType(Rel.Material.selector, "Material", WeightKind.UINT64);
         state.registerEdgeType(Rel.Biome.selector, "Biome", WeightKind.UINT64);
         state.registerEdgeType(Rel.Equip.selector, "Equip", WeightKind.UINT64);
         state.registerEdgeType(Rel.Is.selector, "Is", WeightKind.UINT64);
@@ -105,9 +106,9 @@ contract Game is BaseGame {
         _registerDispatcher(dispatcher);
 
         // register base resources used by temp scouting
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.Wood(), "wood", "03-123")));
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.Stone(), "stone", "07-245")));
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.Iron(), "iron", "07-227")));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.Kiki(), "Kiki", "25-91")));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.Bouba(), "Bouba", "25-52")));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.Semiote(), "Semiote", "25-58")));
 
     }
 }

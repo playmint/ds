@@ -55,8 +55,7 @@ contract ScoutRule is Rule {
             // do the reveal
             state.setBiome(targetTile, BiomeKind.DISCOVERED);
 
-            // [temp] randomly spawn a bag with some wood in it
-            // on the tile as a crappy temp resource faucet
+            // randomly spawn a bag with some base items in it
             _tempSpawnResourceBag(state, targetTile, coords);
         }
 
@@ -79,11 +78,11 @@ contract ScoutRule is Rule {
         _resourceSpawnCount++;
         uint8 n = _resourceSpawnCount % 3;
         if (n == 0) {
-            return ItemUtils.Wood();
+            return ItemUtils.Kiki();
         } else if (n == 1) {
-            return ItemUtils.Stone();
+            return ItemUtils.Bouba();
         } else {
-            return ItemUtils.Iron();
+            return ItemUtils.Semiote();
         }
     }
 }

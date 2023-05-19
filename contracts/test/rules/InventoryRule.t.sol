@@ -226,7 +226,7 @@ contract InventoryRuleTest is Test {
         (bytes24 toResourceBefore, uint64 toBalanceBefore) = state.getItemSlot(toBag, ITEM_SLOT_0);
         assertEq(
             fromResourceBefore,
-            ItemUtils.Wood(),
+            ItemUtils.Kiki(),
             "expected seeker1-equip0-bag-item0 (from) resource to be wood before xfer"
         );
         assertEq(toResourceBefore, 0x0, "expected seeker1-equip1-bag-item0 (to) resource to be unset before xfer");
@@ -268,7 +268,7 @@ contract InventoryRuleTest is Test {
         (bytes24 toResourceBefore, uint64 toBalanceBefore) = state.getItemSlot(toBag, ITEM_SLOT_0);
         assertEq(
             fromResourceBefore,
-            ItemUtils.Wood(),
+            ItemUtils.Kiki(),
             "expected seeker1-equip0-bag-item0 (from) resource to be wood before xfer"
         );
         assertEq(toResourceBefore, 0x0, "expected seeker1-equip1-bag-item0 (to) resource to be unset before xfer");
@@ -295,12 +295,12 @@ contract InventoryRuleTest is Test {
         (bytes24 toResourceAfter, uint64 toBalanceAfter) = state.getItemSlot(toBag, itemSlots[1]);
         assertEq(
             fromResourceAfter,
-            ItemUtils.Wood(),
+            ItemUtils.Kiki(),
             "expected seeker1-equip0-bag-item0 resource to be wood after xfer"
         );
         assertEq(
             toResourceAfter,
-            ItemUtils.Wood(),
+            ItemUtils.Kiki(),
             "expected seeker1-equip1-bag-item0 resource to be wood after xfer"
         );
         assertEq(fromBalanceAfter, 50, "expected seeker1-equip1-bag-item0 balance to decrease to 50 after xfer");
@@ -323,7 +323,7 @@ contract InventoryRuleTest is Test {
         (bytes24 toResourceBefore, uint64 toBalanceBefore) = state.getItemSlot(toBag, ITEM_SLOT_0);
         assertEq(
             fromResourceBefore,
-            ItemUtils.Wood(),
+            ItemUtils.Kiki(),
             "expected seeker1-equip0-bag-item0 (from) resource to be wood before xfer"
         );
         assertEq(toResourceBefore, 0x0, "expected seeker1-equip1-bag-item0 (to) resource to be unset before xfer");
@@ -350,12 +350,12 @@ contract InventoryRuleTest is Test {
         (bytes24 toResourceAfter, uint64 toBalanceAfter) = state.getItemSlot(toBag, itemSlots[1]);
         assertEq(
             fromResourceAfter,
-            ItemUtils.Wood(),
+            ItemUtils.Kiki(),
             "expected seeker1-equip0-bag-item0 resource to be wood after xfer"
         );
         assertEq(
             toResourceAfter,
-            ItemUtils.Wood(),
+            ItemUtils.Kiki(),
             "expected seeker1-equip1-bag-item0 resource to be wood after xfer"
         );
         assertEq(fromBalanceAfter, 50, "expected seeker1-equip1-bag-item0 balance to decrease to 50 after xfer");
@@ -380,7 +380,7 @@ contract InventoryRuleTest is Test {
         returns (bytes24)
     {
         bytes24[] memory items = new bytes24[](1);
-        items[0] = ItemUtils.Wood();
+        items[0] = ItemUtils.Kiki();
         uint64[] memory balances = new uint64[](1);
         balances[0] = 100;
         return _spawnBag(bagID, owner, equipNode, equipSlot, items, balances);
@@ -391,7 +391,7 @@ contract InventoryRuleTest is Test {
         returns (bytes24)
     {
         bytes24[] memory items = new bytes24[](1);
-        items[0] = ItemUtils.Stone();
+        items[0] = ItemUtils.Bouba();
         uint64[] memory balances = new uint64[](1);
         balances[0] = 100;
         return _spawnBag(bagID, owner, equipNode, equipSlot, items, balances);
