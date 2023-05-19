@@ -317,7 +317,15 @@ export function actionArgFromUnknown(wanted: ethers.ParamType, given: unknown): 
     // if wanted is bytes, then convert to bytes
     if (wanted.baseType.startsWith('bytes')) {
         if (typeof given === 'string') {
-            return ethers.getBytes(given);
+            if (given === '') {
+                return ethers.getBytes('0x');
+            } else {
+                return ethers.getBytes(given);
+            }
+        } else if (Array.isArray(given)) {
+            if (given.length === 0) {
+                return '0x';
+            }
         }
     }
     // else hope for the best
