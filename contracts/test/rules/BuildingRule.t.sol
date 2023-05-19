@@ -19,10 +19,6 @@ import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 
 using Schema for State;
 
-uint8 constant WOOD_SLOT = 0;
-uint8 constant STONE_SLOT = 1;
-uint8 constant IRON_SLOT = 2;
-
 contract BuildingRuleTest is Test {
     event AnnotationSet(bytes24 id, AnnotationKind kind, string label, bytes32 ref, string data);
 
@@ -50,9 +46,9 @@ contract BuildingRuleTest is Test {
         aliceAccount = vm.addr(alicePrivateKey);
 
         // setup default material construction costs
-        defaultMaterialItem[0] = ItemUtils.Wood();
-        defaultMaterialItem[1] = ItemUtils.Stone();
-        defaultMaterialItem[2] = ItemUtils.Iron();
+        defaultMaterialItem[0] = ItemUtils.Kiki();
+        defaultMaterialItem[1] = ItemUtils.Bouba();
+        defaultMaterialItem[2] = ItemUtils.Semiote();
         defaultMaterialQty[0] = 25;
         defaultMaterialQty[1] = 25;
         defaultMaterialQty[2] = 25;
@@ -74,9 +70,9 @@ contract BuildingRuleTest is Test {
         // get our building and give it the resources to construct
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
         // construct our building
-        _transferFromSeeker(seeker, WOOD_SLOT, 25, buildingInstance);
-        _transferFromSeeker(seeker, STONE_SLOT, 25, buildingInstance);
-        _transferFromSeeker(seeker, IRON_SLOT, 25, buildingInstance);
+        _transferFromSeeker(seeker, 0, 25, buildingInstance);
+        _transferFromSeeker(seeker, 1, 25, buildingInstance);
+        _transferFromSeeker(seeker, 2, 25, buildingInstance);
         dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
         vm.stopPrank();
         // check the building has a location at q/r/s
@@ -105,9 +101,9 @@ contract BuildingRuleTest is Test {
         _discover(q, r, s);
         // get our building and give it not enough resources to construct
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
-        _transferFromSeeker(seeker, WOOD_SLOT, 1, buildingInstance); // 1 is intentionaly too few
-        _transferFromSeeker(seeker, STONE_SLOT, 1, buildingInstance); // ...
-        _transferFromSeeker(seeker, IRON_SLOT, 1, buildingInstance); // ...
+        _transferFromSeeker(seeker, 0, 1, buildingInstance); // 1 is intentionaly too few
+        _transferFromSeeker(seeker, 1, 1, buildingInstance); // ...
+        _transferFromSeeker(seeker, 2, 1, buildingInstance); // ...
         // construct our building
         vm.expectRevert("input 0 qty does not match construction recipe");
         dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
@@ -152,9 +148,9 @@ contract BuildingRuleTest is Test {
         bytes24 seeker = _spawnSeekerWithResources();
         // get our building and give it the resources to construct
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
-        _transferFromSeeker(seeker, WOOD_SLOT, 25, buildingInstance);
-        _transferFromSeeker(seeker, STONE_SLOT, 25, buildingInstance);
-        _transferFromSeeker(seeker, IRON_SLOT, 25, buildingInstance);
+        _transferFromSeeker(seeker, 0, 25, buildingInstance);
+        _transferFromSeeker(seeker, 1, 25, buildingInstance);
+        _transferFromSeeker(seeker, 2, 25, buildingInstance);
         // construct our building
         dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
         // use the building
@@ -184,9 +180,9 @@ contract BuildingRuleTest is Test {
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
         bytes24 buildingBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
         state.setEquipSlot(buildingInstance, 0, buildingBag);
-        state.setItemSlot(buildingBag, 0, ItemUtils.Wood(), 100);
-        state.setItemSlot(buildingBag, 1, ItemUtils.Stone(), 100);
-        state.setItemSlot(buildingBag, 2, ItemUtils.Iron(), 100);
+        state.setItemSlot(buildingBag, 0, ItemUtils.Kiki(), 100);
+        state.setItemSlot(buildingBag, 1, ItemUtils.Bouba(), 100);
+        state.setItemSlot(buildingBag, 2, ItemUtils.Semiote(), 100);
         // construct our building
         vm.expectRevert(BuildingMustBeAdjacentToSeeker.selector); // expect fail as q/r/s not adjacent
         dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
@@ -201,9 +197,9 @@ contract BuildingRuleTest is Test {
         _discover(0,0,0);
         dispatcher.dispatch( abi.encodeCall( Actions.SPAWN_SEEKER, (seeker)));
         bytes24[] memory items = new bytes24[](3);
-        items[0] = ItemUtils.Wood();
-        items[1] = ItemUtils.Stone();
-        items[2] = ItemUtils.Iron();
+        items[0] = ItemUtils.Kiki();
+        items[1] = ItemUtils.Bouba();
+        items[2] = ItemUtils.Semiote();
 
         uint64[] memory balances = new uint64[](3);
         balances[0] = 100;

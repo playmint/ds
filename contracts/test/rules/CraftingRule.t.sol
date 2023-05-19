@@ -24,11 +24,6 @@ import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 
 using Schema for State;
 
-uint8 constant WOOD_SLOT = 0;
-uint8 constant STONE_SLOT = 1;
-uint8 constant IRON_SLOT = 2;
-uint8 constant OUTPUT_SLOT = 3;
-
 uint8 constant MAX_CRAFT_INPUT_ITEMS = 4;
 
 bool constant ITEM_STACKABLE = true;
@@ -68,9 +63,9 @@ contract CraftingRuleTest is Test {
     }
 
     function testResources() public {
-        assertEq(state.getAtoms(ItemUtils.Wood())[ATOM_LIFE], 2);
-        assertEq(state.getAtoms(ItemUtils.Stone())[ATOM_DEFENSE], 2);
-        assertEq(state.getAtoms(ItemUtils.Iron())[ATOM_ATTACK], 2);
+        assertEq(state.getAtoms(ItemUtils.Kiki())[ATOM_LIFE], 2);
+        assertEq(state.getAtoms(ItemUtils.Bouba())[ATOM_DEFENSE], 2);
+        assertEq(state.getAtoms(ItemUtils.Semiote())[ATOM_ATTACK], 2);
     }
 
     function testGetAtoms() public {
@@ -89,14 +84,14 @@ contract CraftingRuleTest is Test {
         bytes24 buildingKind = _newMockBuildingKind(1001);
 
         bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItem;
-        inputItem[WOOD_SLOT] = ItemUtils.Wood();
-        inputItem[STONE_SLOT] = ItemUtils.Stone();
-        inputItem[IRON_SLOT] = ItemUtils.Iron();
+        inputItem[0] = ItemUtils.Kiki();
+        inputItem[1] = ItemUtils.Bouba();
+        inputItem[2] = ItemUtils.Semiote();
 
         uint64[MAX_CRAFT_INPUT_ITEMS] memory inputQty;
-        inputQty[WOOD_SLOT] = 2;
-        inputQty[STONE_SLOT] = 2;
-        inputQty[IRON_SLOT] = 2;
+        inputQty[0] = 2;
+        inputQty[1] = 2;
+        inputQty[2] = 2;
 
         uint32[3] memory outputItemAtoms = [ uint32(1), uint32(1), uint32(1) ];
         bytes24 outputItem = Node.Item("thing", outputItemAtoms, ITEM_STACKABLE);
@@ -127,14 +122,14 @@ contract CraftingRuleTest is Test {
         bytes24 buildingKind = _newMockBuildingKind(1001);
 
         bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItem;
-        inputItem[WOOD_SLOT] = ItemUtils.Wood();
-        inputItem[STONE_SLOT] = ItemUtils.Stone();
-        inputItem[IRON_SLOT] = ItemUtils.Iron();
+        inputItem[0] = ItemUtils.Kiki();
+        inputItem[1] = ItemUtils.Bouba();
+        inputItem[2] = ItemUtils.Semiote();
 
         uint64[MAX_CRAFT_INPUT_ITEMS] memory inputQty;
-        inputQty[WOOD_SLOT] = 2;
-        inputQty[STONE_SLOT] = 2;
-        inputQty[IRON_SLOT] = 2;
+        inputQty[0] = 2;
+        inputQty[1] = 2;
+        inputQty[2] = 2;
 
         uint32[3] memory outputItemAtoms = [ uint32(1), uint32(1), uint32(1) ];
         bytes24 outputItem = Node.Item("thing", outputItemAtoms, ITEM_STACKABLE);
@@ -154,8 +149,8 @@ contract CraftingRuleTest is Test {
         _transferItem(
             aliceSeeker,
             [aliceSeeker, buildingInstance],
-            [0, 0],
-            [WOOD_SLOT, WOOD_SLOT],
+            [0, 0], // from/to equip
+            [0, 0], // from/to slot
             buildingBag,
             4 // move 4 but only need 2
         );
@@ -163,7 +158,7 @@ contract CraftingRuleTest is Test {
             aliceSeeker,
             [aliceSeeker, buildingInstance],
             [0, 0],
-            [STONE_SLOT, STONE_SLOT],
+            [1, 1],
             buildingBag,
             4 // move 4 but only need 2
         );
@@ -171,7 +166,7 @@ contract CraftingRuleTest is Test {
             aliceSeeker,
             [aliceSeeker, buildingInstance],
             [0, 0],
-            [IRON_SLOT, IRON_SLOT],
+            [2, 2],
             buildingBag,
             4 // move 4 but only need 2
         );
@@ -185,24 +180,24 @@ contract CraftingRuleTest is Test {
                 buildingInstance, // the building performing CRAFT
                 aliceSeeker, // thing with a bag where output will go
                 0, // equip slot on equipee with a bag for output 
-                OUTPUT_SLOT // slot in outBag where output item(s) will go
+                0 // slot in outBag where output item(s) will go
             ))
         );
         vm.stopPrank();
 
         // check that output item now exists in aliceBag 
         (bytes24 expItem, uint64 expBalance) = state.getOutput(buildingKind, 0);
-        (bytes24 gotItem, uint64 gotBalance) = state.getItemSlot(aliceBag, OUTPUT_SLOT);
+        (bytes24 gotItem, uint64 gotBalance) = state.getItemSlot(aliceBag, 0);
         assertEq(gotItem, expItem, "expected output slot to contain expected output item");
         assertEq(gotBalance, expBalance, "expected output balance match");
 
         // check the input slots are empty
-        (, gotBalance) = state.getItemSlot(buildingBag, WOOD_SLOT);
-        assertEq(gotBalance, 2, "expected 2 wood left in input bag");
-        (, gotBalance) = state.getItemSlot(buildingBag, STONE_SLOT);
-        assertEq(gotBalance, 2, "expected 2 stone left in input bag");
-        (, gotBalance) = state.getItemSlot(buildingBag, IRON_SLOT);
-        assertEq(gotBalance, 2, "expected 2 iron left in input bag");
+        (, gotBalance) = state.getItemSlot(buildingBag, 0);
+        assertEq(gotBalance, 2, "expected 2 item left in input[0]");
+        (, gotBalance) = state.getItemSlot(buildingBag, 1);
+        assertEq(gotBalance, 2, "expected 2 item left in input[1]");
+        (, gotBalance) = state.getItemSlot(buildingBag, 2);
+        assertEq(gotBalance, 2, "expected 2 item left in input[2]");
 
     }
 
@@ -218,9 +213,9 @@ contract CraftingRuleTest is Test {
         _discover(0,0,0);
         dispatcher.dispatch( abi.encodeCall( Actions.SPAWN_SEEKER, (seeker)));
         bytes24[] memory items = new bytes24[](3);
-        items[0] = ItemUtils.Wood();
-        items[1] = ItemUtils.Stone();
-        items[2] = ItemUtils.Iron();
+        items[0] = ItemUtils.Kiki();
+        items[1] = ItemUtils.Bouba();
+        items[2] = ItemUtils.Semiote();
 
         uint64[] memory balances = new uint64[](3);
         balances[0] = 100;
@@ -248,9 +243,9 @@ contract CraftingRuleTest is Test {
 
     function _newMockBuildingKind(uint64 uid) private returns (bytes24) {
         bytes24[4] memory defaultMaterialItem;
-        defaultMaterialItem[0] = ItemUtils.Wood();
-        defaultMaterialItem[1] = ItemUtils.Stone();
-        defaultMaterialItem[2] = ItemUtils.Iron();
+        defaultMaterialItem[0] = ItemUtils.Kiki();
+        defaultMaterialItem[1] = ItemUtils.Bouba();
+        defaultMaterialItem[2] = ItemUtils.Semiote();
         uint64[4] memory defaultMaterialQty;
         defaultMaterialQty[0] = 25;
         defaultMaterialQty[1] = 25;
@@ -284,12 +279,12 @@ contract CraftingRuleTest is Test {
         _discover(q, r, s);
         // get our building and give it the resources to construct
         buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
-        // magic 100 wood into the construct slot
+        // magic 100 items into the construct slot
         bytes24 buildingBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
         state.setEquipSlot(buildingInstance, 0, buildingBag);
-        state.setItemSlot(buildingBag, 0, ItemUtils.Wood(), 25);
-        state.setItemSlot(buildingBag, 1, ItemUtils.Stone(), 25);
-        state.setItemSlot(buildingBag, 2, ItemUtils.Iron(), 25);
+        state.setItemSlot(buildingBag, 0, ItemUtils.Kiki(), 25);
+        state.setItemSlot(buildingBag, 1, ItemUtils.Bouba(), 25);
+        state.setItemSlot(buildingBag, 2, ItemUtils.Semiote(), 25);
         // construct our building
         dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
         return buildingInstance;
