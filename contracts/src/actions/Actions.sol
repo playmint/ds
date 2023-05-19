@@ -65,10 +65,7 @@ interface Actions {
     function REGISTER_ITEM_KIND(bytes24 itemKind, string calldata name, string calldata icon) external;
 
     function CRAFT(
-        bytes24 buildingInstance, // the building performing CRAFT
-        bytes24 outEquipee, // thing that is holding the output bag
-        uint8 outEquipSlot, // the equip slot on the thing holding the out bag
-        uint8 outItemSlot // slot in out bag where output item(s) will go
+        bytes24 buildingInstance // the building performing CRAFT
     ) external;
 
     // spawn a seeker for the sender
