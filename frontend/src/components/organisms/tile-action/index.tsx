@@ -71,13 +71,23 @@ const PluginContent = ({
                     switch (btn.type) {
                         case 'action':
                             return (
-                                <button className="action-button" key={btn.text} onClick={() => clickActionButton(btn)}>
+                                <button
+                                    disabled={btn.disabled}
+                                    className="action-button"
+                                    key={btn.text}
+                                    onClick={() => clickActionButton(btn)}
+                                >
                                     {btn.text}
                                 </button>
                             );
                         case 'toggle':
                             return (
-                                <button className="action-button" key={btn.text} onClick={() => clickToggleButton(btn)}>
+                                <button
+                                    disabled={btn.disabled}
+                                    className="action-button"
+                                    key={btn.text}
+                                    onClick={() => clickToggleButton(btn)}
+                                >
                                     {btn.text}
                                 </button>
                             );

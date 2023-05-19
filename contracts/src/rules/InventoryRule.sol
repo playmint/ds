@@ -143,7 +143,12 @@ contract InventoryRule is Rule {
         }
 
         // do the xfer
-        state.setItemSlot(fromBag, fromItemSlot, fromResource, fromBalance - qty);
+        uint64 newFromBalance = fromBalance - qty;
+        if (newFromBalance == 0) {
+            state.clearItemSlot(fromBag, fromItemSlot);
+        } else {
+            state.setItemSlot(fromBag, fromItemSlot, fromResource, newFromBalance);
+        }
         state.setItemSlot(toBag, toItemSlot, fromResource, toBalance + qty);
     }
 }

@@ -55,7 +55,7 @@ contract GameDeployer is Script {
 
         // deploy and register the DummyBuilding as a building kind
         bytes24 dummyBuildingKind = Node.BuildingKind(1);
-        string memory dummyBuildingKindName = "DummyBuilding";
+        string memory dummyBuildingKindName = "Welcome Hut";
         string memory dummyBuildingKindSrc = vm.readFile("src/fixtures/DummyBuilding.js");
         bytes24[4] memory dummyBuildingMaterialItem;
         dummyBuildingMaterialItem[0] = ItemUtils.Kiki();
@@ -83,8 +83,8 @@ contract GameDeployer is Script {
         inputQty[0] = 2;
         inputQty[1] = 2;
         uint32[3] memory outputItemAtoms = [ uint32(1), uint32(1), uint32(0) ];
-        bytes24 outputItem = Node.Item("welcomedrink", outputItemAtoms, true);
-        uint64 outputQty = 2;
+        bytes24 outputItem = Node.Item("welcomedrink", outputItemAtoms, false);
+        uint64 outputQty = 1;
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (outputItem, "Welcome Drink", "02-40")));
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_CRAFT_RECIPE, (dummyBuildingKind, inputItem, inputQty, outputItem, outputQty)));
 

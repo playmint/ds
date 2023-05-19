@@ -5,9 +5,8 @@ export default function update({ selected }) {
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
     const selectedBuilding = selectedTile && selectedTile.building ? selectedTile.building : undefined;
     const selectedEngineer = seeker;
-
-    const sayHello = () => {
-    };
+    const inputBag = selectedBuilding && selectedBuilding.bags.find(b => b.key == 0).bag;
+    const canPourDrink = inputBag && inputBag.slots.length == 2 && inputBag.slots.every(slot => slot.balance > 0) && selectedEngineer;
 
     const craft = () => {
         if (!selectedEngineer) {
@@ -16,10 +15,6 @@ export default function update({ selected }) {
         }
         if (!selectedBuilding) {
             ds.log('no selected building');
-            return;
-        }
-        if (!selectedEngineer.bags[1] || !selectedEngineer.bags[1].bag) {
-            ds.log('no output bag found');
             return;
         }
 
@@ -45,15 +40,9 @@ export default function update({ selected }) {
                     {
                         id: 'default',
                         type: 'inline',
-                        buttons: [
-                            { text: 'Claim Welcome Drink', type: 'action', action: craft }
-                        ],
+                        buttons: [ { text: 'Pour Welcome Drink', type: 'action', action: craft, disabled: !canPourDrink } ],
                         html: `
                             <p>Bring me two Kikis and two Boubas and claim your welcome drink!</p>
-                            <br/>
-                            <p>You can find items in bags around the map. Scout undiscovered tiles to reveal more bags.<p>
-                            <br/>
-                            <small>There is a limit of one drink per Engineer</small>
                         `
                     },
                 ],
