@@ -31,6 +31,8 @@ const baseStyles = ({ isDroppable, isDisabled, isInteractable }: BagSlotStylePro
         opacity: 0.3;
 
         .icon {
+            filter: invert(100%);
+            width: 50%;
         }
 
         .amount {
