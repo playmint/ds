@@ -175,6 +175,11 @@ contract BuildingRule is Rule {
         state.setOwner(buildingInstance, Node.Player(ctx.sender));
         // set building location
         state.setFixedLocation(buildingInstance, targetTile);
+        // attach the inputs/output bags
+        bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "input")))));
+        bytes24 outputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "output")))));
+        state.setEquipSlot(buildingInstance, 0, inputBag);
+        state.setEquipSlot(buildingInstance, 1, outputBag);
     }
 
     function _payConstructionFee(
@@ -226,6 +231,12 @@ contract BuildingRule is Rule {
         if (owner != 0 && owner != player) {
             revert BagNotAccessibleBySeeker();
         }
+    }
+
+    function _spawnBag(State state, bytes24 seeker, address owner, uint8 equipSlot) private {
+        bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode(seeker, equipSlot)))));
+        state.setOwner(bag, Node.Player(owner));
+        state.setEquipSlot(seeker, equipSlot, bag);
     }
 
 }

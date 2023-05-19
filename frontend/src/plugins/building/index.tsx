@@ -23,6 +23,7 @@ import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { getCoords, getTileDistance } from '@app/helpers/tile';
 import { BuildingInventory } from '@app/plugins/inventory/building-inventory';
 import { getBuildingEquipSlot, getBuildingId } from '@app/plugins/inventory/helpers';
+import { Bag } from '../inventory/bag';
 
 export interface BuildingProps extends ComponentProps {}
 
@@ -74,26 +75,65 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building }) => {
         .find(() => true);
 
     const buildingKind = (kinds || []).find((k) => k.id == building.kind?.id);
-    const recipe = buildingKind?.inputs.sort(byKey) || [];
-    const slotsRef = useRef<HTMLDivElement>(null);
+    const inputs = buildingKind?.inputs.sort(byKey) || [];
+    const outputs = buildingKind?.outputs.sort(byKey) || [];
 
+    const inputsRef = useRef<HTMLDivElement>(null);
+    const outputsRef = useRef<HTMLDivElement>(null);
     const { addBagRef, removeBagRef } = useInventory();
     useEffect(() => {
-        addBagRef(slotsRef);
-        return () => removeBagRef(slotsRef);
+        addBagRef(inputsRef);
+        addBagRef(outputsRef);
+        return () => {
+            removeBagRef(inputsRef);
+            removeBagRef(outputsRef);
+        };
     }, [addBagRef, removeBagRef]);
 
+    const inputBag = building.bags.find((b) => b.key == 0);
+    const outputBag = building.bags.find((b) => b.key == 1);
     return (
         <Fragment>
             <h3>{component?.title ?? building?.kind?.name?.value ?? 'Unnamed Building'}</h3>
             <span className="sub-title">{component?.summary || ''}</span>
             <ImageBuilding />
-            {recipe.length > 0 && (
-                <div ref={slotsRef} className="ingredients">
-                    <BuildingInventory buildingId={building.id} recipe={recipe} />
-                </div>
+            {component && (
+                <TileAction showTitle={false} component={component} className="action">
+                    {inputs.length > 0 && inputBag && (
+                        <div ref={inputsRef} className="ingredients">
+                            <Bag
+                                bag={inputBag.bag}
+                                bagId={inputBag.bag.id}
+                                equipIndex={0}
+                                ownerId={building.id}
+                                isInteractable={true}
+                                recipe={inputs}
+                                numBagSlots={inputs.length}
+                                showIcon={false}
+                                as="li"
+                            />
+                        </div>
+                    )}
+                    <div className="process">
+                        <img src="/icons/downarrow.png" alt="output" className="arrow" />
+                    </div>
+                    {outputs.length > 0 && outputBag && (
+                        <div ref={outputsRef} className="ingredients">
+                            <Bag
+                                bag={outputBag.bag}
+                                bagId={outputBag.bag.id}
+                                equipIndex={1}
+                                ownerId={building.id}
+                                isInteractable={true}
+                                recipe={outputs}
+                                numBagSlots={outputs.length}
+                                showIcon={false}
+                                as="li"
+                            />
+                        </div>
+                    )}
+                </TileAction>
             )}
-            {component && <TileAction showTitle={false} component={component} className="action" />}
         </Fragment>
     );
 };

@@ -29,6 +29,16 @@ const baseStyles = (_: Partial<BuildingProps>) => css`
         padding: 0 !important;
         border-bottom: 0 !important;
     }
+    .process {
+        text-align: center;
+        width: 100%;
+        height: 32px;
+        text-overflow: hidden;
+    }
+    img.arrow {
+        display: inline-block;
+        width: 32px;
+    }
 
     form {
         display: flex;

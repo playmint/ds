@@ -39,7 +39,8 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
     const pendingFrom = getPendingFromTransfers(ownerId, equipIndex);
     const pendingTo = getPendingToTransfers(ownerId, equipIndex);
     const slotsRef = useRef<HTMLUListElement>(null);
-    const slotKeys = Array.from(Array(numBagSlots).keys());
+    const slotKeys = recipe ? recipe.map((r) => r.key) : Array.from(Array(numBagSlots).keys());
+    console.warn(recipe, slotKeys);
     const slots: BagSlotProps[] = slotKeys
         .map((slotKey, index) => ({
             ownerId,
@@ -97,8 +98,8 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
         <StyledBag {...otherProps}>
             {showIcon && <img src="/icons/bag.png" alt="" className="icon" />}
             <ul className="slots" ref={slotsRef}>
-                {slots.map((slot: BagSlotProps, index: number) => (
-                    <BagSlot key={index} as="li" {...slot} />
+                {slots.map((slot: BagSlotProps) => (
+                    <BagSlot key={slot.slotKey} as="li" {...slot} />
                 ))}
             </ul>
         </StyledBag>

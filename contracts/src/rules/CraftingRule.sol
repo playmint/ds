@@ -35,11 +35,9 @@ contract CraftingRule is Rule {
         }
 
         if (bytes4(action) == Actions.CRAFT.selector) {
-            // decode the action
-            (bytes24 buildingInstance, bytes24 outEquipee, uint8 outEquipSlot, uint8 outItemSlot) =
-                abi.decode(action[4:], (bytes24, bytes24, uint8, uint8));
+            (bytes24 buildingInstance) = abi.decode(action[4:], (bytes24));
 
-            _craft(state, ctx.clock, ctx.sender, buildingInstance, outEquipee, outEquipSlot, outItemSlot);
+            _craft(state, ctx.sender, buildingInstance);
         }
 
         return state;
@@ -142,12 +140,8 @@ contract CraftingRule is Rule {
 
     function _craft(
         State state,
-        uint64 atTime,
         address sender,
-        bytes24 buildingInstance,
-        bytes24 outEquipee,
-        uint8 outEquipSlot,
-        uint8 outItemSlot
+        bytes24 buildingInstance
     ) private {
 
         // ensure we are given a legit building id
@@ -168,18 +162,11 @@ contract CraftingRule is Rule {
         bytes24 inBag = state.getEquipSlot(buildingInstance, 0);
         _requireIsBag(inBag);
 
-        // get the outBag (provided by the crafter)
-        require(outEquipee != 0x0, "invalid output equipee");
-        bytes24 outBag = state.getEquipSlot(outEquipee, outEquipSlot);
+        // get the outBag (it's a bag equip to buildingInstance at slot 1)
+        bytes24 outBag = state.getEquipSlot(buildingInstance, 1);
         _requireIsBag(outBag);
 
-        // check that the outEquipee is located within reach of the building
-        {
-            bytes24 buildingLocation = state.getFixedLocation(buildingInstance);
-            BagUtils.requireEquipeeLocation(state, outEquipee, 0x0, buildingLocation, atTime);
-        }
-
-        _craft2(state, buildingKind, inBag, outBag, outItemSlot);
+        _craft2(state, buildingKind, inBag, outBag, 0);
     }
 
     function _craft2(

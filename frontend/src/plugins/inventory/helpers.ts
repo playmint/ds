@@ -35,5 +35,5 @@ export function getBagId(buildingId: string) {
 
 export function getBuildingEquipSlot(world: WorldStateFragment | undefined, buildingId: string, equipIndex: number) {
     const building = world?.buildings?.find((b) => b.id === buildingId);
-    return building && building.bags.length > 0 ? building.bags[equipIndex] : undefined;
+    return building?.bags.find((b) => b.key == equipIndex);
 }

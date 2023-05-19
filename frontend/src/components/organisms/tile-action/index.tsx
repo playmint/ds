@@ -23,6 +23,7 @@ type PluginContentTypeMap = {
 export interface TileActionProps extends ComponentProps {
     component: PluginStateComponent;
     showTitle?: boolean;
+    children: any;
 }
 
 const StyledTileAction = styled('div')`
@@ -31,10 +32,12 @@ const StyledTileAction = styled('div')`
 
 const PluginContent = ({
     content,
-    toggleContent
+    toggleContent,
+    children
 }: {
     content: PluginStateComponentContent;
     toggleContent: ToggleContentFunc;
+    children: any;
 }) => {
     const saferHTML = { __html: content.html ? DOMPurify.sanitize(content.html) : '' };
 
@@ -63,6 +66,7 @@ const PluginContent = ({
         <div className="content">
             <form onSubmit={submit}>
                 <div dangerouslySetInnerHTML={saferHTML} />
+                {children}
                 {content.buttons?.map((btn) => {
                     switch (btn.type) {
                         case 'action':
@@ -87,7 +91,7 @@ const PluginContent = ({
 };
 
 export const TileAction: FunctionComponent<TileActionProps> = (props: TileActionProps) => {
-    const { component, showTitle, ...otherProps } = props;
+    const { component, showTitle, children, ...otherProps } = props;
     const [contentIdForType, setContentIdForType] = useState<PluginContentTypeMap>({
         inline: 'default',
         popout: '',
@@ -124,19 +128,21 @@ export const TileAction: FunctionComponent<TileActionProps> = (props: TileAction
     };
 
     const inline = getVisibleContentForType('inline');
-    const popout = getVisibleContentForType('popout');
-    const dialog = getVisibleContentForType('dialog');
+    // const popout = getVisibleContentForType('popout');
+    // const dialog = getVisibleContentForType('dialog');
 
-    if ((!inline || (inline && inline.buttons?.length === 0)) && !popout && !dialog) {
+    if (!inline || (inline && inline.buttons?.length === 0)) {
         return null;
     }
 
     return (
         <StyledTileAction {...otherProps}>
             {showTitle !== false && component.title && <h3>{component.title}</h3>}
-            {inline && <PluginContent content={inline} toggleContent={toggleContent} />}
-            {popout && <PluginContent content={popout} toggleContent={toggleContent} />}
-            {dialog && <PluginContent content={dialog} toggleContent={toggleContent} />}
+            {inline && (
+                <PluginContent content={inline} toggleContent={toggleContent}>
+                    {children}
+                </PluginContent>
+            )}
         </StyledTileAction>
     );
 };

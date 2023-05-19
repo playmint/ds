@@ -139,9 +139,9 @@ contract CraftingRuleTest is Test {
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_CRAFT_RECIPE, (buildingKind, inputItem, inputQty, outputItem, outputQty)));
 
         bytes24 aliceSeeker = _spawnSeekerWithResources();
-        bytes24 aliceBag = state.getEquipSlot(aliceSeeker, 0);
         bytes24 buildingInstance = _constructBuilding(buildingKind, aliceSeeker, -1, 1, 0);
-        bytes24 buildingBag = state.getEquipSlot(buildingInstance, 0);
+        bytes24 inputBag = state.getEquipSlot(buildingInstance, 0);
+        bytes24 outputBag = state.getEquipSlot(buildingInstance, 1);
 
         // alice puts the input items into the building's bag
         // and expects the output item in her bag
@@ -151,7 +151,7 @@ contract CraftingRuleTest is Test {
             [aliceSeeker, buildingInstance],
             [0, 0], // from/to equip
             [0, 0], // from/to slot
-            buildingBag,
+            inputBag,
             4 // move 4 but only need 2
         );
         _transferItem(
@@ -159,7 +159,7 @@ contract CraftingRuleTest is Test {
             [aliceSeeker, buildingInstance],
             [0, 0],
             [1, 1],
-            buildingBag,
+            inputBag,
             4 // move 4 but only need 2
         );
         _transferItem(
@@ -167,7 +167,7 @@ contract CraftingRuleTest is Test {
             [aliceSeeker, buildingInstance],
             [0, 0],
             [2, 2],
-            buildingBag,
+            inputBag,
             4 // move 4 but only need 2
         );
         vm.stopPrank();
@@ -177,26 +177,23 @@ contract CraftingRuleTest is Test {
         vm.startPrank(address(mockBuildingContract));
         dispatcher.dispatch(
             abi.encodeCall(Actions.CRAFT, (
-                buildingInstance, // the building performing CRAFT
-                aliceSeeker, // thing with a bag where output will go
-                0, // equip slot on equipee with a bag for output 
-                0 // slot in outBag where output item(s) will go
+                buildingInstance // the building performing CRAFT
             ))
         );
         vm.stopPrank();
 
-        // check that output item now exists in aliceBag 
+        // check that output item now exists in outputBag slot 0
         (bytes24 expItem, uint64 expBalance) = state.getOutput(buildingKind, 0);
-        (bytes24 gotItem, uint64 gotBalance) = state.getItemSlot(aliceBag, 0);
+        (bytes24 gotItem, uint64 gotBalance) = state.getItemSlot(outputBag, 0);
         assertEq(gotItem, expItem, "expected output slot to contain expected output item");
         assertEq(gotBalance, expBalance, "expected output balance match");
 
         // check the input slots are empty
-        (, gotBalance) = state.getItemSlot(buildingBag, 0);
+        (, gotBalance) = state.getItemSlot(inputBag, 0);
         assertEq(gotBalance, 2, "expected 2 item left in input[0]");
-        (, gotBalance) = state.getItemSlot(buildingBag, 1);
+        (, gotBalance) = state.getItemSlot(inputBag, 1);
         assertEq(gotBalance, 2, "expected 2 item left in input[1]");
-        (, gotBalance) = state.getItemSlot(buildingBag, 2);
+        (, gotBalance) = state.getItemSlot(inputBag, 2);
         assertEq(gotBalance, 2, "expected 2 item left in input[2]");
 
     }
@@ -266,9 +263,9 @@ contract CraftingRuleTest is Test {
                 Actions.DEV_SPAWN_TILE,
                 (
                     BiomeKind.DISCOVERED,
-                    0, // q
-                    0, // r
-                    0 // s
+                    q, // q
+                    r, // r
+                    s // s
                 )
             )
         );
@@ -280,11 +277,11 @@ contract CraftingRuleTest is Test {
         // get our building and give it the resources to construct
         buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
         // magic 100 items into the construct slot
-        bytes24 buildingBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
-        state.setEquipSlot(buildingInstance, 0, buildingBag);
-        state.setItemSlot(buildingBag, 0, ItemUtils.Kiki(), 25);
-        state.setItemSlot(buildingBag, 1, ItemUtils.Bouba(), 25);
-        state.setItemSlot(buildingBag, 2, ItemUtils.Semiote(), 25);
+        bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
+        state.setEquipSlot(buildingInstance, 0, inputBag);
+        state.setItemSlot(inputBag, 0, ItemUtils.Kiki(), 25);
+        state.setItemSlot(inputBag, 1, ItemUtils.Bouba(), 25);
+        state.setItemSlot(inputBag, 2, ItemUtils.Semiote(), 25);
         // construct our building
         dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
         return buildingInstance;
