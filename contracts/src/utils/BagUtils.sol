@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {State, CompoundKeyEncoder, CompoundKeyDecoder} from "cog/State.sol";
-import {Schema, Node, Kind, TileUtils} from "@ds/schema/Schema.sol";
+import {State} from "cog/State.sol";
+import {Schema, Node, Kind} from "@ds/schema/Schema.sol";
+import {TileUtils} from "@ds/utils/TileUtils.sol";
 
 error NoTransferUnsupportedEquipeeKind();
 error NoTransferNotSameLocation();
