@@ -11,7 +11,7 @@ export function iconURL(icon?: string) {
 
 export function getItemDetails(itemSlot: ItemSlotFragment) {
     const itemId = itemSlot.item.id;
-    const name = itemSlot.item.name?.value;
+    const name = itemSlot.item.name?.value || '';
     const icon = iconURL(itemSlot.item.icon?.value);
     const quantity = itemSlot.balance;
 
