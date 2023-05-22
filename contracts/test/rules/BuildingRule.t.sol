@@ -60,7 +60,11 @@ contract BuildingRuleTest is Test {
         string memory buildingName = "hut";
         vm.expectEmit(true, true, true, true, address(state));
         emit AnnotationSet(buildingKind, AnnotationKind.CALLDATA, "name", keccak256(bytes(buildingName)), buildingName);
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)));
+        dispatcher.dispatch(
+            abi.encodeCall(
+                Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)
+            )
+        );
         // spawn a seeker
         vm.startPrank(aliceAccount);
         bytes24 seeker = _spawnSeekerWithResources();
@@ -93,7 +97,11 @@ contract BuildingRuleTest is Test {
         vm.startPrank(aliceAccount);
         // register a building kind
         bytes24 buildingKind = Node.BuildingKind(25);
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)));
+        dispatcher.dispatch(
+            abi.encodeCall(
+                Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)
+            )
+        );
         // spawn a seeker
         bytes24 seeker = _spawnSeekerWithResources();
         // discover an adjacent tile for our building site
@@ -121,7 +129,11 @@ contract BuildingRuleTest is Test {
     function testRegisterBuildingKindContract() public {
         // register a building kind
         bytes24 buildingKind = Node.BuildingKind(20);
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)));
+        dispatcher.dispatch(
+            abi.encodeCall(
+                Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)
+            )
+        );
         // register a contract implementation for the building kind
         address buildingContractAddr = vm.addr(0xb001);
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_CONTRACT, (buildingKind, buildingContractAddr)));
@@ -136,7 +148,11 @@ contract BuildingRuleTest is Test {
     function testUseBuilding() public {
         // register a building kind
         bytes24 buildingKind = Node.BuildingKind(100);
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)));
+        dispatcher.dispatch(
+            abi.encodeCall(
+                Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)
+            )
+        );
         // register a mock implementation for the building
         MockBuildingKind mockBuilding = new MockBuildingKind();
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_CONTRACT, (buildingKind, address(mockBuilding))));
@@ -170,7 +186,11 @@ contract BuildingRuleTest is Test {
     function _testConstructFailNotAdjacent(int16 q, int16 r, int16 s) private {
         // register a building kind
         bytes24 buildingKind = Node.BuildingKind(30);
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)));
+        dispatcher.dispatch(
+            abi.encodeCall(
+                Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)
+            )
+        );
         // spawn a seeker
         vm.startPrank(aliceAccount);
         bytes24 seeker = _spawnSeekerWithResources();
@@ -194,8 +214,8 @@ contract BuildingRuleTest is Test {
     function _spawnSeekerWithResources() private returns (bytes24) {
         sid++;
         bytes24 seeker = Node.Seeker(sid);
-        _discover(0,0,0);
-        dispatcher.dispatch( abi.encodeCall( Actions.SPAWN_SEEKER, (seeker)));
+        _discover(0, 0, 0);
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (seeker)));
         bytes24[] memory items = new bytes24[](3);
         items[0] = ItemUtils.Kiki();
         items[1] = ItemUtils.Bouba();
@@ -207,7 +227,11 @@ contract BuildingRuleTest is Test {
         balances[2] = 100;
 
         uint64 seekerBag = uint64(uint256(keccak256(abi.encode(seeker))));
-        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_BAG, (seekerBag, state.getOwnerAddress(seeker), seeker, 0, items, balances)));
+        dispatcher.dispatch(
+            abi.encodeCall(
+                Actions.DEV_SPAWN_BAG, (seekerBag, state.getOwnerAddress(seeker), seeker, 0, items, balances)
+            )
+        );
 
         return seeker;
     }
@@ -215,7 +239,9 @@ contract BuildingRuleTest is Test {
     function _transferFromSeeker(bytes24 seeker, uint8 slot, uint64 qty, bytes24 toBuilding) private {
         bytes24 buildingBag = Node.Bag(uint64(uint256(keccak256(abi.encode(toBuilding)))));
         dispatcher.dispatch(
-            abi.encodeCall(Actions.TRANSFER_ITEM_SEEKER, (seeker, [seeker, toBuilding], [0,0], [slot, slot], buildingBag, qty))
+            abi.encodeCall(
+                Actions.TRANSFER_ITEM_SEEKER, (seeker, [seeker, toBuilding], [0, 0], [slot, slot], buildingBag, qty)
+            )
         );
     }
 

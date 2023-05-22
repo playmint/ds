@@ -30,7 +30,7 @@ bool constant ITEM_STACKABLE = true;
 bool constant ITEM_EQUIPABLE = false;
 
 contract MockCraftBuildingContract {
-    function use(Game, /*ds*/ bytes24, /*buildingInstance*/ bytes24, /*seeker*/ bytes memory /*payload*/ ) public { }
+    function use(Game, /*ds*/ bytes24, /*buildingInstance*/ bytes24, /*seeker*/ bytes memory /*payload*/ ) public {}
 }
 
 contract CraftingRuleTest is Test {
@@ -69,7 +69,7 @@ contract CraftingRuleTest is Test {
     }
 
     function testGetAtoms() public {
-        uint32[3] memory thingAtoms = [ uint32(2), uint32(4), uint32(6) ];
+        uint32[3] memory thingAtoms = [uint32(2), uint32(4), uint32(6)];
         bytes24 thingItem = Node.Item("thing", thingAtoms, ITEM_STACKABLE);
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (thingItem, "thing", "icon")));
         uint32[3] memory gotAtoms = state.getAtoms(thingItem);
@@ -93,12 +93,14 @@ contract CraftingRuleTest is Test {
         inputQty[1] = 2;
         inputQty[2] = 2;
 
-        uint32[3] memory outputItemAtoms = [ uint32(1), uint32(1), uint32(1) ];
+        uint32[3] memory outputItemAtoms = [uint32(1), uint32(1), uint32(1)];
         bytes24 outputItem = Node.Item("thing", outputItemAtoms, ITEM_STACKABLE);
         uint64 outputQty = 1;
 
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (outputItem, "thing", "icon")));
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_CRAFT_RECIPE, (buildingKind, inputItem, inputQty, outputItem, outputQty)));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.REGISTER_CRAFT_RECIPE, (buildingKind, inputItem, inputQty, outputItem, outputQty))
+        );
         vm.stopPrank();
 
         bytes24 registeredItem;
@@ -131,12 +133,14 @@ contract CraftingRuleTest is Test {
         inputQty[1] = 2;
         inputQty[2] = 2;
 
-        uint32[3] memory outputItemAtoms = [ uint32(1), uint32(1), uint32(1) ];
+        uint32[3] memory outputItemAtoms = [uint32(1), uint32(1), uint32(1)];
         bytes24 outputItem = Node.Item("thing", outputItemAtoms, ITEM_STACKABLE);
         uint64 outputQty = 1;
 
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (outputItem, "thing", "icon")));
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_CRAFT_RECIPE, (buildingKind, inputItem, inputQty, outputItem, outputQty)));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.REGISTER_CRAFT_RECIPE, (buildingKind, inputItem, inputQty, outputItem, outputQty))
+        );
 
         bytes24 aliceSeeker = _spawnSeekerWithResources();
         bytes24 buildingInstance = _constructBuilding(buildingKind, aliceSeeker, -1, 1, 0);
@@ -172,13 +176,13 @@ contract CraftingRuleTest is Test {
         );
         vm.stopPrank();
 
-
         // pretend we are the building kind contract to send the CRAFT
         vm.startPrank(address(mockBuildingContract));
         dispatcher.dispatch(
-            abi.encodeCall(Actions.CRAFT, (
-                buildingInstance // the building performing CRAFT
-            ))
+            abi.encodeCall(
+                Actions.CRAFT,
+                (buildingInstance) // the building performing CRAFT
+            )
         );
         vm.stopPrank();
 
@@ -195,7 +199,6 @@ contract CraftingRuleTest is Test {
         assertEq(gotBalance, 2, "expected 2 item left in input[1]");
         (, gotBalance) = state.getItemSlot(inputBag, 2);
         assertEq(gotBalance, 2, "expected 2 item left in input[2]");
-
     }
 
     function testCraftingToSlotOfDifferentItemKindWithZeroBal() public {
@@ -207,8 +210,8 @@ contract CraftingRuleTest is Test {
     function _spawnSeekerWithResources() private returns (bytes24) {
         sid++;
         bytes24 seeker = Node.Seeker(sid);
-        _discover(0,0,0);
-        dispatcher.dispatch( abi.encodeCall( Actions.SPAWN_SEEKER, (seeker)));
+        _discover(0, 0, 0);
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (seeker)));
         bytes24[] memory items = new bytes24[](3);
         items[0] = ItemUtils.Kiki();
         items[1] = ItemUtils.Bouba();
@@ -220,7 +223,11 @@ contract CraftingRuleTest is Test {
         balances[2] = 100;
 
         uint64 seekerBag = uint64(uint256(keccak256(abi.encode(seeker))));
-        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_BAG, (seekerBag, state.getOwnerAddress(seeker), seeker, 0, items, balances)));
+        dispatcher.dispatch(
+            abi.encodeCall(
+                Actions.DEV_SPAWN_BAG, (seekerBag, state.getOwnerAddress(seeker), seeker, 0, items, balances)
+            )
+        );
 
         return seeker;
     }
@@ -249,7 +256,9 @@ contract CraftingRuleTest is Test {
         defaultMaterialQty[2] = 25;
         bytes24 buildingKind = Node.BuildingKind(uid);
         dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "TestBuilding", defaultMaterialItem, defaultMaterialQty))
+            abi.encodeCall(
+                Actions.REGISTER_BUILDING_KIND, (buildingKind, "TestBuilding", defaultMaterialItem, defaultMaterialQty)
+            )
         );
         dispatcher.dispatch(
             abi.encodeCall(Actions.REGISTER_BUILDING_CONTRACT, (buildingKind, address(mockBuildingContract)))
@@ -271,7 +280,10 @@ contract CraftingRuleTest is Test {
         );
     }
 
-    function _constructBuilding(bytes24 buildingKind, bytes24 seeker, int16 q, int16 r, int16 s) private returns (bytes24 buildingInstance) {
+    function _constructBuilding(bytes24 buildingKind, bytes24 seeker, int16 q, int16 r, int16 s)
+        private
+        returns (bytes24 buildingInstance)
+    {
         // discover an adjacent tile for our building site
         _discover(q, r, s);
         // get our building and give it the resources to construct

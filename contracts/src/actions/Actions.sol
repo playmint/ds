@@ -30,10 +30,20 @@ interface Actions {
     ) external;
 
     // register an external contract as possible building
-    function REGISTER_BUILDING_KIND(bytes24 buildingKind, string calldata name, bytes24[4] calldata materialItem, uint64[4] calldata materialQty) external;
+    function REGISTER_BUILDING_KIND(
+        bytes24 buildingKind,
+        string calldata name,
+        bytes24[4] calldata materialItem,
+        uint64[4] calldata materialQty
+    ) external;
 
-    function REGISTER_CRAFT_RECIPE(bytes24 buildingKind, bytes24[4] calldata inputItem, uint64[4] calldata inputQty, bytes24 outputItem, uint64 outputQty) external;
-
+    function REGISTER_CRAFT_RECIPE(
+        bytes24 buildingKind,
+        bytes24[4] calldata inputItem,
+        uint64[4] calldata inputQty,
+        bytes24 outputItem,
+        uint64 outputQty
+    ) external;
 
     // register contracts
     function REGISTER_BUILDING_CONTRACT(bytes24 buildingKind, address buildingKindImplementation) external;

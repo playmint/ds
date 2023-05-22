@@ -70,7 +70,11 @@ library Node {
         if (isStackable) {
             stackable = 1;
         }
-        return bytes24(abi.encodePacked(Kind.Item.selector, uniqueID, stackable, atoms[ATOM_LIFE], atoms[ATOM_DEFENSE], atoms[ATOM_ATTACK]));
+        return bytes24(
+            abi.encodePacked(
+                Kind.Item.selector, uniqueID, stackable, atoms[ATOM_LIFE], atoms[ATOM_DEFENSE], atoms[ATOM_ATTACK]
+            )
+        );
     }
 
     function Player(address addr) internal pure returns (bytes24) {
@@ -247,7 +251,11 @@ library Schema {
         return kind;
     }
 
-    function getItemStructure(State /*state*/, bytes24 item) internal pure returns (uint32[3] memory atoms, bool isStackable) {
+    function getItemStructure(State, /*state*/ bytes24 item)
+        internal
+        pure
+        returns (uint32[3] memory atoms, bool isStackable)
+    {
         isStackable = uint32(uint192(item) >> 96) == 1;
         atoms[ATOM_LIFE] = uint32(uint192(item) >> 64);
         atoms[ATOM_DEFENSE] = uint32(uint192(item) >> 32);
@@ -256,7 +264,7 @@ library Schema {
     }
 
     function getAtoms(State state, bytes24 item) internal pure returns (uint32[3] memory atoms) {
-        (atoms, ) = getItemStructure(state, item);
+        (atoms,) = getItemStructure(state, item);
         return atoms;
     }
 
@@ -273,11 +281,7 @@ library Schema {
         return state.set(Rel.Input.selector, slot, kind, item, qty);
     }
 
-    function getInput(State state, bytes24 kind, uint8 slot)
-        internal
-        view
-        returns (bytes24 item, uint64 qty)
-    {
+    function getInput(State state, bytes24 kind, uint8 slot) internal view returns (bytes24 item, uint64 qty) {
         return state.get(Rel.Input.selector, slot, kind);
     }
 
@@ -285,11 +289,7 @@ library Schema {
         return state.set(Rel.Output.selector, slot, kind, item, qty);
     }
 
-    function getOutput(State state, bytes24 kind, uint8 slot)
-        internal
-        view
-        returns (bytes24 item, uint64 qty)
-    {
+    function getOutput(State state, bytes24 kind, uint8 slot) internal view returns (bytes24 item, uint64 qty) {
         return state.get(Rel.Output.selector, slot, kind);
     }
 
@@ -297,11 +297,7 @@ library Schema {
         return state.set(Rel.Material.selector, slot, kind, item, qty);
     }
 
-    function getMaterial(State state, bytes24 kind, uint8 slot)
-        internal
-        view
-        returns (bytes24 item, uint64 qty)
-    {
+    function getMaterial(State state, bytes24 kind, uint8 slot) internal view returns (bytes24 item, uint64 qty) {
         return state.get(Rel.Material.selector, slot, kind);
     }
 }
@@ -336,13 +332,15 @@ library TileUtils {
 // dropping these per-atom resources in bags during scout
 library ItemUtils {
     function Kiki() internal pure returns (bytes24) {
-        return Node.Item("kiki",  [uint32(2), uint32(0), uint32(0)], true);
+        return Node.Item("kiki", [uint32(2), uint32(0), uint32(0)], true);
     }
+
     function Bouba() internal pure returns (bytes24) {
         return Node.Item("bouba", [uint32(0), uint32(2), uint32(0)], true);
     }
+
     function Semiote() internal pure returns (bytes24) {
-        return Node.Item("semiote",  [uint32(0), uint32(0), uint32(2)], true);
+        return Node.Item("semiote", [uint32(0), uint32(0), uint32(2)], true);
     }
 }
 

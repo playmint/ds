@@ -7,7 +7,7 @@ import {ItemKind} from "@ds/ext/ItemKind.sol";
 
 contract ResourceItem is ItemKind {
     function onRegisterRecipeOutput(
-        Game ds, 
+        Game ds,
         bytes24 player,
         bytes24 buildingKind,
         bytes24[4] memory inputItem,

@@ -6,9 +6,7 @@ import {State} from "cog/State.sol";
 import {Context, Rule} from "cog/Dispatcher.sol";
 import {Context, Rule} from "cog/Dispatcher.sol";
 
-import {
-    Schema, Node, Kind, ItemUtils, TileUtils, DEFAULT_ZONE
-} from "@ds/schema/Schema.sol";
+import {Schema, Node, Kind, ItemUtils, TileUtils, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 import {CraftingRule} from "@ds/rules/CraftingRule.sol";
@@ -36,7 +34,12 @@ contract BuildingRule is Rule {
 
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.REGISTER_BUILDING_KIND.selector) {
-            (bytes24 buildingKind, string memory buildingName, bytes24[4] memory materialItem, uint64[4] memory materialQty) = abi.decode(action[4:], (bytes24, string, bytes24[4], uint64[4]));
+            (
+                bytes24 buildingKind,
+                string memory buildingName,
+                bytes24[4] memory materialItem,
+                uint64[4] memory materialQty
+            ) = abi.decode(action[4:], (bytes24, string, bytes24[4], uint64[4]));
             _registerBuildingKind(state, Node.Player(ctx.sender), buildingKind, buildingName, materialItem, materialQty);
         } else if (bytes4(action) == Actions.REGISTER_BUILDING_CONTRACT.selector) {
             (bytes24 buildingKind, address buildingContractAddr) = abi.decode(action[4:], (bytes24, address));
@@ -97,9 +100,7 @@ contract BuildingRule is Rule {
         string memory buildingName,
         bytes24[4] memory materialItem,
         uint64[4] memory materialQty
-    )
-        private
-    {
+    ) private {
         // set owner of the building type
         // this might be a regular player, or it might be the same as the buildingContract
         bytes24 existingOwner = state.getOwner(buildingKind);
@@ -112,7 +113,7 @@ contract BuildingRule is Rule {
         // min construction cost is 50 of each atom
         {
             uint32[3] memory availableInputAtoms;
-            for (uint8 i=0; i<4; i++) {
+            for (uint8 i = 0; i < 4; i++) {
                 if (materialItem[i] == 0x0) {
                     continue;
                 }
@@ -120,7 +121,7 @@ contract BuildingRule is Rule {
                 require(state.getOwner(materialItem[i]) != 0x0, "input item must be registered before use in recipe");
                 // get atomic structure
                 (uint32[3] memory inputAtoms, bool inputStackable) = state.getItemStructure(materialItem[i]);
-                if (inputStackable){
+                if (inputStackable) {
                     require(materialQty[i] > 0 && materialQty[i] <= 100, "stackable input item must be qty 0-100");
                 } else {
                     require(materialQty[i] == 1, "equipable input item must have qty=1");
@@ -182,11 +183,7 @@ contract BuildingRule is Rule {
         state.setEquipSlot(buildingInstance, 1, outputBag);
     }
 
-    function _payConstructionFee(
-        State state,
-        bytes24 buildingKind,
-        bytes24 buildingInstance
-    ) private {
+    function _payConstructionFee(State state, bytes24 buildingKind, bytes24 buildingInstance) private {
         // fetch the buildingBag
         bytes24 buildingBag = state.getEquipSlot(buildingInstance, 0);
         require(bytes4(buildingBag) == Kind.Bag.selector, "no construction bag found");
@@ -201,7 +198,7 @@ contract BuildingRule is Rule {
             // get stuff from the given bag
             bytes24[4] memory gotItem;
             uint64[4] memory gotQty;
-            for (uint8 i = 0; i<4; i++) {
+            for (uint8 i = 0; i < 4; i++) {
                 (gotItem[i], gotQty[i]) = state.getItemSlot(buildingBag, i);
             }
 
@@ -238,5 +235,4 @@ contract BuildingRule is Rule {
         state.setOwner(bag, Node.Player(owner));
         state.setEquipSlot(seeker, equipSlot, bag);
     }
-
 }

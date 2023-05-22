@@ -5,15 +5,7 @@ import {State} from "cog/State.sol";
 import {Context, Rule} from "cog/Dispatcher.sol";
 import {Context, Rule} from "cog/Dispatcher.sol";
 
-import {
-    Schema,
-    Node,
-    BiomeKind,
-    ItemUtils,
-    TileUtils,
-    TRAVEL_SPEED,
-    DEFAULT_ZONE
-} from "@ds/schema/Schema.sol";
+import {Schema, Node, BiomeKind, ItemUtils, TileUtils, TRAVEL_SPEED, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
 using Schema for State;
