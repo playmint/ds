@@ -179,7 +179,9 @@ contract CraftingRule is Rule {
         _craftFromBag(state, buildingKind, inBag, outBag, 0);
     }
 
-    function _craftFromBag(State state, bytes24 buildingKind, bytes24 inBag, bytes24 outBag, uint8 outItemSlot) private {
+    function _craftFromBag(State state, bytes24 buildingKind, bytes24 inBag, bytes24 outBag, uint8 outItemSlot)
+        private
+    {
         // fetch the recipe
         bytes24[4] memory wantItem;
         uint64[4] memory wantQty;

@@ -7,22 +7,22 @@ import {Node} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
 struct Material {
-    uint quantity;
+    uint256 quantity;
     bytes24 item;
 }
 
 struct Input {
-    uint quantity;
+    uint256 quantity;
     bytes24 item;
 }
 
 struct Output {
-    uint quantity;
+    uint256 quantity;
     bytes24 item;
 }
 
 struct BuildingConfig {
-    uint id;
+    uint256 id;
     string name;
     Material[4] materials;
     Input[4] inputs;
@@ -37,15 +37,12 @@ library BuildingUtils {
         bytes24 buildingKind = Node.BuildingKind(uint64(cfg.id));
         bytes24[4] memory materialItem;
         uint64[4] memory materialQty;
-        for (uint8 i=0; i<cfg.materials.length; i++) {
+        for (uint8 i = 0; i < cfg.materials.length; i++) {
             materialItem[i] = cfg.materials[i].item;
             materialQty[i] = uint64(cfg.materials[i].quantity);
         }
         dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.REGISTER_BUILDING_KIND,
-                (buildingKind, cfg.name, materialItem, materialQty)
-            )
+            abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, cfg.name, materialItem, materialQty))
         );
         if (address(cfg.implementation) != address(0)) {
             dispatcher.dispatch(
@@ -64,7 +61,7 @@ library BuildingUtils {
         if (cfg.outputs[0].item != 0x0) {
             bytes24[4] memory inputItem;
             uint64[4] memory inputQty;
-            for (uint8 i=0; i<cfg.inputs.length; i++) {
+            for (uint8 i = 0; i < cfg.inputs.length; i++) {
                 inputItem[i] = cfg.inputs[i].item;
                 inputQty[i] = uint64(cfg.inputs[i].quantity);
             }
