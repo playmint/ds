@@ -35,11 +35,7 @@ fragment WorldSeeker on Node {
 fragment WorldBuilding on Node {
     id
     kind: node(match: { kinds: "BuildingKind", via: { rel: "Is" } }) {
-        id
-        name: annotation(name: "name") {
-            id
-            value
-        }
+        ...BuildingKind
     }
     bags: edges(match: { kinds: "Bag", via: { rel: "Equip" } }) {
         ...EquipmentSlot
