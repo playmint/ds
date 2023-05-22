@@ -131,10 +131,17 @@ contract InventoryRule is Rule {
             revert NoTransferEmptySlot();
         }
 
-        // check that toBag's slot is either empty
-        // OR contains the same resource type as fromBag
-        if (fromResource != toResource && toBalance != 0) {
-            revert NoTransferIncompatibleSlot();
+        if (toBalance != 0) {
+            // check that attempt is to stack same items
+            if (fromResource != toResource) {
+                revert NoTransferIncompatibleSlot();
+            }
+
+            // check that toResource is stackable
+            (, bool toResourceStackable) = state.getItemStructure(toResource);
+            if (!toResourceStackable) {
+                revert NoTransferIncompatibleSlot();
+            }
         }
 
         // check that fromSlot has enough balance to xfer
