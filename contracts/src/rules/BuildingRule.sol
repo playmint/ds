@@ -98,16 +98,15 @@ contract BuildingRule is Rule {
         bytes24[4] memory materialItem,
         uint64[4] memory materialQty
     ) private {
-        // set owner of the building type
-        // this might be a regular player, or it might be the same as the buildingContract
+        // set owner of the building kind
         bytes24 existingOwner = state.getOwner(buildingKind);
-        if (existingOwner != 0x0) {
+        if (existingOwner != 0x0 && existingOwner != player) {
             revert BuildingAlreadyRegistered();
         }
         state.setOwner(buildingKind, player);
         state.annotate(buildingKind, "name", buildingName);
 
-        // min construction cost is 50 of each atom
+        // min construction cost
         {
             uint32[3] memory availableInputAtoms;
             for (uint8 i = 0; i < 4; i++) {

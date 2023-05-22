@@ -53,6 +53,10 @@ contract CraftingRule is Rule {
     function _registerItem(State state, bytes24 player, bytes24 itemKind, string memory name, string memory icon)
         internal
     {
+        bytes24 existingOwner = state.getOwner(itemKind);
+        if (existingOwner != 0x0 && existingOwner != player) {
+            revert("already registered");
+        }
         state.setOwner(itemKind, player);
         state.annotate(itemKind, "name", name);
         state.annotate(itemKind, "icon", icon);
