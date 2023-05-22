@@ -4,8 +4,9 @@ pragma solidity ^0.8.13;
 import {State} from "cog/State.sol";
 import {Context, Rule} from "cog/Dispatcher.sol";
 
-import {Schema, Node, BiomeKind, Kind, BagUtils, TileUtils, TRAVEL_SPEED, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Schema, Node, BiomeKind, Kind, TileUtils, TRAVEL_SPEED, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
+import {BagUtils} from "@ds/utils/BagUtils.sol";
 
 using Schema for State;
 
