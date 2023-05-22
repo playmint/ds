@@ -294,15 +294,9 @@ contract InventoryRuleTest is Test {
         (bytes24 fromResourceAfter, uint64 fromBalanceAfter) = state.getItemSlot(fromBag, itemSlots[0]);
         (bytes24 toResourceAfter, uint64 toBalanceAfter) = state.getItemSlot(toBag, itemSlots[1]);
         assertEq(
-            fromResourceAfter,
-            ItemUtils.Kiki(),
-            "expected seeker1-equip0-bag-item0 resource to be wood after xfer"
+            fromResourceAfter, ItemUtils.Kiki(), "expected seeker1-equip0-bag-item0 resource to be wood after xfer"
         );
-        assertEq(
-            toResourceAfter,
-            ItemUtils.Kiki(),
-            "expected seeker1-equip1-bag-item0 resource to be wood after xfer"
-        );
+        assertEq(toResourceAfter, ItemUtils.Kiki(), "expected seeker1-equip1-bag-item0 resource to be wood after xfer");
         assertEq(fromBalanceAfter, 50, "expected seeker1-equip1-bag-item0 balance to decrease to 50 after xfer");
         assertEq(toBalanceAfter, 50, "expected seeker1-equip1-bag-item0 balance to increase to 50 after xfer");
     }
@@ -349,15 +343,9 @@ contract InventoryRuleTest is Test {
         (bytes24 fromResourceAfter, uint64 fromBalanceAfter) = state.getItemSlot(fromBag, itemSlots[0]);
         (bytes24 toResourceAfter, uint64 toBalanceAfter) = state.getItemSlot(toBag, itemSlots[1]);
         assertEq(
-            fromResourceAfter,
-            ItemUtils.Kiki(),
-            "expected seeker1-equip0-bag-item0 resource to be wood after xfer"
+            fromResourceAfter, ItemUtils.Kiki(), "expected seeker1-equip0-bag-item0 resource to be wood after xfer"
         );
-        assertEq(
-            toResourceAfter,
-            ItemUtils.Kiki(),
-            "expected seeker1-equip1-bag-item0 resource to be wood after xfer"
-        );
+        assertEq(toResourceAfter, ItemUtils.Kiki(), "expected seeker1-equip1-bag-item0 resource to be wood after xfer");
         assertEq(fromBalanceAfter, 50, "expected seeker1-equip1-bag-item0 balance to decrease to 50 after xfer");
         assertEq(toBalanceAfter, 50, "expected seeker1-equip1-bag-item0 balance to increase to 50 after xfer");
     }

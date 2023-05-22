@@ -28,30 +28,18 @@ contract GameDeployer is Script {
 
         // dump a unit at the origin
         bytes24 seeker = Node.Seeker(1);
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.SPAWN_SEEKER,
-                (seeker)
-            )
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (seeker)));
 
         // discover origin tile
-        ds.getDispatcher().dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_TILE,
-                (
-                    BiomeKind.DISCOVERED, 0, 0, 0
-                )
-            )
-        );
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 0, 0, 0)));
 
         // scout some tiles
-        _scout(ds, 1, 0,-1,1);
-        _scout(ds, 1, 0,1,-1);
-        _scout(ds, 1, 1,-1,0);
-        _scout(ds, 1, 1,0,-1);
-        _scout(ds, 1, -1,0,1);
-        _scout(ds, 1, -1,1,0);
+        _scout(ds, 1, 0, -1, 1);
+        _scout(ds, 1, 0, 1, -1);
+        _scout(ds, 1, 1, -1, 0);
+        _scout(ds, 1, 1, 0, -1);
+        _scout(ds, 1, -1, 0, 1);
+        _scout(ds, 1, -1, 1, 0);
 
         // deploy and register the DummyBuilding as a building kind
         bytes24 dummyBuildingKind = Node.BuildingKind(1);
@@ -65,7 +53,12 @@ contract GameDeployer is Script {
         dummyBuildingMaterialQty[0] = 25;
         dummyBuildingMaterialQty[1] = 25;
         dummyBuildingMaterialQty[2] = 25;
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (dummyBuildingKind, dummyBuildingKindName, dummyBuildingMaterialItem, dummyBuildingMaterialQty)));
+        dispatcher.dispatch(
+            abi.encodeCall(
+                Actions.REGISTER_BUILDING_KIND,
+                (dummyBuildingKind, dummyBuildingKindName, dummyBuildingMaterialItem, dummyBuildingMaterialQty)
+            )
+        );
         dispatcher.dispatch(
             abi.encodeCall(Actions.REGISTER_BUILDING_CONTRACT, (dummyBuildingKind, address(new DummyBuilding())))
         );
@@ -82,14 +75,18 @@ contract GameDeployer is Script {
         uint64[4] memory inputQty;
         inputQty[0] = 2;
         inputQty[1] = 2;
-        uint32[3] memory outputItemAtoms = [ uint32(1), uint32(1), uint32(0) ];
+        uint32[3] memory outputItemAtoms = [uint32(1), uint32(1), uint32(0)];
         bytes24 outputItem = Node.Item("welcomedrink", outputItemAtoms, false);
         uint64 outputQty = 1;
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (outputItem, "Welcome Drink", "02-40")));
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_CRAFT_RECIPE, (dummyBuildingKind, inputItem, inputQty, outputItem, outputQty)));
+        dispatcher.dispatch(
+            abi.encodeCall(
+                Actions.REGISTER_CRAFT_RECIPE, (dummyBuildingKind, inputItem, inputQty, outputItem, outputQty)
+            )
+        );
 
         // construct building
-        _constructBuilding(ds, dummyBuildingKind, seeker, -1,1,0);
+        _constructBuilding(ds, dummyBuildingKind, seeker, -1, 1, 0);
 
         vm.stopBroadcast();
     }
@@ -108,7 +105,10 @@ contract GameDeployer is Script {
         );
     }
 
-    function _constructBuilding(Game ds, bytes24 buildingKind, bytes24 seeker, int16 q, int16 r, int16 s) private returns (bytes24 buildingInstance) {
+    function _constructBuilding(Game ds, bytes24 buildingKind, bytes24 seeker, int16 q, int16 r, int16 s)
+        private
+        returns (bytes24 buildingInstance)
+    {
         State state = ds.getState();
         // get our building and give it the resources to construct
         buildingInstance = Node.Building(0, q, r, s);

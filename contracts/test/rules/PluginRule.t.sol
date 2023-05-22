@@ -69,7 +69,11 @@ contract PluginRuleTest is Test {
         defaultMaterialQty[0] = 25;
         defaultMaterialQty[1] = 25;
         defaultMaterialQty[2] = 25;
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)));
+        dispatcher.dispatch(
+            abi.encodeCall(
+                Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)
+            )
+        );
         vm.stopPrank();
         // register a plugin for the kind
         bytes24 pluginID = Node.ClientPlugin(20);
@@ -108,7 +112,11 @@ contract PluginRuleTest is Test {
         defaultMaterialQty[0] = 25;
         defaultMaterialQty[1] = 25;
         defaultMaterialQty[2] = 25;
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)));
+        dispatcher.dispatch(
+            abi.encodeCall(
+                Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)
+            )
+        );
         vm.stopPrank();
         //
         // then bob tries to try register a plugin for alice's kind

@@ -4,11 +4,10 @@ pragma solidity ^0.8.13;
 import {Game} from "cog/Game.sol";
 
 interface ItemKind {
-
     // called when someone attempts to use this item as a crafting
     // output return true to allow it, false to deny it
     function onRegisterRecipeOutput(
-        Game ds, 
+        Game ds,
         bytes24 player,
         bytes24 buildingKind,
         bytes24[4] memory inputItem,

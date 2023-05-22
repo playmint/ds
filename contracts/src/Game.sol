@@ -109,6 +109,5 @@ contract Game is BaseGame {
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.Kiki(), "Kiki", "25-91")));
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.Bouba(), "Bouba", "25-52")));
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.Semiote(), "Semiote", "25-58")));
-
     }
 }
