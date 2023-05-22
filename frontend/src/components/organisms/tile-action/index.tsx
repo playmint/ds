@@ -23,7 +23,7 @@ type PluginContentTypeMap = {
 export interface TileActionProps extends ComponentProps {
     component: PluginStateComponent;
     showTitle?: boolean;
-    children: any;
+    children?: any;
 }
 
 const StyledTileAction = styled('div')`
