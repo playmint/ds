@@ -44,7 +44,7 @@ contract CraftingRule is Rule {
         if (bytes4(action) == Actions.CRAFT.selector) {
             (bytes24 buildingInstance) = abi.decode(action[4:], (bytes24));
 
-            _craft(state, ctx.sender, buildingInstance);
+            _craftFromBuildingInputs(state, ctx.sender, buildingInstance);
         }
 
         return state;
@@ -152,7 +152,7 @@ contract CraftingRule is Rule {
         state.setOutput(buildingKind, 0, outputItem, outputQty);
     }
 
-    function _craft(State state, address sender, bytes24 buildingInstance) private {
+    function _craftFromBuildingInputs(State state, address sender, bytes24 buildingInstance) private {
         // ensure we are given a legit building id
         require(bytes4(buildingInstance) == Kind.Building.selector, "invalid building id");
 
@@ -175,10 +175,10 @@ contract CraftingRule is Rule {
         bytes24 outBag = state.getEquipSlot(buildingInstance, 1);
         _requireIsBag(outBag);
 
-        _craft2(state, buildingKind, inBag, outBag, 0);
+        _craftFromBag(state, buildingKind, inBag, outBag, 0);
     }
 
-    function _craft2(State state, bytes24 buildingKind, bytes24 inBag, bytes24 outBag, uint8 outItemSlot) private {
+    function _craftFromBag(State state, bytes24 buildingKind, bytes24 inBag, bytes24 outBag, uint8 outItemSlot) private {
         // fetch the recipe
         bytes24[4] memory wantItem;
         uint64[4] memory wantQty;
