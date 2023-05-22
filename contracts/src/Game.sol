@@ -9,7 +9,8 @@ import {StateGraph} from "cog/StateGraph.sol";
 import {BaseGame} from "cog/Game.sol";
 import {LibString} from "cog/utils/LibString.sol";
 
-import {Schema, Node, Rel, Kind, ItemUtils} from "@ds/schema/Schema.sol";
+import {Schema, Node, Rel, Kind} from "@ds/schema/Schema.sol";
+import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {CheatsRule} from "@ds/rules/CheatsRule.sol";
 import {MovementRule} from "@ds/rules/MovementRule.sol";
 import {ScoutRule} from "@ds/rules/ScoutRule.sol";

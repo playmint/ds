@@ -6,8 +6,10 @@ import {Game} from "@ds/Game.sol";
 import {Dispatcher} from "cog/Dispatcher.sol";
 import {State} from "cog/State.sol";
 import {Actions} from "@ds/actions/Actions.sol";
-import {Node, BiomeKind, ItemUtils, Schema} from "@ds/schema/Schema.sol";
+import {Node, BiomeKind, Schema} from "@ds/schema/Schema.sol";
 import {DummyBuilding} from "@ds/fixtures/DummyBuilding.sol";
+import {ItemUtils, ItemConfig} from "@ds/utils/ItemUtils.sol";
+import {BuildingUtils, BuildingConfig, Material, Input, Output} from "@ds/utils/BuildingUtils.sol";
 
 using Schema for State;
 
@@ -41,52 +43,50 @@ contract GameDeployer is Script {
         _scout(ds, 1, -1, 0, 1);
         _scout(ds, 1, -1, 1, 0);
 
-        // deploy and register the DummyBuilding as a building kind
-        bytes24 dummyBuildingKind = Node.BuildingKind(1);
-        string memory dummyBuildingKindName = "Welcome Hut";
-        string memory dummyBuildingKindSrc = vm.readFile("src/fixtures/DummyBuilding.js");
-        bytes24[4] memory dummyBuildingMaterialItem;
-        dummyBuildingMaterialItem[0] = ItemUtils.Kiki();
-        dummyBuildingMaterialItem[1] = ItemUtils.Bouba();
-        dummyBuildingMaterialItem[2] = ItemUtils.Semiote();
-        uint64[4] memory dummyBuildingMaterialQty;
-        dummyBuildingMaterialQty[0] = 25;
-        dummyBuildingMaterialQty[1] = 25;
-        dummyBuildingMaterialQty[2] = 25;
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.REGISTER_BUILDING_KIND,
-                (dummyBuildingKind, dummyBuildingKindName, dummyBuildingMaterialItem, dummyBuildingMaterialQty)
-            )
-        );
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_BUILDING_CONTRACT, (dummyBuildingKind, address(new DummyBuilding())))
-        );
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.REGISTER_CLIENT_PLUGIN,
-                (Node.ClientPlugin(1), dummyBuildingKind, dummyBuildingKindName, dummyBuildingKindSrc)
-            )
-        );
-        // register building crafting recipe
-        bytes24[4] memory inputItem;
-        inputItem[0] = ItemUtils.Kiki();
-        inputItem[1] = ItemUtils.Bouba();
-        uint64[4] memory inputQty;
-        inputQty[0] = 2;
-        inputQty[1] = 2;
-        uint32[3] memory outputItemAtoms = [uint32(1), uint32(1), uint32(0)];
-        bytes24 outputItem = Node.Item("welcomedrink", outputItemAtoms, false);
-        uint64 outputQty = 1;
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (outputItem, "Welcome Drink", "02-40")));
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.REGISTER_CRAFT_RECIPE, (dummyBuildingKind, inputItem, inputQty, outputItem, outputQty)
-            )
-        );
+        // find the base item ids
+        bytes24 none = 0x0;
+        bytes24 kiki = ItemUtils.Kiki();
+        bytes24 bouba = ItemUtils.Bouba();
+        bytes24 semiote = ItemUtils.Semiote();
+
+        // register a new item id
+        bytes24 welcomeCocktail = ItemUtils.register(ds, ItemConfig({
+            id: 100,
+            name: "Welcome Cocktail",
+            icon: "02-40",
+            life: 1,
+            attack: 1,
+            defense: 0,
+            stackable: true,
+            implementation: address(0),
+            plugin: ""
+        }));
+
+        // register a "welcome hut" building
+        bytes24 welcomeHutBuildingKind = BuildingUtils.register(ds, BuildingConfig({
+            id: 1,
+            name: "Welcome Hut",
+            materials: [
+                Material({quantity: 25, item: kiki}),
+                Material({quantity: 25, item: bouba}),
+                Material({quantity: 25, item: semiote}),
+                Material({quantity: 0, item: none})
+            ],
+            inputs: [
+                Input({quantity: 2, item: kiki}),
+                Input({quantity: 2, item: bouba}),
+                Input({quantity: 0, item: none}),
+                Input({quantity: 0, item: none})
+            ],
+            outputs: [
+                Output({quantity: 1, item: welcomeCocktail})
+            ],
+            implementation: address(new DummyBuilding()),
+            plugin: vm.readFile("src/fixtures/DummyBuilding.js")
+        }));
 
         // construct building
-        _constructBuilding(ds, dummyBuildingKind, seeker, -1, 1, 0);
+        _constructBuilding(ds, welcomeHutBuildingKind, seeker, -1, 1, 0);
 
         vm.stopBroadcast();
     }
@@ -112,7 +112,7 @@ contract GameDeployer is Script {
         State state = ds.getState();
         // get our building and give it the resources to construct
         buildingInstance = Node.Building(0, q, r, s);
-        // magic 100 items into the construct slot
+        // magic required items into the construct slot
         bytes24 buildingBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
         state.setEquipSlot(buildingInstance, 0, buildingBag);
         state.setItemSlot(buildingBag, 0, ItemUtils.Kiki(), 25);

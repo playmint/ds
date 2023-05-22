@@ -6,7 +6,8 @@ import {State} from "cog/State.sol";
 import {Context, Rule} from "cog/Dispatcher.sol";
 import {Context, Rule} from "cog/Dispatcher.sol";
 
-import {Schema, Node, Kind, ItemUtils, TileUtils, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Schema, Node, Kind, TileUtils, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 import {CraftingRule} from "@ds/rules/CraftingRule.sol";
@@ -14,7 +15,6 @@ import {CraftingRule} from "@ds/rules/CraftingRule.sol";
 error BuildingAlreadyRegistered();
 error BuildingResourceRequirementsNotMet();
 error BuildingMustBeAdjacentToSeeker();
-error BuildingNotOwner();
 error BuildingTooFarToUse();
 error SeekerNotOwnedByPlayer();
 error BagNotAccessibleBySeeker();
@@ -41,9 +41,6 @@ contract BuildingRule is Rule {
                 uint64[4] memory materialQty
             ) = abi.decode(action[4:], (bytes24, string, bytes24[4], uint64[4]));
             _registerBuildingKind(state, Node.Player(ctx.sender), buildingKind, buildingName, materialItem, materialQty);
-        } else if (bytes4(action) == Actions.REGISTER_BUILDING_CONTRACT.selector) {
-            (bytes24 buildingKind, address buildingContractAddr) = abi.decode(action[4:], (bytes24, address));
-            _registerBuildingContract(state, Node.Player(ctx.sender), buildingKind, buildingContractAddr);
         } else if (bytes4(action) == Actions.CONSTRUCT_BUILDING_SEEKER.selector) {
             (
                 bytes24 seeker, // which seeker is performing the construction
@@ -141,16 +138,6 @@ contract BuildingRule is Rule {
         state.setMaterial(buildingKind, 1, materialItem[1], materialQty[1]);
         state.setMaterial(buildingKind, 2, materialItem[2], materialQty[2]);
         state.setMaterial(buildingKind, 3, materialItem[3], materialQty[3]);
-    }
-
-    function _registerBuildingContract(State state, bytes24 player, bytes24 buildingKind, address buildingContractAddr)
-        private
-    {
-        bytes24 owner = state.getOwner(buildingKind);
-        if (owner != player) {
-            revert BuildingNotOwner();
-        }
-        state.setImplementation(buildingKind, buildingContractAddr);
     }
 
     function _constructBuilding(
