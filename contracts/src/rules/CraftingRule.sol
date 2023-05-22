@@ -6,7 +6,8 @@ import {State} from "cog/State.sol";
 import {Context, Rule} from "cog/Dispatcher.sol";
 import {Context, Rule} from "cog/Dispatcher.sol";
 
-import {Kind, Schema, Node, Rel, BagUtils} from "@ds/schema/Schema.sol";
+import {Kind, Schema, Node, Rel} from "@ds/schema/Schema.sol";
+import {BagUtils} from "@ds/utils/BagUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {ItemKind} from "@ds/ext/ItemKind.sol";
 
