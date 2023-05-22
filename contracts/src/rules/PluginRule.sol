@@ -59,14 +59,11 @@ contract PluginRule is Rule {
         return state;
     }
 
-    function _registerImplementation(State state, bytes24 player, bytes24 kind, address contractAddr)
-        private
-    {
+    function _registerImplementation(State state, bytes24 player, bytes24 kind, address contractAddr) private {
         bytes24 owner = state.getOwner(kind);
         if (owner != player) {
             revert PluginNotTargetOwner();
         }
         state.setImplementation(kind, contractAddr);
     }
-
 }

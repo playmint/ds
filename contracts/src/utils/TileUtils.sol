@@ -29,4 +29,3 @@ library TileUtils {
         return n >= 0 ? n : -n;
     }
 }
-

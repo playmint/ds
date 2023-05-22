@@ -50,40 +50,44 @@ contract GameDeployer is Script {
         bytes24 semiote = ItemUtils.Semiote();
 
         // register a new item id
-        bytes24 welcomeCocktail = ItemUtils.register(ds, ItemConfig({
-            id: 100,
-            name: "Welcome Cocktail",
-            icon: "02-40",
-            life: 1,
-            attack: 1,
-            defense: 0,
-            stackable: true,
-            implementation: address(0),
-            plugin: ""
-        }));
+        bytes24 welcomeCocktail = ItemUtils.register(
+            ds,
+            ItemConfig({
+                id: 100,
+                name: "Welcome Cocktail",
+                icon: "02-40",
+                life: 1,
+                attack: 1,
+                defense: 0,
+                stackable: true,
+                implementation: address(0),
+                plugin: ""
+            })
+        );
 
         // register a "welcome hut" building
-        bytes24 welcomeHutBuildingKind = BuildingUtils.register(ds, BuildingConfig({
-            id: 1,
-            name: "Welcome Hut",
-            materials: [
-                Material({quantity: 25, item: kiki}),
-                Material({quantity: 25, item: bouba}),
-                Material({quantity: 25, item: semiote}),
-                Material({quantity: 0, item: none})
-            ],
-            inputs: [
-                Input({quantity: 2, item: kiki}),
-                Input({quantity: 2, item: bouba}),
-                Input({quantity: 0, item: none}),
-                Input({quantity: 0, item: none})
-            ],
-            outputs: [
-                Output({quantity: 1, item: welcomeCocktail})
-            ],
-            implementation: address(new DummyBuilding()),
-            plugin: vm.readFile("src/fixtures/DummyBuilding.js")
-        }));
+        bytes24 welcomeHutBuildingKind = BuildingUtils.register(
+            ds,
+            BuildingConfig({
+                id: 1,
+                name: "Welcome Hut",
+                materials: [
+                    Material({quantity: 25, item: kiki}),
+                    Material({quantity: 25, item: bouba}),
+                    Material({quantity: 25, item: semiote}),
+                    Material({quantity: 0, item: none})
+                ],
+                inputs: [
+                    Input({quantity: 2, item: kiki}),
+                    Input({quantity: 2, item: bouba}),
+                    Input({quantity: 0, item: none}),
+                    Input({quantity: 0, item: none})
+                ],
+                outputs: [Output({quantity: 1, item: welcomeCocktail})],
+                implementation: address(new DummyBuilding()),
+                plugin: vm.readFile("src/fixtures/DummyBuilding.js")
+            })
+        );
 
         // construct building
         _constructBuilding(ds, welcomeHutBuildingKind, seeker, -1, 1, 0);

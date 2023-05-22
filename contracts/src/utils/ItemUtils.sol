@@ -10,9 +10,9 @@ struct ItemConfig {
     uint256 id;
     string name;
     string icon;
-    uint life;
-    uint attack;
-    uint defense;
+    uint256 life;
+    uint256 attack;
+    uint256 defense;
     bool stackable;
     address implementation;
     string plugin;
@@ -26,9 +26,11 @@ library ItemUtils {
     function Kiki() internal pure returns (bytes24) {
         return Node.Item("kiki", [uint32(2), uint32(0), uint32(0)], true);
     }
+
     function Bouba() internal pure returns (bytes24) {
         return Node.Item("bouba", [uint32(0), uint32(2), uint32(0)], true);
     }
+
     function Semiote() internal pure returns (bytes24) {
         return Node.Item("semiote", [uint32(0), uint32(0), uint32(2)], true);
     }
@@ -40,15 +42,12 @@ library ItemUtils {
         bytes24 itemKind = Node.Item(uint32(cfg.id), outputItemAtoms, cfg.stackable);
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (itemKind, cfg.name, cfg.icon)));
         if (address(cfg.implementation) != address(0)) {
-            dispatcher.dispatch(
-                abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (itemKind, cfg.implementation))
-            );
+            dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (itemKind, cfg.implementation)));
         }
         if (abi.encodePacked(cfg.plugin).length != 0) {
             dispatcher.dispatch(
                 abi.encodeCall(
-                    Actions.REGISTER_KIND_PLUGIN,
-                    (Node.ClientPlugin(uint64(cfg.id)), itemKind, cfg.name, cfg.plugin)
+                    Actions.REGISTER_KIND_PLUGIN, (Node.ClientPlugin(uint64(cfg.id)), itemKind, cfg.name, cfg.plugin)
                 )
             );
         }
