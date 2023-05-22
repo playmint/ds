@@ -14,12 +14,12 @@ import {
     Rel,
     LocationKey,
     BiomeKind,
-    ItemUtils,
     ATOM_LIFE,
     ATOM_DEFENSE,
     ATOM_ATTACK,
     DEFAULT_ZONE
 } from "@ds/schema/Schema.sol";
+import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 
 using Schema for State;
@@ -261,7 +261,7 @@ contract CraftingRuleTest is Test {
             )
         );
         dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_BUILDING_CONTRACT, (buildingKind, address(mockBuildingContract)))
+            abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (buildingKind, address(mockBuildingContract)))
         );
         return buildingKind;
     }

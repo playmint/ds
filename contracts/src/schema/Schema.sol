@@ -66,6 +66,10 @@ library Node {
 
     function Item(string memory name, uint32[3] memory atoms, bool isStackable) internal pure returns (bytes24) {
         uint32 uniqueID = uint32(uint256(keccak256(abi.encode(name, atoms, isStackable))));
+        return Item(uniqueID, atoms, isStackable);
+    }
+
+    function Item(uint32 uniqueID, uint32[3] memory atoms, bool isStackable) internal pure returns (bytes24) {
         uint32 stackable = 0;
         if (isStackable) {
             stackable = 1;
@@ -326,24 +330,6 @@ library TileUtils {
     }
 }
 
-// temp base "resource" ids used by scouting
-// these should not really be special, they are simply
-// how we seed the world with atoms at the moment by
-// dropping these per-atom resources in bags during scout
-library ItemUtils {
-    function Kiki() internal pure returns (bytes24) {
-        return Node.Item("kiki", [uint32(2), uint32(0), uint32(0)], true);
-    }
-
-    function Bouba() internal pure returns (bytes24) {
-        return Node.Item("bouba", [uint32(0), uint32(2), uint32(0)], true);
-    }
-
-    function Semiote() internal pure returns (bytes24) {
-        return Node.Item("semiote", [uint32(0), uint32(0), uint32(2)], true);
-    }
-}
-
 // TODO: stop duplicating these!
 error NoTransferPlayerNotOwner();
 error NoTransferNotYourBag();
@@ -390,3 +376,4 @@ library BagUtils {
         }
     }
 }
+

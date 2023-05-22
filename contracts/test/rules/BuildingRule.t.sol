@@ -9,7 +9,8 @@ import {Dispatcher} from "cog/Dispatcher.sol";
 
 import {Game as Dawnseekers} from "@ds/Game.sol";
 import {Actions} from "@ds/actions/Actions.sol";
-import {Schema, Node, Rel, LocationKey, BiomeKind, ItemUtils, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Schema, Node, Rel, LocationKey, BiomeKind, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {
     BUILDING_COST,
     BuildingResourceRequirementsNotMet,
@@ -136,7 +137,7 @@ contract BuildingRuleTest is Test {
         );
         // register a contract implementation for the building kind
         address buildingContractAddr = vm.addr(0xb001);
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_CONTRACT, (buildingKind, buildingContractAddr)));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (buildingKind, buildingContractAddr)));
         // check building kind has implementation
         assertEq(
             state.getImplementation(buildingKind),
@@ -155,7 +156,7 @@ contract BuildingRuleTest is Test {
         );
         // register a mock implementation for the building
         MockBuildingKind mockBuilding = new MockBuildingKind();
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_CONTRACT, (buildingKind, address(mockBuilding))));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (buildingKind, address(mockBuilding))));
         // discover an adjacent tile for our building site
         (int16 q, int16 r, int16 s) = (1, -1, 0);
         _discover(q, r, s);

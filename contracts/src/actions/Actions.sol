@@ -45,8 +45,8 @@ interface Actions {
         uint64 outputQty
     ) external;
 
-    // register contracts
-    function REGISTER_BUILDING_CONTRACT(bytes24 buildingKind, address buildingKindImplementation) external;
+    // register kind implementation contract
+    function REGISTER_KIND_IMPLEMENTATION(bytes24 kind, address kindImplementation) external;
 
     // register plugins for use within supported clients
     //
@@ -54,9 +54,9 @@ interface Actions {
     //
     // example:
     //
-    //  REGISTER_CLIENT_PLUGIN(myRandomlyPickedPluginID, myBuildingKindID, "my-plugin", "function(){}")
+    //  REGISTER_KIND_PLUGIN(myRandomlyPickedPluginID, myBuildingKindID, "my-plugin", "function(){}")
     //
-    function REGISTER_CLIENT_PLUGIN(bytes24 pluginID, bytes24 targetKind, string calldata name, string calldata src)
+    function REGISTER_KIND_PLUGIN(bytes24 pluginID, bytes24 targetKind, string calldata name, string calldata src)
         external;
 
     // construct a building

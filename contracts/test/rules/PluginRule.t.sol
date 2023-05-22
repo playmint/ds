@@ -8,7 +8,8 @@ import {Dispatcher} from "cog/Dispatcher.sol";
 
 import {Game} from "@ds/Game.sol";
 import {Actions} from "@ds/actions/Actions.sol";
-import {Schema, Node, Rel, ItemUtils, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Schema, Node, Rel, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import "@ds/rules/PluginRule.sol";
 
 using Schema for State;
@@ -52,7 +53,7 @@ contract PluginRuleTest is Test {
         //       have some broader concepts like Zone for plugins to reference without reserorting to "everything"
         bytes24 pluginTarget = 0x0; // NULL node, yuk
         dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_CLIENT_PLUGIN, (pluginID, pluginTarget, pluginName, pluginSrc))
+            abi.encodeCall(Actions.REGISTER_KIND_PLUGIN, (pluginID, pluginTarget, pluginName, pluginSrc))
         );
         assertEq(state.getPlugin(pluginID), pluginTarget, "expected plugin to reference the target node");
     }
@@ -85,7 +86,7 @@ contract PluginRuleTest is Test {
         emit AnnotationSet(pluginID, AnnotationKind.CALLDATA, "name", keccak256(bytes(pluginName)), pluginName);
         emit AnnotationSet(pluginID, AnnotationKind.CALLDATA, "src", keccak256(bytes(pluginSrc)), pluginSrc);
         dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_CLIENT_PLUGIN, (pluginID, buildingKind, pluginName, pluginSrc))
+            abi.encodeCall(Actions.REGISTER_KIND_PLUGIN, (pluginID, buildingKind, pluginName, pluginSrc))
         );
         vm.stopPrank();
         // check building kind assigned to plugin
@@ -95,7 +96,7 @@ contract PluginRuleTest is Test {
         vm.startPrank(bobAccount);
         vm.expectRevert(PluginNotPluginOwner.selector); // expect fail as one wood short
         dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_CLIENT_PLUGIN, (pluginID, buildingKind, pluginName, "BAD_CODE"))
+            abi.encodeCall(Actions.REGISTER_KIND_PLUGIN, (pluginID, buildingKind, pluginName, "BAD_CODE"))
         );
         vm.stopPrank();
     }
@@ -127,7 +128,7 @@ contract PluginRuleTest is Test {
         vm.startPrank(bobAccount);
         vm.expectRevert(PluginNotTargetOwner.selector); // expect fail as one wood short
         dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_CLIENT_PLUGIN, (pluginID, buildingKind, pluginName, pluginSrc))
+            abi.encodeCall(Actions.REGISTER_KIND_PLUGIN, (pluginID, buildingKind, pluginName, pluginSrc))
         );
         vm.stopPrank();
     }

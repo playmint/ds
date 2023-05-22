@@ -17,7 +17,7 @@ using Schema for State;
 
 contract PluginRule is Rule {
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
-        if (bytes4(action) == Actions.REGISTER_CLIENT_PLUGIN.selector) {
+        if (bytes4(action) == Actions.REGISTER_KIND_PLUGIN.selector) {
             // decode the payload
             (bytes24 plugin, bytes24 target, string memory name, string memory src) =
                 abi.decode(action[4:], (bytes24, bytes24, string, string));
@@ -51,8 +51,22 @@ contract PluginRule is Rule {
             // and a friendly name
             state.annotate(plugin, "name", name);
             state.annotate(plugin, "src", src);
+        } else if (bytes4(action) == Actions.REGISTER_KIND_IMPLEMENTATION.selector) {
+            (bytes24 kind, address contractAddr) = abi.decode(action[4:], (bytes24, address));
+            _registerImplementation(state, Node.Player(ctx.sender), kind, contractAddr);
         }
 
         return state;
     }
+
+    function _registerImplementation(State state, bytes24 player, bytes24 kind, address contractAddr)
+        private
+    {
+        bytes24 owner = state.getOwner(kind);
+        if (owner != player) {
+            revert PluginNotTargetOwner();
+        }
+        state.setImplementation(kind, contractAddr);
+    }
+
 }
