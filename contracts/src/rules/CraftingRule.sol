@@ -69,7 +69,7 @@ contract CraftingRule is Rule {
             bytes24 owner = state.getOwner(buildingKind);
             require(owner == player, "only building kind owner can configure building crafting");
             if (outputStackable){
-                require(outputQty > 0 && outputQty <= 100, "stackable output qty must be between 0-100"); 
+                require(outputQty > 0 && outputQty <= 100, "stackable output qty must be between 0-100");
             } else {
                 require(outputQty == 1, "equipable item crafting cannot output multiple items");
             }
@@ -96,7 +96,7 @@ contract CraftingRule is Rule {
             }
         }
 
-        // calc total output atoms 
+        // calc total output atoms
         uint32[3] memory totalOutputAtoms;
         totalOutputAtoms[0] = outputAtoms[0] * uint32(outputQty);
         totalOutputAtoms[1] = outputAtoms[1] * uint32(outputQty);
@@ -114,7 +114,7 @@ contract CraftingRule is Rule {
                 // get atomic structure
                 (uint32[3] memory inputAtoms, bool inputStackable) = state.getItemStructure(inputItem[i]);
                 if (inputStackable){
-                    require(inputQty[i] > 0 && inputQty[i] <= 100, "stackable input item must be qty 0-100"); 
+                    require(inputQty[i] > 0 && inputQty[i] <= 100, "stackable input item must be qty 0-100");
                 } else {
                     require(inputQty[i] == 1, "equipable input item must have qty=1");
                 }
@@ -129,7 +129,7 @@ contract CraftingRule is Rule {
             require(availableInputAtoms[1] >= totalOutputAtoms[1], "cannot craft an item that outputs more 1-atoms than it inputs");
             require(availableInputAtoms[2] >= totalOutputAtoms[2], "cannot craft an item that outputs more 2-atoms than it inputs");
         }
-        
+
         // store the recipe
         state.setInput(buildingKind, 0, inputItem[0], inputQty[0]);
         state.setInput(buildingKind, 1, inputItem[1], inputQty[1]);
@@ -186,10 +186,10 @@ contract CraftingRule is Rule {
             (wantItem[3], wantQty[3]) = state.getInput(buildingKind, 3);
 
             require(
-                wantItem[0] != 0x0 || 
-                wantItem[1] != 0x0 || 
-                wantItem[2] != 0x0 || 
-                wantItem[3] != 0x0, 
+                wantItem[0] != 0x0 ||
+                wantItem[1] != 0x0 ||
+                wantItem[2] != 0x0 ||
+                wantItem[3] != 0x0,
                 "no crafting recipe registered for this building kind"
             );
         }
@@ -226,16 +226,15 @@ contract CraftingRule is Rule {
         // spawn the output item(s)
         {
             // check destination slot is either empty or is of same type
-            (, bool outputStackable) = state.getItemStructure(outputItem);
-            (bytes24 itemID, uint64 bal) = state.get(Rel.Balance.selector, outItemSlot, outBag);
-            require(
-                bal == 0 || (outputStackable && bytes4(itemID) == bytes4(outputItem)),
-                "destination slot expected to be either empty or of same type if stackable"
-            );
+            (bytes24 existingOutputItem, uint64 existingOutputBalance) = state.get(Rel.Balance.selector, outItemSlot, outBag);
+            if (existingOutputBalance > 0) {
+                require(outputItem == existingOutputItem, "cannot stack output item: different item types");
+                (, bool outputStackable) = state.getItemStructure(outputItem);
+                require(outputStackable, "cannot stack output item: not a stackable item");
+            }
 
             // update dest bag slot with item
-            (, uint64 destBal) = state.get(Rel.Balance.selector, outItemSlot, outBag);
-            state.set(Rel.Balance.selector, outItemSlot, outBag, outputItem, destBal + outputQty);
+            state.set(Rel.Balance.selector, outItemSlot, outBag, outputItem, existingOutputBalance + outputQty);
         }
     }
 
