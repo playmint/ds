@@ -135,9 +135,11 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull
                             />
                         </div>
                     )}
-                    <div className="process">
-                        <img src="/icons/downarrow.png" alt="output" className="arrow" />
-                    </div>
+                    {outputs.length > 0 && outputBag && (
+                        <div className="process">
+                            <img src="/icons/downarrow.png" alt="output" className="arrow" />
+                        </div>
+                    )}
                     {outputs.length > 0 && outputBag && (
                         <div ref={outputsRef} className="ingredients">
                             <Bag
