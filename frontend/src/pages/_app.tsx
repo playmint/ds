@@ -29,8 +29,8 @@ const App = ({ Component, pageProps }: AppProps) => {
     return (
         <Fragment>
             <Head>
-                <title>DawnSeekers</title>
-                <meta name="description" content="DawnSeekers" />
+                <title>Downstream</title>
+                <meta name="description" content="Downstream" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <GlobalStyles />
