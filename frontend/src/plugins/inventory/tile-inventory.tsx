@@ -4,11 +4,11 @@ import { Inventory } from '@app/plugins/inventory/index';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { ComponentProps } from '@app/types/component-props';
 import { SelectedTileFragment } from '@dawnseekers/core';
-import { FunctionComponent } from 'react';
+import React, { FunctionComponent, Fragment } from 'react';
 import styled from 'styled-components';
 
 export interface TileInventoryProps extends ComponentProps {
-    title: string;
+    title?: string;
     tile: SelectedTileFragment;
 }
 
@@ -24,11 +24,11 @@ export const TileInventory: FunctionComponent<TileInventoryProps> = (props: Tile
 
     return (
         <StyledTileInventory {...otherProps}>
-            {title && <h3>{title}</h3>}
-            {tile.bags.length > 0 ? (
-                <Inventory bags={tile.bags} ownerId={tile.id} isInteractable={isSeekerAtLocation(tile)} />
-            ) : (
-                <span>there are no bags on this tile</span>
+            {tile.bags.length > 0 && (
+                <Fragment>
+                    {title && <span className="sub-title">{title}</span>}
+                    <Inventory bags={tile.bags} ownerId={tile.id} isInteractable={isSeekerAtLocation(tile)} />
+                </Fragment>
             )}
         </StyledTileInventory>
     );

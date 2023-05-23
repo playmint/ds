@@ -18,18 +18,21 @@ import {
 } from '@dawnseekers/core';
 import React, { Fragment, FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { styles } from './building.styles';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { getCoords, getTileDistance } from '@app/helpers/tile';
 import { BuildingInventory } from '@app/plugins/inventory/building-inventory';
 import { getBuildingEquipSlot, getBuildingId } from '@app/plugins/inventory/helpers';
-import { Bag } from '../inventory/bag';
+import { SeekerList } from '@app/plugins/seeker-list';
+import { TileInventory } from '@app/plugins/inventory/tile-inventory';
+import { Bag } from '@app/plugins/inventory/bag';
+import { styles } from './action-context-panel.styles';
 
 export interface BuildingProps extends ComponentProps {}
 
 const CONSTRUCT_INTENT = 'construct';
 const MOVE_INTENT = 'move';
 const SCOUT_INTENT = 'scout';
+const USE_INTENT = 'use';
 
 function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -65,8 +68,14 @@ const byKey = (a: KeyedThing, b: KeyedThing) => {
 
 interface TileBuildingProps {
     building: WorldBuildingFragment;
+    showFull: boolean;
+    selectIntent: Selector<string | undefined>;
+    selectTiles: Selector<string[] | undefined>;
 }
-const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building }) => {
+const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull, selectIntent, selectTiles }) => {
+    const { tiles: selectedTiles } = useSelection();
+    const selectedTile = selectedTiles?.[0];
+    const tileSeekers = selectedTile?.seekers ?? [];
     const ui = usePluginState();
     const kinds = useBuildingKinds();
     const component = (ui || [])
@@ -92,12 +101,24 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building }) => {
 
     const inputBag = building.bags.find((b) => b.key == 0);
     const outputBag = building.bags.find((b) => b.key == 1);
+
+    const clearIntent = useCallback(
+        (e?: React.MouseEvent) => {
+            if (e) {
+                e.preventDefault();
+            }
+            selectIntent(undefined);
+            selectTiles([]);
+        },
+        [selectIntent, selectTiles]
+    );
+
     return (
         <Fragment>
             <h3>{component?.title ?? building?.kind?.name?.value ?? 'Unnamed Building'}</h3>
             <span className="sub-title">{component?.summary || ''}</span>
             <ImageBuilding />
-            {component && (
+            {component && showFull && (
                 <TileAction showTitle={false} component={component} className="action">
                     {inputs.length > 0 && inputBag && (
                         <div ref={inputsRef} className="ingredients">
@@ -132,8 +153,18 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building }) => {
                             />
                         </div>
                     )}
+                    <button className="link-button" onClick={clearIntent}>
+                        Cancel Use
+                    </button>
                 </TileAction>
             )}
+            {!showFull && tileSeekers.length > 0 && (
+                <Fragment>
+                    <span className="sub-title">Seekers</span>
+                    <SeekerList seekers={tileSeekers} />
+                </Fragment>
+            )}
+            {!showFull && selectedTile && <TileInventory tile={selectedTile} title="Bags" />}
         </Fragment>
     );
 };
@@ -159,11 +190,22 @@ const TileMultiSelected: FunctionComponent<BuildingProps> = (_props) => {
 };
 
 const TileAvailable: FunctionComponent<unknown> = () => {
+    const { tiles: selectedTiles } = useSelection();
+    const selectedTile = selectedTiles?.[0];
+    const tileSeekers = selectedTile?.seekers ?? [];
+
     return (
         <Fragment>
             <h3>Available Tile</h3>
             <span className="sub-title">Nothing here yet</span>
             <ImageAvailable />
+            {tileSeekers.length > 0 && (
+                <Fragment>
+                    <span className="sub-title">Seekers</span>
+                    <SeekerList seekers={tileSeekers} />
+                </Fragment>
+            )}
+            {selectedTile && <TileInventory tile={selectedTile} title="Bags" />}
         </Fragment>
     );
 };
@@ -447,7 +489,34 @@ const Scout: FunctionComponent<ScoutProps> = ({ selectTiles, selectIntent, selec
     );
 };
 
-export const Building: FunctionComponent<BuildingProps> = ({ ...otherProps }) => {
+interface UseProps {
+    selectIntent: Selector<string | undefined>;
+    selectTiles: Selector<string[] | undefined>;
+}
+const Use: FunctionComponent<UseProps> = ({ selectIntent, selectTiles }) => {
+    const clearIntent = useCallback(
+        (e?: React.MouseEvent) => {
+            if (e) {
+                e.preventDefault();
+            }
+            selectIntent(undefined);
+            selectTiles([]);
+        },
+        [selectIntent, selectTiles]
+    );
+    return (
+        <Fragment>
+            <h3>Select building</h3>
+            <span className="sub-title">Select a building to interact with...</span>
+            <ImageSelecting />
+            <button className="link-button" onClick={clearIntent}>
+                Cancel Use
+            </button>
+        </Fragment>
+    );
+};
+
+export const ActionContextPanel: FunctionComponent<BuildingProps> = ({ ...otherProps }) => {
     const { selectIntent, intent, tiles, seeker, selectTiles } = useSelection();
     const player = usePlayer();
 
@@ -484,6 +553,19 @@ export const Building: FunctionComponent<BuildingProps> = ({ ...otherProps }) =>
                     player={player}
                 />
             );
+        } else if (intent === USE_INTENT) {
+            const selectedTile = selectedTiles[0];
+            if (selectedTile && selectedTile.building) {
+                return (
+                    <TileBuilding
+                        building={selectedTile.building}
+                        showFull={true}
+                        selectIntent={selectIntent}
+                        selectTiles={selectTiles}
+                    />
+                );
+            }
+            return <Use selectIntent={selectIntent} selectTiles={selectTiles} />;
         } else {
             if (selectedTiles.length === 1) {
                 const selectedTile = selectedTiles[0];
@@ -492,7 +574,14 @@ export const Building: FunctionComponent<BuildingProps> = ({ ...otherProps }) =>
                 } else if (!selectedTile.building) {
                     return <TileAvailable />;
                 } else if (selectedTile.building) {
-                    return <TileBuilding building={selectedTile.building} />;
+                    return (
+                        <TileBuilding
+                            building={selectedTile.building}
+                            showFull={false}
+                            selectIntent={selectIntent}
+                            selectTiles={selectTiles}
+                        />
+                    );
                 } else {
                     return <TileNoneSelected />; // fallback, don't expect this state
                 }

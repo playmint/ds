@@ -20,14 +20,12 @@ export const Logs: FunctionComponent<LogsProps> = ({ ...otherProps }: LogsProps)
     const logs = useLogs(10);
     return (
         <StyledLogs {...otherProps}>
-            <div className="logs">
-                {logs &&
-                    [...logs].reverse().map((log, idx) => (
-                        <div className="log" key={idx.toString()} style={{ opacity: 1 - idx * 0.12 }}>
-                            {format(log)}
-                        </div>
-                    ))}
-            </div>
+            {logs &&
+                [...logs].reverse().map((log, idx) => (
+                    <div className="log" key={idx.toString()} style={{ opacity: 1 - idx * 0.12 }}>
+                        {format(log)}
+                    </div>
+                ))}
         </StyledLogs>
     );
 };

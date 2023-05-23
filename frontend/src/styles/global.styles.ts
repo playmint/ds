@@ -50,99 +50,8 @@ export const GlobalStyles = createGlobalStyle`
         width: 100%;
     }
 
-    .topnav {
-        display: flex;
-        justify-content: flex-start;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: calc(100% - 0rem);
-        height: 5rem;
-        background: #030f25;
-        user-select: none;
-    }
-
-    .topnav-button {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        border: 0;
-        border-left: 1px solid #314a7b;
-        background: #050f25;
-        color: #fff;
-        padding: 0 2rem 0 1rem;
-
-        > img {
-            margin-right: 0.3rem;
-        }
-
-        > .text {
-            display: block;
-            padding-top: 5px;
-        }
-    }
-
-    .tile-actions {
-        position: absolute;
-        bottom: 0rem;
-        right: 0rem;
-        width: 30rem;
-        height: calc(100% - 5rem);
-        background: #143063;
-        color: #fff;
-        overflow: hidden;
-    }
-
-    .tile-actions,
-    .seeker-actions {
-        .action {
-            border-bottom: 1px solid #2d4778;
-            background: #143063;
-            color: #fff;
-            padding: 2rem 2rem;
-
-            > .content {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-
-        }
-        user-select: none;
-    }
-
-    .onboarding {
-
-        padding: 2rem 2rem;
-
-        > button {
-            border-radius: 30px;
-            border: none;
-            border-bottom: 4px solid #b7c5e0;
-            display: block;
-            width: 100%;
-            box-sizing: border-box;
-            background: #fff;
-            color: #143063;
-            padding: 1.2rem 2rem 0.8rem;
-            font-weight: 600;
-        }
-        > p {
-            margin: 2rem 0;
-        }
-    }
-
     .tile-actions {
 
-    }
-
-    .seeker-actions {
-        position: absolute;
-        left: 0;
-        bottom: 0;
-        width: 30rem;
-        background: #143063;
-        color: #fff;
     }
 
     .action-button {
@@ -206,39 +115,6 @@ export const GlobalStyles = createGlobalStyle`
             height: 35px;
             padding: 0rem 0rem 0rem;
         }
-    }
-    
-    .seeker-actions .seeker-selector {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        overflow: visible;
-        min-height: 5rem;
-        padding: 1rem;
-
-        > .shield {
-            position: absolute;
-            left: 0.5rem;
-            width: 100px;
-        }
-
-        > .controls {
-            display: flex;
-            flex-direction: row;
-
-            .label {
-                padding: 0 0.5rem;
-                text-transform: uppercase;
-            }
-        }
-    }
-
-    .mapnav {
-        position: absolute;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        right: 0;
     }
 
     form {
