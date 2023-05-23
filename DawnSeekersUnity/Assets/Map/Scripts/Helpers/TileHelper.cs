@@ -69,6 +69,24 @@ public class TileHelper
         return new Vector3Int(coords[1], coords[2], coords[3]);
     }
 
+    public static Vector3Int GetTilePosCube(NextLocation4 loc)
+    {
+        // TODO: NextLocation hasn't generated properly so doesn't show the fields it has on it!
+        var tileObj = loc.AdditionalProperties["tile"] as Newtonsoft.Json.Linq.JObject;
+        var coordsObj = tileObj.GetValue("coords");
+        var coords = coordsObj
+            .Values<string>()
+            .Select(
+                (coord) =>
+                {
+                    return Convert.ToInt16(coord, 16);
+                }
+            )
+            .ToArray();
+
+        return new Vector3Int(coords[1], coords[2], coords[3]);
+    }
+
     // -- //
 
     public static bool HasResource(Tiles2 tile)

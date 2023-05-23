@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Cog;
 using UnityEngine;
 
 public class SeekerController : MapElementController
@@ -23,8 +24,11 @@ public class SeekerController : MapElementController
     private Transform _meshesTrans;
     private float _offsetRadius = 0.26f;
 
-    public void Setup(Vector3Int cell, int numObjects, int index, bool isPlayer)
+    private string _seekerID;
+
+    public void Setup(Vector3Int cell, int numObjects, int index, bool isPlayer, string seekerID)
     {
+        _seekerID = seekerID;
         _meshesTrans = transform.GetChild(0);
 
         //If there's a building on the cell, we want to be in front of it:
@@ -49,6 +53,11 @@ public class SeekerController : MapElementController
 
         _icon.PrepareIcon(index, numObjects - isElementAtCell);
         _icon.UpdateIcon();
+    }
+
+    public string GetSeekerID()
+    {
+        return _seekerID ;
     }
 
     public void CheckPosition(Vector3Int cell, int numObjects, int index, bool isPlayer)

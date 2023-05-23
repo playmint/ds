@@ -18,6 +18,12 @@ namespace Cog
         public List<string> tileIDs;
     }
 
+    struct SelectSeekerMessage
+    {
+        public string msg;
+        public string seekerID;
+    }
+
     struct SetIntentMessage
     {
         public string msg;
@@ -264,6 +270,20 @@ namespace Cog
         public void SendSelectTileMsg(List<string> tileIDs)
         {
             var msg = new SelectTileMessage { msg = "selectTiles", tileIDs = tileIDs };
+            var json = JsonConvert.SerializeObject(msg);
+            SendMessage(json);
+        }
+
+        public void SendSelectSeekerMsg(string seekerID)
+        {
+            var msg = new SelectSeekerMessage { msg = "selectSeeker", seekerID = seekerID };
+            var json = JsonConvert.SerializeObject(msg);
+            SendMessage(json);
+        }
+
+        public void SendSelectSeekerMsg()
+        {
+            var msg = new SelectSeekerMessage { msg = "selectSeeker"  };
             var json = JsonConvert.SerializeObject(msg);
             SendMessage(json);
         }

@@ -27,6 +27,10 @@ interface SetIntentMessage extends Message {
     intent: string;
 }
 
+interface SetSeekerMessage extends Message {
+    id: string;
+}
+
 const StyledUnityMap = styled('div')`
     ${styles}
 `;
@@ -47,6 +51,8 @@ function drainOne() {
         if (!blob) {
             return;
         }
+        //const whatever = JSON.parse(blob);
+        //console.log(whatever.selected.seeker.id);
         const args = ['GameStateMediator', 'OnState', blob];
         globalSender(...args);
         console.debug(`UnityMap: drained one, ${globalQueue.length} remaining`, args);
@@ -61,7 +67,7 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
     const player = usePlayer();
     const { dispatch } = player || {};
     const game = useGameState();
-    const { selectTiles, selectIntent: rawSelectIntent } = useSelection();
+    const { selectTiles, selectIntent: rawSelectIntent, selectSeeker } = useSelection();
     const { unityProvider, sendMessage, addEventListener, removeEventListener, loadingProgression } = useUnityContext({
         loaderUrl: `/ds-unity/Build/ds-unity.loader.js`,
         dataUrl: `/ds-unity/Build/ds-unity.data`,
@@ -163,6 +169,13 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
                 case 'setIntent': {
                     const { intent } = msgObj as SetIntentMessage;
                     selectIntent(intent);
+                    break;
+                }
+                case 'selectSeeker': {
+                    
+                    const { id } = msgObj as SetSeekerMessage;
+                    console.log(id);
+                    selectSeeker(id);
                     break;
                 }
                 default: {

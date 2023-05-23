@@ -15,7 +15,7 @@ export function makePlayerSeeker(player: Source<SelectedPlayerFragment | undefin
                 id,
                 map((id) => {
                     const seeker = player ? player.seekers.find((s) => s.id === id) : undefined;
-                    if (!seeker) {
+                    /*if (!seeker) {
                         // default to first seeker found to always have one
                         // selected if available.
                         //
@@ -25,7 +25,7 @@ export function makePlayerSeeker(player: Source<SelectedPlayerFragment | undefin
                         if (player && player.seekers.length > 0) {
                             return player.seekers.find(() => true);
                         }
-                    }
+                    }*/
                     return seeker;
                 }),
             ),

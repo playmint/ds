@@ -62,15 +62,7 @@ public class SeekerManager : MonoBehaviour
 
         _playerSeekers = state.Player.Seekers;
 
-        if (selectedSeeker != null)
-        {
-            var selectedSeekers = _playerSeekers.Where(s => s.Id == selectedSeeker.Id);
-            if (selectedSeekers.Count() > 0)
-            {
-                Seeker = selectedSeekers.First();
-                createSeeker(true);
-            }
-        }
+        
 
         if (state.World != null)
         {
@@ -89,7 +81,29 @@ public class SeekerManager : MonoBehaviour
                             tile.Seekers.Count
                         );
                     }
+                    else
+                    {
+                        var seekerPosCube = TileHelper.GetTilePosCube(seeker.NextLocation);
+                        //var seekerTile = TileHelper.GetTileByPos(seekerPosCube);
+
+                        SeekerManager.instance.CreateSeeker(
+                            seeker.Id,
+                            seekerPosCube,
+                            true,
+                            tile.Seekers.Count
+                        );
+                    }
                 }
+            }
+        }
+
+        if (selectedSeeker != null)
+        {
+            var selectedSeekers = _playerSeekers.Where(s => s.Id == selectedSeeker.Id);
+            if (selectedSeekers.Count() > 0)
+            {
+                Seeker = selectedSeekers.First();
+                //createSeeker(true);
             }
         }
     }
@@ -125,26 +139,18 @@ public class SeekerManager : MonoBehaviour
         }
     }
 
-    private void createSeekers(List<Seekers> seekers, bool isPlayerSeeker)
-    {
-        foreach (var seeker in seekers)
-        {
-            createSeeker(isPlayerSeeker);
-        }
-    }
+    //private void createSeeker(bool isPlayerSeeker)
+    //{
+    //    var seekerPosCube = TileHelper.GetTilePosCube(Seeker.NextLocation);
+    //    var seekerTile = TileHelper.GetTileByPos(seekerPosCube);
 
-    private void createSeeker(bool isPlayerSeeker)
-    {
-        var seekerPosCube = TileHelper.GetTilePosCube(Seeker.NextLocation);
-        var seekerTile = TileHelper.GetTileByPos(seekerPosCube);
-
-        SeekerManager.instance.CreateSeeker(
-            Seeker.Id,
-            seekerPosCube,
-            isPlayerSeeker,
-            seekerTile.Seekers.Count
-        );
-    }
+    //    SeekerManager.instance.CreateSeeker(
+    //        Seeker.Id,
+    //        seekerPosCube,
+    //        isPlayerSeeker,
+    //        seekerTile.Seekers.Count
+    //    );
+    //}
 
     public void CreateSeeker(string seekerId, Vector3Int cell, bool isPlayer, int numSeekersAtPos)
     {
@@ -163,7 +169,7 @@ public class SeekerManager : MonoBehaviour
             else
                 controller = Instantiate(seekerPrefab).GetComponent<SeekerController>();
 
-            controller.Setup(cell, numSeekersAtPos + buildingOnCell, index, isPlayer);
+            controller.Setup(cell, numSeekersAtPos + buildingOnCell, index, isPlayer, seekerId);
             spawnedSeekers.Add(seekerId, controller);
         }
         else
