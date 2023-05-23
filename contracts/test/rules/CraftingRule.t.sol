@@ -42,8 +42,11 @@ contract CraftingRuleTest is Test {
 
     // accounts
     address aliceAccount;
+    bytes24 aliceSeeker;
 
     // mock building implementation
+    bytes24 mockBuildingKind;
+    bytes24 mockBuildingInstance;
     MockCraftBuildingContract mockBuildingContract;
 
     function setUp() public {
@@ -54,12 +57,19 @@ contract CraftingRuleTest is Test {
         // fetch the State to play with
         state = game.getState();
 
-        // setup users
+        // setup player + seeker
         uint256 alicePrivateKey = 0xA11CE;
         aliceAccount = vm.addr(alicePrivateKey);
+        vm.startPrank(aliceAccount);
+        aliceSeeker = _spawnSeekerWithResources();
 
-        // a dummy contract for proxying cract calls
+        // setup a mock building instance owned by alice
         mockBuildingContract = new MockCraftBuildingContract();
+        mockBuildingKind = _registerBuildingKind(1001, address(mockBuildingContract));
+        mockBuildingInstance = _constructBuildingInstance(mockBuildingKind, aliceSeeker, -1, 1, 0);
+
+        // stop being alice
+        vm.stopPrank();
     }
 
     function testResources() public {
@@ -81,7 +91,6 @@ contract CraftingRuleTest is Test {
 
     function testRegisteringCraftRecipe() public {
         vm.startPrank(aliceAccount);
-        bytes24 buildingKind = _newMockBuildingKind(1001);
 
         bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItem;
         inputItem[0] = ItemUtils.Kiki();
@@ -99,95 +108,66 @@ contract CraftingRuleTest is Test {
 
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (outputItem, "thing", "icon")));
         dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_CRAFT_RECIPE, (buildingKind, inputItem, inputQty, outputItem, outputQty))
+            abi.encodeCall(
+                Actions.REGISTER_CRAFT_RECIPE, (mockBuildingKind, inputItem, inputQty, outputItem, outputQty)
+            )
         );
         vm.stopPrank();
 
         bytes24 registeredItem;
         uint64 registeredQty;
 
-        (registeredItem, registeredQty) = state.getInput(buildingKind, 0);
+        (registeredItem, registeredQty) = state.getInput(mockBuildingKind, 0);
         assertEq(registeredItem, inputItem[0]);
         assertEq(registeredQty, inputQty[0]);
 
-        (registeredItem, registeredQty) = state.getInput(buildingKind, 1);
+        (registeredItem, registeredQty) = state.getInput(mockBuildingKind, 1);
         assertEq(registeredItem, inputItem[1]);
         assertEq(registeredQty, inputQty[1]);
 
-        (registeredItem, registeredQty) = state.getInput(buildingKind, 2);
+        (registeredItem, registeredQty) = state.getInput(mockBuildingKind, 2);
         assertEq(registeredItem, inputItem[2]);
         assertEq(registeredQty, inputQty[2]);
     }
 
-    function testCraftingStackableItem() public {
-        vm.startPrank(aliceAccount);
-        bytes24 buildingKind = _newMockBuildingKind(1001);
-
-        bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItem;
-        inputItem[0] = ItemUtils.Kiki();
-        inputItem[1] = ItemUtils.Bouba();
-        inputItem[2] = ItemUtils.Semiote();
-
-        uint64[MAX_CRAFT_INPUT_ITEMS] memory inputQty;
-        inputQty[0] = 2;
-        inputQty[1] = 2;
-        inputQty[2] = 2;
-
-        uint32[3] memory outputItemAtoms = [uint32(1), uint32(1), uint32(1)];
-        bytes24 outputItem = Node.Item("thing", outputItemAtoms, ITEM_STACKABLE);
-        uint64 outputQty = 1;
-
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (outputItem, "thing", "icon")));
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_CRAFT_RECIPE, (buildingKind, inputItem, inputQty, outputItem, outputQty))
-        );
-
-        bytes24 aliceSeeker = _spawnSeekerWithResources();
-        bytes24 buildingInstance = _constructBuilding(buildingKind, aliceSeeker, -1, 1, 0);
-        bytes24 inputBag = state.getEquipSlot(buildingInstance, 0);
-        bytes24 outputBag = state.getEquipSlot(buildingInstance, 1);
-
+    function testCrafting() public {
         // alice puts the input items into the building's bag
-        // and expects the output item in her bag
-        // alice is putting MORE than needed so is expecting leftovers
+        vm.startPrank(aliceAccount);
         _transferItem(
             aliceSeeker,
-            [aliceSeeker, buildingInstance],
+            [aliceSeeker, mockBuildingInstance],
             [0, 0], // from/to equip
             [0, 0], // from/to slot
-            inputBag,
+            0x0, // unused
             4 // move 4 but only need 2
         );
         _transferItem(
             aliceSeeker,
-            [aliceSeeker, buildingInstance],
+            [aliceSeeker, mockBuildingInstance],
             [0, 0],
             [1, 1],
-            inputBag,
+            0x0, // unused
             4 // move 4 but only need 2
         );
         _transferItem(
             aliceSeeker,
-            [aliceSeeker, buildingInstance],
+            [aliceSeeker, mockBuildingInstance],
             [0, 0],
             [2, 2],
-            inputBag,
+            0x0, //unused
             4 // move 4 but only need 2
         );
         vm.stopPrank();
 
-        // pretend we are the building kind contract to send the CRAFT
+        // craft
         vm.startPrank(address(mockBuildingContract));
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.CRAFT,
-                (buildingInstance) // the building performing CRAFT
-            )
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.CRAFT, (mockBuildingInstance)));
         vm.stopPrank();
 
         // check that output item now exists in outputBag slot 0
-        (bytes24 expItem, uint64 expBalance) = state.getOutput(buildingKind, 0);
+        bytes24 inputBag = state.getEquipSlot(mockBuildingInstance, 0);
+        bytes24 outputBag = state.getEquipSlot(mockBuildingInstance, 1);
+        (bytes24 expItem, uint64 expBalance) = state.getOutput(mockBuildingKind, 0);
         (bytes24 gotItem, uint64 gotBalance) = state.getItemSlot(outputBag, 0);
         assertEq(gotItem, expItem, "expected output slot to contain expected output item");
         assertEq(gotBalance, expBalance, "expected output balance match");
@@ -201,8 +181,86 @@ contract CraftingRuleTest is Test {
         assertEq(gotBalance, 2, "expected 2 item left in input[2]");
     }
 
-    function testCraftingToSlotOfDifferentItemKindWithZeroBal() public {
-        // TODO
+    function testBadSender() public {
+        // alice puts the input items into the building's bag
+        vm.startPrank(aliceAccount);
+        _transferItem(
+            aliceSeeker,
+            [aliceSeeker, mockBuildingInstance],
+            [0, 0], // from/to equip
+            [0, 0], // from/to slot
+            0x0, // unused
+            4 // move 4 but only need 2
+        );
+        _transferItem(
+            aliceSeeker,
+            [aliceSeeker, mockBuildingInstance],
+            [0, 0],
+            [1, 1],
+            0x0, // unused
+            4 // move 4 but only need 2
+        );
+        _transferItem(
+            aliceSeeker,
+            [aliceSeeker, mockBuildingInstance],
+            [0, 0],
+            [2, 2],
+            0x0, //unused
+            4 // move 4 but only need 2
+        );
+        vm.stopPrank();
+
+        // craft and check output
+        vm.startPrank(vm.addr(0xBADD1E));
+        vm.expectRevert("sender must be BuildingKind implementation");
+        dispatcher.dispatch(abi.encodeCall(Actions.CRAFT, (mockBuildingInstance)));
+        vm.stopPrank();
+
+        // should not be any items
+        bytes24 outputBag = state.getEquipSlot(mockBuildingInstance, 1);
+        (, uint64 gotBalance) = state.getItemSlot(outputBag, 0);
+        assertEq(gotBalance, 0);
+    }
+
+    function testNotEnoughInputs() public {
+        // alice puts the input items into the building's bag
+        vm.startPrank(aliceAccount);
+        _transferItem(
+            aliceSeeker,
+            [aliceSeeker, mockBuildingInstance],
+            [0, 0], // from/to equip
+            [0, 0], // from/to slot
+            0x0, // unused
+            1 // too few
+        );
+        _transferItem(
+            aliceSeeker,
+            [aliceSeeker, mockBuildingInstance],
+            [0, 0],
+            [1, 1],
+            0x0, // unused
+            1 // too few
+        );
+        _transferItem(
+            aliceSeeker,
+            [aliceSeeker, mockBuildingInstance],
+            [0, 0],
+            [2, 2],
+            0x0,
+            1 // too few
+        );
+        vm.stopPrank();
+
+        // craft
+        vm.startPrank(address(mockBuildingContract));
+        vm.expectRevert("input 0 qty does not match recipe");
+        dispatcher.dispatch(abi.encodeCall(Actions.CRAFT, (mockBuildingInstance)));
+        vm.stopPrank();
+
+        // should be no output
+        bytes24 outputBag = state.getEquipSlot(mockBuildingInstance, 1);
+        (, uint64 gotBalance) = state.getItemSlot(outputBag, 0);
+        assertEq(gotBalance, 0);
     }
 
     // _spawnSeekerWithResources spawns a seeker for the current sender at
@@ -245,7 +303,7 @@ contract CraftingRuleTest is Test {
         );
     }
 
-    function _newMockBuildingKind(uint64 uid) private returns (bytes24) {
+    function _registerBuildingKind(uint64 uid, address buildingContract) private returns (bytes24) {
         bytes24[4] memory defaultMaterialItem;
         defaultMaterialItem[0] = ItemUtils.Kiki();
         defaultMaterialItem[1] = ItemUtils.Bouba();
@@ -260,9 +318,7 @@ contract CraftingRuleTest is Test {
                 Actions.REGISTER_BUILDING_KIND, (buildingKind, "TestBuilding", defaultMaterialItem, defaultMaterialQty)
             )
         );
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (buildingKind, address(mockBuildingContract)))
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (buildingKind, buildingContract)));
         return buildingKind;
     }
 
@@ -280,10 +336,30 @@ contract CraftingRuleTest is Test {
         );
     }
 
-    function _constructBuilding(bytes24 buildingKind, bytes24 seeker, int16 q, int16 r, int16 s)
+    // _constructCraftingBuilding sets up and constructs a crafting building that
+    function _constructBuildingInstance(bytes24 buildingKind, bytes24 seeker, int16 q, int16 r, int16 s)
         private
         returns (bytes24 buildingInstance)
     {
+        bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItem;
+        inputItem[0] = ItemUtils.Kiki();
+        inputItem[1] = ItemUtils.Bouba();
+        inputItem[2] = ItemUtils.Semiote();
+
+        uint64[MAX_CRAFT_INPUT_ITEMS] memory inputQty;
+        inputQty[0] = 2;
+        inputQty[1] = 2;
+        inputQty[2] = 2;
+
+        uint32[3] memory outputItemAtoms = [uint32(1), uint32(1), uint32(1)];
+        bytes24 outputItem = Node.Item("thing", outputItemAtoms, ITEM_STACKABLE);
+        uint64 outputQty = 1;
+
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (outputItem, "thing", "icon")));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.REGISTER_CRAFT_RECIPE, (buildingKind, inputItem, inputQty, outputItem, outputQty))
+        );
+
         // discover an adjacent tile for our building site
         _discover(q, r, s);
         // get our building and give it the resources to construct
