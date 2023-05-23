@@ -22,8 +22,6 @@ error BagNotAccessibleBySeeker();
 error BagNotReachableBySeeker();
 error EquipmentNotBag();
 
-uint64 constant BUILDING_COST = 100;
-
 using Schema for State;
 
 contract BuildingRule is Rule {
@@ -128,9 +126,9 @@ contract BuildingRule is Rule {
                 availableInputAtoms[2] = availableInputAtoms[2] + (inputAtoms[2] * uint32(materialQty[i]));
             }
 
-            require(availableInputAtoms[0] >= 50, "min construction cost is 50 atom[0]");
-            require(availableInputAtoms[1] >= 50, "min construction cost is 50 atom[1]");
-            require(availableInputAtoms[2] >= 50, "min construction cost is 50 atom[2]");
+            require(availableInputAtoms[0] >= 10, "construction cost should require at least 10 LIFE atoms");
+            require(availableInputAtoms[1] >= 10, "construction cost should require at least 10 DEFENSE atoms");
+            require(availableInputAtoms[2] >= 10, "construction cost should require at least 10 ATTACK atoms");
         }
 
         // store the construction materials recipe

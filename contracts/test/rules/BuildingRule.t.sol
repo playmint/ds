@@ -11,11 +11,7 @@ import {Game as Dawnseekers} from "@ds/Game.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {Schema, Node, Rel, LocationKey, BiomeKind, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
-import {
-    BUILDING_COST,
-    BuildingResourceRequirementsNotMet,
-    BuildingMustBeAdjacentToSeeker
-} from "@ds/rules/BuildingRule.sol";
+import {BuildingResourceRequirementsNotMet, BuildingMustBeAdjacentToSeeker} from "@ds/rules/BuildingRule.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 
 using Schema for State;
