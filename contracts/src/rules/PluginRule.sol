@@ -11,8 +11,6 @@ import {Actions} from "@ds/actions/Actions.sol";
 error PluginNotPluginOwner();
 error PluginNotTargetOwner();
 
-uint64 constant BUILDING_COST = 100;
-
 using Schema for State;
 
 contract PluginRule is Rule {
