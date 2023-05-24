@@ -128,7 +128,7 @@ public class MapInteractionManager : MonoBehaviour
             if (string.IsNullOrEmpty(seekerID))
             {
                 Cog.GameStateMediator.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
-                if(!TileHelper.GetTileNeighbours(TileHelper.GetTilePosCube(GameStateMediator.Instance.gameState.Selected.Seeker.NextLocation)).Contains(cellPosCube))
+                if(GameStateMediator.Instance.gameState.Selected.Seeker != null && !TileHelper.GetTileNeighbours(TileHelper.GetTilePosCube(GameStateMediator.Instance.gameState.Selected.Seeker.NextLocation)).Contains(cellPosCube))
                     Cog.GameStateMediator.Instance.SendSelectSeekerMsg();
             }
             else
