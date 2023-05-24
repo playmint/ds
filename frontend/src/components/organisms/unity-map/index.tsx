@@ -191,7 +191,7 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
             removeEventListener('sendMessage', processMessage);
             removeEventListener('unityReady', processReady);
         };
-    }, [dispatch, selectTiles, selectIntent, addEventListener, removeEventListener]);
+    }, [dispatch, selectTiles, selectIntent, addEventListener, removeEventListener, selectSeeker]);
 
     return (
         <StyledUnityMap {...otherProps}>
