@@ -7,11 +7,13 @@ public class SeekerManager : MonoBehaviour
 {
     public static SeekerManager instance;
 
-    public Seekers Seeker { get; private set; }
+    public Seeker currentSelectedSeeker { get; private set; }
     private ICollection<Seekers> _playerSeekers;
 
     [SerializeField]
     private GameObject seekerPrefab;
+
+    private Player currentPlayer;
 
     private Dictionary<Vector3Int, int> seekerPositionCounts = new Dictionary<Vector3Int, int>();
     private Dictionary<string, SeekerController> spawnedSeekers =
@@ -32,14 +34,6 @@ public class SeekerManager : MonoBehaviour
         }
     }
 
-    public bool IsPlayerAtPosition(Vector3Int cellPosCube)
-    {
-        if (Seeker == null)
-            return false;
-
-        return TileHelper.GetTilePosCube(Seeker.NextLocation) == cellPosCube;
-    }
-
     // -- LISTENERS
 
     // TODO: Still assuming only one seeker
@@ -47,17 +41,18 @@ public class SeekerManager : MonoBehaviour
     {
         ResetSeekerPositionCounts();
 
-        var selectedSeeker = state.Selected.Seeker;
-
+        var player = state.Player;
+        
         //  If we've switched accounts, remove all seekers to reset
         if (
-            (selectedSeeker != null && Seeker != null && selectedSeeker.Id != Seeker.Id)
-            || (Seeker == null && selectedSeeker != null)
-            || (Seeker != null && selectedSeeker == null)
+            (player != null && currentPlayer != null && currentPlayer.Id != player.Id)
+            || (currentPlayer == null && player != null)
+            || (currentPlayer != null && player == null)
         )
         {
             instance.RemoveAllSeekers();
-            Seeker = null;
+            currentSelectedSeeker = null;
+            currentPlayer = player;
         }
 
         _playerSeekers = state.Player.Seekers;
@@ -87,7 +82,7 @@ public class SeekerManager : MonoBehaviour
                         //var seekerTile = TileHelper.GetTileByPos(seekerPosCube);
 
                         SeekerManager.instance.CreateSeeker(
-                            seeker.Id,
+                            _playerSeekers.ToList()[0].Id,
                             seekerPosCube,
                             true,
                             tile.Seekers.Count
@@ -97,15 +92,17 @@ public class SeekerManager : MonoBehaviour
             }
         }
 
-        if (selectedSeeker != null)
-        {
-            var selectedSeekers = _playerSeekers.Where(s => s.Id == selectedSeeker.Id);
-            if (selectedSeekers.Count() > 0)
-            {
-                Seeker = selectedSeekers.First();
-                //createSeeker(true);
-            }
-        }
+        currentSelectedSeeker = state.Selected.Seeker;
+
+        //if (selectedSeeker != null)
+        //{
+        //    var selectedSeekers = _playerSeekers.Where(s => s.Id == selectedSeeker.Id);
+        //    if (selectedSeekers.Count() > 0)
+        //    {
+        //        Seeker = selectedSeekers.First();
+        //        //createSeeker(true);
+        //    }
+        //}
     }
 
     public void RemoveAllSeekers()

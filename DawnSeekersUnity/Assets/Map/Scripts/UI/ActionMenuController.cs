@@ -63,10 +63,6 @@ public class ActionMenuController : MonoBehaviour
                 Debug.Log(state.Selected.Seeker.Id);
                 return true;
             }
-            
-            var tile = state.Selected.Tiles.ToList()[0];
-            var cellPosCube = TileHelper.GetTilePosCube(tile);
-            return SeekerManager.instance.IsPlayerAtPosition(cellPosCube);
         }
 
         return false;

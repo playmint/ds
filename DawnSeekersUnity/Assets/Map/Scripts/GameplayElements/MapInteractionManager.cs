@@ -82,10 +82,10 @@ public class MapInteractionManager : MonoBehaviour
         }
 
         bool TileNeighbourValid = false;
-        if (SeekerManager.instance.Seeker != null)
+        if (SeekerManager.instance.currentSelectedSeeker != null)
             TileNeighbourValid = TileHelper
                 .GetTileNeighbours(
-                    TileHelper.GetTilePosCube(SeekerManager.instance.Seeker.NextLocation)
+                    TileHelper.GetTilePosCube(SeekerManager.instance.currentSelectedSeeker.NextLocation)
                 )
                 .Contains(GridExtensions.GridToCube(CurrentMouseCell));
 

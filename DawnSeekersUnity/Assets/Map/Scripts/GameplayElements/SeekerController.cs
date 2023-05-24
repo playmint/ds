@@ -46,13 +46,11 @@ public class SeekerController : MapElementController
         {
             if (state.Selected.Seeker.Id == _seekerID)
             {
-                rend.material.SetColor("_Color", Color.red);
-            }
-            else
-            {
-                rend.material.SetColor("_Color", _defaultColor);
+                rend.material.SetColor("_Color", Color.yellow);
+                return;
             }
         }
+        rend.material.SetColor("_Color", _defaultColor);
     }
 
     public void Setup(Vector3Int cell, int numObjects, int index, bool isPlayer, string seekerID)
