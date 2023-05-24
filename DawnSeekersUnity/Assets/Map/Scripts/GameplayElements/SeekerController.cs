@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Cog;
 using UnityEngine;
 
 public class SeekerController : MapElementController
@@ -18,13 +20,44 @@ public class SeekerController : MapElementController
         _jumpCurve,
         _shrinkCurve;
 
+    [SerializeField]
+    private Color highlightColor;
+
     protected int _currentIndex;
     private float _currentSize;
     private Transform _meshesTrans;
     private float _offsetRadius = 0.26f;
 
-    public void Setup(Vector3Int cell, int numObjects, int index, bool isPlayer)
+    private string _seekerID;
+    private Color _defaultColor;
+
+    private void Awake()
     {
+        GameStateMediator.Instance.EventStateUpdated += StateUpdated;
+        _defaultColor = rend.material.GetColor("_Color");
+    }
+
+    private void OnDestroy()
+    {
+        GameStateMediator.Instance.EventStateUpdated -= StateUpdated;
+    }
+
+    private void StateUpdated(GameState state)
+    {
+        if (state.Selected.Seeker != null)
+        {
+            if (state.Selected.Seeker.Id == _seekerID)
+            {
+                rend.material.SetColor("_Color", highlightColor);
+                return;
+            }
+        }
+        rend.material.SetColor("_Color", _defaultColor);
+    }
+
+    public void Setup(Vector3Int cell, int numObjects, int index, bool isPlayer, string seekerID)
+    {
+        _seekerID = seekerID;
         _meshesTrans = transform.GetChild(0);
 
         //If there's a building on the cell, we want to be in front of it:
@@ -41,6 +74,8 @@ public class SeekerController : MapElementController
         _currentPosition = new Vector3(_currentPosition.x, height, _currentPosition.z);
         transform.position = _currentPosition;
 
+        GetComponent<Collider>().enabled = isPlayer;
+
         // Prepare icon:
         if (isPlayer)
             _icon = MapElementManager.instance.CreateIcon(iconParent, iconPrefab);
@@ -49,6 +84,11 @@ public class SeekerController : MapElementController
 
         _icon.PrepareIcon(index, numObjects - isElementAtCell);
         _icon.UpdateIcon();
+    }
+
+    public string GetSeekerID()
+    {
+        return _seekerID;
     }
 
     public void CheckPosition(Vector3Int cell, int numObjects, int index, bool isPlayer)

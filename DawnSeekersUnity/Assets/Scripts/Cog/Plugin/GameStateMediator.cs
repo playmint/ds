@@ -18,6 +18,12 @@ namespace Cog
         public List<string> tileIDs;
     }
 
+    struct SelectSeekerMessage
+    {
+        public string msg;
+        public string seekerID;
+    }
+
     struct SetIntentMessage
     {
         public string msg;
@@ -234,14 +240,20 @@ namespace Cog
             DispatchAction("MOVE_SEEKER", seeker.Key, cellPosCube.x, cellPosCube.y, cellPosCube.z);
         }
 
+        public void MoveSeeker(Seeker seeker, Vector3Int cellPosCube)
+        {
+            // function MOVE_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
+            DispatchAction("MOVE_SEEKER", seeker.Key, cellPosCube.x, cellPosCube.y, cellPosCube.z);
+        }
+
         public void ScoutTile(Vector3Int cellCubePos)
         {
-            if (SeekerManager.instance.Seeker != null)
+            if (SeekerManager.instance.currentSelectedSeeker != null)
             {
                 // function SCOUT_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
                 DispatchAction(
                     "SCOUT_SEEKER",
-                    SeekerManager.instance.Seeker.Key,
+                    SeekerManager.instance.currentSelectedSeeker.Key,
                     cellCubePos.x,
                     cellCubePos.y,
                     cellCubePos.z
@@ -264,6 +276,20 @@ namespace Cog
         public void SendSelectTileMsg(List<string> tileIDs)
         {
             var msg = new SelectTileMessage { msg = "selectTiles", tileIDs = tileIDs };
+            var json = JsonConvert.SerializeObject(msg);
+            SendMessage(json);
+        }
+
+        public void SendSelectSeekerMsg(string seekerID)
+        {
+            var msg = new SelectSeekerMessage { msg = "selectSeeker", seekerID = seekerID };
+            var json = JsonConvert.SerializeObject(msg);
+            SendMessage(json);
+        }
+
+        public void SendSelectSeekerMsg()
+        {
+            var msg = new SelectSeekerMessage { msg = "selectSeeker" };
             var json = JsonConvert.SerializeObject(msg);
             SendMessage(json);
         }

@@ -8,7 +8,8 @@ using System;
 public class MapInteractionManager : MonoBehaviour
 {
     public static MapInteractionManager instance;
-    public static bool clickedPlayerCell;
+
+    //public static bool clickedPlayerCell;
     public bool IsTileSelected;
     public static Vector3Int CurrentSelectedCell; // Offset odd r coords
     public static Vector3Int CurrentMouseCell; // Offset odd r coords
@@ -51,8 +52,11 @@ public class MapInteractionManager : MonoBehaviour
 
         RaycastHit hit;
 
+        string seekerID = "";
         if (Physics.Raycast(ray, out hit))
         {
+            if (hit.transform.CompareTag("Seeker"))
+                seekerID = hit.transform.GetComponent<SeekerController>().GetSeekerID();
             //Get the point that is clicked
             Vector3 hitPoint = hit.point;
             Vector3Int cubePos = GridExtensions.GridToCube(
@@ -70,7 +74,7 @@ public class MapInteractionManager : MonoBehaviour
         if (Input.GetMouseButtonUp(0))
         {
             if (!_camController.hasDragged)
-                MapClicked();
+                MapClicked(seekerID);
         }
 
         if (Input.GetMouseButtonDown(1))
@@ -79,10 +83,12 @@ public class MapInteractionManager : MonoBehaviour
         }
 
         bool TileNeighbourValid = false;
-        if (SeekerManager.instance.Seeker != null)
+        if (SeekerManager.instance.currentSelectedSeeker != null)
             TileNeighbourValid = TileHelper
                 .GetTileNeighbours(
-                    TileHelper.GetTilePosCube(SeekerManager.instance.Seeker.NextLocation)
+                    TileHelper.GetTilePosCube(
+                        SeekerManager.instance.currentSelectedSeeker.NextLocation
+                    )
                 )
                 .Contains(GridExtensions.GridToCube(CurrentMouseCell));
 
@@ -97,7 +103,7 @@ public class MapInteractionManager : MonoBehaviour
             );
     }
 
-    void MapClicked()
+    void MapClicked(string seekerID = "")
     {
         // CurrentMouseCell is using Odd R offset coords
         var cellPosCube = GridExtensions.GridToCube(CurrentMouseCell);
@@ -118,6 +124,29 @@ public class MapInteractionManager : MonoBehaviour
         )
         {
             Cog.GameStateMediator.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
+
+            if (string.IsNullOrEmpty(seekerID))
+            {
+                if (
+                    GameStateMediator.Instance.gameState.Selected.Seeker != null
+                    && !TileHelper
+                        .GetTileNeighbours(
+                            TileHelper.GetTilePosCube(
+                                GameStateMediator.Instance.gameState.Selected.Seeker.NextLocation
+                            )
+                        )
+                        .Contains(cellPosCube)
+                    && TileHelper.GetTilePosCube(
+                        GameStateMediator.Instance.gameState.Selected.Seeker.NextLocation
+                    ) != cellPosCube
+                )
+                    Cog.GameStateMediator.Instance.SendSelectSeekerMsg();
+            }
+            else
+            {
+                Debug.Log("Select Seeker: " + seekerID);
+                Cog.GameStateMediator.Instance.SendSelectSeekerMsg(seekerID);
+            }
         }
     }
 
@@ -152,7 +181,7 @@ public class MapInteractionManager : MonoBehaviour
             var gridCoords = GridExtensions.CubeToGrid(cellPosCube);
 
             CurrentSelectedCell = GridExtensions.CubeToGrid(cellPosCube);
-            clickedPlayerCell = SeekerManager.instance.IsPlayerAtPosition(cellPosCube);
+            //clickedPlayerCell = SeekerManager.instance.IsPlayerAtPosition(cellPosCube);
             Vector3 markerPos = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
             float height = MapHeightManager.UNSCOUTED_HEIGHT;
             if (TileHelper.IsDiscoveredTile(cellPosCube))

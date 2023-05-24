@@ -15,9 +15,22 @@ public class IntentsEditorWindow : EditorWindow
         bool isPlaying = EditorApplication.isPlaying && !EditorApplication.isPaused;
         bool disableButtons = !isPlaying;
 
+        if (
+            isPlaying
+            && GameStateMediator.Instance != null
+            && GameStateMediator.Instance.gameState != null
+        )
+        {
+            disableButtons = GameStateMediator.Instance.gameState.Selected.Seeker == null;
+        }
+
         EditorGUI.BeginDisabledGroup(disableButtons);
 
         GUILayout.BeginVertical();
+        if (disableButtons)
+            GUILayout.Label("No Seeker Selected");
+        else if (SeekerManager.instance.currentSelectedSeeker != null)
+            GUILayout.Label("Selected Seeker: " + SeekerManager.instance.currentSelectedSeeker.Id);
         GUILayout.Space(10f);
         GUILayout.BeginHorizontal();
         GUILayout.Space(10f);

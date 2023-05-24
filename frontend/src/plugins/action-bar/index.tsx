@@ -83,10 +83,10 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
               .filter((t): t is WorldTileFragment => !!t && t.biome === BiomeKind.DISCOVERED && !!t.building)
         : [];
 
-    const canScout = scoutableTiles.length > 0;
-    const canConstruct = constructableTiles.length > 0;
-    const canMove = moveableTiles.length > 0;
-    const canUse = useableTiles.length > 0;
+    const canScout = scoutableTiles.length > 0 && selectedSeeker;
+    const canConstruct = constructableTiles.length > 0 && selectedSeeker;
+    const canMove = moveableTiles.length > 0 && selectedSeeker;
+    const canUse = useableTiles.length > 0 && selectedSeeker;
 
     // for some intents we don't want to auto select the seeker's current tile
     const selectedTileId = selectedTiles ? selectedTiles[0]?.id : '';

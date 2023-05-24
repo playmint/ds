@@ -27,6 +27,10 @@ interface SetIntentMessage extends Message {
     intent: string;
 }
 
+interface SetSeekerMessage extends Message {
+    seekerID: string;
+}
+
 const StyledUnityMap = styled('div')`
     ${styles}
 `;
@@ -61,7 +65,7 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
     const player = usePlayer();
     const { dispatch } = player || {};
     const game = useGameState();
-    const { selectTiles, selectIntent: rawSelectIntent } = useSelection();
+    const { selectTiles, selectIntent: rawSelectIntent, selectSeeker } = useSelection();
     const { unityProvider, sendMessage, addEventListener, removeEventListener, loadingProgression } = useUnityContext({
         loaderUrl: `/ds-unity/Build/ds-unity.loader.js`,
         dataUrl: `/ds-unity/Build/ds-unity.data`,
@@ -165,6 +169,11 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
                     selectIntent(intent);
                     break;
                 }
+                case 'selectSeeker': {
+                    const { seekerID } = msgObj as SetSeekerMessage;
+                    selectSeeker(seekerID);
+                    break;
+                }
                 default: {
                     console.warn('unhandled message from map:', msgObj);
                 }
@@ -182,7 +191,7 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
             removeEventListener('sendMessage', processMessage);
             removeEventListener('unityReady', processReady);
         };
-    }, [dispatch, selectTiles, selectIntent, addEventListener, removeEventListener]);
+    }, [dispatch, selectTiles, selectIntent, addEventListener, removeEventListener, selectSeeker]);
 
     return (
         <StyledUnityMap {...otherProps}>

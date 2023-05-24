@@ -52,9 +52,16 @@ public class ActionMenuController : MonoBehaviour
         }
         else if (state.Selected.Tiles != null && state.Selected.Tiles.Count > 0)
         {
-            var tile = state.Selected.Tiles.ToList()[0];
-            var cellPosCube = TileHelper.GetTilePosCube(tile);
-            return SeekerManager.instance.IsPlayerAtPosition(cellPosCube);
+            if (state.Selected.Seeker == null || string.IsNullOrEmpty(state.Selected.Seeker.Id))
+            {
+                Debug.Log("No Seeker Selected");
+                return false;
+            }
+            else
+            {
+                Debug.Log(state.Selected.Seeker.Id);
+                return true;
+            }
         }
 
         return false;

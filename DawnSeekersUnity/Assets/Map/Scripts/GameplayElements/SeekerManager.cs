@@ -7,11 +7,13 @@ public class SeekerManager : MonoBehaviour
 {
     public static SeekerManager instance;
 
-    public Seekers Seeker { get; private set; }
+    public Seeker currentSelectedSeeker { get; private set; }
     private ICollection<Seekers> _playerSeekers;
 
     [SerializeField]
     private GameObject seekerPrefab;
+
+    private Player currentPlayer;
 
     private Dictionary<Vector3Int, int> seekerPositionCounts = new Dictionary<Vector3Int, int>();
     private Dictionary<string, SeekerController> spawnedSeekers =
@@ -32,14 +34,6 @@ public class SeekerManager : MonoBehaviour
         }
     }
 
-    public bool IsPlayerAtPosition(Vector3Int cellPosCube)
-    {
-        if (Seeker == null)
-            return false;
-
-        return TileHelper.GetTilePosCube(Seeker.NextLocation) == cellPosCube;
-    }
-
     // -- LISTENERS
 
     // TODO: Still assuming only one seeker
@@ -47,33 +41,43 @@ public class SeekerManager : MonoBehaviour
     {
         ResetSeekerPositionCounts();
 
-        var selectedSeeker = state.Selected.Seeker;
+        var player = state.Player;
 
         //  If we've switched accounts, remove all seekers to reset
         if (
-            (selectedSeeker != null && Seeker != null && selectedSeeker.Id != Seeker.Id)
-            || (Seeker == null && selectedSeeker != null)
-            || (Seeker != null && selectedSeeker == null)
+            (player != null && currentPlayer != null && currentPlayer.Id != player.Id)
+            || (currentPlayer == null && player != null)
+            || (currentPlayer != null && player == null)
         )
         {
             instance.RemoveAllSeekers();
-            Seeker = null;
+            currentSelectedSeeker = null;
+            currentPlayer = player;
         }
 
         _playerSeekers = state.Player.Seekers;
 
-        if (selectedSeeker != null)
-        {
-            var selectedSeekers = _playerSeekers.Where(s => s.Id == selectedSeeker.Id);
-            if (selectedSeekers.Count() > 0)
-            {
-                Seeker = selectedSeekers.First();
-                createSeeker(true);
-            }
-        }
-
         if (state.World != null)
         {
+            foreach (var tile in state.World.Tiles)
+            {
+                var cellPosCube = TileHelper.GetTilePosCube(tile);
+                // Seekers
+                foreach (var seeker in tile.Seekers)
+                {
+                    if (SeekerHelper.IsPlayerSeeker(seeker))
+                    {
+                        var seekerPosCube = TileHelper.GetTilePosCube(seeker.NextLocation);
+                        SeekerManager.instance.CreateSeeker(
+                            _playerSeekers.ToList()[0].Id,
+                            seekerPosCube,
+                            true,
+                            tile.Seekers.Count
+                        );
+                    }
+                }
+            }
+            //Do it again but this time for non-players (not very efficient but it does do the do...)
             foreach (var tile in state.World.Tiles)
             {
                 var cellPosCube = TileHelper.GetTilePosCube(tile);
@@ -92,6 +96,8 @@ public class SeekerManager : MonoBehaviour
                 }
             }
         }
+
+        currentSelectedSeeker = state.Selected.Seeker;
     }
 
     public void RemoveAllSeekers()
@@ -125,27 +131,6 @@ public class SeekerManager : MonoBehaviour
         }
     }
 
-    private void createSeekers(List<Seekers> seekers, bool isPlayerSeeker)
-    {
-        foreach (var seeker in seekers)
-        {
-            createSeeker(isPlayerSeeker);
-        }
-    }
-
-    private void createSeeker(bool isPlayerSeeker)
-    {
-        var seekerPosCube = TileHelper.GetTilePosCube(Seeker.NextLocation);
-        var seekerTile = TileHelper.GetTileByPos(seekerPosCube);
-
-        SeekerManager.instance.CreateSeeker(
-            Seeker.Id,
-            seekerPosCube,
-            isPlayerSeeker,
-            seekerTile.Seekers.Count
-        );
-    }
-
     public void CreateSeeker(string seekerId, Vector3Int cell, bool isPlayer, int numSeekersAtPos)
     {
         IncreaseSeekerPositionCount(cell);
@@ -163,7 +148,7 @@ public class SeekerManager : MonoBehaviour
             else
                 controller = Instantiate(seekerPrefab).GetComponent<SeekerController>();
 
-            controller.Setup(cell, numSeekersAtPos + buildingOnCell, index, isPlayer);
+            controller.Setup(cell, numSeekersAtPos + buildingOnCell, index, isPlayer, seekerId);
             spawnedSeekers.Add(seekerId, controller);
         }
         else
