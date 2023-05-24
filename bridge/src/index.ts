@@ -39,6 +39,10 @@ interface SetIntentMessage extends Message {
     intent: string;
 }
 
+interface SetSeekerMessage extends Message {
+    seekerID: string;
+}
+
 async function main(privKey: string, echoOn: boolean) {
     const initialConfig = {
         wsEndpoint: "ws://localhost:8080/query",
@@ -87,6 +91,12 @@ async function main(privKey: string, echoOn: boolean) {
             case "setIntent": {
                 const { intent } = msgObj as SetIntentMessage;
                 selectIntent(intent);
+                break;
+            }
+            case 'selectSeeker': {
+                const { seekerID } = msgObj as SetSeekerMessage;
+                console.log(seekerID);
+                selectSeeker(seekerID);
                 break;
             }
         }

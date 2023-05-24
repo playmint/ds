@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Cog;
@@ -25,6 +26,34 @@ public class SeekerController : MapElementController
     private float _offsetRadius = 0.26f;
 
     private string _seekerID;
+    private Color _defaultColor;
+
+
+    private void Awake()
+    {
+        GameStateMediator.Instance.EventStateUpdated += StateUpdated;
+        _defaultColor = rend.material.GetColor("_Color");
+    }
+
+    private void OnDestroy()
+    {
+        GameStateMediator.Instance.EventStateUpdated -= StateUpdated;
+    }
+
+    private void StateUpdated(GameState state)
+    {
+        if(state.Selected.Seeker != null)
+        {
+            if (state.Selected.Seeker.Id == _seekerID)
+            {
+                rend.material.SetColor("_Color", Color.red);
+            }
+            else
+            {
+                rend.material.SetColor("_Color", _defaultColor);
+            }
+        }
+    }
 
     public void Setup(Vector3Int cell, int numObjects, int index, bool isPlayer, string seekerID)
     {

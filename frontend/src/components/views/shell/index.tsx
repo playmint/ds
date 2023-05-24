@@ -91,7 +91,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                     {player && (
                         <Fragment>
                             <div className="seeker-actions">
-                                {(!player || (player && player.seekers.length > 0)) && (
+                                {(!player || (player && player.seekers.length > 0 && selectedSeeker)) && (
                                     <div className="seeker-selector">
                                         <img src="/seeker-yours.png" className="shield" alt="" />
                                         <div className="controls">
@@ -116,7 +116,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                     </div>
                                 )}
                             </div>
-                            {player.seekers.length > 0 && (
+                            {player.seekers.length > 0 &&  (
                                 <div className="tile-actions">
                                     <ActionBar className="action" />
                                     <ActionContextPanel className="action" />
