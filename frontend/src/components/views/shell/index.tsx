@@ -71,7 +71,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     return (
         <StyledShell {...otherProps}>
             <div className="nav-container">
-                <button className="topnav-button" onClick={connect}>
+                <button onClick={connect}>
                     <img src="/icons/player.png" alt="" />
                     <span className="text">{player ? `Player ${formatPlayerId(player.id)}` : 'connect'}</span>
                 </button>
@@ -118,7 +118,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                             </div>
                             {player.seekers.length > 0 && (
                                 <div className="tile-actions">
-                                    <ActionBar className="action" />
+                                    {selectedSeeker && <ActionBar className="action" />}
                                     <ActionContextPanel className="action" />
                                 </div>
                             )}
