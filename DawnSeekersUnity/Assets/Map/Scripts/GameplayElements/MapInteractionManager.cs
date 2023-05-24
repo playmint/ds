@@ -8,6 +8,7 @@ using System;
 public class MapInteractionManager : MonoBehaviour
 {
     public static MapInteractionManager instance;
+
     //public static bool clickedPlayerCell;
     public bool IsTileSelected;
     public static Vector3Int CurrentSelectedCell; // Offset odd r coords
@@ -54,7 +55,7 @@ public class MapInteractionManager : MonoBehaviour
         string seekerID = "";
         if (Physics.Raycast(ray, out hit))
         {
-            if(hit.transform.CompareTag("Seeker"))
+            if (hit.transform.CompareTag("Seeker"))
                 seekerID = hit.transform.GetComponent<SeekerController>().GetSeekerID();
             //Get the point that is clicked
             Vector3 hitPoint = hit.point;
@@ -85,7 +86,9 @@ public class MapInteractionManager : MonoBehaviour
         if (SeekerManager.instance.currentSelectedSeeker != null)
             TileNeighbourValid = TileHelper
                 .GetTileNeighbours(
-                    TileHelper.GetTilePosCube(SeekerManager.instance.currentSelectedSeeker.NextLocation)
+                    TileHelper.GetTilePosCube(
+                        SeekerManager.instance.currentSelectedSeeker.NextLocation
+                    )
                 )
                 .Contains(GridExtensions.GridToCube(CurrentMouseCell));
 
@@ -121,14 +124,23 @@ public class MapInteractionManager : MonoBehaviour
         )
         {
             //Cog.GameStateMediator.Instance.SendSelectSeekerMsg(SeekerManager.instance.Seeker.Id);
-            
+
 
             // Not sure if this is correct, but a seeker seems to get automatically selected when selecting a tile, so I'm sending a deselect action to cancel that out.
             // Seems weird to me...
             if (string.IsNullOrEmpty(seekerID))
             {
                 Cog.GameStateMediator.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
-                if(GameStateMediator.Instance.gameState.Selected.Seeker != null && !TileHelper.GetTileNeighbours(TileHelper.GetTilePosCube(GameStateMediator.Instance.gameState.Selected.Seeker.NextLocation)).Contains(cellPosCube))
+                if (
+                    GameStateMediator.Instance.gameState.Selected.Seeker != null
+                    && !TileHelper
+                        .GetTileNeighbours(
+                            TileHelper.GetTilePosCube(
+                                GameStateMediator.Instance.gameState.Selected.Seeker.NextLocation
+                            )
+                        )
+                        .Contains(cellPosCube)
+                )
                     Cog.GameStateMediator.Instance.SendSelectSeekerMsg();
             }
             else
@@ -136,7 +148,6 @@ public class MapInteractionManager : MonoBehaviour
                 Debug.Log("Select Seeker: " + seekerID);
                 Cog.GameStateMediator.Instance.SendSelectSeekerMsg(seekerID);
             }
-            
         }
     }
 

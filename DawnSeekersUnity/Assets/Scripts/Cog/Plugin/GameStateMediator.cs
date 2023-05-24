@@ -289,7 +289,7 @@ namespace Cog
 
         public void SendSelectSeekerMsg()
         {
-            var msg = new SelectSeekerMessage { msg = "selectSeeker"  };
+            var msg = new SelectSeekerMessage { msg = "selectSeeker" };
             var json = JsonConvert.SerializeObject(msg);
             SendMessage(json);
         }

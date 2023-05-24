@@ -52,7 +52,6 @@ public class ActionMenuController : MonoBehaviour
         }
         else if (state.Selected.Tiles != null && state.Selected.Tiles.Count > 0)
         {
-
             if (state.Selected.Seeker == null || string.IsNullOrEmpty(state.Selected.Seeker.Id))
             {
                 Debug.Log("No Seeker Selected");

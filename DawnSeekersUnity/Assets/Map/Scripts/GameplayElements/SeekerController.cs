@@ -28,7 +28,6 @@ public class SeekerController : MapElementController
     private string _seekerID;
     private Color _defaultColor;
 
-
     private void Awake()
     {
         GameStateMediator.Instance.EventStateUpdated += StateUpdated;
@@ -42,7 +41,7 @@ public class SeekerController : MapElementController
 
     private void StateUpdated(GameState state)
     {
-        if(state.Selected.Seeker != null)
+        if (state.Selected.Seeker != null)
         {
             if (state.Selected.Seeker.Id == _seekerID)
             {
@@ -84,7 +83,7 @@ public class SeekerController : MapElementController
 
     public string GetSeekerID()
     {
-        return _seekerID ;
+        return _seekerID;
     }
 
     public void CheckPosition(Vector3Int cell, int numObjects, int index, bool isPlayer)

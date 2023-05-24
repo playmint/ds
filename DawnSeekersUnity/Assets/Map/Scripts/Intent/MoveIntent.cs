@@ -399,7 +399,10 @@ public class MoveIntent : IntentHandler
         for (int i = 1; i < path.Count; i++)
         {
             var cellPosCube = path[i];
-            GameStateMediator.Instance.MoveSeeker(SeekerManager.instance.currentSelectedSeeker, cellPosCube);
+            GameStateMediator.Instance.MoveSeeker(
+                SeekerManager.instance.currentSelectedSeeker,
+                cellPosCube
+            );
             yield return new WaitForSeconds(3.5f);
             if (_travelMarkers.ContainsKey(cellPosCube))
             {

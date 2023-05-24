@@ -89,7 +89,7 @@ public class UseIntent : IntentHandler
                 .Select(kvp => TileHelper.GetTileID(kvp.Key))
                 .ToList();
 
-             GameStateMediator.Instance.SendSelectTileMsg(tileIDs);
+            GameStateMediator.Instance.SendSelectTileMsg(tileIDs);
         }
         else if (_validTilePositions.Contains(cellPosCube))
         {

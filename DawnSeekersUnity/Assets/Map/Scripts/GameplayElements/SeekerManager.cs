@@ -42,7 +42,7 @@ public class SeekerManager : MonoBehaviour
         ResetSeekerPositionCounts();
 
         var player = state.Player;
-        
+
         //  If we've switched accounts, remove all seekers to reset
         if (
             (player != null && currentPlayer != null && currentPlayer.Id != player.Id)
@@ -56,8 +56,6 @@ public class SeekerManager : MonoBehaviour
         }
 
         _playerSeekers = state.Player.Seekers;
-
-        
 
         if (state.World != null)
         {
