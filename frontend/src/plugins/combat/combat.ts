@@ -54,7 +54,7 @@ interface CombatState {
     tickCount: number;
 }
 
-interface EntityState {
+export interface EntityState {
     entityID: ethers.BytesLike;
     stats: [number, number, number];
     damage: number;

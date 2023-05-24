@@ -16,8 +16,12 @@ const baseStyles = (_: Partial<ModalProps>) => css`
     bottom: 0;
     left: 0;
     z-index: 99999;
-    background: rgba(15, 15, 15, 0.95);
+    background: rgba(15, 15, 15, 0.05);
+    backdrop-filter: blur(4px);
     overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     > .close-modal-button {
         position: fixed;
@@ -28,13 +32,6 @@ const baseStyles = (_: Partial<ModalProps>) => css`
         padding: 0;
         color: white;
         font-size: 4rem;
-    }
-
-    > iframe {
-        display: block;
-        width: 100%;
-        height: 100%;
-        border: 0;
     }
 `;
 

@@ -11,6 +11,39 @@ import { CombatSummaryProps } from './index';
  */
 const baseStyles = (_: Partial<CombatSummaryProps>) => css`
     width: 30rem;
+
+    > .header {
+        display: flex;
+        align-items: center;
+
+        .icon {
+            width: 5rem;
+        }
+
+        .title {
+            margin: 0 0 0 0.6rem;
+        }
+    }
+
+    > .content {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+
+        .attackers,
+        .defenders {
+            width: 100%;
+        }
+
+        .attackers {
+            margin-top: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .defenders {
+            margin-bottom: 2rem;
+        }
+    }
 `;
 
 /**

@@ -9,8 +9,13 @@ export interface ModalContextProviderProps {
     children?: ReactNode;
 }
 
+export interface ModalOptions {
+    closable: boolean;
+    showCloseButton: boolean;
+}
+
 export interface ModalContextStore {
-    openModal: (closable?: boolean) => void;
+    openModal: (options?: ModalOptions) => void;
     closeModal: () => void;
     setModalContent: (content: ReactNode) => void;
 }
@@ -24,25 +29,26 @@ export const ModalProvider = ({ children }: ModalContextProviderProps) => {
     const containerRef = useFocusTrap<HTMLDivElement>(null);
     const { lockScroll, unlockScroll } = useScrollLock();
 
-    interface ModalState {
+    interface ModalState extends ModalOptions {
         isVisible: boolean;
-        closable: boolean;
     }
 
     function reducer(state: ModalState, action: (state: ModalState) => ModalState) {
         return action(state);
     }
 
-    const [{ isVisible, closable }, update] = useReducer(reducer, {
+    const [{ isVisible, closable, showCloseButton }, update] = useReducer(reducer, {
         isVisible: false,
-        closable: true
+        closable: true,
+        showCloseButton: true
     });
 
-    function openModal(closable: boolean = true) {
+    function openModal(options?: ModalOptions) {
         lockScroll();
         update(() => ({
             isVisible: true,
-            closable: closable
+            closable: options?.closable ?? true,
+            showCloseButton: options?.showCloseButton ?? true
         }));
     }
 
@@ -50,7 +56,8 @@ export const ModalProvider = ({ children }: ModalContextProviderProps) => {
         unlockScroll();
         update(() => ({
             isVisible: false,
-            closable: closable
+            closable,
+            showCloseButton
         }));
     }
 
@@ -68,7 +75,7 @@ export const ModalProvider = ({ children }: ModalContextProviderProps) => {
         <ModalContext.Provider value={store}>
             {children}
             {isVisible && (
-                <Modal ref={containerRef} closable={closable}>
+                <Modal ref={containerRef} closable={closable} showCloseButton={showCloseButton}>
                     {contentRef.current}
                 </Modal>
             )}
