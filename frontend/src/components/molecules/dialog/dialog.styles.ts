@@ -1,7 +1,7 @@
 /** @format */
 
 import { css } from 'styled-components';
-import { ModalProps } from './index';
+import { DialogProps } from './index';
 
 /**
  * Base styles for the modal component
@@ -9,7 +9,7 @@ import { ModalProps } from './index';
  * @param _ The modal properties object
  * @return Base styles for the modal component
  */
-const baseStyles = ({ width }: Partial<ModalProps>) => css`
+const baseStyles = ({ width }: Partial<DialogProps>) => css`
     border: 0;
     background: transparent;
     overflow: hidden;
@@ -96,11 +96,11 @@ const baseStyles = ({ width }: Partial<ModalProps>) => css`
 `;
 
 /**
- * The modal component styles
+ * component styles
  *
  * @param props The modal properties object
  * @return Styles for the modal component
  */
-export const styles = (props: Partial<ModalProps>) => css`
+export const styles = (props: Partial<DialogProps>) => css`
     ${baseStyles(props)}
 `;
