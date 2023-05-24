@@ -77,8 +77,6 @@ public class SeekerManager : MonoBehaviour
                     else
                     {
                         var seekerPosCube = TileHelper.GetTilePosCube(seeker.NextLocation);
-                        //var seekerTile = TileHelper.GetTileByPos(seekerPosCube);
-
                         SeekerManager.instance.CreateSeeker(
                             _playerSeekers.ToList()[0].Id,
                             seekerPosCube,
@@ -91,16 +89,6 @@ public class SeekerManager : MonoBehaviour
         }
 
         currentSelectedSeeker = state.Selected.Seeker;
-
-        //if (selectedSeeker != null)
-        //{
-        //    var selectedSeekers = _playerSeekers.Where(s => s.Id == selectedSeeker.Id);
-        //    if (selectedSeekers.Count() > 0)
-        //    {
-        //        Seeker = selectedSeekers.First();
-        //        //createSeeker(true);
-        //    }
-        //}
     }
 
     public void RemoveAllSeekers()
@@ -133,19 +121,6 @@ public class SeekerManager : MonoBehaviour
             spawnedSeekers.Remove(seeker.Id);
         }
     }
-
-    //private void createSeeker(bool isPlayerSeeker)
-    //{
-    //    var seekerPosCube = TileHelper.GetTilePosCube(Seeker.NextLocation);
-    //    var seekerTile = TileHelper.GetTileByPos(seekerPosCube);
-
-    //    SeekerManager.instance.CreateSeeker(
-    //        Seeker.Id,
-    //        seekerPosCube,
-    //        isPlayerSeeker,
-    //        seekerTile.Seekers.Count
-    //    );
-    //}
 
     public void CreateSeeker(string seekerId, Vector3Int cell, bool isPlayer, int numSeekersAtPos)
     {

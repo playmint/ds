@@ -20,6 +20,9 @@ public class SeekerController : MapElementController
         _jumpCurve,
         _shrinkCurve;
 
+    [SerializeField]
+    private Color highlightColor;
+
     protected int _currentIndex;
     private float _currentSize;
     private Transform _meshesTrans;
@@ -45,7 +48,7 @@ public class SeekerController : MapElementController
         {
             if (state.Selected.Seeker.Id == _seekerID)
             {
-                rend.material.SetColor("_Color", Color.yellow);
+                rend.material.SetColor("_Color", highlightColor);
                 return;
             }
         }
@@ -70,6 +73,8 @@ public class SeekerController : MapElementController
         _currentPosition = pos + offset;
         _currentPosition = new Vector3(_currentPosition.x, height, _currentPosition.z);
         transform.position = _currentPosition;
+
+        GetComponent<Collider>().enabled = isPlayer;
 
         // Prepare icon:
         if (isPlayer)
