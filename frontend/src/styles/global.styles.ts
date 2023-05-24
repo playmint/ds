@@ -60,6 +60,7 @@ export const GlobalStyles = createGlobalStyle`
         border-bottom: 4px solid #b7c5e0;
         display: block;
         width: 100%;
+        max-width: 26rem;
         box-sizing: border-box;
         background: #fff;
         color: #143063;

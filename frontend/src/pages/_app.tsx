@@ -5,7 +5,6 @@ import dynamic from 'next/dynamic';
 import { Fragment, useEffect } from 'react';
 import Head from 'next/head';
 import { GlobalStyles } from '@app/styles/global.styles';
-import { ModalProvider } from '@app/contexts/modal-provider';
 import { DSProvider } from '@dawnseekers/core';
 import { InventoryProvider } from '@app/plugins/inventory/inventory-provider';
 
@@ -36,9 +35,7 @@ const App = ({ Component, pageProps }: AppProps) => {
             <GlobalStyles />
             <DSProvider initialConfig={initialConfig}>
                 <InventoryProvider>
-                    <ModalProvider>
-                        <Component {...pageProps} />
-                    </ModalProvider>
+                    <Component {...pageProps} />
                 </InventoryProvider>
             </DSProvider>
         </Fragment>
