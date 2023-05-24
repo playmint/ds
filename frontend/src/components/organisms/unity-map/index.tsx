@@ -51,8 +51,6 @@ function drainOne() {
         if (!blob) {
             return;
         }
-        //const whatever = JSON.parse(blob);
-        //console.log(whatever.selected.seeker.id);
         const args = ['GameStateMediator', 'OnState', blob];
         globalSender(...args);
         console.debug(`UnityMap: drained one, ${globalQueue.length} remaining`, args);
@@ -173,7 +171,6 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
                 }
                 case 'selectSeeker': {
                     const { seekerID } = msgObj as SetSeekerMessage;
-                    console.log(seekerID);
                     selectSeeker(seekerID);
                     break;
                 }

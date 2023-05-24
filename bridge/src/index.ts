@@ -95,7 +95,6 @@ async function main(privKey: string, echoOn: boolean) {
             }
             case 'selectSeeker': {
                 const { seekerID } = msgObj as SetSeekerMessage;
-                console.log(seekerID);
                 selectSeeker(seekerID);
                 break;
             }
