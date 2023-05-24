@@ -136,6 +136,9 @@ public class MapInteractionManager : MonoBehaviour
                             )
                         )
                         .Contains(cellPosCube)
+                    && TileHelper.GetTilePosCube(
+                        GameStateMediator.Instance.gameState.Selected.Seeker.NextLocation
+                    ) != cellPosCube
                 )
                     Cog.GameStateMediator.Instance.SendSelectSeekerMsg();
             }

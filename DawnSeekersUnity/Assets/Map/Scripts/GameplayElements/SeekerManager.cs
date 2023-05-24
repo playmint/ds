@@ -65,22 +65,31 @@ public class SeekerManager : MonoBehaviour
                 // Seekers
                 foreach (var seeker in tile.Seekers)
                 {
-                    if (!SeekerHelper.IsPlayerSeeker(seeker))
-                    {
-                        SeekerManager.instance.CreateSeeker(
-                            seeker.Id,
-                            cellPosCube,
-                            false,
-                            tile.Seekers.Count
-                        );
-                    }
-                    else
+                    if (SeekerHelper.IsPlayerSeeker(seeker))
                     {
                         var seekerPosCube = TileHelper.GetTilePosCube(seeker.NextLocation);
                         SeekerManager.instance.CreateSeeker(
                             _playerSeekers.ToList()[0].Id,
                             seekerPosCube,
                             true,
+                            tile.Seekers.Count
+                        );
+                    }
+                }
+            }
+            //Do it again but this time for non-players (not very efficient but it does do the do...)
+            foreach (var tile in state.World.Tiles)
+            {
+                var cellPosCube = TileHelper.GetTilePosCube(tile);
+                // Seekers
+                foreach (var seeker in tile.Seekers)
+                {
+                    if (!SeekerHelper.IsPlayerSeeker(seeker))
+                    {
+                        SeekerManager.instance.CreateSeeker(
+                            seeker.Id,
+                            cellPosCube,
+                            false,
                             tile.Seekers.Count
                         );
                     }
