@@ -28,7 +28,7 @@ interface SetIntentMessage extends Message {
 }
 
 interface SetSeekerMessage extends Message {
-    id: string;
+    seekerID: string;
 }
 
 const StyledUnityMap = styled('div')`
@@ -172,10 +172,9 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
                     break;
                 }
                 case 'selectSeeker': {
-                    
-                    const { id } = msgObj as SetSeekerMessage;
-                    console.log(id);
-                    selectSeeker(id);
+                    const { seekerID } = msgObj as SetSeekerMessage;
+                    console.log(seekerID);
+                    selectSeeker(seekerID);
                     break;
                 }
                 default: {

@@ -121,19 +121,22 @@ public class MapInteractionManager : MonoBehaviour
         )
         {
             //Cog.GameStateMediator.Instance.SendSelectSeekerMsg(SeekerManager.instance.Seeker.Id);
-            Cog.GameStateMediator.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
+            
 
             // Not sure if this is correct, but a seeker seems to get automatically selected when selecting a tile, so I'm sending a deselect action to cancel that out.
             // Seems weird to me...
             if (string.IsNullOrEmpty(seekerID))
             {
-                Cog.GameStateMediator.Instance.SendSelectSeekerMsg();
+                Cog.GameStateMediator.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
+                if(!TileHelper.GetTileNeighbours(TileHelper.GetTilePosCube(GameStateMediator.Instance.gameState.Selected.Seeker.NextLocation)).Contains(cellPosCube))
+                    Cog.GameStateMediator.Instance.SendSelectSeekerMsg();
             }
             else
             {
+                Debug.Log("Select Seeker: " + seekerID);
                 Cog.GameStateMediator.Instance.SendSelectSeekerMsg(seekerID);
             }
-
+            
         }
     }
 
