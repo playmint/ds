@@ -116,7 +116,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                     </div>
                                 )}
                             </div>
-                            {player.seekers.length > 0 &&  (
+                            {player.seekers.length > 0 && (
                                 <div className="tile-actions">
                                     <ActionBar className="action" />
                                     <ActionContextPanel className="action" />
