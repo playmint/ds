@@ -10,25 +10,22 @@ import { LogsProps } from './index';
  * @return Base styles for the tile action component
  */
 const baseStyles = (_: Partial<LogsProps>) => css`
-    .logs {
-        position: fixed;
-        top: 55px;
-        left 0px;
-        width: 30vw;
-        pointer-events: none;
-        > .log {
-            display: block;
-            font-family: courier;
-            font-size: 1.5rem;
-            color:white;
-            margin: 0px 0 2px 10px;
-            width: 100%;
-            text-overflow: ellipsis;
-            white-Space: nowrap;
-            overflow: hidden;
-            height: 25px;
-        }
-        > .log::before {
+    max-width: 40rem;
+    max-height: 20rem;
+
+    > .log {
+        display: block;
+        font-family: courier, monospace;
+        font-size: 1.5rem;
+        color: white;
+        margin: 0 0 2px;
+        width: 100%;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        height: 25px;
+
+        &:before {
             position: relative;
             top: 3px;
             content: url('/icons/log-info.png');
@@ -39,7 +36,6 @@ const baseStyles = (_: Partial<LogsProps>) => css`
             overflow: hidden;
         }
     }
-
 `;
 
 /**

@@ -1,16 +1,13 @@
 /** @format */
 
 import { Logs } from '@app/components/organisms/logs';
-import { TileAction } from '@app/components/organisms/tile-action';
 import { UnityMap } from '@app/components/organisms/unity-map';
 import { formatPlayerId, formatSeekerKey } from '@app/helpers';
-import { Building } from '@app/plugins/building';
+import { ActionContextPanel } from '@app/plugins/action-context-panel';
 import { SeekerInventory } from '@app/plugins/inventory/seeker-inventory';
-import { TileInventory } from '@app/plugins/inventory/tile-inventory';
-import { SeekerList } from '@app/plugins/seeker-list';
 import { TileCoords } from '@app/plugins/tile-coords';
 import { ComponentProps } from '@app/types/component-props';
-import { CompoundKeyEncoder, NodeSelectors, usePlayer, usePluginState, useSelection } from '@dawnseekers/core';
+import { CompoundKeyEncoder, NodeSelectors, usePlayer, useSelection } from '@dawnseekers/core';
 import { Fragment, FunctionComponent, useCallback } from 'react';
 import styled from 'styled-components';
 import { styles } from './shell.styles';
@@ -26,9 +23,6 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     const { ...otherProps } = props;
     const player = usePlayer();
     const { seeker: selectedSeeker, selectSeeker, tiles: selectedTiles } = useSelection();
-    const ui = usePluginState();
-    const selectedTile = selectedTiles?.[0];
-    const tileSeekers = selectedTile?.seekers ?? [];
 
     const connect = useCallback(() => {
         if (player) {
@@ -76,62 +70,65 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
 
     return (
         <StyledShell {...otherProps}>
-            <div className="mapnav">
-                <UnityMap />
-            </div>
-            <div className="topnav">
+            <div className="nav-container">
                 <button className="topnav-button" onClick={connect}>
                     <img src="/icons/player.png" alt="" />
                     <span className="text">{player ? `Player ${formatPlayerId(player.id)}` : 'connect'}</span>
                 </button>
             </div>
-            <Logs />
-            {player && (
-                <Fragment>
-                    <div className="seeker-actions">
-                        <div className="action seeker-selector">
-                            <img src="/seeker-yours.png" className="shield" alt="" />
-                            {(!player || (player && player.seekers.length > 0)) && (
-                                <div className="controls">
-                                    <button className="icon-button" onClick={() => selectNextSeeker(-1)}>
-                                        <img src="/icons/prev.png" alt="Previous" />
-                                    </button>
-                                    <span className="label">
-                                        Seeker #{formatSeekerKey(selectedSeeker?.key.toString() || '')}
-                                    </span>
-                                    <button className="icon-button" onClick={() => selectNextSeeker(+1)}>
-                                        <img src="/icons/next.png" alt="Next" />
-                                    </button>
+            <div className="hud-container">
+                <div className="top-left">
+                    <Logs className="logs" />
+                </div>
+                <div className="bottom-left">
+                    {selectedTiles && selectedTiles.length > 0 && (
+                        <TileCoords className="action" selectedTiles={selectedTiles} />
+                    )}
+                </div>
+                <div className="top-middle"></div>
+                <div className="bottom-middle"></div>
+                <div className="right">
+                    {player && (
+                        <Fragment>
+                            <div className="seeker-actions">
+                                {(!player || (player && player.seekers.length > 0)) && (
+                                    <div className="seeker-selector">
+                                        <img src="/seeker-yours.png" className="shield" alt="" />
+                                        <div className="controls">
+                                            <button className="icon-button" onClick={() => selectNextSeeker(-1)}>
+                                                <img src="/icons/prev.png" alt="Previous" />
+                                            </button>
+                                            <span className="label">
+                                                Seeker #{formatSeekerKey(selectedSeeker?.key.toString() || '')}
+                                            </span>
+                                            <button className="icon-button" onClick={() => selectNextSeeker(+1)}>
+                                                <img src="/icons/next.png" alt="Next" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                                {selectedSeeker && <SeekerInventory className="action" seeker={selectedSeeker} />}
+                                {player && player.seekers.length === 0 && (
+                                    <div className="onboarding">
+                                        <h3>Welcome to Dawnseekers</h3>
+                                        <p>You need a Seeker to play. Would you like to spawn one now?</p>
+                                        <button onClick={spawnSeeker}>Spawn Seeker</button>
+                                    </div>
+                                )}
+                            </div>
+                            {player.seekers.length > 0 && (
+                                <div className="tile-actions">
+                                    <ActionBar className="action" />
+                                    <ActionContextPanel className="action" />
                                 </div>
                             )}
-                        </div>
-                        {selectedSeeker && <SeekerInventory className="action" seeker={selectedSeeker} />}
-                        {player && player.seekers.length === 0 && (
-                            <div className="onboarding">
-                                <p>Welcome to Dawnseekers</p>
-                                <p>You need a Seeker to play. Would you like to spawn one now?</p>
-                                <button onClick={spawnSeeker}>Spawn Seeker</button>
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="tile-actions">
-                        <ActionBar className="action" />
-                        <Building className="action" />
-                        {tileSeekers.length > 0 && <SeekerList seekers={tileSeekers} className="action" />}
-                        {selectedTile && <TileInventory className="action" tile={selectedTile} title="Bags" />}
-                        {ui
-                            ?.flatMap((p) => p.components)
-                            .filter((c) => c.type === 'tile')
-                            .map((c) => (
-                                <TileAction key={c.id} component={c} className="action" />
-                            ))}
-                        {selectedTiles && selectedTiles.length > 0 && (
-                            <TileCoords className="action" selectedTiles={selectedTiles} />
-                        )}
-                    </div>
-                </Fragment>
-            )}
+                        </Fragment>
+                    )}
+                </div>
+            </div>
+            <div className="map-container">
+                <UnityMap />
+            </div>
         </StyledShell>
     );
 };

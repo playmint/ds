@@ -279,7 +279,8 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
                         top: '0',
                         left: '0',
                         transform: 'translate(-50%, -50%)',
-                        pointerEvents: 'none'
+                        pointerEvents: 'none',
+                        zIndex: '999999'
                     }}
                 >
                     <StyledPickedUpItem isPickable={false}>

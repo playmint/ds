@@ -19,7 +19,6 @@ export const SeekerList: FunctionComponent<SeekerListProps> = (props: SeekerList
 
     return (
         <StyledSeekerList {...otherProps}>
-            <h3>Seekers</h3>
             {seekers.map((seeker, index) => (
                 <div key={index} className="seeker">
                     <img src="/seeker-theirs.png" alt="" />

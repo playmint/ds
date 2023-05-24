@@ -4,10 +4,10 @@ import { css } from 'styled-components';
 import { BuildingProps } from './index';
 
 /**
- * Base styles for the building component
+ * Base styles for the action context panel component
  *
- * @param _ The building properties object
- * @return Base styles for the building component
+ * @param _ The action context panel properties object
+ * @return Base styles for the action context panel component
  */
 const baseStyles = (_: Partial<BuildingProps>) => css`
     h3 {
@@ -53,10 +53,10 @@ const baseStyles = (_: Partial<BuildingProps>) => css`
 `;
 
 /**
- * The building component styles
+ * The action context panel component styles
  *
- * @param props The building properties object
- * @return Styles for the building component
+ * @param props The action context panel properties object
+ * @return Styles for the action context panel component
  */
 export const styles = (props: Partial<BuildingProps>) => css`
     ${baseStyles(props)}
