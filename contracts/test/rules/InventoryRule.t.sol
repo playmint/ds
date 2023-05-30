@@ -32,19 +32,24 @@ contract InventoryRuleTest is Test {
     address bobAccount;
 
     function setUp() public {
+        // setup users
+        uint256 alicePrivateKey = 0xA11CE;
+        uint256 bobPrivateKey = 0xB0B0B;
+        aliceAccount = vm.addr(alicePrivateKey);
+        bobAccount = vm.addr(bobPrivateKey);
+
+        // setup allowlist
+        address[] memory allowlist = new address[](2);
+        allowlist[0] = aliceAccount;
+        allowlist[1] = bobAccount;
+
         // setup game
-        game = new Game();
+        game = new Game(allowlist);
         dispatcher = game.getDispatcher();
 
         // fetch the State to play with
         state = game.getState();
 
-        // setup users
-        uint256 alicePrivateKey = 0xA11CE;
-        uint256 bobPrivateKey = 0xB0B0B;
-
-        aliceAccount = vm.addr(alicePrivateKey);
-        bobAccount = vm.addr(bobPrivateKey);
 
         _discover(0,0,0);
         _discover(1,0,-1);
@@ -121,7 +126,12 @@ contract InventoryRuleTest is Test {
     function testTransferItemFailNotSameLocationSeeker() public {
         vm.startPrank(aliceAccount);
         bytes24 seeker1 = _spawnSeeker(1, 0, 0, 0);
+        vm.stopPrank();
+        vm.startPrank(bobAccount);
         bytes24 seeker2 = _spawnSeeker(2, 3, 0, -3);
+        vm.stopPrank();
+
+        vm.startPrank(aliceAccount);
         _testTransferItemFailBetweenEquipees(
             seeker1, // seeker perfoming the action
             seeker1, // location of from-bag

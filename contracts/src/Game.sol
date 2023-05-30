@@ -57,7 +57,7 @@ contract DawnseekersRouter is SessionRouter {
 }
 
 contract Game is BaseGame {
-    constructor() BaseGame("DAWNSEEKERS", "http://dawnseekers.com/") {
+    constructor(address[] memory allowlist) BaseGame("DAWNSEEKERS", "http://dawnseekers.com/") {
         // create a state
         StateGraph state = new StateGraph();
 
@@ -98,7 +98,7 @@ contract Game is BaseGame {
         dispatcher.registerRule(new BuildingRule(this));
         dispatcher.registerRule(new CraftingRule(this));
         dispatcher.registerRule(new PluginRule());
-        dispatcher.registerRule(new NewPlayerRule());
+        dispatcher.registerRule(new NewPlayerRule(allowlist));
         dispatcher.registerRouter(router);
 
         // update the game with this config

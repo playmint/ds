@@ -26,18 +26,23 @@ contract PluginRuleTest is Test {
     address bobAccount;
 
     function setUp() public {
-        // setup game
-        game = new Game();
-        dispatcher = game.getDispatcher();
-
-        // fetch the State to play with
-        state = game.getState();
-
         // setup users
         uint256 alicePrivateKey = 0xA11CE;
         aliceAccount = vm.addr(alicePrivateKey);
         uint256 bobPrivateKey = 0xB0B0B;
         bobAccount = vm.addr(bobPrivateKey);
+
+        // setup allowlist
+        address[] memory allowlist = new address[](2);
+        allowlist[0] = aliceAccount;
+        allowlist[1] = bobAccount;
+
+        // setup game
+        game = new Game(allowlist);
+        dispatcher = game.getDispatcher();
+
+        // fetch the State to play with
+        state = game.getState();
     }
 
     function testRegisterClientPlugin() public {

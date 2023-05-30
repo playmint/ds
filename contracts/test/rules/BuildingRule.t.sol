@@ -31,16 +31,21 @@ contract BuildingRuleTest is Test {
     uint64[4] defaultMaterialQty;
 
     function setUp() public {
+        // setup users
+        uint256 alicePrivateKey = 0xA11CE;
+        aliceAccount = vm.addr(alicePrivateKey);
+
+        // setup allowlist
+        address[] memory allowlist = new address[](1);
+        allowlist[0] = aliceAccount;
+
         // setup game
-        game = new Dawnseekers();
+        game = new Dawnseekers(allowlist);
         dispatcher = game.getDispatcher();
 
         // fetch the State to play with
         state = game.getState();
 
-        // setup users
-        uint256 alicePrivateKey = 0xA11CE;
-        aliceAccount = vm.addr(alicePrivateKey);
 
         // setup default material construction costs
         defaultMaterialItem[0] = ItemUtils.Kiki();

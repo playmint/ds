@@ -21,7 +21,8 @@ contract GameDeployer is Script {
 
         vm.startBroadcast(deployerKey);
 
-        Game ds = new Game();
+        address[] memory allowlist = _loadAllowList(vm.addr(deployerKey));
+        Game ds = new Game(allowlist);
         console2.log("deployed", address(ds));
 
         Dispatcher dispatcher = ds.getDispatcher();
@@ -125,5 +126,18 @@ contract GameDeployer is Script {
         // construct our building
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
         return buildingInstance;
+    }
+
+    function _loadAllowList(address deployer) private returns (address[] memory) {
+        string memory root = vm.projectRoot();
+        string memory path = string.concat(root, "/src/fixtures/allowlist.json");
+        string memory json = vm.readFile(path);
+        address[] memory addresses = abi.decode(vm.parseJson(json, ".players"), (address[]));
+        address[] memory allowlist = new address[](addresses.length+1);
+        for (uint i=0; i<addresses.length; i++) {
+            allowlist[i] = addresses[i];
+        }
+        allowlist[addresses.length] = deployer; // allowlist the deployer address
+        return allowlist;
     }
 }

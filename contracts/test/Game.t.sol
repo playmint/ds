@@ -18,18 +18,23 @@ contract GameTest is Test {
     State internal state;
 
     // accounts
+    uint256 alicePrivateKey;
     address aliceAccount;
 
     function setUp() public {
+        // setup users
+        alicePrivateKey = 0xA11CE;
+        aliceAccount = vm.addr(alicePrivateKey);
+
+        // setup allowlist
+        address[] memory allowlist = new address[](1);
+        allowlist[0] = aliceAccount;
+
         // setup game
-        game = new Game();
+        game = new Game(allowlist);
 
         // fetch the State to play with
         state = game.getState();
-
-        // setup users
-        uint256 alicePrivateKey = 0xA11CE;
-        aliceAccount = vm.addr(alicePrivateKey);
     }
 
     function testSpawn() public {
@@ -65,10 +70,6 @@ contract GameTest is Test {
     }
 
     function testAuthorizeAddrWithSignerAsOwner() public {
-        // fake account for alice
-        uint256 aliceKey = 0x11CE;
-        address aliceAddr = vm.addr(aliceKey);
-
         // mock account for a fake relayer
         address relayAddr = vm.addr(0xfb1);
         // mock up a session key
@@ -88,7 +89,7 @@ contract GameTest is Test {
 
         // owner signs the message authorizing the session
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(
-            aliceKey, keccak256(abi.encodePacked(PREFIX_MESSAGE, LibString.toString(authMessage.length), authMessage))
+            alicePrivateKey, keccak256(abi.encodePacked(PREFIX_MESSAGE, LibString.toString(authMessage.length), authMessage))
         );
         bytes memory sig = abi.encodePacked(r, s, v);
 
@@ -109,6 +110,6 @@ contract GameTest is Test {
         vm.prank(relayAddr);
         game.getRouter().dispatch(batchedActions, batchedSigs);
         // check the action created seeker with correct owner
-        assertEq(state.getOwnerAddress(seeker), aliceAddr);
+        assertEq(state.getOwnerAddress(seeker), aliceAccount);
     }
 }

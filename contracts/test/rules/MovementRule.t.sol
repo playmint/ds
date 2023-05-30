@@ -24,16 +24,20 @@ contract MovementRuleTest is Test {
     address aliceAccount;
 
     function setUp() public {
+        // setup users
+        uint256 alicePrivateKey = 0xA11CE;
+        aliceAccount = vm.addr(alicePrivateKey);
+
+        // setup allowlist
+        address[] memory allowlist = new address[](1);
+        allowlist[0] = aliceAccount;
+        
         // setup game
-        game = new Game();
+        game = new Game(allowlist);
         dispatcher = game.getDispatcher();
 
         // fetch the State to play with
         state = game.getState();
-
-        // setup users
-        uint256 alicePrivateKey = 0xA11CE;
-        aliceAccount = vm.addr(alicePrivateKey);
 
         // discover a star shape of tiles 6-axis from center
         for (int16 i = 0; i < 3; i++) {
