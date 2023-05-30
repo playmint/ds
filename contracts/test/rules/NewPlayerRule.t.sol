@@ -58,18 +58,14 @@ contract NewPlayerRuleTest is Test {
 
     function testAliceSpawnSeeker() public {
         vm.startPrank(aliceAccount);
-        dispatcher.dispatch(
-            abi.encodeCall( Actions.SPAWN_SEEKER, (Node.Seeker(TEST_SEEKER_ID)))
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (Node.Seeker(TEST_SEEKER_ID))));
         vm.stopPrank();
     }
 
     function testBobCanNotSpawnSeeker() public {
         vm.startPrank(bobAccount);
         vm.expectRevert(NotAllowListed.selector);
-        dispatcher.dispatch(
-            abi.encodeCall( Actions.SPAWN_SEEKER, (Node.Seeker(TEST_SEEKER_ID)))
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (Node.Seeker(TEST_SEEKER_ID))));
         vm.stopPrank();
     }
 }

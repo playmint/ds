@@ -46,7 +46,6 @@ contract BuildingRuleTest is Test {
         // fetch the State to play with
         state = game.getState();
 
-
         // setup default material construction costs
         defaultMaterialItem[0] = ItemUtils.Kiki();
         defaultMaterialItem[1] = ItemUtils.Bouba();

@@ -134,7 +134,7 @@ contract GameDeployer is Script {
         string memory json = vm.readFile(path);
         address[] memory addresses = abi.decode(vm.parseJson(json, ".players"), (address[]));
         address[] memory allowlist = new address[](addresses.length+1);
-        for (uint i=0; i<addresses.length; i++) {
+        for (uint256 i = 0; i < addresses.length; i++) {
             allowlist[i] = addresses[i];
         }
         allowlist[addresses.length] = deployer; // allowlist the deployer address

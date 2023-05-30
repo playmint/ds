@@ -14,10 +14,10 @@ error NotAllowListed();
 using Schema for State;
 
 contract NewPlayerRule is Rule {
-    mapping(address => uint) spawnable;
+    mapping(address => uint256) spawnable;
 
     constructor(address[] memory allowlist) {
-        for (uint i=0; i<allowlist.length; i++) {
+        for (uint256 i = 0; i < allowlist.length; i++) {
             spawnable[allowlist[i]] = 1;
         }
     }
@@ -26,7 +26,7 @@ contract NewPlayerRule is Rule {
         // spawn a seeker for any player at any location
         if (bytes4(action) == Actions.SPAWN_SEEKER.selector) {
             // check if player allowed to spawn another seeker
-            uint spawnableCount = spawnable[ctx.sender];
+            uint256 spawnableCount = spawnable[ctx.sender];
             if (spawnableCount < 1) {
                 revert NotAllowListed();
             }

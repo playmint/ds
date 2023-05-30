@@ -50,12 +50,10 @@ contract InventoryRuleTest is Test {
         // fetch the State to play with
         state = game.getState();
 
-
-        _discover(0,0,0);
-        _discover(1,0,-1);
-        _discover(2,0,-2);
-        _discover(3,0,-3);
-
+        _discover(0, 0, 0);
+        _discover(1, 0, -1);
+        _discover(2, 0, -2);
+        _discover(3, 0, -3);
     }
 
     function testTransferItemSeekerBagToSeekerBag() public {
@@ -438,12 +436,8 @@ contract InventoryRuleTest is Test {
     }
 
     function _spawnSeeker(uint32 sid, int16 q, int16 r, int16 s) private returns (bytes24) {
-        dispatcher.dispatch(
-            abi.encodeCall( Actions.SPAWN_SEEKER, (Node.Seeker(sid)))
-        );
-        dispatcher.dispatch(
-            abi.encodeCall( Actions.MOVE_SEEKER, (sid, q, r, s))
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (Node.Seeker(sid))));
+        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_SEEKER, (sid, q, r, s)));
         vm.roll(block.number + 100);
         return Node.Seeker(sid);
     }

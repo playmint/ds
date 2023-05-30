@@ -31,7 +31,7 @@ contract MovementRuleTest is Test {
         // setup allowlist
         address[] memory allowlist = new address[](1);
         allowlist[0] = aliceAccount;
-        
+
         // setup game
         game = new Game(allowlist);
         dispatcher = game.getDispatcher();
@@ -51,9 +51,7 @@ contract MovementRuleTest is Test {
 
         // place a seeker at 0,0,0
         vm.startPrank(aliceAccount);
-        game.getDispatcher().dispatch(
-            abi.encodeCall( Actions.SPAWN_SEEKER, (Node.Seeker(TEST_SEEKER_ID)))
-        );
+        game.getDispatcher().dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (Node.Seeker(TEST_SEEKER_ID))));
         vm.stopPrank();
     }
 

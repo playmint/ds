@@ -31,7 +31,7 @@ contract ScoutRuleTest is Test {
         // setup allowlist
         address[] memory allowlist = new address[](1);
         allowlist[0] = aliceAccount;
-        
+
         // setup game
         game = new Game(allowlist);
         dispatcher = game.getDispatcher();
@@ -54,9 +54,7 @@ contract ScoutRuleTest is Test {
 
         // place a seeker at 0,0,0
         vm.startPrank(aliceAccount);
-        dispatcher.dispatch(
-            abi.encodeCall( Actions.SPAWN_SEEKER, (Node.Seeker(TEST_SEEKER_ID)))
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (Node.Seeker(TEST_SEEKER_ID))));
         vm.stopPrank();
     }
 

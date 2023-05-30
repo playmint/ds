@@ -55,9 +55,7 @@ contract GameTest is Test {
         );
 
         // spawn a seeker at that tile
-        game.getDispatcher().dispatch(
-            abi.encodeCall( Actions.SPAWN_SEEKER, (Node.Seeker(1)))
-        );
+        game.getDispatcher().dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (Node.Seeker(1))));
 
         assertEq(
             state.getCurrentLocation(Node.Seeker(1), uint64(block.number)),
@@ -89,7 +87,8 @@ contract GameTest is Test {
 
         // owner signs the message authorizing the session
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(
-            alicePrivateKey, keccak256(abi.encodePacked(PREFIX_MESSAGE, LibString.toString(authMessage.length), authMessage))
+            alicePrivateKey,
+            keccak256(abi.encodePacked(PREFIX_MESSAGE, LibString.toString(authMessage.length), authMessage))
         );
         bytes memory sig = abi.encodePacked(r, s, v);
 
