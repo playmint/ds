@@ -49,18 +49,11 @@ contract ScoutRuleTest is Test {
         );
 
         // place a seeker at 0,0,0
+        vm.startPrank(aliceAccount);
         dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_SEEKER,
-                (
-                    aliceAccount, // owner
-                    TEST_SEEKER_ID, // seeker id (sid)
-                    0, // q
-                    0, // r
-                    0 // s
-                )
-            )
+            abi.encodeCall( Actions.SPAWN_SEEKER, (Node.Seeker(TEST_SEEKER_ID)))
         );
+        vm.stopPrank();
     }
 
     function testScoutErrorAlreadyDiscovered() public {

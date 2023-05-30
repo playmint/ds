@@ -29,6 +29,7 @@ contract InventoryRuleTest is Test {
 
     // accounts
     address aliceAccount;
+    address bobAccount;
 
     function setUp() public {
         // setup game
@@ -40,42 +41,57 @@ contract InventoryRuleTest is Test {
 
         // setup users
         uint256 alicePrivateKey = 0xA11CE;
+        uint256 bobPrivateKey = 0xB0B0B;
+
         aliceAccount = vm.addr(alicePrivateKey);
+        bobAccount = vm.addr(bobPrivateKey);
+
+        _discover(0,0,0);
+        _discover(1,0,-1);
+        _discover(2,0,-2);
+        _discover(3,0,-3);
+
     }
 
     function testTransferItemSeekerBagToSeekerBag() public {
-        bytes24 seeker = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
+        vm.startPrank(aliceAccount);
+        bytes24 seeker = _spawnSeeker(1, 0, 0, 0);
         _testTransferItemBetweenEquipees(
             seeker, // seeker perfoming the action
             seeker, // location of from-bag
             seeker // location to to-bag
         );
+        vm.stopPrank();
     }
 
     function testTransferItemSeekerBagToTileBag() public {
-        bytes24 seeker = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
+        vm.startPrank(aliceAccount);
+        bytes24 seeker = _spawnSeeker(1, 0, 0, 0);
         bytes24 tile = Node.Tile(DEFAULT_ZONE, 0, 0, 0);
         _testTransferItemBetweenEquipees(
             seeker, // seeker perfoming the action
             seeker, // location of from-bag
             tile // location to to-bag
         );
+        vm.stopPrank();
     }
 
     function testTransferItemTileBagToTileBag() public {
-        bytes24 seeker = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
+        vm.startPrank(aliceAccount);
+        bytes24 seeker = _spawnSeeker(1, 0, 0, 0);
         bytes24 tile = Node.Tile(DEFAULT_ZONE, 0, 0, 0);
         _testTransferItemBetweenEquipees(
             seeker, // seeker perfoming the action
             tile, // location of from-bag
             tile // location to to-bag
         );
+        vm.stopPrank();
     }
 
     function testTransferItemSeekerBagToBuildingBagNotAtOrigin() public {
-        bytes24 seeker = _spawnSeeker(aliceAccount, 1, 1, 1, -2);
-        (int16 q, int16 r, int16 s) = (2, 1, -3);
-        _discover(q, r, s);
+        vm.startPrank(aliceAccount);
+        bytes24 seeker = _spawnSeeker(1, 2, 0, -2);
+        (int16 q, int16 r, int16 s) = (3, 0, -3);
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
         bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
         _testTransferItemBetweenEquipeesWithBag(
@@ -84,46 +100,56 @@ contract InventoryRuleTest is Test {
             buildingInstance, // location to to-bag
             bag // building bag to create
         );
+        vm.stopPrank();
     }
 
     function testTransferItemFailNotOwner() public {
-        bytes24 seeker = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
+        vm.startPrank(aliceAccount);
+        bytes24 seeker = _spawnSeeker(1, 0, 0, 0);
+        vm.stopPrank();
+
+        vm.startPrank(bobAccount); // bob trying to use alice's seeker
         _testTransferItemFailBetweenEquipees(
-            address(1), // send as a stranger
             seeker, // seeker perfoming the action
             seeker, // location of from-bag
             seeker, // location to to-bag
             NoTransferPlayerNotOwner.selector // expect this error cos sender is not seeker owner
         );
+        vm.stopPrank();
     }
 
     function testTransferItemFailNotSameLocationSeeker() public {
-        bytes24 seeker1 = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
-        bytes24 seeker2 = _spawnSeeker(aliceAccount, 2, 0, 3, -1);
+        vm.startPrank(aliceAccount);
+        bytes24 seeker1 = _spawnSeeker(1, 0, 0, 0);
+        bytes24 seeker2 = _spawnSeeker(2, 3, 0, -3);
         _testTransferItemFailBetweenEquipees(
-            aliceAccount, // send as a stranger
             seeker1, // seeker perfoming the action
             seeker1, // location of from-bag
             seeker2, // location to to-bag
             NoTransferNotSameLocation.selector // expect this error cos seeker1 and seeker2 diff locations
         );
+        vm.stopPrank();
     }
 
     function testTransferItemFailNotSameLocationTile() public {
-        bytes24 seeker1 = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
-        bytes24 tile = Node.Tile(DEFAULT_ZONE, 0, 3, -1);
+        vm.startPrank(aliceAccount);
+        bytes24 seeker1 = _spawnSeeker(1, 0, 0, 0);
+        bytes24 tile = Node.Tile(DEFAULT_ZONE, 3, 0, -3);
         _testTransferItemFailBetweenEquipees(
-            aliceAccount, // send as a stranger
             seeker1, // seeker perfoming the action
             seeker1, // location of from-bag
             tile, // location to to-bag
             NoTransferNotSameLocation.selector // expect this error cos tile not same location as seeker
         );
+        vm.stopPrank();
     }
 
     function testTransferItemFailNotYourBag() public {
-        bytes24 seekerAlice = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
-        bytes24 seekerStranger = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
+        vm.startPrank(bobAccount);
+        bytes24 seekerStranger = _spawnSeeker(2, 0, 0, 0);
+        vm.stopPrank();
+        vm.startPrank(aliceAccount);
+        bytes24 seekerAlice = _spawnSeeker(1, 0, 0, 0);
         _spawnBagWithWood(
             1,
             address(1), // stranger's bag
@@ -136,7 +162,6 @@ contract InventoryRuleTest is Test {
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
         // as alice, try to steal from stranger's bag
-        vm.startPrank(aliceAccount);
         vm.expectRevert(NoTransferNotYourBag.selector);
         _transferItem(
             seekerAlice,
@@ -150,14 +175,14 @@ contract InventoryRuleTest is Test {
     }
 
     function testTransferItemFailIncompatibleSlot() public {
-        bytes24 seeker = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
+        vm.startPrank(aliceAccount);
+        bytes24 seeker = _spawnSeeker(1, 0, 0, 0);
         _spawnBagWithWood(1, aliceAccount, seeker, EQUIP_SLOT_0);
         _spawnBagWithStone(2, aliceAccount, seeker, EQUIP_SLOT_1);
 
         uint8[2] memory equipSlots = [EQUIP_SLOT_0, EQUIP_SLOT_1];
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
-        vm.startPrank(aliceAccount);
         vm.expectRevert(NoTransferIncompatibleSlot.selector); // should fail cos can't stack wood on stone
         _transferItem(
             seeker,
@@ -171,14 +196,14 @@ contract InventoryRuleTest is Test {
     }
 
     function testTransferItemFailSameSlot() public {
-        bytes24 seeker = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
+        vm.startPrank(aliceAccount);
+        bytes24 seeker = _spawnSeeker(1, 0, 0, 0);
         _spawnBagWithWood(1, aliceAccount, seeker, EQUIP_SLOT_0);
         _spawnBagWithStone(2, aliceAccount, seeker, EQUIP_SLOT_1);
 
         uint8[2] memory equipSlots = [EQUIP_SLOT_1, EQUIP_SLOT_1];
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
-        vm.startPrank(aliceAccount);
         vm.expectRevert(NoTransferSameSlot.selector); // should fail cos can't xfer to same slot
         _transferItem(
             seeker,
@@ -192,14 +217,14 @@ contract InventoryRuleTest is Test {
     }
 
     function testTransferItemFailLowBalance() public {
-        bytes24 seeker = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
+        vm.startPrank(aliceAccount);
+        bytes24 seeker = _spawnSeeker(1, 0, 0, 0);
         _spawnBagWithWood(1, aliceAccount, seeker, EQUIP_SLOT_0);
         _spawnBagEmpty(2, aliceAccount, seeker, EQUIP_SLOT_1);
 
         uint8[2] memory equipSlots = [EQUIP_SLOT_0, EQUIP_SLOT_1];
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
-        vm.startPrank(aliceAccount);
         vm.expectRevert(NoTransferLowBalance.selector); // should fail cos we don't have 999 balance
         _transferItem(
             seeker,
@@ -213,7 +238,6 @@ contract InventoryRuleTest is Test {
     }
 
     function _testTransferItemFailBetweenEquipees(
-        address sender,
         bytes24 seeker,
         bytes24 fromEquipee,
         bytes24 toEquipee,
@@ -238,7 +262,6 @@ contract InventoryRuleTest is Test {
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
         // perform xfer as alice
-        vm.startPrank(sender);
         vm.expectRevert(expectedError);
         _transferItem(
             seeker,
@@ -248,7 +271,6 @@ contract InventoryRuleTest is Test {
             0,
             50 // amount to xfer
         );
-        vm.stopPrank();
     }
 
     function _testTransferItemBetweenEquipees(bytes24 seeker, bytes24 fromEquipee, bytes24 toEquipee) private {
@@ -280,7 +302,6 @@ contract InventoryRuleTest is Test {
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
         // perform xfer as alice
-        vm.startPrank(aliceAccount);
         _transferItem(
             seeker,
             [fromEquipee, toEquipee], // where are bags equipt
@@ -289,7 +310,6 @@ contract InventoryRuleTest is Test {
             bag,
             50 // amount to xfer
         );
-        vm.stopPrank();
 
         // confirm bag2 has 50 wood after xfer
         (bytes24 fromResourceAfter, uint64 fromBalanceAfter) = state.getItemSlot(fromBag, itemSlots[0]);
@@ -303,7 +323,8 @@ contract InventoryRuleTest is Test {
     }
 
     function testTransferItemBetweenEquipeeAndMissingBag() public {
-        bytes24 seeker = _spawnSeeker(aliceAccount, 1, 0, 0, 0);
+        vm.startPrank(aliceAccount);
+        bytes24 seeker = _spawnSeeker(1, 0, 0, 0);
         bytes24 fromEquipee = seeker;
 
         // equip two bags to seeker
@@ -329,7 +350,6 @@ contract InventoryRuleTest is Test {
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
         // perform xfer as alice
-        vm.startPrank(aliceAccount);
         _transferItem(
             seeker,
             [fromEquipee, toEquipee], // where are bags equipt
@@ -407,20 +427,14 @@ contract InventoryRuleTest is Test {
         return Node.Bag(bagID);
     }
 
-    function _spawnSeeker(address owner, uint32 sid, int16 q, int16 r, int16 s) private returns (bytes24) {
-        _discover(q, r, s); // discover the tile we place seeker on
+    function _spawnSeeker(uint32 sid, int16 q, int16 r, int16 s) private returns (bytes24) {
         dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_SEEKER,
-                (
-                    owner, // owner
-                    sid, // seeker id (sid)
-                    q, // q
-                    r, // r
-                    s // s
-                )
-            )
+            abi.encodeCall( Actions.SPAWN_SEEKER, (Node.Seeker(sid)))
         );
+        dispatcher.dispatch(
+            abi.encodeCall( Actions.MOVE_SEEKER, (sid, q, r, s))
+        );
+        vm.roll(block.number + 100);
         return Node.Seeker(sid);
     }
 

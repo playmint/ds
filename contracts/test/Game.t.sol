@@ -32,7 +32,7 @@ contract GameTest is Test {
         aliceAccount = vm.addr(alicePrivateKey);
     }
 
-    function testDevSpawn() public {
+    function testSpawn() public {
         // dispatch as alice
         vm.startPrank(aliceAccount);
 
@@ -51,22 +51,13 @@ contract GameTest is Test {
 
         // spawn a seeker at that tile
         game.getDispatcher().dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_SEEKER,
-                (
-                    aliceAccount, // owner
-                    1, // seeker id (sid)
-                    1, // q
-                    1, // r
-                    1 // s
-                )
-            )
+            abi.encodeCall( Actions.SPAWN_SEEKER, (Node.Seeker(1)))
         );
 
         assertEq(
             state.getCurrentLocation(Node.Seeker(1), uint64(block.number)),
-            Node.Tile(0, 1, 1, 1),
-            "expected next seeker to start at tile 1,1,1"
+            Node.Tile(0, 0, 0, 0),
+            "expected next seeker to start at tile 0,0,0"
         );
 
         // stop being alice

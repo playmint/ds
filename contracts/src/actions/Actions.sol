@@ -81,9 +81,6 @@ interface Actions {
     // spawn a seeker for the sender
     function SPAWN_SEEKER(bytes24 seeker) external;
 
-    // [dev/debug only] spawn a Seeker for any Player with at any Tile
-    function DEV_SPAWN_SEEKER(address player, uint32 seekerID, int16 q, int16 r, int16 s) external;
-
     // [dev/debug only] set a tile biome at any location
     function DEV_SPAWN_TILE(BiomeKind kind, int16 q, int16 r, int16 s) external;
 
