@@ -14,25 +14,8 @@ using Schema for State;
 // game state in ways that are usually illegal
 
 contract CheatsRule is Rule {
-    function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
-        // spawn a seeker for any player at any location
-        if (bytes4(action) == Actions.DEV_SPAWN_SEEKER.selector) {
-            // decode action
-            (address owner, uint32 sid, int16 q, int16 r, int16 s) =
-                abi.decode(action[4:], (address, uint32, int16, int16, int16));
-            // build full seeker node id
-            bytes24 seeker = Node.Seeker(sid);
-            // set the seeker's owner
-            state.setOwner(seeker, Node.Player(owner));
-            // set location
-            bytes24 locationTile = Node.Tile(DEFAULT_ZONE, q, r, s);
-            state.setPrevLocation(seeker, locationTile, 0);
-            state.setNextLocation(seeker, locationTile, ctx.clock);
-            // give the seeker a couple of bags
-            _spawnBag2(state, seeker, owner, 0);
-            _spawnBag2(state, seeker, owner, 1);
-            // force tile discovery
-        } else if (bytes4(action) == Actions.DEV_SPAWN_TILE.selector) {
+    function reduce(State state, bytes calldata action, Context calldata /*ctx*/ ) public returns (State) {
+        if (bytes4(action) == Actions.DEV_SPAWN_TILE.selector) {
             // decode action
             (BiomeKind kind, int16 q, int16 r, int16 s) = abi.decode(action[4:], (BiomeKind, int16, int16, int16));
             // discover the tile

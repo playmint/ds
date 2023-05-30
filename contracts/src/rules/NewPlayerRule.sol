@@ -9,13 +9,28 @@ import {Schema, Node, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
 error SeekerIdAlreadyClaimed();
+error NotAllowListed();
 
 using Schema for State;
 
 contract NewPlayerRule is Rule {
+    mapping(address => uint256) spawnable;
+
+    constructor(address[] memory allowlist) {
+        for (uint256 i = 0; i < allowlist.length; i++) {
+            spawnable[allowlist[i]] = 1;
+        }
+    }
+
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         // spawn a seeker for any player at any location
         if (bytes4(action) == Actions.SPAWN_SEEKER.selector) {
+            // check if player allowed to spawn another seeker
+            uint256 spawnableCount = spawnable[ctx.sender];
+            if (spawnableCount < 1) {
+                revert NotAllowListed();
+            }
+            spawnable[ctx.sender] = spawnable[ctx.sender] - 1;
             // decode action
             (bytes24 seeker) = abi.decode(action[4:], (bytes24));
             // check seeker isn't already owned
