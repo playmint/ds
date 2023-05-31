@@ -13,6 +13,9 @@ public class SeekerController : MapElementController
     Renderer rend;
 
     [SerializeField]
+    GameObject outlineObj;
+
+    [SerializeField]
     float shrinkScale;
 
     [SerializeField]
@@ -35,6 +38,23 @@ public class SeekerController : MapElementController
     {
         GameStateMediator.Instance.EventStateUpdated += StateUpdated;
         _defaultColor = rend.material.GetColor("_Color");
+        rend.material.SetFloat("_Fade", 1);
+    }
+
+    private void Update()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit))
+        {
+            if (hit.transform == transform && !outlineObj.activeSelf)
+            {
+                rend.material.SetColor("_Color", highlightColor);
+                return;
+            }
+        }
+        rend.material.SetColor("_Color", _defaultColor);
     }
 
     private void OnDestroy()
@@ -48,10 +68,11 @@ public class SeekerController : MapElementController
         {
             if (state.Selected.Seeker.Id == _seekerID)
             {
-                rend.material.SetColor("_Color", highlightColor);
+                outlineObj.SetActive(true);
                 return;
             }
         }
+        outlineObj.SetActive(false);
         rend.material.SetColor("_Color", _defaultColor);
     }
 
@@ -88,6 +109,7 @@ public class SeekerController : MapElementController
 
     public string GetSeekerID()
     {
+        rend.material.SetColor("_Color", highlightColor);
         return _seekerID;
     }
 

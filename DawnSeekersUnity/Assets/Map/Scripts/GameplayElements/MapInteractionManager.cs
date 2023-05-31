@@ -57,6 +57,7 @@ public class MapInteractionManager : MonoBehaviour
         {
             if (hit.transform.CompareTag("Seeker"))
                 seekerID = hit.transform.GetComponent<SeekerController>().GetSeekerID();
+
             //Get the point that is clicked
             Vector3 hitPoint = hit.point;
             Vector3Int cubePos = GridExtensions.GridToCube(
@@ -98,8 +99,10 @@ public class MapInteractionManager : MonoBehaviour
             && GameStateMediator.Instance.gameState.World != null
         )
             cursor.gameObject.SetActive(
-                TileHelper.IsDiscoveredTile(GridExtensions.GridToCube(CurrentMouseCell))
+                (
+                    TileHelper.IsDiscoveredTile(GridExtensions.GridToCube(CurrentMouseCell))
                     || TileNeighbourValid
+                ) && String.IsNullOrEmpty(seekerID)
             );
     }
 

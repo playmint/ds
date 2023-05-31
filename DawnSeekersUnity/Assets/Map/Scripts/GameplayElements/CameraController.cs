@@ -12,7 +12,7 @@ public class CameraController : MonoBehaviour
     public float moveSpeed;
 
     [SerializeField]
-    private CinemachineVirtualCamera virtualCamera;
+    public CinemachineVirtualCamera virtualCamera;
 
     [SerializeField]
     private Transform target;
@@ -21,10 +21,10 @@ public class CameraController : MonoBehaviour
     private float zoomSpeed = 5f;
 
     [SerializeField]
-    private float minCameraDistance = 5f;
+    public float minCameraDistance = 5f;
 
     [SerializeField]
-    private float maxCameraDistance = 20f;
+    public float maxCameraDistance = 20f;
 
     [SerializeField]
     private float zoomDuration = 0.2f;
