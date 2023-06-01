@@ -37,8 +37,8 @@ interface InventoryContextStore {
         bagId?: string
     ) => void;
     isSeekerAtLocation: (tile: Tile) => boolean;
-    getPendingFromTransfers: (ownerId: string, equipIndex: number) => [TransferInfo, TransferInfo][];
-    getPendingToTransfers: (ownerId: string, equipIndex: number) => [TransferInfo, TransferInfo][];
+    // getPendingFromTransfers: (ownerId: string, equipIndex: number) => [TransferInfo, TransferInfo][];
+    // getPendingToTransfers: (ownerId: string, equipIndex: number) => [TransferInfo, TransferInfo][];
     addBagRef: (ref: RefObject<HTMLElement>) => void;
     removeBagRef: (ref: RefObject<HTMLElement>) => void;
 }
@@ -65,20 +65,20 @@ const StyledPickedUpItem = styled('div')`
 
 export const InventoryProvider = ({ children }: InventoryContextProviderProps): JSX.Element => {
     const player = usePlayer();
-    const { seeker: selectedSeeker, tiles: selectedTiles } = useSelection();
-    const world = useWorld();
+    const { seeker: selectedSeeker } = useSelection();
+    // const world = useWorld();
     const [isPickedUpItemVisible, setIsPickedUpItemVisible] = useState<boolean>(false);
     const pickedUpItemRef = useRef<InventoryItem | null>(null);
     const pickedUpItemElementRef = useRef<HTMLDivElement>(null);
 
-    type PendingTransfers = [TransferInfo, TransferInfo][];
+    // type PendingTransfers = [TransferInfo, TransferInfo][];
 
-    const [pendingTransfers, updatePendingTransfers] = useReducer(
-        (state: PendingTransfers, action: (state: PendingTransfers) => PendingTransfers) => {
-            return action(state);
-        },
-        []
-    );
+    // const [pendingTransfers, updatePendingTransfers] = useReducer(
+    //     (state: PendingTransfers, action: (state: PendingTransfers) => PendingTransfers) => {
+    //         return action(state);
+    //     },
+    //     []
+    // );
 
     const { addRef: addBagRef, removeRef: removeBagRef } = useClickOutside(clearPickedUpItem);
 
@@ -94,24 +94,24 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         };
     }, []);
 
-    useEffect(() => {
-        const owners = [...(player?.seekers ?? []), ...(selectedTiles ?? []), ...(world?.buildings ?? [])];
+    // useEffect(() => {
+    //     const owners = [...(player?.seekers ?? []), ...(selectedTiles ?? []), ...(world?.buildings ?? [])];
 
-        updatePendingTransfers((pending) => {
-            pending = pending.filter(([_, to]) => {
-                // get the owner of 'to'
-                // when the balance of the target slot equals our pending balance then the transfer is complete
-                // and we need to keep the pending transfer
-                const transferCompleted = owners.some((o) => {
-                    const slot =
-                        o.id === to.id ? o.bags[to.equipIndex].bag.slots.find((s) => s.key === to.slotKey) : undefined;
-                    return slot && slot.balance === to.newBalance && slot.item.id === to.itemId;
-                });
-                return !transferCompleted;
-            });
-            return pending;
-        });
-    }, [player, selectedTiles, world?.block, world?.buildings]);
+    //     updatePendingTransfers((pending) => {
+    //         pending = pending.filter(([_, to]) => {
+    //             // get the owner of 'to'
+    //             // when the balance of the target slot equals our pending balance then the transfer is complete
+    //             // and we need to keep the pending transfer
+    //             const transferCompleted = owners.some((o) => {
+    //                 const slot =
+    //                     o.id === to.id ? o.bags[to.equipIndex].bag.slots.find((s) => s.key === to.slotKey) : undefined;
+    //                 return slot && slot.balance === to.newBalance && slot.item.id === to.itemId;
+    //             });
+    //             return !transferCompleted;
+    //         });
+    //         return pending;
+    //     });
+    // }, [player, selectedTiles, world?.block, world?.buildings]);
 
     /**
      * check if the selected seeker is on or adjacent to the selected tile
@@ -237,24 +237,24 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         });
 
         // add pending transfer, removing and combining
-        updatePendingTransfers((pending) => {
-            pending = pending.filter(([_, pendingTransferInfo]) => !isTransferInfoEqual(pendingTransferInfo, to));
-            pending.push([from, to]);
-            return pending;
-        });
+        // updatePendingTransfers((pending) => {
+        //     pending = pending.filter(([_, pendingTransferInfo]) => !isTransferInfoEqual(pendingTransferInfo, to));
+        //     pending.push([from, to]);
+        //     return pending;
+        // });
     };
 
-    const getPendingFromTransfers = (ownerId: string, equipIndex: number) => {
-        return pendingTransfers.filter(([from, _]) => {
-            return from.id === ownerId && from.equipIndex === equipIndex;
-        });
-    };
+    // const getPendingFromTransfers = (ownerId: string, equipIndex: number) => {
+    //     return pendingTransfers.filter(([from, _]) => {
+    //         return from.id === ownerId && from.equipIndex === equipIndex;
+    //     });
+    // };
 
-    const getPendingToTransfers = (ownerId: string, equipIndex: number) => {
-        return pendingTransfers.filter(([_, to]) => {
-            return to.id === ownerId && to.equipIndex === equipIndex;
-        });
-    };
+    // const getPendingToTransfers = (ownerId: string, equipIndex: number) => {
+    //     return pendingTransfers.filter(([_, to]) => {
+    //         return to.id === ownerId && to.equipIndex === equipIndex;
+    //     });
+    // };
 
     const inventoryContextValue: InventoryContextStore = {
         isPickedUpItemVisible,
@@ -262,8 +262,8 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         pickUpItem,
         drop,
         isSeekerAtLocation,
-        getPendingFromTransfers,
-        getPendingToTransfers,
+        // getPendingFromTransfers,
+        // getPendingToTransfers,
         addBagRef,
         removeBagRef
     };

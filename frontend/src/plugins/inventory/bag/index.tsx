@@ -35,9 +35,9 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
         showIcon = true,
         ...otherProps
     } = props;
-    const { getPendingFromTransfers, getPendingToTransfers, addBagRef, removeBagRef } = useInventory();
-    const pendingFrom = getPendingFromTransfers(ownerId, equipIndex);
-    const pendingTo = getPendingToTransfers(ownerId, equipIndex);
+    const { addBagRef, removeBagRef } = useInventory();
+    // const pendingFrom = getPendingFromTransfers(ownerId, equipIndex);
+    // const pendingTo = getPendingToTransfers(ownerId, equipIndex);
     const slotsRef = useRef<HTMLUListElement>(null);
     const slotKeys = recipe ? recipe.map((r) => r.key) : Array.from(Array(numBagSlots).keys());
     const slots: BagSlotProps[] = slotKeys
@@ -60,30 +60,30 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
             }
 
             // we want to check if the slot has a pending from if so we update the balance
-            const from = pendingFrom.map(([from, _]) => from).find((from) => from.slotKey === slot.slotKey);
-            if (from) {
-                slot.isPending = false;
-                slot.isInteractable = false;
-            }
+            // const from = pendingFrom.map(([from, _]) => from).find((from) => from.slotKey === slot.slotKey);
+            // if (from) {
+            //     slot.isPending = false;
+            //     slot.isInteractable = false;
+            // }
 
             // we want to check if the slot has a pending to if so we
             // update the balance and add the item id
-            const to = pendingTo.map(([_, to]) => to).find((to) => to.slotKey === slot.slotKey);
-            if (to) {
-                if (slot.itemSlot) {
-                    slot.itemSlot.balance = to.newBalance;
-                    slot.itemSlot.item.id = to.itemId;
-                } else {
-                    slot.itemSlot = {
-                        key: slot.slotKey,
-                        balance: to.newBalance,
-                        item: {
-                            id: to.itemId
-                        }
-                    };
-                }
-                slot.isPending = true;
-            }
+            // const to = pendingTo.map(([_, to]) => to).find((to) => to.slotKey === slot.slotKey);
+            // if (to) {
+            //     if (slot.itemSlot) {
+            //         slot.itemSlot.balance = to.newBalance;
+            //         slot.itemSlot.item.id = to.itemId;
+            //     } else {
+            //         slot.itemSlot = {
+            //             key: slot.slotKey,
+            //             balance: to.newBalance,
+            //             item: {
+            //                 id: to.itemId
+            //             }
+            //         };
+            //     }
+            //     slot.isPending = true;
+            // }
 
             return slot;
         });
