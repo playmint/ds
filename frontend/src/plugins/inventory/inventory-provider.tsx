@@ -1,11 +1,11 @@
 /** @format */
-import { styles } from '@app/plugins/inventory/bag-item/bag-item.styles';
-import { Tile, usePlayer, useSelection, useWorld } from '@dawnseekers/core';
-import { createContext, ReactNode, RefObject, useContext, useEffect, useReducer, useRef, useState } from 'react';
-import styled from 'styled-components';
-import { useClickOutside } from '@app/plugins/inventory/use-click-outside';
 import { nullBagId } from '@app/fixtures/null-bag-id';
 import { getTileDistance } from '@app/helpers/tile';
+import { styles } from '@app/plugins/inventory/bag-item/bag-item.styles';
+import { useClickOutside } from '@app/plugins/inventory/use-click-outside';
+import { Tile, usePlayer, useSelection } from '@dawnseekers/core';
+import { createContext, ReactNode, RefObject, useContext, useEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
 
 export interface InventoryContextProviderProps {
     children?: ReactNode;
