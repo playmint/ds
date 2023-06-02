@@ -59,32 +59,6 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
                 slot.itemSlot = itemSlot;
             }
 
-            // we want to check if the slot has a pending from if so we update the balance
-            // const from = pendingFrom.map(([from, _]) => from).find((from) => from.slotKey === slot.slotKey);
-            // if (from) {
-            //     slot.isPending = false;
-            //     slot.isInteractable = false;
-            // }
-
-            // we want to check if the slot has a pending to if so we
-            // update the balance and add the item id
-            // const to = pendingTo.map(([_, to]) => to).find((to) => to.slotKey === slot.slotKey);
-            // if (to) {
-            //     if (slot.itemSlot) {
-            //         slot.itemSlot.balance = to.newBalance;
-            //         slot.itemSlot.item.id = to.itemId;
-            //     } else {
-            //         slot.itemSlot = {
-            //             key: slot.slotKey,
-            //             balance: to.newBalance,
-            //             item: {
-            //                 id: to.itemId
-            //             }
-            //         };
-            //     }
-            //     slot.isPending = true;
-            // }
-
             return slot;
         });
 

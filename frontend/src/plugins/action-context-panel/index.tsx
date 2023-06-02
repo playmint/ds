@@ -382,7 +382,7 @@ const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selecte
             };
         });
         actions.reduce(
-            (chain, action) => chain.then(() => player.dispatch(action)).then(() => sleep(5000)),
+            (chain, action) => chain.then(() => player.dispatch(action)).then(() => sleep(3000)),
             Promise.resolve()
         );
         if (selectIntent) {

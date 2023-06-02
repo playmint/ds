@@ -71,15 +71,6 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
     const pickedUpItemRef = useRef<InventoryItem | null>(null);
     const pickedUpItemElementRef = useRef<HTMLDivElement>(null);
 
-    // type PendingTransfers = [TransferInfo, TransferInfo][];
-
-    // const [pendingTransfers, updatePendingTransfers] = useReducer(
-    //     (state: PendingTransfers, action: (state: PendingTransfers) => PendingTransfers) => {
-    //         return action(state);
-    //     },
-    //     []
-    // );
-
     const { addRef: addBagRef, removeRef: removeBagRef } = useClickOutside(clearPickedUpItem);
 
     useEffect(() => {
@@ -93,25 +84,6 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
             window.removeEventListener('mousemove', handleMouseMove);
         };
     }, []);
-
-    // useEffect(() => {
-    //     const owners = [...(player?.seekers ?? []), ...(selectedTiles ?? []), ...(world?.buildings ?? [])];
-
-    //     updatePendingTransfers((pending) => {
-    //         pending = pending.filter(([_, to]) => {
-    //             // get the owner of 'to'
-    //             // when the balance of the target slot equals our pending balance then the transfer is complete
-    //             // and we need to keep the pending transfer
-    //             const transferCompleted = owners.some((o) => {
-    //                 const slot =
-    //                     o.id === to.id ? o.bags[to.equipIndex].bag.slots.find((s) => s.key === to.slotKey) : undefined;
-    //                 return slot && slot.balance === to.newBalance && slot.item.id === to.itemId;
-    //             });
-    //             return !transferCompleted;
-    //         });
-    //         return pending;
-    //     });
-    // }, [player, selectedTiles, world?.block, world?.buildings]);
 
     /**
      * check if the selected seeker is on or adjacent to the selected tile
@@ -169,14 +141,6 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         }
     };
 
-    const transferQueue = useRef<
-        {
-            target: TransferInfo;
-            quantity: number;
-            timeoutId: NodeJS.Timeout;
-        }[]
-    >([]);
-
     const isTransferInfoEqual = (a: TransferInfo, b: TransferInfo) => {
         return a.id === b.id && a.equipIndex === b.equipIndex && a.slotKey === b.slotKey;
     };
@@ -194,67 +158,19 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
             return;
         }
 
-        // see if we have any queued transfers to this slot
-        const queuedTransferIndex = transferQueue.current.findIndex(({ target }) => isTransferInfoEqual(to, target));
-
-        if (queuedTransferIndex > -1) {
-            const queuedTransfer = transferQueue.current[queuedTransferIndex];
-
-            // cancel the existing transfer, so we can update and resend it
-            clearTimeout(queuedTransfer.timeoutId);
-
-            // remove the queued transfer
-            transferQueue.current.splice(queuedTransferIndex, 1);
-
-            // add the cancelled transfer quantity to the new transfer
-            quantity += queuedTransfer.quantity;
-        }
-
-        const id = setTimeout(() => {
-            // make our dispatch
-            player.dispatch({
-                name: 'TRANSFER_ITEM_SEEKER',
-                args: [
-                    selectedSeeker.id,
-                    [from.id, to.id],
-                    [from.equipIndex, to.equipIndex],
-                    [from.slotKey, to.slotKey],
-                    bagId || nullBagId,
-                    quantity
-                ]
-            });
-
-            // clean up our queue
-            const queuedTransferIndex = transferQueue.current.findIndex(({ timeoutId }) => timeoutId === id);
-            transferQueue.current.splice(queuedTransferIndex, 1);
-        }, 1000);
-
-        // add our queued transfer
-        transferQueue.current.push({
-            target: to,
-            quantity: quantity,
-            timeoutId: id
+        // make our dispatch
+        player.dispatch({
+            name: 'TRANSFER_ITEM_SEEKER',
+            args: [
+                selectedSeeker.id,
+                [from.id, to.id],
+                [from.equipIndex, to.equipIndex],
+                [from.slotKey, to.slotKey],
+                bagId || nullBagId,
+                quantity
+            ]
         });
-
-        // add pending transfer, removing and combining
-        // updatePendingTransfers((pending) => {
-        //     pending = pending.filter(([_, pendingTransferInfo]) => !isTransferInfoEqual(pendingTransferInfo, to));
-        //     pending.push([from, to]);
-        //     return pending;
-        // });
     };
-
-    // const getPendingFromTransfers = (ownerId: string, equipIndex: number) => {
-    //     return pendingTransfers.filter(([from, _]) => {
-    //         return from.id === ownerId && from.equipIndex === equipIndex;
-    //     });
-    // };
-
-    // const getPendingToTransfers = (ownerId: string, equipIndex: number) => {
-    //     return pendingTransfers.filter(([_, to]) => {
-    //         return to.id === ownerId && to.equipIndex === equipIndex;
-    //     });
-    // };
 
     const inventoryContextValue: InventoryContextStore = {
         isPickedUpItemVisible,
