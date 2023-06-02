@@ -149,6 +149,7 @@ public class MapInteractionManager : MonoBehaviour
             {
                 Debug.Log("Select Seeker: " + seekerID);
                 Cog.GameStateMediator.Instance.SendSelectSeekerMsg(seekerID);
+                    GameStateMediator.Instance.SendSetIntentMsg("move");
             }
         }
     }

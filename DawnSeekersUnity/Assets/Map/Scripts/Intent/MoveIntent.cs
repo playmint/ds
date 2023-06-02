@@ -131,6 +131,13 @@ public class MoveIntent : IntentHandler
             || GameStateMediator.Instance.gameState.World == null
         )
             return;
+
+        if(spawnedValidCellHighlights.ContainsKey(GridExtensions.GridToCube(MapInteractionManager.CurrentMouseCell)))
+        {
+                CursorController.ShowMoveCursor();
+        }
+        else
+            CursorController.ShowDefaultCursor();
     }
 
     private void OnTileLeftClick(Vector3Int cellCubePos)
@@ -202,7 +209,7 @@ public class MoveIntent : IntentHandler
             var newPosCube = newPathTiles[i];
 
             // Highlights
-            if (!spawnedPathHighlights.ContainsKey(newPosCube))
+            /*if (!spawnedPathHighlights.ContainsKey(newPosCube))
             {
                 var highlight = Instantiate(orangeHighlightPrefab);
                 Vector3 cellPos = MapManager.instance.grid.CellToWorld(
@@ -214,7 +221,7 @@ public class MoveIntent : IntentHandler
                     cellPos.z
                 );
                 spawnedPathHighlights.Add(newPosCube, highlight);
-            }
+            }*/
 
             // Markers
             if (newPath.Count > 0 && !_travelMarkers.ContainsKey(newPosCube))
@@ -325,6 +332,14 @@ public class MoveIntent : IntentHandler
             tileIDs.Add(TileHelper.GetTileID(cellCubePos));
             GameStateMediator.Instance.SendSelectTileMsg(tileIDs);
         }
+        else
+            DeselectSeekerAndIntent();
+    }
+
+    void DeselectSeekerAndIntent()
+    {
+        Cog.GameStateMediator.Instance.SendSelectSeekerMsg(null);
+        GameStateMediator.Instance.SendSetIntentMsg(null);
     }
 
     /*

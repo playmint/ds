@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ParabolicLineController : MonoBehaviour
@@ -67,6 +68,21 @@ public class ParabolicLineController : MonoBehaviour
                 );
         }
         positions[_resolution] = endPos;
+        StartCoroutine(RevealLineCR(positions));
+    }
+
+    IEnumerator RevealLineCR(Vector3[] positions)
+    {
+        float t = 0;
+        line.positionCount = 0;
+        while(t<1)
+        {
+            t += Time.deltaTime*5;
+            line.positionCount = Mathf.FloorToInt(t * positions.Length);
+            Vector3[] clipPos = positions.Take(line.positionCount).ToArray();
+            line.SetPositions(clipPos);
+            yield return null;
+        }
         line.SetPositions(positions);
     }
 }

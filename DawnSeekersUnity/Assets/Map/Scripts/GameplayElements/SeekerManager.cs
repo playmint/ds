@@ -98,6 +98,7 @@ public class SeekerManager : MonoBehaviour
         }
 
         currentSelectedSeeker = state.Selected.Seeker;
+        
     }
 
     public void RemoveAllSeekers()

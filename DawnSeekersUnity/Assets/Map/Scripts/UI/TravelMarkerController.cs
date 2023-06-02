@@ -12,7 +12,7 @@ public class TravelMarkerController : MonoBehaviour
 
     private void Start()
     {
-        destinationMarker.gameObject.SetActive(false);
+        //destinationMarker.gameObject.SetActive(false);
     }
 
     //private void Update()
@@ -63,9 +63,9 @@ public class TravelMarkerController : MonoBehaviour
             MapHeightManager.instance.GetHeightAtPosition(endPos),
             endPos.z
         );
-        Vector3 worldEndPos = endPos;
+        Vector3 worldEndPos = endOffset;
         line.DrawLine(startOffset, endOffset);
-        destinationMarker.position = worldEndPos;
+        destinationMarker.position = worldEndPos + (Vector3.up * 0.01f);
         destinationMarker.gameObject.SetActive(true);
     }
 
