@@ -3119,6 +3119,8 @@ MonoBehaviour:
   outlineRenderer: {fileID: -1408938807035450848, guid: 27dd91c15039b4701906e82860452235,
     type: 2}
   renderData: {fileID: 11400000, guid: 27dd91c15039b4701906e82860452235, type: 2}
+  outlineMat: {fileID: 2100000, guid: 233d0c8a67eec4cadad678292f5c5bce, type: 2}
+  falloffMultiplier: 3
   farWidth: 5
   nearWidth: 20
 --- !u!1 &1911231961 stripped
