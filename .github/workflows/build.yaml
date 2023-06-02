@@ -22,6 +22,12 @@ on:
         required: true
         default: playmint/ds-contracts
         type: string
+      PLATFORMS:
+        description: platforms for multiarch images
+        required: true
+        default: linux/arm64/v8,linux/amd64
+        type: string
+
     secrets:
       AZURE_REGISTRY_URL:
         description: Docker login url for Azure Container Registry
@@ -131,7 +137,7 @@ jobs:
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
-        platforms: linux/arm64/v8,linux/amd64
+        platforms: ${{ inputs.PLATFORMS }}
         build-args: |
             BUILDTIME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
             VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
@@ -188,7 +194,7 @@ jobs:
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
-        platforms: linux/arm64/v8,linux/amd64
+        platforms: ${{ inputs.PLATFORMS }}
         build-args: |
             BUILDTIME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
             VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}

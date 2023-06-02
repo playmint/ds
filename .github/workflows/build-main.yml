@@ -14,6 +14,7 @@ jobs:
       DEPLOYMENT_ENVIRONMENT: main
       FRONTEND_IMAGE_NAME: playmint/ds-shell
       CONTRACTS_IMAGE_NAME: playmint/ds-contracts
+      PLATFORMS: linux/arm64/v8,linux/amd64
     secrets:
       AZURE_REGISTRY_URL: ${{ secrets.AZURE_REGISTRY_URL }}
       AZURE_REGISTRY_USERNAME: ${{ secrets.AZURE_REGISTRY_USERNAME }}
