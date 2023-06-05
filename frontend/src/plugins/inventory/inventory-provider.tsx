@@ -19,7 +19,7 @@ export interface TransferInfo {
     itemId: string;
 }
 
-interface InventoryItem {
+export interface InventoryItem {
     name: string;
     icon: string;
     quantity: number;
