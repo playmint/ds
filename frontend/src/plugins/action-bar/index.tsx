@@ -99,7 +99,6 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
 
     return (
         <StyledActionBar {...otherProps}>
-            <h3>Actions</h3>
             <ul className="actions">
                 <li>
                     <button
