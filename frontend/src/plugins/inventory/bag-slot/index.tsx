@@ -1,13 +1,13 @@
 /** @format */
 
+import { BagItem } from '@app/plugins/inventory/bag-item';
+import { getItemDetails } from '@app/plugins/inventory/helpers';
+import { useInventory } from '@app/plugins/inventory/inventory-provider';
+import { ComponentProps } from '@app/types/component-props';
+import { ItemSlotFragment } from '@dawnseekers/core';
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
-import { ComponentProps } from '@app/types/component-props';
 import { styles } from './bag-slot.styles';
-import { BagItem } from '@app/plugins/inventory/bag-item';
-import { useInventory } from '@app/plugins/inventory/inventory-provider';
-import { ItemSlotFragment } from '@dawnseekers/core';
-import { getItemDetails } from '@app/plugins/inventory/helpers';
 
 export interface BagSlotProps extends ComponentProps {
     itemSlot?: ItemSlotFragment;
@@ -114,10 +114,7 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
                       />
                   )
                 : placeholderItem && (
-                      <div
-                          className="placeholder"
-                          title={`Requires ${placeholderItem.quantity} ${placeholderItem.name}`}
-                      >
+                      <div className="placeholder" title={`${placeholderItem.quantity} ${placeholderItem.name}`}>
                           <img src={placeholderItem.icon} alt={placeholderItem.name} className="icon" />
                           <span className="amount">{placeholderItem.quantity}</span>
                       </div>
