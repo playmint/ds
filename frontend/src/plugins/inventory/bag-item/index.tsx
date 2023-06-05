@@ -44,13 +44,26 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
 
     const isPickable = !isPickedUpItemVisible;
 
+    const [_stackable, life, defense, attack] = [...itemId]
+        .slice(2)
+        .reduce((bs, b, idx) => {
+            if (idx % 8 === 0) {
+                bs.push('0x');
+            }
+            bs[bs.length - 1] += b;
+            return bs;
+        }, [] as string[])
+        .map((n: string) => BigInt(n))
+        .slice(-4);
+    const tooltip = `${quantity} ${name}\n\nlife: ${life}\ndefense: ${defense}\nattack: ${attack}`;
+
     return (
         <StyledBagItem
             {...otherProps}
             onClick={handleClick}
             isPickable={isPickable}
             isInteractable={isInteractable}
-            title={`${quantity} ${name}`}
+            title={tooltip}
         >
             {isPending && <span className="spinner" />}
             <img src={icon} alt={name} className="icon" />
