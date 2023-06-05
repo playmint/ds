@@ -55,7 +55,7 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
         }, [] as string[])
         .map((n: string) => BigInt(n))
         .slice(-4);
-    const tooltip = `${quantity} ${name}\n\nlife: ${life}\ndefense: ${defense}\nattack: ${attack}`;
+    const tooltip = `${quantity} ${name}\n\nLife: ${life}\nDefense: ${defense}\nAttack: ${attack}`;
 
     return (
         <StyledBagItem
