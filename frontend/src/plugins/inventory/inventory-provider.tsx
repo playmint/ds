@@ -37,8 +37,6 @@ interface InventoryContextStore {
         bagId?: string
     ) => void;
     isSeekerAtLocation: (tile: Tile) => boolean;
-    // getPendingFromTransfers: (ownerId: string, equipIndex: number) => [TransferInfo, TransferInfo][];
-    // getPendingToTransfers: (ownerId: string, equipIndex: number) => [TransferInfo, TransferInfo][];
     addBagRef: (ref: RefObject<HTMLElement>) => void;
     removeBagRef: (ref: RefObject<HTMLElement>) => void;
 }
@@ -178,8 +176,6 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         pickUpItem,
         drop,
         isSeekerAtLocation,
-        // getPendingFromTransfers,
-        // getPendingToTransfers,
         addBagRef,
         removeBagRef
     };

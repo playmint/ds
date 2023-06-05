@@ -36,8 +36,6 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
         ...otherProps
     } = props;
     const { addBagRef, removeBagRef } = useInventory();
-    // const pendingFrom = getPendingFromTransfers(ownerId, equipIndex);
-    // const pendingTo = getPendingToTransfers(ownerId, equipIndex);
     const slotsRef = useRef<HTMLUListElement>(null);
     const slotKeys = recipe ? recipe.map((r) => r.key) : Array.from(Array(numBagSlots).keys());
     const slots: BagSlotProps[] = slotKeys
