@@ -188,16 +188,16 @@ contract BuildingRule is Rule {
             }
 
             // check recipe items
-            require(gotItem[0] == wantItem[0], "input 0 item does not match construction recipe");
-            require(gotItem[1] == wantItem[1], "input 1 item does not match construction recipe");
-            require(gotItem[2] == wantItem[2], "input 2 item does not match construction recipe");
-            require(gotItem[3] == wantItem[3], "input 3 item does not match construction recipe");
+            require(wantItem[0] == 0x0 || gotItem[0] == wantItem[0], "input 0 item does not match construction recipe");
+            require(wantItem[1] == 0x0 || gotItem[1] == wantItem[1], "input 1 item does not match construction recipe");
+            require(wantItem[2] == 0x0 || gotItem[2] == wantItem[2], "input 2 item does not match construction recipe");
+            require(wantItem[3] == 0x0 || gotItem[3] == wantItem[3], "input 3 item does not match construction recipe");
 
             // check qty
-            require(gotQty[0] >= wantQty[0], "input 0 qty does not match construction recipe");
-            require(gotQty[1] >= wantQty[1], "input 0 qty does not match construction recipe");
-            require(gotQty[2] >= wantQty[2], "input 0 qty does not match construction recipe");
-            require(gotQty[3] >= wantQty[3], "input 0 qty does not match construction recipe");
+            require(wantQty[0] == 0 || gotQty[0] >= wantQty[0], "input 0 qty does not match construction recipe");
+            require(wantQty[1] == 0 || gotQty[1] >= wantQty[1], "input 0 qty does not match construction recipe");
+            require(wantQty[2] == 0 || gotQty[2] >= wantQty[2], "input 0 qty does not match construction recipe");
+            require(wantQty[3] == 0 || gotQty[3] >= wantQty[3], "input 0 qty does not match construction recipe");
 
             // burn everything in the buildingBag so we have a nice clean bag ready
             // to be used for other things like crafting... overpay at your peril

@@ -308,7 +308,7 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, seeker, p
     const canConstruct =
         recipe.every((ingredient, index) => {
             const bag = equipSlot && equipSlot.bag;
-            return bag && bag.slots[index] && bag.slots[index].balance === ingredient.balance;
+            return bag && bag.slots[index] && bag.slots[index].balance >= ingredient.balance;
         }) && selectedTiles.length > 0;
 
     const help = selectedTile?.building
