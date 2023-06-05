@@ -28,6 +28,10 @@ public class OutlineController : MonoBehaviour
     float falloffMultiplier =8;
 
     [SerializeField]
+    [Range(0,1)]
+    float strokeCutoff = 0.2f;
+
+    [SerializeField]
     int farWidth,
         nearWidth;
 
@@ -58,6 +62,8 @@ public class OutlineController : MonoBehaviour
         }
 
         outlineMat.SetFloat("_OutlinePower", falloffMultiplier);
+
+        outlineMat.SetFloat("_OutlinePower2", strokeCutoff);
 
         int zoom = Mathf.RoundToInt(
             Mathf.Lerp(
