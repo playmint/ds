@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
+import {State} from "cog/State.sol";
 import {BaseGame} from "cog/Game.sol";
 import {Dispatcher} from "cog/Dispatcher.sol";
-import {Node} from "@ds/schema/Schema.sol";
+import {Node, BiomeKind, Schema} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
+
+using Schema for State;
 
 struct Material {
     uint256 quantity;
@@ -74,5 +77,36 @@ library BuildingUtils {
             );
         }
         return buildingKind;
+    }
+
+    // temporary helper to allow constructing a building without any
+    // materials to test out some objective ideas.
+    // THIS IS A CHEAT AND WILL BE REMOVED
+    function construct(BaseGame ds, bytes24 buildingKind, string memory model, int16 q, int16 r, int16 s)
+        internal
+        returns (bytes24 buildingInstance)
+    {
+        Dispatcher dispatcher = ds.getDispatcher();
+        State state = ds.getState();
+        // force discover tile
+        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, q, r, s)));
+        bytes24 targetTile = Node.Tile(0, q, r, s);
+        // make instance id
+        buildingInstance = Node.Building(0, q, r, s);
+        // set type of building
+        state.setBuildingKind(buildingInstance, buildingKind);
+        // set building owner to sender
+        state.setOwner(buildingInstance, Node.Player(msg.sender));
+        // set building location
+        state.setFixedLocation(buildingInstance, targetTile);
+        // attach the inputs/output bags
+        bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "input")))));
+        bytes24 outputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "output")))));
+        state.setEquipSlot(buildingInstance, 0, inputBag);
+        state.setEquipSlot(buildingInstance, 1, outputBag);
+        // annotate the building kind's model
+        state.annotate(buildingKind, "model", model);
+        // return id
+        return buildingInstance;
     }
 }

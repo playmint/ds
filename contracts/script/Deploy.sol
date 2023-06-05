@@ -90,8 +90,8 @@ contract GameDeployer is Script {
             })
         );
 
-        // construct building
-        _constructBuilding(ds, welcomeHutBuildingKind, seeker, -1, 1, 0);
+        // force construct building
+        BuildingUtils.construct(ds, welcomeHutBuildingKind, "building", -1, 1, 0);
 
         vm.stopBroadcast();
     }
@@ -128,7 +128,7 @@ contract GameDeployer is Script {
         return buildingInstance;
     }
 
-    function _loadAllowList(address deployer) private returns (address[] memory) {
+    function _loadAllowList(address deployer) private view returns (address[] memory) {
         string memory root = vm.projectRoot();
         string memory path = string.concat(root, "/src/fixtures/allowlist.json");
         string memory json = vm.readFile(path);
