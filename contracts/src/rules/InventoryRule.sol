@@ -151,6 +151,11 @@ contract InventoryRule is Rule {
             revert NoTransferLowBalance();
         }
 
+        // check that not trying to stack more than 100
+        if ((toBalance + qty) > 100) {
+            revert NoTransferIncompatibleSlot();
+        }
+
         // do the xfer
         uint64 newFromBalance = fromBalance - qty;
         if (newFromBalance == 0) {
