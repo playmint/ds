@@ -5,6 +5,7 @@ import { BagSlotProps } from './index';
 
 type BagSlotStyleProps = Partial<BagSlotProps> & {
     isDroppable: boolean;
+    isInvalid: boolean;
 };
 
 /**
@@ -13,12 +14,13 @@ type BagSlotStyleProps = Partial<BagSlotProps> & {
  * @param _ The bag slot properties object
  * @return Base styles for the bag slot component
  */
-const baseStyles = ({ isDroppable, isDisabled, isInteractable }: BagSlotStyleProps) => css`
+const baseStyles = ({ isDroppable, isDisabled, isInteractable, isInvalid }: BagSlotStyleProps) => css`
     box-sizing: content-box;
     width: 4.8rem;
     height: 4.8rem;
     background: ${isDisabled || !isInteractable ? '#19212e' : '#030f25'};
-    border: 1px solid ${isDisabled || !isInteractable ? '#656585' : isDroppable ? 'white' : '#6c98d4'};
+    border: 1px solid
+        ${isDisabled || !isInteractable ? '#656585' : isInvalid ? 'red' : isDroppable ? 'white' : '#6c98d4'};
 
     .placeholder {
         position: relative;

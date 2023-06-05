@@ -42,6 +42,7 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
 
     const item = itemSlot?.balance ? getItemDetails(itemSlot) : null;
     const placeholderItem = placeholder?.balance ? getItemDetails(placeholder) : null;
+    const itemSlotBalance = itemSlot?.balance || 0;
 
     const handleDrop = (dropQuantity: number) => {
         if (!isPickedUpItemVisible || !isInteractable || !pickedUpItem) {
@@ -51,8 +52,6 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
         if (placeholder && placeholder.item.id !== pickedUpItem.transferInfo.itemId) {
             return;
         }
-
-        const itemSlotBalance = itemSlot?.balance || 0;
 
         if (itemSlotBalance > 0 && item && item.itemId != pickedUpItem.transferInfo.itemId) {
             return;
@@ -97,6 +96,10 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
         !item &&
         ((placeholder && placeholder.item.id === pickedUpItem.transferInfo.itemId) || !placeholder);
 
+    // it's possible for a slot to contain an item that doesn't match the slot's
+    // recipe/placeholder, try to detect this invalid state
+    const isInvalid = !!(itemSlotBalance > 0 && placeholderItem && item && placeholderItem.itemId !== item.itemId);
+
     return (
         <StyledBagSlot
             {...otherProps}
@@ -105,6 +108,7 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
             isDroppable={isDroppable}
             isDisabled={isDisabled}
             isInteractable={isInteractable}
+            isInvalid={isInvalid}
         >
             {item
                 ? itemSlot && (
@@ -115,6 +119,7 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
                           slotKey={slotKey}
                           isInteractable={isInteractable}
                           isPending={isPending}
+                          isInvalid={isInvalid}
                       />
                   )
                 : placeholderItem && (

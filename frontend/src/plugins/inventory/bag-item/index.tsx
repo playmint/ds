@@ -16,6 +16,7 @@ export interface BagItemProps extends ComponentProps {
     itemId: string;
     isInteractable?: boolean;
     isPending?: boolean;
+    isInvalid?: boolean;
 }
 
 const StyledBagItem = styled('div')`
@@ -23,8 +24,19 @@ const StyledBagItem = styled('div')`
 `;
 
 export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) => {
-    const { name, icon, quantity, ownerId, equipIndex, slotKey, itemId, isPending, isInteractable, ...otherProps } =
-        props;
+    const {
+        name,
+        icon,
+        quantity,
+        ownerId,
+        equipIndex,
+        slotKey,
+        itemId,
+        isPending,
+        isInteractable,
+        isInvalid,
+        ...otherProps
+    } = props;
     const { pickUpItem, isPickedUpItemVisible } = useInventory();
 
     const handleClick = () => {
@@ -55,7 +67,9 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
         }, [] as string[])
         .map((n: string) => BigInt(n))
         .slice(-4);
-    const tooltip = `${quantity} ${name}\n\nLife: ${life}\nDefense: ${defense}\nAttack: ${attack}`;
+    const tooltip = isInvalid
+        ? `Slot contains invalid ${name} item\n\nRemove item from slot to continue`
+        : `${quantity} ${name}\n\nLife: ${life}\nDefense: ${defense}\nAttack: ${attack}`;
 
     return (
         <StyledBagItem
