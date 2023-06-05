@@ -110,24 +110,6 @@ contract GameDeployer is Script {
         );
     }
 
-    function _constructBuilding(Game ds, bytes24 buildingKind, bytes24 seeker, int16 q, int16 r, int16 s)
-        private
-        returns (bytes24 buildingInstance)
-    {
-        State state = ds.getState();
-        // get our building and give it the resources to construct
-        buildingInstance = Node.Building(0, q, r, s);
-        // magic required items into the construct slot
-        bytes24 buildingBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
-        state.setEquipSlot(buildingInstance, 0, buildingBag);
-        state.setItemSlot(buildingBag, 0, ItemUtils.Kiki(), 25);
-        state.setItemSlot(buildingBag, 1, ItemUtils.Bouba(), 25);
-        state.setItemSlot(buildingBag, 2, ItemUtils.Semiote(), 25);
-        // construct our building
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
-        return buildingInstance;
-    }
-
     function _loadAllowList(address deployer) private view returns (address[] memory) {
         string memory root = vm.projectRoot();
         string memory path = string.concat(root, "/src/fixtures/allowlist.json");
