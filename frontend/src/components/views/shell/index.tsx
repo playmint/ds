@@ -3,15 +3,16 @@
 import { Logs } from '@app/components/organisms/logs';
 import { UnityMap } from '@app/components/organisms/unity-map';
 import { formatPlayerId, formatSeekerKey } from '@app/helpers';
+import { ActionBar } from '@app/plugins/action-bar';
 import { ActionContextPanel } from '@app/plugins/action-context-panel';
 import { SeekerInventory } from '@app/plugins/inventory/seeker-inventory';
 import { TileCoords } from '@app/plugins/tile-coords';
 import { ComponentProps } from '@app/types/component-props';
 import { CompoundKeyEncoder, NodeSelectors, usePlayer, useSelection } from '@dawnseekers/core';
-import { Fragment, FunctionComponent, useCallback } from 'react';
+import detectEthereumProvider from '@metamask/detect-provider';
+import { Fragment, FunctionComponent, useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { styles } from './shell.styles';
-import { ActionBar } from '@app/plugins/action-bar';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -23,6 +24,20 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     const { ...otherProps } = props;
     const player = usePlayer();
     const { seeker: selectedSeeker, selectSeeker, tiles: selectedTiles } = useSelection();
+
+    const [providerAvailable, setProviderAvailable] = useState<boolean>(false);
+
+    useEffect(() => {
+        const detectProvider = detectEthereumProvider();
+        detectProvider
+            .then((p) => {
+                setProviderAvailable(!!p);
+            })
+            .catch((err) => {
+                setProviderAvailable(false);
+                console.error('failed to load provider:', err);
+            });
+    }, []);
 
     const connect = useCallback(() => {
         if (player) {
@@ -71,10 +86,12 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     return (
         <StyledShell {...otherProps}>
             <div className="nav-container">
-                <button onClick={connect}>
-                    <img src="/icons/player.png" alt="" />
-                    <span className="text">{player ? `Player ${formatPlayerId(player.id)}` : 'connect'}</span>
-                </button>
+                {providerAvailable && (
+                    <button onClick={connect}>
+                        <img src="/icons/player.png" alt="" />
+                        <span className="text">{player ? `Player ${formatPlayerId(player.id)}` : 'connect'}</span>
+                    </button>
+                )}
             </div>
             <div className="hud-container">
                 <div className="top-left">
