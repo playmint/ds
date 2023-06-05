@@ -83,6 +83,7 @@ public class ParabolicLineController : MonoBehaviour
             line.SetPositions(clipPos);
             yield return null;
         }
+        line.positionCount = positions.Length;
         line.SetPositions(positions);
     }
 }

@@ -209,8 +209,8 @@ public class MoveIntent : IntentHandler
             var newPosCube = newPathTiles[i];
 
             // Highlights
-            /*if (!spawnedPathHighlights.ContainsKey(newPosCube))
-            {
+            if (!spawnedPathHighlights.ContainsKey(newPosCube))
+            {/*
                 var highlight = Instantiate(orangeHighlightPrefab);
                 Vector3 cellPos = MapManager.instance.grid.CellToWorld(
                     GridExtensions.CubeToGrid(newPosCube)
@@ -219,10 +219,9 @@ public class MoveIntent : IntentHandler
                     cellPos.x,
                     MapHeightManager.instance.GetHeightAtPosition(cellPos),
                     cellPos.z
-                );
-                spawnedPathHighlights.Add(newPosCube, highlight);
-            }*/
-
+                );*/
+                spawnedPathHighlights.Add(newPosCube, null);
+            }
             // Markers
             if (newPath.Count > 0 && !_travelMarkers.ContainsKey(newPosCube))
             {
@@ -306,6 +305,7 @@ public class MoveIntent : IntentHandler
     {
         foreach (KeyValuePair<Vector3Int, GameObject> go in spawnedPathHighlights)
         {
+            if(go.Value != null)
             Destroy(go.Value);
         }
         spawnedPathHighlights = new Dictionary<Vector3Int, GameObject>();
