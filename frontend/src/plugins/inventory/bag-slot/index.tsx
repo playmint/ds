@@ -53,6 +53,10 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
         }
 
         const itemSlotBalance = itemSlot?.balance || 0;
+
+        if (itemSlotBalance > 0 && item && item.itemId != pickedUpItem.transferInfo.itemId) {
+            return;
+        }
         const transferQuantity = placeholder
             ? Math.min(dropQuantity, Math.max(placeholder.balance - itemSlotBalance, 0))
             : dropQuantity;
