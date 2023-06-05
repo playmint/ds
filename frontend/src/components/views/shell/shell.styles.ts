@@ -31,6 +31,7 @@ const baseStyles = (_: Partial<ShellProps>) => css`
         height: 5rem;
         background: #030f25;
         user-select: none;
+        zoom: 90%;
 
         button {
             display: flex;
@@ -66,6 +67,7 @@ const baseStyles = (_: Partial<ShellProps>) => css`
             'bottom-left bottom-middle right';
         flex-grow: 1;
         pointer-events: none;
+        zoom: 90%;
 
         .top-left,
         .bottom-left,

@@ -65,7 +65,7 @@ export const GlobalStyles = createGlobalStyle`
         color: #143063;
         padding: 1.2rem 2rem 0.8rem;
         font-weight: 600;
-        
+
         &:disabled {
             opacity: 0.5;
         }
@@ -119,11 +119,11 @@ export const GlobalStyles = createGlobalStyle`
 
     form {
         width: 100%;
-        
+
         .select {
             position: relative;
             width: 100%;
-            
+
             select {
                 appearance: none;
                 box-sizing: border-box;
@@ -139,7 +139,7 @@ export const GlobalStyles = createGlobalStyle`
                 line-height: inherit;
                 color: white;
             }
-            
+
             &:after {
                 position: absolute;
                 top: 50%;
