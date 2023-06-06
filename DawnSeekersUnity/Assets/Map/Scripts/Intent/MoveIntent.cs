@@ -146,7 +146,10 @@ public class MoveIntent : IntentHandler
             return;
 
         if (!TileHelper.IsDiscoveredTile(cellCubePos))
+        {
+            DeselectSeekerAndIntent(true);
             return;
+        }
 
         if (_path.Count == 0 || _path[_path.Count - 1] != cellCubePos)
         {
@@ -324,13 +327,15 @@ public class MoveIntent : IntentHandler
             GameStateMediator.Instance.SendSelectTileMsg(tileIDs);
         }
         else
-            DeselectSeekerAndIntent();
+            DeselectSeekerAndIntent(true);
     }
 
-    void DeselectSeekerAndIntent()
+    void DeselectSeekerAndIntent(bool andTile = false)
     {
-        Cog.GameStateMediator.Instance.SendSelectSeekerMsg(null);
+        GameStateMediator.Instance.SendSelectSeekerMsg(null);
         GameStateMediator.Instance.SendSetIntentMsg(null);
+        if(andTile)
+            GameStateMediator.Instance.SendSelectTileMsg(null);
     }
 
     /*
@@ -401,12 +406,13 @@ public class MoveIntent : IntentHandler
         SeekerManager.instance.GetSeekerController().moveStepStarted += SeekerMoved;
         // Cloned so we aren't iterating over the path that can be manipulated outside of the CR
         var path = new List<Vector3Int>(_path);
+        var seeker = SeekerManager.instance.currentSelectedSeeker;
 
         for (int i = 1; i < path.Count; i++)
         {
             var cellPosCube = path[i];
             GameStateMediator.Instance.MoveSeeker(
-                SeekerManager.instance.currentSelectedSeeker,
+                seeker,
                 cellPosCube
             );
             yield return new WaitForSeconds(3.5f);
@@ -415,11 +421,11 @@ public class MoveIntent : IntentHandler
         _isTracingPath = false;
     }
 
-    void SeekerMoved(Vector3Int cubePos)
+    void SeekerMoved(Vector3Int cubePos, SeekerController controller)
     {
         if(cubePos == _travelMarkers[_travelMarkers.Count-1].Key)
         {
-            SeekerManager.instance.GetSeekerController().moveStepStarted = null;
+            controller.moveStepStarted = null;
             foreach (var marker in _travelMarkers)
             {
                 if(marker.Value != null)
