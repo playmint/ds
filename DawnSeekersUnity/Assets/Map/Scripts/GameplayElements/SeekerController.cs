@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class SeekerController : MapElementController
 {
+    public System.Action<Vector3Int> moveStepStarted;
+
     [SerializeField]
     GameObject nonPlayerIconPrefab;
 
@@ -147,6 +149,7 @@ public class SeekerController : MapElementController
         if (serverPosition != _currentPosition)
         {
             _currentPosition = serverPosition;
+            moveStepStarted?.Invoke(cell);
             StartCoroutine(SmoothMoveCR(_currentPosition));
         }
     }

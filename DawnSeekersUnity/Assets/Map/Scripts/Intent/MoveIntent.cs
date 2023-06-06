@@ -20,7 +20,7 @@ public class MoveIntent : IntentHandler
     private List<Vector3Int> _path; //cell positions in Cube Coordinates;
     private Dictionary<Vector3Int, GameObject> spawnedValidCellHighlights,
         spawnedPathHighlights;
-    private Dictionary<Vector3Int, TravelMarkerController> _travelMarkers;
+    private List<KeyValuePair<Vector3Int, TravelMarkerController>> _travelMarkers;
     private bool isMoving;
     private bool _isTracingPath; // HACK: Cannot make moves until the move CR has finished
     private Vector3Int _seekerPos;
@@ -34,7 +34,7 @@ public class MoveIntent : IntentHandler
     {
         instance = this;
         _path = new List<Vector3Int>();
-        _travelMarkers = new Dictionary<Vector3Int, TravelMarkerController>();
+        _travelMarkers = new List<KeyValuePair<Vector3Int, TravelMarkerController>>();
         spawnedValidCellHighlights = new Dictionary<Vector3Int, GameObject>();
         spawnedPathHighlights = new Dictionary<Vector3Int, GameObject>();
     }
@@ -195,10 +195,10 @@ public class MoveIntent : IntentHandler
                 }
 
                 // Hide line.
-                if (_travelMarkers.ContainsKey(oldPosCube))
+                if (_travelMarkers.Any(n => n.Key == oldPosCube)) // ContainsKey(oldPosCube))
                 {
-                    _travelMarkers[oldPosCube].HideLine(); // Destroys the GameObject
-                    _travelMarkers.Remove(oldPosCube);
+                    _travelMarkers.FirstOrDefault(n => n.Key == oldPosCube).Value.DestroyMarker();//[oldPosCube].HideLine(); // Destroys the GameObject
+                    _travelMarkers.Remove(_travelMarkers.FirstOrDefault(n => n.Key == oldPosCube));
                 }
             }
         }
@@ -210,27 +210,18 @@ public class MoveIntent : IntentHandler
 
             // Highlights
             if (!spawnedPathHighlights.ContainsKey(newPosCube))
-            {/*
-                var highlight = Instantiate(orangeHighlightPrefab);
-                Vector3 cellPos = MapManager.instance.grid.CellToWorld(
-                    GridExtensions.CubeToGrid(newPosCube)
-                );
-                highlight.transform.position = new Vector3(
-                    cellPos.x,
-                    MapHeightManager.instance.GetHeightAtPosition(cellPos),
-                    cellPos.z
-                );*/
+            {
                 spawnedPathHighlights.Add(newPosCube, null);
             }
             // Markers
-            if (newPath.Count > 0 && !_travelMarkers.ContainsKey(newPosCube))
+            if (newPath.Count > 0 && !_travelMarkers.Any(n => n.Key == newPosCube))
             {
                 var prevTilePosCube = newPath[newPath.Count - 1];
 
                 var travelMarker = Instantiate(travelMarkerPrefab)
                     .GetComponent<TravelMarkerController>();
                 travelMarker.ShowTravelMarkers(prevTilePosCube, newPosCube);
-                _travelMarkers.Add(newPosCube, travelMarker);
+                _travelMarkers.Add(new KeyValuePair<Vector3Int,TravelMarkerController>(newPosCube, travelMarker));
             }
 
             newPath.Add(newPosCube);
@@ -315,7 +306,7 @@ public class MoveIntent : IntentHandler
     {
         foreach (var kvp in _travelMarkers)
         {
-            kvp.Value.HideLine();
+            kvp.Value.DestroyMarker();
         }
 
         _travelMarkers.Clear();
@@ -356,14 +347,14 @@ public class MoveIntent : IntentHandler
         if (!_path.Any(p => p == cellCubePos) && validPosition)
         {
             // Add marker
-            if (!_travelMarkers.ContainsKey(cellCubePos))
+            if (!_travelMarkers.Any(n => n.Key == cellCubePos))
             {
                 var prevTilePosCube = _path[_path.Count - 1];
 
                 var travelMarker = Instantiate(travelMarkerPrefab)
                     .GetComponent<TravelMarkerController>();
                 travelMarker.ShowTravelMarkers(prevTilePosCube, cellCubePos);
-                _travelMarkers.Add(cellCubePos, travelMarker);
+                _travelMarkers.Add(new KeyValuePair<Vector3Int,TravelMarkerController>(cellCubePos, travelMarker));
             }
 
             _path.Add(cellCubePos);
@@ -407,7 +398,7 @@ public class MoveIntent : IntentHandler
     IEnumerator TracePathCR()
     {
         _isTracingPath = true;
-
+        SeekerManager.instance.GetSeekerController().moveStepStarted += SeekerMoved;
         // Cloned so we aren't iterating over the path that can be manipulated outside of the CR
         var path = new List<Vector3Int>(_path);
 
@@ -419,13 +410,36 @@ public class MoveIntent : IntentHandler
                 cellPosCube
             );
             yield return new WaitForSeconds(3.5f);
-            if (_travelMarkers.ContainsKey(cellPosCube))
-            {
-                _travelMarkers[cellPosCube].HideLine();
-                _travelMarkers.Remove(cellPosCube);
-            }
         }
 
         _isTracingPath = false;
+    }
+
+    void SeekerMoved(Vector3Int cubePos)
+    {
+        if(cubePos == _travelMarkers[_travelMarkers.Count-1].Key)
+        {
+            SeekerManager.instance.GetSeekerController().moveStepStarted = null;
+            foreach (var marker in _travelMarkers)
+            {
+                if(marker.Value != null)
+                    marker.Value.DestroyMarker();
+            }
+            _travelMarkers = new List<KeyValuePair<Vector3Int, TravelMarkerController>>();
+        }
+        if(_travelMarkers.Count>0)
+        {
+            for(int i =0; i < _travelMarkers.Count; i++)
+            {
+                if (_travelMarkers[i].Value != null)
+                    _travelMarkers[i].Value.HideLine();
+                if (_travelMarkers[i].Key == cubePos)
+                {
+                    break;
+                }
+                if (_travelMarkers[i].Value != null)
+                    _travelMarkers[i].Value.DestroyMarker();
+            }
+        }
     }
 }

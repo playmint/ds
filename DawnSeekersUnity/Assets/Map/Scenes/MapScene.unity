@@ -3491,6 +3491,12 @@ PrefabInstance:
       propertyPath: m_Name
       value: Intents
       objectReference: {fileID: 0}
+    - target: {fileID: 8967175068638033150, guid: 6aed245e8122049368e7ebb7195afd6e,
+        type: 3}
+      propertyPath: _selectedHighlightPrefab
+      value: 
+      objectReference: {fileID: 9133061235819889254, guid: 43a93c66be47d8e49b1acf2431fe0c98,
+        type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6aed245e8122049368e7ebb7195afd6e, type: 3}
 --- !u!4 &6406227089419367164 stripped
@@ -3578,7 +3584,7 @@ PrefabInstance:
     - target: {fileID: 6518314203346260187, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -4.9497476
+      value: -4.949748
       objectReference: {fileID: 0}
     - target: {fileID: 6518314203581509767, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
         type: 3}
@@ -3588,7 +3594,7 @@ PrefabInstance:
     - target: {fileID: 6518314203603543945, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -4.9497476
+      value: -4.949748
       objectReference: {fileID: 0}
     - target: {fileID: 6518314203603543946, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
         type: 3}
