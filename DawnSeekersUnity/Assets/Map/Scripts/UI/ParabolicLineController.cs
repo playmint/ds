@@ -75,9 +75,9 @@ public class ParabolicLineController : MonoBehaviour
     {
         float t = 0;
         line.positionCount = 0;
-        while(t<1)
+        while (t < 1)
         {
-            t += Time.deltaTime*5;
+            t += Time.deltaTime * 5;
             line.positionCount = Mathf.FloorToInt(t * positions.Length);
             Vector3[] clipPos = positions.Take(line.positionCount).ToArray();
             line.SetPositions(clipPos);

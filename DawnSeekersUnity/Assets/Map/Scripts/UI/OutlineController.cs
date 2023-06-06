@@ -25,10 +25,10 @@ public class OutlineController : MonoBehaviour
     Material outlineMat;
 
     [SerializeField]
-    float falloffMultiplier =8;
+    float falloffMultiplier = 8;
 
     [SerializeField]
-    [Range(0,1)]
+    [Range(0, 1)]
     float strokeCutoff = 0.2f;
 
     [SerializeField]

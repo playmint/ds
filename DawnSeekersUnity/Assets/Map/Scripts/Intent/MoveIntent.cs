@@ -132,9 +132,13 @@ public class MoveIntent : IntentHandler
         )
             return;
 
-        if(spawnedValidCellHighlights.ContainsKey(GridExtensions.GridToCube(MapInteractionManager.CurrentMouseCell)))
+        if (
+            spawnedValidCellHighlights.ContainsKey(
+                GridExtensions.GridToCube(MapInteractionManager.CurrentMouseCell)
+            )
+        )
         {
-                CursorController.ShowMoveCursor();
+            CursorController.ShowMoveCursor();
         }
         else
             CursorController.ShowDefaultCursor();
@@ -200,7 +204,7 @@ public class MoveIntent : IntentHandler
                 // Hide line.
                 if (_travelMarkers.Any(n => n.Key == oldPosCube)) // ContainsKey(oldPosCube))
                 {
-                    _travelMarkers.FirstOrDefault(n => n.Key == oldPosCube).Value.DestroyMarker();//[oldPosCube].HideLine(); // Destroys the GameObject
+                    _travelMarkers.FirstOrDefault(n => n.Key == oldPosCube).Value.DestroyMarker(); //[oldPosCube].HideLine(); // Destroys the GameObject
                     _travelMarkers.Remove(_travelMarkers.FirstOrDefault(n => n.Key == oldPosCube));
                 }
             }
@@ -224,7 +228,9 @@ public class MoveIntent : IntentHandler
                 var travelMarker = Instantiate(travelMarkerPrefab)
                     .GetComponent<TravelMarkerController>();
                 travelMarker.ShowTravelMarkers(prevTilePosCube, newPosCube);
-                _travelMarkers.Add(new KeyValuePair<Vector3Int,TravelMarkerController>(newPosCube, travelMarker));
+                _travelMarkers.Add(
+                    new KeyValuePair<Vector3Int, TravelMarkerController>(newPosCube, travelMarker)
+                );
             }
 
             newPath.Add(newPosCube);
@@ -299,8 +305,8 @@ public class MoveIntent : IntentHandler
     {
         foreach (KeyValuePair<Vector3Int, GameObject> go in spawnedPathHighlights)
         {
-            if(go.Value != null)
-            Destroy(go.Value);
+            if (go.Value != null)
+                Destroy(go.Value);
         }
         spawnedPathHighlights = new Dictionary<Vector3Int, GameObject>();
     }
@@ -334,7 +340,7 @@ public class MoveIntent : IntentHandler
     {
         GameStateMediator.Instance.SendSelectSeekerMsg(null);
         GameStateMediator.Instance.SendSetIntentMsg(null);
-        if(andTile)
+        if (andTile)
             GameStateMediator.Instance.SendSelectTileMsg(null);
     }
 
@@ -359,7 +365,9 @@ public class MoveIntent : IntentHandler
                 var travelMarker = Instantiate(travelMarkerPrefab)
                     .GetComponent<TravelMarkerController>();
                 travelMarker.ShowTravelMarkers(prevTilePosCube, cellCubePos);
-                _travelMarkers.Add(new KeyValuePair<Vector3Int,TravelMarkerController>(cellCubePos, travelMarker));
+                _travelMarkers.Add(
+                    new KeyValuePair<Vector3Int, TravelMarkerController>(cellCubePos, travelMarker)
+                );
             }
 
             _path.Add(cellCubePos);
@@ -411,10 +419,7 @@ public class MoveIntent : IntentHandler
         for (int i = 1; i < path.Count; i++)
         {
             var cellPosCube = path[i];
-            GameStateMediator.Instance.MoveSeeker(
-                seeker,
-                cellPosCube
-            );
+            GameStateMediator.Instance.MoveSeeker(seeker, cellPosCube);
             yield return new WaitForSeconds(3.5f);
         }
 
@@ -423,24 +428,24 @@ public class MoveIntent : IntentHandler
 
     void SeekerMoved(Vector3Int cubePos, SeekerController controller)
     {
-        if(_travelMarkers.Count==0)
+        if (_travelMarkers.Count == 0)
         {
             controller.moveStepStarted = null;
             return;
         }
-        if(cubePos == _travelMarkers[_travelMarkers.Count-1].Key)
+        if (cubePos == _travelMarkers[_travelMarkers.Count - 1].Key)
         {
             controller.moveStepStarted = null;
             foreach (var marker in _travelMarkers)
             {
-                if(marker.Value != null)
+                if (marker.Value != null)
                     marker.Value.DestroyMarker();
             }
             _travelMarkers = new List<KeyValuePair<Vector3Int, TravelMarkerController>>();
         }
-        if(_travelMarkers.Count>0)
+        if (_travelMarkers.Count > 0)
         {
-            for(int i =0; i < _travelMarkers.Count; i++)
+            for (int i = 0; i < _travelMarkers.Count; i++)
             {
                 if (_travelMarkers[i].Value != null)
                     _travelMarkers[i].Value.HideLine();
