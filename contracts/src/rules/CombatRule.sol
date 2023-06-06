@@ -224,7 +224,7 @@ contract CombatRule is Rule {
         return state;
     }
 
-    function _finaliseSession(State state, CombatState memory combatState, bytes24 sessionID, Context calldata ctx)
+    function _finaliseSession(State state, CombatState memory combatState, bytes24 sessionID, Context calldata /*ctx*/ )
         private
     {
         console.log("Finalising Session");
@@ -474,7 +474,7 @@ contract CombatRule is Rule {
         CombatSideKey combatSide,
         uint64 blockNum,
         uint32 entityNum
-    ) private view {
+    ) private pure {
         // TODO: obviously not random
         bytes32 rnd = keccak256(abi.encode(blockNum, combatState.tickCount, entityNum));
 
@@ -583,7 +583,7 @@ contract CombatRule is Rule {
     }
 
     // TODO: Add an end flag after the first claim so we don't have to wait until timeout for this session to end
-    function _getActiveSession(State state, bytes24 tileID, Context calldata ctx) private view returns (bytes24) {
+    function _getActiveSession(State state, bytes24 tileID, Context calldata /*ctx*/ ) private view returns (bytes24) {
         (bytes24 sessionID, uint64 startBlockNum) = state.get(Rel.Has.selector, 0, tileID);
         if (startBlockNum > 0 && !state.getIsFinalised(sessionID)) return sessionID;
 

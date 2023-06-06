@@ -128,8 +128,10 @@ public class CombatIntent : IntentHandler
         var neighbourTiles = TileHelper.GetTileNeighbours(_seekerPos);
         var validTiles = neighbourTiles.Where(cellPosCube =>
         {
-            return TileHelper.IsDiscoveredTile(cellPosCube) && TileHelper.HasBuilding(cellPosCube);
-            // TODO: && !TileHelper.HasCombatSession(cellPosCube);
+            var tile = TileHelper.GetTileByPos(cellPosCube);
+            return TileHelper.IsDiscoveredTile(cellPosCube)
+                && TileHelper.HasBuilding(tile)
+                && !TileHelper.HasActiveCombatSession(tile);
         });
 
         return validTiles.Append(_seekerPos).ToArray();

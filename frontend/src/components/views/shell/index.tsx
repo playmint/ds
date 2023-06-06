@@ -8,7 +8,7 @@ import { ActionContextPanel } from '@app/plugins/action-context-panel';
 import { SeekerInventory } from '@app/plugins/inventory/seeker-inventory';
 import { TileCoords } from '@app/plugins/tile-coords';
 import { ComponentProps } from '@app/types/component-props';
-import { CompoundKeyEncoder, NodeSelectors, usePlayer, useSelection } from '@dawnseekers/core';
+import { CompoundKeyEncoder, NodeSelectors, usePlayer, useSelection, useWorld } from '@dawnseekers/core';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { Fragment, FunctionComponent, useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';

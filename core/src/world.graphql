@@ -65,27 +65,7 @@ fragment WorldCombatSession on Node {
         flag: weight
     }
     bags: edges(match: { kinds: "Bag", via: { rel: "Equip" } }) {
-        id
-        key
-        bag: node {
-            id
-            key
-            slots: edges(match: { kinds: ["Item"], via: { rel: "Balance" } }) {
-                key
-                balance: weight
-                item: node {
-                    id
-                    name: annotation(name: "name") {
-                        id
-                        value
-                    }
-                    icon: annotation(name: "icon") {
-                        id
-                        value
-                    }
-                }
-            }
-        }
+        ...EquipmentSlot
     }
 }
 
