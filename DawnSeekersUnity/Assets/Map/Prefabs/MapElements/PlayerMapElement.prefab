@@ -327,7 +327,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  highlightColor: {r: 0.26508546, g: 0.31191552, b: 0.3490566, a: 1}
+  highlightColor: {r: 0.079432175, g: 0.34517217, b: 0.4811321, a: 1}
 --- !u!4 &8730588450661582252 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4011681257694613555, guid: a699dfdf8ea904492a4f3bc5ea3d169d,
