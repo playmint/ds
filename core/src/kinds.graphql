@@ -4,6 +4,9 @@ fragment BuildingKind on Node {
         id
         value
     }
+    model: annotation(name: "model") {
+        value
+    }
     # materials are the construction costs to build
     materials: edges(match: { kinds: ["Item"], via: { rel: "Material" } }) {
         ...ItemSlot
