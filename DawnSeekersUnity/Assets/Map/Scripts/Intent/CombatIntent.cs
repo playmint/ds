@@ -17,9 +17,13 @@ public class CombatIntent : IntentHandler
     private Dictionary<Vector3Int, GameObject> _spawnedValidHighlights;
     private Dictionary<Vector3Int, GameObject> _spawnedSelectedHighlights;
 
+    // TODO: Doesn't belong in intent
+    private Dictionary<Vector3Int, GameObject> _spawnedCombatHighlights;
+
     [SerializeField]
     private GameObject _validHighlightPrefab,
-        _selectedHighlightPrefab;
+        _selectedHighlightPrefab,
+        _combatHighlightPrefab;
 
     CombatIntent()
     {
@@ -32,6 +36,7 @@ public class CombatIntent : IntentHandler
         _validTilePositions = Array.Empty<Vector3Int>();
         _spawnedValidHighlights = new Dictionary<Vector3Int, GameObject>();
         _spawnedSelectedHighlights = new Dictionary<Vector3Int, GameObject>();
+        _spawnedCombatHighlights = new Dictionary<Vector3Int, GameObject>();
     }
 
     protected void Start()
@@ -50,6 +55,9 @@ public class CombatIntent : IntentHandler
 
     private void OnStateUpdated(GameState state)
     {
+        // TODO: Doesn't belong in intent
+        HighlightCombatTiles(state.World.Tiles);
+
         if (state.Selected.Intent == Intent)
         {
             _isActiveIntent = true;
@@ -152,6 +160,15 @@ public class CombatIntent : IntentHandler
             .ToArray();
 
         HighlightTiles(validTilePositions, _selectedHighlightPrefab, _spawnedSelectedHighlights);
+    }
+
+    private void HighlightCombatTiles(ICollection<Tiles2> worldTiles)
+    {
+        Vector3Int[] combatTiles = worldTiles
+            .Where((tile) => TileHelper.HasActiveCombatSession(tile))
+            .Select((tile) => TileHelper.GetTilePosCube(tile))
+            .ToArray();
+        HighlightTiles(combatTiles, _combatHighlightPrefab, _spawnedCombatHighlights);
     }
 
     private void RemoveAllHighlights()
