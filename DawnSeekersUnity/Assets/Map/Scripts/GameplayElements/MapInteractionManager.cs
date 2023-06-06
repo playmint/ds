@@ -9,8 +9,6 @@ public class MapInteractionManager : MonoBehaviour
 {
     public static MapInteractionManager instance;
 
-    //public static bool clickedPlayerCell;
-    public bool IsTileSelected;
     public static Vector3Int CurrentSelectedCell; // Offset odd r coords
     public static Vector3Int CurrentMouseCell; // Offset odd r coords
 
@@ -72,27 +70,25 @@ public class MapInteractionManager : MonoBehaviour
         }
         if (EventSystem.current.IsPointerOverGameObject())
             return;
-        if (Input.GetMouseButtonUp(0))
-        {
-            if (!_camController.hasDragged)
-                MapClicked(seekerID);
-        }
-
-        if (Input.GetMouseButtonDown(1))
-        {
-            MapClicked2();
-        }
 
         bool TileNeighbourValid = false;
         if (SeekerManager.instance.currentSelectedSeeker != null)
-            TileNeighbourValid = TileHelper
-                .GetTileNeighbours(
-                    TileHelper.GetTilePosCube(
-                        SeekerManager.instance.currentSelectedSeeker.NextLocation
-                    )
-                )
-                .Contains(GridExtensions.GridToCube(CurrentMouseCell));
-
+        {
+            Vector3Int cubePos = GridExtensions.GridToCube(CurrentMouseCell);
+            Vector3Int[] neighborTiles = TileHelper.GetTileNeighbours(
+                TileHelper.GetTilePosCube(SeekerManager.instance.currentSelectedSeeker.NextLocation)
+            );
+            TileNeighbourValid = neighborTiles.Contains(cubePos);
+            if (
+                TileNeighbourValid
+                && GameStateMediator.Instance.gameState.Selected.Intent != IntentKind.SCOUT
+            )
+            {
+                TileNeighbourValid = TileHelper.IsDiscoveredTile(
+                    neighborTiles.FirstOrDefault(n => n == cubePos)
+                );
+            }
+        }
         // Tile mouseover cursor
         if (
             GameStateMediator.Instance.gameState != null
@@ -104,6 +100,24 @@ public class MapInteractionManager : MonoBehaviour
                     || TileNeighbourValid
                 ) && String.IsNullOrEmpty(seekerID)
             );
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            if (hit.transform != null)
+            {
+                if (!_camController.hasDragged)
+                    MapClicked(seekerID);
+            }
+            else
+            {
+                DeselectAll();
+            }
+        }
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            MapClicked2();
+        }
     }
 
     void MapClicked(string seekerID = "")
@@ -126,7 +140,10 @@ public class MapInteractionManager : MonoBehaviour
             )
         )
         {
-            Cog.GameStateMediator.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
+            if (TileHelper.IsDiscoveredTile(cellPosCube))
+                Cog.GameStateMediator.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
+            else
+                DeselectAll();
 
             if (string.IsNullOrEmpty(seekerID))
             {
@@ -143,14 +160,44 @@ public class MapInteractionManager : MonoBehaviour
                         GameStateMediator.Instance.gameState.Selected.Seeker.NextLocation
                     ) != cellPosCube
                 )
+                {
                     Cog.GameStateMediator.Instance.SendSelectSeekerMsg();
+                }
             }
             else
             {
                 Debug.Log("Select Seeker: " + seekerID);
                 Cog.GameStateMediator.Instance.SendSelectSeekerMsg(seekerID);
+                GameStateMediator.Instance.SendSetIntentMsg(IntentKind.MOVE);
             }
         }
+        else if (GameStateMediator.Instance.gameState.Selected.Intent != IntentKind.MOVE)
+        {
+            //if we're in an intent and clicking outside the area of influence, deselect everything (accept for move intent, which handles this itself)
+            if (
+                GameStateMediator.Instance.gameState.Selected.Seeker != null
+                && !TileHelper
+                    .GetTileNeighbours(
+                        TileHelper.GetTilePosCube(
+                            GameStateMediator.Instance.gameState.Selected.Seeker.NextLocation
+                        )
+                    )
+                    .Contains(cellPosCube)
+                && TileHelper.GetTilePosCube(
+                    GameStateMediator.Instance.gameState.Selected.Seeker.NextLocation
+                ) != cellPosCube
+            )
+            {
+                DeselectAll();
+            }
+        }
+    }
+
+    private void DeselectAll()
+    {
+        GameStateMediator.Instance.SendSelectSeekerMsg();
+        GameStateMediator.Instance.SendSelectTileMsg(null);
+        GameStateMediator.Instance.SendSetIntentMsg(null);
     }
 
     public void MapClicked2()

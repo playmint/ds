@@ -69,7 +69,7 @@ SpriteAtlas:
   - Seeker_bg_yours
   - Tower_Icon02
   - Bag_Icon
-  - White_Hex_Sprite (1)
+  - Hex_hoverState
   - constructIcon
   - LoaderSimple
   - Seeker_icon_yours

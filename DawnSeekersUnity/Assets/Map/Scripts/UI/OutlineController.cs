@@ -22,6 +22,16 @@ public class OutlineController : MonoBehaviour
     UniversalRendererData renderData;
 
     [SerializeField]
+    Material outlineMat;
+
+    [SerializeField]
+    float falloffMultiplier = 8;
+
+    [SerializeField]
+    [Range(0, 1)]
+    float strokeCutoff = 0.2f;
+
+    [SerializeField]
     int farWidth,
         nearWidth;
 
@@ -50,6 +60,10 @@ public class OutlineController : MonoBehaviour
             sHeight = Screen.height;
             Resize(outlineTexture, sWidth, sHeight);
         }
+
+        outlineMat.SetFloat("_OutlinePower", falloffMultiplier);
+
+        outlineMat.SetFloat("_OutlinePower2", strokeCutoff);
 
         int zoom = Mathf.RoundToInt(
             Mathf.Lerp(

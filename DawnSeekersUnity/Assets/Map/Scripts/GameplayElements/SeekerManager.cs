@@ -174,4 +174,9 @@ public class SeekerManager : MonoBehaviour
         else
             seekerPositionCounts[cell]++;
     }
+
+    public SeekerController GetSeekerController()
+    {
+        return spawnedSeekers[currentSelectedSeeker.Id];
+    }
 }

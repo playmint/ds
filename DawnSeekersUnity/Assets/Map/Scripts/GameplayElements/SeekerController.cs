@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class SeekerController : MapElementController
 {
+    public System.Action<Vector3Int, SeekerController> moveStepStarted;
+
     [SerializeField]
     GameObject nonPlayerIconPrefab;
 
@@ -37,7 +39,7 @@ public class SeekerController : MapElementController
     private void Awake()
     {
         GameStateMediator.Instance.EventStateUpdated += StateUpdated;
-        _defaultColor = rend.material.GetColor("_Color");
+        _defaultColor = rend.material.GetColor("_Emission");
         rend.material.SetFloat("_Fade", 1);
     }
 
@@ -50,11 +52,11 @@ public class SeekerController : MapElementController
         {
             if (hit.transform == transform && !outlineObj.activeSelf)
             {
-                rend.material.SetColor("_Color", highlightColor);
+                rend.material.SetColor("_Emission", highlightColor);
                 return;
             }
         }
-        rend.material.SetColor("_Color", _defaultColor);
+        rend.material.SetColor("_Emission", _defaultColor);
     }
 
     private void OnDestroy()
@@ -73,7 +75,7 @@ public class SeekerController : MapElementController
             }
         }
         outlineObj.SetActive(false);
-        rend.material.SetColor("_Color", _defaultColor);
+        rend.material.SetColor("_Emission", _defaultColor);
     }
 
     public void Setup(Vector3Int cell, int numObjects, int index, bool isPlayer, string seekerID)
@@ -109,7 +111,7 @@ public class SeekerController : MapElementController
 
     public string GetSeekerID()
     {
-        rend.material.SetColor("_Color", highlightColor);
+        rend.material.SetColor("_Emission", highlightColor);
         return _seekerID;
     }
 
@@ -147,6 +149,7 @@ public class SeekerController : MapElementController
         if (serverPosition != _currentPosition)
         {
             _currentPosition = serverPosition;
+            moveStepStarted?.Invoke(cell, this);
             StartCoroutine(SmoothMoveCR(_currentPosition));
         }
     }

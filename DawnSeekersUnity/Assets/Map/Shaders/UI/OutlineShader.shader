@@ -7,7 +7,8 @@ Shader "UI/Outline"
         [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
         _Color ("Tint", Color) = (1,1,1,1)
         [HDR]_OutlineColor ("Outline Color", Color) = (1,1,1,1)
-        _OutlinePower ("OutlinePower", Float) = 8
+        _OutlinePower ("Outline Power", Float) = 8
+        _OutlinePower2 ("Second Outline Power", Range(0,1)) = 8
         _StencilComp ("Stencil Comparison", Float) = 8
         _Stencil ("Stencil ID", Float) = 0
         _StencilOp ("Stencil Operation", Float) = 0
@@ -84,6 +85,7 @@ Shader "UI/Outline"
             float4 _ClipRect;
             float4 _MainTex_ST;
             float _OutlinePower;
+            float _OutlinePower2;
 
             v2f vert(appdata_t v)
             {
@@ -99,11 +101,21 @@ Shader "UI/Outline"
                 return OUT;
             }
 
+            float invLerp(float from, float to, float value){
+              return (value - from) / (to - from);
+            }
+
+            float remap(float origFrom, float origTo, float targetFrom, float targetTo, float value){
+              float rel = invLerp(origFrom, origTo, value);
+              return lerp(targetFrom, targetTo, rel);
+            }
+
             fixed4 frag(v2f IN) : SV_Target
             {
                 half4 img = tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd;
+                half4 img2 = img;
                 half4 color = _OutlineColor;//IN.color;
-                color.a = saturate(img.a*_OutlinePower)-img.r;
+                color.a = max(saturate(img.a*_OutlinePower)-img.r,saturate(step(1,img.a+_OutlinePower2))-img.r);
                 #ifdef UNITY_UI_CLIP_RECT
                 color.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);
                 #endif

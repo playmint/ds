@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4332068239960712993}
   - component: {fileID: 3319977055583762012}
   m_Layer: 0
-  m_Name: GreenHighlight
+  m_Name: CombatIntentHighlight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -72,8 +72,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -1
-  m_Sprite: {fileID: 21300000, guid: 7364bb2dfc7c7f740bf952f9e4d31286, type: 3}
+  m_SortingOrder: 1
+  m_Sprite: {fileID: 21300000, guid: 75567d8b6a41ab34985ea08baff0e3ab, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
