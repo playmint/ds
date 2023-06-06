@@ -83,7 +83,7 @@ public class MapInteractionManager : MonoBehaviour
                     )
                 );
             TileNeighbourValid = neighborTiles.Contains(cubePos);
-            if (TileNeighbourValid)
+            if (TileNeighbourValid && GameStateMediator.Instance.gameState.Selected.Intent != IntentKind.SCOUT)
             {
                 TileNeighbourValid = TileHelper.IsDiscoveredTile(neighborTiles.FirstOrDefault(n => n == cubePos));
             }
@@ -170,7 +170,7 @@ public class MapInteractionManager : MonoBehaviour
                     GameStateMediator.Instance.SendSetIntentMsg("use");
             }
         }
-        else if(GameStateMediator.Instance.gameState.Selected.Intent != "move")
+        else if(GameStateMediator.Instance.gameState.Selected.Intent != IntentKind.MOVE)
         {
             //if we're in an intent and clicking outside the area of influence, deselect everything (accept for move intent, which handles this itself)
             if (
