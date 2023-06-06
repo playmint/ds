@@ -10,30 +10,6 @@ public class TravelMarkerController : MonoBehaviour
     [SerializeField]
     ParabolicLineController line;
 
-    private void Start()
-    {
-        //destinationMarker.gameObject.SetActive(false);
-    }
-
-    //private void Update()
-    //{
-    //    if (MapInteractionManager.CurrentSelectedCell != null && MapManager.isMakingMove)
-    //    {
-    //        if (MapInteractionManager.CurrentSelectedCell != MapInteractionManager.CurrentMouseCell)
-    //        {
-    //            ShowTravelMarkers(
-    //                MapManager.instance.grid.CellToWorld(MapInteractionManager.CurrentSelectedCell),
-    //                MapManager.instance.grid.CellToWorld(MapInteractionManager.CurrentMouseCell)
-    //            );
-    //            line.enabled = true;
-    //        }
-    //        else
-    //        {
-    //            //HideLine();
-    //        }
-    //    }
-    //}
-
     public void ShowTravelMarkers(Vector3Int startPos, Vector3Int endPos, bool isCube = true)
     {
         Vector3 startPosWorld = MapManager.instance.grid.CellToWorld(
