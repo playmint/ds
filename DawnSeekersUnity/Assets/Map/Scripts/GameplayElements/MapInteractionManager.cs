@@ -74,14 +74,20 @@ public class MapInteractionManager : MonoBehaviour
 
         bool TileNeighbourValid = false;
         if (SeekerManager.instance.currentSelectedSeeker != null)
-            TileNeighbourValid = TileHelper
+        {
+            Vector3Int cubePos = GridExtensions.GridToCube(CurrentMouseCell);
+            Vector3Int[] neighborTiles = TileHelper
                 .GetTileNeighbours(
                     TileHelper.GetTilePosCube(
                         SeekerManager.instance.currentSelectedSeeker.NextLocation
                     )
-                )
-                .Contains(GridExtensions.GridToCube(CurrentMouseCell));
-
+                );
+            TileNeighbourValid = neighborTiles.Contains(cubePos);
+            if (TileNeighbourValid)
+            {
+                TileNeighbourValid = TileHelper.IsDiscoveredTile(neighborTiles.FirstOrDefault(n => n == cubePos));
+            }
+        }
         // Tile mouseover cursor
         if (
             GameStateMediator.Instance.gameState != null

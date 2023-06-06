@@ -396,7 +396,7 @@ public class MoveIntent : IntentHandler
 
         // Select the last tile in the path and take out of move intent
         var lastTileID = TileHelper.GetTileID(_path[_path.Count - 1]);
-        GameStateMediator.Instance.SendSelectTileMsg(new List<string>() { lastTileID });
+        GameStateMediator.Instance.SendSelectTileMsg(null);
         GameStateMediator.Instance.SendSetIntentMsg(IntentKind.NONE);
     }
 
@@ -423,6 +423,11 @@ public class MoveIntent : IntentHandler
 
     void SeekerMoved(Vector3Int cubePos, SeekerController controller)
     {
+        if(_travelMarkers.Count==0)
+        {
+            controller.moveStepStarted = null;
+            return;
+        }
         if(cubePos == _travelMarkers[_travelMarkers.Count-1].Key)
         {
             controller.moveStepStarted = null;
