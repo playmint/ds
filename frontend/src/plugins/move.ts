@@ -26,7 +26,7 @@ export default function update(state) {
                 id: 'my-move-plugin',
                 type: 'tile',
                 title: 'mover',
-                summary: seeker ? 'select a tile to move to' : 'no seeker selected',
+                summary: seeker ? 'select a tile to move to' : 'no unit selected',
                 content: [
                     {
                         id: 'default',

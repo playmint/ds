@@ -28,7 +28,7 @@ public class IntentsEditorWindow : EditorWindow
 
         GUILayout.BeginVertical();
         if (disableButtons)
-            GUILayout.Label("No Seeker Selected");
+            GUILayout.Label("No Unit Selected");
         else if (SeekerManager.instance.currentSelectedSeeker != null)
             GUILayout.Label("Selected Seeker: " + SeekerManager.instance.currentSelectedSeeker.Id);
         GUILayout.Space(10f);
