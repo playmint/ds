@@ -37,7 +37,7 @@ export const CombatRewards: FunctionComponent<CombatRewardsProps> = (props: Comb
               })
             : [];
 
-    if (!rewardBags) {
+    if (rewardBags.length === 0) {
         return null;
     }
 
