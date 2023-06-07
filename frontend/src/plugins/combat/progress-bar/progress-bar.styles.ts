@@ -25,6 +25,7 @@ const baseStyles = ({ maxValue = 1, currentValue = 0 }: Partial<ProgressBarProps
             width: 100%;
             transform-origin: center left;
             transform: scaleX(${progress}%);
+            transition: transform 200ms linear;
             background: #007ff7;
         }
 

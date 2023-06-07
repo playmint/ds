@@ -22,9 +22,10 @@ import { BytesLike, hexlify } from 'ethers';
 import { useBlockTime } from '@app/contexts/block-time-provider';
 
 export type CombatModalProps = ComponentProps & {
-    selectedTiles: SelectedTileFragment[];
+    selectedTiles?: SelectedTileFragment[];
     player?: ConnectedPlayer;
     selectedSeeker?: SelectedSeekerFragment;
+    isNewSession?: boolean;
     closeModal: () => void;
 };
 
@@ -40,7 +41,12 @@ type CombatParticipantSummaryProps = {
     defendersCurrentHealth: number;
 };
 
-type PreCombatStateProps = CombatModalProps & CombatParticipantsProps & CombatParticipantSummaryProps;
+type PreCombatStateProps = CombatModalProps &
+    CombatParticipantsProps &
+    CombatParticipantSummaryProps & {
+        isStarted: boolean;
+        setIsStarted: (isStarted: boolean) => void;
+    };
 
 type CombatStateProps = CombatModalProps &
     CombatParticipantsProps &
@@ -99,7 +105,7 @@ const CombatParticipantSummary: FunctionComponent<CombatParticipantSummaryProps>
 
 const PreCombatState: FunctionComponent<PreCombatStateProps> = (props) => {
     const {
-        selectedTiles,
+        selectedTiles = [],
         player,
         selectedSeeker,
         closeModal,
@@ -108,10 +114,10 @@ const PreCombatState: FunctionComponent<PreCombatStateProps> = (props) => {
         attackersMaxHealth,
         attackersCurrentHealth,
         defendersMaxHealth,
-        defendersCurrentHealth
+        defendersCurrentHealth,
+        isStarted,
+        setIsStarted
     } = props;
-
-    const [started, setStarted] = useState<boolean>(false);
 
     const combatTiles = selectedTiles
         .filter((t) => t.biome === BiomeKind.DISCOVERED)
@@ -146,7 +152,7 @@ const PreCombatState: FunctionComponent<PreCombatStateProps> = (props) => {
             args: [selectedSeeker.id, combatTiles[1].id, attackers, defenders]
         };
         player.dispatch(action);
-        setStarted(true);
+        setIsStarted(true);
     };
 
     return (
@@ -167,7 +173,7 @@ const PreCombatState: FunctionComponent<PreCombatStateProps> = (props) => {
                 <CombatParticipants attackers={attackers} defenders={defenders} />
             </div>
             <div className="footer">
-                <button className="action-button" onClick={startCombat} disabled={started}>
+                <button className="action-button" onClick={startCombat} disabled={isStarted}>
                     Start combat
                 </button>
             </div>
@@ -315,7 +321,8 @@ const PostCombatState: FunctionComponent<PostCombatStateProps> = (props) => {
 };
 
 export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatModalProps) => {
-    const { player } = props;
+    const { player, isNewSession } = props;
+    const [isStarted, setIsStarted] = useState(!isNewSession);
     const { seeker: selectedSeeker, tiles: selectedTiles = [] } = useSelection();
     const { blockNumber, blockTime } = useBlockTime();
     const latestSession =
@@ -325,7 +332,7 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
     const actions = latestSession && getActions(latestSession);
 
     // Before combat has started
-    if (!actions) {
+    if (!actions || !isStarted) {
         const attackers: CombatParticipantProps[] = [];
         const [attackersMaxHealth, attackersCurrentHealth] = [0, 0];
         const defenders: CombatParticipantProps[] = [];
@@ -333,6 +340,7 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
         return (
             <PreCombatState
                 {...props}
+                setIsStarted={setIsStarted}
                 selectedSeeker={selectedSeeker}
                 selectedTiles={selectedTiles}
                 attackers={attackers}

@@ -28,7 +28,7 @@ import { Bag } from '@app/plugins/inventory/bag';
 import { styles } from './action-context-panel.styles';
 
 export interface ActionContextPanelProps extends ComponentProps {
-    onShowCombatModal?: () => void;
+    onShowCombatModal?: (isNewSession: boolean) => void;
 }
 
 const CONSTRUCT_INTENT = 'construct';
@@ -421,7 +421,7 @@ interface CombatProps {
     selectTiles: Selector<string[] | undefined>;
     player?: ConnectedPlayer;
     seeker?: SelectedSeekerFragment;
-    onShowCombatModal?: () => void;
+    onShowCombatModal?: (isNewSession: boolean) => void;
 }
 const Combat: FunctionComponent<CombatProps> = ({
     onShowCombatModal,
@@ -457,7 +457,7 @@ const Combat: FunctionComponent<CombatProps> = ({
     );
 
     const handleShowCombatModal = () => {
-        onShowCombatModal && onShowCombatModal();
+        onShowCombatModal && onShowCombatModal(true);
         selectIntent(undefined);
     };
 

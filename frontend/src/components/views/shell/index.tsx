@@ -88,15 +88,8 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         [player, selectSeeker, selectedSeeker]
     );
 
-    const showCombatModal = () => {
-        setModalContent(
-            <CombatModal
-                selectedTiles={selectedTiles || []}
-                player={player}
-                selectedSeeker={selectedSeeker}
-                closeModal={closeModal}
-            />
-        );
+    const showCombatModal = (isNewSession: boolean = false) => {
+        setModalContent(<CombatModal player={player} isNewSession={isNewSession} closeModal={closeModal} />);
         openModal({ closable: true, showCloseButton: false });
     };
 

@@ -14,7 +14,7 @@ export interface CombatSummaryProps extends ComponentProps {
     selectedTiles: SelectedTileFragment[];
     player?: ConnectedPlayer;
     selectedSeeker?: SelectedSeekerFragment;
-    onShowCombatModal?: () => void;
+    onShowCombatModal?: (isNewSession: boolean) => void;
 }
 
 const StyledCombatSummary = styled('div')`
@@ -62,7 +62,7 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
                         <span className="heading">Defenders</span>
                         <ProgressBar maxValue={defendersMaxHealth} currentValue={defendersCurrentHealth} />
                     </div>
-                    <button onClick={onShowCombatModal} className="action-button">
+                    <button onClick={() => onShowCombatModal && onShowCombatModal(false)} className="action-button">
                         View Combat
                     </button>
                 </div>
