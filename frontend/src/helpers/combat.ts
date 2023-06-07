@@ -179,6 +179,14 @@ export class Combat {
             } else if (combatAction.kind === CombatActionKind.CLAIM) {
                 const [entityState] = this._getEntityState(combatState, combatAction.entityID);
                 entityState.hasClaimed = true;
+            } else if (combatAction.kind === CombatActionKind.EQUIP) {
+                const result = ethers.AbiCoder.defaultAbiCoder().decode(['uint8', 'uint32[3]'], combatAction.data);
+                const info: JoinActionInfo = {
+                    combatSide: Number(result[0]),
+                    stats: [Number(result[1][0]), Number(result[1][1]), Number(result[1][2])]
+                };
+
+                _updateEntityStats(combatState, combatAction, info);
             }
 
             const numTicks = Math.floor((actionEndBlock - combatAction.blockNum) / BLOCKS_PER_TICK);
@@ -353,6 +361,21 @@ function _removeEntityFromCombat(combatState: CombatState, combatAction: CombatA
                 combatState.defenderCount--;
             }
             return;
+        }
+    }
+}
+function _updateEntityStats(combatState: CombatState, combatAction: CombatAction, info: JoinActionInfo) {
+    const entityStates =
+        info.combatSide === CombatSideKey.ATTACK ? combatState.attackerStates : combatState.defenderStates;
+
+    for (let i = 0; i < entityStates.length; i++) {
+        if (entityStates[i] && entityStates[i].entityID == combatAction.entityID) {
+            if (!entityStates[i].isPresent) {
+                return;
+            }
+
+            entityStates[i].stats = info.stats;
+            break;
         }
     }
 }

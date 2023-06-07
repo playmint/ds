@@ -80,6 +80,7 @@ contract CombatRule is Rule {
     }
 
     struct EquipActionInfo {
+        CombatSideKey combatSide; // Attack or Defence
         uint32[3] stats; // Based off of atoms. The key is Schema.AtomKind
     }
 
@@ -186,6 +187,19 @@ contract CombatRule is Rule {
             _startSession(state, seekerTile, targetTileID, attackers, defenders, ctx);
         }
 
+        if (bytes4(action) == Actions.TRANSFER_ITEM_SEEKER.selector) {
+            // decode the action
+            (bytes24 seeker,,,,,) = abi.decode(action[4:], (bytes24, bytes24[2], uint8[2], uint8[2], bytes24, uint64));
+
+            (bytes24 nextTileID, uint64 arrivalBlockNum) =
+                state.get(Rel.Location.selector, uint8(LocationKey.NEXT), seeker);
+            bytes24 sessionID = _getActiveSession(state, nextTileID, ctx);
+            if (sessionID != 0) {
+                _equip(state, sessionID, nextTileID, arrivalBlockNum, seeker, ctx);
+            }
+        }
+
+        // TODO: Remove this as we don't 'claim' anymore
         if (bytes4(action) == Actions.CLAIM_COMBAT.selector) {
             (
                 bytes24 seekerID,
@@ -222,6 +236,34 @@ contract CombatRule is Rule {
         }
 
         return state;
+    }
+
+    function _equip(
+        State state,
+        bytes24 sessionID,
+        bytes24 seekerTileID,
+        uint64 arrivalBlockNum,
+        bytes24 seekerID,
+        Context calldata ctx
+    ) private {
+        (bytes24 attackTileID, /*uint64 combatStartBlock*/ ) =
+            state.get(Rel.Has.selector, uint8(CombatSideKey.ATTACK), sessionID);
+
+        EquipActionInfo memory info = EquipActionInfo({
+            combatSide: attackTileID == seekerTileID ? CombatSideKey.ATTACK : CombatSideKey.DEFENCE,
+            stats: _getStatsForEntity(state, seekerID)
+        });
+
+        // NOTE: Held in an array to keep it the same as the encoding used when starting combat
+        CombatAction[] memory combatActions = new CombatAction[](1);
+        combatActions[0] = CombatAction(
+            CombatActionKind.EQUIP,
+            seekerID,
+            arrivalBlockNum > ctx.clock ? arrivalBlockNum : ctx.clock,
+            abi.encode(info)
+        );
+
+        _emitSessionUpdate(state, sessionID, combatActions);
     }
 
     function _finaliseSession(State state, CombatState memory combatState, bytes24 sessionID, Context calldata /*ctx*/ )
@@ -302,6 +344,7 @@ contract CombatRule is Rule {
         state.setEquipSlot(buildingInstance, 1, bytes24(0));
     }
 
+    // TODO: Remove this
     function _makeClaim(
         State state,
         CombatState memory combatState,
@@ -429,6 +472,9 @@ contract CombatRule is Rule {
                 } else if (combatState.defenderCount == 0) {
                     combatState.winState = CombatWinState.ATTACKERS;
                 }
+            } else if (combatAction.kind == CombatActionKind.EQUIP) {
+                (EquipActionInfo memory info) = abi.decode(combatAction.data, (EquipActionInfo));
+                _updateEntityStats(combatState, combatAction, info);
             } else if (combatAction.kind == CombatActionKind.CLAIM) {
                 (EntityState memory entityState, /*bool isAttacker*/ ) =
                     _getEntityState(combatState, combatAction.entityID);
@@ -561,7 +607,7 @@ contract CombatRule is Rule {
 
                 // Rejoin
                 entityStates[i].isPresent = true;
-                // entityStates[i].stats = stats; // TODO: uncomment and test. Stats should be updated on return
+                entityStates[i].stats = info.stats;
 
                 break;
             }
@@ -588,6 +634,27 @@ contract CombatRule is Rule {
             combatState.attackerCount++;
         } else {
             combatState.defenderCount++;
+        }
+    }
+
+    function _updateEntityStats(
+        CombatState memory combatState,
+        CombatAction memory combatAction,
+        EquipActionInfo memory info
+    ) private pure {
+        EntityState[] memory entityStates =
+            info.combatSide == CombatSideKey.ATTACK ? combatState.attackerStates : combatState.defenderStates;
+
+        for (uint256 i = 0; i < entityStates.length; i++) {
+            if (entityStates[i].entityID == combatAction.entityID) {
+                // Only update their stats if they are present
+                if (!entityStates[i].isPresent) {
+                    return;
+                }
+                entityStates[i].stats = info.stats;
+
+                break;
+            }
         }
     }
 
