@@ -165,6 +165,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  lineRevealSpeedMultiplier: 8.1
 --- !u!120 &1589046891220825562
 LineRenderer:
   m_ObjectHideFlags: 0
