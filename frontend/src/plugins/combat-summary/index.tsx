@@ -153,7 +153,9 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
     const latestSession =
         selectedTiles.length > 0 &&
         selectedTiles[0].sessions.length > 0 &&
-        selectedTiles[0].sessions[selectedTiles[0].sessions.length - 1];
+        selectedTiles[0].sessions.sort((a, b) => {
+            return a.attackTile && b.attackTile ? b.attackTile.startBlock - a.attackTile.startBlock : 0;
+        })[0];
     const rewardBags =
         latestSession && selectedSeeker
             ? latestSession.bags.filter((equipSlot) => {
