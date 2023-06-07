@@ -156,7 +156,7 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull
                             />
                         </div>
                     )}
-                    <button className="link-button" onClick={clearIntent}>
+                    <button className="secondary-action-button" onClick={clearIntent}>
                         Cancel Use
                     </button>
                 </TileAction>
@@ -346,7 +346,7 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, seeker, p
                 <button className="action-button" type="submit" disabled={!canConstruct}>
                     Confirm Construction
                 </button>
-                <button className="link-button" onClick={clearIntent}>
+                <button className="secondary-action-button" onClick={clearIntent}>
                     Cancel Construction
                 </button>
             </form>
@@ -419,7 +419,7 @@ const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selecte
                 >
                     Confirm Move
                 </button>
-                <button className="link-button" onClick={clearIntent}>
+                <button className="secondary-action-button" onClick={clearIntent}>
                     Cancel Move
                 </button>
             </form>
@@ -509,7 +509,7 @@ const Combat: FunctionComponent<CombatProps> = ({ selectTiles, selectIntent, sel
                 >
                     Start Combat
                 </button>
-                <button className="link-button" onClick={clearIntent}>
+                <button className="secondary-action-button" onClick={clearIntent}>
                     Cancel Combat
                 </button>
             </form>
@@ -575,7 +575,7 @@ const Scout: FunctionComponent<ScoutProps> = ({ selectTiles, selectIntent, selec
                 >
                     Confirm Scout
                 </button>
-                <button className="link-button" onClick={clearIntent}>
+                <button className="secondary-action-button" onClick={clearIntent}>
                     Cancel Scout
                 </button>
             </form>
@@ -603,7 +603,7 @@ const Use: FunctionComponent<UseProps> = ({ selectIntent, selectTiles }) => {
             <h3>Select building</h3>
             <span className="sub-title">Select a building to interact with...</span>
             <ImageSelecting />
-            <button className="link-button" onClick={clearIntent}>
+            <button className="secondary-action-button" onClick={clearIntent}>
                 Cancel Use
             </button>
         </Fragment>

@@ -49,6 +49,10 @@ const baseStyles = (_: Partial<BuildingProps>) => css`
         .ingredients {
             margin: 0 auto;
         }
+
+        > .secondary-action-button {
+            margin: 0 auto;
+        }
     }
 `;
 
