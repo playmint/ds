@@ -2,18 +2,21 @@
 
 import { Logs } from '@app/components/organisms/logs';
 import { UnityMap } from '@app/components/organisms/unity-map';
-import { formatPlayerId, formatSeekerKey } from '@app/helpers';
-import { ActionBar } from '@app/plugins/action-bar';
+import { formatPlayerId, formatUnitKey } from '@app/helpers';
 import { ActionContextPanel } from '@app/plugins/action-context-panel';
 import { SeekerInventory } from '@app/plugins/inventory/seeker-inventory';
 import { TileCoords } from '@app/plugins/tile-coords';
 import { ComponentProps } from '@app/types/component-props';
-import { CompoundKeyEncoder, NodeSelectors, usePlayer, useSelection, useWorld } from '@dawnseekers/core';
+import { CompoundKeyEncoder, NodeSelectors, usePlayer, useSelection } from '@dawnseekers/core';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { Fragment, FunctionComponent, useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { styles } from './shell.styles';
-import { CombatSummary } from '@app/plugins/combat-summary';
+import { ActionBar } from '@app/plugins/action-bar';
+import { useModalContext } from '@app/contexts/modal-provider';
+import { CombatModal } from '@app/plugins/combat/combat-modal';
+import { CombatSummary } from '@app/plugins/combat/combat-summary';
+import { CombatRewards } from '@app/plugins/combat/combat-rewards';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -23,10 +26,9 @@ const StyledShell = styled('div')`
 
 export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     const { ...otherProps } = props;
+    const { openModal, setModalContent, closeModal } = useModalContext();
     const player = usePlayer();
     const { seeker: selectedSeeker, selectSeeker, tiles: selectedTiles } = useSelection();
-    const world = useWorld();
-    const block = world ? world.block : 0;
 
     const [providerAvailable, setProviderAvailable] = useState<boolean>(false);
 
@@ -86,6 +88,11 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         [player, selectSeeker, selectedSeeker]
     );
 
+    const showCombatModal = (isNewSession: boolean = false) => {
+        setModalContent(<CombatModal player={player} isNewSession={isNewSession} closeModal={closeModal} />);
+        openModal({ closable: true, showCloseButton: false });
+    };
+
     return (
         <StyledShell {...otherProps}>
             <div className="nav-container">
@@ -103,11 +110,11 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                 <div className="bottom-left">
                     {selectedTiles && selectedTiles.length > 0 && (
                         <Fragment>
-                            {selectedTiles[0].sessions.length > 0 && (
+                            {selectedTiles[0].sessions.filter((s) => !s.isFinalised).length > 0 && (
                                 <CombatSummary
                                     className="action"
                                     selectedTiles={selectedTiles}
-                                    block={block}
+                                    onShowCombatModal={showCombatModal}
                                     player={player}
                                     selectedSeeker={selectedSeeker}
                                 />
@@ -117,7 +124,16 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                     )}
                 </div>
                 <div className="top-middle"></div>
-                <div className="bottom-middle"></div>
+                <div className="bottom-middle">
+                    {selectedTiles && selectedTiles.length > 0 && selectedTiles[0].sessions.length > 0 && (
+                        <CombatRewards
+                            className="action"
+                            selectedTiles={selectedTiles}
+                            player={player}
+                            selectedSeeker={selectedSeeker}
+                        />
+                    )}
+                </div>
                 <div className="right">
                     {player && (
                         <Fragment>
@@ -130,7 +146,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                                 <img src="/icons/prev.png" alt="Previous" />
                                             </button>
                                             <span className="label">
-                                                Unit #{formatSeekerKey(selectedSeeker?.key.toString() || '')}
+                                                Unit #{formatUnitKey(selectedSeeker?.key.toString() || '')}
                                             </span>
                                             <button className="icon-button" onClick={() => selectNextSeeker(+1)}>
                                                 <img src="/icons/next.png" alt="Next" />
@@ -153,7 +169,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                             {player.seekers.length > 0 && (
                                 <div className="tile-actions">
                                     {selectedSeeker && <ActionBar className="action" />}
-                                    <ActionContextPanel className="action" />
+                                    <ActionContextPanel className="action" onShowCombatModal={showCombatModal} />
                                 </div>
                             )}
                         </Fragment>

@@ -28,6 +28,7 @@ anvil \
 	-m "${ACCOUNT_MNEMONIC}" \
     --code-size-limit 9999999999999 \
     --gas-limit 9999999999999999 \
+    --block-time 2 \
 	&
 
 # wait for node to start

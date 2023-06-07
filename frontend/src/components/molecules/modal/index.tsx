@@ -9,6 +9,7 @@ import { useModalContext } from '@app/contexts/modal-provider';
 export interface ModalProps extends ComponentProps {
     children?: ReactNode;
     closable?: boolean;
+    showCloseButton?: boolean;
 }
 
 const StyledModal = styled('div')`
@@ -16,7 +17,7 @@ const StyledModal = styled('div')`
 `;
 
 export const Modal = forwardRef<HTMLDivElement, ModalProps>((props: ModalProps, ref?: LegacyRef<HTMLDivElement>) => {
-    const { children, closable = true, ...otherProps } = props;
+    const { children, closable = true, showCloseButton = true, ...otherProps } = props;
     const { closeModal } = useModalContext();
 
     useEffect(() => {
@@ -50,7 +51,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>((props: ModalProps, 
     return (
         <StyledModal {...otherProps} ref={ref}>
             {children}
-            {closable && (
+            {closable && showCloseButton && (
                 <button onClick={closeModal} className="close-modal-button">
                     <i className="bi bi-x" />
                 </button>
