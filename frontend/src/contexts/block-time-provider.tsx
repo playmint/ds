@@ -16,7 +16,7 @@ export const BlockTimeContext = createContext<BlockTimeContextStore>({} as Block
 
 export const useBlockTime = () => useContext(BlockTimeContext);
 
-const BLOCK_TIME_SECS = 5;
+const BLOCK_TIME_SECS = 2;
 
 export const BlockTimeProvider = ({ block, children }: BlockTimeContextProviderProps) => {
     const [lastBlock, updateLastBlock] = useState<number>(0);
@@ -28,8 +28,7 @@ export const BlockTimeProvider = ({ block, children }: BlockTimeContextProviderP
             const nowTime = new Date().getTime() / 1000;
             updateLastBlock(block);
             updateLastBlockTime(nowTime);
-
-            console.log('TIME UPDATED: ', nowTime);
+            // console.log('TIME UPDATED: ', nowTime);
         }
     }, [block, lastBlock]);
 
@@ -39,7 +38,7 @@ export const BlockTimeProvider = ({ block, children }: BlockTimeContextProviderP
             const elapsed = nowTime - lastBlockTime;
             const newBlocks = Math.floor(elapsed / BLOCK_TIME_SECS);
             updateEstimatedBlock(block + newBlocks);
-            console.log('Estimated block', block + newBlocks);
+            // console.log('Estimated block', block + newBlocks);
         }, BLOCK_TIME_SECS);
         return () => clearInterval(id);
     }, [block, lastBlockTime]);

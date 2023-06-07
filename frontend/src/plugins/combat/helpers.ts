@@ -1,6 +1,6 @@
 import { WorldTileFragment } from '@dawnseekers/core';
 import { AbiCoder, BigNumberish, BytesLike } from 'ethers';
-import { CombatAction, CombatWinState } from '@app/plugins/combat/combat';
+import { CombatAction } from '@app/plugins/combat/combat';
 
 export const buildingRegex = /^0x34cf8a7e[0-9a-f]+$/g;
 export const seekerRegex = /^0x3fbc56a4[0-9a-f]+$/g;
@@ -110,17 +110,4 @@ export function convertCombatActions(actions: CombatActionStruct[][]): CombatAct
     }
 
     return convertedActions;
-}
-
-export function getWinState(winState: CombatWinState): string {
-    switch (winState) {
-        case CombatWinState.ATTACKERS:
-            return 'Attackers have won';
-        case CombatWinState.DEFENDERS:
-            return 'Defenders have won';
-        case CombatWinState.DRAW:
-            return 'Draw';
-    }
-
-    return 'Tile in combat';
 }

@@ -27,7 +27,9 @@ import { TileInventory } from '@app/plugins/inventory/tile-inventory';
 import { Bag } from '@app/plugins/inventory/bag';
 import { styles } from './action-context-panel.styles';
 
-export interface BuildingProps extends ComponentProps {}
+export interface ActionContextPanelProps extends ComponentProps {
+    onShowCombatModal?: () => void;
+}
 
 const CONSTRUCT_INTENT = 'construct';
 const MOVE_INTENT = 'move';
@@ -172,7 +174,7 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull
     );
 };
 
-const TileNoneSelected: FunctionComponent<BuildingProps> = (_props) => {
+const TileNoneSelected: FunctionComponent<ActionContextPanelProps> = (_props) => {
     return (
         <Fragment>
             <h3>No Tile Selected</h3>
@@ -182,7 +184,7 @@ const TileNoneSelected: FunctionComponent<BuildingProps> = (_props) => {
     );
 };
 
-const TileMultiSelected: FunctionComponent<BuildingProps> = (_props) => {
+const TileMultiSelected: FunctionComponent<ActionContextPanelProps> = (_props) => {
     return (
         <Fragment>
             <h3>Multiple Tiles Selected</h3>
@@ -433,49 +435,22 @@ interface CombatProps {
     selectTiles: Selector<string[] | undefined>;
     player?: ConnectedPlayer;
     seeker?: SelectedSeekerFragment;
+    onShowCombatModal?: () => void;
 }
-const Combat: FunctionComponent<CombatProps> = ({ selectTiles, selectIntent, selectedTiles, player, seeker }) => {
+const Combat: FunctionComponent<CombatProps> = ({
+    onShowCombatModal,
+    selectTiles,
+    selectIntent,
+    selectedTiles,
+    player,
+    seeker
+}) => {
     const combatTiles = selectedTiles
         .filter((t) => t.biome === BiomeKind.DISCOVERED)
         .filter(({ sessions }) => {
             // cannot start combat if any of the tiles have an active session
             return sessions.filter((session: any) => !session.isFinalised).length == 0;
         });
-
-    const startCombat = () => {
-        if (!player) {
-            return;
-        }
-        if (!seeker) {
-            return;
-        }
-        if (combatTiles.length < 2) {
-            return;
-        }
-        if (!combatTiles[1].building) {
-            return;
-        }
-
-        const attackers = combatTiles[0].seekers
-            .map((s) => s.id)
-            .concat(combatTiles[0].building ? [combatTiles[0].building.id] : []);
-        const defenders = combatTiles[1].seekers
-            .map((s) => s.id)
-            .concat(combatTiles[1].building ? [combatTiles[1].building.id] : []);
-
-        // function START_COMBAT(bytes24 seekerID, bytes24 tileID, bytes24[] calldata attackers, bytes24[] calldata defenders)
-        const action: CogAction = {
-            name: 'START_COMBAT',
-            args: [seeker.id, combatTiles[1].id, attackers, defenders]
-        };
-        player.dispatch(action);
-        if (selectIntent) {
-            selectIntent(undefined);
-        }
-        if (selectTiles) {
-            selectTiles([]);
-        }
-    };
 
     const canAttack =
         seeker &&
@@ -494,19 +469,19 @@ const Combat: FunctionComponent<CombatProps> = ({ selectTiles, selectIntent, sel
         },
         [selectIntent, selectTiles]
     );
+
+    const handleShowCombatModal = () => {
+        onShowCombatModal && onShowCombatModal();
+        selectIntent(undefined);
+    };
+
     return (
         <Fragment>
             <h3>Combat</h3>
             <span className="sub-title">Select a tile to add to combat</span>
             <ImageSelecting />
             <form>
-                <button
-                    className="action-button"
-                    type="button"
-                    onClick={startCombat}
-                    disabled={!canAttack}
-                    style={{ opacity: canAttack ? 1 : 0.1 }}
-                >
+                <button className="action-button" type="button" onClick={handleShowCombatModal} disabled={!canAttack}>
                     Start Combat
                 </button>
                 <button className="link-button" onClick={clearIntent}>
@@ -610,7 +585,10 @@ const Use: FunctionComponent<UseProps> = ({ selectIntent, selectTiles }) => {
     );
 };
 
-export const ActionContextPanel: FunctionComponent<BuildingProps> = ({ ...otherProps }) => {
+export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({
+    onShowCombatModal,
+    ...otherProps
+}) => {
     const { selectIntent, intent, tiles, seeker, selectTiles } = useSelection();
     const player = usePlayer();
 
@@ -670,6 +648,7 @@ export const ActionContextPanel: FunctionComponent<BuildingProps> = ({ ...otherP
                     selectTiles={selectTiles}
                     seeker={seeker}
                     player={player}
+                    onShowCombatModal={onShowCombatModal}
                 />
             );
         } else {

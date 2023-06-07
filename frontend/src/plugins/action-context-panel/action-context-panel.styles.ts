@@ -1,7 +1,7 @@
 /** @format */
 
 import { css } from 'styled-components';
-import { BuildingProps } from './index';
+import { ActionContextPanelProps } from './index';
 
 /**
  * Base styles for the action context panel component
@@ -9,7 +9,7 @@ import { BuildingProps } from './index';
  * @param _ The action context panel properties object
  * @return Base styles for the action context panel component
  */
-const baseStyles = (_: Partial<BuildingProps>) => css`
+const baseStyles = (_: Partial<ActionContextPanelProps>) => css`
     h3 {
         margin-bottom: 0;
     }
@@ -58,6 +58,6 @@ const baseStyles = (_: Partial<BuildingProps>) => css`
  * @param props The action context panel properties object
  * @return Styles for the action context panel component
  */
-export const styles = (props: Partial<BuildingProps>) => css`
+export const styles = (props: Partial<ActionContextPanelProps>) => css`
     ${baseStyles(props)}
 `;
