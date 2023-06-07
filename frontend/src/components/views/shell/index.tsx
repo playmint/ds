@@ -116,7 +116,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                                 <img src="/icons/prev.png" alt="Previous" />
                                             </button>
                                             <span className="label">
-                                                Seeker #{formatSeekerKey(selectedSeeker?.key.toString() || '')}
+                                                Unit #{formatSeekerKey(selectedSeeker?.key.toString() || '')}
                                             </span>
                                             <button className="icon-button" onClick={() => selectNextSeeker(+1)}>
                                                 <img src="/icons/next.png" alt="Next" />
@@ -127,9 +127,10 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                 {selectedSeeker && <SeekerInventory className="action" seeker={selectedSeeker} />}
                                 {player && player.seekers.length === 0 && (
                                     <div className="onboarding">
-                                        <h3>Welcome to Dawnseekers</h3>
-                                        <p>You need a Seeker to play. Would you like to spawn one now?</p>
-                                        <button onClick={spawnSeeker}>Spawn Seeker</button>
+                                        <h3>Welcome to Downstream</h3>
+                                        <p>You need a mobile unit that will do your bidding out in the world. 
+                                        Would you like to spawn one now?</p>
+                                        <button onClick={spawnSeeker}>Spawn Unit</button>
                                     </div>
                                 )}
                             </div>

@@ -75,10 +75,10 @@ contract GameTest is Test {
         address sessionAddr = vm.addr(sessionKey);
         // expected custom auth message
         bytes memory authMessage = abi.encodePacked(
-            "Welcome to Dawnseekers!",
-            "\n\nThis site is requesting permission to interact with your Dawnseekers assets.",
+            "Welcome to Downstream!",
+            "\n\nThis site is requesting permission to interact with your Downstream assets.",
             "\n\nSigning this message will not incur any fees.",
-            "\n\nYou can revoke sessions and read more about them at https://dawnseekers.com/sessions",
+            "\n\nYou can revoke sessions and read more about them at https://downstream.com/sessions",
             "\n\nPermissions: send-actions, spend-energy",
             "\n\nValid: 5 blocks",
             "\n\nSession: ",

@@ -162,7 +162,7 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull
             )}
             {!showFull && tileSeekers.length > 0 && (
                 <Fragment>
-                    <span className="sub-title">Seekers</span>
+                    <span className="sub-title">Units</span>
                     <SeekerList seekers={tileSeekers} />
                 </Fragment>
             )}
@@ -199,11 +199,11 @@ const TileAvailable: FunctionComponent<unknown> = () => {
     return (
         <Fragment>
             <h3>Available Tile</h3>
-            <span className="sub-title">Nothing here yet</span>
+            <span className="sub-title">There's nothing here!</span>
             <ImageAvailable />
             {tileSeekers.length > 0 && (
                 <Fragment>
-                    <span className="sub-title">Seekers</span>
+                    <span className="sub-title">Unit</span>
                     <SeekerList seekers={tileSeekers} />
                 </Fragment>
             )}
@@ -216,7 +216,7 @@ const TileUndiscovered: FunctionComponent<unknown> = (_props) => {
     return (
         <Fragment>
             <h3>Undiscovered Tile</h3>
-            <span className="sub-title">What could be here? scout to find out!</span>
+            <span className="sub-title">You can't make out this tile. Scouting should help!</span>
             <ImageAvailable />
         </Fragment>
     );
@@ -312,10 +312,10 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, seeker, p
         }) && selectedTiles.length > 0;
 
     const help = selectedTile?.building
-        ? 'Can&apos;t construct on a tile that already has a building on it'
+        ? 'Cannot build on a tile that already has a building on it'
         : constructableTile
-        ? 'Select what kind of building to construct'
-        : 'Select an adjacent tile to construct on';
+        ? 'Select the type of building you would like to construct'
+        : 'Choose an adjacent tile to build on';
 
     return (
         <Fragment>
