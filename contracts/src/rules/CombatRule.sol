@@ -282,8 +282,24 @@ contract CombatRule is Rule {
         // Destroy the building
         // TODO: Maybe the building rule should be doing this so all building construction/destruction logic is in the same place
         //       The building rule would need to be able to check that the action was dispatched by the CombatRule
+        if (bytes4(buildingState.entityID) == Kind.Building.selector) {
+            _destroyBuilding(state, buildingState.entityID);
+        }
 
         state.setIsFinalised(sessionID, true);
+    }
+
+    function _destroyBuilding(State state, bytes24 buildingInstance) private {
+        // set type of building
+        state.setBuildingKind(buildingInstance, bytes24(0));
+        // set building owner to player who created it
+        state.setOwner(buildingInstance, bytes24(0));
+        // set building location
+        state.setFixedLocation(buildingInstance, bytes24(0));
+
+        // TODO: Orphaned bags
+        state.setEquipSlot(buildingInstance, 0, bytes24(0));
+        state.setEquipSlot(buildingInstance, 1, bytes24(0));
     }
 
     function _makeClaim(

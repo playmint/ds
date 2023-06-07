@@ -146,7 +146,7 @@ function getWinState(winState: CombatWinState): string {
     return 'Tile in combat';
 }
 
-const BLOCK_TIME_SECS = 5;
+const BLOCK_TIME_SECS = 2;
 
 export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: CombatSummaryProps) => {
     const { selectedTiles, block, player, selectedSeeker, ...otherProps } = props;
