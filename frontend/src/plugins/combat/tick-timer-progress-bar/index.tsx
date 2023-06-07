@@ -34,7 +34,7 @@ export const TickTimerProgressBar: FunctionComponent<TickTimerProgressBarProps> 
 
     useEffect(() => {
         setRemainingTime(blockTime);
-    }, [blockNumber]);
+    }, [blockNumber, blockTime]);
 
     useLayoutEffect(() => {
         if (remainingTime === blockTime) {

@@ -4,7 +4,7 @@ import { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { ComponentProps } from '@app/types/component-props';
 import { styles } from './combat-summary.styles';
-import { SelectedTileFragment } from '@dawnseekers/core';
+import { ConnectedPlayer, SelectedSeekerFragment, SelectedTileFragment } from '@dawnseekers/core';
 import { Combat, ATOM_LIFE, EntityState } from '@app/plugins/combat/combat';
 import { convertCombatActions, getActions } from '@app/plugins/combat/helpers';
 import { ProgressBar } from '@app/plugins/combat/progress-bar';
@@ -12,6 +12,8 @@ import { useBlockTime } from '@app/contexts/block-time-provider';
 
 export interface CombatSummaryProps extends ComponentProps {
     selectedTiles: SelectedTileFragment[];
+    player?: ConnectedPlayer;
+    selectedSeeker?: SelectedSeekerFragment;
     onShowCombatModal?: () => void;
 }
 
@@ -61,7 +63,7 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
                         <ProgressBar maxValue={defendersMaxHealth} currentValue={defendersCurrentHealth} />
                     </div>
                     <button onClick={onShowCombatModal} className="action-button">
-                        Show details
+                        View Combat
                     </button>
                 </div>
             )}
