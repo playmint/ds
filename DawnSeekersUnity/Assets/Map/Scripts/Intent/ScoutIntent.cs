@@ -144,7 +144,8 @@ public class ScoutIntent : IntentHandler
         }
 
         // Clear the selection
-        GameStateMediator.Instance.SendDeselectAllTilesMsg();
+        GameStateMediator.Instance.SendSelectTileMsg(null);
+        GameStateMediator.Instance.SendSetIntentMsg(IntentKind.NONE);
     }
 
     protected void Update() { }

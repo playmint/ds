@@ -18,6 +18,9 @@ public class ParabolicLineController : MonoBehaviour
     private AnimationCurve _lineCurve;
     private LineRenderer line;
 
+    [SerializeField]
+    float lineRevealSpeedMultiplier = 5;
+
     private void Awake()
     {
         line = GetComponent<LineRenderer>();
@@ -77,7 +80,7 @@ public class ParabolicLineController : MonoBehaviour
         line.positionCount = 0;
         while (t < 1)
         {
-            t += Time.deltaTime * 5;
+            t += Time.deltaTime * lineRevealSpeedMultiplier;
             line.positionCount = Mathf.FloorToInt(t * positions.Length);
             Vector3[] clipPos = positions.Take(line.positionCount).ToArray();
             line.SetPositions(clipPos);
