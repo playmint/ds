@@ -41,6 +41,10 @@ export const CombatRewards: FunctionComponent<CombatRewardsProps> = (props: Comb
         return null;
     }
 
+    if (!rewardBags.some((e) => e.bag.slots.some((s) => s.balance > 0))) {
+        return null;
+    }
+
     return (
         <StyledCombatRewards {...otherProps}>
             <h3>Combat rewards</h3>

@@ -23,13 +23,15 @@ const StyledCombatSummary = styled('div')`
 
 export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: CombatSummaryProps) => {
     const { selectedTiles, onShowCombatModal, ...otherProps } = props;
-    const latestSession =
-        selectedTiles.length > 0 &&
-        selectedTiles[0].sessions.length > 0 &&
-        selectedTiles[0].sessions[selectedTiles[0].sessions.length - 1];
+
+    const { blockNumber } = useBlockTime();
+
+    if (selectedTiles.length === 0 || selectedTiles[0].sessions.length === 0) return null;
+
+    const sessions = selectedTiles[0].sessions;
+    const latestSession = sessions[selectedTiles[0].sessions.length - 1];
 
     const actions = latestSession && getActions(latestSession);
-    const { blockNumber } = useBlockTime();
 
     if (!actions) return null;
 

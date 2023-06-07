@@ -110,7 +110,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                 <div className="bottom-left">
                     {selectedTiles && selectedTiles.length > 0 && (
                         <Fragment>
-                            {selectedTiles[0].sessions.length > 0 && (
+                            {selectedTiles[0].sessions.filter((s) => !s.isFinalised).length > 0 && (
                                 <CombatSummary
                                     className="action"
                                     selectedTiles={selectedTiles}

@@ -25,10 +25,10 @@ echo "| starting evm node |"
 echo "+-------------------+"
 anvil \
 	--host 0.0.0.0 \
-	-m "thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens" \
+	-m "${ACCOUNT_MNEMONIC}" \
     --code-size-limit 9999999999999 \
     --gas-limit 9999999999999999 \
-    --block-time 5 \
+    --block-time 2 \
 	&
 
 # wait for node to start

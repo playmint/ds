@@ -49,10 +49,10 @@ const baseStyles = (_: Partial<ActionContextPanelProps>) => css`
         .ingredients {
             margin: 0 auto;
         }
+    }
 
-        > .secondary-action-button {
-            margin: 0 auto;
-        }
+    .secondary-action-button {
+        margin: 0 auto;
     }
 `;
 

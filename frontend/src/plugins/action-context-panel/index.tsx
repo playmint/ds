@@ -560,14 +560,14 @@ const Use: FunctionComponent<UseProps> = ({ selectIntent, selectTiles }) => {
         [selectIntent, selectTiles]
     );
     return (
-        <Fragment>
+        <StyledActionContextPanel className="action">
             <h3>Select building</h3>
             <span className="sub-title">Select a building to interact with...</span>
             <ImageSelecting />
             <button className="secondary-action-button" onClick={clearIntent}>
                 Cancel Use
             </button>
-        </Fragment>
+        </StyledActionContextPanel>
     );
 };
 
