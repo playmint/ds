@@ -26,7 +26,7 @@ export const TileInventory: FunctionComponent<TileInventoryProps> = (props: Tile
         <StyledTileInventory {...otherProps}>
             {tile.bags.length > 0 && (
                 <Fragment>
-                    {title && <span className="sub-title">{title}</span>}
+                    {title && <h3>{title}</h3>}
                     <Inventory bags={tile.bags} ownerId={tile.id} isInteractable={isSeekerAtLocation(tile)} />
                 </Fragment>
             )}

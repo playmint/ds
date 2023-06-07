@@ -39,7 +39,7 @@ function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const StyledBuilding = styled('div')`
+const StyledActionContextPanel = styled('div')`
     ${styles}
 `;
 
@@ -115,7 +115,7 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull
     );
 
     return (
-        <Fragment>
+        <StyledActionContextPanel className="action">
             <h3>{component?.title ?? building?.kind?.name?.value ?? 'Unnamed Building'}</h3>
             <span className="sub-title">{component?.summary || ''}</span>
             <ImageBuilding />
@@ -161,34 +161,19 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull
                     </button>
                 </TileAction>
             )}
-            {!showFull && tileSeekers.length > 0 && (
-                <Fragment>
-                    <span className="sub-title">Units</span>
-                    <SeekerList seekers={tileSeekers} />
-                </Fragment>
-            )}
-            {!showFull && selectedTile && <TileInventory tile={selectedTile} title="Bags" />}
-        </Fragment>
-    );
-};
-
-const TileNoneSelected: FunctionComponent<BuildingProps> = (_props) => {
-    return (
-        <Fragment>
-            <h3>No Tile Selected</h3>
-            <span className="sub-title">Select a tile to see information</span>
-            <ImageAvailable />
-        </Fragment>
+            {!showFull && tileSeekers.length > 0 && <SeekerList seekers={tileSeekers} />}
+            {!showFull && selectedTile && <TileInventory tile={selectedTile} />}
+        </StyledActionContextPanel>
     );
 };
 
 const TileMultiSelected: FunctionComponent<BuildingProps> = (_props) => {
     return (
-        <Fragment>
+        <StyledActionContextPanel className="action">
             <h3>Multiple Tiles Selected</h3>
             <span className="sub-title">Selecting...</span>
             <ImageAvailable />
-        </Fragment>
+        </StyledActionContextPanel>
     );
 };
 
@@ -197,29 +182,30 @@ const TileAvailable: FunctionComponent<unknown> = () => {
     const selectedTile = selectedTiles?.[0];
     const tileSeekers = selectedTile?.seekers ?? [];
 
+    if (tileSeekers.length === 0 && selectedTile?.bags.length == 0) {
+        return null;
+    }
+
     return (
-        <Fragment>
-            <h3>Available Tile</h3>
-            <span className="sub-title">There&apos;s nothing here!</span>
-            <ImageAvailable />
+        <StyledActionContextPanel className="action">
+            <h3 style={{ marginBottom: '2rem' }}>Tile contents</h3>
             {tileSeekers.length > 0 && (
                 <Fragment>
-                    <span className="sub-title">Unit</span>
                     <SeekerList seekers={tileSeekers} />
                 </Fragment>
             )}
-            {selectedTile && <TileInventory tile={selectedTile} title="Bags" />}
-        </Fragment>
+            {selectedTile && <TileInventory tile={selectedTile} />}
+        </StyledActionContextPanel>
     );
 };
 
 const TileUndiscovered: FunctionComponent<unknown> = (_props) => {
     return (
-        <Fragment>
+        <StyledActionContextPanel className="action">
             <h3>Undiscovered Tile</h3>
             <span className="sub-title">You can&apos;t make out this tile. Scouting should help!</span>
             <ImageAvailable />
-        </Fragment>
+        </StyledActionContextPanel>
     );
 };
 
@@ -319,7 +305,7 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, seeker, p
         : 'Choose an adjacent tile to build on';
 
     return (
-        <Fragment>
+        <StyledActionContextPanel className="action">
             <h3>Constructing</h3>
             <span className="sub-title">{help}</span>
             <ImageConstruct />
@@ -350,7 +336,7 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, seeker, p
                     Cancel Construction
                 </button>
             </form>
-        </Fragment>
+        </StyledActionContextPanel>
     );
 };
 
@@ -405,7 +391,7 @@ const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selecte
         [selectIntent, selectTiles]
     );
     return (
-        <Fragment>
+        <StyledActionContextPanel className="action">
             <h3>Moving</h3>
             <span className="sub-title">Select a tile to add to path</span>
             <ImageSelecting />
@@ -423,7 +409,7 @@ const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selecte
                     Cancel Move
                 </button>
             </form>
-        </Fragment>
+        </StyledActionContextPanel>
     );
 };
 
@@ -495,7 +481,7 @@ const Combat: FunctionComponent<CombatProps> = ({ selectTiles, selectIntent, sel
         [selectIntent, selectTiles]
     );
     return (
-        <Fragment>
+        <StyledActionContextPanel className="action">
             <h3>Combat</h3>
             <span className="sub-title">Select a tile to add to combat</span>
             <ImageSelecting />
@@ -513,7 +499,7 @@ const Combat: FunctionComponent<CombatProps> = ({ selectTiles, selectIntent, sel
                     Cancel Combat
                 </button>
             </form>
-        </Fragment>
+        </StyledActionContextPanel>
     );
 };
 
@@ -561,7 +547,7 @@ const Scout: FunctionComponent<ScoutProps> = ({ selectTiles, selectIntent, selec
     const canScout = seeker && player && scoutableTiles.length > 0;
     const note = canScout ? 'Click scout to reveal selected tiles' : 'Select tiles you want to reveal';
     return (
-        <Fragment>
+        <StyledActionContextPanel className="action">
             <h3>Scouting</h3>
             <span className="sub-title">{note}</span>
             <ImageScouting />
@@ -579,7 +565,7 @@ const Scout: FunctionComponent<ScoutProps> = ({ selectTiles, selectIntent, selec
                     Cancel Scout
                 </button>
             </form>
-        </Fragment>
+        </StyledActionContextPanel>
     );
 };
 
@@ -610,94 +596,88 @@ const Use: FunctionComponent<UseProps> = ({ selectIntent, selectTiles }) => {
     );
 };
 
-export const ActionContextPanel: FunctionComponent<BuildingProps> = ({ ...otherProps }) => {
+export const ActionContextPanel: FunctionComponent<BuildingProps> = () => {
     const { selectIntent, intent, tiles, seeker, selectTiles } = useSelection();
     const player = usePlayer();
 
     const selectedTiles = tiles || [];
 
-    const content = (() => {
-        if (intent === CONSTRUCT_INTENT) {
+    if (intent === CONSTRUCT_INTENT) {
+        return (
+            <Construct
+                selectIntent={selectIntent}
+                selectedTiles={selectedTiles}
+                selectTiles={selectTiles}
+                seeker={seeker}
+                player={player}
+            />
+        );
+    } else if (intent === MOVE_INTENT) {
+        return (
+            <Move
+                selectIntent={selectIntent}
+                selectedTiles={selectedTiles}
+                selectTiles={selectTiles}
+                seeker={seeker}
+                player={player}
+            />
+        );
+    } else if (intent === SCOUT_INTENT) {
+        return (
+            <Scout
+                selectIntent={selectIntent}
+                selectedTiles={selectedTiles}
+                selectTiles={selectTiles}
+                seeker={seeker}
+                player={player}
+            />
+        );
+    } else if (intent === USE_INTENT) {
+        const selectedTile = selectedTiles[0];
+        if (selectedTile && selectedTile.building) {
             return (
-                <Construct
+                <TileBuilding
+                    building={selectedTile.building}
+                    showFull={true}
                     selectIntent={selectIntent}
-                    selectedTiles={selectedTiles}
                     selectTiles={selectTiles}
-                    seeker={seeker}
-                    player={player}
                 />
             );
-        } else if (intent === MOVE_INTENT) {
-            return (
-                <Fragment>
-                    <Move
-                        selectIntent={selectIntent}
-                        selectedTiles={selectedTiles}
-                        selectTiles={selectTiles}
-                        seeker={seeker}
-                        player={player}
-                    />
-                </Fragment>
-            );
-        } else if (intent === SCOUT_INTENT) {
-            return (
-                <Scout
-                    selectIntent={selectIntent}
-                    selectedTiles={selectedTiles}
-                    selectTiles={selectTiles}
-                    seeker={seeker}
-                    player={player}
-                />
-            );
-        } else if (intent === USE_INTENT) {
+        }
+        return <Use selectIntent={selectIntent} selectTiles={selectTiles} />;
+    } else if (intent === COMBAT_INTENT) {
+        return (
+            <Combat
+                selectIntent={selectIntent}
+                selectedTiles={selectedTiles}
+                selectTiles={selectTiles}
+                seeker={seeker}
+                player={player}
+            />
+        );
+    } else {
+        if (selectedTiles.length === 1) {
             const selectedTile = selectedTiles[0];
-            if (selectedTile && selectedTile.building) {
+            if (selectedTile.biome == BiomeKind.UNDISCOVERED) {
+                return <TileUndiscovered />;
+            } else if (!selectedTile.building) {
+                return <TileAvailable />;
+            } else if (selectedTile.building) {
                 return (
                     <TileBuilding
                         building={selectedTile.building}
-                        showFull={true}
+                        showFull={false}
                         selectIntent={selectIntent}
                         selectTiles={selectTiles}
                     />
                 );
-            }
-            return <Use selectIntent={selectIntent} selectTiles={selectTiles} />;
-        } else if (intent === COMBAT_INTENT) {
-            return (
-                <Combat
-                    selectIntent={selectIntent}
-                    selectedTiles={selectedTiles}
-                    selectTiles={selectTiles}
-                    seeker={seeker}
-                    player={player}
-                />
-            );
-        } else {
-            if (selectedTiles.length === 1) {
-                const selectedTile = selectedTiles[0];
-                if (selectedTile.biome == BiomeKind.UNDISCOVERED) {
-                    return <TileUndiscovered />;
-                } else if (!selectedTile.building) {
-                    return <TileAvailable />;
-                } else if (selectedTile.building) {
-                    return (
-                        <TileBuilding
-                            building={selectedTile.building}
-                            showFull={false}
-                            selectIntent={selectIntent}
-                            selectTiles={selectTiles}
-                        />
-                    );
-                } else {
-                    return <TileNoneSelected />; // fallback, don't expect this state
-                }
-            } else if (selectedTiles.length > 1) {
-                return <TileMultiSelected />;
             } else {
-                return <TileNoneSelected />;
+                return null; // fallback, don't expect this state
             }
+        } else if (selectedTiles.length > 1) {
+            return <TileMultiSelected />;
+        } else {
+            return null;
         }
-    })();
-
-    return <StyledBuilding {...otherProps}>{content}</StyledBuilding>;
+    }
 };

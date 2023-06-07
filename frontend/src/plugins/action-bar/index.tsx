@@ -103,15 +103,6 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
             <ul className="actions">
                 <li>
                     <button
-                        className={`action-icon-button ${!intent ? 'active' : ''}`}
-                        disabled={!intent}
-                        onClick={() => handleSelectIntent(undefined)}
-                    >
-                        Select
-                    </button>
-                </li>
-                <li>
-                    <button
                         className={`action-icon-button ${intent === MOVE_INTENT ? 'active' : ''}`}
                         disabled={!canMove || intent === MOVE_INTENT}
                         onClick={() => handleSelectIntent(MOVE_INTENT, tileId)}
@@ -128,8 +119,6 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
                         Scout
                     </button>
                 </li>
-            </ul>
-            <ul className="actions">
                 <li>
                     <button
                         className={`action-icon-button ${intent === CONSTRUCT_INTENT ? 'active' : ''}`}
