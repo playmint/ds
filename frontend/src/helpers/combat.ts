@@ -39,9 +39,9 @@ interface LeaveActionInfo {
     combatSide: CombatSideKey;
 }
 
-interface EquipActionInfo {
-    stats: [number, number, number];
-}
+// interface EquipActionInfo {
+//     stats: [number, number, number];
+// }
 
 interface CombatState {
     attackerStates: EntityState[];
@@ -82,15 +82,15 @@ export class Combat {
         // Constructor logic here
     }
 
-    private _getTotalDamageInflicted(entityStates: EntityState[]): number {
-        let totalDamageInflicted = 0;
-        for (let i = 0; i < entityStates.length; i++) {
-            if (entityStates[i].isPresent) {
-                totalDamageInflicted += entityStates[i].damageInflicted;
-            }
-        }
-        return totalDamageInflicted;
-    }
+    // private _getTotalDamageInflicted(entityStates: EntityState[]): number {
+    //     let totalDamageInflicted = 0;
+    //     for (let i = 0; i < entityStates.length; i++) {
+    //         if (entityStates[i].isPresent) {
+    //             totalDamageInflicted += entityStates[i].damageInflicted;
+    //         }
+    //     }
+    //     return totalDamageInflicted;
+    // }
 
     private _getEntityState(combatState: CombatState, entityID: ethers.BytesLike): [EntityState, boolean] {
         for (let i = 0; i < combatState.attackerStates.length; i++) {
