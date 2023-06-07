@@ -39,8 +39,6 @@ error EnityNotOnWinningSide();
 error NoDamageInflicedCannotClaim();
 
 uint64 constant BLOCKS_PER_TICK = 1;
-uint64 constant COMBAT_MAX_TICKS = 100;
-uint64 constant COMBAT_MAX_BLOCKS = COMBAT_MAX_TICKS * BLOCKS_PER_TICK;
 uint8 constant MAX_ENTITIES_PER_SIDE = 100; // No higher than 256 due to there being a reward bag for each entity and edges being 8 bit indices
 uint8 constant TILE_ATTACK_INDEX = 0;
 uint8 constant TILE_DEFEND_INDEX = 1;

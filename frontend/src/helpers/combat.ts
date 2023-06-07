@@ -3,8 +3,6 @@
 import { ethers, getUint, keccak256 } from 'ethers';
 
 const BLOCKS_PER_TICK = 1;
-const COMBAT_MAX_TICKS = 100;
-const COMBAT_MAX_BLOCKS = COMBAT_MAX_TICKS * BLOCKS_PER_TICK;
 const MAX_ENTITIES_PER_SIDE = 100;
 
 export const ATOM_LIFE = 0;

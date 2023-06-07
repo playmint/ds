@@ -128,6 +128,8 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
                         Scout
                     </button>
                 </li>
+            </ul>
+            <ul className="actions">
                 <li>
                     <button
                         className={`action-icon-button ${intent === CONSTRUCT_INTENT ? 'active' : ''}`}

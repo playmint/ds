@@ -77,7 +77,11 @@ export function getActionsFlat(session: CombatSession): CombatActionStruct[] {
     return actions;
 }
 
-export function getActions(session: CombatSession) {
+export function getActions(session?: CombatSession): CombatActionStruct[][] {
+    if (!session) {
+        return [];
+    }
+
     // A sessionUpdate is an array of actions
     const sessionUpdates = session.sessionUpdates.map((actionUpdate) => {
         if (!actionUpdate) return null;
@@ -133,7 +137,7 @@ function convertCombatActions(actions: CombatActionStruct[][]): CombatAction[][]
     return convertedActions;
 }
 
-function getWinState(winState: CombatWinState): string {
+function getWinStateText(winState: CombatWinState): string {
     switch (winState) {
         case CombatWinState.ATTACKERS:
             return 'Attackers have won';
@@ -151,11 +155,11 @@ const BLOCK_TIME_SECS = 2;
 export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: CombatSummaryProps) => {
     const { selectedTiles, block, player, selectedSeeker, ...otherProps } = props;
     const latestSession =
-        selectedTiles.length > 0 &&
-        selectedTiles[0].sessions.length > 0 &&
-        selectedTiles[0].sessions.sort((a, b) => {
-            return a.attackTile && b.attackTile ? b.attackTile.startBlock - a.attackTile.startBlock : 0;
-        })[0];
+        selectedTiles.length > 0 && selectedTiles[0].sessions.length > 0
+            ? selectedTiles[0].sessions.sort((a, b) => {
+                  return a.attackTile && b.attackTile ? b.attackTile.startBlock - a.attackTile.startBlock : 0;
+              })[0]
+            : undefined;
     const rewardBags =
         latestSession && selectedSeeker
             ? latestSession.bags.filter((equipSlot) => {
@@ -168,7 +172,7 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
               })
             : [];
 
-    const actions = latestSession ? getActions(latestSession) : [];
+    const actions = getActions(latestSession);
     const isAttackTile = latestSession && latestSession.attackTile?.tile.id == selectedTiles[0].id;
     const [lastBlock, updateLastBlock] = useState<number>(0);
     const [lastBlockTime, updateLastBlockTime] = useState<number>(0);
@@ -226,33 +230,37 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
 
     return (
         <StyledCombatSummary {...otherProps}>
-            <h3>Tile in Combat</h3>
+            <h3>{getWinStateText(combatState.winState)}</h3>
             {actions && (
                 <Fragment>
                     <p>
-                        {isAttackTile ? 'Attackers: ' : 'Defenders: '}
+                        {isAttackTile ? 'Attackers remaining: ' : 'Defenders remaining: '}
                         {totalPresentAliveEntities}
                     </p>
-                    <p>Current block: {block}</p>
+
+                    {/* <p>Current block: {block}</p>
                     <p>Current block estimate: {estimatedBlock}</p>
-                    <p>Current tick: {combatState.tickCount}</p>
+                    <p>Current tick: {combatState.tickCount}</p> */}
+
                     <p>
                         Health: {Math.max(totalTileHealth - totalTileDamage, 0)} / {totalTileHealth}
                     </p>
-                    <p>Combat state: {getWinState(combatState.winState)}</p>
                     <ul className="bags">
-                        {latestSession &&
-                            rewardBags.length > 0 &&
-                            rewardBags.map((equipSlot) => (
-                                <Bag
-                                    key={equipSlot.key}
-                                    bag={equipSlot.bag}
-                                    equipIndex={equipSlot.key}
-                                    ownerId={latestSession.id}
-                                    isInteractable={true}
-                                    as="li"
-                                />
-                            ))}
+                        {latestSession && rewardBags.length > 0 && (
+                            <Fragment>
+                                <p>Rewards</p>
+                                {rewardBags.map((equipSlot) => (
+                                    <Bag
+                                        key={equipSlot.key}
+                                        bag={equipSlot.bag}
+                                        equipIndex={equipSlot.key}
+                                        ownerId={latestSession.id}
+                                        isInteractable={true}
+                                        as="li"
+                                    />
+                                ))}
+                            </Fragment>
+                        )}
                     </ul>
                 </Fragment>
             )}

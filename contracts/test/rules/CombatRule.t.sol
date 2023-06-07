@@ -21,13 +21,7 @@ import {
     ATOM_ATTACK
 } from "@ds/schema/Schema.sol";
 import {NoMoveNotOwner, NoMoveToIndirect, NoMoveToUndiscovered} from "@ds/rules/MovementRule.sol";
-import {
-    CombatRule,
-    CombatSessionAlreadyActive,
-    EntityAlreadyClaimed,
-    COMBAT_MAX_BLOCKS,
-    HASH_EDGE_INDEX
-} from "@ds/rules/CombatRule.sol";
+import {CombatRule, CombatSessionAlreadyActive, EntityAlreadyClaimed, HASH_EDGE_INDEX} from "@ds/rules/CombatRule.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 
 using Schema for State;
@@ -200,7 +194,7 @@ contract CombatRuleTest is Test {
         dispatcher.dispatch(abi.encodeCall(Actions.START_COMBAT, (aliceSeekerID, targetTileID, attackers, defenders)));
 
         // Should be allowed to start a combat session after a finished session has been finalised
-        vm.roll(block.number + COMBAT_MAX_BLOCKS); // TODO: Remove MAX_BLOCKS
+        vm.roll(block.number + 100);
         CombatRule.CombatAction[][] memory sessionUpdates = _getSessionUpdates();
 
         // We need to process the actions in blockNum order however we can't pass them in ordered because
@@ -290,7 +284,7 @@ contract CombatRuleTest is Test {
         dispatcher.dispatch(abi.encodeCall(Actions.START_COMBAT, (aliceSeekerID, targetTileID, attackers, defenders)));
 
         // Roll forward to end of combat
-        vm.roll(block.number + COMBAT_MAX_BLOCKS);
+        vm.roll(block.number + 100);
 
         CombatRule.CombatAction[][] memory sessionUpdates = _getSessionUpdates();
 
@@ -341,7 +335,7 @@ contract CombatRuleTest is Test {
         vm.stopPrank();
 
         // Fast forward to end of battle and finalise
-        vm.roll(block.number + COMBAT_MAX_BLOCKS); // TODO: Remove MAX_BLOCKS
+        vm.roll(block.number + 100);
         CombatRule.CombatAction[][] memory sessionUpdates = _getSessionUpdates();
         uint32[] memory sortedListIndexes = getOrderedListIndexes(sessionUpdates);
         dispatcher.dispatch(
