@@ -340,6 +340,7 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
         return (
             <PreCombatState
                 {...props}
+                isStarted={false}
                 setIsStarted={setIsStarted}
                 selectedSeeker={selectedSeeker}
                 selectedTiles={selectedTiles}
