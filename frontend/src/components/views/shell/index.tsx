@@ -8,11 +8,12 @@ import { ActionContextPanel } from '@app/plugins/action-context-panel';
 import { SeekerInventory } from '@app/plugins/inventory/seeker-inventory';
 import { TileCoords } from '@app/plugins/tile-coords';
 import { ComponentProps } from '@app/types/component-props';
-import { CompoundKeyEncoder, NodeSelectors, usePlayer, useSelection } from '@dawnseekers/core';
+import { CompoundKeyEncoder, NodeSelectors, usePlayer, useSelection, useWorld } from '@dawnseekers/core';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { Fragment, FunctionComponent, useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { styles } from './shell.styles';
+import { CombatSummary } from '@app/plugins/combat-summary';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -24,6 +25,8 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     const { ...otherProps } = props;
     const player = usePlayer();
     const { seeker: selectedSeeker, selectSeeker, tiles: selectedTiles } = useSelection();
+    const world = useWorld();
+    const block = world ? world.block : 0;
 
     const [providerAvailable, setProviderAvailable] = useState<boolean>(false);
 
@@ -99,7 +102,18 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                 </div>
                 <div className="bottom-left">
                     {selectedTiles && selectedTiles.length > 0 && (
-                        <TileCoords className="action" selectedTiles={selectedTiles} />
+                        <Fragment>
+                            {selectedTiles[0].sessions.length > 0 && (
+                                <CombatSummary
+                                    className="action"
+                                    selectedTiles={selectedTiles}
+                                    block={block}
+                                    player={player}
+                                    selectedSeeker={selectedSeeker}
+                                />
+                            )}
+                            <TileCoords className="action" selectedTiles={selectedTiles} />
+                        </Fragment>
                     )}
                 </div>
                 <div className="top-middle"></div>

@@ -12,17 +12,16 @@ namespace Cog
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class PartialOfSelectedPlayerFragment
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public PartialOfSelectedPlayerFragment__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("addr", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("addr", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public object Addr { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("seekers", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("seekers", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<Seekers> Seekers { get; set; }
 
 
@@ -41,14 +40,13 @@ namespace Cog
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Player : PartialOfSelectedPlayerFragment
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public Player__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("addr", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("addr", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public object Addr { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
 
@@ -57,13 +55,13 @@ namespace Cog
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Selection
     {
-        [Newtonsoft.Json.JsonProperty("intent", NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("intent", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Intent { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("seeker", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("seeker", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Seeker Seeker { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("tiles", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("tiles", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<Tiles> Tiles { get; set; }
 
 
@@ -82,13 +80,13 @@ namespace Cog
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Json
     {
-        [Newtonsoft.Json.JsonProperty("player", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("player", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Player Player { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("selected", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("selected", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Selection Selected { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("world", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("world", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public World World { get; set; }
 
 
@@ -105,38 +103,27 @@ namespace Cog
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum PartialOfSelectedPlayerFragment__typename
-    {
-
-        [System.Runtime.Serialization.EnumMember(Value = @"Node")]
-        Node = 0,
-
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Seekers
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public Seekers__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("bags", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("bags", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<Bags> Bags { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public object Key { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("nextLocation", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("nextLocation", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public NextLocation NextLocation { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("owner", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("owner", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Owner Owner { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("prevLocation", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("prevLocation", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public PrevLocation PrevLocation { get; set; }
 
 
@@ -153,38 +140,27 @@ namespace Cog
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum Player__typename
-    {
-
-        [System.Runtime.Serialization.EnumMember(Value = @"Node")]
-        Node = 0,
-
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Seeker
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public Seeker__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("bags", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("bags", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<Bags2> Bags { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public object Key { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("nextLocation", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("nextLocation", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public NextLocation2 NextLocation { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("owner", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("owner", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Owner2 Owner { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("prevLocation", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("prevLocation", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public PrevLocation2 PrevLocation { get; set; }
 
 
@@ -203,30 +179,35 @@ namespace Cog
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Tiles
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public Tiles__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("bagCount", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("bagBalances", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<BagBalances> BagBalances { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("bagCount", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double BagCount { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("bags", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("bags", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<Bags3> Bags { get; set; }
 
         [Newtonsoft.Json.JsonProperty("biome", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double? Biome { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("building", NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("building", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Building Building { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("coords", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("coords", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<object> Coords { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("seekers", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("seekers", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<Seekers2> Seekers { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("sessions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Sessions> Sessions { get; set; }
 
 
 
@@ -244,17 +225,19 @@ namespace Cog
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class World
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public World__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("block", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("block", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double Block { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("players", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("buildings", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Buildings> Buildings { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("players", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<Players> Players { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("tiles", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("tiles", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<Tiles2> Tiles { get; set; }
 
 
@@ -271,29 +254,18 @@ namespace Cog
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum Seekers__typename
-    {
-
-        [System.Runtime.Serialization.EnumMember(Value = @"Node")]
-        Node = 0,
-
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Bags
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public Bags__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("bag", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("bag", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Bag Bag { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double Key { get; set; }
 
 
@@ -312,6 +284,21 @@ namespace Cog
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class NextLocation
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("tile", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Tile Tile { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("time", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Time { get; set; }
+
 
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
@@ -328,6 +315,12 @@ namespace Cog
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Owner
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
 
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
@@ -344,6 +337,21 @@ namespace Cog
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class PrevLocation
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("tile", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Tile2 Tile { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("time", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Time { get; set; }
+
 
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
@@ -358,29 +366,18 @@ namespace Cog
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum Seeker__typename
-    {
-
-        [System.Runtime.Serialization.EnumMember(Value = @"Node")]
-        Node = 0,
-
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Bags2
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public Bags2__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("bag", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("bag", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Bag2 Bag { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double Key { get; set; }
 
 
@@ -399,6 +396,21 @@ namespace Cog
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class NextLocation2
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("tile", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Tile3 Tile { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("time", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Time { get; set; }
+
 
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
@@ -415,6 +427,12 @@ namespace Cog
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Owner2
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
 
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
@@ -431,6 +449,21 @@ namespace Cog
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class PrevLocation2
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("tile", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Tile4 Tile { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("time", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Time { get; set; }
+
 
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
@@ -445,29 +478,40 @@ namespace Cog
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum Tiles__typename
+    public partial class BagBalances
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"Node")]
-        Node = 0,
+        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Balance { get; set; }
 
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Bags3
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public Bags3__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("bag", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("bag", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Bag3 Bag { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double Key { get; set; }
 
 
@@ -486,6 +530,18 @@ namespace Cog
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Building
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("bags", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Bags4> Bags { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("kind", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Kind Kind { get; set; }
+
 
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
@@ -502,23 +558,22 @@ namespace Cog
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Seekers2
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public Seekers2__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public object Key { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("nextLocation", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("nextLocation", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public NextLocation3 NextLocation { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("owner", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("owner", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Owner3 Owner { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("prevLocation", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("prevLocation", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public PrevLocation3 PrevLocation { get; set; }
 
 
@@ -535,26 +590,80 @@ namespace Cog
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum World__typename
+    public partial class Sessions
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"State")]
-        State = 0,
+        [Newtonsoft.Json.JsonProperty("attackTile", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public AttackTile AttackTile { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("bags", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Bags5> Bags { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("defenceTile", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public DefenceTile DefenceTile { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("isFinalised", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public IsFinalised IsFinalised { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("sessionUpdates", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<SessionUpdates> SessionUpdates { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Buildings
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("bags", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Bags6> Bags { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("kind", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Kind2 Kind { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Players
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public Players__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("addr", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("addr", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public object Addr { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
 
@@ -573,30 +682,32 @@ namespace Cog
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Tiles2
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public Tiles2__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("bagCount", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("bagBalances", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<BagBalances2> BagBalances { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("bagCount", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double BagCount { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("bagBalances")]
-        public System.Collections.Generic.ICollection<BagBalance> BagBalances { get; set; }
 
         [Newtonsoft.Json.JsonProperty("biome", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double? Biome { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("building", NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("building", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Building2 Building { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("coords", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("coords", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<object> Coords { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("seekers", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("seekers", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<Seekers3> Seekers { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("sessions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Sessions2> Sessions { get; set; }
 
 
 
@@ -611,36 +722,19 @@ namespace Cog
 
     }
 
-    public partial class BagBalance
-    {
-        [Newtonsoft.Json.JsonProperty("balance")]
-        public int Balance { get; set; }
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum Bags__typename
-    {
-
-        [System.Runtime.Serialization.EnumMember(Value = @"Edge")]
-        Edge = 0,
-
-
-    }
-
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Bag
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public Bag__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public object Key { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("slots", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("slots", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<Slots> Slots { get; set; }
 
 
@@ -657,29 +751,68 @@ namespace Cog
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum Bags2__typename
+    public partial class Tile
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"Edge")]
-        Edge = 0,
+        [Newtonsoft.Json.JsonProperty("coords", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<object> Coords { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Tile2
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("coords", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<object> Coords { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Bag2
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public Bag2__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public object Key { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("slots", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("slots", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<Slots2> Slots { get; set; }
 
 
@@ -696,29 +829,68 @@ namespace Cog
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum Bags3__typename
+    public partial class Tile3
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"Edge")]
-        Edge = 0,
+        [Newtonsoft.Json.JsonProperty("coords", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<object> Coords { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Tile4
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("coords", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<object> Coords { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Bag3
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public Bag3__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public object Key { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("slots", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("slots", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<Slots3> Slots { get; set; }
 
 
@@ -735,18 +907,88 @@ namespace Cog
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum Seekers2__typename
+    public partial class Bags4
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"Node")]
-        Node = 0,
+        [Newtonsoft.Json.JsonProperty("bag", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Bag4 Bag { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Kind
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("inputs", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Inputs> Inputs { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("materials", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Materials> Materials { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("model", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Model Model { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Name Name { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("outputs", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Outputs> Outputs { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class NextLocation3
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("tile", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Tile5 Tile { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("time", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Time { get; set; }
+
 
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
@@ -763,6 +1005,12 @@ namespace Cog
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Owner3
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
 
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
@@ -779,6 +1027,21 @@ namespace Cog
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class PrevLocation3
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("tile", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Tile6 Tile { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("time", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Time { get; set; }
+
 
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
@@ -793,28 +1056,232 @@ namespace Cog
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum Players__typename
+    public partial class AttackTile
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"Node")]
-        Node = 0,
+        [Newtonsoft.Json.JsonProperty("startBlock", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double StartBlock { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("tile", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Tile7 Tile { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum Tiles2__typename
+    public partial class Bags5
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"Node")]
-        Node = 0,
+        [Newtonsoft.Json.JsonProperty("bag", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Bag5 Bag { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class DefenceTile
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("startBlock", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double StartBlock { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("tile", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Tile8 Tile { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class IsFinalised
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("flag", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Flag { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class SessionUpdates
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Name { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Bags6
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("bag", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Bag6 Bag { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Kind2
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("inputs", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Inputs2> Inputs { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("materials", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Materials2> Materials { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("model", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Model2 Model { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Name2 Name { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("outputs", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Outputs2> Outputs { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class BagBalances2
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Balance { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Building2
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("bags", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Bags7> Bags { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("kind", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Kind3 Kind { get; set; }
+
 
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
@@ -831,23 +1298,22 @@ namespace Cog
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Seekers3
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public Seekers3__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public object Key { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("nextLocation", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("nextLocation", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public NextLocation4 NextLocation { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("owner", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("owner", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Owner4 Owner { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("prevLocation", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("prevLocation", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public PrevLocation4 PrevLocation { get; set; }
 
 
@@ -864,29 +1330,55 @@ namespace Cog
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum Bag__typename
+    public partial class Sessions2
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"Node")]
-        Node = 0,
+        [Newtonsoft.Json.JsonProperty("attackTile", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public AttackTile2 AttackTile { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("bags", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Bags8> Bags { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("defenceTile", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public DefenceTile2 DefenceTile { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("isFinalised", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public IsFinalised2 IsFinalised { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("sessionUpdates", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<SessionUpdates2> SessionUpdates { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Slots
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public Slots__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double Balance { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("item", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("item", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Item Item { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double Key { get; set; }
 
 
@@ -899,33 +1391,22 @@ namespace Cog
             get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
             set { _additionalProperties = value; }
         }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum Bag2__typename
-    {
-
-        [System.Runtime.Serialization.EnumMember(Value = @"Node")]
-        Node = 0,
-
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Slots2
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public Slots2__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double Balance { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("item", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("item", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Item2 Item { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double Key { get; set; }
 
 
@@ -938,33 +1419,22 @@ namespace Cog
             get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
             set { _additionalProperties = value; }
         }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum Bag3__typename
-    {
-
-        [System.Runtime.Serialization.EnumMember(Value = @"Node")]
-        Node = 0,
-
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Slots3
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public Slots3__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double Balance { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("item", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("item", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Item3 Item { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double Key { get; set; }
 
 
@@ -981,18 +1451,528 @@ namespace Cog
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum Seekers3__typename
+    public partial class Bag4
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"Node")]
-        Node = 0,
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public object Key { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("slots", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Slots4> Slots { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Inputs
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Balance { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("item", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Item4 Item { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Materials
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Balance { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("item", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Item5 Item { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Model
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Name
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Outputs
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Balance { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("item", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Item6 Item { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Tile5
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("coords", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<object> Coords { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Tile6
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("coords", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<object> Coords { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Tile7
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Bag5
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public object Key { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("slots", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Slots5> Slots { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Tile8
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Bag6
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public object Key { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("slots", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Slots6> Slots { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Inputs2
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Balance { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("item", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Item7 Item { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Materials2
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Balance { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("item", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Item8 Item { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Model2
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Name2
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Outputs2
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Balance { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("item", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Item9 Item { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Bags7
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("bag", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Bag7 Bag { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Kind3
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("inputs", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Inputs3> Inputs { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("materials", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Materials3> Materials { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("model", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Model3 Model { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Name3 Name { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("outputs", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Outputs3> Outputs { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class NextLocation4
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("tile", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Tile9 Tile { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("time", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Time { get; set; }
+
 
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
@@ -1009,6 +1989,12 @@ namespace Cog
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Owner4
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
 
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
@@ -1025,6 +2011,21 @@ namespace Cog
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class PrevLocation4
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("tile", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Tile10 Tile { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("time", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Time { get; set; }
+
 
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
@@ -1039,27 +2040,144 @@ namespace Cog
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum Slots__typename
+    public partial class AttackTile2
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"Edge")]
-        Edge = 0,
+        [Newtonsoft.Json.JsonProperty("startBlock", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double StartBlock { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("tile", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Tile11 Tile { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Bags8
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("bag", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Bag8 Bag { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class DefenceTile2
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("startBlock", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double StartBlock { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("tile", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Tile12 Tile { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class IsFinalised2
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("flag", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Flag { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class SessionUpdates2
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Name { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Item
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public Item__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("icon", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Icon Icon { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("kind", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Kind { get; set; }
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Name4 Name { get; set; }
 
 
 
@@ -1071,31 +2189,23 @@ namespace Cog
             get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
             set { _additionalProperties = value; }
         }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum Slots2__typename
-    {
-
-        [System.Runtime.Serialization.EnumMember(Value = @"Edge")]
-        Edge = 0,
-
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Item2
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public Item2__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("icon", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Icon2 Icon { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("kind", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Kind { get; set; }
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Name5 Name { get; set; }
 
 
 
@@ -1107,31 +2217,23 @@ namespace Cog
             get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
             set { _additionalProperties = value; }
         }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum Slots3__typename
-    {
-
-        [System.Runtime.Serialization.EnumMember(Value = @"Edge")]
-        Edge = 0,
-
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Item3
     {
-        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public Item3__typename __typename { get; set; }
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("icon", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Icon3 Icon { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("kind", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Kind { get; set; }
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Name6 Name { get; set; }
 
 
 
@@ -1147,32 +2249,1665 @@ namespace Cog
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum Item__typename
+    public partial class Slots4
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"Node")]
-        Node = 0,
+        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Balance { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("item", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Item10 Item { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum Item2__typename
+    public partial class Item4
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"Node")]
-        Node = 0,
+        [Newtonsoft.Json.JsonProperty("icon", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Icon4 Icon { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Name7 Name { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public enum Item3__typename
+    public partial class Item5
     {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"Node")]
-        Node = 0,
+        [Newtonsoft.Json.JsonProperty("icon", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Icon5 Icon { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Name8 Name { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Item6
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("icon", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Icon6 Icon { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Name9 Name { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Slots5
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Balance { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("item", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Item11 Item { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Slots6
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Balance { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("item", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Item12 Item { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Item7
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("icon", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Icon7 Icon { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Name10 Name { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Item8
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("icon", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Icon8 Icon { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Name11 Name { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Item9
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("icon", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Icon9 Icon { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Name12 Name { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Bag7
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public object Key { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("slots", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Slots7> Slots { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Inputs3
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Balance { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("item", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Item13 Item { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Materials3
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Balance { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("item", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Item14 Item { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Model3
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Name3
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Outputs3
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Balance { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("item", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Item15 Item { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Tile9
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("coords", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<object> Coords { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Tile10
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("coords", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<object> Coords { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Tile11
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Bag8
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public object Key { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("slots", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<Slots8> Slots { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Tile12
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Icon
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Name4
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Icon2
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Name5
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Icon3
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Name6
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Item10
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("icon", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Icon10 Icon { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Name13 Name { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Icon4
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Name7
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Icon5
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Name8
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Icon6
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Name9
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Item11
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("icon", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Icon11 Icon { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Name14 Name { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Item12
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("icon", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Icon12 Icon { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Name15 Name { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Icon7
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Name10
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Icon8
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Name11
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Icon9
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Name12
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Slots7
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Balance { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("item", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Item16 Item { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Item13
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("icon", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Icon13 Icon { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Name16 Name { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Item14
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("icon", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Icon14 Icon { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Name17 Name { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Item15
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("icon", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Icon15 Icon { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Name18 Name { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Slots8
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("balance", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Balance { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("item", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Item17 Item { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double Key { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Icon10
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Name13
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Icon11
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Name14
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Icon12
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Name15
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Item16
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("icon", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Icon16 Icon { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Name19 Name { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Icon13
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Name16
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Icon14
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Name17
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Icon15
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Name18
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Item17
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("icon", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Icon17 Icon { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Name20 Name { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Icon16
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Name19
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Icon17
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
+    public partial class Name20
+    {
+        [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string __typename { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
+
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [Newtonsoft.Json.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
 
     }
 }

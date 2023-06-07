@@ -5,4 +5,5 @@ public class IntentKind
     public const string SCOUT = "scout";
     public const string CONSTRUCT = "construct";
     public const string USE = "use";
+    public const string COMBAT = "combat";
 }

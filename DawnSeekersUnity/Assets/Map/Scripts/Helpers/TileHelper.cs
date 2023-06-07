@@ -2,6 +2,7 @@ using System;
 using Cog;
 using UnityEngine;
 using System.Linq;
+using System.Collections;
 
 public class TileHelper
 {
@@ -53,15 +54,11 @@ public class TileHelper
 
     public static Vector3Int GetTilePosCube(NextLocation2 loc)
     {
-        // TODO: NextLocation hasn't generated properly so doesn't show the fields it has on it!
-        var tileObj = loc.AdditionalProperties["tile"] as Newtonsoft.Json.Linq.JObject;
-        var coordsObj = tileObj.GetValue("coords");
-        var coords = coordsObj
-            .Values<string>()
+        var coords = loc.Tile.Coords
             .Select(
                 (coord) =>
                 {
-                    return Convert.ToInt16(coord, 16);
+                    return Convert.ToInt16((string)coord, 16);
                 }
             )
             .ToArray();
@@ -89,15 +86,11 @@ public class TileHelper
 
     public static Vector3Int GetTilePosCube(NextLocation4 loc)
     {
-        // TODO: NextLocation hasn't generated properly so doesn't show the fields it has on it!
-        var tileObj = loc.AdditionalProperties["tile"] as Newtonsoft.Json.Linq.JObject;
-        var coordsObj = tileObj.GetValue("coords");
-        var coords = coordsObj
-            .Values<string>()
+        var coords = loc.Tile.Coords
             .Select(
                 (coord) =>
                 {
-                    return Convert.ToInt16(coord, 16);
+                    return Convert.ToInt16((string)coord, 16);
                 }
             )
             .ToArray();
@@ -112,7 +105,7 @@ public class TileHelper
         if (tile.BagBalances != null && tile.BagBalances.Count > 0)
         {
             double totalBalance = tile.BagBalances.Aggregate(
-                0,
+                0.0,
                 (acc, balObj) => acc + balObj.Balance
             );
             return totalBalance > 0;
@@ -129,6 +122,19 @@ public class TileHelper
     public static bool HasBuilding(Tiles2 tile)
     {
         return tile.Building != null;
+    }
+
+    public static bool HasActiveCombatSession(Tiles2 tile)
+    {
+        var activeSession = GetActiveSession(tile);
+        return activeSession != null;
+    }
+
+    public static Sessions2 GetActiveSession(Tiles2 tile)
+    {
+        return tile.Sessions.FirstOrDefault(
+            session => session.IsFinalised == null || session.IsFinalised.Flag != 1
+        );
     }
 
     public static Vector3Int[] GetTileNeighbours(Vector3Int tile)
