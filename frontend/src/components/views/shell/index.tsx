@@ -128,8 +128,10 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                 {player && player.seekers.length === 0 && (
                                     <div className="onboarding">
                                         <h3>Welcome to Downstream</h3>
-                                        <p>You need a mobile unit that will do your bidding out in the world. 
-                                        Would you like to spawn one now?</p>
+                                        <p>
+                                            You need a mobile unit that will do your bidding out in the world. Would you
+                                            like to spawn one now?
+                                        </p>
                                         <button onClick={spawnSeeker}>Spawn Unit</button>
                                     </div>
                                 )}

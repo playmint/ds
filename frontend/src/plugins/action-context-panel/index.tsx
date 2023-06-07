@@ -199,7 +199,7 @@ const TileAvailable: FunctionComponent<unknown> = () => {
     return (
         <Fragment>
             <h3>Available Tile</h3>
-            <span className="sub-title">There's nothing here!</span>
+            <span className="sub-title">There&apos;s nothing here!</span>
             <ImageAvailable />
             {tileSeekers.length > 0 && (
                 <Fragment>
@@ -216,7 +216,7 @@ const TileUndiscovered: FunctionComponent<unknown> = (_props) => {
     return (
         <Fragment>
             <h3>Undiscovered Tile</h3>
-            <span className="sub-title">You can't make out this tile. Scouting should help!</span>
+            <span className="sub-title">You can&apos;t make out this tile. Scouting should help!</span>
             <ImageAvailable />
         </Fragment>
     );
@@ -312,9 +312,9 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, seeker, p
         }) && selectedTiles.length > 0;
 
     const help = selectedTile?.building
-        ? 'Cannot build on a tile that already has a building on it'
+        ? 'Can&apos;t build on a tile that already has a building on it'
         : constructableTile
-        ? 'Select the type of building you would like to construct'
+        ? 'Select the type of building you&apos;d like to construct'
         : 'Choose an adjacent tile to build on';
 
     return (
