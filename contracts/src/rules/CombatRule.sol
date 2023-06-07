@@ -402,17 +402,12 @@ contract CombatRule is Rule {
             // Apply action
             if (combatAction.kind == CombatActionKind.JOIN) {
                 (JoinActionInfo memory info) = abi.decode(combatAction.data, (JoinActionInfo));
-                if (
-                    info.combatSide == CombatSideKey.ATTACK
-                        && _addEntityToCombat(combatState.attackerStates, combatAction, info.stats)
-                ) {
-                    combatState.attackerCount++;
-                } else if (_addEntityToCombat(combatState.defenderStates, combatAction, info.stats)) {
-                    combatState.defenderCount++;
-                }
+                _addEntityToCombat(combatState, combatAction, info);
             } else if (combatAction.kind == CombatActionKind.LEAVE) {
                 (LeaveActionInfo memory info) = abi.decode(combatAction.data, (LeaveActionInfo));
-                info.combatSide == CombatSideKey.ATTACK ? combatState.attackerCount-- : combatState.defenderCount--;
+                _removeEntityFromCombat(combatState, combatAction, info);
+
+                // Check if either side has entirely left combat
                 if (combatState.attackerCount == 0) {
                     combatState.winState = CombatWinState.DEFENDERS;
                 } else if (combatState.defenderCount == 0) {
@@ -534,24 +529,31 @@ contract CombatRule is Rule {
     }
 
     function _addEntityToCombat(
-        EntityState[] memory entityStates,
+        CombatState memory combatState,
         CombatAction memory combatAction,
-        uint32[3] memory stats
-    ) private pure returns (bool) {
-        for (uint256 i = 0; i < entityStates.length; i++) {
+        JoinActionInfo memory info
+    ) private pure {
+        EntityState[] memory entityStates =
+            info.combatSide == CombatSideKey.ATTACK ? combatState.attackerStates : combatState.defenderStates;
+
+        uint256 i;
+        for (i = 0; i < entityStates.length; i++) {
             if (entityStates[i].entityID == combatAction.entityID) {
                 if (entityStates[i].isPresent || entityStates[i].isDead) {
-                    return false;
+                    return;
                 }
+
                 // Rejoin
                 entityStates[i].isPresent = true;
-                return true;
+                // entityStates[i].stats = stats; // TODO: uncomment and test. Stats should be updated on return
+
+                break;
             }
             if (entityStates[i].entityID == 0) {
                 // First time joining
                 entityStates[i] = EntityState({
                     entityID: combatAction.entityID,
-                    stats: stats,
+                    stats: info.stats,
                     damage: 0,
                     damageInflicted: 0,
                     isPresent: true,
@@ -559,12 +561,39 @@ contract CombatRule is Rule {
                     hasClaimed: false
                 });
 
-                return true;
+                break;
             }
         }
 
         // Ran out of slots!
-        return false;
+        if (i == entityStates.length) return;
+
+        if (info.combatSide == CombatSideKey.ATTACK) {
+            combatState.attackerCount++;
+        } else {
+            combatState.defenderCount++;
+        }
+    }
+
+    function _removeEntityFromCombat(
+        CombatState memory combatState,
+        CombatAction memory combatAction,
+        LeaveActionInfo memory info
+    ) private pure {
+        EntityState[] memory entityStates =
+            info.combatSide == CombatSideKey.ATTACK ? combatState.attackerStates : combatState.defenderStates;
+
+        for (uint256 i = 0; i < entityStates.length; i++) {
+            if (entityStates[i].entityID == combatAction.entityID && entityStates[i].isPresent) {
+                entityStates[i].isPresent = false;
+                if (info.combatSide == CombatSideKey.ATTACK) {
+                    combatState.attackerCount--;
+                } else {
+                    combatState.defenderCount--;
+                }
+                return;
+            }
+        }
     }
 
     function _checkSessionHash(State state, bytes24 sessionID, CombatRule.CombatAction[][] memory sessionUpdates)

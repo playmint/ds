@@ -198,8 +198,8 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
     const combatState = combat.calcCombatState(convertedActions, orderedListIndexes, estimatedBlock);
     const entityStates = isAttackTile ? combatState.attackerStates : combatState.defenderStates;
 
-    const totalTileHealth = entityStates.reduce((acc, val) => acc + val.stats[ATOM_LIFE], 0);
-    const totalTileDamage = entityStates.reduce((acc, val) => acc + val.damage, 0);
+    const totalTileHealth = entityStates.reduce((acc, val) => (val.isPresent ? acc + val.stats[ATOM_LIFE] : acc), 0);
+    const totalTileDamage = entityStates.reduce((acc, val) => (val.isPresent ? acc + val.damage : acc), 0);
     const totalPresentAliveEntities = entityStates.reduce(
         (acc, val) => acc + (!val.isDead && val.isPresent ? 1 : 0),
         0

@@ -439,7 +439,7 @@ const Combat: FunctionComponent<CombatProps> = ({ selectTiles, selectIntent, sel
         .filter((t) => t.biome === BiomeKind.DISCOVERED)
         .filter(({ sessions }) => {
             // cannot start combat if any of the tiles have an active session
-            return sessions.filter((session: any) => !session.isFinalised) == 0;
+            return sessions.filter((session: any) => !session.isFinalised).length == 0;
         });
 
     const startCombat = () => {

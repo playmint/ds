@@ -169,16 +169,12 @@ export class Combat {
                     combatSide: Number(result[0])
                 };
 
-                if (info.combatSide === CombatSideKey.ATTACK) {
-                    combatState.attackerCount--;
-                    if (combatState.attackerCount === 0) {
-                        combatState.winState = CombatWinState.DEFENDERS;
-                    }
-                } else {
-                    combatState.defenderCount--;
-                    if (combatState.defenderCount === 0) {
-                        combatState.winState = CombatWinState.ATTACKERS;
-                    }
+                _removeEntityFromCombat(combatState, combatAction, info);
+
+                if (combatState.attackerCount === 0) {
+                    combatState.winState = CombatWinState.DEFENDERS;
+                } else if (combatState.defenderCount === 0) {
+                    combatState.winState = CombatWinState.ATTACKERS;
                 }
             } else if (combatAction.kind === CombatActionKind.CLAIM) {
                 const [entityState] = this._getEntityState(combatState, combatAction.entityID);
@@ -342,5 +338,21 @@ export class Combat {
         }
 
         return indexes;
+    }
+}
+function _removeEntityFromCombat(combatState: CombatState, combatAction: CombatAction, info: LeaveActionInfo) {
+    const entityStates =
+        info.combatSide === CombatSideKey.ATTACK ? combatState.attackerStates : combatState.defenderStates;
+
+    for (let i = 0; i < entityStates.length; i++) {
+        if (entityStates[i] && entityStates[i].entityID == combatAction.entityID && entityStates[i].isPresent) {
+            entityStates[i].isPresent = false;
+            if (info.combatSide == CombatSideKey.ATTACK) {
+                combatState.attackerCount--;
+            } else {
+                combatState.defenderCount--;
+            }
+            return;
+        }
     }
 }
