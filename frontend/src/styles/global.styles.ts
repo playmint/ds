@@ -71,6 +71,23 @@ export const GlobalStyles = createGlobalStyle`
         }
     }
 
+    .secondary-action-button {
+        border-radius: 30px;
+        border: 2px solid #8697af;
+        display: block;
+        width: 100%;
+        max-width: 20rem;
+        box-sizing: border-box;
+        background: #5f789b;
+        color: white;
+        padding: 0.8rem 2rem 0.6rem;
+        font-weight: 600;
+
+        &:disabled {
+            opacity: 0.5;
+        }
+    }
+
     .icon-button {
         background: none;
         border: 0;
