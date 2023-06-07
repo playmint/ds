@@ -65,7 +65,7 @@ public class IntentsEditorWindow : EditorWindow
 
         if (GUILayout.Button("Combat", GUILayout.Height(50f)))
         {
-            //IntentClick("Kick their ass, sea bass!");
+            IntentClick("combat");
         }
 
         GUILayout.Space(10f);

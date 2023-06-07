@@ -10,9 +10,7 @@ import { TileCoordsProps } from './index';
  * @return Base styles for the seeker list component
  */
 const baseStyles = (_: Partial<TileCoordsProps>) => css`
-    /* h3 {
-        margin-bottom: 0;
-    } */
+    width: 30rem;
 
     .tile-container {
         position: relative;

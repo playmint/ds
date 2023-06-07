@@ -9,13 +9,17 @@
 3. Run the json schema generator from the `core` folder
    `npx typescript-json-schema tsconfig.json GameState -o dist/json-schema.json`
 
-    NOTE: If it fails to compile then it's probably because of our use of typescript 4.9 when `typescript-json-schema` still uses 4.8 and therefore is missing the `satisfies` keyword. The project seems to be in active development so hopefully they'll update soon but if not, just globally replace `satisfies` for `as` to make it work.
-
     NOTE: If it fails due to bigint not being serialisable, You need to add the following decorator to the bigint typed field
     `/** @TJS-type string */`
 
 4. Build the release version of `state-schema-gen` (I used Visual Studio to do this but it should be possible with command line tools)
    This will build to `json-schema/bin/Release/net7.0/json-schema`
 
-5. then from the root of ds repo run:  
+5. A workaround hack until we find the right config - Do a find a replace for `anyOf` to `oneOf` in the generated schema found in `core/dist/json-schema.json`
+   For some reason NJsonSchema that does the conversion to C# doesn't recognise `anyOf` and it won't generated the expected properties for that object!
+
+6. then from the root of ds repo run:  
    `state-schema-gen/json-schema/bin/Release/net7.0/state-schema-gen core/dist/json-schema.json DawnSeekersUnity/Assets/Scripts/Cog/StateSchema.cs`
+
+7. Another unfortunate manual part of the process until we work out the correct config. You need to do a find an replace on the generated `StateSchema.cs` for the following
+   `DisallowNull` to `Default` (Allows all fields to be nullable. We only require a couple but it's fiddly to target just those)

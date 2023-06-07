@@ -47,6 +47,9 @@ contract MovementRule is Rule {
         // fetch the seeker's current location
         (bytes24 currentTile) = state.getCurrentLocation(seeker, nowTime);
 
+        // TODO: if currentTile doesn't equal tile at LocationKey.NEXT then movement was cancelled.
+        //       dispatch MOVE_CANCEL action here so any systems that were tracking mvoement know about it
+
         // check that destTile is direct 6-axis line from currentTile
         if (!TileUtils.isDirect(currentTile, destTile)) {
             revert NoMoveToIndirect();

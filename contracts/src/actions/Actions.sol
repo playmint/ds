@@ -2,6 +2,7 @@
 pragma solidity ^0.8.13;
 
 import {BiomeKind} from "@ds/schema/Schema.sol";
+import {CombatRule} from "@ds/rules/CombatRule.sol";
 
 // ----------------------------------
 // define some actions
@@ -80,6 +81,22 @@ interface Actions {
 
     // spawn a seeker for the sender
     function SPAWN_SEEKER(bytes24 seeker) external;
+
+    function START_COMBAT(bytes24 seekerID, bytes24 tileID, bytes24[] calldata attackers, bytes24[] calldata defenders)
+        external;
+
+    function CLAIM_COMBAT(
+        bytes24 seekerID,
+        bytes24 sessionID,
+        CombatRule.CombatAction[][] calldata sessionUpdates,
+        uint32[] calldata sortedListIndexes
+    ) external;
+
+    function FINALISE_COMBAT(
+        bytes24 sessionID,
+        CombatRule.CombatAction[][] calldata sessionUpdates,
+        uint32[] calldata sortedListIndexes
+    ) external;
 
     // [dev/debug only] set a tile biome at any location
     function DEV_SPAWN_TILE(BiomeKind kind, int16 q, int16 r, int16 s) external;

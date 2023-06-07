@@ -19,6 +19,7 @@ import {BuildingRule} from "@ds/rules/BuildingRule.sol";
 import {CraftingRule} from "@ds/rules/CraftingRule.sol";
 import {PluginRule} from "@ds/rules/PluginRule.sol";
 import {NewPlayerRule} from "@ds/rules/NewPlayerRule.sol";
+import {CombatRule} from "@ds/rules/CombatRule.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
 using Schema for StateGraph;
@@ -71,6 +72,8 @@ contract Game is BaseGame {
         state.registerNodeType(Kind.Building.selector, "Building", CompoundKeyKind.INT16_ARRAY);
         state.registerNodeType(Kind.Extension.selector, "Extension", CompoundKeyKind.ADDRESS);
         state.registerNodeType(Kind.ClientPlugin.selector, "ClientPlugin", CompoundKeyKind.UINT160);
+        state.registerNodeType(Kind.CombatSession.selector, "CombatSession", CompoundKeyKind.UINT160);
+        state.registerNodeType(Kind.Hash.selector, "Hash", CompoundKeyKind.BYTES);
 
         // register the relationship ids we are using
         state.registerEdgeType(Rel.Owner.selector, "Owner", WeightKind.UINT64);
@@ -84,6 +87,9 @@ contract Game is BaseGame {
         state.registerEdgeType(Rel.Is.selector, "Is", WeightKind.UINT64);
         state.registerEdgeType(Rel.Implementation.selector, "Implementation", WeightKind.UINT64);
         state.registerEdgeType(Rel.Supports.selector, "Supports", WeightKind.UINT64);
+        state.registerEdgeType(Rel.Has.selector, "Has", WeightKind.UINT64);
+        state.registerEdgeType(Rel.Combat.selector, "Combat", WeightKind.UINT64);
+        state.registerEdgeType(Rel.IsFinalised.selector, "IsFinalised", WeightKind.UINT64);
 
         // create a session router
         SessionRouter router = new DawnseekersRouter();
@@ -99,6 +105,7 @@ contract Game is BaseGame {
         dispatcher.registerRule(new CraftingRule(this));
         dispatcher.registerRule(new PluginRule());
         dispatcher.registerRule(new NewPlayerRule(allowlist));
+        dispatcher.registerRule(new CombatRule());
         dispatcher.registerRouter(router);
 
         // update the game with this config
