@@ -326,9 +326,11 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
     const { seeker: selectedSeeker, tiles: selectedTiles = [] } = useSelection();
     const { blockNumber, blockTime } = useBlockTime();
     const latestSession =
-        selectedTiles.length > 0 &&
-        selectedTiles[0].sessions.length > 0 &&
-        selectedTiles[0].sessions[selectedTiles[0].sessions.length - 1];
+        selectedTiles.length > 0 && selectedTiles[0].sessions.length > 0
+            ? selectedTiles[0].sessions.sort((a, b) => {
+                  return a.attackTile && b.attackTile ? b.attackTile.startBlock - a.attackTile.startBlock : 0;
+              })[0]
+            : undefined;
     const actions = latestSession && getActions(latestSession);
 
     // Before combat has started
@@ -435,7 +437,9 @@ const entityStateToCombatParticipantProps = ({ entityID, damage, stats, isDead, 
 
 const sumParticipants = (
     [participantsMaxHealth, participantsCurrentHealth]: number[],
-    { maxHealth, currentHealth }: CombatParticipantProps
+    { maxHealth, currentHealth, isPresent }: CombatParticipantProps
 ) => {
-    return [participantsMaxHealth + maxHealth, participantsCurrentHealth + currentHealth];
+    return isPresent
+        ? [participantsMaxHealth + maxHealth, participantsCurrentHealth + currentHealth]
+        : [participantsMaxHealth, participantsCurrentHealth];
 };
