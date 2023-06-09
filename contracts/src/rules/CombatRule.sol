@@ -862,13 +862,14 @@ contract CombatRule is Rule {
     }
 
     // NOTE: sessionUpdate is an encoded array of CombatActions
-    function _updateHash(State state, uint64 sessionID, bytes memory sessionUpdate) private {
+    function _updateHash(State state, uint64 sessionID, bytes memory sessionUpdate) private returns (bytes20) {
         bytes24 sessionNode = Node.CombatSession(sessionID);
         bytes20 prevHash = state.getHash(sessionNode, HASH_EDGE_INDEX); // NOTE: Starts at 2 as I'm also using 'Has' edges to point to the 2 combat tiles
         bytes20 newHash = bytes20(keccak256(abi.encodePacked(prevHash, sessionUpdate)));
 
         // NOTE: Starts at 2 as I'm also using 'Has' edges to point to the 2 combat tiles
         state.setHash(newHash, sessionNode, HASH_EDGE_INDEX);
+        return newHash;
     }
 
     function _requirePlayerOwnedSeeker(State state, bytes24 seeker, bytes24 player) private view {
@@ -878,12 +879,19 @@ contract CombatRule is Rule {
     }
 
     function _emitSessionUpdate(State state, bytes24 sessionID, CombatAction[] memory sessionActions) private {
-        _updateHash(state, CompoundKeyDecoder.UINT64(sessionID), abi.encode(sessionActions));
+        bytes20 newHash = _updateHash(state, CompoundKeyDecoder.UINT64(sessionID), abi.encode(sessionActions));
         emit SessionUpdate(CompoundKeyDecoder.UINT64(sessionID), abi.encode(sessionActions));
         state.annotate(
             sessionID,
             string(
-                abi.encodePacked("action-", LibString.toString(block.number), "-", LibString.toString(block.timestamp))
+                abi.encodePacked(
+                    "action-",
+                    LibString.toString(block.number),
+                    "-",
+                    LibString.toString(block.timestamp),
+                    "-",
+                    LibString.toString(uint32(bytes4(newHash)))
+                )
             ),
             Base64.encode(abi.encode(sessionActions))
         );

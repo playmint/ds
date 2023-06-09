@@ -275,6 +275,7 @@ export class Combat {
                     return false;
                 }
                 entityStates[i].isPresent = true;
+                entityStates[i].stats = stats;
                 return true;
             }
             if (!entityStates[i]) {

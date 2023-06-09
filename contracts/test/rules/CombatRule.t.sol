@@ -232,35 +232,11 @@ contract CombatRuleTest is Test {
         vm.stopPrank();
 
         // Gather session update events
-        Vm.Log[] memory entries = vm.getRecordedLogs();
-        Vm.Log[] memory sessionUpdates = new Vm.Log[](entries.length);
-
-        // Filter by SessionUpdate
-        uint256 sessionUpdatesLength;
-        for (uint256 i = 0; i < entries.length; i++) {
-            if (entries[i].topics[0] == keccak256("SessionUpdate(uint64,bytes)")) {
-                sessionUpdates[sessionUpdatesLength] = entries[i];
-                sessionUpdatesLength++;
-            }
-        }
-
-        assertEq(sessionUpdatesLength, 3, "Expected 3 session updates: start, join and leave");
-
-        {
-            // Check that the hashes match. Every combat list update is hashed against the last
-            bytes20 combatActionsHash;
-            for (uint256 i = 0; i < sessionUpdatesLength; i++) {
-                ( /* uint256 */ , /* uint256 */, bytes memory listUpdate) =
-                    abi.decode(sessionUpdates[i].data, (uint256, uint256, bytes));
-
-                combatActionsHash = bytes20(keccak256(abi.encodePacked(combatActionsHash, listUpdate)));
-                // _logActionList(listUpdate);
-            }
-
-            bytes20 storedHash = state.getHash(bytes24(Node.CombatSession(1)), HASH_EDGE_INDEX);
-            assertGt(uint160(storedHash), 0, "Stored hash is null");
-            assertEq(storedHash, combatActionsHash, "Hashes do not match");
-        }
+        CombatRule.CombatAction[][] memory sessionUpdates = _getSessionUpdates();
+        uint32[] memory sortedListIndexes = getOrderedListIndexes(sessionUpdates);
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.FINALISE_COMBAT, (Node.CombatSession(1), sessionUpdates, sortedListIndexes))
+        );
     }
 
     function testClaiming() public {
