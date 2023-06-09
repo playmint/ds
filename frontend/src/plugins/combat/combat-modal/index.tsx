@@ -15,7 +15,13 @@ import {
     SelectedTileFragment,
     useSelection
 } from '@dawnseekers/core';
-import { buildingRegex, CombatSession, convertCombatActions, getActions } from '@app/plugins/combat/helpers';
+import {
+    buildingNodeKind,
+    CombatSession,
+    convertCombatActions,
+    getActions,
+    nodeKindMask
+} from '@app/plugins/combat/helpers';
 import { ATOM_ATTACK, ATOM_DEFENSE, ATOM_LIFE, Combat, CombatWinState, EntityState } from '@app/plugins/combat/combat';
 import { formatUnitKey } from '@app/helpers';
 import { BytesLike, hexlify } from 'ethers';
@@ -413,9 +419,8 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
 };
 
 const getIcon = (entityID: BytesLike) => {
-    const id = hexlify(entityID);
-
-    if (buildingRegex.test(id)) {
+    const nodeKind = (BigInt(hexlify(entityID)) >> BigInt(160)) & nodeKindMask;
+    if (nodeKind === buildingNodeKind) {
         return '/building-tower.png';
     }
 

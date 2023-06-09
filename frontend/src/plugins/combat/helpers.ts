@@ -4,6 +4,8 @@ import { CombatAction } from '@app/plugins/combat/combat';
 
 export const buildingRegex = /^0x34cf8a7e[0-9a-f]+$/g;
 export const seekerRegex = /^0x3fbc56a4[0-9a-f]+$/g;
+export const nodeKindMask = BigInt('0xffffffff');
+export const buildingNodeKind = BigInt('0x34cf8a7e');
 
 export type CombatSession = WorldTileFragment['sessions'][number];
 
