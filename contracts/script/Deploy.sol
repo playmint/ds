@@ -66,6 +66,23 @@ contract GameDeployer is Script {
             })
         );
 
+        
+        // register Super-Kiki
+        bytes24 superKiki = ItemUtils.register(
+            ds,
+            ItemConfig({
+                id: 101,
+                name: "Super-Kiki",
+                icon: "20-187",
+                life: 20,
+                defense: 0,
+                attack: 0,
+                stackable: true,
+                implementation: address(0),
+                plugin: ""
+            })
+        );
+
         // register a "welcome hut" building
         bytes24 welcomeHutBuildingKind = BuildingUtils.register(
             ds,
@@ -90,8 +107,33 @@ contract GameDeployer is Script {
             })
         );
 
+        // register the Kiki Fission building
+        bytes24 kikiFission = BuildingUtils.register(
+            ds,
+            BuildingConfig({
+                id: 2,
+                name: "Kiki Fission",
+                materials: [
+                        Material({quantity: 25, item: kiki}),
+                        Material({quantity: 25, item: bouba}),
+                        Material({quantity: 25, item: semiote}),
+                        Material({quantity: 0, item: none})
+                ],
+                inputs: [
+                    Input({quantity: 100, item: kiki}),
+                    Input({quantity: 0, item: none}),
+                    Input({quantity: 0, item: none}),
+                    Input({quantity: 0, item: none})
+                ],
+                outputs: [Output({quantity: 5, item: superKiki})],
+                implementation: address(new KikiFission()),
+                plugin: vm.readFile("src/fixtures/KikiFission.js")
+            })
+        );
+
         // force construct building
         BuildingUtils.construct(ds, welcomeHutBuildingKind, "building", -1, 1, 0);
+        BuildingUtils.construct(ds, kikiFission, "building", 2, -2, 0);
 
         vm.stopBroadcast();
     }
