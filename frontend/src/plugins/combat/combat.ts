@@ -225,10 +225,10 @@ export class Combat {
                 [blockNum, combatState.tickCount, entityNum]
             )
         );
-        const attackerState =
-            combatSide === CombatSideKey.ATTACK
-                ? combatState.attackerStates[entityIndex]
-                : combatState.defenderStates[entityIndex];
+        const attackerState = this._selectPresentEntity(
+            combatSide === CombatSideKey.ATTACK ? combatState.attackerStates : combatState.defenderStates,
+            entityIndex
+        );
         const enemyRnd = Number(getUint(rnd) & getUint('0xFFFF')); // get first 16bits from rnd
         const enemyState = this._selectPresentEntity(
             combatSide === CombatSideKey.ATTACK ? combatState.defenderStates : combatState.attackerStates,

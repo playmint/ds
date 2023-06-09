@@ -29,7 +29,9 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
     if (selectedTiles.length === 0 || selectedTiles[0].sessions.length === 0) return null;
 
     const sessions = selectedTiles[0].sessions;
-    const latestSession = sessions[selectedTiles[0].sessions.length - 1];
+    const latestSession = sessions.sort((a, b) => {
+        return a.attackTile && b.attackTile ? b.attackTile.startBlock - a.attackTile.startBlock : 0;
+    })[0];
 
     const actions = latestSession && getActions(latestSession);
 
@@ -40,9 +42,12 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
     const orderedListIndexes = combat.getOrderedListIndexes(convertedActions);
     const combatState = combat.calcCombatState(convertedActions, orderedListIndexes, blockNumber);
 
-    const sumStats = ([participantsMaxHealth, participantsCurrentHealth]: number[], { stats, damage }: EntityState) => {
-        const maxHealth = stats[ATOM_LIFE];
-        const currentHealth = Math.max(stats[ATOM_LIFE] - damage, 0);
+    const sumStats = (
+        [participantsMaxHealth, participantsCurrentHealth]: number[],
+        { stats, damage, isPresent }: EntityState
+    ) => {
+        const maxHealth = isPresent ? stats[ATOM_LIFE] : 0;
+        const currentHealth = isPresent ? Math.max(stats[ATOM_LIFE] - damage, 0) : 0;
         return [participantsMaxHealth + maxHealth, participantsCurrentHealth + currentHealth];
     };
     const [attackersMaxHealth, attackersCurrentHealth] = combatState.attackerStates.reduce(sumStats, [0, 0]);
