@@ -79,14 +79,18 @@ const CombatParticipants: FunctionComponent<CombatParticipantsProps> = (props) =
     return (
         <Fragment>
             <div className="attackers">
-                {attackers.map((participant, index) => (
-                    <CombatParticipant key={index} {...participant} className="participant" />
-                ))}
+                {attackers
+                    .filter((participant) => participant.isPresent)
+                    .map((participant, index) => (
+                        <CombatParticipant key={index} {...participant} className="participant" />
+                    ))}
             </div>
             <div className="defenders">
-                {defenders.map((participant, index) => (
-                    <CombatParticipant key={index} {...participant} className="participant" />
-                ))}
+                {defenders
+                    .filter((participant) => participant.isPresent)
+                    .map((participant, index) => (
+                        <CombatParticipant key={index} {...participant} className="participant" />
+                    ))}
             </div>
         </Fragment>
     );

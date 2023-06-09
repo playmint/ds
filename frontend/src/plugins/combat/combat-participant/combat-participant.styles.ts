@@ -21,7 +21,7 @@ const baseStyles = ({ isDead, isPresent }: Partial<CombatParticipantProps>) => c
     background: #143063;
     border: 2px solid #487bb3;
     padding: 0.8rem 1.8rem 0.8rem 1.2rem;
-    opacity: ${isDead || !isPresent ? 0.5 : 1};
+    opacity: ${isDead ? 0.5 : 1};
 
     .icon {
         grid-area: icon;
