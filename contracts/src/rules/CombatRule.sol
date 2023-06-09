@@ -534,9 +534,9 @@ contract CombatRule is Rule {
         bytes32 rnd = keccak256(abi.encode(blockNum, combatState.tickCount, entityNum));
 
         // Select attacker
-        EntityState memory attackerState = combatSide == CombatSideKey.ATTACK
-            ? combatState.attackerStates[entityIndex]
-            : combatState.defenderStates[entityIndex];
+        EntityState memory attackerState = _selectPresentEntity(
+            combatSide == CombatSideKey.ATTACK ? combatState.attackerStates : combatState.defenderStates, entityIndex
+        );
 
         // Select entity from opposing side
         EntityState memory enemyState = _selectPresentEntity(
