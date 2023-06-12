@@ -276,7 +276,7 @@ components: [
 	// Only 1 element is displayed at a time. 
 	// Element with id 'default' is initialy displayed.
 	// Toggle buttons can show an element with a different id.
-    content: [
+	content: [
 	{
 		//
 		// Content example 1, default, using a toggle button and html form input
