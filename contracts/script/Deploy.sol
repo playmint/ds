@@ -8,6 +8,7 @@ import {State} from "cog/State.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {Node, BiomeKind, Schema} from "@ds/schema/Schema.sol";
 import {DummyBuilding} from "@ds/fixtures/DummyBuilding.sol";
+import {KikiFission} from "@ds/fixtures/KikiFission.sol";
 import {ItemUtils, ItemConfig} from "@ds/utils/ItemUtils.sol";
 import {BuildingUtils, BuildingConfig, Material, Input, Output} from "@ds/utils/BuildingUtils.sol";
 
@@ -66,7 +67,6 @@ contract GameDeployer is Script {
             })
         );
 
-        
         // register Super-Kiki
         bytes24 superKiki = ItemUtils.register(
             ds,
