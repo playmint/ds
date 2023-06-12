@@ -46,6 +46,7 @@ uint8 constant HASH_EDGE_INDEX = 2;
 
 contract CombatRule is Rule {
     uint64 public prevCombatSessionID = 0; // combat sessions are incremented
+    uint256 public actionCount; // incremented each time an action event is dispatched. Used to maintain correct order on client side
 
     enum CombatSideKey {
         ATTACK,
@@ -516,7 +517,7 @@ contract CombatRule is Rule {
             }
         }
 
-        // console.log("Combat tickCount: ", tickCount);
+        // As there is no longer a block limit to combat, this is unreachable
         if (combatState.winState == CombatWinState.NONE) {
             combatState.winState = CombatWinState.DRAW;
         }
@@ -879,20 +880,12 @@ contract CombatRule is Rule {
     }
 
     function _emitSessionUpdate(State state, bytes24 sessionID, CombatAction[] memory sessionActions) private {
-        bytes20 newHash = _updateHash(state, CompoundKeyDecoder.UINT64(sessionID), abi.encode(sessionActions));
+        actionCount++;
+        _updateHash(state, CompoundKeyDecoder.UINT64(sessionID), abi.encode(sessionActions));
         emit SessionUpdate(CompoundKeyDecoder.UINT64(sessionID), abi.encode(sessionActions));
         state.annotate(
             sessionID,
-            string(
-                abi.encodePacked(
-                    "action-",
-                    LibString.toString(block.number),
-                    "-",
-                    LibString.toString(block.timestamp),
-                    "-",
-                    LibString.toString(uint32(bytes4(newHash)))
-                )
-            ),
+            string(abi.encodePacked("action-", LibString.toString(actionCount))),
             Base64.encode(abi.encode(sessionActions))
         );
     }
