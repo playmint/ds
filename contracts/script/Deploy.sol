@@ -16,6 +16,12 @@ import {KwikTyre} from "@ds/fixtures/KwikTyre.sol";
 import {AllThingsRubber} from "@ds/fixtures/AllThingsRubber.sol";
 import {CrazyHermit} from "@ds/fixtures/CrazyHermit.sol";
 
+import {Slime} from "@ds/fixtures/Slime.sol";
+import {ObnoxiousBeaver} from "@ds/fixtures/ObnoxiousBeaver.sol";
+import {MechaKaiju} from "@ds/fixtures/MechaKaiju.sol";
+import {PrimeEvil} from "@ds/fixtures/PrimeEvil.sol";
+
+
 import {ItemUtils, ItemConfig} from "@ds/utils/ItemUtils.sol";
 import {BuildingUtils, BuildingConfig, Material, Input, Output} from "@ds/utils/BuildingUtils.sol";
 
@@ -45,11 +51,6 @@ contract GameDeployer is Script {
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 0, 0, 0)));
 
 
-        // find the base item ids
-        bytes24 none = 0x0;
-        bytes24 kiki = ItemUtils.Kiki(); // Life
-        bytes24 bouba = ItemUtils.Bouba(); // Defence
-        bytes24 semiote = ItemUtils.Semiote(); // Attack
 
         //register l33tBricks
         bytes24 l33tBricks = ItemUtils.register(
@@ -67,53 +68,54 @@ contract GameDeployer is Script {
             })
         );
 
-        //register the Rubber Duck Chain
-        bytes24 rubberDuck = _rubberDuckChain(ds, l33tBricks);
-
-
-        //register the Kiki Chain & Hermit
-        _megaKikiChain(ds, l33tBricks);
-
-
-        // register welcomeCocktail
-        bytes24 welcomeCocktail = ItemUtils.register(
+        //register Gold Coins and Notes
+        bytes24 goldCoin = ItemUtils.register(
             ds,
             ItemConfig({
-                id: 100,
-                name: "Welcome Cocktail",
-                icon: "02-40",
-                life: 0,
-                defense: 1,
-                attack: 2,
-                stackable: false,
+                id: 110,
+                name: "Gold Coin",
+                icon: "10-33",
+                life: 10,
+                defense: 10,
+                attack: 5,
+                stackable: true,
                 implementation: address(0),
                 plugin: ""
             })
         );
 
-        // register a "welcome hut" building
-        bytes24 welcomeHutBuildingKind = BuildingUtils.register(
+        bytes24 goldNote = ItemUtils.register(
             ds,
-            BuildingConfig({
-                id: 1,
-                name: "Welcome Hut",
-                materials: [
-                    Material({quantity: 25, item: kiki}),
-                    Material({quantity: 25, item: bouba}),
-                    Material({quantity: 25, item: semiote}),
-                    Material({quantity: 0, item: none})
-                ],
-                inputs: [
-                    Input({quantity: 2, item: bouba}),
-                    Input({quantity: 2, item: semiote}),
-                    Input({quantity: 0, item: none}),
-                    Input({quantity: 0, item: none})
-                ],
-                outputs: [Output({quantity: 1, item: welcomeCocktail})],
-                implementation: address(new DummyBuilding()),
-                plugin: vm.readFile("src/fixtures/DummyBuilding.js")
+            ItemConfig({
+                id: 111,
+                name: "Gold Note",
+                icon: "10-32",
+                life: 50,
+                defense: 10,
+                attack: 25,
+                stackable: true,
+                implementation: address(0),
+                plugin: ""
             })
         );
+
+
+        //register welcome hut and cocktail
+        _welcomeHut(ds);
+
+        //register the Rubber Duck Chain
+        _rubberDuckChain(ds, l33tBricks);
+
+
+        //register the Kiki Chain & Hermit
+        _megaKikiChain(ds, l33tBricks);
+
+        //register monsters
+        _enemySpawn(ds, goldCoin, goldNote);
+
+
+
+        
 
 
         // scout the tiles
@@ -144,14 +146,9 @@ contract GameDeployer is Script {
     
 
 
-
-
-
-        // force construct building
-        BuildingUtils.construct(ds, welcomeHutBuildingKind, "building", -1, 1, 0);
-
         vm.stopBroadcast();
     }
+
 
     function _scout(Game ds, uint32 sid, int16 q, int16 r, int16 s) private {
         ds.getDispatcher().dispatch(
@@ -167,6 +164,7 @@ contract GameDeployer is Script {
         );
     }
 
+
     function _loadAllowList(address deployer) private view returns (address[] memory) {
         string memory root = vm.projectRoot();
         string memory path = string.concat(root, "/src/fixtures/allowlist.json");
@@ -180,9 +178,49 @@ contract GameDeployer is Script {
         return allowlist;
     }
 
+    function _welcomeHut(Game ds) private {
+        bytes24 welcomeCocktail = ItemUtils.register(
+            ds,
+            ItemConfig({
+                id: 100,
+                name: "Welcome Cocktail",
+                icon: "02-40",
+                life: 0,
+                defense: 1,
+                attack: 2,
+                stackable: false,
+                implementation: address(0),
+                plugin: ""
+            })
+        );
 
+        bytes24 welcomeHutBuildingKind = BuildingUtils.register(
+            ds,
+            BuildingConfig({
+                id: 1,
+                name: "Welcome Hut",
+                materials: [
+                    Material({quantity: 25, item: ItemUtils.Kiki()}),
+                    Material({quantity: 25, item: ItemUtils.Bouba()}),
+                    Material({quantity: 25, item: ItemUtils.Semiote()}),
+                    Material({quantity: 0, item: 0x0})
+                ],
+                inputs: [
+                    Input({quantity: 2, item: ItemUtils.Bouba()}),
+                    Input({quantity: 2, item: ItemUtils.Semiote()}),
+                    Input({quantity: 0, item: 0x0}),
+                    Input({quantity: 0, item: 0x0})
+                ],
+                outputs: [Output({quantity: 1, item: welcomeCocktail})],
+                implementation: address(new DummyBuilding()),
+                plugin: vm.readFile("src/fixtures/DummyBuilding.js")
+            })
+        );
+        
+        BuildingUtils.construct(ds, welcomeHutBuildingKind, "building", -1, 2, -1);
+    }
 
-    function _rubberDuckChain(Game ds, bytes24 l33tBricks) private returns (bytes24) {
+    function _rubberDuckChain(Game ds, bytes24 l33tBricks) private {
         bytes24 budgetTyre = ItemUtils.register(
             ds,
             ItemConfig({
@@ -298,10 +336,8 @@ contract GameDeployer is Script {
         );
 
         BuildingUtils.construct(ds, foulFiends, "building", 3, -3, 0);
-        BuildingUtils.construct(ds, kwikTyre, "building", -3, 3, 0);
+        BuildingUtils.construct(ds, kwikTyre, "building", -4, 3, 1);
         BuildingUtils.construct(ds, allThingsRubber, "building", -10, 0, 10);
-
-        return rubberDuck;
     }
 
     function _megaKikiChain(Game ds, bytes24 l33tBricks) private  {
@@ -425,5 +461,106 @@ contract GameDeployer is Script {
         BuildingUtils.construct(ds, kikiFusion, "building", -20, 0, 20);
         BuildingUtils.construct(ds, crazyHermit, "building", 7, 7, -14);
      
+    }
+
+    
+    function _enemySpawn(Game ds, bytes24 goldCoin, bytes24 goldNote) private {
+
+        bytes24 slime = BuildingUtils.register(
+            ds,
+            BuildingConfig({
+                id: 8,
+                name: "Slime",
+                materials: [
+                        Material({quantity: 5, item: goldCoin}),
+                        Material({quantity: 0, item: 0x0}),
+                        Material({quantity: 0, item: 0x0}),
+                        Material({quantity: 0, item: 0x0})
+                ],
+                inputs: [
+                    Input({quantity: 0, item: 0x0}),
+                    Input({quantity: 0, item: 0x0}),
+                    Input({quantity: 0, item: 0x0}),
+                    Input({quantity: 0, item: 0x0})
+                ],
+                outputs: [Output({quantity: 0, item: 0x0})],
+                implementation: address(new Slime()),
+                plugin: vm.readFile("src/fixtures/Slime.js")
+            })
+        );  
+
+        bytes24 obnoxiousBeaver = BuildingUtils.register(
+            ds,
+            BuildingConfig({
+                id: 9,
+                name: "Obnoxious Beaver",
+                materials: [
+                        Material({quantity: 20, item: goldCoin}),
+                        Material({quantity: 0, item: 0x0}),
+                        Material({quantity: 0, item: 0x0}),
+                        Material({quantity: 0, item: 0x0})
+                ],
+                inputs: [
+                    Input({quantity: 0, item: 0x0}),
+                    Input({quantity: 0, item: 0x0}),
+                    Input({quantity: 0, item: 0x0}),
+                    Input({quantity: 0, item: 0x0})
+                ],
+                outputs: [Output({quantity: 0, item: 0x0})],
+                implementation: address(new ObnoxiousBeaver()),
+                plugin: vm.readFile("src/fixtures/ObnoxiousBeaver.js")
+            })
+        );  
+
+        bytes24 mechaKaiju = BuildingUtils.register(
+            ds,
+            BuildingConfig({
+                id: 10,
+                name: "Lesser Evil",
+                materials: [
+                        Material({quantity: 20, item: goldCoin}),
+                        Material({quantity: 10, item: goldNote}),
+                        Material({quantity: 0, item: 0x0}),
+                        Material({quantity: 0, item: 0x0})
+                ],
+                inputs: [
+                    Input({quantity: 0, item: 0x0}),
+                    Input({quantity: 0, item: 0x0}),
+                    Input({quantity: 0, item: 0x0}),
+                    Input({quantity: 0, item: 0x0})
+                ],
+                outputs: [Output({quantity: 0, item: 0x0})],
+                implementation: address(new MechaKaiju()),
+                plugin: vm.readFile("src/fixtures/MechaKaiju.js")
+            })
+        );  
+
+        bytes24 primeEvil = BuildingUtils.register(
+            ds,
+            BuildingConfig({
+                id: 11,
+                name: "Prime Evil",
+                materials: [
+                        Material({quantity: 30, item: goldCoin}),
+                        Material({quantity: 30, item: goldNote}),
+                        Material({quantity: 0, item: 0x0}),
+                        Material({quantity: 0, item: 0x0})
+                ],
+                inputs: [
+                    Input({quantity: 0, item: 0x0}),
+                    Input({quantity: 0, item: 0x0}),
+                    Input({quantity: 0, item: 0x0}),
+                    Input({quantity: 0, item: 0x0})
+                ],
+                outputs: [Output({quantity: 0, item: 0x0})],
+                implementation: address(new PrimeEvil()),
+                plugin: vm.readFile("src/fixtures/PrimeEvil.js")
+            })
+        );  
+
+        BuildingUtils.construct(ds, slime, "enemy", 8, -10, 2);
+        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", 9, -11, 2);
+        BuildingUtils.construct(ds, mechaKaiju, "enemy", 10, -12, 2);
+        BuildingUtils.construct(ds, primeEvil, "enemy", 11, -13, 2);
     }
 }
