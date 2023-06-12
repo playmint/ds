@@ -15,7 +15,13 @@ import {
     SelectedTileFragment,
     useSelection
 } from '@dawnseekers/core';
-import { buildingRegex, CombatSession, convertCombatActions, getActions } from '@app/plugins/combat/helpers';
+import {
+    buildingNodeKind,
+    CombatSession,
+    convertCombatActions,
+    getActions,
+    nodeKindMask
+} from '@app/plugins/combat/helpers';
 import { ATOM_ATTACK, ATOM_DEFENSE, ATOM_LIFE, Combat, CombatWinState, EntityState } from '@app/plugins/combat/combat';
 import { formatUnitKey } from '@app/helpers';
 import { BytesLike, hexlify } from 'ethers';
@@ -73,14 +79,18 @@ const CombatParticipants: FunctionComponent<CombatParticipantsProps> = (props) =
     return (
         <Fragment>
             <div className="attackers">
-                {attackers.map((participant, index) => (
-                    <CombatParticipant key={index} {...participant} className="participant" />
-                ))}
+                {attackers
+                    .filter((participant) => participant.isPresent)
+                    .map((participant, index) => (
+                        <CombatParticipant key={index} {...participant} className="participant" />
+                    ))}
             </div>
             <div className="defenders">
-                {defenders.map((participant, index) => (
-                    <CombatParticipant key={index} {...participant} className="participant" />
-                ))}
+                {defenders
+                    .filter((participant) => participant.isPresent)
+                    .map((participant, index) => (
+                        <CombatParticipant key={index} {...participant} className="participant" />
+                    ))}
             </div>
         </Fragment>
     );
@@ -326,9 +336,11 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
     const { seeker: selectedSeeker, tiles: selectedTiles = [] } = useSelection();
     const { blockNumber, blockTime } = useBlockTime();
     const latestSession =
-        selectedTiles.length > 0 &&
-        selectedTiles[0].sessions.length > 0 &&
-        selectedTiles[0].sessions[selectedTiles[0].sessions.length - 1];
+        selectedTiles.length > 0 && selectedTiles[0].sessions.length > 0
+            ? selectedTiles[0].sessions.sort((a, b) => {
+                  return a.attackTile && b.attackTile ? b.attackTile.startBlock - a.attackTile.startBlock : 0;
+              })[0]
+            : undefined;
     const actions = latestSession && getActions(latestSession);
 
     // Before combat has started
@@ -411,9 +423,8 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
 };
 
 const getIcon = (entityID: BytesLike) => {
-    const id = hexlify(entityID);
-
-    if (buildingRegex.test(id)) {
+    const nodeKind = (BigInt(hexlify(entityID)) >> BigInt(160)) & nodeKindMask;
+    if (nodeKind === buildingNodeKind) {
         return '/building-tower.png';
     }
 
@@ -435,7 +446,9 @@ const entityStateToCombatParticipantProps = ({ entityID, damage, stats, isDead, 
 
 const sumParticipants = (
     [participantsMaxHealth, participantsCurrentHealth]: number[],
-    { maxHealth, currentHealth }: CombatParticipantProps
+    { maxHealth, currentHealth, isPresent }: CombatParticipantProps
 ) => {
-    return [participantsMaxHealth + maxHealth, participantsCurrentHealth + currentHealth];
+    return isPresent
+        ? [participantsMaxHealth + maxHealth, participantsCurrentHealth + currentHealth]
+        : [participantsMaxHealth, participantsCurrentHealth];
 };
