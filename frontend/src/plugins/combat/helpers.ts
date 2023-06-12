@@ -60,18 +60,25 @@ export function getActionsFlat(session: CombatSession): CombatActionStruct[] {
 
 export function getActions(session: CombatSession) {
     // A sessionUpdate is an array of actions
-    const sessionUpdates = session.sessionUpdates.map((actionUpdate) => {
-        if (!actionUpdate) return null;
+    const sessionUpdates = session.sessionUpdates
+        .sort((a, b) => {
+            if (!a || !b) return 0;
+            const actionNumA = BigInt(a.name.split('-')[1]);
+            const actionNumB = BigInt(b.name.split('-')[1]);
+            return Number(actionNumA - actionNumB);
+        })
+        .map((actionUpdate) => {
+            if (!actionUpdate) return null;
 
-        const binaryString = atob(actionUpdate.value);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-        }
+            const binaryString = atob(actionUpdate.value);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
 
-        const decoder = AbiCoder.defaultAbiCoder();
-        return decoder.decode(['tuple(uint8,bytes24,uint64,bytes)[]'], bytes)[0];
-    });
+            const decoder = AbiCoder.defaultAbiCoder();
+            return decoder.decode(['tuple(uint8,bytes24,uint64,bytes)[]'], bytes)[0];
+        });
 
     const actions = sessionUpdates.map((actionTuples): CombatActionStruct[] => {
         // Turn the tuples back into structs

@@ -18,9 +18,7 @@ export enum CombatActionKind {
     NONE,
     JOIN,
     LEAVE,
-    CLAIM,
-    EQUIP,
-    UNEQUIP
+    EQUIP
 }
 
 export interface CombatAction {
@@ -78,35 +76,6 @@ export class Combat {
         // Constructor logic here
     }
 
-    private _getEntityState(combatState: CombatState, entityID: ethers.BytesLike): [EntityState, boolean] {
-        for (let i = 0; i < combatState.attackerStates.length; i++) {
-            const entityState = combatState.attackerStates[i];
-            if (entityState.entityID === entityID) {
-                return [entityState, true];
-            }
-        }
-
-        for (let i = 0; i < combatState.defenderStates.length; i++) {
-            const entityState = combatState.defenderStates[i];
-            if (entityState.entityID === entityID) {
-                return [entityState, false];
-            }
-        }
-
-        return [
-            {
-                entityID: '',
-                stats: [0, 0, 0],
-                damage: 0,
-                damageInflicted: 0,
-                isPresent: false,
-                isDead: false,
-                hasClaimed: false
-            },
-            false
-        ];
-    }
-
     calcCombatState(sessionUpdates: CombatAction[][], sortedListIndexes: number[], endBlockNum: number): CombatState {
         const combatState: CombatState = {
             attackerStates: new Array<EntityState>(MAX_ENTITIES_PER_SIDE),
@@ -157,12 +126,11 @@ export class Combat {
 
                 if (combatState.attackerCount === 0) {
                     combatState.winState = CombatWinState.DEFENDERS;
+                    return combatState;
                 } else if (combatState.defenderCount === 0) {
                     combatState.winState = CombatWinState.ATTACKERS;
+                    return combatState;
                 }
-            } else if (combatAction.kind === CombatActionKind.CLAIM) {
-                const [entityState] = this._getEntityState(combatState, combatAction.entityID);
-                entityState.hasClaimed = true;
             } else if (combatAction.kind === CombatActionKind.EQUIP) {
                 const result = ethers.AbiCoder.defaultAbiCoder().decode(['uint8', 'uint32[3]'], combatAction.data);
                 const info: JoinActionInfo = {
@@ -177,16 +145,14 @@ export class Combat {
             for (let t = 0; t < numTicks; t++) {
                 let i = 0;
                 let j = 0;
-                while (
-                    combatState.winState === CombatWinState.NONE &&
-                    (i < combatState.attackerCount || j < combatState.defenderCount)
-                ) {
+                while (i < combatState.attackerCount || j < combatState.defenderCount) {
                     if (i < combatState.attackerCount) {
                         this._combatLogic(combatState, i, CombatSideKey.ATTACK, combatAction.blockNum, i + j);
                         i++;
 
                         if (combatState.defenderCount === 0) {
                             combatState.winState = CombatWinState.ATTACKERS;
+                            return combatState;
                         }
                     }
 
@@ -196,6 +162,7 @@ export class Combat {
 
                         if (combatState.attackerCount === 0) {
                             combatState.winState = CombatWinState.DEFENDERS;
+                            return combatState;
                         }
                     }
                 }
