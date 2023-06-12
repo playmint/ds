@@ -76,35 +76,6 @@ export class Combat {
         // Constructor logic here
     }
 
-    private _getEntityState(combatState: CombatState, entityID: ethers.BytesLike): [EntityState, boolean] {
-        for (let i = 0; i < combatState.attackerStates.length; i++) {
-            const entityState = combatState.attackerStates[i];
-            if (entityState.entityID === entityID) {
-                return [entityState, true];
-            }
-        }
-
-        for (let i = 0; i < combatState.defenderStates.length; i++) {
-            const entityState = combatState.defenderStates[i];
-            if (entityState.entityID === entityID) {
-                return [entityState, false];
-            }
-        }
-
-        return [
-            {
-                entityID: '',
-                stats: [0, 0, 0],
-                damage: 0,
-                damageInflicted: 0,
-                isPresent: false,
-                isDead: false,
-                hasClaimed: false
-            },
-            false
-        ];
-    }
-
     calcCombatState(sessionUpdates: CombatAction[][], sortedListIndexes: number[], endBlockNum: number): CombatState {
         const combatState: CombatState = {
             attackerStates: new Array<EntityState>(MAX_ENTITIES_PER_SIDE),
