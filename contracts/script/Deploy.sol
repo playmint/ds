@@ -44,13 +44,6 @@ contract GameDeployer is Script {
         // discover origin tile
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 0, 0, 0)));
 
-        // scout some tiles
-        _scout(ds, 1, 0, -1, 1);
-        _scout(ds, 1, 0, 1, -1);
-        _scout(ds, 1, 1, -1, 0);
-        _scout(ds, 1, 1, 0, -1);
-        _scout(ds, 1, -1, 0, 1);
-        _scout(ds, 1, -1, 1, 0);
 
         // find the base item ids
         bytes24 none = 0x0;
@@ -123,7 +116,33 @@ contract GameDeployer is Script {
         );
 
 
-     
+        // scout the tiles
+        _scout(ds, 1, 0, -1, 1);
+        _scout(ds, 1, 0, 1, -1);
+        _scout(ds, 1, 1, -1, 0);
+        _scout(ds, 1, 1, 0, -1);
+        _scout(ds, 1, -1, 0, 1);
+        _scout(ds, 1, -1, 1, 0);
+
+        /*
+        //This would go to the Hermit if it worked
+        _scout(ds, 1, 2, -1, -1);
+        _scout(ds, 1, 3, -1, -2);
+        _scout(ds, 1, 3, 0, -3);
+        _scout(ds, 1, 3, 1, -4);
+        _scout(ds, 1, 4, 1, -5);
+        _scout(ds, 1, 4, 2, -6);
+        _scout(ds, 1, 3, 3, -6);
+        _scout(ds, 1, 3, 4, -7);
+        _scout(ds, 1, 3, 5, -8);
+        _scout(ds, 1, 3, 6, -9);
+        _scout(ds, 1, 3, 7, -10);
+        _scout(ds, 1, 4, 7, -11);
+        _scout(ds, 1, 5, 7, -12);
+        _scout(ds, 1, 6, 7, -13);
+        */
+    
+
 
 
 
@@ -164,7 +183,6 @@ contract GameDeployer is Script {
 
 
     function _rubberDuckChain(Game ds, bytes24 l33tBricks) private returns (bytes24) {
-
         bytes24 budgetTyre = ItemUtils.register(
             ds,
             ItemConfig({
@@ -279,9 +297,9 @@ contract GameDeployer is Script {
             })
         );
 
-        BuildingUtils.construct(ds, foulFiends, "building", 20, 0, -20);
-        BuildingUtils.construct(ds, kwikTyre, "building", 0, 30, -30);
-        BuildingUtils.construct(ds, allThingsRubber, "building", 40, 0, -40);
+        BuildingUtils.construct(ds, foulFiends, "building", 3, -3, 0);
+        BuildingUtils.construct(ds, kwikTyre, "building", -3, 3, 0);
+        BuildingUtils.construct(ds, allThingsRubber, "building", -10, 0, 10);
 
         return rubberDuck;
     }
@@ -405,7 +423,7 @@ contract GameDeployer is Script {
 
         BuildingUtils.construct(ds, kikiFission, "building", -10, -15, 15);
         BuildingUtils.construct(ds, kikiFusion, "building", -20, 0, 20);
-        BuildingUtils.construct(ds, crazyHermit, "building", 25, 25, 0);
+        BuildingUtils.construct(ds, crazyHermit, "building", 7, 7, -14);
      
     }
 }
