@@ -85,13 +85,6 @@ interface Actions {
     function START_COMBAT(bytes24 seekerID, bytes24 tileID, bytes24[] calldata attackers, bytes24[] calldata defenders)
         external;
 
-    function CLAIM_COMBAT(
-        bytes24 seekerID,
-        bytes24 sessionID,
-        CombatRule.CombatAction[][] calldata sessionUpdates,
-        uint32[] calldata sortedListIndexes
-    ) external;
-
     function FINALISE_COMBAT(
         bytes24 sessionID,
         CombatRule.CombatAction[][] calldata sessionUpdates,

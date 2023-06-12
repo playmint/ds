@@ -239,62 +239,6 @@ contract CombatRuleTest is Test {
         );
     }
 
-    function testClaiming() public {
-        // Move the third seeker onto the same tile as alice
-        vm.startPrank(thirdAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_SEEKER, (state.getSid(thirdSeekerID), 0, 0, 0)));
-        vm.stopPrank();
-
-        bytes24[] memory attackers = new bytes24[](2);
-        attackers[0] = aliceSeekerID;
-        attackers[1] = thirdSeekerID;
-
-        bytes24[] memory defenders = new bytes24[](1);
-        defenders[0] = bobSeekerID;
-
-        vm.recordLogs();
-
-        // Start combat
-        bytes24 targetTileID = Node.Tile(0, 1, 0, -1);
-        vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.START_COMBAT, (aliceSeekerID, targetTileID, attackers, defenders)));
-
-        // Roll forward to end of combat
-        vm.roll(block.number + 100);
-
-        CombatRule.CombatAction[][] memory sessionUpdates = _getSessionUpdates();
-
-        // We need to process the actions in blockNum order however we can't pass them in ordered because
-        // Hashes wouldn't compute the same. Ordering the list client side could be a problem as it's something
-        // that could be tampered with.
-        uint32[] memory sortedListIndexes = getOrderedListIndexes(sessionUpdates);
-
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.CLAIM_COMBAT, (aliceSeekerID, Node.CombatSession(1), sessionUpdates, sortedListIndexes)
-            )
-        );
-
-        vm.roll(block.number + 1);
-
-        // TODO: I think it's possible to hack as many claims as you want. I think it's possible to supply the action list
-        //       again with the claim event tacked on the end. That way the hashes would match however because we are still
-        //       in the same block, the list will only get processed up to the block before the claim and the `hasClaimed`
-        //       flag won't be set!
-
-        // Claiming created a new action so we need to fetch them again
-        sessionUpdates = _getSessionUpdates(sessionUpdates);
-        sortedListIndexes = getOrderedListIndexes(sessionUpdates);
-
-        // Expecting double claim to fail
-        vm.expectRevert(EntityAlreadyClaimed.selector);
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.CLAIM_COMBAT, (aliceSeekerID, Node.CombatSession(1), sessionUpdates, sortedListIndexes)
-            )
-        );
-    }
-
     function testStartCombatAgainstBuilding() public {
         bytes24 targetTileID = Node.Tile(0, 1, -1, 0);
         bytes24[] memory attackers = new bytes24[](1);

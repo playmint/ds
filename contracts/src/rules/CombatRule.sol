@@ -57,9 +57,7 @@ contract CombatRule is Rule {
         NONE,
         JOIN,
         LEAVE,
-        CLAIM,
-        EQUIP, // not now
-        UNEQUIP // Maybe?
+        EQUIP
     }
 
     struct CombatAction {
@@ -198,29 +196,6 @@ contract CombatRule is Rule {
             }
         }
 
-        // TODO: Remove this as we don't 'claim' anymore
-        if (bytes4(action) == Actions.CLAIM_COMBAT.selector) {
-            (
-                bytes24 seekerID,
-                bytes24 sessionID,
-                CombatRule.CombatAction[][] memory sessionUpdates,
-                uint32[] memory sortedListIndexes
-            ) = abi.decode(action[4:], (bytes24, bytes24, CombatRule.CombatAction[][], uint32[]));
-
-            // Check hash of actions matches hash of session (ensures supplied actions haven't been tampered with)
-            if (!_checkSessionHash(state, sessionID, sessionUpdates)) revert CombatSessionHashIncorrect();
-
-            // Might not need this anymore as the first entry would have the first block
-            // ( /*bytes24 attackTileID*/ , uint64 startBlock) =
-            //     state.get(Rel.Has.selector, uint8(CombatSideKey.ATTACK), sessionID);
-
-            CombatState memory combatState = calcCombatState(sessionUpdates, sortedListIndexes, ctx.clock);
-
-            console.log("Win state: ", uint256(combatState.winState));
-
-            _makeClaim(state, combatState, sessionID, seekerID, ctx);
-        }
-
         if (bytes4(action) == Actions.FINALISE_COMBAT.selector) {
             (bytes24 sessionID, CombatRule.CombatAction[][] memory sessionUpdates, uint32[] memory sortedListIndexes) =
                 abi.decode(action[4:], (bytes24, CombatRule.CombatAction[][], uint32[]));
@@ -343,51 +318,6 @@ contract CombatRule is Rule {
         state.setEquipSlot(buildingInstance, 1, bytes24(0));
     }
 
-    // TODO: Remove this
-    function _makeClaim(
-        State state,
-        CombatState memory combatState,
-        bytes24 sessionID,
-        bytes24 seekerID,
-        Context calldata ctx
-    ) private {
-        // find the seeker in the list
-        (EntityState memory entityState, bool isAttacker) = _getEntityState(combatState, seekerID);
-
-        if (entityState.entityID != seekerID) revert EntityNotFound();
-
-        // have they claimed yet?
-        if (entityState.hasClaimed) revert EntityAlreadyClaimed();
-
-        // were they on the winning side?
-        if (
-            (isAttacker && combatState.winState != CombatWinState.ATTACKERS)
-                || (!isAttacker && combatState.winState != CombatWinState.DEFENDERS)
-        ) {
-            revert EnityNotOnWinningSide();
-        }
-
-        // calculate their winnings
-        uint256 totalDamageInflicted = _getTotalDamageInflicted(
-            combatState.winState == CombatWinState.ATTACKERS ? combatState.attackerStates : combatState.defenderStates
-        );
-
-        if (totalDamageInflicted == 0) {
-            revert NoDamageInflicedCannotClaim();
-        }
-
-        uint256 damagePercent = (entityState.damageInflicted * 100) / totalDamageInflicted;
-
-        console.log("totalDamageInflicted: ", totalDamageInflicted);
-        console.log("damagePercent: ", damagePercent);
-        console.log("wood: ", (damagePercent * 50) / 100);
-
-        CombatAction[] memory combatActions = new CombatAction[](1);
-        combatActions[0] = CombatAction(CombatActionKind.CLAIM, seekerID, ctx.clock, new bytes(0));
-
-        _emitSessionUpdate(state, sessionID, combatActions);
-    }
-
     // Only counts entities that are present
     function _getTotalDamageInflicted(EntityState[] memory entityStates)
         private
@@ -429,7 +359,7 @@ contract CombatRule is Rule {
         CombatAction[][] memory sessionUpdates,
         uint32[] memory sortedListIndexes,
         uint64 endBlockNum
-    ) public view returns (CombatState memory combatState) {
+    ) public pure returns (CombatState memory combatState) {
         combatState = CombatState({
             attackerStates: new EntityState[](MAX_ENTITIES_PER_SIDE),
             defenderStates: new EntityState[](MAX_ENTITIES_PER_SIDE),
@@ -468,17 +398,14 @@ contract CombatRule is Rule {
                 // Check if either side has entirely left combat
                 if (combatState.attackerCount == 0) {
                     combatState.winState = CombatWinState.DEFENDERS;
+                    return (combatState);
                 } else if (combatState.defenderCount == 0) {
                     combatState.winState = CombatWinState.ATTACKERS;
+                    return (combatState);
                 }
             } else if (combatAction.kind == CombatActionKind.EQUIP) {
                 (EquipActionInfo memory info) = abi.decode(combatAction.data, (EquipActionInfo));
                 _updateEntityStats(combatState, combatAction, info);
-            } else if (combatAction.kind == CombatActionKind.CLAIM) {
-                (EntityState memory entityState, /*bool isAttacker*/ ) =
-                    _getEntityState(combatState, combatAction.entityID);
-                entityState.hasClaimed = true;
-                console.log("Claim action: ", uint192(combatAction.entityID));
             }
 
             // Tick the battle until the next action
@@ -488,17 +415,14 @@ contract CombatRule is Rule {
                 // Apply the combat logic
                 uint16 i = 0;
                 uint16 j = 0;
-                while (
-                    combatState.winState == CombatWinState.NONE
-                        && (i < combatState.attackerCount || j < combatState.defenderCount)
-                ) {
+                while (i < combatState.attackerCount || j < combatState.defenderCount) {
                     if (i < combatState.attackerCount) {
                         _combatLogic(combatState, i, CombatSideKey.ATTACK, combatAction.blockNum, i + j);
                         i++;
 
                         if (combatState.defenderCount == 0) {
                             combatState.winState = CombatWinState.ATTACKERS;
-                            // return (combatState);
+                            return (combatState);
                         }
                     }
 
@@ -508,7 +432,7 @@ contract CombatRule is Rule {
 
                         if (combatState.attackerCount == 0) {
                             combatState.winState = CombatWinState.DEFENDERS;
-                            // return (combatState);
+                            return (combatState);
                         }
                     }
                 }
@@ -517,10 +441,10 @@ contract CombatRule is Rule {
             }
         }
 
-        // As there is no longer a block limit to combat, this is unreachable
-        if (combatState.winState == CombatWinState.NONE) {
-            combatState.winState = CombatWinState.DRAW;
-        }
+        // As there is no longer a block limit to combat so cannot draw
+        // if (combatState.winState == CombatWinState.NONE) {
+        //     combatState.winState = CombatWinState.DRAW;
+        // }
     }
 
     // NOTE: entityIndex is the index within one of the two arrays and entityNum is witin the whole battle
@@ -693,7 +617,6 @@ contract CombatRule is Rule {
         return storedHash == combatActionsHash;
     }
 
-    // TODO: Add an end flag after the first claim so we don't have to wait until timeout for this session to end
     function _getActiveSession(State state, bytes24 tileID, Context calldata /*ctx*/ ) private view returns (bytes24) {
         (bytes24 sessionID, uint64 startBlockNum) = state.get(Rel.Has.selector, 0, tileID);
         if (startBlockNum > 0 && !state.getIsFinalised(sessionID)) return sessionID;
