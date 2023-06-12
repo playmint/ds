@@ -238,81 +238,106 @@ For reference, the code that parses this output is in `lib/ds/core/src/api/v1.ts
 
 For an example output see the return statement of `src/HammerFactory.js`.
 
-```javascript
-version: 1,     // Currently unused
-components: [   // List of screen area UI compoments to render.
-                // Currently only 1 component, of type 'buiding' is used.
-{
-  
+```jsx
+// Currently unused
+version: 1,
+
+// List of screen area UI compoments to render.
+// Currently only 1 component, of type 'buiding' is used.
+components: [
+{  
 	//
 	// diaplayed whenever building tile is selected in either Select ot Use mode
 	//
 
-    version: 1,			    // Currently unused.
-    type: 'building',       // Currently only 'building' is available.
-    id: 'my-building',      // Required but unused so anything will do.
-      
-    title: 'Title text',    // Large title text.
-							// Could be fixed or dynamic based on state. 
-    summary: 'Smaller text',// Smaller desription text. 
-	                        // Could be fixed or dynamic based on state.
+		// Currently unused.
+		version: 1,
+
+		// Currently only 'building' is available.
+		type: 'building',
+
+		// Required but unused so anything will do.
+		id: 'my-building',
+
+		// Large title text.
+		// Could be fixed or dynamic based on state. 
+		title: 'Title text',
+
+		// Smaller desription text. 
+		// Could be fixed or dynamic based on state.
+		summary: 'Smaller text',
+	                       
 
 	//  
 	// diaplayed whenever building tile is selected in Use mode only
-    //    
+	//    
 
-    content: [  // List of content to dispaly.
-                // Only 1 element is displayed at a time. 
-                // Element with id 'default' is initialy displayed.
-                // 'toggle' buttons can show an element with a different id.
+	// List of content to dispaly.
+	// Only 1 element is displayed at a time. 
+	// Element with id 'default' is initialy displayed.
+	// Toggle buttons can show an element with a different id.
+    content: [
 	{
-        //
+		//
 		// Content example 1, default, using a toggle button and html form input
-        //
+		//
 
-        id: 'default',  // At least one element must have id 'default'.
-                        // Other ids can be triggered with toggle buttons.
-   
-		type: 'inline', // Must be one of 'inline', 'popout' or 'dialog'.
-		                // Currently they all behave the same.
-        
-        html:           // A string of HTML rendered inside a Form element.
-                        // This is passed though DOMPurify.santize before being rendered.
-                        // Tags that are stripped is teh default set here:
-                        // https://github.com/cure53/DOMPurify/wiki/Default-TAGs-ATTRIBUTEs-allow-list-&-blocklist#default-allow-listsblocklists
-            `<b>
-                <input type="submit" value="Check in">
-            </b>`,       
-                                    
+		// At least one element must have id 'default'.
+		// Other ids can be triggered with toggle buttons.
+		id: 'default',  
 
-        submit:         // function, in this javascript file
-						// called for any input of type 'submit' in the html above             
-            () => {ds.log("checked in");},
-        
-        buttons: [      // list of buttons
-	    { 
-            text: 'Next',       // Text shown on button 
-            type: 'toggle',     // either 'action' or 'toggle'
-            content: 'sayhi',   // id of content to switch to ('toggle' type only)
-            disabled: false     // is button disabled - can set this based on State
-        },],
+		// Must be one of 'inline', 'popout' or 'dialog'.
+		// Currently they all behave the same.
+		type: 'inline', 
+
+		// A string of HTML rendered inside a Form element.
+		// This is passed though DOMPurify.santize before being rendered.
+		// Tags that are stripped is teh default set here:
+		// https://github.com/cure53/DOMPurify/wiki/Default-TAGs-ATTRIBUTEs-allow-list-&-blocklist#default-allow-listsblocklists
+		html:           
+			`<b>
+				<input type="submit" value="Check in">
+			</b>`,       
+
+		// function, in this javascript file
+		// called for any input of type 'submit' in the html above        
+		submit:             
+			() => {ds.log("checked in");},
+
+		// list of buttons
+		buttons: [
+		{ 
+			// Text shown on button 
+			text: 'Next',
+
+			// either 'action' or 'toggle'
+			type: 'toggle',
+
+			// id of content to switch to ('toggle' type only)
+			content: 'sayhi',
+
+			// is button disabled - can set this based on State
+			disabled: false     
+		},],
 	},
 	{
-        //
-        // Content example 2, sayhi, using an action button
-        //
+		//
+		// Content example 2, sayhi, using an action button
+		//
 
-        id: 'sayhi',                
-        type: 'inline',
-        buttons: [      // list of buttons
-            { 
-                text: 'Say Hi',           
-                type: 'action',                 
-	              action:   // function, in this javascript file, called
-							// when button is pressed ('action' type only)
-					() => {ds.log("hi");},  
-            },
-        ],
+		id: 'sayhi',                
+		type: 'inline',
+		
+		// list of buttons
+		buttons: [
+		{ 
+			text: 'Say Hi',           
+			type: 'action',
+			// function, in this javascript file, called
+			// when button is pressed ('action' type only)
+			action:
+				() => {ds.log("hi");},  
+		},],
 	},], // end of content list
 },] // end of component list (currently always just 1)
 ```
