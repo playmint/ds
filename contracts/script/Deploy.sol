@@ -51,22 +51,6 @@ contract GameDeployer is Script {
         bytes24 bouba = ItemUtils.Bouba(); // Defence
         bytes24 semiote = ItemUtils.Semiote(); // Attack
 
-        // register welcomeCocktail
-        bytes24 welcomeCocktail = ItemUtils.register(
-            ds,
-            ItemConfig({
-                id: 100,
-                name: "Welcome Cocktail",
-                icon: "02-40",
-                life: 0,
-                defense: 1,
-                attack: 2,
-                stackable: false,
-                implementation: address(0),
-                plugin: ""
-            })
-        );
-
         //register l33tBricks
         bytes24 l33tBricks = ItemUtils.register(
             ds,
@@ -83,102 +67,25 @@ contract GameDeployer is Script {
             })
         );
 
-        // register Super-Kiki
-        bytes24 superKiki = ItemUtils.register(
-            ds,
-            ItemConfig({
-                id: 101,
-                name: "Super-Kiki",
-                icon: "20-187",
-                life: 20,
-                defense: 0,
-                attack: 0,
-                stackable: true,
-                implementation: address(0),
-                plugin: ""
-            })
-        );
+        //register the MegaKikiChain
+        _megaKikiChain(ds, none, kiki, bouba, semiote, l33tBricks);
 
-        //register MEGA-Kiki
-        bytes24 megaKiki = ItemUtils.register(
-            ds,
-            ItemConfig({
-                id: extensionID,
-                name: "MEGA-Kiki",
-                icon: "27-59",
-                life: 200,
-                defense: 0,
-                attack: 0,
-                stackable: true,
-                implementation: address(0),
-                plugin: ""
-            })
-        );
 
-        //register Budget Tyre
-        bytes24 budgetTyre = ItemUtils.register(
+        // register welcomeCocktail
+        bytes24 welcomeCocktail = ItemUtils.register(
             ds,
             ItemConfig({
-                id: extensionID,
-                name: "Budget Tyre",
-                icon: "19-231",
+                id: 100,
+                name: "Welcome Cocktail",
+                icon: "02-40",
                 life: 0,
-                defense: 10,
-                attack: 10,
+                defense: 1,
+                attack: 2,
                 stackable: false,
                 implementation: address(0),
                 plugin: ""
             })
         );
-
-        //register Smelly Duck
-        bytes24 smellyDuck = ItemUtils.register(
-            ds,
-            ItemConfig({
-                id: extensionID,
-                name: "Smelly \"Duck\"",
-                icon: "30-280",
-                life: 10,
-                defense: 0,
-                attack: 0,
-                stackable: false,
-                implementation: address(0),
-                plugin: ""
-            })
-        );
-
-        //register Rubber Duck
-        bytes24 rubberDuck = ItemUtils.register(
-            ds,
-            ItemConfig({
-                id: extensionID,
-                name: "Rubber Duck",
-                icon: "27-101",
-                life: 5,
-                defense: 5,
-                attack: 5,
-                stackable: false,
-                implementation: address(0),
-                plugin: ""
-            })
-        );
-
-        //register Dismembered Hand
-        bytes24 dismemberedHand = ItemUtils.register(
-            ds,
-            ItemConfig({
-                id: extensionID,
-                name: "Dismembered Hand",
-                icon: "01-140",
-                life: 111,
-                defense: 0,
-                attack: 0,
-                stackable: false,
-                implementation: address(0),
-                plugin: ""
-            })
-        );
-
 
         // register a "welcome hut" building
         bytes24 welcomeHutBuildingKind = BuildingUtils.register(
@@ -204,33 +111,86 @@ contract GameDeployer is Script {
             })
         );
 
-        // register the Kiki Fission building
-        bytes24 kikiFission = BuildingUtils.register(
+
+        
+
+        {
+        //register Budget Tyre
+        bytes24 budgetTyre = ItemUtils.register(
             ds,
-            BuildingConfig({
-                id: 2,
-                name: "Kiki Fission",
-                materials: [
-                        Material({quantity: 25, item: kiki}),
-                        Material({quantity: 25, item: bouba}),
-                        Material({quantity: 25, item: semiote}),
-                        Material({quantity: 0, item: none})
-                ],
-                inputs: [
-                    Input({quantity: 100, item: kiki}),
-                    Input({quantity: 0, item: none}),
-                    Input({quantity: 0, item: none}),
-                    Input({quantity: 0, item: none})
-                ],
-                outputs: [Output({quantity: 5, item: superKiki})],
-                implementation: address(new KikiFission()),
-                plugin: vm.readFile("src/fixtures/KikiFission.js")
+            ItemConfig({
+                id: 103,
+                name: "Budget Tyre",
+                icon: "19-231",
+                life: 0,
+                defense: 10,
+                attack: 10,
+                stackable: false,
+                implementation: address(0),
+                plugin: ""
             })
         );
+        }
+
+        {
+        //register Smelly Duck
+        bytes24 smellyDuck = ItemUtils.register(
+            ds,
+            ItemConfig({
+                id: 104,
+                name: "Smelly \"Duck\"",
+                icon: "30-280",
+                life: 10,
+                defense: 0,
+                attack: 0,
+                stackable: false,
+                implementation: address(0),
+                plugin: ""
+            })
+        );
+        }
+
+        {
+        //register Rubber Duck
+        bytes24 rubberDuck = ItemUtils.register(
+            ds,
+            ItemConfig({
+                id: 105,
+                name: "Rubber Duck",
+                icon: "27-101",
+                life: 5,
+                defense: 5,
+                attack: 5,
+                stackable: false,
+                implementation: address(0),
+                plugin: ""
+            })
+        );
+        }
+
+        {
+        //register Dismembered Hand
+        bytes24 dismemberedHand = ItemUtils.register(
+            ds,
+            ItemConfig({
+                id: 106,
+                name: "Dismembered Hand",
+                icon: "01-140",
+                life: 111,
+                defense: 0,
+                attack: 0,
+                stackable: false,
+                implementation: address(0),
+                plugin: ""
+            })
+        );
+        }
+
+
+
 
         // force construct building
         BuildingUtils.construct(ds, welcomeHutBuildingKind, "building", -1, 1, 0);
-        BuildingUtils.construct(ds, kikiFission, "building", 2, -2, 0);
 
         vm.stopBroadcast();
     }
@@ -260,5 +220,65 @@ contract GameDeployer is Script {
         }
         allowlist[addresses.length] = deployer; // allowlist the deployer address
         return allowlist;
+    }
+
+    function _megaKikiChain(Game ds, bytes24 none, bytes24 kiki, bytes24 bouba, bytes24 semiote, bytes24 l33tBricks) private  {
+
+        bytes24 superKiki = ItemUtils.register(
+            ds,
+            ItemConfig({
+                id: 101,
+                name: "Super-Kiki",
+                icon: "20-187",
+                life: 20,
+                defense: 0,
+                attack: 0,
+                stackable: true,
+                implementation: address(0),
+                plugin: ""
+            })
+        );
+        
+        bytes24 kikiFission = BuildingUtils.register(
+            ds,
+            BuildingConfig({
+                id: 2,
+                name: "Kiki Fission",
+                materials: [
+                        Material({quantity: 100, item: l33tBricks}),
+                        Material({quantity: 0, item: none}),
+                        Material({quantity: 0, item: none}),
+                        Material({quantity: 0, item: none})
+                ],
+                inputs: [
+                    Input({quantity: 100, item: kiki}),
+                    Input({quantity: 0, item: none}),
+                    Input({quantity: 0, item: none}),
+                    Input({quantity: 0, item: none})
+                ],
+                outputs: [Output({quantity: 5, item: superKiki})],
+                implementation: address(new KikiFission()),
+                plugin: vm.readFile("src/fixtures/KikiFission.js")
+            })
+        );
+
+        bytes24 megaKiki = ItemUtils.register(
+            ds,
+            ItemConfig({
+                id: 102,
+                name: "MEGA-Kiki",
+                icon: "27-59",
+                life: 200,
+                defense: 0,
+                attack: 0,
+                stackable: true,
+                implementation: address(0),
+                plugin: ""
+            })
+        );
+
+
+        BuildingUtils.construct(ds, kikiFission, "building", 2, -2, 0);
+     
     }
 }
