@@ -558,9 +558,32 @@ contract GameDeployer is Script {
             })
         );  
 
-        BuildingUtils.construct(ds, slime, "enemy", 8, -10, 2);
-        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", 9, -11, 2);
-        BuildingUtils.construct(ds, mechaKaiju, "enemy", 10, -12, 2);
-        BuildingUtils.construct(ds, primeEvil, "enemy", 11, -13, 2);
+        BuildingUtils.construct(ds, slime, "enemy", 1, -4, 5);
+        BuildingUtils.construct(ds, slime, "enemy", -1, 4, -5);
+        BuildingUtils.construct(ds, slime, "enemy", 3, -6, 3);
+        BuildingUtils.construct(ds, slime, "enemy", -3, 6, -3);
+        BuildingUtils.construct(ds, slime, "enemy", 6, -7, 1);
+        BuildingUtils.construct(ds, slime, "enemy", -6, 7, -1);
+        BuildingUtils.construct(ds, slime, "enemy", 6, -1, 5);
+        BuildingUtils.construct(ds, slime, "enemy", -6, 1, -5);
+        BuildingUtils.construct(ds, slime, "enemy", 4, 3, -7);
+        BuildingUtils.construct(ds, slime, "enemy", -4, -3, 7);
+        BuildingUtils.construct(ds, slime, "enemy", 1, 5, -6);
+        BuildingUtils.construct(ds, slime, "enemy", -1, -5, 6);
+
+        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", 1, -8, 7);
+        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", -1, 8, -7);
+        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", 7, -2, -5);
+        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", -7, 2, 5);
+        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", 5, 4, 9);
+        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", -5, -4, -9);
+
+        BuildingUtils.construct(ds, mechaKaiju, "enemy", 11, 2, -13);
+        BuildingUtils.construct(ds, mechaKaiju, "enemy", -11, -2, 13);
+        BuildingUtils.construct(ds, mechaKaiju, "enemy", -5, 12, -7);
+        BuildingUtils.construct(ds, mechaKaiju, "enemy", 5, -12, 7);
+
+        BuildingUtils.construct(ds, primeEvil, "enemy", 10, -16, 4);
+        BuildingUtils.construct(ds, primeEvil, "enemy", -10, 16, -4);
     }
 }
