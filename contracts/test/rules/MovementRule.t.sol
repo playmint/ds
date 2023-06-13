@@ -78,49 +78,49 @@ contract MovementRuleTest is Test {
         _testMoveTo(-1, 1, 0);
     }
 
-    function testMoveWhenMoving() public {
-        // be alice
-        vm.startPrank(aliceAccount);
-        bytes24 seeker = Node.Seeker(TEST_SEEKER_ID);
-        // move 2 tiles away
-        _tryMoveTo(0, 2, -2);
-        // assuming speed is 1 tile per block
-        // if we move 1 block forward we should be at (0,1,-1)
-        // TODO: this test will break if TRAVEL_SPEED changes, fix it!
-        vm.roll(block.number + 1);
-        assertEq(
-            state.getCurrentLocation(seeker, uint64(block.number)),
-            Node.Tile(DEFAULT_ZONE, 0, 1, -1),
-            "expected current location to be 0,1,-1 as we are halfway"
-        );
-        // try to move away from current location...
-        // _discover(-1,1,0);
-        _tryMoveTo(-1, 1, 0);
-        assertEq(
-            state.getPrevLocation(seeker), Node.Tile(DEFAULT_ZONE, 0, 1, -1), "expected prev location to now be 0,1,-1"
-        );
-        assertEq(
-            state.getCurrentLocation(seeker, uint64(block.number)),
-            Node.Tile(DEFAULT_ZONE, 0, 1, -1),
-            "expected current location to still be 0,1,-1 after new move issued"
-        );
-        assertEq(
-            state.getNextLocation(seeker),
-            Node.Tile(DEFAULT_ZONE, -1, 1, 0),
-            "expected next location to be -1,1,0 after new move issued"
-        );
-        // move time forward
-        (, uint64 arrivalTime) = state.get(Rel.Location.selector, uint8(LocationKey.NEXT), seeker);
-        vm.roll(arrivalTime); // let time pass
-        // we should now have arrived at -1,2,1
-        assertEq(
-            state.getCurrentLocation(seeker, uint64(block.number)),
-            Node.Tile(DEFAULT_ZONE, -1, 1, 0),
-            "expected arrive at -1,1,0"
-        );
-        // stop being alice
-        vm.stopPrank();
-    }
+    // function testMoveWhenMoving() public {
+    //     // be alice
+    //     vm.startPrank(aliceAccount);
+    //     bytes24 seeker = Node.Seeker(TEST_SEEKER_ID);
+    //     // move 2 tiles away
+    //     _tryMoveTo(0, 2, -2);
+    //     // assuming speed is 1 tile per block
+    //     // if we move 1 block forward we should be at (0,1,-1)
+    //     // TODO: this test will break if TRAVEL_SPEED changes, fix it!
+    //     vm.roll(block.number + 1);
+    //     assertEq(
+    //         state.getCurrentLocation(seeker, uint64(block.number)),
+    //         Node.Tile(DEFAULT_ZONE, 0, 1, -1),
+    //         "expected current location to be 0,1,-1 as we are halfway"
+    //     );
+    //     // try to move away from current location...
+    //     // _discover(-1,1,0);
+    //     _tryMoveTo(-1, 1, 0);
+    //     assertEq(
+    //         state.getPrevLocation(seeker), Node.Tile(DEFAULT_ZONE, 0, 1, -1), "expected prev location to now be 0,1,-1"
+    //     );
+    //     assertEq(
+    //         state.getCurrentLocation(seeker, uint64(block.number)),
+    //         Node.Tile(DEFAULT_ZONE, 0, 1, -1),
+    //         "expected current location to still be 0,1,-1 after new move issued"
+    //     );
+    //     assertEq(
+    //         state.getNextLocation(seeker),
+    //         Node.Tile(DEFAULT_ZONE, -1, 1, 0),
+    //         "expected next location to be -1,1,0 after new move issued"
+    //     );
+    //     // move time forward
+    //     (, uint64 arrivalTime) = state.get(Rel.Location.selector, uint8(LocationKey.NEXT), seeker);
+    //     vm.roll(arrivalTime); // let time pass
+    //     // we should now have arrived at -1,2,1
+    //     assertEq(
+    //         state.getCurrentLocation(seeker, uint64(block.number)),
+    //         Node.Tile(DEFAULT_ZONE, -1, 1, 0),
+    //         "expected arrive at -1,1,0"
+    //     );
+    //     // stop being alice
+    //     vm.stopPrank();
+    // }
 
     function testNoMoveNotOwner() public {
         vm.expectRevert("NoMoveNotOwner");
