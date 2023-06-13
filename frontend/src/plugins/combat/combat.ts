@@ -143,28 +143,18 @@ export class Combat {
 
             const numTicks = Math.floor((actionEndBlock - combatAction.blockNum) / BLOCKS_PER_TICK);
             for (let t = 0; t < numTicks; t++) {
-                let i = 0;
-                let j = 0;
-                while (i < combatState.attackerCount || j < combatState.defenderCount) {
-                    if (i < combatState.attackerCount) {
-                        this._combatLogic(combatState, i, CombatSideKey.ATTACK, combatAction.blockNum, i + j);
-                        i++;
+                // Attackers attack
+                this._combatLogic(combatState, CombatSideKey.ATTACK, combatAction.blockNum);
+                if (combatState.defenderCount === 0) {
+                    combatState.winState = CombatWinState.ATTACKERS;
+                    return combatState;
+                }
 
-                        if (combatState.defenderCount === 0) {
-                            combatState.winState = CombatWinState.ATTACKERS;
-                            return combatState;
-                        }
-                    }
-
-                    if (j < combatState.defenderCount) {
-                        this._combatLogic(combatState, j, CombatSideKey.DEFENCE, combatAction.blockNum, i + j);
-                        j++;
-
-                        if (combatState.attackerCount === 0) {
-                            combatState.winState = CombatWinState.DEFENDERS;
-                            return combatState;
-                        }
-                    }
+                // Defenders attack
+                this._combatLogic(combatState, CombatSideKey.DEFENCE, combatAction.blockNum);
+                if (combatState.attackerCount === 0) {
+                    combatState.winState = CombatWinState.DEFENDERS;
+                    return combatState;
                 }
 
                 combatState.tickCount++;
@@ -179,22 +169,12 @@ export class Combat {
         return combatState;
     }
 
-    private _combatLogic(
-        combatState: CombatState,
-        entityIndex: number,
-        combatSide: CombatSideKey,
-        blockNum: number,
-        entityNum: number
-    ): void {
+    private _combatLogic(combatState: CombatState, combatSide: CombatSideKey, blockNum: number): void {
         const rnd = keccak256(
-            ethers.AbiCoder.defaultAbiCoder().encode(
-                ['uint64', 'uint16', 'uint32'],
-                [blockNum, combatState.tickCount, entityNum]
-            )
+            ethers.AbiCoder.defaultAbiCoder().encode(['uint64', 'uint16'], [blockNum, combatState.tickCount])
         );
-        const attackerState = this._selectPresentEntity(
-            combatSide === CombatSideKey.ATTACK ? combatState.attackerStates : combatState.defenderStates,
-            entityIndex
+        const attackTotal = this._getAttackTotal(
+            combatSide === CombatSideKey.ATTACK ? combatState.attackerStates : combatState.defenderStates
         );
         const enemyRnd = Number(getUint(rnd) & getUint('0xFFFF')); // get first 16bits from rnd
         const enemyState = this._selectPresentEntity(
@@ -202,9 +182,10 @@ export class Combat {
             enemyRnd % (combatSide === CombatSideKey.ATTACK ? combatState.defenderCount : combatState.attackerCount)
         );
 
-        if (attackerState.stats[ATOM_ATTACK] > enemyState.stats[ATOM_DEFENSE]) {
-            attackerState.damageInflicted += attackerState.stats[ATOM_ATTACK] - enemyState.stats[ATOM_DEFENSE];
-            enemyState.damage += attackerState.stats[ATOM_ATTACK] - enemyState.stats[ATOM_DEFENSE];
+        if (attackTotal > enemyState.stats[ATOM_DEFENSE]) {
+            enemyState.damage += attackTotal - enemyState.stats[ATOM_DEFENSE];
+        } else {
+            enemyState.damage += 1;
         }
 
         if (enemyState.damage >= enemyState.stats[ATOM_LIFE]) {
@@ -215,6 +196,18 @@ export class Combat {
                 combatState.attackerCount--;
             }
         }
+    }
+
+    private _getAttackTotal(entityStates: EntityState[]): number {
+        let totalAttack = 0;
+        for (let i = 0; i < entityStates.length; i++) {
+            if (entityStates[i] && entityStates[i].isPresent && !entityStates[i].isDead) {
+                totalAttack += entityStates[i].stats[ATOM_ATTACK];
+                entityStates[i].damageInflicted += entityStates[i].stats[ATOM_ATTACK];
+            }
+        }
+
+        return totalAttack;
     }
 
     private _selectPresentEntity(entityStates: EntityState[], entityNum: number): EntityState {

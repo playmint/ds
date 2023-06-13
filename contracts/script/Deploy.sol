@@ -172,8 +172,8 @@ contract GameDeployer is Script {
                 name: "Welcome Cocktail",
                 icon: "02-40",
                 life: 0,
-                defense: 1,
-                attack: 2,
+                defense: 2,
+                attack: 0,
                 stackable: false,
                 implementation: address(0),
                 plugin: ""

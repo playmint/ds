@@ -38,6 +38,10 @@ error EntityAlreadyClaimed();
 error EnityNotOnWinningSide();
 error NoDamageInflicedCannotClaim();
 
+uint32 constant UNIT_BASE_LIFE = 50;
+uint32 constant UNIT_BASE_DEFENCE = 23;
+uint32 constant UNIT_BASE_ATTACK = 30;
+
 uint64 constant BLOCKS_PER_TICK = 1;
 uint8 constant MAX_ENTITIES_PER_SIDE = 100; // No higher than 256 due to there being a reward bag for each entity and edges being 8 bit indices
 uint8 constant TILE_ATTACK_INDEX = 0;
@@ -92,9 +96,9 @@ contract CombatRule is Rule {
 
     struct EntityState {
         bytes24 entityID;
-        uint32[3] stats;
+        uint32[3] stats; // TODO: Why aren't these 64bit?
         uint64 damage;
-        uint64 damageInflicted;
+        uint64 damageInflicted; // Each tick, entity's attack stat are added to this property. It actually represents effort more than the damage result
         bool isPresent;
         bool isDead;
         bool hasClaimed;
@@ -411,34 +415,22 @@ contract CombatRule is Rule {
             // Tick the battle until the next action
             uint64 numTicks = (actionEndBlock - combatAction.blockNum) / BLOCKS_PER_TICK;
             for (uint16 t = 0; t < numTicks; t++) {
-                // console.log("______tick");
-                // Apply the combat logic
-                uint16 i = 0;
-                uint16 j = 0;
-                while (i < combatState.attackerCount || j < combatState.defenderCount) {
-                    if (i < combatState.attackerCount) {
-                        _combatLogic(combatState, i, CombatSideKey.ATTACK, combatAction.blockNum, i + j);
-                        i++;
-
-                        if (combatState.defenderCount == 0) {
-                            combatState.winState = CombatWinState.ATTACKERS;
-                            return (combatState);
-                        }
-                    }
-
-                    if (j < combatState.defenderCount) {
-                        _combatLogic(combatState, j, CombatSideKey.DEFENCE, combatAction.blockNum, i + j);
-                        j++;
-
-                        if (combatState.attackerCount == 0) {
-                            combatState.winState = CombatWinState.DEFENDERS;
-                            return (combatState);
-                        }
-                    }
+                // Attackers attack
+                _combatLogic(combatState, CombatSideKey.ATTACK, combatAction.blockNum);
+                if (combatState.defenderCount == 0) {
+                    combatState.winState = CombatWinState.ATTACKERS;
+                    return (combatState);
                 }
 
-                combatState.tickCount++;
+                // Defenders attack
+                _combatLogic(combatState, CombatSideKey.DEFENCE, combatAction.blockNum);
+                if (combatState.attackerCount == 0) {
+                    combatState.winState = CombatWinState.DEFENDERS;
+                    return (combatState);
+                }
             }
+
+            combatState.tickCount++;
         }
 
         // As there is no longer a block limit to combat so cannot draw
@@ -448,19 +440,13 @@ contract CombatRule is Rule {
     }
 
     // NOTE: entityIndex is the index within one of the two arrays and entityNum is witin the whole battle
-    function _combatLogic(
-        CombatState memory combatState,
-        uint16 entityIndex,
-        CombatSideKey combatSide,
-        uint64 blockNum,
-        uint32 entityNum
-    ) private pure {
+    function _combatLogic(CombatState memory combatState, CombatSideKey combatSide, uint64 blockNum) private pure {
         // TODO: obviously not random
-        bytes32 rnd = keccak256(abi.encode(blockNum, combatState.tickCount, entityNum));
+        bytes32 rnd = keccak256(abi.encode(blockNum, combatState.tickCount));
 
-        // Select attacker
-        EntityState memory attackerState = _selectPresentEntity(
-            combatSide == CombatSideKey.ATTACK ? combatState.attackerStates : combatState.defenderStates, entityIndex
+        // Sum up attack from all present entities
+        uint256 attackTotal = _getAttackTotal(
+            combatSide == CombatSideKey.ATTACK ? combatState.attackerStates : combatState.defenderStates
         );
 
         // Select entity from opposing side
@@ -470,10 +456,10 @@ contract CombatRule is Rule {
                 % (combatSide == CombatSideKey.ATTACK ? combatState.defenderCount : combatState.attackerCount)
         );
 
-        // Attack if ATK is more than enemy's DEF
-        if (attackerState.stats[ATOM_ATTACK] > enemyState.stats[ATOM_DEFENSE]) {
-            attackerState.damageInflicted += attackerState.stats[ATOM_ATTACK] - enemyState.stats[ATOM_DEFENSE];
-            enemyState.damage += attackerState.stats[ATOM_ATTACK] - enemyState.stats[ATOM_DEFENSE];
+        if (attackTotal > enemyState.stats[ATOM_DEFENSE]) {
+            enemyState.damage += uint64(attackTotal - enemyState.stats[ATOM_DEFENSE]);
+        } else {
+            enemyState.damage += 1;
         }
 
         // Is enemy defeated?
@@ -485,14 +471,16 @@ contract CombatRule is Rule {
                 combatState.attackerCount--;
             }
         }
+    }
 
-        // console.log(
-        //     "combatSide: ",
-        //     uint8(combatSide),
-        //     "atk: ",
-        //     attackerState.stats[uint8(AtomKind.ATK)] - enemyState.stats[uint8(AtomKind.DEF)]
-        // );
-        // console.log("Enemy damage: ", enemyState.damage);
+    function _getAttackTotal(EntityState[] memory entityStates) private pure returns (uint64 totalAttack) {
+        for (uint16 i = 0; i < entityStates.length; i++) {
+            if (entityStates[i].isPresent && !entityStates[i].isDead) {
+                // TODO: overflow checks on these
+                totalAttack += entityStates[i].stats[ATOM_ATTACK];
+                entityStates[i].damageInflicted += entityStates[i].stats[ATOM_ATTACK];
+            }
+        }
     }
 
     function _selectPresentEntity(EntityState[] memory entityStates, uint16 entityNum)
@@ -714,9 +702,9 @@ contract CombatRule is Rule {
 
         if (bytes4(entityID) == Kind.Seeker.selector) {
             // Made up base stats for seeker
-            stats[ATOM_LIFE] = 50;
-            stats[ATOM_DEFENSE] = 48;
-            stats[ATOM_ATTACK] = 50; // Was 25. Needs to be > 50 to defeat a building
+            stats[ATOM_LIFE] = UNIT_BASE_LIFE;
+            stats[ATOM_DEFENSE] = UNIT_BASE_DEFENCE;
+            stats[ATOM_ATTACK] = UNIT_BASE_ATTACK;
 
             // iterate over Items within Bags and sum up Atoms that belong to the Items (limited to 2 bags)
             for (uint8 i = 0; i < 2; i++) {
