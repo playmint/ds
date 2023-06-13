@@ -98,13 +98,19 @@ async function dispatch(client: CogServices, wallet: Wallet, bundle: QueuedClien
                 error: `no valid session`,
             } satisfies RejectedClientAction;
         }
+        console.warn('start-dispatch', bundle.actions);
         const { data, error } = await session.dispatch(...bundle.actions);
+        console.warn('end-dispatch', bundle.actions);
         if (error) {
-            console.warn('dispatch-queue:', 'rejected:', error);
+            let reason = error.toString();
+            if (error.graphQLErrors && error.graphQLErrors.length > 0) {
+                reason = error.graphQLErrors[0].toString();
+            }
+            console.warn('dispatch-queue:', 'rejected:', reason);
             return {
                 ...bundle,
                 status: DispatchedActionsStatus.REJECTED_CLIENT,
-                error: `${error}`,
+                error: `${reason}`,
             } satisfies RejectedClientAction;
         }
         if (!data) {
