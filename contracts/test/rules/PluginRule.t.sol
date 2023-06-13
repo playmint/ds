@@ -99,7 +99,7 @@ contract PluginRuleTest is Test {
 
         // check that bob is not able to overwrite alice's plugin metadata
         vm.startPrank(bobAccount);
-        vm.expectRevert(PluginNotPluginOwner.selector); // expect fail as one wood short
+        vm.expectRevert("PluginNotPluginOwner"); // expect fail as one wood short
         dispatcher.dispatch(
             abi.encodeCall(Actions.REGISTER_KIND_PLUGIN, (pluginID, buildingKind, pluginName, "BAD_CODE"))
         );
@@ -131,7 +131,7 @@ contract PluginRuleTest is Test {
         string memory pluginSrc = "function(){}";
         // expect fail as bob was not the owner of the building kind
         vm.startPrank(bobAccount);
-        vm.expectRevert(PluginNotTargetOwner.selector); // expect fail as one wood short
+        vm.expectRevert("PluginNotTargetOwner"); // expect fail as one wood short
         dispatcher.dispatch(
             abi.encodeCall(Actions.REGISTER_KIND_PLUGIN, (pluginID, buildingKind, pluginName, pluginSrc))
         );

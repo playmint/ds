@@ -8,9 +8,6 @@ import {Context, Rule} from "cog/Dispatcher.sol";
 import {Schema, Node, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
-error SeekerIdAlreadyClaimed();
-error NotAllowListed();
-
 using Schema for State;
 
 contract NewPlayerRule is Rule {
@@ -28,14 +25,14 @@ contract NewPlayerRule is Rule {
             // check if player allowed to spawn another seeker
             uint256 spawnableCount = spawnable[ctx.sender];
             if (spawnableCount < 1) {
-                revert NotAllowListed();
+                revert("NotAllowListed");
             }
             spawnable[ctx.sender] = spawnable[ctx.sender] - 1;
             // decode action
             (bytes24 seeker) = abi.decode(action[4:], (bytes24));
             // check seeker isn't already owned
             if (seeker == 0 || state.getOwner(seeker) != 0) {
-                revert SeekerIdAlreadyClaimed();
+                revert("SeekerIdAlreadyClaimed");
             }
             // set the seeker's owner
             state.setOwner(seeker, Node.Player(ctx.sender));

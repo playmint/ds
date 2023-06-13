@@ -11,16 +11,6 @@ import {BagUtils} from "@ds/utils/BagUtils.sol";
 
 using Schema for State;
 
-error NoTransferPlayerNotOwner();
-error NoTransferNotYourBag();
-error NoTransferLowBalance();
-error NoTransferIncompatibleSlot();
-error NoTransferSameSlot();
-error NoTransferUnsupportedEquipeeKind();
-error NoTransferNotSameLocation();
-error NoTransferEquipItemIsNotBag();
-error NoTransferEmptySlot();
-
 contract InventoryRule is Rule {
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.TRANSFER_ITEM_SEEKER.selector) {
@@ -77,7 +67,7 @@ contract InventoryRule is Rule {
             bags[1] = toBagId;
             state.setEquipSlot(equipee[1], equipSlot[1], bags[1]);
         } else if (bytes4(bags[1]) != Kind.Bag.selector) {
-            revert NoTransferEquipItemIsNotBag();
+            revert("NoTransferEquipItemIsNotBag");
         }
 
         // check that the source bag is either owned by the player or nobody
@@ -90,19 +80,19 @@ contract InventoryRule is Rule {
     function _requireCanUseBag(State state, bytes24 bag, bytes24 player) private view {
         bytes24 owner = state.getOwner(bag);
         if (owner != 0 && owner != player) {
-            revert NoTransferNotYourBag();
+            revert("NoTransferNotYourBag");
         }
     }
 
     function _requireIsBag(bytes24 thing) private pure {
         if (bytes4(thing) != Kind.Bag.selector) {
-            revert NoTransferEquipItemIsNotBag();
+            revert("NoTransferEquipItemIsNotBag");
         }
     }
 
     function _requirePlayerOwnedSeeker(State state, bytes24 seeker, bytes24 player) private view {
         if (state.getOwner(seeker) != player) {
-            revert NoTransferPlayerNotOwner();
+            revert("NoTransferPlayerNotOwner");
         }
     }
 
@@ -121,7 +111,7 @@ contract InventoryRule is Rule {
 
         // abort if source/destination slots are the same
         if (fromBag == toBag && fromItemSlot == toItemSlot) {
-            revert NoTransferSameSlot();
+            revert("NoTransferSameSlot");
         }
 
         // get current contents
@@ -130,30 +120,30 @@ contract InventoryRule is Rule {
 
         // check that there is actually something in fromResource
         if (fromResource == 0) {
-            revert NoTransferEmptySlot();
+            revert("NoTransferEmptySlot");
         }
 
         if (toBalance != 0) {
             // check that attempt is to stack same items
             if (fromResource != toResource) {
-                revert NoTransferIncompatibleSlot();
+                revert("NoTransferIncompatibleSlot");
             }
 
             // check that toResource is stackable
             (, bool toResourceStackable) = state.getItemStructure(toResource);
             if (!toResourceStackable) {
-                revert NoTransferIncompatibleSlot();
+                revert("NoTransferIncompatibleSlot");
             }
         }
 
         // check that fromSlot has enough balance to xfer
         if (fromBalance < qty) {
-            revert NoTransferLowBalance();
+            revert("NoTransferLowBalance");
         }
 
         // check that not trying to stack more than 100
         if ((toBalance + qty) > 100) {
-            revert NoTransferIncompatibleSlot();
+            revert("NoTransferIncompatibleSlot");
         }
 
         // do the xfer

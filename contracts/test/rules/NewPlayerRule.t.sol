@@ -9,7 +9,6 @@ import {Dispatcher} from "cog/Dispatcher.sol";
 import {Game} from "@ds/Game.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {Schema, Node, Rel, BiomeKind, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
-import {NotAllowListed} from "@ds/rules/NewPlayerRule.sol";
 
 using Schema for State;
 
@@ -64,7 +63,7 @@ contract NewPlayerRuleTest is Test {
 
     function testBobCanNotSpawnSeeker() public {
         vm.startPrank(bobAccount);
-        vm.expectRevert(NotAllowListed.selector);
+        vm.expectRevert("NotAllowListed");
         dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (Node.Seeker(TEST_SEEKER_ID))));
         vm.stopPrank();
     }

@@ -20,8 +20,7 @@ import {
     ATOM_DEFENSE,
     ATOM_ATTACK
 } from "@ds/schema/Schema.sol";
-import {NoMoveNotOwner, NoMoveToIndirect, NoMoveToUndiscovered} from "@ds/rules/MovementRule.sol";
-import {CombatRule, CombatSessionAlreadyActive, EntityAlreadyClaimed, HASH_EDGE_INDEX} from "@ds/rules/CombatRule.sol";
+import {CombatRule, HASH_EDGE_INDEX} from "@ds/rules/CombatRule.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 
 using Schema for State;
@@ -189,7 +188,7 @@ contract CombatRuleTest is Test {
         vm.startPrank(aliceAccount);
         dispatcher.dispatch(abi.encodeCall(Actions.START_COMBAT, (aliceSeekerID, targetTileID, attackers, defenders)));
 
-        vm.expectRevert(CombatSessionAlreadyActive.selector);
+        vm.expectRevert("CombatSessionAlreadyActive");
 
         dispatcher.dispatch(abi.encodeCall(Actions.START_COMBAT, (aliceSeekerID, targetTileID, attackers, defenders)));
 

@@ -26,26 +26,11 @@ import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 
 using Schema for State;
 
-error SeekerNotOwnedByPlayer();
-error SeekerNotAtDestination();
-error EntityNotAtAttackTile();
-error EntityNotAtDefenceTile();
-error CombatSessionAlreadyActive();
-error CombatNotAdjacent();
-error CombatSessionHashIncorrect();
-error EntityNotFound();
-error EntityAlreadyClaimed();
-error EnityNotOnWinningSide();
-error NoDamageInflicedCannotClaim();
-
 uint32 constant UNIT_BASE_LIFE = 50;
 uint32 constant UNIT_BASE_DEFENCE = 23;
 uint32 constant UNIT_BASE_ATTACK = 30;
-
 uint64 constant BLOCKS_PER_TICK = 1;
 uint8 constant MAX_ENTITIES_PER_SIDE = 100; // No higher than 256 due to there being a reward bag for each entity and edges being 8 bit indices
-uint8 constant TILE_ATTACK_INDEX = 0;
-uint8 constant TILE_DEFEND_INDEX = 1;
 uint8 constant HASH_EDGE_INDEX = 2;
 
 contract CombatRule is Rule {
@@ -174,16 +159,16 @@ contract CombatRule is Rule {
             (bytes24 seekerTile) = state.getCurrentLocation(seekerID, ctx.clock);
 
             // Revert if the current location doesn't match their seeker destination (cannot start a battle whilst moving)
-            if (state.getNextLocation(seekerID) != seekerTile) revert SeekerNotAtDestination();
+            if (state.getNextLocation(seekerID) != seekerTile) revert("SeekerNotAtDestination");
 
             // Check that the seeker tile (attack) and target tile (defend) are adjacent
             if (TileUtils.distance(seekerTile, targetTileID) != 1) {
-                revert CombatNotAdjacent();
+                revert("CombatNotAdjacent");
             }
 
             // Revert if either of the tiles have an active combat session
-            if (_getActiveSession(state, seekerTile, ctx) != 0) revert CombatSessionAlreadyActive();
-            if (_getActiveSession(state, targetTileID, ctx) != 0) revert CombatSessionAlreadyActive();
+            if (_getActiveSession(state, seekerTile, ctx) != 0) revert("CombatSessionAlreadyActive");
+            if (_getActiveSession(state, targetTileID, ctx) != 0) revert("CombatSessionAlreadyActive");
 
             _startSession(state, seekerTile, targetTileID, attackers, defenders, ctx);
         }
@@ -205,7 +190,7 @@ contract CombatRule is Rule {
                 abi.decode(action[4:], (bytes24, CombatRule.CombatAction[][], uint32[]));
 
             // Check hash of actions matches hash of session (ensures supplied actions haven't been tampered with)
-            if (!_checkSessionHash(state, sessionID, sessionUpdates)) revert CombatSessionHashIncorrect();
+            if (!_checkSessionHash(state, sessionID, sessionUpdates)) revert("CombatSessionHashIncorrect");
 
             CombatState memory combatState = calcCombatState(sessionUpdates, sortedListIndexes, ctx.clock);
             if (combatState.winState != CombatWinState.NONE && !state.getIsFinalised(sessionID)) {
@@ -636,7 +621,7 @@ contract CombatRule is Rule {
                     (entityTileID, arrivalBlockNum) =
                         state.get(Rel.Location.selector, uint8(LocationKey.NEXT), attackers[i]);
 
-                    if (entityTileID != attTileID) revert EntityNotAtAttackTile();
+                    if (entityTileID != attTileID) revert("EntityNotAtAttackTile");
                 }
 
                 JoinActionInfo memory info =
@@ -660,7 +645,7 @@ contract CombatRule is Rule {
                 if (bytes4(defenders[i]) == Kind.Seeker.selector) {
                     (entityTileID, arrivalBlockNum) =
                         state.get(Rel.Location.selector, uint8(LocationKey.NEXT), defenders[i]);
-                    if (entityTileID != defTileID) revert EntityNotAtDefenceTile();
+                    if (entityTileID != defTileID) revert("EntityNotAtDefenceTile");
                 }
 
                 JoinActionInfo memory info =
@@ -770,7 +755,7 @@ contract CombatRule is Rule {
 
     function _requirePlayerOwnedSeeker(State state, bytes24 seeker, bytes24 player) private view {
         if (state.getOwner(seeker) != player) {
-            revert SeekerNotOwnedByPlayer();
+            revert("SeekerNotOwnedByPlayer");
         }
     }
 

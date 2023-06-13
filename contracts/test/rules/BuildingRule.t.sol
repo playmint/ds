@@ -11,7 +11,6 @@ import {Game as Dawnseekers} from "@ds/Game.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {Schema, Node, Rel, LocationKey, BiomeKind, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
-import {BuildingResourceRequirementsNotMet, BuildingMustBeAdjacentToSeeker} from "@ds/rules/BuildingRule.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 
 using Schema for State;
@@ -205,7 +204,7 @@ contract BuildingRuleTest is Test {
         state.setItemSlot(buildingBag, 1, ItemUtils.Bouba(), 100);
         state.setItemSlot(buildingBag, 2, ItemUtils.Semiote(), 100);
         // construct our building
-        vm.expectRevert(BuildingMustBeAdjacentToSeeker.selector); // expect fail as q/r/s not adjacent
+        vm.expectRevert("BuildingMustBeAdjacentToSeeker"); // expect fail as q/r/s not adjacent
         dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
         vm.stopPrank();
     }

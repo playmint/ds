@@ -8,9 +8,6 @@ import {Context, Rule} from "cog/Dispatcher.sol";
 import {Schema, Node} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
-error PluginNotPluginOwner();
-error PluginNotTargetOwner();
-
 using Schema for State;
 
 contract PluginRule is Rule {
@@ -25,7 +22,7 @@ contract PluginRule is Rule {
             // if someone has already registered this plugin id, then only allow that owner to update it
             bytes24 pluginOwner = state.getOwner(plugin);
             if (pluginOwner != 0x0 && pluginOwner != player) {
-                revert PluginNotPluginOwner();
+                revert("PluginNotPluginOwner");
             }
 
             // we only allow setting plugins that target nodes that you own
@@ -33,7 +30,7 @@ contract PluginRule is Rule {
             // we may lift this restriction if it makes sense
             bytes24 targetOwner = state.getOwner(target);
             if (targetOwner != 0x0 && targetOwner != player) {
-                revert PluginNotTargetOwner();
+                revert("PluginNotTargetOwner");
             }
 
             // we only support a plugin referencing a single thing right now
@@ -60,7 +57,7 @@ contract PluginRule is Rule {
     function _registerImplementation(State state, bytes24 player, bytes24 kind, address contractAddr) private {
         bytes24 owner = state.getOwner(kind);
         if (owner != player) {
-            revert PluginNotTargetOwner();
+            revert("PluginNotTargetOwner");
         }
         state.setImplementation(kind, contractAddr);
     }

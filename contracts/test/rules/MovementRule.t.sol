@@ -9,7 +9,6 @@ import {Dispatcher} from "cog/Dispatcher.sol";
 import {Game} from "@ds/Game.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {Schema, Node, Rel, LocationKey, BiomeKind, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
-import {NoMoveNotOwner, NoMoveToIndirect, NoMoveToUndiscovered} from "@ds/rules/MovementRule.sol";
 
 using Schema for State;
 
@@ -124,13 +123,13 @@ contract MovementRuleTest is Test {
     }
 
     function testNoMoveNotOwner() public {
-        vm.expectRevert(NoMoveNotOwner.selector);
+        vm.expectRevert("NoMoveNotOwner");
         _tryMoveTo(0, 1, 1); // should fail without prank
     }
 
     function testNoMoveToUndiscovered() public {
         vm.startPrank(aliceAccount);
-        vm.expectRevert(NoMoveToUndiscovered.selector);
+        vm.expectRevert("NoMoveToUndiscovered");
         _tryMoveTo(0, -5, -5);
         vm.stopPrank();
     }
@@ -139,7 +138,7 @@ contract MovementRuleTest is Test {
         vm.startPrank(aliceAccount);
         _tryMoveTo(0, -2, 2);
         vm.roll(block.number + 100); // resolve the move
-        vm.expectRevert(NoMoveToIndirect.selector);
+        vm.expectRevert("NoMoveToIndirect");
         _tryMoveTo(1, -1, 0);
         vm.stopPrank();
     }
