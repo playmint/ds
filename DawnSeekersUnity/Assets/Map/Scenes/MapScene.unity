@@ -2577,6 +2577,8 @@ MonoBehaviour:
     type: 3}
   bagPrefab: {fileID: 8776346270060902164, guid: a2154e623a0a249b0aa3f222d4d27e10,
     type: 3}
+  enemyPrefab: {fileID: 8730588450062426084, guid: 9ec9e30cff91ca147ae048bb5a54efcd,
+    type: 3}
 --- !u!4 &1329416958
 Transform:
   m_ObjectHideFlags: 0

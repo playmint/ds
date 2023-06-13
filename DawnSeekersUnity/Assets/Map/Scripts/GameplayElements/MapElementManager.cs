@@ -8,7 +8,8 @@ public class MapElementManager : MonoBehaviour
 
     [SerializeField]
     private GameObject buildingPrefab,
-        bagPrefab;
+        bagPrefab,
+        enemyPrefab;
 
     private void Awake()
     {
@@ -22,6 +23,17 @@ public class MapElementManager : MonoBehaviour
             MapElementController building = Instantiate(buildingPrefab, transform, true)
                 .GetComponent<MapElementController>();
             building.gameObject.name = "Building_" + cubicCoords.ToString();
+            building.Setup(cubicCoords);
+        }
+    }
+
+    public void CreateEnemy(Vector3Int cubicCoords)
+    {
+        if (!GameObject.Find("Enemy_" + cubicCoords.ToString()))
+        {
+            MapElementController building = Instantiate(enemyPrefab, transform, true)
+                .GetComponent<MapElementController>();
+            building.gameObject.name = "Enemy_" + cubicCoords.ToString();
             building.Setup(cubicCoords);
         }
     }
