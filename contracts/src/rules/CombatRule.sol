@@ -38,6 +38,10 @@ error EntityAlreadyClaimed();
 error EnityNotOnWinningSide();
 error NoDamageInflicedCannotClaim();
 
+uint32 constant UNIT_BASE_LIFE = 50;
+uint32 constant UNIT_BASE_DEFENCE = 48;
+uint32 constant UNIT_BASE_ATTACK = 30;
+
 uint64 constant BLOCKS_PER_TICK = 1;
 uint8 constant MAX_ENTITIES_PER_SIDE = 100; // No higher than 256 due to there being a reward bag for each entity and edges being 8 bit indices
 uint8 constant TILE_ATTACK_INDEX = 0;
@@ -698,9 +702,9 @@ contract CombatRule is Rule {
 
         if (bytes4(entityID) == Kind.Seeker.selector) {
             // Made up base stats for seeker
-            stats[ATOM_LIFE] = 50;
-            stats[ATOM_DEFENSE] = 50;
-            stats[ATOM_ATTACK] = 25;
+            stats[ATOM_LIFE] = UNIT_BASE_LIFE;
+            stats[ATOM_DEFENSE] = UNIT_BASE_DEFENCE;
+            stats[ATOM_ATTACK] = UNIT_BASE_ATTACK;
 
             // iterate over Items within Bags and sum up Atoms that belong to the Items (limited to 2 bags)
             for (uint8 i = 0; i < 2; i++) {
