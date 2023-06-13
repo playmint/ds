@@ -15,7 +15,13 @@ const DEPLOYER_PRIVATE_KEY = "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff
 const commands = [
     {
         name: 'networks',
-        command: "anvil -m 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --code-size-limit 9999999999999 --gas-limit 9999999999999999 --silent --block-time 2",
+        command: "anvil -m 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --code-size-limit 9999999999999 --gas-limit 9999999999999999 --silent --block-time 5",
+        prefixColor: 'black',
+    },
+
+    {
+        name: 'sim',
+        command: "anvil --code-size-limit 9999999999999 --gas-limit 9999999999999999 --port 8546 --fork-url http://localhost:8545 --no-mining",
         prefixColor: 'black',
     },
 
@@ -31,13 +37,15 @@ const commands = [
 
     {
         name: 'services',
-        command: './bin/wait-for -it localhost:8545 -t 300 && ./bin/ds-node -debug',
+        command: './bin/wait-for -it localhost:8545 -t 300 && ./bin/wait-for -it localhost:8546 -t 300 && ./bin/ds-node -debug',
         env: {
             PORT: "8181",
             CHAIN_ID: "1337",
             SEQUENCER_PRIVATE_KEY,
             SEQUENCER_PROVIDER_URL_HTTP: "http://localhost:8545",
             SEQUENCER_PROVIDER_URL_WS: "ws://localhost:8545",
+            SIMULATION_PROVIDER_URL_HTTP: "http://localhost:8546",
+            SIMULATION_PROVIDER_URL_WS: "ws://localhost:8546",
             INDEXER_WATCH_PENDING: "false",
             INDEXER_PROVIDER_URL_HTTP: "http://localhost:8545",
             INDEXER_PROVIDER_URL_WS: "ws://localhost:8545",
