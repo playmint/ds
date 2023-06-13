@@ -29,11 +29,11 @@ public class MapElementManager : MonoBehaviour
 
     public void CreateEnemy(Vector3Int cubicCoords)
     {
-        if (!GameObject.Find("Enemy_" + cubicCoords.ToString()))
+        if (!GameObject.Find("Building_" + cubicCoords.ToString()))
         {
             MapElementController building = Instantiate(enemyPrefab, transform, true)
                 .GetComponent<MapElementController>();
-            building.gameObject.name = "Enemy_" + cubicCoords.ToString();
+            building.gameObject.name = "Building_" + cubicCoords.ToString();
             building.Setup(cubicCoords);
         }
     }
