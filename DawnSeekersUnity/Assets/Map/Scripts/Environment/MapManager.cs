@@ -94,7 +94,9 @@ public class MapManager : MonoBehaviour
             else
                 MapElementManager.instance.CheckBagIconRemoved(cellPosCube);
 
-            if (TileHelper.HasBuilding(tile))
+            if (TileHelper.HasEnemy(tile))
+                MapElementManager.instance.CreateEnemy(cellPosCube);
+            else if (TileHelper.HasBuilding(tile))
                 MapElementManager.instance.CreateBuilding(cellPosCube);
             else
                 MapElementManager.instance.CheckBuildingIconRemoved(cellPosCube);
