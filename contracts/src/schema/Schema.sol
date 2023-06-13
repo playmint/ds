@@ -151,6 +151,9 @@ library Schema {
     }
 
     function getCurrentLocation(State state, bytes24 node, uint64 atTime) internal view returns (bytes24) {
+        // ---------- TEMP HACK UNTIL CLIENT CAN HANDLE CALC OF CURRENT LOCATION PROPERLY ------------
+        return state.getNextLocation(node);
+        // ---------- END HACK ----------------
         (bytes24 nextTile, uint64 arrivalTime) = state.get(Rel.Location.selector, uint8(LocationKey.NEXT), node);
         if (atTime >= arrivalTime) {
             return nextTile;
