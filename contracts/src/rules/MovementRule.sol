@@ -10,10 +10,6 @@ import {Actions} from "@ds/actions/Actions.sol";
 
 using Schema for State;
 
-error NoMoveToUndiscovered();
-error NoMoveToIndirect();
-error NoMoveNotOwner();
-
 contract MovementRule is Rule {
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.MOVE_SEEKER.selector) {
@@ -24,17 +20,13 @@ contract MovementRule is Rule {
             bytes24 seeker = Node.Seeker(sid);
 
             // check that sender owns seeker
-            if (state.getOwner(seeker) != Node.Player(ctx.sender)) {
-                revert NoMoveNotOwner();
-            }
+            require(state.getOwner(seeker) == Node.Player(ctx.sender), "NoMoveNotOwner");
 
             // encode destination tile
             bytes24 destTile = Node.Tile(DEFAULT_ZONE, q, r, s);
 
             // check that the destination tile has been discovered
-            if (state.getBiome(destTile) == BiomeKind.UNDISCOVERED) {
-                revert NoMoveToUndiscovered();
-            }
+            require(state.getBiome(destTile) != BiomeKind.UNDISCOVERED, "NoMoveToUndiscovered");
 
             // move
             moveTo(state, seeker, destTile, ctx.clock);
@@ -51,17 +43,13 @@ contract MovementRule is Rule {
         //       dispatch MOVE_CANCEL action here so any systems that were tracking mvoement know about it
 
         // check that destTile is direct 6-axis line from currentTile
-        if (!TileUtils.isDirect(currentTile, destTile)) {
-            revert NoMoveToIndirect();
-        }
+        require(TileUtils.isDirect(currentTile, destTile), "NoMoveToIndirect");
 
         // if jumping over an undiscovered hole in the map, prevent moving
         // TODO: this is an artifact of allowing moving over undiscovered gaps
         //       which we likely do not want. so we can remove this if that kind
         //       of move is disallowed
-        if (state.getBiome(currentTile) != BiomeKind.DISCOVERED) {
-            revert NoMoveToUndiscovered();
-        }
+        require(state.getBiome(currentTile) == BiomeKind.DISCOVERED, "NoMoveToUndiscovered");
 
         // set prev location to current location
         state.setPrevLocation(seeker, currentTile, nowTime);

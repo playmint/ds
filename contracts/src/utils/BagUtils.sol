@@ -5,9 +5,6 @@ import {State} from "cog/State.sol";
 import {Schema, Node, Kind, Rel} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 
-error NoTransferUnsupportedEquipeeKind();
-error NoTransferNotSameLocation();
-
 using Schema for State;
 
 library BagUtils {
@@ -20,7 +17,7 @@ library BagUtils {
         } else if (bytes4(equipee) == Kind.Tile.selector) {
             // located on a tile
             if (TileUtils.distance(location, equipee) > 1 || !TileUtils.isDirect(location, equipee)) {
-                revert NoTransferNotSameLocation();
+                revert("NoTransferNotSameLocation");
             }
         } else if (bytes4(equipee) == Kind.Building.selector) {
             // The distance method expects a tile so we can swap out the first 4 bytes
@@ -29,7 +26,7 @@ library BagUtils {
             bytes24 mask = 0x00000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
             bytes24 buildingLocation = (equipee & mask) | bytes4(Kind.Tile.selector);
             if (TileUtils.distance(location, buildingLocation) > 1 || !TileUtils.isDirect(location, buildingLocation)) {
-                revert NoTransferNotSameLocation();
+                revert("NoTransferNotSameLocation");
             }
         } else if (bytes4(equipee) == Kind.Seeker.selector) {
             // location on another seeker, check same loc
@@ -38,7 +35,7 @@ library BagUtils {
                 TileUtils.distance(location, otherSeekerLocation) > 1
                     || !TileUtils.isDirect(location, otherSeekerLocation)
             ) {
-                revert NoTransferNotSameLocation();
+                revert("NoTransferNotSameLocation");
             }
         } else if (bytes4(equipee) == Kind.CombatSession.selector) {
             // Belongs to combat session. Check both tiles that belong to the session
@@ -48,10 +45,10 @@ library BagUtils {
                 (TileUtils.distance(location, tileA) > 1 || !TileUtils.isDirect(location, tileA))
                     && (TileUtils.distance(location, tileB) > 1 || !TileUtils.isDirect(location, tileB))
             ) {
-                revert NoTransferNotSameLocation();
+                revert("NoTransferNotSameLocation");
             }
         } else {
-            revert NoTransferUnsupportedEquipeeKind();
+            revert("NoTransferUnsupportedEquipeeKind");
         }
     }
 }

@@ -116,7 +116,7 @@ contract InventoryRuleTest is Test {
             seeker, // seeker perfoming the action
             seeker, // location of from-bag
             seeker, // location to to-bag
-            NoTransferPlayerNotOwner.selector // expect this error cos sender is not seeker owner
+            "NoTransferPlayerNotOwner" // expect this error cos sender is not seeker owner
         );
         vm.stopPrank();
     }
@@ -134,7 +134,7 @@ contract InventoryRuleTest is Test {
             seeker1, // seeker perfoming the action
             seeker1, // location of from-bag
             seeker2, // location to to-bag
-            NoTransferNotSameLocation.selector // expect this error cos seeker1 and seeker2 diff locations
+            "NoTransferNotSameLocation" // expect this error cos seeker1 and seeker2 diff locations
         );
         vm.stopPrank();
     }
@@ -147,7 +147,7 @@ contract InventoryRuleTest is Test {
             seeker1, // seeker perfoming the action
             seeker1, // location of from-bag
             tile, // location to to-bag
-            NoTransferNotSameLocation.selector // expect this error cos tile not same location as seeker
+            "NoTransferNotSameLocation" // expect this error cos tile not same location as seeker
         );
         vm.stopPrank();
     }
@@ -170,7 +170,7 @@ contract InventoryRuleTest is Test {
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
         // as alice, try to steal from stranger's bag
-        vm.expectRevert(NoTransferNotYourBag.selector);
+        vm.expectRevert("NoTransferNotYourBag");
         _transferItem(
             seekerAlice,
             [seekerStranger, seekerAlice], // where are bags equipt
@@ -191,7 +191,7 @@ contract InventoryRuleTest is Test {
         uint8[2] memory equipSlots = [EQUIP_SLOT_0, EQUIP_SLOT_1];
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
-        vm.expectRevert(NoTransferIncompatibleSlot.selector); // should fail cos can't stack wood on stone
+        vm.expectRevert("NoTransferIncompatibleSlot"); // should fail cos can't stack wood on stone
         _transferItem(
             seeker,
             [seeker, seeker], // where are bags equipt
@@ -212,7 +212,7 @@ contract InventoryRuleTest is Test {
         uint8[2] memory equipSlots = [EQUIP_SLOT_1, EQUIP_SLOT_1];
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
-        vm.expectRevert(NoTransferSameSlot.selector); // should fail cos can't xfer to same slot
+        vm.expectRevert("NoTransferSameSlot"); // should fail cos can't xfer to same slot
         _transferItem(
             seeker,
             [seeker, seeker], // where are bags equipt
@@ -233,7 +233,7 @@ contract InventoryRuleTest is Test {
         uint8[2] memory equipSlots = [EQUIP_SLOT_0, EQUIP_SLOT_1];
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
-        vm.expectRevert(NoTransferLowBalance.selector); // should fail cos we don't have 999 balance
+        vm.expectRevert("NoTransferLowBalance"); // should fail cos we don't have 999 balance
         _transferItem(
             seeker,
             [seeker, seeker], // where are bags equipt
@@ -249,7 +249,7 @@ contract InventoryRuleTest is Test {
         bytes24 seeker,
         bytes24 fromEquipee,
         bytes24 toEquipee,
-        bytes4 expectedError
+        string memory expectedError
     ) private {
         // equip two bags to seeker
         bytes24 fromBag = _spawnBagWithWood(1, aliceAccount, fromEquipee, EQUIP_SLOT_0);
@@ -270,7 +270,7 @@ contract InventoryRuleTest is Test {
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
         // perform xfer as alice
-        vm.expectRevert(expectedError);
+        vm.expectRevert(bytes(expectedError));
         _transferItem(
             seeker,
             [fromEquipee, toEquipee], // where are bags equipt
