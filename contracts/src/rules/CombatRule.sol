@@ -39,7 +39,7 @@ error EnityNotOnWinningSide();
 error NoDamageInflicedCannotClaim();
 
 uint32 constant UNIT_BASE_LIFE = 50;
-uint32 constant UNIT_BASE_DEFENCE = 48;
+uint32 constant UNIT_BASE_DEFENCE = 23;
 uint32 constant UNIT_BASE_ATTACK = 30;
 
 uint64 constant BLOCKS_PER_TICK = 1;
