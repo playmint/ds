@@ -209,7 +209,7 @@ contract CombatRule is Rule {
 
             CombatState memory combatState = calcCombatState(sessionUpdates, sortedListIndexes, ctx.clock);
             if (combatState.winState != CombatWinState.NONE && !state.getIsFinalised(sessionID)) {
-                _finaliseSession(state, combatState, sessionID, ctx);
+                _finaliseSession(state, combatState, sessionID);
             }
         }
 
@@ -244,20 +244,12 @@ contract CombatRule is Rule {
         _emitSessionUpdate(state, sessionID, combatActions);
     }
 
-    function _finaliseSession(State state, CombatState memory combatState, bytes24 sessionID, Context calldata /*ctx*/ )
-        private
-    {
-        console.log("Finalising Session");
-        // Can we still have a draw?
-
+    function _finaliseSession(State state, CombatState memory combatState, bytes24 sessionID) private {
         // Get the winning entities
         EntityState[] memory winnerStates =
             combatState.winState == CombatWinState.ATTACKERS ? combatState.attackerStates : combatState.defenderStates;
         EntityState[] memory loserStates =
             combatState.winState == CombatWinState.ATTACKERS ? combatState.defenderStates : combatState.attackerStates;
-
-        uint256 totalDamageInflicted = _getTotalDamageInflicted(winnerStates);
-        console.log("totalDamageInflicted: ", totalDamageInflicted);
 
         // Get fallen building
         EntityState memory buildingState;
@@ -267,42 +259,34 @@ contract CombatRule is Rule {
             }
         }
 
-        // Spawn bags with winnings for each of the seekers
-        for (uint8 i; i < MAX_ENTITIES_PER_SIDE; i++) {
-            if (!winnerStates[i].isPresent) continue;
-            // TODO: Don't give buildings awards
-
-            console.log("Reward for winner: ", i);
-
-            // Create bag using a combination of sessionID and entityID
-            bytes24 rewardBag = Node.RewardBag(sessionID, winnerStates[i].entityID);
-            // state.set(Rel.Has.selector, 0x0, rewardBag, sessionID, 0); // Bag -> Session
-            state.set(Rel.Equip.selector, i, sessionID, rewardBag, 0); // Session -> Bag
-
-            uint256 damagePercent = (winnerStates[i].damageInflicted * 100) / totalDamageInflicted;
-            console.log("damagePercent: ", damagePercent);
-
-            // Because the resources carry 2 atoms each, we make half the resources to atom count. dividing by 200 effectively is 50%
-            console.log("LIFE: ", (damagePercent * buildingState.stats[ATOM_LIFE]) / 100);
-            state.setItemSlot(
-                rewardBag, 0, ItemUtils.Kiki(), uint64((damagePercent * buildingState.stats[ATOM_LIFE]) / 200)
-            );
-            console.log("DEF: ", (damagePercent * buildingState.stats[ATOM_DEFENSE]) / 100);
-            state.setItemSlot(
-                rewardBag, 1, ItemUtils.Bouba(), uint64((damagePercent * buildingState.stats[ATOM_DEFENSE]) / 200)
-            );
-            console.log("ATK: ", (damagePercent * buildingState.stats[ATOM_ATTACK]) / 100);
-            state.setItemSlot(
-                rewardBag, 2, ItemUtils.Semiote(), uint64((damagePercent * buildingState.stats[ATOM_ATTACK]) / 200)
-            );
-        }
-
-        // If the building has a bag, then transfer to the seeker with the most damage inflicted
-
-        // Destroy the building
-        // TODO: Maybe the building rule should be doing this so all building construction/destruction logic is in the same place
-        //       The building rule would need to be able to check that the action was dispatched by the CombatRule
         if (bytes4(buildingState.entityID) == Kind.Building.selector) {
+            // Spawn bags with winnings for each of the seekers
+            // FIXME: If there is any way of making this less gassy? stack to deep to cache totalDamageInflicted and the building's materials!
+            for (uint8 i; i < MAX_ENTITIES_PER_SIDE; i++) {
+                if (!winnerStates[i].isPresent) continue;
+                // Create bag using a combination of sessionID and entityID
+                // TODO: Don't give buildings rewards? (leaving in as a sink for now)
+                state.set(Rel.Equip.selector, i, sessionID, Node.RewardBag(sessionID, winnerStates[i].entityID), 0); // Session -> Bag
+
+                uint256 damagePercent = (winnerStates[i].damageInflicted * 100) / _getTotalDamageInflicted(winnerStates);
+
+                for (uint8 j; j < 4; j++) {
+                    (bytes24 item, uint64 qty) = state.getMaterial(state.getBuildingKind(buildingState.entityID), j);
+                    // NOTE: divide by 200 instead of 100 if we want to halve the rewards as per the combat spec
+                    state.setItemSlot(
+                        Node.RewardBag(sessionID, winnerStates[i].entityID),
+                        j,
+                        item,
+                        uint64((damagePercent * qty) / 100)
+                    );
+                }
+            }
+
+            // TODO: If the building has a bag, then transfer to the seeker with the most damage inflicted
+
+            // Destroy the building
+            // TODO: Maybe the building rule should be doing this so all building construction/destruction logic is in the same place
+            //       The building rule would need to be able to check that the action was dispatched by the CombatRule
             _destroyBuilding(state, buildingState.entityID);
         }
 
