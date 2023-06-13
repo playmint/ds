@@ -50,7 +50,7 @@ export default function update({ selected, world }) {
                 type: 'building',
                 id: 'foul-fiends',
                 title: 'Foul Fiends',
-                summary: `Our ducks stink. For just 20 Kikis we're basically giving them away!`,
+                summary: "Come one, come all. We serve only the finest ducks* \n *(some of our ducks are not actually ducks)",
                 content: [
                     {
                         id: 'default',
