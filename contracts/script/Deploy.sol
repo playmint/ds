@@ -8,7 +8,8 @@ import {State} from "cog/State.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {Node, BiomeKind, Schema} from "@ds/schema/Schema.sol";
 
-import {DummyBuilding} from "@ds/fixtures/DummyBuilding.sol";
+import {CocktailHut} from "@ds/fixtures/CocktailHut.sol";
+
 import {KikiFission} from "@ds/fixtures/KikiFission.sol";
 import {KikiFusion} from "@ds/fixtures/KikiFusion.sol";
 import {FoulFiends} from "@ds/fixtures/FoulFiends.sol";
@@ -20,6 +21,12 @@ import {Slime} from "@ds/fixtures/Slime.sol";
 import {ObnoxiousBeaver} from "@ds/fixtures/ObnoxiousBeaver.sol";
 import {MechaKaiju} from "@ds/fixtures/MechaKaiju.sol";
 import {PrimeEvil} from "@ds/fixtures/PrimeEvil.sol";
+import {TheBigBad} from "@ds/fixtures/TheBigBad.sol";
+
+import {TheUltimateGoal} from "@ds/fixtures/TheUltimateGoal.sol";
+
+import {BadmintonWeapons} from "@ds/fixtures/BadmintonWeapons.sol";
+import {BadmintonArmour} from "@ds/fixtures/BadmintonArmour.sol";
 
 import {ItemUtils, ItemConfig} from "@ds/utils/ItemUtils.sol";
 import {BuildingUtils, BuildingConfig, Material, Input, Output} from "@ds/utils/BuildingUtils.sol";
@@ -69,7 +76,7 @@ contract GameDeployer is Script {
         bytes24 goldCoin = ItemUtils.register(
             ds,
             ItemConfig({
-                id: 110,
+                id: 200,
                 name: "Gold Coin",
                 icon: "10-33",
                 life: 10,
@@ -84,7 +91,7 @@ contract GameDeployer is Script {
         bytes24 goldNote = ItemUtils.register(
             ds,
             ItemConfig({
-                id: 111,
+                id: 201,
                 name: "Gold Note",
                 icon: "10-32",
                 life: 50,
@@ -96,17 +103,41 @@ contract GameDeployer is Script {
             })
         );
 
+        bytes24 bigBadEssence = ItemUtils.register(
+            ds,
+            ItemConfig({
+                id: 202,
+                name: "Big Bad Essence",
+                icon: "14-303",
+                life: 100,
+                defense: 25,
+                attack: 50,
+                stackable: true,
+                implementation: address(0),
+                plugin: ""
+            })
+        );
+
         //register welcome hut and cocktail
-        _welcomeHut(ds);
+        _cocktailHut(ds);
 
         //register the Rubber Duck Chain
         _rubberDuckChain(ds, l33tBricks);
 
         //register the Kiki Chain & Hermit
-        _megaKikiChain(ds, l33tBricks);
+        bytes24 dismemberedHand = _megaKikiChain(ds, l33tBricks);
 
         //register monsters
         _enemySpawn(ds, goldCoin, goldNote);
+
+        //register big bad
+        _bigBadSpawn(ds, bigBadEssence);
+
+        //register Ultimate Goal
+        _ultimateGoalSpawn(ds, l33tBricks, dismemberedHand, bigBadEssence);
+
+        //register badminton gear
+        _badmintonGear(ds, goldCoin);
 
         // scout the tiles
         _scout(ds, 1, 0, -1, 1);
@@ -164,12 +195,12 @@ contract GameDeployer is Script {
         return allowlist;
     }
 
-    function _welcomeHut(Game ds) private {
-        bytes24 welcomeCocktail = ItemUtils.register(
+    function _cocktailHut(Game ds) private {
+        bytes24 cocktail = ItemUtils.register(
             ds,
             ItemConfig({
                 id: 100,
-                name: "Welcome Cocktail",
+                name: "Cocktail",
                 icon: "02-40",
                 life: 0,
                 defense: 2,
@@ -180,11 +211,11 @@ contract GameDeployer is Script {
             })
         );
 
-        bytes24 welcomeHutBuildingKind = BuildingUtils.register(
+        bytes24 cocktailHut = BuildingUtils.register(
             ds,
             BuildingConfig({
                 id: 1,
-                name: "Welcome Hut",
+                name: "Cocktail Hut",
                 materials: [
                     Material({quantity: 25, item: ItemUtils.Kiki()}),
                     Material({quantity: 25, item: ItemUtils.Bouba()}),
@@ -197,13 +228,13 @@ contract GameDeployer is Script {
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0})
                 ],
-                outputs: [Output({quantity: 1, item: welcomeCocktail})],
-                implementation: address(new DummyBuilding()),
-                plugin: vm.readFile("src/fixtures/DummyBuilding.js")
+                outputs: [Output({quantity: 1, item: cocktail})],
+                implementation: address(new CocktailHut()),
+                plugin: vm.readFile("src/fixtures/CocktailHut.js")
             })
         );
 
-        BuildingUtils.construct(ds, welcomeHutBuildingKind, "building", -1, 2, -1);
+        BuildingUtils.construct(ds, cocktailHut, "building", 5, 7, -12);
     }
 
     function _rubberDuckChain(Game ds, bytes24 l33tBricks) private {
@@ -326,7 +357,7 @@ contract GameDeployer is Script {
         BuildingUtils.construct(ds, allThingsRubber, "building", -10, 0, 10);
     }
 
-    function _megaKikiChain(Game ds, bytes24 l33tBricks) private {
+    function _megaKikiChain(Game ds, bytes24 l33tBricks) private returns (bytes24) {
         bytes24 superKiki = ItemUtils.register(
             ds,
             ItemConfig({
@@ -441,9 +472,11 @@ contract GameDeployer is Script {
             })
         );
 
-        BuildingUtils.construct(ds, kikiFission, "building", -10, -15, 15);
+        BuildingUtils.construct(ds, kikiFission, "building", -10, -15, 25);
         BuildingUtils.construct(ds, kikiFusion, "building", -20, 0, 20);
         BuildingUtils.construct(ds, crazyHermit, "building", 7, 7, -14);
+
+        return dismemberedHand;
     }
 
     function _enemySpawn(Game ds, bytes24 goldCoin, bytes24 goldNote) private {
@@ -497,7 +530,7 @@ contract GameDeployer is Script {
             ds,
             BuildingConfig({
                 id: 10,
-                name: "Lesser Evil",
+                name: "Mecha-Kaiju",
                 materials: [
                     Material({quantity: 20, item: goldCoin}),
                     Material({quantity: 10, item: goldNote}),
@@ -564,7 +597,156 @@ contract GameDeployer is Script {
         BuildingUtils.construct(ds, mechaKaiju, "enemy", -5, 12, -7);
         BuildingUtils.construct(ds, mechaKaiju, "enemy", 5, -12, 7);
 
-        BuildingUtils.construct(ds, primeEvil, "enemy", 10, -16, 4);
-        BuildingUtils.construct(ds, primeEvil, "enemy", -10, 16, -4);
+        BuildingUtils.construct(ds, primeEvil, "enemy", 10, -18, 8);
+        BuildingUtils.construct(ds, primeEvil, "enemy", -10, 18, -8);
     }
+
+    function _bigBadSpawn(Game ds, bytes24 bigBadEssence) private {
+        bytes24 theBigBad = BuildingUtils.register(
+        ds,
+        BuildingConfig({
+            id: 12,
+            name: "The Big Bad",
+            materials: [
+                Material({quantity: 10, item: bigBadEssence}),
+                Material({quantity: 0, item: 0x0}),
+                Material({quantity: 0, item: 0x0}),
+                Material({quantity: 0, item: 0x0})
+            ],
+            inputs: [
+                Input({quantity: 0, item: 0x0}),
+                Input({quantity: 0, item: 0x0}),
+                Input({quantity: 0, item: 0x0}),
+                Input({quantity: 0, item: 0x0})
+            ],
+            outputs: [Output({quantity: 0, item: 0x0})],
+            implementation: address(new TheBigBad()),
+            plugin: vm.readFile("src/fixtures/TheBigBad.js")
+            })
+        );
+
+        BuildingUtils.construct(ds, theBigBad, "enemy", -15, -5, 25);
+    }
+
+     function _ultimateGoalSpawn(Game ds, bytes24 l33tBricks, bytes24 dismemberedHand, bytes24 bigBadEssence) private {
+        bytes24 crappyMedal = ItemUtils.register(
+            ds,
+            ItemConfig({
+                id: 107,
+                name: "Crappy Medal",
+                icon: "10-111",
+                life: 105, 
+                defense: 12,
+                attack: 25,
+                stackable: false,
+                implementation: address(0),
+                plugin: ""
+            })
+        );
+
+        bytes24 theUltimateGoal = BuildingUtils.register(
+            ds,
+            BuildingConfig({
+                id: 1,
+                name: "The Ultimate Goal",
+                materials: [
+                    Material({quantity: 100, item: l33tBricks}),
+                    Material({quantity: 0, item: 0x0}),
+                    Material({quantity: 0, item: 0x0}),
+                    Material({quantity: 0, item: 0x0})
+                ],
+                inputs: [
+                    Input({quantity: 1, item: dismemberedHand}),
+                    Input({quantity: 1, item: bigBadEssence}),
+                    Input({quantity: 0, item: 0x0}),
+                    Input({quantity: 0, item: 0x0})
+                ],
+                outputs: [Output({quantity: 1, item: crappyMedal})],
+                implementation: address(new TheUltimateGoal()),
+                plugin: vm.readFile("src/fixtures/TheUltimateGoal.js")
+            })
+        );
+
+        BuildingUtils.construct(ds, theUltimateGoal, "building", -1, 2, -1);
+    }
+
+    function _badmintonGear(Game ds, bytes24 goldCoin) private {
+        bytes24 shuttlecock = ItemUtils.register(
+            ds,
+            ItemConfig({
+                id: 107,
+                name: "Shuttlecock",
+                icon: "05-296",
+                life: 10,
+                defense: 10,
+                attack: 105,
+                stackable: false,
+                implementation: address(0),
+                plugin: ""
+            })
+        );
+
+        bytes24 racket = ItemUtils.register(
+            ds,
+            ItemConfig({
+                id: 108,
+                name: "Racket",
+                icon: "22-13",
+                life: 10,
+                defense: 110,
+                attack: 5,
+                stackable: false,
+                implementation: address(0),
+                plugin: ""
+            })
+        );
+
+        bytes24 badmintonWeapons = BuildingUtils.register(
+            ds,
+            BuildingConfig({
+                id: 13,
+                name: "Badminton Weapons",
+                materials: [
+                    Material({quantity: 5, item: goldCoin}),
+                    Material({quantity: 50, item: ItemUtils.Kiki()}),
+                    Material({quantity: 50, item: ItemUtils.Bouba()}),
+                    Material({quantity: 50, item: ItemUtils.Semiote()})
+                ],
+                inputs: [
+                    Input({quantity: 2, item: goldCoin}),
+                    Input({quantity: 100, item: ItemUtils.Semiote()}),
+                    Input({quantity: 100, item: ItemUtils.Semiote()}),
+                    Input({quantity: 0, item: 0x0})
+                ],
+                outputs: [Output({quantity: 1, item: shuttlecock})],
+                implementation: address(new BadmintonWeapons()),
+                plugin: vm.readFile("src/fixtures/BadmintonWeapons.js")
+            })
+        );
+
+        bytes24 badmintonArmour = BuildingUtils.register(
+            ds,
+            BuildingConfig({
+                id: 14,
+                name: "Badminton Armour",
+                materials: [
+                    Material({quantity: 5, item: goldCoin}),
+                    Material({quantity: 50, item: ItemUtils.Kiki()}),
+                    Material({quantity: 50, item: ItemUtils.Bouba()}),
+                    Material({quantity: 50, item: ItemUtils.Semiote()})
+                ],
+                inputs: [
+                    Input({quantity: 2, item: goldCoin}),
+                    Input({quantity: 100, item: ItemUtils.Bouba()}),
+                    Input({quantity: 100, item: ItemUtils.Bouba()}),
+                    Input({quantity: 0, item: 0x0})
+                ],
+                outputs: [Output({quantity: 1, item: racket})],
+                implementation: address(new BadmintonArmour()),
+                plugin: vm.readFile("src/fixtures/BadmintonArmour.js")
+            })
+        );
+    }
+
 }
+
