@@ -147,7 +147,6 @@ contract GameDeployer is Script {
         _scout(ds, 1, -1, 0, 1);
         _scout(ds, 1, -1, 1, 0);
 
-        
         //This creates a path to the Hermit
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 2, -1, -1)));
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 3, -1, -2)));
@@ -165,9 +164,39 @@ contract GameDeployer is Script {
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 3, 7, -10)));
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 4, 7, -11)));
 
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 5, 7, -12)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 0, 12, -12)));
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 6, 7, -13)));
 
+        //Adding some extra starting world
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -2, 2, 0)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -3, 2, 1)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -3, 3, 0)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -2, 1, 1)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 2, -3, 1)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 2, -2, 0)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 1, -2, 1)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -3, 1, 2)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -3, 0, 3)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -2, -1, 3)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -2, 0, 2)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -1, -1, 2)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 0, -2, 2)));
+
+        //Add some land around the far-away buildings
+        //All things rubber
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -11, 1, 10)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -10, -1, 11)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -9, 0, 9)));
+
+        //Kiki Fusion
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -21, 1, 20)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -20, -1, 21)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -19, 0, 19)));
+
+        //Kiki Fission
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -11, -14, 25)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -10, -16, 26)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -9, -15, 24)));
 
         vm.stopBroadcast();
     }
@@ -238,7 +267,8 @@ contract GameDeployer is Script {
             })
         );
 
-        BuildingUtils.construct(ds, cocktailHut, "building", 5, 7, -12);
+        //AARGH! For some reason this is constructing an THE ULTIMATE GOAL building
+        //BuildingUtils.construct(ds, cocktailHut, "building", 5, 13, -18);
     }
 
     function _rubberDuckChain(Game ds, bytes24 l33tBricks) private {
@@ -577,32 +607,32 @@ contract GameDeployer is Script {
         );
 
         BuildingUtils.construct(ds, slime, "enemy", -1, -4, 5);
-        BuildingUtils.construct(ds, slime, "enemy", 1, 4, -5);
-        BuildingUtils.construct(ds, slime, "enemy", 3, -6, 3);
-        BuildingUtils.construct(ds, slime, "enemy", -3, 6, -3);
-        BuildingUtils.construct(ds, slime, "enemy", 6, -7, 1);
-        BuildingUtils.construct(ds, slime, "enemy", -6, 7, -1);
-        BuildingUtils.construct(ds, slime, "enemy", -6, 1, 5);
-        BuildingUtils.construct(ds, slime, "enemy", 6, -1, -5);
-        BuildingUtils.construct(ds, slime, "enemy", 4, 3, -7);
-        BuildingUtils.construct(ds, slime, "enemy", -4, -3, 7);
         BuildingUtils.construct(ds, slime, "enemy", 1, 5, -6);
-        BuildingUtils.construct(ds, slime, "enemy", -1, -5, 6);
+        BuildingUtils.construct(ds, slime, "enemy", 3, -7, 4);
+        BuildingUtils.construct(ds, slime, "enemy", -4, 8, -4);
+        BuildingUtils.construct(ds, slime, "enemy", 8, -12, 4);
+        BuildingUtils.construct(ds, slime, "enemy", -8, 9, -1);
+        BuildingUtils.construct(ds, slime, "enemy", -6, -4, 10);
+        BuildingUtils.construct(ds, slime, "enemy", 6, -5, -1);
+        BuildingUtils.construct(ds, slime, "enemy", 5, 7, -12);
+        BuildingUtils.construct(ds, slime, "enemy", -4, -8, 12);
+        BuildingUtils.construct(ds, slime, "enemy", 9, 0, -9);
+        BuildingUtils.construct(ds, slime, "enemy", 0, 12, 12);
 
-        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", 1, -8, 7);
-        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", -1, 8, -7);
-        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", 7, -2, -5);
-        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", -7, 2, 5);
-        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", 5, 4, -9);
-        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", -5, -4, 9);
+        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", 10, 8, -18);
+        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", -3, 13, -10);
+        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", 10, -7, -3);
+        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", -18, 8, 10);
+        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", 10, 2, -12);
+        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", -13, -4, 17);
 
-        BuildingUtils.construct(ds, mechaKaiju, "enemy", 11, 2, -13);
-        BuildingUtils.construct(ds, mechaKaiju, "enemy", -11, -2, 13);
-        BuildingUtils.construct(ds, mechaKaiju, "enemy", -5, 12, -7);
-        BuildingUtils.construct(ds, mechaKaiju, "enemy", 5, -12, 7);
+        BuildingUtils.construct(ds, mechaKaiju, "enemy", 15, 6, -21);
+        BuildingUtils.construct(ds, mechaKaiju, "enemy", -14, -7, 21);
+        BuildingUtils.construct(ds, mechaKaiju, "enemy", -5, 20, -15);
+        BuildingUtils.construct(ds, mechaKaiju, "enemy", 10, -21, 11);
 
-        BuildingUtils.construct(ds, primeEvil, "enemy", 10, -18, 8);
-        BuildingUtils.construct(ds, primeEvil, "enemy", -10, 18, -8);
+        BuildingUtils.construct(ds, primeEvil, "enemy", 12, -25, 13);
+        BuildingUtils.construct(ds, primeEvil, "enemy", -26, 18, 8);
     }
 
     function _bigBadSpawn(Game ds, bytes24 bigBadEssence) private {
@@ -629,7 +659,7 @@ contract GameDeployer is Script {
             })
         );
 
-        BuildingUtils.construct(ds, theBigBad, "enemy", -15, -5, 25);
+        BuildingUtils.construct(ds, theBigBad, "enemy", -15, 27, -12);
     }
 
     function _ultimateGoalSpawn(Game ds, bytes24 l33tBricks, bytes24 dismemberedHand, bytes24 bigBadEssence) private {

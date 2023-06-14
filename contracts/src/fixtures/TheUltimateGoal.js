@@ -52,7 +52,7 @@ export default function update({ selected, world }) {
                 type: 'building',
                 id: 'the-ultimate-goal',
                 title: 'The Ultimate Goal',
-                summary: "Find these items to win the game and get a crappy medal! \n - Dismembered Hand \n - Big Bad Essence",
+                summary: "Find these items to win the game and get a crappy medal! \n- Dismembered Hand \n- Big Bad Essence",
                 content: [
                     {
                         id: 'default',
