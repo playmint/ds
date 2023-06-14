@@ -16,15 +16,15 @@ import {
     useSelection
 } from '@dawnseekers/core';
 import {
-    buildingNodeKind,
+    buildingToCombatParticipantProps,
     CombatSession,
     convertCombatActions,
+    entityStateToCombatParticipantProps,
     getActions,
-    nodeKindMask
+    sumParticipants,
+    unitToCombatParticipantProps
 } from '@app/plugins/combat/helpers';
-import { ATOM_ATTACK, ATOM_DEFENSE, ATOM_LIFE, Combat, CombatWinState, EntityState } from '@app/plugins/combat/combat';
-import { formatUnitKey } from '@app/helpers';
-import { BytesLike, hexlify } from 'ethers';
+import { Combat, CombatWinState } from '@app/plugins/combat/combat';
 import { useBlockTime } from '@app/contexts/block-time-provider';
 
 export type CombatModalProps = ComponentProps & {
@@ -343,12 +343,28 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
             : undefined;
     const actions = latestSession && getActions(latestSession);
 
+    const getTileEntities = (tile: SelectedTileFragment): CombatParticipantProps[] => {
+        if (!tile) {
+            return [];
+        }
+
+        const entities = [];
+
+        if (tile.building && tile.building.kind) {
+            entities.push(buildingToCombatParticipantProps(tile.building.kind));
+        }
+
+        entities.push(...tile.seekers.map(unitToCombatParticipantProps));
+
+        return entities;
+    };
+
     // Before combat has started
     if (!actions || !isStarted) {
-        const attackers: CombatParticipantProps[] = [];
-        const [attackersMaxHealth, attackersCurrentHealth] = [0, 0];
-        const defenders: CombatParticipantProps[] = [];
-        const [defendersMaxHealth, defendersCurrentHealth] = [0, 0];
+        const attackers: CombatParticipantProps[] = getTileEntities(selectedTiles[0]);
+        const [attackersMaxHealth, attackersCurrentHealth] = attackers.reduce(sumParticipants, [0, 0]);
+        const defenders: CombatParticipantProps[] = getTileEntities(selectedTiles[1]);
+        const [defendersMaxHealth, defendersCurrentHealth] = defenders.reduce(sumParticipants, [0, 0]);
         return (
             <PreCombatState
                 {...props}
@@ -420,35 +436,4 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
             finaliseCombat={finaliseCombat}
         />
     );
-};
-
-const getIcon = (entityID: BytesLike) => {
-    const nodeKind = (BigInt(hexlify(entityID)) >> BigInt(160)) & nodeKindMask;
-    if (nodeKind === buildingNodeKind) {
-        return '/building-tower.png';
-    }
-
-    // todo check for player seeker
-
-    return '/seeker-theirs.png';
-};
-
-const entityStateToCombatParticipantProps = ({ entityID, damage, stats, isDead, isPresent }: EntityState) => ({
-    name: `Unit #${formatUnitKey(hexlify(entityID))}`,
-    icon: getIcon(entityID),
-    maxHealth: stats[ATOM_LIFE],
-    currentHealth: Math.max(stats[ATOM_LIFE] - damage, 0),
-    attack: stats[ATOM_ATTACK],
-    defence: stats[ATOM_DEFENSE],
-    isDead,
-    isPresent
-});
-
-const sumParticipants = (
-    [participantsMaxHealth, participantsCurrentHealth]: number[],
-    { maxHealth, currentHealth, isPresent }: CombatParticipantProps
-) => {
-    return isPresent
-        ? [participantsMaxHealth + maxHealth, participantsCurrentHealth + currentHealth]
-        : [participantsMaxHealth, participantsCurrentHealth];
 };

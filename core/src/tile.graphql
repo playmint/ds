@@ -5,6 +5,9 @@ fragment SelectedTile on Node {
     }
     building: node(match: { kinds: "Building", via: { rel: "Location", dir: IN } }) {
         ...WorldBuilding
+    }
+    seekers: nodes(match: { kinds: "Seeker", via: { rel: "Location", dir: IN, key: 1 } }) {
+        ...WorldSeeker
         bags: edges(match: { kinds: "Bag", via: { rel: "Equip" } }) {
             ...EquipmentSlot
         }

@@ -95,6 +95,7 @@ const baseStyles = (_: Partial<CombatModalProps>) => css`
         .defenders {
             flex-grow: 1;
             padding: 2.4rem 3.2rem;
+            max-width: 50%;
 
             .heading {
                 display: block;
@@ -118,6 +119,7 @@ const baseStyles = (_: Partial<CombatModalProps>) => css`
         .defenders {
             flex-grow: 1;
             padding: 2.4rem 3.2rem;
+            max-width: 50%;
 
             .participant {
                 margin-bottom: 1.8rem;
