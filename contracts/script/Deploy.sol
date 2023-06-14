@@ -603,39 +603,39 @@ contract GameDeployer is Script {
 
     function _bigBadSpawn(Game ds, bytes24 bigBadEssence) private {
         bytes24 theBigBad = BuildingUtils.register(
-        ds,
-        BuildingConfig({
-            id: 12,
-            name: "The Big Bad",
-            materials: [
-                Material({quantity: 10, item: bigBadEssence}),
-                Material({quantity: 0, item: 0x0}),
-                Material({quantity: 0, item: 0x0}),
-                Material({quantity: 0, item: 0x0})
-            ],
-            inputs: [
-                Input({quantity: 0, item: 0x0}),
-                Input({quantity: 0, item: 0x0}),
-                Input({quantity: 0, item: 0x0}),
-                Input({quantity: 0, item: 0x0})
-            ],
-            outputs: [Output({quantity: 0, item: 0x0})],
-            implementation: address(new TheBigBad()),
-            plugin: vm.readFile("src/fixtures/TheBigBad.js")
+            ds,
+            BuildingConfig({
+                id: 12,
+                name: "The Big Bad",
+                materials: [
+                    Material({quantity: 10, item: bigBadEssence}),
+                    Material({quantity: 0, item: 0x0}),
+                    Material({quantity: 0, item: 0x0}),
+                    Material({quantity: 0, item: 0x0})
+                ],
+                inputs: [
+                    Input({quantity: 0, item: 0x0}),
+                    Input({quantity: 0, item: 0x0}),
+                    Input({quantity: 0, item: 0x0}),
+                    Input({quantity: 0, item: 0x0})
+                ],
+                outputs: [Output({quantity: 0, item: 0x0})],
+                implementation: address(new TheBigBad()),
+                plugin: vm.readFile("src/fixtures/TheBigBad.js")
             })
         );
 
         BuildingUtils.construct(ds, theBigBad, "enemy", -15, -5, 25);
     }
 
-     function _ultimateGoalSpawn(Game ds, bytes24 l33tBricks, bytes24 dismemberedHand, bytes24 bigBadEssence) private {
+    function _ultimateGoalSpawn(Game ds, bytes24 l33tBricks, bytes24 dismemberedHand, bytes24 bigBadEssence) private {
         bytes24 crappyMedal = ItemUtils.register(
             ds,
             ItemConfig({
                 id: 107,
                 name: "Crappy Medal",
                 icon: "10-111",
-                life: 105, 
+                life: 105,
                 defense: 12,
                 attack: 25,
                 stackable: false,
@@ -747,6 +747,4 @@ contract GameDeployer is Script {
             })
         );
     }
-
 }
-
