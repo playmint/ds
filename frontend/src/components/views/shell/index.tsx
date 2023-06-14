@@ -29,7 +29,6 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     const { openModal, setModalContent, closeModal } = useModalContext();
     const player = usePlayer();
     const { seeker: selectedSeeker, selectSeeker, tiles: selectedTiles } = useSelection();
-
     const [providerAvailable, setProviderAvailable] = useState<boolean>(false);
 
     useEffect(() => {

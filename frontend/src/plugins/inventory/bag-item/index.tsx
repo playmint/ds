@@ -67,6 +67,9 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
         }, [] as string[])
         .map((n: string) => BigInt(n))
         .slice(-4);
+
+    const isStackable = !!_stackable;
+
     const tooltip = isInvalid
         ? `Slot contains invalid ${name} item\n\nRemove item from slot to continue`
         : `${quantity} ${name}\n\nLife: ${life}\nDefense: ${defense}\nAttack: ${attack}`;
@@ -81,7 +84,7 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
         >
             {isPending && <span className="spinner" />}
             <img src={icon} alt={name} className="icon" />
-            <span className="amount">{quantity}</span>
+            {isStackable && <span className="amount">{quantity}</span>}
         </StyledBagItem>
     );
 };
