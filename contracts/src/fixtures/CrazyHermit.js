@@ -47,7 +47,7 @@ export default function update({ selected, world }) {
             if (selectedEngineer.bags[j].bag.slots[i]) {
                 var slot = selectedEngineer.bags[j].bag.slots[i];
 
-                if (slot.item && slot.item.id === '0x6a7a67f00005c49200000000000000050000000500000005' && slot.balance >= 1) {
+                if (slot.item && slot.item.id === '0x6a7a67f00000006900000000000000190000001900000019' && slot.balance >= 1) {
                     hasRubberDuck = true;
                 }
             }

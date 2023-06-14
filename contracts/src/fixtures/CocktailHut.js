@@ -32,17 +32,17 @@ export default function update({ selected }) {
         version: 1,
         components: [
             {
-                id: 'welcome-hut',
+                id: 'cocktail-hut',
                 type: 'building',
-                title: 'Welcome Hut',
-                summary: `Welcome to Downstream!`,
+                title: 'Cocktail Hut',
+                summary: `Come relax, chill out, have a drink!`,
                 content: [
                     {
                         id: 'default',
                         type: 'inline',
-                        buttons: [ { text: 'Pour Welcome Drink', type: 'action', action: craft, disabled: !canPourDrink } ],
+                        buttons: [ { text: 'Pour Cocktail', type: 'action', action: craft, disabled: !canPourDrink } ],
                         html: `
-                            <p>Bring me two Kikis and two Boubas and claim your welcome drink!</p>
+                            <p>We supply the best drinks in Hexwood!</p>
                         `
                     },
                 ],
