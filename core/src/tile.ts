@@ -81,8 +81,8 @@ function upgradeWorldTileToSelectedTile(t: WorldTileFragment): SelectedTileFragm
         building: t.building
             ? {
                   ...t.building,
-                  bags: [],
               }
             : null,
+        seekers: t.seekers ? t.seekers.map((s) => ({ ...s, bags: [] })) : [],
     };
 }

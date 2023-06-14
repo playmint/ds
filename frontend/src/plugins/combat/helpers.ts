@@ -1,6 +1,18 @@
-import { WorldTileFragment } from '@dawnseekers/core';
-import { AbiCoder, BigNumberish, BytesLike } from 'ethers';
-import { CombatAction } from '@app/plugins/combat/combat';
+import {
+    BuildingKindFragment,
+    EquipmentSlotFragment,
+    ItemSlotFragment,
+    SelectedSeekerFragment,
+    WorldTileFragment
+} from '@dawnseekers/core';
+import { AbiCoder, BigNumberish, BytesLike, hexlify } from 'ethers';
+import { ATOM_ATTACK, ATOM_DEFENSE, ATOM_LIFE, CombatAction, EntityState } from '@app/plugins/combat/combat';
+import { formatUnitKey } from '@app/helpers';
+import { CombatParticipantProps } from '@app/plugins/combat/combat-participant';
+
+export const UNIT_BASE_LIFE = 50;
+export const UNIT_BASE_DEFENCE = 23;
+export const UNIT_BASE_ATTACK = 30;
 
 export const buildingRegex = /^0x34cf8a7e[0-9a-f]+$/g;
 export const seekerRegex = /^0x3fbc56a4[0-9a-f]+$/g;
@@ -120,3 +132,114 @@ export function convertCombatActions(actions: CombatActionStruct[][]): CombatAct
 
     return convertedActions;
 }
+
+export const getIcon = (entityID: BytesLike) => {
+    const id = hexlify(entityID);
+
+    if (buildingRegex.test(id)) {
+        return '/building-tower.png';
+    }
+
+    // todo check for player seeker
+
+    return '/seeker-theirs.png';
+};
+
+export const getItemStats = (itemId: string) => {
+    return [...itemId]
+        .slice(2)
+        .reduce((bs, b, idx) => {
+            if (idx % 8 === 0) {
+                bs.push('0x');
+            }
+            bs[bs.length - 1] += b;
+            return bs;
+        }, [] as string[])
+        .map((n: string) => Number(BigInt(n)))
+        .slice(-4);
+};
+
+export const getEquipmentStats = (equipmentSlots: EquipmentSlotFragment[]) => {
+    return equipmentSlots.reduce(
+        (stats, { bag }) => {
+            bag.slots.forEach((slot) => {
+                if (slot.balance > 0) {
+                    const [stackable, life, defense, attack] = getItemStats(slot.item.id);
+                    if (!stackable) {
+                        stats[ATOM_LIFE] += life;
+                        stats[ATOM_DEFENSE] += defense;
+                        stats[ATOM_ATTACK] += attack;
+                    }
+                }
+            });
+            return stats;
+        },
+        [0, 0, 0]
+    );
+};
+
+export const getMaterialStats = (materials: ItemSlotFragment[]) => {
+    return materials.reduce(
+        (stats, { item, balance }) => {
+            if (balance > 0) {
+                const [_, life, defense, attack] = getItemStats(item.id);
+                stats[ATOM_LIFE] += life * balance;
+                stats[ATOM_DEFENSE] += defense * balance;
+                stats[ATOM_ATTACK] += attack * balance;
+            }
+            return stats;
+        },
+        [0, 0, 0]
+    );
+};
+
+export const unitToCombatParticipantProps = (unit: SelectedSeekerFragment) => {
+    const entityID = unit.id;
+    const stats = getEquipmentStats(unit.bags);
+
+    return {
+        name: `Unit #${formatUnitKey(entityID)}`,
+        icon: getIcon(entityID),
+        maxHealth: stats[ATOM_LIFE] + UNIT_BASE_LIFE,
+        currentHealth: stats[ATOM_LIFE] + UNIT_BASE_LIFE,
+        attack: stats[ATOM_ATTACK] + UNIT_BASE_ATTACK,
+        defence: stats[ATOM_DEFENSE] + UNIT_BASE_DEFENCE,
+        isDead: false,
+        isPresent: true
+    };
+};
+
+export const buildingToCombatParticipantProps = (buildingKind: BuildingKindFragment) => {
+    const stats = getMaterialStats(buildingKind.materials);
+
+    return {
+        name: `${buildingKind.name?.value ?? 'Building'}`,
+        icon: '/building-tower.png',
+        maxHealth: stats[ATOM_LIFE],
+        currentHealth: stats[ATOM_LIFE],
+        attack: stats[ATOM_ATTACK],
+        defence: stats[ATOM_DEFENSE],
+        isDead: false,
+        isPresent: true
+    };
+};
+
+export const entityStateToCombatParticipantProps = ({ entityID, damage, stats, isDead, isPresent }: EntityState) => ({
+    name: `Unit #${formatUnitKey(hexlify(entityID))}`,
+    icon: getIcon(entityID),
+    maxHealth: stats[ATOM_LIFE],
+    currentHealth: Math.max(stats[ATOM_LIFE] - damage, 0),
+    attack: stats[ATOM_ATTACK],
+    defence: stats[ATOM_DEFENSE],
+    isDead,
+    isPresent
+});
+
+export const sumParticipants = (
+    [participantsMaxHealth, participantsCurrentHealth]: number[],
+    { maxHealth, currentHealth, isPresent }: CombatParticipantProps
+) => {
+    return isPresent
+        ? [participantsMaxHealth + maxHealth, participantsCurrentHealth + currentHealth]
+        : [participantsMaxHealth, participantsCurrentHealth];
+};
