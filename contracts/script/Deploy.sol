@@ -147,23 +147,27 @@ contract GameDeployer is Script {
         _scout(ds, 1, -1, 0, 1);
         _scout(ds, 1, -1, 1, 0);
 
-        /*
-        //This would go to the Hermit if it worked
-        _scout(ds, 1, 2, -1, -1);
-        _scout(ds, 1, 3, -1, -2);
-        _scout(ds, 1, 3, 0, -3);
-        _scout(ds, 1, 3, 1, -4);
-        _scout(ds, 1, 4, 1, -5);
-        _scout(ds, 1, 4, 2, -6);
-        _scout(ds, 1, 3, 3, -6);
-        _scout(ds, 1, 3, 4, -7);
-        _scout(ds, 1, 3, 5, -8);
-        _scout(ds, 1, 3, 6, -9);
-        _scout(ds, 1, 3, 7, -10);
-        _scout(ds, 1, 4, 7, -11);
-        _scout(ds, 1, 5, 7, -12);
-        _scout(ds, 1, 6, 7, -13);
-        */
+        
+        //This creates a path to the Hermit
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 2, -1, -1)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 3, -1, -2)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 3, 0, -3)));
+
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 3, 1, -4)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 4, 1, -5)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 4, 2, -6)));
+
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 3, 3, -6)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 3, 4, -7)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 3, 5, -8)));
+
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 3, 6, -9)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 3, 7, -10)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 4, 7, -11)));
+
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 5, 7, -12)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 6, 7, -13)));
+
 
         vm.stopBroadcast();
     }
