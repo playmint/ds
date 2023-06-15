@@ -66,6 +66,22 @@ spec:
             - name: network
               containerPort: 8545
               protocol: TCP
+        - name: sim
+          image: {{ printf "ghcr.io/playmint/ds-contracts:%s-%s" $.Release.Name $.Values.version }}
+          imagePullPolicy: Always
+          command: ["/bin/ash"]
+          args:
+          - -eu
+          - -c
+          - |
+            anvil --code-size-limit 9999999999999 --gas-limit 9999999999999999 --port 8546 --fork-url http://localhost:8545 --no-mining
+          env:
+          - name: DEPLOYER_PRIVATE_KEY
+            value: "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff9524d487fb5d57a8"
+          ports:
+            - name: network
+              containerPort: 8546
+              protocol: TCP
 
 ---
 apiVersion: apps/v1
