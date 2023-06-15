@@ -12,6 +12,7 @@ jobs:
       DEPLOYMENT_ENVIRONMENT: test
       FRONTEND_IMAGE_NAME: playmint/ds-shell
       CONTRACTS_IMAGE_NAME: playmint/ds-contracts
+      SERVICES_IMAGE_NAME: playmint/ds-services
       PLATFORMS: linux/amd64
     secrets:
       AZURE_REGISTRY_URL: ${{ secrets.AZURE_REGISTRY_URL }}
