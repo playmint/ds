@@ -18,10 +18,7 @@ There is a [**walk through**](https://www.notion.so/Developing-a-New-Building-ee
 
 If you want to dig into the core game code that you are extending, you’ll find it all in the `contracts/libs/ds`. 
 
-<aside>
-ℹ️ Despite the folder name, `contracts/libs/ds` is not *just* contract code. This is a git submodule of the core [ds](https://github.com/playmint/ds) repository, which is all of the source code for Downstream including contracts, services, client, browser frontend and Unity map.
-
-</aside>
+> ℹ️ Despite the folder name, `contracts/libs/ds` is not *just* contract code. This is a git submodule of the core [ds](https://github.com/playmint/ds) repository, which is all of the source code for Downstream including contracts, services, client, browser frontend and Unity map.
 
 ## Components of a BuildingKind
 
