@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: services
-          image: ghcr.io/playmint/cog-services:latest
+          image: {{ printf "ghcr.io/playmint/ds-services:%s-%s" $.Release.Name $.Values.version }}
           imagePullPolicy: Always
           env:
             - name: PORT
@@ -31,6 +31,10 @@ spec:
               value: "http://localhost:8545"
             - name: SEQUENCER_PROVIDER_URL_WS
               value: "ws://localhost:8545"
+            - name: SIMULATION_PROVIDER_URL_HTTP
+              value: "http://localhost:8546"
+            - name: SIMULATION_PROVIDER_URL_WS
+              value: "ws://localhost:8546"
             - name: INDEXER_WATCH_PENDING
               value: "false"
             - name: INDEXER_PROVIDER_URL_HTTP
