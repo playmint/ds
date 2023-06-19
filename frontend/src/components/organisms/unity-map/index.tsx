@@ -38,7 +38,7 @@ const StyledUnityMap = styled('div')`
 let globalLastBlob: string | undefined;
 let globalSender: any;
 let globalDrainTimeout: any;
-const globalQueue: string[] = [];
+let globalQueue: string[] = [];
 function drainOne() {
     try {
         if (globalQueue.length == 0) {
@@ -47,10 +47,11 @@ function drainOne() {
         if (!globalSender) {
             return;
         }
-        const blob = globalQueue.shift();
+        const blob = globalQueue.pop();
         if (!blob) {
             return;
         }
+        globalQueue = [];
         const args = ['GameStateMediator', 'OnState', blob];
         globalSender(...args);
         console.debug(`UnityMap: drained one, ${globalQueue.length} remaining`, args);
