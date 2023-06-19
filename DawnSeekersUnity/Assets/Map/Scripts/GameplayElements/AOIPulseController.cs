@@ -16,23 +16,15 @@ public class AOIPulseController : MonoBehaviour
     private void Start()
     {
         GameStateMediator.Instance.EventStateUpdated += GameStateUpdated;
-        MapInteractionManager.instance.EventTileLeftClick += LeftClick;
-    }
-
-    private void LeftClick(Vector3Int obj)
-    {
-        ClearHighlights();
     }
 
     private void OnDestroy()
     {
         GameStateMediator.Instance.EventStateUpdated -= GameStateUpdated;
-        MapInteractionManager.instance.EventTileLeftClick -= LeftClick;
     }
 
     private void GameStateUpdated(GameState gameState)
     {
-        ClearHighlights();
         if (
             gameState.Selected.Seeker != null
             && (_currentSeeker == null || gameState.Selected.Seeker.Id != _currentSeeker.Id)
