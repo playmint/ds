@@ -1,4 +1,18 @@
-import { concat, fromValue, lazy, makeSubject, map, merge, pipe, scan, Source, switchMap, tap } from 'wonka';
+import {
+    concat,
+    debounce,
+    fromValue,
+    lazy,
+    makeSubject,
+    map,
+    merge,
+    pipe,
+    scan,
+    share,
+    Source,
+    switchMap,
+    tap,
+} from 'wonka';
 import { makePlayerSeeker } from './seeker';
 import { makeTiles } from './tile';
 import { CogServices, ConnectedPlayer, Selection, Selector, World } from './types';
@@ -32,6 +46,9 @@ export function makeSelection(
             ),
         ]),
         scan((inputs, v) => ({ ...inputs, ...v }), {} as Selection),
+        debounce(() => 10),
+        tap(() => console.log('selecting')), // chill out
+        share,
     ) satisfies Source<Selection>;
 
     return { selection, selectSeeker, selectTiles, selectIntent };

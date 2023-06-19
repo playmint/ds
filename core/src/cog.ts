@@ -24,7 +24,6 @@ import {
     share,
     Source,
     switchMap,
-    tap,
 } from 'wonka';
 import { Actions__factory } from './abi';
 import { DispatchDocument, OnEventDocument, SigninDocument, SignoutDocument } from './gql/graphql';
@@ -104,11 +103,11 @@ export function configureClient({
             cacheExchange,
             // cacheExchange({
             //     schema: cogSchema,
-            //     updates: {
-            //         Subscription: {
-            //             events: invalidateCacheOnSubscriptionEvent,
-            //         },
-            //     },
+            //     // updates: {
+            //     //     Subscription: {
+            //     //         events: invalidateCacheOnSubscriptionEvent,
+            //     //     },
+            //     // },
             // }),
             fetchExchange,
             subscriptionExchange({
@@ -184,7 +183,6 @@ export function configureClient({
             }),
             filter((data): data is AnyGameSubscription['events'] => !!data),
             debounce(() => 250), // chill out
-            tap(() => console.log('NEW DATA ARRIVED!!!!!!!!!')),
             share,
         );
 
@@ -217,7 +215,7 @@ export function configureClient({
                   ]),
             switchMap(() =>
                 pipe(
-                    fromPromise(gql.query(doc, vars, { requestPolicy: 'network-only' }).toPromise()),
+                    fromPromise(gql.query(doc, vars, { requestPolicy: 'cache-and-network' }).toPromise()),
                     map((res) => {
                         if (res.error) {
                             console.warn('cog query error:', res.error);

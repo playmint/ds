@@ -1,4 +1,4 @@
-import { map, pipe, Source, switchMap, zip } from 'wonka';
+import { debounce, map, pipe, Source, switchMap, zip } from 'wonka';
 import { GetSelectedTileDocument, SelectedTileFragment, WorldStateFragment, WorldTileFragment } from './gql/graphql';
 import { CogServices } from './types';
 
@@ -20,6 +20,7 @@ export function makeTiles(
             ({ client, world }: { client: CogServices; world: WorldStateFragment }) =>
                 pipe(
                     ids,
+                    debounce(() => 10),
                     switchMap((selectedIDs) => makeSelectedTileQuery(client, world, selectedIDs)),
                 ),
         ),
