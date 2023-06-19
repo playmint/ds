@@ -21,7 +21,7 @@ const commands = [
 
     {
         name: 'sim',
-        command: "anvil --code-size-limit 9999999999999 --gas-limit 9999999999999999 --port 8546 --fork-url http://localhost:8545 --no-mining --no-rate-limit --prune-history 1 --no-storage-caching",
+        command: "anvil --code-size-limit 9999999999999 --gas-limit 9999999999999999 --port 8546 --fork-url http://localhost:8545 --no-mining --no-rate-limit --no-storage-caching",
         prefixColor: 'black',
     },
 
@@ -37,7 +37,7 @@ const commands = [
 
     {
         name: 'services',
-        command: './bin/wait-for -it localhost:8545 -t 300 && ./bin/wait-for -it localhost:8546 -t 300 && ./bin/ds-node -debug',
+        command: './bin/wait-for -it localhost:8545 -t 300 && ./bin/wait-for -it localhost:8546 -t 300 && ./bin/ds-node',
         env: {
             PORT: "8181",
             CHAIN_ID: "1337",
