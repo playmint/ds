@@ -1,9 +1,10 @@
-import { concatMap, fromPromise, makeSubject, pipe, subscribe, tap } from 'wonka';
+import { makeSubject, pipe, subscribe, tap } from 'wonka';
 import { Logger } from './logger';
 import {
     CogAction,
     CogServices,
     CogSession,
+    DispatchedAction,
     DispatchedActionsStatus,
     QueuedClientAction,
     QueuedSequencerAction,
@@ -36,20 +37,20 @@ export type Dispatcher = ReturnType<typeof makeDispatcher>;
  *
  */
 export function makeDispatcher(client: CogServices, wallet: Wallet, logger: Logger) {
-    const { source: pending, next } = makeSubject<QueuedClientAction>();
+    const { source: dispatched, next } = makeSubject<DispatchedAction>();
 
-    const dispatched = pipe(
-        pending,
-        tap((q) => logger.info(`pending ${q.actions.map((a) => a.name).join(', ')}`)),
-        concatMap((queuedAction) => fromPromise(dispatch(client, wallet, queuedAction))),
-    );
+    // const dispatched = pipe(
+    //     pending,
+    //     tap((q) => logger.info(`pending ${q.actions.map((a) => a.name).join(', ')}`)),
+    //     concatMap((queuedAction) => fromPromise(dispatch(client, wallet, queuedAction))),
+    // );
 
     const { unsubscribe: disconnect } = pipe(
         dispatched,
         tap((q) =>
-            q.status == DispatchedActionsStatus.QUEUED_SEQUENCER
-                ? logger.info(`dispatched ${q.actions.map((a) => a.name).join(', ')}`)
-                : logger.error(`failed ${q.actions.map((a) => a.name).join(', ')}: ${q.error}`),
+            q.status == DispatchedActionsStatus.REJECTED_CLIENT && q.error
+                ? logger.error(`failed ${q.actions.map((a) => a.name).join(', ')}: ${q.error}`)
+                : logger.info(`dispatched ${q.actions.map((a) => a.name).join(', ')}`),
         ),
         subscribe((a) => console.debug(`[wallet-${wallet.id}] dispatched`, a)), // TODO: remove debug
     );
@@ -57,10 +58,15 @@ export function makeDispatcher(client: CogServices, wallet: Wallet, logger: Logg
     // TODO: subscribe to transaction status to build a "commits/rejected" pile
 
     return {
-        pending,
         dispatched,
-        dispatch: (...actions: CogAction[]) => {
-            next({ status: DispatchedActionsStatus.QUEUED_CLIENT, clientQueueId: `${queueseq.id++}`, actions });
+        dispatch: async (...actions: CogAction[]): Promise<void> => {
+            const res = await dispatch(client, wallet, {
+                status: DispatchedActionsStatus.QUEUED_CLIENT,
+                clientQueueId: `${queueseq.id++}`,
+                actions,
+            });
+            next(res);
+            return;
         },
         disconnect,
     };

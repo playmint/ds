@@ -336,7 +336,6 @@ export interface GameState {
 export interface ConnectedPlayer extends SelectedPlayerFragment {
     dispatch: DispatchFunc;
     dispatched: Source<DispatchedAction>;
-    pending: Source<DispatchedAction>;
     disconnect: () => void;
 }
 
