@@ -4,6 +4,8 @@ _coming soon_
 
 1. [Developing a New Building](./how-to-create-docs/developing-a-new-building.md)
 2. [Creating New Items](./how-to-create-docs/creating-new-items.md)
+3. [Example Javacript Functionality](./how-to-create-docs/example-javascript-fuctionality.md)
+   
 # Code Docs
 ## Overview
 
