@@ -31,7 +31,7 @@ public class SeekerController : MapElementController
     protected int _currentIndex;
     private float _currentSize;
     private Transform _meshesTrans;
-    private float _offsetRadius = 0.26f;
+    private float _offsetRadius = 0.29f;
 
     private string _seekerID;
     private Color _defaultColor;

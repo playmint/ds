@@ -10,8 +10,7 @@ public class TileController : MonoBehaviour
     [SerializeField]
     Renderer rend;
 
-    private static int delayCount;
-    private static float delay;
+    private float delay;
 
     bool hasRisen = false;
 
@@ -20,10 +19,8 @@ public class TileController : MonoBehaviour
         if (hasRisen)
             return;
         hasRisen = true;
-        delayCount++;
-
+        delay = Mathf.Clamp(Camera.main.WorldToViewportPoint(transform.position).x, 0, 1);
         StartCoroutine(AppearFullCR());
-        delay += 0.05f;
     }
 
     IEnumerator AppearFullCR()
@@ -53,14 +50,12 @@ public class TileController : MonoBehaviour
         }
 
         rend.SetPropertyBlock(MapManager.instance.normalMatProps);
-        delayCount--;
     }
 
     public void Appear()
     {
         transform.position = new Vector3(transform.position.x, -1, transform.position.z);
-        delayCount++;
-        delay += 0.05f;
+        delay = Mathf.Clamp(Camera.main.WorldToViewportPoint(transform.position).x, 0, 1);
         rend.SetPropertyBlock(MapManager.instance.unscoutedMatProps);
         StartCoroutine(AppearCR());
     }
@@ -82,9 +77,5 @@ public class TileController : MonoBehaviour
             transform.position = Vector3.LerpUnclamped(startPos, endPos, popInCurve.Evaluate(t));
             yield return null;
         }
-
-        delayCount--;
-        if (delayCount == 0)
-            delay = 0;
     }
 }
