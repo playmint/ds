@@ -1,7 +1,9 @@
 # How To Play
 _coming soon_
 # How to Create
-_coming soon_
+
+1. [Developing a New Building](./how-to-create-docs/developing-a-new-building.md)
+2. [Creating New Items](./how-to-create-docs/creating-new-items.md)
 # Code Docs
 ## Overview
 
