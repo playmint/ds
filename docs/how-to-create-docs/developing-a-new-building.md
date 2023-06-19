@@ -1,24 +1,24 @@
 # Developing a New Building
 
-************************************************************Windows users will need to enable WSL for this process**************************************** (*[https://learn.microsoft.com/en-us/windows/wsl/install](https://learn.microsoft.com/en-us/windows/wsl/install)*)*
+**Windows users will need to enable WSL for this process** (*[https://learn.microsoft.com/en-us/windows/wsl/install](https://learn.microsoft.com/en-us/windows/wsl/install)*)
 
 ## Getting Setup
 
 1. Clone / download this repository: [https://github.com/playmint/ds-hammer-factory](https://github.com/playmint/ds-hammer-factory)
 2. This is a forge project. Follow the instructions here to get setup: [install foundry](https://book.getfoundry.sh/getting-started/installation)
 3. Confirm you are setup correctly by navigating to the ds-hammer-factory folder and running `forge test` from the command line
-*************************************************Note: Windows users will need to be in WSL for all command-line steps.*************************************************
+   **Note: Windows users will need to be in WSL for all command-line steps.**
 
 ## Creating a Pizzeria
 
 We’re going to quickly create a new building - a Pizzeria.
 
 1. In the /src folder there are two files:
-    1. HammerFactory.js
-    2. HammerFactory.sol
+    - HammerFactory.js
+    - HammerFactory.sol
 2. Copy both of these files and rename them to:
-    1. Pizzeria.js
-    2. Pizzeria.sol
+    - Pizzeria.js
+    - Pizzeria.sol
 
 ### Pizzeria.sol
 
@@ -149,14 +149,14 @@ console2.log("BuildingKind", uint256(bytes32(pizzeria)));
 
 Finally, we can call this deploy script and upload the building to the game.
 
-1. Choose a number from 1 to 9223372036854775807 
-    1. *********************************************************************************************************************Write down this number. You’ll need it if you want to make changes to your building!*********************************************************************************************************************
+1. Choose a number from 1 to 9223372036854775807
+    - **Write down this number. You’ll need it if you want to make changes to your building!**
 2. From the command line type:
 
-<aside>
-💡 BUILDING_KIND_EXTENSION_ID=[*Insert Your ID*] GAME_ADDRESS=0x1D8e3A7Dc250633C192AC1bC9D141E1f95C419AB forge script script/Deploy_SwordSmith.sol --broadcast --verify --rpc-url "[https://network-ds-main.dev.playmint.com/](https://network-ds-main.dev.playmint.com/)"
+```jsx
+BUILDING_KIND_EXTENSION_ID=[*Insert Your ID*] GAME_ADDRESS=0x1D8e3A7Dc250633C192AC1bC9D141E1f95C419AB forge script script/Deploy_SwordSmith.sol --broadcast --verify --rpc-url "[https://network-ds-main.dev.playmint.com/](https://network-ds-main.dev.playmint.com/)"
+```
 
-</aside>
 
 1. Watch it compile and hope it works!
 
@@ -166,7 +166,7 @@ To test your new creation you’ll need to place it in the game!
 
 1. Go to the website: [https://frontend-ds-main.dev.playmint.com/](https://frontend-ds-main.dev.playmint.com/)
 2. Log on with Metamask
-    1. Spawn an Engineer if you don’t have one already
+    - Spawn an Engineer if you don’t have one already
 3. Find enough construction materials - 10 Kikis, 10 Bubotes and 10 Semiotes 
 4. Select the Build functionality and place your new building on an empty tile
 5. Find another 10 Kikis, and 4 Semiotes
