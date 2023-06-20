@@ -19,7 +19,7 @@ export function makeWorld(cog: Source<CogServices>) {
         switchMap(({ query, gameID }) => {
             return pipe(query(GetWorldDocument, { gameID }), map(normalizeWorldState));
         }),
-        debounce(() => 250),
+        debounce(() => 25),
     );
 }
 
