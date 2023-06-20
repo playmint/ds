@@ -111,6 +111,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 4200293388350177078, guid: 87b00e9807c374871b1cd063b867ba6e,
         type: 3}
+    - target: {fileID: 4011681256154013440, guid: a699dfdf8ea904492a4f3bc5ea3d169d,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.19
+      objectReference: {fileID: 0}
     - target: {fileID: 4011681257694613555, guid: a699dfdf8ea904492a4f3bc5ea3d169d,
         type: 3}
       propertyPath: m_LocalPosition.y
@@ -209,7 +214,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   iconParent: {fileID: 8730588450661582252}
-  iconPrefab: {fileID: 7482230774540498691, guid: 9d7d926df89fb45b09a4b5b4afb48628,
+  iconPrefab: {fileID: 2167013614747121971, guid: 58a41a29608144c348eb2c954e04eaef,
     type: 3}
 --- !u!4 &8730588450661582252 stripped
 Transform:

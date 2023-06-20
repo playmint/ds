@@ -100,6 +100,11 @@ public class SeekerManager : MonoBehaviour
         currentSelectedSeeker = state.Selected.Seeker;
     }
 
+    public bool IsPlayerSeeker(string seekerID)
+    {
+        return _playerSeekers.Any(s => s.Id == seekerID);
+    }
+
     public void RemoveAllSeekers()
     {
         var allSeekers = spawnedSeekers.ToDictionary(pair => pair.Key, pair => pair.Value);
