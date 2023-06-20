@@ -247,7 +247,7 @@ contract GameDeployer is Script {
         bytes24 cocktailHut = BuildingUtils.register(
             ds,
             BuildingConfig({
-                id: 1,
+                id: 100,
                 name: "Cocktail Hut",
                 materials: [
                     Material({quantity: 25, item: ItemUtils.Kiki()}),
@@ -267,8 +267,7 @@ contract GameDeployer is Script {
             })
         );
 
-        //AARGH! For some reason this is constructing an THE ULTIMATE GOAL building
-        //BuildingUtils.construct(ds, cocktailHut, "building", 5, 13, -18);
+        BuildingUtils.construct(ds, cocktailHut, "building", 5, 13, -18);
     }
 
     function _rubberDuckChain(Game ds, bytes24 l33tBricks) private {
@@ -681,7 +680,7 @@ contract GameDeployer is Script {
         bytes24 theUltimateGoal = BuildingUtils.register(
             ds,
             BuildingConfig({
-                id: 1,
+                id: 107,
                 name: "The Ultimate Goal",
                 materials: [
                     Material({quantity: 100, item: l33tBricks}),
@@ -708,7 +707,7 @@ contract GameDeployer is Script {
         bytes24 shuttlecock = ItemUtils.register(
             ds,
             ItemConfig({
-                id: 107,
+                id: 110,
                 name: "Shuttlecock",
                 icon: "05-296",
                 life: 10,
@@ -723,7 +722,7 @@ contract GameDeployer is Script {
         bytes24 racket = ItemUtils.register(
             ds,
             ItemConfig({
-                id: 108,
+                id: 111,
                 name: "Racket",
                 icon: "22-13",
                 life: 10,
