@@ -126,7 +126,9 @@ public class TileHelper
 
     public static bool HasEnemy(Tiles2 tile)
     {
-        return tile.Building != null && tile.Building.Kind.Model.Value == "enemy";
+        return tile.Building != null
+            && tile.Building.Kind.Model != null
+            && tile.Building.Kind.Model.Value == "enemy";
     }
 
     public static bool HasActiveCombatSession(Tiles2 tile)
