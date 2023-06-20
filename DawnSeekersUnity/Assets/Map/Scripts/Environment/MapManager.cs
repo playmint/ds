@@ -86,6 +86,14 @@ public class MapManager : MonoBehaviour
     {
         foreach (var tile in state.World.Tiles)
         {
+            // If you can think of a better way of getting incomplete buildings on a tile, I'd like to hear it...
+            Cog.Buildings incompleteBuilding = state.World.Buildings.FirstOrDefault(
+                b =>
+                    b.Id.Contains(tile.Id.Substring(10))
+                    && b.Bags.Any(n => n.Bag.Slots.Any(s => s.Balance > 0))
+            );
+            //... seriously that would be super useful
+
             var hasResource = TileHelper.HasResource(tile);
             var cellPosCube = TileHelper.GetTilePosCube(tile);
 
@@ -97,9 +105,18 @@ public class MapManager : MonoBehaviour
             if (TileHelper.HasEnemy(tile))
                 MapElementManager.instance.CreateEnemy(cellPosCube);
             else if (TileHelper.HasBuilding(tile))
+            {
                 MapElementManager.instance.CreateBuilding(cellPosCube);
+                MapElementManager.instance.CheckIncompleteBuildingIconRemoved(cellPosCube);
+            }
+            else if (incompleteBuilding != null)
+                MapElementManager.instance.CreateIncompleteBuilding(cellPosCube);
             else
+            {
                 MapElementManager.instance.CheckBuildingIconRemoved(cellPosCube);
+                MapElementManager.instance.CheckEnemyIconRemoved(cellPosCube);
+                MapElementManager.instance.CheckIncompleteBuildingIconRemoved(cellPosCube);
+            }
 
             AddTile(cellPosCube);
 
