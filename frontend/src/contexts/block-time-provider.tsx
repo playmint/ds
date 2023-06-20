@@ -1,6 +1,6 @@
 /** @format */
 
-import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { createContext, MutableRefObject, ReactNode, useContext, useEffect, useRef } from 'react';
 
 export interface BlockTimeContextProviderProps {
     block: number;
@@ -9,7 +9,7 @@ export interface BlockTimeContextProviderProps {
 
 export interface BlockTimeContextStore {
     blockTime: number;
-    blockNumber: number;
+    blockNumberRef: MutableRefObject<number>;
 }
 
 export const BlockTimeContext = createContext<BlockTimeContextStore>({} as BlockTimeContextStore);
@@ -19,33 +19,31 @@ export const useBlockTime = () => useContext(BlockTimeContext);
 const BLOCK_TIME_SECS = 2;
 
 export const BlockTimeProvider = ({ block, children }: BlockTimeContextProviderProps) => {
-    const [lastBlock, updateLastBlock] = useState<number>(0);
-    const [lastBlockTime, updateLastBlockTime] = useState<number>(0);
-    const [estimatedBlock, updateEstimatedBlock] = useState<number>(0);
+    const lastBlockRef = useRef<number>(0);
+    const lastBlockTimeRef = useRef<number>(0);
+    const estimatedBlockRef = useRef<number>(0);
 
     useEffect(() => {
-        if (block > lastBlock) {
+        if (block > lastBlockRef.current) {
             const nowTime = new Date().getTime() / 1000;
-            updateLastBlock(block);
-            updateLastBlockTime(nowTime);
-            // console.log('TIME UPDATED: ', nowTime);
+            lastBlockTimeRef.current = nowTime;
+            lastBlockRef.current = block;
         }
-    }, [block, lastBlock]);
+    }, [block]);
 
     useEffect(() => {
         const id = setInterval(() => {
             const nowTime = new Date().getTime() / 1000;
-            const elapsed = nowTime - lastBlockTime;
+            const elapsed = nowTime - lastBlockTimeRef.current;
             const newBlocks = Math.floor(elapsed / BLOCK_TIME_SECS);
-            updateEstimatedBlock(block + newBlocks);
-            // console.log('Estimated block', block + newBlocks);
-        }, BLOCK_TIME_SECS);
+            estimatedBlockRef.current = block + newBlocks;
+        }, BLOCK_TIME_SECS * 1000);
         return () => clearInterval(id);
-    }, [block, lastBlockTime]);
+    }, [block]);
 
     const store: BlockTimeContextStore = {
         blockTime: BLOCK_TIME_SECS,
-        blockNumber: estimatedBlock
+        blockNumberRef: estimatedBlockRef
     };
 
     return <BlockTimeContext.Provider value={store}>{children}</BlockTimeContext.Provider>;

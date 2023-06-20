@@ -1,8 +1,13 @@
 import {
     BuildingKindFragment,
+    ConnectedPlayer,
     EquipmentSlotFragment,
     ItemSlotFragment,
     SelectedSeekerFragment,
+    SelectedTileFragment,
+    WorldBuildingFragment,
+    WorldSeekerFragment,
+    WorldStateFragment,
     WorldTileFragment
 } from '@dawnseekers/core';
 import { AbiCoder, BigNumberish, BytesLike, hexlify } from 'ethers';
@@ -14,8 +19,8 @@ export const UNIT_BASE_LIFE = 50;
 export const UNIT_BASE_DEFENCE = 23;
 export const UNIT_BASE_ATTACK = 30;
 
-export const buildingRegex = /^0x34cf8a7e[0-9a-f]+$/g;
-export const seekerRegex = /^0x3fbc56a4[0-9a-f]+$/g;
+export const buildingIdStart = '0x34cf8a7e';
+
 export const nodeKindMask = BigInt('0xffffffff');
 export const buildingNodeKind = BigInt('0x34cf8a7e');
 
@@ -53,7 +58,6 @@ export function getActionsFlat(session: CombatSession): CombatActionStruct[] {
         // }
         return decoder.decode(['tuple(uint8,bytes24,uint64,bytes)[]'], bytes)[0];
     });
-
     const actions = sessionUpdates.flatMap((actionTuples): CombatActionStruct => {
         // Turn the tuples back into structs
         return actionTuples.map((actionTuple: any) => {
@@ -66,7 +70,6 @@ export function getActionsFlat(session: CombatSession): CombatActionStruct[] {
             };
         });
     });
-
     return actions;
 }
 
@@ -91,7 +94,6 @@ export function getActions(session: CombatSession) {
             const decoder = AbiCoder.defaultAbiCoder();
             return decoder.decode(['tuple(uint8,bytes24,uint64,bytes)[]'], bytes)[0];
         });
-
     const actions = sessionUpdates.map((actionTuples): CombatActionStruct[] => {
         // Turn the tuples back into structs
         return actionTuples.map((actionTuple: any): CombatActionStruct => {
@@ -104,16 +106,13 @@ export function getActions(session: CombatSession) {
             };
         });
     });
-
     return actions;
 }
 
 export function convertCombatActions(actions: CombatActionStruct[][]): CombatAction[][] {
     const convertedActions: CombatAction[][] = [];
-
     for (let i = 0; i < actions.length; i++) {
         const row: CombatAction[] = [];
-
         for (let j = 0; j < actions[i].length; j++) {
             const actionStruct = actions[i][j];
 
@@ -126,23 +125,27 @@ export function convertCombatActions(actions: CombatActionStruct[][]): CombatAct
 
             row.push(convertedAction);
         }
-
         convertedActions.push(row);
     }
-
     return convertedActions;
 }
 
-export const getIcon = (entityID: BytesLike) => {
+export const getIcon = (entityID: BytesLike, seekers: WorldSeekerFragment[]) => {
     const id = hexlify(entityID);
-
-    if (buildingRegex.test(id)) {
+    if (id.startsWith(buildingIdStart)) {
         return '/building-tower.png';
     }
+    const seeker = seekers.find((s) => s.id === id);
+    return seeker ? '/seeker-yours.png' : '/seeker-theirs.png';
+};
 
-    // todo check for player seeker
-
-    return '/seeker-theirs.png';
+export const getEntityName = (entityID: BytesLike, buildings: WorldBuildingFragment[]) => {
+    const id = hexlify(entityID).toString();
+    if (id.startsWith(buildingIdStart)) {
+        const building = buildings.find((b) => b.id === id);
+        return building?.kind?.name?.value ?? 'Building';
+    }
+    return `Unit #${formatUnitKey(hexlify(entityID))}`;
 };
 
 export const getItemStats = (itemId: string) => {
@@ -193,13 +196,12 @@ export const getMaterialStats = (materials: ItemSlotFragment[]) => {
     );
 };
 
-export const unitToCombatParticipantProps = (unit: SelectedSeekerFragment) => {
+export const unitToCombatParticipantProps = (unit: SelectedSeekerFragment, seekers: WorldSeekerFragment[]) => {
     const entityID = unit.id;
     const stats = getEquipmentStats(unit.bags);
-
     return {
         name: `Unit #${formatUnitKey(entityID)}`,
-        icon: getIcon(entityID),
+        icon: getIcon(entityID, seekers),
         maxHealth: stats[ATOM_LIFE] + UNIT_BASE_LIFE,
         currentHealth: stats[ATOM_LIFE] + UNIT_BASE_LIFE,
         attack: stats[ATOM_ATTACK] + UNIT_BASE_ATTACK,
@@ -211,7 +213,6 @@ export const unitToCombatParticipantProps = (unit: SelectedSeekerFragment) => {
 
 export const buildingToCombatParticipantProps = (buildingKind: BuildingKindFragment) => {
     const stats = getMaterialStats(buildingKind.materials);
-
     return {
         name: `${buildingKind.name?.value ?? 'Building'}`,
         icon: '/building-tower.png',
@@ -224,9 +225,13 @@ export const buildingToCombatParticipantProps = (buildingKind: BuildingKindFragm
     };
 };
 
-export const entityStateToCombatParticipantProps = ({ entityID, damage, stats, isDead, isPresent }: EntityState) => ({
-    name: `Unit #${formatUnitKey(hexlify(entityID))}`,
-    icon: getIcon(entityID),
+export const entityStateToCombatParticipantProps = (
+    { entityID, damage, stats, isDead, isPresent }: EntityState,
+    { buildings }: WorldStateFragment,
+    { seekers }: ConnectedPlayer
+) => ({
+    name: getEntityName(entityID, buildings),
+    icon: getIcon(entityID, seekers),
     maxHealth: stats[ATOM_LIFE],
     currentHealth: Math.max(stats[ATOM_LIFE] - damage, 0),
     attack: stats[ATOM_ATTACK],
@@ -242,4 +247,16 @@ export const sumParticipants = (
     return isPresent
         ? [participantsMaxHealth + maxHealth, participantsCurrentHealth + currentHealth]
         : [participantsMaxHealth, participantsCurrentHealth];
+};
+
+export const getTileEntities = (tile: SelectedTileFragment, player: ConnectedPlayer): CombatParticipantProps[] => {
+    if (!tile) {
+        return [];
+    }
+    const entities = [];
+    if (tile.building && tile.building.kind) {
+        entities.push(buildingToCombatParticipantProps(tile.building.kind));
+    }
+    entities.push(...tile.seekers.map((unit) => unitToCombatParticipantProps(unit, player.seekers)));
+    return entities;
 };
