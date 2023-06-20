@@ -2,7 +2,7 @@
 
 Although access to this early version of *****Downstream***** is primarily to see what creators can (or can’t) do with our game, we have created a simple quest to get the party started
 
-## The Ultimate Goal Building
+## The "Ultimate Goal" Building
 
 Just north of the Spawn point is a building that requires two items. It will reward a medal to whomever can bring it those items.
 
