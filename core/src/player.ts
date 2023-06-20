@@ -1,4 +1,4 @@
-import { fromValue, map, pipe, Source, switchMap, zip } from 'wonka';
+import { concat, debounce, fromValue, lazy, map, pipe, share, Source, switchMap, tap, zip } from 'wonka';
 import { makeDispatcher } from './dispatcher';
 import { GetSelectedPlayerDocument, SelectedPlayerFragment } from './gql/graphql';
 import { Logger } from './logger';
@@ -19,11 +19,18 @@ export function makeConnectedPlayer(
     wallet: Source<Wallet | undefined>,
     logger: Logger,
 ): Source<ConnectedPlayer | UnconnectedPlayer> {
-    return pipe(
+    let prev: ConnectedPlayer | UnconnectedPlayer;
+    const source = pipe(
         zip<any>({ client, wallet }),
         switchMap<any, ConnectedPlayer | UnconnectedPlayer>(({ client, wallet }: ClientWallet) =>
             wallet ? makeConnectedPlayerQuery(client, wallet, logger) : makeUnconnectedPlayerQuery(),
         ),
+        tap((next) => (prev = next)),
+        share,
+    );
+    return pipe(
+        lazy(() => (prev ? concat([fromValue(prev), source]) : source)),
+        debounce(() => 10),
     );
 }
 

@@ -1,4 +1,4 @@
-import { debounce, map, pipe, Source, switchMap, zip } from 'wonka';
+import { concat, debounce, fromValue, lazy, map, pipe, share, Source, switchMap, tap, zip } from 'wonka';
 import { GetSelectedTileDocument, SelectedTileFragment, WorldStateFragment, WorldTileFragment } from './gql/graphql';
 import { CogServices } from './types';
 
@@ -14,16 +14,23 @@ export function makeTiles(
     world: Source<WorldStateFragment>,
     ids: Source<string[] | undefined>,
 ) {
-    return pipe(
+    let prev: SelectedTileFragment[];
+    const source = pipe(
         zip<any>({ client, world }),
         switchMap<any, SelectedTileFragment[]>(
             ({ client, world }: { client: CogServices; world: WorldStateFragment }) =>
                 pipe(
                     ids,
-                    debounce(() => 10),
+                    debounce(() => 100),
                     switchMap((selectedIDs) => makeSelectedTileQuery(client, world, selectedIDs)),
                 ),
         ),
+        tap((next) => (prev = next)),
+        share,
+    );
+    return pipe(
+        lazy(() => (prev ? concat([fromValue(prev), source]) : source)),
+        debounce(() => 10),
     );
 }
 
@@ -32,10 +39,13 @@ function makeSelectedTileQuery(
     world: WorldStateFragment,
     selectedIDs?: string[],
 ): Source<SelectedTileFragment[]> {
+    if (selectedIDs == undefined || selectedIDs.length == 0) {
+        return fromValue([]);
+    }
     return pipe(
         client.query(GetSelectedTileDocument, {
             gameID: client.gameID,
-            id: selectedIDs && selectedIDs.length > 0 ? selectedIDs : ['fixme-cog-returns-all-matches-for-empty-list'],
+            id: selectedIDs,
         }),
         map(({ game }) =>
             game && game.state.tiles.length > 0 ? game.state.tiles : ([] satisfies SelectedTileFragment[]),
