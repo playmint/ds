@@ -21,7 +21,7 @@ When a Unit attacks a building it begins a combat session. This will continue un
 - Each tick, the combatants on each side will attack a random participant on the other side.
 - Damage is worked out with the calculation:
 
-```csharp
+```
 Defender's Life -= 1 + (All Attacker's ATK - Defender's DEF)
 ```
 
