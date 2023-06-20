@@ -149,7 +149,7 @@ public class MoveIntent : IntentHandler
         if (!isMoving)
             return;
 
-        if (!TileHelper.IsDiscoveredTile(cellCubePos))
+        if (!MapManager.instance.IsDiscoveredTile(cellCubePos))
         {
             DeselectSeekerAndIntent(true);
             return;
@@ -276,7 +276,7 @@ public class MoveIntent : IntentHandler
 
         foreach (Vector3Int space in TileHelper.GetTileNeighbours(_path[_path.Count - 1]))
         {
-            if (!spawnedPathHighlights.ContainsKey(space) && TileHelper.IsDiscoveredTile(space))
+            if (!spawnedPathHighlights.ContainsKey(space) && MapManager.instance.IsDiscoveredTile(space))
             {
                 Transform highlight = Instantiate(greenHighlightPrefab).transform;
                 highlight.position = MapManager.instance.grid.CellToWorld(
@@ -350,7 +350,7 @@ public class MoveIntent : IntentHandler
     private void DirectAddCellToPathHack(Vector3Int cellCubePos)
     {
         bool validPosition =
-            TileHelper.IsDiscoveredTile(cellCubePos)
+            MapManager.instance.IsDiscoveredTile(cellCubePos)
             && (
                 _path.Count == 0
                 || TileHelper.GetTileNeighbours(_path[_path.Count - 1]).Contains(cellCubePos)

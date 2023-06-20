@@ -136,9 +136,9 @@ public class CombatIntent : IntentHandler
         var neighbourTiles = TileHelper.GetTileNeighbours(_seekerPos);
         var validTiles = neighbourTiles.Where(cellPosCube =>
         {
-            var tile = TileHelper.GetTileByPos(cellPosCube);
-            return TileHelper.IsDiscoveredTile(cellPosCube)
-                && TileHelper.HasBuilding(tile)
+            var tile = MapManager.instance.GetTileByPos(cellPosCube);
+            return MapManager.instance.IsDiscoveredTile(cellPosCube)
+                && (MapElementManager.instance.HasBuilding(cellPosCube) || MapElementManager.instance.HasEnemy(cellPosCube))
                 && !TileHelper.HasActiveCombatSession(tile);
         });
 

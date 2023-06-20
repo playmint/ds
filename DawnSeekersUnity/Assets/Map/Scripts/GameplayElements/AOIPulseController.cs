@@ -43,13 +43,13 @@ public class AOIPulseController : MonoBehaviour
     private void ShowHighlights(Vector3Int cubePos)
     {
         Vector3Int[] positions = TileHelper.GetTileNeighbours(cubePos);
-        foreach (Vector3Int pos in positions)
+        for(int i =0; i < positions.Length; i++)
         {
             Transform highlight = Instantiate(greenHighlightPrefab).transform;
             highlight.position = MapManager.instance.grid.CellToWorld(
-                GridExtensions.CubeToGrid(pos)
+                GridExtensions.CubeToGrid(positions[i])
             );
-            if (TileHelper.IsDiscoveredTile(pos))
+            if (MapManager.instance.IsDiscoveredTile(positions[i]))
             {
                 highlight.position = new Vector3(
                     highlight.position.x,

@@ -34,6 +34,11 @@ public class SeekerManager : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        MapManager.MapUpdated -= OnStateUpdated;
+    }
+
     // -- LISTENERS
 
     // TODO: Still assuming only one seeker

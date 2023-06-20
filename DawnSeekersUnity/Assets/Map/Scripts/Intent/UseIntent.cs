@@ -116,8 +116,8 @@ public class UseIntent : IntentHandler
         return neighbourTiles
             .Where(cellPosCube =>
             {
-                return TileHelper.IsDiscoveredTile(cellPosCube)
-                    && TileHelper.HasBuilding(cellPosCube);
+                return MapManager.instance.IsDiscoveredTile(cellPosCube)
+                    && MapElementManager.instance.HasBuilding(cellPosCube);
             })
             .ToArray();
     }

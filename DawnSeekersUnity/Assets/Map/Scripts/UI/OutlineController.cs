@@ -41,16 +41,20 @@ public class OutlineController : MonoBehaviour
 
     float updateTimer = 0;
 
+    private CinemachineFramingTransposer framingTransposer;
+
     private void Awake()
     {
         sWidth = Screen.width;
         sHeight = Screen.height;
+        framingTransposer = camController.virtualCamera
+                        .GetCinemachineComponent<CinemachineFramingTransposer>();
         Resize(outlineTexture, sWidth, sHeight);
     }
 
     private void Update()
     {
-        if (updateTimer < 1)
+        if (updateTimer < 0.2f)
             updateTimer += Time.deltaTime;
         if (updateTimer < 0.1f)
             return;
@@ -59,11 +63,9 @@ public class OutlineController : MonoBehaviour
             sWidth = Screen.width;
             sHeight = Screen.height;
             Resize(outlineTexture, sWidth, sHeight);
+            outlineMat.SetFloat("_OutlinePower", falloffMultiplier);
+            outlineMat.SetFloat("_OutlinePower2", strokeCutoff);
         }
-
-        outlineMat.SetFloat("_OutlinePower", falloffMultiplier);
-
-        outlineMat.SetFloat("_OutlinePower2", strokeCutoff);
 
         int zoom = Mathf.RoundToInt(
             Mathf.Lerp(
@@ -72,9 +74,7 @@ public class OutlineController : MonoBehaviour
                 Mathf.InverseLerp(
                     camController.minCameraDistance,
                     camController.maxCameraDistance,
-                    camController.virtualCamera
-                        .GetCinemachineComponent<CinemachineFramingTransposer>()
-                        .m_CameraDistance
+                        framingTransposer.m_CameraDistance
                 )
             )
         );
@@ -82,6 +82,7 @@ public class OutlineController : MonoBehaviour
         {
             outlineRenderer.passSettings.aBlurStrength = zoom;
             renderData.rendererFeatures[0].Create();
+            currentZoom = zoom;
         }
     }
 
