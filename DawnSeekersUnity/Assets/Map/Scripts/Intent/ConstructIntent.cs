@@ -117,7 +117,7 @@ public class ConstructIntent : IntentHandler
             .Where(cellPosCube =>
             {
                 return MapManager.instance.IsDiscoveredTile(cellPosCube)
-                    && MapElementManager.instance.IsElementAtCell(cellPosCube)==0;
+                    && MapElementManager.instance.IsElementAtCell(cellPosCube) == 0;
             })
             .ToArray();
     }

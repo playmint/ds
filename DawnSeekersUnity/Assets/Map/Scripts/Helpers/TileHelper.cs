@@ -8,8 +8,6 @@ using System.Collections.Generic;
 
 public class TileHelper
 {
-    
-
     public static Vector3Int GetTilePosCube(NextLocation loc)
     {
         // TODO: NextLocation hasn't generated properly so doesn't show the fields it has on it!
@@ -56,9 +54,6 @@ public class TileHelper
     {
         return GetTilePosCubeShared(loc.Tile.Coords);
     }
-
-
-
 
     public static Vector3Int GetTilePosCube(PrevLocation2 loc)
     {
@@ -126,12 +121,8 @@ public class TileHelper
         };
     }
 
-    
-
     internal static string GetTileID(Vector3Int tilePosCube)
     {
         return Cog.NodeKinds.TileNode.GetKey(0, tilePosCube.x, tilePosCube.y, tilePosCube.z);
     }
-
-    
 }

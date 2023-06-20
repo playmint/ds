@@ -276,7 +276,10 @@ public class MoveIntent : IntentHandler
 
         foreach (Vector3Int space in TileHelper.GetTileNeighbours(_path[_path.Count - 1]))
         {
-            if (!spawnedPathHighlights.ContainsKey(space) && MapManager.instance.IsDiscoveredTile(space))
+            if (
+                !spawnedPathHighlights.ContainsKey(space)
+                && MapManager.instance.IsDiscoveredTile(space)
+            )
             {
                 Transform highlight = Instantiate(greenHighlightPrefab).transform;
                 highlight.position = MapManager.instance.grid.CellToWorld(

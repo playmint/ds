@@ -47,8 +47,8 @@ public class OutlineController : MonoBehaviour
     {
         sWidth = Screen.width;
         sHeight = Screen.height;
-        framingTransposer = camController.virtualCamera
-                        .GetCinemachineComponent<CinemachineFramingTransposer>();
+        framingTransposer =
+            camController.virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
         Resize(outlineTexture, sWidth, sHeight);
     }
 
@@ -74,7 +74,7 @@ public class OutlineController : MonoBehaviour
                 Mathf.InverseLerp(
                     camController.minCameraDistance,
                     camController.maxCameraDistance,
-                        framingTransposer.m_CameraDistance
+                    framingTransposer.m_CameraDistance
                 )
             )
         );

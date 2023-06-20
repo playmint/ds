@@ -110,7 +110,6 @@ public class MapManager : MonoBehaviour
 
         foreach (var tile in state.World.Tiles)
         {
-            
             var hasResource = TileHelper.HasResource(tile);
             var cellPosCube = TileHelper.GetTilePosCube(tile);
 

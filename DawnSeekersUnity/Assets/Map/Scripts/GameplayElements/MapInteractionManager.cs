@@ -96,8 +96,9 @@ public class MapInteractionManager : MonoBehaviour
         )
             cursor.gameObject.SetActive(
                 (
-                    MapManager.instance.IsDiscoveredTile(GridExtensions.GridToCube(CurrentMouseCell))
-                    || TileNeighbourValid
+                    MapManager.instance.IsDiscoveredTile(
+                        GridExtensions.GridToCube(CurrentMouseCell)
+                    ) || TileNeighbourValid
                 ) && String.IsNullOrEmpty(seekerID)
             );
 
