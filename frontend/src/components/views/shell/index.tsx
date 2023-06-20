@@ -7,7 +7,14 @@ import { ActionContextPanel } from '@app/plugins/action-context-panel';
 import { SeekerInventory } from '@app/plugins/inventory/seeker-inventory';
 import { TileCoords } from '@app/plugins/tile-coords';
 import { ComponentProps } from '@app/types/component-props';
-import { CompoundKeyEncoder, NodeSelectors, usePlayer, useSelection } from '@dawnseekers/core';
+import {
+    CompoundKeyEncoder,
+    ConnectedPlayer,
+    NodeSelectors,
+    Selection,
+    SelectionSelectors,
+    WorldStateFragment
+} from '@dawnseekers/core';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { Fragment, FunctionComponent, useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -18,17 +25,20 @@ import { CombatModal } from '@app/plugins/combat/combat-modal';
 import { CombatSummary } from '@app/plugins/combat/combat-summary';
 import { CombatRewards } from '@app/plugins/combat/combat-rewards';
 
-export interface ShellProps extends ComponentProps {}
+export interface ShellProps extends ComponentProps {
+    world?: WorldStateFragment;
+    player?: ConnectedPlayer;
+    selection: Selection & SelectionSelectors;
+}
 
 const StyledShell = styled('div')`
     ${styles}
 `;
 
 export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
-    const { ...otherProps } = props;
+    const { world, player, selection, ...otherProps } = props;
+    const { seeker: selectedSeeker, tiles: selectedTiles, selectSeeker } = selection;
     const { openModal, setModalContent, closeModal } = useModalContext();
-    const player = usePlayer();
-    const { seeker: selectedSeeker, selectSeeker, tiles: selectedTiles } = useSelection();
     const [providerAvailable, setProviderAvailable] = useState<boolean>(false);
 
     useEffect(() => {
@@ -88,7 +98,12 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     );
 
     const showCombatModal = (isNewSession: boolean = false) => {
-        setModalContent(<CombatModal player={player} isNewSession={isNewSession} closeModal={closeModal} />);
+        if (!player || !world) {
+            return;
+        }
+        setModalContent(
+            <CombatModal player={player} world={world} isNewSession={isNewSession} closeModal={closeModal} />
+        );
         openModal({ closable: true, showCloseButton: false });
     };
 

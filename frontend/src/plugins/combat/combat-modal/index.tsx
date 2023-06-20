@@ -1,6 +1,6 @@
 /** @format */
 
-import { FunctionComponent, Fragment, useState } from 'react';
+import { FunctionComponent, Fragment, useState, useEffect, useLayoutEffect } from 'react';
 import styled from 'styled-components';
 import { ComponentProps } from '@app/types/component-props';
 import { styles } from './combat-modal.styles';
@@ -13,24 +13,24 @@ import {
     ConnectedPlayer,
     SelectedSeekerFragment,
     SelectedTileFragment,
-    useSelection
+    useSelection,
+    WorldStateFragment
 } from '@dawnseekers/core';
 import {
-    buildingToCombatParticipantProps,
     CombatSession,
     convertCombatActions,
     entityStateToCombatParticipantProps,
     getActions,
-    sumParticipants,
-    unitToCombatParticipantProps
+    getTileEntities,
+    sumParticipants
 } from '@app/plugins/combat/helpers';
 import { Combat, CombatWinState } from '@app/plugins/combat/combat';
 import { useBlockTime } from '@app/contexts/block-time-provider';
+import { useMounted } from '@app/hooks/use-mounted';
 
 export type CombatModalProps = ComponentProps & {
-    selectedTiles?: SelectedTileFragment[];
-    player?: ConnectedPlayer;
-    selectedSeeker?: SelectedSeekerFragment;
+    world: WorldStateFragment;
+    player: ConnectedPlayer;
     isNewSession?: boolean;
     closeModal: () => void;
 };
@@ -50,13 +50,17 @@ type CombatParticipantSummaryProps = {
 type PreCombatStateProps = CombatModalProps &
     CombatParticipantsProps &
     CombatParticipantSummaryProps & {
+        selectedSeeker?: SelectedSeekerFragment;
+        selectedTiles: SelectedTileFragment[];
         isStarted: boolean;
-        setIsStarted: (isStarted: boolean) => void;
+        onStartCombat: () => void;
     };
 
 type CombatStateProps = CombatModalProps &
     CombatParticipantsProps &
     CombatParticipantSummaryProps & {
+        selectedSeeker?: SelectedSeekerFragment;
+        selectedTiles: SelectedTileFragment[];
         blockNumber: number;
         blockTime: number;
     };
@@ -64,9 +68,11 @@ type CombatStateProps = CombatModalProps &
 type PostCombatStateProps = CombatModalProps &
     CombatParticipantsProps &
     CombatParticipantSummaryProps & {
+        selectedSeeker?: SelectedSeekerFragment;
+        selectedTiles: SelectedTileFragment[];
         winState: CombatWinState;
         session: CombatSession;
-        finaliseCombat: () => void;
+        onFinaliseCombat: () => void;
     };
 
 const StyledCombatModal = styled('div')`
@@ -115,9 +121,9 @@ const CombatParticipantSummary: FunctionComponent<CombatParticipantSummaryProps>
 
 const PreCombatState: FunctionComponent<PreCombatStateProps> = (props) => {
     const {
-        selectedTiles = [],
         player,
         selectedSeeker,
+        selectedTiles = [],
         closeModal,
         attackers,
         defenders,
@@ -126,7 +132,7 @@ const PreCombatState: FunctionComponent<PreCombatStateProps> = (props) => {
         defendersMaxHealth,
         defendersCurrentHealth,
         isStarted,
-        setIsStarted
+        onStartCombat
     } = props;
 
     const combatTiles = selectedTiles
@@ -162,7 +168,7 @@ const PreCombatState: FunctionComponent<PreCombatStateProps> = (props) => {
             args: [selectedSeeker.id, combatTiles[1].id, attackers, defenders]
         };
         player.dispatch(action);
-        setIsStarted(true);
+        onStartCombat();
     };
 
     return (
@@ -266,9 +272,13 @@ const PostCombatFooter: FunctionComponent<{
     finaliseCombat: () => void;
 }> = ({ isFinalised, closeModal, finaliseCombat }) => {
     const [ended, setEnded] = useState<boolean>(false);
+    const isMounted = useMounted();
 
     const handleFinaliseCombat = () => {
         finaliseCombat && finaliseCombat();
+        if (!isMounted()) {
+            return;
+        }
         setEnded(true);
     };
 
@@ -291,7 +301,7 @@ const PostCombatFooter: FunctionComponent<{
 const PostCombatState: FunctionComponent<PostCombatStateProps> = (props) => {
     const {
         closeModal,
-        finaliseCombat,
+        onFinaliseCombat,
         session,
         winState,
         attackers,
@@ -322,7 +332,7 @@ const PostCombatState: FunctionComponent<PostCombatStateProps> = (props) => {
             <div className="footer">
                 <PostCombatFooter
                     closeModal={closeModal}
-                    finaliseCombat={finaliseCombat}
+                    finaliseCombat={onFinaliseCombat}
                     isFinalised={!!session.isFinalised}
                 />
             </div>
@@ -330,11 +340,18 @@ const PostCombatState: FunctionComponent<PostCombatStateProps> = (props) => {
     );
 };
 
+enum CombatModalState {
+    PreCombat,
+    Combat,
+    PostCombat
+}
+
 export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatModalProps) => {
-    const { player, isNewSession } = props;
-    const [isStarted, setIsStarted] = useState(!isNewSession);
+    const { player, world, isNewSession } = props;
+    const [combatModalState, setCombatModalState] = useState<CombatModalState | null>(null);
     const { seeker: selectedSeeker, tiles: selectedTiles = [] } = useSelection();
-    const { blockNumber, blockTime } = useBlockTime();
+    const { blockNumberRef, blockTime } = useBlockTime();
+    const [blockNumber, setBlockNumber] = useState<number>(blockNumberRef.current);
     const latestSession =
         selectedTiles.length > 0 && selectedTiles[0].sessions.length > 0
             ? selectedTiles[0].sessions.sort((a, b) => {
@@ -343,33 +360,86 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
             : undefined;
     const actions = latestSession && getActions(latestSession);
 
-    const getTileEntities = (tile: SelectedTileFragment): CombatParticipantProps[] => {
-        if (!tile) {
-            return [];
-        }
+    const [dispatchComplete, setDispatchComplete] = useState<boolean>(false);
+    const [latestSessionId, setLatestSessionId] = useState<string>();
+    const [isStarted, setIsStarted] = useState(!isNewSession);
 
-        const entities = [];
+    const convertedActions = convertCombatActions(actions || []);
+    const combat = new Combat(); // Is a class because it was converted from solidity
+    const orderedListIndexes = combat.getOrderedListIndexes(convertedActions);
+    const combatState = combat.calcCombatState(convertedActions, orderedListIndexes, blockNumber);
 
-        if (tile.building && tile.building.kind) {
-            entities.push(buildingToCombatParticipantProps(tile.building.kind));
-        }
-
-        entities.push(...tile.seekers.map(unitToCombatParticipantProps));
-
-        return entities;
+    const handleFinaliseCombat = () => {
+        const action: CogAction = {
+            name: 'FINALISE_COMBAT',
+            args: [latestSession?.id, actions, orderedListIndexes]
+        };
+        player?.dispatch(action);
     };
 
+    const handleStartCombat = () => {
+        setLatestSessionId(latestSession?.id);
+        setIsStarted(true);
+    };
+
+    // when the session is updated we check if the id is different from the session id
+    // at the time combat was started, which let's us know the start combat dispatch is complete
+    useEffect(() => {
+        setDispatchComplete(isStarted && latestSessionId !== latestSession?.id);
+    }, [latestSession, latestSessionId, isStarted]);
+
+    // re-render every block setting the new block time so that combat states are updated
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setBlockNumber(blockNumberRef.current);
+        }, blockTime);
+
+        return () => clearInterval(interval);
+    }, [blockNumberRef, blockTime]);
+
+    // state transitions
+    useLayoutEffect(() => {
+        // figure out the state of the modal the first time it is opened
+        if (combatModalState === null) {
+            if (isNewSession) {
+                setCombatModalState(CombatModalState.PreCombat);
+                return;
+            }
+            if (combatState.winState === CombatWinState.NONE) {
+                setCombatModalState(CombatModalState.Combat);
+                return;
+            }
+
+            setCombatModalState(CombatModalState.PostCombat);
+            return;
+        }
+
+        if (combatModalState === CombatModalState.PreCombat) {
+            // transition to combat when combat is started and the dispatch is complete
+            if (isStarted && dispatchComplete) {
+                setCombatModalState(CombatModalState.Combat);
+            }
+            return;
+        }
+
+        if (combatModalState === CombatModalState.Combat) {
+            if (combatState.winState !== CombatWinState.NONE) {
+                setCombatModalState(CombatModalState.PostCombat);
+            }
+        }
+    }, [isStarted, dispatchComplete, combatState?.winState, combatModalState, isNewSession]);
+
     // Before combat has started
-    if (!actions || !isStarted) {
-        const attackers: CombatParticipantProps[] = getTileEntities(selectedTiles[0]);
+    if (combatModalState === CombatModalState.PreCombat) {
+        const attackers: CombatParticipantProps[] = getTileEntities(selectedTiles[0], player);
         const [attackersMaxHealth, attackersCurrentHealth] = attackers.reduce(sumParticipants, [0, 0]);
-        const defenders: CombatParticipantProps[] = getTileEntities(selectedTiles[1]);
+        const defenders: CombatParticipantProps[] = getTileEntities(selectedTiles[1], player);
         const [defendersMaxHealth, defendersCurrentHealth] = defenders.reduce(sumParticipants, [0, 0]);
         return (
             <PreCombatState
                 {...props}
-                isStarted={false}
-                setIsStarted={setIsStarted}
+                isStarted={isStarted}
+                onStartCombat={handleStartCombat}
                 selectedSeeker={selectedSeeker}
                 selectedTiles={selectedTiles}
                 attackers={attackers}
@@ -382,18 +452,18 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
         );
     }
 
-    const convertedActions = convertCombatActions(actions);
-    const combat = new Combat(); // Is a class because it was converted from solidity
-    const orderedListIndexes = combat.getOrderedListIndexes(convertedActions);
-    const combatState = combat.calcCombatState(convertedActions, orderedListIndexes, blockNumber);
-
-    const attackers: CombatParticipantProps[] = combatState.attackerStates.map(entityStateToCombatParticipantProps);
+    const entitiesEmpty = combatState.attackerStates.every((e) => e === undefined);
+    const attackers: CombatParticipantProps[] = entitiesEmpty
+        ? getTileEntities(selectedTiles[0], player)
+        : combatState.attackerStates.map((entity) => entityStateToCombatParticipantProps(entity, world, player));
     const [attackersMaxHealth, attackersCurrentHealth] = attackers.reduce(sumParticipants, [0, 0]);
-    const defenders: CombatParticipantProps[] = combatState.defenderStates.map(entityStateToCombatParticipantProps);
+    const defenders: CombatParticipantProps[] = entitiesEmpty
+        ? getTileEntities(selectedTiles[1], player)
+        : combatState.defenderStates.map((entity) => entityStateToCombatParticipantProps(entity, world, player));
     const [defendersMaxHealth, defendersCurrentHealth] = defenders.reduce(sumParticipants, [0, 0]);
 
     // During combat
-    if (combatState.winState == CombatWinState.NONE) {
+    if (combatModalState === CombatModalState.Combat) {
         return (
             <CombatState
                 {...props}
@@ -411,29 +481,25 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
         );
     }
 
-    const finaliseCombat = () => {
-        const action: CogAction = {
-            name: 'FINALISE_COMBAT',
-            args: [latestSession.id, actions, orderedListIndexes]
-        };
-        player?.dispatch(action);
-    };
-
     // When combat has finished
-    return (
-        <PostCombatState
-            {...props}
-            selectedSeeker={selectedSeeker}
-            selectedTiles={selectedTiles}
-            attackers={attackers}
-            attackersMaxHealth={attackersMaxHealth}
-            attackersCurrentHealth={attackersCurrentHealth}
-            defenders={defenders}
-            defendersMaxHealth={defendersMaxHealth}
-            defendersCurrentHealth={defendersCurrentHealth}
-            winState={combatState.winState}
-            session={latestSession}
-            finaliseCombat={finaliseCombat}
-        />
-    );
+    if (combatModalState === CombatModalState.PostCombat && latestSession) {
+        return (
+            <PostCombatState
+                {...props}
+                selectedSeeker={selectedSeeker}
+                selectedTiles={selectedTiles}
+                attackers={attackers}
+                attackersMaxHealth={attackersMaxHealth}
+                attackersCurrentHealth={attackersCurrentHealth}
+                defenders={defenders}
+                defendersMaxHealth={defendersMaxHealth}
+                defendersCurrentHealth={defendersCurrentHealth}
+                winState={combatState.winState}
+                session={latestSession}
+                onFinaliseCombat={handleFinaliseCombat}
+            />
+        );
+    }
+
+    return null;
 };
