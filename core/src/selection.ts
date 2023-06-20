@@ -30,7 +30,8 @@ export function makeSelection(
 
     const { selector: selectIntent, selection: selectedIntent } = makeSelector<string | undefined>(player);
 
-    const selection = pipe(
+    let prev: any;
+    const selectionPipe = pipe(
         merge<Partial<Selection>>([
             pipe(
                 selectedSeeker,
@@ -47,9 +48,14 @@ export function makeSelection(
         ]),
         scan((inputs, v) => ({ ...inputs, ...v }), {} as Selection),
         debounce(() => 10),
-        tap(() => console.log('selecting')), // chill out
+        tap((next) => (prev = next)),
         share,
     ) satisfies Source<Selection>;
+
+    const selection = pipe(
+        lazy(() => (prev ? concat([fromValue(prev), selectionPipe]) : selectionPipe)),
+        debounce(() => 10),
+    );
 
     return { selection, selectSeeker, selectTiles, selectIntent };
 }
