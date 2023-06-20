@@ -64,7 +64,7 @@ public class MapInteractionManager : MonoBehaviour
             CurrentMouseCell = MapManager.instance.grid.WorldToCell(hitPoint);
             Vector3 cursorPos = MapManager.instance.grid.CellToWorld(CurrentMouseCell);
             float height = MapHeightManager.UNSCOUTED_HEIGHT;
-            if (TileHelper.IsDiscoveredTile(cubePos))
+            if (MapManager.instance.IsDiscoveredTile(cubePos))
                 height = MapHeightManager.instance.GetHeightAtPosition(cursorPos);
             cursor.position = new Vector3(cursorPos.x, height, cursorPos.z);
         }
@@ -84,7 +84,7 @@ public class MapInteractionManager : MonoBehaviour
                 && GameStateMediator.Instance.gameState.Selected.Intent != IntentKind.SCOUT
             )
             {
-                TileNeighbourValid = TileHelper.IsDiscoveredTile(
+                TileNeighbourValid = MapManager.instance.IsDiscoveredTile(
                     neighborTiles.FirstOrDefault(n => n == cubePos)
                 );
             }
@@ -96,8 +96,9 @@ public class MapInteractionManager : MonoBehaviour
         )
             cursor.gameObject.SetActive(
                 (
-                    TileHelper.IsDiscoveredTile(GridExtensions.GridToCube(CurrentMouseCell))
-                    || TileNeighbourValid
+                    MapManager.instance.IsDiscoveredTile(
+                        GridExtensions.GridToCube(CurrentMouseCell)
+                    ) || TileNeighbourValid
                 ) && String.IsNullOrEmpty(seekerID)
             );
 
@@ -124,7 +125,7 @@ public class MapInteractionManager : MonoBehaviour
     {
         // CurrentMouseCell is using Odd R offset coords
         var cellPosCube = GridExtensions.GridToCube(CurrentMouseCell);
-        var tile = TileHelper.GetTileByPos(cellPosCube);
+        var tile = MapManager.instance.GetTileByPos(cellPosCube);
         if (tile == null)
             return;
 
@@ -140,7 +141,7 @@ public class MapInteractionManager : MonoBehaviour
             )
         )
         {
-            if (TileHelper.IsDiscoveredTile(cellPosCube))
+            if (MapManager.instance.IsDiscoveredTile(cellPosCube))
                 Cog.GameStateMediator.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
             else
                 DeselectAll();
@@ -233,7 +234,7 @@ public class MapInteractionManager : MonoBehaviour
             //clickedPlayerCell = SeekerManager.instance.IsPlayerAtPosition(cellPosCube);
             Vector3 markerPos = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
             float height = MapHeightManager.UNSCOUTED_HEIGHT;
-            if (TileHelper.IsDiscoveredTile(cellPosCube))
+            if (MapManager.instance.IsDiscoveredTile(cellPosCube))
                 height = MapHeightManager.instance.GetHeightAtPosition(markerPos);
             selectedMarker1.position = new Vector3(markerPos.x, height, markerPos.z);
 

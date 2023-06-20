@@ -137,4 +137,14 @@ public class MapElementManager : MonoBehaviour
         float y = 0;
         return new Vector3(x, y, z);
     }
+
+    public bool HasBuilding(Vector3Int tilePosCube)
+    {
+        return _spawnedBuildings.ContainsKey(tilePosCube);
+    }
+
+    public bool HasEnemy(Vector3Int tilePosCube)
+    {
+        return _spawnedEnemies.ContainsKey(tilePosCube);
+    }
 }
