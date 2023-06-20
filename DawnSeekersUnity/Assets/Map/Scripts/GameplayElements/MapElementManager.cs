@@ -9,7 +9,17 @@ public class MapElementManager : MonoBehaviour
     [SerializeField]
     private GameObject buildingPrefab,
         bagPrefab,
-        enemyPrefab;
+        enemyPrefab,
+        incompleteBuildingPrefab;
+
+    private Dictionary<Vector3Int, MapElementController> _spawnedBuildings =
+        new Dictionary<Vector3Int, MapElementController>();
+    private Dictionary<Vector3Int, MapElementController> _spawnedIncompleteBuildings =
+        new Dictionary<Vector3Int, MapElementController>();
+    private Dictionary<Vector3Int, MapElementController> _spawnedEnemies =
+        new Dictionary<Vector3Int, MapElementController>();
+    private Dictionary<Vector3Int, MapElementController> _spawnedBags =
+        new Dictionary<Vector3Int, MapElementController>();
 
     private void Awake()
     {
@@ -18,40 +28,55 @@ public class MapElementManager : MonoBehaviour
 
     public void CreateBuilding(Vector3Int cubicCoords)
     {
-        if (!GameObject.Find("Building_" + cubicCoords.ToString()))
+        if (!_spawnedBuildings.ContainsKey(cubicCoords))
         {
             MapElementController building = Instantiate(buildingPrefab, transform, true)
                 .GetComponent<MapElementController>();
-            building.gameObject.name = "Building_" + cubicCoords.ToString();
+            _spawnedBuildings.Add(cubicCoords, building);
+            building.Setup(cubicCoords);
+        }
+    }
+
+    public void CreateIncompleteBuilding(Vector3Int cubicCoords)
+    {
+        if (!_spawnedIncompleteBuildings.ContainsKey(cubicCoords))
+        {
+            MapElementController building = Instantiate(incompleteBuildingPrefab, transform, true)
+                .GetComponent<MapElementController>();
+            _spawnedIncompleteBuildings.Add(cubicCoords, building);
             building.Setup(cubicCoords);
         }
     }
 
     public void CreateEnemy(Vector3Int cubicCoords)
     {
-        if (!GameObject.Find("Building_" + cubicCoords.ToString()))
+        if (!_spawnedEnemies.ContainsKey(cubicCoords))
         {
-            MapElementController building = Instantiate(enemyPrefab, transform, true)
+            MapElementController enemy = Instantiate(enemyPrefab, transform, true)
                 .GetComponent<MapElementController>();
-            building.gameObject.name = "Building_" + cubicCoords.ToString();
-            building.Setup(cubicCoords);
+            _spawnedEnemies.Add(cubicCoords, enemy);
+            enemy.Setup(cubicCoords);
         }
     }
 
     public void CreateBag(Vector3Int cubicCoords)
     {
-        if (!GameObject.Find("Bag_" + cubicCoords.ToString()))
+        if (!_spawnedBags.ContainsKey(cubicCoords))
         {
             MapElementController bag = Instantiate(bagPrefab, transform, true)
                 .GetComponent<MapElementController>();
-            bag.gameObject.name = "Bag_" + cubicCoords.ToString();
+            _spawnedBags.Add(cubicCoords, bag);
             bag.Setup(cubicCoords);
         }
     }
 
     public int IsElementAtCell(Vector3Int cubicCoords)
     {
-        if (GameObject.Find("Building_" + cubicCoords.ToString())) // || GameObject.Find("Bag_" + cubicCoords.ToString()))
+        if (
+            _spawnedBuildings.ContainsKey(cubicCoords)
+            || _spawnedEnemies.ContainsKey(cubicCoords)
+            || _spawnedIncompleteBuildings.ContainsKey(cubicCoords)
+        )
             return 1;
         else
             return 0;
@@ -59,19 +84,39 @@ public class MapElementManager : MonoBehaviour
 
     public void CheckBagIconRemoved(Vector3Int cubicCoords)
     {
-        GameObject bag = GameObject.Find("Bag_" + cubicCoords.ToString());
-        if (bag != null)
+        if (_spawnedBags.ContainsKey(cubicCoords))
         {
-            bag.GetComponent<MapElementController>().DestroyMapElement();
+            _spawnedBags[cubicCoords].GetComponent<MapElementController>().DestroyMapElement();
+            _spawnedBags.Remove(cubicCoords);
         }
     }
 
     public void CheckBuildingIconRemoved(Vector3Int cubicCoords)
     {
-        GameObject building = GameObject.Find("Building_" + cubicCoords.ToString());
-        if (building != null)
+        if (_spawnedBuildings.ContainsKey(cubicCoords))
         {
-            building.GetComponent<MapElementController>().DestroyMapElement();
+            _spawnedBuildings[cubicCoords].GetComponent<MapElementController>().DestroyMapElement();
+            _spawnedBuildings.Remove(cubicCoords);
+        }
+    }
+
+    public void CheckEnemyIconRemoved(Vector3Int cubicCoords)
+    {
+        if (_spawnedEnemies.ContainsKey(cubicCoords))
+        {
+            _spawnedEnemies[cubicCoords].GetComponent<MapElementController>().DestroyMapElement();
+            _spawnedEnemies.Remove(cubicCoords);
+        }
+    }
+
+    public void CheckIncompleteBuildingIconRemoved(Vector3Int cubicCoords)
+    {
+        if (_spawnedIncompleteBuildings.ContainsKey(cubicCoords))
+        {
+            _spawnedIncompleteBuildings[cubicCoords]
+                .GetComponent<MapElementController>()
+                .DestroyMapElement();
+            _spawnedIncompleteBuildings.Remove(cubicCoords);
         }
     }
 
