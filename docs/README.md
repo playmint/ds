@@ -1,5 +1,9 @@
 # How To Play
-_coming soon_
+
+1. [Aim of the Game](./how-to-play-docs/aim-of-the-game.md)
+2. [Game Controls](./how-to-play-docs/game-controls.md)
+3. [Combat](./how-to-play-docs/combat.md)
+   
 # How to Create
 
 1. [Developing a New Building](./how-to-create-docs/developing-a-new-building.md)
