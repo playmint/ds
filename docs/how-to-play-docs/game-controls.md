@@ -13,7 +13,7 @@
 When your Unit is selected, you can interact with the tiles adjacent to it.
 
 - To select your unit, hover your cursor over that it so that it’s highlighted, and left-click
-    - The unit’s details and action bar will appear in the UI.
+- The unit’s details and action bar will appear in the UI.
 
 When you deselect your unit you can view the details of tiles anywhere on the map
 
@@ -42,11 +42,11 @@ Your Unit can construct a building on any empty adjacent tiles
 1. With the unit selected, click the “Build” button
 2. Click on one of the highlighted tiles
 3. Select the building you want to construct from the drop-down menu. 
-    1. This contains all buildings that have been deployed to the game, by all creators.
+    - This contains all buildings that have been deployed to the game, by all creators.
 4. Drag-and-drop all required resources from your Unit’s bags, to the building panel.
-    1. These costs are set by the creator of the building’s contract
-    2. Multiple players can contribute their resources to this cost
-5. When all resources have been added, click the “Confirm Construction” button.
+    - These costs are set by the creator of the building’s contract
+    - Multiple players can contribute their resources to this cost
+6. When all resources have been added, click the “Confirm Construction” button.
 
 ## Using a Building
 
