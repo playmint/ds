@@ -67,24 +67,24 @@ public class MapManager : MonoBehaviour
             else
                 tc.Appear();
         }
-        else if (IsDiscoveredTile(cellCubicCoords))
+        else
         {
-            GameObject tileGO = GameObject.Find("Tile_" + cellCubicCoords.ToString());
-            if (tileGO != null)
+            tilePositions[cellCubicCoords] = tile;
+            if (IsDiscoveredTile(cellCubicCoords))
             {
-                TileController tileController = tileGO.GetComponent<TileController>();
-                tileController.AppearFull();
+                GameObject tileGO = GameObject.Find("Tile_" + cellCubicCoords.ToString());
+                if (tileGO != null)
+                {
+                    TileController tileController = tileGO.GetComponent<TileController>();
+                    tileController.AppearFull();
+                }
             }
         }
     }
 
     public bool IsDiscoveredTile(Vector3Int cellPosCube)
     {
-        bool isAtPos = IsTileAtPosition(cellPosCube);
-        if (!isAtPos)
-            return false;
-        double? biome = tilePositions[cellPosCube].Biome;
-        return isAtPos && biome != 0;
+        return IsTileAtPosition(cellPosCube) && tilePositions[cellPosCube].Biome != 0;
     }
 
     public Tiles2 GetTileByPos(Vector3Int cellPosCube)
