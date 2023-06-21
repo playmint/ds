@@ -120,13 +120,11 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
 
     const newMapBlob = JSON.stringify(game);
     if (isReady && game && globalLastBlob != newMapBlob) {
-        console.time('mapsend');
         globalSender = sendMessage;
         globalLastBlob = newMapBlob;
         (window as any).globalLastBlob = globalLastBlob;
         globalQueue.push(newMapBlob);
         drainOne();
-        console.timeEnd('mapsend');
     }
 
     const selectIntent = useCallback(
