@@ -6,6 +6,9 @@ Although access to this early version of *****Downstream***** is primarily to se
 
 Just north of the Spawn point is a building that requires two items. It will reward a medal to whomever can bring it those items.
 
+![The Ultimate Goal Building](../images/the-ultimate-goal.png)
+
+
 ## Starting the Quest
 
 There some other buildings near the Spawn point. We suggest you craft the items you can get here. Not only are they required for a later part of the quest, but will improve your stats enough to start defeating the easiest enemies.
