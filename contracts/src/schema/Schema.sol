@@ -150,7 +150,7 @@ library Schema {
         return tile;
     }
 
-    function getCurrentLocation(State state, bytes24 node, uint64 /*atTime*/) internal view returns (bytes24) {
+    function getCurrentLocation(State state, bytes24 node, uint64 /*atTime*/ ) internal view returns (bytes24) {
         // ---------- TEMP HACK UNTIL CLIENT CAN HANDLE CALC OF CURRENT LOCATION PROPERLY ------------
         return state.getNextLocation(node);
         // ---------- END HACK ----------------
