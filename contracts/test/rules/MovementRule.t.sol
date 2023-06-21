@@ -154,11 +154,12 @@ contract MovementRuleTest is Test {
             state.getNextLocation(seeker), Node.Tile(0, q, r, s), "expected seeker next location to be correctly set"
         );
 
-        assertEq(
-            state.getCurrentLocation(seeker, uint64(block.number)),
-            Node.Tile(DEFAULT_ZONE, 0, 0, 0),
-            "expected current location to still be 0,0,0 as no time passed"
-        );
+        // ENABLE THIS ONCE WE ENABLE TRAVEL TIME
+        // assertEq(
+        //     state.getCurrentLocation(seeker, uint64(block.number)),
+        //     Node.Tile(DEFAULT_ZONE, 0, 0, 0),
+        //     "expected current location to still be 0,0,0 as no time passed"
+        // );
 
         (, uint64 arrivalTime) = state.get(Rel.Location.selector, uint8(LocationKey.NEXT), seeker);
         vm.roll(arrivalTime); // let time pass
