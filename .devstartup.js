@@ -27,7 +27,7 @@ const commands = [
 
     {
         name: 'contract',
-        command: './lib/cog/services/bin/wait-for -it localhost:8545 -t 300 && forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545" && sleep 9999999',
+        command: './lib/cog/services/bin/wait-for -it localhost:8545 -t 300 && forge script script/Deploy.sol:GameDeployer --broadcast --slow --rpc-url "http://localhost:8545" && sleep 9999999',
         prefixColor: 'black',
         env: {
             DEPLOYER_PRIVATE_KEY,
