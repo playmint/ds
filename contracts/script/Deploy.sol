@@ -680,7 +680,7 @@ contract GameDeployer is Script {
         bytes24 theUltimateGoal = BuildingUtils.register(
             ds,
             BuildingConfig({
-                id: 107,
+                id: 15,
                 name: "The Ultimate Goal",
                 materials: [
                     Material({quantity: 100, item: l33tBricks}),
@@ -707,7 +707,7 @@ contract GameDeployer is Script {
         bytes24 shuttlecock = ItemUtils.register(
             ds,
             ItemConfig({
-                id: 110,
+                id: 108,
                 name: "Shuttlecock",
                 icon: "05-296",
                 life: 10,
@@ -722,7 +722,7 @@ contract GameDeployer is Script {
         bytes24 racket = ItemUtils.register(
             ds,
             ItemConfig({
-                id: 111,
+                id: 109,
                 name: "Racket",
                 icon: "22-13",
                 life: 10,
