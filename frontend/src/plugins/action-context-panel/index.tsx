@@ -58,6 +58,7 @@ interface KeyedThing {
 const ImageConstruct = () => <img src="/tile-construct.png" alt="" className="building-image" width="33%" />;
 const ImageAvailable = () => <img src="/tile-grass.png" alt="" className="building-image" />;
 const ImageBuilding = () => <img src="/building-with-flag.png" alt="" className="building-image" />;
+const ImageEnemy = () => <img src="/enemy.png" alt="" className="building-image" />;
 const ImageScouting = () => <img src="/tile-scouting.png" alt="" className="building-image" width="33%" />;
 const ImageSelecting = () => <img src="/tile-selecting.png" alt="" className="building-image" width="33%" />;
 
@@ -116,11 +117,13 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull
         [selectIntent, selectTiles]
     );
 
+    const isEnemy = buildingKind?.model?.value === 'enemy';
+
     return (
         <StyledActionContextPanel className="action">
             <h3>{component?.title ?? building?.kind?.name?.value ?? 'Unnamed Building'}</h3>
             <span className="sub-title">{component?.summary || ''}</span>
-            <ImageBuilding />
+            {isEnemy ? <ImageEnemy /> : <ImageBuilding />}
             {component && showFull && (
                 <TileAction showTitle={false} component={component} className="action">
                     {inputs.length > 0 && inputBag && (
