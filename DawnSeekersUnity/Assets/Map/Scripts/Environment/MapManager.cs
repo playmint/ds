@@ -120,7 +120,7 @@ public class MapManager : MonoBehaviour
 
             if (TileHelper.HasEnemy(tile))
                 MapElementManager.instance.CreateEnemy(cellPosCube);
-            else if (MapElementManager.instance.HasBuilding(cellPosCube))
+            else if (tile.Building != null)
             {
                 MapElementManager.instance.CreateBuilding(cellPosCube);
                 MapElementManager.instance.CheckIncompleteBuildingIconRemoved(cellPosCube);
