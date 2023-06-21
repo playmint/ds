@@ -73,10 +73,17 @@ public class MapElementManager : MonoBehaviour
     public int IsElementAtCell(Vector3Int cubicCoords)
     {
         if (
-            _spawnedBuildings.ContainsKey(cubicCoords)
-            || _spawnedEnemies.ContainsKey(cubicCoords)
+            IsBuildingAtCell(cubicCoords) == 1
             || _spawnedIncompleteBuildings.ContainsKey(cubicCoords)
         )
+            return 1;
+        else
+            return 0;
+    }
+
+    public int IsBuildingAtCell(Vector3Int cubicCoords)
+    {
+        if (_spawnedBuildings.ContainsKey(cubicCoords) || _spawnedEnemies.ContainsKey(cubicCoords))
             return 1;
         else
             return 0;
