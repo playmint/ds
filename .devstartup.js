@@ -21,7 +21,7 @@ const commands = [
 
     {
         name: 'sim',
-        command: "anvil --code-size-limit 9999999999999 --gas-limit 9999999999999999 --port 8546 --fork-url http://localhost:8545 --no-mining --no-rate-limit --no-storage-caching",
+        command: "anvil --code-size-limit 9999999999999 --gas-limit 9999999999999999 --port 8546 --fork-url http://localhost:8545 --no-mining --no-rate-limit --no-storage-caching --silent",
         prefixColor: 'black',
     },
 
