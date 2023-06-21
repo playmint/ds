@@ -89,13 +89,13 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
     const canMove = moveableTiles.length > 0 && selectedSeeker;
     const canUse = useableTiles.length > 0 && selectedSeeker;
 
-    // for some intents we don't want to auto select the seeker's current tile
-    const selectedTileId = selectedTiles ? selectedTiles[0]?.id : '';
-    const tileId = selectedSeeker?.nextLocation?.tile.id === selectedTileId ? '' : selectedTileId;
-
-    const handleSelectIntent = (intent: string | undefined, tileId?: string) => {
-        selectTiles(tileId ? [tileId] : []);
-        selectIntent(intent);
+    const handleSelectIntent = (newIntent: string | undefined) => {
+        if (newIntent != intent) {
+            if (intent) {
+                selectTiles([]);
+            }
+            selectIntent(newIntent);
+        }
     };
 
     return (
@@ -105,7 +105,7 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
                     <button
                         className={`action-icon-button ${intent === MOVE_INTENT ? 'active' : ''}`}
                         disabled={!canMove || intent === MOVE_INTENT}
-                        onClick={() => handleSelectIntent(MOVE_INTENT, tileId)}
+                        onClick={() => handleSelectIntent(MOVE_INTENT)}
                     >
                         Move
                     </button>
@@ -114,7 +114,7 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
                     <button
                         className={`action-icon-button ${intent === SCOUT_INTENT ? 'active' : ''}`}
                         disabled={!canScout || intent === SCOUT_INTENT}
-                        onClick={() => handleSelectIntent(SCOUT_INTENT, tileId)}
+                        onClick={() => handleSelectIntent(SCOUT_INTENT)}
                     >
                         Scout
                     </button>
@@ -123,7 +123,7 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
                     <button
                         className={`action-icon-button ${intent === CONSTRUCT_INTENT ? 'active' : ''}`}
                         disabled={!canConstruct || intent === CONSTRUCT_INTENT}
-                        onClick={() => handleSelectIntent(CONSTRUCT_INTENT, tileId)}
+                        onClick={() => handleSelectIntent(CONSTRUCT_INTENT)}
                     >
                         Build
                     </button>
@@ -132,7 +132,7 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
                     <button
                         className={`action-icon-button ${intent === USE_INTENT ? 'active' : ''}`}
                         disabled={!canUse || intent === USE_INTENT}
-                        onClick={() => handleSelectIntent(USE_INTENT, selectedTileId)}
+                        onClick={() => handleSelectIntent(USE_INTENT)}
                     >
                         Use
                     </button>
@@ -141,7 +141,7 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
                     <button
                         className={`action-icon-button ${intent === COMBAT_INTENT ? 'active' : ''}`}
                         disabled={!canUse || intent === COMBAT_INTENT}
-                        onClick={() => handleSelectIntent(COMBAT_INTENT, selectedTileId)}
+                        onClick={() => handleSelectIntent(COMBAT_INTENT)}
                     >
                         Attack
                     </button>
