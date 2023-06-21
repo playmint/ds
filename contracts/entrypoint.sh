@@ -39,7 +39,7 @@ done
 echo "+---------------------+"
 echo "| deploying contracts |"
 echo "+---------------------+"
-forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545"
+forge script script/Deploy.sol:GameDeployer --broadcast --slow --rpc-url "http://localhost:8545"
 
 echo "+-------+"
 echo "| ready |"
