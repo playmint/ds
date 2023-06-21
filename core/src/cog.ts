@@ -24,6 +24,7 @@ import {
     share,
     Source,
     switchMap,
+    tap,
 } from 'wonka';
 import { Actions__factory } from './abi';
 import { DispatchDocument, OnEventDocument, SigninDocument, SignoutDocument } from './gql/graphql';
@@ -181,8 +182,9 @@ export function configureClient({
                 }
                 return res.data.events;
             }),
+            tap((data) => console.log('new block', data)),
             filter((data): data is AnyGameSubscription['events'] => !!data),
-            debounce(() => 250), // chill out
+            debounce(() => 500),
             share,
         );
 
@@ -236,32 +238,6 @@ export function configureClient({
 
     return { gameID, signin, signout, query, subscription, dispatch };
 }
-
-// TODO: enable something like this when switching caching on
-// function invalidateCacheOnSubscriptionEvent({ events: e }: OnEventSubscription, _args, cache) {
-//     console.info('invalidating', e.__typename);
-//     switch (e.__typename) {
-//         case 'SetEdgeEvent':
-//             cache.invalidate('Node');
-//             cache.invalidate('Edge');
-//             return;
-//         case 'RemoveEdgeEvent':
-//             cache.invalidate({
-//                 __typename: 'Node',
-//                 id: e.rfrom,
-//             });
-//             return;
-//         case 'SetAnnotationEvent':
-//             cache.invalidate({
-//                 __typename: 'Node',
-//                 id: e.afrom,
-//             });
-//             return;
-//         default:
-//             console.warn(`unhandled event type:`, e);
-//             return;
-//     }
-// }
 
 /**
  * encodeActionData is like ethers encodeFunctionData but specifically for game
