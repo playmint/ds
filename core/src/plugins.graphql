@@ -50,7 +50,7 @@ query GetSelectedPlugins($gameID: ID!, $pluginIDs: [String!]!) {
 query GetAvailablePlugins($gameID: ID!) {
     game(id: $gameID) {
         id
-        state {
+        state(simulated: true) {
             id
             plugins: nodes(match: { kinds: "ClientPlugin" }) {
                 ...AvailablePlugin

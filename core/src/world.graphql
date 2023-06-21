@@ -120,7 +120,7 @@ fragment WorldState on State {
 query GetWorld($gameID: ID!) {
     game(id: $gameID) {
         id
-        state {
+        state(simulated: true) {
             id
             ...WorldState
         }
