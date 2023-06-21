@@ -12,10 +12,6 @@ import {Actions} from "@ds/actions/Actions.sol";
 
 using Schema for State;
 
-error NoScoutNotOwner();
-error NoScoutAlreadyDiscovered();
-error NoScoutUnadjacent();
-
 contract ScoutRule is Rule {
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.SCOUT_SEEKER.selector) {
@@ -27,7 +23,7 @@ contract ScoutRule is Rule {
 
             // check that sender owns seeker
             if (state.getOwner(seeker) != Node.Player(ctx.sender)) {
-                revert NoScoutNotOwner();
+                revert("NoScoutNotOwner");
             }
 
             // encode destination tile
@@ -35,7 +31,7 @@ contract ScoutRule is Rule {
 
             // fail if already discovered
             if (state.getBiome(targetTile) == BiomeKind.DISCOVERED) {
-                revert NoScoutAlreadyDiscovered();
+                revert("NoScoutAlreadyDiscovered");
             }
 
             // fetch the seeker's current location
@@ -43,7 +39,7 @@ contract ScoutRule is Rule {
 
             // check that target is adjacent to seeker
             if (TileUtils.distance(seekerTile, targetTile) != 1) {
-                revert NoScoutUnadjacent();
+                revert("NoScoutUnadjacent");
             }
 
             // do the reveal

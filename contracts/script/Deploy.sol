@@ -247,7 +247,7 @@ contract GameDeployer is Script {
         bytes24 cocktailHut = BuildingUtils.register(
             ds,
             BuildingConfig({
-                id: 1,
+                id: 100,
                 name: "Cocktail Hut",
                 materials: [
                     Material({quantity: 25, item: ItemUtils.Kiki()}),

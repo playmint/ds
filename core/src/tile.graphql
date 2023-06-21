@@ -17,7 +17,7 @@ fragment SelectedTile on Node {
 query GetSelectedTile($gameID: ID!, $id: [String!]!) {
     game(id: $gameID) {
         id
-        state {
+        state(simulated: true) {
             id
             tiles: nodes(match: { kinds: "Tile", ids: $id }) {
                 ...SelectedTile

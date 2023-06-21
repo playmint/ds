@@ -9,7 +9,6 @@ import {Dispatcher} from "cog/Dispatcher.sol";
 import {Game} from "@ds/Game.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {Schema, Node, Rel, LocationKey, BiomeKind, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
-import {NoScoutAlreadyDiscovered, NoScoutNotOwner, NoScoutUnadjacent} from "@ds/rules/ScoutRule.sol";
 
 using Schema for State;
 
@@ -60,19 +59,19 @@ contract ScoutRuleTest is Test {
 
     function testScoutErrorAlreadyDiscovered() public {
         vm.startPrank(aliceAccount);
-        vm.expectRevert(NoScoutAlreadyDiscovered.selector);
+        vm.expectRevert("NoScoutAlreadyDiscovered");
         _scout(0, 0, 0); // expect fail as 0,0,0 already discovered in setUp
         vm.stopPrank();
     }
 
     function testScoutErrorNotOwner() public {
-        vm.expectRevert(NoScoutNotOwner.selector);
+        vm.expectRevert("NoScoutNotOwner");
         _scout(0, 1, -1); // expect fail as no prank
     }
 
     function testScoutNotAdjacent() public {
         vm.startPrank(aliceAccount);
-        vm.expectRevert(NoScoutUnadjacent.selector);
+        vm.expectRevert("NoScoutUnadjacent");
         _scout(0, 2, -2); // expect fail as too far away from seeker at 0,0,0
         vm.stopPrank();
     }

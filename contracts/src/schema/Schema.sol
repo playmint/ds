@@ -150,58 +150,61 @@ library Schema {
         return tile;
     }
 
-    function getCurrentLocation(State state, bytes24 node, uint64 atTime) internal view returns (bytes24) {
-        (bytes24 nextTile, uint64 arrivalTime) = state.get(Rel.Location.selector, uint8(LocationKey.NEXT), node);
-        if (atTime >= arrivalTime) {
-            return nextTile;
-        }
-        (bytes24 prevTile, uint64 departureTime) = state.get(Rel.Location.selector, uint8(LocationKey.PREV), node);
-        // is prev/dest same
-        if (nextTile == prevTile || departureTime == atTime) {
-            return prevTile;
-        }
-        // work out where we are
-        int16 elaspsedTime = int16(int64(atTime) - int64(departureTime));
-        int16 tilesTraveled = (TRAVEL_SPEED / 10 * elaspsedTime);
-        int16[4] memory prevCoords = CompoundKeyDecoder.INT16_ARRAY(prevTile);
-        int16[4] memory nextCoords = CompoundKeyDecoder.INT16_ARRAY(nextTile);
-        int16[4] memory currCoords = prevCoords;
-        if (nextCoords[Q] == prevCoords[Q]) {
-            if (nextCoords[R] > prevCoords[R]) {
-                // southeast
-                currCoords[R] += (tilesTraveled * 1);
-                currCoords[S] += (tilesTraveled * -1);
-            } else {
-                // northwest
-                currCoords[R] += (tilesTraveled * -1);
-                currCoords[S] += (tilesTraveled * 1);
-            }
-        } else if (nextCoords[R] == prevCoords[R]) {
-            if (nextCoords[S] > prevCoords[S]) {
-                // east
-                currCoords[Q] += (tilesTraveled * 1);
-                currCoords[S] += (tilesTraveled * -1);
-            } else {
-                // west
-                currCoords[Q] += (tilesTraveled * -1);
-                currCoords[S] += (tilesTraveled * 1);
-            }
-        } else if (nextCoords[S] == prevCoords[S]) {
-            if (nextCoords[Q] > prevCoords[Q]) {
-                // northeast
-                currCoords[Q] += (tilesTraveled * 1);
-                currCoords[R] += (tilesTraveled * -1);
-            } else {
-                // southwest
-                currCoords[Q] += (tilesTraveled * -1);
-                currCoords[R] += (tilesTraveled * 1);
-            }
-        } else {
-            // illegal
-            revert("illegal move");
-        }
+    function getCurrentLocation(State state, bytes24 node, uint64 /*atTime*/ ) internal view returns (bytes24) {
+        // ---------- TEMP HACK UNTIL CLIENT CAN HANDLE CALC OF CURRENT LOCATION PROPERLY ------------
+        return state.getNextLocation(node);
+        // ---------- END HACK ----------------
+        // (bytes24 nextTile, uint64 arrivalTime) = state.get(Rel.Location.selector, uint8(LocationKey.NEXT), node);
+        // if (atTime >= arrivalTime) {
+        //     return nextTile;
+        // }
+        // (bytes24 prevTile, uint64 departureTime) = state.get(Rel.Location.selector, uint8(LocationKey.PREV), node);
+        // // is prev/dest same
+        // if (nextTile == prevTile || departureTime == atTime) {
+        //     return prevTile;
+        // }
+        // // work out where we are
+        // int16 elaspsedTime = int16(int64(atTime) - int64(departureTime));
+        // int16 tilesTraveled = (TRAVEL_SPEED / 10 * elaspsedTime);
+        // int16[4] memory prevCoords = CompoundKeyDecoder.INT16_ARRAY(prevTile);
+        // int16[4] memory nextCoords = CompoundKeyDecoder.INT16_ARRAY(nextTile);
+        // int16[4] memory currCoords = prevCoords;
+        // if (nextCoords[Q] == prevCoords[Q]) {
+        //     if (nextCoords[R] > prevCoords[R]) {
+        //         // southeast
+        //         currCoords[R] += (tilesTraveled * 1);
+        //         currCoords[S] += (tilesTraveled * -1);
+        //     } else {
+        //         // northwest
+        //         currCoords[R] += (tilesTraveled * -1);
+        //         currCoords[S] += (tilesTraveled * 1);
+        //     }
+        // } else if (nextCoords[R] == prevCoords[R]) {
+        //     if (nextCoords[S] > prevCoords[S]) {
+        //         // east
+        //         currCoords[Q] += (tilesTraveled * 1);
+        //         currCoords[S] += (tilesTraveled * -1);
+        //     } else {
+        //         // west
+        //         currCoords[Q] += (tilesTraveled * -1);
+        //         currCoords[S] += (tilesTraveled * 1);
+        //     }
+        // } else if (nextCoords[S] == prevCoords[S]) {
+        //     if (nextCoords[Q] > prevCoords[Q]) {
+        //         // northeast
+        //         currCoords[Q] += (tilesTraveled * 1);
+        //         currCoords[R] += (tilesTraveled * -1);
+        //     } else {
+        //         // southwest
+        //         currCoords[Q] += (tilesTraveled * -1);
+        //         currCoords[R] += (tilesTraveled * 1);
+        //     }
+        // } else {
+        //     // illegal
+        //     revert("illegal move");
+        // }
 
-        return Node.Tile(currCoords[0], currCoords[Q], currCoords[R], currCoords[S]);
+        // return Node.Tile(currCoords[0], currCoords[Q], currCoords[R], currCoords[S]);
     }
 
     function setBiome(State state, bytes24 node, BiomeKind biome) internal {

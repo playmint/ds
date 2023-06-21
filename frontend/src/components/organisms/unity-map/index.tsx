@@ -38,7 +38,7 @@ const StyledUnityMap = styled('div')`
 let globalLastBlob: string | undefined;
 let globalSender: any;
 let globalDrainTimeout: any;
-const globalQueue: string[] = [];
+let globalQueue: string[] = [];
 function drainOne() {
     try {
         if (globalQueue.length == 0) {
@@ -47,17 +47,17 @@ function drainOne() {
         if (!globalSender) {
             return;
         }
-        const blob = globalQueue.shift();
+        const blob = globalQueue.pop();
         if (!blob) {
             return;
         }
+        globalQueue = [];
         const args = ['GameStateMediator', 'OnState', blob];
         globalSender(...args);
-        console.debug(`UnityMap: drained one, ${globalQueue.length} remaining`, args);
     } catch (err) {
         console.error('UnityMap: sendMessage', err);
     } finally {
-        globalDrainTimeout = setTimeout(drainOne, 50);
+        globalDrainTimeout = setTimeout(drainOne, 10);
     }
 }
 
@@ -122,7 +122,9 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
     if (isReady && game && globalLastBlob != newMapBlob) {
         globalSender = sendMessage;
         globalLastBlob = newMapBlob;
+        (window as any).globalLastBlob = globalLastBlob;
         globalQueue.push(newMapBlob);
+        drainOne();
     }
 
     const selectIntent = useCallback(

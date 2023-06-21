@@ -13,15 +13,6 @@ import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 import {CraftingRule} from "@ds/rules/CraftingRule.sol";
 
-error BuildingAlreadyRegistered();
-error BuildingResourceRequirementsNotMet();
-error BuildingMustBeAdjacentToSeeker();
-error BuildingTooFarToUse();
-error SeekerNotOwnedByPlayer();
-error BagNotAccessibleBySeeker();
-error BagNotReachableBySeeker();
-error EquipmentNotBag();
-
 using Schema for State;
 
 contract BuildingRule is Rule {
@@ -48,7 +39,7 @@ contract BuildingRule is Rule {
             ) = abi.decode(action[4:], (bytes24, bytes24, int16[3]));
             // player must own seeker
             if (state.getOwner(seeker) != Node.Player(ctx.sender)) {
-                revert SeekerNotOwnedByPlayer();
+                revert("SeekerNotOwnedByPlayer");
             }
             _constructBuilding(state, ctx, seeker, buildingKind, coords);
         } else if (bytes4(action) == Actions.BUILDING_USE.selector) {
@@ -69,14 +60,14 @@ contract BuildingRule is Rule {
     ) private {
         // check player owns seeker
         if (Node.Player(ctx.sender) != state.getOwner(seeker)) {
-            revert SeekerNotOwnedByPlayer();
+            revert("SeekerNotOwnedByPlayer");
         }
         // get location
         bytes24 seekerTile = state.getCurrentLocation(seeker, ctx.clock);
         bytes24 buildingTile = state.getFixedLocation(buildingInstance);
         // check that seeker is located at or adjacent to building
         if (TileUtils.distance(seekerTile, buildingTile) > 1 || !TileUtils.isDirect(seekerTile, buildingTile)) {
-            revert BuildingMustBeAdjacentToSeeker();
+            revert("BuildingMustBeAdjacentToSeeker");
         }
         // get building kind implementation
         bytes24 buildingKind = state.getBuildingKind(buildingInstance);
@@ -100,7 +91,7 @@ contract BuildingRule is Rule {
         // set owner of the building kind
         bytes24 existingOwner = state.getOwner(buildingKind);
         if (existingOwner != 0x0 && existingOwner != player) {
-            revert BuildingAlreadyRegistered();
+            revert("BuildingAlreadyRegistered");
         }
         state.setOwner(buildingKind, player);
         state.annotate(buildingKind, "name", buildingName);
@@ -150,7 +141,7 @@ contract BuildingRule is Rule {
         bytes24 targetTile = Node.Tile(DEFAULT_ZONE, coords[0], coords[1], coords[2]);
         // check that target is same tile or adjacent to seeker
         if (TileUtils.distance(seekerTile, targetTile) > 1 || !TileUtils.isDirect(seekerTile, targetTile)) {
-            revert BuildingMustBeAdjacentToSeeker();
+            revert("BuildingMustBeAdjacentToSeeker");
         }
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, coords[0], coords[1], coords[2]);
         // burn resources from given towards construction
@@ -211,7 +202,7 @@ contract BuildingRule is Rule {
     function _requireCanUseBag(State state, bytes24 bag, bytes24 player) private view {
         bytes24 owner = state.getOwner(bag);
         if (owner != 0 && owner != player) {
-            revert BagNotAccessibleBySeeker();
+            revert("BagNotAccessibleBySeeker");
         }
     }
 

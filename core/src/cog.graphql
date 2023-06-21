@@ -18,21 +18,11 @@ mutation dispatch($gameID: ID!, $actions: [String!]!, $auth: String!) {
 }
 
 subscription OnEvent($gameID: ID!) {
-    events(gameID: $gameID) {
+    events(gameID: $gameID, simulated: true) {
         id
-        ... on SetEdgeEvent {
-            sfrom: from
-            sto: to
-            srel: rel
-            skey: key
-        }
-        ... on RemoveEdgeEvent {
-            rfrom: from
-            rrel: rel
-            rkey: key
-        }
-        ... on SetAnnotationEvent {
-            afrom: from
+        ... on BlockEvent {
+            block
+            simulated
         }
     }
 }

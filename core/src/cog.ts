@@ -104,11 +104,11 @@ export function configureClient({
             cacheExchange,
             // cacheExchange({
             //     schema: cogSchema,
-            //     updates: {
-            //         Subscription: {
-            //             events: invalidateCacheOnSubscriptionEvent,
-            //         },
-            //     },
+            //     // updates: {
+            //     //     Subscription: {
+            //     //         events: invalidateCacheOnSubscriptionEvent,
+            //     //     },
+            //     // },
             // }),
             fetchExchange,
             subscriptionExchange({
@@ -182,9 +182,9 @@ export function configureClient({
                 }
                 return res.data.events;
             }),
+            tap((data) => console.log('new block', data)),
             filter((data): data is AnyGameSubscription['events'] => !!data),
-            debounce(() => 100), // chill out
-            tap(() => console.log('NEW DATA ARRIVED!!!!!!!!!')),
+            debounce(() => 500),
             share,
         );
 
@@ -217,7 +217,7 @@ export function configureClient({
                   ]),
             switchMap(() =>
                 pipe(
-                    fromPromise(gql.query(doc, vars, { requestPolicy: 'network-only' }).toPromise()),
+                    fromPromise(gql.query(doc, vars, { requestPolicy: 'cache-and-network' }).toPromise()),
                     map((res) => {
                         if (res.error) {
                             console.warn('cog query error:', res.error);
@@ -238,32 +238,6 @@ export function configureClient({
 
     return { gameID, signin, signout, query, subscription, dispatch };
 }
-
-// TODO: enable something like this when switching caching on
-// function invalidateCacheOnSubscriptionEvent({ events: e }: OnEventSubscription, _args, cache) {
-//     console.info('invalidating', e.__typename);
-//     switch (e.__typename) {
-//         case 'SetEdgeEvent':
-//             cache.invalidate('Node');
-//             cache.invalidate('Edge');
-//             return;
-//         case 'RemoveEdgeEvent':
-//             cache.invalidate({
-//                 __typename: 'Node',
-//                 id: e.rfrom,
-//             });
-//             return;
-//         case 'SetAnnotationEvent':
-//             cache.invalidate({
-//                 __typename: 'Node',
-//                 id: e.afrom,
-//             });
-//             return;
-//         default:
-//             console.warn(`unhandled event type:`, e);
-//             return;
-//     }
-// }
 
 /**
  * encodeActionData is like ethers encodeFunctionData but specifically for game

@@ -8,7 +8,7 @@ fragment SelectedPlayer on Node {
 query GetSelectedPlayer($gameID: ID!, $id: String!) {
     game(id: $gameID) {
         id
-        state {
+        state(simulated: true) {
             id
             player: node(match: { kinds: "Player", ids: [$id] }) {
                 ...SelectedPlayer

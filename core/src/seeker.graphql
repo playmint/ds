@@ -44,7 +44,7 @@ fragment SelectedSeeker on Node {
 query GetSelectedSeeker($gameID: ID!, $id: String!) {
     game(id: $gameID) {
         id
-        state {
+        state(simulated: true) {
             id
             seeker: node(match: { kinds: "Seeker", ids: [$id] }) {
                 ...SelectedSeeker

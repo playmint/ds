@@ -1,4 +1,18 @@
-import { concat, fromValue, lazy, makeSubject, map, merge, pipe, scan, Source, switchMap, tap } from 'wonka';
+import {
+    concat,
+    debounce,
+    fromValue,
+    lazy,
+    makeSubject,
+    map,
+    merge,
+    pipe,
+    scan,
+    share,
+    Source,
+    switchMap,
+    tap,
+} from 'wonka';
 import { makePlayerSeeker } from './seeker';
 import { makeTiles } from './tile';
 import { CogServices, ConnectedPlayer, Selection, Selector, World } from './types';
@@ -16,7 +30,8 @@ export function makeSelection(
 
     const { selector: selectIntent, selection: selectedIntent } = makeSelector<string | undefined>(player);
 
-    const selection = pipe(
+    let prev: any;
+    const selectionPipe = pipe(
         merge<Partial<Selection>>([
             pipe(
                 selectedSeeker,
@@ -32,7 +47,15 @@ export function makeSelection(
             ),
         ]),
         scan((inputs, v) => ({ ...inputs, ...v }), {} as Selection),
+        debounce(() => 10),
+        tap((next) => (prev = next)),
+        share,
     ) satisfies Source<Selection>;
+
+    const selection = pipe(
+        lazy(() => (prev ? concat([fromValue(prev), selectionPipe]) : selectionPipe)),
+        debounce(() => 10),
+    );
 
     return { selection, selectSeeker, selectTiles, selectIntent };
 }

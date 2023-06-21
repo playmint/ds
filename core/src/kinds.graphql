@@ -5,6 +5,7 @@ fragment BuildingKind on Node {
         value
     }
     model: annotation(name: "model") {
+        id
         value
     }
     # materials are the construction costs to build
@@ -24,7 +25,7 @@ fragment BuildingKind on Node {
 query GetAvailableBuildingKinds($gameID: ID!) {
     game(id: $gameID) {
         id
-        state {
+        state(simulated: true) {
             id
             kinds: nodes(match: { kinds: "BuildingKind" }) {
                 ...BuildingKind

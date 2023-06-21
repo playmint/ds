@@ -13,8 +13,6 @@ import {ItemKind} from "@ds/ext/ItemKind.sol";
 
 using Schema for State;
 
-error ItemIsNotBag(bytes4 item);
-
 contract CraftingRule is Rule {
     Game game;
 
@@ -244,7 +242,7 @@ contract CraftingRule is Rule {
 
     function _requireIsBag(bytes24 item) private pure {
         if (bytes4(item) != Kind.Bag.selector) {
-            revert ItemIsNotBag(bytes4(item));
+            revert("ItemIsNotBag");
         }
     }
 }

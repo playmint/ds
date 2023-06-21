@@ -28,7 +28,6 @@ anvil \
 	-m "${ACCOUNT_MNEMONIC}" \
     --code-size-limit 9999999999999 \
     --gas-limit 9999999999999999 \
-    --block-time 2 \
 	&
 
 # wait for node to start
@@ -40,7 +39,7 @@ done
 echo "+---------------------+"
 echo "| deploying contracts |"
 echo "+---------------------+"
-forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545"
+forge script script/Deploy.sol:GameDeployer --broadcast --slow --rpc-url "http://localhost:8545"
 
 echo "+-------+"
 echo "| ready |"

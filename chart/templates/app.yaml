@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: services
-          image: ghcr.io/playmint/cog-services:latest
+          image: {{ printf "ghcr.io/playmint/ds-services:%s-%s" $.Release.Name $.Values.version }}
           imagePullPolicy: Always
           env:
             - name: PORT
@@ -31,6 +31,10 @@ spec:
               value: "http://localhost:8545"
             - name: SEQUENCER_PROVIDER_URL_WS
               value: "ws://localhost:8545"
+            - name: SIMULATION_PROVIDER_URL_HTTP
+              value: "http://localhost:8546"
+            - name: SIMULATION_PROVIDER_URL_WS
+              value: "ws://localhost:8546"
             - name: INDEXER_WATCH_PENDING
               value: "false"
             - name: INDEXER_PROVIDER_URL_HTTP
@@ -66,6 +70,44 @@ spec:
             - name: network
               containerPort: 8545
               protocol: TCP
+          volumeMounts:
+          - mountPath: "/root/.foundry/anvil/tmp"
+            name: contracts-scratch
+        - name: sim
+          image: {{ printf "ghcr.io/playmint/ds-contracts:%s-%s" $.Release.Name $.Values.version }}
+          imagePullPolicy: Always
+          command: ["/bin/ash"]
+          args:
+          - -eu
+          - -c
+          - |
+            anvil --code-size-limit 9999999999999 --gas-limit 9999999999999999 --port 8546 --fork-url http://localhost:8545 --no-mining --no-rate-limit --no-storage-caching
+          ports:
+            - name: network
+              containerPort: 8546
+              protocol: TCP
+          volumeMounts:
+          - mountPath: "/root/.foundry/anvil/tmp"
+            name: sim-scratch
+      volumes:
+      - name: sim-scratch
+        ephemeral:
+          volumeClaimTemplate:
+            spec:
+              accessModes: [ "ReadWriteOnce" ]
+              storageClassName: default
+              resources:
+                requests:
+                  storage: 5Gi
+      - name: contracts-scratch
+        ephemeral:
+          volumeClaimTemplate:
+            spec:
+              accessModes: [ "ReadWriteOnce" ]
+              storageClassName: default
+              resources:
+                requests:
+                  storage: 20Gi
 
 ---
 apiVersion: apps/v1
