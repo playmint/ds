@@ -233,7 +233,7 @@ public class ScoutIntent : IntentHandler
         return neighbourTiles
             .Where(cellPosCube =>
             {
-                return !TileHelper.IsDiscoveredTile(cellPosCube);
+                return !MapManager.instance.IsDiscoveredTile(cellPosCube);
             })
             .ToArray();
     }

@@ -51,8 +51,6 @@ export const TickTimerProgressBar: FunctionComponent<TickTimerProgressBarProps> 
         }
     }, [remainingTime, blockTime]);
 
-    console.log(blockNumber);
-
     return (
         <StyledTickTimerProgressBar {...props}>
             <div className="progress-bar" ref={progressRef}></div>

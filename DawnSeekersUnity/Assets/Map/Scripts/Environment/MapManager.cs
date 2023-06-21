@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Cog;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -24,7 +25,7 @@ public class MapManager : MonoBehaviour
     public MaterialPropertyBlock unscoutedMatProps;
     public MaterialPropertyBlock normalMatProps;
 
-    HashSet<Vector3> tilePositions = new HashSet<Vector3>();
+    Dictionary<Vector3Int, Tiles2> tilePositions = new Dictionary<Vector3Int, Tiles2>();
 
     private void Awake()
     {
@@ -48,11 +49,11 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    public void AddTile(Vector3Int cellCubicCoords)
+    public void AddTile(Vector3Int cellCubicCoords, Tiles2 tile)
     {
         if (!IsTileAtPosition(cellCubicCoords))
         {
-            tilePositions.Add(cellCubicCoords);
+            tilePositions.Add(cellCubicCoords, tile);
 
             Vector3Int gridPos = GridExtensions.CubeToGrid(cellCubicCoords);
             Vector3 worldPos = grid.CellToWorld(gridPos);
@@ -61,29 +62,52 @@ public class MapManager : MonoBehaviour
                 cellCubicCoords
             );
 
-            if (TileHelper.IsDiscoveredTile(cellCubicCoords))
+            if (IsDiscoveredTile(cellCubicCoords))
                 tc.AppearFull();
             else
                 tc.Appear();
         }
-        else if (TileHelper.IsDiscoveredTile(cellCubicCoords))
+        else
         {
-            GameObject tileGO = GameObject.Find("Tile_" + cellCubicCoords.ToString());
-            if (tileGO != null)
+            tilePositions[cellCubicCoords] = tile;
+            if (IsDiscoveredTile(cellCubicCoords))
             {
-                TileController tileController = tileGO.GetComponent<TileController>();
-                tileController.AppearFull();
+                GameObject tileGO = GameObject.Find("Tile_" + cellCubicCoords.ToString());
+                if (tileGO != null)
+                {
+                    TileController tileController = tileGO.GetComponent<TileController>();
+                    tileController.AppearFull();
+                }
             }
         }
     }
 
+    public bool IsDiscoveredTile(Vector3Int cellPosCube)
+    {
+        return IsTileAtPosition(cellPosCube) && tilePositions[cellPosCube].Biome != 0;
+    }
+
+    public Tiles2 GetTileByPos(Vector3Int cellPosCube)
+    {
+        return tilePositions[cellPosCube];
+    }
+
     public bool IsTileAtPosition(Vector3Int cubicCoords)
     {
-        return tilePositions.Contains(cubicCoords);
+        return tilePositions.ContainsKey(cubicCoords);
     }
 
     private void OnStateUpdated(Cog.GameState state)
     {
+        HashSet<string> incompleteBuildings = new HashSet<string>();
+        foreach (var building in state.World.Buildings)
+        {
+            if (building.Bags.Any(n => n.Bag.Slots.Any(s => s.Balance > 0)))
+            {
+                incompleteBuildings.Add(building.Id.Substring(10));
+            }
+        }
+
         foreach (var tile in state.World.Tiles)
         {
             var hasResource = TileHelper.HasResource(tile);
@@ -96,12 +120,21 @@ public class MapManager : MonoBehaviour
 
             if (TileHelper.HasEnemy(tile))
                 MapElementManager.instance.CreateEnemy(cellPosCube);
-            else if (TileHelper.HasBuilding(tile))
+            else if (MapElementManager.instance.HasBuilding(cellPosCube))
+            {
                 MapElementManager.instance.CreateBuilding(cellPosCube);
+                MapElementManager.instance.CheckIncompleteBuildingIconRemoved(cellPosCube);
+            }
+            else if (incompleteBuildings.Contains(tile.Id.Substring(10)))
+                MapElementManager.instance.CreateIncompleteBuilding(cellPosCube);
             else
+            {
                 MapElementManager.instance.CheckBuildingIconRemoved(cellPosCube);
+                MapElementManager.instance.CheckEnemyIconRemoved(cellPosCube);
+                MapElementManager.instance.CheckIncompleteBuildingIconRemoved(cellPosCube);
+            }
 
-            AddTile(cellPosCube);
+            AddTile(cellPosCube, tile);
 
             // TODO: Call this again after we have refactored the map data to include the seeker list
             // IconManager.instance.CheckSeekerRemoved(state.Game.Seekers.ToList());

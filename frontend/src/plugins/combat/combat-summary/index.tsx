@@ -1,6 +1,6 @@
 /** @format */
 
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ComponentProps } from '@app/types/component-props';
 import { styles } from './combat-summary.styles';
@@ -23,8 +23,17 @@ const StyledCombatSummary = styled('div')`
 
 export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: CombatSummaryProps) => {
     const { selectedTiles, onShowCombatModal, ...otherProps } = props;
+    const { blockNumberRef, blockTime } = useBlockTime();
+    const [blockNumber, setBlockNumber] = useState<number>(blockNumberRef.current);
 
-    const { blockNumber } = useBlockTime();
+    // re-render every block setting the new block time so that combat states are updated
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setBlockNumber(blockNumberRef.current);
+        }, blockTime);
+
+        return () => clearInterval(interval);
+    }, [blockNumberRef, blockTime]);
 
     if (selectedTiles.length === 0 || selectedTiles[0].sessions.length === 0) return null;
 
