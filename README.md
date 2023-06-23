@@ -1,8 +1,8 @@
-# Dawnseekers
+# Downstream
 
 ## Overview
 
-Contracts, client libraries, and plugins for the on-chain Dawnseekers game.
+Contracts, client libraries, and plugins for the on-chain Downstream game.
 
 ## Building
 
