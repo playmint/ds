@@ -16,9 +16,10 @@ We’re going to quickly create a new building - a Pizzeria.
 1. In the /src folder there are two files:
     - HammerFactory.js
     - HammerFactory.sol
-2. Copy both of these files and rename them to:
+2. Duplicate both of these files and rename the new files to:
     - Pizzeria.js
     - Pizzeria.sol
+### Important - These need to be new files. Don't overwrite the originals.
 
 ### Pizzeria.sol
 
@@ -64,8 +65,8 @@ buttons: [{ text: 'Cook Pizza', type: 'action', action: craft, disabled: !canCra
 
 Before you can deploy your building, there’s one more script you need to add.
 
-1. Navigate to the /script folder and copy **********Deploy.sol**********
-2. Rename this to ************Deploy_Pizzeria.sol************
+1. Navigate to the /script folder and duplicate **********Deploy.sol**********
+2. Rename this new file to ************Deploy_Pizzeria.sol************
 
 Open up the file and make the following edits:
 
