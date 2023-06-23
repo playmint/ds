@@ -137,7 +137,8 @@ public class CombatIntent : IntentHandler
         var validTiles = neighbourTiles.Where(cellPosCube =>
         {
             var tile = MapManager.instance.GetTileByPos(cellPosCube);
-            return MapManager.instance.IsDiscoveredTile(cellPosCube)
+            return tile != null
+                && MapManager.instance.IsDiscoveredTile(cellPosCube)
                 && (
                     MapElementManager.instance.HasBuilding(cellPosCube)
                     || MapElementManager.instance.HasEnemy(cellPosCube)

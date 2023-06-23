@@ -89,7 +89,9 @@ public class MapManager : MonoBehaviour
 
     public Tiles2 GetTileByPos(Vector3Int cellPosCube)
     {
-        return tilePositions[cellPosCube];
+        Tiles2 t;
+        tilePositions.TryGetValue(cellPosCube, out t);
+        return t;
     }
 
     public bool IsTileAtPosition(Vector3Int cubicCoords)
