@@ -1,20 +1,18 @@
 using UnityEditor;
-using UnityEngine;
 using UnityEditor.Build;
 using System.Linq;
-using System;
 using System.IO;
 using System.Collections.Generic;
 
 public class BuildScript
 {
     //Github actions build
-    [MenuItem("Playmint/Build/Pipeline Test")]
+    [MenuItem("Playmint/Build/Production")]
     static void GitHubBuild()
     {
         var scenes = GetScenesFromBuildSettings();
-        //MoveJson();
         PlayerSettings.WebGL.threadsSupport = false;
+        PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.None;
         EditorUserBuildSettings.il2CppCodeGeneration = Il2CppCodeGeneration.OptimizeSize;
         BuildPipeline.BuildPlayer(
             scenes,
@@ -24,11 +22,12 @@ public class BuildScript
         );
     }
 
+    [MenuItem("Playmint/Build/Debug")]
     static void DevBuild()
     {
         var scenes = GetScenesFromBuildSettings();
-        //MoveJson();
         PlayerSettings.WebGL.threadsSupport = false;
+        PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.FullWithStacktrace;
         EditorUserBuildSettings.il2CppCodeGeneration = Il2CppCodeGeneration.OptimizeSize;
         BuildPipeline.BuildPlayer(
             scenes,
