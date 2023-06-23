@@ -110,16 +110,29 @@ namespace Cog
                 _hasStateUpdated = false;
                 if (EventStateUpdated != null)
                 {
-                    EventStateUpdated.Invoke(gameState);
+                    try
+                    {
+                        EventStateUpdated.Invoke(gameState);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.Log($"GameStateMediator::Update() error {e.Message}");
+                    }
                 }
             }
         }
 
         private void UpdateState(GameState state)
         {
-            gameState = state;
-            _account = state.Player.Addr as string;
-            _hasStateUpdated = true;
+            if (state != null)
+            {
+                gameState = state;
+                if (state.Player != null)
+                {
+                    _account = state.Player.Addr as string;
+                }
+                _hasStateUpdated = true;
+            }
         }
 
 #if UNITY_EDITOR
@@ -317,11 +330,10 @@ namespace Cog
         }
 
         // -- MESSAGE IN
-        private string _prevStateJson = "";
 
         public void OnState(string stateJson)
         {
-            if (_prevStateJson == stateJson)
+            if (stateJson == "")
                 return;
 
             try
