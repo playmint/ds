@@ -261,3 +261,11 @@ export const getTileEntities = (tile: SelectedTileFragment, player: ConnectedPla
     entities.push(...tile.seekers.map((unit) => unitToCombatParticipantProps(unit, player.seekers)));
     return entities;
 };
+
+export const getLatestSession = (selectedTiles: SelectedTileFragment[]) => {
+    return selectedTiles.length > 0 && selectedTiles[0].sessions.length > 0
+        ? selectedTiles[0].sessions.sort((a, b) => {
+              return a.attackTile && b.attackTile ? b.attackTile.startBlock - a.attackTile.startBlock : 0;
+          })[0]
+        : undefined;
+};

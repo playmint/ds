@@ -37,7 +37,7 @@ export const BlockTimeProvider = ({ block, children }: BlockTimeContextProviderP
             const elapsed = nowTime - lastBlockTimeRef.current;
             const newBlocks = Math.floor(elapsed / BLOCK_TIME_SECS);
             estimatedBlockRef.current = block + newBlocks;
-        }, BLOCK_TIME_SECS * 1000);
+        }, 1000);
         return () => clearInterval(id);
     }, [block]);
 

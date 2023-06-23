@@ -348,7 +348,7 @@ contract CombatRule is Rule {
             CombatAction memory combatAction =
                 sessionUpdates[uint16(sortedListIndexes[x])][uint16(sortedListIndexes[x] >> 16)];
 
-            if (combatAction.blockNum >= endBlockNum) {
+            if (combatAction.blockNum > endBlockNum) {
                 // Battle not finished
                 return (combatState);
             }

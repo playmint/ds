@@ -21,6 +21,7 @@ import {
     convertCombatActions,
     entityStateToCombatParticipantProps,
     getActions,
+    getLatestSession,
     getTileEntities,
     sumParticipants
 } from '@app/plugins/combat/helpers';
@@ -352,12 +353,7 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
     const { seeker: selectedSeeker, tiles: selectedTiles = [] } = useSelection();
     const { blockNumberRef, blockTime } = useBlockTime();
     const [blockNumber, setBlockNumber] = useState<number>(blockNumberRef.current);
-    const latestSession =
-        selectedTiles.length > 0 && selectedTiles[0].sessions.length > 0
-            ? selectedTiles[0].sessions.sort((a, b) => {
-                  return a.attackTile && b.attackTile ? b.attackTile.startBlock - a.attackTile.startBlock : 0;
-              })[0]
-            : undefined;
+    const latestSession = getLatestSession(selectedTiles);
     const actions = latestSession && getActions(latestSession);
 
     const [dispatchComplete, setDispatchComplete] = useState<boolean>(false);
@@ -452,14 +448,13 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
         );
     }
 
-    const entitiesEmpty = combatState.attackerStates.every((e) => e === undefined);
-    const attackers: CombatParticipantProps[] = entitiesEmpty
-        ? getTileEntities(selectedTiles[0], player)
-        : combatState.attackerStates.map((entity) => entityStateToCombatParticipantProps(entity, world, player));
+    const attackers: CombatParticipantProps[] = combatState.attackerStates.map((entity) =>
+        entityStateToCombatParticipantProps(entity, world, player)
+    );
     const [attackersMaxHealth, attackersCurrentHealth] = attackers.reduce(sumParticipants, [0, 0]);
-    const defenders: CombatParticipantProps[] = entitiesEmpty
-        ? getTileEntities(selectedTiles[1], player)
-        : combatState.defenderStates.map((entity) => entityStateToCombatParticipantProps(entity, world, player));
+    const defenders: CombatParticipantProps[] = combatState.defenderStates.map((entity) =>
+        entityStateToCombatParticipantProps(entity, world, player)
+    );
     const [defendersMaxHealth, defendersCurrentHealth] = defenders.reduce(sumParticipants, [0, 0]);
 
     // During combat
