@@ -28,7 +28,7 @@ As a general rule, stackable items are “resources” whilst equipable items ar
 
 ## Item IDs
 
-When you set the crafting items you need to reference their IDs. The easiest way to find these is to go to [https://services-ds-main.dev.playmint.com/](https://services-ds-main.dev.playmint.com/) and run this query: 
+When you set the crafting items you need to reference their IDs. The easiest way to find these is to go to [https://services-ds-main.dev.playmint.com/](https://services-ds-test.dev.playmint.com/) and run this query: 
 
 ```jsx
 {
