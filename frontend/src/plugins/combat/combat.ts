@@ -89,7 +89,7 @@ export class Combat {
         for (let x = 0; x < sortedListIndexes.length; x++) {
             const combatAction = sessionUpdates[sortedListIndexes[x] & 0xffff][sortedListIndexes[x] >> 16];
 
-            if (combatAction.blockNum >= endBlockNum) {
+            if (combatAction.blockNum > endBlockNum) {
                 return combatState;
             }
 
