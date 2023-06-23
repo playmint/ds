@@ -66,6 +66,7 @@ library Node {
     }
 
     function Tile(int16 zone, int16 q, int16 r, int16 s) internal pure returns (bytes24) {
+        require((q + r + s) == 0, "InvalidTileCoords");
         return CompoundKeyEncoder.INT16_ARRAY(Kind.Tile.selector, [zone, q, r, s]);
     }
 
