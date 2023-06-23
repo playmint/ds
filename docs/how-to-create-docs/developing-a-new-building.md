@@ -164,12 +164,10 @@ BUILDING_KIND_EXTENSION_ID=InsertYourID GAME_ADDRESS=0x1D8e3A7Dc250633C192AC1bC9
 
 To test your new creation you’ll need to place it in the game!
 
-1. Go to the website: [https://frontend-ds-main.dev.playmint.com/](https://frontend-ds-main.dev.playmint.com/)
+1. Go to the website: [https://frontend-ds-test.dev.playmint.com/](https://frontend-ds-test.dev.playmint.com/)
 2. Log on with Metamask
     - Spawn an Engineer if you don’t have one already
 3. Find enough construction materials - 10 Kikis, 10 Bubotes and 10 Semiotes 
 4. Select the Build functionality and place your new building on an empty tile
-5. Find another 10 Kikis, and 4 Semiotes
-6. Arrange your top bag so that..
-7. Move your Engineer to the same tile as your building
-8. Click the “Cook Pizza” button
+5. Move your Engineer to a tile adjacent to your building
+6. Click the “Cook Pizza” button
