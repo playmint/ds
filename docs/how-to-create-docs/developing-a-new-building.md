@@ -155,9 +155,8 @@ Finally, we can call this deploy script and upload the building to the game.
 2. From the command line type:
 
 ```
-BUILDING_KIND_EXTENSION_ID=[*Insert Your ID*] GAME_ADDRESS=0x1D8e3A7Dc250633C192AC1bC9D141E1f95C419AB forge script script/Deploy_Pizzeria.sol --broadcast --verify --rpc-url "https://network-ds-test.dev.playmint.com"
+BUILDING_KIND_EXTENSION_ID=InsertYourID GAME_ADDRESS=0x1D8e3A7Dc250633C192AC1bC9D141E1f95C419AB forge script script/Deploy_Pizzeria.sol --broadcast --verify --rpc-url "https://network-ds-test.dev.playmint.com"
 ```
-
 
 1. Watch it compile and hope it works!
 
