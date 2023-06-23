@@ -29,6 +29,8 @@ using Schema for State;
 uint32 constant UNIT_BASE_LIFE = 50;
 uint32 constant UNIT_BASE_DEFENCE = 23;
 uint32 constant UNIT_BASE_ATTACK = 30;
+uint32 constant UNIT_LIFE_MUL = 10;
+
 uint64 constant BLOCKS_PER_TICK = 1;
 uint8 constant MAX_ENTITIES_PER_SIDE = 100; // No higher than 256 due to there being a reward bag for each entity and edges being 8 bit indices
 uint8 constant HASH_EDGE_INDEX = 2;
@@ -671,7 +673,7 @@ contract CombatRule is Rule {
 
         if (bytes4(entityID) == Kind.Seeker.selector) {
             // Made up base stats for seeker
-            stats[ATOM_LIFE] = UNIT_BASE_LIFE;
+            stats[ATOM_LIFE] = UNIT_BASE_LIFE * UNIT_LIFE_MUL;
             stats[ATOM_DEFENSE] = UNIT_BASE_DEFENCE;
             stats[ATOM_ATTACK] = UNIT_BASE_ATTACK;
 
@@ -685,7 +687,7 @@ contract CombatRule is Rule {
                         (uint32[3] memory inputAtoms, bool isStackable) = state.getItemStructure(item);
                         if (!isStackable && balance > 0) {
                             for (uint8 k = 0; k < 3; k++) {
-                                stats[k] += inputAtoms[k];
+                                stats[k] += inputAtoms[k] * (k == ATOM_LIFE ? UNIT_LIFE_MUL : 1);
                             }
                         }
                     }

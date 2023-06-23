@@ -18,6 +18,7 @@ import { CombatParticipantProps } from '@app/plugins/combat/combat-participant';
 export const UNIT_BASE_LIFE = 50;
 export const UNIT_BASE_DEFENCE = 23;
 export const UNIT_BASE_ATTACK = 30;
+export const UNIT_LIFE_MUL = 10;
 
 export const buildingIdStart = '0x34cf8a7e';
 
@@ -169,7 +170,7 @@ export const getEquipmentStats = (equipmentSlots: EquipmentSlotFragment[]) => {
                 if (slot.balance > 0) {
                     const [stackable, life, defense, attack] = getItemStats(slot.item.id);
                     if (!stackable) {
-                        stats[ATOM_LIFE] += life;
+                        stats[ATOM_LIFE] += life * UNIT_LIFE_MUL;
                         stats[ATOM_DEFENSE] += defense;
                         stats[ATOM_ATTACK] += attack;
                     }
@@ -202,8 +203,8 @@ export const unitToCombatParticipantProps = (unit: SelectedSeekerFragment, seeke
     return {
         name: `Unit #${formatUnitKey(entityID)}`,
         icon: getIcon(entityID, seekers),
-        maxHealth: stats[ATOM_LIFE] + UNIT_BASE_LIFE,
-        currentHealth: stats[ATOM_LIFE] + UNIT_BASE_LIFE,
+        maxHealth: stats[ATOM_LIFE] + UNIT_BASE_LIFE * UNIT_LIFE_MUL,
+        currentHealth: stats[ATOM_LIFE] + UNIT_BASE_LIFE * UNIT_LIFE_MUL,
         attack: stats[ATOM_ATTACK] + UNIT_BASE_ATTACK,
         defence: stats[ATOM_DEFENSE] + UNIT_BASE_DEFENCE,
         isDead: false,
