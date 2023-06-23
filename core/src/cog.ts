@@ -24,7 +24,6 @@ import {
     share,
     Source,
     switchMap,
-    tap,
 } from 'wonka';
 import { Actions__factory } from './abi';
 import { DispatchDocument, OnEventDocument, SigninDocument, SignoutDocument } from './gql/graphql';
@@ -182,7 +181,6 @@ export function configureClient({
                 }
                 return res.data.events;
             }),
-            tap((data) => console.log('new block', data)),
             filter((data): data is AnyGameSubscription['events'] => !!data),
             debounce(() => 500),
             share,

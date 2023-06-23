@@ -342,9 +342,7 @@ export function loadPlugin(
                     throw new Error(`no func found for signature ${funcsig}`);
                 }
                 const callArgs = callFunc.inputs.map((wanted, idx) => actionArgFromUnknown(wanted, args[idx]));
-                console.warn('ENCODE CALL!!', callFunc.name, callArgs, args);
                 const callData = callInterface.encodeFunctionData(callFunc.name, callArgs);
-                console.warn('encodeCall: returning', callData);
                 return context.newString(JSON.stringify(callData));
             } catch (err) {
                 console.error(`plugin-${pluginId}: failure attempting to encodeCall: ${err}`);
@@ -378,7 +376,6 @@ export function loadPlugin(
     runtime.setModuleLoader((moduleName) => {
         switch (moduleName) {
             case '__plugin__':
-                console.warn('[sandbox] importing', src);
                 return src;
             case 'dawnseekers':
                 return DS_GUEST_FUNCTIONS;
