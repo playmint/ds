@@ -169,5 +169,5 @@ To test your new creation you’ll need to place it in the game!
     - Spawn an Engineer if you don’t have one already
 3. Find enough construction materials - 10 Kikis, 10 Bubotes and 10 Semiotes 
 4. Select the Build functionality and place your new building on an empty tile
-5. Move your Engineer to a tile as your building
+5. Move your Engineer to a tile adjacent to your building
 6. Click the “Cook Pizza” button
