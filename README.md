@@ -1,10 +1,12 @@
 # Downstream
 
-## Overview
-
 Contracts, client libraries, and plugins for the on-chain Downstream game.
 
-## Building
+## How to play and build on top of Downstream
+
+See the [docs](./docs/README.md)
+
+## How to build this project
 
 ### Building with Docker
 
