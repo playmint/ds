@@ -48,7 +48,7 @@ contract GameTest is Test {
                 (
                     BiomeKind.DISCOVERED,
                     1, // q
-                    1, // r
+                    -2, // r
                     1 // s
                 )
             )

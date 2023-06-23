@@ -130,7 +130,7 @@ contract MovementRuleTest is Test {
     function testNoMoveToUndiscovered() public {
         vm.startPrank(aliceAccount);
         vm.expectRevert("NoMoveToUndiscovered");
-        _tryMoveTo(0, -5, -5);
+        _tryMoveTo(0, 5, -5);
         vm.stopPrank();
     }
 
