@@ -119,7 +119,7 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
     }, []);
 
     const newMapBlob = JSON.stringify(game);
-    if (isReady && game && globalLastBlob != newMapBlob) {
+    if (isReady && game && game.world && globalLastBlob != newMapBlob) {
         globalSender = sendMessage;
         globalLastBlob = newMapBlob;
         (window as any).globalLastBlob = globalLastBlob;
