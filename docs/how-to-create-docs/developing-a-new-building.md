@@ -106,7 +106,7 @@ console2.log("BuildingKind", uint256(bytes32(pizzeria)));
     }
 ```
 
-*******************These details are explained further in the next guide.*******************
+*******************For more information about these details, see the "Creating New Items" guide.*******************
 
 1. Lines 85 - 177: Finally we list the details of the Pizzeria.
 
@@ -153,8 +153,8 @@ Finally, we can call this deploy script and upload the building to the game.
     - **Write down this number. You’ll need it if you want to make changes to your building!**
 2. From the command line type:
 
-```jsx
-BUILDING_KIND_EXTENSION_ID=[*Insert Your ID*] GAME_ADDRESS=0x1D8e3A7Dc250633C192AC1bC9D141E1f95C419AB forge script script/Deploy_SwordSmith.sol --broadcast --verify --rpc-url "[https://network-ds-main.dev.playmint.com/](https://network-ds-main.dev.playmint.com/)"
+```
+BUILDING_KIND_EXTENSION_ID=[*Insert Your ID*] GAME_ADDRESS=0x1D8e3A7Dc250633C192AC1bC9D141E1f95C419AB forge script script/Deploy_Pizzeria.sol --broadcast --verify --rpc-url "https://network-ds-test.dev.playmint.com"
 ```
 
 
