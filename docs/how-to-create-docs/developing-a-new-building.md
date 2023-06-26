@@ -2,13 +2,14 @@
 
 **Windows users will need to enable WSL for this process** (*[https://learn.microsoft.com/en-us/windows/wsl/install](https://learn.microsoft.com/en-us/windows/wsl/install)*)
 
-## Getting Setup
+## Getting Set Up
 
 1. Install [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) if you don't have it.
 2. Clone this repository: [https://github.com/playmint/ds-hammer-factory](https://github.com/playmint/ds-hammer-factory) with recursive submodules
     > `git clone --recurse-submodules https://github.com/playmint/ds-hammer-factory.git`
 4. This is a forge project. Follow the instructions here to get setup: [install foundry](https://book.getfoundry.sh/getting-started/installation)
-5. Confirm you are setup correctly by navigating to the ds-hammer-factory folder and running `forge test` from the command line
+    - Mac Users may need to [install "brew" first](https://docs.brew.sh/Installation)
+6. Confirm you are set up correctly by navigating to the ds-hammer-factory folder and running `forge test` from the command line
    **Note: Windows users will need to be in WSL for all command-line steps.**
 
 ## Creating a Pizzeria
@@ -22,6 +23,7 @@ We’re going to quickly create a new building - a Pizzeria.
     - Pizzeria.js
     - Pizzeria.sol
 ### Important - These need to be new files. Don't overwrite the originals.
+### Important 2 - Everything is case-sensitive!
 
 ### Pizzeria.sol
 
