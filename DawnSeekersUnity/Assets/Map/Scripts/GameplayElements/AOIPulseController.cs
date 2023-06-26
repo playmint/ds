@@ -9,7 +9,7 @@ public class AOIPulseController : MonoBehaviour
     [SerializeField]
     GameObject greenHighlightPrefab;
 
-    List<GameObject> _spawnedHighlights = new List<GameObject>();
+    List<Animator> _spawnedHighlights = new List<Animator>();
 
     Seeker _currentSeeker;
 
@@ -43,37 +43,48 @@ public class AOIPulseController : MonoBehaviour
     private void ShowHighlights(Vector3Int cubePos)
     {
         Vector3Int[] positions = TileHelper.GetTileNeighbours(cubePos);
+
+        if (_spawnedHighlights.Count == 0)
+        {
+            for (int i = 0; i < positions.Length; i++)
+            {
+                Animator highlight = Instantiate(greenHighlightPrefab).GetComponent<Animator>();
+                _spawnedHighlights.Add(highlight);
+            }
+        }
+
         for (int i = 0; i < positions.Length; i++)
         {
-            Transform highlight = Instantiate(greenHighlightPrefab).transform;
-            highlight.position = MapManager.instance.grid.CellToWorld(
+            _spawnedHighlights[i].transform.position = MapManager.instance.grid.CellToWorld(
                 GridExtensions.CubeToGrid(positions[i])
             );
             if (MapManager.instance.IsDiscoveredTile(positions[i]))
             {
-                highlight.position = new Vector3(
-                    highlight.position.x,
-                    MapHeightManager.instance.GetHeightAtPosition(highlight.position),
-                    highlight.position.z
+                _spawnedHighlights[i].transform.position = new Vector3(
+                    _spawnedHighlights[i].transform.position.x,
+                    MapHeightManager.instance.GetHeightAtPosition(
+                        _spawnedHighlights[i].transform.position
+                    ),
+                    _spawnedHighlights[i].transform.position.z
                 );
             }
             else
             {
-                highlight.position = new Vector3(
-                    highlight.position.x,
+                _spawnedHighlights[i].transform.position = new Vector3(
+                    _spawnedHighlights[i].transform.position.x,
                     MapHeightManager.UNSCOUTED_HEIGHT,
-                    highlight.position.z
+                    _spawnedHighlights[i].transform.position.z
                 );
             }
-            _spawnedHighlights.Add(highlight.gameObject);
+            _spawnedHighlights[i].SetTrigger("Pulse");
         }
     }
 
     private void ClearHighlights()
     {
-        foreach (GameObject highlight in _spawnedHighlights)
+        foreach (Animator highlight in _spawnedHighlights)
         {
-            Destroy(highlight);
+            Destroy(highlight.gameObject);
         }
         _spawnedHighlights.Clear();
     }

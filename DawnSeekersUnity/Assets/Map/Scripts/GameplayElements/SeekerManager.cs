@@ -2,6 +2,7 @@ using Cog;
 using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
+using System.Collections;
 
 public class SeekerManager : MonoBehaviour
 {
@@ -18,6 +19,10 @@ public class SeekerManager : MonoBehaviour
     private Dictionary<Vector3Int, int> seekerPositionCounts = new Dictionary<Vector3Int, int>();
     private Dictionary<string, SeekerController> spawnedSeekers =
         new Dictionary<string, SeekerController>();
+
+    private int interruptCount = 0;
+    private bool _isUpdating;
+    private float _chunkMultiplier = 0.1f; //What percentage of seekers to handle per frame
 
     protected void Awake()
     {
@@ -41,9 +46,29 @@ public class SeekerManager : MonoBehaviour
 
     // -- LISTENERS
 
-    // TODO: Still assuming only one seeker
-    private void OnStateUpdated(GameState state)
+    private void OnStateUpdated(Cog.GameState state)
     {
+        // If we get another state update while still updating the previous one,
+        // interrupt it and increase the number of tiles processed per chunk to catch up:
+        if (_isUpdating)
+        {
+            Debug.Log("Mobile Unit Update Interrupted");
+            interruptCount++;
+            StopAllCoroutines();
+        }
+        StartCoroutine(OnStateUpdatedCR(state));
+    }
+
+    // TODO: Still assuming only one seeker
+    private IEnumerator OnStateUpdatedCR(GameState state)
+    {
+        _isUpdating = true;
+        int counter = 0;
+        int tileChunks = Mathf.CeilToInt(
+            state.World.Tiles.Count
+                * (_chunkMultiplier + ((float)interruptCount * _chunkMultiplier))
+        );
+
         ResetSeekerPositionCounts();
 
         var player = state.Player;
@@ -59,11 +84,15 @@ public class SeekerManager : MonoBehaviour
             currentSelectedSeeker = null;
             currentPlayer = player;
         }
+        if (_playerSeekers == null)
+            yield return new WaitForSeconds(1f); // wait on first load to separate seeker loading from tile loading.
 
         _playerSeekers = state.Player.Seekers;
 
         if (state.World != null)
         {
+            var playerSeekers = new Dictionary<Seekers3, Vector3Int>();
+            var tileSeekerCount = new Dictionary<Vector3Int, int>();
             foreach (var tile in state.World.Tiles)
             {
                 var cellPosCube = TileHelper.GetTilePosCube(tile);
@@ -80,29 +109,35 @@ public class SeekerManager : MonoBehaviour
                             tile.Seekers.Count
                         );
                     }
-                }
-            }
-            //Do it again but this time for non-players (not very efficient but it does do the do...)
-            foreach (var tile in state.World.Tiles)
-            {
-                var cellPosCube = TileHelper.GetTilePosCube(tile);
-                // Seekers
-                foreach (var seeker in tile.Seekers)
-                {
-                    if (!SeekerHelper.IsPlayerSeeker(seeker))
+                    else
                     {
-                        SeekerManager.instance.CreateSeeker(
-                            seeker.Id,
-                            cellPosCube,
-                            false,
-                            tile.Seekers.Count
-                        );
+                        playerSeekers.Add(seeker, cellPosCube);
                     }
+                    counter++;
+                    if (counter % tileChunks == 0)
+                        yield return null;
+                }
+                if (tile.Seekers.Count > 0)
+                    tileSeekerCount.Add(cellPosCube, tile.Seekers.Count);
+            }
+            foreach (var seeker in playerSeekers)
+            {
+                if (!SeekerHelper.IsPlayerSeeker(seeker.Key))
+                {
+                    SeekerManager.instance.CreateSeeker(
+                        seeker.Key.Id,
+                        seeker.Value,
+                        false,
+                        tileSeekerCount[seeker.Value]
+                    );
                 }
             }
         }
 
         currentSelectedSeeker = state.Selected.Seeker;
+
+        _isUpdating = false;
+        interruptCount = 0;
     }
 
     public bool IsPlayerSeeker(string seekerID)

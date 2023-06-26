@@ -199,6 +199,21 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7331417994891835028, guid: d0edab06a40584c3c99d39f8057dffb4,
+        type: 3}
+      propertyPath: m_isRichText
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7331417994891835028, guid: d0edab06a40584c3c99d39f8057dffb4,
+        type: 3}
+      propertyPath: m_enableWordWrapping
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7331417994891835028, guid: d0edab06a40584c3c99d39f8057dffb4,
+        type: 3}
+      propertyPath: m_parseCtrlCharacters
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7499765724257285629, guid: d0edab06a40584c3c99d39f8057dffb4,
         type: 3}
       propertyPath: m_Color.a

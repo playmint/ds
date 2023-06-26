@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Cog;
@@ -27,6 +28,10 @@ public class MapManager : MonoBehaviour
 
     Dictionary<Vector3Int, Tiles2> tilePositions = new Dictionary<Vector3Int, Tiles2>();
 
+    private int interruptCount = 0;
+    private bool _isUpdating;
+    private float _chunkMultiplier = 0.01f; //What percentage of tiles to handle per frame
+
     private void Awake()
     {
         dynamicMatProps = new MaterialPropertyBlock();
@@ -38,6 +43,11 @@ public class MapManager : MonoBehaviour
 
         EnvironmentLoaderManager.EnvironmentAssetsLoaded += WaitForAssets;
         instance = this;
+    }
+
+    private void OnDestroy()
+    {
+        EnvironmentLoaderManager.EnvironmentAssetsLoaded -= WaitForAssets;
     }
 
     private void WaitForAssets()
@@ -101,7 +111,28 @@ public class MapManager : MonoBehaviour
 
     private void OnStateUpdated(Cog.GameState state)
     {
+        // If we get another state update while still updating the previous one,
+        // interrupt it and increase the number of tiles processed per chunk to catch up:
+        if (_isUpdating)
+        {
+            Debug.Log("Map Update Interrupted");
+            interruptCount++;
+            StopAllCoroutines();
+        }
+        StartCoroutine(OnStateUpdatedCR(state));
+    }
+
+    private IEnumerator OnStateUpdatedCR(Cog.GameState state)
+    {
         HashSet<string> incompleteBuildings = new HashSet<string>();
+
+        _isUpdating = true;
+
+        int counter = 0;
+        int tileChunks = Mathf.CeilToInt(
+            state.World.Tiles.Count
+                * (_chunkMultiplier + ((float)interruptCount * _chunkMultiplier))
+        );
         foreach (var building in state.World.Buildings)
         {
             if (building.Bags.Any(n => n.Bag.Slots.Any(s => s.Balance > 0)))
@@ -109,7 +140,7 @@ public class MapManager : MonoBehaviour
                 incompleteBuildings.Add(building.Id.Substring(10));
             }
         }
-
+        counter = 0;
         foreach (var tile in state.World.Tiles)
         {
             var hasResource = TileHelper.HasResource(tile);
@@ -137,10 +168,14 @@ public class MapManager : MonoBehaviour
             }
 
             AddTile(cellPosCube, tile);
-
+            counter++;
+            if (counter % tileChunks == 0)
+                yield return null;
             // TODO: Call this again after we have refactored the map data to include the seeker list
             // IconManager.instance.CheckSeekerRemoved(state.Game.Seekers.ToList());
         }
         MapUpdated?.Invoke(state);
+        _isUpdating = false;
+        interruptCount = 0;
     }
 }

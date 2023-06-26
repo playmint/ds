@@ -3590,6 +3590,21 @@ PrefabInstance:
       propertyPath: m_CullingMask.m_Bits
       value: 247
       objectReference: {fileID: 0}
+    - target: {fileID: 6518314205033195301, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
+        type: 3}
+      propertyPath: m_XDamping
+      value: 0.666
+      objectReference: {fileID: 0}
+    - target: {fileID: 6518314205033195301, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
+        type: 3}
+      propertyPath: m_YDamping
+      value: 0.666
+      objectReference: {fileID: 0}
+    - target: {fileID: 6518314205033195301, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
+        type: 3}
+      propertyPath: m_ZDamping
+      value: 0.666
+      objectReference: {fileID: 0}
     - target: {fileID: 6604238751355071835, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
         type: 3}
       propertyPath: m_TargetTexture
