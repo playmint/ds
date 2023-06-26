@@ -44,12 +44,21 @@ let prevPlayersJSON: string | undefined;
 let prevTilesJSON: string | undefined;
 let prevBuildingsJSON: string | undefined;
 let prevSelectionJSON: string | undefined;
-let sendingStateUpdate = false;
 
 // controling how we chunk up the state JSON
 const CHUNK_TILES = 50;
 const CHUNK_PLAYERS = 100;
 const CHUNK_BUILDINGS = 50;
+
+// queue of state to send
+let isSending = false;
+let gSendMessage: any;
+let pendingPlayer: any;
+let pendingPlayers: any;
+let pendingTiles: any;
+let pendingBuildings: any;
+let pendingBlock: any;
+let pendingSelection: any;
 
 export const UnityMap: FunctionComponent<UnityMapProps> = ({
     world,
@@ -98,23 +107,77 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({
 
     // -- State update
 
-    if (isReady && game.world && !sendingStateUpdate) {
-        const sends: [gameObjectName: string, methodName: string, parameter?: any][] = [];
-        const send = (args: [gameObjectName: string, methodName: string, parameter?: any]) => sends.push(args);
+    useEffect(() => {
+        console.warn('setting up timer');
+        const timer = setInterval(() => {
+            if (isSending) {
+                return;
+            }
+            if (!pendingPlayers && !pendingTiles && !pendingPlayer && !pendingSelection && !pendingBuildings) {
+                return;
+            }
+            isSending = true;
+            (async () => {
+                try {
+                    let args: any[] = [];
 
-        send([
-            'GameStateMediator',
-            'StartOnState',
-            JSON.stringify({ tiles: [], buildings: [], players: [], block: game.world.block })
-        ]);
-        // prevBlock = game.world.block;
+                    args.push([
+                        'GameStateMediator',
+                        'StartOnState',
+                        JSON.stringify({ tiles: [], buildings: [], players: [], block: pendingBlock })
+                    ]);
+
+                    if (pendingPlayers) {
+                        args = [...args, ...pendingPlayers];
+                    }
+                    if (pendingTiles) {
+                        args = [...args, ...pendingTiles];
+                    }
+                    if (pendingBuildings) {
+                        args = [...args, ...pendingBuildings];
+                    }
+                    if (pendingPlayer) {
+                        args.push(pendingPlayer);
+                    }
+                    if (pendingSelection) {
+                        args.push(pendingSelection);
+                    }
+                    args.push(['GameStateMediator', 'EndOnState']);
+
+                    pendingPlayer = null;
+                    pendingPlayers = null;
+                    pendingTiles = null;
+                    pendingBuildings = null;
+                    pendingBlock = null;
+                    pendingSelection = null;
+
+                    for (let i = 0; i < args.length; i++) {
+                        gSendMessage(...args[i]);
+                        await sleep(0);
+                    }
+                } catch (err) {
+                    console.error('SendMessage:', err);
+                } finally {
+                    isSending = false;
+                }
+            })();
+        }, 25);
+        return () => {
+            console.warn('clearing timer');
+            clearInterval(timer);
+        };
+    }, []);
+
+    if (isReady && game.world) {
+        gSendMessage = sendMessage;
+        pendingBlock = game.world.block;
 
         if (game.world.players) {
             const nextPlayersJSON = JSON.stringify(game.world.players);
             if (nextPlayersJSON != prevPlayersJSON) {
-                send(['GameStateMediator', 'ResetWorldPlayers']);
+                pendingPlayers = [['GameStateMediator', 'ResetWorldPlayers']];
                 for (let i = 0; i < game.world.players.length; i += CHUNK_PLAYERS) {
-                    send([
+                    pendingPlayers.push([
                         'GameStateMediator',
                         'AddWorldPlayers',
                         JSON.stringify(game.world.players.slice(i, i + CHUNK_PLAYERS))
@@ -127,9 +190,9 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({
         if (game.world.tiles) {
             const nextTilesJSON = JSON.stringify(game.world.tiles);
             if (nextTilesJSON != prevTilesJSON) {
-                send(['GameStateMediator', 'ResetWorldTiles']);
+                pendingTiles = [['GameStateMediator', 'ResetWorldTiles']];
                 for (let i = 0; i < game.world.tiles.length; i += CHUNK_TILES) {
-                    send([
+                    pendingTiles.push([
                         'GameStateMediator',
                         'AddWorldTiles',
                         JSON.stringify(game.world.tiles.slice(i, i + CHUNK_TILES))
@@ -142,9 +205,9 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({
         if (game.world.buildings) {
             const nextBuildingsJSON = JSON.stringify(game.world.buildings);
             if (nextBuildingsJSON != prevBuildingsJSON) {
-                send(['GameStateMediator', 'ResetWorldBuildings']);
+                pendingBuildings = [['GameStateMediator', 'ResetWorldBuildings']];
                 for (let i = 0; i < game.world.buildings.length; i += CHUNK_BUILDINGS) {
-                    send([
+                    pendingBuildings.push([
                         'GameStateMediator',
                         'AddWorldBuildings',
                         JSON.stringify(game.world.buildings.slice(i, i + CHUNK_BUILDINGS))
@@ -156,35 +219,15 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({
 
         const nextPlayerJSON = JSON.stringify(game.player);
         if (nextPlayerJSON != prevPlayerJSON) {
-            send(['GameStateMediator', 'SetPlayer', nextPlayerJSON]);
+            pendingPlayer = ['GameStateMediator', 'SetPlayer', nextPlayerJSON];
             prevPlayerJSON = nextPlayerJSON;
         }
 
         const nextSelectionJSON = JSON.stringify(game.selected);
         if (nextSelectionJSON != prevSelectionJSON) {
-            send(['GameStateMediator', 'SetSelectionState', nextSelectionJSON]);
+            pendingSelection = ['GameStateMediator', 'SetSelectionState', nextSelectionJSON];
             prevSelectionJSON = nextSelectionJSON;
         }
-
-        send(['GameStateMediator', 'EndOnState']);
-        sendingStateUpdate = true;
-        sends
-            .reduce((chain: Promise<unknown>, args: [gameObjectName: string, methodName: string, parameter?: any]) => {
-                return chain
-                    .then(() => {
-                        // console.warn(args);
-                        // console.time(`sending-${args[1]}`);
-                        sendMessage(...args);
-                        // console.timeEnd(`sending-${args[1]}`);
-                        return null;
-                    })
-                    .then(() => sleep(0)) as Promise<void>;
-            }, Promise.resolve() as Promise<unknown>)
-            .then(() => console.log('sending-done'))
-            .then(() => {
-                sendingStateUpdate = false;
-            })
-            .catch((err) => console.error(err));
     }
 
     const selectIntent = useCallback(
