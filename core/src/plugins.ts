@@ -10,21 +10,18 @@ import {
     SelectedTileFragment,
 } from './gql/graphql';
 import { Logger } from './logger';
-import { makeGameState } from './state';
 import {
     ActivePlugin,
     CogAction,
     CogServices,
-    ConnectedPlayer,
     DispatchFunc,
+    GameState,
     PluginConfig,
     PluginState,
     PluginSubmitCallValues,
     PluginTrust,
     PluginType,
     Selection,
-    GameState,
-    World,
 } from './types';
 
 const gruntime = getQuickJS().then((js) => js.newRuntime());
@@ -71,32 +68,24 @@ function noopDispatcher(...actions: CogAction[]) {
  * makePluginUI sends the current State to each wanted plugin and returns a
  * stream of all the normalized plugin responses.
  */
-export function makePluginUI(
-    player: Source<ConnectedPlayer | undefined>,
-    logger: Logger,
-    plugins: Source<PluginConfig[]>,
-    world: Source<World>,
-    selection: Source<Selection>,
-) {
+export function makePluginUI(logger: Logger, plugins: Source<PluginConfig[]>, state: Source<GameState>) {
     const sandbox = makePluginSandbox();
-    const state = makeGameState(player, world, selection);
     return pipe(
-        zip<any>({ sandbox, player, plugins, state }),
+        zip<any>({ sandbox, plugins, state }),
         map<any, PluginState[]>(
             ({
                 sandbox,
                 state,
-                player,
                 plugins,
             }: {
                 sandbox: { runtime: QuickJSRuntime; active: Map<string, ActivePlugin> };
                 state: GameState;
-                player: ConnectedPlayer | undefined;
                 plugins: PluginConfig[];
             }) =>
                 plugins
                     .map((p) => {
                         try {
+                            const { player } = state;
                             const dispatch = player ? player.dispatch : noopDispatcher;
                             if (!p.hash || !p.src) {
                                 console.warn(`plugin ${p.id} has no src hash, skipping`);

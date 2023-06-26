@@ -7,10 +7,10 @@ import { Unity, useUnityContext } from 'react-unity-webgl';
 import styled from 'styled-components';
 import { styles } from './unity-map.styles';
 
-export interface UnityMapProps extends ComponentProps {
+export interface UnityMapProps extends ComponentProps, Partial<SelectionSelectors> {
     world?: WorldStateFragment;
     player?: ConnectedPlayer;
-    selection: Selection & SelectionSelectors;
+    selection?: Selection;
 }
 
 interface Message {
@@ -64,11 +64,13 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({
     world,
     player,
     selection,
+    selectTiles,
+    selectIntent: rawSelectIntent,
+    selectSeeker,
     ...otherProps
 }: UnityMapProps) => {
     const { dispatch } = player || {};
     const game = { player, selected: selection, world };
-    const { selectTiles, selectIntent: rawSelectIntent, selectSeeker } = selection;
     const { unityProvider, sendMessage, addEventListener, removeEventListener, loadingProgression } = useUnityContext({
         loaderUrl: `/ds-unity/Build/ds-unity.loader.js`,
         dataUrl: `/ds-unity/Build/ds-unity.data`,
@@ -158,6 +160,7 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({
                 } catch (err) {
                     console.error('SendMessage:', err);
                 } finally {
+                    console.log('updated-map');
                     isSending = false;
                 }
             })();
@@ -232,6 +235,12 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({
 
     const selectIntent = useCallback(
         (intent: string | undefined, tileId?: string) => {
+            if (!selectTiles) {
+                return;
+            }
+            if (!rawSelectIntent) {
+                return;
+            }
             selectTiles(tileId ? [tileId] : []);
             rawSelectIntent(intent);
         },
@@ -266,6 +275,9 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({
                 }
                 case 'selectTiles': {
                     const { tileIDs } = msgObj as SelectTileMessage;
+                    if (!selectTiles) {
+                        return;
+                    }
                     selectTiles(tileIDs);
                     break;
                 }
@@ -276,6 +288,9 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({
                 }
                 case 'selectSeeker': {
                     const { seekerID } = msgObj as SetSeekerMessage;
+                    if (!selectSeeker) {
+                        return;
+                    }
                     selectSeeker(seekerID);
                     break;
                 }

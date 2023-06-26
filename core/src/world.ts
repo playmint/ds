@@ -26,7 +26,7 @@ export function makeWorld(cog: Source<CogServices>) {
 
     return pipe(
         lazy(() => (prev ? concat([fromValue(prev), world]) : world)),
-        debounce(() => 25),
+        debounce(() => 10),
     );
 }
 
