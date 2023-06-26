@@ -114,8 +114,8 @@ contract Game is BaseGame {
         _registerDispatcher(dispatcher);
 
         // register base resources used by temp scouting
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.Kiki(), "Kiki", "25-91")));
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.Bouba(), "Bouba", "25-52")));
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.Semiote(), "Semiote", "25-58")));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.GlassGreenGoo(), "Glass of Green Goo", "22-142")));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.FlaskBlueGoo(), "Flask of Blue Goo", "22-24")));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.VialRedGoo(), "Vial of Red Goo", "22-150")));
     }
 }

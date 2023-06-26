@@ -250,14 +250,14 @@ contract GameDeployer is Script {
                 id: 100,
                 name: "Cocktail Hut",
                 materials: [
-                    Material({quantity: 25, item: ItemUtils.Kiki()}),
-                    Material({quantity: 25, item: ItemUtils.Bouba()}),
-                    Material({quantity: 25, item: ItemUtils.Semiote()}),
+                    Material({quantity: 25, item: ItemUtils.GlassGreenGoo()}),
+                    Material({quantity: 25, item: ItemUtils.FlaskBlueGoo()}),
+                    Material({quantity: 25, item: ItemUtils.VialRedGoo()}),
                     Material({quantity: 0, item: 0x0})
                 ],
                 inputs: [
-                    Input({quantity: 2, item: ItemUtils.Bouba()}),
-                    Input({quantity: 2, item: ItemUtils.Semiote()}),
+                    Input({quantity: 2, item: ItemUtils.FlaskBlueGoo()}),
+                    Input({quantity: 2, item: ItemUtils.VialRedGoo()}),
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0})
                 ],
@@ -328,7 +328,7 @@ contract GameDeployer is Script {
                     Material({quantity: 0, item: 0x0})
                 ],
                 inputs: [
-                    Input({quantity: 100, item: ItemUtils.Semiote()}),
+                    Input({quantity: 100, item: ItemUtils.VialRedGoo()}),
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0})
@@ -351,8 +351,8 @@ contract GameDeployer is Script {
                     Material({quantity: 0, item: 0x0})
                 ],
                 inputs: [
-                    Input({quantity: 100, item: ItemUtils.Kiki()}),
-                    Input({quantity: 100, item: ItemUtils.Bouba()}),
+                    Input({quantity: 100, item: ItemUtils.GlassGreenGoo()}),
+                    Input({quantity: 100, item: ItemUtils.FlaskBlueGoo()}),
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0})
                 ],
@@ -448,7 +448,7 @@ contract GameDeployer is Script {
                     Material({quantity: 0, item: 0x0})
                 ],
                 inputs: [
-                    Input({quantity: 100, item: ItemUtils.Kiki()}),
+                    Input({quantity: 100, item: ItemUtils.GlassGreenGoo()}),
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0})
@@ -494,7 +494,7 @@ contract GameDeployer is Script {
                     Material({quantity: 0, item: 0x0})
                 ],
                 inputs: [
-                    Input({quantity: 1, item: ItemUtils.Kiki()}),
+                    Input({quantity: 1, item: ItemUtils.GlassGreenGoo()}),
                     Input({quantity: 1, item: superKiki}),
                     Input({quantity: 1, item: megaKiki}),
                     Input({quantity: 0, item: 0x0})
@@ -741,14 +741,14 @@ contract GameDeployer is Script {
                 name: "Badminton Weapons",
                 materials: [
                     Material({quantity: 5, item: goldCoin}),
-                    Material({quantity: 50, item: ItemUtils.Kiki()}),
-                    Material({quantity: 50, item: ItemUtils.Bouba()}),
-                    Material({quantity: 50, item: ItemUtils.Semiote()})
+                    Material({quantity: 50, item: ItemUtils.GlassGreenGoo()}),
+                    Material({quantity: 50, item: ItemUtils.FlaskBlueGoo()}),
+                    Material({quantity: 50, item: ItemUtils.VialRedGoo()})
                 ],
                 inputs: [
                     Input({quantity: 2, item: goldCoin}),
-                    Input({quantity: 100, item: ItemUtils.Semiote()}),
-                    Input({quantity: 100, item: ItemUtils.Semiote()}),
+                    Input({quantity: 100, item: ItemUtils.VialRedGoo()}),
+                    Input({quantity: 100, item: ItemUtils.VialRedGoo()}),
                     Input({quantity: 0, item: 0x0})
                 ],
                 outputs: [Output({quantity: 1, item: shuttlecock})],
@@ -764,14 +764,14 @@ contract GameDeployer is Script {
                 name: "Badminton Armour",
                 materials: [
                     Material({quantity: 5, item: goldCoin}),
-                    Material({quantity: 50, item: ItemUtils.Kiki()}),
-                    Material({quantity: 50, item: ItemUtils.Bouba()}),
-                    Material({quantity: 50, item: ItemUtils.Semiote()})
+                    Material({quantity: 50, item: ItemUtils.GlassGreenGoo()}),
+                    Material({quantity: 50, item: ItemUtils.FlaskBlueGoo()}),
+                    Material({quantity: 50, item: ItemUtils.VialRedGoo()})
                 ],
                 inputs: [
                     Input({quantity: 2, item: goldCoin}),
-                    Input({quantity: 100, item: ItemUtils.Bouba()}),
-                    Input({quantity: 100, item: ItemUtils.Bouba()}),
+                    Input({quantity: 100, item: ItemUtils.FlaskBlueGoo()}),
+                    Input({quantity: 100, item: ItemUtils.FlaskBlueGoo()}),
                     Input({quantity: 0, item: 0x0})
                 ],
                 outputs: [Output({quantity: 1, item: racket})],
