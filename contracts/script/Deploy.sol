@@ -616,7 +616,7 @@ contract GameDeployer is Script {
         BuildingUtils.construct(ds, slime, "enemy", 5, 7, -12);
         BuildingUtils.construct(ds, slime, "enemy", -4, -8, 12);
         BuildingUtils.construct(ds, slime, "enemy", 9, 0, -9);
-        BuildingUtils.construct(ds, slime, "enemy", 0, 12, 12);
+        BuildingUtils.construct(ds, slime, "enemy", 0, -12, 12);
 
         BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", 10, 8, -18);
         BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", -3, 13, -10);

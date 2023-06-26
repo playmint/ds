@@ -123,7 +123,7 @@ contract BuildingRuleTest is Test {
     }
 
     function testConstructFailSeekerNotDirect() public {
-        _testConstructFailNotAdjacent(1, -1, 1);
+        _testConstructFailNotAdjacent(1, -2, 1);
     }
 
     function testRegisterBuildingKindContract() public {

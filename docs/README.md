@@ -8,7 +8,7 @@
 
 1. [Developing a New Building](./how-to-create-docs/developing-a-new-building.md)
 2. [Creating New Items](./how-to-create-docs/creating-new-items.md)
-3. [Example Javacript Functionality](./how-to-create-docs/example-javascript-fuctionality.md)
+3. [Example Javacript Functionality](./how-to-create-docs/example-javascript-functionality.md)
    
 # Code Docs
 ## Overview

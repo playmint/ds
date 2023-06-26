@@ -52,7 +52,7 @@ contract ScoutRule is Rule {
         return state;
     }
 
-    uint8 private _resourceSpawnCount = 0; // Used with modulo for round robin spawning of resouces
+    uint256 private _resourceSpawnCount = 0;
 
     function _tempSpawnResourceBag(State state, bytes24 targetTile, int16[3] memory coords) private {
         uint64 bagID = uint64(uint256(keccak256(abi.encode(coords))));
@@ -66,7 +66,7 @@ contract ScoutRule is Rule {
 
     function _tempRandomResource() private returns (bytes24) {
         _resourceSpawnCount++;
-        uint8 n = _resourceSpawnCount % 3;
+        uint256 n = _resourceSpawnCount % 3;
         if (n == 0) {
             return ItemUtils.GlassGreenGoo();
         } else if (n == 1) {

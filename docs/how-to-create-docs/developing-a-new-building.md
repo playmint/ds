@@ -4,9 +4,11 @@
 
 ## Getting Setup
 
-1. Clone / download this repository: [https://github.com/playmint/ds-hammer-factory](https://github.com/playmint/ds-hammer-factory)
-2. This is a forge project. Follow the instructions here to get setup: [install foundry](https://book.getfoundry.sh/getting-started/installation)
-3. Confirm you are setup correctly by navigating to the ds-hammer-factory folder and running `forge test` from the command line
+1. Install [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) if you don't have it.
+2. Clone this repository: [https://github.com/playmint/ds-hammer-factory](https://github.com/playmint/ds-hammer-factory) with recursive submodules
+    > `git clone --recurse-submodules https://github.com/playmint/ds-hammer-factory.git`
+4. This is a forge project. Follow the instructions here to get setup: [install foundry](https://book.getfoundry.sh/getting-started/installation)
+5. Confirm you are setup correctly by navigating to the ds-hammer-factory folder and running `forge test` from the command line
    **Note: Windows users will need to be in WSL for all command-line steps.**
 
 ## Creating a Pizzeria
