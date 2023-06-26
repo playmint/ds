@@ -53,7 +53,7 @@ id: 'pizzeria',
 title: 'Paulo\'s Pizzeria',
 ```
 
-1. Line 56: This is the desciption text that displays on the building. You can leave it as is, or make it more personal
+1. Line 56: This is the description text that displays on the building. You can leave it as is, or make it more personal
 
 ```jsx
 summary: `For the best pizza put ${want0?.balance}x ${want0?.item?.name?.value} and ${want1?.balance}x ${want1?.item?.name?.value} into our oven`,
@@ -67,7 +67,7 @@ buttons: [{ text: 'Cook Pizza', type: 'action', action: craft, disabled: !canCra
 
 ## Writing a Deployment Script
 
-Before you can deploy your building, there’s one more script you need to add.
+The deployment script will register the building and item to the game, and link them to your building scripts.
 
 1. Navigate to the /script folder and duplicate **********Deploy.sol**********
 2. Rename this new file to ************Deploy_Pizzeria.sol************
@@ -170,7 +170,7 @@ To test your new creation you’ll need to place it in the game!
 
 1. Go to the website: [https://frontend-ds-test.dev.playmint.com/](https://frontend-ds-test.dev.playmint.com/)
 2. Log on with Metamask
-    - Spawn an Engineer if you don’t have one already
+    - Spawn a Unit if you don’t have one already
 3. Find enough construction materials - 10 Kikis, 10 Bubotes and 10 Semiotes 
 4. Select the Build functionality and place your new building on an empty tile
 5. Move your Engineer to a tile adjacent to your building
