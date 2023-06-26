@@ -1,14 +1,17 @@
 /** @format */
 
 import { ComponentProps } from '@app/types/component-props';
-import { ActionName, useGameState, usePlayer, useSelection } from '@dawnseekers/core';
+import { ActionName, ConnectedPlayer, Selection, SelectionSelectors, WorldStateFragment } from '@dawnseekers/core';
 import { FunctionComponent, useCallback, useEffect, useState } from 'react';
 import { Unity, useUnityContext } from 'react-unity-webgl';
 import styled from 'styled-components';
 import { styles } from './unity-map.styles';
-import React from 'react';
 
-export interface UnityMapProps extends ComponentProps {}
+export interface UnityMapProps extends ComponentProps {
+    world?: WorldStateFragment;
+    player?: ConnectedPlayer;
+    selection: Selection & SelectionSelectors;
+}
 
 interface Message {
     msg: string;
@@ -35,37 +38,28 @@ const StyledUnityMap = styled('div')`
     ${styles}
 `;
 
-let globalLastBlob: string | undefined;
-let globalSender: any;
-let globalDrainTimeout: any;
-let globalQueue: string[] = [];
-function drainOne() {
-    try {
-        if (globalQueue.length == 0) {
-            return;
-        }
-        if (!globalSender) {
-            return;
-        }
-        const blob = globalQueue.pop();
-        if (!blob) {
-            return;
-        }
-        globalQueue = [];
-        const args = ['GameStateMediator', 'OnState', blob];
-        globalSender(...args);
-    } catch (err) {
-        console.error('UnityMap: sendMessage', err);
-    } finally {
-        globalDrainTimeout = setTimeout(drainOne, 10);
-    }
-}
+// caching previous state sends
+let prevPlayerJSON: string | undefined;
+let prevPlayersJSON: string | undefined;
+let prevTilesJSON: string | undefined;
+let prevBuildingsJSON: string | undefined;
+let prevSelectionJSON: string | undefined;
+let sendingStateUpdate = false;
 
-export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: UnityMapProps) => {
-    const player = usePlayer();
+// controling how we chunk up the state JSON
+const CHUNK_TILES = 50;
+const CHUNK_PLAYERS = 100;
+const CHUNK_BUILDINGS = 50;
+
+export const UnityMap: FunctionComponent<UnityMapProps> = ({
+    world,
+    player,
+    selection,
+    ...otherProps
+}: UnityMapProps) => {
     const { dispatch } = player || {};
-    const game = useGameState();
-    const { selectTiles, selectIntent: rawSelectIntent, selectSeeker } = useSelection();
+    const game = { player, selected: selection, world };
+    const { selectTiles, selectIntent: rawSelectIntent, selectSeeker } = selection;
     const { unityProvider, sendMessage, addEventListener, removeEventListener, loadingProgression } = useUnityContext({
         loaderUrl: `/ds-unity/Build/ds-unity.loader.js`,
         dataUrl: `/ds-unity/Build/ds-unity.data`,
@@ -104,27 +98,93 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
 
     // -- State update
 
-    // [!] hack to force map update through a delayed queue this protects the
-    // map from crashing due to recving too many updates in parallel by slowing
-    // down the send rate TODO: get rid of this by debouncing the updates
-    // elsewhere or at least make the queue less laggy
-    useEffect(() => {
-        if (!globalDrainTimeout) {
-            globalDrainTimeout = setTimeout(drainOne, 1000);
-        }
-        return () => {
-            clearTimeout(globalDrainTimeout);
-            globalDrainTimeout = null;
-        };
-    }, []);
+    if (isReady && game.world && !sendingStateUpdate) {
+        const sends: [gameObjectName: string, methodName: string, parameter?: any][] = [];
+        const send = (args: [gameObjectName: string, methodName: string, parameter?: any]) => sends.push(args);
 
-    const newMapBlob = JSON.stringify(game);
-    if (isReady && game && game.world && globalLastBlob != newMapBlob) {
-        globalSender = sendMessage;
-        globalLastBlob = newMapBlob;
-        (window as any).globalLastBlob = globalLastBlob;
-        globalQueue.push(newMapBlob);
-        drainOne();
+        send([
+            'GameStateMediator',
+            'StartOnState',
+            JSON.stringify({ tiles: [], buildings: [], players: [], block: game.world.block })
+        ]);
+        // prevBlock = game.world.block;
+
+        if (game.world.players) {
+            const nextPlayersJSON = JSON.stringify(game.world.players);
+            if (nextPlayersJSON != prevPlayersJSON) {
+                send(['GameStateMediator', 'ResetWorldPlayers']);
+                for (let i = 0; i < game.world.players.length; i += CHUNK_PLAYERS) {
+                    send([
+                        'GameStateMediator',
+                        'AddWorldPlayers',
+                        JSON.stringify(game.world.players.slice(i, i + CHUNK_PLAYERS))
+                    ]);
+                }
+                prevPlayerJSON = nextPlayersJSON;
+            }
+        }
+
+        if (game.world.tiles) {
+            const nextTilesJSON = JSON.stringify(game.world.tiles);
+            if (nextTilesJSON != prevTilesJSON) {
+                send(['GameStateMediator', 'ResetWorldTiles']);
+                for (let i = 0; i < game.world.tiles.length; i += CHUNK_TILES) {
+                    send([
+                        'GameStateMediator',
+                        'AddWorldTiles',
+                        JSON.stringify(game.world.tiles.slice(i, i + CHUNK_TILES))
+                    ]);
+                }
+                prevTilesJSON = nextTilesJSON;
+            }
+        }
+
+        if (game.world.buildings) {
+            const nextBuildingsJSON = JSON.stringify(game.world.buildings);
+            if (nextBuildingsJSON != prevBuildingsJSON) {
+                send(['GameStateMediator', 'ResetWorldBuildings']);
+                for (let i = 0; i < game.world.buildings.length; i += CHUNK_BUILDINGS) {
+                    send([
+                        'GameStateMediator',
+                        'AddWorldBuildings',
+                        JSON.stringify(game.world.buildings.slice(i, i + CHUNK_BUILDINGS))
+                    ]);
+                }
+                prevBuildingsJSON = nextBuildingsJSON;
+            }
+        }
+
+        const nextPlayerJSON = JSON.stringify(game.player);
+        if (nextPlayerJSON != prevPlayerJSON) {
+            send(['GameStateMediator', 'SetPlayer', nextPlayerJSON]);
+            prevPlayerJSON = nextPlayerJSON;
+        }
+
+        const nextSelectionJSON = JSON.stringify(game.selected);
+        if (nextSelectionJSON != prevSelectionJSON) {
+            send(['GameStateMediator', 'SetSelectionState', nextSelectionJSON]);
+            prevSelectionJSON = nextSelectionJSON;
+        }
+
+        send(['GameStateMediator', 'EndOnState']);
+        sendingStateUpdate = true;
+        sends
+            .reduce((chain: Promise<unknown>, args: [gameObjectName: string, methodName: string, parameter?: any]) => {
+                return chain
+                    .then(() => {
+                        // console.warn(args);
+                        // console.time(`sending-${args[1]}`);
+                        sendMessage(...args);
+                        // console.timeEnd(`sending-${args[1]}`);
+                        return null;
+                    })
+                    .then(() => sleep(0)) as Promise<void>;
+            }, Promise.resolve() as Promise<unknown>)
+            .then(() => console.log('sending-done'))
+            .then(() => {
+                sendingStateUpdate = false;
+            })
+            .catch((err) => console.error(err));
     }
 
     const selectIntent = useCallback(
@@ -228,3 +288,7 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ ...otherProps }: Un
         </StyledUnityMap>
     );
 };
+
+function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
