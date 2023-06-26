@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { debounce, map, pipe, Source, switchMap } from 'wonka';
+import { concat, debounce, fromValue, lazy, map, pipe, share, Source, switchMap, tap } from 'wonka';
 import { GetWorldDocument, GetWorldQuery, WorldStateFragment, WorldTileFragment } from './gql/graphql';
 import { CompoundKeyEncoder, NodeSelectors } from './helpers';
 import { BiomeKind, CogServices } from './types';
@@ -14,11 +14,18 @@ import { BiomeKind, CogServices } from './types';
  *
  */
 export function makeWorld(cog: Source<CogServices>) {
-    return pipe(
+    let prev: WorldStateFragment | undefined;
+
+    const world = pipe(
         cog,
-        switchMap(({ query, gameID }) => {
-            return pipe(query(GetWorldDocument, { gameID }), map(normalizeWorldState));
-        }),
+        switchMap(({ query, gameID }) => query(GetWorldDocument, { gameID })),
+        map(normalizeWorldState),
+        tap((next) => (prev = next)),
+        share,
+    );
+
+    return pipe(
+        lazy(() => (prev ? concat([fromValue(prev), world]) : world)),
         debounce(() => 25),
     );
 }
