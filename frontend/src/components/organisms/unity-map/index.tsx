@@ -160,7 +160,6 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({
                 } catch (err) {
                     console.error('SendMessage:', err);
                 } finally {
-                    console.log('updated-map');
                     isSending = false;
                 }
             })();
@@ -186,7 +185,7 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({
                         JSON.stringify(game.world.players.slice(i, i + CHUNK_PLAYERS))
                     ]);
                 }
-                prevPlayerJSON = nextPlayersJSON;
+                prevPlayersJSON = nextPlayersJSON;
             }
         }
 
@@ -220,13 +219,16 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({
             }
         }
 
-        const nextPlayerJSON = JSON.stringify(game.player);
-        if (nextPlayerJSON != prevPlayerJSON) {
-            pendingPlayer = ['GameStateMediator', 'SetPlayer', nextPlayerJSON];
-            prevPlayerJSON = nextPlayerJSON;
+        if (game.player) {
+            // TODO: should allow setting player to null
+            const nextPlayerJSON = JSON.stringify(game.player);
+            if (nextPlayerJSON != prevPlayerJSON) {
+                pendingPlayer = ['GameStateMediator', 'SetPlayer', nextPlayerJSON];
+                prevPlayerJSON = nextPlayerJSON;
+            }
         }
 
-        const nextSelectionJSON = JSON.stringify(game.selected);
+        const nextSelectionJSON = JSON.stringify(game.selected || {});
         if (nextSelectionJSON != prevSelectionJSON) {
             pendingSelection = ['GameStateMediator', 'SetSelectionState', nextSelectionJSON];
             prevSelectionJSON = nextSelectionJSON;
