@@ -5,10 +5,26 @@ services:
   contracts:
     build:
       context: ./contracts
+    image: playmint/ds-contracts:local
     ports:
       - 8545:8545
     environment:
       DEPLOYER_PRIVATE_KEY: "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff9524d487fb5d57a8"
+
+  sim:
+    build:
+      context: ./contracts
+    image: playmint/ds-contracts:local
+    ports:
+      - 8546:8546
+    entrypoint:
+    - /bin/ash
+    - -eu
+    - -c
+    - |
+      anvil --code-size-limit 9999999999999 --gas-limit 9999999999999999 --host 0.0.0.0 --port 8546 --fork-url http://contracts:8545 --no-mining --no-rate-limit --no-storage-caching
+    depends_on:
+      - contracts
 
   frontend:
     build:
@@ -26,8 +42,10 @@ services:
     - -eu
     - -c
     - |
-      echo "waiting"
+      echo "waiting contracts"
       /wait-for -it contracts:8545 -t 300
+      echo "waiting sim"
+      /wait-for -it sim:8546 -t 30
       echo "starting"
       exec /ds-node
     environment:
@@ -35,8 +53,8 @@ services:
       SEQUENCER_PRIVATE_KEY: "095a37ef5b5d87db7fe50551725cb64804c8c554868d3d729c0dd17f0e664c87"
       SEQUENCER_PROVIDER_URL_HTTP: "http://contracts:8545"
       SEQUENCER_PROVIDER_URL_WS: "ws://contracts:8545"
-      SIMULATION_PROVIDER_URL_HTTP: "http://localhost:8546"
-      SIMULATION_PROVIDER_URL_WS: "ws://localhost:8546"
+      SIMULATION_PROVIDER_URL_HTTP: "http://sim:8546"
+      SIMULATION_PROVIDER_URL_WS: "ws://sim:8546"
       INDEXER_WATCH_PENDING: "false"
       INDEXER_PROVIDER_URL_HTTP: "http://contracts:8545"
       INDEXER_PROVIDER_URL_WS: "ws://contracts:8545"
@@ -44,5 +62,6 @@ services:
       - 8080:8080
     depends_on:
       - contracts
+      - sim
 
 
