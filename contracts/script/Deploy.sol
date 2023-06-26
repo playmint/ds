@@ -251,13 +251,13 @@ contract GameDeployer is Script {
                 name: "Cocktail Hut",
                 materials: [
                     Material({quantity: 25, item: ItemUtils.GlassGreenGoo()}),
-                    Material({quantity: 25, item: ItemUtils.FlaskBlueGoo()}),
-                    Material({quantity: 25, item: ItemUtils.VialRedGoo()}),
+                    Material({quantity: 25, item: ItemUtils.BeakerBlueGoo()}),
+                    Material({quantity: 25, item: ItemUtils.FlaskRedGoo()}),
                     Material({quantity: 0, item: 0x0})
                 ],
                 inputs: [
-                    Input({quantity: 2, item: ItemUtils.FlaskBlueGoo()}),
-                    Input({quantity: 2, item: ItemUtils.VialRedGoo()}),
+                    Input({quantity: 2, item: ItemUtils.BeakerBlueGoo()}),
+                    Input({quantity: 2, item: ItemUtils.FlaskRedGoo()}),
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0})
                 ],
@@ -328,7 +328,7 @@ contract GameDeployer is Script {
                     Material({quantity: 0, item: 0x0})
                 ],
                 inputs: [
-                    Input({quantity: 100, item: ItemUtils.VialRedGoo()}),
+                    Input({quantity: 100, item: ItemUtils.FlaskRedGoo()}),
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0})
@@ -352,7 +352,7 @@ contract GameDeployer is Script {
                 ],
                 inputs: [
                     Input({quantity: 100, item: ItemUtils.GlassGreenGoo()}),
-                    Input({quantity: 100, item: ItemUtils.FlaskBlueGoo()}),
+                    Input({quantity: 100, item: ItemUtils.BeakerBlueGoo()}),
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0})
                 ],
@@ -734,7 +734,7 @@ contract GameDeployer is Script {
             })
         );
 
-        bytes24 badmintonWeapons = BuildingUtils.register(
+        BuildingUtils.register(
             ds,
             BuildingConfig({
                 id: 13,
@@ -742,13 +742,13 @@ contract GameDeployer is Script {
                 materials: [
                     Material({quantity: 5, item: goldCoin}),
                     Material({quantity: 50, item: ItemUtils.GlassGreenGoo()}),
-                    Material({quantity: 50, item: ItemUtils.FlaskBlueGoo()}),
-                    Material({quantity: 50, item: ItemUtils.VialRedGoo()})
+                    Material({quantity: 50, item: ItemUtils.BeakerBlueGoo()}),
+                    Material({quantity: 50, item: ItemUtils.FlaskRedGoo()})
                 ],
                 inputs: [
                     Input({quantity: 2, item: goldCoin}),
-                    Input({quantity: 100, item: ItemUtils.VialRedGoo()}),
-                    Input({quantity: 100, item: ItemUtils.VialRedGoo()}),
+                    Input({quantity: 100, item: ItemUtils.FlaskRedGoo()}),
+                    Input({quantity: 100, item: ItemUtils.FlaskRedGoo()}),
                     Input({quantity: 0, item: 0x0})
                 ],
                 outputs: [Output({quantity: 1, item: shuttlecock})],
@@ -757,7 +757,7 @@ contract GameDeployer is Script {
             })
         );
 
-        bytes24 badmintonArmour = BuildingUtils.register(
+        BuildingUtils.register(
             ds,
             BuildingConfig({
                 id: 14,
@@ -765,13 +765,13 @@ contract GameDeployer is Script {
                 materials: [
                     Material({quantity: 5, item: goldCoin}),
                     Material({quantity: 50, item: ItemUtils.GlassGreenGoo()}),
-                    Material({quantity: 50, item: ItemUtils.FlaskBlueGoo()}),
-                    Material({quantity: 50, item: ItemUtils.VialRedGoo()})
+                    Material({quantity: 50, item: ItemUtils.BeakerBlueGoo()}),
+                    Material({quantity: 50, item: ItemUtils.FlaskRedGoo()})
                 ],
                 inputs: [
                     Input({quantity: 2, item: goldCoin}),
-                    Input({quantity: 100, item: ItemUtils.FlaskBlueGoo()}),
-                    Input({quantity: 100, item: ItemUtils.FlaskBlueGoo()}),
+                    Input({quantity: 100, item: ItemUtils.BeakerBlueGoo()}),
+                    Input({quantity: 100, item: ItemUtils.BeakerBlueGoo()}),
                     Input({quantity: 0, item: 0x0})
                 ],
                 outputs: [Output({quantity: 1, item: racket})],

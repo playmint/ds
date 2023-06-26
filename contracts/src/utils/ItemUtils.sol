@@ -27,12 +27,12 @@ library ItemUtils {
         return Node.Item("Glass of Green Goo", [uint32(2), uint32(0), uint32(0)], true);
     }
 
-    function FlaskBlueGoo() internal pure returns (bytes24) {
-        return Node.Item("Flask of Blue Goo", [uint32(0), uint32(2), uint32(0)], true);
+    function BeakerBlueGoo() internal pure returns (bytes24) {
+        return Node.Item("Beaker of Blue Goo", [uint32(0), uint32(2), uint32(0)], true);
     }
 
-    function VialRedGoo() internal pure returns (bytes24) {
-        return Node.Item("Vial of Red Goo", [uint32(0), uint32(0), uint32(2)], true);
+    function FlaskRedGoo() internal pure returns (bytes24) {
+        return Node.Item("Flask of Red Goo", [uint32(0), uint32(0), uint32(2)], true);
     }
 
     // register is a helper to declare a new kind of item

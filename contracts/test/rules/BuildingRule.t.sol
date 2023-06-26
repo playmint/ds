@@ -46,9 +46,9 @@ contract BuildingRuleTest is Test {
         state = game.getState();
 
         // setup default material construction costs
-        defaultMaterialItem[0] = ItemUtils.Kiki();
-        defaultMaterialItem[1] = ItemUtils.Bouba();
-        defaultMaterialItem[2] = ItemUtils.Semiote();
+        defaultMaterialItem[0] = ItemUtils.GlassGreenGoo();
+        defaultMaterialItem[1] = ItemUtils.BeakerBlueGoo();
+        defaultMaterialItem[2] = ItemUtils.FlaskRedGoo();
         defaultMaterialQty[0] = 25;
         defaultMaterialQty[1] = 25;
         defaultMaterialQty[2] = 25;
@@ -200,9 +200,9 @@ contract BuildingRuleTest is Test {
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
         bytes24 buildingBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
         state.setEquipSlot(buildingInstance, 0, buildingBag);
-        state.setItemSlot(buildingBag, 0, ItemUtils.Kiki(), 100);
-        state.setItemSlot(buildingBag, 1, ItemUtils.Bouba(), 100);
-        state.setItemSlot(buildingBag, 2, ItemUtils.Semiote(), 100);
+        state.setItemSlot(buildingBag, 0, ItemUtils.GlassGreenGoo(), 100);
+        state.setItemSlot(buildingBag, 1, ItemUtils.BeakerBlueGoo(), 100);
+        state.setItemSlot(buildingBag, 2, ItemUtils.FlaskRedGoo(), 100);
         // construct our building
         vm.expectRevert("BuildingMustBeAdjacentToSeeker"); // expect fail as q/r/s not adjacent
         dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
@@ -217,9 +217,9 @@ contract BuildingRuleTest is Test {
         _discover(0, 0, 0);
         dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (seeker)));
         bytes24[] memory items = new bytes24[](3);
-        items[0] = ItemUtils.Kiki();
-        items[1] = ItemUtils.Bouba();
-        items[2] = ItemUtils.Semiote();
+        items[0] = ItemUtils.GlassGreenGoo();
+        items[1] = ItemUtils.BeakerBlueGoo();
+        items[2] = ItemUtils.FlaskRedGoo();
 
         uint64[] memory balances = new uint64[](3);
         balances[0] = 100;

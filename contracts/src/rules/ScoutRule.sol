@@ -68,11 +68,11 @@ contract ScoutRule is Rule {
         _resourceSpawnCount++;
         uint8 n = _resourceSpawnCount % 3;
         if (n == 0) {
-            return ItemUtils.Kiki();
+            return ItemUtils.GlassGreenGoo();
         } else if (n == 1) {
-            return ItemUtils.Bouba();
+            return ItemUtils.BeakerBlueGoo();
         } else {
-            return ItemUtils.Semiote();
+            return ItemUtils.FlaskRedGoo();
         }
     }
 }

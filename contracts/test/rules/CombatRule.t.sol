@@ -99,9 +99,9 @@ contract CombatRuleTest is Test {
         vm.stopPrank();
 
         // setup default material construction costs
-        defaultMaterialItem[0] = ItemUtils.Kiki();
-        defaultMaterialItem[1] = ItemUtils.Bouba();
-        defaultMaterialItem[2] = ItemUtils.Semiote();
+        defaultMaterialItem[0] = ItemUtils.GlassGreenGoo();
+        defaultMaterialItem[1] = ItemUtils.BeakerBlueGoo();
+        defaultMaterialItem[2] = ItemUtils.FlaskRedGoo();
         defaultMaterialQty[0] = 25;
         defaultMaterialQty[1] = 25;
         defaultMaterialQty[2] = 25;
@@ -416,9 +416,9 @@ contract CombatRuleTest is Test {
         _discover(0, 0, 0);
         dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (seeker)));
         bytes24[] memory items = new bytes24[](3);
-        items[0] = ItemUtils.Kiki();
-        items[1] = ItemUtils.Bouba();
-        items[2] = ItemUtils.Semiote();
+        items[0] = ItemUtils.GlassGreenGoo();
+        items[1] = ItemUtils.BeakerBlueGoo();
+        items[2] = ItemUtils.FlaskRedGoo();
 
         uint64[] memory balances = new uint64[](3);
         balances[0] = 100;
