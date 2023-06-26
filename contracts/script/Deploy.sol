@@ -10,8 +10,8 @@ import {Node, BiomeKind, Schema} from "@ds/schema/Schema.sol";
 
 import {CocktailHut} from "@ds/fixtures/CocktailHut.sol";
 
-import {KikiFission} from "@ds/fixtures/KikiFission.sol";
-import {KikiFusion} from "@ds/fixtures/KikiFusion.sol";
+import {GreenGooFission} from "@ds/fixtures/GreenGooFission.sol";
+import {GreenGooFusion} from "@ds/fixtures/GreenGooFusion.sol";
 import {FoulFiends} from "@ds/fixtures/FoulFiends.sol";
 import {KwikTyre} from "@ds/fixtures/KwikTyre.sol";
 import {AllThingsRubber} from "@ds/fixtures/AllThingsRubber.sol";
@@ -125,7 +125,7 @@ contract GameDeployer is Script {
         _rubberDuckChain(ds, l33tBricks);
 
         //register the Kiki Chain & Hermit
-        bytes24 dismemberedHand = _megaKikiChain(ds, l33tBricks);
+        bytes24 dismemberedHand = _greenGooChain(ds, l33tBricks);
 
         //register monsters
         _enemySpawn(ds, goldCoin, goldNote);
@@ -188,12 +188,12 @@ contract GameDeployer is Script {
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -10, -1, 11)));
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -9, 0, 9)));
 
-        //Kiki Fusion
+        //Green Goo Fusion
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -21, 1, 20)));
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -20, -1, 21)));
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -19, 0, 19)));
 
-        //Kiki Fission
+        //Green Goo Fission
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -11, -14, 25)));
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -10, -16, 26)));
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -9, -15, 24)));
@@ -390,13 +390,13 @@ contract GameDeployer is Script {
         BuildingUtils.construct(ds, allThingsRubber, "building", -10, 0, 10);
     }
 
-    function _megaKikiChain(Game ds, bytes24 l33tBricks) private returns (bytes24) {
-        bytes24 superKiki = ItemUtils.register(
+    function _greenGooChain(Game ds, bytes24 l33tBricks) private returns (bytes24) {
+        bytes24 vibrantGreenGoo = ItemUtils.register(
             ds,
             ItemConfig({
                 id: 101,
-                name: "Super-Kiki",
-                icon: "20-187",
+                name: "Vibrant Green Goo",
+                icon: "22-197",
                 life: 20,
                 defense: 0,
                 attack: 0,
@@ -406,12 +406,12 @@ contract GameDeployer is Script {
             })
         );
 
-        bytes24 megaKiki = ItemUtils.register(
+        bytes24 reallyGreenGoo = ItemUtils.register(
             ds,
             ItemConfig({
                 id: 102,
-                name: "MEGA-Kiki",
-                icon: "27-59",
+                name: "Really Green Goo",
+                icon: "22-192",
                 life: 200,
                 defense: 0,
                 attack: 0,
@@ -436,11 +436,11 @@ contract GameDeployer is Script {
             })
         );
 
-        bytes24 kikiFission = BuildingUtils.register(
+        bytes24 greenGooFission = BuildingUtils.register(
             ds,
             BuildingConfig({
                 id: 5,
-                name: "Kiki Fission",
+                name: "Green Goo Fission",
                 materials: [
                     Material({quantity: 100, item: l33tBricks}),
                     Material({quantity: 0, item: 0x0}),
@@ -453,17 +453,17 @@ contract GameDeployer is Script {
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0})
                 ],
-                outputs: [Output({quantity: 5, item: superKiki})],
-                implementation: address(new KikiFission()),
-                plugin: vm.readFile("src/fixtures/KikiFission.js")
+                outputs: [Output({quantity: 5, item: vibrantGreenGoo})],
+                implementation: address(new GreenGooFission()),
+                plugin: vm.readFile("src/fixtures/GreenGooFission.js")
             })
         );
 
-        bytes24 kikiFusion = BuildingUtils.register(
+        bytes24 greenGooFusion = BuildingUtils.register(
             ds,
             BuildingConfig({
                 id: 6,
-                name: "Kiki Fusion",
+                name: "Green Goo Fusion",
                 materials: [
                     Material({quantity: 100, item: l33tBricks}),
                     Material({quantity: 0, item: 0x0}),
@@ -471,14 +471,14 @@ contract GameDeployer is Script {
                     Material({quantity: 0, item: 0x0})
                 ],
                 inputs: [
-                    Input({quantity: 100, item: superKiki}),
+                    Input({quantity: 100, item: vibrantGreenGoo}),
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0})
                 ],
-                outputs: [Output({quantity: 5, item: megaKiki})],
-                implementation: address(new KikiFusion()),
-                plugin: vm.readFile("src/fixtures/KikiFusion.js")
+                outputs: [Output({quantity: 5, item: reallyGreenGoo})],
+                implementation: address(new GreenGooFusion()),
+                plugin: vm.readFile("src/fixtures/GreenGooFusion.js")
             })
         );
 
@@ -495,8 +495,8 @@ contract GameDeployer is Script {
                 ],
                 inputs: [
                     Input({quantity: 1, item: ItemUtils.GlassGreenGoo()}),
-                    Input({quantity: 1, item: superKiki}),
-                    Input({quantity: 1, item: megaKiki}),
+                    Input({quantity: 1, item: vibrantGreenGoo}),
+                    Input({quantity: 1, item: reallyGreenGoo}),
                     Input({quantity: 0, item: 0x0})
                 ],
                 outputs: [Output({quantity: 1, item: dismemberedHand})],
@@ -505,8 +505,8 @@ contract GameDeployer is Script {
             })
         );
 
-        BuildingUtils.construct(ds, kikiFission, "building", -10, -15, 25);
-        BuildingUtils.construct(ds, kikiFusion, "building", -20, 0, 20);
+        BuildingUtils.construct(ds, greenGooFission, "building", -10, -15, 25);
+        BuildingUtils.construct(ds, greenGooFusion, "building", -20, 0, 20);
         BuildingUtils.construct(ds, crazyHermit, "building", 7, 7, -14);
 
         return dismemberedHand;

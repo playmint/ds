@@ -48,9 +48,9 @@ export default function update({ selected, world }) {
         components: [
             {
                 type: 'building',
-                id: 'kiki-fission',
-                title: 'Kiki Fission',
-                summary: `A reactor that will fuse Kikis into Super-Kikis`,
+                id: 'green-goo-fission',
+                title: 'Green Goo Fission',
+                summary: `A reactor that fuses Green Goo into Vibrant Green Goo`,
                 content: [
                     {
                         id: 'default',
