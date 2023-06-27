@@ -145,8 +145,9 @@ public class MapManager : MonoBehaviour
         {
             var hasResource = TileHelper.HasResource(tile);
             var cellPosCube = TileHelper.GetTilePosCube(tile);
+            var hasReward = TileHelper.HasReward(tile, state.Player.Seekers);
 
-            if (hasResource)
+            if (hasResource || hasReward)
                 MapElementManager.instance.CreateBag(cellPosCube);
             else
                 MapElementManager.instance.CheckBagIconRemoved(cellPosCube);
