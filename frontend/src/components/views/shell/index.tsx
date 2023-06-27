@@ -141,6 +141,9 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                 return;
             }
             const name = prompt('Enter a name:');
+            if (!name || name.length < 3) {
+                return;
+            }
             player.dispatch({ name: 'NAME_OWNED_ENTITY', args: [entityId, name] });
         },
         [player]
