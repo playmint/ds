@@ -30,6 +30,10 @@ fragment WorldSeeker on Node {
     owner: node(match: { kinds: "Player", via: { rel: "Owner" } }) {
         id
     }
+    # owner assigned name
+    name: annotation(name: "name") {
+        value
+    }
 }
 
 fragment WorldBuilding on Node {
