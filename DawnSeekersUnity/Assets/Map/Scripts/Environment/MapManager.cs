@@ -59,7 +59,7 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    public void AddTile(Vector3Int cellCubicCoords, Tiles2 tile)
+    public TileController AddTile(Vector3Int cellCubicCoords, Tiles2 tile)
     {
         if (!IsTileAtPosition(cellCubicCoords))
         {
@@ -76,6 +76,8 @@ public class MapManager : MonoBehaviour
                 tc.AppearFull();
             else
                 tc.Appear();
+
+            return tc;
         }
         else
         {
@@ -87,9 +89,11 @@ public class MapManager : MonoBehaviour
                 {
                     TileController tileController = tileGO.GetComponent<TileController>();
                     tileController.AppearFull();
+                    return tileController;
                 }
             }
         }
+        return null;
     }
 
     public bool IsDiscoveredTile(Vector3Int cellPosCube)
@@ -147,20 +151,22 @@ public class MapManager : MonoBehaviour
             var cellPosCube = TileHelper.GetTilePosCube(tile);
             var hasReward = TileHelper.HasReward(tile, state.Player.Seekers);
 
+            Transform tileTransform = AddTile(cellPosCube, tile)?.transform;
+
             if (hasResource || hasReward)
-                MapElementManager.instance.CreateBag(cellPosCube);
+                MapElementManager.instance.CreateBag(cellPosCube, tileTransform);
             else
                 MapElementManager.instance.CheckBagIconRemoved(cellPosCube);
 
             if (TileHelper.HasEnemy(tile))
-                MapElementManager.instance.CreateEnemy(cellPosCube);
+                MapElementManager.instance.CreateEnemy(cellPosCube, tileTransform);
             else if (tile.Building != null)
             {
-                MapElementManager.instance.CreateBuilding(cellPosCube);
+                MapElementManager.instance.CreateBuilding(cellPosCube, tileTransform);
                 MapElementManager.instance.CheckIncompleteBuildingIconRemoved(cellPosCube);
             }
             else if (incompleteBuildings.Contains(tile.Id.Substring(10)))
-                MapElementManager.instance.CreateIncompleteBuilding(cellPosCube);
+                MapElementManager.instance.CreateIncompleteBuilding(cellPosCube, tileTransform);
             else
             {
                 MapElementManager.instance.CheckBuildingIconRemoved(cellPosCube);
@@ -168,7 +174,6 @@ public class MapManager : MonoBehaviour
                 MapElementManager.instance.CheckIncompleteBuildingIconRemoved(cellPosCube);
             }
 
-            AddTile(cellPosCube, tile);
             counter++;
             if (counter % tileChunks == 0)
                 yield return null;
