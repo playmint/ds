@@ -308,6 +308,7 @@ export default function ShellPage() {
             <ModalProvider>
                 {loading}
                 <Shell
+                    mapReady={isReady}
                     world={world}
                     player={player}
                     selection={selected}

@@ -32,6 +32,7 @@ export interface ShellProps extends ComponentProps, Partial<SelectionSelectors> 
     selection?: Selection;
     unityProvider: UnityProvider;
     sendMessage: (gameObjectName: string, methodName: string, parameter?: any) => void;
+    mapReady: boolean;
 }
 
 const StyledShell = styled('div')`
@@ -39,7 +40,7 @@ const StyledShell = styled('div')`
 `;
 
 export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
-    const { world, player, selection, selectSeeker, sendMessage, unityProvider, ...otherProps } = props;
+    const { mapReady, world, player, selection, selectSeeker, sendMessage, unityProvider, ...otherProps } = props;
     const { seeker: selectedSeeker, tiles: selectedTiles } = selection || {};
     const { openModal, setModalContent, closeModal } = useModalContext();
     const [providerAvailable, setProviderAvailable] = useState<boolean>(false);
@@ -94,8 +95,10 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         if (!seeker) {
             return;
         }
+        if (!mapReady) {
+            return;
+        }
         if (!sendMessage) {
-            console.log('no sendMessage');
             return;
         }
         if (!selectSeeker) {
@@ -104,7 +107,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         selectSeeker(seeker.id);
         const tileId = seeker.nextLocation?.tile.id;
         sendMessage('MapInteractionManager', 'FocusTile', tileId);
-    }, [selectSeeker, player, sendMessage]);
+    }, [selectSeeker, player, sendMessage, mapReady]);
 
     const selectNextSeeker = useCallback(
         (n: number) => {
@@ -192,7 +195,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                             <TileCoords className="action" selectedTiles={selectedTiles} />
                         </Fragment>
                     )}
-                    {player && player.seekers.length > 0 && !selectedSeeker && (
+                    {mapReady && world && player && player.seekers.length > 0 && !selectedSeeker && (
                         <div className="onboarding" style={{ width: '30rem' }}>
                             <button onClick={selectAndFocusSeeker}>Select Unit</button>
                         </div>
