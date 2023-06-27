@@ -62,8 +62,7 @@ public class EnvironmentLoaderManager : MonoBehaviour
         AsyncOperationHandle operationHandle = Addressables.LoadAssetAsync<GameObject>(label);
         await operationHandle.Task;
         _tilePrefab = (GameObject)operationHandle.Result;
-        EnvironmentAssetsLoaded?.Invoke();
-        Debug.Log("Environment assets loaded.");
+        Invoke("DelayedInvoke", 1);
     }
 
     public TileController AddTile(Vector3 position, Vector3Int cellCubicCoords)
@@ -72,5 +71,11 @@ public class EnvironmentLoaderManager : MonoBehaviour
         tile.name = "Tile_" + cellCubicCoords.ToString();
         tile.position = new Vector3(position.x, -1, position.z);
         return tile.GetComponent<TileController>();
+    }
+
+    private void DelayedInvoke()
+    {
+        EnvironmentAssetsLoaded?.Invoke();
+        Debug.Log("Environment assets loaded.");
     }
 }

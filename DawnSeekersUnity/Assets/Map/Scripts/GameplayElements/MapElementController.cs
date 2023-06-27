@@ -10,6 +10,9 @@ public class MapElementController : MonoBehaviour
     [SerializeField]
     protected GameObject iconPrefab;
 
+    [SerializeField]
+    private bool createIcon = true;
+
     protected IconController _icon;
     protected Vector3 _currentPosition;
 
@@ -20,13 +23,14 @@ public class MapElementController : MonoBehaviour
         _currentPosition = pos;
         _currentPosition = new Vector3(_currentPosition.x, height, _currentPosition.z);
         transform.position = _currentPosition;
-
-        _icon = MapElementManager.instance.CreateIcon(iconParent, iconPrefab);
+        if (createIcon)
+            _icon = MapElementManager.instance.CreateIcon(iconParent, iconPrefab);
     }
 
     public void DestroyMapElement()
     {
-        _icon.DestroyIcon();
+        if (createIcon)
+            _icon.DestroyIcon();
         Destroy(gameObject);
     }
 }

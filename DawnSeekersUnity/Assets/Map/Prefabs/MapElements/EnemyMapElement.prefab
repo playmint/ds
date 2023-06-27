@@ -216,6 +216,7 @@ MonoBehaviour:
   iconParent: {fileID: 8730588450661582252}
   iconPrefab: {fileID: 2167013614747121971, guid: 58a41a29608144c348eb2c954e04eaef,
     type: 3}
+  createIcon: 0
 --- !u!4 &8730588450661582252 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4011681257694613555, guid: a699dfdf8ea904492a4f3bc5ea3d169d,

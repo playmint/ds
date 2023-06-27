@@ -12,25 +12,21 @@ public class LoadingOverlay : MonoBehaviour
     {
         _group = GetComponent<CanvasGroup>();
         _hidden = false;
-        Cog.GameStateMediator.Instance.EventStateUpdated += OnStateUpdated;
+        EnvironmentLoaderManager.EnvironmentAssetsLoaded += OnStateUpdated;
     }
 
     private void OnDestroy()
     {
-        Cog.GameStateMediator.Instance.EventStateUpdated -= OnStateUpdated;
+        EnvironmentLoaderManager.EnvironmentAssetsLoaded -= OnStateUpdated;
     }
 
-    private void OnStateUpdated(GameState state)
+    private void OnStateUpdated()
     {
-        if (_hidden || state.World == null || state.World.Tiles == null)
+        if (_hidden)
             return;
-
-        if (state.World.Tiles.Count > 0)
-        {
-            _hidden = true;
-            StartCoroutine(FadeOutCR());
-            return;
-        }
+        _hidden = true;
+        StartCoroutine(FadeOutCR());
+        return;
     }
 
     IEnumerator FadeOutCR()
