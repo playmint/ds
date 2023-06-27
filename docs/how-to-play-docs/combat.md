@@ -7,13 +7,16 @@ When a Unit attacks a Building it begins a combat session. This will continue un
 ### **********Units**********
 
 - Each Unit begins with 50 life, 30 attack and 23 defence.
-- The number of atoms they have in equipable items will increase this value
+- The number of goo they have in equipable items will increase these values
     - Equipable items are non-stackable (i.e. you can only have one per slot)
+    - Green Goo = Life
+    - Blue Goo = Defense
+    - Red Goo = Attack
 
 ### Buildings
 
-- The construction costs of a Building will dictate its stats. Atoms have the same value as they do on Units
-- When a Building is deployed it will require a minimum number of each atom. This is so it can’t be destroyed by an aggressive fly.
+- The construction costs of a Building will dictate its stats. The goo structure of the building materials will define its life/defense/attack.
+- When a Building is deployed it will require a minimum number of each color goo. This is so it can’t be destroyed by an aggressive fly.
 
 ## Combat Session Flow
 
