@@ -6,7 +6,7 @@ import { AbiCoder, ethers } from 'ethers';
 export const resourceRegex = /^0x37f9b55d[0-9a-f]+$/g;
 
 export function iconURL(icon?: string) {
-    return icon ? `https://playmintglobal.z16.web.core.windows.net/icons/${icon}.svg` : '/icons/unknown.png';
+    return icon ? `https://assets.downstream.game/icons/${icon}.svg` : '/icons/unknown.png';
 }
 
 export function getItemDetails(itemSlot: ItemSlotFragment) {
