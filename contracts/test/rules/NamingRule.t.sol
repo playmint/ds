@@ -22,12 +22,13 @@ contract NamingRuleTest is Test {
 
     // accounts
     address aliceAccount;
+    address bobAccount;
     uint64 sid;
 
     function setUp() public {
         // setup users
-        uint256 alicePrivateKey = 0xA11CE;
-        aliceAccount = vm.addr(alicePrivateKey);
+        aliceAccount = vm.addr(0xA11CE);
+        bobAccount = vm.addr(0xB0B0B);
 
         // setup allowlist
         address[] memory allowlist = new address[](1);
@@ -53,5 +54,21 @@ contract NamingRuleTest is Test {
         dispatcher.dispatch(abi.encodeCall(Actions.NAME_OWNED_ENTITY, (entity, name)));
 
         assertEq(state.getAnnotationRef(entity, "name"), keccak256(bytes(name)));
+        vm.stopPrank();
+    }
+
+    function testNameUnownedEntity() public {
+        // alice spawns a unit
+        vm.startPrank(aliceAccount);
+        sid++;
+        bytes24 entity = Node.Seeker(sid);
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (entity)));
+        vm.stopPrank();
+
+        // bob tries to name it
+        vm.startPrank(bobAccount);
+        vm.expectRevert("EntityNotOwnedByPlayer");
+        dispatcher.dispatch(abi.encodeCall(Actions.NAME_OWNED_ENTITY, (entity, "bobsnow")));
+        vm.stopPrank();
     }
 }
