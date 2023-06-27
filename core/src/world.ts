@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
-import { debounce, map, pipe, Source, switchMap } from 'wonka';
-import { GetWorldDocument, GetWorldQuery, WorldStateFragment, WorldTileFragment } from './gql/graphql';
+import { concat, debounce, fromValue, lazy, map, pipe, share, Source, switchMap, tap } from 'wonka';
+import { GetWorldDocument, GetWorldQuery, SelectedTileFragment, WorldStateFragment } from './gql/graphql';
 import { CompoundKeyEncoder, NodeSelectors } from './helpers';
 import { BiomeKind, CogServices } from './types';
 
@@ -14,12 +14,19 @@ import { BiomeKind, CogServices } from './types';
  *
  */
 export function makeWorld(cog: Source<CogServices>) {
-    return pipe(
+    let prev: WorldStateFragment | undefined;
+
+    const world = pipe(
         cog,
-        switchMap(({ query, gameID }) => {
-            return pipe(query(GetWorldDocument, { gameID }), map(normalizeWorldState));
-        }),
-        debounce(() => 25),
+        switchMap(({ query, gameID }) => query(GetWorldDocument, { gameID })),
+        map(normalizeWorldState),
+        tap((next) => (prev = next)),
+        share,
+    );
+
+    return pipe(
+        lazy(() => (prev ? concat([fromValue(prev), world]) : world)),
+        debounce(() => 10),
     );
 }
 
@@ -39,8 +46,8 @@ function normalizeWorldState({ game }: GetWorldQuery): WorldStateFragment {
  * so we can have a consistent experience of selecting and processing these tiles
  *
  */
-function addUnscoutedTiles(tiles: WorldTileFragment[]): WorldTileFragment[] {
-    const unscouted = new Map<string, WorldTileFragment>();
+function addUnscoutedTiles(tiles: SelectedTileFragment[]): SelectedTileFragment[] {
+    const unscouted = new Map<string, SelectedTileFragment>();
     tiles.forEach((t) => {
         getUnscoutedNeighbours(tiles, t).forEach((unscoutedTile) => {
             if (!unscouted.has(unscoutedTile.id)) {
@@ -51,7 +58,7 @@ function addUnscoutedTiles(tiles: WorldTileFragment[]): WorldTileFragment[] {
     return [...tiles, ...unscouted.values()];
 }
 
-function getUnscoutedTile(tiles: WorldTileFragment[], q: number, r: number, s: number): WorldTileFragment | null {
+function getUnscoutedTile(tiles: SelectedTileFragment[], q: number, r: number, s: number): SelectedTileFragment | null {
     const coords = [0, q, r, s].map((n) => ethers.toBeHex(ethers.toTwos(n, 16)));
     const id = CompoundKeyEncoder.encodeInt16(NodeSelectors.Tile, 0, q, r, s);
     const t = tiles.find((t) => t.id === id);
@@ -66,10 +73,11 @@ function getUnscoutedTile(tiles: WorldTileFragment[], q: number, r: number, s: n
         biome: BiomeKind.UNDISCOVERED,
         seekers: [],
         sessions: [],
+        bags: [],
     };
 }
 
-function getUnscoutedNeighbours(tiles: WorldTileFragment[], t: WorldTileFragment) {
+function getUnscoutedNeighbours(tiles: SelectedTileFragment[], t: SelectedTileFragment) {
     const { q, r, s } = getCoords(t);
     return [
         getUnscoutedTile(tiles, q + 1, r, s - 1),
@@ -78,7 +86,7 @@ function getUnscoutedNeighbours(tiles: WorldTileFragment[], t: WorldTileFragment
         getUnscoutedTile(tiles, q - 1, r, s + 1),
         getUnscoutedTile(tiles, q - 1, r + 1, s),
         getUnscoutedTile(tiles, q, r + 1, s - 1),
-    ].filter((t): t is WorldTileFragment => !!t);
+    ].filter((t): t is SelectedTileFragment => !!t);
 }
 
 export function getCoords({ coords }) {

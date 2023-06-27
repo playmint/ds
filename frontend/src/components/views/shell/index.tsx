@@ -25,10 +25,10 @@ import { CombatModal } from '@app/plugins/combat/combat-modal';
 import { CombatSummary } from '@app/plugins/combat/combat-summary';
 import { CombatRewards } from '@app/plugins/combat/combat-rewards';
 
-export interface ShellProps extends ComponentProps {
+export interface ShellProps extends ComponentProps, Partial<SelectionSelectors> {
     world?: WorldStateFragment;
     player?: ConnectedPlayer;
-    selection: Selection & SelectionSelectors;
+    selection?: Selection;
 }
 
 const StyledShell = styled('div')`
@@ -36,8 +36,8 @@ const StyledShell = styled('div')`
 `;
 
 export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
-    const { world, player, selection, ...otherProps } = props;
-    const { seeker: selectedSeeker, tiles: selectedTiles, selectSeeker } = selection;
+    const { world, player, selection, selectSeeker, ...otherProps } = props;
+    const { seeker: selectedSeeker, tiles: selectedTiles } = selection || {};
     const { openModal, setModalContent, closeModal } = useModalContext();
     const [providerAvailable, setProviderAvailable] = useState<boolean>(false);
 
@@ -77,6 +77,9 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     const selectNextSeeker = useCallback(
         (n: number) => {
             if (!player) {
+                return;
+            }
+            if (!selectSeeker) {
                 return;
             }
             if (!selectedSeeker) {
@@ -191,7 +194,13 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                 </div>
             </div>
             <div className="map-container">
-                <UnityMap />
+                <UnityMap
+                    player={player}
+                    selection={selection}
+                    world={world}
+                    selectSeeker={selectSeeker}
+                    {...otherProps}
+                />
             </div>
         </StyledShell>
     );

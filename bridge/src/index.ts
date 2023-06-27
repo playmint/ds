@@ -20,7 +20,7 @@ import {
     makeLogger,
     makeSelection,
     makeWorld,
-} from "../../core/dist/core";
+} from "@dawnseekers/core";
 
 interface Message {
     msg: string;
@@ -58,7 +58,7 @@ async function main(privKey: string, echoOn: boolean) {
     const world = makeWorld(client);
     const { selection, ...selectors } = makeSelection(client, world, player);
     const { selectTiles, selectIntent, selectSeeker } = selectors;
-    const game = makeGameState(player, world, selection);
+    const game = makeGameState(player, world, selection, selectTiles, selectSeeker, selectIntent);
     const { stdout, stdin } = process;
 
     const { dispatch } = (await pipe(

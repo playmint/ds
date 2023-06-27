@@ -1,4 +1,4 @@
-import { concat, debounce, fromValue, lazy, map, pipe, share, Source, switchMap, tap, zip } from 'wonka';
+import { concat, debounce, filter, fromValue, lazy, map, pipe, share, Source, switchMap, tap, zip } from 'wonka';
 import { makeDispatcher } from './dispatcher';
 import { GetSelectedPlayerDocument, SelectedPlayerFragment } from './gql/graphql';
 import { Logger } from './logger';
@@ -25,6 +25,15 @@ export function makeConnectedPlayer(
         switchMap<any, ConnectedPlayer | UnconnectedPlayer>(({ client, wallet }: ClientWallet) =>
             wallet ? makeConnectedPlayerQuery(client, wallet, logger) : makeUnconnectedPlayerQuery(),
         ),
+        filter((next) => {
+            if (!prev) {
+                return true;
+            }
+            if (!next) {
+                return true;
+            }
+            return next.id != prev.id || next.dispatch != prev.dispatch || next.seekers != prev.seekers;
+        }),
         tap((next) => (prev = next)),
         share,
     );
@@ -39,6 +48,7 @@ function makeUnconnectedPlayerQuery(): Source<UnconnectedPlayer> {
 }
 
 function makeConnectedPlayerQuery(client: CogServices, wallet: Wallet, logger: Logger): Source<ConnectedPlayer> {
+    const dispatcher = makeDispatcher(client, wallet, logger);
     return pipe(
         client.query(GetSelectedPlayerDocument, { gameID: client.gameID, id: wallet.id }),
         map(({ game }) => (game.state.player ? game.state.player : toFakeSelectedPlayer(wallet))),
@@ -46,7 +56,7 @@ function makeConnectedPlayerQuery(client: CogServices, wallet: Wallet, logger: L
             (selectedPlayer) =>
                 ({
                     ...selectedPlayer,
-                    ...makeDispatcher(client, wallet, logger),
+                    ...dispatcher,
                 } satisfies ConnectedPlayer),
         ),
     );

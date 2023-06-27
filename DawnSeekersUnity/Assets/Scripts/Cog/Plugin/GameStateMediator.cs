@@ -116,7 +116,8 @@ namespace Cog
                     }
                     catch (Exception e)
                     {
-                        Debug.Log($"GameStateMediator::Update() error {e.Message}");
+                        Debug.Log("GameStateMediator::Update() error");
+                        Debug.LogError(e);
                     }
                 }
             }
@@ -178,7 +179,7 @@ namespace Cog
 
         public void NodeProcessThread()
         {
-            if (DawnseekersDevSettings.instance.NodePath == "") 
+            if (DawnseekersDevSettings.instance.NodePath == "")
             {
                 Debug.LogError("PluginController: Node path not set. Make sure the absolute path to node is set in the Edit > Project Settings > Dawnseekers panel");
                 return;
@@ -200,7 +201,7 @@ namespace Cog
                 }
             };
 
-            try 
+            try
             {
                 _nodeJSProcess.Start();
             }
@@ -214,15 +215,15 @@ namespace Cog
             while (!_nodeJSProcess.StandardOutput.EndOfStream)
             {
                 var line = _nodeJSProcess.StandardOutput.ReadLine();
-                
+
                 if (line.Length > 0 && line[0] == '{')
                 {
-                    try 
+                    try
                     {
                         var state = JsonConvert.DeserializeObject<GameState>(line);
                         UpdateState(state);
-                    } 
-                    catch (Exception e) 
+                    }
+                    catch (Exception e)
                     {
                         Debug.Log("DSBridge:\n" + line);
                         Debug.LogError(e);
@@ -346,6 +347,144 @@ namespace Cog
                 Debug.Log("PluginController::OnState():\n" + stateJson);
                 Debug.LogError(e);
             }
+        }
+
+        private GameState incoming;
+        private GameState state;
+
+        public void StartOnState(string json)
+        {
+            incoming = new GameState();
+            incoming.World = JsonConvert.DeserializeObject<World>(json);
+            incoming.World.Tiles = new List<Tiles2>();
+            incoming.World.Players = new List<Players>();
+            incoming.World.Buildings = new List<Buildings>();
+            if (state != null)
+            {
+                if (state.World != null && state.World.Tiles != null)
+                {
+                    incoming.World.Tiles = state.World.Tiles;
+                }
+                if (state.World != null && state.World.Players != null)
+                {
+                    incoming.World.Players = state.World.Players;
+                }
+                if (state.World != null && state.World.Buildings != null)
+                {
+                    incoming.World.Buildings = state.World.Buildings;
+                }
+                incoming.Player = state.Player;
+                incoming.Selected = state.Selected;
+            }
+        }
+
+        public void SetSelectionState(string json)
+        {
+            if (json == "")
+                return;
+
+            try
+            {
+                incoming.Selected = JsonConvert.DeserializeObject<Selection>(json);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
+        }
+
+        public void ResetWorldPlayers()
+        {
+            incoming.World.Players = new List<Players>();
+        }
+
+        public void ResetWorldBuildings()
+        {
+            incoming.World.Buildings = new List<Buildings>();
+        }
+
+        public void ResetWorldTiles()
+        {
+            incoming.World.Tiles = new List<Tiles2>();
+        }
+
+        public void AddWorldTiles(string json)
+        {
+            if (json == "")
+                return;
+
+            try
+            {
+                List<Tiles2> tiles = JsonConvert.DeserializeObject<List<Tiles2>>(json);
+                for (int i = 0; i < tiles.Count; i++)
+                {
+                    incoming.World.Tiles.Add(tiles[i]);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
+        }
+
+        public void AddWorldPlayers(string json)
+        {
+            if (json == "")
+                return;
+
+            try
+            {
+                List<Players> players = JsonConvert.DeserializeObject<List<Players>>(json);
+                for (int i = 0; i < players.Count; i++)
+                {
+                    incoming.World.Players.Add(players[i]);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
+        }
+
+        public void AddWorldBuildings(string json)
+        {
+            if (json == "")
+                return;
+
+            try
+            {
+                List<Buildings> buildings = JsonConvert.DeserializeObject<List<Buildings>>(json);
+                for (int i = 0; i < buildings.Count; i++)
+                {
+                    incoming.World.Buildings.Add(buildings[i]);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
+        }
+
+        public void SetPlayer(string json)
+        {
+            if (json == "")
+                return;
+
+            try
+            {
+                incoming.Player = JsonConvert.DeserializeObject<Player>(json);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
+        }
+
+        public void EndOnState()
+        {
+            state = incoming;
+            incoming = new GameState();
+            UpdateState(state);
         }
     }
 }

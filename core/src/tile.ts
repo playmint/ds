@@ -1,5 +1,5 @@
 import { concat, debounce, fromValue, lazy, map, pipe, share, Source, switchMap, tap, zip } from 'wonka';
-import { GetSelectedTileDocument, SelectedTileFragment, WorldStateFragment, WorldTileFragment } from './gql/graphql';
+import { SelectedTileFragment, WorldStateFragment } from './gql/graphql';
 import { CogServices } from './types';
 
 /**
@@ -17,13 +17,18 @@ export function makeTiles(
     let prev: SelectedTileFragment[];
     const source = pipe(
         zip<any>({ client, world }),
-        switchMap<any, SelectedTileFragment[]>(
-            ({ client, world }: { client: CogServices; world: WorldStateFragment }) =>
-                pipe(
-                    ids,
-                    debounce(() => 100),
-                    switchMap((selectedIDs) => makeSelectedTileQuery(client, world, selectedIDs)),
+        switchMap<any, SelectedTileFragment[]>(({ world }: { client: CogServices; world: WorldStateFragment }) =>
+            pipe(
+                ids,
+                debounce(() => 100),
+                map((selectedIDs) =>
+                    selectedIDs
+                        ? selectedIDs
+                              .map((id) => world.tiles.find((t) => t.id === id))
+                              .filter((t): t is SelectedTileFragment => !!t)
+                        : ([] as SelectedTileFragment[]),
                 ),
+            ),
         ),
         tap((next) => (prev = next)),
         share,
@@ -34,25 +39,25 @@ export function makeTiles(
     );
 }
 
-function makeSelectedTileQuery(
-    client: CogServices,
-    world: WorldStateFragment,
-    selectedIDs?: string[],
-): Source<SelectedTileFragment[]> {
-    if (selectedIDs == undefined || selectedIDs.length == 0) {
-        return fromValue([]);
-    }
-    return pipe(
-        client.query(GetSelectedTileDocument, {
-            gameID: client.gameID,
-            id: selectedIDs,
-        }),
-        map(({ game }) =>
-            game && game.state.tiles.length > 0 ? game.state.tiles : ([] satisfies SelectedTileFragment[]),
-        ),
-        map((fetchedTiles) => extendWorldTileOrDrop(fetchedTiles, world.tiles, selectedIDs)),
-    );
-}
+// function makeSelectedTileQuery(
+//     client: CogServices,
+//     world: WorldStateFragment,
+//     selectedIDs?: string[],
+// ): Source<SelectedTileFragment[]> {
+//     if (selectedIDs == undefined || selectedIDs.length == 0) {
+//         return fromValue([]);
+//     }
+//     return pipe(
+//         client.query(GetSelectedTileDocument, {
+//             gameID: client.gameID,
+//             id: selectedIDs,
+//         }),
+//         map(({ game }) =>
+//             game && game.state.tiles.length > 0 ? game.state.tiles : ([] satisfies SelectedTileFragment[]),
+//         ),
+//         map((fetchedTiles) => extendWorldTileOrDrop(fetchedTiles, world.tiles, selectedIDs)),
+//     );
+// }
 
 /**
  * extendWorldTileOrDrop takes the requested selection of ids and attempts to
@@ -67,33 +72,33 @@ function makeSelectedTileQuery(
  * out for now.
  *
  */
-function extendWorldTileOrDrop(fetchedTiles: SelectedTileFragment[], worldTiles: WorldTileFragment[], ids?: string[]) {
-    if (!ids || ids.length === 0) {
-        return [] as SelectedTileFragment[];
-    }
-    return (ids || [])
-        .map((id) => {
-            const worldTile = worldTiles.find((t) => t.id == id);
-            const selectedTile = fetchedTiles.find((t) => t.id == id);
-            return worldTile ? { ...upgradeWorldTileToSelectedTile(worldTile), ...(selectedTile || {}) } : null;
-        })
-        .filter((t): t is SelectedTileFragment => !!t);
-}
+// function extendWorldTileOrDrop(fetchedTiles: SelectedTileFragment[], worldTiles: WorldTileFragment[], ids?: string[]) {
+//     if (!ids || ids.length === 0) {
+//         return [] as SelectedTileFragment[];
+//     }
+//     return (ids || [])
+//         .map((id) => {
+//             const worldTile = worldTiles.find((t) => t.id == id);
+//             const selectedTile = fetchedTiles.find((t) => t.id == id);
+//             return worldTile ? { ...upgradeWorldTileToSelectedTile(worldTile), ...(selectedTile || {}) } : null;
+//         })
+//         .filter((t): t is SelectedTileFragment => !!t);
+// }
 
 /**
  * adds mock data for any missing properties so WorldTile can be treated as a
  * SelectedTile.
  *
  */
-function upgradeWorldTileToSelectedTile(t: WorldTileFragment): SelectedTileFragment {
-    return {
-        ...t,
-        bags: [],
-        building: t.building
-            ? {
-                  ...t.building,
-              }
-            : null,
-        seekers: t.seekers ? t.seekers.map((s) => ({ ...s, bags: [] })) : [],
-    };
-}
+// function upgradeWorldTileToSelectedTile(t: WorldTileFragment): SelectedTileFragment {
+//     return {
+//         ...t,
+//         bags: [],
+//         building: t.building
+//             ? {
+//                   ...t.building,
+//               }
+//             : null,
+//         seekers: t.seekers ? t.seekers.map((s) => ({ ...s, bags: [] })) : [],
+//     };
+// }
