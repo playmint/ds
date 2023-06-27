@@ -60,7 +60,7 @@ export function makeAvailablePlugins(client: Source<CogServices>) {
  * when a plugin attempts to call dispatch but there is no connected player to
  * dispatch for.
  */
-function noopDispatcher(...actions: CogAction[]) {
+async function noopDispatcher(...actions: CogAction[]) {
     console.warn('dispatch failed: attempt to dispatch without a connected player', actions);
 }
 
