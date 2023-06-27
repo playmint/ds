@@ -1,3 +1,5 @@
+![](./images/docs-header.png)
+
 # How To Play
 
 1. [Aim of the Game](./how-to-play-docs/aim-of-the-game.md)
