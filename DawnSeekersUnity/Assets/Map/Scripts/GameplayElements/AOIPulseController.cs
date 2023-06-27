@@ -25,6 +25,10 @@ public class AOIPulseController : MonoBehaviour
 
     private void GameStateUpdated(GameState gameState)
     {
+        if (gameState == null || gameState.Selected == null)
+        {
+            return;
+        }
         if (
             gameState.Selected.Seeker != null
             && (_currentSeeker == null || gameState.Selected.Seeker.Id != _currentSeeker.Id)

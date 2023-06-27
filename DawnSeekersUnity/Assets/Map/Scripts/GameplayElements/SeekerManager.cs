@@ -142,6 +142,10 @@ public class SeekerManager : MonoBehaviour
 
     public bool IsPlayerSeeker(string seekerID)
     {
+        if (_playerSeekers == null)
+        {
+            return false;
+        }
         return _playerSeekers.Any(s => s.Id == seekerID);
     }
 
