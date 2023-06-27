@@ -176,4 +176,9 @@ public class CameraController : MonoBehaviour
             }
         }
     }
+
+    public void FocusTile(Vector3Int cubePos)
+    {
+        target.position = MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(cubePos));
+    }
 }

@@ -59,7 +59,6 @@ const baseStyles = (_: Partial<TileCoordsProps>) => css`
     }
 
     .coordinates {
-        margin-top: 1em;
     }
 `;
 

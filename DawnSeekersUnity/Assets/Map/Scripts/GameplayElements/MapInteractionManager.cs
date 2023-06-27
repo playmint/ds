@@ -247,4 +247,18 @@ public class MapInteractionManager : MonoBehaviour
             selectedMarker1.gameObject.SetActive(false);
         }
     }
+
+    public void FocusTile(Vector3Int cubePos)
+    {
+        _camController.FocusTile(cubePos);
+    }
+
+    public void FocusTile(string tileID)
+    {
+        _camController.FocusTile(
+            TileHelper.GetTilePosCube(
+                GameStateMediator.Instance.gameState.World.Tiles.FirstOrDefault(t => t.Id == tileID)
+            )
+        );
+    }
 }
