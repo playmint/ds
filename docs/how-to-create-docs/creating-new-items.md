@@ -49,6 +49,6 @@ This will show all registered items by ID and name. Note - multiple items can ha
 
 ## Icon
 
-You can choose your item’s icon from a large collection. These are displayed here: [https://playmintglobal.z16.web.core.windows.net/icons/sheet.html](https://playmintglobal.z16.web.core.windows.net/icons/sheet.html)
+You can choose your item’s icon from a large collection. These are displayed here: [https://assets.downstream.game/icons/sheet.html](https://playmintglobal.z16.web.core.windows.net/icons/sheet.html)
 
 Just put the the “xx-xx” number as the ****icon**** variable.
