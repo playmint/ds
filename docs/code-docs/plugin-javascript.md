@@ -12,11 +12,11 @@ Any buttons, that trigger functions defined in the same javascript code, can be 
 
 The Update function is passed a parameter of type GameState. This object has three top level sub objects: `Player`, `World` and `Selection`.
 
-****************Player**************** contains data about the player associated with the current session, including wallet address and seekers they own.
+****************Player**************** contains data about the player associated with the current session, including wallet address and mobileUnits they own.
 
 ************World************ contains summary information about everything in the Downstream world including ids for constructed buildings and discovered tiles. Not all of the world state is available but all state related to currently selected tiles is available from the Selection object.
 
-********************Selection******************** contains all state related to the currently selected Seeker, currently selected tile(s) and the intent (one of the Select, Construct, Scout, Move and Use modes) of the player.
+********************Selection******************** contains all state related to the currently selected MobileUnit, currently selected tile(s) and the intent (one of the Select, Construct, Scout, Move and Use modes) of the player.
 
 ## Help inspecting the shape of data
 
@@ -156,7 +156,7 @@ import ds from 'dawnseekers';
 ds.dispatch(
       {
           name: 'BUILDING_USE',
-          args: [selected.tiles[0].building.id, selected.seeker.id, []]
+          args: [selected.tiles[0].building.id, selected.mobileUnit.id, []]
       },
   );
 

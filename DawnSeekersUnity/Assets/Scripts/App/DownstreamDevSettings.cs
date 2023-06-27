@@ -3,8 +3,8 @@
 using UnityEditor;
 using UnityEngine;
 
-[FilePath("Playmint/DawnseekersDevSettings.cfg", FilePathAttribute.Location.PreferencesFolder)]
-public class DawnseekersDevSettings : ScriptableSingleton<DawnseekersDevSettings>
+[FilePath("Playmint/DownstreamDevSettings.cfg", FilePathAttribute.Location.PreferencesFolder)]
+public class DownstreamDevSettings : ScriptableSingleton<DownstreamDevSettings>
 {
     [SerializeField]
     public string NodePath = "/path/to/node";

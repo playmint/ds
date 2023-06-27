@@ -153,7 +153,7 @@ public class MapManager : MonoBehaviour
         {
             var hasResource = TileHelper.HasResource(tile);
             var cellPosCube = TileHelper.GetTilePosCube(tile);
-            var hasReward = TileHelper.HasReward(tile, state.Player.Seekers);
+            var hasReward = TileHelper.HasReward(tile, state.Player.MobileUnits);
 
             Transform tileTransform = AddTile(cellPosCube, tile)?.transform;
 
@@ -181,8 +181,8 @@ public class MapManager : MonoBehaviour
             counter++;
             if (counter % tileChunks == 0)
                 yield return null;
-            // TODO: Call this again after we have refactored the map data to include the seeker list
-            // IconManager.instance.CheckSeekerRemoved(state.Game.Seekers.ToList());
+            // TODO: Call this again after we have refactored the map data to include the mobileUnit list
+            // IconManager.instance.CheckMobileUnitRemoved(state.Game.MobileUnits.ToList());
         }
         MapUpdated?.Invoke(state);
         _isUpdating = false;

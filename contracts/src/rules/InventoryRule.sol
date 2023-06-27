@@ -13,10 +13,10 @@ using Schema for State;
 
 contract InventoryRule is Rule {
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
-        if (bytes4(action) == Actions.TRANSFER_ITEM_SEEKER.selector) {
+        if (bytes4(action) == Actions.TRANSFER_ITEM_MOBILE_UNIT.selector) {
             // decode the action
             (
-                bytes24 seeker,
+                bytes24 mobileUnit,
                 bytes24[2] memory equipees,
                 uint8[2] memory equipSlots,
                 uint8[2] memory itemSlots,
@@ -25,7 +25,7 @@ contract InventoryRule is Rule {
             ) = abi.decode(action[4:], (bytes24, bytes24[2], uint8[2], uint8[2], bytes24, uint64));
 
             _transferItem(
-                state, ctx.clock, Node.Player(ctx.sender), seeker, equipees, equipSlots, itemSlots, toBagId, qty
+                state, ctx.clock, Node.Player(ctx.sender), mobileUnit, equipees, equipSlots, itemSlots, toBagId, qty
             );
         }
 
@@ -36,24 +36,24 @@ contract InventoryRule is Rule {
         State state,
         uint64 atTime,
         bytes24 player,
-        bytes24 seeker,
+        bytes24 mobileUnit,
         bytes24[2] memory equipee,
         uint8[2] memory equipSlot,
         uint8[2] memory itemSlot,
         bytes24 toBagId,
         uint64 qty
     ) private {
-        // check that seeker performing action is owned by player
-        _requirePlayerOwnedSeeker(state, seeker, player);
+        // check that mobileUnit performing action is owned by player
+        _requirePlayerOwnedMobileUnit(state, mobileUnit, player);
 
-        // get acting seeker location
-        bytes24 location = state.getCurrentLocation(seeker, atTime);
+        // get acting mobileUnit location
+        bytes24 location = state.getCurrentLocation(mobileUnit, atTime);
 
-        // check equipees are either the acting seeker
-        // at the same location as the acting seeker
-        // or adjacent to the acting seeker
-        BagUtils.requireEquipeeLocation(state, equipee[0], seeker, location, atTime);
-        BagUtils.requireEquipeeLocation(state, equipee[1], seeker, location, atTime);
+        // check equipees are either the acting mobileUnit
+        // at the same location as the acting mobileUnit
+        // or adjacent to the acting mobileUnit
+        BagUtils.requireEquipeeLocation(state, equipee[0], mobileUnit, location, atTime);
+        BagUtils.requireEquipeeLocation(state, equipee[1], mobileUnit, location, atTime);
 
         // get the things from equipSlots
         bytes24[2] memory bags =
@@ -90,8 +90,8 @@ contract InventoryRule is Rule {
         }
     }
 
-    function _requirePlayerOwnedSeeker(State state, bytes24 seeker, bytes24 player) private view {
-        if (state.getOwner(seeker) != player) {
+    function _requirePlayerOwnedMobileUnit(State state, bytes24 mobileUnit, bytes24 player) private view {
+        if (state.getOwner(mobileUnit) != player) {
             revert("NoTransferPlayerNotOwner");
         }
     }

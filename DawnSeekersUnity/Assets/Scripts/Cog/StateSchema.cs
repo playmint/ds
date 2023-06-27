@@ -21,8 +21,8 @@ namespace Cog
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("seekers", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<Seekers> Seekers { get; set; }
+        [Newtonsoft.Json.JsonProperty("mobileUnits", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<MobileUnits> MobileUnits { get; set; }
 
 
 
@@ -58,8 +58,8 @@ namespace Cog
         [Newtonsoft.Json.JsonProperty("intent", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Intent { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("seeker", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public Seeker Seeker { get; set; }
+        [Newtonsoft.Json.JsonProperty("mobileUnit", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public MobileUnit MobileUnit { get; set; }
 
         [Newtonsoft.Json.JsonProperty("tiles", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<Tiles> Tiles { get; set; }
@@ -103,7 +103,7 @@ namespace Cog
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class Seekers
+    public partial class MobileUnits
     {
         [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string __typename { get; set; }
@@ -140,7 +140,7 @@ namespace Cog
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class Seeker
+    public partial class MobileUnit
     {
         [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string __typename { get; set; }
@@ -203,8 +203,8 @@ namespace Cog
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("seekers", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<Seekers2> Seekers { get; set; }
+        [Newtonsoft.Json.JsonProperty("mobileUnits", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<MobileUnits2> MobileUnits { get; set; }
 
         [Newtonsoft.Json.JsonProperty("sessions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<Sessions> Sessions { get; set; }
@@ -556,7 +556,7 @@ namespace Cog
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class Seekers2
+    public partial class MobileUnits2
     {
         [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string __typename { get; set; }
@@ -703,8 +703,8 @@ namespace Cog
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("seekers", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<Seekers3> Seekers { get; set; }
+        [Newtonsoft.Json.JsonProperty("mobileUnits", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<MobileUnits3> MobileUnits { get; set; }
 
         [Newtonsoft.Json.JsonProperty("sessions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<Sessions2> Sessions { get; set; }
@@ -1296,7 +1296,7 @@ namespace Cog
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.8.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class Seekers3
+    public partial class MobileUnits3
     {
         [Newtonsoft.Json.JsonProperty("__typename", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string __typename { get; set; }

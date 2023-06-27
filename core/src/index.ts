@@ -5,7 +5,7 @@ export * from './logger';
 export * from './player';
 export * from './plugins';
 export * from './react';
-export * from './seeker';
+export * from './mobileUnit';
 export * from './selection';
 export * from './state';
 export * from './tile';
@@ -15,10 +15,10 @@ export * from './world';
 export * from './maphack';
 
 export type {
-    SelectedSeekerFragment,
+    SelectedMobileUnitFragment,
     SelectedPlayerFragment,
     SelectedTileFragment,
-    WorldSeekerFragment,
+    WorldMobileUnitFragment,
     WorldPlayerFragment,
     WorldTileFragment,
     WorldStateFragment,

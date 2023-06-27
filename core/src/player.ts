@@ -32,7 +32,7 @@ export function makeConnectedPlayer(
             if (!next) {
                 return true;
             }
-            return next.id != prev.id || next.dispatch != prev.dispatch || next.seekers != prev.seekers;
+            return next.id != prev.id || next.dispatch != prev.dispatch || next.mobileUnits != prev.mobileUnits;
         }),
         tap((next) => (prev = next)),
         share,
@@ -72,6 +72,6 @@ function toFakeSelectedPlayer(wallet: Wallet): SelectedPlayerFragment {
     return {
         id: wallet.id,
         addr: wallet.address,
-        seekers: [],
+        mobileUnits: [],
     };
 }

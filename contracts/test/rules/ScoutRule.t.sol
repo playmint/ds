@@ -12,7 +12,7 @@ import {Schema, Node, Rel, LocationKey, BiomeKind, DEFAULT_ZONE} from "@ds/schem
 
 using Schema for State;
 
-uint32 constant TEST_SEEKER_ID = 1;
+uint32 constant TEST_MOBILE_UNIT_ID = 1;
 
 contract ScoutRuleTest is Test {
     Game internal game;
@@ -51,9 +51,9 @@ contract ScoutRuleTest is Test {
             )
         );
 
-        // place a seeker at 0,0,0
+        // place a mobileUnit at 0,0,0
         vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (Node.Seeker(TEST_SEEKER_ID))));
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (Node.MobileUnit(TEST_MOBILE_UNIT_ID))));
         vm.stopPrank();
     }
 
@@ -72,7 +72,7 @@ contract ScoutRuleTest is Test {
     function testScoutNotAdjacent() public {
         vm.startPrank(aliceAccount);
         vm.expectRevert("NoScoutUnadjacent");
-        _scout(0, 2, -2); // expect fail as too far away from seeker at 0,0,0
+        _scout(0, 2, -2); // expect fail as too far away from mobileUnit at 0,0,0
         vm.stopPrank();
     }
 
@@ -92,7 +92,7 @@ contract ScoutRuleTest is Test {
             "expected target tile to be UNDISCOVERED to start"
         );
 
-        // dispatch SCOUT_SEEKER
+        // dispatch SCOUT_MOBILE_UNIT
         _scout(q, r, s);
 
         assertEq(
@@ -108,9 +108,9 @@ contract ScoutRuleTest is Test {
     function _scout(int16 q, int16 r, int16 s) private {
         dispatcher.dispatch(
             abi.encodeCall(
-                Actions.SCOUT_SEEKER,
+                Actions.SCOUT_MOBILE_UNIT,
                 (
-                    TEST_SEEKER_ID, // seeker id (sid)
+                    TEST_MOBILE_UNIT_ID, // mobileUnit id (sid)
                     q, // q
                     r, // r
                     s // s

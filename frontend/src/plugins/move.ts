@@ -7,16 +7,16 @@ const src = `
 import ds from 'dawnseekers';
 
 export default function update(state) {
-    const seeker = state.ui.selection.seeker;
+    const mobileUnit = state.ui.selection.mobileUnit;
     const tile = state.ui.selection.tiles.length == 1 ? state.ui.selection.tiles[0] : undefined;
 
-    const moveSeeker = () => {
-        if (!seeker || !tile) {
+    const moveMobileUnit = () => {
+        if (!mobileUnit || !tile) {
             return;
         }
         const { q, r, s } = tile.coords;
-        ds.log('plugin says: moving seeker', { seeker: seeker.key, q, r, s });
-        ds.dispatch({name 'MOVE_SEEKER', args: [seeker.key, q, r, s]});
+        ds.log('plugin says: moving mobileUnit', { mobileUnit: mobileUnit.key, q, r, s });
+        ds.dispatch({name 'MOVE_MOBILE_UNIT', args: [mobileUnit.key, q, r, s]});
     };
 
     return {
@@ -26,12 +26,12 @@ export default function update(state) {
                 id: 'my-move-plugin',
                 type: 'tile',
                 title: 'mover',
-                summary: seeker ? 'select a tile to move to' : 'no unit selected',
+                summary: mobileUnit ? 'select a tile to move to' : 'no unit selected',
                 content: [
                     {
                         id: 'default',
                         type: 'inline',
-                        buttons: seeker && tile && tile.biome != 0 && tile.id != seeker.location.next.tile.id ? [{ text: 'move', type: 'action', action: moveSeeker }] : [],
+                        buttons: mobileUnit && tile && tile.biome != 0 && tile.id != mobileUnit.location.next.tile.id ? [{ text: 'move', type: 'action', action: moveMobileUnit }] : [],
                     },
                 ],
             },

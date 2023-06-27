@@ -1,4 +1,4 @@
-import { EquipmentSlotFragment, GameState, WorldSeekerFragment, WorldTileFragment } from '@dawnseekers/core';
+import { EquipmentSlotFragment, GameState, WorldMobileUnitFragment, WorldTileFragment } from '@dawnseekers/core';
 import { ethers } from 'ethers';
 
 enum OldLocationKind {
@@ -12,7 +12,7 @@ export interface OldLocation {
     validFrom: number; // time
     tile: OldNode | null;
 }
-export interface OldSeeker {
+export interface OldMobileUnit {
     id: string;
     key: string;
     name: string;
@@ -42,13 +42,13 @@ export interface OldTile {
     coords: OldTileCoords;
     bags: EquipmentSlotFragment[];
     biome: number;
-    seekers: OldSeeker[];
+    mobileUnits: OldMobileUnit[];
 }
 
 export interface OldPlayer {
     id: string;
     addr: string;
-    seekers: OldSeeker[];
+    mobileUnits: OldMobileUnit[];
 }
 
 export interface OldMapState {
@@ -56,14 +56,14 @@ export interface OldMapState {
         selection: {
             intent?: string;
             player?: OldPlayer;
-            seeker?: OldSeeker;
+            mobileUnit?: OldMobileUnit;
             tiles: OldTile[];
         };
         plugins: never[];
     };
     game: {
         players: OldPlayer[];
-        seekers: OldSeeker[];
+        mobileUnits: OldMobileUnit[];
         tiles: OldTile[];
     };
 }
@@ -79,8 +79,8 @@ export interface OldMapState {
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 export function dangerouslyHackStateForMap({ player, selected, world }: Partial<GameState>): OldMapState {
-    const { seeker, tiles, intent } = selected || {};
-    const toOldTile = (t: WorldTileFragment): Omit<OldTile, 'seekers'> => ({
+    const { mobileUnit, tiles, intent } = selected || {};
+    const toOldTile = (t: WorldTileFragment): Omit<OldTile, 'mobileUnits'> => ({
         id: t.id,
         // building: t.building || null, // this break the map?
         coords: {
@@ -92,41 +92,41 @@ export function dangerouslyHackStateForMap({ player, selected, world }: Partial<
         biome: t.biome || 0
     });
 
-    const oldTilesWithoutSeekers: Omit<OldTile, 'seekers'>[] = (world?.tiles || []).map((t) => ({
+    const oldTilesWithoutMobileUnits: Omit<OldTile, 'mobileUnits'>[] = (world?.tiles || []).map((t) => ({
         ...toOldTile(t)
     }));
 
-    const toOldSeeker = (s: WorldSeekerFragment): OldSeeker => ({
+    const toOldMobileUnit = (s: WorldMobileUnitFragment): OldMobileUnit => ({
         id: s.id,
         key: BigInt(s.key).toString(16), // map doesn't like 0x-prefix
         name: s.id,
         owner: { id: s.owner?.id || 'hack-doesnt-know-owner-id' },
-        bags: [], // ignored - dont care about other seeker bags
+        bags: [], // ignored - dont care about other mobileUnit bags
         location: {
             next: {
                 kind: OldLocationKind.NEXT,
                 validFrom: s.nextLocation?.time || 0,
-                tile: oldTilesWithoutSeekers.find((t) => t.id === s.nextLocation?.tile.id) || null
+                tile: oldTilesWithoutMobileUnits.find((t) => t.id === s.nextLocation?.tile.id) || null
             },
             prev: {
                 kind: OldLocationKind.PREV,
                 validFrom: s.prevLocation?.time || 0,
-                tile: oldTilesWithoutSeekers.find((t) => t.id === s.prevLocation?.tile.id) || null
+                tile: oldTilesWithoutMobileUnits.find((t) => t.id === s.prevLocation?.tile.id) || null
             }
         }
     });
 
-    const oldSeekers: OldSeeker[] = (world?.tiles || []).flatMap((t) => t.seekers).map((s) => toOldSeeker(s));
+    const oldMobileUnits: OldMobileUnit[] = (world?.tiles || []).flatMap((t) => t.mobileUnits).map((s) => toOldMobileUnit(s));
 
-    const oldTiles: OldTile[] = oldTilesWithoutSeekers.map((t) => ({
+    const oldTiles: OldTile[] = oldTilesWithoutMobileUnits.map((t) => ({
         ...t,
-        seekers: oldSeekers.filter((s) => s.location.next.tile?.id === t.id)
+        mobileUnits: oldMobileUnits.filter((s) => s.location.next.tile?.id === t.id)
     }));
 
     const oldPlayers = (world?.players || []).map((p) => ({
         id: p.id,
         addr: p.addr,
-        seekers: oldSeekers.filter((s) => s.owner.id === p.id)
+        mobileUnits: oldMobileUnits.filter((s) => s.owner.id === p.id)
     }));
 
     return {
@@ -134,14 +134,14 @@ export function dangerouslyHackStateForMap({ player, selected, world }: Partial<
             selection: {
                 intent,
                 player: player ? oldPlayers.find((p) => p.id == player.id) : undefined,
-                seeker: seeker ? oldSeekers.find((s) => s.id == seeker.id) : undefined,
+                mobileUnit: mobileUnit ? oldMobileUnits.find((s) => s.id == mobileUnit.id) : undefined,
                 tiles: (tiles || []).map((st) => oldTiles.find((t) => st.id == t.id)).filter((t): t is OldTile => !!t)
             },
             plugins: []
         },
         game: {
             players: oldPlayers,
-            seekers: oldSeekers,
+            mobileUnits: oldMobileUnits,
             tiles: oldTiles
         }
     };

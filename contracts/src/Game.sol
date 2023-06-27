@@ -59,13 +59,13 @@ contract DawnseekersRouter is SessionRouter {
 }
 
 contract Game is BaseGame {
-    constructor(address[] memory allowlist) BaseGame("DAWNSEEKERS", "http://dawnseekers.com/") {
+    constructor(address[] memory allowlist) BaseGame("DOWNSTREAM", "http://downstream.game/") {
         // create a state
         StateGraph state = new StateGraph();
 
         // register the kind ids we are using
         state.registerNodeType(Kind.Player.selector, "Player", CompoundKeyKind.ADDRESS);
-        state.registerNodeType(Kind.Seeker.selector, "Seeker", CompoundKeyKind.UINT160);
+        state.registerNodeType(Kind.MobileUnit.selector, "MobileUnit", CompoundKeyKind.UINT160);
         state.registerNodeType(Kind.Bag.selector, "Bag", CompoundKeyKind.UINT160);
         state.registerNodeType(Kind.Tile.selector, "Tile", CompoundKeyKind.INT16_ARRAY);
         state.registerNodeType(Kind.Item.selector, "Item", CompoundKeyKind.STRING);

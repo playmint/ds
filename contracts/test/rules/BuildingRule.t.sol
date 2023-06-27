@@ -65,19 +65,19 @@ contract BuildingRuleTest is Test {
                 Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)
             )
         );
-        // spawn a seeker
+        // spawn a mobileUnit
         vm.startPrank(aliceAccount);
-        bytes24 seeker = _spawnSeekerWithResources();
+        bytes24 mobileUnit = _spawnMobileUnitWithResources();
         // discover an adjacent tile for our building site
         (int16 q, int16 r, int16 s) = (1, -1, 0);
         _discover(q, r, s);
         // get our building and give it the resources to construct
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
         // construct our building
-        _transferFromSeeker(seeker, 0, 25, buildingInstance);
-        _transferFromSeeker(seeker, 1, 25, buildingInstance);
-        _transferFromSeeker(seeker, 2, 25, buildingInstance);
-        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
+        _transferFromMobileUnit(mobileUnit, 0, 25, buildingInstance);
+        _transferFromMobileUnit(mobileUnit, 1, 25, buildingInstance);
+        _transferFromMobileUnit(mobileUnit, 2, 25, buildingInstance);
+        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, q, r, s)));
         vm.stopPrank();
         // check the building has a location at q/r/s
         assertEq(
@@ -102,19 +102,19 @@ contract BuildingRuleTest is Test {
                 Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)
             )
         );
-        // spawn a seeker
-        bytes24 seeker = _spawnSeekerWithResources();
+        // spawn a mobileUnit
+        bytes24 mobileUnit = _spawnMobileUnitWithResources();
         // discover an adjacent tile for our building site
         (int16 q, int16 r, int16 s) = (1, -1, 0);
         _discover(q, r, s);
         // get our building and give it not enough resources to construct
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
-        _transferFromSeeker(seeker, 0, 1, buildingInstance); // 1 is intentionaly too few
-        _transferFromSeeker(seeker, 1, 1, buildingInstance); // ...
-        _transferFromSeeker(seeker, 2, 1, buildingInstance); // ...
+        _transferFromMobileUnit(mobileUnit, 0, 1, buildingInstance); // 1 is intentionaly too few
+        _transferFromMobileUnit(mobileUnit, 1, 1, buildingInstance); // ...
+        _transferFromMobileUnit(mobileUnit, 2, 1, buildingInstance); // ...
         // construct our building
         vm.expectRevert("input 0 qty does not match construction recipe");
-        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
+        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, q, r, s)));
         vm.stopPrank();
     }
 
@@ -132,11 +132,11 @@ contract BuildingRuleTest is Test {
         vm.stopPrank();
     }
 
-    function testConstructFailSeekerTooFarAway() public {
+    function testConstructFailMobileUnitTooFarAway() public {
         _testConstructFailNotAdjacent(2, -2, 0);
     }
 
-    function testConstructFailSeekerNotDirect() public {
+    function testConstructFailMobileUnitNotDirect() public {
         _testConstructFailNotAdjacent(1, -2, 1);
     }
 
@@ -173,27 +173,27 @@ contract BuildingRuleTest is Test {
         // discover an adjacent tile for our building site
         (int16 q, int16 r, int16 s) = (1, -1, 0);
         _discover(q, r, s);
-        // spawn a seeker
+        // spawn a mobileUnit
         vm.startPrank(aliceAccount);
-        bytes24 seeker = _spawnSeekerWithResources();
+        bytes24 mobileUnit = _spawnMobileUnitWithResources();
         // get our building and give it the resources to construct
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
-        _transferFromSeeker(seeker, 0, 25, buildingInstance);
-        _transferFromSeeker(seeker, 1, 25, buildingInstance);
-        _transferFromSeeker(seeker, 2, 25, buildingInstance);
+        _transferFromMobileUnit(mobileUnit, 0, 25, buildingInstance);
+        _transferFromMobileUnit(mobileUnit, 1, 25, buildingInstance);
+        _transferFromMobileUnit(mobileUnit, 2, 25, buildingInstance);
         // construct our building
-        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
+        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, q, r, s)));
         // use the building
         bytes memory payload = bytes("CUSTOM_PAYLOAD");
-        dispatcher.dispatch(abi.encodeCall(Actions.BUILDING_USE, (buildingInstance, seeker, payload)));
+        dispatcher.dispatch(abi.encodeCall(Actions.BUILDING_USE, (buildingInstance, mobileUnit, payload)));
         // check that the building implementation was called
         assertEq(mockBuilding.getUseCallCount(), 1, "expected mock building to have been called on use");
 
-        (Game gameArg, bytes24 buildingArg, bytes24 seekerArg, uint256 payloadLen) = mockBuilding.useCalls(0);
-        assertEq(address(gameArg), address(game), "expected mock building to get passed the seeker");
-        assertEq(buildingArg, buildingInstance, "expected mock building to get passed the seeker");
-        assertEq(seekerArg, seeker, "expected mock building to get passed the seeker");
-        assertEq(payloadLen, payload.length, "expected mock building to get passed the seeker");
+        (Game gameArg, bytes24 buildingArg, bytes24 mobileUnitArg, uint256 payloadLen) = mockBuilding.useCalls(0);
+        assertEq(address(gameArg), address(game), "expected mock building to get passed the mobileUnit");
+        assertEq(buildingArg, buildingInstance, "expected mock building to get passed the mobileUnit");
+        assertEq(mobileUnitArg, mobileUnit, "expected mock building to get passed the mobileUnit");
+        assertEq(payloadLen, payload.length, "expected mock building to get passed the mobileUnit");
         vm.stopPrank();
     }
 
@@ -205,9 +205,9 @@ contract BuildingRuleTest is Test {
                 Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)
             )
         );
-        // spawn a seeker
+        // spawn a mobileUnit
         vm.startPrank(aliceAccount);
-        bytes24 seeker = _spawnSeekerWithResources();
+        bytes24 mobileUnit = _spawnMobileUnitWithResources();
         // target building site
         _discover(q, r, s);
         // get our building and magic it the resources to construct
@@ -218,18 +218,18 @@ contract BuildingRuleTest is Test {
         state.setItemSlot(buildingBag, 1, ItemUtils.BeakerBlueGoo(), 100);
         state.setItemSlot(buildingBag, 2, ItemUtils.FlaskRedGoo(), 100);
         // construct our building
-        vm.expectRevert("BuildingMustBeAdjacentToSeeker"); // expect fail as q/r/s not adjacent
-        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
+        vm.expectRevert("BuildingMustBeAdjacentToMobileUnit"); // expect fail as q/r/s not adjacent
+        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, q, r, s)));
         vm.stopPrank();
     }
 
-    // _spawnSeekerWithResources spawns a seeker for the current sender at
+    // _spawnMobileUnitWithResources spawns a mobileUnit for the current sender at
     // 0,0,0 with 100 of each resource in an equiped bag
-    function _spawnSeekerWithResources() private returns (bytes24) {
+    function _spawnMobileUnitWithResources() private returns (bytes24) {
         sid++;
-        bytes24 seeker = Node.Seeker(sid);
+        bytes24 mobileUnit = Node.MobileUnit(sid);
         _discover(0, 0, 0);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (seeker)));
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (mobileUnit)));
         bytes24[] memory items = new bytes24[](3);
         items[0] = ItemUtils.GlassGreenGoo();
         items[1] = ItemUtils.BeakerBlueGoo();
@@ -240,21 +240,23 @@ contract BuildingRuleTest is Test {
         balances[1] = 100;
         balances[2] = 100;
 
-        uint64 seekerBag = uint64(uint256(keccak256(abi.encode(seeker))));
+        uint64 mobileUnitBag = uint64(uint256(keccak256(abi.encode(mobileUnit))));
         dispatcher.dispatch(
             abi.encodeCall(
-                Actions.DEV_SPAWN_BAG, (seekerBag, state.getOwnerAddress(seeker), seeker, 0, items, balances)
+                Actions.DEV_SPAWN_BAG,
+                (mobileUnitBag, state.getOwnerAddress(mobileUnit), mobileUnit, 0, items, balances)
             )
         );
 
-        return seeker;
+        return mobileUnit;
     }
 
-    function _transferFromSeeker(bytes24 seeker, uint8 slot, uint64 qty, bytes24 toBuilding) private {
+    function _transferFromMobileUnit(bytes24 mobileUnit, uint8 slot, uint64 qty, bytes24 toBuilding) private {
         bytes24 buildingBag = Node.Bag(uint64(uint256(keccak256(abi.encode(toBuilding)))));
         dispatcher.dispatch(
             abi.encodeCall(
-                Actions.TRANSFER_ITEM_SEEKER, (seeker, [seeker, toBuilding], [0, 0], [slot, slot], buildingBag, qty)
+                Actions.TRANSFER_ITEM_MOBILE_UNIT,
+                (mobileUnit, [mobileUnit, toBuilding], [0, 0], [slot, slot], buildingBag, qty)
             )
         );
     }
@@ -278,17 +280,17 @@ contract MockBuildingKind is BuildingKind {
     struct UseArgs {
         Game game;
         bytes24 building;
-        bytes24 seeker;
+        bytes24 mobileUnit;
         uint256 payloadLen;
     }
 
     UseArgs[] public useCalls;
 
-    function use(Game game, bytes24 building, bytes24 seeker, bytes memory payload) public {
+    function use(Game game, bytes24 building, bytes24 mobileUnit, bytes memory payload) public {
         UseArgs storage call = useCalls.push();
         call.game = game;
         call.building = building;
-        call.seeker = seeker;
+        call.mobileUnit = mobileUnit;
         call.payloadLen = payload.length;
     }
 

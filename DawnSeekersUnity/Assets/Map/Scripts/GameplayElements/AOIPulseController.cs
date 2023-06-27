@@ -11,7 +11,7 @@ public class AOIPulseController : MonoBehaviour
 
     List<Animator> _spawnedHighlights = new List<Animator>();
 
-    Seeker _currentSeeker;
+    MobileUnit _currentMobileUnit;
 
     private void Start()
     {
@@ -30,17 +30,20 @@ public class AOIPulseController : MonoBehaviour
             return;
         }
         if (
-            gameState.Selected.Seeker != null
-            && (_currentSeeker == null || gameState.Selected.Seeker.Id != _currentSeeker.Id)
-            && SeekerManager.instance.IsPlayerSeeker(gameState.Selected.Seeker.Id)
+            gameState.Selected.MobileUnit != null
+            && (
+                _currentMobileUnit == null
+                || gameState.Selected.MobileUnit.Id != _currentMobileUnit.Id
+            )
+            && MobileUnitManager.instance.IsPlayerMobileUnit(gameState.Selected.MobileUnit.Id)
         )
         {
-            _currentSeeker = gameState.Selected.Seeker;
-            ShowHighlights(TileHelper.GetTilePosCube(gameState.Selected.Seeker.NextLocation));
+            _currentMobileUnit = gameState.Selected.MobileUnit;
+            ShowHighlights(TileHelper.GetTilePosCube(gameState.Selected.MobileUnit.NextLocation));
         }
-        else if (gameState.Selected.Seeker == null)
+        else if (gameState.Selected.MobileUnit == null)
         {
-            _currentSeeker = null;
+            _currentMobileUnit = null;
         }
     }
 

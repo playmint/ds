@@ -20,14 +20,14 @@ const StyledTileInventory = styled('div')`
 
 export const TileInventory: FunctionComponent<TileInventoryProps> = (props: TileInventoryProps) => {
     const { title, tile, ...otherProps } = props;
-    const { isSeekerAtLocation } = useInventory();
+    const { isMobileUnitAtLocation } = useInventory();
 
     return (
         <StyledTileInventory {...otherProps}>
             {tile.bags.length > 0 && (
                 <Fragment>
                     {title && <h3>{title}</h3>}
-                    <Inventory bags={tile.bags} ownerId={tile.id} isInteractable={isSeekerAtLocation(tile)} />
+                    <Inventory bags={tile.bags} ownerId={tile.id} isInteractable={isMobileUnitAtLocation(tile)} />
                 </Fragment>
             )}
         </StyledTileInventory>

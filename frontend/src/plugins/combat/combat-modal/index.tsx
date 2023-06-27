@@ -11,7 +11,7 @@ import {
     BiomeKind,
     CogAction,
     ConnectedPlayer,
-    SelectedSeekerFragment,
+    SelectedMobileUnitFragment,
     SelectedTileFragment,
     useSelection,
     WorldStateFragment
@@ -51,7 +51,7 @@ type CombatParticipantSummaryProps = {
 type PreCombatStateProps = CombatModalProps &
     CombatParticipantsProps &
     CombatParticipantSummaryProps & {
-        selectedSeeker?: SelectedSeekerFragment;
+        selectedMobileUnit?: SelectedMobileUnitFragment;
         selectedTiles: SelectedTileFragment[];
         isStarted: boolean;
         onStartCombat: () => void;
@@ -60,7 +60,7 @@ type PreCombatStateProps = CombatModalProps &
 type CombatStateProps = CombatModalProps &
     CombatParticipantsProps &
     CombatParticipantSummaryProps & {
-        selectedSeeker?: SelectedSeekerFragment;
+        selectedMobileUnit?: SelectedMobileUnitFragment;
         selectedTiles: SelectedTileFragment[];
         blockNumber: number;
         blockTime: number;
@@ -69,7 +69,7 @@ type CombatStateProps = CombatModalProps &
 type PostCombatStateProps = CombatModalProps &
     CombatParticipantsProps &
     CombatParticipantSummaryProps & {
-        selectedSeeker?: SelectedSeekerFragment;
+        selectedMobileUnit?: SelectedMobileUnitFragment;
         selectedTiles: SelectedTileFragment[];
         winState: CombatWinState;
         session: CombatSession;
@@ -123,7 +123,7 @@ const CombatParticipantSummary: FunctionComponent<CombatParticipantSummaryProps>
 const PreCombatState: FunctionComponent<PreCombatStateProps> = (props) => {
     const {
         player,
-        selectedSeeker,
+        selectedMobileUnit,
         selectedTiles = [],
         closeModal,
         attackers,
@@ -147,7 +147,7 @@ const PreCombatState: FunctionComponent<PreCombatStateProps> = (props) => {
         if (!player) {
             return;
         }
-        if (!selectedSeeker) {
+        if (!selectedMobileUnit) {
             return;
         }
         if (combatTiles.length < 2) {
@@ -157,16 +157,16 @@ const PreCombatState: FunctionComponent<PreCombatStateProps> = (props) => {
             return;
         }
 
-        const attackers = combatTiles[0].seekers
+        const attackers = combatTiles[0].mobileUnits
             .map((s) => s.id)
             .concat(combatTiles[0].building ? [combatTiles[0].building.id] : []);
-        const defenders = combatTiles[1].seekers
+        const defenders = combatTiles[1].mobileUnits
             .map((s) => s.id)
             .concat(combatTiles[1].building ? [combatTiles[1].building.id] : []);
 
         const action: CogAction = {
             name: 'START_COMBAT',
-            args: [selectedSeeker.id, combatTiles[1].id, attackers, defenders]
+            args: [selectedMobileUnit.id, combatTiles[1].id, attackers, defenders]
         };
         player.dispatch(action);
         onStartCombat();
@@ -350,7 +350,7 @@ enum CombatModalState {
 export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatModalProps) => {
     const { player, world, isNewSession } = props;
     const [combatModalState, setCombatModalState] = useState<CombatModalState | null>(null);
-    const { seeker: selectedSeeker, tiles: selectedTiles = [] } = useSelection();
+    const { mobileUnit: selectedMobileUnit, tiles: selectedTiles = [] } = useSelection();
     const { blockNumberRef, blockTime } = useBlockTime();
     const [blockNumber, setBlockNumber] = useState<number>(blockNumberRef.current);
     const latestSession = getLatestSession(selectedTiles);
@@ -436,7 +436,7 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
                 {...props}
                 isStarted={isStarted}
                 onStartCombat={handleStartCombat}
-                selectedSeeker={selectedSeeker}
+                selectedMobileUnit={selectedMobileUnit}
                 selectedTiles={selectedTiles}
                 attackers={attackers}
                 attackersMaxHealth={attackersMaxHealth}
@@ -462,7 +462,7 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
         return (
             <CombatState
                 {...props}
-                selectedSeeker={selectedSeeker}
+                selectedMobileUnit={selectedMobileUnit}
                 selectedTiles={selectedTiles}
                 attackers={attackers}
                 attackersMaxHealth={attackersMaxHealth}
@@ -481,7 +481,7 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
         return (
             <PostCombatState
                 {...props}
-                selectedSeeker={selectedSeeker}
+                selectedMobileUnit={selectedMobileUnit}
                 selectedTiles={selectedTiles}
                 attackers={attackers}
                 attackersMaxHealth={attackersMaxHealth}

@@ -36,7 +36,7 @@ An example of a message object
 ```javascript
 {
     msg: 'dispatch',
-    action: "MOVE_SEEKER",
+    action: "MOVE_MOBILE_UNIT",
     args: [
         0,
         -1,

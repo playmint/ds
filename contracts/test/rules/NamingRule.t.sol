@@ -46,8 +46,8 @@ contract NamingRuleTest is Test {
         // spawn a unit
         vm.startPrank(aliceAccount);
         sid++;
-        bytes24 entity = Node.Seeker(sid);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (entity)));
+        bytes24 entity = Node.MobileUnit(sid);
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (entity)));
 
         // rename the unit
         string memory name = "Jeff";
@@ -61,8 +61,8 @@ contract NamingRuleTest is Test {
         // alice spawns a unit
         vm.startPrank(aliceAccount);
         sid++;
-        bytes24 entity = Node.Seeker(sid);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (entity)));
+        bytes24 entity = Node.MobileUnit(sid);
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (entity)));
         vm.stopPrank();
 
         // bob tries to name it

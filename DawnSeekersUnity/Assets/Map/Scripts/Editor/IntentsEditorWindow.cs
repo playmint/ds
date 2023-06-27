@@ -21,7 +21,7 @@ public class IntentsEditorWindow : EditorWindow
             && GameStateMediator.Instance.gameState != null
         )
         {
-            disableButtons = GameStateMediator.Instance.gameState.Selected.Seeker == null;
+            disableButtons = GameStateMediator.Instance.gameState.Selected.MobileUnit == null;
         }
 
         EditorGUI.BeginDisabledGroup(disableButtons);
@@ -29,8 +29,10 @@ public class IntentsEditorWindow : EditorWindow
         GUILayout.BeginVertical();
         if (disableButtons)
             GUILayout.Label("No Unit Selected");
-        else if (SeekerManager.instance.currentSelectedSeeker != null)
-            GUILayout.Label("Selected Seeker: " + SeekerManager.instance.currentSelectedSeeker.Id);
+        else if (MobileUnitManager.instance.currentSelectedMobileUnit != null)
+            GUILayout.Label(
+                "Selected MobileUnit: " + MobileUnitManager.instance.currentSelectedMobileUnit.Id
+            );
         GUILayout.Space(10f);
         GUILayout.BeginHorizontal();
         GUILayout.Space(10f);

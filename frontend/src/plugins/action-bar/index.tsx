@@ -46,19 +46,19 @@ function getNeighbours(tiles: WorldTileFragment[], t: Pick<WorldTileFragment, 'c
 
 export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarProps) => {
     const { ...otherProps } = props;
-    const { seeker: selectedSeeker, tiles: selectedTiles, selectIntent, intent, selectTiles } = useSelection();
+    const { mobileUnit: selectedMobileUnit, tiles: selectedTiles, selectIntent, intent, selectTiles } = useSelection();
     const world = useWorld();
     const tiles = world?.tiles || ([] as WorldTileFragment[]);
 
-    const selectedSeekerTile: WorldTileFragment | undefined = selectedSeeker?.nextLocation?.tile
-        ? tiles.find((t) => t.id === selectedSeeker.nextLocation?.tile?.id)
+    const selectedMobileUnitTile: WorldTileFragment | undefined = selectedMobileUnit?.nextLocation?.tile
+        ? tiles.find((t) => t.id === selectedMobileUnit.nextLocation?.tile?.id)
         : undefined;
 
     const moveableFromTile =
         (selectedTiles || [])
             .filter((t) => t.biome === BiomeKind.DISCOVERED)
             .slice(-1)
-            .find(() => true) || selectedSeeker?.nextLocation?.tile;
+            .find(() => true) || selectedMobileUnit?.nextLocation?.tile;
 
     const moveableTiles = moveableFromTile
         ? getNeighbours(tiles, moveableFromTile).filter(
@@ -66,28 +66,28 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
           )
         : [];
 
-    const scoutableTiles = selectedSeeker?.nextLocation?.tile
-        ? getNeighbours(tiles, selectedSeeker.nextLocation.tile).filter(
+    const scoutableTiles = selectedMobileUnit?.nextLocation?.tile
+        ? getNeighbours(tiles, selectedMobileUnit.nextLocation.tile).filter(
               (t): t is WorldTileFragment => !!t && t.biome === BiomeKind.UNDISCOVERED
           )
         : [];
 
-    const constructableTiles = selectedSeeker?.nextLocation?.tile
-        ? getNeighbours(tiles, selectedSeeker.nextLocation.tile).filter(
+    const constructableTiles = selectedMobileUnit?.nextLocation?.tile
+        ? getNeighbours(tiles, selectedMobileUnit.nextLocation.tile).filter(
               (t): t is WorldTileFragment => !!t && t.biome === BiomeKind.DISCOVERED && !t.building
           )
         : [];
 
-    const useableTiles = selectedSeekerTile
-        ? getNeighbours(tiles, selectedSeekerTile)
-              .concat([selectedSeekerTile])
+    const useableTiles = selectedMobileUnitTile
+        ? getNeighbours(tiles, selectedMobileUnitTile)
+              .concat([selectedMobileUnitTile])
               .filter((t): t is WorldTileFragment => !!t && t.biome === BiomeKind.DISCOVERED && !!t.building)
         : [];
 
-    const canScout = scoutableTiles.length > 0 && selectedSeeker;
-    const canConstruct = constructableTiles.length > 0 && selectedSeeker;
-    const canMove = moveableTiles.length > 0 && selectedSeeker;
-    const canUse = useableTiles.length > 0 && selectedSeeker;
+    const canScout = scoutableTiles.length > 0 && selectedMobileUnit;
+    const canConstruct = constructableTiles.length > 0 && selectedMobileUnit;
+    const canMove = moveableTiles.length > 0 && selectedMobileUnit;
+    const canUse = useableTiles.length > 0 && selectedMobileUnit;
 
     const handleSelectIntent = (newIntent: string | undefined) => {
         if (newIntent != intent) {

@@ -31,21 +31,21 @@ contract BuildingRule is Rule {
                 uint64[4] memory materialQty
             ) = abi.decode(action[4:], (bytes24, string, bytes24[4], uint64[4]));
             _registerBuildingKind(state, Node.Player(ctx.sender), buildingKind, buildingName, materialItem, materialQty);
-        } else if (bytes4(action) == Actions.CONSTRUCT_BUILDING_SEEKER.selector) {
+        } else if (bytes4(action) == Actions.CONSTRUCT_BUILDING_MOBILE_UNIT.selector) {
             (
-                bytes24 seeker, // which seeker is performing the construction
+                bytes24 mobileUnit, // which mobileUnit is performing the construction
                 bytes24 buildingKind, // what kind of building
                 int16[3] memory coords
             ) = abi.decode(action[4:], (bytes24, bytes24, int16[3]));
-            // player must own seeker
-            if (state.getOwner(seeker) != Node.Player(ctx.sender)) {
-                revert("SeekerNotOwnedByPlayer");
+            // player must own mobileUnit
+            if (state.getOwner(mobileUnit) != Node.Player(ctx.sender)) {
+                revert("MobileUnitNotOwnedByPlayer");
             }
-            _constructBuilding(state, ctx, seeker, buildingKind, coords);
+            _constructBuilding(state, ctx, mobileUnit, buildingKind, coords);
         } else if (bytes4(action) == Actions.BUILDING_USE.selector) {
-            (bytes24 buildingInstance, bytes24 seekerID, bytes memory payload) =
+            (bytes24 buildingInstance, bytes24 mobileUnitID, bytes memory payload) =
                 abi.decode(action[4:], (bytes24, bytes24, bytes));
-            _useBuilding(state, buildingInstance, seekerID, payload, ctx);
+            _useBuilding(state, buildingInstance, mobileUnitID, payload, ctx);
         }
 
         return state;
@@ -54,20 +54,20 @@ contract BuildingRule is Rule {
     function _useBuilding(
         State state,
         bytes24 buildingInstance,
-        bytes24 seeker,
+        bytes24 mobileUnit,
         bytes memory payload,
         Context calldata ctx
     ) private {
-        // check player owns seeker
-        if (Node.Player(ctx.sender) != state.getOwner(seeker)) {
-            revert("SeekerNotOwnedByPlayer");
+        // check player owns mobileUnit
+        if (Node.Player(ctx.sender) != state.getOwner(mobileUnit)) {
+            revert("MobileUnitNotOwnedByPlayer");
         }
         // get location
-        bytes24 seekerTile = state.getCurrentLocation(seeker, ctx.clock);
+        bytes24 mobileUnitTile = state.getCurrentLocation(mobileUnit, ctx.clock);
         bytes24 buildingTile = state.getFixedLocation(buildingInstance);
-        // check that seeker is located at or adjacent to building
-        if (TileUtils.distance(seekerTile, buildingTile) > 1 || !TileUtils.isDirect(seekerTile, buildingTile)) {
-            revert("BuildingMustBeAdjacentToSeeker");
+        // check that mobileUnit is located at or adjacent to building
+        if (TileUtils.distance(mobileUnitTile, buildingTile) > 1 || !TileUtils.isDirect(mobileUnitTile, buildingTile)) {
+            revert("BuildingMustBeAdjacentToMobileUnit");
         }
         // get building kind implementation
         bytes24 buildingKind = state.getBuildingKind(buildingInstance);
@@ -77,7 +77,7 @@ contract BuildingRule is Rule {
             return;
         }
         // call the implementation
-        buildingImplementation.use(game, buildingInstance, seeker, payload);
+        buildingImplementation.use(game, buildingInstance, mobileUnit, payload);
     }
 
     function _registerBuildingKind(
@@ -129,16 +129,16 @@ contract BuildingRule is Rule {
     function _constructBuilding(
         State state,
         Context calldata ctx,
-        bytes24 seeker,
+        bytes24 mobileUnit,
         bytes24 buildingKind,
         int16[3] memory coords
     ) private {
-        // get seeker location
-        bytes24 seekerTile = state.getCurrentLocation(seeker, ctx.clock);
+        // get mobileUnit location
+        bytes24 mobileUnitTile = state.getCurrentLocation(mobileUnit, ctx.clock);
         bytes24 targetTile = Node.Tile(DEFAULT_ZONE, coords[0], coords[1], coords[2]);
-        // check that target is same tile or adjacent to seeker
-        if (TileUtils.distance(seekerTile, targetTile) > 1 || !TileUtils.isDirect(seekerTile, targetTile)) {
-            revert("BuildingMustBeAdjacentToSeeker");
+        // check that target is same tile or adjacent to mobileUnit
+        if (TileUtils.distance(mobileUnitTile, targetTile) > 1 || !TileUtils.isDirect(mobileUnitTile, targetTile)) {
+            revert("BuildingMustBeAdjacentToMobileUnit");
         }
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, coords[0], coords[1], coords[2]);
         // burn resources from given towards construction
@@ -199,13 +199,13 @@ contract BuildingRule is Rule {
     function _requireCanUseBag(State state, bytes24 bag, bytes24 player) private view {
         bytes24 owner = state.getOwner(bag);
         if (owner != 0 && owner != player) {
-            revert("BagNotAccessibleBySeeker");
+            revert("BagNotAccessibleByMobileUnit");
         }
     }
 
-    function _spawnBag(State state, bytes24 seeker, address owner, uint8 equipSlot) private {
-        bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode(seeker, equipSlot)))));
+    function _spawnBag(State state, bytes24 mobileUnit, address owner, uint8 equipSlot) private {
+        bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode(mobileUnit, equipSlot)))));
         state.setOwner(bag, Node.Player(owner));
-        state.setEquipSlot(seeker, equipSlot, bag);
+        state.setEquipSlot(mobileUnit, equipSlot, bag);
     }
 }

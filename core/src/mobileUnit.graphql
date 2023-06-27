@@ -34,20 +34,20 @@ fragment EquipmentSlot on Edge {
     }
 }
 
-fragment SelectedSeeker on Node {
-    ...WorldSeeker
+fragment SelectedMobileUnit on Node {
+    ...WorldMobileUnit
     bags: edges(match: { kinds: "Bag", via: { rel: "Equip" } }) {
         ...EquipmentSlot
     }
 }
 
-query GetSelectedSeeker($gameID: ID!, $id: String!) {
+query GetSelectedMobileUnit($gameID: ID!, $id: String!) {
     game(id: $gameID) {
         id
         state(simulated: true) {
             id
-            seeker: node(match: { kinds: "Seeker", ids: [$id] }) {
-                ...SelectedSeeker
+            mobileUnit: node(match: { kinds: "MobileUnit", ids: [$id] }) {
+                ...SelectedMobileUnit
             }
         }
     }

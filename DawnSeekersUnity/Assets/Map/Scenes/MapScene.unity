@@ -2281,7 +2281,7 @@ GameObject:
   - component: {fileID: 1163575911}
   - component: {fileID: 1163575910}
   m_Layer: 0
-  m_Name: SeekerManager
+  m_Name: MobileUnitManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2299,7 +2299,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a95b7343e4f2c4a039b2b707b77c53ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seekerPrefab: {fileID: 8730588450062426084, guid: 3f49ef0e27bad4b61b190f7d800dfea9,
+  mobileUnitPrefab: {fileID: 8730588450062426084, guid: 3f49ef0e27bad4b61b190f7d800dfea9,
     type: 3}
 --- !u!4 &1163575911
 Transform:
@@ -2971,7 +2971,7 @@ PrefabInstance:
     - target: {fileID: 2476847598487868882, guid: 6a7a5c2a730a843b4a48249413d547b6,
         type: 3}
       propertyPath: m_Name
-      value: SeekerActionMenu
+      value: MobileUnitActionMenu
       objectReference: {fileID: 0}
     - target: {fileID: 2476847598487868882, guid: 6a7a5c2a730a843b4a48249413d547b6,
         type: 3}

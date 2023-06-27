@@ -23,7 +23,7 @@ public class MoveIntent : IntentHandler
     private List<KeyValuePair<Vector3Int, TravelMarkerController>> _travelMarkers;
     private bool isMoving;
     private bool _isTracingPath; // HACK: Cannot make moves until the move CR has finished
-    private Vector3Int _seekerPos;
+    private Vector3Int _mobileUnitPos;
 
     MoveIntent()
     {
@@ -57,7 +57,7 @@ public class MoveIntent : IntentHandler
     {
         if (state.Selected.Intent == Intent)
         {
-            _seekerPos = TileHelper.GetTilePosCube(state.Selected.Seeker.NextLocation);
+            _mobileUnitPos = TileHelper.GetTilePosCube(state.Selected.MobileUnit.NextLocation);
 
             // HACK: Cannot be in move intent when the movement CR is running
             if (_isTracingPath)
@@ -91,15 +91,15 @@ public class MoveIntent : IntentHandler
      */
     private List<Vector3Int> GetValidPath(List<Tiles> tiles)
     {
-        // Seeker should always be at the first tile in the path
-        var validPath = new List<Vector3Int>() { _seekerPos };
+        // MobileUnit should always be at the first tile in the path
+        var validPath = new List<Vector3Int>() { _mobileUnitPos };
         if (tiles.Count == 0)
         {
             return validPath;
         }
 
-        // If the first tile in the selected tiles is the seeker then skip over it
-        var startIndex = TileHelper.GetTilePosCube(tiles[0]) == _seekerPos ? 1 : 0;
+        // If the first tile in the selected tiles is the mobileUnit then skip over it
+        var startIndex = TileHelper.GetTilePosCube(tiles[0]) == _mobileUnitPos ? 1 : 0;
         for (var i = startIndex; i < tiles.Count; i++)
         {
             var tile = tiles[i];
@@ -131,7 +131,7 @@ public class MoveIntent : IntentHandler
 
         if (!MapManager.instance.IsDiscoveredTile(cellCubePos))
         {
-            DeselectSeekerAndIntent(true);
+            DeselectMobileUnitAndIntent(true);
             return;
         }
 
@@ -316,12 +316,12 @@ public class MoveIntent : IntentHandler
             GameStateMediator.Instance.SendSelectTileMsg(tileIDs);
         }
         else
-            DeselectSeekerAndIntent(true);
+            DeselectMobileUnitAndIntent(true);
     }
 
-    void DeselectSeekerAndIntent(bool andTile = false)
+    void DeselectMobileUnitAndIntent(bool andTile = false)
     {
-        GameStateMediator.Instance.SendSelectSeekerMsg(null);
+        GameStateMediator.Instance.SendSelectMobileUnitMsg(null);
         GameStateMediator.Instance.SendSetIntentMsg(null);
         if (andTile)
             GameStateMediator.Instance.SendSelectTileMsg(null);
@@ -394,22 +394,22 @@ public class MoveIntent : IntentHandler
     IEnumerator TracePathCR()
     {
         _isTracingPath = true;
-        SeekerManager.instance.GetSeekerController().moveStepStarted += SeekerMoved;
+        MobileUnitManager.instance.GetMobileUnitController().moveStepStarted += MobileUnitMoved;
         // Cloned so we aren't iterating over the path that can be manipulated outside of the CR
         var path = new List<Vector3Int>(_path);
-        var seeker = SeekerManager.instance.currentSelectedSeeker;
+        var mobileUnit = MobileUnitManager.instance.currentSelectedMobileUnit;
 
         for (int i = 1; i < path.Count; i++)
         {
             var cellPosCube = path[i];
-            GameStateMediator.Instance.MoveSeeker(seeker, cellPosCube);
+            GameStateMediator.Instance.MoveMobileUnit(mobileUnit, cellPosCube);
             yield return new WaitForSeconds(3.5f);
         }
 
         _isTracingPath = false;
     }
 
-    void SeekerMoved(Vector3Int cubePos, SeekerController controller)
+    void MobileUnitMoved(Vector3Int cubePos, MobileUnitController controller)
     {
         if (_travelMarkers.Count == 0)
         {

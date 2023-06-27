@@ -18,10 +18,10 @@ namespace Cog
         public List<string> tileIDs;
     }
 
-    struct SelectSeekerMessage
+    struct SelectMobileUnitMessage
     {
         public string msg;
-        public string seekerID;
+        public string mobileUnitID;
     }
 
     struct SetIntentMessage
@@ -138,7 +138,7 @@ namespace Cog
 
 #if UNITY_EDITOR
 
-        // -- Dawnseekers Bridge node.js thread
+        // -- Downstream Bridge node.js thread
         private string _nodePath;
         private string _privateKey;
 
@@ -155,8 +155,8 @@ namespace Cog
         {
             Debug.Log("StartNodeProcess()");
 
-            _nodePath = DawnseekersDevSettings.instance.NodePath;
-            _privateKey = DawnseekersDevSettings.instance.PrivateKey;
+            _nodePath = DownstreamDevSettings.instance.NodePath;
+            _privateKey = DownstreamDevSettings.instance.PrivateKey;
 
             try
             {
@@ -179,13 +179,13 @@ namespace Cog
 
         public void NodeProcessThread()
         {
-            if (DawnseekersDevSettings.instance.NodePath == "")
+            if (DownstreamDevSettings.instance.NodePath == "")
             {
-                Debug.LogError("PluginController: Node path not set. Make sure the absolute path to node is set in the Edit > Project Settings > Dawnseekers panel");
+                Debug.LogError("PluginController: Node path not set. Make sure the absolute path to node is set in the Edit > Project Settings > Downstream panel");
                 return;
             }
 
-            Debug.Log($"PluginController:NodeProcessThread() Starting DawnseekersBridge \nNodePath: {DawnseekersDevSettings.instance.NodePath} \nPrivKey: {DawnseekersDevSettings.instance.PrivateKey}");
+            Debug.Log($"PluginController:NodeProcessThread() Starting DownstreamBridge \nNodePath: {DownstreamDevSettings.instance.NodePath} \nPrivKey: {DownstreamDevSettings.instance.PrivateKey}");
 
             _nodeJSProcess = new System.Diagnostics.Process
             {
@@ -248,26 +248,38 @@ namespace Cog
 
         // -- MESSAGE OUT
 
-        public void MoveSeeker(Seekers seeker, Vector3Int cellPosCube)
+        public void MoveMobileUnit(MobileUnits mobileUnit, Vector3Int cellPosCube)
         {
-            // function MOVE_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
-            DispatchAction("MOVE_SEEKER", seeker.Key, cellPosCube.x, cellPosCube.y, cellPosCube.z);
+            // function MOVE_MOBILE_UNIT(uint32 sid, int16 q, int16 r, int16 s) external;
+            DispatchAction(
+                "MOVE_MOBILE_UNIT",
+                mobileUnit.Key,
+                cellPosCube.x,
+                cellPosCube.y,
+                cellPosCube.z
+            );
         }
 
-        public void MoveSeeker(Seeker seeker, Vector3Int cellPosCube)
+        public void MoveMobileUnit(MobileUnit mobileUnit, Vector3Int cellPosCube)
         {
-            // function MOVE_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
-            DispatchAction("MOVE_SEEKER", seeker.Key, cellPosCube.x, cellPosCube.y, cellPosCube.z);
+            // function MOVE_MOBILE_UNIT(uint32 sid, int16 q, int16 r, int16 s) external;
+            DispatchAction(
+                "MOVE_MOBILE_UNIT",
+                mobileUnit.Key,
+                cellPosCube.x,
+                cellPosCube.y,
+                cellPosCube.z
+            );
         }
 
         public void ScoutTile(Vector3Int cellCubePos)
         {
-            if (SeekerManager.instance.currentSelectedSeeker != null)
+            if (MobileUnitManager.instance.currentSelectedMobileUnit != null)
             {
-                // function SCOUT_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
+                // function SCOUT_MOBILE_UNIT(uint32 sid, int16 q, int16 r, int16 s) external;
                 DispatchAction(
-                    "SCOUT_SEEKER",
-                    SeekerManager.instance.currentSelectedSeeker.Key,
+                    "SCOUT_MOBILE_UNIT",
+                    MobileUnitManager.instance.currentSelectedMobileUnit.Key,
                     cellCubePos.x,
                     cellCubePos.y,
                     cellCubePos.z
@@ -294,16 +306,20 @@ namespace Cog
             SendMessage(json);
         }
 
-        public void SendSelectSeekerMsg(string seekerID)
+        public void SendSelectMobileUnitMsg(string mobileUnitID)
         {
-            var msg = new SelectSeekerMessage { msg = "selectSeeker", seekerID = seekerID };
+            var msg = new SelectMobileUnitMessage
+            {
+                msg = "selectMobileUnit",
+                mobileUnitID = mobileUnitID
+            };
             var json = JsonConvert.SerializeObject(msg);
             SendMessage(json);
         }
 
-        public void SendSelectSeekerMsg()
+        public void SendSelectMobileUnitMsg()
         {
-            var msg = new SelectSeekerMessage { msg = "selectSeeker" };
+            var msg = new SelectMobileUnitMessage { msg = "selectMobileUnit" };
             var json = JsonConvert.SerializeObject(msg);
             SendMessage(json);
         }

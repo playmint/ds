@@ -1,10 +1,10 @@
 import ds from 'dawnseekers';
 
 export default function update({ selected }) {
-    const { tiles, seeker } = selected || {};
+    const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
     const selectedBuilding = selectedTile && selectedTile.building ? selectedTile.building : undefined;
-    const selectedEngineer = seeker;
+    const selectedEngineer = mobileUnit;
     const inputBag = selectedBuilding && selectedBuilding.bags.find(b => b.key == 0).bag;
     const canPourDrink = inputBag && inputBag.slots.length == 2 && inputBag.slots.every(slot => slot.balance > 0) && selectedEngineer;
 

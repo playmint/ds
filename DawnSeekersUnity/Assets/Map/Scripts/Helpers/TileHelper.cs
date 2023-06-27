@@ -126,16 +126,16 @@ public class TileHelper
         return Cog.NodeKinds.TileNode.GetKey(0, tilePosCube.x, tilePosCube.y, tilePosCube.z);
     }
 
-    internal static bool HasReward(Tiles2 tile, ICollection<Seekers> seekers)
+    internal static bool HasReward(Tiles2 tile, ICollection<MobileUnits> mobileUnits)
     {
         if (tile.Sessions == null || tile.Sessions.Count == 0)
             return false;
 
-        if (seekers == null)
+        if (mobileUnits == null)
             return false;
 
-        var seeker = seekers.FirstOrDefault();
-        if (seeker == null)
+        var mobileUnit = mobileUnits.FirstOrDefault();
+        if (mobileUnit == null)
             return false;
 
         var sessions = tile.Sessions.OrderByDescending(kvp => kvp.AttackTile.StartBlock);
@@ -145,15 +145,15 @@ public class TileHelper
         if (tile.Id != session.DefenceTile.Tile.Id)
             return false;
 
-        var truncatedSeekerID = seeker.Id.Substring(seeker.Id.Length - 12); // last 6 bytes
+        var truncatedMobileUnitID = mobileUnit.Id.Substring(mobileUnit.Id.Length - 12); // last 6 bytes
 
         var rewardBags = session.Bags.Where(equipSlot =>
         {
-            var bagSeekerID = equipSlot.Bag.Id.Substring(
-                equipSlot.Bag.Id.Length - (4 + 12), // counting back from the 2 byte session ID and the 6 byte seekerID (both truncated version of the IDs)
-                12 // 6 bytes of seekerID
+            var bagMobileUnitID = equipSlot.Bag.Id.Substring(
+                equipSlot.Bag.Id.Length - (4 + 12), // counting back from the 2 byte session ID and the 6 byte mobileUnitID (both truncated version of the IDs)
+                12 // 6 bytes of mobileUnitID
             );
-            return bagSeekerID == truncatedSeekerID;
+            return bagMobileUnitID == truncatedMobileUnitID;
         });
 
         var populatedBag = rewardBags.FirstOrDefault(equipSlot =>

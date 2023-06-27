@@ -9,7 +9,7 @@ public class UseIntent : IntentHandler
 {
     public static UseIntent instance;
     private bool _isActiveIntent;
-    private Vector3Int _seekerPos;
+    private Vector3Int _mobileUnitPos;
     private Vector3Int[] _validTilePositions;
 
     // TODO: put in base class
@@ -52,7 +52,7 @@ public class UseIntent : IntentHandler
         if (state.Selected.Intent == Intent)
         {
             _isActiveIntent = true;
-            _seekerPos = TileHelper.GetTilePosCube(state.Selected.Seeker.NextLocation);
+            _mobileUnitPos = TileHelper.GetTilePosCube(state.Selected.MobileUnit.NextLocation);
             _validTilePositions = GetValidTilePositions(state);
 
             var selection = GetSelectedTilePositions(state);
@@ -112,7 +112,7 @@ public class UseIntent : IntentHandler
 
     private Vector3Int[] GetValidTilePositions(GameState state)
     {
-        var neighbourTiles = TileHelper.GetTileNeighbours(_seekerPos);
+        var neighbourTiles = TileHelper.GetTileNeighbours(_mobileUnitPos);
         return neighbourTiles
             .Where(cellPosCube =>
             {

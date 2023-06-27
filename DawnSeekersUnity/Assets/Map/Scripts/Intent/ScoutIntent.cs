@@ -18,7 +18,7 @@ public class ScoutIntent : IntentHandler
     private Dictionary<Vector3Int, GameObject> _spawnedValidHighlights;
     private Dictionary<Vector3Int, GameObject> _spawnedSelectedHighlights;
 
-    private Vector3Int _seekerPos;
+    private Vector3Int _mobileUnitPos;
 
     ScoutIntent()
     {
@@ -53,7 +53,7 @@ public class ScoutIntent : IntentHandler
         if (state.Selected.Intent == Intent)
         {
             _isActiveIntent = true;
-            _seekerPos = TileHelper.GetTilePosCube(state.Selected.Seeker.NextLocation);
+            _mobileUnitPos = TileHelper.GetTilePosCube(state.Selected.MobileUnit.NextLocation);
             _validTilePositions = GetValidTilePositions(state);
 
             // NOTE: Disabled as we probably don't want to map to switch intents unless the player explicitly asked for it
@@ -83,8 +83,8 @@ public class ScoutIntent : IntentHandler
         if (!_isActiveIntent)
             return;
 
-        // Should clicking the seeker tile set the intent to NONE?
-        if (cellPosCube == _seekerPos)
+        // Should clicking the mobileUnit tile set the intent to NONE?
+        if (cellPosCube == _mobileUnitPos)
             return;
 
         if (_spawnedSelectedHighlights.ContainsKey(cellPosCube))
@@ -112,8 +112,8 @@ public class ScoutIntent : IntentHandler
     /**
      * This function executes the scout action
      *
-     * NOTE: A quirk with the way the action menu works, the seeker tile is selected which isn't a
-     * tile we want to scout so we have to check that each postion to scout isn't the seeker's
+     * NOTE: A quirk with the way the action menu works, the mobileUnit tile is selected which isn't a
+     * tile we want to scout so we have to check that each postion to scout isn't the mobileUnit's
      *
      * NOTE: The _spwanedSelectedHighlights dictionary contains the filtered local state of what has been selected
      */
@@ -130,7 +130,7 @@ public class ScoutIntent : IntentHandler
         foreach (var kvp in _spawnedSelectedHighlights)
         {
             var pos = kvp.Key;
-            if (pos != _seekerPos)
+            if (pos != _mobileUnitPos)
                 GameStateMediator.Instance.ScoutTile(pos);
         }
 
@@ -229,7 +229,7 @@ public class ScoutIntent : IntentHandler
 
     private Vector3Int[] GetValidTilePositions(GameState state)
     {
-        var neighbourTiles = TileHelper.GetTileNeighbours(_seekerPos);
+        var neighbourTiles = TileHelper.GetTileNeighbours(_mobileUnitPos);
         return neighbourTiles
             .Where(cellPosCube =>
             {

@@ -6,9 +6,9 @@ import {
     ConnectedPlayer,
     EquipmentSlotFragment,
     ItemSlotFragment,
-    SelectedSeekerFragment,
+    SelectedMobileUnitFragment,
     SelectedTileFragment,
-    WorldSeekerFragment,
+    WorldMobileUnitFragment,
     WorldStateFragment,
     WorldTileFragment
 } from '@dawnseekers/core';
@@ -52,7 +52,7 @@ export function getActionsFlat(session: CombatSession): CombatActionStruct[] {
         // NOTE: The tuple is actually a struct
         // struct CombatAction {
         //     CombatActionKind kind;
-        //     bytes24 entityID; // Can be seeker or building
+        //     bytes24 entityID; // Can be mobileUnit or building
         //     uint64 blockNum;
         //     bytes data;
         // }
@@ -130,13 +130,13 @@ export function convertCombatActions(actions: CombatActionStruct[][]): CombatAct
     return convertedActions;
 }
 
-export const getIcon = (entityID: BytesLike, seekers: WorldSeekerFragment[]) => {
+export const getIcon = (entityID: BytesLike, mobileUnits: WorldMobileUnitFragment[]) => {
     const id = hexlify(entityID);
     if (id.startsWith(buildingIdStart)) {
         return '/building-tower.png';
     }
-    const seeker = seekers.find((s) => s.id === id);
-    return seeker ? '/seeker-yours.png' : '/seeker-theirs.png';
+    const mobileUnit = mobileUnits.find((s) => s.id === id);
+    return mobileUnit ? '/mobile-unit-yours.png' : '/mobile-unit-theirs.png';
 };
 
 export const getEntityName = (entityID: BytesLike, world: WorldStateFragment) => {
@@ -145,7 +145,7 @@ export const getEntityName = (entityID: BytesLike, world: WorldStateFragment) =>
         const building = world.buildings.find((b) => b.id === id);
         return building?.kind?.name?.value ?? 'Building';
     }
-    const unit = world.tiles.flatMap((t) => t.seekers).find((s) => s.id === entityID);
+    const unit = world.tiles.flatMap((t) => t.mobileUnits).find((s) => s.id === entityID);
     return formatNameOrId(unit, 'Unit ');
 };
 
@@ -198,7 +198,7 @@ export const getMaterialStats = (materials: ItemSlotFragment[]) => {
 };
 
 export const unitToCombatParticipantProps = (
-    unit: SelectedSeekerFragment,
+    unit: SelectedMobileUnitFragment,
     world: WorldStateFragment,
     player: ConnectedPlayer
 ) => {
@@ -206,7 +206,7 @@ export const unitToCombatParticipantProps = (
     const stats = getEquipmentStats(unit.bags);
     return {
         name: getEntityName(entityID, world),
-        icon: getIcon(entityID, player.seekers),
+        icon: getIcon(entityID, player.mobileUnits),
         maxHealth: stats[ATOM_LIFE] + UNIT_BASE_LIFE * LIFE_MUL,
         currentHealth: stats[ATOM_LIFE] + UNIT_BASE_LIFE * LIFE_MUL,
         attack: stats[ATOM_ATTACK] + UNIT_BASE_ATTACK,
@@ -236,7 +236,7 @@ export const entityStateToCombatParticipantProps = (
     player: ConnectedPlayer
 ) => ({
     name: getEntityName(entityID, world),
-    icon: getIcon(entityID, player.seekers),
+    icon: getIcon(entityID, player.mobileUnits),
     maxHealth: stats[ATOM_LIFE],
     currentHealth: Math.max(stats[ATOM_LIFE] - damage, 0),
     attack: stats[ATOM_ATTACK],
@@ -266,7 +266,7 @@ export const getTileEntities = (
     if (tile.building && tile.building.kind) {
         entities.push(buildingToCombatParticipantProps(tile.building.kind));
     }
-    entities.push(...tile.seekers.map((unit) => unitToCombatParticipantProps(unit, world, player)));
+    entities.push(...tile.mobileUnits.map((unit) => unitToCombatParticipantProps(unit, world, player)));
     return entities;
 };
 

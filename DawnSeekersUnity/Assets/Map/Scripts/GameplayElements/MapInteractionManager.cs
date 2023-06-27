@@ -50,11 +50,11 @@ public class MapInteractionManager : MonoBehaviour
 
         RaycastHit hit;
 
-        string seekerID = "";
+        string mobileUnitID = "";
         if (Physics.Raycast(ray, out hit))
         {
-            if (hit.transform.CompareTag("Seeker"))
-                seekerID = hit.transform.GetComponent<SeekerController>().GetSeekerID();
+            if (hit.transform.CompareTag("MobileUnit"))
+                mobileUnitID = hit.transform.GetComponent<MobileUnitController>().GetMobileUnitID();
 
             //Get the point that is clicked
             Vector3 hitPoint = hit.point;
@@ -72,11 +72,13 @@ public class MapInteractionManager : MonoBehaviour
             return;
 
         bool TileNeighbourValid = false;
-        if (SeekerManager.instance.currentSelectedSeeker != null)
+        if (MobileUnitManager.instance.currentSelectedMobileUnit != null)
         {
             Vector3Int cubePos = GridExtensions.GridToCube(CurrentMouseCell);
             Vector3Int[] neighborTiles = TileHelper.GetTileNeighbours(
-                TileHelper.GetTilePosCube(SeekerManager.instance.currentSelectedSeeker.NextLocation)
+                TileHelper.GetTilePosCube(
+                    MobileUnitManager.instance.currentSelectedMobileUnit.NextLocation
+                )
             );
             TileNeighbourValid = neighborTiles.Contains(cubePos);
             if (
@@ -99,7 +101,7 @@ public class MapInteractionManager : MonoBehaviour
                     MapManager.instance.IsDiscoveredTile(
                         GridExtensions.GridToCube(CurrentMouseCell)
                     ) || TileNeighbourValid
-                ) && String.IsNullOrEmpty(seekerID)
+                ) && String.IsNullOrEmpty(mobileUnitID)
             );
 
         if (Input.GetMouseButtonUp(0))
@@ -107,7 +109,7 @@ public class MapInteractionManager : MonoBehaviour
             if (hit.transform != null)
             {
                 if (!_camController.hasDragged)
-                    MapClicked(seekerID);
+                    MapClicked(mobileUnitID);
             }
             else
             {
@@ -121,7 +123,7 @@ public class MapInteractionManager : MonoBehaviour
         }
     }
 
-    void MapClicked(string seekerID = "")
+    void MapClicked(string mobileUnitID = "")
     {
         // CurrentMouseCell is using Odd R offset coords
         var cellPosCube = GridExtensions.GridToCube(CurrentMouseCell);
@@ -146,45 +148,50 @@ public class MapInteractionManager : MonoBehaviour
             else
                 DeselectAll();
 
-            if (string.IsNullOrEmpty(seekerID))
+            if (string.IsNullOrEmpty(mobileUnitID))
             {
                 if (
-                    GameStateMediator.Instance.gameState.Selected.Seeker != null
+                    GameStateMediator.Instance.gameState.Selected.MobileUnit != null
                     && !TileHelper
                         .GetTileNeighbours(
                             TileHelper.GetTilePosCube(
-                                GameStateMediator.Instance.gameState.Selected.Seeker.NextLocation
+                                GameStateMediator
+                                    .Instance
+                                    .gameState
+                                    .Selected
+                                    .MobileUnit
+                                    .NextLocation
                             )
                         )
                         .Contains(cellPosCube)
                     && TileHelper.GetTilePosCube(
-                        GameStateMediator.Instance.gameState.Selected.Seeker.NextLocation
+                        GameStateMediator.Instance.gameState.Selected.MobileUnit.NextLocation
                     ) != cellPosCube
                 )
                 {
-                    Cog.GameStateMediator.Instance.SendSelectSeekerMsg();
+                    Cog.GameStateMediator.Instance.SendSelectMobileUnitMsg();
                 }
             }
             else
             {
-                Debug.Log("Select Seeker: " + seekerID);
-                Cog.GameStateMediator.Instance.SendSelectSeekerMsg(seekerID);
+                Debug.Log("Select Unit: " + mobileUnitID);
+                Cog.GameStateMediator.Instance.SendSelectMobileUnitMsg(mobileUnitID);
             }
         }
         else if (GameStateMediator.Instance.gameState.Selected.Intent != IntentKind.MOVE)
         {
             //if we're in an intent and clicking outside the area of influence, deselect everything (accept for move intent, which handles this itself)
             if (
-                GameStateMediator.Instance.gameState.Selected.Seeker != null
+                GameStateMediator.Instance.gameState.Selected.MobileUnit != null
                 && !TileHelper
                     .GetTileNeighbours(
                         TileHelper.GetTilePosCube(
-                            GameStateMediator.Instance.gameState.Selected.Seeker.NextLocation
+                            GameStateMediator.Instance.gameState.Selected.MobileUnit.NextLocation
                         )
                     )
                     .Contains(cellPosCube)
                 && TileHelper.GetTilePosCube(
-                    GameStateMediator.Instance.gameState.Selected.Seeker.NextLocation
+                    GameStateMediator.Instance.gameState.Selected.MobileUnit.NextLocation
                 ) != cellPosCube
             )
             {
@@ -195,7 +202,7 @@ public class MapInteractionManager : MonoBehaviour
 
     private void DeselectAll()
     {
-        GameStateMediator.Instance.SendSelectSeekerMsg();
+        GameStateMediator.Instance.SendSelectMobileUnitMsg();
         GameStateMediator.Instance.SendSelectTileMsg(null);
         GameStateMediator.Instance.SendSetIntentMsg(null);
     }
@@ -233,7 +240,7 @@ public class MapInteractionManager : MonoBehaviour
             var gridCoords = GridExtensions.CubeToGrid(cellPosCube);
 
             CurrentSelectedCell = GridExtensions.CubeToGrid(cellPosCube);
-            //clickedPlayerCell = SeekerManager.instance.IsPlayerAtPosition(cellPosCube);
+            //clickedPlayerCell = MobileUnitManager.instance.IsPlayerAtPosition(cellPosCube);
             Vector3 markerPos = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
             float height = MapHeightManager.UNSCOUTED_HEIGHT;
             if (MapManager.instance.IsDiscoveredTile(cellPosCube))

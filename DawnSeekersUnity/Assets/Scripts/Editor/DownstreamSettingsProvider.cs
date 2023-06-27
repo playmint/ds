@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-class DawnseekersSettingsProvider : SettingsProvider
+class DownstreamSettingsProvider : SettingsProvider
 {
     SerializedObject SerialisedSettings;
     SerializedProperty NodePath;
@@ -23,7 +23,7 @@ class DawnseekersSettingsProvider : SettingsProvider
         );
     }
 
-    public DawnseekersSettingsProvider(
+    public DownstreamSettingsProvider(
         string path,
         SettingsScope scopes,
         IEnumerable<string> keywords = null
@@ -32,9 +32,9 @@ class DawnseekersSettingsProvider : SettingsProvider
 
     public override void OnActivate(string searchContext, VisualElement rootElement)
     {
-        Debug.Log("DawnseekersSettingsProvider::OnActivate()");
+        Debug.Log("DownstreamSettingsProvider::OnActivate()");
         // MySingleton.instance.Save();
-        SerialisedSettings = new SerializedObject(DawnseekersDevSettings.instance);
+        SerialisedSettings = new SerializedObject(DownstreamDevSettings.instance);
         NodePath = SerialisedSettings.FindProperty("NodePath");
         PrivateKey = SerialisedSettings.FindProperty("PrivateKey");
     }
@@ -55,7 +55,7 @@ class DawnseekersSettingsProvider : SettingsProvider
             if (EditorGUI.EndChangeCheck())
             {
                 SerialisedSettings.ApplyModifiedProperties();
-                DawnseekersDevSettings.instance.SaveSettings();
+                DownstreamDevSettings.instance.SaveSettings();
             }
         }
     }
@@ -63,8 +63,8 @@ class DawnseekersSettingsProvider : SettingsProvider
     [SettingsProvider]
     public static SettingsProvider CreateMySingletonProvider()
     {
-        var provider = new DawnseekersSettingsProvider(
-            "Project/Dawnseekers",
+        var provider = new DownstreamSettingsProvider(
+            "Project/Downstream",
             SettingsScope.Project,
             GetSearchKeywordsFromGUIContentProperties<Styles>()
         );

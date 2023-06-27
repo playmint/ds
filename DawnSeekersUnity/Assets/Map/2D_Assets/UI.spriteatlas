@@ -66,19 +66,19 @@ SpriteAtlas:
   m_PackedSpriteNamesToIndex:
   - MapIconBG
   - Circle
-  - Seeker_bg_yours
+  - MobileUnit_bg_yours
   - Tower_Icon02
   - Bag_Icon
   - Hex_hoverState
   - constructIcon
   - LoaderSimple
-  - Seeker_icon_yours
+  - MobileUnit_icon_yours
   - Sword_Icon
   - moveIcon
   - MapIconBG02
   - scoutIcon
-  - Seeker_bg_theirs
-  - Seeker_icon_theirs
+  - MobileUnit_bg_theirs
+  - MobileUnit_icon_theirs
   m_RenderDataMap: {}
   m_Tag: UI
   m_IsVariant: 0

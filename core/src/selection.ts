@@ -13,7 +13,7 @@ import {
     switchMap,
     tap,
 } from 'wonka';
-import { makePlayerSeeker } from './seeker';
+import { makePlayerMobileUnit } from './mobileUnit';
 import { makeTiles } from './tile';
 import { CogServices, ConnectedPlayer, Selection, Selector, World } from './types';
 
@@ -22,8 +22,8 @@ export function makeSelection(
     world: Source<World>,
     player: Source<ConnectedPlayer | undefined>,
 ) {
-    const { selector: selectSeeker, selection: selectedSeekerID } = makeSelector<string | undefined>(player);
-    const selectedSeeker = makePlayerSeeker(player, selectedSeekerID);
+    const { selector: selectMobileUnit, selection: selectedMobileUnitID } = makeSelector<string | undefined>(player);
+    const selectedMobileUnit = makePlayerMobileUnit(player, selectedMobileUnitID);
 
     const { selector: selectTiles, selection: selectedTileIDs } = makeSelector<string[] | undefined>(player);
     const selectedTiles = makeTiles(client, world, selectedTileIDs);
@@ -34,8 +34,8 @@ export function makeSelection(
     const selectionPipe = pipe(
         merge<Partial<Selection>>([
             pipe(
-                selectedSeeker,
-                map((seeker) => ({ seeker })),
+                selectedMobileUnit,
+                map((mobileUnit) => ({ mobileUnit })),
             ),
             pipe(
                 selectedTiles,
@@ -57,7 +57,7 @@ export function makeSelection(
         debounce(() => 10),
     );
 
-    return { selection, selectSeeker, selectTiles, selectIntent };
+    return { selection, selectMobileUnit, selectTiles, selectIntent };
 }
 
 /**
@@ -67,13 +67,13 @@ export function makeSelection(
  * for example:
  *
  * ```ts
- * const { selector: selectSeekerID, selection: seekerID } = makeSelector<string>();
+ * const { selector: selectMobileUnitID, selection: mobileUnitID } = makeSelector<string>();
  *
- * selectSeekerID('xxxxx')   // update the selection to 'xxxxx'
+ * selectMobileUnitID('xxxxx')   // update the selection to 'xxxxx'
  *
  * pipe(
- *  seekerID,
- *  subscribe(() => console.log('seeker id selection changed'))
+ *  mobileUnitID,
+ *  subscribe(() => console.log('mobileUnit id selection changed'))
  * )
  * ```
  *

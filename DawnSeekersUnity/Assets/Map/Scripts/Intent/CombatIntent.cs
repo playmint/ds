@@ -9,7 +9,7 @@ public class CombatIntent : IntentHandler
 {
     public static CombatIntent instance;
     private bool _isActiveIntent;
-    private Vector3Int _seekerPos;
+    private Vector3Int _mobileUnitPos;
     private Vector3Int[] _validTilePositions;
     private Vector3Int[] _selectedTilePositions;
 
@@ -61,14 +61,14 @@ public class CombatIntent : IntentHandler
         if (state.Selected.Intent == Intent)
         {
             _isActiveIntent = true;
-            _seekerPos = TileHelper.GetTilePosCube(state.Selected.Seeker.NextLocation);
+            _mobileUnitPos = TileHelper.GetTilePosCube(state.Selected.MobileUnit.NextLocation);
             _validTilePositions = GetValidTilePositions(state);
             _selectedTilePositions = GetSelectedTilePositions(state);
-            if (_selectedTilePositions.Length == 0 || _selectedTilePositions[0] != _seekerPos)
+            if (_selectedTilePositions.Length == 0 || _selectedTilePositions[0] != _mobileUnitPos)
             {
                 // Player's tile needs to be the first tile selected
                 GameStateMediator.Instance.SendSelectTileMsg(
-                    new List<string>() { TileHelper.GetTileID(_seekerPos) }
+                    new List<string>() { TileHelper.GetTileID(_mobileUnitPos) }
                 );
                 return;
             }
@@ -94,7 +94,7 @@ public class CombatIntent : IntentHandler
         if (!_isActiveIntent)
             return;
 
-        if (_spawnedSelectedHighlights.ContainsKey(cellPosCube) && cellPosCube != _seekerPos)
+        if (_spawnedSelectedHighlights.ContainsKey(cellPosCube) && cellPosCube != _mobileUnitPos)
         {
             //return;
 
@@ -114,7 +114,7 @@ public class CombatIntent : IntentHandler
             GameStateMediator.Instance.SendSelectTileMsg(
                 new List<string>()
                 {
-                    TileHelper.GetTileID(_seekerPos),
+                    TileHelper.GetTileID(_mobileUnitPos),
                     TileHelper.GetTileID(cellPosCube)
                 }
             );
@@ -133,7 +133,7 @@ public class CombatIntent : IntentHandler
 
     private Vector3Int[] GetValidTilePositions(GameState state)
     {
-        var neighbourTiles = TileHelper.GetTileNeighbours(_seekerPos);
+        var neighbourTiles = TileHelper.GetTileNeighbours(_mobileUnitPos);
         var validTiles = neighbourTiles.Where(cellPosCube =>
         {
             var tile = MapManager.instance.GetTileByPos(cellPosCube);
@@ -146,7 +146,7 @@ public class CombatIntent : IntentHandler
                 && !TileHelper.HasActiveCombatSession(tile);
         });
 
-        return validTiles.Append(_seekerPos).ToArray();
+        return validTiles.Append(_mobileUnitPos).ToArray();
     }
 
     // -- Tile Highlighting

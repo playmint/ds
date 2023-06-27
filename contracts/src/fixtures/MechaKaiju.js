@@ -2,7 +2,7 @@ import ds from 'dawnseekers';
 
 export default function update({ selected, world }) {
 
-    const { tiles, seeker } = selected || {};
+    const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
 
 

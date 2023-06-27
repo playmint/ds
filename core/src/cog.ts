@@ -33,9 +33,9 @@ import { AnyGameSubscription, AnyGameVariables, CogAction, CogEvent, CogQueryCon
 
 const abi = ethers.AbiCoder.defaultAbiCoder();
 
-export const DAWNSEEKERS_GAME_ACTIONS = Actions__factory.createInterface();
+export const DOWNSTREAM_GAME_ACTIONS = Actions__factory.createInterface();
 
-const DAWNSEEKERS_AUTH_MESSAGE = (addr: string, ttl: number) =>
+const DOWNSTREAM_AUTH_MESSAGE = (addr: string, ttl: number) =>
     [
         'Welcome to Downstream!',
         '\n\nThis site is requesting permission to interact with your Downstream assets.',
@@ -47,12 +47,12 @@ const DAWNSEEKERS_AUTH_MESSAGE = (addr: string, ttl: number) =>
         addr,
     ].join('');
 
-const DAWNSEEKERS_GAME_ID = 'DAWNSEEKERS';
+const DOWNSTREAM_GAME_ID = 'DOWNSTREAM';
 
 const cogDefaultConfig = {
-    gameID: DAWNSEEKERS_GAME_ID,
-    authMessage: DAWNSEEKERS_AUTH_MESSAGE,
-    actions: DAWNSEEKERS_GAME_ACTIONS,
+    gameID: DOWNSTREAM_GAME_ID,
+    authMessage: DOWNSTREAM_AUTH_MESSAGE,
+    actions: DOWNSTREAM_GAME_ACTIONS,
     wsEndpoint: 'ws://localhost:8080/query',
     httpEndpoint: 'http://localhost:8080/query',
 } satisfies GameConfig;

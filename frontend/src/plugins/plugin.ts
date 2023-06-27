@@ -30,8 +30,8 @@ export class Plugin {
         if (!selectedTile) {
             return;
         }
-        const selectedSeeker = this.state.ui.selected.seeker;
-        if (!selectedSeeker) {
+        const selectedMobileUnit = this.state.ui.selected.mobileUnit;
+        if (!selectedMobileUnit) {
             return;
         }
         if (this.state.showActionDetails) {

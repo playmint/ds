@@ -25,10 +25,10 @@ public class ActionMenuController : MonoBehaviour
     {
         if (ShouldShowMenu(state))
         {
-            var seekerPos = TileHelper.GetTilePosCube(state.Selected.Seeker.NextLocation);
+            var mobileUnitPos = TileHelper.GetTilePosCube(state.Selected.MobileUnit.NextLocation);
             gameObject.SetActive(true);
             transform.position = MapManager.instance.grid.CellToWorld(
-                GridExtensions.CubeToGrid(seekerPos)
+                GridExtensions.CubeToGrid(mobileUnitPos)
             );
             transform.position = new Vector3(
                 transform.position.x,
@@ -52,14 +52,17 @@ public class ActionMenuController : MonoBehaviour
         }
         else if (state.Selected.Tiles != null && state.Selected.Tiles.Count > 0)
         {
-            if (state.Selected.Seeker == null || string.IsNullOrEmpty(state.Selected.Seeker.Id))
+            if (
+                state.Selected.MobileUnit == null
+                || string.IsNullOrEmpty(state.Selected.MobileUnit.Id)
+            )
             {
-                Debug.Log("No Seeker Selected");
+                Debug.Log("No MobileUnit Selected");
                 return false;
             }
             else
             {
-                Debug.Log(state.Selected.Seeker.Id);
+                Debug.Log(state.Selected.MobileUnit.Id);
                 return true;
             }
         }
