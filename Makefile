@@ -38,6 +38,9 @@ compose: frontend/public/ds-unity/Build/ds-unity.wasm
 contracts/out/Actions.sol/Actions.json:
 	(cd contracts && forge build)
 
+core/src/gql:
+	# noop
+
 core/dist/core.js: $(CORE_SRC)
 	(cd core && npm run build)
 

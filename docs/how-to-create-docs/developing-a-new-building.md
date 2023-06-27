@@ -2,13 +2,14 @@
 
 **Windows users will need to enable WSL for this process** (*[https://learn.microsoft.com/en-us/windows/wsl/install](https://learn.microsoft.com/en-us/windows/wsl/install)*)
 
-## Getting Setup
+## Getting Set Up
 
 1. Install [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) if you don't have it.
 2. Clone this repository: [https://github.com/playmint/ds-hammer-factory](https://github.com/playmint/ds-hammer-factory) with recursive submodules
     > `git clone --recurse-submodules https://github.com/playmint/ds-hammer-factory.git`
 4. This is a forge project. Follow the instructions here to get setup: [install foundry](https://book.getfoundry.sh/getting-started/installation)
-5. Confirm you are setup correctly by navigating to the ds-hammer-factory folder and running `forge test` from the command line
+    - Mac Users may need to [install "brew" first](https://docs.brew.sh/Installation)
+6. Confirm you are set up correctly by navigating to the ds-hammer-factory folder and running `forge test` from the command line
    **Note: Windows users will need to be in WSL for all command-line steps.**
 
 ## Creating a Pizzeria
@@ -22,6 +23,7 @@ We’re going to quickly create a new building - a Pizzeria.
     - Pizzeria.js
     - Pizzeria.sol
 ### Important - These need to be new files. Don't overwrite the originals.
+### Important 2 - Everything is case-sensitive!
 
 ### Pizzeria.sol
 
@@ -51,7 +53,7 @@ id: 'pizzeria',
 title: 'Paulo\'s Pizzeria',
 ```
 
-1. Line 56: This is the desciption text that displays on the building. You can leave it as is, or make it more personal
+1. Line 56: This is the description text that displays on the building. You can leave it as is, or make it more personal
 
 ```jsx
 summary: `For the best pizza put ${want0?.balance}x ${want0?.item?.name?.value} and ${want1?.balance}x ${want1?.item?.name?.value} into our oven`,
@@ -65,7 +67,7 @@ buttons: [{ text: 'Cook Pizza', type: 'action', action: craft, disabled: !canCra
 
 ## Writing a Deployment Script
 
-Before you can deploy your building, there’s one more script you need to add.
+The deployment script will register the building and item to the game, and link them to your building scripts.
 
 1. Navigate to the /script folder and duplicate **********Deploy.sol**********
 2. Rename this new file to ************Deploy_Pizzeria.sol************
@@ -168,7 +170,7 @@ To test your new creation you’ll need to place it in the game!
 
 1. Go to the website: [https://frontend-ds-test.dev.playmint.com/](https://frontend-ds-test.dev.playmint.com/)
 2. Log on with Metamask
-    - Spawn an Engineer if you don’t have one already
+    - Spawn a Unit if you don’t have one already
 3. Find enough construction materials - 10 Kikis, 10 Bubotes and 10 Semiotes 
 4. Select the Build functionality and place your new building on an empty tile
 5. Move your Engineer to a tile adjacent to your building

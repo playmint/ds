@@ -39,6 +39,7 @@ export interface SelectionSelectors {
 export interface DSContextStore {
     player: Source<ConnectedPlayer | undefined>;
     world: Source<World>;
+    state: Source<GameState>;
     selection: Source<Selection>;
     selectors: SelectionSelectors;
     ui: Source<PluginState[]>;
@@ -74,13 +75,22 @@ export const DSProvider = ({ initialConfig, defaultPlugins, children }: DSContex
             zip([enabledPlugins, autoloadPlugins]),
             map((plugins) => [...plugins[0], ...plugins[1]]),
         );
-        const ui = makePluginUI(player, logger, uiPlugins, world, selection);
+        const state = makeGameState(
+            player,
+            world,
+            selection,
+            selectors.selectTiles,
+            selectors.selectSeeker,
+            selectors.selectIntent,
+        );
+        const ui = makePluginUI(logger, uiPlugins, state);
 
         return {
             player,
             world,
             selection,
             selectors,
+            state,
             availablePlugins,
             enabledPlugins,
             buildingKinds,
@@ -166,8 +176,7 @@ export function useGameState(): Partial<GameState> {
     const [state, setState] = React.useState<Partial<GameState>>({});
 
     React.useEffect(() => {
-        const state = makeGameState(sources.player, sources.world, sources.selection);
-        const { unsubscribe } = pipe(state, subscribe(setState));
+        const { unsubscribe } = pipe(sources.state, subscribe(setState));
         return unsubscribe;
     }, [sources.player, sources.world, sources.selection]);
 

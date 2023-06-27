@@ -110,7 +110,7 @@ fragment WorldState on State {
         ...WorldPlayer
     }
     tiles: nodes(match: { kinds: "Tile" }) {
-        ...WorldTile
+        ...SelectedTile
     }
     buildings: nodes(match: { kinds: "Building" }) {
         ...WorldBuilding

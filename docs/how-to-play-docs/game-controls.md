@@ -1,11 +1,11 @@
 # Game Controls
 
-## Getting into the Game
+## Getting Into the Game
 
 1. Click the “Connect” button at the top-left of the screen
 2. Login to Metamask
 3. Click the “Spawn Unit” button
-4. Click the “Sign button when prompted
+4. Click the “Sign" button when prompted
 5. You unit will appear in the middle of the map - they will have a red shield above their head
 
 ![Spawning In](../images/spawn-in.png)
@@ -14,7 +14,7 @@
 
 When your Unit is selected, you can interact with the tiles adjacent to it.
 
-- To select your unit, hover your cursor over that it so that it’s highlighted, and left-click
+- To select your Unit, hover your cursor over that it so that it’s highlighted, and left-click
 - The unit’s details and action bar will appear in the UI.
 
 When you deselect your unit you can view the details of tiles anywhere on the map
@@ -25,17 +25,17 @@ When you deselect your unit you can view the details of tiles anywhere on the ma
 
 ## Moving Your Unit
 
-With you unit selected, you can give it a destination to travel to. This is done by clicking a route of one or more tiles from its current position
+With your Unit selected, you can give it a destination to travel to. This is done by clicking a route of one or more tiles from its current position.
 
-1. Select the “Move” action. This will highlight all the tiles the Unit can move to.
-2. Left-click one off these tiles.
+1. Select the “Move” action. This will highlight all the tiles the Unit can move to
+2. Left-click one off these tiles
 3. You can either press the “Confirm Move” button to move to this tile, or queue up additional moves by continuing to click on the highlighted tiles
 
 ![Moving](../images/move-unit.png)
 
 ## Scouting
 
-When your unit is next to an unexplored sunken tile, it will have the ability to scout it.
+When your unit is next to an unexplored tile it will have the ability to scout it. This will generate it on the blockchain and add it to the world.
 
 1. With your unit selected, click the “Scout” button
 2. Click on all adjacent tiles that you want to scout
@@ -47,7 +47,7 @@ When your unit is next to an unexplored sunken tile, it will have the ability to
 
 Your Unit can construct a building on any empty adjacent tiles
 
-1. With the unit selected, click the “Build” button
+1. With the Unit selected, click the “Build” button
 2. Click on one of the highlighted tiles
 3. Select the building you want to construct from the drop-down menu. 
     - This contains all buildings that have been deployed to the game, by all creators.

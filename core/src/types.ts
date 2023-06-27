@@ -328,9 +328,12 @@ export type Seeker = WorldSeekerFragment & Partial<SelectedSeekerFragment>;
 export type Tile = WorldTileFragment & Partial<SelectedTileFragment>;
 
 export interface GameState {
-    player?: Player;
+    player?: ConnectedPlayer;
     world: World;
     selected: Selection;
+    selectTiles: Selector<string[] | undefined>;
+    selectSeeker: Selector<string | undefined>;
+    selectIntent: Selector<string | undefined>;
 }
 
 export interface ConnectedPlayer extends SelectedPlayerFragment {

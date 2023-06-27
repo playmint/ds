@@ -144,5 +144,20 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4748722693351174289, guid: 87b00e9807c374871b1cd063b867ba6e,
+        type: 3}
+      propertyPath: m_isRichText
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4748722693351174289, guid: 87b00e9807c374871b1cd063b867ba6e,
+        type: 3}
+      propertyPath: m_enableWordWrapping
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4748722693351174289, guid: 87b00e9807c374871b1cd063b867ba6e,
+        type: 3}
+      propertyPath: m_parseCtrlCharacters
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87b00e9807c374871b1cd063b867ba6e, type: 3}

@@ -124,26 +124,6 @@ public class MoveIntent : IntentHandler
         return validPath;
     }
 
-    private void Update()
-    {
-        if (
-            GameStateMediator.Instance.gameState == null
-            || GameStateMediator.Instance.gameState.World == null
-        )
-            return;
-
-        if (
-            spawnedValidCellHighlights.ContainsKey(
-                GridExtensions.GridToCube(MapInteractionManager.CurrentMouseCell)
-            )
-        )
-        {
-            CursorController.ShowMoveCursor();
-        }
-        else
-            CursorController.ShowDefaultCursor();
-    }
-
     private void OnTileLeftClick(Vector3Int cellCubePos)
     {
         if (!isMoving)
