@@ -302,7 +302,7 @@ export interface PluginState {
 
 export type PluginSubmitProxy = (ref: string, values: PluginSubmitCallValues) => Promise<void>;
 
-export type DispatchFunc = (...actions: CogAction[]) => void;
+export type DispatchFunc = (...actions: CogAction[]) => Promise<void>;
 
 export type AvailablePlugin = AvailablePluginFragment;
 export type AvailableBuildingKind = BuildingKindFragment;
