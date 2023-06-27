@@ -255,6 +255,13 @@ public class MapInteractionManager : MonoBehaviour
 
     public void FocusTile(string tileID)
     {
+        if (
+            GameStateMediator.Instance.gameState == null
+            || GameStateMediator.Instance.gameState.World == null
+        )
+        {
+            return;
+        }
         _camController.FocusTile(
             TileHelper.GetTilePosCube(
                 GameStateMediator.Instance.gameState.World.Tiles.FirstOrDefault(t => t.Id == tileID)
