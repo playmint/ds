@@ -1,21 +1,27 @@
 # Creating New Items
 
-## Atoms
+## Goo
 
-All items in Downstream contain atoms. There are 3 types of atoms:
+All items in Downstream contain goo. There are 3 types of goo:
 
-- Life
-- Defence
-- Attack
+- Green Goo
+- Blue Goo
+- Red Goo
 
-When a new item is registered it can receive up to half of the atoms in its inputs. For example, if its INPUT ingredients contains exactly 10 ATK Atoms and 5 DEFENCE atoms you can set the new item’s stats to be: 5 ATK, 2 DEF, 0 LIFE.
+When a new item is registered you state its Goo composition. However, these numbers can only by at most half the value of the goo in its input items.
+For example, if its INPUT ingredients contain a total of 10 RED goo and 5 BLUE goo the maximum goo the new item can have is: 5 RED, 2 BLUE, 0 GREEN.
 You are able to register the item with lower values than these, but if you try to deploy the script with higher values than the INPUTS can support it will throw an error.
 
 The easiest way to see how many atoms an item has is to hover over it in the inventory. The base resources found in the game contain:
 
-- Kikis = 2 LIFE atoms
-- Bouba = 2 DEF atoms
-- Semiote = 2 ATK atoms
+- Glass of Green Goo = 2 GREEN goo
+- Beaker of Blue Goo = 2 BLUE goo
+- Flask of Red Goo = 2 RED goo
+
+Creators can choose to use goo however they wish. Downstream uses the goo values in combat where:
+- Green Goo = Life
+- Blue Goo = Defense
+- Red Goo = Attack
 
 ## Stackable / Equipable
 

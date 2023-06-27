@@ -101,9 +101,9 @@ console2.log("BuildingKind", uint256(bytes32(pizzeria)));
             id: extensionID,
             name: "Pizza",
             icon: "02-62",
-            life: 5,
-            defense: 0,
-            attack: 2,
+            greenGoo: 10,       //In combat, Green Goo increases life
+            blueGoo: 0,         //In combat, Blue Goo increases defense
+            redGoo: 6,          //In combat, Red Goo increases attack
             stackable: false,
             implementation: address(0),
             plugin: ""
@@ -120,23 +120,23 @@ console2.log("BuildingKind", uint256(bytes32(pizzeria)));
 
         // find the base item ids we will use as inputs for our Pizzeria
         bytes24 none = 0x0;
-        bytes24 kiki = ItemUtils.Kiki();
-        bytes24 bouba = ItemUtils.Bouba();
-        bytes24 semiote = ItemUtils.Semiote();
+        bytes24 glassGreenGoo = ItemUtils.GlassGreenGoo();
+        bytes24 beakerBlueGoo = ItemUtils.BeakerBlueGoo();
+        bytes24 flaskRedGoo = ItemUtils.FlaskRedGoo();
 
         // register a new building kind
         return BuildingUtils.register(ds, BuildingConfig({
             id: extensionID,
             name: "Paulo\'s Pizzeria",
             materials: [
-                Material({quantity: 10, item: kiki}), // these are what it costs to construct the factory
-                Material({quantity: 10, item: bouba}),
-                Material({quantity: 10, item: semiote}),
+                Material({quantity: 10, item: glassGreenGoo}), // these are what it costs to construct the factory
+                Material({quantity: 10, item: beakerBlueGoo}),
+                Material({quantity: 10, item: flaskRedGoo}),
                 Material({quantity: 0, item: none})
             ],
             inputs: [
-                Input({quantity: 10, item: kiki}), // these are required inputs to get the output
-                Input({quantity: 4, item: semiote}),
+                Input({quantity: 10, item: glassGreenGoo}), // these are required inputs to get the output
+                Input({quantity: 4, item: flaskRedGoo}),
                 Input({quantity: 0, item: none}),
                 Input({quantity: 0, item: none})
             ],
@@ -171,7 +171,12 @@ To test your new creation you’ll need to place it in the game!
 1. Go to the website: [https://frontend-ds-test.dev.playmint.com/](https://frontend-ds-test.dev.playmint.com/)
 2. Log on with Metamask
     - Spawn a Unit if you don’t have one already
-3. Find enough construction materials - 10 Kikis, 10 Bubotes and 10 Semiotes 
-4. Select the Build functionality and place your new building on an empty tile
-5. Move your Engineer to a tile adjacent to your building
-6. Click the “Cook Pizza” button
+3. Find enough construction materials
+    - 10 x Glass of Green Goo
+    - 10 x Beaker of Blue Goo
+    - 10 x Flask of Red Goo 
+5. Select the Build functionality and place your new building on an empty tile
+6. Move your Unit to a tile that is adjacent to your building
+7. Click the building, and click the "USE" button
+8. Add the required items to the crafting panel
+9. Click the “Cook Pizza” button
