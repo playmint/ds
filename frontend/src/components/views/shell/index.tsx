@@ -103,7 +103,6 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         }
         selectSeeker(seeker.id);
         const tileId = seeker.nextLocation?.tile.id;
-        console.warn('selectAndFocusSeeker', tileId);
         sendMessage('MapInteractionManager', 'FocusTile', tileId);
     }, [selectSeeker, player, sendMessage]);
 
@@ -172,6 +171,11 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                             <TileCoords className="action" selectedTiles={selectedTiles} />
                         </Fragment>
                     )}
+                    {player && player.seekers.length > 0 && !selectedSeeker && (
+                        <div className="onboarding" style={{ width: '30rem' }}>
+                            <button onClick={selectAndFocusSeeker}>Select Unit</button>
+                        </div>
+                    )}
                 </div>
                 <div className="top-middle"></div>
                 <div className="bottom-middle">
@@ -217,12 +221,6 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                         </button>
                                     </div>
                                 )}
-                                {player && player.seekers.length > 0 && !selectedSeeker && (
-                                    <div className="onboarding">
-                                        <h3>Select a unit</h3>
-                                        <button onClick={selectAndFocusSeeker}>Goto Unit</button>
-                                    </div>
-                                )}
                             </div>
                             {player.seekers.length > 0 && (
                                 <div className="tile-actions">
@@ -235,15 +233,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                 </div>
             </div>
             <div className="map-container">
-                <UnityMap
-                    player={player}
-                    selection={selection}
-                    world={world}
-                    selectSeeker={selectSeeker}
-                    unityProvider={unityProvider}
-                    sendMessage={sendMessage}
-                    {...otherProps}
-                />
+                <UnityMap unityProvider={unityProvider} sendMessage={sendMessage} {...otherProps} />
             </div>
         </StyledShell>
     );

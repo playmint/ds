@@ -28,9 +28,8 @@ export const TileCoords: FunctionComponent<TileCoordsProps> = (props: TileCoords
 
     return (
         <StyledTileCoords {...otherProps}>
-            <h3>Selected Tile Coordinates</h3>
             {showingIllustration && (
-                <div className="tile-container">
+                <div className="tile-container" style={{ marginBottom: '1rem' }}>
                     <img src="empty-tile.png" alt="" width={80} />
                     <div className="element q">{`${q}`}</div>
                     <div className="element r">{`${r}`}</div>
@@ -40,7 +39,9 @@ export const TileCoords: FunctionComponent<TileCoordsProps> = (props: TileCoords
                     <div className="axis s">{`S`}</div>
                 </div>
             )}
-            <div className="coordinates" onClick={handleCoordinatesClick}>{`${q}, ${r}, ${s}`}</div>
+            <div className="coordinates" onClick={handleCoordinatesClick}>
+                <strong>COORDINATES:</strong> {`${q}, ${r}, ${s}`}
+            </div>
             {/* <div className="coordinates">{`Q:${qHex} R:${rHex} S:${sHex}`}</div> */}
         </StyledTileCoords>
     );
