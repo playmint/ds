@@ -48,14 +48,14 @@ export default function update({ selected, world }) {
         components: [
             {
                 type: 'building',
-                id: 'kiki-fusion',
-                title: 'Kiki Fusion',
-                summary: `A reactor that will fuse Super-Kikis into MEGA-Kikis!`,
+                id: 'green-goo-fusion',
+                title: 'Green Goo Fusion',
+                summary: `A reactor that will fuse Vibrant Green Goo into Really Green Goo!`,
                 content: [
                     {
                         id: 'default',
                         type: 'inline',
-                        buttons: [{ text: 'Go Go Super-Kikis', type: 'action', action: craft, disabled: !canCraft }],
+                        buttons: [{ text: 'Make My Goo Greener!', type: 'action', action: craft, disabled: !canCraft }],
                     },
                 ],
             },

@@ -14,9 +14,9 @@ import {
     Rel,
     LocationKey,
     BiomeKind,
-    ATOM_LIFE,
-    ATOM_DEFENSE,
-    ATOM_ATTACK,
+    GOO_GREEN,
+    GOO_BLUE,
+    GOO_RED,
     DEFAULT_ZONE
 } from "@ds/schema/Schema.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
@@ -79,9 +79,9 @@ contract CraftingRuleTest is Test {
     }
 
     function testResources() public {
-        assertEq(state.getAtoms(ItemUtils.Kiki())[ATOM_LIFE], 2);
-        assertEq(state.getAtoms(ItemUtils.Bouba())[ATOM_DEFENSE], 2);
-        assertEq(state.getAtoms(ItemUtils.Semiote())[ATOM_ATTACK], 2);
+        assertEq(state.getAtoms(ItemUtils.GlassGreenGoo())[GOO_GREEN], 2);
+        assertEq(state.getAtoms(ItemUtils.BeakerBlueGoo())[GOO_BLUE], 2);
+        assertEq(state.getAtoms(ItemUtils.FlaskRedGoo())[GOO_RED], 2);
     }
 
     function testGetAtoms() public {
@@ -99,9 +99,9 @@ contract CraftingRuleTest is Test {
         vm.startPrank(aliceAccount);
 
         bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItem;
-        inputItem[0] = ItemUtils.Kiki();
-        inputItem[1] = ItemUtils.Bouba();
-        inputItem[2] = ItemUtils.Semiote();
+        inputItem[0] = ItemUtils.GlassGreenGoo();
+        inputItem[1] = ItemUtils.BeakerBlueGoo();
+        inputItem[2] = ItemUtils.FlaskRedGoo();
 
         uint64[MAX_CRAFT_INPUT_ITEMS] memory inputQty;
         inputQty[0] = 2;
@@ -277,9 +277,9 @@ contract CraftingRuleTest is Test {
         _discover(0, 0, 0);
         dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (seeker)));
         bytes24[] memory items = new bytes24[](3);
-        items[0] = ItemUtils.Kiki();
-        items[1] = ItemUtils.Bouba();
-        items[2] = ItemUtils.Semiote();
+        items[0] = ItemUtils.GlassGreenGoo();
+        items[1] = ItemUtils.BeakerBlueGoo();
+        items[2] = ItemUtils.FlaskRedGoo();
 
         uint64[] memory balances = new uint64[](3);
         balances[0] = 100;
@@ -311,9 +311,9 @@ contract CraftingRuleTest is Test {
 
     function _registerBuildingKind(uint64 uid, address buildingContract) private returns (bytes24) {
         bytes24[4] memory defaultMaterialItem;
-        defaultMaterialItem[0] = ItemUtils.Kiki();
-        defaultMaterialItem[1] = ItemUtils.Bouba();
-        defaultMaterialItem[2] = ItemUtils.Semiote();
+        defaultMaterialItem[0] = ItemUtils.GlassGreenGoo();
+        defaultMaterialItem[1] = ItemUtils.BeakerBlueGoo();
+        defaultMaterialItem[2] = ItemUtils.FlaskRedGoo();
         uint64[4] memory defaultMaterialQty;
         defaultMaterialQty[0] = 25;
         defaultMaterialQty[1] = 25;
@@ -348,9 +348,9 @@ contract CraftingRuleTest is Test {
         returns (bytes24 buildingInstance)
     {
         bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItem;
-        inputItem[0] = ItemUtils.Kiki();
-        inputItem[1] = ItemUtils.Bouba();
-        inputItem[2] = ItemUtils.Semiote();
+        inputItem[0] = ItemUtils.GlassGreenGoo();
+        inputItem[1] = ItemUtils.BeakerBlueGoo();
+        inputItem[2] = ItemUtils.FlaskRedGoo();
 
         uint64[MAX_CRAFT_INPUT_ITEMS] memory inputQty;
         inputQty[0] = 2;
@@ -373,9 +373,9 @@ contract CraftingRuleTest is Test {
         // magic 100 items into the construct slot
         bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
         state.setEquipSlot(buildingInstance, 0, inputBag);
-        state.setItemSlot(inputBag, 0, ItemUtils.Kiki(), 25);
-        state.setItemSlot(inputBag, 1, ItemUtils.Bouba(), 25);
-        state.setItemSlot(inputBag, 2, ItemUtils.Semiote(), 25);
+        state.setItemSlot(inputBag, 0, ItemUtils.GlassGreenGoo(), 25);
+        state.setItemSlot(inputBag, 1, ItemUtils.BeakerBlueGoo(), 25);
+        state.setItemSlot(inputBag, 2, ItemUtils.FlaskRedGoo(), 25);
         // construct our building
         dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
         return buildingInstance;

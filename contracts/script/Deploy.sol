@@ -10,8 +10,8 @@ import {Node, BiomeKind, Schema} from "@ds/schema/Schema.sol";
 
 import {CocktailHut} from "@ds/fixtures/CocktailHut.sol";
 
-import {KikiFission} from "@ds/fixtures/KikiFission.sol";
-import {KikiFusion} from "@ds/fixtures/KikiFusion.sol";
+import {GreenGooFission} from "@ds/fixtures/GreenGooFission.sol";
+import {GreenGooFusion} from "@ds/fixtures/GreenGooFusion.sol";
 import {FoulFiends} from "@ds/fixtures/FoulFiends.sol";
 import {KwikTyre} from "@ds/fixtures/KwikTyre.sol";
 import {AllThingsRubber} from "@ds/fixtures/AllThingsRubber.sol";
@@ -63,9 +63,9 @@ contract GameDeployer is Script {
                 id: 99,
                 name: "L33t Bricks",
                 icon: "07-191",
-                life: 99999,
-                defense: 99999,
-                attack: 1,
+                greenGoo: 99999,
+                blueGoo: 99999,
+                redGoo: 1,
                 stackable: true,
                 implementation: address(0),
                 plugin: ""
@@ -79,9 +79,9 @@ contract GameDeployer is Script {
                 id: 200,
                 name: "Gold Coin",
                 icon: "10-33",
-                life: 10,
-                defense: 10,
-                attack: 5,
+                greenGoo: 10,
+                blueGoo: 10,
+                redGoo: 5,
                 stackable: true,
                 implementation: address(0),
                 plugin: ""
@@ -94,9 +94,9 @@ contract GameDeployer is Script {
                 id: 201,
                 name: "Gold Note",
                 icon: "10-32",
-                life: 50,
-                defense: 10,
-                attack: 25,
+                greenGoo: 50,
+                blueGoo: 10,
+                redGoo: 25,
                 stackable: true,
                 implementation: address(0),
                 plugin: ""
@@ -109,9 +109,9 @@ contract GameDeployer is Script {
                 id: 202,
                 name: "Big Bad Essence",
                 icon: "14-303",
-                life: 100,
-                defense: 25,
-                attack: 50,
+                greenGoo: 100,
+                blueGoo: 25,
+                redGoo: 50,
                 stackable: true,
                 implementation: address(0),
                 plugin: ""
@@ -125,7 +125,7 @@ contract GameDeployer is Script {
         _rubberDuckChain(ds, l33tBricks);
 
         //register the Kiki Chain & Hermit
-        bytes24 dismemberedHand = _megaKikiChain(ds, l33tBricks);
+        bytes24 dismemberedHand = _greenGooChain(ds, l33tBricks);
 
         //register monsters
         _enemySpawn(ds, goldCoin, goldNote);
@@ -188,12 +188,12 @@ contract GameDeployer is Script {
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -10, -1, 11)));
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -9, 0, 9)));
 
-        //Kiki Fusion
+        //Green Goo Fusion
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -21, 1, 20)));
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -20, -1, 21)));
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -19, 0, 19)));
 
-        //Kiki Fission
+        //Green Goo Fission
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -11, -14, 25)));
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -10, -16, 26)));
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -9, -15, 24)));
@@ -235,9 +235,9 @@ contract GameDeployer is Script {
                 id: 100,
                 name: "Cocktail",
                 icon: "02-40",
-                life: 0,
-                defense: 2,
-                attack: 0,
+                greenGoo: 0,
+                blueGoo: 2,
+                redGoo: 0,
                 stackable: false,
                 implementation: address(0),
                 plugin: ""
@@ -250,14 +250,14 @@ contract GameDeployer is Script {
                 id: 100,
                 name: "Cocktail Hut",
                 materials: [
-                    Material({quantity: 25, item: ItemUtils.Kiki()}),
-                    Material({quantity: 25, item: ItemUtils.Bouba()}),
-                    Material({quantity: 25, item: ItemUtils.Semiote()}),
+                    Material({quantity: 25, item: ItemUtils.GlassGreenGoo()}),
+                    Material({quantity: 25, item: ItemUtils.BeakerBlueGoo()}),
+                    Material({quantity: 25, item: ItemUtils.FlaskRedGoo()}),
                     Material({quantity: 0, item: 0x0})
                 ],
                 inputs: [
-                    Input({quantity: 2, item: ItemUtils.Bouba()}),
-                    Input({quantity: 2, item: ItemUtils.Semiote()}),
+                    Input({quantity: 2, item: ItemUtils.BeakerBlueGoo()}),
+                    Input({quantity: 2, item: ItemUtils.FlaskRedGoo()}),
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0})
                 ],
@@ -277,9 +277,9 @@ contract GameDeployer is Script {
                 id: 103,
                 name: "Budget Tyre",
                 icon: "19-231",
-                life: 50,
-                defense: 50,
-                attack: 0,
+                greenGoo: 50,
+                blueGoo: 50,
+                redGoo: 0,
                 stackable: false,
                 implementation: address(0),
                 plugin: ""
@@ -292,9 +292,9 @@ contract GameDeployer is Script {
                 id: 104,
                 name: "Smelly \"Duck\"",
                 icon: "30-280",
-                life: 0,
-                defense: 0,
-                attack: 50,
+                greenGoo: 0,
+                blueGoo: 0,
+                redGoo: 50,
                 stackable: false,
                 implementation: address(0),
                 plugin: ""
@@ -307,9 +307,9 @@ contract GameDeployer is Script {
                 id: 105,
                 name: "Rubber Duck",
                 icon: "27-101",
-                life: 25,
-                defense: 25,
-                attack: 25,
+                greenGoo: 25,
+                blueGoo: 25,
+                redGoo: 25,
                 stackable: false,
                 implementation: address(0),
                 plugin: ""
@@ -328,7 +328,7 @@ contract GameDeployer is Script {
                     Material({quantity: 0, item: 0x0})
                 ],
                 inputs: [
-                    Input({quantity: 100, item: ItemUtils.Semiote()}),
+                    Input({quantity: 100, item: ItemUtils.FlaskRedGoo()}),
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0})
@@ -351,8 +351,8 @@ contract GameDeployer is Script {
                     Material({quantity: 0, item: 0x0})
                 ],
                 inputs: [
-                    Input({quantity: 100, item: ItemUtils.Kiki()}),
-                    Input({quantity: 100, item: ItemUtils.Bouba()}),
+                    Input({quantity: 100, item: ItemUtils.GlassGreenGoo()}),
+                    Input({quantity: 100, item: ItemUtils.BeakerBlueGoo()}),
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0})
                 ],
@@ -390,31 +390,31 @@ contract GameDeployer is Script {
         BuildingUtils.construct(ds, allThingsRubber, "building", -10, 0, 10);
     }
 
-    function _megaKikiChain(Game ds, bytes24 l33tBricks) private returns (bytes24) {
-        bytes24 superKiki = ItemUtils.register(
+    function _greenGooChain(Game ds, bytes24 l33tBricks) private returns (bytes24) {
+        bytes24 vibrantGreenGoo = ItemUtils.register(
             ds,
             ItemConfig({
                 id: 101,
-                name: "Super-Kiki",
-                icon: "20-187",
-                life: 20,
-                defense: 0,
-                attack: 0,
+                name: "Vibrant Green Goo",
+                icon: "22-197",
+                greenGoo: 20,
+                blueGoo: 0,
+                redGoo: 0,
                 stackable: true,
                 implementation: address(0),
                 plugin: ""
             })
         );
 
-        bytes24 megaKiki = ItemUtils.register(
+        bytes24 reallyGreenGoo = ItemUtils.register(
             ds,
             ItemConfig({
                 id: 102,
-                name: "MEGA-Kiki",
-                icon: "27-59",
-                life: 200,
-                defense: 0,
-                attack: 0,
+                name: "Really Green Goo",
+                icon: "22-192",
+                greenGoo: 200,
+                blueGoo: 0,
+                redGoo: 0,
                 stackable: true,
                 implementation: address(0),
                 plugin: ""
@@ -427,20 +427,20 @@ contract GameDeployer is Script {
                 id: 106,
                 name: "Dismembered Hand",
                 icon: "01-140",
-                life: 111,
-                defense: 0,
-                attack: 0,
+                greenGoo: 111,
+                blueGoo: 0,
+                redGoo: 0,
                 stackable: false,
                 implementation: address(0),
                 plugin: ""
             })
         );
 
-        bytes24 kikiFission = BuildingUtils.register(
+        bytes24 greenGooFission = BuildingUtils.register(
             ds,
             BuildingConfig({
                 id: 5,
-                name: "Kiki Fission",
+                name: "Green Goo Fission",
                 materials: [
                     Material({quantity: 100, item: l33tBricks}),
                     Material({quantity: 0, item: 0x0}),
@@ -448,22 +448,22 @@ contract GameDeployer is Script {
                     Material({quantity: 0, item: 0x0})
                 ],
                 inputs: [
-                    Input({quantity: 100, item: ItemUtils.Kiki()}),
+                    Input({quantity: 100, item: ItemUtils.GlassGreenGoo()}),
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0})
                 ],
-                outputs: [Output({quantity: 5, item: superKiki})],
-                implementation: address(new KikiFission()),
-                plugin: vm.readFile("src/fixtures/KikiFission.js")
+                outputs: [Output({quantity: 5, item: vibrantGreenGoo})],
+                implementation: address(new GreenGooFission()),
+                plugin: vm.readFile("src/fixtures/GreenGooFission.js")
             })
         );
 
-        bytes24 kikiFusion = BuildingUtils.register(
+        bytes24 greenGooFusion = BuildingUtils.register(
             ds,
             BuildingConfig({
                 id: 6,
-                name: "Kiki Fusion",
+                name: "Green Goo Fusion",
                 materials: [
                     Material({quantity: 100, item: l33tBricks}),
                     Material({quantity: 0, item: 0x0}),
@@ -471,14 +471,14 @@ contract GameDeployer is Script {
                     Material({quantity: 0, item: 0x0})
                 ],
                 inputs: [
-                    Input({quantity: 100, item: superKiki}),
+                    Input({quantity: 100, item: vibrantGreenGoo}),
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0})
                 ],
-                outputs: [Output({quantity: 5, item: megaKiki})],
-                implementation: address(new KikiFusion()),
-                plugin: vm.readFile("src/fixtures/KikiFusion.js")
+                outputs: [Output({quantity: 5, item: reallyGreenGoo})],
+                implementation: address(new GreenGooFusion()),
+                plugin: vm.readFile("src/fixtures/GreenGooFusion.js")
             })
         );
 
@@ -494,9 +494,9 @@ contract GameDeployer is Script {
                     Material({quantity: 0, item: 0x0})
                 ],
                 inputs: [
-                    Input({quantity: 1, item: ItemUtils.Kiki()}),
-                    Input({quantity: 1, item: superKiki}),
-                    Input({quantity: 1, item: megaKiki}),
+                    Input({quantity: 1, item: ItemUtils.GlassGreenGoo()}),
+                    Input({quantity: 1, item: vibrantGreenGoo}),
+                    Input({quantity: 1, item: reallyGreenGoo}),
                     Input({quantity: 0, item: 0x0})
                 ],
                 outputs: [Output({quantity: 1, item: dismemberedHand})],
@@ -505,8 +505,8 @@ contract GameDeployer is Script {
             })
         );
 
-        BuildingUtils.construct(ds, kikiFission, "building", -10, -15, 25);
-        BuildingUtils.construct(ds, kikiFusion, "building", -20, 0, 20);
+        BuildingUtils.construct(ds, greenGooFission, "building", -10, -15, 25);
+        BuildingUtils.construct(ds, greenGooFusion, "building", -20, 0, 20);
         BuildingUtils.construct(ds, crazyHermit, "building", 7, 7, -14);
 
         return dismemberedHand;
@@ -668,9 +668,9 @@ contract GameDeployer is Script {
                 id: 107,
                 name: "Crappy Medal",
                 icon: "10-111",
-                life: 105,
-                defense: 12,
-                attack: 25,
+                greenGoo: 105,
+                blueGoo: 12,
+                redGoo: 25,
                 stackable: false,
                 implementation: address(0),
                 plugin: ""
@@ -710,9 +710,9 @@ contract GameDeployer is Script {
                 id: 108,
                 name: "Shuttlecock",
                 icon: "05-296",
-                life: 10,
-                defense: 10,
-                attack: 105,
+                greenGoo: 10,
+                blueGoo: 10,
+                redGoo: 105,
                 stackable: false,
                 implementation: address(0),
                 plugin: ""
@@ -725,30 +725,30 @@ contract GameDeployer is Script {
                 id: 109,
                 name: "Racket",
                 icon: "22-13",
-                life: 10,
-                defense: 110,
-                attack: 5,
+                greenGoo: 10,
+                blueGoo: 110,
+                redGoo: 5,
                 stackable: false,
                 implementation: address(0),
                 plugin: ""
             })
         );
 
-        bytes24 badmintonWeapons = BuildingUtils.register(
+        BuildingUtils.register(
             ds,
             BuildingConfig({
                 id: 13,
                 name: "Badminton Weapons",
                 materials: [
                     Material({quantity: 5, item: goldCoin}),
-                    Material({quantity: 50, item: ItemUtils.Kiki()}),
-                    Material({quantity: 50, item: ItemUtils.Bouba()}),
-                    Material({quantity: 50, item: ItemUtils.Semiote()})
+                    Material({quantity: 50, item: ItemUtils.GlassGreenGoo()}),
+                    Material({quantity: 50, item: ItemUtils.BeakerBlueGoo()}),
+                    Material({quantity: 50, item: ItemUtils.FlaskRedGoo()})
                 ],
                 inputs: [
                     Input({quantity: 2, item: goldCoin}),
-                    Input({quantity: 100, item: ItemUtils.Semiote()}),
-                    Input({quantity: 100, item: ItemUtils.Semiote()}),
+                    Input({quantity: 100, item: ItemUtils.FlaskRedGoo()}),
+                    Input({quantity: 100, item: ItemUtils.FlaskRedGoo()}),
                     Input({quantity: 0, item: 0x0})
                 ],
                 outputs: [Output({quantity: 1, item: shuttlecock})],
@@ -757,21 +757,21 @@ contract GameDeployer is Script {
             })
         );
 
-        bytes24 badmintonArmour = BuildingUtils.register(
+        BuildingUtils.register(
             ds,
             BuildingConfig({
                 id: 14,
                 name: "Badminton Armour",
                 materials: [
                     Material({quantity: 5, item: goldCoin}),
-                    Material({quantity: 50, item: ItemUtils.Kiki()}),
-                    Material({quantity: 50, item: ItemUtils.Bouba()}),
-                    Material({quantity: 50, item: ItemUtils.Semiote()})
+                    Material({quantity: 50, item: ItemUtils.GlassGreenGoo()}),
+                    Material({quantity: 50, item: ItemUtils.BeakerBlueGoo()}),
+                    Material({quantity: 50, item: ItemUtils.FlaskRedGoo()})
                 ],
                 inputs: [
                     Input({quantity: 2, item: goldCoin}),
-                    Input({quantity: 100, item: ItemUtils.Bouba()}),
-                    Input({quantity: 100, item: ItemUtils.Bouba()}),
+                    Input({quantity: 100, item: ItemUtils.BeakerBlueGoo()}),
+                    Input({quantity: 100, item: ItemUtils.BeakerBlueGoo()}),
                     Input({quantity: 0, item: 0x0})
                 ],
                 outputs: [Output({quantity: 1, item: racket})],

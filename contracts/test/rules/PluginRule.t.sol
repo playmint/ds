@@ -68,9 +68,9 @@ contract PluginRuleTest is Test {
         vm.startPrank(aliceAccount);
         bytes24 buildingKind = Node.BuildingKind(20);
         bytes24[4] memory defaultMaterialItem;
-        defaultMaterialItem[0] = ItemUtils.Kiki();
-        defaultMaterialItem[1] = ItemUtils.Bouba();
-        defaultMaterialItem[2] = ItemUtils.Semiote();
+        defaultMaterialItem[0] = ItemUtils.GlassGreenGoo();
+        defaultMaterialItem[1] = ItemUtils.BeakerBlueGoo();
+        defaultMaterialItem[2] = ItemUtils.FlaskRedGoo();
         uint64[4] memory defaultMaterialQty;
         defaultMaterialQty[0] = 25;
         defaultMaterialQty[1] = 25;
@@ -111,9 +111,9 @@ contract PluginRuleTest is Test {
         vm.startPrank(aliceAccount);
         bytes24 buildingKind = Node.BuildingKind(30);
         bytes24[4] memory defaultMaterialItem;
-        defaultMaterialItem[0] = ItemUtils.Kiki();
-        defaultMaterialItem[1] = ItemUtils.Bouba();
-        defaultMaterialItem[2] = ItemUtils.Semiote();
+        defaultMaterialItem[0] = ItemUtils.GlassGreenGoo();
+        defaultMaterialItem[1] = ItemUtils.BeakerBlueGoo();
+        defaultMaterialItem[2] = ItemUtils.FlaskRedGoo();
         uint64[4] memory defaultMaterialQty;
         defaultMaterialQty[0] = 25;
         defaultMaterialQty[1] = 25;

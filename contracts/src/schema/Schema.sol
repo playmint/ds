@@ -35,9 +35,9 @@ interface Kind {
     function Hash() external;
 }
 
-uint8 constant ATOM_LIFE = 0;
-uint8 constant ATOM_DEFENSE = 1;
-uint8 constant ATOM_ATTACK = 2;
+uint8 constant GOO_GREEN = 0;
+uint8 constant GOO_BLUE = 1;
+uint8 constant GOO_RED = 2;
 
 enum BiomeKind {
     UNDISCOVERED,
@@ -81,9 +81,7 @@ library Node {
             stackable = 1;
         }
         return bytes24(
-            abi.encodePacked(
-                Kind.Item.selector, uniqueID, stackable, atoms[ATOM_LIFE], atoms[ATOM_DEFENSE], atoms[ATOM_ATTACK]
-            )
+            abi.encodePacked(Kind.Item.selector, uniqueID, stackable, atoms[GOO_GREEN], atoms[GOO_BLUE], atoms[GOO_RED])
         );
     }
 
@@ -282,9 +280,9 @@ library Schema {
         returns (uint32[3] memory atoms, bool isStackable)
     {
         isStackable = uint32(uint192(item) >> 96) == 1;
-        atoms[ATOM_LIFE] = uint32(uint192(item) >> 64);
-        atoms[ATOM_DEFENSE] = uint32(uint192(item) >> 32);
-        atoms[ATOM_ATTACK] = uint32(uint192(item));
+        atoms[GOO_GREEN] = uint32(uint192(item) >> 64);
+        atoms[GOO_BLUE] = uint32(uint192(item) >> 32);
+        atoms[GOO_RED] = uint32(uint192(item));
         return (atoms, isStackable);
     }
 
