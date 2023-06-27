@@ -1,6 +1,6 @@
 # Combat
 
-When a Unit attacks a building it begins a combat session. This will continue until one side has 0 life remaining. 
+When a Unit attacks a Building it begins a combat session. This will continue until one side has 0 life remaining. 
 
 ## Combat Stats
 
@@ -12,13 +12,13 @@ When a Unit attacks a building it begins a combat session. This will continue un
 
 ### Buildings
 
-- The construction costs of a building will dictate its stats. Atoms have the same value as they do on Units
-- When a building is deployed it will require a minimum number of each atom. This is so it can’t be destroyed by an aggressive fly.
+- The construction costs of a Building will dictate its stats. Atoms have the same value as they do on Units
+- When a Building is deployed it will require a minimum number of each atom. This is so it can’t be destroyed by an aggressive fly.
 
 ## Combat Session Flow
 
 - The combat will session will “tick” every few blocks
-- Each tick, the combatants on each side will attack a random participant on the other side.
+- Each tick, the combatants on each side will attack a random participant on the other side
 - Damage is worked out with the calculation:
 
 ```
@@ -31,14 +31,16 @@ Defender's Life -= 1 + (All Attacker's ATK - Defender's DEF)
 
 ## Leaving Combat
 
-If a participant walk off the combat tile, they are removed from the battle (their life is treated as 0). If they return before the end of combat, their life is restored to its value before they left.
+If a participant moves off the combat tile, they are removed from the battle (their life is treated as 0). If they return before the end of combat, their life is restored to its value before they left.
 
-## Rewards and Penalites
+Note: A transaction needs to be sent to "End" the combat session. We're working on tidying this up and improving the UX, but at the moment a user will need to view the combat session and click the "End Combat" button
+
+## Rewards and Penalties
 
 ### **********Units**********
 
 - In this version of the game, there is no penalty for a Unit losing in combat.
-- Each combat session is treated independantly, and any life will be restored for a new session
+- Each combat session is treated independently, and any life will be restored for a new session
 
 ### Buildings
 
