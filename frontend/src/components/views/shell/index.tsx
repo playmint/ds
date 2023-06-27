@@ -40,6 +40,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     const { seeker: selectedSeeker, tiles: selectedTiles } = selection || {};
     const { openModal, setModalContent, closeModal } = useModalContext();
     const [providerAvailable, setProviderAvailable] = useState<boolean>(false);
+    const [isSpawningSeeker, setIsSpawningSeeker] = useState<boolean>(false);
 
     useEffect(() => {
         const detectProvider = detectEthereumProvider();
@@ -71,8 +72,16 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
             return;
         }
         const id = CompoundKeyEncoder.encodeUint160(NodeSelectors.Seeker, BigInt(Math.floor(Math.random() * 10000)));
-        player.dispatch({ name: 'SPAWN_SEEKER', args: [id] });
-    }, [player]);
+        setIsSpawningSeeker(true);
+        player
+            .dispatch({ name: 'SPAWN_SEEKER', args: [id] })
+            .catch((e) => {
+                console.error('failed to spawn seeker:', e);
+            })
+            .finally(() => {
+                setIsSpawningSeeker(false);
+            });
+    }, [player, setIsSpawningSeeker]);
 
     const selectNextSeeker = useCallback(
         (n: number) => {
@@ -179,7 +188,9 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                             You need a mobile unit that will do your bidding out in the world. Would you
                                             like to spawn one now?
                                         </p>
-                                        <button onClick={spawnSeeker}>Spawn Unit</button>
+                                        <button onClick={spawnSeeker} disabled={isSpawningSeeker}>
+                                            Spawn Unit
+                                        </button>
                                     </div>
                                 )}
                             </div>

@@ -186,6 +186,10 @@ const baseStyles = (_: Partial<ShellProps>) => css`
             color: #143063;
             padding: 1.2rem 2rem 0.8rem;
             font-weight: 600;
+
+            &:disabled {
+                opacity: 0.5;
+            }
         }
         > p {
             margin: 2rem 0;
