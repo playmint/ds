@@ -107,11 +107,8 @@ contract BuildingRule is Rule {
                 require(state.getOwner(materialItem[i]) != 0x0, "input item must be registered before use in recipe");
                 // get atomic structure
                 (uint32[3] memory inputAtoms, bool inputStackable) = state.getItemStructure(materialItem[i]);
-                if (inputStackable) {
-                    require(materialQty[i] > 0 && materialQty[i] <= 100, "stackable input item must be qty 0-100");
-                } else {
-                    require(materialQty[i] == 1, "equipable input item must have qty=1");
-                }
+                require(inputStackable, "non-stackable items not allowed as construction materials");
+                require(materialQty[i] > 0 && materialQty[i] <= 100, "stackable input item must be qty 0-100");
                 availableInputAtoms[0] = availableInputAtoms[0] + (inputAtoms[0] * uint32(materialQty[i]));
                 availableInputAtoms[1] = availableInputAtoms[1] + (inputAtoms[1] * uint32(materialQty[i]));
                 availableInputAtoms[2] = availableInputAtoms[2] + (inputAtoms[2] * uint32(materialQty[i]));

@@ -118,6 +118,20 @@ contract BuildingRuleTest is Test {
         vm.stopPrank();
     }
 
+    function testConstructFailStackableMaterial() public {
+        vm.startPrank(aliceAccount);
+        // register building with a a non-stackable construction material
+        uint64[4] memory qtys;
+        qtys[0] = 1;
+        bytes24[4] memory materials;
+        materials[0] = Node.Item("non-stackable-ball", [uint32(20), uint32(20), uint32(20)], false);
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (materials[0], "non-stackable-ball", "00-00")));
+        bytes24 buildingKind = Node.BuildingKind(25);
+        vm.expectRevert("non-stackable items not allowed as construction materials");
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", materials, qtys)));
+        vm.stopPrank();
+    }
+
     function testConstructFailSeekerTooFarAway() public {
         _testConstructFailNotAdjacent(2, -2, 0);
     }
