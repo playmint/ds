@@ -48,20 +48,22 @@ public class CameraController : MonoBehaviour
     void Start()
     {
         mainCamera = Camera.main;
-        m_Plane = new Plane(Vector3.up, 0);
+        m_Plane = new Plane(Vector3.up, -0.3f);
     }
 
     void Update()
     {
         float scrollInput = Input.GetAxis("Mouse ScrollWheel");
+
         if (Mathf.Abs(scrollInput) > Mathf.Epsilon)
         {
             // Get the world position of the mouse cursor
             Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit))
+            //RaycastHit hit;
+            float enter = 0;
+            if (m_Plane.Raycast(ray, out enter)) //  Physics.Raycast(ray, out hit))
             {
-                Vector3 mouseWorldPos = hit.point;
+                Vector3 mouseWorldPos = ray.origin + (ray.direction * enter); // hit.point;
 
                 // Calculate the new camera distance based on the scroll input
                 float currentCameraDistance = virtualCamera
