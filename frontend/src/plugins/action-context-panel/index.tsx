@@ -71,12 +71,19 @@ const byKey = (a: KeyedThing, b: KeyedThing) => {
 };
 
 interface TileBuildingProps {
+    player?: ConnectedPlayer;
     building: WorldBuildingFragment;
     showFull: boolean;
     selectIntent: Selector<string | undefined>;
     selectTiles: Selector<string[] | undefined>;
 }
-const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull, selectIntent, selectTiles }) => {
+const TileBuilding: FunctionComponent<TileBuildingProps> = ({
+    building,
+    showFull,
+    selectIntent,
+    selectTiles,
+    player
+}) => {
     const { tiles: selectedTiles } = useSelection();
     const selectedTile = selectedTiles?.[0];
     const tileSeekers = selectedTile?.seekers ?? [];
@@ -166,7 +173,7 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull
                     </button>
                 </TileAction>
             )}
-            {!showFull && tileSeekers.length > 0 && <SeekerList seekers={tileSeekers} />}
+            {!showFull && tileSeekers.length > 0 && <SeekerList seekers={tileSeekers} player={player} />}
             {!showFull && selectedTile && <TileInventory tile={selectedTile} />}
         </StyledActionContextPanel>
     );
@@ -182,7 +189,10 @@ const TileMultiSelected: FunctionComponent<ActionContextPanelProps> = (_props) =
     );
 };
 
-const TileAvailable: FunctionComponent<unknown> = () => {
+interface TileAvailableProps {
+    player?: ConnectedPlayer;
+}
+const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player }) => {
     const { tiles: selectedTiles } = useSelection();
     const selectedTile = selectedTiles?.[0];
     const tileSeekers = selectedTile?.seekers ?? [];
@@ -196,7 +206,7 @@ const TileAvailable: FunctionComponent<unknown> = () => {
             <h3 style={{ marginBottom: '2rem' }}>Tile contents</h3>
             {tileSeekers.length > 0 && (
                 <Fragment>
-                    <SeekerList seekers={tileSeekers} />
+                    <SeekerList seekers={tileSeekers} player={player} />
                 </Fragment>
             )}
             {selectedTile && <TileInventory tile={selectedTile} />}
@@ -622,6 +632,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({
         if (selectedTile && selectedTile.building) {
             return (
                 <TileBuilding
+                    player={player}
                     building={selectedTile.building}
                     showFull={true}
                     selectIntent={selectIntent}
@@ -647,7 +658,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({
             if (selectedTile.biome == BiomeKind.UNDISCOVERED) {
                 return <TileUndiscovered />;
             } else if (!selectedTile.building) {
-                return <TileAvailable />;
+                return <TileAvailable player={player} />;
             } else if (selectedTile.building) {
                 return (
                     <TileBuilding
