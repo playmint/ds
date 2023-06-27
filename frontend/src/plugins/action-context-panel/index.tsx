@@ -250,12 +250,19 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, seeker, p
     const slotsRef = useRef<HTMLDivElement>(null);
     const kinds = useBuildingKinds();
     const availableKinds = (kinds || []).sort(byName);
+    // temp excluding of any building annotated with a non-building model this
+    // is only expected to be used during Blueprint to exlcuding "story
+    // buildings" or until we have a nicer solution to avoiding a giant list
+    const constructableKinds = availableKinds.filter(
+        (kind) => !kind.model || !kind.model.value || kind.model.value === 'building'
+    );
+
     const [selectedKindRaw, selectKind] = useState<undefined | BuildingKindFragment>();
-    const selectedKind = selectedKindRaw || availableKinds.find(() => true);
+    const selectedKind = selectedKindRaw || constructableKinds.find(() => true);
 
     const onChangeSelectedKind = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const kindID = e.target.value;
-        const kind = kindID ? availableKinds.find((k) => k.id == kindID) : undefined;
+        const kind = kindID ? constructableKinds.find((k) => k.id == kindID) : undefined;
         selectKind(kind);
     };
 
@@ -318,13 +325,6 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, seeker, p
         : constructableTile
         ? 'Select the type of building you&apos;d like to construct'
         : 'Choose an adjacent tile to build on';
-
-    // temp excluding of any building annotated with a non-building model this
-    // is only expected to be used during Blueprint to exlcuding "story
-    // buildings" or until we have a nicer solution to avoiding a giant list
-    const constructableKinds = availableKinds.filter(
-        (kind) => !kind.model || !kind.model.value || kind.model.value === 'building'
-    );
 
     return (
         <StyledActionContextPanel className="action">
