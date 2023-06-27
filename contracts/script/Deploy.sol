@@ -641,7 +641,7 @@ contract GameDeployer is Script {
                 id: 12,
                 name: "The Big Bad",
                 materials: [
-                    Material({quantity: 10, item: bigBadEssence}),
+                    Material({quantity: 30, item: bigBadEssence}),
                     Material({quantity: 0, item: 0x0}),
                     Material({quantity: 0, item: 0x0}),
                     Material({quantity: 0, item: 0x0})
