@@ -20,6 +20,7 @@ import {CraftingRule} from "@ds/rules/CraftingRule.sol";
 import {PluginRule} from "@ds/rules/PluginRule.sol";
 import {NewPlayerRule} from "@ds/rules/NewPlayerRule.sol";
 import {CombatRule} from "@ds/rules/CombatRule.sol";
+import {NamingRule} from "@ds/rules/NamingRule.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
 using Schema for StateGraph;
@@ -106,6 +107,7 @@ contract Game is BaseGame {
         dispatcher.registerRule(new PluginRule());
         dispatcher.registerRule(new NewPlayerRule(allowlist));
         dispatcher.registerRule(new CombatRule());
+        dispatcher.registerRule(new NamingRule());
         dispatcher.registerRouter(router);
 
         // update the game with this config

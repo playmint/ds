@@ -91,6 +91,8 @@ interface Actions {
         uint32[] calldata sortedListIndexes
     ) external;
 
+    function NAME_OWNED_ENTITY(bytes24 entity, string calldata name) external;
+
     // [dev/debug only] set a tile biome at any location
     function DEV_SPAWN_TILE(BiomeKind kind, int16 q, int16 r, int16 s) external;
 

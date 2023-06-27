@@ -132,6 +132,23 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         [player, selectSeeker, selectedSeeker]
     );
 
+    const nameEntity = useCallback(
+        (entityId: string | undefined) => {
+            if (!entityId) {
+                return;
+            }
+            if (!player) {
+                return;
+            }
+            const name = prompt('Enter a name:');
+            if (!name || name.length < 3) {
+                return;
+            }
+            player.dispatch({ name: 'NAME_OWNED_ENTITY', args: [entityId, name] });
+        },
+        [player]
+    );
+
     const showCombatModal = (isNewSession: boolean = false) => {
         if (!player || !world) {
             return;
@@ -199,8 +216,13 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                             <button className="icon-button" onClick={() => selectNextSeeker(-1)}>
                                                 <img src="/icons/prev.png" alt="Previous" />
                                             </button>
-                                            <span className="label">
-                                                Unit #{formatUnitKey(selectedSeeker?.key.toString() || '')}
+                                            <span
+                                                className="label"
+                                                onDoubleClick={() => nameEntity(selectedSeeker?.id)}
+                                            >
+                                                {selectedSeeker && selectedSeeker.name?.value
+                                                    ? selectedSeeker.name.value
+                                                    : `Unit ${formatUnitKey(selectedSeeker?.key.toString() || '')}`}
                                             </span>
                                             <button className="icon-button" onClick={() => selectNextSeeker(+1)}>
                                                 <img src="/icons/next.png" alt="Next" />

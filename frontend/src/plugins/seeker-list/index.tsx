@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { ComponentProps } from '@app/types/component-props';
 import { styles } from './seeker-list.styles';
 import { Seeker } from '@dawnseekers/core';
+import { formatUnitKey } from '@app/helpers';
 
 export interface SeekerListProps extends ComponentProps {
     seekers: Seeker[];
@@ -22,7 +23,9 @@ export const SeekerList: FunctionComponent<SeekerListProps> = (props: SeekerList
             {seekers.map((seeker, index) => (
                 <div key={index} className="seeker">
                     <img src="/seeker-theirs.png" alt="" />
-                    Unit #{seeker.id.slice(-12)}
+                    {seeker && seeker.name?.value
+                        ? seeker.name.value
+                        : `Unit ${formatUnitKey(seeker?.key.toString() || '')}`}
                 </div>
             ))}
         </StyledSeekerList>
