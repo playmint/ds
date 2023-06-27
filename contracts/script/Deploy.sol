@@ -700,7 +700,7 @@ contract GameDeployer is Script {
             })
         );
 
-        BuildingUtils.construct(ds, theUltimateGoal, "building", -1, 2, -1);
+        BuildingUtils.construct(ds, theUltimateGoal, "story-building", -1, 2, -1);
     }
 
     function _badmintonGear(Game ds, bytes24 goldCoin) private {
