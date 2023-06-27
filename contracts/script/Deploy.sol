@@ -385,9 +385,9 @@ contract GameDeployer is Script {
             })
         );
 
-        BuildingUtils.construct(ds, foulFiends, "building", 3, -3, 0);
-        BuildingUtils.construct(ds, kwikTyre, "building", -4, 3, 1);
-        BuildingUtils.construct(ds, allThingsRubber, "building", -10, 0, 10);
+        BuildingUtils.construct(ds, foulFiends, "story-building", 3, -3, 0);
+        BuildingUtils.construct(ds, kwikTyre, "story-building", -4, 3, 1);
+        BuildingUtils.construct(ds, allThingsRubber, "story-building", -10, 0, 10);
     }
 
     function _greenGooChain(Game ds, bytes24 l33tBricks) private returns (bytes24) {
@@ -505,9 +505,9 @@ contract GameDeployer is Script {
             })
         );
 
-        BuildingUtils.construct(ds, greenGooFission, "building", -10, -15, 25);
-        BuildingUtils.construct(ds, greenGooFusion, "building", -20, 0, 20);
-        BuildingUtils.construct(ds, crazyHermit, "building", 7, 7, -14);
+        BuildingUtils.construct(ds, greenGooFission, "story-building", -10, -15, 25);
+        BuildingUtils.construct(ds, greenGooFusion, "story-building", -20, 0, 20);
+        BuildingUtils.construct(ds, crazyHermit, "story-building", 7, 7, -14);
 
         return dismemberedHand;
     }
