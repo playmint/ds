@@ -26,47 +26,47 @@ public class MapElementManager : MonoBehaviour
         instance = this;
     }
 
-    public void CreateBuilding(Vector3Int cubicCoords)
+    public void CreateBuilding(Vector3Int cubicCoords, Transform tileTransform)
     {
         if (!_spawnedBuildings.ContainsKey(cubicCoords))
         {
             MapElementController building = Instantiate(buildingPrefab, transform, true)
                 .GetComponent<MapElementController>();
             _spawnedBuildings.Add(cubicCoords, building);
-            building.Setup(cubicCoords);
+            building.Setup(cubicCoords, tileTransform);
         }
     }
 
-    public void CreateIncompleteBuilding(Vector3Int cubicCoords)
+    public void CreateIncompleteBuilding(Vector3Int cubicCoords, Transform tileTransform)
     {
         if (!_spawnedIncompleteBuildings.ContainsKey(cubicCoords))
         {
             MapElementController building = Instantiate(incompleteBuildingPrefab, transform, true)
                 .GetComponent<MapElementController>();
             _spawnedIncompleteBuildings.Add(cubicCoords, building);
-            building.Setup(cubicCoords);
+            building.Setup(cubicCoords, tileTransform);
         }
     }
 
-    public void CreateEnemy(Vector3Int cubicCoords)
+    public void CreateEnemy(Vector3Int cubicCoords, Transform tileTransform)
     {
         if (!_spawnedEnemies.ContainsKey(cubicCoords))
         {
             MapElementController enemy = Instantiate(enemyPrefab, transform, true)
                 .GetComponent<MapElementController>();
             _spawnedEnemies.Add(cubicCoords, enemy);
-            enemy.Setup(cubicCoords);
+            enemy.Setup(cubicCoords, tileTransform);
         }
     }
 
-    public void CreateBag(Vector3Int cubicCoords)
+    public void CreateBag(Vector3Int cubicCoords, Transform tileTransform)
     {
         if (!_spawnedBags.ContainsKey(cubicCoords))
         {
             MapElementController bag = Instantiate(bagPrefab, transform, true)
                 .GetComponent<MapElementController>();
             _spawnedBags.Add(cubicCoords, bag);
-            bag.Setup(cubicCoords);
+            bag.Setup(cubicCoords, tileTransform);
         }
     }
 
