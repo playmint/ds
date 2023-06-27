@@ -24,11 +24,14 @@ import { useModalContext } from '@app/contexts/modal-provider';
 import { CombatModal } from '@app/plugins/combat/combat-modal';
 import { CombatSummary } from '@app/plugins/combat/combat-summary';
 import { CombatRewards } from '@app/plugins/combat/combat-rewards';
+import { UnityProvider } from 'react-unity-webgl/distribution/types/unity-provider';
 
 export interface ShellProps extends ComponentProps, Partial<SelectionSelectors> {
     world?: WorldStateFragment;
     player?: ConnectedPlayer;
     selection?: Selection;
+    unityProvider: UnityProvider;
+    sendMessage: (gameObjectName: string, methodName: string, parameter?: any) => void;
 }
 
 const StyledShell = styled('div')`
@@ -36,7 +39,7 @@ const StyledShell = styled('div')`
 `;
 
 export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
-    const { world, player, selection, selectSeeker, ...otherProps } = props;
+    const { world, player, selection, selectSeeker, sendMessage, unityProvider, ...otherProps } = props;
     const { seeker: selectedSeeker, tiles: selectedTiles } = selection || {};
     const { openModal, setModalContent, closeModal } = useModalContext();
     const [providerAvailable, setProviderAvailable] = useState<boolean>(false);
@@ -82,6 +85,27 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                 setIsSpawningSeeker(false);
             });
     }, [player, setIsSpawningSeeker]);
+
+    const selectAndFocusSeeker = useCallback(() => {
+        if (!player) {
+            return;
+        }
+        const seeker = player.seekers.find(() => true);
+        if (!seeker) {
+            return;
+        }
+        if (!sendMessage) {
+            console.log('no sendMessage');
+            return;
+        }
+        if (!selectSeeker) {
+            return;
+        }
+        selectSeeker(seeker.id);
+        const tileId = seeker.nextLocation?.tile.id;
+        console.warn('selectAndFocusSeeker', tileId);
+        sendMessage('MapInteractionManager', 'FocusTile', tileId);
+    }, [selectSeeker, player, sendMessage]);
 
     const selectNextSeeker = useCallback(
         (n: number) => {
@@ -193,6 +217,12 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                         </button>
                                     </div>
                                 )}
+                                {player && player.seekers.length > 0 && !selectedSeeker && (
+                                    <div className="onboarding">
+                                        <h3>Select a unit</h3>
+                                        <button onClick={selectAndFocusSeeker}>Goto Unit</button>
+                                    </div>
+                                )}
                             </div>
                             {player.seekers.length > 0 && (
                                 <div className="tile-actions">
@@ -210,6 +240,8 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                     selection={selection}
                     world={world}
                     selectSeeker={selectSeeker}
+                    unityProvider={unityProvider}
+                    sendMessage={sendMessage}
                     {...otherProps}
                 />
             </div>
