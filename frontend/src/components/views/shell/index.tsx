@@ -144,6 +144,10 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
             if (!name || name.length < 3) {
                 return;
             }
+            if (name.length > 20) {
+                alert('rejected: max 20 characters');
+                return;
+            }
             player.dispatch({ name: 'NAME_OWNED_ENTITY', args: [entityId, name] });
         },
         [player]
