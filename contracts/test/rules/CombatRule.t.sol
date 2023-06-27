@@ -16,9 +16,9 @@ import {
     LocationKey,
     BiomeKind,
     DEFAULT_ZONE,
-    ATOM_LIFE,
-    ATOM_DEFENSE,
-    ATOM_ATTACK
+    GOO_GREEN,
+    GOO_BLUE,
+    GOO_RED
 } from "@ds/schema/Schema.sol";
 import {CombatRule, HASH_EDGE_INDEX} from "@ds/rules/CombatRule.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
@@ -311,9 +311,9 @@ contract CombatRuleTest is Test {
             if (combatActions[i].kind == CombatRule.CombatActionKind.JOIN) {
                 (CombatRule.JoinActionInfo memory info) = abi.decode(combatActions[i].data, (CombatRule.JoinActionInfo));
                 console.log("combatSide: ", uint8(info.combatSide));
-                console.log("LIFE: ", info.stats[ATOM_LIFE]);
-                console.log("ATK: ", info.stats[ATOM_ATTACK]);
-                console.log("DEF: ", info.stats[ATOM_DEFENSE]);
+                console.log("LIFE: ", info.stats[GOO_GREEN]);
+                console.log("ATK: ", info.stats[GOO_RED]);
+                console.log("DEF: ", info.stats[GOO_BLUE]);
             }
         }
     }

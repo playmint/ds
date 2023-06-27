@@ -14,9 +14,9 @@ import {
     Rel,
     LocationKey,
     BiomeKind,
-    ATOM_LIFE,
-    ATOM_DEFENSE,
-    ATOM_ATTACK,
+    GOO_GREEN,
+    GOO_BLUE,
+    GOO_RED,
     DEFAULT_ZONE
 } from "@ds/schema/Schema.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
@@ -79,9 +79,9 @@ contract CraftingRuleTest is Test {
     }
 
     function testResources() public {
-        assertEq(state.getAtoms(ItemUtils.GlassGreenGoo())[ATOM_LIFE], 2);
-        assertEq(state.getAtoms(ItemUtils.BeakerBlueGoo())[ATOM_DEFENSE], 2);
-        assertEq(state.getAtoms(ItemUtils.FlaskRedGoo())[ATOM_ATTACK], 2);
+        assertEq(state.getAtoms(ItemUtils.GlassGreenGoo())[GOO_GREEN], 2);
+        assertEq(state.getAtoms(ItemUtils.BeakerBlueGoo())[GOO_BLUE], 2);
+        assertEq(state.getAtoms(ItemUtils.FlaskRedGoo())[GOO_RED], 2);
     }
 
     function testGetAtoms() public {

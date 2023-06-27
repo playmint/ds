@@ -13,9 +13,9 @@ import {
     LocationKey,
     TRAVEL_SPEED,
     DEFAULT_ZONE,
-    ATOM_LIFE,
-    ATOM_DEFENSE,
-    ATOM_ATTACK
+    GOO_GREEN,
+    GOO_BLUE,
+    GOO_RED
 } from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
@@ -427,14 +427,14 @@ contract CombatRule is Rule {
                 % (combatSide == CombatSideKey.ATTACK ? combatState.defenderCount : combatState.attackerCount)
         );
 
-        if (attackTotal > enemyState.stats[ATOM_DEFENSE]) {
-            enemyState.damage += uint64(attackTotal - enemyState.stats[ATOM_DEFENSE]);
+        if (attackTotal > enemyState.stats[GOO_BLUE]) {
+            enemyState.damage += uint64(attackTotal - enemyState.stats[GOO_BLUE]);
         } else {
             enemyState.damage += 1;
         }
 
         // Is enemy defeated?
-        if (enemyState.damage >= enemyState.stats[ATOM_LIFE]) {
+        if (enemyState.damage >= enemyState.stats[GOO_GREEN]) {
             enemyState.isDead = true;
             if (combatSide == CombatSideKey.ATTACK) {
                 combatState.defenderCount--;
@@ -448,8 +448,8 @@ contract CombatRule is Rule {
         for (uint16 i = 0; i < entityStates.length; i++) {
             if (entityStates[i].isPresent && !entityStates[i].isDead) {
                 // TODO: overflow checks on these
-                totalAttack += entityStates[i].stats[ATOM_ATTACK];
-                entityStates[i].damageInflicted += entityStates[i].stats[ATOM_ATTACK];
+                totalAttack += entityStates[i].stats[GOO_RED];
+                entityStates[i].damageInflicted += entityStates[i].stats[GOO_RED];
             }
         }
     }
@@ -673,9 +673,9 @@ contract CombatRule is Rule {
 
         if (bytes4(entityID) == Kind.Seeker.selector) {
             // Made up base stats for seeker
-            stats[ATOM_LIFE] = UNIT_BASE_LIFE * UNIT_LIFE_MUL;
-            stats[ATOM_DEFENSE] = UNIT_BASE_DEFENCE;
-            stats[ATOM_ATTACK] = UNIT_BASE_ATTACK;
+            stats[GOO_GREEN] = UNIT_BASE_LIFE * UNIT_LIFE_MUL;
+            stats[GOO_BLUE] = UNIT_BASE_DEFENCE;
+            stats[GOO_RED] = UNIT_BASE_ATTACK;
 
             // iterate over Items within Bags and sum up Atoms that belong to the Items (limited to 2 bags)
             for (uint8 i = 0; i < 2; i++) {
@@ -687,7 +687,7 @@ contract CombatRule is Rule {
                         (uint32[3] memory inputAtoms, bool isStackable) = state.getItemStructure(item);
                         if (!isStackable && balance > 0) {
                             for (uint8 k = 0; k < 3; k++) {
-                                stats[k] += inputAtoms[k] * (k == ATOM_LIFE ? UNIT_LIFE_MUL : 1);
+                                stats[k] += inputAtoms[k] * (k == GOO_GREEN ? UNIT_LIFE_MUL : 1);
                             }
                         }
                     }

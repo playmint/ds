@@ -10,9 +10,9 @@ struct ItemConfig {
     uint256 id;
     string name;
     string icon;
-    uint256 life;
-    uint256 defense;
-    uint256 attack;
+    uint256 greenGoo;
+    uint256 blueGoo;
+    uint256 redGoo;
     bool stackable;
     address implementation;
     string plugin;
@@ -38,7 +38,7 @@ library ItemUtils {
     // register is a helper to declare a new kind of item
     function register(BaseGame ds, ItemConfig memory cfg) internal returns (bytes24) {
         Dispatcher dispatcher = ds.getDispatcher();
-        uint32[3] memory outputItemAtoms = [uint32(cfg.life), uint32(cfg.defense), uint32(cfg.attack)];
+        uint32[3] memory outputItemAtoms = [uint32(cfg.greenGoo), uint32(cfg.blueGoo), uint32(cfg.redGoo)];
         bytes24 itemKind = Node.Item(uint32(cfg.id), outputItemAtoms, cfg.stackable);
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (itemKind, cfg.name, cfg.icon)));
         if (address(cfg.implementation) != address(0)) {
