@@ -125,4 +125,39 @@ public class TileHelper
     {
         return Cog.NodeKinds.TileNode.GetKey(0, tilePosCube.x, tilePosCube.y, tilePosCube.z);
     }
+
+    internal static bool HasReward(Tiles2 tile, ICollection<Seekers> seekers)
+    {
+        if (seekers == null)
+            return false;
+
+        if (tile.Sessions == null || tile.Sessions.Count == 0)
+            return false;
+
+        var sessions = tile.Sessions.OrderByDescending(kvp => kvp.AttackTile.StartBlock);
+        var session = sessions.First();
+
+        // Always drop the reward on the defence tile. Technically not correct but right most the time.
+        if (tile.Id != session.DefenceTile.Tile.Id)
+            return false;
+
+        var seeker = seekers.FirstOrDefault();
+        var truncatedSeekerID = seeker.Id.Substring(seeker.Id.Length - 12); // last 6 bytes
+
+        var rewardBags = session.Bags.Where(equipSlot =>
+        {
+            var bagSeekerID = equipSlot.Bag.Id.Substring(
+                equipSlot.Bag.Id.Length - (4 + 12), // counting back from the 2 byte session ID and the 6 byte seekerID (both truncated version of the IDs)
+                12 // 6 bytes of seekerID
+            );
+            return bagSeekerID == truncatedSeekerID;
+        });
+
+        var populatedBag = rewardBags.FirstOrDefault(equipSlot =>
+        {
+            return equipSlot.Bag.Slots.Where(slot => slot.Balance > 0).Count() > 0;
+        });
+
+        return populatedBag != null;
+    }
 }
