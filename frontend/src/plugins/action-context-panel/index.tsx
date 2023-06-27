@@ -309,6 +309,13 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, seeker, p
         ? 'Select the type of building you&apos;d like to construct'
         : 'Choose an adjacent tile to build on';
 
+    // temp excluding of any building annotated with a non-building model this
+    // is only expected to be used during Blueprint to exlcuding "story
+    // buildings" or until we have a nicer solution to avoiding a giant list
+    const constructableKinds = availableKinds.filter(
+        (kind) => !kind.model || !kind.model.value || kind.model.value === 'building'
+    );
+
     return (
         <StyledActionContextPanel className="action">
             <h3>Constructing</h3>
@@ -322,7 +329,7 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, seeker, p
                         onChange={onChangeSelectedKind}
                         value={selectedKind?.id}
                     >
-                        {availableKinds.map((k) => (
+                        {constructableKinds.map((k) => (
                             <option key={k.id} value={k.id}>
                                 {k.name?.value || '<unnamed>'}
                             </option>
