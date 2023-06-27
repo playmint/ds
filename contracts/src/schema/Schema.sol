@@ -81,9 +81,7 @@ library Node {
             stackable = 1;
         }
         return bytes24(
-            abi.encodePacked(
-                Kind.Item.selector, uniqueID, stackable, atoms[GOO_GREEN], atoms[GOO_BLUE], atoms[GOO_RED]
-            )
+            abi.encodePacked(Kind.Item.selector, uniqueID, stackable, atoms[GOO_GREEN], atoms[GOO_BLUE], atoms[GOO_RED])
         );
     }
 

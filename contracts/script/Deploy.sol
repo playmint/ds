@@ -87,7 +87,7 @@ contract GameDeployer is Script {
                 plugin: ""
             })
         );
-        
+
         bytes24 goldNote = ItemUtils.register(
             ds,
             ItemConfig({
