@@ -282,7 +282,7 @@ export function loadPlugin(
 
     // const qjs = await getQuickJS();
     // const runtime = qjs.newRuntime();
-    runtime.setMemoryLimit(1024 * 640);
+    runtime.setMemoryLimit(1024 * 640 * 10);
     runtime.setMaxStackSize(1024 * 320);
     // Interrupt computation after 1024 calls to the interrupt handler
     // let interruptCycles = 0;
