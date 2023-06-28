@@ -128,10 +128,14 @@ public class TileHelper
 
     internal static bool HasReward(Tiles2 tile, ICollection<Seekers> seekers)
     {
+        if (tile.Sessions == null || tile.Sessions.Count == 0)
+            return false;
+
         if (seekers == null)
             return false;
 
-        if (tile.Sessions == null || tile.Sessions.Count == 0)
+        var seeker = seekers.FirstOrDefault();
+        if (seeker == null)
             return false;
 
         var sessions = tile.Sessions.OrderByDescending(kvp => kvp.AttackTile.StartBlock);
@@ -141,7 +145,6 @@ public class TileHelper
         if (tile.Id != session.DefenceTile.Tile.Id)
             return false;
 
-        var seeker = seekers.FirstOrDefault();
         var truncatedSeekerID = seeker.Id.Substring(seeker.Id.Length - 12); // last 6 bytes
 
         var rewardBags = session.Bags.Where(equipSlot =>
