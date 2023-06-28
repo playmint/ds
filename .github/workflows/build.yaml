@@ -32,6 +32,22 @@ on:
         required: true
         default: linux/arm64/v8,linux/amd64
         type: string
+      AZURE_FRONT_DOOR_PURGE:
+        description: purge the CDN cache after deploy
+        require: true
+        type: boolean
+      AZURE_FRONT_DOOR_PROFILE:
+        description: name of profile
+        default: ""
+        type: string
+      AZURE_FRONT_DOOR_DOMAIN:
+        description: domain to purge
+        default: ""
+        type: string
+      AZURE_FRONT_DOOR_ENDPOINT:
+        description: endpoint to purge
+        default: ""
+        type: string
 
     secrets:
       AZURE_REGISTRY_URL:
@@ -299,6 +315,10 @@ jobs:
       run: |
         echo "${CHART_VALUES}" > /tmp/values.yaml
         helm upgrade --timeout "30m" --history-max 5 --install --wait ${CHART_NAMESPACE} ./chart --values /tmp/values.yaml --create-namespace -n "${CHART_NAMESPACE}"
+    - name: Purge cache
+      if: ${{ inputs.AZURE_FRONT_DOOR_PURGE }}
+      run: |
+        az afd endpoint purge --profile-name "${{ inputs.AZURE_FRONT_DOOR_PROFILE }}" --domain "${{ inputs.AZURE_FRONT_DOOR_DOMAIN }}" --resource-group dev --endpoint-name "${{ inputs.AZURE_FRONT_DOOR_ENDPOINT }}" --content-paths '/*'
     - name: Update deployment status
       uses: bobheadxi/deployments@v0.6.2
       if: always()
