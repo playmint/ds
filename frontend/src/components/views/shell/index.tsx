@@ -45,6 +45,13 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     const { openModal, setModalContent, closeModal } = useModalContext();
     const [providerAvailable, setProviderAvailable] = useState<boolean>(false);
     const [isSpawningSeeker, setIsSpawningSeeker] = useState<boolean>(false);
+    const [isGracePeriod, setIsGracePeriod] = useState<boolean>(true);
+
+    useEffect(() => {
+        // arbitary time til until we show things like
+        // the optional "jump to unit" button
+        setTimeout(() => setIsGracePeriod(false), 10000);
+    }, []);
 
     useEffect(() => {
         const detectProvider = detectEthereumProvider();
@@ -195,7 +202,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                             <TileCoords className="action" selectedTiles={selectedTiles} />
                         </Fragment>
                     )}
-                    {mapReady && world && player && player.seekers.length > 0 && !selectedSeeker && (
+                    {!isGracePeriod && world && player && player.seekers.length > 0 && !selectedSeeker && (
                         <div className="onboarding" style={{ width: '30rem' }}>
                             <button onClick={selectAndFocusSeeker}>Select Unit</button>
                         </div>
