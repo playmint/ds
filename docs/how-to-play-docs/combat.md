@@ -6,12 +6,12 @@ When a Unit attacks a Building it begins a combat session. This will continue un
 
 ### **********Units**********
 
-- Each Unit begins with 50 life, 30 attack and 23 defence.
+- Each Unit begins with 500 life, 30 attack and 23 defence.
 - The number of goo they have in equipable items will increase these values
     - Equipable items are non-stackable (i.e. you can only have one per slot)
-    - Green Goo = Life
-    - Blue Goo = Defense
-    - Red Goo = Attack
+    - 1x Green Goo = +10 Life
+    - 1x Blue Goo = +1 Defense
+    - 1x Red Goo = +1 Attack
 
 ### Buildings
 
