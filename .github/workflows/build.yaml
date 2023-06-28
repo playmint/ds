@@ -315,10 +315,18 @@ jobs:
       run: |
         echo "${CHART_VALUES}" > /tmp/values.yaml
         helm upgrade --timeout "30m" --history-max 5 --install --wait ${CHART_NAMESPACE} ./chart --values /tmp/values.yaml --create-namespace -n "${CHART_NAMESPACE}"
-    - name: Purge cache
+    - name: Azure login
       if: ${{ inputs.AZURE_FRONT_DOOR_PURGE }}
-      run: |
-        az afd endpoint purge --profile-name "${{ inputs.AZURE_FRONT_DOOR_PROFILE }}" --domain "${{ inputs.AZURE_FRONT_DOOR_DOMAIN }}" --resource-group dev --endpoint-name "${{ inputs.AZURE_FRONT_DOOR_ENDPOINT }}" --content-paths '/*'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Azure purge cache
+      if: ${{ inputs.AZURE_FRONT_DOOR_PURGE }}
+      uses: azure/CLI@v1
+      with:
+        azcliversion: 2.49.0
+        inlineScript: |
+          az afd endpoint purge --profile-name "${{ inputs.AZURE_FRONT_DOOR_PROFILE }}" --domain "${{ inputs.AZURE_FRONT_DOOR_DOMAIN }}" --resource-group dev --endpoint-name "${{ inputs.AZURE_FRONT_DOOR_ENDPOINT }}" --content-paths '/*'
     - name: Update deployment status
       uses: bobheadxi/deployments@v0.6.2
       if: always()
