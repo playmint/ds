@@ -34,7 +34,7 @@ on:
         type: string
       AZURE_FRONT_DOOR_PURGE:
         description: purge the CDN cache after deploy
-        require: true
+        required: true
         type: boolean
       AZURE_FRONT_DOOR_PROFILE:
         description: name of profile
