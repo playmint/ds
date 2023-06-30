@@ -56,10 +56,21 @@ contract ScoutRule is Rule {
 
     function _tempSpawnResourceBag(State state, bytes24 targetTile, int16[3] memory coords) private {
         uint64 bagID = uint64(uint256(keccak256(abi.encode(coords))));
+        uint8 itemSlot = 0;
         if (uint8(bagID) < 128) {
             bytes24 bag = Node.Bag(bagID);
+            state.setItemSlot(bag, itemSlot, _tempRandomResource(), 100);
 
-            state.setItemSlot(bag, 0, _tempRandomResource(), 100);
+            if (uint8(bagID >> 8) < 128) {
+                itemSlot++;
+                state.setItemSlot(bag, itemSlot, _tempRandomResource(), 100);
+            }
+
+            if (uint8(bagID >> 16) < 64) {
+                itemSlot++;
+                state.setItemSlot(bag, itemSlot, _tempRandomResource(), 100);
+            }
+
             state.setEquipSlot(targetTile, 0, bag);
         }
     }
