@@ -17,12 +17,34 @@ mutation dispatch($gameID: ID!, $actions: [String!]!, $auth: String!) {
     }
 }
 
+fragment IncomingBlock on BlockEvent {
+    id
+    block
+    simulated
+    logs
+    resync
+}
+
 subscription OnEvent($gameID: ID!) {
     events(gameID: $gameID, simulated: true) {
+        ...IncomingBlock
+    }
+}
+
+query GetSync($gameID: ID!, $block: Int!) {
+    game(id: $gameID) {
         id
-        ... on BlockEvent {
+        name
+        dispatcher {
+            id
+        }
+        router {
+            id
+        }
+        state(simulated: true, block: $block) {
+            id
             block
-            simulated
+            json
         }
     }
 }

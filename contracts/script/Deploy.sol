@@ -33,21 +33,13 @@ import {BuildingUtils, BuildingConfig, Material, Input, Output} from "@ds/utils/
 
 using Schema for State;
 
-contract GameDeployer is Script {
-    function setUp() public {}
+contract GameDeployerFast {
+    constructor(Game ds) {
+        deploy();
+    }
 
-    function run() public {
-        uint256 deployerKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
-
-        vm.startBroadcast(deployerKey);
-
-        address[] memory allowlist = _loadAllowList(vm.addr(deployerKey));
-        Game ds = new Game(allowlist);
-        console2.log("deployed", address(ds));
-
+    function deploy(Game ds) private {
         Dispatcher dispatcher = ds.getDispatcher();
-
-        // [TMP] init some stuff to get started...
 
         // dump a unit at the origin
         bytes24 seeker = Node.Seeker(1);
@@ -197,8 +189,6 @@ contract GameDeployer is Script {
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -11, -14, 25)));
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -10, -16, 26)));
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, -9, -15, 24)));
-
-        vm.stopBroadcast();
     }
 
     function _scout(Game ds, uint32 sid, int16 q, int16 r, int16 s) private {
@@ -780,4 +770,24 @@ contract GameDeployer is Script {
             })
         );
     }
+}
+
+contract GameDeployer is Script {
+    function setUp() public {}
+
+    function run() public {
+        uint256 deployerKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
+
+        vm.startBroadcast(deployerKey);
+
+        address[] memory allowlist = _loadAllowList(vm.addr(deployerKey));
+        Game ds = new Game(allowlist);
+        console2.log("deployed", address(ds));
+
+        GameDeployerFast owner = new GameDeployerFast(ds);
+        console2.log("owned by", address(owner));
+
+        vm.stopBroadcast();
+    }
+
 }

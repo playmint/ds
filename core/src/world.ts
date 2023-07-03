@@ -18,7 +18,7 @@ export function makeWorld(cog: Source<CogServices>) {
 
     const world = pipe(
         cog,
-        switchMap(({ query, gameID }) => query(GetWorldDocument, { gameID })),
+        switchMap(({ query, gameID }) => query(GetWorldDocument, { gameID }, { local: true })),
         map(normalizeWorldState),
         tap((next) => (prev = next)),
         share,

@@ -7,7 +7,7 @@ export function makeAvailableBuildingKinds(client: Source<CogServices>) {
         client,
         switchMap(({ query, gameID }) =>
             pipe(
-                query(GetAvailableBuildingKindsDocument, { gameID }, { poll: 30 * 1000 }),
+                query(GetAvailableBuildingKindsDocument, { gameID }),
                 map((data) => data.game.state.kinds),
             ),
         ),

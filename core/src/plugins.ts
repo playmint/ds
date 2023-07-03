@@ -47,7 +47,7 @@ export function makeAvailablePlugins(client: Source<CogServices>) {
         client,
         switchMap(({ query, gameID }) =>
             pipe(
-                query(GetAvailablePluginsDocument, { gameID }, { poll: 60 * 1000 }),
+                query(GetAvailablePluginsDocument, { gameID }),
                 map(({ game }) => game.state.plugins),
             ),
         ),

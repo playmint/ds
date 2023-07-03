@@ -12,7 +12,7 @@ import { ethers } from 'ethers';
 import { createClient as createWSClient } from 'graphql-ws';
 import {
     concat,
-    debounce,
+    concatMap,
     filter,
     fromPromise,
     fromValue,
@@ -24,9 +24,17 @@ import {
     share,
     Source,
     switchMap,
+    tap,
 } from 'wonka';
 import { Actions__factory } from './abi';
-import { DispatchDocument, OnEventDocument, SigninDocument, SignoutDocument } from './gql/graphql';
+import {
+    DispatchDocument,
+    GetSyncDocument,
+    IncomingBlockFragment,
+    OnEventDocument,
+    SigninDocument,
+    SignoutDocument,
+} from './gql/graphql';
 import { AnyGameSubscription, AnyGameVariables, CogAction, CogEvent, CogQueryConfig, GameConfig } from './types';
 // import { cacheExchange } from '@urql/exchange-graphcache';
 // import cogSchema from './gql/introspection';
@@ -89,6 +97,8 @@ export function configureClient({
     authMessage,
     gameID,
 }: GameConfig) {
+    const fetcher = httpFetchImpl ? httpFetchImpl : fetch;
+
     const wsClient = createWSClient({
         url: wsEndpoint,
         webSocketImpl: wsSocketImpl ? wsSocketImpl : WebSocket,
@@ -96,7 +106,7 @@ export function configureClient({
 
     const gql = createHTTPClient({
         url: httpEndpoint,
-        fetch: httpFetchImpl ? httpFetchImpl : fetch,
+        fetch: fetcher,
         exchanges: [
             // devtoolsExchange, // TODO: allow enabling this from config
             dedupExchange,
@@ -119,6 +129,62 @@ export function configureClient({
             }),
         ],
     });
+
+    const localgql = createHTTPClient({
+        url: '/sw/query',
+        fetch: fetcher,
+        exchanges: [dedupExchange, cacheExchange, fetchExchange],
+    });
+
+    const syncLocalFull = async (block) => {
+        console.warn(`[sw] full sync requested for ${block}`);
+        // get data
+        const res = await gql.query(GetSyncDocument, { gameID, block }, { requestPolicy: 'network-only' }).toPromise();
+        if (res.error) {
+            throw new Error(`sync: ${res.error}`);
+        }
+        const game = res?.data?.game;
+        if (!game) {
+            throw new Error('no game in response');
+        }
+        // build sync request
+        const sr = {
+            game: {
+                ID: game.id,
+                Name: game.name,
+                StateAddress: game.state.id,
+                RouterAddress: game.router.id,
+                DispatcherAddress: game.dispatcher.id,
+            },
+            graph: JSON.parse(game.state.json),
+        };
+
+        // send sync request to /sw/sync
+        return fetcher('/sw/sync', { method: 'POST', body: JSON.stringify(sr) });
+    };
+    const syncLocalEvent = async (batch: IncomingBlockFragment) => {
+        if (!batch || !batch.logs) {
+            console.warn(`[sw] nothing to sync in this block: skipping`);
+            return;
+        }
+        try {
+            const data = {
+                FromBlock: 0,
+                ToBlock: batch.block,
+                Logs: JSON.parse(batch.logs) || [],
+            };
+            console.warn(`[sw] processing log batch`, data);
+            return fetcher('/sw/event', { method: 'POST', body: JSON.stringify(data) });
+        } catch (err) {
+            console.error(`[sw] failed to parse batch log data`, batch);
+            return;
+        }
+    };
+    const win = window as any;
+    win.sw = {
+        sync: syncLocalFull,
+        client: localgql,
+    };
 
     const signout = async (signer: ethers.Signer, session: string): Promise<void> => {
         const msg = ethers.concat([ethers.toUtf8Bytes(`You are signing out of session: `), ethers.getBytes(session)]);
@@ -161,6 +227,33 @@ export function configureClient({
         };
     };
 
+    let currentBlock = 0;
+    let lastFullSync = 0;
+    const MAX_TIME_OUT_SYNC = 60 * 1000 * 5;
+
+    const needsFullSync = (batch?: IncomingBlockFragment) => {
+        if (!batch) {
+            // we dunno whats going on so resync to be safe
+            return true;
+        }
+        if (Date.now() - lastFullSync > MAX_TIME_OUT_SYNC) {
+            if (batch.block < currentBlock) {
+                // clearly we are out of sync if we are recv blocks from the past
+                return true;
+            }
+            if (batch.block > currentBlock + 1) {
+                // looks like we missed some stuff, better sync
+                return true;
+            }
+            if (batch.resync) {
+                // sequencer has commited a batch for real, so simulation might have changed
+                // but mostly this is fine, so only resync max once every MAX_TIME_OUT_SYNC
+                return true;
+            }
+        }
+        return false;
+    };
+
     const subscription = <
         Data extends TypedDocumentNode<AnyGameSubscription, Variables>,
         Variables extends AnyGameVariables = AnyGameVariables,
@@ -181,8 +274,25 @@ export function configureClient({
                 }
                 return res.data.events;
             }),
-            filter((data): data is AnyGameSubscription['events'] => !!data),
-            debounce(() => 500),
+            filter((batch) => !!batch),
+            // if block id has been seen before, then full sync
+            concatMap((batch) =>
+                !batch || needsFullSync(batch)
+                    ? fromPromise(
+                          syncLocalFull(batch?.block)
+                              .then(() => {
+                                  lastFullSync = Date.now();
+                              })
+                              .then(() => batch),
+                      )
+                    : fromPromise(syncLocalEvent(batch).then(() => batch)),
+            ),
+            tap((batch) => {
+                console.log('batch', batch);
+                if (batch && batch.block) {
+                    currentBlock = batch.block;
+                }
+            }),
             share,
         );
 
@@ -215,7 +325,11 @@ export function configureClient({
                   ]),
             switchMap(() =>
                 pipe(
-                    fromPromise(gql.query(doc, vars, { requestPolicy: 'cache-and-network' }).toPromise()),
+                    fromPromise(
+                        (config?.local ? localgql : localgql)
+                            .query(doc, vars, { requestPolicy: 'cache-and-network' })
+                            .toPromise(),
+                    ),
                     map((res) => {
                         if (res.error) {
                             console.warn('cog query error:', res.error);
@@ -234,7 +348,7 @@ export function configureClient({
             ),
         );
 
-    return { gameID, signin, signout, query, subscription, dispatch };
+    return { gameID, signin, signout, query, subscription, dispatch, syncLocalFull };
 }
 
 /**

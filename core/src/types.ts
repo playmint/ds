@@ -109,6 +109,8 @@ export interface CogQueryConfig {
     // if set to a number (of milliseconds), uses polling for subscription
     // instead of events from the graphql subscription
     poll?: number;
+    // use local indexer
+    local?: boolean;
 }
 
 export enum CogEvent {

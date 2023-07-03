@@ -32,6 +32,9 @@ debugmap:
 dev: all
 	$(NODE) .devstartup.js
 
+live: all
+	$(NODE) .livestartup.js
+
 compose: frontend/public/ds-unity/Build/ds-unity.wasm
 	docker compose up --build
 
