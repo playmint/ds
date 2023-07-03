@@ -29,7 +29,7 @@ using Schema for State;
 uint32 constant UNIT_BASE_LIFE = 50;
 uint32 constant UNIT_BASE_DEFENCE = 23;
 uint32 constant UNIT_BASE_ATTACK = 30;
-uint32 constant UNIT_LIFE_MUL = 10;
+uint32 constant LIFE_MUL = 10;
 
 uint64 constant BLOCKS_PER_TICK = 1;
 uint8 constant MAX_ENTITIES_PER_SIDE = 100; // No higher than 256 due to there being a reward bag for each entity and edges being 8 bit indices
@@ -673,7 +673,7 @@ contract CombatRule is Rule {
 
         if (bytes4(entityID) == Kind.Seeker.selector) {
             // Made up base stats for seeker
-            stats[GOO_GREEN] = UNIT_BASE_LIFE * UNIT_LIFE_MUL;
+            stats[GOO_GREEN] = UNIT_BASE_LIFE * LIFE_MUL;
             stats[GOO_BLUE] = UNIT_BASE_DEFENCE;
             stats[GOO_RED] = UNIT_BASE_ATTACK;
 
@@ -687,7 +687,7 @@ contract CombatRule is Rule {
                         (uint32[3] memory inputAtoms, bool isStackable) = state.getItemStructure(item);
                         if (!isStackable && balance > 0) {
                             for (uint8 k = 0; k < 3; k++) {
-                                stats[k] += inputAtoms[k] * (k == GOO_GREEN ? UNIT_LIFE_MUL : 1);
+                                stats[k] += inputAtoms[k] * (k == GOO_GREEN ? LIFE_MUL : 1);
                             }
                         }
                     }
@@ -698,7 +698,7 @@ contract CombatRule is Rule {
                 (bytes24 item, uint64 qty) = state.getMaterial(state.getBuildingKind(entityID), i);
                 (uint32[3] memory inputAtoms, /*bool isStackable*/ ) = state.getItemStructure(item);
                 for (uint8 j = 0; j < 3; j++) {
-                    stats[j] += inputAtoms[j] * uint32(qty);
+                    stats[j] += inputAtoms[j] * uint32(qty) * (j == GOO_GREEN ? LIFE_MUL : 1);
                 }
             }
         }
