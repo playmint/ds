@@ -27,29 +27,6 @@ public class ParabolicLineController : MonoBehaviour
         line.positionCount = _resolution + 1;
     }
 
-    //private void Update()
-    //{
-    //    if (MapInteractionManager.CurrentSelectedCell != null && MapManager.isMakingMove)
-    //    {
-    //        if (MapInteractionManager.CurrentSelectedCell != MapInteractionManager.CurrentMouseCell)
-    //        {
-    //            DrawLine(
-    //                MapManager.instance.grid.CellToWorld(MapInteractionManager.CurrentSelectedCell),
-    //                MapManager.instance.grid.CellToWorld(MapInteractionManager.CurrentMouseCell)
-    //            );
-    //            line.enabled = true;
-    //        }
-    //        else
-    //        {
-    //            line.enabled = false;
-    //        }
-    //    }
-    //    else
-    //    {
-    //        line.enabled = false;
-    //    }
-    //}
-
     public void HideLine()
     {
         line.enabled = false;
@@ -80,9 +57,13 @@ public class ParabolicLineController : MonoBehaviour
         line.positionCount = 0;
         while (t < 1)
         {
-            t += Time.deltaTime * lineRevealSpeedMultiplier;
-            line.positionCount = Mathf.FloorToInt(t * positions.Length);
+            t += Time.deltaTime / lineRevealSpeedMultiplier;
+            int count = Mathf.FloorToInt(t * positions.Length);
+            if (count > 10)
+                break;
+            line.positionCount = count;
             Vector3[] clipPos = positions.Take(line.positionCount).ToArray();
+
             line.SetPositions(clipPos);
             yield return null;
         }
