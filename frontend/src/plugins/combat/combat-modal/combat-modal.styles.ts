@@ -111,15 +111,34 @@ const baseStyles = (_: Partial<CombatModalProps>) => css`
     }
 
     > .body {
+        position: relative;
         display: flex;
         flex-grow: 1;
         background: #061e3d;
+        max-height: 36rem;
 
         .attackers,
         .defenders {
             flex-grow: 1;
             padding: 2.4rem 3.2rem;
             max-width: 50%;
+            max-height: 100%;
+            overflow: auto;
+            scrollbar-color: #007ff7 #000000;
+            scrollbar-width: thin;
+
+            &::-webkit-scrollbar {
+                width: 0.8em;
+            }
+
+            &::-webkit-scrollbar-track {
+                background-color: #000000;
+            }
+
+            &::-webkit-scrollbar-thumb {
+                background-color: #007ff7;
+                outline: transparent;
+            }
 
             .participant {
                 margin-bottom: 1.8rem;
