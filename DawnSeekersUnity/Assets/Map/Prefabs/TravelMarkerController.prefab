@@ -129,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3ffa22f2e3ec4e00a510a4744124800, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _resolution: 20
+  _resolution: 10
   _lineHeight: 0.05
   _lineHeightAdditionPerDistance: 0.3
   _lineCurve:
@@ -165,7 +165,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  lineRevealSpeedMultiplier: 8.1
+  lineRevealSpeedMultiplier: 0.12345
 --- !u!120 &1589046891220825562
 LineRenderer:
   m_ObjectHideFlags: 0
