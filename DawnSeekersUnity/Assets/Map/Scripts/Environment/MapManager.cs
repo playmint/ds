@@ -34,6 +34,10 @@ public class MapManager : MonoBehaviour
 
     private void Awake()
     {
+#if !UNITY_EDITOR && UNITY_WEBGL
+        // disable WebGLInput.captureAllKeyboardInput so elements in web page can handle keyboard inputs
+        WebGLInput.captureAllKeyboardInput = false;
+#endif
         dynamicMatProps = new MaterialPropertyBlock();
         unscoutedMatProps = new MaterialPropertyBlock();
         normalMatProps = new MaterialPropertyBlock();
