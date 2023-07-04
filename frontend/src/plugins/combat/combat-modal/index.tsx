@@ -427,9 +427,9 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
 
     // Before combat has started
     if (combatModalState === CombatModalState.PreCombat) {
-        const attackers: CombatParticipantProps[] = getTileEntities(selectedTiles[0], player);
+        const attackers: CombatParticipantProps[] = getTileEntities(selectedTiles[0], world, player);
         const [attackersMaxHealth, attackersCurrentHealth] = attackers.reduce(sumParticipants, [0, 0]);
-        const defenders: CombatParticipantProps[] = getTileEntities(selectedTiles[1], player);
+        const defenders: CombatParticipantProps[] = getTileEntities(selectedTiles[1], world, player);
         const [defendersMaxHealth, defendersCurrentHealth] = defenders.reduce(sumParticipants, [0, 0]);
         return (
             <PreCombatState

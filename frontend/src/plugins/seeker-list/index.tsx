@@ -1,11 +1,11 @@
 /** @format */
 
+import { formatNameOrId } from '@app/helpers';
+import { ComponentProps } from '@app/types/component-props';
+import { ConnectedPlayer, Seeker } from '@dawnseekers/core';
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
-import { ComponentProps } from '@app/types/component-props';
 import { styles } from './seeker-list.styles';
-import { ConnectedPlayer, Seeker } from '@dawnseekers/core';
-import { formatUnitKey } from '@app/helpers';
 
 export interface SeekerListProps extends ComponentProps {
     player?: ConnectedPlayer;
@@ -28,9 +28,7 @@ export const SeekerList: FunctionComponent<SeekerListProps> = (props: SeekerList
                     ) : (
                         <img src="/seeker-theirs.png" alt="" />
                     )}
-                    {seeker && seeker.name?.value
-                        ? seeker.name.value
-                        : `Unit ${formatUnitKey(seeker?.key.toString() || '')}`}
+                    {formatNameOrId(seeker, 'Unit ')}
                 </div>
             ))}
         </StyledSeekerList>

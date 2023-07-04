@@ -1,9 +1,19 @@
 /** @format */
 
-export const formatPlayerId = (id: string) => {
-    return `${id.substring(0, 5)}...${id.substring(id.length - 4)}`;
+interface MaybeNamed {
+    id: string;
+    name?: {
+        value?: string | null;
+    } | null;
+}
+
+export const formatShortId = (id: string) => {
+    return id.slice(-4);
 };
 
-export const formatUnitKey = (id: string) => {
-    return `${id.substring(0, 3)}...${id.substring(id.length - 3)}`;
+export const formatNameOrId = (node?: MaybeNamed, idPrefix: string = ''): string => {
+    if (!node) {
+        return '';
+    }
+    return node.name?.value ? node.name.value : `${idPrefix}${formatShortId(node.id)}`;
 };
