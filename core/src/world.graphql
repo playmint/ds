@@ -44,6 +44,9 @@ fragment WorldBuilding on Node {
     bags: edges(match: { kinds: "Bag", via: { rel: "Equip" } }) {
         ...EquipmentSlot
     }
+    owner: node(match: { kinds: "Player", via: { rel: "Owner" } }) {
+        id
+    }
 }
 
 fragment WorldCombatSession on Node {
