@@ -237,7 +237,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                 Don’t forget to collaborate with others on larger projects in our{' '}
                                 <a href="https://discord.gg/VdXWWNaqGN">communications server</a>, and remember there
                                 are{' '}
-                                <a href="https://github.com/playmint/ds/tree/main/docs)">
+                                <a href="https://github.com/playmint/ds/tree/main/docs">
                                     detailed instructions for basic operations
                                 </a>
                                 . 💬📘🌱
