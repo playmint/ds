@@ -2,8 +2,13 @@
 
 import { Logs } from '@app/components/organisms/logs';
 import { UnityMap } from '@app/components/organisms/unity-map';
-import { formatPlayerId, formatUnitKey } from '@app/helpers';
+import { useModalContext } from '@app/contexts/modal-provider';
+import { formatNameOrId } from '@app/helpers';
+import { ActionBar } from '@app/plugins/action-bar';
 import { ActionContextPanel } from '@app/plugins/action-context-panel';
+import { CombatModal } from '@app/plugins/combat/combat-modal';
+import { CombatRewards } from '@app/plugins/combat/combat-rewards';
+import { CombatSummary } from '@app/plugins/combat/combat-summary';
 import { SeekerInventory } from '@app/plugins/inventory/seeker-inventory';
 import { TileCoords } from '@app/plugins/tile-coords';
 import { ComponentProps } from '@app/types/component-props';
@@ -17,14 +22,9 @@ import {
 } from '@dawnseekers/core';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { Fragment, FunctionComponent, useCallback, useEffect, useState } from 'react';
+import { UnityProvider } from 'react-unity-webgl/distribution/types/unity-provider';
 import styled from 'styled-components';
 import { styles } from './shell.styles';
-import { ActionBar } from '@app/plugins/action-bar';
-import { useModalContext } from '@app/contexts/modal-provider';
-import { CombatModal } from '@app/plugins/combat/combat-modal';
-import { CombatSummary } from '@app/plugins/combat/combat-summary';
-import { CombatRewards } from '@app/plugins/combat/combat-rewards';
-import { UnityProvider } from 'react-unity-webgl/distribution/types/unity-provider';
 
 export interface ShellProps extends ComponentProps, Partial<SelectionSelectors> {
     world?: WorldStateFragment;
@@ -179,7 +179,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                 {providerAvailable && (
                     <button onClick={connect}>
                         <img src="/icons/player.png" alt="" />
-                        <span className="text">{player ? `Player ${formatPlayerId(player.id)}` : 'connect'}</span>
+                        <span className="text">{player ? formatNameOrId(player, 'Player 0x..') : 'connect'}</span>
                     </button>
                 )}
             </div>
@@ -234,9 +234,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                                 className="label"
                                                 onDoubleClick={() => nameEntity(selectedSeeker?.id)}
                                             >
-                                                {selectedSeeker && selectedSeeker.name?.value
-                                                    ? selectedSeeker.name.value
-                                                    : `Unit ${formatUnitKey(selectedSeeker?.key.toString() || '')}`}
+                                                {formatNameOrId(selectedSeeker, 'Unit ')}
                                             </span>
                                             <button className="icon-button" onClick={() => selectNextSeeker(+1)}>
                                                 <img src="/icons/next.png" alt="Next" />

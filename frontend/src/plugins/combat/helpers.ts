@@ -1,3 +1,6 @@
+import { formatNameOrId } from '@app/helpers';
+import { ATOM_ATTACK, ATOM_DEFENSE, ATOM_LIFE, CombatAction, EntityState } from '@app/plugins/combat/combat';
+import { CombatParticipantProps } from '@app/plugins/combat/combat-participant';
 import {
     BuildingKindFragment,
     ConnectedPlayer,
@@ -5,15 +8,11 @@ import {
     ItemSlotFragment,
     SelectedSeekerFragment,
     SelectedTileFragment,
-    WorldBuildingFragment,
     WorldSeekerFragment,
     WorldStateFragment,
     WorldTileFragment
 } from '@dawnseekers/core';
 import { AbiCoder, BigNumberish, BytesLike, hexlify } from 'ethers';
-import { ATOM_ATTACK, ATOM_DEFENSE, ATOM_LIFE, CombatAction, EntityState } from '@app/plugins/combat/combat';
-import { formatUnitKey } from '@app/helpers';
-import { CombatParticipantProps } from '@app/plugins/combat/combat-participant';
 
 export const UNIT_BASE_LIFE = 50;
 export const UNIT_BASE_DEFENCE = 23;
@@ -140,13 +139,14 @@ export const getIcon = (entityID: BytesLike, seekers: WorldSeekerFragment[]) => 
     return seeker ? '/seeker-yours.png' : '/seeker-theirs.png';
 };
 
-export const getEntityName = (entityID: BytesLike, buildings: WorldBuildingFragment[]) => {
+export const getEntityName = (entityID: BytesLike, world: WorldStateFragment) => {
     const id = hexlify(entityID).toString();
     if (id.startsWith(buildingIdStart)) {
-        const building = buildings.find((b) => b.id === id);
+        const building = world.buildings.find((b) => b.id === id);
         return building?.kind?.name?.value ?? 'Building';
     }
-    return `Unit #${formatUnitKey(hexlify(entityID))}`;
+    const unit = world.tiles.flatMap((t) => t.seekers).find((s) => s.id === entityID);
+    return formatNameOrId(unit, 'Unit ');
 };
 
 export const getItemStats = (itemId: string) => {
@@ -197,12 +197,16 @@ export const getMaterialStats = (materials: ItemSlotFragment[]) => {
     );
 };
 
-export const unitToCombatParticipantProps = (unit: SelectedSeekerFragment, seekers: WorldSeekerFragment[]) => {
+export const unitToCombatParticipantProps = (
+    unit: SelectedSeekerFragment,
+    world: WorldStateFragment,
+    player: ConnectedPlayer
+) => {
     const entityID = unit.id;
     const stats = getEquipmentStats(unit.bags);
     return {
-        name: `Unit #${formatUnitKey(entityID)}`,
-        icon: getIcon(entityID, seekers),
+        name: getEntityName(entityID, world),
+        icon: getIcon(entityID, player.seekers),
         maxHealth: stats[ATOM_LIFE] + UNIT_BASE_LIFE * LIFE_MUL,
         currentHealth: stats[ATOM_LIFE] + UNIT_BASE_LIFE * LIFE_MUL,
         attack: stats[ATOM_ATTACK] + UNIT_BASE_ATTACK,
@@ -228,11 +232,11 @@ export const buildingToCombatParticipantProps = (buildingKind: BuildingKindFragm
 
 export const entityStateToCombatParticipantProps = (
     { entityID, damage, stats, isDead, isPresent }: EntityState,
-    { buildings }: WorldStateFragment,
-    { seekers }: ConnectedPlayer
+    world: WorldStateFragment,
+    player: ConnectedPlayer
 ) => ({
-    name: getEntityName(entityID, buildings),
-    icon: getIcon(entityID, seekers),
+    name: getEntityName(entityID, world),
+    icon: getIcon(entityID, player.seekers),
     maxHealth: stats[ATOM_LIFE],
     currentHealth: Math.max(stats[ATOM_LIFE] - damage, 0),
     attack: stats[ATOM_ATTACK],
@@ -250,7 +254,11 @@ export const sumParticipants = (
         : [participantsMaxHealth, participantsCurrentHealth];
 };
 
-export const getTileEntities = (tile: SelectedTileFragment, player: ConnectedPlayer): CombatParticipantProps[] => {
+export const getTileEntities = (
+    tile: SelectedTileFragment,
+    world: WorldStateFragment,
+    player: ConnectedPlayer
+): CombatParticipantProps[] => {
     if (!tile) {
         return [];
     }
@@ -258,7 +266,7 @@ export const getTileEntities = (tile: SelectedTileFragment, player: ConnectedPla
     if (tile.building && tile.building.kind) {
         entities.push(buildingToCombatParticipantProps(tile.building.kind));
     }
-    entities.push(...tile.seekers.map((unit) => unitToCombatParticipantProps(unit, player.seekers)));
+    entities.push(...tile.seekers.map((unit) => unitToCombatParticipantProps(unit, world, player)));
     return entities;
 };
 
