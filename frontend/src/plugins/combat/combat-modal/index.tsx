@@ -15,7 +15,7 @@ import {
     SelectedTileFragment,
     useSelection,
     WorldStateFragment
-} from '@dawnseekers/core';
+} from '@downstream/core';
 import {
     CombatSession,
     convertCombatActions,

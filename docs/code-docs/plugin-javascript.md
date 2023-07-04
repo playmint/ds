@@ -147,7 +147,7 @@ The source code that exposes these functions can be found `lib/ds/core/src/plugi
 The dispatch function is how plugins can send solidity transactions to the Downstream game on-chain. See the [Action Dispatching](https://www.notion.so/Code-Docs-7e6c8e839ec141e3b88c16a3b36bfb79?pvs=21) section above.
 
 ```jsx
-import ds from 'dawnseekers';
+import ds from 'downstream';
 
 // Dispatch an action to the Downstream game on the blockchain.
 // These use the current session for the current player.

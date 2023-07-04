@@ -20,7 +20,7 @@ import {
     makeLogger,
     makeSelection,
     makeWorld,
-} from "@dawnseekers/core";
+} from "@downstream/core";
 
 interface Message {
     msg: string;

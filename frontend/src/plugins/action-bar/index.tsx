@@ -3,7 +3,7 @@
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { ethers } from 'ethers';
-import { BiomeKind, useSelection, useWorld, WorldTileFragment } from '@dawnseekers/core';
+import { BiomeKind, useSelection, useWorld, WorldTileFragment } from '@downstream/core';
 import { ComponentProps } from '@app/types/component-props';
 import { styles } from './action-bar.styles';
 

@@ -2,7 +2,7 @@
 
 import { formatNameOrId } from '@app/helpers';
 import { ComponentProps } from '@app/types/component-props';
-import { ConnectedPlayer, MobileUnit } from '@dawnseekers/core';
+import { ConnectedPlayer, MobileUnit } from '@downstream/core';
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { styles } from './mobile-unit-list.styles';

@@ -4,7 +4,7 @@ import { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { ComponentProps } from '@app/types/component-props';
 import { styles } from './combat-rewards.styles';
-import { ConnectedPlayer, SelectedMobileUnitFragment, SelectedTileFragment } from '@dawnseekers/core';
+import { ConnectedPlayer, SelectedMobileUnitFragment, SelectedTileFragment } from '@downstream/core';
 import { Bag } from '@app/plugins/inventory/bag';
 
 export interface CombatRewardsProps extends ComponentProps {

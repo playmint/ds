@@ -3,7 +3,7 @@
 import React, { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { ComponentProps } from '@app/types/component-props';
-import { SelectedMobileUnitFragment } from '@dawnseekers/core';
+import { SelectedMobileUnitFragment } from '@downstream/core';
 import { Inventory } from '@app/plugins/inventory/index';
 
 export interface MobileUnitInventoryProps extends ComponentProps {

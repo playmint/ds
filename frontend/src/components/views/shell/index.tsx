@@ -19,7 +19,7 @@ import {
     Selection,
     SelectionSelectors,
     WorldStateFragment
-} from '@dawnseekers/core';
+} from '@downstream/core';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { Fragment, FunctionComponent, useCallback, useEffect, useState } from 'react';
 import { UnityProvider } from 'react-unity-webgl/distribution/types/unity-provider';

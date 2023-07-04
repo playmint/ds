@@ -15,7 +15,7 @@ import {
     useWorld,
     WorldBuildingFragment,
     BuildingKindFragment
-} from '@dawnseekers/core';
+} from '@downstream/core';
 import React, { Fragment, FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';

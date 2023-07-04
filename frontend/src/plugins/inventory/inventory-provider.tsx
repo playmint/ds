@@ -3,7 +3,7 @@ import { nullBagId } from '@app/fixtures/null-bag-id';
 import { getTileDistance } from '@app/helpers/tile';
 import { styles } from '@app/plugins/inventory/bag-item/bag-item.styles';
 import { useClickOutside } from '@app/plugins/inventory/use-click-outside';
-import { Tile, usePlayer, useSelection } from '@dawnseekers/core';
+import { Tile, usePlayer, useSelection } from '@downstream/core';
 import { createContext, ReactNode, RefObject, useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 

@@ -1,10 +1,10 @@
 /** @format */
 
-import { PluginConfig, PluginTrust, PluginType } from '@dawnseekers/core';
+import { PluginConfig, PluginTrust, PluginType } from '@downstream/core';
 
 const src = `
 
-import ds from 'dawnseekers';
+import ds from 'downstream';
 
 export default function update({selected}) {
     const mobileUnit = selected.mobileUnit;

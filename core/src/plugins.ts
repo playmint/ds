@@ -231,7 +231,7 @@ export function makePluginSelector(cog: Source<CogServices>, defaultPlugins?: Pl
  *
  * loaded "guest" source has only limited access to communicate with the host:
  *
- * they can load one specific module `import ds from 'dawnseekers'` which gives
+ * they can load one specific module `import ds from 'downstream'` which gives
  * them access to the following API:
  *
  * ```ts
@@ -366,10 +366,10 @@ export function loadPlugin(
         switch (moduleName) {
             case '__plugin__':
                 return src;
-            case 'dawnseekers':
+            case 'downstream':
                 return DS_GUEST_FUNCTIONS;
             default:
-                throw new Error('importing modules is only available for dawnseekers module');
+                throw new Error('importing modules is only available for downstream module');
         }
     });
 
@@ -471,7 +471,7 @@ export function loadPlugin(
     };
 }
 
-// wrapper functions loaded by the fake 'dawnseekers' module within the guest
+// wrapper functions loaded by the fake 'downstream' module within the guest
 // to make it feel like a "normal" library import and potentially keep compatibility
 // with any future implementation changes where modules loading might be supported
 const DS_GUEST_FUNCTIONS = `

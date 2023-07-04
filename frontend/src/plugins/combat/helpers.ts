@@ -11,7 +11,7 @@ import {
     WorldMobileUnitFragment,
     WorldStateFragment,
     WorldTileFragment
-} from '@dawnseekers/core';
+} from '@downstream/core';
 import { AbiCoder, BigNumberish, BytesLike, hexlify } from 'ethers';
 
 export const UNIT_BASE_LIFE = 50;

@@ -1,4 +1,4 @@
-import ds from 'dawnseekers';
+import ds from 'downstream';
 
 export default function update({ selected, world }) {
 

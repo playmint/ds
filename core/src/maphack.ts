@@ -1,4 +1,4 @@
-import { EquipmentSlotFragment, GameState, WorldMobileUnitFragment, WorldTileFragment } from '@dawnseekers/core';
+import { EquipmentSlotFragment, GameState, WorldMobileUnitFragment, WorldTileFragment } from '@downstream/core';
 import { ethers } from 'ethers';
 
 enum OldLocationKind {

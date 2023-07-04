@@ -1,7 +1,7 @@
 /** @format */
 
 import { ComponentProps } from '@app/types/component-props';
-import { SelectionSelectors } from '@dawnseekers/core';
+import { SelectionSelectors } from '@downstream/core';
 import { FunctionComponent, useEffect, useState } from 'react';
 import { Unity } from 'react-unity-webgl';
 import { UnityProvider } from 'react-unity-webgl/distribution/types/unity-provider';

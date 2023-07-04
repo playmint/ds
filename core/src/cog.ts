@@ -65,7 +65,7 @@ const cogDefaultConfig = {
  * each time setConfig is called, the client will be reconfigured and emitted
  * on the source.
  *
- * Given configure is merged with the internal default config for dawnseekers +
+ * Given configure is merged with the internal default config for downstream +
  * the initial given config + whatever is passed to setConfig.
  *
  */

@@ -35,7 +35,7 @@ using Schema for StateGraph;
 // so all we need to do here is call registerRule()
 // -----------------------------------------------
 
-contract DawnseekersRouter is SessionRouter {
+contract DownstreamRouter is SessionRouter {
     function getAuthMessage(uint32 ttl, uint32, /*scopes*/ address sessionAddr)
         internal
         pure
@@ -93,7 +93,7 @@ contract Game is BaseGame {
         state.registerEdgeType(Rel.IsFinalised.selector, "IsFinalised", WeightKind.UINT64);
 
         // create a session router
-        SessionRouter router = new DawnseekersRouter();
+        SessionRouter router = new DownstreamRouter();
 
         // configure our dispatcher with state, rules and trust the router
         BaseDispatcher dispatcher = new BaseDispatcher();

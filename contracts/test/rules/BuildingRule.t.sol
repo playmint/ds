@@ -7,7 +7,7 @@ import {Game} from "cog/Game.sol";
 import {State, AnnotationKind} from "cog/State.sol";
 import {Dispatcher} from "cog/Dispatcher.sol";
 
-import {Game as Dawnseekers} from "@ds/Game.sol";
+import {Game as Downstream} from "@ds/Game.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {Schema, Node, Rel, LocationKey, BiomeKind, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
@@ -39,7 +39,7 @@ contract BuildingRuleTest is Test {
         allowlist[0] = aliceAccount;
 
         // setup game
-        game = new Dawnseekers(allowlist);
+        game = new Downstream(allowlist);
         dispatcher = game.getDispatcher();
 
         // fetch the State to play with

@@ -3,7 +3,7 @@
 import { Inventory } from '@app/plugins/inventory/index';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { ComponentProps } from '@app/types/component-props';
-import { SelectedTileFragment } from '@dawnseekers/core';
+import { SelectedTileFragment } from '@downstream/core';
 import React, { FunctionComponent, Fragment } from 'react';
 import styled from 'styled-components';
 

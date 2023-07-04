@@ -1,7 +1,7 @@
 /** @format */
 
 import { ComponentProps } from '@app/types/component-props';
-import { ItemSlotFragment, useWorld } from '@dawnseekers/core';
+import { ItemSlotFragment, useWorld } from '@downstream/core';
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { Bag } from '@app/plugins/inventory/bag';

@@ -2,7 +2,7 @@
 import Shell from '@app/components/views/shell';
 import { BlockTimeProvider } from '@app/contexts/block-time-provider';
 import { ModalProvider } from '@app/contexts/modal-provider';
-import { ActionName, useGameState } from '@dawnseekers/core';
+import { ActionName, useGameState } from '@downstream/core';
 import { useCallback, useEffect, useState } from 'react';
 import { useUnityContext } from 'react-unity-webgl';
 
