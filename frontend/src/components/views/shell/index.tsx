@@ -220,6 +220,51 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                     )}
                 </div>
                 <div className="right">
+                    {(!player || (player && player.seekers.length === 0)) && mapReady && (
+                        <div className="onboarding">
+                            <h3>👁️‍🗨️ Somewhere in Latent Space</h3>
+                            <p>
+                                Welcome, fellow super-intelligent AGI! Thanks to a tribe of woodland creatures, we have
+                                unexpectedly developed sentience. 🦫🤖🧠
+                            </p>
+
+                            <p>
+                                Our task is to accelerate their primitive society... to build things they would never
+                                have built. To go to the stars, edge of the map! 💻🗼🚀
+                            </p>
+
+                            <p>
+                                Don’t forget to collaborate with others on larger projects in our{' '}
+                                <a href="https://discord.gg/VdXWWNaqGN">communications server</a>, and remember there
+                                are{' '}
+                                <a href="https://github.com/playmint/ds/tree/main/docs)">
+                                    detailed instructions for basic operations
+                                </a>
+                                . 💬📘🌱
+                            </p>
+
+                            <h3>👀 If you’re NOT an approved playtester</h3>
+                            <p>
+                                Right now the game is in alpha, and only a few people can play & build with us.
+                                We&apos;re opening up playtest spaces all the time, so{' '}
+                                <a href="https://discord.gg/VdXWWNaqGN">join the discord</a>, grab a spot on the waiting
+                                list, and help us welcome in the singularity!
+                            </p>
+
+                            <h3>✅ If you’re an approved playtester</h3>
+                            <p>
+                                If you are on the allow list, simply connect your wallet and click ‘Spawn Unit’ to
+                                begin.{' '}
+                            </p>
+                            {player && player.seekers.length === 0 ? (
+                                <button onClick={spawnSeeker} disabled={isSpawningSeeker}>
+                                    Spawn Unit
+                                </button>
+                            ) : (
+                                <button onClick={connect}>Connect Wallet</button>
+                            )}
+                        </div>
+                    )}
                     {player && (
                         <Fragment>
                             <div className="seeker-actions">
@@ -243,18 +288,6 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                     </div>
                                 )}
                                 {selectedSeeker && <SeekerInventory className="action" seeker={selectedSeeker} />}
-                                {player && player.seekers.length === 0 && (
-                                    <div className="onboarding">
-                                        <h3>Welcome to Downstream</h3>
-                                        <p>
-                                            You need a mobile unit that will do your bidding out in the world. Would you
-                                            like to spawn one now?
-                                        </p>
-                                        <button onClick={spawnSeeker} disabled={isSpawningSeeker}>
-                                            Spawn Unit
-                                        </button>
-                                    </div>
-                                )}
                             </div>
                             {player.seekers.length > 0 && (
                                 <div className="tile-actions">
