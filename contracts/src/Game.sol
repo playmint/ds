@@ -59,6 +59,8 @@ contract DownstreamRouter is SessionRouter {
 }
 
 contract Game is BaseGame {
+    NewPlayerRule playerRule;
+
     constructor(address[] memory allowlist) BaseGame("DOWNSTREAM", "http://downstream.game/") {
         // create a state
         StateGraph state = new StateGraph();
@@ -95,6 +97,9 @@ contract Game is BaseGame {
         // create a session router
         SessionRouter router = new DownstreamRouter();
 
+        // setup the player rule with allowlist
+        playerRule = new NewPlayerRule(allowlist);
+
         // configure our dispatcher with state, rules and trust the router
         BaseDispatcher dispatcher = new BaseDispatcher();
         dispatcher.registerState(state);
@@ -105,7 +110,7 @@ contract Game is BaseGame {
         dispatcher.registerRule(new BuildingRule(this));
         dispatcher.registerRule(new CraftingRule(this));
         dispatcher.registerRule(new PluginRule());
-        dispatcher.registerRule(new NewPlayerRule(allowlist));
+        dispatcher.registerRule(playerRule);
         dispatcher.registerRule(new CombatRule());
         dispatcher.registerRule(new NamingRule());
         dispatcher.registerRouter(router);
@@ -125,5 +130,9 @@ contract Game is BaseGame {
         dispatcher.dispatch(
             abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.FlaskRedGoo(), "Flask of Red Goo", "22-24"))
         );
+    }
+
+    function allow(address addr) public {
+        playerRule.allow(addr);
     }
 }
