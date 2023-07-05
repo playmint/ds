@@ -23,7 +23,7 @@ This will build to `bridge/build`. This is the path used by `PluginController.cs
 
 ## Output
 
-Downstream bridge handles the state update events from the Dawnseekers client, removes circular references from the object, serialises the state as JSON and outputs it on stdout which is read by Unity. A replacer function is used to replace the BigInts in the original state object with hex strings.
+Downstream bridge handles the state update events from the Downstream client, removes circular references from the object, serialises the state as JSON and outputs it on stdout which is read by Unity. A replacer function is used to replace the BigInts in the original state object with hex strings.
 
 ## Input
 
