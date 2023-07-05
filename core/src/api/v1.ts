@@ -36,7 +36,7 @@ export interface PluginV1ComponentContent {
 export interface PluginV1Component {
     id?: string;
     version?: number;
-    type?: 'building' | 'tile' | 'seeker' | 'nav';
+    type?: 'building' | 'tile' | 'mobileUnit' | 'nav';
     title?: string;
     summary?: string;
     content?: PluginV1ComponentContent[];

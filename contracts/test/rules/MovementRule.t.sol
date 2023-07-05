@@ -12,7 +12,7 @@ import {Schema, Node, Rel, LocationKey, BiomeKind, DEFAULT_ZONE} from "@ds/schem
 
 using Schema for State;
 
-uint32 constant TEST_SEEKER_ID = 1;
+uint32 constant TEST_MOBILE_UNIT_ID = 1;
 
 contract MovementRuleTest is Test {
     Game internal game;
@@ -48,9 +48,9 @@ contract MovementRuleTest is Test {
             _discover(i, -i, 0);
         }
 
-        // place a seeker at 0,0,0
+        // place a mobileUnit at 0,0,0
         vm.startPrank(aliceAccount);
-        game.getDispatcher().dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (Node.Seeker(TEST_SEEKER_ID))));
+        game.getDispatcher().dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (Node.MobileUnit(TEST_MOBILE_UNIT_ID))));
         vm.stopPrank();
     }
 
@@ -81,7 +81,7 @@ contract MovementRuleTest is Test {
     // function testMoveWhenMoving() public {
     //     // be alice
     //     vm.startPrank(aliceAccount);
-    //     bytes24 seeker = Node.Seeker(TEST_SEEKER_ID);
+    //     bytes24 mobileUnit = Node.MobileUnit(TEST_MOBILE_UNIT_ID);
     //     // move 2 tiles away
     //     _tryMoveTo(0, 2, -2);
     //     // assuming speed is 1 tile per block
@@ -89,7 +89,7 @@ contract MovementRuleTest is Test {
     //     // TODO: this test will break if TRAVEL_SPEED changes, fix it!
     //     vm.roll(block.number + 1);
     //     assertEq(
-    //         state.getCurrentLocation(seeker, uint64(block.number)),
+    //         state.getCurrentLocation(mobileUnit, uint64(block.number)),
     //         Node.Tile(DEFAULT_ZONE, 0, 1, -1),
     //         "expected current location to be 0,1,-1 as we are halfway"
     //     );
@@ -97,24 +97,24 @@ contract MovementRuleTest is Test {
     //     // _discover(-1,1,0);
     //     _tryMoveTo(-1, 1, 0);
     //     assertEq(
-    //         state.getPrevLocation(seeker), Node.Tile(DEFAULT_ZONE, 0, 1, -1), "expected prev location to now be 0,1,-1"
+    //         state.getPrevLocation(mobileUnit), Node.Tile(DEFAULT_ZONE, 0, 1, -1), "expected prev location to now be 0,1,-1"
     //     );
     //     assertEq(
-    //         state.getCurrentLocation(seeker, uint64(block.number)),
+    //         state.getCurrentLocation(mobileUnit, uint64(block.number)),
     //         Node.Tile(DEFAULT_ZONE, 0, 1, -1),
     //         "expected current location to still be 0,1,-1 after new move issued"
     //     );
     //     assertEq(
-    //         state.getNextLocation(seeker),
+    //         state.getNextLocation(mobileUnit),
     //         Node.Tile(DEFAULT_ZONE, -1, 1, 0),
     //         "expected next location to be -1,1,0 after new move issued"
     //     );
     //     // move time forward
-    //     (, uint64 arrivalTime) = state.get(Rel.Location.selector, uint8(LocationKey.NEXT), seeker);
+    //     (, uint64 arrivalTime) = state.get(Rel.Location.selector, uint8(LocationKey.NEXT), mobileUnit);
     //     vm.roll(arrivalTime); // let time pass
     //     // we should now have arrived at -1,2,1
     //     assertEq(
-    //         state.getCurrentLocation(seeker, uint64(block.number)),
+    //         state.getCurrentLocation(mobileUnit, uint64(block.number)),
     //         Node.Tile(DEFAULT_ZONE, -1, 1, 0),
     //         "expected arrive at -1,1,0"
     //     );
@@ -148,24 +148,26 @@ contract MovementRuleTest is Test {
         vm.startPrank(aliceAccount);
         _tryMoveTo(q, r, s);
 
-        bytes24 seeker = Node.Seeker(TEST_SEEKER_ID);
+        bytes24 mobileUnit = Node.MobileUnit(TEST_MOBILE_UNIT_ID);
 
         assertEq(
-            state.getNextLocation(seeker), Node.Tile(0, q, r, s), "expected seeker next location to be correctly set"
+            state.getNextLocation(mobileUnit),
+            Node.Tile(0, q, r, s),
+            "expected mobileUnit next location to be correctly set"
         );
 
         // ENABLE THIS ONCE WE ENABLE TRAVEL TIME
         // assertEq(
-        //     state.getCurrentLocation(seeker, uint64(block.number)),
+        //     state.getCurrentLocation(mobileUnit, uint64(block.number)),
         //     Node.Tile(DEFAULT_ZONE, 0, 0, 0),
         //     "expected current location to still be 0,0,0 as no time passed"
         // );
 
-        (, uint64 arrivalTime) = state.get(Rel.Location.selector, uint8(LocationKey.NEXT), seeker);
+        (, uint64 arrivalTime) = state.get(Rel.Location.selector, uint8(LocationKey.NEXT), mobileUnit);
         vm.roll(arrivalTime); // let time pass
 
         assertEq(
-            state.getCurrentLocation(Node.Seeker(TEST_SEEKER_ID), uint64(block.number)),
+            state.getCurrentLocation(Node.MobileUnit(TEST_MOBILE_UNIT_ID), uint64(block.number)),
             Node.Tile(DEFAULT_ZONE, q, r, s),
             "expected current location to now be same as next location"
         );
@@ -190,9 +192,9 @@ contract MovementRuleTest is Test {
     function _tryMoveTo(int16 q, int16 r, int16 s) private {
         dispatcher.dispatch(
             abi.encodeCall(
-                Actions.MOVE_SEEKER,
+                Actions.MOVE_MOBILE_UNIT,
                 (
-                    TEST_SEEKER_ID, // seeker id (sid)
+                    TEST_MOBILE_UNIT_ID, // mobileUnit id (sid)
                     q, // q
                     r, // r
                     s // s

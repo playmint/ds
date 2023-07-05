@@ -33,9 +33,9 @@ import { AnyGameSubscription, AnyGameVariables, CogAction, CogEvent, CogQueryCon
 
 const abi = ethers.AbiCoder.defaultAbiCoder();
 
-export const DAWNSEEKERS_GAME_ACTIONS = Actions__factory.createInterface();
+export const DOWNSTREAM_GAME_ACTIONS = Actions__factory.createInterface();
 
-const DAWNSEEKERS_AUTH_MESSAGE = (addr: string, ttl: number) =>
+const DOWNSTREAM_AUTH_MESSAGE = (addr: string, ttl: number) =>
     [
         'Welcome to Downstream!',
         '\n\nThis site is requesting permission to interact with your Downstream assets.',
@@ -47,12 +47,12 @@ const DAWNSEEKERS_AUTH_MESSAGE = (addr: string, ttl: number) =>
         addr,
     ].join('');
 
-const DAWNSEEKERS_GAME_ID = 'DAWNSEEKERS';
+const DOWNSTREAM_GAME_ID = 'DOWNSTREAM';
 
 const cogDefaultConfig = {
-    gameID: DAWNSEEKERS_GAME_ID,
-    authMessage: DAWNSEEKERS_AUTH_MESSAGE,
-    actions: DAWNSEEKERS_GAME_ACTIONS,
+    gameID: DOWNSTREAM_GAME_ID,
+    authMessage: DOWNSTREAM_AUTH_MESSAGE,
+    actions: DOWNSTREAM_GAME_ACTIONS,
     wsEndpoint: 'ws://localhost:8080/query',
     httpEndpoint: 'http://localhost:8080/query',
 } satisfies GameConfig;
@@ -65,7 +65,7 @@ const cogDefaultConfig = {
  * each time setConfig is called, the client will be reconfigured and emitted
  * on the source.
  *
- * Given configure is merged with the internal default config for dawnseekers +
+ * Given configure is merged with the internal default config for downstream +
  * the initial given config + whatever is passed to setConfig.
  *
  */

@@ -7,7 +7,7 @@ import {State, AnnotationKind} from "cog/State.sol";
 import {StateGraph} from "cog/StateGraph.sol";
 import {Dispatcher} from "cog/Dispatcher.sol";
 
-import {Game as Dawnseekers} from "@ds/Game.sol";
+import {Game as Downstream} from "@ds/Game.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {Schema, Node} from "@ds/schema/Schema.sol";
 
@@ -16,7 +16,7 @@ using Schema for State;
 contract NamingRuleTest is Test {
     event AnnotationSet(bytes24 id, AnnotationKind kind, string label, bytes32 ref, string data);
 
-    Dawnseekers internal game;
+    Downstream internal game;
     Dispatcher internal dispatcher;
     StateGraph internal state;
 
@@ -35,7 +35,7 @@ contract NamingRuleTest is Test {
         allowlist[0] = aliceAccount;
 
         // setup game
-        game = new Dawnseekers(allowlist);
+        game = new Downstream(allowlist);
         dispatcher = game.getDispatcher();
 
         // fetch the State to play with
@@ -46,8 +46,8 @@ contract NamingRuleTest is Test {
         // spawn a unit
         vm.startPrank(aliceAccount);
         sid++;
-        bytes24 entity = Node.Seeker(sid);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (entity)));
+        bytes24 entity = Node.MobileUnit(sid);
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (entity)));
 
         // rename the unit
         string memory name = "Jeff";
@@ -61,8 +61,8 @@ contract NamingRuleTest is Test {
         // alice spawns a unit
         vm.startPrank(aliceAccount);
         sid++;
-        bytes24 entity = Node.Seeker(sid);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (entity)));
+        bytes24 entity = Node.MobileUnit(sid);
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (entity)));
         vm.stopPrank();
 
         // bob tries to name it

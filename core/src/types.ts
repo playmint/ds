@@ -9,10 +9,10 @@ import {
     GetWorldQuery,
     OnEventSubscription,
     SelectedPlayerFragment,
-    SelectedSeekerFragment,
+    SelectedMobileUnitFragment,
     SelectedTileFragment,
     WorldPlayerFragment,
-    WorldSeekerFragment,
+    WorldMobileUnitFragment,
     WorldStateFragment,
     WorldTileFragment,
 } from './gql/graphql';
@@ -281,7 +281,7 @@ export interface PluginStateComponentContent {
     buttons?: PluginStateButton[];
 }
 
-export const PluginStateComponentTypes = ['building', 'tile', 'seeker', 'nav'];
+export const PluginStateComponentTypes = ['building', 'tile', 'mobileUnit', 'nav'];
 export type PluginStateComponentType = (typeof PluginStateComponentTypes)[number];
 
 export function isComponentType(maybeType: unknown): maybeType is PluginStateComponentType {
@@ -313,7 +313,7 @@ export interface PluginSelection {
 }
 
 export interface Selection {
-    seeker?: SelectedSeekerFragment;
+    mobileUnit?: SelectedMobileUnitFragment;
     tiles?: SelectedTileFragment[];
     intent?: string;
 }
@@ -324,7 +324,7 @@ export type World = WorldStateFragment;
 
 // shortcuts useful when you don't know if you have to full data or not
 export type Player = WorldPlayerFragment & Partial<SelectedPlayerFragment>;
-export type Seeker = WorldSeekerFragment & Partial<SelectedSeekerFragment>;
+export type MobileUnit = WorldMobileUnitFragment & Partial<SelectedMobileUnitFragment>;
 export type Tile = WorldTileFragment & Partial<SelectedTileFragment>;
 
 export interface GameState {
@@ -332,7 +332,7 @@ export interface GameState {
     world: World;
     selected: Selection;
     selectTiles: Selector<string[] | undefined>;
-    selectSeeker: Selector<string | undefined>;
+    selectMobileUnit: Selector<string | undefined>;
     selectIntent: Selector<string | undefined>;
 }
 

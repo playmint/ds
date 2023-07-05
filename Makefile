@@ -24,10 +24,10 @@ NPM := npm
 all: node_modules contracts/lib/cog/services/bin/ds-node contracts/out/Actions.sol/Actions.json core/dist/core.js frontend/public/ds-unity/Build/ds-unity.wasm bridge/dist/index.js
 
 map:
-	$(UNITY_EDITOR) -batchmode -quit -projectPath ./DawnSeekersUnity -executeMethod BuildScript.GitHubBuild -buildTarget WebGL -logFile - 
+	$(UNITY_EDITOR) -batchmode -quit -projectPath ./map -executeMethod BuildScript.GitHubBuild -buildTarget WebGL -logFile - 
 
 debugmap:
-	$(UNITY_EDITOR) -batchmode -quit -projectPath ./DawnSeekersUnity -executeMethod BuildScript.DevBuild -buildTarget WebGL -logFile - 
+	$(UNITY_EDITOR) -batchmode -quit -projectPath ./map -executeMethod BuildScript.DevBuild -buildTarget WebGL -logFile - 
 
 dev: all
 	$(NODE) .devstartup.js

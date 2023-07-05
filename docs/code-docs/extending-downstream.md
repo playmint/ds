@@ -46,7 +46,7 @@ Once you have **registered** a `BuildingKind` , any player can build an instance
 
 Once an instance of the building exists on the map, any player can select it, which triggers the **Javascript** **Interface** to display any text, images and buttons in the tile info panel.
 
-If a player has a Seeker next to the building, any buttons that trigger the **smart contract** will become active.
+If a player has a MobileUnit next to the building, any buttons that trigger the **smart contract** will become active.
 
 Pressing those buttons will result in the **Use** smart contract function being called.
 

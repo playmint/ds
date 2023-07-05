@@ -99,6 +99,6 @@ export function makeTiles(
 //                   ...t.building,
 //               }
 //             : null,
-//         seekers: t.seekers ? t.seekers.map((s) => ({ ...s, bags: [] })) : [],
+//         mobileUnits: t.mobileUnits ? t.mobileUnits.map((s) => ({ ...s, bags: [] })) : [],
 //     };
 // }

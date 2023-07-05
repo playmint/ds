@@ -14,7 +14,7 @@ import "@ds/rules/InventoryRule.sol";
 
 using Schema for State;
 
-uint32 constant TEST_SEEKER_ID = 1;
+uint32 constant TEST_MOBILE_UNIT_ID = 1;
 
 uint8 constant EQUIP_SLOT_0 = 0;
 uint8 constant EQUIP_SLOT_1 = 1;
@@ -56,24 +56,24 @@ contract InventoryRuleTest is Test {
         _discover(3, 0, -3);
     }
 
-    function testTransferItemSeekerBagToSeekerBag() public {
+    function testTransferItemMobileUnitBagToMobileUnitBag() public {
         vm.startPrank(aliceAccount);
-        bytes24 seeker = _spawnSeeker(1, 0, 0, 0);
+        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
         _testTransferItemBetweenEquipees(
-            seeker, // seeker perfoming the action
-            seeker, // location of from-bag
-            seeker // location to to-bag
+            mobileUnit, // mobileUnit perfoming the action
+            mobileUnit, // location of from-bag
+            mobileUnit // location to to-bag
         );
         vm.stopPrank();
     }
 
-    function testTransferItemSeekerBagToTileBag() public {
+    function testTransferItemMobileUnitBagToTileBag() public {
         vm.startPrank(aliceAccount);
-        bytes24 seeker = _spawnSeeker(1, 0, 0, 0);
+        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
         bytes24 tile = Node.Tile(DEFAULT_ZONE, 0, 0, 0);
         _testTransferItemBetweenEquipees(
-            seeker, // seeker perfoming the action
-            seeker, // location of from-bag
+            mobileUnit, // mobileUnit perfoming the action
+            mobileUnit, // location of from-bag
             tile // location to to-bag
         );
         vm.stopPrank();
@@ -81,25 +81,25 @@ contract InventoryRuleTest is Test {
 
     function testTransferItemTileBagToTileBag() public {
         vm.startPrank(aliceAccount);
-        bytes24 seeker = _spawnSeeker(1, 0, 0, 0);
+        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
         bytes24 tile = Node.Tile(DEFAULT_ZONE, 0, 0, 0);
         _testTransferItemBetweenEquipees(
-            seeker, // seeker perfoming the action
+            mobileUnit, // mobileUnit perfoming the action
             tile, // location of from-bag
             tile // location to to-bag
         );
         vm.stopPrank();
     }
 
-    function testTransferItemSeekerBagToBuildingBagNotAtOrigin() public {
+    function testTransferItemMobileUnitBagToBuildingBagNotAtOrigin() public {
         vm.startPrank(aliceAccount);
-        bytes24 seeker = _spawnSeeker(1, 2, 0, -2);
+        bytes24 mobileUnit = _spawnMobileUnit(1, 2, 0, -2);
         (int16 q, int16 r, int16 s) = (3, 0, -3);
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
         bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
         _testTransferItemBetweenEquipeesWithBag(
-            seeker, // seeker perfoming the action
-            seeker, // location of from-bag
+            mobileUnit, // mobileUnit perfoming the action
+            mobileUnit, // location of from-bag
             buildingInstance, // location to to-bag
             bag // building bag to create
         );
@@ -108,63 +108,63 @@ contract InventoryRuleTest is Test {
 
     function testTransferItemFailNotOwner() public {
         vm.startPrank(aliceAccount);
-        bytes24 seeker = _spawnSeeker(1, 0, 0, 0);
+        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
         vm.stopPrank();
 
-        vm.startPrank(bobAccount); // bob trying to use alice's seeker
+        vm.startPrank(bobAccount); // bob trying to use alice's mobileUnit
         _testTransferItemFailBetweenEquipees(
-            seeker, // seeker perfoming the action
-            seeker, // location of from-bag
-            seeker, // location to to-bag
-            "NoTransferPlayerNotOwner" // expect this error cos sender is not seeker owner
+            mobileUnit, // mobileUnit perfoming the action
+            mobileUnit, // location of from-bag
+            mobileUnit, // location to to-bag
+            "NoTransferPlayerNotOwner" // expect this error cos sender is not mobileUnit owner
         );
         vm.stopPrank();
     }
 
-    function testTransferItemFailNotSameLocationSeeker() public {
+    function testTransferItemFailNotSameLocationMobileUnit() public {
         vm.startPrank(aliceAccount);
-        bytes24 seeker1 = _spawnSeeker(1, 0, 0, 0);
+        bytes24 mobileUnit1 = _spawnMobileUnit(1, 0, 0, 0);
         vm.stopPrank();
         vm.startPrank(bobAccount);
-        bytes24 seeker2 = _spawnSeeker(2, 3, 0, -3);
+        bytes24 mobileUnit2 = _spawnMobileUnit(2, 3, 0, -3);
         vm.stopPrank();
 
         vm.startPrank(aliceAccount);
         _testTransferItemFailBetweenEquipees(
-            seeker1, // seeker perfoming the action
-            seeker1, // location of from-bag
-            seeker2, // location to to-bag
-            "NoTransferNotSameLocation" // expect this error cos seeker1 and seeker2 diff locations
+            mobileUnit1, // mobileUnit perfoming the action
+            mobileUnit1, // location of from-bag
+            mobileUnit2, // location to to-bag
+            "NoTransferNotSameLocation" // expect this error cos mobileUnit1 and mobileUnit2 diff locations
         );
         vm.stopPrank();
     }
 
     function testTransferItemFailNotSameLocationTile() public {
         vm.startPrank(aliceAccount);
-        bytes24 seeker1 = _spawnSeeker(1, 0, 0, 0);
+        bytes24 mobileUnit1 = _spawnMobileUnit(1, 0, 0, 0);
         bytes24 tile = Node.Tile(DEFAULT_ZONE, 3, 0, -3);
         _testTransferItemFailBetweenEquipees(
-            seeker1, // seeker perfoming the action
-            seeker1, // location of from-bag
+            mobileUnit1, // mobileUnit perfoming the action
+            mobileUnit1, // location of from-bag
             tile, // location to to-bag
-            "NoTransferNotSameLocation" // expect this error cos tile not same location as seeker
+            "NoTransferNotSameLocation" // expect this error cos tile not same location as mobileUnit
         );
         vm.stopPrank();
     }
 
     function testTransferItemFailNotYourBag() public {
         vm.startPrank(bobAccount);
-        bytes24 seekerStranger = _spawnSeeker(2, 0, 0, 0);
+        bytes24 mobileUnitStranger = _spawnMobileUnit(2, 0, 0, 0);
         vm.stopPrank();
         vm.startPrank(aliceAccount);
-        bytes24 seekerAlice = _spawnSeeker(1, 0, 0, 0);
+        bytes24 mobileUnitAlice = _spawnMobileUnit(1, 0, 0, 0);
         _spawnBagWithWood(
             1,
             address(1), // stranger's bag
-            seekerStranger,
+            mobileUnitStranger,
             EQUIP_SLOT_0
         );
-        _spawnBagEmpty(2, aliceAccount, seekerAlice, EQUIP_SLOT_1);
+        _spawnBagEmpty(2, aliceAccount, mobileUnitAlice, EQUIP_SLOT_1);
 
         uint8[2] memory equipSlots = [EQUIP_SLOT_0, EQUIP_SLOT_1];
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
@@ -172,8 +172,8 @@ contract InventoryRuleTest is Test {
         // as alice, try to steal from stranger's bag
         vm.expectRevert("NoTransferNotYourBag");
         _transferItem(
-            seekerAlice,
-            [seekerStranger, seekerAlice], // where are bags equipt
+            mobileUnitAlice,
+            [mobileUnitStranger, mobileUnitAlice], // where are bags equipt
             equipSlots, // which equipment slots
             itemSlots, // item slots
             0,
@@ -184,17 +184,17 @@ contract InventoryRuleTest is Test {
 
     function testTransferItemFailIncompatibleSlot() public {
         vm.startPrank(aliceAccount);
-        bytes24 seeker = _spawnSeeker(1, 0, 0, 0);
-        _spawnBagWithWood(1, aliceAccount, seeker, EQUIP_SLOT_0);
-        _spawnBagWithStone(2, aliceAccount, seeker, EQUIP_SLOT_1);
+        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
+        _spawnBagWithWood(1, aliceAccount, mobileUnit, EQUIP_SLOT_0);
+        _spawnBagWithStone(2, aliceAccount, mobileUnit, EQUIP_SLOT_1);
 
         uint8[2] memory equipSlots = [EQUIP_SLOT_0, EQUIP_SLOT_1];
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
         vm.expectRevert("NoTransferIncompatibleSlot"); // should fail cos can't stack wood on stone
         _transferItem(
-            seeker,
-            [seeker, seeker], // where are bags equipt
+            mobileUnit,
+            [mobileUnit, mobileUnit], // where are bags equipt
             equipSlots, // which equipment slots
             itemSlots, // item slots
             0,
@@ -205,17 +205,17 @@ contract InventoryRuleTest is Test {
 
     function testTransferItemFailSameSlot() public {
         vm.startPrank(aliceAccount);
-        bytes24 seeker = _spawnSeeker(1, 0, 0, 0);
-        _spawnBagWithWood(1, aliceAccount, seeker, EQUIP_SLOT_0);
-        _spawnBagWithStone(2, aliceAccount, seeker, EQUIP_SLOT_1);
+        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
+        _spawnBagWithWood(1, aliceAccount, mobileUnit, EQUIP_SLOT_0);
+        _spawnBagWithStone(2, aliceAccount, mobileUnit, EQUIP_SLOT_1);
 
         uint8[2] memory equipSlots = [EQUIP_SLOT_1, EQUIP_SLOT_1];
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
         vm.expectRevert("NoTransferSameSlot"); // should fail cos can't xfer to same slot
         _transferItem(
-            seeker,
-            [seeker, seeker], // where are bags equipt
+            mobileUnit,
+            [mobileUnit, mobileUnit], // where are bags equipt
             equipSlots, // which equipment slots
             itemSlots, // item slots
             0,
@@ -226,17 +226,17 @@ contract InventoryRuleTest is Test {
 
     function testTransferItemFailLowBalance() public {
         vm.startPrank(aliceAccount);
-        bytes24 seeker = _spawnSeeker(1, 0, 0, 0);
-        _spawnBagWithWood(1, aliceAccount, seeker, EQUIP_SLOT_0);
-        _spawnBagEmpty(2, aliceAccount, seeker, EQUIP_SLOT_1);
+        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
+        _spawnBagWithWood(1, aliceAccount, mobileUnit, EQUIP_SLOT_0);
+        _spawnBagEmpty(2, aliceAccount, mobileUnit, EQUIP_SLOT_1);
 
         uint8[2] memory equipSlots = [EQUIP_SLOT_0, EQUIP_SLOT_1];
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
         vm.expectRevert("NoTransferLowBalance"); // should fail cos we don't have 999 balance
         _transferItem(
-            seeker,
-            [seeker, seeker], // where are bags equipt
+            mobileUnit,
+            [mobileUnit, mobileUnit], // where are bags equipt
             equipSlots, // which equipment slots
             itemSlots, // item slots
             0,
@@ -246,12 +246,12 @@ contract InventoryRuleTest is Test {
     }
 
     function _testTransferItemFailBetweenEquipees(
-        bytes24 seeker,
+        bytes24 mobileUnit,
         bytes24 fromEquipee,
         bytes24 toEquipee,
         string memory expectedError
     ) private {
-        // equip two bags to seeker
+        // equip two bags to mobileUnit
         bytes24 fromBag = _spawnBagWithWood(1, aliceAccount, fromEquipee, EQUIP_SLOT_0);
         bytes24 toBag = _spawnBagEmpty(2, aliceAccount, toEquipee, EQUIP_SLOT_1);
         // confirm bag1 has 100 wood
@@ -260,11 +260,11 @@ contract InventoryRuleTest is Test {
         assertEq(
             fromResourceBefore,
             ItemUtils.GlassGreenGoo(),
-            "expected seeker1-equip0-bag-item0 (from) resource to be wood before xfer"
+            "expected mobileUnit1-equip0-bag-item0 (from) resource to be wood before xfer"
         );
-        assertEq(toResourceBefore, 0x0, "expected seeker1-equip1-bag-item0 (to) resource to be unset before xfer");
-        assertEq(fromBalanceBefore, 100, "expected seeker1-equip1-bag-item0 balance to be 100 before xfer");
-        assertEq(toBalanceBefore, 0, "expected seeker1-equip1-bag-item0 balance to be 0 before xfer");
+        assertEq(toResourceBefore, 0x0, "expected mobileUnit1-equip1-bag-item0 (to) resource to be unset before xfer");
+        assertEq(fromBalanceBefore, 100, "expected mobileUnit1-equip1-bag-item0 balance to be 100 before xfer");
+        assertEq(toBalanceBefore, 0, "expected mobileUnit1-equip1-bag-item0 balance to be 0 before xfer");
 
         uint8[2] memory equipSlots = [EQUIP_SLOT_0, EQUIP_SLOT_1];
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
@@ -272,7 +272,7 @@ contract InventoryRuleTest is Test {
         // perform xfer as alice
         vm.expectRevert(bytes(expectedError));
         _transferItem(
-            seeker,
+            mobileUnit,
             [fromEquipee, toEquipee], // where are bags equipt
             equipSlots, // which equipment slots
             itemSlots, // item slots
@@ -281,17 +281,17 @@ contract InventoryRuleTest is Test {
         );
     }
 
-    function _testTransferItemBetweenEquipees(bytes24 seeker, bytes24 fromEquipee, bytes24 toEquipee) private {
-        _testTransferItemBetweenEquipeesWithBag(seeker, fromEquipee, toEquipee, bytes24(0));
+    function _testTransferItemBetweenEquipees(bytes24 mobileUnit, bytes24 fromEquipee, bytes24 toEquipee) private {
+        _testTransferItemBetweenEquipeesWithBag(mobileUnit, fromEquipee, toEquipee, bytes24(0));
     }
 
     function _testTransferItemBetweenEquipeesWithBag(
-        bytes24 seeker,
+        bytes24 mobileUnit,
         bytes24 fromEquipee,
         bytes24 toEquipee,
         bytes24 bag
     ) private {
-        // equip two bags to seeker
+        // equip two bags to mobileUnit
         bytes24 fromBag = _spawnBagWithWood(1, aliceAccount, fromEquipee, EQUIP_SLOT_0);
         bytes24 toBag = _spawnBagEmpty(2, aliceAccount, toEquipee, EQUIP_SLOT_1);
         // confirm bag1 has 100 wood
@@ -300,18 +300,18 @@ contract InventoryRuleTest is Test {
         assertEq(
             fromResourceBefore,
             ItemUtils.GlassGreenGoo(),
-            "expected seeker1-equip0-bag-item0 (from) resource to be wood before xfer"
+            "expected mobileUnit1-equip0-bag-item0 (from) resource to be wood before xfer"
         );
-        assertEq(toResourceBefore, 0x0, "expected seeker1-equip1-bag-item0 (to) resource to be unset before xfer");
-        assertEq(fromBalanceBefore, 100, "expected seeker1-equip1-bag-item0 balance to be 100 before xfer");
-        assertEq(toBalanceBefore, 0, "expected seeker1-equip1-bag-item0 balance to be 0 before xfer");
+        assertEq(toResourceBefore, 0x0, "expected mobileUnit1-equip1-bag-item0 (to) resource to be unset before xfer");
+        assertEq(fromBalanceBefore, 100, "expected mobileUnit1-equip1-bag-item0 balance to be 100 before xfer");
+        assertEq(toBalanceBefore, 0, "expected mobileUnit1-equip1-bag-item0 balance to be 0 before xfer");
 
         uint8[2] memory equipSlots = [EQUIP_SLOT_0, EQUIP_SLOT_1];
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
         // perform xfer as alice
         _transferItem(
-            seeker,
+            mobileUnit,
             [fromEquipee, toEquipee], // where are bags equipt
             equipSlots, // which equipment slots
             itemSlots, // item slots
@@ -325,23 +325,23 @@ contract InventoryRuleTest is Test {
         assertEq(
             fromResourceAfter,
             ItemUtils.GlassGreenGoo(),
-            "expected seeker1-equip0-bag-item0 resource to be wood after xfer"
+            "expected mobileUnit1-equip0-bag-item0 resource to be wood after xfer"
         );
         assertEq(
             toResourceAfter,
             ItemUtils.GlassGreenGoo(),
-            "expected seeker1-equip1-bag-item0 resource to be wood after xfer"
+            "expected mobileUnit1-equip1-bag-item0 resource to be wood after xfer"
         );
-        assertEq(fromBalanceAfter, 50, "expected seeker1-equip1-bag-item0 balance to decrease to 50 after xfer");
-        assertEq(toBalanceAfter, 50, "expected seeker1-equip1-bag-item0 balance to increase to 50 after xfer");
+        assertEq(fromBalanceAfter, 50, "expected mobileUnit1-equip1-bag-item0 balance to decrease to 50 after xfer");
+        assertEq(toBalanceAfter, 50, "expected mobileUnit1-equip1-bag-item0 balance to increase to 50 after xfer");
     }
 
     function testTransferItemBetweenEquipeeAndMissingBag() public {
         vm.startPrank(aliceAccount);
-        bytes24 seeker = _spawnSeeker(1, 0, 0, 0);
-        bytes24 fromEquipee = seeker;
+        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
+        bytes24 fromEquipee = mobileUnit;
 
-        // equip two bags to seeker
+        // equip two bags to mobileUnit
         bytes24 fromBag = _spawnBagWithWood(1, aliceAccount, fromEquipee, EQUIP_SLOT_0);
 
         bytes24 buildingInstance = Node.Building(0, 0, 0, 0);
@@ -354,18 +354,18 @@ contract InventoryRuleTest is Test {
         assertEq(
             fromResourceBefore,
             ItemUtils.GlassGreenGoo(),
-            "expected seeker1-equip0-bag-item0 (from) resource to be wood before xfer"
+            "expected mobileUnit1-equip0-bag-item0 (from) resource to be wood before xfer"
         );
-        assertEq(toResourceBefore, 0x0, "expected seeker1-equip1-bag-item0 (to) resource to be unset before xfer");
-        assertEq(fromBalanceBefore, 100, "expected seeker1-equip1-bag-item0 balance to be 100 before xfer");
-        assertEq(toBalanceBefore, 0, "expected seeker1-equip1-bag-item0 balance to be 0 before xfer");
+        assertEq(toResourceBefore, 0x0, "expected mobileUnit1-equip1-bag-item0 (to) resource to be unset before xfer");
+        assertEq(fromBalanceBefore, 100, "expected mobileUnit1-equip1-bag-item0 balance to be 100 before xfer");
+        assertEq(toBalanceBefore, 0, "expected mobileUnit1-equip1-bag-item0 balance to be 0 before xfer");
 
         uint8[2] memory equipSlots = [EQUIP_SLOT_0, EQUIP_SLOT_1];
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
         // perform xfer as alice
         _transferItem(
-            seeker,
+            mobileUnit,
             [fromEquipee, toEquipee], // where are bags equipt
             equipSlots, // which equipment slots
             itemSlots, // item slots
@@ -380,19 +380,19 @@ contract InventoryRuleTest is Test {
         assertEq(
             fromResourceAfter,
             ItemUtils.GlassGreenGoo(),
-            "expected seeker1-equip0-bag-item0 resource to be wood after xfer"
+            "expected mobileUnit1-equip0-bag-item0 resource to be wood after xfer"
         );
         assertEq(
             toResourceAfter,
             ItemUtils.GlassGreenGoo(),
-            "expected seeker1-equip1-bag-item0 resource to be wood after xfer"
+            "expected mobileUnit1-equip1-bag-item0 resource to be wood after xfer"
         );
-        assertEq(fromBalanceAfter, 50, "expected seeker1-equip1-bag-item0 balance to decrease to 50 after xfer");
-        assertEq(toBalanceAfter, 50, "expected seeker1-equip1-bag-item0 balance to increase to 50 after xfer");
+        assertEq(fromBalanceAfter, 50, "expected mobileUnit1-equip1-bag-item0 balance to decrease to 50 after xfer");
+        assertEq(toBalanceAfter, 50, "expected mobileUnit1-equip1-bag-item0 balance to increase to 50 after xfer");
     }
 
     function _transferItem(
-        bytes24 seeker,
+        bytes24 mobileUnit,
         bytes24[2] memory equipees,
         uint8[2] memory equipSlots,
         uint8[2] memory itemSlots,
@@ -400,7 +400,7 @@ contract InventoryRuleTest is Test {
         uint64 qty
     ) private {
         dispatcher.dispatch(
-            abi.encodeCall(Actions.TRANSFER_ITEM_SEEKER, (seeker, equipees, equipSlots, itemSlots, bagID, qty))
+            abi.encodeCall(Actions.TRANSFER_ITEM_MOBILE_UNIT, (mobileUnit, equipees, equipSlots, itemSlots, bagID, qty))
         );
     }
 
@@ -447,11 +447,11 @@ contract InventoryRuleTest is Test {
         return Node.Bag(bagID);
     }
 
-    function _spawnSeeker(uint32 sid, int16 q, int16 r, int16 s) private returns (bytes24) {
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (Node.Seeker(sid))));
-        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_SEEKER, (sid, q, r, s)));
+    function _spawnMobileUnit(uint32 sid, int16 q, int16 r, int16 s) private returns (bytes24) {
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (Node.MobileUnit(sid))));
+        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (sid, q, r, s)));
         vm.roll(block.number + 100);
-        return Node.Seeker(sid);
+        return Node.MobileUnit(sid);
     }
 
     function _discover(int16 q, int16 r, int16 s) private {

@@ -4,7 +4,7 @@ import { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { ComponentProps } from '@app/types/component-props';
 import { Bag } from '@app/plugins/inventory/bag';
-import { EquipmentSlotFragment } from '@dawnseekers/core';
+import { EquipmentSlotFragment } from '@downstream/core';
 
 export interface InventoryProps extends ComponentProps {
     ownerId: string;

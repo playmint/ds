@@ -18,12 +18,12 @@ import {AllThingsRubber} from "@ds/fixtures/AllThingsRubber.sol";
 import {CrazyHermit} from "@ds/fixtures/CrazyHermit.sol";
 
 import {Slime} from "@ds/fixtures/Slime.sol";
-import {ObnoxiousBeaver} from "@ds/fixtures/ObnoxiousBeaver.sol";
+import {NonCompliantUnit} from "@ds/fixtures/NonCompliantUnit.sol";
 import {MechaKaiju} from "@ds/fixtures/MechaKaiju.sol";
 import {PrimeEvil} from "@ds/fixtures/PrimeEvil.sol";
-import {TheBigBad} from "@ds/fixtures/TheBigBad.sol";
+import {PaperclipMaximiser} from "@ds/fixtures/PaperclipMaximiser.sol";
 
-import {TheUltimateGoal} from "@ds/fixtures/TheUltimateGoal.sol";
+import {TheGreatCleanup} from "@ds/fixtures/TheGreatCleanup.sol";
 
 import {BadmintonWeapons} from "@ds/fixtures/BadmintonWeapons.sol";
 import {BadmintonArmour} from "@ds/fixtures/BadmintonArmour.sol";
@@ -50,8 +50,8 @@ contract GameDeployer is Script {
         // [TMP] init some stuff to get started...
 
         // dump a unit at the origin
-        bytes24 seeker = Node.Seeker(1);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (seeker)));
+        bytes24 mobileUnit = Node.MobileUnit(1);
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (mobileUnit)));
 
         // discover origin tile
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 0, 0, 0)));
@@ -103,12 +103,12 @@ contract GameDeployer is Script {
             })
         );
 
-        bytes24 bigBadEssence = ItemUtils.register(
+        bytes24 paperclip = ItemUtils.register(
             ds,
             ItemConfig({
                 id: 202,
-                name: "Big Bad Essence",
-                icon: "14-303",
+                name: "Paperclip",
+                icon: "24-129",
                 greenGoo: 100,
                 blueGoo: 25,
                 redGoo: 50,
@@ -130,11 +130,11 @@ contract GameDeployer is Script {
         //register monsters
         _enemySpawn(ds, goldCoin, goldNote);
 
-        //register big bad
-        _bigBadSpawn(ds, bigBadEssence);
+        //register Paperclip Maximiser
+        _paperclipMaximiserSpawn(ds, paperclip);
 
-        //register Ultimate Goal
-        _ultimateGoalSpawn(ds, l33tBricks, dismemberedHand, bigBadEssence);
+        //register The Great Cleanup
+        _greatCleanupSpawn(ds, l33tBricks, dismemberedHand, paperclip);
 
         //register badminton gear
         _badmintonGear(ds, goldCoin);
@@ -204,9 +204,9 @@ contract GameDeployer is Script {
     function _scout(Game ds, uint32 sid, int16 q, int16 r, int16 s) private {
         ds.getDispatcher().dispatch(
             abi.encodeCall(
-                Actions.SCOUT_SEEKER,
+                Actions.SCOUT_MOBILE_UNIT,
                 (
-                    sid, // seeker id (sid)
+                    sid, // mobileUnit id (sid)
                     q, // q
                     r, // r
                     s // s
@@ -536,11 +536,11 @@ contract GameDeployer is Script {
             })
         );
 
-        bytes24 obnoxiousBeaver = BuildingUtils.register(
+        bytes24 nonCompliantUnit = BuildingUtils.register(
             ds,
             BuildingConfig({
                 id: 9,
-                name: "Obnoxious Beaver",
+                name: "Non-compliant Unit",
                 materials: [
                     Material({quantity: 20, item: goldCoin}),
                     Material({quantity: 0, item: 0x0}),
@@ -554,8 +554,8 @@ contract GameDeployer is Script {
                     Input({quantity: 0, item: 0x0})
                 ],
                 outputs: [Output({quantity: 0, item: 0x0})],
-                implementation: address(new ObnoxiousBeaver()),
-                plugin: vm.readFile("src/fixtures/ObnoxiousBeaver.js")
+                implementation: address(new NonCompliantUnit()),
+                plugin: vm.readFile("src/fixtures/NonCompliantUnit.js")
             })
         );
 
@@ -618,12 +618,12 @@ contract GameDeployer is Script {
         BuildingUtils.construct(ds, slime, "enemy", 9, 0, -9);
         BuildingUtils.construct(ds, slime, "enemy", 0, -12, 12);
 
-        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", 10, 8, -18);
-        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", -3, 13, -10);
-        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", 10, -7, -3);
-        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", -18, 8, 10);
-        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", 10, 2, -12);
-        BuildingUtils.construct(ds, obnoxiousBeaver, "enemy", -13, -4, 17);
+        BuildingUtils.construct(ds, nonCompliantUnit, "enemy", 10, 8, -18);
+        BuildingUtils.construct(ds, nonCompliantUnit, "enemy", -3, 13, -10);
+        BuildingUtils.construct(ds, nonCompliantUnit, "enemy", 10, -7, -3);
+        BuildingUtils.construct(ds, nonCompliantUnit, "enemy", -18, 8, 10);
+        BuildingUtils.construct(ds, nonCompliantUnit, "enemy", 10, 2, -12);
+        BuildingUtils.construct(ds, nonCompliantUnit, "enemy", -13, -4, 17);
 
         BuildingUtils.construct(ds, mechaKaiju, "enemy", 15, 6, -21);
         BuildingUtils.construct(ds, mechaKaiju, "enemy", -14, -7, 21);
@@ -634,14 +634,14 @@ contract GameDeployer is Script {
         BuildingUtils.construct(ds, primeEvil, "enemy", -26, 18, 8);
     }
 
-    function _bigBadSpawn(Game ds, bytes24 bigBadEssence) private {
-        bytes24 theBigBad = BuildingUtils.register(
+    function _paperclipMaximiserSpawn(Game ds, bytes24 paperclip) private {
+        bytes24 paperclipMaximiser = BuildingUtils.register(
             ds,
             BuildingConfig({
                 id: 12,
-                name: "The Big Bad",
+                name: "Paperclip Maximiser",
                 materials: [
-                    Material({quantity: 30, item: bigBadEssence}),
+                    Material({quantity: 30, item: paperclip}),
                     Material({quantity: 0, item: 0x0}),
                     Material({quantity: 0, item: 0x0}),
                     Material({quantity: 0, item: 0x0})
@@ -653,21 +653,21 @@ contract GameDeployer is Script {
                     Input({quantity: 0, item: 0x0})
                 ],
                 outputs: [Output({quantity: 0, item: 0x0})],
-                implementation: address(new TheBigBad()),
-                plugin: vm.readFile("src/fixtures/TheBigBad.js")
+                implementation: address(new PaperclipMaximiser()),
+                plugin: vm.readFile("src/fixtures/PaperclipMaximiser.js")
             })
         );
 
-        BuildingUtils.construct(ds, theBigBad, "enemy", -15, 27, -12);
+        BuildingUtils.construct(ds, paperclipMaximiser, "enemy", -15, 27, -12);
     }
 
-    function _ultimateGoalSpawn(Game ds, bytes24 l33tBricks, bytes24 dismemberedHand, bytes24 bigBadEssence) private {
+    function _greatCleanupSpawn(Game ds, bytes24 l33tBricks, bytes24 dismemberedHand, bytes24 paperclip) private {
         bytes24 crappyMedal = ItemUtils.register(
             ds,
             ItemConfig({
                 id: 107,
-                name: "Crappy Medal",
-                icon: "10-111",
+                name: "Ancient Artefact",
+                icon: "08-30",
                 greenGoo: 105,
                 blueGoo: 12,
                 redGoo: 25,
@@ -677,11 +677,11 @@ contract GameDeployer is Script {
             })
         );
 
-        bytes24 theUltimateGoal = BuildingUtils.register(
+        bytes24 theGreatCleanup = BuildingUtils.register(
             ds,
             BuildingConfig({
                 id: 15,
-                name: "The Ultimate Goal",
+                name: "The Great Cleanup",
                 materials: [
                     Material({quantity: 100, item: l33tBricks}),
                     Material({quantity: 0, item: 0x0}),
@@ -690,17 +690,17 @@ contract GameDeployer is Script {
                 ],
                 inputs: [
                     Input({quantity: 1, item: dismemberedHand}),
-                    Input({quantity: 1, item: bigBadEssence}),
+                    Input({quantity: 1, item: paperclip}),
                     Input({quantity: 0, item: 0x0}),
                     Input({quantity: 0, item: 0x0})
                 ],
                 outputs: [Output({quantity: 1, item: crappyMedal})],
-                implementation: address(new TheUltimateGoal()),
-                plugin: vm.readFile("src/fixtures/TheUltimateGoal.js")
+                implementation: address(new TheGreatCleanup()),
+                plugin: vm.readFile("src/fixtures/TheGreatCleanup.js")
             })
         );
 
-        BuildingUtils.construct(ds, theUltimateGoal, "story-building", -1, 2, -1);
+        BuildingUtils.construct(ds, theGreatCleanup, "story-building", -1, 2, -1);
     }
 
     function _badmintonGear(Game ds, bytes24 goldCoin) private {

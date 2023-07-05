@@ -1,6 +1,6 @@
 {
-    "name": "@dawnseekers/core",
-    "description": "dawnseekers client library",
+    "name": "@downstream/core",
+    "description": "downstream client library",
     "version": "0.1.0",
     "author": "playmint",
     "source": "./src/index.ts",
@@ -24,7 +24,7 @@
     ],
     "keywords": [
         "ds",
-        "dawnseekers",
+        "downstream",
         "playmint",
         "typescript"
     ],

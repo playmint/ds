@@ -1,8 +1,8 @@
-import ds from 'dawnseekers';
+import ds from 'downstream';
 
 export default function update({ selected, world }) {
 
-    const { tiles, seeker } = selected || {};
+    const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
 
 
@@ -13,7 +13,7 @@ export default function update({ selected, world }) {
                 type: 'building',
                 id: 'prime-evil',
                 title: 'Prime Evil',
-                summary: "An invader from a totally different game. \n \"Welcome to Hell!\"",
+                summary: "An invader from a totally different game. \"Welcome to Hell!\"",
                 content: [
                     {
                         id: 'default',

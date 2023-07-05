@@ -20,7 +20,7 @@ import {
     makeLogger,
     makeSelection,
     makeWorld,
-} from "@dawnseekers/core";
+} from "@downstream/core";
 
 interface Message {
     msg: string;
@@ -39,8 +39,8 @@ interface SetIntentMessage extends Message {
     intent: string;
 }
 
-interface SetSeekerMessage extends Message {
-    seekerID: string;
+interface SetMobileUnitMessage extends Message {
+    mobileUnitID: string;
 }
 
 async function main(privKey: string, echoOn: boolean) {
@@ -57,8 +57,8 @@ async function main(privKey: string, echoOn: boolean) {
     const player = makeConnectedPlayer(client, wallet, logger);
     const world = makeWorld(client);
     const { selection, ...selectors } = makeSelection(client, world, player);
-    const { selectTiles, selectIntent, selectSeeker } = selectors;
-    const game = makeGameState(player, world, selection, selectTiles, selectSeeker, selectIntent);
+    const { selectTiles, selectIntent, selectMobileUnit } = selectors;
+    const game = makeGameState(player, world, selection, selectTiles, selectMobileUnit, selectIntent);
     const { stdout, stdin } = process;
 
     const { dispatch } = (await pipe(
@@ -93,9 +93,9 @@ async function main(privKey: string, echoOn: boolean) {
                 selectIntent(intent);
                 break;
             }
-            case 'selectSeeker': {
-                const { seekerID } = msgObj as SetSeekerMessage;
-                selectSeeker(seekerID);
+            case 'selectMobileUnit': {
+                const { mobileUnitID } = msgObj as SetMobileUnitMessage;
+                selectMobileUnit(mobileUnitID);
                 break;
             }
         }

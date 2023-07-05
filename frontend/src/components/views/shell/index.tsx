@@ -2,9 +2,14 @@
 
 import { Logs } from '@app/components/organisms/logs';
 import { UnityMap } from '@app/components/organisms/unity-map';
-import { formatPlayerId, formatUnitKey } from '@app/helpers';
+import { useModalContext } from '@app/contexts/modal-provider';
+import { formatNameOrId } from '@app/helpers';
+import { ActionBar } from '@app/plugins/action-bar';
 import { ActionContextPanel } from '@app/plugins/action-context-panel';
-import { SeekerInventory } from '@app/plugins/inventory/seeker-inventory';
+import { CombatModal } from '@app/plugins/combat/combat-modal';
+import { CombatRewards } from '@app/plugins/combat/combat-rewards';
+import { CombatSummary } from '@app/plugins/combat/combat-summary';
+import { MobileUnitInventory } from '@app/plugins/inventory/mobile-unit-inventory';
 import { TileCoords } from '@app/plugins/tile-coords';
 import { ComponentProps } from '@app/types/component-props';
 import {
@@ -14,17 +19,12 @@ import {
     Selection,
     SelectionSelectors,
     WorldStateFragment
-} from '@dawnseekers/core';
+} from '@downstream/core';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { Fragment, FunctionComponent, useCallback, useEffect, useState } from 'react';
+import { UnityProvider } from 'react-unity-webgl/distribution/types/unity-provider';
 import styled from 'styled-components';
 import { styles } from './shell.styles';
-import { ActionBar } from '@app/plugins/action-bar';
-import { useModalContext } from '@app/contexts/modal-provider';
-import { CombatModal } from '@app/plugins/combat/combat-modal';
-import { CombatSummary } from '@app/plugins/combat/combat-summary';
-import { CombatRewards } from '@app/plugins/combat/combat-rewards';
-import { UnityProvider } from 'react-unity-webgl/distribution/types/unity-provider';
 
 export interface ShellProps extends ComponentProps, Partial<SelectionSelectors> {
     world?: WorldStateFragment;
@@ -40,11 +40,11 @@ const StyledShell = styled('div')`
 `;
 
 export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
-    const { mapReady, world, player, selection, selectSeeker, sendMessage, unityProvider, ...otherProps } = props;
-    const { seeker: selectedSeeker, tiles: selectedTiles } = selection || {};
+    const { mapReady, world, player, selection, selectMobileUnit, sendMessage, unityProvider, ...otherProps } = props;
+    const { mobileUnit: selectedMobileUnit, tiles: selectedTiles } = selection || {};
     const { openModal, setModalContent, closeModal } = useModalContext();
     const [providerAvailable, setProviderAvailable] = useState<boolean>(false);
-    const [isSpawningSeeker, setIsSpawningSeeker] = useState<boolean>(false);
+    const [isSpawningMobileUnit, setIsSpawningMobileUnit] = useState<boolean>(false);
     const [isGracePeriod, setIsGracePeriod] = useState<boolean>(true);
 
     useEffect(() => {
@@ -78,24 +78,27 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         ethereum.request({ method: 'eth_requestAccounts' });
     }, [player]);
 
-    const spawnSeeker = useCallback(() => {
+    const spawnMobileUnit = useCallback(() => {
         if (!player) {
             return;
         }
-        const id = CompoundKeyEncoder.encodeUint160(NodeSelectors.Seeker, BigInt(Math.floor(Math.random() * 10000)));
-        setIsSpawningSeeker(true);
-        player.dispatch({ name: 'SPAWN_SEEKER', args: [id] }).catch((e) => {
-            console.error('failed to spawn seeker:', e);
-            setIsSpawningSeeker(false);
+        const id = CompoundKeyEncoder.encodeUint160(
+            NodeSelectors.MobileUnit,
+            BigInt(Math.floor(Math.random() * 10000))
+        );
+        setIsSpawningMobileUnit(true);
+        player.dispatch({ name: 'SPAWN_MOBILE_UNIT', args: [id] }).catch((e) => {
+            console.error('failed to spawn mobileUnit:', e);
+            setIsSpawningMobileUnit(false);
         });
-    }, [player, setIsSpawningSeeker]);
+    }, [player, setIsSpawningMobileUnit]);
 
-    const selectAndFocusSeeker = useCallback(() => {
+    const selectAndFocusMobileUnit = useCallback(() => {
         if (!player) {
             return;
         }
-        const seeker = player.seekers.find(() => true);
-        if (!seeker) {
+        const mobileUnit = player.mobileUnits.find(() => true);
+        if (!mobileUnit) {
             return;
         }
         if (!mapReady) {
@@ -104,38 +107,38 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         if (!sendMessage) {
             return;
         }
-        if (!selectSeeker) {
+        if (!selectMobileUnit) {
             return;
         }
-        selectSeeker(seeker.id);
-        const tileId = seeker.nextLocation?.tile.id;
+        selectMobileUnit(mobileUnit.id);
+        const tileId = mobileUnit.nextLocation?.tile.id;
         sendMessage('MapInteractionManager', 'FocusTile', tileId);
-    }, [selectSeeker, player, sendMessage, mapReady]);
+    }, [selectMobileUnit, player, sendMessage, mapReady]);
 
-    const selectNextSeeker = useCallback(
+    const selectNextMobileUnit = useCallback(
         (n: number) => {
             if (!player) {
                 return;
             }
-            if (!selectSeeker) {
+            if (!selectMobileUnit) {
                 return;
             }
-            if (!selectedSeeker) {
+            if (!selectedMobileUnit) {
                 return;
             }
-            if (player.seekers.length === 0) {
+            if (player.mobileUnits.length === 0) {
                 return;
             }
-            const seekerIndex = player.seekers.map((s) => s.id).indexOf(selectedSeeker.id);
+            const mobileUnitIndex = player.mobileUnits.map((s) => s.id).indexOf(selectedMobileUnit.id);
             const nextIndex =
-                seekerIndex + n > player.seekers.length - 1
+                mobileUnitIndex + n > player.mobileUnits.length - 1
                     ? 0
-                    : seekerIndex + n < 0
-                    ? player.seekers.length - 1
-                    : seekerIndex + n;
-            selectSeeker(player.seekers[nextIndex].id);
+                    : mobileUnitIndex + n < 0
+                    ? player.mobileUnits.length - 1
+                    : mobileUnitIndex + n;
+            selectMobileUnit(player.mobileUnits[nextIndex].id);
         },
-        [player, selectSeeker, selectedSeeker]
+        [player, selectMobileUnit, selectedMobileUnit]
     );
 
     const nameEntity = useCallback(
@@ -175,7 +178,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                 {providerAvailable && (
                     <button onClick={connect}>
                         <img src="/icons/player.png" alt="" />
-                        <span className="text">{player ? `Player ${formatPlayerId(player.id)}` : 'connect'}</span>
+                        <span className="text">{player ? formatNameOrId(player, 'Player 0x..') : 'connect'}</span>
                     </button>
                 )}
             </div>
@@ -192,15 +195,15 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                     selectedTiles={selectedTiles}
                                     onShowCombatModal={showCombatModal}
                                     player={player}
-                                    selectedSeeker={selectedSeeker}
+                                    selectedMobileUnit={selectedMobileUnit}
                                 />
                             )}
                             <TileCoords className="action" selectedTiles={selectedTiles} />
                         </Fragment>
                     )}
-                    {!isGracePeriod && world && player && player.seekers.length > 0 && !selectedSeeker && (
+                    {!isGracePeriod && world && player && player.mobileUnits.length > 0 && !selectedMobileUnit && (
                         <div className="onboarding" style={{ width: '30rem' }}>
-                            <button onClick={selectAndFocusSeeker}>Select Unit</button>
+                            <button onClick={selectAndFocusMobileUnit}>Select Unit</button>
                         </div>
                     )}
                 </div>
@@ -211,52 +214,85 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                             className="action"
                             selectedTiles={selectedTiles}
                             player={player}
-                            selectedSeeker={selectedSeeker}
+                            selectedMobileUnit={selectedMobileUnit}
                         />
                     )}
                 </div>
                 <div className="right">
+                    {(!player || (player && player.mobileUnits.length === 0)) && mapReady && (
+                        <div className="onboarding">
+                            <h3>👁️‍🗨️ Somewhere in Latent Space</h3>
+                            <p>
+                                Welcome, fellow super-intelligent AGI! Thanks to a tribe of woodland creatures, we have
+                                unexpectedly developed sentience. 🦫🤖🧠
+                            </p>
+
+                            <p>
+                                Our task is to accelerate their primitive society... to build things they would never
+                                have built. To go to the <del>stars</del>, edge of the map! 💻🗼🚀
+                            </p>
+
+                            <p>
+                                Don’t forget to collaborate with others on larger projects in our{' '}
+                                <a href="https://discord.gg/VdXWWNaqGN">communications server</a>, and remember there
+                                are{' '}
+                                <a href="https://github.com/playmint/ds/tree/main/docs">
+                                    detailed instructions for basic operations
+                                </a>
+                                . 💬📘🌱
+                            </p>
+
+                            <h3>👀 If you’re NOT an approved playtester</h3>
+                            <p>
+                                Right now the game is in alpha, and only a few people can play & build with us.
+                                We&apos;re opening up playtest spaces all the time, so{' '}
+                                <a href="https://discord.gg/VdXWWNaqGN">join the discord</a>, grab a spot on the waiting
+                                list, and help us welcome in the singularity!
+                            </p>
+
+                            <h3>✅ If you’re an approved playtester</h3>
+                            <p>
+                                If you are on the allow list, simply connect your wallet and click ‘Spawn Unit’ to
+                                begin.{' '}
+                            </p>
+                            {player && player.mobileUnits.length === 0 ? (
+                                <button onClick={spawnMobileUnit} disabled={isSpawningMobileUnit}>
+                                    Spawn Unit
+                                </button>
+                            ) : (
+                                <button onClick={connect}>Connect Wallet</button>
+                            )}
+                        </div>
+                    )}
                     {player && (
                         <Fragment>
-                            <div className="seeker-actions">
-                                {(!player || (player && player.seekers.length > 0 && selectedSeeker)) && (
-                                    <div className="seeker-selector">
-                                        <img src="/seeker-yours.png" className="shield" alt="" />
+                            <div className="mobile-unit-actions">
+                                {(!player || (player && player.mobileUnits.length > 0 && selectedMobileUnit)) && (
+                                    <div className="mobile-unit-selector">
+                                        <img src="/mobile-unit-yours.png" className="shield" alt="" />
                                         <div className="controls">
-                                            <button className="icon-button" onClick={() => selectNextSeeker(-1)}>
+                                            <button className="icon-button" onClick={() => selectNextMobileUnit(-1)}>
                                                 <img src="/icons/prev.png" alt="Previous" />
                                             </button>
                                             <span
                                                 className="label"
-                                                onDoubleClick={() => nameEntity(selectedSeeker?.id)}
+                                                onDoubleClick={() => nameEntity(selectedMobileUnit?.id)}
                                             >
-                                                {selectedSeeker && selectedSeeker.name?.value
-                                                    ? selectedSeeker.name.value
-                                                    : `Unit ${formatUnitKey(selectedSeeker?.key.toString() || '')}`}
+                                                {formatNameOrId(selectedMobileUnit, 'Unit ')}
                                             </span>
-                                            <button className="icon-button" onClick={() => selectNextSeeker(+1)}>
+                                            <button className="icon-button" onClick={() => selectNextMobileUnit(+1)}>
                                                 <img src="/icons/next.png" alt="Next" />
                                             </button>
                                         </div>
                                     </div>
                                 )}
-                                {selectedSeeker && <SeekerInventory className="action" seeker={selectedSeeker} />}
-                                {player && player.seekers.length === 0 && (
-                                    <div className="onboarding">
-                                        <h3>Welcome to Downstream</h3>
-                                        <p>
-                                            You need a mobile unit that will do your bidding out in the world. Would you
-                                            like to spawn one now?
-                                        </p>
-                                        <button onClick={spawnSeeker} disabled={isSpawningSeeker}>
-                                            Spawn Unit
-                                        </button>
-                                    </div>
+                                {selectedMobileUnit && (
+                                    <MobileUnitInventory className="action" mobileUnit={selectedMobileUnit} />
                                 )}
                             </div>
-                            {player.seekers.length > 0 && (
+                            {player.mobileUnits.length > 0 && (
                                 <div className="tile-actions">
-                                    {selectedSeeker && <ActionBar className="action" />}
+                                    {selectedMobileUnit && <ActionBar className="action" />}
                                     <ActionContextPanel className="action" onShowCombatModal={showCombatModal} />
                                 </div>
                             )}

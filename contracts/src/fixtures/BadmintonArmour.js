@@ -1,11 +1,11 @@
-import ds from 'dawnseekers';
+import ds from 'downstream';
 
 export default function update({ selected, world }) {
 
-    const { tiles, seeker } = selected || {};
+    const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
     const selectedBuilding = selectedTile?.building;
-    const selectedEngineer = seeker;
+    const selectedEngineer = mobileUnit;
 
     // fetch the expected inputs item kinds
     const requiredInputs = selectedBuilding?.kind?.inputs || [];
@@ -40,7 +40,7 @@ export default function update({ selected, world }) {
             },
         );
 
-        ds.log('One shuttlecock coming up!');
+        ds.log('One racket coming up!');
     };
 
     return {
@@ -50,7 +50,7 @@ export default function update({ selected, world }) {
                 type: 'building',
                 id: 'badminton-armour',
                 title: 'Badminton Armor',
-                summary: "We make amazing rackets! \n (Not the best option for fighting though...)",
+                summary: "We make amazing rackets! (Not the best option for fighting though...)",
                 content: [
                     {
                         id: 'default',

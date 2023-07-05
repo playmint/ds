@@ -1,7 +1,7 @@
 /** @format */
 
 import { ComponentProps } from '@app/types/component-props';
-import { useLogs, Log } from '@dawnseekers/core';
+import { useLogs, Log } from '@downstream/core';
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { styles } from './logs.styles';

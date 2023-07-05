@@ -5,7 +5,7 @@ import {
     BiomeKind,
     CogAction,
     ConnectedPlayer,
-    SelectedSeekerFragment,
+    SelectedMobileUnitFragment,
     SelectedTileFragment,
     Selector,
     useBuildingKinds,
@@ -15,14 +15,14 @@ import {
     useWorld,
     WorldBuildingFragment,
     BuildingKindFragment
-} from '@dawnseekers/core';
+} from '@downstream/core';
 import React, { Fragment, FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { getCoords, getTileDistance } from '@app/helpers/tile';
 import { BuildingInventory } from '@app/plugins/inventory/building-inventory';
 import { getBuildingEquipSlot, getBuildingId } from '@app/plugins/inventory/helpers';
-import { SeekerList } from '@app/plugins/seeker-list';
+import { MobileUnitList } from '@app/plugins/mobile-unit-list';
 import { TileInventory } from '@app/plugins/inventory/tile-inventory';
 import { Bag } from '@app/plugins/inventory/bag';
 import { styles } from './action-context-panel.styles';
@@ -86,7 +86,7 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({
 }) => {
     const { tiles: selectedTiles } = useSelection();
     const selectedTile = selectedTiles?.[0];
-    const tileSeekers = selectedTile?.seekers ?? [];
+    const tileMobileUnits = selectedTile?.mobileUnits ?? [];
     const ui = usePluginState();
     const kinds = useBuildingKinds();
     const component = (ui || [])
@@ -173,7 +173,9 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({
                     </button>
                 </TileAction>
             )}
-            {!showFull && tileSeekers.length > 0 && <SeekerList seekers={tileSeekers} player={player} />}
+            {!showFull && tileMobileUnits.length > 0 && (
+                <MobileUnitList mobileUnits={tileMobileUnits} player={player} />
+            )}
             {!showFull && selectedTile && <TileInventory tile={selectedTile} />}
         </StyledActionContextPanel>
     );
@@ -195,18 +197,18 @@ interface TileAvailableProps {
 const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player }) => {
     const { tiles: selectedTiles } = useSelection();
     const selectedTile = selectedTiles?.[0];
-    const tileSeekers = selectedTile?.seekers ?? [];
+    const tileMobileUnits = selectedTile?.mobileUnits ?? [];
 
-    if (tileSeekers.length === 0 && selectedTile?.bags.length == 0) {
+    if (tileMobileUnits.length === 0 && selectedTile?.bags.length == 0) {
         return null;
     }
 
     return (
         <StyledActionContextPanel className="action">
             <h3 style={{ marginBottom: '2rem' }}>Tile contents</h3>
-            {tileSeekers.length > 0 && (
+            {tileMobileUnits.length > 0 && (
                 <Fragment>
-                    <SeekerList seekers={tileSeekers} player={player} />
+                    <MobileUnitList mobileUnits={tileMobileUnits} player={player} />
                 </Fragment>
             )}
             {selectedTile && <TileInventory tile={selectedTile} />}
@@ -229,13 +231,13 @@ interface ConstructProps {
     selectIntent: Selector<string | undefined>;
     selectTiles: Selector<string[] | undefined>;
     player?: ConnectedPlayer;
-    seeker?: SelectedSeekerFragment;
+    mobileUnit?: SelectedMobileUnitFragment;
 }
-const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, seeker, player, selectIntent }) => {
+const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUnit, player, selectIntent }) => {
     const selectedTile = selectedTiles.find(() => true);
     const selectedTileIsAdjacent =
-        selectedTile && seeker?.nextLocation?.tile
-            ? getTileDistance(selectedTile, seeker.nextLocation.tile) === 1
+        selectedTile && mobileUnit?.nextLocation?.tile
+            ? getTileDistance(selectedTile, mobileUnit.nextLocation.tile) === 1
             : false;
     const constructableTile =
         !!selectedTile?.building ||
@@ -283,7 +285,7 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, seeker, p
         if (!player) {
             return;
         }
-        if (!seeker) {
+        if (!mobileUnit) {
             return;
         }
         if (!constructableTile) {
@@ -291,9 +293,9 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, seeker, p
         }
 
         player.dispatch({
-            name: 'CONSTRUCT_BUILDING_SEEKER',
+            name: 'CONSTRUCT_BUILDING_MOBILE_UNIT',
             args: [
-                seeker.id,
+                mobileUnit.id,
                 data.kind,
                 constructableTile.coords[1],
                 constructableTile.coords[2],
@@ -367,17 +369,17 @@ interface MoveProps {
     selectIntent: Selector<string | undefined>;
     selectTiles: Selector<string[] | undefined>;
     player?: ConnectedPlayer;
-    seeker?: SelectedSeekerFragment;
+    mobileUnit?: SelectedMobileUnitFragment;
 }
-const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selectedTiles, player, seeker }) => {
+const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selectedTiles, player, mobileUnit }) => {
     const moveableTiles = selectedTiles
         .filter((t) => t.biome === BiomeKind.DISCOVERED)
-        .filter((t, idx) => (idx === 0 ? t.id !== seeker?.nextLocation?.tile?.id : true)); // map include the start tile in selection, ignore it
+        .filter((t, idx) => (idx === 0 ? t.id !== mobileUnit?.nextLocation?.tile?.id : true)); // map include the start tile in selection, ignore it
     const move = () => {
         if (!player) {
             return;
         }
-        if (!seeker) {
+        if (!mobileUnit) {
             return;
         }
         if (moveableTiles.length < 1) {
@@ -386,8 +388,8 @@ const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selecte
         const actions = moveableTiles.map((tile): CogAction => {
             const [_zone, q, r, s] = tile.coords;
             return {
-                name: 'MOVE_SEEKER',
-                args: [seeker.key, q, r, s]
+                name: 'MOVE_MOBILE_UNIT',
+                args: [mobileUnit.key, q, r, s]
             };
         });
         actions.reduce(
@@ -401,7 +403,7 @@ const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selecte
             selectTiles([]);
         }
     };
-    const canMove = seeker && player && moveableTiles.length > 0;
+    const canMove = mobileUnit && player && moveableTiles.length > 0;
     const clearIntent = useCallback(
         (e?: React.MouseEvent) => {
             if (e) {
@@ -440,7 +442,7 @@ interface CombatProps {
     selectIntent: Selector<string | undefined>;
     selectTiles: Selector<string[] | undefined>;
     player?: ConnectedPlayer;
-    seeker?: SelectedSeekerFragment;
+    mobileUnit?: SelectedMobileUnitFragment;
     onShowCombatModal?: (isNewSession: boolean) => void;
 }
 const Combat: FunctionComponent<CombatProps> = ({
@@ -449,7 +451,7 @@ const Combat: FunctionComponent<CombatProps> = ({
     selectIntent,
     selectedTiles,
     player,
-    seeker
+    mobileUnit
 }) => {
     const combatTiles = selectedTiles
         .filter((t) => t.biome === BiomeKind.DISCOVERED)
@@ -459,7 +461,7 @@ const Combat: FunctionComponent<CombatProps> = ({
         });
 
     const canAttack =
-        seeker &&
+        mobileUnit &&
         player &&
         combatTiles.length > 1 &&
         combatTiles[1].building &&
@@ -503,22 +505,22 @@ interface ScoutProps {
     selectIntent: Selector<string | undefined>;
     selectTiles: Selector<string[] | undefined>;
     player?: ConnectedPlayer;
-    seeker?: SelectedSeekerFragment;
+    mobileUnit?: SelectedMobileUnitFragment;
 }
-const Scout: FunctionComponent<ScoutProps> = ({ selectTiles, selectIntent, selectedTiles, player, seeker }) => {
+const Scout: FunctionComponent<ScoutProps> = ({ selectTiles, selectIntent, selectedTiles, player, mobileUnit }) => {
     const scoutableTiles = selectedTiles.filter((t) => t.biome === BiomeKind.UNDISCOVERED);
     const scout = () => {
         if (!player) {
             return;
         }
-        if (!seeker) {
+        if (!mobileUnit) {
             return;
         }
         const actions = scoutableTiles.map((tile): CogAction => {
             const [_zone, q, r, s] = tile.coords;
             return {
-                name: 'SCOUT_SEEKER',
-                args: [seeker.key, q, r, s]
+                name: 'SCOUT_MOBILE_UNIT',
+                args: [mobileUnit.key, q, r, s]
             };
         });
         player.dispatch(...actions);
@@ -539,7 +541,7 @@ const Scout: FunctionComponent<ScoutProps> = ({ selectTiles, selectIntent, selec
         },
         [selectIntent, selectTiles]
     );
-    const canScout = seeker && player && scoutableTiles.length > 0;
+    const canScout = mobileUnit && player && scoutableTiles.length > 0;
     const note = canScout ? 'Click scout to reveal selected tiles' : 'Select tiles you want to reveal';
     return (
         <StyledActionContextPanel className="action">
@@ -592,7 +594,7 @@ const Use: FunctionComponent<UseProps> = ({ selectIntent, selectTiles }) => {
 };
 
 export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({ onShowCombatModal }) => {
-    const { selectIntent, intent, tiles, seeker, selectTiles } = useSelection();
+    const { selectIntent, intent, tiles, mobileUnit, selectTiles } = useSelection();
     const player = usePlayer();
 
     const selectedTiles = tiles || [];
@@ -603,7 +605,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({
                 selectIntent={selectIntent}
                 selectedTiles={selectedTiles}
                 selectTiles={selectTiles}
-                seeker={seeker}
+                mobileUnit={mobileUnit}
                 player={player}
             />
         );
@@ -613,7 +615,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({
                 selectIntent={selectIntent}
                 selectedTiles={selectedTiles}
                 selectTiles={selectTiles}
-                seeker={seeker}
+                mobileUnit={mobileUnit}
                 player={player}
             />
         );
@@ -623,7 +625,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({
                 selectIntent={selectIntent}
                 selectedTiles={selectedTiles}
                 selectTiles={selectTiles}
-                seeker={seeker}
+                mobileUnit={mobileUnit}
                 player={player}
             />
         );
@@ -647,7 +649,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({
                 selectIntent={selectIntent}
                 selectedTiles={selectedTiles}
                 selectTiles={selectTiles}
-                seeker={seeker}
+                mobileUnit={mobileUnit}
                 player={player}
                 onShowCombatModal={onShowCombatModal}
             />

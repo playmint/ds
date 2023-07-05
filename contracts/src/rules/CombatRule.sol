@@ -29,7 +29,7 @@ using Schema for State;
 uint32 constant UNIT_BASE_LIFE = 50;
 uint32 constant UNIT_BASE_DEFENCE = 23;
 uint32 constant UNIT_BASE_ATTACK = 30;
-uint32 constant UNIT_LIFE_MUL = 10;
+uint32 constant LIFE_MUL = 10;
 
 uint64 constant BLOCKS_PER_TICK = 1;
 uint8 constant MAX_ENTITIES_PER_SIDE = 100; // No higher than 256 due to there being a reward bag for each entity and edges being 8 bit indices
@@ -53,7 +53,7 @@ contract CombatRule is Rule {
 
     struct CombatAction {
         CombatActionKind kind;
-        bytes24 entityID; // Can be seeker or building
+        bytes24 entityID; // Can be mobileUnit or building
         uint64 blockNum;
         bytes data;
     }
@@ -101,89 +101,90 @@ contract CombatRule is Rule {
     event SessionUpdate(uint64 indexed sessionID, bytes combatActions);
 
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
-        if (bytes4(action) == Actions.SPAWN_SEEKER.selector) {
+        if (bytes4(action) == Actions.SPAWN_MOBILE_UNIT.selector) {
             // decode action
-            (bytes24 seeker) = abi.decode(action[4:], (bytes24));
+            (bytes24 mobileUnit) = abi.decode(action[4:], (bytes24));
 
             {
                 // If destination has active session then join
                 (bytes24 nextTileID, uint64 arrivalBlockNum) =
-                    state.get(Rel.Location.selector, uint8(LocationKey.NEXT), seeker);
+                    state.get(Rel.Location.selector, uint8(LocationKey.NEXT), mobileUnit);
                 bytes24 sessionID = _getActiveSession(state, nextTileID, ctx);
                 if (sessionID != 0) {
-                    _joinSession(state, sessionID, nextTileID, arrivalBlockNum, seeker);
+                    _joinSession(state, sessionID, nextTileID, arrivalBlockNum, mobileUnit);
                 }
             }
         }
 
-        if (bytes4(action) == Actions.MOVE_SEEKER.selector) {
+        if (bytes4(action) == Actions.MOVE_MOBILE_UNIT.selector) {
             // NOTE: The MovementRule will revert if the following are true:
-            //       The sender doesn't own the seeker
+            //       The sender doesn't own the mobileUnit
             //       The destination tile is undiscoved
             //       The tile isn't a direct 6-axis line
 
             // decode the action
             (uint32 sid, /*int16 q*/, /*int16 r*/, /*int16 s*/ ) = abi.decode(action[4:], (uint32, int16, int16, int16));
 
-            // encode the full seeker node id
-            bytes24 seeker = Node.Seeker(sid);
+            // encode the full mobileUnit node id
+            bytes24 mobileUnit = Node.MobileUnit(sid);
 
             {
                 // If prev tile has an active session then leave
                 (bytes24 prevTileID, /*uint64 arrivalBlockNum*/ ) =
-                    state.get(Rel.Location.selector, uint8(LocationKey.PREV), seeker);
+                    state.get(Rel.Location.selector, uint8(LocationKey.PREV), mobileUnit);
                 bytes24 sessionID = _getActiveSession(state, prevTileID, ctx);
                 if (sessionID != 0) {
-                    _leaveSession(state, sessionID, prevTileID, seeker, ctx);
+                    _leaveSession(state, sessionID, prevTileID, mobileUnit, ctx);
                 }
             }
 
             {
                 // If destination has active session then join
                 (bytes24 nextTileID, uint64 arrivalBlockNum) =
-                    state.get(Rel.Location.selector, uint8(LocationKey.NEXT), seeker);
+                    state.get(Rel.Location.selector, uint8(LocationKey.NEXT), mobileUnit);
                 bytes24 sessionID = _getActiveSession(state, nextTileID, ctx);
                 if (sessionID != 0) {
-                    _joinSession(state, sessionID, nextTileID, arrivalBlockNum, seeker);
+                    _joinSession(state, sessionID, nextTileID, arrivalBlockNum, mobileUnit);
                 }
             }
         }
 
         if (bytes4(action) == Actions.START_COMBAT.selector) {
-            // Decode the action - START_COMBAT(bytes24 seekerID, bytes24 tileID) external;
-            (bytes24 seekerID, bytes24 targetTileID, bytes24[] memory attackers, bytes24[] memory defenders) =
+            // Decode the action - START_COMBAT(bytes24 mobileUnitID, bytes24 tileID) external;
+            (bytes24 mobileUnitID, bytes24 targetTileID, bytes24[] memory attackers, bytes24[] memory defenders) =
                 abi.decode(action[4:], (bytes24, bytes24, bytes24[], bytes24[]));
 
-            // Is the seeker owned by the player that dispatched this action?
-            _requirePlayerOwnedSeeker(state, seekerID, Node.Player(ctx.sender));
+            // Is the mobileUnit owned by the player that dispatched this action?
+            _requirePlayerOwnedMobileUnit(state, mobileUnitID, Node.Player(ctx.sender));
 
             // Get the current location
-            (bytes24 seekerTile) = state.getCurrentLocation(seekerID, ctx.clock);
+            (bytes24 mobileUnitTile) = state.getCurrentLocation(mobileUnitID, ctx.clock);
 
-            // Revert if the current location doesn't match their seeker destination (cannot start a battle whilst moving)
-            if (state.getNextLocation(seekerID) != seekerTile) revert("SeekerNotAtDestination");
+            // Revert if the current location doesn't match their mobileUnit destination (cannot start a battle whilst moving)
+            if (state.getNextLocation(mobileUnitID) != mobileUnitTile) revert("MobileUnitNotAtDestination");
 
-            // Check that the seeker tile (attack) and target tile (defend) are adjacent
-            if (TileUtils.distance(seekerTile, targetTileID) != 1) {
+            // Check that the mobileUnit tile (attack) and target tile (defend) are adjacent
+            if (TileUtils.distance(mobileUnitTile, targetTileID) != 1) {
                 revert("CombatNotAdjacent");
             }
 
             // Revert if either of the tiles have an active combat session
-            if (_getActiveSession(state, seekerTile, ctx) != 0) revert("CombatSessionAlreadyActive");
+            if (_getActiveSession(state, mobileUnitTile, ctx) != 0) revert("CombatSessionAlreadyActive");
             if (_getActiveSession(state, targetTileID, ctx) != 0) revert("CombatSessionAlreadyActive");
 
-            _startSession(state, seekerTile, targetTileID, attackers, defenders, ctx);
+            _startSession(state, mobileUnitTile, targetTileID, attackers, defenders, ctx);
         }
 
-        if (bytes4(action) == Actions.TRANSFER_ITEM_SEEKER.selector) {
+        if (bytes4(action) == Actions.TRANSFER_ITEM_MOBILE_UNIT.selector) {
             // decode the action
-            (bytes24 seeker,,,,,) = abi.decode(action[4:], (bytes24, bytes24[2], uint8[2], uint8[2], bytes24, uint64));
+            (bytes24 mobileUnit,,,,,) =
+                abi.decode(action[4:], (bytes24, bytes24[2], uint8[2], uint8[2], bytes24, uint64));
 
             (bytes24 nextTileID, uint64 arrivalBlockNum) =
-                state.get(Rel.Location.selector, uint8(LocationKey.NEXT), seeker);
+                state.get(Rel.Location.selector, uint8(LocationKey.NEXT), mobileUnit);
             bytes24 sessionID = _getActiveSession(state, nextTileID, ctx);
             if (sessionID != 0) {
-                _equip(state, sessionID, nextTileID, arrivalBlockNum, seeker, ctx);
+                _equip(state, sessionID, nextTileID, arrivalBlockNum, mobileUnit, ctx);
             }
         }
 
@@ -206,24 +207,24 @@ contract CombatRule is Rule {
     function _equip(
         State state,
         bytes24 sessionID,
-        bytes24 seekerTileID,
+        bytes24 mobileUnitTileID,
         uint64 arrivalBlockNum,
-        bytes24 seekerID,
+        bytes24 mobileUnitID,
         Context calldata ctx
     ) private {
         (bytes24 attackTileID, /*uint64 combatStartBlock*/ ) =
             state.get(Rel.Has.selector, uint8(CombatSideKey.ATTACK), sessionID);
 
         EquipActionInfo memory info = EquipActionInfo({
-            combatSide: attackTileID == seekerTileID ? CombatSideKey.ATTACK : CombatSideKey.DEFENCE,
-            stats: _getStatsForEntity(state, seekerID)
+            combatSide: attackTileID == mobileUnitTileID ? CombatSideKey.ATTACK : CombatSideKey.DEFENCE,
+            stats: _getStatsForEntity(state, mobileUnitID)
         });
 
         // NOTE: Held in an array to keep it the same as the encoding used when starting combat
         CombatAction[] memory combatActions = new CombatAction[](1);
         combatActions[0] = CombatAction(
             CombatActionKind.EQUIP,
-            seekerID,
+            mobileUnitID,
             arrivalBlockNum > ctx.clock ? arrivalBlockNum : ctx.clock,
             abi.encode(info)
         );
@@ -247,7 +248,7 @@ contract CombatRule is Rule {
         }
 
         if (bytes4(buildingState.entityID) == Kind.Building.selector) {
-            // Spawn bags with winnings for each of the seekers
+            // Spawn bags with winnings for each of the mobileUnits
             // FIXME: If there is any way of making this less gassy? stack to deep to cache totalDamageInflicted and the building's materials!
             for (uint8 i; i < MAX_ENTITIES_PER_SIDE; i++) {
                 if (!winnerStates[i].isPresent) continue;
@@ -269,7 +270,7 @@ contract CombatRule is Rule {
                 }
             }
 
-            // TODO: If the building has a bag, then transfer to the seeker with the most damage inflicted
+            // TODO: If the building has a bag, then transfer to the mobileUnit with the most damage inflicted
 
             // Destroy the building
             // TODO: Maybe the building rule should be doing this so all building construction/destruction logic is in the same place
@@ -619,7 +620,7 @@ contract CombatRule is Rule {
                 uint64 arrivalBlockNum;
                 bytes24 entityTileID;
 
-                if (bytes4(attackers[i]) == Kind.Seeker.selector) {
+                if (bytes4(attackers[i]) == Kind.MobileUnit.selector) {
                     (entityTileID, arrivalBlockNum) =
                         state.get(Rel.Location.selector, uint8(LocationKey.NEXT), attackers[i]);
 
@@ -644,7 +645,7 @@ contract CombatRule is Rule {
                 uint64 arrivalBlockNum;
                 bytes24 entityTileID;
 
-                if (bytes4(defenders[i]) == Kind.Seeker.selector) {
+                if (bytes4(defenders[i]) == Kind.MobileUnit.selector) {
                     (entityTileID, arrivalBlockNum) =
                         state.get(Rel.Location.selector, uint8(LocationKey.NEXT), defenders[i]);
                     if (entityTileID != defTileID) revert("EntityNotAtDefenceTile");
@@ -665,15 +666,15 @@ contract CombatRule is Rule {
         _emitSessionUpdate(state, Node.CombatSession(sessionID), sessionActions);
     }
 
-    // NOTE: Using the term entity as it can be either a Seeker or a Building
+    // NOTE: Using the term entity as it can be either a MobileUnit or a Building
     // TODO: A more scalable way of encoding could be a byte array encoded AtomKind,Amount,AtomKind,Amount
     //       Or maybe just an array of Schema.AtomCount
     function _getStatsForEntity(State state, bytes24 entityID) private view returns (uint32[3] memory) {
         uint32[3] memory stats;
 
-        if (bytes4(entityID) == Kind.Seeker.selector) {
-            // Made up base stats for seeker
-            stats[GOO_GREEN] = UNIT_BASE_LIFE * UNIT_LIFE_MUL;
+        if (bytes4(entityID) == Kind.MobileUnit.selector) {
+            // Made up base stats for mobileUnit
+            stats[GOO_GREEN] = UNIT_BASE_LIFE * LIFE_MUL;
             stats[GOO_BLUE] = UNIT_BASE_DEFENCE;
             stats[GOO_RED] = UNIT_BASE_ATTACK;
 
@@ -687,7 +688,7 @@ contract CombatRule is Rule {
                         (uint32[3] memory inputAtoms, bool isStackable) = state.getItemStructure(item);
                         if (!isStackable && balance > 0) {
                             for (uint8 k = 0; k < 3; k++) {
-                                stats[k] += inputAtoms[k] * (k == GOO_GREEN ? UNIT_LIFE_MUL : 1);
+                                stats[k] += inputAtoms[k] * (k == GOO_GREEN ? LIFE_MUL : 1);
                             }
                         }
                     }
@@ -698,7 +699,7 @@ contract CombatRule is Rule {
                 (bytes24 item, uint64 qty) = state.getMaterial(state.getBuildingKind(entityID), i);
                 (uint32[3] memory inputAtoms, /*bool isStackable*/ ) = state.getItemStructure(item);
                 for (uint8 j = 0; j < 3; j++) {
-                    stats[j] += inputAtoms[j] * uint32(qty);
+                    stats[j] += inputAtoms[j] * uint32(qty) * (j == GOO_GREEN ? LIFE_MUL : 1);
                 }
             }
         }
@@ -709,37 +710,42 @@ contract CombatRule is Rule {
     function _joinSession(
         State state,
         bytes24 sessionID,
-        bytes24 seekerTileID,
+        bytes24 mobileUnitTileID,
         uint64 arrivalBlockNum,
-        bytes24 seekerID
+        bytes24 mobileUnitID
     ) private {
         (bytes24 attackTileID, /*uint64 combatStartBlock*/ ) =
             state.get(Rel.Has.selector, uint8(CombatSideKey.ATTACK), sessionID);
 
         JoinActionInfo memory info = JoinActionInfo({
-            combatSide: attackTileID == seekerTileID ? CombatSideKey.ATTACK : CombatSideKey.DEFENCE,
-            stats: _getStatsForEntity(state, seekerID)
+            combatSide: attackTileID == mobileUnitTileID ? CombatSideKey.ATTACK : CombatSideKey.DEFENCE,
+            stats: _getStatsForEntity(state, mobileUnitID)
         });
 
         // NOTE: Held in an array to keep it the same as the encoding used when starting combat
         CombatAction[] memory combatActions = new CombatAction[](1);
-        combatActions[0] = CombatAction(CombatActionKind.JOIN, seekerID, arrivalBlockNum, abi.encode(info));
+        combatActions[0] = CombatAction(CombatActionKind.JOIN, mobileUnitID, arrivalBlockNum, abi.encode(info));
 
         _emitSessionUpdate(state, sessionID, combatActions);
     }
 
-    function _leaveSession(State state, bytes24 sessionID, bytes24 seekerTileID, bytes24 seekerID, Context calldata ctx)
-        private
-    {
+    function _leaveSession(
+        State state,
+        bytes24 sessionID,
+        bytes24 mobileUnitTileID,
+        bytes24 mobileUnitID,
+        Context calldata ctx
+    ) private {
         (bytes24 attackTileID, /*uint64 combatStartBlock*/ ) =
             state.get(Rel.Has.selector, uint8(CombatSideKey.ATTACK), sessionID);
 
-        LeaveActionInfo memory info =
-            LeaveActionInfo({combatSide: attackTileID == seekerTileID ? CombatSideKey.ATTACK : CombatSideKey.DEFENCE});
+        LeaveActionInfo memory info = LeaveActionInfo({
+            combatSide: attackTileID == mobileUnitTileID ? CombatSideKey.ATTACK : CombatSideKey.DEFENCE
+        });
 
         // NOTE: Held in an array to keep it the same encoding as used when starting combat
         CombatAction[] memory combatActions = new CombatAction[](1);
-        combatActions[0] = CombatAction(CombatActionKind.LEAVE, seekerID, ctx.clock, abi.encode(info));
+        combatActions[0] = CombatAction(CombatActionKind.LEAVE, mobileUnitID, ctx.clock, abi.encode(info));
 
         _emitSessionUpdate(state, sessionID, combatActions);
     }
@@ -755,9 +761,9 @@ contract CombatRule is Rule {
         return newHash;
     }
 
-    function _requirePlayerOwnedSeeker(State state, bytes24 seeker, bytes24 player) private view {
-        if (state.getOwner(seeker) != player) {
-            revert("SeekerNotOwnedByPlayer");
+    function _requirePlayerOwnedMobileUnit(State state, bytes24 mobileUnit, bytes24 player) private view {
+        if (state.getOwner(mobileUnit) != player) {
+            revert("MobileUnitNotOwnedByPlayer");
         }
     }
 

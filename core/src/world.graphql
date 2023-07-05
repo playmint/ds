@@ -8,7 +8,7 @@ fragment Location on Edge {
     }
 }
 
-fragment WorldSeeker on Node {
+fragment WorldMobileUnit on Node {
     id
     key
     # there are always two location edges
@@ -19,14 +19,14 @@ fragment WorldSeeker on Node {
         ...Location
     }
     # the "destination" is the edge with key=1
-    #     this points to the where the seeker is heading.
+    #     this points to the where the mobileUnit is heading.
     #     the weight of the destination edge is the time of arrival
     #     if the current block time >= arrival time then this is the CURRENT LOCATION
     #     but if not, you need to use the departure edge time to work out where we are
     nextLocation: edge(match: { kinds: "Tile", via: { rel: "Location", key: 1 } }) {
         ...Location
     }
-    # who owns this seeker
+    # who owns this mobileUnit
     owner: node(match: { kinds: "Player", via: { rel: "Owner" } }) {
         id
     }
@@ -43,6 +43,9 @@ fragment WorldBuilding on Node {
     }
     bags: edges(match: { kinds: "Bag", via: { rel: "Equip" } }) {
         ...EquipmentSlot
+    }
+    owner: node(match: { kinds: "Player", via: { rel: "Owner" } }) {
+        id
     }
 }
 
@@ -95,8 +98,8 @@ fragment WorldTile on Node {
     building: node(match: { kinds: "Building", via: { rel: "Location", dir: IN } }) {
         ...WorldBuilding
     }
-    seekers: nodes(match: { kinds: "Seeker", via: { rel: "Location", dir: IN, key: 1 } }) {
-        ...WorldSeeker
+    mobileUnits: nodes(match: { kinds: "MobileUnit", via: { rel: "Location", dir: IN, key: 1 } }) {
+        ...WorldMobileUnit
     }
     sessions: nodes(match: { kinds: "CombatSession", via: { rel: "Has", dir: IN } }) {
         ...WorldCombatSession

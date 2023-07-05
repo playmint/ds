@@ -117,8 +117,8 @@ const baseStyles = (_: Partial<ShellProps>) => css`
         }
     }
 
-    .seeker-actions {
-        .seeker-selector {
+    .mobile-unit-actions {
+        .mobile-unit-selector {
             display: flex;
             justify-content: flex-end;
             align-items: center;
@@ -146,7 +146,7 @@ const baseStyles = (_: Partial<ShellProps>) => css`
     }
 
     .tile-actions,
-    .seeker-actions {
+    .mobile-unit-actions {
         position: relative;
         width: 30rem;
         color: #fff;
@@ -174,6 +174,13 @@ const baseStyles = (_: Partial<ShellProps>) => css`
     .onboarding {
         background: #143063;
         padding: 2rem 2rem;
+        width: 50rem;
+        color: #fff;
+        user-select: none;
+        opacity: 0.95;
+        a {
+            color: #fff;
+        }
 
         > button {
             border-radius: 30px;
@@ -193,6 +200,7 @@ const baseStyles = (_: Partial<ShellProps>) => css`
         }
         > p {
             margin: 2rem 0;
+            font-size: 2rem;
         }
     }
 `;

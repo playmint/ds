@@ -35,7 +35,7 @@ using Schema for StateGraph;
 // so all we need to do here is call registerRule()
 // -----------------------------------------------
 
-contract DawnseekersRouter is SessionRouter {
+contract DownstreamRouter is SessionRouter {
     function getAuthMessage(uint32 ttl, uint32, /*scopes*/ address sessionAddr)
         internal
         pure
@@ -59,13 +59,15 @@ contract DawnseekersRouter is SessionRouter {
 }
 
 contract Game is BaseGame {
-    constructor(address[] memory allowlist) BaseGame("DAWNSEEKERS", "http://dawnseekers.com/") {
+    NewPlayerRule playerRule;
+
+    constructor(address[] memory allowlist) BaseGame("DOWNSTREAM", "http://downstream.game/") {
         // create a state
         StateGraph state = new StateGraph();
 
         // register the kind ids we are using
         state.registerNodeType(Kind.Player.selector, "Player", CompoundKeyKind.ADDRESS);
-        state.registerNodeType(Kind.Seeker.selector, "Seeker", CompoundKeyKind.UINT160);
+        state.registerNodeType(Kind.MobileUnit.selector, "MobileUnit", CompoundKeyKind.UINT160);
         state.registerNodeType(Kind.Bag.selector, "Bag", CompoundKeyKind.UINT160);
         state.registerNodeType(Kind.Tile.selector, "Tile", CompoundKeyKind.INT16_ARRAY);
         state.registerNodeType(Kind.Item.selector, "Item", CompoundKeyKind.STRING);
@@ -93,7 +95,10 @@ contract Game is BaseGame {
         state.registerEdgeType(Rel.IsFinalised.selector, "IsFinalised", WeightKind.UINT64);
 
         // create a session router
-        SessionRouter router = new DawnseekersRouter();
+        SessionRouter router = new DownstreamRouter();
+
+        // setup the player rule with allowlist
+        playerRule = new NewPlayerRule(allowlist);
 
         // configure our dispatcher with state, rules and trust the router
         BaseDispatcher dispatcher = new BaseDispatcher();
@@ -105,7 +110,7 @@ contract Game is BaseGame {
         dispatcher.registerRule(new BuildingRule(this));
         dispatcher.registerRule(new CraftingRule(this));
         dispatcher.registerRule(new PluginRule());
-        dispatcher.registerRule(new NewPlayerRule(allowlist));
+        dispatcher.registerRule(playerRule);
         dispatcher.registerRule(new CombatRule());
         dispatcher.registerRule(new NamingRule());
         dispatcher.registerRouter(router);
@@ -125,5 +130,9 @@ contract Game is BaseGame {
         dispatcher.dispatch(
             abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.FlaskRedGoo(), "Flask of Red Goo", "22-24"))
         );
+    }
+
+    function allow(address addr) public {
+        playerRule.allow(addr);
     }
 }

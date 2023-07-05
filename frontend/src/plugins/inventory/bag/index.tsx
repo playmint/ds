@@ -3,7 +3,7 @@
 import { BagSlot, BagSlotProps } from '@app/plugins/inventory/bag-slot';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { ComponentProps } from '@app/types/component-props';
-import { BagFragment, ItemSlotFragment } from '@dawnseekers/core';
+import { BagFragment, ItemSlotFragment } from '@downstream/core';
 import { FunctionComponent, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { styles } from './bag.styles';

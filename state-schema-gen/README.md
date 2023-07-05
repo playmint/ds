@@ -19,7 +19,7 @@
    For some reason NJsonSchema that does the conversion to C# doesn't recognise `anyOf` and it won't generated the expected properties for that object!
 
 6. then from the root of ds repo run:  
-   `state-schema-gen/json-schema/bin/Release/net7.0/state-schema-gen core/dist/json-schema.json DawnSeekersUnity/Assets/Scripts/Cog/StateSchema.cs`
+   `state-schema-gen/json-schema/bin/Release/net7.0/state-schema-gen core/dist/json-schema.json map/Assets/Scripts/Cog/StateSchema.cs`
 
 7. Another unfortunate manual part of the process until we work out the correct config. You need to do a find an replace on the generated `StateSchema.cs` for the following
    `DisallowNull` to `Default` (Allows all fields to be nullable. We only require a couple but it's fiddly to target just those)
