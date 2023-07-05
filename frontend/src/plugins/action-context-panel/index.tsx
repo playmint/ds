@@ -132,46 +132,48 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({
             <span className="sub-title">{component?.summary || ''}</span>
             {isEnemy ? <ImageEnemy /> : <ImageBuilding />}
             {component && showFull && (
-                <TileAction showTitle={false} component={component} className="action">
-                    {inputs.length > 0 && inputBag && (
-                        <div ref={inputsRef} className="ingredients">
-                            <Bag
-                                bag={inputBag.bag}
-                                bagId={inputBag.bag.id}
-                                equipIndex={0}
-                                ownerId={building.id}
-                                isInteractable={true}
-                                recipe={inputs}
-                                numBagSlots={inputs.length}
-                                showIcon={false}
-                                as="li"
-                            />
-                        </div>
-                    )}
-                    {outputs.length > 0 && outputBag && (
-                        <div className="process">
-                            <img src="/icons/downarrow.png" alt="output" className="arrow" />
-                        </div>
-                    )}
-                    {outputs.length > 0 && outputBag && (
-                        <div ref={outputsRef} className="ingredients">
-                            <Bag
-                                bag={outputBag.bag}
-                                bagId={outputBag.bag.id}
-                                equipIndex={1}
-                                ownerId={building.id}
-                                isInteractable={true}
-                                recipe={outputs}
-                                numBagSlots={outputs.length}
-                                showIcon={false}
-                                as="li"
-                            />
-                        </div>
-                    )}
+                <Fragment>
+                    <TileAction showTitle={false} component={component} className="action">
+                        {inputs.length > 0 && inputBag && (
+                            <div ref={inputsRef} className="ingredients">
+                                <Bag
+                                    bag={inputBag.bag}
+                                    bagId={inputBag.bag.id}
+                                    equipIndex={0}
+                                    ownerId={building.id}
+                                    isInteractable={true}
+                                    recipe={inputs}
+                                    numBagSlots={inputs.length}
+                                    showIcon={false}
+                                    as="li"
+                                />
+                            </div>
+                        )}
+                        {outputs.length > 0 && outputBag && (
+                            <div className="process">
+                                <img src="/icons/downarrow.png" alt="output" className="arrow" />
+                            </div>
+                        )}
+                        {outputs.length > 0 && outputBag && (
+                            <div ref={outputsRef} className="ingredients">
+                                <Bag
+                                    bag={outputBag.bag}
+                                    bagId={outputBag.bag.id}
+                                    equipIndex={1}
+                                    ownerId={building.id}
+                                    isInteractable={true}
+                                    recipe={outputs}
+                                    numBagSlots={outputs.length}
+                                    showIcon={false}
+                                    as="li"
+                                />
+                            </div>
+                        )}
+                    </TileAction>
                     <button className="secondary-action-button" onClick={clearIntent}>
                         Cancel Use
                     </button>
-                </TileAction>
+                </Fragment>
             )}
             {!showFull && tileMobileUnits.length > 0 && (
                 <MobileUnitList mobileUnits={tileMobileUnits} player={player} />
