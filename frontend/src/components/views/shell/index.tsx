@@ -270,9 +270,9 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                     )}
                     {player && (
                         <Fragment>
-                            <div className="mobileUnit-actions">
+                            <div className="mobile-unit-actions">
                                 {(!player || (player && player.mobileUnits.length > 0 && selectedMobileUnit)) && (
-                                    <div className="mobileUnit-selector">
+                                    <div className="mobile-unit-selector">
                                         <img src="/mobile-unit-yours.png" className="shield" alt="" />
                                         <div className="controls">
                                             <button className="icon-button" onClick={() => selectNextMobileUnit(-1)}>
