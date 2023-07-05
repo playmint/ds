@@ -33,7 +33,7 @@ export default function update({ selected, world }) {
                     type: 'building',
                     id: 'crazy-hermit',
                     title: 'Crazy Hermit',
-                    summary: "A sign outside gives a simple instruction...\n\"LEAVE ME ALONE!\""
+                    summary: "A sign outside gives a simple instruction...\"LEAVE ME ALONE!\""
                 },
             ],
         };
@@ -121,7 +121,7 @@ export default function update({ selected, world }) {
                     type: 'building',
                     id: 'crazy-hermit',
                     title: 'Crazy Hermit',
-                    summary: 'The crazy hermit looks in wonder at your rubber duck.\n"GIVE GREEN GOO?\" he asks.\nHe holds his hand out as if to offer a trade.',
+                    summary: 'The crazy hermit looks in wonder at your rubber duck. "GIVE GREEN GOO?" he asks. He holds his hand out as if to offer a trade.',
                     content: [
                         {
                             id: 'default',

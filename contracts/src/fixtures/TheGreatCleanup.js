@@ -28,7 +28,7 @@ export default function update({ selected, world }) {
 
     const craft = () => {
         if (!selectedEngineer) {
-            ds.log('no selected engineer');
+            ds.log('no selected unit');
             return;
         }
         if (!selectedBuilding) {
