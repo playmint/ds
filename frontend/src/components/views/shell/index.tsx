@@ -84,14 +84,10 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         }
         const id = CompoundKeyEncoder.encodeUint160(NodeSelectors.Seeker, BigInt(Math.floor(Math.random() * 10000)));
         setIsSpawningSeeker(true);
-        player
-            .dispatch({ name: 'SPAWN_SEEKER', args: [id] })
-            .catch((e) => {
-                console.error('failed to spawn seeker:', e);
-            })
-            .finally(() => {
-                setIsSpawningSeeker(false);
-            });
+        player.dispatch({ name: 'SPAWN_SEEKER', args: [id] }).catch((e) => {
+            console.error('failed to spawn seeker:', e);
+            setIsSpawningSeeker(false);
+        });
     }, [player, setIsSpawningSeeker]);
 
     const selectAndFocusSeeker = useCallback(() => {
