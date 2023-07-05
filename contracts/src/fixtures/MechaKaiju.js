@@ -13,7 +13,7 @@ export default function update({ selected, world }) {
                 type: 'building',
                 id: 'mecha-kaiju',
                 title: 'Mecha-Kaiju',
-                summary: "It's a huge robotoic reptile thing.  \n Probably destroyed Japan in the before-times.",
+                summary: "It's a huge robotoic reptile thing. Probably destroyed Japan in the before-times.",
                 content: [
                     {
                         id: 'default',

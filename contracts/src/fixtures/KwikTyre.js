@@ -42,7 +42,7 @@ export default function update({ selected, world }) {
                 args: [selectedBuilding.id, selectedEngineer.id, []]
             },
         );
-
+        ds.log('Not approved for use on vehicles');
     };
 
     return {

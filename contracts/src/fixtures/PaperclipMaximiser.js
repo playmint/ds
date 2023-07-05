@@ -11,9 +11,9 @@ export default function update({ selected, world }) {
         components: [
             {
                 type: 'building',
-                id: 'the-big-bad',
-                title: 'The BIG BAD',
-                summary: "Is it a dragon? A Death Knight? A red eye on a tower? \n All you know is you have to kill it!",
+                id: 'paperclip-maximiser',
+                title: 'Paperclip Maximiser',
+                summary: "This AI has gone rogue and is turning all the goo it can find into paperclips. You have to kill it!",
                 content: [
                     {
                         id: 'default',

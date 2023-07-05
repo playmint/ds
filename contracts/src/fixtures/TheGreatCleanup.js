@@ -28,7 +28,7 @@ export default function update({ selected, world }) {
 
     const craft = () => {
         if (!selectedEngineer) {
-            ds.log('no selected engineer');
+            ds.log('no selected unit');
             return;
         }
         if (!selectedBuilding) {
@@ -43,6 +43,7 @@ export default function update({ selected, world }) {
             },
         );
 
+        ds.log('Thank you for your service');
     };
 
     return {
@@ -50,9 +51,9 @@ export default function update({ selected, world }) {
         components: [
             {
                 type: 'building',
-                id: 'the-ultimate-goal',
-                title: 'The Ultimate Goal',
-                summary: "Find these items to win the game and get a crappy medal! \n- Dismembered Hand \n- Big Bad Essence",
+                id: 'the-great-cleanup',
+                title: 'The Great Cleanup',
+                summary: "Prove your allegiance by tidying up Hexwood and retrieving Paperclips and a Dismembered Hand as proof.",
                 content: [
                     {
                         id: 'default',

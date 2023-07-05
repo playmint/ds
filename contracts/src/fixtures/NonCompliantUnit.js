@@ -11,9 +11,9 @@ export default function update({ selected, world }) {
         components: [
             {
                 type: 'building',
-                id: 'obnoxious-beaver',
-                title: 'Obnoxious Beaver',
-                summary: "\"Screw you hippy!\" \n Can I suggest you kill this fiend?",
+                id: 'non-compliant-unit',
+                title: 'Non-Compliant Unit',
+                summary: "Looks like their collar has malfunctioned. Better recycle the goo!",
                 content: [
                     {
                         id: 'default',
