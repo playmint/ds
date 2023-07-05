@@ -6,6 +6,6 @@ import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 import {console} from "forge-std/console.sol";
 
-contract PaperclipMaximiser is BuildingKind {
-    function use(Game ds, bytes24 buildingInstance, bytes24, /*seeker*/ bytes calldata /*payload*/ ) public {}
+contract TheBigBad is BuildingKind {
+    function use(Game ds, bytes24 buildingInstance, bytes24, /*mobileUnit*/ bytes calldata /*payload*/ ) public {}
 }

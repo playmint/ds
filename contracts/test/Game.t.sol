@@ -54,13 +54,13 @@ contract GameTest is Test {
             )
         );
 
-        // spawn a seeker at that tile
-        game.getDispatcher().dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (Node.Seeker(1))));
+        // spawn a mobileUnit at that tile
+        game.getDispatcher().dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (Node.MobileUnit(1))));
 
         assertEq(
-            state.getCurrentLocation(Node.Seeker(1), uint64(block.number)),
+            state.getCurrentLocation(Node.MobileUnit(1), uint64(block.number)),
             Node.Tile(0, 0, 0, 0),
-            "expected next seeker to start at tile 0,0,0"
+            "expected next mobileUnit to start at tile 0,0,0"
         );
 
         // stop being alice
@@ -97,9 +97,9 @@ contract GameTest is Test {
         game.getRouter().authorizeAddr(game.getDispatcher(), 5, 0, sessionAddr, sig);
 
         // should now be able to use sessionKey to sign actions to pass to router
-        bytes24 seeker = Node.Seeker(111);
+        bytes24 mobileUnit = Node.MobileUnit(111);
         bytes[] memory actions = new bytes[](1);
-        actions[0] = abi.encodeCall(Actions.SPAWN_SEEKER, (seeker));
+        actions[0] = abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (mobileUnit));
         bytes32 digest = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", keccak256(abi.encode(actions))));
         bytes[][] memory batchedActions = new bytes[][](1);
         batchedActions[0] = actions;
@@ -108,7 +108,7 @@ contract GameTest is Test {
         batchedSigs[0] = abi.encodePacked(r, s, v);
         vm.prank(relayAddr);
         game.getRouter().dispatch(batchedActions, batchedSigs);
-        // check the action created seeker with correct owner
-        assertEq(state.getOwnerAddress(seeker), aliceAccount);
+        // check the action created mobileUnit with correct owner
+        assertEq(state.getOwnerAddress(mobileUnit), aliceAccount);
     }
 }

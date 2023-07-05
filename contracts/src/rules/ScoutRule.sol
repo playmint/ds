@@ -14,15 +14,15 @@ using Schema for State;
 
 contract ScoutRule is Rule {
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
-        if (bytes4(action) == Actions.SCOUT_SEEKER.selector) {
+        if (bytes4(action) == Actions.SCOUT_MOBILE_UNIT.selector) {
             // decode the action
             (uint32 sid, int16[3] memory coords) = abi.decode(action[4:], (uint32, int16[3]));
 
-            // encode the full seeker node id
-            bytes24 seeker = Node.Seeker(sid);
+            // encode the full mobileUnit node id
+            bytes24 mobileUnit = Node.MobileUnit(sid);
 
-            // check that sender owns seeker
-            if (state.getOwner(seeker) != Node.Player(ctx.sender)) {
+            // check that sender owns mobileUnit
+            if (state.getOwner(mobileUnit) != Node.Player(ctx.sender)) {
                 revert("NoScoutNotOwner");
             }
 
@@ -34,11 +34,11 @@ contract ScoutRule is Rule {
                 revert("NoScoutAlreadyDiscovered");
             }
 
-            // fetch the seeker's current location
-            (bytes24 seekerTile) = state.getCurrentLocation(seeker, ctx.clock);
+            // fetch the mobileUnit's current location
+            (bytes24 mobileUnitTile) = state.getCurrentLocation(mobileUnit, ctx.clock);
 
-            // check that target is adjacent to seeker
-            if (TileUtils.distance(seekerTile, targetTile) != 1) {
+            // check that target is adjacent to mobileUnit
+            if (TileUtils.distance(mobileUnitTile, targetTile) != 1) {
                 revert("NoScoutUnadjacent");
             }
 

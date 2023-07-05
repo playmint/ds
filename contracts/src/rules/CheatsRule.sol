@@ -52,9 +52,9 @@ contract CheatsRule is Rule {
         state.setEquipSlot(equipee, equipSlot, bag);
     }
 
-    function _spawnBag2(State state, bytes24 seeker, address owner, uint8 equipSlot) private {
-        bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode(seeker)))));
+    function _spawnBag2(State state, bytes24 mobileUnit, address owner, uint8 equipSlot) private {
+        bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode(mobileUnit)))));
         state.setOwner(bag, Node.Player(owner));
-        state.setEquipSlot(seeker, equipSlot, bag);
+        state.setEquipSlot(mobileUnit, equipSlot, bag);
     }
 }

@@ -1,4 +1,4 @@
 # ds/core
 
-library for interacting with dawnseekers
+library for interacting with downstream
 

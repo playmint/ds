@@ -9,7 +9,7 @@ import { ActionContextPanel } from '@app/plugins/action-context-panel';
 import { CombatModal } from '@app/plugins/combat/combat-modal';
 import { CombatRewards } from '@app/plugins/combat/combat-rewards';
 import { CombatSummary } from '@app/plugins/combat/combat-summary';
-import { SeekerInventory } from '@app/plugins/inventory/seeker-inventory';
+import { MobileUnitInventory } from '@app/plugins/inventory/mobile-unit-inventory';
 import { TileCoords } from '@app/plugins/tile-coords';
 import { ComponentProps } from '@app/types/component-props';
 import {
@@ -19,7 +19,7 @@ import {
     Selection,
     SelectionSelectors,
     WorldStateFragment
-} from '@dawnseekers/core';
+} from '@downstream/core';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { Fragment, FunctionComponent, useCallback, useEffect, useState } from 'react';
 import { UnityProvider } from 'react-unity-webgl/distribution/types/unity-provider';
@@ -40,11 +40,11 @@ const StyledShell = styled('div')`
 `;
 
 export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
-    const { mapReady, world, player, selection, selectSeeker, sendMessage, unityProvider, ...otherProps } = props;
-    const { seeker: selectedSeeker, tiles: selectedTiles } = selection || {};
+    const { mapReady, world, player, selection, selectMobileUnit, sendMessage, unityProvider, ...otherProps } = props;
+    const { mobileUnit: selectedMobileUnit, tiles: selectedTiles } = selection || {};
     const { openModal, setModalContent, closeModal } = useModalContext();
     const [providerAvailable, setProviderAvailable] = useState<boolean>(false);
-    const [isSpawningSeeker, setIsSpawningSeeker] = useState<boolean>(false);
+    const [isSpawningMobileUnit, setIsSpawningMobileUnit] = useState<boolean>(false);
     const [isGracePeriod, setIsGracePeriod] = useState<boolean>(true);
 
     useEffect(() => {
@@ -78,28 +78,31 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         ethereum.request({ method: 'eth_requestAccounts' });
     }, [player]);
 
-    const spawnSeeker = useCallback(() => {
+    const spawnMobileUnit = useCallback(() => {
         if (!player) {
             return;
         }
-        const id = CompoundKeyEncoder.encodeUint160(NodeSelectors.Seeker, BigInt(Math.floor(Math.random() * 10000)));
-        setIsSpawningSeeker(true);
+        const id = CompoundKeyEncoder.encodeUint160(
+            NodeSelectors.MobileUnit,
+            BigInt(Math.floor(Math.random() * 10000))
+        );
+        setIsSpawningMobileUnit(true);
         player
-            .dispatch({ name: 'SPAWN_SEEKER', args: [id] })
+            .dispatch({ name: 'SPAWN_MOBILE_UNIT', args: [id] })
             .catch((e) => {
-                console.error('failed to spawn seeker:', e);
+                console.error('failed to spawn mobileUnit:', e);
             })
             .finally(() => {
-                setIsSpawningSeeker(false);
+                setIsSpawningMobileUnit(false);
             });
-    }, [player, setIsSpawningSeeker]);
+    }, [player, setIsSpawningMobileUnit]);
 
-    const selectAndFocusSeeker = useCallback(() => {
+    const selectAndFocusMobileUnit = useCallback(() => {
         if (!player) {
             return;
         }
-        const seeker = player.seekers.find(() => true);
-        if (!seeker) {
+        const mobileUnit = player.mobileUnits.find(() => true);
+        if (!mobileUnit) {
             return;
         }
         if (!mapReady) {
@@ -108,38 +111,38 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         if (!sendMessage) {
             return;
         }
-        if (!selectSeeker) {
+        if (!selectMobileUnit) {
             return;
         }
-        selectSeeker(seeker.id);
-        const tileId = seeker.nextLocation?.tile.id;
+        selectMobileUnit(mobileUnit.id);
+        const tileId = mobileUnit.nextLocation?.tile.id;
         sendMessage('MapInteractionManager', 'FocusTile', tileId);
-    }, [selectSeeker, player, sendMessage, mapReady]);
+    }, [selectMobileUnit, player, sendMessage, mapReady]);
 
-    const selectNextSeeker = useCallback(
+    const selectNextMobileUnit = useCallback(
         (n: number) => {
             if (!player) {
                 return;
             }
-            if (!selectSeeker) {
+            if (!selectMobileUnit) {
                 return;
             }
-            if (!selectedSeeker) {
+            if (!selectedMobileUnit) {
                 return;
             }
-            if (player.seekers.length === 0) {
+            if (player.mobileUnits.length === 0) {
                 return;
             }
-            const seekerIndex = player.seekers.map((s) => s.id).indexOf(selectedSeeker.id);
+            const mobileUnitIndex = player.mobileUnits.map((s) => s.id).indexOf(selectedMobileUnit.id);
             const nextIndex =
-                seekerIndex + n > player.seekers.length - 1
+                mobileUnitIndex + n > player.mobileUnits.length - 1
                     ? 0
-                    : seekerIndex + n < 0
-                    ? player.seekers.length - 1
-                    : seekerIndex + n;
-            selectSeeker(player.seekers[nextIndex].id);
+                    : mobileUnitIndex + n < 0
+                    ? player.mobileUnits.length - 1
+                    : mobileUnitIndex + n;
+            selectMobileUnit(player.mobileUnits[nextIndex].id);
         },
-        [player, selectSeeker, selectedSeeker]
+        [player, selectMobileUnit, selectedMobileUnit]
     );
 
     const nameEntity = useCallback(
@@ -196,15 +199,15 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                     selectedTiles={selectedTiles}
                                     onShowCombatModal={showCombatModal}
                                     player={player}
-                                    selectedSeeker={selectedSeeker}
+                                    selectedMobileUnit={selectedMobileUnit}
                                 />
                             )}
                             <TileCoords className="action" selectedTiles={selectedTiles} />
                         </Fragment>
                     )}
-                    {!isGracePeriod && world && player && player.seekers.length > 0 && !selectedSeeker && (
+                    {!isGracePeriod && world && player && player.mobileUnits.length > 0 && !selectedMobileUnit && (
                         <div className="onboarding" style={{ width: '30rem' }}>
-                            <button onClick={selectAndFocusSeeker}>Select Unit</button>
+                            <button onClick={selectAndFocusMobileUnit}>Select Unit</button>
                         </div>
                     )}
                 </div>
@@ -215,12 +218,12 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                             className="action"
                             selectedTiles={selectedTiles}
                             player={player}
-                            selectedSeeker={selectedSeeker}
+                            selectedMobileUnit={selectedMobileUnit}
                         />
                     )}
                 </div>
                 <div className="right">
-                    {(!player || (player && player.seekers.length === 0)) && mapReady && (
+                    {(!player || (player && player.mobileUnits.length === 0)) && mapReady && (
                         <div className="onboarding">
                             <h3>👁️‍🗨️ Somewhere in Latent Space</h3>
                             <p>
@@ -256,8 +259,8 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                 If you are on the allow list, simply connect your wallet and click ‘Spawn Unit’ to
                                 begin.{' '}
                             </p>
-                            {player && player.seekers.length === 0 ? (
-                                <button onClick={spawnSeeker} disabled={isSpawningSeeker}>
+                            {player && player.mobileUnits.length === 0 ? (
+                                <button onClick={spawnMobileUnit} disabled={isSpawningMobileUnit}>
                                     Spawn Unit
                                 </button>
                             ) : (
@@ -267,31 +270,33 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                     )}
                     {player && (
                         <Fragment>
-                            <div className="seeker-actions">
-                                {(!player || (player && player.seekers.length > 0 && selectedSeeker)) && (
-                                    <div className="seeker-selector">
-                                        <img src="/seeker-yours.png" className="shield" alt="" />
+                            <div className="mobile-unit-actions">
+                                {(!player || (player && player.mobileUnits.length > 0 && selectedMobileUnit)) && (
+                                    <div className="mobile-unit-selector">
+                                        <img src="/mobile-unit-yours.png" className="shield" alt="" />
                                         <div className="controls">
-                                            <button className="icon-button" onClick={() => selectNextSeeker(-1)}>
+                                            <button className="icon-button" onClick={() => selectNextMobileUnit(-1)}>
                                                 <img src="/icons/prev.png" alt="Previous" />
                                             </button>
                                             <span
                                                 className="label"
-                                                onDoubleClick={() => nameEntity(selectedSeeker?.id)}
+                                                onDoubleClick={() => nameEntity(selectedMobileUnit?.id)}
                                             >
-                                                {formatNameOrId(selectedSeeker, 'Unit ')}
+                                                {formatNameOrId(selectedMobileUnit, 'Unit ')}
                                             </span>
-                                            <button className="icon-button" onClick={() => selectNextSeeker(+1)}>
+                                            <button className="icon-button" onClick={() => selectNextMobileUnit(+1)}>
                                                 <img src="/icons/next.png" alt="Next" />
                                             </button>
                                         </div>
                                     </div>
                                 )}
-                                {selectedSeeker && <SeekerInventory className="action" seeker={selectedSeeker} />}
+                                {selectedMobileUnit && (
+                                    <MobileUnitInventory className="action" mobileUnit={selectedMobileUnit} />
+                                )}
                             </div>
-                            {player.seekers.length > 0 && (
+                            {player.mobileUnits.length > 0 && (
                                 <div className="tile-actions">
-                                    {selectedSeeker && <ActionBar className="action" />}
+                                    {selectedMobileUnit && <ActionBar className="action" />}
                                     <ActionContextPanel className="action" onShowCombatModal={showCombatModal} />
                                 </div>
                             )}

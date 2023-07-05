@@ -42,10 +42,10 @@ for (var j = 0; j < selectedUnit.bags.length; j++) {
         );
     }
 
-const { tiles, seeker } = selected || {};
+const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
     const selectedBuilding = selectedTile?.building;
-    const selectedUnit = seeker;
+    const selectedUnit = mobileUnit;
 
     var unitDistance = 0;
     if (selectedUnit) {

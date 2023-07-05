@@ -13,7 +13,7 @@
   "dependencies": {
     "@apollo/client": "^3.7.3",
     "@chakra-ui/react": "^2.4.9",
-    "@dawnseekers/core": "file:core",
+    "@downstream/core": "file:core",
     "@dnd-kit/core": "^6.0.7",
     "@dnd-kit/utilities": "^3.2.1",
     "@metamask/detect-provider": "^2.0.0",

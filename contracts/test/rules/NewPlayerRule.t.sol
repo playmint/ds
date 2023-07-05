@@ -12,7 +12,7 @@ import {Schema, Node, Rel, BiomeKind, DEFAULT_ZONE} from "@ds/schema/Schema.sol"
 
 using Schema for State;
 
-uint32 constant TEST_SEEKER_ID = 1;
+uint32 constant TEST_MOBILE_UNIT_ID = 1;
 
 contract NewPlayerRuleTest is Test {
     Game internal game;
@@ -55,16 +55,16 @@ contract NewPlayerRuleTest is Test {
         );
     }
 
-    function testAliceSpawnSeeker() public {
+    function testAliceSpawnMobileUnit() public {
         vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (Node.Seeker(TEST_SEEKER_ID))));
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (Node.MobileUnit(TEST_MOBILE_UNIT_ID))));
         vm.stopPrank();
     }
 
-    function testBobCanNotSpawnSeeker() public {
+    function testBobCanNotSpawnMobileUnit() public {
         vm.startPrank(bobAccount);
         vm.expectRevert("NotAllowListed");
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (Node.Seeker(TEST_SEEKER_ID))));
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (Node.MobileUnit(TEST_MOBILE_UNIT_ID))));
         vm.stopPrank();
     }
 }

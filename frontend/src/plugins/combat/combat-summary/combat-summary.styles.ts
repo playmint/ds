@@ -4,10 +4,10 @@ import { css } from 'styled-components';
 import { CombatSummaryProps } from './index';
 
 /**
- * Base styles for the seeker list component
+ * Base styles for the mobileUnit list component
  *
- * @param _ The seeker list properties object
- * @return Base styles for the seeker list component
+ * @param _ The mobileUnit list properties object
+ * @return Base styles for the mobileUnit list component
  */
 const baseStyles = (_: Partial<CombatSummaryProps>) => css`
     width: 30rem;
@@ -47,10 +47,10 @@ const baseStyles = (_: Partial<CombatSummaryProps>) => css`
 `;
 
 /**
- * The seeker list component styles
+ * The mobileUnit list component styles
  *
- * @param props The seeker list properties object
- * @return Styles for the seeker list component
+ * @param props The mobileUnit list properties object
+ * @return Styles for the mobileUnit list component
  */
 export const styles = (props: Partial<CombatSummaryProps>) => css`
     ${baseStyles(props)}

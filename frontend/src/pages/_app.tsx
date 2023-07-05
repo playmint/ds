@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { Fragment, useEffect } from 'react';
 import Head from 'next/head';
 import { GlobalStyles } from '@app/styles/global.styles';
-import { DSProvider } from '@dawnseekers/core';
+import { DSProvider } from '@downstream/core';
 import { InventoryProvider } from '@app/plugins/inventory/inventory-provider';
 
 const initialConfig = {

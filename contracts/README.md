@@ -2,7 +2,7 @@
 
 ## Overview
 
-Dawnseekers contracts.
+Downstream contracts.
 
 ## Schema
 
@@ -10,9 +10,9 @@ Dawnseekers contracts.
 ```mermaid
 flowchart LR
     Player1([Player id=1])
-    Seeker1([Seeker id=1])
+    MobileUnit1([MobileUnit id=1])
     subgraph storage
-        Store1([Storage id=seeker1 slots=4])
+        Store1([Storage id=mobileUnit1 slots=4])
         Store2([Storage id=player1 slots=10])
     end
     subgraph map
@@ -50,13 +50,13 @@ flowchart LR
     Tile2 -->|HAS_LOCATION| Zone1
     Tile3 -->|HAS_LOCATION| Zone1
     
-    Seeker1 -->|HAS_OWNER| Player1
+    MobileUnit1 -->|HAS_OWNER| Player1
     
-    Seeker1 -->|HAS_LOCATION at=$block| Tile2
-    Seeker1 -->|PREV_LOCATION| Tile1
+    MobileUnit1 -->|HAS_LOCATION at=$block| Tile2
+    MobileUnit1 -->|PREV_LOCATION| Tile1
     
-    Store1 -->|HAS_LOCATION| Seeker1
-    Store1 -->|HAS_OWNER| Seeker1
+    Store1 -->|HAS_LOCATION| MobileUnit1
+    Store1 -->|HAS_OWNER| MobileUnit1
     Store1 -->|HAS_CONTENTS w=50 id=slot1| Resource1
     Store1 -->|HAS_CONTENTS w=35 id=slot2| Resource2
     
@@ -65,7 +65,7 @@ flowchart LR
     Store2 -->|HAS_CONTENTS w=5 id=slot1| Resource3
     Store2 -->|HAS_CONTENTS w=1 id=slot2| Mod1
     
-    Seeker1 -->|HAS_CONTENTS id=modslot| Mod2
+    MobileUnit1 -->|HAS_CONTENTS id=modslot| Mod2
     
     Building1 -->|HAS_LOCATION| Tile3
     
@@ -74,7 +74,7 @@ flowchart LR
     POI1 -->|HAS_REWARD w=3% id=b| Resource3
     POI1 -->|HAS_REWARD w=0 id=bonus| Blueprint1
     POISession1 -->|HAS_LOCATION| POI1
-    POISession1 -->|HAS_PARTICIPANT| Seeker1
+    POISession1 -->|HAS_PARTICIPANT| MobileUnit1
     POISession1 -->|HAS_HASH| POISession1State
     POISession1 -->|AT_TIME| Block1
     

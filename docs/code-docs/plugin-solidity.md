@@ -7,7 +7,7 @@ Found in `contracts/libs/ds/src`, this folder is mapped to import as “@ds” a
 ## BuildingKind.Use()
 
 ```solidity
-function use(Game ds, bytes24 buildingInstanceID, bytes24 seekerID, bytes memory payload)
+function use(Game ds, bytes24 buildingInstanceID, bytes24 mobileUnitID, bytes memory payload)
 ```
 
 This is the entry point for a buildings smart contract.
@@ -23,7 +23,7 @@ The `ds` param can be used to interact with Downstream via the Action Dispatch s
 
 If the BuildingKind has been registered with a crafting recipe, the `CRAFT` Action can be dispatched.
 
-`buildingInstanceID` and `seekerID` can be used to access the properties on the building being used and the seeker using it. For example accessing their location or any bags they are holding.
+`buildingInstanceID` and `mobileUnitID` can be used to access the properties on the building being used and the mobileUnit using it. For example accessing their location or any bags they are holding.
 
 ## Building Registration
 
@@ -92,7 +92,7 @@ This list describes, at a slightly higher level than the graph, what the core Do
 - **A** **`Bag`** (Engineers start with two, more appear on the map and magically, tiles and buildings create invisible ones when transferred items)
     - Has 4 Item Slots
     - Each slot can have one equip-able Item or up to 100 stackable Items.
-- **An Engineer**  (**`Seeker`**  in code) (one spawned for each wallet)
+- **An Engineer**  (**`MobileUnit`**  in code) (one spawned for each wallet)
     - Has a location.
     - Has two `Bag` slots.
 

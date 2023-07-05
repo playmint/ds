@@ -12,15 +12,15 @@ using Schema for State;
 
 contract MovementRule is Rule {
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
-        if (bytes4(action) == Actions.MOVE_SEEKER.selector) {
+        if (bytes4(action) == Actions.MOVE_MOBILE_UNIT.selector) {
             // decode the action
             (uint32 sid, int16 q, int16 r, int16 s) = abi.decode(action[4:], (uint32, int16, int16, int16));
 
-            // encode the full seeker node id
-            bytes24 seeker = Node.Seeker(sid);
+            // encode the full mobileUnit node id
+            bytes24 mobileUnit = Node.MobileUnit(sid);
 
-            // check that sender owns seeker
-            require(state.getOwner(seeker) == Node.Player(ctx.sender), "NoMoveNotOwner");
+            // check that sender owns mobileUnit
+            require(state.getOwner(mobileUnit) == Node.Player(ctx.sender), "NoMoveNotOwner");
 
             // encode destination tile
             bytes24 destTile = Node.Tile(DEFAULT_ZONE, q, r, s);
@@ -29,15 +29,15 @@ contract MovementRule is Rule {
             require(state.getBiome(destTile) != BiomeKind.UNDISCOVERED, "NoMoveToUndiscovered");
 
             // move
-            moveTo(state, seeker, destTile, ctx.clock);
+            moveTo(state, mobileUnit, destTile, ctx.clock);
         }
 
         return state;
     }
 
-    function moveTo(State state, bytes24 seeker, bytes24 destTile, uint64 nowTime) private {
-        // fetch the seeker's current location
-        (bytes24 currentTile) = state.getCurrentLocation(seeker, nowTime);
+    function moveTo(State state, bytes24 mobileUnit, bytes24 destTile, uint64 nowTime) private {
+        // fetch the mobileUnit's current location
+        (bytes24 currentTile) = state.getCurrentLocation(mobileUnit, nowTime);
 
         // TODO: if currentTile doesn't equal tile at LocationKey.NEXT then movement was cancelled.
         //       dispatch MOVE_CANCEL action here so any systems that were tracking mvoement know about it
@@ -52,7 +52,7 @@ contract MovementRule is Rule {
         require(state.getBiome(currentTile) == BiomeKind.DISCOVERED, "NoMoveToUndiscovered");
 
         // set prev location to current location
-        state.setPrevLocation(seeker, currentTile, nowTime);
+        state.setPrevLocation(mobileUnit, currentTile, nowTime);
 
         // calc distance to next tile
         // x10 so we can move at speeds slower than 1TilePerBlock
@@ -68,6 +68,6 @@ contract MovementRule is Rule {
         }
 
         // set destination and calc arrival
-        state.setNextLocation(seeker, destTile, nowTime + travelTime);
+        state.setNextLocation(mobileUnit, destTile, nowTime + travelTime);
     }
 }

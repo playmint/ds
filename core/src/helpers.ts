@@ -13,7 +13,7 @@ export const getSelector = (name: string): string => {
 
 export const NodeSelectors = {
     Tile: getSelector('Tile'),
-    Seeker: getSelector('Seeker'),
+    MobileUnit: getSelector('MobileUnit'),
     Player: getSelector('Player'),
     Building: getSelector('Building'),
     Bag: getSelector('Bag'),
