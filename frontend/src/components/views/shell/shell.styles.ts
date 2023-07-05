@@ -130,16 +130,22 @@ const baseStyles = (_: Partial<ShellProps>) => css`
             > .shield {
                 position: absolute;
                 left: 0.5rem;
-                width: 100px;
+                width: 8rem;
             }
 
             > .controls {
                 display: flex;
                 flex-direction: row;
+                width: 100%;
+                margin-left: 7rem;
 
                 .label {
                     padding: 0 0.5rem;
                     text-transform: uppercase;
+                    display: block;
+                    width: 100%;
+                    text-align: center;
+                    overflow: hidden;
                 }
             }
         }
