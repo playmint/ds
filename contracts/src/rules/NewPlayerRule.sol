@@ -19,6 +19,10 @@ contract NewPlayerRule is Rule {
         }
     }
 
+    function allow(address addr) public {
+        spawnable[addr] = 1;
+    }
+
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         // spawn a mobileUnit for any player at any location
         if (bytes4(action) == Actions.SPAWN_MOBILE_UNIT.selector) {
