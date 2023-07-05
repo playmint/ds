@@ -233,7 +233,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
 
                             <p>
                                 Our task is to accelerate their primitive society... to build things they would never
-                                have built. To go to the stars, edge of the map! 💻🗼🚀
+                                have built. To go to the <del>stars</del>, edge of the map! 💻🗼🚀
                             </p>
 
                             <p>
