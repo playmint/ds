@@ -13,7 +13,7 @@ import {
     switchMap,
     tap,
 } from 'wonka';
-import { makePlayerMobileUnit } from './mobileUnit';
+import { makePlayerMobileUnit } from './mobile-unit';
 import { makeTiles } from './tile';
 import { CogServices, ConnectedPlayer, Selection, Selector, World } from './types';
 

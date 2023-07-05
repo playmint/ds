@@ -5,7 +5,7 @@ export * from './logger';
 export * from './player';
 export * from './plugins';
 export * from './react';
-export * from './mobileUnit';
+export * from './mobile-unit';
 export * from './selection';
 export * from './state';
 export * from './tile';
