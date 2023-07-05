@@ -13,7 +13,7 @@ export default function update({ selected, world }) {
                 type: 'building',
                 id: 'prime-evil',
                 title: 'Prime Evil',
-                summary: "An invader from a totally different game. \n \"Welcome to Hell!\"",
+                summary: "An invader from a totally different game. \"Welcome to Hell!\"",
                 content: [
                     {
                         id: 'default',

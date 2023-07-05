@@ -6,6 +6,6 @@ import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 import {console} from "forge-std/console.sol";
 
-contract ObnoxiousBeaver is BuildingKind {
+contract NonCompliantUnit is BuildingKind {
     function use(Game ds, bytes24 buildingInstance, bytes24, /*seeker*/ bytes calldata /*payload*/ ) public {}
 }

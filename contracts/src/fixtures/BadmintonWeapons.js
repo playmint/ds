@@ -50,7 +50,7 @@ export default function update({ selected, world }) {
                 type: 'building',
                 id: 'badminton-weapon',
                 title: 'Badminton Weapons',
-                summary: "We make amazing shuttlecocks! \n (They're not very good for fighting though...)",
+                summary: "We make amazing shuttlecocks! (They're not very good for fighting though...)",
                 content: [
                     {
                         id: 'default',

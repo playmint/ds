@@ -33,7 +33,7 @@ export default function update({ selected, world }) {
                     type: 'building',
                     id: 'crazy-hermit',
                     title: 'Crazy Hermit',
-                    summary: "A sign outside gives a simple instruction...\n\"LEAVE ME ALONE!\""
+                    summary: "A sign outside gives a simple instruction...\"LEAVE ME ALONE!\""
                 },
             ],
         };
