@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: charpier
-        working-directory: DawnSeekersUnity
+        working-directory: map
         run: |
           dotnet tool restore
           dotnet tool run dotnet-csharpier --check .

@@ -4,7 +4,7 @@ import { BagItem } from '@app/plugins/inventory/bag-item';
 import { getItemDetails } from '@app/plugins/inventory/helpers';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { ComponentProps } from '@app/types/component-props';
-import { ItemSlotFragment } from '@dawnseekers/core';
+import { ItemSlotFragment } from '@downstream/core';
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { styles } from './bag-slot.styles';

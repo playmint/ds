@@ -106,7 +106,7 @@ jobs:
     - name: Restore Library cache
       uses: actions/cache@v2
       with:
-        path: DawnSeekersUnity/Library
+        path: map/Library
         key: Library-ds
         restore-keys: |
           Library-ds
@@ -119,7 +119,7 @@ jobs:
         UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
       with:
         targetPlatform: WebGL
-        projectPath: DawnSeekersUnity
+        projectPath: map
         buildMethod: BuildScript.GitHubBuild
         allowDirtyBuild: true # allows for use of LFS cache
     - name: Set up QEMU

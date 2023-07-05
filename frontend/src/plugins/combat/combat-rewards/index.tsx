@@ -4,13 +4,13 @@ import { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { ComponentProps } from '@app/types/component-props';
 import { styles } from './combat-rewards.styles';
-import { ConnectedPlayer, SelectedSeekerFragment, SelectedTileFragment } from '@dawnseekers/core';
+import { ConnectedPlayer, SelectedMobileUnitFragment, SelectedTileFragment } from '@downstream/core';
 import { Bag } from '@app/plugins/inventory/bag';
 
 export interface CombatRewardsProps extends ComponentProps {
     selectedTiles: SelectedTileFragment[];
     player?: ConnectedPlayer;
-    selectedSeeker?: SelectedSeekerFragment;
+    selectedMobileUnit?: SelectedMobileUnitFragment;
 }
 
 const StyledCombatRewards = styled('div')`
@@ -18,7 +18,7 @@ const StyledCombatRewards = styled('div')`
 `;
 
 export const CombatRewards: FunctionComponent<CombatRewardsProps> = (props: CombatRewardsProps) => {
-    const { selectedTiles, player, selectedSeeker, ...otherProps } = props;
+    const { selectedTiles, player, selectedMobileUnit, ...otherProps } = props;
 
     const latestSession =
         selectedTiles.length > 0 && selectedTiles[0].sessions.length > 0
@@ -28,14 +28,14 @@ export const CombatRewards: FunctionComponent<CombatRewardsProps> = (props: Comb
             : undefined;
 
     const rewardBags =
-        latestSession && selectedSeeker
+        latestSession && selectedMobileUnit
             ? latestSession.bags.filter((equipSlot) => {
-                  // reward containing bags have an ID that is made up of 16bits of sessionID and 48bits of SeekerID
+                  // reward containing bags have an ID that is made up of 16bits of sessionID and 48bits of MobileUnitID
                   // bagIDs are 64bits
-                  const seekerIdMask = BigInt('0xFFFFFFFFFFFF'); // 48bit mask (6 bytes)
-                  const bagSeekerID = (BigInt(equipSlot.bag.id) >> BigInt(16)) & seekerIdMask;
-                  const truncatedSeekerID = BigInt(selectedSeeker.id) & seekerIdMask;
-                  return bagSeekerID === truncatedSeekerID;
+                  const mobileUnitIdMask = BigInt('0xFFFFFFFFFFFF'); // 48bit mask (6 bytes)
+                  const bagMobileUnitID = (BigInt(equipSlot.bag.id) >> BigInt(16)) & mobileUnitIdMask;
+                  const truncatedMobileUnitID = BigInt(selectedMobileUnit.id) & mobileUnitIdMask;
+                  return bagMobileUnitID === truncatedMobileUnitID;
               })
             : [];
 

@@ -41,13 +41,13 @@ contract CombatRuleTest is Test {
     address thirdAccount;
     address buildingOwnerAccount;
 
-    // seekers
+    // mobileUnits
     uint32 sid;
 
-    bytes24 aliceSeekerID;
-    bytes24 bobSeekerID;
-    bytes24 thirdSeekerID;
-    bytes24 buildingOwnerSeekerID;
+    bytes24 aliceMobileUnitID;
+    bytes24 bobMobileUnitID;
+    bytes24 thirdMobileUnitID;
+    bytes24 buildingOwnerMobileUnitID;
 
     function setUp() public {
         // setup users
@@ -84,18 +84,18 @@ contract CombatRuleTest is Test {
             _discover(i, -i, 0);
         }
 
-        // place seekers (maybe using separate accounts was overkill...)
+        // place mobileUnits (maybe using separate accounts was overkill...)
 
         vm.startPrank(aliceAccount);
-        aliceSeekerID = _spawnSeeker(++sid, 0, 0, 0);
+        aliceMobileUnitID = _spawnMobileUnit(++sid, 0, 0, 0);
         vm.stopPrank();
 
         vm.startPrank(bobAccount);
-        bobSeekerID = _spawnSeeker(++sid, 1, 0, -1);
+        bobMobileUnitID = _spawnMobileUnit(++sid, 1, 0, -1);
         vm.stopPrank();
 
         vm.startPrank(thirdAccount);
-        thirdSeekerID = _spawnSeeker(++sid, 0, 1, -1);
+        thirdMobileUnitID = _spawnMobileUnit(++sid, 0, 1, -1);
         vm.stopPrank();
 
         // setup default material construction costs
@@ -124,15 +124,17 @@ contract CombatRuleTest is Test {
     function testStartCombat() public {
         bytes24 targetTileID = Node.Tile(0, 1, 0, -1);
         bytes24[] memory attackers = new bytes24[](1);
-        attackers[0] = aliceSeekerID;
+        attackers[0] = aliceMobileUnitID;
 
         bytes24[] memory defenders = new bytes24[](1);
-        defenders[0] = bobSeekerID;
+        defenders[0] = bobMobileUnitID;
 
         vm.recordLogs();
 
         vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.START_COMBAT, (aliceSeekerID, targetTileID, attackers, defenders)));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.START_COMBAT, (aliceMobileUnitID, targetTileID, attackers, defenders))
+        );
         vm.stopPrank();
 
         Vm.Log[] memory entries = vm.getRecordedLogs();
@@ -155,7 +157,7 @@ contract CombatRuleTest is Test {
             abi.decode(sessionUpdates[0].data, (uint256, uint256, bytes));
 
         (CombatRule.CombatAction[] memory actions) = abi.decode(data, (CombatRule.CombatAction[]));
-        assertEq(actions.length, 2, "combat action list expected to have 2 entries for the two seekers");
+        assertEq(actions.length, 2, "combat action list expected to have 2 entries for the two mobileUnits");
         assertEq(uint8(actions[0].kind), uint8(CombatRule.CombatActionKind.JOIN));
         assertEq(uint8(actions[1].kind), uint8(CombatRule.CombatActionKind.JOIN));
 
@@ -178,19 +180,23 @@ contract CombatRuleTest is Test {
     function testDuplicateSessions() public {
         bytes24 targetTileID = Node.Tile(0, 1, 0, -1);
         bytes24[] memory attackers = new bytes24[](1);
-        attackers[0] = aliceSeekerID;
+        attackers[0] = aliceMobileUnitID;
 
         bytes24[] memory defenders = new bytes24[](1);
-        defenders[0] = bobSeekerID;
+        defenders[0] = bobMobileUnitID;
 
         vm.recordLogs();
 
         vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.START_COMBAT, (aliceSeekerID, targetTileID, attackers, defenders)));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.START_COMBAT, (aliceMobileUnitID, targetTileID, attackers, defenders))
+        );
 
         vm.expectRevert("CombatSessionAlreadyActive");
 
-        dispatcher.dispatch(abi.encodeCall(Actions.START_COMBAT, (aliceSeekerID, targetTileID, attackers, defenders)));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.START_COMBAT, (aliceMobileUnitID, targetTileID, attackers, defenders))
+        );
 
         // Should be allowed to start a combat session after a finished session has been finalised
         vm.roll(block.number + 100);
@@ -205,7 +211,9 @@ contract CombatRuleTest is Test {
             abi.encodeCall(Actions.FINALISE_COMBAT, (Node.CombatSession(1), sessionUpdates, sortedListIndexes))
         );
 
-        dispatcher.dispatch(abi.encodeCall(Actions.START_COMBAT, (aliceSeekerID, targetTileID, attackers, defenders)));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.START_COMBAT, (aliceMobileUnitID, targetTileID, attackers, defenders))
+        );
 
         vm.stopPrank();
     }
@@ -213,21 +221,23 @@ contract CombatRuleTest is Test {
     function testJoiningAndLeaving() public {
         bytes24 targetTileID = Node.Tile(0, 1, 0, -1);
         bytes24[] memory attackers = new bytes24[](1);
-        attackers[0] = aliceSeekerID;
+        attackers[0] = aliceMobileUnitID;
 
         bytes24[] memory defenders = new bytes24[](1);
-        defenders[0] = bobSeekerID;
+        defenders[0] = bobMobileUnitID;
 
         vm.recordLogs();
 
         vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.START_COMBAT, (aliceSeekerID, targetTileID, attackers, defenders)));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.START_COMBAT, (aliceMobileUnitID, targetTileID, attackers, defenders))
+        );
         vm.stopPrank();
 
         vm.startPrank(thirdAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_SEEKER, (state.getSid(thirdSeekerID), 0, 0, 0)));
+        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (state.getSid(thirdMobileUnitID), 0, 0, 0)));
         vm.roll(block.number + 10);
-        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_SEEKER, (state.getSid(thirdSeekerID), 0, 1, -1)));
+        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (state.getSid(thirdMobileUnitID), 0, 1, -1)));
         vm.stopPrank();
 
         // Gather session update events
@@ -241,8 +251,8 @@ contract CombatRuleTest is Test {
     function testStartCombatAgainstBuilding() public {
         bytes24 targetTileID = Node.Tile(0, 1, -1, 0);
         bytes24[] memory attackers = new bytes24[](1);
-        attackers[0] = aliceSeekerID;
-        // attackers[1] = thirdSeekerID;
+        attackers[0] = aliceMobileUnitID;
+        // attackers[1] = thirdMobileUnitID;
 
         bytes24[] memory defenders = new bytes24[](1);
         defenders[0] = _constructBuilding();
@@ -250,7 +260,9 @@ contract CombatRuleTest is Test {
         vm.recordLogs();
 
         vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.START_COMBAT, (aliceSeekerID, targetTileID, attackers, defenders)));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.START_COMBAT, (aliceMobileUnitID, targetTileID, attackers, defenders))
+        );
         vm.stopPrank();
 
         // Fast forward to end of battle and finalise
@@ -374,19 +386,19 @@ contract CombatRuleTest is Test {
                 Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)
             )
         );
-        // spawn a seeker
+        // spawn a mobileUnit
         vm.startPrank(buildingOwnerAccount);
-        bytes24 seeker = _spawnSeekerWithResources();
+        bytes24 mobileUnit = _spawnMobileUnitWithResources();
         // discover an adjacent tile for our building site
         (int16 q, int16 r, int16 s) = (1, -1, 0);
         _discover(q, r, s);
         // get our building and give it the resources to construct
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
         // construct our building
-        _transferFromSeeker(seeker, 0, 25, buildingInstance);
-        _transferFromSeeker(seeker, 1, 25, buildingInstance);
-        _transferFromSeeker(seeker, 2, 25, buildingInstance);
-        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_SEEKER, (seeker, buildingKind, q, r, s)));
+        _transferFromMobileUnit(mobileUnit, 0, 25, buildingInstance);
+        _transferFromMobileUnit(mobileUnit, 1, 25, buildingInstance);
+        _transferFromMobileUnit(mobileUnit, 2, 25, buildingInstance);
+        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, q, r, s)));
         vm.stopPrank();
         // check the building has a location at q/r/s
         assertEq(
@@ -408,13 +420,13 @@ contract CombatRuleTest is Test {
         return buildingInstance;
     }
 
-    // _spawnSeekerWithResources spawns a seeker for the current sender at
+    // _spawnMobileUnitWithResources spawns a mobileUnit for the current sender at
     // 0,0,0 with 100 of each resource in an equiped bag
-    function _spawnSeekerWithResources() private returns (bytes24) {
+    function _spawnMobileUnitWithResources() private returns (bytes24) {
         sid++;
-        bytes24 seeker = Node.Seeker(sid);
+        bytes24 mobileUnit = Node.MobileUnit(sid);
         _discover(0, 0, 0);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (seeker)));
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (mobileUnit)));
         bytes24[] memory items = new bytes24[](3);
         items[0] = ItemUtils.GlassGreenGoo();
         items[1] = ItemUtils.BeakerBlueGoo();
@@ -425,28 +437,30 @@ contract CombatRuleTest is Test {
         balances[1] = 100;
         balances[2] = 100;
 
-        uint64 seekerBag = uint64(uint256(keccak256(abi.encode(seeker))));
+        uint64 mobileUnitBag = uint64(uint256(keccak256(abi.encode(mobileUnit))));
         dispatcher.dispatch(
             abi.encodeCall(
-                Actions.DEV_SPAWN_BAG, (seekerBag, state.getOwnerAddress(seeker), seeker, 0, items, balances)
+                Actions.DEV_SPAWN_BAG,
+                (mobileUnitBag, state.getOwnerAddress(mobileUnit), mobileUnit, 0, items, balances)
             )
         );
 
-        return seeker;
+        return mobileUnit;
     }
 
-    function _spawnSeeker(uint32 seekerID, int16 q, int16 r, int16 s) private returns (bytes24) {
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (Node.Seeker(seekerID))));
-        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_SEEKER, (sid, q, r, s)));
+    function _spawnMobileUnit(uint32 mobileUnitID, int16 q, int16 r, int16 s) private returns (bytes24) {
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (Node.MobileUnit(mobileUnitID))));
+        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (sid, q, r, s)));
         vm.roll(block.number + 100);
-        return Node.Seeker(sid);
+        return Node.MobileUnit(sid);
     }
 
-    function _transferFromSeeker(bytes24 seeker, uint8 slot, uint64 qty, bytes24 toBuilding) private {
+    function _transferFromMobileUnit(bytes24 mobileUnit, uint8 slot, uint64 qty, bytes24 toBuilding) private {
         bytes24 buildingBag = Node.Bag(uint64(uint256(keccak256(abi.encode(toBuilding)))));
         dispatcher.dispatch(
             abi.encodeCall(
-                Actions.TRANSFER_ITEM_SEEKER, (seeker, [seeker, toBuilding], [0, 0], [slot, slot], buildingBag, qty)
+                Actions.TRANSFER_ITEM_MOBILE_UNIT,
+                (mobileUnit, [mobileUnit, toBuilding], [0, 0], [slot, slot], buildingBag, qty)
             )
         );
     }

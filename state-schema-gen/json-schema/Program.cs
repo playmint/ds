@@ -1,7 +1,7 @@
 ﻿using NJsonSchema;
 using NJsonSchema.CodeGeneration.CSharp;
 
-namespace Dawnseekers
+namespace Downstream
 {
     class Program
     {

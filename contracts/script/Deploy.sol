@@ -50,8 +50,8 @@ contract GameDeployer is Script {
         // [TMP] init some stuff to get started...
 
         // dump a unit at the origin
-        bytes24 seeker = Node.Seeker(1);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_SEEKER, (seeker)));
+        bytes24 mobileUnit = Node.MobileUnit(1);
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (mobileUnit)));
 
         // discover origin tile
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (BiomeKind.DISCOVERED, 0, 0, 0)));
@@ -204,9 +204,9 @@ contract GameDeployer is Script {
     function _scout(Game ds, uint32 sid, int16 q, int16 r, int16 s) private {
         ds.getDispatcher().dispatch(
             abi.encodeCall(
-                Actions.SCOUT_SEEKER,
+                Actions.SCOUT_MOBILE_UNIT,
                 (
-                    sid, // seeker id (sid)
+                    sid, // mobileUnit id (sid)
                     q, // q
                     r, // r
                     s // s

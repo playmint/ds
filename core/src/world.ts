@@ -10,7 +10,7 @@ import { BiomeKind, CogServices } from './types';
  * The "world state" is basically everything we need to draw the map, but not
  * _every_ detail. For example we gather all Tiles, and fetch the Bag ids on
  * those tiles, but we do not fetch the contents of all those bags. The
- * SelectedTile/SelectedSeeker/etc states hold more detailed information.
+ * SelectedTile/SelectedMobileUnit/etc states hold more detailed information.
  *
  */
 export function makeWorld(cog: Source<CogServices>) {
@@ -71,7 +71,7 @@ function getUnscoutedTile(tiles: SelectedTileFragment[], q: number, r: number, s
         bagCount: 0,
         bagBalances: [],
         biome: BiomeKind.UNDISCOVERED,
-        seekers: [],
+        mobileUnits: [],
         sessions: [],
         bags: [],
     };

@@ -3,7 +3,7 @@ const path = require('path');
 const { execSync } = require("child_process");
 
 // ------------------------------------------------------------------
-// this is a startup script for running a local build of dawnseekers
+// this is a startup script for running a local build of downstream
 // ------------------------------------------------------------------
 //
 

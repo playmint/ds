@@ -24,7 +24,7 @@ interface Kind {
     function ClientPlugin() external;
     function Extension() external;
     function Player() external;
-    function Seeker() external;
+    function MobileUnit() external;
     function Bag() external;
     function Tile() external;
     function BuildingKind() external;
@@ -57,8 +57,8 @@ library Node {
         return CompoundKeyEncoder.BYTES(Kind.ClientPlugin.selector, bytes20(uint160(id)));
     }
 
-    function Seeker(uint64 id) internal pure returns (bytes24) {
-        return CompoundKeyEncoder.UINT64(Kind.Seeker.selector, id);
+    function MobileUnit(uint64 id) internal pure returns (bytes24) {
+        return CompoundKeyEncoder.UINT64(Kind.MobileUnit.selector, id);
     }
 
     function Bag(uint64 id) internal pure returns (bytes24) {
@@ -342,8 +342,8 @@ library Schema {
         state.set(Rel.IsFinalised.selector, 0, sessionID, sessionID, isFinalised ? 1 : 0);
     }
 
-    function getSid(State, /*state*/ bytes24 seekerID) internal pure returns (uint32) {
+    function getSid(State, /*state*/ bytes24 mobileUnitID) internal pure returns (uint32) {
         // NOTE: This is intentional. Where 'sid' is reauired by actions, it is typed as uint32
-        return uint32(CompoundKeyDecoder.UINT64(seekerID));
+        return uint32(CompoundKeyDecoder.UINT64(mobileUnitID));
     }
 }

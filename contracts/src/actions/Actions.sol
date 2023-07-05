@@ -9,20 +9,20 @@ import {CombatRule} from "@ds/rules/CombatRule.sol";
 // ----------------------------------
 
 interface Actions {
-    // move seeker with given id from current location to target location
-    // seeker id must be owned by ctx.sender
-    function MOVE_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
+    // move mobileUnit with given id from current location to target location
+    // mobileUnit id must be owned by ctx.sender
+    function MOVE_MOBILE_UNIT(uint32 sid, int16 q, int16 r, int16 s) external;
 
-    // seeker action to reveal terrain tiles, seeker must be located adjacent
+    // mobileUnit action to reveal terrain tiles, mobileUnit must be located adjacent
     // to scout location
-    function SCOUT_SEEKER(uint32 sid, int16 q, int16 r, int16 s) external;
+    function SCOUT_MOBILE_UNIT(uint32 sid, int16 q, int16 r, int16 s) external;
 
     // transfer a qty of items from itemSlot[0] in equipees[0]'s equipSlots[0] bag
     // to itemSlot[1] in equipees[1]'s equipSlots[1] bag
-    // bags must be at same location as seeker
-    // bags must either be owned by seeker or owned by nobody
-    function TRANSFER_ITEM_SEEKER(
-        bytes24 seeker,
+    // bags must be at same location as mobileUnit
+    // bags must either be owned by mobileUnit or owned by nobody
+    function TRANSFER_ITEM_MOBILE_UNIT(
+        bytes24 mobileUnit,
         bytes24[2] calldata equipees,
         uint8[2] calldata equipSlots,
         uint8[2] calldata itemSlots,
@@ -61,8 +61,8 @@ interface Actions {
         external;
 
     // construct a building
-    function CONSTRUCT_BUILDING_SEEKER(
-        bytes24 seeker, // which seeker is performing the construction
+    function CONSTRUCT_BUILDING_MOBILE_UNIT(
+        bytes24 mobileUnit, // which mobileUnit is performing the construction
         bytes24 buildingKind, // what kind of building
         int16 q,
         int16 r,
@@ -71,7 +71,7 @@ interface Actions {
 
     // use a building
     // this action mostly just proxies through to the building kind implementation (if set)
-    function BUILDING_USE(bytes24 buildingID, bytes24 seekerID, bytes calldata payload) external;
+    function BUILDING_USE(bytes24 buildingID, bytes24 mobileUnitID, bytes calldata payload) external;
 
     function REGISTER_ITEM_KIND(bytes24 itemKind, string calldata name, string calldata icon) external;
 
@@ -79,11 +79,15 @@ interface Actions {
         bytes24 buildingInstance // the building performing CRAFT
     ) external;
 
-    // spawn a seeker for the sender
-    function SPAWN_SEEKER(bytes24 seeker) external;
+    // spawn a mobileUnit for the sender
+    function SPAWN_MOBILE_UNIT(bytes24 mobileUnit) external;
 
-    function START_COMBAT(bytes24 seekerID, bytes24 tileID, bytes24[] calldata attackers, bytes24[] calldata defenders)
-        external;
+    function START_COMBAT(
+        bytes24 mobileUnitID,
+        bytes24 tileID,
+        bytes24[] calldata attackers,
+        bytes24[] calldata defenders
+    ) external;
 
     function FINALISE_COMBAT(
         bytes24 sessionID,

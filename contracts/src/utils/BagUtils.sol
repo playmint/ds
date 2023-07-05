@@ -8,12 +8,12 @@ import {TileUtils} from "@ds/utils/TileUtils.sol";
 using Schema for State;
 
 library BagUtils {
-    function requireEquipeeLocation(State state, bytes24 equipee, bytes24 seeker, bytes24 location, uint64 atTime)
+    function requireEquipeeLocation(State state, bytes24 equipee, bytes24 mobileUnit, bytes24 location, uint64 atTime)
         internal
         view
     {
-        if (equipee == seeker) {
-            return; // all good, it's the acting seeker's bag so locations match
+        if (equipee == mobileUnit) {
+            return; // all good, it's the acting mobileUnit's bag so locations match
         } else if (bytes4(equipee) == Kind.Tile.selector) {
             // located on a tile
             if (TileUtils.distance(location, equipee) > 1 || !TileUtils.isDirect(location, equipee)) {
@@ -28,12 +28,12 @@ library BagUtils {
             if (TileUtils.distance(location, buildingLocation) > 1 || !TileUtils.isDirect(location, buildingLocation)) {
                 revert("NoTransferNotSameLocation");
             }
-        } else if (bytes4(equipee) == Kind.Seeker.selector) {
-            // location on another seeker, check same loc
-            bytes24 otherSeekerLocation = state.getCurrentLocation(equipee, atTime);
+        } else if (bytes4(equipee) == Kind.MobileUnit.selector) {
+            // location on another mobileUnit, check same loc
+            bytes24 otherMobileUnitLocation = state.getCurrentLocation(equipee, atTime);
             if (
-                TileUtils.distance(location, otherSeekerLocation) > 1
-                    || !TileUtils.isDirect(location, otherSeekerLocation)
+                TileUtils.distance(location, otherMobileUnitLocation) > 1
+                    || !TileUtils.isDirect(location, otherMobileUnitLocation)
             ) {
                 revert("NoTransferNotSameLocation");
             }

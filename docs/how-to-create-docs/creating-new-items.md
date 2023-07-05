@@ -38,7 +38,7 @@ When you set the crafting items you need to reference their IDs. The easiest way
 
 ```jsx
 {
-  game(id: "DAWNSEEKERS"){    
+  game(id: "DOWNSTREAM"){    
     state {
       items: nodes(match: {kinds: "Item"}) {
         id

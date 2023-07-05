@@ -1,7 +1,7 @@
 fragment SelectedPlayer on Node {
     ...WorldPlayer
-    seekers: nodes(match: { kinds: "Seeker", via: { rel: "Owner", dir: IN } }) {
-        ...SelectedSeeker
+    mobileUnits: nodes(match: { kinds: "MobileUnit", via: { rel: "Owner", dir: IN } }) {
+        ...SelectedMobileUnit
     }
 }
 

@@ -117,8 +117,8 @@ const baseStyles = (_: Partial<ShellProps>) => css`
         }
     }
 
-    .seeker-actions {
-        .seeker-selector {
+    .mobile-unit-actions {
+        .mobile-unit-selector {
             display: flex;
             justify-content: flex-end;
             align-items: center;
@@ -146,7 +146,7 @@ const baseStyles = (_: Partial<ShellProps>) => css`
     }
 
     .tile-actions,
-    .seeker-actions {
+    .mobile-unit-actions {
         position: relative;
         width: 30rem;
         color: #fff;

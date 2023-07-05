@@ -3,7 +3,7 @@ import { nullBagId } from '@app/fixtures/null-bag-id';
 import { getTileDistance } from '@app/helpers/tile';
 import { styles } from '@app/plugins/inventory/bag-item/bag-item.styles';
 import { useClickOutside } from '@app/plugins/inventory/use-click-outside';
-import { Tile, usePlayer, useSelection } from '@dawnseekers/core';
+import { Tile, usePlayer, useSelection } from '@downstream/core';
 import { createContext, ReactNode, RefObject, useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
@@ -36,7 +36,7 @@ interface InventoryContextStore {
         transferQuantity: number,
         bagId?: string
     ) => void;
-    isSeekerAtLocation: (tile: Tile) => boolean;
+    isMobileUnitAtLocation: (tile: Tile) => boolean;
     addBagRef: (ref: RefObject<HTMLElement>) => void;
     removeBagRef: (ref: RefObject<HTMLElement>) => void;
 }
@@ -63,7 +63,7 @@ const StyledPickedUpItem = styled('div')`
 
 export const InventoryProvider = ({ children }: InventoryContextProviderProps): JSX.Element => {
     const player = usePlayer();
-    const { seeker: selectedSeeker } = useSelection();
+    const { mobileUnit: selectedMobileUnit } = useSelection();
     // const world = useWorld();
     const [isPickedUpItemVisible, setIsPickedUpItemVisible] = useState<boolean>(false);
     const pickedUpItemRef = useRef<InventoryItem | null>(null);
@@ -84,15 +84,15 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
     }, []);
 
     /**
-     * check if the selected seeker is on or adjacent to the selected tile
-     * @returns true if the seeker is on or adjacent to the selected tile
+     * check if the selected mobileUnit is on or adjacent to the selected tile
+     * @returns true if the mobileUnit is on or adjacent to the selected tile
      */
-    const isSeekerAtLocation = (tile: Tile) => {
-        const seekerTile = selectedSeeker?.nextLocation?.tile;
-        if (!seekerTile) {
+    const isMobileUnitAtLocation = (tile: Tile) => {
+        const mobileUnitTile = selectedMobileUnit?.nextLocation?.tile;
+        if (!mobileUnitTile) {
             return false;
         }
-        const distance = getTileDistance(tile, seekerTile);
+        const distance = getTileDistance(tile, mobileUnitTile);
         return distance < 2;
     };
 
@@ -147,8 +147,8 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         if (isTransferInfoEqual(from, to)) {
             return;
         }
-        if (!selectedSeeker) {
-            console.error('Cannot transfer item, no selected seeker');
+        if (!selectedMobileUnit) {
+            console.error('Cannot transfer item, no selected mobileUnit');
             return;
         }
         if (!player) {
@@ -158,9 +158,9 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
 
         // make our dispatch
         player.dispatch({
-            name: 'TRANSFER_ITEM_SEEKER',
+            name: 'TRANSFER_ITEM_MOBILE_UNIT',
             args: [
-                selectedSeeker.id,
+                selectedMobileUnit.id,
                 [from.id, to.id],
                 [from.equipIndex, to.equipIndex],
                 [from.slotKey, to.slotKey],
@@ -175,7 +175,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         pickedUpItem: pickedUpItemRef.current,
         pickUpItem,
         drop,
-        isSeekerAtLocation,
+        isMobileUnitAtLocation,
         addBagRef,
         removeBagRef
     };

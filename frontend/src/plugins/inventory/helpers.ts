@@ -1,6 +1,6 @@
 /** @format */
 
-import { CompoundKeyEncoder, ItemSlotFragment, NodeSelectors, WorldStateFragment } from '@dawnseekers/core';
+import { CompoundKeyEncoder, ItemSlotFragment, NodeSelectors, WorldStateFragment } from '@downstream/core';
 import { AbiCoder, ethers } from 'ethers';
 
 export const resourceRegex = /^0x37f9b55d[0-9a-f]+$/g;

@@ -12,7 +12,7 @@ import {
     PluginStateButtonAction,
     PluginStateButtonToggle,
     PluginSubmitCallValues
-} from '@dawnseekers/core';
+} from '@downstream/core';
 
 type ToggleContentFunc = (contentID: string) => void;
 

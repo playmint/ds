@@ -2,7 +2,7 @@
 import Shell from '@app/components/views/shell';
 import { BlockTimeProvider } from '@app/contexts/block-time-provider';
 import { ModalProvider } from '@app/contexts/modal-provider';
-import { ActionName, useGameState } from '@dawnseekers/core';
+import { ActionName, useGameState } from '@downstream/core';
 import { useCallback, useEffect, useState } from 'react';
 import { useUnityContext } from 'react-unity-webgl';
 
@@ -23,8 +23,8 @@ interface SetIntentMessage extends Message {
     intent: string;
 }
 
-interface SetSeekerMessage extends Message {
-    seekerID: string;
+interface SetMobileUnitMessage extends Message {
+    mobileUnitID: string;
 }
 
 // caching previous state sends
@@ -50,7 +50,7 @@ let pendingBlock: any;
 let pendingSelection: any;
 
 export default function ShellPage() {
-    const { world, player, selected, selectSeeker, selectTiles, selectIntent: rawSelectIntent } = useGameState();
+    const { world, player, selected, selectMobileUnit, selectTiles, selectIntent: rawSelectIntent } = useGameState();
     const block = world ? world.block : 0;
     const { dispatch } = player || {};
     const [isReady, setIsReady] = useState(false);
@@ -245,12 +245,12 @@ export default function ShellPage() {
                     selectIntent(intent);
                     break;
                 }
-                case 'selectSeeker': {
-                    const { seekerID } = msgObj as SetSeekerMessage;
-                    if (!selectSeeker) {
+                case 'selectMobileUnit': {
+                    const { mobileUnitID } = msgObj as SetMobileUnitMessage;
+                    if (!selectMobileUnit) {
                         return;
                     }
-                    selectSeeker(seekerID);
+                    selectMobileUnit(mobileUnitID);
                     break;
                 }
                 default: {
@@ -270,7 +270,7 @@ export default function ShellPage() {
             removeEventListener('sendMessage', processMessage);
             removeEventListener('unityReady', processReady);
         };
-    }, [dispatch, selectTiles, selectIntent, addEventListener, removeEventListener, selectSeeker]);
+    }, [dispatch, selectTiles, selectIntent, addEventListener, removeEventListener, selectMobileUnit]);
 
     // We'll round the loading progression to a whole number to represent the
     // percentage of the Unity Application that has loaded.
@@ -312,7 +312,7 @@ export default function ShellPage() {
                     world={world}
                     player={player}
                     selection={selected}
-                    selectSeeker={selectSeeker}
+                    selectMobileUnit={selectMobileUnit}
                     selectTiles={selectTiles}
                     selectIntent={selectIntent}
                     unityProvider={unityProvider}
