@@ -15,7 +15,7 @@ The plugin's `Update()` function is passed a parameter of type [`GameSate`](http
 GameState is split into three top level objects: `player`, `world` and `selected`.
 
 
-These docs are not a complete and up to dat reference so the best way to see th state available is to use the **browser debug console**:
+These docs are not a complete and up to date reference so the best way to see th state available is to use the **browser debug console**:
 
 - While playing, hit F12 and turn on verbose console logging.
 - Select Use
