@@ -136,7 +136,7 @@ console2.log("BuildingKind", uint256(bytes32(pizzeria)));
             ],
             inputs: [
                 Input({quantity: 10, item: glassGreenGoo}), // these are required inputs to get the output
-                Input({quantity: 4, item: flaskRedGoo}),
+                Input({quantity: 6, item: flaskRedGoo}),
                 Input({quantity: 0, item: none}),
                 Input({quantity: 0, item: none})
             ],
