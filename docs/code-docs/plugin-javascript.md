@@ -46,7 +46,7 @@ The example buildings in the [ds-examples repo](https://github.com/playmint/ds-e
     > ```javascript
     > const topBag = mobileUnit.bags.find(b => b.key == 0).bag;
     > ```
-- Find out if a bag contains a particulatr item. 
+- Find out if a bag contains a particular item. 
     - *item IDs could be constructed in code but its easier to get a list of items in the world via the grapgql explorer*
     - *bags contain a sub object, bag, which contains an array of 4 slots, each with a non-sequential key value*
 
