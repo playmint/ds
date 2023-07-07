@@ -209,11 +209,10 @@ ds.dispatch(
 // render a text message to the log area of the game's UI
 ds.log("Called my building's use() function in the BuildingKind contract");
 
-// A soldidty function in your own building contract can be called by encoding its name and call parameters
-// and passing it as the payload of the use building function.
-// To do this the call needs to be abi encoded for decoding on the solidty side
+// helper to abi encode values for a payload that you can abi.decode in your contract code
+// use this to pass arbitrary parameters to your BuildingKind contract's use() function.
 // See the ds-examples repo and the PostOffice building for an example of this in action
-const payload = ds.encodeCall("function panic()", []);
+const payload = ds.encodeCall("function values(uint256 aNumber, string memory aString)", [1, "example"]);
 ds.dispatch({
       name: "BUILDING_USE",
       args: [selected.tiles[0].building.id, selected.mobileUnit.id, payload],
