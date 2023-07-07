@@ -10,7 +10,7 @@ Any buttons, that trigger functions defined in the same javascript code, can be 
 
 ## Input
 
-The plugin's `Update()` function is passed a parameter of type [`GameSate`](https://github.com/playmint/ds/blob/4b541a8e4c05d84a392c0cffec850d8b6949cd96/core/src/types.ts#L330) that you can use to check who (or what?) is using the building and configure your UI accordingly. 
+The plugin's `Update()` function is passed a parameter of type [`GameSate`](https://github.com/playmint/ds/blob/4b541a8e4c05d84a392c0cffec850d8b6949cd96/core/src/types.ts#L330) that you can use to inspect the current state of the game, discover what the player has selected and have your UI react accordingly. 
 
 GameState is split into three top level objects: `player`, `world` and `selected`.
 
