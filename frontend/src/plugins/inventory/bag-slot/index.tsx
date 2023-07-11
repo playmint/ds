@@ -89,12 +89,30 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
         handleDrop(quantity);
     };
 
-    // if we have a picked up item in hand and the slot is empty
-    // and if there is a placeholder make sure the placeholder matches
-    const isDroppable =
+    const [isStackableItem] = item
+        ? [...item.itemId]
+              .slice(2)
+              .reduce((bs, b, idx) => {
+                  if (idx % 8 === 0) {
+                      bs.push('0x');
+                  }
+                  bs[bs.length - 1] += b;
+                  return bs;
+              }, [] as string[])
+              .map((n: string) => BigInt(n))
+              .slice(-4)
+        : [false];
+
+    const isCompatiblePlaceholder =
+        pickedUpItem && ((placeholder && placeholder.item.id === pickedUpItem.transferInfo.itemId) || !placeholder);
+    const isStackableSlot =
         pickedUpItem &&
-        !item &&
-        ((placeholder && placeholder.item.id === pickedUpItem.transferInfo.itemId) || !placeholder);
+        item &&
+        pickedUpItem.transferInfo.itemId == item.itemId &&
+        (isStackableItem ? itemSlotBalance < 100 : itemSlotBalance == 0);
+
+    // if we have a picked up item in hand and the slot is compatible/stackable
+    const isDroppable = pickedUpItem && ((!item && isCompatiblePlaceholder) || (item && isStackableSlot));
 
     // it's possible for a slot to contain an item that doesn't match the slot's
     // recipe/placeholder, try to detect this invalid state
