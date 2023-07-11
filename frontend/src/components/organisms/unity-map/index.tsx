@@ -2,7 +2,7 @@
 
 import { ComponentProps } from '@app/types/component-props';
 import { SelectionSelectors } from '@downstream/core';
-import { FunctionComponent, useEffect, useState } from 'react';
+import { FunctionComponent, useEffect, useRef, useState } from 'react';
 import { Unity } from 'react-unity-webgl';
 import { UnityProvider } from 'react-unity-webgl/distribution/types/unity-provider';
 import styled from 'styled-components';
@@ -24,6 +24,7 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({
 }: UnityMapProps) => {
     // We'll use a state to store the device pixel ratio.
     const [devicePixelRatio, setDevicePixelRatio] = useState(window.devicePixelRatio);
+    const canvasRef = useRef(null);
 
     useEffect(() => {
         // A function which will update the device pixel ratio of the Unity
@@ -43,9 +44,45 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({
         };
     }, [devicePixelRatio]);
 
+    useEffect(() => {
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (!canvasRef.current) {
+                return;
+            }
+            if (!(e.target instanceof Element)) {
+                return;
+            }
+            if (document.activeElement == canvasRef.current) {
+                return;
+            }
+            const tagName = e.target.tagName.toLowerCase();
+            if (/select|input|textarea|select/.test(tagName)) {
+                return;
+            }
+            e.stopImmediatePropagation();
+            const canvas = canvasRef.current as HTMLElement;
+            canvas.focus();
+            canvas.dispatchEvent(
+                new KeyboardEvent('keydown', {
+                    key: e.key,
+                    keyCode: e.keyCode,
+                    code: e.code,
+                    which: e.which,
+                    shiftKey: false,
+                    ctrlKey: false,
+                    metaKey: false
+                })
+            );
+        };
+        window.addEventListener('keydown', onKeyDown);
+        return () => {
+            removeEventListener('keydown', onKeyDown);
+        };
+    }, []);
+
     return (
         <StyledUnityMap {...otherProps}>
-            <Unity unityProvider={unityProvider} devicePixelRatio={devicePixelRatio} />
+            <Unity ref={canvasRef} unityProvider={unityProvider} devicePixelRatio={devicePixelRatio} tabIndex={0} />
         </StyledUnityMap>
     );
 };
