@@ -51,4 +51,40 @@ library BagUtils {
             revert("NoTransferUnsupportedEquipeeKind");
         }
     }
+
+    function requireSameOrAdjacentLocation(State state, bytes24 entityA, bytes24 entityB, uint64 atTime)
+        internal
+        view
+    {
+        if (entityA == entityB) {
+            return; // same entity so same place
+        }
+
+        bytes24 locA = getCurrentLocation(state, entityA, atTime);
+        bytes24 locB = getCurrentLocation(state, entityB, atTime);
+
+        if (TileUtils.distance(locA, locB) > 1 || !TileUtils.isDirect(locA, locB)) {
+            revert("Entities not at same location");
+        }
+    }
+
+    function getCurrentLocation(State state, bytes24 entity, uint64 atTime) internal view returns (bytes24) {
+        if (bytes4(entity) == Kind.Tile.selector) {
+            return entity;
+        }
+
+        if (bytes4(entity) == Kind.Building.selector) {
+            // The distance method expects a tile so we can swap out the first 4 bytes
+            // of the building for a tile selector because the building ID is based on
+            // the location the same as a tile.
+            bytes24 mask = 0x00000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+            return (entity & mask) | bytes4(Kind.Tile.selector);
+        }
+
+        if (bytes4(entity) == Kind.MobileUnit.selector) {
+            return state.getCurrentLocation(entity, atTime);
+        }
+
+        revert("getCurrentLocation: entity kind not supported");
+    }
 }
