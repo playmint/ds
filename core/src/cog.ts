@@ -31,6 +31,8 @@ import { AnyGameSubscription, AnyGameVariables, CogAction, CogEvent, CogQueryCon
 // import { cacheExchange } from '@urql/exchange-graphcache';
 // import cogSchema from './gql/introspection';
 
+const EXPIRES_MILLISECONDS = 1000 * 60 * 60 * 12; // 12hrs
+
 const abi = ethers.AbiCoder.defaultAbiCoder();
 
 export const DOWNSTREAM_GAME_ACTIONS = Actions__factory.createInterface();
@@ -128,7 +130,6 @@ export function configureClient({
     };
 
     const dispatch = async (signer: ethers.Signer, ...unencodedActions: CogAction[]) => {
-        console.log('cog: dispatching:', unencodedActions);
         const actions = unencodedActions.map((action) => encodeActionData(iactions, action.name, action.args));
         const actionDigest = ethers.getBytes(
             ethers.keccak256(abi.encode(['bytes[]'], [actions.map((action) => ethers.getBytes(action))])),
@@ -155,6 +156,7 @@ export function configureClient({
         }
         return {
             key,
+            expires: Date.now() + EXPIRES_MILLISECONDS,
             owner,
             dispatch: (...bundle: CogAction[]) => dispatch(key, ...bundle),
             signout: () => signout(owner, key.address),
