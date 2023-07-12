@@ -56,7 +56,7 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
 
     const isPickable = !isPickedUpItemVisible;
 
-    const [_stackable, greenGoo, blueGoo, redGoo] = [...itemId]
+    const [stackable, greenGoo, blueGoo, redGoo] = [...itemId]
         .slice(2)
         .reduce((bs, b, idx) => {
             if (idx % 8 === 0) {
@@ -68,7 +68,7 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
         .map((n: string) => BigInt(n))
         .slice(-4);
 
-    const isStackable = !!_stackable;
+    const isStackable = !!stackable;
 
     const tooltip = isInvalid
         ? `Slot contains invalid ${name} item\n\nRemove item from slot to continue`
