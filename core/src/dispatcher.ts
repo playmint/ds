@@ -98,8 +98,9 @@ export function makeDispatcher(client: CogServices, wallet: Wallet, logger: Logg
  *
  */
 async function findOrCreateSession(client: CogServices, wallet: Wallet) {
-    return sessions.has(wallet.address)
-        ? sessions.get(wallet.address)
+    const currentSession = sessions.get(wallet.address);
+    return currentSession && currentSession.expires > Date.now()
+        ? currentSession
         : await wallet
               .signer()
               .then((signer) => client.signin(signer))

@@ -116,6 +116,7 @@ export enum CogEvent {
 }
 
 export interface CogSession {
+    expires: number; // timestamp
     key: ethers.HDNodeWallet;
     owner: ethers.Signer;
     dispatch: Awaited<ReturnType<ReturnType<typeof configureClient>['signin']>>['dispatch'];
