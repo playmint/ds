@@ -113,7 +113,8 @@ public class MapInteractionManager : MonoBehaviour
             }
             else
             {
-                DeselectAll();
+                if (!_camController.hasDragged)
+                    DeselectAll();
             }
         }
 
