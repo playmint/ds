@@ -136,6 +136,8 @@ export interface QueuedClientAction {
     status: DispatchedActionsStatus.QUEUED_CLIENT;
     actions: CogAction[];
     clientQueueId: string;
+    resolve: (action: QueuedSequencerAction) => void;
+    reject: (err: Error) => void;
 }
 
 export interface QueuedSequencerAction {
@@ -302,7 +304,7 @@ export interface PluginState {
 
 export type PluginSubmitProxy = (ref: string, values: PluginSubmitCallValues) => Promise<void>;
 
-export type DispatchFunc = (...actions: CogAction[]) => Promise<void>;
+export type DispatchFunc = (...actions: CogAction[]) => Promise<DispatchedAction>;
 
 export type AvailablePlugin = AvailablePluginFragment;
 export type AvailableBuildingKind = BuildingKindFragment;

@@ -21,6 +21,7 @@ import {
     PluginSubmitCallValues,
     PluginTrust,
     PluginType,
+    QueuedSequencerAction,
     Selection,
 } from './types';
 
@@ -60,8 +61,8 @@ export function makeAvailablePlugins(client: Source<CogServices>) {
  * when a plugin attempts to call dispatch but there is no connected player to
  * dispatch for.
  */
-async function noopDispatcher(...actions: CogAction[]) {
-    console.warn('dispatch failed: attempt to dispatch without a connected player', actions);
+async function noopDispatcher(..._actions: CogAction[]): Promise<QueuedSequencerAction> {
+    throw new Error('dispatch failed: attempt to dispatch without a connected player');
 }
 
 /**
@@ -306,7 +307,9 @@ export function loadPlugin(
                     console.warn(`plugin-${pluginId}: invalid dispatch call`, actions);
                     return context.undefined;
                 }
-                dispatch(...actions);
+                dispatch(...actions)
+                    .then(() => console.log(`plugin-${pluginId}: dispatched`, actions))
+                    .catch((err) => console.error(`plugin-${pluginId}: failed dispatch: ${err}`));
                 return context.newString('ok'); // TODO: return queue id
             } catch (err) {
                 console.error(`plugin-${pluginId}: failure attempting to dispatch: ${err}`);
