@@ -8,6 +8,10 @@ on:
         description: Name of environment main/prod/test to deploy to
         required: true
         type: string
+      DEPLOYMENT_PRIORITY:
+        description: priorityClassName for pods
+        required: true
+        type: string
       FRONTEND_REPLICAS:
         description: Number of instances of frontend server
         default: 1
@@ -312,6 +316,7 @@ jobs:
           cluster:
             domain: dev.playmint.com
           version: ${{ github.sha }}
+          priorityClassName: ${{ inputs.DEPLOYMENT_PRIORITY }}
       run: |
         echo "${CHART_VALUES}" > /tmp/values.yaml
         helm upgrade --timeout "30m" --history-max 5 --install --wait ${CHART_NAMESPACE} ./chart --values /tmp/values.yaml --create-namespace -n "${CHART_NAMESPACE}"
