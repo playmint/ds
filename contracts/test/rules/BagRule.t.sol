@@ -15,7 +15,7 @@ import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 
 using Schema for State;
 
-contract BuildingRuleTest is Test {
+contract BagRuleTest is Test {
     event AnnotationSet(bytes24 id, AnnotationKind kind, string label, bytes32 ref, string data);
 
     Game internal game;
@@ -80,7 +80,7 @@ contract BuildingRuleTest is Test {
 
         // -- Transfer from Alice to Bob
         vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnitAlice, _mobileUnitBob)));
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnitAlice, _mobileUnitBob, 2)));
         dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, _mobileUnitBob)));
         vm.stopPrank();
 
@@ -93,7 +93,7 @@ contract BuildingRuleTest is Test {
         // -- Transfer back to Alice
 
         vm.startPrank(bobAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnitBob, _mobileUnitAlice)));
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnitBob, _mobileUnitAlice, 0)));
         dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, _mobileUnitAlice)));
         vm.stopPrank();
 
@@ -111,7 +111,7 @@ contract BuildingRuleTest is Test {
         // -- Transfer from Alice to building
 
         vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnitAlice, _buildingInstance)));
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnitAlice, _buildingInstance, 2)));
         dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, _buildingInstance)));
         vm.stopPrank();
 
@@ -124,7 +124,7 @@ contract BuildingRuleTest is Test {
         assertEq(state.getEquipSlot(_buildingInstance, 2), bag, "Expected bag to be equipped to Bob at slot 2");
 
         vm.startPrank(address(_buildingImplementation));
-        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _buildingInstance, _mobileUnitAlice)));
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _buildingInstance, _mobileUnitAlice, 0)));
         dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, _mobileUnitAlice)));
         vm.stopPrank();
 
@@ -141,7 +141,7 @@ contract BuildingRuleTest is Test {
 
         // -- Transfer from Alice to Bob (NOT INCLUDING OWNERSHIP)
         vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnitAlice, _mobileUnitBob)));
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnitAlice, _mobileUnitBob, 2)));
         vm.stopPrank();
 
         assertEq(state.getEquipSlot(_mobileUnitAlice, 0), bytes24(0), "Expected bag not to be equipped to Alice");
@@ -152,7 +152,7 @@ contract BuildingRuleTest is Test {
         vm.startPrank(bobAccount);
         vm.expectRevert();
         dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, _mobileUnitBob)));
-        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnitBob, _mobileUnitAlice)));
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnitBob, _mobileUnitAlice, 0)));
         vm.stopPrank();
 
         assertEq(state.getEquipSlot(_mobileUnitBob, 2), bytes24(0), "Expected bag not to be equipped to Bob");
@@ -166,7 +166,7 @@ contract BuildingRuleTest is Test {
 
         // -- Transfer from Alice to building (NOT INCLUDING OWNERSHIP)
         vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnitAlice, _buildingInstance)));
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnitAlice, _buildingInstance, 2)));
         vm.stopPrank();
 
         assertEq(state.getEquipSlot(_mobileUnitAlice, 0), bytes24(0), "Expected bag not to be equipped to Alice");
@@ -177,7 +177,7 @@ contract BuildingRuleTest is Test {
         vm.startPrank(address(_buildingImplementation));
         vm.expectRevert();
         dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, _buildingInstance)));
-        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _buildingInstance, _mobileUnitAlice)));
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _buildingInstance, _mobileUnitAlice, 0)));
         vm.stopPrank();
 
         assertEq(state.getEquipSlot(_buildingInstance, 2), bytes24(0), "Expected bag not to be equipped to building");
@@ -190,7 +190,7 @@ contract BuildingRuleTest is Test {
         assertEq(bag, bytes24(0), "Expected no entity to be equipped to alice at slot 2");
 
         vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_EMPTY_BAG, (_mobileUnitAlice)));
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_EMPTY_BAG, (_mobileUnitAlice, 2)));
         vm.stopPrank();
 
         bag = state.getEquipSlot(_mobileUnitAlice, 2);
@@ -203,7 +203,7 @@ contract BuildingRuleTest is Test {
         assertEq(bag, bytes24(0), "Expected no entity to be equipped to building at slot 2");
 
         vm.startPrank(address(_buildingImplementation));
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_EMPTY_BAG, (_buildingInstance)));
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_EMPTY_BAG, (_buildingInstance, 2)));
         vm.stopPrank();
 
         bag = state.getEquipSlot(_buildingInstance, 2);
@@ -213,7 +213,39 @@ contract BuildingRuleTest is Test {
 
     function testFailSpawnEmptyBagOnNonOwnedEntity() public {
         vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_EMPTY_BAG, (_buildingInstance)));
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_EMPTY_BAG, (_buildingInstance, 2)));
+        vm.stopPrank();
+    }
+
+    function testFailSpawnEmptyBagOnNonEmptySlot() public {
+        vm.startPrank(aliceAccount);
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_EMPTY_BAG, (_mobileUnitAlice, 0)));
+        vm.stopPrank();
+    }
+
+    function testMakingABagPublic() public {
+        bytes24 bag = state.getEquipSlot(_mobileUnitAlice, 2);
+        assertEq(bag, bytes24(0), "Expected no entity to be equipped to alice at slot 2");
+
+        vm.startPrank(aliceAccount);
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_EMPTY_BAG, (_mobileUnitAlice, 2)));
+        bag = state.getEquipSlot(_mobileUnitAlice, 2);
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, bytes24(0))));
+        vm.stopPrank();
+
+        assertEq(bytes4(bag), Kind.Bag.selector, "Expected alice to be equipped with new bag at slot 2");
+        assertEq(state.getOwner(bag), bytes24(0), "Expected the bag to be owned 0x0 (public)");
+    }
+
+    function testFailClaimingAPublicBag() public {
+        bytes24 bag = state.getEquipSlot(_mobileUnitAlice, 2);
+        assertEq(bag, bytes24(0), "Expected no entity to be equipped to alice at slot 2");
+
+        vm.startPrank(aliceAccount);
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_EMPTY_BAG, (_mobileUnitAlice, 2)));
+        bag = state.getEquipSlot(_mobileUnitAlice, 2);
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, bytes24(0))));
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, _mobileUnitAlice)));
         vm.stopPrank();
     }
 

@@ -99,9 +99,9 @@ interface Actions {
 
     function TRANSFER_BAG_OWNERSHIP(bytes24 bag, bytes24 toEntity) external;
 
-    function TRANSFER_BAG(bytes24 bag, bytes24 fromEntity, bytes24 toEntity) external;
+    function TRANSFER_BAG(bytes24 bag, bytes24 fromEntity, bytes24 toEntity, uint8 toEquipSlot) external;
 
-    function SPAWN_EMPTY_BAG(bytes24 equipee) external;
+    function SPAWN_EMPTY_BAG(bytes24 equipee, uint8 equipSlot) external;
 
     // [dev/debug only] set a tile biome at any location
     function DEV_SPAWN_TILE(BiomeKind kind, int16 q, int16 r, int16 s) external;
