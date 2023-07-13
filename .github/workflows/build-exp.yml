@@ -10,6 +10,7 @@ jobs:
     uses: ./.github/workflows/build.yaml
     with:
       DEPLOYMENT_ENVIRONMENT: exp
+      DEPLOYMENT_PRIORITY: default
       FRONTEND_IMAGE_NAME: playmint/ds-shell
       CONTRACTS_IMAGE_NAME: playmint/ds-contracts
       SERVICES_IMAGE_NAME: playmint/ds-services

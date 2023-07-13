@@ -16,6 +16,7 @@ spec:
       annotations:
         gitsha: {{ $.Values.version | quote }}
     spec:
+      priorityClassName: {{ $.Values.priorityClassName | quote }}
       containers:
         - name: services
           image: {{ printf "ghcr.io/playmint/ds-services:%s-%s" $.Release.Name $.Values.version }}
@@ -127,6 +128,7 @@ spec:
       annotations:
         gitsha: {{ $.Values.version | quote }}
     spec:
+      priorityClassName: {{ $.Values.priorityClassName | quote }}
       containers:
         - name: frontend
           image: {{ printf "ghcr.io/playmint/ds-shell:%s-%s" $.Release.Name $.Values.version }}
