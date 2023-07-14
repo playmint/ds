@@ -61,9 +61,9 @@ contract NewPlayerRuleTest is Test {
         vm.stopPrank();
     }
 
-    function testBobCanNotSpawnMobileUnit() public {
+    function testBobCanSpawnMobileUnit() public {
+        // currently allow list is being pypassed so bob should be able to spawn
         vm.startPrank(bobAccount);
-        vm.expectRevert("NotAllowListed");
         dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (Node.MobileUnit(TEST_MOBILE_UNIT_ID))));
         vm.stopPrank();
     }
