@@ -11,11 +11,7 @@ public class MobileUnitController : MapElementController
     [SerializeField]
     GameObject nonPlayerIconPrefab;
 
-    [SerializeField]
-    Renderer rend;
-
-    [SerializeField]
-    GameObject outlineObj;
+    
 
     [SerializeField]
     float shrinkScale;
@@ -25,38 +21,20 @@ public class MobileUnitController : MapElementController
         _jumpCurve,
         _shrinkCurve;
 
-    [SerializeField]
-    private Color highlightColor;
+    
 
     protected int _currentIndex;
     private float _currentSize;
     private Transform _meshesTrans;
     private float _offsetRadius = 0.29f;
 
-    private string _mobileUnitID;
-    private Color _defaultColor;
+    
 
     private void Awake()
     {
         GameStateMediator.Instance.EventStateUpdated += StateUpdated;
-        _defaultColor = rend.material.GetColor("_Emission");
+        
         rend.material.SetFloat("_Fade", 1);
-    }
-
-    private void Update()
-    {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit))
-        {
-            if (hit.transform == transform && !outlineObj.activeSelf)
-            {
-                rend.material.SetColor("_Emission", highlightColor);
-                return;
-            }
-        }
-        rend.material.SetColor("_Emission", _defaultColor);
     }
 
     private void OnDestroy()
@@ -68,7 +46,7 @@ public class MobileUnitController : MapElementController
     {
         if (state.Selected.MobileUnit != null)
         {
-            if (state.Selected.MobileUnit.Id == _mobileUnitID)
+            if (state.Selected.MobileUnit.Id == _id)
             {
                 outlineObj.SetActive(true);
                 return;
@@ -86,7 +64,7 @@ public class MobileUnitController : MapElementController
         string mobileUnitID
     )
     {
-        _mobileUnitID = mobileUnitID;
+        _id = mobileUnitID;
         _meshesTrans = transform.GetChild(0);
 
         //If there's a building on the cell, we want to be in front of it:
@@ -116,12 +94,6 @@ public class MobileUnitController : MapElementController
 
         _icon.PrepareIcon(index, numObjects - isElementAtCell);
         _icon.UpdateIcon();
-    }
-
-    public string GetMobileUnitID()
-    {
-        rend.material.SetColor("_Emission", highlightColor);
-        return _mobileUnitID;
     }
 
     public void CheckPosition(Vector3Int cell, int numObjects, int index, bool isPlayer)

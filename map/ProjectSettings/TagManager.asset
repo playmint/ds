@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - MobileUnit
+  - Building
+  - Enemy
+  - Bag
   layers:
   - Default
   - TransparentFX

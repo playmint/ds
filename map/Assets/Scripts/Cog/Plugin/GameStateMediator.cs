@@ -24,6 +24,12 @@ namespace Cog
         public string mobileUnitID;
     }
 
+    struct SelectMapElementMessage
+    {
+        public string msg;
+        public string mapElementID;
+    }
+
     struct SetIntentMessage
     {
         public string msg;
@@ -327,6 +333,24 @@ namespace Cog
         public void SendSetIntentMsg(string intent)
         {
             var msg = new SetIntentMessage { msg = "setIntent", intent = intent };
+            var json = JsonConvert.SerializeObject(msg);
+            SendMessage(json);
+        }
+
+        public void SendSelectMapElementMsg(string mapelementID)
+        {
+            var msg = new SelectMapElementMessage
+            {
+                msg = "selectMapElement",
+                mapElementID = mapelementID
+            };
+            var json = JsonConvert.SerializeObject(msg);
+            SendMessage(json);
+        }
+
+        public void SendSelectMapElementMsg()
+        {
+            var msg = new SelectMapElementMessage {msg = "selectMapElement"};
             var json = JsonConvert.SerializeObject(msg);
             SendMessage(json);
         }
