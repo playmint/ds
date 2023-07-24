@@ -112,6 +112,10 @@ library Node {
     function RewardBag(bytes24 sessionID, bytes24 entityID) internal pure returns (bytes24) {
         return Node.Bag(uint64(uint16(uint192(sessionID) & type(uint16).max) | (uint48(uint192(entityID)) << 16)));
     }
+
+    function Atom(uint64 atomType) internal pure returns (bytes24) {
+        return CompoundKeyEncoder.UINT64(Kind.Atom.selector, atomType);
+    }
 }
 
 uint8 constant Q = 1;
@@ -345,5 +349,11 @@ library Schema {
     function getSid(State, /*state*/ bytes24 mobileUnitID) internal pure returns (uint32) {
         // NOTE: This is intentional. Where 'sid' is reauired by actions, it is typed as uint32
         return uint32(CompoundKeyDecoder.UINT64(mobileUnitID));
+    }
+
+    function setTileAtomValues(State state, bytes24 tile, uint64[3] memory atoms) internal {
+        state.set(Rel.Balance.selector, 0, tile, Node.Atom(0), atoms[0]);
+        state.set(Rel.Balance.selector, 1, tile, Node.Atom(1), atoms[1]);
+        state.set(Rel.Balance.selector, 2, tile, Node.Atom(2), atoms[2]);
     }
 }

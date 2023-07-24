@@ -8,6 +8,7 @@ import {Context, Rule} from "cog/Dispatcher.sol";
 import {Schema, Node, BiomeKind, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
+import {Perlin} from "@ds/utils/Perlin.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
 using Schema for State;
@@ -45,6 +46,8 @@ contract ScoutRule is Rule {
             // do the reveal
             state.setBiome(targetTile, BiomeKind.DISCOVERED);
 
+            _generateAtomValues(state, targetTile, coords);
+
             // randomly spawn a bag with some base items in it
             _tempSpawnResourceBag(state, targetTile, coords);
         }
@@ -53,6 +56,26 @@ contract ScoutRule is Rule {
     }
 
     uint256 private _resourceSpawnCount = 0;
+
+    int256 private _genCount = 0;
+
+    function _generateAtomValues(State state, bytes24 targetTile, int16[3] memory coords) private {
+        int16[2] memory coords2d = _cubeToGrid(coords);
+        uint64[3] memory atoms;
+        int128 b = Perlin.noise2d(coords2d[0], coords2d[1], 1, 8);
+        int128 g = Perlin.noise2d(1, ++_genCount, 1, 8);
+        int128 r = Perlin.noise2d(coords[0], coords[1], 1, 8);
+        atoms[0] = uint64(uint128(b));
+        atoms[2] = uint64(uint128(g));
+        atoms[1] = uint64(uint128(r));
+
+        state.setTileAtomValues(targetTile, atoms);
+    }
+
+    function _cubeToGrid(int16[3] memory coords) private pure returns (int16[2] memory coords2d) {
+        coords2d[0] = coords[0] + (coords[1] - (coords[1] & 1)) / 2;
+        coords2d[1] = coords[1];
+    }
 
     function _tempSpawnResourceBag(State state, bytes24 targetTile, int16[3] memory coords) private {
         uint64 bagID = uint64(uint256(keccak256(abi.encode(coords))));

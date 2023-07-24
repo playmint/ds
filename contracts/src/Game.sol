@@ -78,6 +78,7 @@ contract Game is BaseGame {
         state.registerNodeType(Kind.ClientPlugin.selector, "ClientPlugin", CompoundKeyKind.UINT160);
         state.registerNodeType(Kind.CombatSession.selector, "CombatSession", CompoundKeyKind.UINT160);
         state.registerNodeType(Kind.Hash.selector, "Hash", CompoundKeyKind.BYTES);
+        state.registerNodeType(Kind.Atom.selector, "Atom", CompoundKeyKind.UINT160);
 
         // register the relationship ids we are using
         state.registerEdgeType(Rel.Owner.selector, "Owner", WeightKind.UINT64);
