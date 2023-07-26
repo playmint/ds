@@ -3,9 +3,8 @@ pragma solidity ^0.8.13;
 
 import {State} from "cog/State.sol";
 import {Context, Rule} from "cog/Dispatcher.sol";
-import {Context, Rule} from "cog/Dispatcher.sol";
 
-import {Schema, Node, BiomeKind, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Schema, Node, BiomeKind, DEFAULT_ZONE, GOO_GREEN, GOO_BLUE, GOO_RED} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {Perlin} from "@ds/utils/Perlin.sol";
@@ -57,17 +56,31 @@ contract ScoutRule is Rule {
 
     uint256 private _resourceSpawnCount = 0;
 
-    int256 private _genCount = 0;
+    int16 private constant GOO_GREEN_OFFSET = 0;
+    int16 private constant GOO_BLUE_OFFSET = 30;
+    int16 private constant GOO_RED_OFFSET = 60;
 
     function _generateAtomValues(State state, bytes24 targetTile, int16[3] memory coords) private {
-        int16[2] memory coords2d = _cubeToGrid(coords);
         uint64[3] memory atoms;
-        int128 b = Perlin.noise2d(coords2d[0], coords2d[1], 1, 8);
-        int128 g = Perlin.noise2d(1, ++_genCount, 1, 8);
-        int128 r = Perlin.noise2d(coords[0], coords[1], 1, 8);
-        atoms[0] = uint64(uint128(b));
-        atoms[2] = uint64(uint128(g));
-        atoms[1] = uint64(uint128(r));
+
+        // -- Using 2d Coords
+        int16[2] memory coords2d = _cubeToGrid(coords);
+
+        // function noise2d(int256 _x, int256 _y, int256 denomX, int256 denomY, uint8 precision) internal pure returns (int128)
+
+        atoms[GOO_GREEN] =
+            uint64(uint128(Perlin.noise2d(coords2d[0] + GOO_GREEN_OFFSET, coords2d[1] + GOO_GREEN_OFFSET, 80, 30, 8)));
+        atoms[GOO_BLUE] =
+            uint64(uint128(Perlin.noise2d(coords2d[0] + GOO_BLUE_OFFSET, coords2d[1] + GOO_BLUE_OFFSET, 80, 30, 8)));
+        atoms[GOO_RED] =
+            uint64(uint128(Perlin.noise2d(coords2d[0] + GOO_RED_OFFSET, coords2d[1] + GOO_RED_OFFSET, 80, 30, 8)));
+
+        // -- Using 3d coords
+        // function noise(int256 _x, int256 _y, int256 _z, int256 denom, uint8 precision)
+        //
+        // atoms[GOO_GREEN] = uint64(uint128(Perlin.noise(coords[0], coords[1], coords[2], 80, 8)));
+        // atoms[GOO_BLUE] = uint64(uint128(Perlin.noise(coords[0], coords[1], coords[2], 80, 8)));
+        // atoms[GOO_RED] = uint64(uint128(Perlin.noise(coords[0], coords[1], coords[2], 80, 8)));
 
         state.setTileAtomValues(targetTile, atoms);
     }
