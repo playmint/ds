@@ -18,7 +18,10 @@ import {
     NodeSelectors,
     Selection,
     SelectionSelectors,
-    WorldStateFragment
+    WorldStateFragment,
+    Wallet,
+    EthereumProvider,
+    Selector
 } from '@downstream/core';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { Fragment, FunctionComponent, useCallback, useEffect, useState } from 'react';
@@ -27,6 +30,8 @@ import styled from 'styled-components';
 import { styles } from './shell.styles';
 
 export interface ShellProps extends ComponentProps, Partial<SelectionSelectors> {
+    wallet?: Wallet;
+    selectProvider: Selector<EthereumProvider>;
     world?: WorldStateFragment;
     player?: ConnectedPlayer;
     selection?: Selection;
@@ -40,10 +45,21 @@ const StyledShell = styled('div')`
 `;
 
 export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
-    const { mapReady, world, player, selection, selectMobileUnit, sendMessage, unityProvider, ...otherProps } = props;
+    const {
+        mapReady,
+        wallet,
+        selectProvider,
+        world,
+        player,
+        selection,
+        selectMobileUnit,
+        sendMessage,
+        unityProvider,
+        ...otherProps
+    } = props;
     const { mobileUnit: selectedMobileUnit, tiles: selectedTiles } = selection || {};
     const { openModal, setModalContent, closeModal } = useModalContext();
-    const [providerAvailable, setProviderAvailable] = useState<boolean>(false);
+    const [browserProvider, setBrowserProvider] = useState<EthereumProvider | null>(null);
     const [isSpawningMobileUnit, setIsSpawningMobileUnit] = useState<boolean>(false);
     const [isGracePeriod, setIsGracePeriod] = useState<boolean>(true);
 
@@ -54,29 +70,31 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     }, []);
 
     useEffect(() => {
-        const detectProvider = detectEthereumProvider();
-        detectProvider
+        detectEthereumProvider()
             .then((p) => {
-                setProviderAvailable(!!p);
+                setBrowserProvider(p as unknown as EthereumProvider);
             })
             .catch((err) => {
-                setProviderAvailable(false);
-                console.error('failed to load provider:', err);
+                console.error('failed to load detected browser provider:', err);
             });
     }, []);
 
     const connect = useCallback(() => {
+        if (wallet) {
+            console.warn('already selected');
+            return;
+        }
         if (player) {
             console.warn('already connected');
             return;
         }
-        const ethereum = (globalThis as any).ethereum;
-        if (!ethereum) {
-            console.warn('nothing to connect with');
+        if (!browserProvider) {
+            console.warn('browser provider not available');
             return;
         }
-        ethereum.request({ method: 'eth_requestAccounts' });
-    }, [player]);
+        selectProvider(browserProvider);
+        browserProvider.request({ method: 'eth_requestAccounts' });
+    }, [player, wallet, browserProvider, selectProvider]);
 
     const spawnMobileUnit = useCallback(() => {
         if (!player) {
@@ -175,10 +193,22 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     return (
         <StyledShell {...otherProps}>
             <div className="nav-container">
-                {providerAvailable && (
+                {!wallet && (
                     <button onClick={connect}>
                         <img src="/icons/player.png" alt="" />
-                        <span className="text">{player ? formatNameOrId(player, 'Player 0x..') : 'connect'}</span>
+                        <span className="text">connect</span>
+                    </button>
+                )}
+                {wallet && !player && (
+                    <button onClick={() => {}}>
+                        <img src="/icons/player.png" alt="" />
+                        <span className="text">connecting</span>
+                    </button>
+                )}
+                {wallet && player && (
+                    <button onClick={() => {}}>
+                        <img src="/icons/player.png" alt="" />
+                        <span className="text">{formatNameOrId(player, 'Player 0x..')}</span>
                     </button>
                 )}
             </div>

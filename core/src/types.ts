@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { Eip1193Provider, ethers } from 'ethers';
 import { QuickJSContext } from 'quickjs-emscripten';
 import { Source } from 'wonka';
 import { configureClient } from './cog';
@@ -17,6 +17,12 @@ import {
     WorldTileFragment,
 } from './gql/graphql';
 import { ActionsInterface } from './abi/Actions';
+
+export interface EthereumProvider extends Eip1193Provider {
+    isMetaMask?: boolean;
+    on(eventName: string | symbol, listener: (...args: any[]) => void): this;
+    off(eventName: string | symbol, listener: (...args: any[]) => void): this;
+}
 
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<T>;
 

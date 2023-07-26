@@ -36,6 +36,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "@metamask/detect-provider": "^2.0.0",
     "@types/dompurify": "^2.4.0",
     "@types/node": "16.11.7",
     "@types/react": "18.0.9",

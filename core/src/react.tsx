@@ -9,6 +9,7 @@ import { makeAutoloadPlugins, makeAvailablePlugins, makePluginSelector, makePlug
 import { makeSelection } from './selection';
 import { makeGameState } from './state';
 import {
+    Wallet,
     AvailableBuildingKind,
     AvailablePlugin,
     ConnectedPlayer,
@@ -20,8 +21,9 @@ import {
     Selector,
     GameState,
     World,
+    EthereumProvider,
 } from './types';
-import { makeBrowserWallet } from './wallet';
+import { makeWallet } from './wallet';
 import { makeWorld } from './world';
 
 export interface DSContextProviderProps {
@@ -37,11 +39,13 @@ export interface SelectionSelectors {
 }
 
 export interface DSContextStore {
+    wallet: Source<Wallet | undefined>;
     player: Source<ConnectedPlayer | undefined>;
     world: Source<World>;
     state: Source<GameState>;
     selection: Source<Selection>;
     selectors: SelectionSelectors;
+    selectProvider: Selector<EthereumProvider>;
     ui: Source<PluginState[]>;
     logger: Logger;
     logs: Source<Log>;
@@ -58,7 +62,7 @@ export const useSources = () => React.useContext(DSContext);
 
 export const DSProvider = ({ initialConfig, defaultPlugins, children }: DSContextProviderProps) => {
     const sources = React.useMemo((): DSContextStore => {
-        const wallet = makeBrowserWallet();
+        const { wallet, selectProvider } = makeWallet();
         const { client, setConfig } = makeCogClient(initialConfig || {});
         const { logger, logs } = makeLogger({ name: 'main' });
         const player = makeConnectedPlayer(client, wallet, logger);
@@ -86,10 +90,12 @@ export const DSProvider = ({ initialConfig, defaultPlugins, children }: DSContex
         const ui = makePluginUI(logger, uiPlugins, state);
 
         return {
+            wallet,
             player,
             world,
             selection,
             selectors,
+            selectProvider,
             state,
             availablePlugins,
             enabledPlugins,
@@ -109,6 +115,13 @@ export const DSProvider = ({ initialConfig, defaultPlugins, children }: DSContex
 export function usePlayer(): ConnectedPlayer | undefined {
     const sources = useSources();
     return useSource(sources.player);
+}
+
+export function useWallet(): { wallet: Wallet | undefined; selectProvider: Selector<EthereumProvider> } {
+    const sources = useSources();
+    const wallet = useSource(sources.wallet);
+    const selectProvider = sources.selectProvider;
+    return { selectProvider, wallet };
 }
 
 // fetch the current world state
