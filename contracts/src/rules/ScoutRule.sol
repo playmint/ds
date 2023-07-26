@@ -81,37 +81,50 @@ contract ScoutRule is Rule {
 
         // function noise2d(int256 _x, int256 _y, int256 denomX, int256 denomY, uint8 precision) internal pure returns (int128)
 
+        uint256 rnd = uint256(keccak256(abi.encodePacked(coords)));
+
+        // NOTE: noise2d outputs from 0 to 1 in 64.64 fixed point. Using 8 bits of 'randomness' to randomise 25% of the potential goo value
+        //       If we don't want to randomise we can simply set the precision param to 8 and get rid of the multiplication
         atoms[GOO_GREEN] = uint64(
             uint128(
-                Perlin.noise2d(
-                    (coords2d[0] + GOO_GREEN_OFFSET_X) * GOO_SCALE,
-                    (coords2d[1] + GOO_GREEN_OFFSET_Y) * GOO_SCALE,
-                    80,
-                    30,
-                    8
-                )
+                Math.mul(
+                    Perlin.noise2d(
+                        (coords2d[0] + GOO_GREEN_OFFSET_X) * GOO_SCALE,
+                        (coords2d[1] + GOO_GREEN_OFFSET_Y) * GOO_SCALE,
+                        80,
+                        30,
+                        64 // Precision
+                    ),
+                    Math.fromUInt(((rnd & 0xFF) >> 2) + 192) // players are gaurenteed 75% of the potential. Use Math.fromInt(255) to get the full potential
+                ) >> (64)
             )
         );
         atoms[GOO_BLUE] = uint64(
             uint128(
-                Perlin.noise2d(
-                    (coords2d[0] + GOO_BLUE_OFFSET_X) * GOO_SCALE,
-                    (coords2d[1] + GOO_BLUE_OFFSET_Y) * GOO_SCALE,
-                    80,
-                    30,
-                    8
-                )
+                Math.mul(
+                    Perlin.noise2d(
+                        (coords2d[0] + GOO_BLUE_OFFSET_X) * GOO_SCALE,
+                        (coords2d[1] + GOO_BLUE_OFFSET_Y) * GOO_SCALE,
+                        80,
+                        30,
+                        64
+                    ),
+                    Math.fromUInt((((rnd >> 8) & 0xFF) >> 2) + 192)
+                ) >> (64)
             )
         );
         atoms[GOO_RED] = uint64(
             uint128(
-                Perlin.noise2d(
-                    (coords2d[0] + GOO_RED_OFFSET_X) * GOO_SCALE,
-                    (coords2d[1] + GOO_RED_OFFSET_Y) * GOO_SCALE,
-                    80,
-                    30,
-                    8
-                )
+                Math.mul(
+                    Perlin.noise2d(
+                        (coords2d[0] + GOO_RED_OFFSET_X) * GOO_SCALE,
+                        (coords2d[1] + GOO_RED_OFFSET_Y) * GOO_SCALE,
+                        80,
+                        30,
+                        64
+                    ),
+                    Math.fromUInt((((rnd >> 16) & 0xFF) >> 2) + 192)
+                ) >> (64)
             )
         );
 
