@@ -46,6 +46,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b3723cfe4f2a400885bfb640844001f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  big: {fileID: 7717395134364599897}
+  small: {fileID: 7202188357928929891}
 --- !u!1001 &7482968471130372872
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -113,11 +115,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: big
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 6ba66682e711caa4580987cccb39921f,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6ba66682e711caa4580987cccb39921f, type: 3}
 --- !u!4 &6940716975942343907 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 6ba66682e711caa4580987cccb39921f,
+    type: 3}
+  m_PrefabInstance: {fileID: 7482968471130372872}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &7717395134364599897 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 6ba66682e711caa4580987cccb39921f,
     type: 3}
   m_PrefabInstance: {fileID: 7482968471130372872}
   m_PrefabAsset: {fileID: 0}
@@ -188,8 +201,19 @@ PrefabInstance:
       propertyPath: m_Name
       value: small
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 00a5db12c5441e044a59e4611edcd29f,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 00a5db12c5441e044a59e4611edcd29f, type: 3}
+--- !u!1 &7202188357928929891 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 00a5db12c5441e044a59e4611edcd29f,
+    type: 3}
+  m_PrefabInstance: {fileID: 8012530419859978034}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7545922512521957593 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 00a5db12c5441e044a59e4611edcd29f,

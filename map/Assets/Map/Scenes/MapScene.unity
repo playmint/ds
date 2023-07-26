@@ -2587,8 +2587,8 @@ MonoBehaviour:
     type: 3}
   gooRedPrefab: {fileID: 7744344825183115637, guid: fb7997d2b3b4949f894298ca3232dae9,
     type: 3}
-  smallGooThreshold: 200
-  bigGooThreshold: 230
+  smallGooThreshold: 170
+  bigGooThreshold: 200
 --- !u!4 &1329416958
 Transform:
   m_ObjectHideFlags: 0
