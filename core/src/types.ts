@@ -348,6 +348,8 @@ export interface GameState {
 export interface ConnectedPlayer extends SelectedPlayerFragment {
     dispatch: DispatchFunc;
     dispatched: Source<DispatchedAction>;
+    active: () => boolean;
+    login: () => Promise<CogSession | undefined>;
     disconnect: () => void;
 }
 

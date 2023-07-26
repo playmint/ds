@@ -12,6 +12,8 @@ import { CombatSummary } from '@app/plugins/combat/combat-summary';
 import { MobileUnitInventory } from '@app/plugins/inventory/mobile-unit-inventory';
 import { TileCoords } from '@app/plugins/tile-coords';
 import { ComponentProps } from '@app/types/component-props';
+import { Dialog } from '@app/components/molecules/dialog';
+import { QRCodeSVG } from 'qrcode.react';
 import {
     CompoundKeyEncoder,
     ConnectedPlayer,
@@ -24,6 +26,7 @@ import {
     Selector
 } from '@downstream/core';
 import detectEthereumProvider from '@metamask/detect-provider';
+import { EthereumProvider as WalletConnectProvider } from '@walletconnect/ethereum-provider';
 import { Fragment, FunctionComponent, useCallback, useEffect, useState } from 'react';
 import { UnityProvider } from 'react-unity-webgl/distribution/types/unity-provider';
 import styled from 'styled-components';
@@ -62,6 +65,9 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     const [browserProvider, setBrowserProvider] = useState<EthereumProvider | null>(null);
     const [isSpawningMobileUnit, setIsSpawningMobileUnit] = useState<boolean>(false);
     const [isGracePeriod, setIsGracePeriod] = useState<boolean>(true);
+    const [showAccount, setShowAccount] = useState<boolean>(false);
+    const [walletConnectURI, setWalletConnectURI] = useState<string | null>(null);
+    const [loggingIn, setLoggingIn] = useState<boolean>(false);
 
     useEffect(() => {
         // arbitary time til until we show things like
@@ -70,31 +76,94 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     }, []);
 
     useEffect(() => {
-        detectEthereumProvider()
-            .then((p) => {
-                setBrowserProvider(p as unknown as EthereumProvider);
-            })
+        sleep(500)
+            .then(() => detectEthereumProvider())
+            .then((p) => setBrowserProvider(p as unknown as EthereumProvider))
             .catch((err) => {
                 console.error('failed to load detected browser provider:', err);
             });
     }, []);
 
-    const connect = useCallback(() => {
-        if (wallet) {
-            console.warn('already selected');
+    // trigger signin
+    useEffect(() => {
+        if (!player) {
             return;
         }
-        if (player) {
-            console.warn('already connected');
+        if (loggingIn) {
             return;
         }
-        if (!browserProvider) {
-            console.warn('browser provider not available');
-            return;
+        if (!player.active()) {
+            setLoggingIn(true);
+            sleep(100)
+                .then(() => player.login())
+                .catch(() => window.location.reload()) // reset
+                .finally(() => setLoggingIn(false));
         }
-        selectProvider(browserProvider);
-        browserProvider.request({ method: 'eth_requestAccounts' });
-    }, [player, wallet, browserProvider, selectProvider]);
+    }, [player, loggingIn]);
+
+    const closeAccountDialog = useCallback(() => {
+        setShowAccount(false);
+        setWalletConnectURI(null);
+    }, []);
+
+    const connectWalletConnect = useCallback(async (): Promise<unknown> => {
+        try {
+            const wc = await WalletConnectProvider.init({
+                projectId: '0061224af3af75d7af2bbfa60d3c49c3',
+                chains: [1], // REQUIRED chain ids
+                showQrModal: false // REQUIRED set to "true" to use @web3modal/standalone,
+                // methods, // OPTIONAL ethereum methods
+                // events, // OPTIONAL ethereum events
+                // rpcMap, // OPTIONAL rpc urls for each chain
+                // metadata, // OPTIONAL metadata of your app
+                // qrModalOptions, // OPTIONAL - `undefined` by default, see https://docs.walletconnect.com/2.0/web3modal/options
+            });
+            setWalletConnectURI('loading');
+            const onDisplayURI = (uri: string) => setWalletConnectURI(uri);
+            wc.on('display_uri', onDisplayURI);
+            while (!document.getElementById('verify-api')) {
+                await sleep(250);
+            }
+            await sleep(500);
+            return wc
+                .connect()
+                .then(() => sleep(1000))
+                .then(() => selectProvider(wc))
+                .catch((err) => console.error(`walletconnect: ${err}`))
+                .finally(() => {
+                    wc.off('display_uri', onDisplayURI);
+                    closeAccountDialog();
+                });
+        } catch (err) {
+            console.error(`walletconnect: ${err}`);
+            return null;
+        }
+    }, [selectProvider, closeAccountDialog]);
+
+    const connectMetamask = useCallback(() => {
+        try {
+            if (wallet) {
+                console.warn('already selected');
+                return;
+            }
+            if (player) {
+                console.warn('already connected');
+                return;
+            }
+            if (!browserProvider) {
+                console.warn('browser provider not available');
+                return;
+            }
+            selectProvider(browserProvider);
+            browserProvider.request({ method: 'eth_requestAccounts' });
+        } finally {
+            closeAccountDialog();
+        }
+    }, [player, wallet, browserProvider, selectProvider, closeAccountDialog]);
+
+    const toggleAccountDialog = useCallback(() => {
+        setShowAccount((prev) => !prev);
+    }, [setShowAccount]);
 
     const spawnMobileUnit = useCallback(() => {
         if (!player) {
@@ -192,25 +261,73 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
 
     return (
         <StyledShell {...otherProps}>
+            {showAccount ? (
+                <Dialog onClose={closeAccountDialog} width="304px" height="">
+                    {wallet ? (
+                        <div style={{ padding: 15 }}>
+                            <h3>PLAYER ACCOUNT</h3>
+                            <p>
+                                0x{wallet.address.slice(0, 9)}...{wallet.address.slice(-9)}
+                            </p>
+                            <br />
+                            <button
+                                className="action-button"
+                                onClick={() => {
+                                    closeAccountDialog();
+                                    window.location.reload();
+                                }}
+                            >
+                                Disconnect
+                            </button>
+                        </div>
+                    ) : walletConnectURI === 'loading' ? (
+                        <div style={{ padding: 5 }}>Loading</div>
+                    ) : walletConnectURI ? (
+                        <div style={{ padding: 5 }}>
+                            <QRCodeSVG
+                                value={walletConnectURI}
+                                size={256}
+                                bgColor={'#143063'}
+                                fgColor={'#ffffff'}
+                                imageSettings={{
+                                    src: '/qrunit.png',
+                                    width: 48,
+                                    height: 41,
+                                    excavate: true
+                                }}
+                            />
+                            Scan the QR code with a WalletConnect compatible phone app to connect
+                        </div>
+                    ) : (
+                        <div style={{ padding: 10 }}>
+                            <h3>CONNECT USING...</h3>
+                            <div>
+                                <button className="action-button" onClick={connectMetamask}>
+                                    Metamask
+                                </button>
+                            </div>
+                            <div style={{ paddingTop: 10 }}>
+                                <button className="action-button" onClick={connectWalletConnect}>
+                                    WalletConnect
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </Dialog>
+            ) : loggingIn ? (
+                <Dialog onClose={() => window.location.reload()} width="304px" height="">
+                    <h3 style={{ padding: 10 }}>APPROVING...</h3>
+                    <div style={{ padding: 10 }}>Confirm transaction in your wallet app</div>
+                </Dialog>
+            ) : undefined}
+
             <div className="nav-container">
-                {!wallet && (
-                    <button onClick={connect}>
-                        <img src="/icons/player.png" alt="" />
-                        <span className="text">connect</span>
-                    </button>
-                )}
-                {wallet && !player && (
-                    <button onClick={() => {}}>
-                        <img src="/icons/player.png" alt="" />
-                        <span className="text">connecting</span>
-                    </button>
-                )}
-                {wallet && player && (
-                    <button onClick={() => {}}>
-                        <img src="/icons/player.png" alt="" />
-                        <span className="text">{formatNameOrId(player, 'Player 0x..')}</span>
-                    </button>
-                )}
+                <button onClick={toggleAccountDialog}>
+                    <img src="/icons/player.png" alt="" />
+                    <span className="text">
+                        {!wallet ? 'connect' : !player ? 'connecting' : formatNameOrId(player, 'Player 0x..')}
+                    </span>
+                </button>
             </div>
             <div className="hud-container">
                 <div className="top-left">
@@ -290,7 +407,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                     Spawn Unit
                                 </button>
                             ) : (
-                                <button onClick={connect}>Connect Wallet</button>
+                                <button onClick={toggleAccountDialog}>Connect Wallet</button>
                             )}
                         </div>
                     )}
@@ -337,3 +454,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     );
 };
 export default Shell;
+
+function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}

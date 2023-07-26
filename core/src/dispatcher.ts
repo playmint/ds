@@ -85,6 +85,11 @@ export function makeDispatcher(client: CogServices, wallet: Wallet, logger: Logg
                 });
             });
         },
+        active: (): boolean => {
+            const currentSession = sessions.get(wallet.address);
+            return currentSession ? currentSession.expires > Date.now() : false;
+        },
+        login: () => findOrCreateSession(client, wallet),
         disconnect,
     };
 }

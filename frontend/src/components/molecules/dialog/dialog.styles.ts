@@ -9,11 +9,11 @@ import { DialogProps } from './index';
  * @param _ The modal properties object
  * @return Base styles for the modal component
  */
-const baseStyles = ({ width }: Partial<DialogProps>) => css`
+const baseStyles = ({ width, height }: Partial<DialogProps>) => css`
     border: 0;
     background: transparent;
     overflow: hidden;
-    width: ${width || '40rem'};
+    width: ${width};
     ::backdrop {
         background: rgba(15, 15, 15, 0.1);
         backdrop-filter: blur(10px) !important;
@@ -25,7 +25,8 @@ const baseStyles = ({ width }: Partial<DialogProps>) => css`
         color: #fff;
         border: 2px solid #fff;
         width: 100%;
-        height: 30rem;
+        height: ${height};
+        overflow: auto;
     }
     .icon {
         position: relative;

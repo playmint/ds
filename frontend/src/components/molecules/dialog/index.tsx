@@ -7,7 +7,8 @@ import { styles } from './dialog.styles';
 
 export interface DialogProps extends ComponentProps {
     children?: ReactNode;
-    width?: string;
+    width: string;
+    height: string;
     icon?: string;
     onClose: () => void;
 }
@@ -16,7 +17,7 @@ const StyledDialog = styled('dialog')`
     ${styles}
 `;
 
-export const Dialog: FunctionComponent<DialogProps> = ({ icon, width = '40rem', onClose, children, ...otherProps }) => {
+export const Dialog: FunctionComponent<DialogProps> = ({ icon, width, onClose, children, ...otherProps }) => {
     const ref = useRef<HTMLDialogElement>(null);
 
     useEffect(() => {
@@ -26,7 +27,7 @@ export const Dialog: FunctionComponent<DialogProps> = ({ icon, width = '40rem', 
     }, []);
 
     return (
-        <StyledDialog {...otherProps} ref={ref} onCancel={onClose}>
+        <StyledDialog {...otherProps} ref={ref} onCancel={onClose} width={width}>
             {icon && (
                 <div className="icon">
                     <div className="diamond-bg"></div>
