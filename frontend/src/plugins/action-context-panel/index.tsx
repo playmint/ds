@@ -77,11 +77,7 @@ interface TileBuildingProps {
     selectIntent: Selector<string | undefined>;
     selectTiles: Selector<string[] | undefined>;
 }
-const TileBuilding: FunctionComponent<TileBuildingProps> = ({
-    building,
-    showFull,
-    player
-}) => {
+const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull, player }) => {
     const { tiles: selectedTiles } = useSelection();
     const selectedTile = selectedTiles?.[0];
     const tileMobileUnits = selectedTile?.mobileUnits ?? [];
