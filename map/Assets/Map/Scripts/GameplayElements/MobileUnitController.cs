@@ -11,8 +11,6 @@ public class MobileUnitController : MapElementController
     [SerializeField]
     GameObject nonPlayerIconPrefab;
 
-    
-
     [SerializeField]
     float shrinkScale;
 
@@ -21,19 +19,15 @@ public class MobileUnitController : MapElementController
         _jumpCurve,
         _shrinkCurve;
 
-    
-
     protected int _currentIndex;
     private float _currentSize;
     private Transform _meshesTrans;
     private float _offsetRadius = 0.29f;
 
-    
-
     private void Awake()
     {
         GameStateMediator.Instance.EventStateUpdated += StateUpdated;
-        
+
         rend.material.SetFloat("_Fade", 1);
     }
 

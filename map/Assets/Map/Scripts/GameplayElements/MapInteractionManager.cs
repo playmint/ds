@@ -56,7 +56,11 @@ public class MapInteractionManager : MonoBehaviour
         {
             if (hit.transform.CompareTag("MobileUnit"))
                 mobileUnitID = hit.transform.GetComponent<MapElementController>().GetElementID();
-            if (hit.transform.CompareTag("Building") || hit.transform.CompareTag("Enemy") || hit.transform.CompareTag("Bag"))
+            if (
+                hit.transform.CompareTag("Building")
+                || hit.transform.CompareTag("Enemy")
+                || hit.transform.CompareTag("Bag")
+            )
                 mapElementID = hit.transform.GetComponent<MapElementController>().GetElementID();
 
             //Get the point that is clicked
@@ -104,7 +108,9 @@ public class MapInteractionManager : MonoBehaviour
                     MapManager.instance.IsDiscoveredTile(
                         GridExtensions.GridToCube(CurrentMouseCell)
                     ) || TileNeighbourValid
-                ) && String.IsNullOrEmpty(mobileUnitID) && String.IsNullOrEmpty(mapElementID)
+                )
+                    && String.IsNullOrEmpty(mobileUnitID)
+                    && String.IsNullOrEmpty(mapElementID)
             );
 
         if (Input.GetMouseButtonUp(0))
@@ -155,8 +161,21 @@ public class MapInteractionManager : MonoBehaviour
                     // If we have a selected unit and we've clicked outside the unit's AOI and we haven't clicked the unit's tile
                     if (
                         GameStateMediator.Instance.gameState.Selected.MobileUnit != null
-                        && !TileHelper.GetTileNeighbours(TileHelper.GetTilePosCube(GameStateMediator.Instance.gameState.Selected.MobileUnit.NextLocation)).Contains(cellPosCube)
-                        && TileHelper.GetTilePosCube(GameStateMediator.Instance.gameState.Selected.MobileUnit.NextLocation) != cellPosCube
+                        && !TileHelper
+                            .GetTileNeighbours(
+                                TileHelper.GetTilePosCube(
+                                    GameStateMediator
+                                        .Instance
+                                        .gameState
+                                        .Selected
+                                        .MobileUnit
+                                        .NextLocation
+                                )
+                            )
+                            .Contains(cellPosCube)
+                        && TileHelper.GetTilePosCube(
+                            GameStateMediator.Instance.gameState.Selected.MobileUnit.NextLocation
+                        ) != cellPosCube
                     )
                     {
                         Cog.GameStateMediator.Instance.SendSelectMobileUnitMsg();
@@ -170,7 +189,6 @@ public class MapInteractionManager : MonoBehaviour
 
                 if (!string.IsNullOrEmpty(mapElementID))
                 {
-
                     Debug.Log("Select Map Element: " + mapElementID);
                     Cog.GameStateMediator.Instance.SendSelectMapElementMsg(mapElementID);
                 }

@@ -350,7 +350,7 @@ namespace Cog
 
         public void SendSelectMapElementMsg()
         {
-            var msg = new SelectMapElementMessage {msg = "selectMapElement"};
+            var msg = new SelectMapElementMessage { msg = "selectMapElement" };
             var json = JsonConvert.SerializeObject(msg);
             SendMessage(json);
         }
