@@ -35,7 +35,6 @@ export interface ActionContextPanelProps extends ComponentProps {
 const CONSTRUCT_INTENT = 'construct';
 const MOVE_INTENT = 'move';
 const SCOUT_INTENT = 'scout';
-const USE_INTENT = 'use';
 const COMBAT_INTENT = 'combat';
 
 function sleep(ms: number): Promise<void> {
