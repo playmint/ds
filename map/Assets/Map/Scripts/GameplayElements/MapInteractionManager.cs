@@ -147,48 +147,40 @@ public class MapInteractionManager : MonoBehaviour
             )
         )
         {
-            if (MapManager.instance.IsDiscoveredTile(cellPosCube) && string.IsNullOrEmpty(mapElementID))
+            if (MapManager.instance.IsDiscoveredTile(cellPosCube))
+            { // If it's a discovered tile, select it, if not deselect everything
                 Cog.GameStateMediator.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
-            else
-                DeselectAll();
-
-            if (string.IsNullOrEmpty(mobileUnitID) && string.IsNullOrEmpty(mapElementID))
-            {
-                if (
-                    GameStateMediator.Instance.gameState.Selected.MobileUnit != null
-                    && !TileHelper
-                        .GetTileNeighbours(
-                            TileHelper.GetTilePosCube(
-                                GameStateMediator
-                                    .Instance
-                                    .gameState
-                                    .Selected
-                                    .MobileUnit
-                                    .NextLocation
-                            )
-                        )
-                        .Contains(cellPosCube)
-                    && TileHelper.GetTilePosCube(
-                        GameStateMediator.Instance.gameState.Selected.MobileUnit.NextLocation
-                    ) != cellPosCube
-                )
+                if (string.IsNullOrEmpty(mobileUnitID))
                 {
-                    Cog.GameStateMediator.Instance.SendSelectMobileUnitMsg();
+                    // If we have a selected unit and we've clicked outside the unit's AOI and we haven't clicked the unit's tile
+                    if (
+                        GameStateMediator.Instance.gameState.Selected.MobileUnit != null
+                        && !TileHelper.GetTileNeighbours(TileHelper.GetTilePosCube(GameStateMediator.Instance.gameState.Selected.MobileUnit.NextLocation)).Contains(cellPosCube)
+                        && TileHelper.GetTilePosCube(GameStateMediator.Instance.gameState.Selected.MobileUnit.NextLocation) != cellPosCube
+                    )
+                    {
+                        Cog.GameStateMediator.Instance.SendSelectMobileUnitMsg();
+                    }
+                }
+                else
+                {
+                    Debug.Log("Select Unit: " + mobileUnitID);
+                    Cog.GameStateMediator.Instance.SendSelectMobileUnitMsg(mobileUnitID);
+                }
+
+                if (!string.IsNullOrEmpty(mapElementID))
+                {
+
+                    Debug.Log("Select Map Element: " + mapElementID);
+                    Cog.GameStateMediator.Instance.SendSelectMapElementMsg(mapElementID);
+                }
+                else
+                {
                     Cog.GameStateMediator.Instance.SendSelectMapElementMsg();
                 }
             }
-            else if (!string.IsNullOrEmpty(mapElementID))
-            {
-                Debug.Log("Select Map Element: " + mapElementID);
-                Cog.GameStateMediator.Instance.SendSelectMapElementMsg(mapElementID);
-            }
             else
-            {
-                Debug.Log("Select Unit: " + mobileUnitID);
-                Cog.GameStateMediator.Instance.SendSelectMobileUnitMsg(mobileUnitID);
-            }
-
-            
+                DeselectAll();
         }
         else if (GameStateMediator.Instance.gameState.Selected.Intent != IntentKind.MOVE)
         {
