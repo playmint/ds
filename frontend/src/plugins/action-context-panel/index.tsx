@@ -113,17 +113,6 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({
     const inputBag = building.bags.find((b) => b.key == 0);
     const outputBag = building.bags.find((b) => b.key == 1);
 
-    const clearIntent = useCallback(
-        (e?: React.MouseEvent) => {
-            if (e) {
-                e.preventDefault();
-            }
-            selectIntent(undefined);
-            selectTiles([]);
-        },
-        [selectIntent, selectTiles]
-    );
-
     const isEnemy = buildingKind?.model?.value === 'enemy';
 
     return (
