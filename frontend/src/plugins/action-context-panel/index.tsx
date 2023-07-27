@@ -80,8 +80,6 @@ interface TileBuildingProps {
 const TileBuilding: FunctionComponent<TileBuildingProps> = ({
     building,
     showFull,
-    selectIntent,
-    selectTiles,
     player
 }) => {
     const { tiles: selectedTiles } = useSelection();
