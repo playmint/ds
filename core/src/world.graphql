@@ -104,6 +104,10 @@ fragment WorldTile on Node {
     sessions: nodes(match: { kinds: "CombatSession", via: { rel: "Has", dir: IN } }) {
         ...WorldCombatSession
     }
+    atoms: edges(match: { kinds: ["atom"], via: { rel: "balance" } }) {
+        key
+        weight
+    }
 }
 
 fragment WorldPlayer on Node {

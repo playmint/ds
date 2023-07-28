@@ -155,10 +155,17 @@ public class MapManager : MonoBehaviour
             var cellPosCube = TileHelper.GetTilePosCube(tile);
             var hasReward = TileHelper.HasReward(tile, state.Player.MobileUnits);
 
+            // Crudely showing atoms on the map
             Transform tileTransform = AddTile(cellPosCube, tile)?.transform;
+            if (tile.Atoms != null && tile.Atoms.Count > 0)
+            {
+                MapElementManager.instance.CreateGoo(tile.Atoms, cellPosCube, tileTransform);
+            }
 
             if (hasResource || hasReward)
+            {
                 MapElementManager.instance.CreateBag(cellPosCube, tileTransform);
+            }
             else
                 MapElementManager.instance.CheckBagIconRemoved(cellPosCube);
 

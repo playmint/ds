@@ -4,3 +4,6 @@
 [submodule "contracts/lib/forge-std"]
 	path = contracts/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "contracts/lib/abdk-libraries-solidity"]
+	path = contracts/lib/abdk-libraries-solidity
+	url = https://github.com/abdk-consulting/abdk-libraries-solidity

@@ -74,6 +74,7 @@ function getUnscoutedTile(tiles: SelectedTileFragment[], q: number, r: number, s
         mobileUnits: [],
         sessions: [],
         bags: [],
+        atoms: [],
     };
 }
 
