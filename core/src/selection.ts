@@ -30,6 +30,9 @@ export function makeSelection(
 
     const { selector: selectIntent, selection: selectedIntent } = makeSelector<string | undefined>(player);
 
+    const { selector: selectMapElement, selection: selectedMapElement } = makeSelector<string | undefined>(player);
+    //const selectedMapElement = makePlayerMobileUnit(player, selectedMobileUnitID);
+
     let prev: any;
     const selectionPipe = pipe(
         merge<Partial<Selection>>([
@@ -45,6 +48,10 @@ export function makeSelection(
                 selectedIntent,
                 map((intent) => ({ intent })),
             ),
+            pipe(
+                selectedMapElement,
+                map((mapElement) => ({ mapElement })),
+            ),
         ]),
         scan((inputs, v) => ({ ...inputs, ...v }), {} as Selection),
         debounce(() => 10),
@@ -57,7 +64,7 @@ export function makeSelection(
         debounce(() => 10),
     );
 
-    return { selection, selectMobileUnit, selectTiles, selectIntent };
+    return { selection, selectMobileUnit, selectTiles, selectIntent, selectMapElement };
 }
 
 /**

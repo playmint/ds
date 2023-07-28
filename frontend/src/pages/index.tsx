@@ -27,6 +27,10 @@ interface SetMobileUnitMessage extends Message {
     mobileUnitID: string;
 }
 
+interface SetMapElementMessage extends Message {
+    mapElementID: string;
+}
+
 // caching previous state sends
 let prevPlayerJSON: string | undefined;
 let prevPlayersJSON: string | undefined;
@@ -51,7 +55,15 @@ let pendingSelection: any;
 
 export default function ShellPage() {
     const { wallet, selectProvider } = useWallet();
-    const { world, player, selected, selectMobileUnit, selectTiles, selectIntent: rawSelectIntent } = useGameState();
+    const {
+        world,
+        player,
+        selected,
+        selectMobileUnit,
+        selectTiles,
+        selectIntent: rawSelectIntent,
+        selectMapElement
+    } = useGameState();
     const block = world ? world.block : 0;
     const { dispatch } = player || {};
     const [isReady, setIsReady] = useState(false);
@@ -254,6 +266,14 @@ export default function ShellPage() {
                     selectMobileUnit(mobileUnitID);
                     break;
                 }
+                case 'selectMapElement': {
+                    const { mapElementID } = msgObj as SetMapElementMessage;
+                    if (!selectMapElement) {
+                        return;
+                    }
+                    selectMapElement(mapElementID);
+                    break;
+                }
                 default: {
                     console.warn('unhandled message from map:', msgObj);
                 }
@@ -271,7 +291,15 @@ export default function ShellPage() {
             removeEventListener('sendMessage', processMessage);
             removeEventListener('unityReady', processReady);
         };
-    }, [dispatch, selectTiles, selectIntent, addEventListener, removeEventListener, selectMobileUnit]);
+    }, [
+        dispatch,
+        selectTiles,
+        selectIntent,
+        addEventListener,
+        removeEventListener,
+        selectMobileUnit,
+        selectMapElement
+    ]);
 
     // We'll round the loading progression to a whole number to represent the
     // percentage of the Unity Application that has loaded.
@@ -316,6 +344,7 @@ export default function ShellPage() {
                     selectMobileUnit={selectMobileUnit}
                     selectTiles={selectTiles}
                     selectIntent={selectIntent}
+                    selectMapElement={selectMapElement}
                     unityProvider={unityProvider}
                     sendMessage={sendMessage}
                     selectProvider={selectProvider}

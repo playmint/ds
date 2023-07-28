@@ -15,6 +15,7 @@ export function makeGameState(
     selectTiles: Selector<string[] | undefined>,
     selectMobileUnit: Selector<string | undefined>,
     selectIntent: Selector<string | undefined>,
+    selectMapElement: Selector<string | undefined>,
 ) {
     return pipe(
         merge<Partial<GameState>>([
@@ -31,7 +32,10 @@ export function makeGameState(
                 map((selected) => ({ selected })),
             ),
         ]),
-        scan((inputs, v) => ({ selectTiles, selectMobileUnit, selectIntent, ...inputs, ...v }), {} as Partial<GameState>),
+        scan(
+            (inputs, v) => ({ selectTiles, selectMobileUnit, selectIntent, selectMapElement, ...inputs, ...v }),
+            {} as Partial<GameState>,
+        ),
         filter((inputs): inputs is GameState => !!inputs.world),
         debounce(() => 10),
     ) satisfies Source<GameState>;

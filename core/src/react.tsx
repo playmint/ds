@@ -36,6 +36,7 @@ export interface SelectionSelectors {
     selectMobileUnit: Selector<string | undefined>;
     selectTiles: Selector<string[] | undefined>;
     selectIntent: Selector<string | undefined>;
+    selectMapElement: Selector<string | undefined>;
 }
 
 export interface DSContextStore {
@@ -86,6 +87,7 @@ export const DSProvider = ({ initialConfig, defaultPlugins, children }: DSContex
             selectors.selectTiles,
             selectors.selectMobileUnit,
             selectors.selectIntent,
+            selectors.selectMapElement,
         );
         const ui = makePluginUI(logger, uiPlugins, state);
 

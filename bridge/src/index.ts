@@ -43,6 +43,10 @@ interface SetMobileUnitMessage extends Message {
     mobileUnitID: string;
 }
 
+interface SetMapElementMessage extends Message {
+    mapElementID: string;
+}
+
 async function main(privKey: string, echoOn: boolean) {
     const initialConfig = {
         wsEndpoint: "ws://localhost:8080/query",
@@ -57,8 +61,8 @@ async function main(privKey: string, echoOn: boolean) {
     const player = makeConnectedPlayer(client, wallet, logger);
     const world = makeWorld(client);
     const { selection, ...selectors } = makeSelection(client, world, player);
-    const { selectTiles, selectIntent, selectMobileUnit } = selectors;
-    const game = makeGameState(player, world, selection, selectTiles, selectMobileUnit, selectIntent);
+    const { selectTiles, selectIntent, selectMobileUnit, selectMapElement } = selectors;
+    const game = makeGameState(player, world, selection, selectTiles, selectMobileUnit, selectIntent, selectMapElement);
     const { stdout, stdin } = process;
 
     const { dispatch } = (await pipe(
@@ -96,6 +100,11 @@ async function main(privKey: string, echoOn: boolean) {
             case 'selectMobileUnit': {
                 const { mobileUnitID } = msgObj as SetMobileUnitMessage;
                 selectMobileUnit(mobileUnitID);
+                break;
+            }
+            case 'selectMapElement': {
+                const { mapElementID } = msgObj as SetMapElementMessage;
+                selectMapElement(mapElementID);
                 break;
             }
         }

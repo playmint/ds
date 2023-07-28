@@ -14,12 +14,13 @@ import {
     useSelection,
     useWorld,
     WorldBuildingFragment,
-    BuildingKindFragment
+    BuildingKindFragment,
+    WorldTileFragment
 } from '@downstream/core';
 import React, { Fragment, FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
-import { getCoords, getTileDistance } from '@app/helpers/tile';
+import { getCoords, getTileDistance, getNeighbours } from '@app/helpers/tile';
 import { BuildingInventory } from '@app/plugins/inventory/building-inventory';
 import { getBuildingEquipSlot, getBuildingId } from '@app/plugins/inventory/helpers';
 import { MobileUnitList } from '@app/plugins/mobile-unit-list';
@@ -34,7 +35,6 @@ export interface ActionContextPanelProps extends ComponentProps {
 const CONSTRUCT_INTENT = 'construct';
 const MOVE_INTENT = 'move';
 const SCOUT_INTENT = 'scout';
-const USE_INTENT = 'use';
 const COMBAT_INTENT = 'combat';
 
 function sleep(ms: number): Promise<void> {
@@ -77,13 +77,7 @@ interface TileBuildingProps {
     selectIntent: Selector<string | undefined>;
     selectTiles: Selector<string[] | undefined>;
 }
-const TileBuilding: FunctionComponent<TileBuildingProps> = ({
-    building,
-    showFull,
-    selectIntent,
-    selectTiles,
-    player
-}) => {
+const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull, player }) => {
     const { tiles: selectedTiles } = useSelection();
     const selectedTile = selectedTiles?.[0];
     const tileMobileUnits = selectedTile?.mobileUnits ?? [];
@@ -112,17 +106,6 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({
 
     const inputBag = building.bags.find((b) => b.key == 0);
     const outputBag = building.bags.find((b) => b.key == 1);
-
-    const clearIntent = useCallback(
-        (e?: React.MouseEvent) => {
-            if (e) {
-                e.preventDefault();
-            }
-            selectIntent(undefined);
-            selectTiles([]);
-        },
-        [selectIntent, selectTiles]
-    );
 
     const isEnemy = buildingKind?.model?.value === 'enemy';
 
@@ -170,9 +153,6 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({
                             </div>
                         )}
                     </TileAction>
-                    <button className="secondary-action-button" onClick={clearIntent}>
-                        Cancel Use
-                    </button>
                 </Fragment>
             )}
             {!showFull && tileMobileUnits.length > 0 && (
@@ -568,38 +548,25 @@ const Scout: FunctionComponent<ScoutProps> = ({ selectTiles, selectIntent, selec
     );
 };
 
-interface UseProps {
-    selectIntent: Selector<string | undefined>;
-    selectTiles: Selector<string[] | undefined>;
-}
-const Use: FunctionComponent<UseProps> = ({ selectIntent, selectTiles }) => {
-    const clearIntent = useCallback(
-        (e?: React.MouseEvent) => {
-            if (e) {
-                e.preventDefault();
-            }
-            selectIntent(undefined);
-            selectTiles([]);
-        },
-        [selectIntent, selectTiles]
-    );
-    return (
-        <StyledActionContextPanel className="action">
-            <h3>Select building</h3>
-            <span className="sub-title">Select a building to interact with...</span>
-            <ImageSelecting />
-            <button className="secondary-action-button" onClick={clearIntent}>
-                Cancel Use
-            </button>
-        </StyledActionContextPanel>
-    );
-};
-
 export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({ onShowCombatModal }) => {
     const { selectIntent, intent, tiles, mobileUnit, selectTiles } = useSelection();
     const player = usePlayer();
 
     const selectedTiles = tiles || [];
+
+    const world = useWorld();
+    const worldTiles = world?.tiles || ([] as WorldTileFragment[]);
+    const selectedMobileUnitTile: WorldTileFragment | undefined = mobileUnit?.nextLocation?.tile
+        ? worldTiles.find((t) => t.id === mobileUnit.nextLocation?.tile?.id)
+        : undefined;
+
+    const useableTiles = selectedMobileUnitTile
+        ? getNeighbours(worldTiles, selectedMobileUnitTile)
+              .concat([selectedMobileUnitTile])
+              .filter((t): t is WorldTileFragment => !!t && t.biome === BiomeKind.DISCOVERED && !!t.building)
+        : [];
+
+    const canUse = useableTiles.length > 0 && mobileUnit;
 
     if (intent === CONSTRUCT_INTENT) {
         return (
@@ -631,20 +598,6 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({
                 player={player}
             />
         );
-    } else if (intent === USE_INTENT) {
-        const selectedTile = selectedTiles[0];
-        if (selectedTile && selectedTile.building) {
-            return (
-                <TileBuilding
-                    player={player}
-                    building={selectedTile.building}
-                    showFull={true}
-                    selectIntent={selectIntent}
-                    selectTiles={selectTiles}
-                />
-            );
-        }
-        return <Use selectIntent={selectIntent} selectTiles={selectTiles} />;
     } else if (intent === COMBAT_INTENT) {
         return (
             <Combat
@@ -664,14 +617,26 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({
             } else if (!selectedTile.building) {
                 return <TileAvailable player={player} />;
             } else if (selectedTile.building) {
-                return (
-                    <TileBuilding
-                        building={selectedTile.building}
-                        showFull={false}
-                        selectIntent={selectIntent}
-                        selectTiles={selectTiles}
-                    />
-                );
+                if (!canUse) {
+                    return (
+                        <TileBuilding
+                            building={selectedTile.building}
+                            showFull={false}
+                            selectIntent={selectIntent}
+                            selectTiles={selectTiles}
+                        />
+                    );
+                } else {
+                    return (
+                        <TileBuilding
+                            player={player}
+                            building={selectedTile.building}
+                            showFull={true}
+                            selectIntent={selectIntent}
+                            selectTiles={selectTiles}
+                        />
+                    );
+                }
             } else {
                 return null; // fallback, don't expect this state
             }

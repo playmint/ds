@@ -2,13 +2,12 @@
 
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
-import { ethers } from 'ethers';
 import { BiomeKind, useSelection, useWorld, WorldTileFragment } from '@downstream/core';
 import { ComponentProps } from '@app/types/component-props';
 import { styles } from './action-bar.styles';
+import { getNeighbours } from '@app/helpers/tile';
 
 const CONSTRUCT_INTENT = 'construct';
-const USE_INTENT = 'use';
 const MOVE_INTENT = 'move';
 const SCOUT_INTENT = 'scout';
 const COMBAT_INTENT = 'combat';
@@ -18,31 +17,6 @@ export interface ActionBarProps extends ComponentProps {}
 const StyledActionBar = styled('div')`
     ${styles}
 `;
-
-function getCoords(coords: any[]): [number, number, number] {
-    return [
-        Number(ethers.fromTwos(coords[1], 16)),
-        Number(ethers.fromTwos(coords[2], 16)),
-        Number(ethers.fromTwos(coords[3], 16))
-    ];
-}
-
-function getTileByQRS(tiles: WorldTileFragment[], q: number, r: number, s: number): WorldTileFragment | undefined {
-    const coords = [0, q, r, s];
-    return tiles.find((t) => t.coords.every((n, idx) => coords[idx] == Number(ethers.fromTwos(n, 16))));
-}
-
-function getNeighbours(tiles: WorldTileFragment[], t: Pick<WorldTileFragment, 'coords'>): WorldTileFragment[] {
-    const [q, r, s] = getCoords(t.coords);
-    return [
-        getTileByQRS(tiles, q + 1, r, s - 1),
-        getTileByQRS(tiles, q + 1, r - 1, s),
-        getTileByQRS(tiles, q, r - 1, s + 1),
-        getTileByQRS(tiles, q - 1, r, s + 1),
-        getTileByQRS(tiles, q - 1, r + 1, s),
-        getTileByQRS(tiles, q, r + 1, s - 1)
-    ].filter((t): t is WorldTileFragment => !!t);
-}
 
 export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarProps) => {
     const { ...otherProps } = props;
@@ -124,15 +98,6 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
                         onClick={() => handleSelectIntent(CONSTRUCT_INTENT)}
                     >
                         Build
-                    </button>
-                </li>
-                <li>
-                    <button
-                        className={`action-icon-button ${intent === USE_INTENT ? 'active' : ''}`}
-                        disabled={!canUse || intent === USE_INTENT}
-                        onClick={() => handleSelectIntent(USE_INTENT)}
-                    >
-                        Use
                     </button>
                 </li>
                 <li>
