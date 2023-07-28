@@ -2,3 +2,4 @@
 cog/=lib/cog/contracts/src/
 ds-test/=lib/forge-std/lib/ds-test/src/
 forge-std/=lib/forge-std/src/
+abdk-libraries-solidity/=lib/abdk-libraries-solidity

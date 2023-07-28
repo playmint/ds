@@ -51,10 +51,17 @@ public class MapInteractionManager : MonoBehaviour
         RaycastHit hit;
 
         string mobileUnitID = "";
+        string mapElementID = "";
         if (Physics.Raycast(ray, out hit))
         {
             if (hit.transform.CompareTag("MobileUnit"))
-                mobileUnitID = hit.transform.GetComponent<MobileUnitController>().GetMobileUnitID();
+                mobileUnitID = hit.transform.GetComponent<MapElementController>().GetElementID();
+            if (
+                hit.transform.CompareTag("Building")
+                || hit.transform.CompareTag("Enemy")
+                || hit.transform.CompareTag("Bag")
+            )
+                mapElementID = hit.transform.GetComponent<MapElementController>().GetElementID();
 
             //Get the point that is clicked
             Vector3 hitPoint = hit.point;
@@ -101,7 +108,9 @@ public class MapInteractionManager : MonoBehaviour
                     MapManager.instance.IsDiscoveredTile(
                         GridExtensions.GridToCube(CurrentMouseCell)
                     ) || TileNeighbourValid
-                ) && String.IsNullOrEmpty(mobileUnitID)
+                )
+                    && String.IsNullOrEmpty(mobileUnitID)
+                    && String.IsNullOrEmpty(mapElementID)
             );
 
         if (Input.GetMouseButtonUp(0))
@@ -109,7 +118,7 @@ public class MapInteractionManager : MonoBehaviour
             if (hit.transform != null)
             {
                 if (!_camController.hasDragged)
-                    MapClicked(mobileUnitID);
+                    MapClicked(mobileUnitID, mapElementID);
             }
             else
             {
@@ -124,7 +133,7 @@ public class MapInteractionManager : MonoBehaviour
         }
     }
 
-    void MapClicked(string mobileUnitID = "")
+    void MapClicked(string mobileUnitID = "", string mapElementID = "")
     {
         // CurrentMouseCell is using Odd R offset coords
         var cellPosCube = GridExtensions.GridToCube(CurrentMouseCell);
@@ -145,39 +154,51 @@ public class MapInteractionManager : MonoBehaviour
         )
         {
             if (MapManager.instance.IsDiscoveredTile(cellPosCube))
+            { // If it's a discovered tile, select it, if not deselect everything
                 Cog.GameStateMediator.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
-            else
-                DeselectAll();
-
-            if (string.IsNullOrEmpty(mobileUnitID))
-            {
-                if (
-                    GameStateMediator.Instance.gameState.Selected.MobileUnit != null
-                    && !TileHelper
-                        .GetTileNeighbours(
-                            TileHelper.GetTilePosCube(
-                                GameStateMediator
-                                    .Instance
-                                    .gameState
-                                    .Selected
-                                    .MobileUnit
-                                    .NextLocation
-                            )
-                        )
-                        .Contains(cellPosCube)
-                    && TileHelper.GetTilePosCube(
-                        GameStateMediator.Instance.gameState.Selected.MobileUnit.NextLocation
-                    ) != cellPosCube
-                )
+                if (string.IsNullOrEmpty(mobileUnitID))
                 {
-                    Cog.GameStateMediator.Instance.SendSelectMobileUnitMsg();
+                    // If we have a selected unit and we've clicked outside the unit's AOI and we haven't clicked the unit's tile
+                    if (
+                        GameStateMediator.Instance.gameState.Selected.MobileUnit != null
+                        && !TileHelper
+                            .GetTileNeighbours(
+                                TileHelper.GetTilePosCube(
+                                    GameStateMediator
+                                        .Instance
+                                        .gameState
+                                        .Selected
+                                        .MobileUnit
+                                        .NextLocation
+                                )
+                            )
+                            .Contains(cellPosCube)
+                        && TileHelper.GetTilePosCube(
+                            GameStateMediator.Instance.gameState.Selected.MobileUnit.NextLocation
+                        ) != cellPosCube
+                    )
+                    {
+                        Cog.GameStateMediator.Instance.SendSelectMobileUnitMsg();
+                    }
+                }
+                else
+                {
+                    Debug.Log("Select Unit: " + mobileUnitID);
+                    Cog.GameStateMediator.Instance.SendSelectMobileUnitMsg(mobileUnitID);
+                }
+
+                if (!string.IsNullOrEmpty(mapElementID))
+                {
+                    Debug.Log("Select Map Element: " + mapElementID);
+                    Cog.GameStateMediator.Instance.SendSelectMapElementMsg(mapElementID);
+                }
+                else
+                {
+                    Cog.GameStateMediator.Instance.SendSelectMapElementMsg();
                 }
             }
             else
-            {
-                Debug.Log("Select Unit: " + mobileUnitID);
-                Cog.GameStateMediator.Instance.SendSelectMobileUnitMsg(mobileUnitID);
-            }
+                DeselectAll();
         }
         else if (GameStateMediator.Instance.gameState.Selected.Intent != IntentKind.MOVE)
         {
@@ -206,6 +227,7 @@ public class MapInteractionManager : MonoBehaviour
         GameStateMediator.Instance.SendSelectMobileUnitMsg();
         GameStateMediator.Instance.SendSelectTileMsg(null);
         GameStateMediator.Instance.SendSetIntentMsg(null);
+        Cog.GameStateMediator.Instance.SendSelectMapElementMsg();
     }
 
     public void MapClicked2()

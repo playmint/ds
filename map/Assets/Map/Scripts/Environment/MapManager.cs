@@ -155,22 +155,41 @@ public class MapManager : MonoBehaviour
             var cellPosCube = TileHelper.GetTilePosCube(tile);
             var hasReward = TileHelper.HasReward(tile, state.Player.MobileUnits);
 
+            // Crudely showing atoms on the map
             Transform tileTransform = AddTile(cellPosCube, tile)?.transform;
+            if (tile.Atoms != null && tile.Atoms.Count > 0)
+            {
+                MapElementManager.instance.CreateGoo(tile.Atoms, cellPosCube, tileTransform);
+            }
 
             if (hasResource || hasReward)
-                MapElementManager.instance.CreateBag(cellPosCube, tileTransform);
+            {
+                MapElementManager.instance.CreateBag(cellPosCube, tileTransform, tile.Id);
+            }
             else
                 MapElementManager.instance.CheckBagIconRemoved(cellPosCube);
 
             if (TileHelper.HasEnemy(tile))
-                MapElementManager.instance.CreateEnemy(cellPosCube, tileTransform);
+                MapElementManager.instance.CreateEnemy(
+                    cellPosCube,
+                    tileTransform,
+                    tile.Building.Id
+                );
             else if (tile.Building != null)
             {
-                MapElementManager.instance.CreateBuilding(cellPosCube, tileTransform);
+                MapElementManager.instance.CreateBuilding(
+                    cellPosCube,
+                    tileTransform,
+                    tile.Building.Id
+                );
                 MapElementManager.instance.CheckIncompleteBuildingIconRemoved(cellPosCube);
             }
             else if (incompleteBuildings.Contains(tile.Id.Substring(10)))
-                MapElementManager.instance.CreateIncompleteBuilding(cellPosCube, tileTransform);
+                MapElementManager.instance.CreateIncompleteBuilding(
+                    cellPosCube,
+                    tileTransform,
+                    tile.Building.Id
+                );
             else
             {
                 MapElementManager.instance.CheckBuildingIconRemoved(cellPosCube);

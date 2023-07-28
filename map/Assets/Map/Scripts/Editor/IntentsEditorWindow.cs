@@ -58,13 +58,6 @@ public class IntentsEditorWindow : EditorWindow
 
         GUILayout.Space(10f);
 
-        if (GUILayout.Button("Use", GUILayout.Height(50f)))
-        {
-            IntentClick("use");
-        }
-
-        GUILayout.Space(10f);
-
         if (GUILayout.Button("Combat", GUILayout.Height(50f)))
         {
             IntentClick("combat");

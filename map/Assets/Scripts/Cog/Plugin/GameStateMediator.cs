@@ -24,6 +24,12 @@ namespace Cog
         public string mobileUnitID;
     }
 
+    struct SelectMapElementMessage
+    {
+        public string msg;
+        public string mapElementID;
+    }
+
     struct SetIntentMessage
     {
         public string msg;
@@ -45,7 +51,7 @@ namespace Cog
             Required = Newtonsoft.Json.Required.DisallowNull,
             NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
         )]
-        public Player Player { get; set; }
+        public ConnectedPlayer Player { get; set; }
 
         [Newtonsoft.Json.JsonProperty(
             "selected",
@@ -331,6 +337,24 @@ namespace Cog
             SendMessage(json);
         }
 
+        public void SendSelectMapElementMsg(string mapelementID)
+        {
+            var msg = new SelectMapElementMessage
+            {
+                msg = "selectMapElement",
+                mapElementID = mapelementID
+            };
+            var json = JsonConvert.SerializeObject(msg);
+            SendMessage(json);
+        }
+
+        public void SendSelectMapElementMsg()
+        {
+            var msg = new SelectMapElementMessage { msg = "selectMapElement" };
+            var json = JsonConvert.SerializeObject(msg);
+            SendMessage(json);
+        }
+
         public void SendDeselectAllTilesMsg()
         {
             SendSelectTileMsg(new List<string>());
@@ -488,7 +512,7 @@ namespace Cog
 
             try
             {
-                incoming.Player = JsonConvert.DeserializeObject<Player>(json);
+                incoming.Player = JsonConvert.DeserializeObject<ConnectedPlayer>(json);
             }
             catch (Exception e)
             {

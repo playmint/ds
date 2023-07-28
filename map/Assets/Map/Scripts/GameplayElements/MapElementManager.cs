@@ -1,17 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class MapElementManager : MonoBehaviour
 {
     public static MapElementManager instance;
 
+    const uint GOO_GREEN = 0;
+    const uint GOO_BLUE = 1;
+    const uint GOO_RED = 2;
+
     [SerializeField]
     private GameObject buildingPrefab,
         bagPrefab,
         enemyPrefab,
-        incompleteBuildingPrefab;
+        incompleteBuildingPrefab,
+        gooGreenPrefab,
+        gooBluePrefab,
+        gooRedPrefab;
 
+    [SerializeField]
+    private uint smallGooThreshold,
+        bigGooThreshold;
     private Dictionary<Vector3Int, MapElementController> _spawnedBuildings =
         new Dictionary<Vector3Int, MapElementController>();
     private Dictionary<Vector3Int, MapElementController> _spawnedIncompleteBuildings =
@@ -20,53 +31,103 @@ public class MapElementManager : MonoBehaviour
         new Dictionary<Vector3Int, MapElementController>();
     private Dictionary<Vector3Int, MapElementController> _spawnedBags =
         new Dictionary<Vector3Int, MapElementController>();
+    private Dictionary<Vector3Int, GooController> _spawnedGoo =
+        new Dictionary<Vector3Int, GooController>();
 
     private void Awake()
     {
         instance = this;
     }
 
-    public void CreateBuilding(Vector3Int cubicCoords, Transform tileTransform)
+    public void CreateBuilding(Vector3Int cubicCoords, Transform tileTransform, string id)
     {
         if (!_spawnedBuildings.ContainsKey(cubicCoords))
         {
             MapElementController building = Instantiate(buildingPrefab, transform, true)
                 .GetComponent<MapElementController>();
             _spawnedBuildings.Add(cubicCoords, building);
-            building.Setup(cubicCoords, tileTransform);
+            building.Setup(cubicCoords, tileTransform, id);
         }
     }
 
-    public void CreateIncompleteBuilding(Vector3Int cubicCoords, Transform tileTransform)
+    public void CreateIncompleteBuilding(Vector3Int cubicCoords, Transform tileTransform, string id)
     {
         if (!_spawnedIncompleteBuildings.ContainsKey(cubicCoords))
         {
             MapElementController building = Instantiate(incompleteBuildingPrefab, transform, true)
                 .GetComponent<MapElementController>();
             _spawnedIncompleteBuildings.Add(cubicCoords, building);
-            building.Setup(cubicCoords, tileTransform);
+            building.Setup(cubicCoords, tileTransform, id);
         }
     }
 
-    public void CreateEnemy(Vector3Int cubicCoords, Transform tileTransform)
+    public void CreateEnemy(Vector3Int cubicCoords, Transform tileTransform, string id)
     {
         if (!_spawnedEnemies.ContainsKey(cubicCoords))
         {
             MapElementController enemy = Instantiate(enemyPrefab, transform, true)
                 .GetComponent<MapElementController>();
             _spawnedEnemies.Add(cubicCoords, enemy);
-            enemy.Setup(cubicCoords, tileTransform);
+            enemy.Setup(cubicCoords, tileTransform, id);
         }
     }
 
-    public void CreateBag(Vector3Int cubicCoords, Transform tileTransform)
+    public void CreateBag(Vector3Int cubicCoords, Transform tileTransform, string id)
     {
         if (!_spawnedBags.ContainsKey(cubicCoords))
         {
             MapElementController bag = Instantiate(bagPrefab, transform, true)
                 .GetComponent<MapElementController>();
             _spawnedBags.Add(cubicCoords, bag);
-            bag.Setup(cubicCoords, tileTransform);
+            bag.Setup(cubicCoords, tileTransform, id);
+        }
+    }
+
+    public void CreateGoo(
+        ICollection<Cog.Atoms2> atoms,
+        Vector3Int cubicCoords,
+        Transform tileTransform
+    )
+    {
+        if (!_spawnedGoo.ContainsKey(cubicCoords))
+        {
+            // Find highest goo val
+            var atom = atoms.OrderByDescending(atom => atom.Weight).First();
+            if (atom.Weight >= smallGooThreshold)
+            {
+                GameObject gooPrefab;
+                switch (atom.Key)
+                {
+                    case GOO_BLUE:
+                        gooPrefab = gooBluePrefab;
+                        break;
+                    case GOO_GREEN:
+                        gooPrefab = gooGreenPrefab;
+                        break;
+                    case GOO_RED:
+                        gooPrefab = gooRedPrefab;
+                        break;
+
+                    default:
+                        // No Goo with this key
+                        return;
+                }
+
+                Debug.Log($"Atom {atom.Key}: weight: {atom.Weight}");
+
+                var gooGO = Instantiate(gooPrefab, tileTransform, false);
+                var goo = gooGO.GetComponent<GooController>();
+                if (atom.Weight >= bigGooThreshold)
+                {
+                    goo.ShowBig();
+                }
+                else
+                {
+                    goo.ShowSmall();
+                }
+
+                _spawnedGoo.Add(cubicCoords, goo);
+            }
         }
     }
 

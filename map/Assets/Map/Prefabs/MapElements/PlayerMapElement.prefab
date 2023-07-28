@@ -241,11 +241,12 @@ MonoBehaviour:
   iconParent: {fileID: 8730588450661582252}
   iconPrefab: {fileID: 4200293388350177078, guid: 87b00e9807c374871b1cd063b867ba6e,
     type: 3}
+  outlineObj: {fileID: 852243857135532851}
   createIcon: 1
+  rend: {fileID: 7673478584568408413}
+  highlightColor: {r: 0.079432175, g: 0.34517217, b: 0.4811321, a: 1}
   nonPlayerIconPrefab: {fileID: 7482230774540498691, guid: 9d7d926df89fb45b09a4b5b4afb48628,
     type: 3}
-  rend: {fileID: 7673478584568408413}
-  outlineObj: {fileID: 852243857135532851}
   shrinkScale: 1
   _moveCurve:
     serializedVersion: 2
@@ -328,7 +329,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  highlightColor: {r: 0.079432175, g: 0.34517217, b: 0.4811321, a: 1}
 --- !u!4 &8730588450661582252 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4011681257694613555, guid: a699dfdf8ea904492a4f3bc5ea3d169d,
@@ -421,6 +421,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Layer
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: ed67c054313d2594abada4044bb38698,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ed67c054313d2594abada4044bb38698, type: 3}

@@ -19,6 +19,11 @@ export const TileCoords: FunctionComponent<TileCoordsProps> = (props: TileCoords
     const { selectedTiles, ...otherProps } = props;
     const lastTile = selectedTiles[selectedTiles.length - 1];
     const [_, q, r, s] = lastTile.coords.map((elm) => ethers.fromTwos(elm, 16));
+
+    const [green, blue, red] =
+        lastTile.atoms && lastTile.atoms.length > 0
+            ? lastTile.atoms.sort((a, b) => a.key - b.key).map((elm) => elm.weight)
+            : [0, 0, 0];
     const [showingIllustration, setShowingIllustration] = useState(false);
     // const [__, qHex, rHex, sHex] = lastTile.coords;
 
@@ -41,6 +46,9 @@ export const TileCoords: FunctionComponent<TileCoordsProps> = (props: TileCoords
             )}
             <div className="coordinates" onClick={handleCoordinatesClick}>
                 <strong>COORDINATES:</strong> {`${q}, ${r}, ${s}`}
+            </div>
+            <div className="gooRating">
+                <strong>GOO:</strong> {`${green}, ${blue}, ${red}`}
             </div>
             {/* <div className="coordinates">{`Q:${qHex} R:${rHex} S:${sHex}`}</div> */}
         </StyledTileCoords>

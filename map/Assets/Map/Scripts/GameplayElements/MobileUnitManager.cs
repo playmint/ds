@@ -14,7 +14,7 @@ public class MobileUnitManager : MonoBehaviour
     [SerializeField]
     private GameObject mobileUnitPrefab;
 
-    private Player currentPlayer;
+    private ConnectedPlayer currentPlayer;
 
     private Dictionary<Vector3Int, int> mobileUnitPositionCounts =
         new Dictionary<Vector3Int, int>();

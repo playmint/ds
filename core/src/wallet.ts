@@ -1,24 +1,16 @@
-import detectEthereumProvider from '@metamask/detect-provider';
-import { Eip1193Provider, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { concat, filter, fromPromise, fromValue, lazy, makeSubject, map, onEnd, pipe, Source, switchMap } from 'wonka';
 import { CompoundKeyEncoder, NodeSelectors } from './helpers';
-import { Wallet } from './types';
+import { EthereumProvider, Selector, Wallet } from './types';
 
-interface MetaMaskEthereumProvider extends Eip1193Provider {
-    isMetaMask?: boolean;
-    once(eventName: string | symbol, listener: (...args: any[]) => void): this;
-    on(eventName: string | symbol, listener: (...args: any[]) => void): this;
-    off(eventName: string | symbol, listener: (...args: any[]) => void): this;
-    addListener(eventName: string | symbol, listener: (...args: any[]) => void): this;
-    removeListener(eventName: string | symbol, listener: (...args: any[]) => void): this;
-    removeAllListeners(event?: string | symbol): this;
-}
-
-export function makeBrowserWallet(): Source<Wallet | undefined> {
-    const provider = detectEthereumProvider();
-    return pipe(
-        fromPromise(provider),
-        filter((provider): provider is MetaMaskEthereumProvider => provider !== null && !!provider.isMetaMask),
+export function makeWallet(): {
+    wallet: Source<Wallet | undefined>;
+    selectProvider: Selector<EthereumProvider>;
+} {
+    const { source: provider, next: selectProvider } = makeSubject<EthereumProvider>();
+    const wallet = pipe(
+        provider,
+        filter((provider): provider is EthereumProvider => provider !== null),
         switchMap(newBrowserAccountSource),
         map(({ provider, address }) =>
             address
@@ -30,6 +22,7 @@ export function makeBrowserWallet(): Source<Wallet | undefined> {
                 : undefined,
         ),
     );
+    return { wallet, selectProvider };
 }
 
 export function makeKeyWallet(keyHexString: string): Source<Wallet> {
@@ -44,7 +37,7 @@ export function makeKeyWallet(keyHexString: string): Source<Wallet> {
     );
 }
 
-function newBrowserAccountSource(provider: MetaMaskEthereumProvider) {
+function newBrowserAccountSource(provider: EthereumProvider) {
     const { source, next } = makeSubject<string | undefined>();
     const handleAccountsChanged = (accounts: string[]) => {
         const addr = getAddress(accounts);
@@ -53,12 +46,12 @@ function newBrowserAccountSource(provider: MetaMaskEthereumProvider) {
     const fetchAccounts = async (): Promise<string | undefined> => {
         return provider.request({ method: 'eth_accounts' }).then(getAddress);
     };
-    provider.addListener('accountsChanged', handleAccountsChanged);
+    provider.on('accountsChanged', handleAccountsChanged);
     return pipe(
         lazy(() => concat([fromPromise(fetchAccounts()), source])),
         map((address) => ({ provider, address })),
         onEnd(() => {
-            provider.removeListener('accountsChanged', handleAccountsChanged);
+            provider.off('accountsChanged', handleAccountsChanged);
         }),
     );
 }

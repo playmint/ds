@@ -13,10 +13,12 @@
   "dependencies": {
     "@apollo/client": "^3.7.3",
     "@chakra-ui/react": "^2.4.9",
-    "@downstream/core": "file:core",
     "@dnd-kit/core": "^6.0.7",
     "@dnd-kit/utilities": "^3.2.1",
+    "@downstream/core": "file:core",
     "@metamask/detect-provider": "^2.0.0",
+    "@walletconnect/ethereum-provider": "^2.9.1",
+    "@walletconnect/modal": "^2.6.1",
     "@web3-react/core": "^6.1.9",
     "@web3-react/injected-connector": "^6.0.7",
     "@web3-react/network-connector": "^6.2.9",
@@ -28,6 +30,7 @@
     "gsap": "^3.11.5",
     "next": "13.2.4",
     "polished": "4.2.2",
+    "qrcode.react": "^3.1.0",
     "quickjs-emscripten": "^0.22.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -36,6 +39,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "@metamask/detect-provider": "^2.0.0",
     "@types/dompurify": "^2.4.0",
     "@types/node": "16.11.7",
     "@types/react": "18.0.9",

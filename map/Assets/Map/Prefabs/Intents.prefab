@@ -1,53 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1136464793
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1136464794}
-  - component: {fileID: 1136464795}
-  m_Layer: 0
-  m_Name: UseIntent
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1136464794
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1136464793}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 6406227089287717616}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1136464795
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1136464793}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 674d6db085dee4d019504401c38923e9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _validHighlightPrefab: {fileID: 9133061235819889254, guid: 7f40037dbe60e4a0d8b02da7ed0b821d,
-    type: 3}
-  _selectedHighlightPrefab: {fileID: 9133061235819889254, guid: c86ba47b0de074dcea2a4af310a133b6,
-    type: 3}
 --- !u!1 &106823549850996205
 GameObject:
   m_ObjectHideFlags: 0
@@ -78,7 +30,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6406227089287717616}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2624196961274548065
 MonoBehaviour:
@@ -130,7 +82,6 @@ Transform:
   - {fileID: 6406227090609630111}
   - {fileID: 6406227090700894559}
   - {fileID: 6406227089827611953}
-  - {fileID: 1136464794}
   - {fileID: 2135372240047306440}
   m_Father: {fileID: 0}
   m_RootOrder: 0
