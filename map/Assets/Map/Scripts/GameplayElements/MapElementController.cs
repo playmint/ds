@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Cog;
 using UnityEngine;
 
@@ -90,13 +91,31 @@ public class MapElementController : MonoBehaviour
 
     private void StateUpdated(GameState state)
     {
+        Tiles tile = null;
+        bool activateOutline = false;
+        if(state.Selected != null && state.Selected.Tiles != null && state.Selected.Tiles.Count > 0
+        )
+        {
+            tile = state.Selected.Tiles.First();
+            if(tile != null)
+            {
+                if((tile.Building != null && tile.Building.Id == _id) || tile.Id == _id)
+                {
+                    activateOutline = true;
+                }
+            }
+        }
         if (state.Selected.MapElementID != null)
         {
             if (state.Selected.MapElementID == _id)
             {
-                outlineObj.SetActive(true);
-                return;
+                activateOutline = true;
             }
+        }
+        if(activateOutline)
+        {
+            outlineObj.SetActive(true);
+            return;
         }
         outlineObj.SetActive(false);
         rend.material.SetColor("_Emission", _defaultColor);
