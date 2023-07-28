@@ -352,8 +352,8 @@ library Schema {
     }
 
     function setTileAtomValues(State state, bytes24 tile, uint64[3] memory atoms) internal {
-        state.set(Rel.Balance.selector, 0, tile, Node.Atom(0), atoms[0]);
-        state.set(Rel.Balance.selector, 1, tile, Node.Atom(1), atoms[1]);
-        state.set(Rel.Balance.selector, 2, tile, Node.Atom(2), atoms[2]);
+        state.set(Rel.Balance.selector, GOO_GREEN, tile, Node.Atom(GOO_GREEN), atoms[GOO_GREEN]);
+        state.set(Rel.Balance.selector, GOO_BLUE, tile, Node.Atom(GOO_BLUE), atoms[GOO_BLUE]);
+        state.set(Rel.Balance.selector, GOO_RED, tile, Node.Atom(GOO_RED), atoms[GOO_RED]);
     }
 }
