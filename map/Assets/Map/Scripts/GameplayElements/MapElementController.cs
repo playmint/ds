@@ -93,13 +93,14 @@ public class MapElementController : MonoBehaviour
     {
         Tiles tile = null;
         bool activateOutline = false;
-        if(state.Selected != null && state.Selected.Tiles != null && state.Selected.Tiles.Count > 0
+        if (
+            state.Selected != null && state.Selected.Tiles != null && state.Selected.Tiles.Count > 0
         )
         {
             tile = state.Selected.Tiles.First();
-            if(tile != null)
+            if (tile != null)
             {
-                if((tile.Building != null && tile.Building.Id == _id) || tile.Id == _id)
+                if ((tile.Building != null && tile.Building.Id == _id) || tile.Id == _id)
                 {
                     activateOutline = true;
                 }
@@ -112,7 +113,7 @@ public class MapElementController : MonoBehaviour
                 activateOutline = true;
             }
         }
-        if(activateOutline)
+        if (activateOutline)
         {
             outlineObj.SetActive(true);
             return;
