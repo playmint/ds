@@ -1,0 +1,45 @@
+{
+  "name": "@playmint/ds-cli",
+  "version": "0.0.1",
+  "description": "cli client for interacting with downstream.game",
+  "main": "index.js",
+  "bin": {
+    "ds": "./dist/ds.js"
+  },
+  "files": {
+    "include": ["dist"]
+  },
+  "scripts": {
+    "build": "npx esbuild src/main.ts --bundle --outfile=dist/ds.js --platform=node --target=node12",
+    "exec": "npm run build >/dev/null && ./dist/ds.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "playmint",
+  "repository": "github:playmint/ds",
+  "keywords": [
+    "downstream",
+    "playmint",
+    "ds-cli",
+    "ds"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.4.5",
+    "@typescript-eslint/eslint-plugin": "^6.2.0",
+    "@typescript-eslint/parser": "^6.2.0",
+    "esbuild": "^0.18.17",
+    "eslint": "^8.46.0",
+    "eslint-config-prettier": "^8.9.0",
+    "eslint-plugin-import": "^2.28.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "@walletconnect/ethereum-provider": "^2.9.1",
+    "cross-fetch": "^4.0.0",
+    "lokijs": "^1.5.12",
+    "qrcode-terminal": "^0.12.0",
+    "ws": "^8.13.0",
+    "yargs": "^17.7.2"
+  }
+}
