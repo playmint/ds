@@ -100,7 +100,7 @@ public class MapElementController : MonoBehaviour
             tile = state.Selected.Tiles.First();
             if (tile != null)
             {
-                if ((tile.Building != null && tile.Building.Id == _id) || tile.Id == _id)
+                if ((tile.Building != null && tile.Building.Id == _id) || _id.Contains(tile.Id))
                 {
                     activateOutline = true;
                 }

@@ -164,7 +164,7 @@ public class MapManager : MonoBehaviour
 
             if (hasResource || hasReward)
             {
-                MapElementManager.instance.CreateBag(cellPosCube, tileTransform, tile.Id);
+                MapElementManager.instance.CreateBag(cellPosCube, tileTransform, "bag" + tile.Id);
             }
             else
                 MapElementManager.instance.CheckBagIconRemoved(cellPosCube);
@@ -188,7 +188,7 @@ public class MapManager : MonoBehaviour
                 MapElementManager.instance.CreateIncompleteBuilding(
                     cellPosCube,
                     tileTransform,
-                    tile.Building.Id
+                    "construction" + tile.Id
                 );
             else
             {
