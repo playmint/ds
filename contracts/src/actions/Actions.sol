@@ -48,6 +48,7 @@ interface Actions {
 
     // register kind implementation contract
     function REGISTER_KIND_IMPLEMENTATION(bytes24 kind, address kindImplementation) external;
+    function DEPLOY_KIND_IMPLEMENTATION(bytes24 kind, bytes calldata bytecode) external;
 
     // register plugins for use within supported clients
     //

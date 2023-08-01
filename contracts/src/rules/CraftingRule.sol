@@ -131,15 +131,15 @@ contract CraftingRule is Rule {
             // output items is less than half of the total input of each atom
             require(
                 availableInputAtoms[0] >= totalOutputAtoms[0],
-                "cannot craft an item that outputs more 0-atoms than it inputs"
+                "cannot craft an item that outputs more green goo than it inputs"
             );
             require(
                 availableInputAtoms[1] >= totalOutputAtoms[1],
-                "cannot craft an item that outputs more 1-atoms than it inputs"
+                "cannot craft an item that outputs more blue goo than it inputs"
             );
             require(
                 availableInputAtoms[2] >= totalOutputAtoms[2],
-                "cannot craft an item that outputs more 2-atoms than it inputs"
+                "cannot craft an item that outputs more red goo than it inputs"
             );
         }
 
