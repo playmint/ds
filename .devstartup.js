@@ -7,48 +7,53 @@ const { execSync } = require("child_process");
 // ------------------------------------------------------------------
 //
 
-const SEQUENCER_PRIVATE_KEY = "095a37ef5b5d87db7fe50551725cb64804c8c554868d3d729c0dd17f0e664c87";
-const DEPLOYER_PRIVATE_KEY = "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff9524d487fb5d57a8";
+// key with cash on playmint-testnet
+const SEQUENCER_PRIVATE_KEY = "";
 
 // configure services to run
 
 const commands = [
-    {
-        name: 'networks',
-        command: "anvil -m 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --code-size-limit 9999999999999 --gas-limit 9999999999999999 --silent",
-        prefixColor: 'black',
-    },
+    // don't need an anvil
+    //{
+    //    name: 'networks',
+    //    command: "anvil -m 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --code-size-limit 9999999999999 --gas-limit 9999999999999999 --silent",
+    //    prefixColor: 'black',
+    //},
 
+    // need to fork sim from playmint
     {
         name: 'sim',
-        command: "anvil --code-size-limit 9999999999999 --gas-limit 9999999999999999 --port 8546 --fork-url http://localhost:8545 --no-mining --no-rate-limit --no-storage-caching --silent",
+        command: "anvil --code-size-limit 9999999999999 --gas-limit 9999999999999999 --port 8546 --fork-url https://playmint-testnet.calderachain.xyz/http --no-mining --no-rate-limit --no-storage-caching --silent",
         prefixColor: 'black',
     },
 
-    {
-        name: 'contract',
-        command: './lib/cog/services/bin/wait-for -it localhost:8545 -t 300 && forge script script/Deploy.sol:GameDeployer --broadcast --slow --rpc-url "http://localhost:8545" && sleep 9999999',
-        prefixColor: 'black',
-        env: {
-            DEPLOYER_PRIVATE_KEY,
-        },
-        cwd: path.resolve(__dirname, path.join('contracts')),
-    },
+    // contracts have been deployed manually now - wait for commnand doesn't work
+    //{
+    //    name: 'contract',
+    //    command: './lib/cog/services/bin/wait-for -it https://playmint-testnet.calderachain.xyz/http -t 300 && forge script script/Deploy.sol:GameDeployer --broadcast --slow --rpc-url "https://playmint-testnet.calderachain.xyz/http" && sleep 9999999',
+    //    prefixColor: 'black',
+    //    env: {
+    //        DEPLOYER_PRIVATE_KEY,
+    //    },
+    //    cwd: path.resolve(__dirname, path.join('contracts')),
+    //},
 
+    // services need to poitn to playmint-testnet
+    // wait for commnand doesn't work
     {
         name: 'services',
-        command: './bin/wait-for -it localhost:8545 -t 300 && ./bin/wait-for -it localhost:8546 -t 300 && ./bin/ds-node',
+        command: /*'./bin/wait-for -it https://playmint-testnet.calderachain.xyz/http -t 300 && */'./bin/wait-for -it localhost:8546 -t 60 && ./bin/ds-node',
         env: {
             PORT: "8181",
-            CHAIN_ID: "1337",
+            CHAIN_ID: "14829",
             SEQUENCER_PRIVATE_KEY,
-            SEQUENCER_PROVIDER_URL_HTTP: "http://localhost:8545",
-            SEQUENCER_PROVIDER_URL_WS: "ws://localhost:8545",
+            SEQUENCER_PROVIDER_URL_HTTP: "https://playmint-testnet.calderachain.xyz/http",
+            SEQUENCER_PROVIDER_URL_WS: "wss://playmint-testnet.calderachain.xyz/ws",
             SIMULATION_PROVIDER_URL_HTTP: "http://localhost:8546",
             SIMULATION_PROVIDER_URL_WS: "ws://localhost:8546",
             INDEXER_WATCH_PENDING: "false",
-            INDEXER_PROVIDER_URL_HTTP: "http://localhost:8545",
-            INDEXER_PROVIDER_URL_WS: "ws://localhost:8545",
+            INDEXER_PROVIDER_URL_HTTP: "https://playmint-testnet.calderachain.xyz/http",
+            INDEXER_PROVIDER_URL_WS: "wss://playmint-testnet.calderachain.xyz/ws",
         },
         prefixColor: 'yellow',
         cwd: path.resolve(__dirname, path.join('contracts', 'lib', 'cog', 'services')),
