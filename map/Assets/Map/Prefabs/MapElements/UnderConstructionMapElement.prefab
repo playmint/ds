@@ -116,6 +116,10 @@ PrefabInstance:
       objectReference: {fileID: 2167013614747121971, guid: 58a41a29608144c348eb2c954e04eaef,
         type: 3}
     - target: {fileID: 1410422685, guid: a699dfdf8ea904492a4f3bc5ea3d169d, type: 3}
+      propertyPath: outlineObj
+      value: 
+      objectReference: {fileID: 7571933526345192794}
+    - target: {fileID: 1410422685, guid: a699dfdf8ea904492a4f3bc5ea3d169d, type: 3}
       propertyPath: highlightColor.a
       value: 1
       objectReference: {fileID: 0}
@@ -328,3 +332,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 94f861c9fe6a93a4681c6b433024560b, type: 3}
+--- !u!1 &7571933526345192794 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 94f861c9fe6a93a4681c6b433024560b,
+    type: 3}
+  m_PrefabInstance: {fileID: 7337912718191503371}
+  m_PrefabAsset: {fileID: 0}
