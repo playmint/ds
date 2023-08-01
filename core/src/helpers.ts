@@ -13,9 +13,12 @@ export const getSelector = (name: string): string => {
 
 export const NodeSelectors = {
     Tile: getSelector('Tile'),
+    Item: getSelector('Item'),
     MobileUnit: getSelector('MobileUnit'),
     Player: getSelector('Player'),
     Building: getSelector('Building'),
+    BuildingKind: getSelector('BuildingKind'),
+    ClientPlugin: getSelector('ClientPlugin'),
     Bag: getSelector('Bag'),
 };
 
