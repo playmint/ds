@@ -9,6 +9,7 @@ import actions from './commands/actions';
 import network from './commands/network';
 import items from './commands/items';
 import buildingKinds from './commands/building-kinds';
+import deploy from './commands/deploy';
 
 const yargs = _yargs(hideBin(process.argv));
 
@@ -42,6 +43,7 @@ yargs
     .command(network)
     .command(items)
     .command(buildingKinds)
+    .command(deploy)
     .demandCommand()
     .help()
     .wrap(Math.min(120, yargs.terminalWidth())).argv;
