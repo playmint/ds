@@ -117,15 +117,7 @@ public class MapElementManager : MonoBehaviour
 
                 var gooGO = Instantiate(gooPrefab, tileTransform, false);
                 var goo = gooGO.GetComponent<GooController>();
-                if (atom.Weight >= bigGooThreshold)
-                {
-                    goo.ShowBig();
-                }
-                else
-                {
-                    goo.ShowSmall();
-                }
-
+                goo.Setup(atom.Weight >= bigGooThreshold);
                 _spawnedGoo.Add(cubicCoords, goo);
             }
         }
