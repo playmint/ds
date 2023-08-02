@@ -15,7 +15,7 @@ public class GooController : MonoBehaviour
     {
         big.SetActive(isBig);
         small.SetActive(!isBig);
-        transform.Rotate(0, Random.Range(0,12)*30.0f, 0);
+        transform.Rotate(0, Random.Range(0, 12) * 30.0f, 0);
     }
 
     public void Hide()

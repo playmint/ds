@@ -72,7 +72,7 @@ public class MapInteractionManager : MonoBehaviour
             Vector3 cursorPos = MapManager.instance.grid.CellToWorld(CurrentMouseCell);
             float height = MapHeightManager.UNSCOUTED_HEIGHT;
             if (MapManager.instance.IsDiscoveredTile(cubePos))
-                height = MapHeightManager.instance.GetHeightAtPosition(cursorPos)+0.01f;
+                height = MapHeightManager.instance.GetHeightAtPosition(cursorPos) + 0.01f;
             cursor.position = new Vector3(cursorPos.x, height, cursorPos.z);
         }
         if (EventSystem.current.IsPointerOverGameObject())
