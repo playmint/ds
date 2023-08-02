@@ -2581,11 +2581,11 @@ MonoBehaviour:
     type: 3}
   incompleteBuildingPrefab: {fileID: 7268972726147497452, guid: a9582aca24609be4bb8e347f138dc714,
     type: 3}
-  gooGreenPrefab: {fileID: 4574411396258189025, guid: ddd0f6cc33faa4986ae8a8fee3a36fc8,
+  gooGreenPrefab: {fileID: 7854738012650742471, guid: ddd0f6cc33faa4986ae8a8fee3a36fc8,
     type: 3}
   gooBluePrefab: {fileID: 8375757802600294371, guid: 2fe23035822604fcfa98a58328c7e292,
     type: 3}
-  gooRedPrefab: {fileID: 7744344825183115637, guid: fb7997d2b3b4949f894298ca3232dae9,
+  gooRedPrefab: {fileID: 2486503220230111444, guid: fb7997d2b3b4949f894298ca3232dae9,
     type: 3}
   smallGooThreshold: 170
   bigGooThreshold: 200
