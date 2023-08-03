@@ -2,7 +2,7 @@
 import _yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { networks } from './utils/networks';
-import { client } from './utils/services';
+import { session } from './utils/services';
 import { output } from './utils/output';
 
 import actions from './commands/actions';
@@ -37,7 +37,7 @@ yargs
         describe: 'player private key (insecure!)',
         type: 'string',
     })
-    .middleware(client)
+    .middleware(session)
     .middleware(output)
     .command(actions)
     .command(network)

@@ -44,20 +44,30 @@ const newWalletConnectProvider = async (): Promise<EthereumProvider> => {
     });
 };
 
-export const client = async (argv) => {
+export const session = async (argv) => {
     const network = networks.find((n) => n.name == argv.network);
     if (!network) {
         throw new Error(`no network found with name ${argv.network}`);
     }
-    const { client } = makeCogClient({
-        wsEndpoint: network.wsEndpoint,
-        wsSocketImpl: WebSocket,
-        httpEndpoint: network.httpEndpoint,
-        httpFetchImpl: fetch,
-    });
+
+    let __client: ReturnType<typeof makeCogClient>;
+    const makeClient = () => {
+        if (__client) {
+            return __client;
+        }
+        const client = makeCogClient({
+            wsEndpoint: network.wsEndpoint,
+            wsSocketImpl: WebSocket,
+            httpEndpoint: network.httpEndpoint,
+            httpFetchImpl: fetch,
+        });
+        __client = client;
+        return __client;
+    };
 
     const getPlayerSession = async () => {
         const { logger } = makeLogger({ name: 'main' });
+        const { client } = makeClient();
         if (argv.k) {
             const wallet = makeKeyWallet(`0x${argv.k}`);
             const player = pipe(
@@ -94,9 +104,12 @@ export const client = async (argv) => {
     };
 
     argv.game = 'DOWNSTREAM';
-    argv.client = () => pipe(client, take(1), toPromise);
+    argv.client = async () => {
+        const { client } = makeClient();
+        return pipe(client, take(1), toPromise);
+    };
 
-    let __player;
+    let __player: Awaited<ReturnType<typeof getPlayerSession>>;
     argv.player = async () => {
         if (__player) {
             return __player;
