@@ -61,7 +61,6 @@ const buildingDeploymentActions = async (kind, manifest): Promise<CogAction[]> =
         name: 'REGISTER_BUILDING_KIND',
         args: [id, kind.name, materialItems, materialQtys],
     });
-    console.log(`kind ${id} registered`);
 
     // compile and deploy an implementation if given
     if (kind.contract.file) {
@@ -146,6 +145,7 @@ const deploy = {
 
         // build list of operations
         let ops: CogAction[] = [];
+        const notes: string[] = [];
 
         // process item kinds first
         for (const k of manifest.kinds) {
@@ -163,6 +163,7 @@ const deploy = {
                     args: [itemID, k.name, k.icon],
                 },
             ];
+            notes.push(`✅ registered item ${k.name} (${itemID})`);
         }
 
         // process building kinds
@@ -172,10 +173,13 @@ const deploy = {
             }
             const actions = await buildingDeploymentActions(k, manifest);
             ops = [...ops, ...actions];
+            notes.push(`✅ registered building ${k.name} (${encodeBuildingID(k)})`);
         }
 
         // dump the dry run of ops
-        console.log(ops.map((op) => `${op.name} ${JSON.stringify(op.args).slice(0, 1024)}`).join('\n'));
+        console.log('The following actions will be performed:');
+        console.log(ops.map((op) => `    ${op.name}}`).join('\n'));
+        console.log('');
 
         // abort here if dry-run
         if (ctx.dryRun) {
@@ -188,6 +192,7 @@ const deploy = {
         await player.dispatch(...ops);
 
         // done!
+        console.log(notes.join('\n'));
         process.exit(0);
     },
 };
