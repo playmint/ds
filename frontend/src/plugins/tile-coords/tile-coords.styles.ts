@@ -58,7 +58,8 @@ const baseStyles = (_: Partial<TileCoordsProps>) => css`
         transform: translate(-76px, -63px);
     }
 
-    .coordinates {
+    .gooRating > span {
+        margin-right: 1rem;
     }
 `;
 

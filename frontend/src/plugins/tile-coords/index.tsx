@@ -48,9 +48,15 @@ export const TileCoords: FunctionComponent<TileCoordsProps> = (props: TileCoords
                 <strong>COORDINATES:</strong> {`${q}, ${r}, ${s}`}
             </div>
             <div className="gooRating">
-                <strong>GREEN:</strong> {`${green}`}&nbsp;
-                <strong>BLUE:</strong> {`${blue}`}&nbsp;
-                <strong>RED:</strong> {`${red}`}&nbsp;
+                <span>
+                    <strong>RED:</strong> {red}
+                </span>
+                <span>
+                    <strong>GREEN:</strong> {green}
+                </span>
+                <span>
+                    <strong>BLUE:</strong> {blue}
+                </span>
             </div>
             {/* <div className="coordinates">{`Q:${qHex} R:${rHex} S:${sHex}`}</div> */}
         </StyledTileCoords>
