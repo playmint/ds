@@ -364,6 +364,47 @@ export function loadPlugin(
     context.setProp(context.global, '__ds', dsHandle);
     dsHandle.dispose();
 
+    // console.log
+    const consoleHandle = context.newObject();
+
+    const infoHandle = context.newFunction('info', (...args) => {
+        const nativeArgs = args.map(context.dump);
+        console.info(...nativeArgs);
+    });
+    context.setProp(consoleHandle, 'info', infoHandle);
+
+    const logHandle = context.newFunction('log', (...args) => {
+        const nativeArgs = args.map(context.dump);
+        console.log(...nativeArgs);
+    });
+    context.setProp(consoleHandle, 'log', logHandle);
+
+    const warnHandle = context.newFunction('warn', (...args) => {
+        const nativeArgs = args.map(context.dump);
+        console.warn(...nativeArgs);
+    });
+    context.setProp(consoleHandle, 'warn', warnHandle);
+
+    const errorHandle = context.newFunction('error', (...args) => {
+        const nativeArgs = args.map(context.dump);
+        console.error(...nativeArgs);
+    });
+    context.setProp(consoleHandle, 'error', errorHandle);
+
+    const debugHandle = context.newFunction('debug', (...args) => {
+        const nativeArgs = args.map(context.dump);
+        console.debug(...nativeArgs);
+    });
+    context.setProp(consoleHandle, 'debug', debugHandle);
+
+    context.setProp(context.global, 'console', consoleHandle);
+    consoleHandle.dispose();
+    infoHandle.dispose();
+    logHandle.dispose();
+    warnHandle.dispose();
+    errorHandle.dispose();
+    debugHandle.dispose();
+
     // setup the module loader for the magic imports
     runtime.setModuleLoader((moduleName) => {
         switch (moduleName) {
