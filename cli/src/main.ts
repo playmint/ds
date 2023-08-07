@@ -6,7 +6,7 @@ import { session } from './utils/session';
 import { output } from './utils/output';
 
 import { actions, dispatch } from './commands/actions';
-import network from './commands/network';
+import config from './commands/config';
 import getter from './commands/get';
 import apply from './commands/apply';
 
@@ -40,7 +40,7 @@ yargs
     .middleware(output)
     .command(actions)
     .command(dispatch)
-    .command(network)
+    .command(config)
     .command(getter)
     .command(apply)
     .demandCommand()
