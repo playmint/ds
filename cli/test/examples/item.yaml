@@ -1,0 +1,9 @@
+---
+kind: item
+name: fork
+goo:
+  red: 1
+  green: 1
+  blue: 1
+icon: 00-01
+stackable: true

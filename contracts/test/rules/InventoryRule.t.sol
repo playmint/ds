@@ -7,8 +7,8 @@ import {State} from "cog/State.sol";
 import {Dispatcher} from "cog/Dispatcher.sol";
 
 import {Game} from "@ds/Game.sol";
-import {Actions} from "@ds/actions/Actions.sol";
-import {Schema, Node, Rel, LocationKey, BiomeKind, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
+import {Schema, Node, Rel, LocationKey, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import "@ds/rules/InventoryRule.sol";
 

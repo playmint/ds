@@ -4,8 +4,8 @@ pragma solidity ^0.8.13;
 import {State} from "cog/State.sol";
 import {BaseGame} from "cog/Game.sol";
 import {Dispatcher} from "cog/Dispatcher.sol";
-import {Node, BiomeKind, Schema} from "@ds/schema/Schema.sol";
-import {Actions} from "@ds/actions/Actions.sol";
+import {Node, Schema} from "@ds/schema/Schema.sol";
+import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
 
 using Schema for State;
 

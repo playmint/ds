@@ -5,8 +5,8 @@ import "forge-std/Script.sol";
 import {Game} from "@ds/Game.sol";
 import {Dispatcher} from "cog/Dispatcher.sol";
 import {State} from "cog/State.sol";
-import {Actions} from "@ds/actions/Actions.sol";
-import {Node, BiomeKind, Schema} from "@ds/schema/Schema.sol";
+import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
+import {Node, Schema} from "@ds/schema/Schema.sol";
 
 import {CocktailHut} from "@ds/fixtures/CocktailHut.sol";
 

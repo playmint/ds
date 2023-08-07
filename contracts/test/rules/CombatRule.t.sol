@@ -8,20 +8,10 @@ import {State, AnnotationKind} from "cog/State.sol";
 import {Dispatcher} from "cog/Dispatcher.sol";
 
 import {Game} from "@ds/Game.sol";
-import {Actions} from "@ds/actions/Actions.sol";
-import {
-    Schema,
-    Node,
-    Rel,
-    LocationKey,
-    BiomeKind,
-    DEFAULT_ZONE,
-    GOO_GREEN,
-    GOO_BLUE,
-    GOO_RED
-} from "@ds/schema/Schema.sol";
-import {CombatRule, HASH_EDGE_INDEX} from "@ds/rules/CombatRule.sol";
+import {Actions, BiomeKind, CombatAction, CombatActionKind} from "@ds/actions/Actions.sol";
+import {Schema, Node, Rel, LocationKey, DEFAULT_ZONE, GOO_GREEN, GOO_BLUE, GOO_RED} from "@ds/schema/Schema.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
+import {CombatRule, JoinActionInfo, HASH_EDGE_INDEX} from "@ds/rules/CombatRule.sol";
 
 using Schema for State;
 
@@ -156,10 +146,10 @@ contract CombatRuleTest is Test {
         ( /* uint256 */ , /* uint256 */, bytes memory data) =
             abi.decode(sessionUpdates[0].data, (uint256, uint256, bytes));
 
-        (CombatRule.CombatAction[] memory actions) = abi.decode(data, (CombatRule.CombatAction[]));
+        (CombatAction[] memory actions) = abi.decode(data, (CombatAction[]));
         assertEq(actions.length, 2, "combat action list expected to have 2 entries for the two mobileUnits");
-        assertEq(uint8(actions[0].kind), uint8(CombatRule.CombatActionKind.JOIN));
-        assertEq(uint8(actions[1].kind), uint8(CombatRule.CombatActionKind.JOIN));
+        assertEq(uint8(actions[0].kind), uint8(CombatActionKind.JOIN));
+        assertEq(uint8(actions[1].kind), uint8(CombatActionKind.JOIN));
 
         {
             // Check that the hashes match. Every combat list update is hashed against the last
@@ -200,7 +190,7 @@ contract CombatRuleTest is Test {
 
         // Should be allowed to start a combat session after a finished session has been finalised
         vm.roll(block.number + 100);
-        CombatRule.CombatAction[][] memory sessionUpdates = _getSessionUpdates();
+        CombatAction[][] memory sessionUpdates = _getSessionUpdates();
 
         // We need to process the actions in blockNum order however we can't pass them in ordered because
         // Hashes wouldn't compute the same. Ordering the list client side could be a problem as it's something
@@ -241,7 +231,7 @@ contract CombatRuleTest is Test {
         vm.stopPrank();
 
         // Gather session update events
-        CombatRule.CombatAction[][] memory sessionUpdates = _getSessionUpdates();
+        CombatAction[][] memory sessionUpdates = _getSessionUpdates();
         uint32[] memory sortedListIndexes = getOrderedListIndexes(sessionUpdates);
         dispatcher.dispatch(
             abi.encodeCall(Actions.FINALISE_COMBAT, (Node.CombatSession(1), sessionUpdates, sortedListIndexes))
@@ -267,21 +257,18 @@ contract CombatRuleTest is Test {
 
         // Fast forward to end of battle and finalise
         vm.roll(block.number + 100);
-        CombatRule.CombatAction[][] memory sessionUpdates = _getSessionUpdates();
+        CombatAction[][] memory sessionUpdates = _getSessionUpdates();
         uint32[] memory sortedListIndexes = getOrderedListIndexes(sessionUpdates);
         dispatcher.dispatch(
             abi.encodeCall(Actions.FINALISE_COMBAT, (Node.CombatSession(1), sessionUpdates, sortedListIndexes))
         );
     }
 
-    function _getSessionUpdates() private returns (CombatRule.CombatAction[][] memory) {
-        return _getSessionUpdates(new CombatRule.CombatAction[][](0));
+    function _getSessionUpdates() private returns (CombatAction[][] memory) {
+        return _getSessionUpdates(new CombatAction[][](0));
     }
 
-    function _getSessionUpdates(CombatRule.CombatAction[][] memory prevSessionUpdates)
-        private
-        returns (CombatRule.CombatAction[][] memory)
-    {
+    function _getSessionUpdates(CombatAction[][] memory prevSessionUpdates) private returns (CombatAction[][] memory) {
         // Gather session update events
         Vm.Log[] memory entries = vm.getRecordedLogs();
         Vm.Log[] memory sessionUpdateEvents = new Vm.Log[](entries.length);
@@ -296,8 +283,7 @@ contract CombatRuleTest is Test {
         }
 
         // Copy over previous events
-        CombatRule.CombatAction[][] memory sessionUpdates =
-            new CombatRule.CombatAction[][](sessionUpdatesLength + prevSessionUpdates.length);
+        CombatAction[][] memory sessionUpdates = new CombatAction[][](sessionUpdatesLength + prevSessionUpdates.length);
         for (uint256 i = 0; i < prevSessionUpdates.length; i++) {
             sessionUpdates[i] = prevSessionUpdates[i];
         }
@@ -307,21 +293,20 @@ contract CombatRuleTest is Test {
             ( /* uint256 */ , /* uint256 */, bytes memory combatActionsEncoded) =
                 abi.decode(sessionUpdateEvents[i].data, (uint256, uint256, bytes));
             // _logActionList(combatActionsEncoded);
-            (sessionUpdates[i + prevSessionUpdates.length]) =
-                abi.decode(combatActionsEncoded, (CombatRule.CombatAction[]));
+            (sessionUpdates[i + prevSessionUpdates.length]) = abi.decode(combatActionsEncoded, (CombatAction[]));
         }
 
         return sessionUpdates;
     }
 
     function _logActionList(bytes memory encodedActions) private view {
-        (CombatRule.CombatAction[] memory combatActions) = abi.decode(encodedActions, (CombatRule.CombatAction[]));
+        (CombatAction[] memory combatActions) = abi.decode(encodedActions, (CombatAction[]));
         for (uint256 i = 0; i < combatActions.length; i++) {
             console.log("actionKind: ", uint8(combatActions[i].kind));
             console.log("entityID: ", uint192(combatActions[i].entityID));
             console.log("blockNum: ", combatActions[i].blockNum);
-            if (combatActions[i].kind == CombatRule.CombatActionKind.JOIN) {
-                (CombatRule.JoinActionInfo memory info) = abi.decode(combatActions[i].data, (CombatRule.JoinActionInfo));
+            if (combatActions[i].kind == CombatActionKind.JOIN) {
+                (JoinActionInfo memory info) = abi.decode(combatActions[i].data, (JoinActionInfo));
                 console.log("combatSide: ", uint8(info.combatSide));
                 console.log("LIFE: ", info.stats[GOO_GREEN]);
                 console.log("ATK: ", info.stats[GOO_RED]);
@@ -336,11 +321,7 @@ contract CombatRuleTest is Test {
         uint16 j;
     }
 
-    function getOrderedListIndexes(CombatRule.CombatAction[][] memory sessionUpdates)
-        private
-        pure
-        returns (uint32[] memory)
-    {
+    function getOrderedListIndexes(CombatAction[][] memory sessionUpdates) private pure returns (uint32[] memory) {
         uint256 totalLength = 0;
 
         for (uint256 i = 0; i < sessionUpdates.length; i++) {

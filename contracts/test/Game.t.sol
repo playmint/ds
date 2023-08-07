@@ -8,8 +8,8 @@ import {LibString} from "cog/utils/LibString.sol";
 import {PREFIX_MESSAGE, REVOKE_MESSAGE} from "cog/SessionRouter.sol";
 
 import {Game} from "@ds/Game.sol";
-import {Actions} from "@ds/actions/Actions.sol";
-import {Schema, Node, BiomeKind} from "@ds/schema/Schema.sol";
+import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
+import {Schema, Node} from "@ds/schema/Schema.sol";
 
 using Schema for State;
 

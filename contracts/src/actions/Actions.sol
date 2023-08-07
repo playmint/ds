@@ -1,11 +1,117 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {BiomeKind} from "@ds/schema/Schema.sol";
-import {CombatRule} from "@ds/rules/CombatRule.sol";
+enum BiomeKind {
+    UNDISCOVERED,
+    DISCOVERED
+}
+
+struct CombatAction {
+    CombatActionKind kind;
+    bytes24 entityID; // Can be mobileUnit or building
+    uint64 blockNum;
+    bytes data;
+}
+
+enum CombatActionKind {
+    NONE,
+    JOIN,
+    LEAVE,
+    EQUIP
+}
+
+// ---------------- EMBED THE COG INTERFACES ---------------
+// TODO: stop duplicating this
+// the intension is to have minimal importable interface for the Game
+// so that extensions do not need to import the entire ds+cog repo just to write their func
+// --------------------------------------------------------
+
+enum WeightKind {
+    UINT64,
+    INT64,
+    BYTES,
+    STRING
+}
+
+struct GameMetadata {
+    string name;
+    string url;
+}
+
+enum AnnotationKind {CALLDATA}
+
+enum CompoundKeyKind {
+    NONE, // key is not expected to be anything other than 0
+    UINT160, // key is a single uint64
+    UINT8_ARRAY, // key is 20 uint8s
+    INT8_ARRAY, // key is 20 int8s
+    UINT16_ARRAY, // key is 10 uint16s
+    INT16_ARRAY, // key is 10 int16s
+    UINT32_ARRAY, // key is 5 uint32s
+    INT32_ARRAY, // key is 5 int32s
+    UINT64_ARRAY, // key is 2 uint64s
+    INT64_ARRAY, // key is 2 int64s
+    ADDRESS, // key is 20 byte address
+    BYTES, // key is an 20 byte blob of data
+    STRING // key is an 20 byte string
+}
+
+struct Context {
+    address sender; // action sender
+    uint32 scopes; // authorized scopes
+    uint32 clock; // block at time of action commit
+}
+
+interface Dispatcher {
+    event ActionRegistered(address id, string name);
+    event ActionDispatched(address indexed sender, bytes32 actionNonce);
+
+    function dispatch(bytes calldata action, Context calldata ctx) external;
+    function dispatch(bytes[] calldata actions, Context calldata ctx) external;
+    function dispatch(bytes calldata action) external;
+    function dispatch(bytes[] calldata actions) external;
+}
+
+interface Router {
+    function dispatch(bytes[][] calldata actionBundles, bytes[] calldata bundleSignatures) external;
+    function authorizeAddr(Dispatcher dispatcher, uint32 ttl, uint32 scopes, address addr) external;
+    function authorizeAddr(Dispatcher dispatcher, uint32 ttl, uint32 scopes, address addr, bytes calldata sig)
+        external;
+    function revokeAddr(address addr) external;
+    function revokeAddr(address addr, bytes calldata sig) external;
+}
+
+interface State {
+    event EdgeTypeRegister(bytes4 id, string name, WeightKind kind);
+    event NodeTypeRegister(bytes4 id, string name, CompoundKeyKind keyKind);
+    event EdgeSet(bytes4 relID, uint8 relKey, bytes24 srcNodeID, bytes24 dstNodeID, uint160 weight);
+    event EdgeRemove(bytes4 relID, uint8 relKey, bytes24 srcNodeID);
+    event AnnotationSet(bytes24 id, AnnotationKind kind, string label, bytes32 ref, string data);
+
+    function set(bytes4 relID, uint8 relKey, bytes24 srcNodeID, bytes24 dstNodeID, uint64 weight) external;
+    function remove(bytes4 relID, uint8 relKey, bytes24 srcNodeID) external;
+    function get(bytes4 relID, uint8 relKey, bytes24 srcNodeID)
+        external
+        view
+        returns (bytes24 dstNodeId, uint64 weight);
+    function registerNodeType(bytes4 kindID, string memory kindName, CompoundKeyKind keyKind) external;
+    function registerEdgeType(bytes4 relID, string memory relName, WeightKind weightKind) external;
+    function authorizeContract(address addr) external;
+    function annotate(bytes24 nodeID, string memory label, string memory annotationData) external;
+}
+
+interface Game {
+    event GameDeployed(address dispatcherAddr, address stateAddr, address routerAddr);
+
+    function getMetadata() external returns (GameMetadata memory);
+    function getDispatcher() external returns (Dispatcher);
+    function getRouter() external returns (Router);
+    function getState() external returns (State);
+}
+// ---------------- END EMBED THE COG INTERFACES ---------------
 
 // ----------------------------------
-// define some actions
+// Actions interface
 // ----------------------------------
 
 interface Actions {
@@ -92,7 +198,7 @@ interface Actions {
 
     function FINALISE_COMBAT(
         bytes24 sessionID,
-        CombatRule.CombatAction[][] calldata sessionUpdates,
+        CombatAction[][] calldata sessionUpdates,
         uint32[] calldata sortedListIndexes
     ) external;
 
