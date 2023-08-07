@@ -3,6 +3,7 @@ import _yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { networks } from './utils/networks';
 import { session } from './utils/session';
+import { updater } from './utils/updater';
 import { output } from './utils/output';
 
 import { actions, dispatch } from './commands/actions';
@@ -54,6 +55,7 @@ yargs
     })
     .middleware(session)
     .middleware(output)
+    .middleware(updater)
     .command(actions)
     .command(dispatch)
     .command(config)
