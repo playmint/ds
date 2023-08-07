@@ -89,9 +89,9 @@ const buildingDeploymentActions = async (
     // compile and deploy an implementation if given
     if (spec.contract && spec.contract.file) {
         const relativeFilename = path.join(manifestDir, spec.contract.file);
-        const { bytecode } = compile(relativeFilename, {
-            libs: [path.join(path.dirname(relativeFilename))],
-        });
+
+        const libs = [path.join(path.dirname(relativeFilename)), ...(spec.contract.includes || [])];
+        const { bytecode } = compile(relativeFilename, { libs });
         // call  to deploy an implementation
         ops.push({
             name: 'DEPLOY_KIND_IMPLEMENTATION',
