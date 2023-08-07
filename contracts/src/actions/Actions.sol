@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
+// TODO: Move BuildingCategory into this file
+import {BuildingCategory} from "@ds/rules/BuildingRule.sol";
+
 enum BiomeKind {
     UNDISCOVERED,
     DISCOVERED
@@ -48,6 +51,19 @@ interface Actions {
 
     // register an external contract as possible building
     function REGISTER_BUILDING_KIND(
+        uint32 id,
+        string calldata name,
+        BuildingCategory category,
+        string calldata model,
+        bytes24[4] calldata materialItem,
+        uint64[4] calldata materialQty,
+        bytes24[4] calldata inputItemIDs,
+        uint64[4] calldata inputItemQtys,
+        bytes24[1] calldata outputItemIDs,
+        uint64[1] calldata outputItemQtys
+    ) external;
+
+    function REGISTER_BUILDING_KIND_OLD(
         bytes24 buildingKind,
         string calldata name,
         bytes24[4] calldata materialItem,

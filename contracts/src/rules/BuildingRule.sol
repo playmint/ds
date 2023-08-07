@@ -14,6 +14,15 @@ import {CraftingRule} from "@ds/rules/CraftingRule.sol";
 
 using Schema for State;
 
+enum BuildingCategory {
+    NONE,
+    BLOCKER,
+    RED_ITEM_EXTRACTOR,
+    BLUE_ITEM_EXTRACTOR,
+    GREEN_ITEM_EXTRACTOR,
+    ITEM_FACTORY
+}
+
 contract BuildingRule is Rule {
     Game game;
 
@@ -24,12 +33,45 @@ contract BuildingRule is Rule {
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.REGISTER_BUILDING_KIND.selector) {
             (
-                bytes24 buildingKind,
-                string memory buildingName,
+                uint32 id,
+                string memory name,
+                BuildingCategory category,
+                string memory model,
                 bytes24[4] memory materialItem,
-                uint64[4] memory materialQty
-            ) = abi.decode(action[4:], (bytes24, string, bytes24[4], uint64[4]));
-            _registerBuildingKind(state, Node.Player(ctx.sender), buildingKind, buildingName, materialItem, materialQty);
+                uint64[4] memory materialQty,
+                bytes24[4] memory inputItemIDs,
+                uint64[4] memory inputItemQtys,
+                bytes24[1] memory outputItemIDs,
+                uint64[1] memory outputItemQtys
+            ) = abi.decode(
+                action[4:],
+                (
+                    uint32,
+                    string,
+                    BuildingCategory,
+                    string,
+                    bytes24[4],
+                    uint64[4],
+                    bytes24[4],
+                    uint64[4],
+                    bytes24[1],
+                    uint64[1]
+                )
+            );
+            _registerBuildingKind(
+                state,
+                ctx,
+                id,
+                name,
+                category,
+                model,
+                materialItem,
+                materialQty,
+                inputItemIDs,
+                inputItemQtys,
+                outputItemIDs,
+                outputItemQtys
+            );
         } else if (bytes4(action) == Actions.CONSTRUCT_BUILDING_MOBILE_UNIT.selector) {
             (
                 bytes24 mobileUnit, // which mobileUnit is performing the construction
@@ -81,12 +123,20 @@ contract BuildingRule is Rule {
 
     function _registerBuildingKind(
         State state,
-        bytes24 player,
-        bytes24 buildingKind,
+        Context calldata ctx,
+        uint32 id,
         string memory buildingName,
+        BuildingCategory category,
+        string memory model,
         bytes24[4] memory materialItem,
-        uint64[4] memory materialQty
+        uint64[4] memory materialQty,
+        bytes24[4] memory inputItemIDs,
+        uint64[4] memory inputItemQtys,
+        bytes24[1] memory outputItemIDs,
+        uint64[1] memory outputItemQtys
     ) private {
+        bytes24 player = Node.Player(ctx.sender);
+        bytes24 buildingKind = Node.BuildingKind(id); // TODO: Add category to this
         // set owner of the building kind
         bytes24 existingOwner = state.getOwner(buildingKind);
         if (existingOwner != 0x0 && existingOwner != player) {
@@ -94,6 +144,7 @@ contract BuildingRule is Rule {
         }
         state.setOwner(buildingKind, player);
         state.annotate(buildingKind, "name", buildingName);
+        state.annotate(buildingKind, "model", model);
 
         // min construction cost
         {
@@ -123,6 +174,16 @@ contract BuildingRule is Rule {
         state.setMaterial(buildingKind, 1, materialItem[1], materialQty[1]);
         state.setMaterial(buildingKind, 2, materialItem[2], materialQty[2]);
         state.setMaterial(buildingKind, 3, materialItem[3], materialQty[3]);
+
+        // Category specific calls
+        if (category == BuildingCategory.ITEM_FACTORY) {
+            game.getDispatcher().dispatch(
+                abi.encodeCall(
+                    Actions.REGISTER_CRAFT_RECIPE,
+                    (buildingKind, inputItemIDs, inputItemQtys, outputItemIDs[0], outputItemQtys[0])
+                )
+            );
+        }
     }
 
     function _constructBuilding(
