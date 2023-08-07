@@ -1,9 +1,8 @@
 import { DOWNSTREAM_GAME_ACTIONS } from '@downstream/core';
 
-const list = {
-    command: 'list',
-    aliases: ['ls'],
-    describe: 'list actions',
+export const actions = {
+    command: 'actions',
+    describe: 'show available action signatures',
     handler: async (ctx) => {
         const actions: any = [];
         DOWNSTREAM_GAME_ACTIONS.forEachFunction((fragment) => {
@@ -19,14 +18,20 @@ const list = {
     },
 };
 
-const dispatch = {
+export const dispatch = {
     command: 'dispatch <action> <arguments>',
     aliases: ['despatch', 'exec'],
-    describe: 'dispatch an action',
+    describe: 'dispatch an action.',
     builder: (yargs) =>
         yargs
             .positional('action', { describe: 'name of action', type: 'string' })
             .positional('arguments', { describe: 'JSON array of arguments to action', type: 'string' })
+            .example([
+                [
+                    `$0 action dispatch DEV_SPAWN_TILE '[1, 100, -100, 0]'`,
+                    'dispatch the DEV_SPAWN_TILE action with args',
+                ],
+            ])
             .demand(['arguments', 'action']),
     handler: async (ctx) => {
         const player = await ctx.player();
@@ -38,12 +43,3 @@ const dispatch = {
         process.exit(0);
     },
 };
-
-export const action = {
-    command: 'actions',
-    aliases: ['action'],
-    describe: 'list/dispatch actions',
-    builder: (yargs) => yargs.command(list).command(dispatch).demandCommand(),
-};
-
-export default action;
