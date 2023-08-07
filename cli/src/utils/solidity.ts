@@ -2,14 +2,13 @@ import solc from 'solc';
 import fs from 'fs';
 import path from 'path';
 
-const remappings = [
-    ['cog/', 'lib/ds/contracts/lib/cog/contracts/src/'],
-    ['@ds/', path.join(__dirname, 'contracts/')],
-    ['ds-test/', 'lib/forge-std/lib/ds-test/src/'],
-    ['forge-std/', 'lib/forge-std/src/'],
-];
+const remappings = [['@ds/', path.join(__dirname, 'contracts/')]];
 
-export function compile(filepath: string, libs: string[]) {
+interface CompileOpts {
+    libs?: string[];
+}
+
+export function compile(filepath: string, opts: CompileOpts) {
     const filename = path.basename(filepath);
     const content = fs.readFileSync(filepath, 'utf8');
 
@@ -23,16 +22,13 @@ export function compile(filepath: string, libs: string[]) {
 
         if (path.isAbsolute(importpath)) {
             if (fs.existsSync(importpath)) {
-                console.trace('==> found', importpath);
                 const contents = fs.readFileSync(importpath).toString();
                 return { contents };
             }
         } else {
-            for (const lib of libs) {
+            for (const lib of opts.libs || []) {
                 const trypath = path.join(lib, importpath);
-                // console.trace('searching for import:', trypath);
                 if (fs.existsSync(trypath)) {
-                    // console.trace('==> found', trypath);
                     const contents = fs.readFileSync(trypath).toString();
                     return { contents };
                 }

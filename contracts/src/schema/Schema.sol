@@ -2,6 +2,7 @@
 pragma solidity ^0.8.13;
 
 import {State, CompoundKeyEncoder, CompoundKeyDecoder} from "cog/State.sol";
+import {BiomeKind} from "../Actions/Actions.sol";
 
 interface Rel {
     function Owner() external;
@@ -38,11 +39,6 @@ interface Kind {
 uint8 constant GOO_GREEN = 0;
 uint8 constant GOO_BLUE = 1;
 uint8 constant GOO_RED = 2;
-
-enum BiomeKind {
-    UNDISCOVERED,
-    DISCOVERED
-}
 
 enum LocationKey {
     PREV,

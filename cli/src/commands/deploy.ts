@@ -89,14 +89,9 @@ const buildingDeploymentActions = async (
     // compile and deploy an implementation if given
     if (spec.contract && spec.contract.file) {
         const relativeFilename = path.join(manifestDir, spec.contract.file);
-        console.log('path', __dirname);
-        const LIB_PATHS = [
-            // FIXME: these libs only work for a forge project
-            path.join(path.dirname(relativeFilename)),
-            path.join(path.dirname(relativeFilename), '..'),
-            path.join(path.dirname(relativeFilename), '..', 'lib/ds/contracts/lib/cog/contracts/'),
-        ];
-        const { bytecode } = compile(relativeFilename, LIB_PATHS);
+        const { bytecode } = compile(relativeFilename, {
+            libs: [path.join(path.dirname(relativeFilename))],
+        });
         // call  to deploy an implementation
         ops.push({
             name: 'DEPLOY_KIND_IMPLEMENTATION',
@@ -142,11 +137,14 @@ const buildingDeploymentActions = async (
 };
 
 const getManifestFilenames = (filename: string, isRecursive: boolean): string[] => {
-    if (fs.lstatSync(filename).isDirectory()) {
+    const isDirectory = fs.lstatSync(filename).isDirectory();
+    if (isDirectory) {
         if (!isRecursive) {
-            throw new Error(`--filename must be a directory when used with --recursive`);
+            throw new Error(`${filename} is a directory. use --recursive to apply all manifests in a directory`);
         }
         return globSync(path.join(filename, '**/*.yaml'));
+    } else if (isRecursive) {
+        throw new Error(`--filename must be a directory when used with --recursive`);
     } else {
         return [filename];
     }
@@ -157,7 +155,6 @@ const getManifests = (filename: string): ReturnType<typeof Manifest.parse>[] => 
     return YAML.parseAllDocuments(filedata)
         .map((content) => content.toJS())
         .map((content: any) => {
-            console.log('kind=', content.kind);
             const result = Spec.safeParse(content);
             if (!result.success) {
                 throw new Error(
@@ -186,11 +183,12 @@ const deploy = {
     builder: (yargs) =>
         yargs
             .option('filename', {
-                alias: ['f'],
+                alias: 'f',
                 describe: 'the file(s) that contain the configurations to apply',
                 type: 'string',
             })
             .option('recursive', {
+                alias: 'R',
                 describe:
                     'process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory',
                 type: '',

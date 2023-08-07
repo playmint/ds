@@ -8,8 +8,8 @@ import {State, AnnotationKind} from "cog/State.sol";
 import {Dispatcher} from "cog/Dispatcher.sol";
 
 import {Game as Downstream} from "@ds/Game.sol";
-import {Actions} from "@ds/actions/Actions.sol";
-import {Schema, Node, Rel, LocationKey, Kind, BiomeKind, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
+import {Schema, Node, Rel, LocationKey, Kind, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 

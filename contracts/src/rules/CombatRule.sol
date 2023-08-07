@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 import {State, CompoundKeyDecoder} from "cog/State.sol";
 import {Context, Rule} from "cog/Dispatcher.sol";
+import {CombatActionKind, CombatAction, Actions} from "../Actions/Actions.sol";
 
 import {
     Schema,
@@ -18,7 +19,6 @@ import {
     GOO_RED
 } from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
-import {Actions} from "@ds/actions/Actions.sol";
 import "forge-std/console.sol";
 import "@ds/utils/Base64.sol";
 import "@ds/utils/LibString.sol";
@@ -35,68 +35,54 @@ uint64 constant BLOCKS_PER_TICK = 1;
 uint8 constant MAX_ENTITIES_PER_SIDE = 100; // No higher than 256 due to there being a reward bag for each entity and edges being 8 bit indices
 uint8 constant HASH_EDGE_INDEX = 2;
 
+struct JoinActionInfo {
+    CombatSideKey combatSide; // Attack or Defence
+    uint32[3] stats; // Based off of atoms. The key is Schema.AtomKind
+}
+
+struct LeaveActionInfo {
+    CombatSideKey combatSide; // Attack or Defence
+}
+
+struct EquipActionInfo {
+    CombatSideKey combatSide; // Attack or Defence
+    uint32[3] stats; // Based off of atoms. The key is Schema.AtomKind
+}
+
+struct CombatState {
+    EntityState[] attackerStates;
+    EntityState[] defenderStates;
+    uint16 attackerCount;
+    uint16 defenderCount;
+    CombatWinState winState;
+    uint16 tickCount;
+}
+
+struct EntityState {
+    bytes24 entityID;
+    uint32[3] stats; // TODO: Why aren't these 64bit?
+    uint64 damage;
+    uint64 damageInflicted; // Each tick, entity's attack stat are added to this property. It actually represents effort more than the damage result
+    bool isPresent;
+    bool isDead;
+    bool hasClaimed;
+}
+
+enum CombatWinState {
+    NONE,
+    ATTACKERS,
+    DEFENDERS,
+    DRAW
+}
+
+enum CombatSideKey {
+    ATTACK,
+    DEFENCE
+}
+
 contract CombatRule is Rule {
     uint64 public prevCombatSessionID = 0; // combat sessions are incremented
     uint256 public actionCount; // incremented each time an action event is dispatched. Used to maintain correct order on client side
-
-    enum CombatSideKey {
-        ATTACK,
-        DEFENCE
-    }
-
-    enum CombatActionKind {
-        NONE,
-        JOIN,
-        LEAVE,
-        EQUIP
-    }
-
-    struct CombatAction {
-        CombatActionKind kind;
-        bytes24 entityID; // Can be mobileUnit or building
-        uint64 blockNum;
-        bytes data;
-    }
-
-    struct JoinActionInfo {
-        CombatSideKey combatSide; // Attack or Defence
-        uint32[3] stats; // Based off of atoms. The key is Schema.AtomKind
-    }
-
-    struct LeaveActionInfo {
-        CombatSideKey combatSide; // Attack or Defence
-    }
-
-    struct EquipActionInfo {
-        CombatSideKey combatSide; // Attack or Defence
-        uint32[3] stats; // Based off of atoms. The key is Schema.AtomKind
-    }
-
-    struct CombatState {
-        EntityState[] attackerStates;
-        EntityState[] defenderStates;
-        uint16 attackerCount;
-        uint16 defenderCount;
-        CombatWinState winState;
-        uint16 tickCount;
-    }
-
-    struct EntityState {
-        bytes24 entityID;
-        uint32[3] stats; // TODO: Why aren't these 64bit?
-        uint64 damage;
-        uint64 damageInflicted; // Each tick, entity's attack stat are added to this property. It actually represents effort more than the damage result
-        bool isPresent;
-        bool isDead;
-        bool hasClaimed;
-    }
-
-    enum CombatWinState {
-        NONE,
-        ATTACKERS,
-        DEFENDERS,
-        DRAW
-    }
 
     event SessionUpdate(uint64 indexed sessionID, bytes combatActions);
 
@@ -189,8 +175,8 @@ contract CombatRule is Rule {
         }
 
         if (bytes4(action) == Actions.FINALISE_COMBAT.selector) {
-            (bytes24 sessionID, CombatRule.CombatAction[][] memory sessionUpdates, uint32[] memory sortedListIndexes) =
-                abi.decode(action[4:], (bytes24, CombatRule.CombatAction[][], uint32[]));
+            (bytes24 sessionID, CombatAction[][] memory sessionUpdates, uint32[] memory sortedListIndexes) =
+                abi.decode(action[4:], (bytes24, CombatAction[][], uint32[]));
 
             // Check hash of actions matches hash of session (ensures supplied actions haven't been tampered with)
             if (!_checkSessionHash(state, sessionID, sessionUpdates)) revert("CombatSessionHashIncorrect");
@@ -562,7 +548,7 @@ contract CombatRule is Rule {
         }
     }
 
-    function _checkSessionHash(State state, bytes24 sessionID, CombatRule.CombatAction[][] memory sessionUpdates)
+    function _checkSessionHash(State state, bytes24 sessionID, CombatAction[][] memory sessionUpdates)
         private
         view
         returns (bool)
