@@ -250,9 +250,24 @@ contract CraftingRuleTest is Test, GameTest {
         defaultMaterialQty[1] = 25;
         defaultMaterialQty[2] = 25;
         bytes24 buildingKind = Node.BuildingKind(uid);
+        string memory buildingName = "TestBuilding";
+        bytes24[4] memory inputItemIDs;
+        uint64[4] memory inputQtys;
         dispatcher.dispatch(
             abi.encodeCall(
-                Actions.REGISTER_BUILDING_KIND, (buildingKind, "TestBuilding", defaultMaterialItem, defaultMaterialQty)
+                Actions.REGISTER_BUILDING_KIND,
+                (
+                    uid,
+                    buildingName,
+                    BuildingCategory.NONE,
+                    "",
+                    defaultMaterialItem,
+                    defaultMaterialQty,
+                    inputItemIDs,
+                    inputQtys,
+                    [bytes24(0)],
+                    [uint64(0)]
+                )
             )
         );
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (buildingKind, buildingContract)));

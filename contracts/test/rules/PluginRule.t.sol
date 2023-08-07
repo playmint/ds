@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 import "../helpers/GameTest.sol";
 import "@ds/rules/PluginRule.sol";
+import {BuildingCategory} from "@ds/rules/BuildingRule.sol";
 
 using Schema for State;
 
@@ -39,9 +40,27 @@ contract PluginRuleTest is Test, GameTest {
         defaultMaterialQty[0] = 25;
         defaultMaterialQty[1] = 25;
         defaultMaterialQty[2] = 25;
+
+        uint32 buildingKindID = 20;
+        bytes24 buildingKind = Node.BuildingKind(buildingKindID);
+        string memory buildingName = "hut";
+        bytes24[4] memory inputItemIDs;
+        uint64[4] memory inputQtys;
         dispatcher.dispatch(
             abi.encodeCall(
-                Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)
+                Actions.REGISTER_BUILDING_KIND,
+                (
+                    buildingKindID,
+                    buildingName,
+                    BuildingCategory.NONE,
+                    "",
+                    defaultMaterialItem,
+                    defaultMaterialQty,
+                    inputItemIDs,
+                    inputQtys,
+                    [bytes24(0)],
+                    [uint64(0)]
+                )
             )
         );
         vm.stopPrank();
@@ -82,9 +101,26 @@ contract PluginRuleTest is Test, GameTest {
         defaultMaterialQty[0] = 25;
         defaultMaterialQty[1] = 25;
         defaultMaterialQty[2] = 25;
+        uint32 buildingKindID = 30;
+        bytes24 buildingKind = Node.BuildingKind(buildingKindID);
+        string memory buildingName = "hut";
+        bytes24[4] memory inputItemIDs;
+        uint64[4] memory inputQtys;
         dispatcher.dispatch(
             abi.encodeCall(
-                Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)
+                Actions.REGISTER_BUILDING_KIND,
+                (
+                    buildingKindID,
+                    buildingName,
+                    BuildingCategory.NONE,
+                    "",
+                    defaultMaterialItem,
+                    defaultMaterialQty,
+                    inputItemIDs,
+                    inputQtys,
+                    [bytes24(0)],
+                    [uint64(0)]
+                )
             )
         );
         vm.stopPrank();

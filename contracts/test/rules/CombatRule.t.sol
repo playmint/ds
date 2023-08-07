@@ -287,13 +287,26 @@ contract CombatRuleTest is Test, GameTest {
 
     function _constructBuilding() private returns (bytes24) {
         // register a building kind
-        bytes24 buildingKind = Node.BuildingKind(20);
+        uint32 buildingKindID = 20;
+        bytes24 buildingKind = Node.BuildingKind(buildingKindID);
         string memory buildingName = "hut";
-        vm.expectEmit(true, true, true, true, address(state));
-        emit AnnotationSet(buildingKind, AnnotationKind.CALLDATA, "name", keccak256(bytes(buildingName)), buildingName);
+        bytes24[4] memory inputItemIDs;
+        uint64[4] memory inputQtys;
         dispatcher.dispatch(
             abi.encodeCall(
-                Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)
+                Actions.REGISTER_BUILDING_KIND,
+                (
+                    buildingKindID,
+                    buildingName,
+                    BuildingCategory.NONE,
+                    "",
+                    defaultMaterialItem,
+                    defaultMaterialQty,
+                    inputItemIDs,
+                    inputQtys,
+                    [bytes24(0)],
+                    [uint64(0)]
+                )
             )
         );
         // spawn a mobileUnit

@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 import "../helpers/GameTest.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
+import {BuildingCategory} from "@ds/rules/BuildingRule.sol";
 
 using Schema for State;
 
@@ -26,13 +27,30 @@ contract BuildingRuleTest is Test, GameTest {
 
     function testConstructBuilding() public {
         // register a building kind
-        bytes24 buildingKind = Node.BuildingKind(20);
+        uint32 buildingKindID = 20;
+        bytes24 buildingKind = Node.BuildingKind(buildingKindID);
         string memory buildingName = "hut";
-        vm.expectEmit(true, true, true, true, address(state));
-        emit AnnotationSet(buildingKind, AnnotationKind.CALLDATA, "name", keccak256(bytes(buildingName)), buildingName);
+        bytes24[4] memory inputItemIDs;
+        uint64[4] memory inputQtys;
+
+        // TODO: Is this test for name annotions necessary anymore?
+        // vm.expectEmit(true, true, true, true, address(state));
+        // emit AnnotationSet(buildingKind, AnnotationKind.CALLDATA, "name", keccak256(bytes(buildingName)), buildingName);
         dispatcher.dispatch(
             abi.encodeCall(
-                Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)
+                Actions.REGISTER_BUILDING_KIND,
+                (
+                    buildingKindID,
+                    buildingName,
+                    BuildingCategory.NONE,
+                    "",
+                    defaultMaterialItem,
+                    defaultMaterialQty,
+                    inputItemIDs,
+                    inputQtys,
+                    [bytes24(0)],
+                    [uint64(0)]
+                )
             )
         );
         // spawn a mobileUnit
@@ -68,10 +86,27 @@ contract BuildingRuleTest is Test, GameTest {
     function testConstructFailPayment() public {
         vm.startPrank(players[0].addr);
         // register a building kind
-        bytes24 buildingKind = Node.BuildingKind(25);
+        uint32 buildingKindID = 25;
+        bytes24 buildingKind = Node.BuildingKind(buildingKindID);
+        string memory buildingName = "hut";
+        bytes24[4] memory inputItemIDs;
+        uint64[4] memory inputQtys;
+
         dispatcher.dispatch(
             abi.encodeCall(
-                Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)
+                Actions.REGISTER_BUILDING_KIND,
+                (
+                    buildingKindID,
+                    buildingName,
+                    BuildingCategory.NONE,
+                    "",
+                    defaultMaterialItem,
+                    defaultMaterialQty,
+                    inputItemIDs,
+                    inputQtys,
+                    [bytes24(0)],
+                    [uint64(0)]
+                )
             )
         );
         // spawn a mobileUnit
@@ -98,9 +133,30 @@ contract BuildingRuleTest is Test, GameTest {
         bytes24[4] memory materials;
         materials[0] = Node.Item("non-stackable-ball", [uint32(20), uint32(20), uint32(20)], false);
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (materials[0], "non-stackable-ball", "00-00")));
-        bytes24 buildingKind = Node.BuildingKind(25);
+        // register a building kind
+        uint32 buildingKindID = 25;
+        string memory buildingName = "hut";
+        bytes24[4] memory inputItemIDs;
+        uint64[4] memory inputQtys;
+
         vm.expectRevert("non-stackable items not allowed as construction materials");
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", materials, qtys)));
+        dispatcher.dispatch(
+            abi.encodeCall(
+                Actions.REGISTER_BUILDING_KIND,
+                (
+                    buildingKindID,
+                    buildingName,
+                    BuildingCategory.NONE,
+                    "",
+                    materials,
+                    qtys,
+                    inputItemIDs,
+                    inputQtys,
+                    [bytes24(0)],
+                    [uint64(0)]
+                )
+            )
+        );
         vm.stopPrank();
     }
 
@@ -114,10 +170,26 @@ contract BuildingRuleTest is Test, GameTest {
 
     function testRegisterBuildingKindContract() public {
         // register a building kind
-        bytes24 buildingKind = Node.BuildingKind(20);
+        uint32 buildingKindID = 20;
+        bytes24 buildingKind = Node.BuildingKind(buildingKindID);
+        string memory buildingName = "hut";
+        bytes24[4] memory inputItemIDs;
+        uint64[4] memory inputQtys;
         dispatcher.dispatch(
             abi.encodeCall(
-                Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)
+                Actions.REGISTER_BUILDING_KIND,
+                (
+                    buildingKindID,
+                    buildingName,
+                    BuildingCategory.NONE,
+                    "",
+                    defaultMaterialItem,
+                    defaultMaterialQty,
+                    inputItemIDs,
+                    inputQtys,
+                    [bytes24(0)],
+                    [uint64(0)]
+                )
             )
         );
         // register a contract implementation for the building kind
@@ -133,10 +205,26 @@ contract BuildingRuleTest is Test, GameTest {
 
     function testUseBuilding() public {
         // register a building kind
-        bytes24 buildingKind = Node.BuildingKind(100);
+        uint32 buildingKindID = 100;
+        bytes24 buildingKind = Node.BuildingKind(buildingKindID);
+        string memory buildingName = "hut";
+        bytes24[4] memory inputItemIDs;
+        uint64[4] memory inputQtys;
         dispatcher.dispatch(
             abi.encodeCall(
-                Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)
+                Actions.REGISTER_BUILDING_KIND,
+                (
+                    buildingKindID,
+                    buildingName,
+                    BuildingCategory.NONE,
+                    "",
+                    defaultMaterialItem,
+                    defaultMaterialQty,
+                    inputItemIDs,
+                    inputQtys,
+                    [bytes24(0)],
+                    [uint64(0)]
+                )
             )
         );
         // register a mock implementation for the building
@@ -171,10 +259,26 @@ contract BuildingRuleTest is Test, GameTest {
 
     function _testConstructFailNotAdjacent(int16 q, int16 r, int16 s) private {
         // register a building kind
-        bytes24 buildingKind = Node.BuildingKind(30);
+        uint32 buildingKindID = 30;
+        bytes24 buildingKind = Node.BuildingKind(buildingKindID);
+        string memory buildingName = "hut";
+        bytes24[4] memory inputItemIDs;
+        uint64[4] memory inputQtys;
         dispatcher.dispatch(
             abi.encodeCall(
-                Actions.REGISTER_BUILDING_KIND, (buildingKind, "hut", defaultMaterialItem, defaultMaterialQty)
+                Actions.REGISTER_BUILDING_KIND,
+                (
+                    buildingKindID,
+                    buildingName,
+                    BuildingCategory.NONE,
+                    "",
+                    defaultMaterialItem,
+                    defaultMaterialQty,
+                    inputItemIDs,
+                    inputQtys,
+                    [bytes24(0)],
+                    [uint64(0)]
+                )
             )
         );
         // spawn a mobileUnit

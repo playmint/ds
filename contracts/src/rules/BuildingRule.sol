@@ -23,6 +23,19 @@ enum BuildingCategory {
     ITEM_FACTORY
 }
 
+struct BuildingKindCfg {
+    uint32 id;
+    string name;
+    BuildingCategory category;
+    string model;
+    bytes24[4] materialItem;
+    uint64[4] materialQty;
+    bytes24[4] inputItemIDs;
+    uint64[4] inputItemQtys;
+    bytes24[1] outputItemIDs;
+    uint64[1] outputItemQtys;
+}
+
 contract BuildingRule is Rule {
     Game game;
 
@@ -61,16 +74,18 @@ contract BuildingRule is Rule {
             _registerBuildingKind(
                 state,
                 ctx,
-                id,
-                name,
-                category,
-                model,
-                materialItem,
-                materialQty,
-                inputItemIDs,
-                inputItemQtys,
-                outputItemIDs,
-                outputItemQtys
+                BuildingKindCfg(
+                    id,
+                    name,
+                    category,
+                    model,
+                    materialItem,
+                    materialQty,
+                    inputItemIDs,
+                    inputItemQtys,
+                    outputItemIDs,
+                    outputItemQtys
+                )
             );
         } else if (bytes4(action) == Actions.CONSTRUCT_BUILDING_MOBILE_UNIT.selector) {
             (
@@ -121,47 +136,36 @@ contract BuildingRule is Rule {
         buildingImplementation.use(game, buildingInstance, mobileUnit, payload);
     }
 
-    function _registerBuildingKind(
-        State state,
-        Context calldata ctx,
-        uint32 id,
-        string memory buildingName,
-        BuildingCategory category,
-        string memory model,
-        bytes24[4] memory materialItem,
-        uint64[4] memory materialQty,
-        bytes24[4] memory inputItemIDs,
-        uint64[4] memory inputItemQtys,
-        bytes24[1] memory outputItemIDs,
-        uint64[1] memory outputItemQtys
-    ) private {
+    function _registerBuildingKind(State state, Context calldata ctx, BuildingKindCfg memory cfg) private {
         bytes24 player = Node.Player(ctx.sender);
-        bytes24 buildingKind = Node.BuildingKind(id); // TODO: Add category to this
+        bytes24 buildingKind = Node.BuildingKind(cfg.id); // TODO: Add category to this
         // set owner of the building kind
         bytes24 existingOwner = state.getOwner(buildingKind);
         if (existingOwner != 0x0 && existingOwner != player) {
             revert("BuildingAlreadyRegistered");
         }
         state.setOwner(buildingKind, player);
-        state.annotate(buildingKind, "name", buildingName);
-        state.annotate(buildingKind, "model", model);
+        state.annotate(buildingKind, "name", cfg.name);
+        state.annotate(buildingKind, "model", cfg.model);
 
         // min construction cost
         {
             uint32[3] memory availableInputAtoms;
             for (uint8 i = 0; i < 4; i++) {
-                if (materialItem[i] == 0x0) {
+                if (cfg.materialItem[i] == 0x0) {
                     continue;
                 }
                 // check input item is registered
-                require(state.getOwner(materialItem[i]) != 0x0, "input item must be registered before use in recipe");
+                require(
+                    state.getOwner(cfg.materialItem[i]) != 0x0, "input item must be registered before use in recipe"
+                );
                 // get atomic structure
-                (uint32[3] memory inputAtoms, bool inputStackable) = state.getItemStructure(materialItem[i]);
+                (uint32[3] memory inputAtoms, bool inputStackable) = state.getItemStructure(cfg.materialItem[i]);
                 require(inputStackable, "non-stackable items not allowed as construction materials");
-                require(materialQty[i] > 0 && materialQty[i] <= 100, "stackable input item must be qty 0-100");
-                availableInputAtoms[0] = availableInputAtoms[0] + (inputAtoms[0] * uint32(materialQty[i]));
-                availableInputAtoms[1] = availableInputAtoms[1] + (inputAtoms[1] * uint32(materialQty[i]));
-                availableInputAtoms[2] = availableInputAtoms[2] + (inputAtoms[2] * uint32(materialQty[i]));
+                require(cfg.materialQty[i] > 0 && cfg.materialQty[i] <= 100, "stackable input item must be qty 0-100");
+                availableInputAtoms[0] = availableInputAtoms[0] + (inputAtoms[0] * uint32(cfg.materialQty[i]));
+                availableInputAtoms[1] = availableInputAtoms[1] + (inputAtoms[1] * uint32(cfg.materialQty[i]));
+                availableInputAtoms[2] = availableInputAtoms[2] + (inputAtoms[2] * uint32(cfg.materialQty[i]));
             }
 
             require(availableInputAtoms[0] >= 10, "construction cost should require at least 10 LIFE atoms");
@@ -170,17 +174,17 @@ contract BuildingRule is Rule {
         }
 
         // store the construction materials recipe
-        state.setMaterial(buildingKind, 0, materialItem[0], materialQty[0]);
-        state.setMaterial(buildingKind, 1, materialItem[1], materialQty[1]);
-        state.setMaterial(buildingKind, 2, materialItem[2], materialQty[2]);
-        state.setMaterial(buildingKind, 3, materialItem[3], materialQty[3]);
+        state.setMaterial(buildingKind, 0, cfg.materialItem[0], cfg.materialQty[0]);
+        state.setMaterial(buildingKind, 1, cfg.materialItem[1], cfg.materialQty[1]);
+        state.setMaterial(buildingKind, 2, cfg.materialItem[2], cfg.materialQty[2]);
+        state.setMaterial(buildingKind, 3, cfg.materialItem[3], cfg.materialQty[3]);
 
         // Category specific calls
-        if (category == BuildingCategory.ITEM_FACTORY) {
+        if (cfg.category == BuildingCategory.ITEM_FACTORY) {
             game.getDispatcher().dispatch(
                 abi.encodeCall(
                     Actions.REGISTER_CRAFT_RECIPE,
-                    (buildingKind, inputItemIDs, inputItemQtys, outputItemIDs[0], outputItemQtys[0])
+                    (buildingKind, cfg.inputItemIDs, cfg.inputItemQtys, cfg.outputItemIDs[0], cfg.outputItemQtys[0])
                 )
             );
         }
