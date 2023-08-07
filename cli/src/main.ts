@@ -48,8 +48,6 @@ yargs
     })
     .option('private-key', {
         alias: 'k',
-        demandOption: true,
-        default: 'table',
         describe: 'player private key (insecure!)',
         type: 'string',
     })

@@ -239,12 +239,14 @@ const deploy = {
         }
 
         // dump the dry run of ops
-        console.log('The following actions will be performed:');
-        console.log(ops.map((op) => `    ${op.name}`).join('\n'));
-        console.log('');
 
         // abort here if dry-run
         if (ctx.dryRun) {
+            console.error('The following actions will be performed:');
+            console.error(
+                ops.map((op) => `    ${op.name}(${op.args.map((arg) => JSON.stringify(arg)).join(', ')})`).join('\n')
+            );
+            console.error('');
             process.exit(0);
             return;
         }
