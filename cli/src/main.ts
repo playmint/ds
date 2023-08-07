@@ -7,9 +7,8 @@ import { output } from './utils/output';
 
 import actions from './commands/actions';
 import network from './commands/network';
-import items from './commands/items';
-import buildingKinds from './commands/building-kinds';
-import deploy from './commands/deploy';
+import getter from './commands/get';
+import apply from './commands/apply';
 
 const yargs = _yargs(hideBin(process.argv));
 
@@ -41,9 +40,8 @@ yargs
     .middleware(output)
     .command(actions)
     .command(network)
-    .command(items)
-    .command(buildingKinds)
-    .command(deploy)
+    .command(getter)
+    .command(apply)
     .demandCommand()
     .help()
     .wrap(Math.min(120, yargs.terminalWidth())).argv;
