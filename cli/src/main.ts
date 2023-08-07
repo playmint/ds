@@ -2,7 +2,7 @@
 import _yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { networks } from './utils/networks';
-import { session } from './utils/services';
+import { session } from './utils/session';
 import { output } from './utils/output';
 
 import actions from './commands/actions';
