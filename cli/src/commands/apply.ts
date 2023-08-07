@@ -240,7 +240,7 @@ const deploy = {
 
         // dump the dry run of ops
         console.log('The following actions will be performed:');
-        console.log(ops.map((op) => `    ${op.name}}`).join('\n'));
+        console.log(ops.map((op) => `    ${op.name}`).join('\n'));
         console.log('');
 
         // abort here if dry-run
