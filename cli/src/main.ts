@@ -9,10 +9,26 @@ import { actions, dispatch } from './commands/actions';
 import config from './commands/config';
 import getter from './commands/get';
 import apply from './commands/apply';
+import chalk from 'chalk';
 
 const yargs = _yargs(hideBin(process.argv));
 
 yargs
+    .fail(function (msg, err, yargs) {
+        // if (err) throw err; // preserve stack
+        console.error('');
+        yargs.showHelp();
+        if (err && err.message) {
+            console.error('');
+            console.error(chalk.red(err.message));
+        }
+        if (msg) {
+            console.error('');
+            console.error(chalk.red(msg));
+        }
+        console.error('');
+        process.exit(1);
+    })
     .option('network', {
         alias: 'n',
         demandOption: true,
