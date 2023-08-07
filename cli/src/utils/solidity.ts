@@ -2,7 +2,7 @@ import solc from 'solc';
 import fs from 'fs';
 import path from 'path';
 
-const remappings = [['@ds/', path.join(__dirname, 'contracts/')]];
+export const remappings = [['@ds/', path.join(__dirname, 'contracts/')]];
 
 interface CompileOpts {
     libs?: string[];
