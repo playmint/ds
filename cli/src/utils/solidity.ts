@@ -4,7 +4,7 @@ import path from 'path';
 
 const remappings = [
     ['cog/', 'lib/ds/contracts/lib/cog/contracts/src/'],
-    ['@ds/', 'lib/ds/contracts/src/'],
+    ['@ds/', path.join(__dirname, 'contracts/')],
     ['ds-test/', 'lib/forge-std/lib/ds-test/src/'],
     ['forge-std/', 'lib/forge-std/src/'],
 ];
@@ -21,17 +21,24 @@ export function compile(filepath: string, libs: string[]) {
             }
         }
 
-        for (const lib of libs) {
-            const trypath = path.join(lib, importpath);
-            // console.trace('searching for import:', trypath);
-            if (fs.existsSync(trypath)) {
-                // console.trace('==> found', trypath);
-                const contents = fs.readFileSync(trypath).toString();
+        if (path.isAbsolute(importpath)) {
+            if (fs.existsSync(importpath)) {
+                console.trace('==> found', importpath);
+                const contents = fs.readFileSync(importpath).toString();
                 return { contents };
+            }
+        } else {
+            for (const lib of libs) {
+                const trypath = path.join(lib, importpath);
+                // console.trace('searching for import:', trypath);
+                if (fs.existsSync(trypath)) {
+                    // console.trace('==> found', trypath);
+                    const contents = fs.readFileSync(trypath).toString();
+                    return { contents };
+                }
             }
         }
 
-        // console.trace('==> NOT FOUND', importpath);
         return { error: 'File not found' };
     };
 

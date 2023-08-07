@@ -12,7 +12,7 @@
     ]
   },
   "scripts": {
-    "build": "npx esbuild src/main.ts --bundle --outfile=dist/ds.js --platform=node --target=node12",
+    "build": "rm -rf ./dist/contracts && mkdir ./dist/contracts && cp ../contracts/src/Actions/Actions.sol ./dist/contracts/IDownstream.sol && npx esbuild src/main.ts --bundle --outfile=dist/ds.js --platform=node --target=node12",
     "exec": "npm run build >/dev/null && ./dist/ds.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -39,6 +39,7 @@
   "dependencies": {
     "@walletconnect/ethereum-provider": "^2.9.1",
     "cross-fetch": "^4.0.0",
+    "glob": "^10.3.3",
     "lokijs": "^1.5.12",
     "qrcode-terminal": "^0.12.0",
     "solc": "^0.8.21",
