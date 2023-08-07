@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import {State, CompoundKeyEncoder, CompoundKeyDecoder} from "cog/State.sol";
-import {BiomeKind} from "../Actions/Actions.sol";
+import {BiomeKind} from "@ds/actions/Actions.sol";
 
 interface Rel {
     function Owner() external;

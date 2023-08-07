@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import {State, CompoundKeyDecoder} from "cog/State.sol";
 import {Context, Rule} from "cog/Dispatcher.sol";
-import {CombatActionKind, CombatAction, Actions} from "../Actions/Actions.sol";
+import {CombatActionKind, CombatAction, Actions} from "@ds/actions/Actions.sol";
 
 import {
     Schema,
