@@ -251,22 +251,38 @@ contract CraftingRuleTest is Test, GameTest {
         defaultMaterialQty[2] = 25;
         bytes24 buildingKind = Node.BuildingKind(uid);
         string memory buildingName = "TestBuilding";
-        bytes24[4] memory inputItemIDs;
-        uint64[4] memory inputQtys;
+        bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItemIDs;
+        inputItemIDs[0] = ItemUtils.GlassGreenGoo();
+        inputItemIDs[1] = ItemUtils.BeakerBlueGoo();
+        inputItemIDs[2] = ItemUtils.FlaskRedGoo();
+
+        // Craft recipe
+
+        uint64[MAX_CRAFT_INPUT_ITEMS] memory inputQtys;
+        inputQtys[0] = 2;
+        inputQtys[1] = 2;
+        inputQtys[2] = 2;
+
+        uint32[3] memory outputItemAtoms = [uint32(1), uint32(1), uint32(1)];
+        bytes24 outputItem = Node.Item("thing", outputItemAtoms, ITEM_STACKABLE);
+        uint64 outputQty = 1;
+
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (outputItem, "thing", "icon")));
+
         dispatcher.dispatch(
             abi.encodeCall(
                 Actions.REGISTER_BUILDING_KIND,
                 (
                     uid,
                     buildingName,
-                    BuildingCategory.NONE,
+                    BuildingCategory.ITEM_FACTORY,
                     "",
                     defaultMaterialItem,
                     defaultMaterialQty,
                     inputItemIDs,
                     inputQtys,
-                    [bytes24(0)],
-                    [uint64(0)]
+                    [outputItem],
+                    [outputQty]
                 )
             )
         );
@@ -279,25 +295,6 @@ contract CraftingRuleTest is Test, GameTest {
         private
         returns (bytes24 buildingInstance)
     {
-        bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItem;
-        inputItem[0] = ItemUtils.GlassGreenGoo();
-        inputItem[1] = ItemUtils.BeakerBlueGoo();
-        inputItem[2] = ItemUtils.FlaskRedGoo();
-
-        uint64[MAX_CRAFT_INPUT_ITEMS] memory inputQty;
-        inputQty[0] = 2;
-        inputQty[1] = 2;
-        inputQty[2] = 2;
-
-        uint32[3] memory outputItemAtoms = [uint32(1), uint32(1), uint32(1)];
-        bytes24 outputItem = Node.Item("thing", outputItemAtoms, ITEM_STACKABLE);
-        uint64 outputQty = 1;
-
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (outputItem, "thing", "icon")));
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_CRAFT_RECIPE, (buildingKind, inputItem, inputQty, outputItem, outputQty))
-        );
-
         // discover an adjacent tile for our building site
         dev.spawnTile(q, r, s);
         // get our building and give it the resources to construct

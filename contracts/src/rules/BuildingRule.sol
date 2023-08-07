@@ -11,6 +11,7 @@ import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 import {CraftingRule} from "@ds/rules/CraftingRule.sol";
+import {ItemKind} from "@ds/ext/ItemKind.sol";
 
 using Schema for State;
 
@@ -181,11 +182,21 @@ contract BuildingRule is Rule {
 
         // Category specific calls
         if (cfg.category == BuildingCategory.ITEM_FACTORY) {
-            game.getDispatcher().dispatch(
-                abi.encodeCall(
-                    Actions.REGISTER_CRAFT_RECIPE,
-                    (buildingKind, cfg.inputItemIDs, cfg.inputItemQtys, cfg.outputItemIDs[0], cfg.outputItemQtys[0])
-                )
+            // NOTE: Cannot call dispatch as craft rule checks that the owner is ctx.sender which in this case would be this contract not the player!
+            // game.getDispatcher().dispatch(
+            //     abi.encodeCall(
+            //         Actions.REGISTER_CRAFT_RECIPE,
+            //         (buildingKind, cfg.inputItemIDs, cfg.inputItemQtys, cfg.outputItemIDs[0], cfg.outputItemQtys[0])
+            //     )
+            // );
+            _registerRecipe(
+                state,
+                Node.Player(ctx.sender),
+                buildingKind,
+                cfg.inputItemIDs,
+                cfg.inputItemQtys,
+                cfg.outputItemIDs[0],
+                cfg.outputItemQtys[0]
             );
         }
     }
@@ -271,5 +282,95 @@ contract BuildingRule is Rule {
         bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode(mobileUnit, equipSlot)))));
         state.setOwner(bag, Node.Player(owner));
         state.setEquipSlot(mobileUnit, equipSlot, bag);
+    }
+
+    function _registerRecipe(
+        State state,
+        bytes24 player,
+        bytes24 buildingKind,
+        bytes24[4] memory inputItem,
+        uint64[4] memory inputQty,
+        bytes24 outputItem,
+        uint64 outputQty
+    ) internal {
+        (uint32[3] memory outputAtoms, bool outputStackable) = state.getItemStructure(outputItem);
+        {
+            bytes24 owner = state.getOwner(buildingKind);
+            require(owner == player, "only building kind owner can configure building crafting");
+            if (outputStackable) {
+                require(outputQty > 0 && outputQty <= 100, "stackable output qty must be between 0-100");
+            } else {
+                require(outputQty == 1, "equipable item crafting cannot output multiple items");
+            }
+
+            // check that the output item has been registerd
+            bytes24 outputOwner = state.getOwner(outputItem);
+            require(outputOwner != 0x0, "output item must be a registered item");
+
+            // if player is not the owner of the item, then ask the item implementation contract
+            // if it's ok to use this item as an output
+            if (outputOwner != player) {
+                address implementation = state.getImplementation(outputItem);
+                require(
+                    implementation != address(0),
+                    "you are not the owner of the output item and no item contract exists to ask for permission"
+                );
+                ItemKind kind = ItemKind(implementation);
+                require(
+                    kind.onRegisterRecipeOutput(game, player, buildingKind, inputItem, inputQty, outputItem, outputQty),
+                    "owner of the output item denied use in crafting"
+                );
+            }
+        }
+
+        // calc total output atoms
+        uint32[3] memory totalOutputAtoms;
+        totalOutputAtoms[0] = outputAtoms[0] * uint32(outputQty);
+        totalOutputAtoms[1] = outputAtoms[1] * uint32(outputQty);
+        totalOutputAtoms[2] = outputAtoms[2] * uint32(outputQty);
+
+        // calc total input atoms available to use
+        {
+            uint32[3] memory availableInputAtoms;
+            for (uint8 i = 0; i < 4; i++) {
+                if (inputItem[i] == 0x0) {
+                    continue;
+                }
+                // check input item is registered
+                require(state.getOwner(inputItem[i]) != 0x0, "input item must be registered before use in recipe");
+                // get atomic structure
+                (uint32[3] memory inputAtoms, bool inputStackable) = state.getItemStructure(inputItem[i]);
+                if (inputStackable) {
+                    require(inputQty[i] > 0 && inputQty[i] <= 100, "stackable input item must be qty 0-100");
+                } else {
+                    require(inputQty[i] == 1, "equipable input item must have qty=1");
+                }
+                availableInputAtoms[0] = availableInputAtoms[0] + (inputAtoms[0] * uint32(inputQty[i])) / 2;
+                availableInputAtoms[1] = availableInputAtoms[1] + (inputAtoms[1] * uint32(inputQty[i])) / 2;
+                availableInputAtoms[2] = availableInputAtoms[2] + (inputAtoms[2] * uint32(inputQty[i])) / 2;
+            }
+
+            // require that the total number of each atom in the total number of
+            // output items is less than half of the total input of each atom
+            require(
+                availableInputAtoms[0] >= totalOutputAtoms[0],
+                "cannot craft an item that outputs more 0-atoms than it inputs"
+            );
+            require(
+                availableInputAtoms[1] >= totalOutputAtoms[1],
+                "cannot craft an item that outputs more 1-atoms than it inputs"
+            );
+            require(
+                availableInputAtoms[2] >= totalOutputAtoms[2],
+                "cannot craft an item that outputs more 2-atoms than it inputs"
+            );
+        }
+
+        // store the recipe
+        state.setInput(buildingKind, 0, inputItem[0], inputQty[0]);
+        state.setInput(buildingKind, 1, inputItem[1], inputQty[1]);
+        state.setInput(buildingKind, 2, inputItem[2], inputQty[2]);
+        state.setInput(buildingKind, 3, inputItem[3], inputQty[3]);
+        state.setOutput(buildingKind, 0, outputItem, outputQty);
     }
 }
