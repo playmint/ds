@@ -179,7 +179,7 @@ const getManifests = (filename: string): ReturnType<typeof Manifest.parse>[] => 
 };
 
 const deploy = {
-    command: 'apply -f <filename>',
+    command: 'apply',
     describe: 'deploy an extension configuration to the game',
     builder: (yargs) =>
         yargs
@@ -204,7 +204,11 @@ const deploy = {
                 }
                 return true;
             })
-            .demand(['filename']),
+            .demand(['filename'])
+            .example([
+                ['$0 apply -f ./manifest.yaml', 'Apply a single manifest'],
+                ['$0 apply -R -f .', 'Apply ALL manifests in directory'],
+            ]),
     handler: async (ctx) => {
         const manifestFilenames = getManifestFilenames(ctx.filename, ctx.recursive);
         const manifests = manifestFilenames.flatMap(getManifests);
