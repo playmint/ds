@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Game, Actions} from "@ds/IDownstream.sol";
+import "@ds/IDownstream.sol";
 
 contract HammerFactory {
     function use(Game ds, bytes24 buildingInstance, bytes24, /*mobileUnit*/ bytes calldata /*payload*/ ) public {
