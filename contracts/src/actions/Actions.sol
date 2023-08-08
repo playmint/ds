@@ -70,14 +70,6 @@ interface Actions {
         uint64[4] calldata materialQty
     ) external;
 
-    function REGISTER_CRAFT_RECIPE(
-        bytes24 buildingKind,
-        bytes24[4] calldata inputItem,
-        uint64[4] calldata inputQty,
-        bytes24 outputItem,
-        uint64 outputQty
-    ) external;
-
     // register kind implementation contract
     function REGISTER_KIND_IMPLEMENTATION(bytes24 kind, address kindImplementation) external;
     function DEPLOY_KIND_IMPLEMENTATION(bytes24 kind, bytes calldata bytecode) external;

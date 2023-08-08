@@ -173,13 +173,7 @@ contract BuildingRule is Rule {
 
         // Category specific calls
         if (cfg.category == BuildingCategory.ITEM_FACTORY) {
-            // NOTE: Cannot call dispatch as craft rule checks that the owner is ctx.sender which in this case would be this contract not the player!
-            // game.getDispatcher().dispatch(
-            //     abi.encodeCall(
-            //         Actions.REGISTER_CRAFT_RECIPE,
-            //         (buildingKind, cfg.inputItemIDs, cfg.inputItemQtys, cfg.outputItemIDs[0], cfg.outputItemQtys[0])
-            //     )
-            // );
+            // NOTE: Actions.REGISTER_CRAFT_RECIPE has been removed from CraftingRule
             _registerRecipe(
                 state,
                 Node.Player(ctx.sender),
