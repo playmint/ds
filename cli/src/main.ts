@@ -16,7 +16,6 @@ const yargs = _yargs(hideBin(process.argv));
 
 yargs
     .fail(function (msg, err, yargs) {
-        // if (err) throw err; // preserve stack
         console.error('');
         yargs.showHelp();
         if (err && err.message) {
@@ -31,6 +30,7 @@ yargs
         process.exit(1);
     })
     .option('verbose', {
+        alias: 'v',
         default: false,
         describe: 'verbose and debug logging',
         type: 'boolean',
