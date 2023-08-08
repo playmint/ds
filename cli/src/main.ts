@@ -30,6 +30,11 @@ yargs
         console.error('');
         process.exit(1);
     })
+    .option('verbose', {
+        default: false,
+        describe: 'verbose and debug logging',
+        type: 'boolean',
+    })
     .option('network', {
         alias: 'n',
         demandOption: true,
