@@ -58,7 +58,7 @@ contract PluginRule is Rule {
     }
 
     function _deployImplementation(State state, bytes24 player, bytes24 kind, bytes memory bytecode) private {
-        bytes32 _salt = bytes32(uint256(uint192(kind)));
+        bytes32 _salt = bytes32(uint256(uint192(player)));
         address addr = address(
             uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), address(this), _salt, keccak256(bytecode)))))
         );
