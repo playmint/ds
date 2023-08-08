@@ -49,7 +49,7 @@ yargs
         demandOption: true,
         default: 'table',
         describe: 'output format',
-        choices: ['json', 'table'] as const,
+        choices: ['json', 'yaml', 'table'] as const,
         type: 'string',
     })
     .option('private-key', {

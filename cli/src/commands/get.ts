@@ -53,9 +53,9 @@ const formatNodeObject = (node) => {
     const name = node.name?.value || null;
     const owner = node.owner?.addr;
     if (node.kind == 'Item') {
-        const details = getItemDetails(node.id);
+        const { stackable, red, green, blue } = getItemDetails(node.id);
         const { id, kind } = node;
-        return { kind, id, name, owner, ...details };
+        return { kind, id, name, owner, goo: { red, green, blue }, stackable };
     } else if (node.kind == 'Building') {
         const buildingkind = node.buildingkind?.name?.value || '';
         const { kind, id } = node;
