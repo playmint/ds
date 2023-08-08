@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import _yargs from 'yargs';
+import packageJSON from '../package.json';
 import { hideBin } from 'yargs/helpers';
 import { networks } from './utils/networks';
 import { session } from './utils/session';
@@ -10,7 +11,6 @@ import { actions, dispatch } from './commands/actions';
 import config from './commands/config';
 import getter from './commands/get';
 import apply from './commands/apply';
-import version from './commands/version';
 import chalk from 'chalk';
 
 const yargs = _yargs(hideBin(process.argv));
@@ -60,12 +60,18 @@ yargs
     .middleware(session)
     .middleware(output)
     .middleware(updater)
-    .command(version)
     .command(actions)
     .command(dispatch)
     .command(config)
     .command(getter)
     .command(apply)
+    .command({
+        command: 'version',
+        describe: 'show the current version and exit',
+        handler: () => {
+            console.log(packageJSON.version);
+        },
+    })
     .demandCommand()
     .version(false)
     .help()
