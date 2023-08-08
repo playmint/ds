@@ -10,6 +10,7 @@ import { actions, dispatch } from './commands/actions';
 import config from './commands/config';
 import getter from './commands/get';
 import apply from './commands/apply';
+import version from './commands/version';
 import chalk from 'chalk';
 
 const yargs = _yargs(hideBin(process.argv));
@@ -59,11 +60,13 @@ yargs
     .middleware(session)
     .middleware(output)
     .middleware(updater)
+    .command(version)
     .command(actions)
     .command(dispatch)
     .command(config)
     .command(getter)
     .command(apply)
     .demandCommand()
+    .version(false)
     .help()
     .wrap(Math.min(120, yargs.terminalWidth())).argv;

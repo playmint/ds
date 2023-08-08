@@ -108,7 +108,7 @@ const normalizeKind = (givenKindName) => {
 
 const command = {
     command: 'get <kind> [id]',
-    describe: `Display one or many game entities. Prints a table of the most important information about the specified entities.`,
+    describe: `Display details about one or many game entities.`,
     builder: (cli) => {
         cli.positional('kind', {
             describe: 'entity kind',
