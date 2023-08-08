@@ -46,6 +46,13 @@ enum LocationKey {
     FIXED
 }
 
+enum BuildingCategory {
+    NONE,
+    BLOCKER,
+    EXTRACTOR,
+    ITEM_FACTORY
+}
+
 int16 constant DEFAULT_ZONE = 0;
 
 library Node {
@@ -85,8 +92,16 @@ library Node {
         return CompoundKeyEncoder.ADDRESS(Kind.Player.selector, addr);
     }
 
+    function BuildingKind(uint64 id, BuildingCategory category) internal pure returns (bytes24) {
+        return CompoundKeyEncoder.BYTES(
+            Kind.BuildingKind.selector, bytes20(abi.encodePacked(uint32(0), id, uint64(category)))
+        );
+    }
+
     function BuildingKind(uint64 id) internal pure returns (bytes24) {
-        return CompoundKeyEncoder.UINT64(Kind.BuildingKind.selector, id);
+        return CompoundKeyEncoder.BYTES(
+            Kind.BuildingKind.selector, bytes20(abi.encodePacked(uint32(0), id, uint64(BuildingCategory.NONE)))
+        );
     }
 
     function Extension(address addr) internal pure returns (bytes24) {
@@ -272,6 +287,15 @@ library Schema {
     function getBuildingKind(State state, bytes24 buildingInstance) internal view returns (bytes24) {
         (bytes24 kind,) = state.get(Rel.Is.selector, 0x0, buildingInstance);
         return kind;
+    }
+
+    function getBuildingKindInfo(State, /*state*/ bytes24 buildingKind)
+        internal
+        pure
+        returns (uint64 id, BuildingCategory category)
+    {
+        id = uint64(uint192(buildingKind) >> 64 & type(uint64).max);
+        category = BuildingCategory(uint64(uint192(buildingKind) & type(uint64).max));
     }
 
     function getItemStructure(State, /*state*/ bytes24 item)

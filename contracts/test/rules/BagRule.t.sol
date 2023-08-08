@@ -3,7 +3,6 @@ pragma solidity ^0.8.13;
 
 import "../helpers/GameTest.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
-import {BuildingCategory} from "@ds/rules/BuildingRule.sol";
 
 using Schema for State;
 

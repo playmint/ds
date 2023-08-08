@@ -6,9 +6,7 @@ import "cog/IGame.sol";
 import "cog/IDispatcher.sol";
 
 // TODO: BuildingCategory to be imported from Actions.sol
-import {BuildingCategory} from "@ds/rules/BuildingRule.sol";
-
-import {Node, Schema} from "@ds/schema/Schema.sol";
+import {Node, Schema, BuildingCategory} from "@ds/schema/Schema.sol";
 import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
 
 using Schema for State;
@@ -82,7 +80,7 @@ library BuildingUtils {
             )
         );
 
-        bytes24 buildingKind = Node.BuildingKind(cfg.id);
+        bytes24 buildingKind = Node.BuildingKind(cfg.id, cfg.category);
 
         // Implementation
         if (address(cfg.implementation) != address(0)) {

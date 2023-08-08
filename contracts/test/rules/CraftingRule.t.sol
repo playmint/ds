@@ -240,7 +240,7 @@ contract CraftingRuleTest is Test, GameTest {
         return mobileUnit;
     }
 
-    function _registerBuildingKind(uint64 uid, address buildingContract) private returns (bytes24) {
+    function _registerBuildingKind(uint32 uid, address buildingContract) private returns (bytes24) {
         bytes24[4] memory defaultMaterialItem;
         defaultMaterialItem[0] = ItemUtils.GlassGreenGoo();
         defaultMaterialItem[1] = ItemUtils.BeakerBlueGoo();
@@ -249,7 +249,7 @@ contract CraftingRuleTest is Test, GameTest {
         defaultMaterialQty[0] = 25;
         defaultMaterialQty[1] = 25;
         defaultMaterialQty[2] = 25;
-        bytes24 buildingKind = Node.BuildingKind(uid);
+        bytes24 buildingKind = Node.BuildingKind(uid, BuildingCategory.ITEM_FACTORY);
         string memory buildingName = "TestBuilding";
         bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItemIDs;
         inputItemIDs[0] = ItemUtils.GlassGreenGoo();

@@ -3,7 +3,6 @@ pragma solidity ^0.8.13;
 
 import "../helpers/GameTest.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
-import {BuildingCategory} from "@ds/rules/BuildingRule.sol";
 
 using Schema for State;
 
@@ -23,6 +22,13 @@ contract BuildingRuleTest is Test, GameTest {
         defaultMaterialQty[0] = 25;
         defaultMaterialQty[1] = 25;
         defaultMaterialQty[2] = 25;
+    }
+
+    function testBuildingKindInfo() public {
+        bytes24 buildingKind = Node.BuildingKind(1234, BuildingCategory.ITEM_FACTORY);
+        (uint64 id, BuildingCategory category) = state.getBuildingKindInfo(buildingKind);
+        assertEq(1234, id);
+        assertEq(uint64(BuildingCategory.ITEM_FACTORY), uint64(category));
     }
 
     function testConstructBuilding() public {

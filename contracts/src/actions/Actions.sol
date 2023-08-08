@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 // TODO: Move BuildingCategory into this file
-import {BuildingCategory} from "@ds/rules/BuildingRule.sol";
+import {BuildingCategory} from "@ds/schema/Schema.sol";
 
 enum BiomeKind {
     UNDISCOVERED,

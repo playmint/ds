@@ -5,7 +5,7 @@ import "cog/IGame.sol";
 import "cog/IState.sol";
 import "cog/IRule.sol";
 
-import {Schema, Node, Kind, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Schema, Node, Kind, DEFAULT_ZONE, BuildingCategory} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
@@ -14,15 +14,6 @@ import {CraftingRule} from "@ds/rules/CraftingRule.sol";
 import {ItemKind} from "@ds/ext/ItemKind.sol";
 
 using Schema for State;
-
-enum BuildingCategory {
-    NONE,
-    BLOCKER,
-    RED_ITEM_EXTRACTOR,
-    BLUE_ITEM_EXTRACTOR,
-    GREEN_ITEM_EXTRACTOR,
-    ITEM_FACTORY
-}
 
 struct BuildingKindCfg {
     uint32 id;
@@ -139,7 +130,7 @@ contract BuildingRule is Rule {
 
     function _registerBuildingKind(State state, Context calldata ctx, BuildingKindCfg memory cfg) private {
         bytes24 player = Node.Player(ctx.sender);
-        bytes24 buildingKind = Node.BuildingKind(cfg.id); // TODO: Add category to this
+        bytes24 buildingKind = Node.BuildingKind(cfg.id, cfg.category);
         // set owner of the building kind
         bytes24 existingOwner = state.getOwner(buildingKind);
         if (existingOwner != 0x0 && existingOwner != player) {
