@@ -66,7 +66,8 @@ const encodeSlotConfig = (slots: ReturnType<typeof Slot.parse>[], manifests: Ret
 
 const buildingDeploymentActions = async (
     manifest: ReturnType<typeof Manifest.parse>,
-    manifests: ReturnType<typeof Manifest.parse>[]
+    manifests: ReturnType<typeof Manifest.parse>[],
+    verbose: boolean
 ): Promise<CogAction[]> => {
     const ops: CogAction[] = [];
     const manifestDir = path.dirname(manifest.filename);
@@ -91,7 +92,7 @@ const buildingDeploymentActions = async (
         const relativeFilename = path.join(manifestDir, spec.contract.file);
 
         const libs = [path.join(path.dirname(relativeFilename)), ...(spec.contract.includes || [])];
-        const { bytecode } = compile(relativeFilename, { libs });
+        const { bytecode } = compile(relativeFilename, { libs, verbose });
         // call  to deploy an implementation
         ops.push({
             name: 'DEPLOY_KIND_IMPLEMENTATION',
@@ -233,7 +234,7 @@ const deploy = {
             if (manifest.spec.kind != 'building') {
                 continue;
             }
-            const actions = await buildingDeploymentActions(manifest, manifests);
+            const actions = await buildingDeploymentActions(manifest, manifests, ctx.verbose);
             ops = [...ops, ...actions];
             notes.push(`✅ registered building ${manifest.spec.name} (${encodeBuildingID(manifest.spec)})`);
         }

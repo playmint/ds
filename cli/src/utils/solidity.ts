@@ -2,10 +2,14 @@ import solc from 'solc';
 import fs from 'fs';
 import path from 'path';
 
-export const remappings = [['@ds/', path.join(__dirname, 'contracts/')]];
+export const remappings = [
+    ['@ds/', path.join(__dirname, 'contracts/')],
+    ['cog/', path.join(__dirname, 'contracts/cog/')],
+];
 
 interface CompileOpts {
     libs?: string[];
+    verbose?: boolean;
 }
 
 export function compile(filepath: string, opts: CompileOpts) {
@@ -20,7 +24,10 @@ export function compile(filepath: string, opts: CompileOpts) {
             }
         }
 
+        const tried: string[] = [];
+
         if (path.isAbsolute(importpath)) {
+            tried.push(importpath);
             if (fs.existsSync(importpath)) {
                 const contents = fs.readFileSync(importpath).toString();
                 return { contents };
@@ -28,6 +35,7 @@ export function compile(filepath: string, opts: CompileOpts) {
         } else {
             for (const lib of opts.libs || []) {
                 const trypath = path.join(lib, importpath);
+                tried.push(trypath);
                 if (fs.existsSync(trypath)) {
                     const contents = fs.readFileSync(trypath).toString();
                     return { contents };
@@ -35,6 +43,9 @@ export function compile(filepath: string, opts: CompileOpts) {
             }
         }
 
+        if (opts.verbose) {
+            console.warn(`compile: failed to find ${filepath} tried:`, tried);
+        }
         return { error: 'File not found' };
     };
 
