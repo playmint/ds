@@ -25,7 +25,7 @@ const getRemappings = {
 
 const command = {
     command: 'config',
-    describe: 'list network configurations',
+    describe: 'cli configuration helpers',
     builder: (cli) => {
         cli.command(getNetworks);
         cli.command(getRemappings);

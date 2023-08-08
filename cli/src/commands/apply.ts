@@ -179,7 +179,7 @@ const getManifests = (filename: string): ReturnType<typeof Manifest.parse>[] => 
 };
 
 const deploy = {
-    command: 'apply',
+    command: 'apply -f <filename>',
     describe: 'deploy an extension configuration to the game',
     builder: (yargs) =>
         yargs
