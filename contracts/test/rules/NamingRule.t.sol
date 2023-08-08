@@ -3,11 +3,12 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 
-import {State, AnnotationKind} from "cog/State.sol";
-import {StateGraph} from "cog/StateGraph.sol";
-import {Dispatcher} from "cog/Dispatcher.sol";
+import "cog/IState.sol";
+import "cog/IDispatcher.sol";
+import "cog/IGame.sol";
+import "cog/BaseState.sol";
 
-import {Game as Downstream} from "@ds/Game.sol";
+import {DownstreamGame} from "@ds/Downstream.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {Schema, Node} from "@ds/schema/Schema.sol";
 
@@ -16,9 +17,9 @@ using Schema for State;
 contract NamingRuleTest is Test {
     event AnnotationSet(bytes24 id, AnnotationKind kind, string label, bytes32 ref, string data);
 
-    Downstream internal game;
+    Game internal game;
     Dispatcher internal dispatcher;
-    StateGraph internal state;
+    BaseState internal state;
 
     // accounts
     address aliceAccount;
@@ -35,11 +36,11 @@ contract NamingRuleTest is Test {
         allowlist[0] = aliceAccount;
 
         // setup game
-        game = new Downstream(allowlist);
+        game = new DownstreamGame(allowlist);
         dispatcher = game.getDispatcher();
 
         // fetch the State to play with
-        state = StateGraph(address(game.getState()));
+        state = BaseState(address(game.getState()));
     }
 
     function testNameOwnedEntity() public {

@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {CompoundKeyKind, WeightKind} from "cog/State.sol";
-import {SessionRouter} from "cog/SessionRouter.sol";
-
-import {BaseDispatcher} from "cog/Dispatcher.sol";
-import {StateGraph} from "cog/StateGraph.sol";
-import {BaseGame} from "cog/Game.sol";
+import "cog/BaseRouter.sol";
+import "cog/BaseDispatcher.sol";
+import "cog/BaseState.sol";
+import "cog/BaseGame.sol";
 import {LibString} from "cog/utils/LibString.sol";
 
+import "./IDownstream.sol";
 import {Schema, Node, Rel, Kind} from "@ds/schema/Schema.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {CheatsRule} from "@ds/rules/CheatsRule.sol";
@@ -24,7 +23,7 @@ import {NamingRule} from "@ds/rules/NamingRule.sol";
 import {BagRule} from "@ds/rules/BagRule.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
-using Schema for StateGraph;
+using Schema for BaseState;
 
 // -----------------------------------------------
 // a Game sets up the State, Dispatcher and Router
@@ -36,7 +35,7 @@ using Schema for StateGraph;
 // so all we need to do here is call registerRule()
 // -----------------------------------------------
 
-contract DownstreamRouter is SessionRouter {
+contract DownstreamRouter is BaseRouter {
     function getAuthMessage(uint32 ttl, uint32, /*scopes*/ address sessionAddr)
         internal
         pure
@@ -59,12 +58,12 @@ contract DownstreamRouter is SessionRouter {
     }
 }
 
-contract Game is BaseGame {
+contract DownstreamGame is BaseGame {
     NewPlayerRule playerRule;
 
     constructor(address[] memory allowlist) BaseGame("DOWNSTREAM", "http://downstream.game/") {
         // create a state
-        StateGraph state = new StateGraph();
+        BaseState state = new BaseState();
 
         // register the kind ids we are using
         state.registerNodeType(Kind.Player.selector, "Player", CompoundKeyKind.ADDRESS);
@@ -97,7 +96,7 @@ contract Game is BaseGame {
         state.registerEdgeType(Rel.IsFinalised.selector, "IsFinalised", WeightKind.UINT64);
 
         // create a session router
-        SessionRouter router = new DownstreamRouter();
+        BaseRouter router = new DownstreamRouter();
 
         // setup the player rule with allowlist
         playerRule = new NewPlayerRule(allowlist);

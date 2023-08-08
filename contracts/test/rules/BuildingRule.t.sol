@@ -3,11 +3,11 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 
-import {Game} from "cog/Game.sol";
-import {State, AnnotationKind} from "cog/State.sol";
-import {Dispatcher} from "cog/Dispatcher.sol";
+import {Game} from "cog/IGame.sol";
+import {State, AnnotationKind} from "cog/IState.sol";
+import {Dispatcher} from "cog/IDispatcher.sol";
 
-import {Game as Downstream} from "@ds/Game.sol";
+import {DownstreamGame} from "@ds/Downstream.sol";
 import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
 import {Schema, Node, Rel, LocationKey, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
@@ -39,7 +39,7 @@ contract BuildingRuleTest is Test {
         allowlist[0] = aliceAccount;
 
         // setup game
-        game = new Downstream(allowlist);
+        game = new DownstreamGame(allowlist);
         dispatcher = game.getDispatcher();
 
         // fetch the State to play with

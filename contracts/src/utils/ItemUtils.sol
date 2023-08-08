@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {BaseGame} from "cog/Game.sol";
-import {Dispatcher} from "cog/Dispatcher.sol";
+import {Game} from "cog/IGame.sol";
+import {Dispatcher} from "cog/IDispatcher.sol";
 import {Node} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
@@ -36,7 +36,7 @@ library ItemUtils {
     }
 
     // register is a helper to declare a new kind of item
-    function register(BaseGame ds, ItemConfig memory cfg) internal returns (bytes24) {
+    function register(Game ds, ItemConfig memory cfg) internal returns (bytes24) {
         Dispatcher dispatcher = ds.getDispatcher();
         uint32[3] memory outputItemAtoms = [uint32(cfg.greenGoo), uint32(cfg.blueGoo), uint32(cfg.redGoo)];
         bytes24 itemKind = Node.Item(uint32(cfg.id), outputItemAtoms, cfg.stackable);

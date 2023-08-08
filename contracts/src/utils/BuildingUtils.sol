@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {State} from "cog/State.sol";
-import {BaseGame} from "cog/Game.sol";
-import {Dispatcher} from "cog/Dispatcher.sol";
+import "cog/IState.sol";
+import "cog/IGame.sol";
+import "cog/IDispatcher.sol";
+
 import {Node, Schema} from "@ds/schema/Schema.sol";
 import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
 
@@ -35,7 +36,7 @@ struct BuildingConfig {
 }
 
 library BuildingUtils {
-    function register(BaseGame ds, BuildingConfig memory cfg) internal returns (bytes24) {
+    function register(Game ds, BuildingConfig memory cfg) internal returns (bytes24) {
         Dispatcher dispatcher = ds.getDispatcher();
         bytes24 buildingKind = Node.BuildingKind(uint64(cfg.id));
         bytes24[4] memory materialItem;
@@ -82,7 +83,7 @@ library BuildingUtils {
     // temporary helper to allow constructing a building without any
     // materials to test out some objective ideas.
     // THIS IS A CHEAT AND WILL BE REMOVED
-    function construct(BaseGame ds, bytes24 buildingKind, string memory model, int16 q, int16 r, int16 s)
+    function construct(Game ds, bytes24 buildingKind, string memory model, int16 q, int16 r, int16 s)
         internal
         returns (bytes24 buildingInstance)
     {

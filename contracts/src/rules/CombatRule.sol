@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {State, CompoundKeyDecoder} from "cog/State.sol";
-import {Context, Rule} from "cog/Dispatcher.sol";
+import "cog/IState.sol";
+import "cog/IRule.sol";
+import "cog/IDispatcher.sol";
+
 import {CombatActionKind, CombatAction, Actions} from "@ds/actions/Actions.sol";
 
 import {
