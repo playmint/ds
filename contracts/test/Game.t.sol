@@ -3,18 +3,18 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 
-import {State} from "cog/State.sol";
+import "cog/IState.sol";
 import {LibString} from "cog/utils/LibString.sol";
-import {PREFIX_MESSAGE, REVOKE_MESSAGE} from "cog/SessionRouter.sol";
+import {PREFIX_MESSAGE, REVOKE_MESSAGE} from "cog/BaseRouter.sol";
 
-import {Game} from "@ds/Game.sol";
+import {DownstreamGame} from "@ds/Downstream.sol";
 import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
 import {Schema, Node} from "@ds/schema/Schema.sol";
 
 using Schema for State;
 
 contract GameTest is Test {
-    Game internal game;
+    DownstreamGame internal game;
     State internal state;
 
     // accounts
@@ -31,7 +31,7 @@ contract GameTest is Test {
         allowlist[0] = aliceAccount;
 
         // setup game
-        game = new Game(allowlist);
+        game = new DownstreamGame(allowlist);
 
         // fetch the State to play with
         state = game.getState();

@@ -2,9 +2,12 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Script.sol";
-import {Game} from "@ds/Game.sol";
-import {Dispatcher} from "cog/Dispatcher.sol";
-import {State} from "cog/State.sol";
+
+import "cog/IState.sol";
+import "cog/IGame.sol";
+import "cog/IDispatcher.sol";
+
+import {DownstreamGame} from "@ds/Downstream.sol";
 import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
 import {Node, Schema} from "@ds/schema/Schema.sol";
 
@@ -42,7 +45,7 @@ contract GameDeployer is Script {
         vm.startBroadcast(deployerKey);
 
         address[] memory allowlist = _loadAllowList(vm.addr(deployerKey));
-        Game ds = new Game(allowlist);
+        DownstreamGame ds = new DownstreamGame(allowlist);
         console2.log("deployed", address(ds));
 
         Dispatcher dispatcher = ds.getDispatcher();

@@ -3,8 +3,9 @@ pragma solidity ^0.8.13;
 
 import {ABDKMath64x64 as Math} from "abdk-libraries-solidity/ABDKMath64x64.sol";
 
-import {State} from "cog/State.sol";
-import {Context, Rule} from "cog/Dispatcher.sol";
+import "cog/IState.sol";
+import "cog/IRule.sol";
+import "cog/IDispatcher.sol";
 
 import {Schema, Node, BiomeKind, DEFAULT_ZONE, GOO_GREEN, GOO_BLUE, GOO_RED} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";

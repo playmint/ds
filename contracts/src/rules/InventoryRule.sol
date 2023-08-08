@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {State} from "cog/State.sol";
-import {Context, Rule} from "cog/Dispatcher.sol";
+import "cog/IState.sol";
+import "cog/IRule.sol";
+import "cog/IDispatcher.sol";
 
 import {Schema, Node, Kind, TRAVEL_SPEED, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";

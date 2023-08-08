@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {State} from "cog/State.sol";
-import {Context, Rule} from "cog/Dispatcher.sol";
-import {Context, Rule} from "cog/Dispatcher.sol";
+import "cog/IState.sol";
+import "cog/IRule.sol";
 
 import {Schema, Node, BiomeKind, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {State, CompoundKeyEncoder, CompoundKeyDecoder} from "cog/State.sol";
+import {State, CompoundKeyEncoder, CompoundKeyDecoder} from "cog/IState.sol";
 import {BiomeKind} from "@ds/actions/Actions.sol";
 
 interface Rel {

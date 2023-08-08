@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Game} from "cog/Game.sol";
+import "cog/IGame.sol";
 
 interface ItemKind {
     // called when someone attempts to use this item as a crafting
