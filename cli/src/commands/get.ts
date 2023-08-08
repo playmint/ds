@@ -99,7 +99,7 @@ const kindNames = {
     BuildingKind: ['buildingkinds', 'buildingkind'],
     Building: ['buildings', 'building'],
     Tile: ['tiles', 'tile'],
-    MobileUnit: ['mobileunit', 'mobileunits', 'unit', 'units'],
+    MobileUnit: ['units', 'mobileunit', 'mobileunits', 'unit'],
 };
 
 const normalizeKind = (givenKindName) => {
@@ -113,7 +113,7 @@ const command = {
         cli.positional('kind', {
             describe: 'entity kind',
             type: 'string',
-            choices: Object.values(kindNames).flatMap((v) => v),
+            choices: Object.values(kindNames).flatMap((v) => v[0]),
         });
         cli.positional('id', {
             describe: 'filter by a specific id',
