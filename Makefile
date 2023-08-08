@@ -21,7 +21,7 @@ CORE_SRC := $(shell find core/src)
 NODE := node
 NPM := npm
 
-all: node_modules contracts/lib/cog/services/bin/ds-node contracts/out/Actions.sol/Actions.json core/dist/core.js frontend/public/ds-unity/Build/ds-unity.wasm bridge/dist/index.js
+all: node_modules contracts/lib/cog/services/bin/ds-node contracts/out/Actions.sol/Actions.json core/dist/core.js frontend/public/ds-unity/Build/ds-unity.wasm bridge/dist/index.js cli
 
 map:
 	$(UNITY_EDITOR) -batchmode -quit -projectPath ./map -executeMethod BuildScript.GitHubBuild -buildTarget WebGL -logFile - 
@@ -57,7 +57,11 @@ node_modules: package.json package-lock.json
 contracts/lib/cog/services/bin/ds-node: contracts/lib/cog/services/Makefile $(COG_SERVICES_SRC)
 	$(MAKE) -C contracts/lib/cog/services bin/ds-node
 
+cli:
+	(cd cli && npm run build && npm install -g --force .)
+
 clean:
+	rm -rf cli/dist
 	rm -rf bridge/dist
 	rm -rf bridge/node_modules
 	rm -f  contracts/lib/cog/services/bin/ds-node
@@ -74,5 +78,5 @@ clean:
 	$(MAKE) -C contracts/lib/cog/services clean
 
 
-.PHONY: all clean dev map compose debugmap
+.PHONY: all clean dev map compose debugmap cli
 .SILENT: contracts/lib/cog/services/bin/ds-node frontend/public/ds-unity/Build/ds-unity.wasm
