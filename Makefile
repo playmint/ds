@@ -21,7 +21,7 @@ CORE_SRC := $(shell find core/src)
 NODE := node
 NPM := npm
 
-all: node_modules contracts/lib/cog/services/bin/ds-node contracts/out/Actions.sol/Actions.json core/dist/core.js frontend/public/ds-unity/Build/ds-unity.wasm bridge/dist/index.js cli
+all: node_modules contracts/lib/cog/services/bin/ds-node contracts/out/Actions.sol/Actions.json core/dist/core.js frontend/public/ds-unity/Build/ds-unity.wasm bridge/dist/index.js
 
 map:
 	$(UNITY_EDITOR) -batchmode -quit -projectPath ./map -executeMethod BuildScript.GitHubBuild -buildTarget WebGL -logFile - 
@@ -59,6 +59,9 @@ contracts/lib/cog/services/bin/ds-node: contracts/lib/cog/services/Makefile $(CO
 
 cli:
 	(cd cli && npm run build && npm install -g --force .)
+
+publish: cli
+	(cd cli && npm version patch && npm publish)
 
 clean:
 	rm -rf cli/dist
