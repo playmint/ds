@@ -34,7 +34,10 @@ interface Kind {
     function Item() external;
     function CombatSession() external;
     function Hash() external;
+    function BlockNum() external;
 }
+
+uint64 constant BLOCK_TIME_SECS = 10;
 
 uint8 constant GOO_GREEN = 0;
 uint8 constant GOO_BLUE = 1;
@@ -126,6 +129,10 @@ library Node {
 
     function Atom(uint64 atomType) internal pure returns (bytes24) {
         return CompoundKeyEncoder.UINT64(Kind.Atom.selector, atomType);
+    }
+
+    function BlockNum() internal pure returns (bytes24) {
+        return bytes24(Kind.BlockNum.selector);
     }
 }
 
@@ -375,5 +382,50 @@ library Schema {
         state.set(Rel.Balance.selector, GOO_GREEN, tile, Node.Atom(GOO_GREEN), atoms[GOO_GREEN]);
         state.set(Rel.Balance.selector, GOO_BLUE, tile, Node.Atom(GOO_BLUE), atoms[GOO_BLUE]);
         state.set(Rel.Balance.selector, GOO_RED, tile, Node.Atom(GOO_RED), atoms[GOO_RED]);
+    }
+
+    function getTileAtomValues(State state, bytes24 tile) internal view returns (uint64[3] memory atoms) {
+        uint64 atomVal;
+
+        ( /*bytes24*/ , atomVal) = state.get(Rel.Balance.selector, GOO_GREEN, tile);
+        atoms[GOO_GREEN] = atomVal;
+
+        ( /*bytes24*/ , atomVal) = state.get(Rel.Balance.selector, GOO_BLUE, tile);
+        atoms[GOO_BLUE] = atomVal;
+
+        ( /*bytes24*/ , atomVal) = state.get(Rel.Balance.selector, GOO_RED, tile);
+        atoms[GOO_RED] = atomVal;
+    }
+
+    function setBuildingReservoirAtoms(State state, bytes24 buildingInstance, uint64[3] memory atoms) internal {
+        state.set(Rel.Balance.selector, GOO_GREEN, buildingInstance, Node.Atom(GOO_GREEN), atoms[GOO_GREEN]);
+        state.set(Rel.Balance.selector, GOO_BLUE, buildingInstance, Node.Atom(GOO_BLUE), atoms[GOO_BLUE]);
+        state.set(Rel.Balance.selector, GOO_RED, buildingInstance, Node.Atom(GOO_RED), atoms[GOO_RED]);
+    }
+
+    function getBuildingReservoirAtoms(State state, bytes24 buildingInstance)
+        internal
+        view
+        returns (uint64[3] memory atoms)
+    {
+        uint64 atomVal;
+
+        ( /*bytes24*/ , atomVal) = state.get(Rel.Balance.selector, GOO_GREEN, buildingInstance);
+        atoms[GOO_GREEN] = atomVal;
+
+        ( /*bytes24*/ , atomVal) = state.get(Rel.Balance.selector, GOO_BLUE, buildingInstance);
+        atoms[GOO_BLUE] = atomVal;
+
+        ( /*bytes24*/ , atomVal) = state.get(Rel.Balance.selector, GOO_RED, buildingInstance);
+        atoms[GOO_RED] = atomVal;
+    }
+
+    function setBlockNum(State state, bytes24 kind, uint8 slot, uint64 blockNum) internal {
+        // TODO: don't use generic `Has` selector as it could conflict with something else
+        return state.set(Rel.Has.selector, slot, kind, Node.BlockNum(), blockNum);
+    }
+
+    function getBlockNum(State state, bytes24 kind, uint8 slot) internal view returns (uint64 blockNum) {
+        ( /*bytes24 item*/ , blockNum) = state.get(Rel.Has.selector, slot, kind);
     }
 }

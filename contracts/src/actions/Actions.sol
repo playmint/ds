@@ -104,6 +104,10 @@ interface Actions {
         bytes24 buildingInstance // the building performing CRAFT
     ) external;
 
+    function EXTRACT(
+        bytes24 buildingInstance // the building performing EXTRACT
+    ) external;
+
     // spawn a mobileUnit for the sender
     function SPAWN_MOBILE_UNIT(bytes24 mobileUnit) external;
 

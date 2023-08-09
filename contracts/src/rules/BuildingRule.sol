@@ -171,12 +171,13 @@ contract BuildingRule is Rule {
         state.setMaterial(buildingKind, 2, cfg.materialItem[2], cfg.materialQty[2]);
         state.setMaterial(buildingKind, 3, cfg.materialItem[3], cfg.materialQty[3]);
 
-        // Category specific calls
+        // -- Category specific calls
+
         if (cfg.category == BuildingCategory.ITEM_FACTORY) {
             // NOTE: Actions.REGISTER_CRAFT_RECIPE has been removed from CraftingRule
             _registerRecipe(
                 state,
-                Node.Player(ctx.sender),
+                player, // TODO: If were never going to update recipes externally to registration this param is pointless
                 buildingKind,
                 cfg.inputItemIDs,
                 cfg.inputItemQtys,
@@ -184,6 +185,34 @@ contract BuildingRule is Rule {
                 cfg.outputItemQtys[0]
             );
         }
+
+        if (cfg.category == BuildingCategory.EXTRACTOR) {
+            _setExtractionProperties(state, buildingKind, cfg.outputItemIDs[0], cfg.outputItemQtys[0]);
+        }
+    }
+
+    function _setExtractionProperties(State state, bytes24 buildingKind, bytes24 outputItemID, uint64 outputItemQty)
+        private
+    {
+        // check that the output item has been registerd
+        bytes24 outputOwner = state.getOwner(outputItemID);
+        require(outputOwner != 0x0, "output item must be a registered item");
+
+        // check that the item is stackable
+        (uint32[3] memory atoms, bool isStackable) = state.getItemStructure(outputItemID);
+        require(isStackable, "output item must be stackable");
+
+        // must be of one atom type
+        uint8 atomTypes;
+        for (uint256 i = 0; i < 3; i++) {
+            if (atoms[i] > 0) atomTypes++;
+        }
+
+        require(atomTypes == 1, "output item must be of one atomic type");
+
+        // Check that the number we want to produce can be possible with MAX_GOO_RESERVOIR (?) Maybe we don't enforce this.
+
+        state.setOutput(buildingKind, 0, outputItemID, outputItemQty);
     }
 
     function _constructBuilding(
@@ -209,11 +238,27 @@ contract BuildingRule is Rule {
         state.setOwner(buildingInstance, Node.Player(ctx.sender));
         // set building location
         state.setFixedLocation(buildingInstance, targetTile);
-        // attach the inputs/output bags
-        bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "input")))));
-        bytes24 outputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "output")))));
-        state.setEquipSlot(buildingInstance, 0, inputBag);
-        state.setEquipSlot(buildingInstance, 1, outputBag);
+
+        // -- Category specific calls
+
+        ( /*uint64 id*/ , BuildingCategory category) = state.getBuildingKindInfo(buildingKind);
+
+        if (category == BuildingCategory.ITEM_FACTORY) {
+            // attach the inputs/output bags
+            bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "input")))));
+            bytes24 outputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "output")))));
+            state.setEquipSlot(buildingInstance, 0, inputBag);
+            state.setEquipSlot(buildingInstance, 1, outputBag);
+        }
+
+        if (category == BuildingCategory.EXTRACTOR) {
+            // set initial extraction timestamp
+            state.setBlockNum(buildingInstance, 0, ctx.clock);
+
+            // attach output bag
+            bytes24 outputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "output")))));
+            state.setEquipSlot(buildingInstance, 0, outputBag);
+        }
     }
 
     function _payConstructionFee(State state, bytes24 buildingKind, bytes24 buildingInstance) private {

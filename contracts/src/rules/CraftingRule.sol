@@ -6,7 +6,7 @@ import "cog/IRule.sol";
 import "cog/IGame.sol";
 import "cog/IDispatcher.sol";
 
-import {Kind, Schema, Node, Rel} from "@ds/schema/Schema.sol";
+import {Kind, Schema, Node, Rel, BuildingCategory} from "@ds/schema/Schema.sol";
 import {BagUtils} from "@ds/utils/BagUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {ItemKind} from "@ds/ext/ItemKind.sol";
@@ -56,6 +56,12 @@ contract CraftingRule is Rule {
         // get building kind
         bytes24 buildingKind = state.getBuildingKind(buildingInstance);
         require(buildingKind != 0x0, "no building kind for building id");
+
+        // Only factories can craft
+        {
+            ( /*uint64 id*/ , BuildingCategory category) = state.getBuildingKindInfo(buildingKind);
+            require(category == BuildingCategory.ITEM_FACTORY, "only item factories can craft");
+        }
 
         // check sender is the contract that implements the building kind
         {
