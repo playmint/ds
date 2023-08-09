@@ -2573,7 +2573,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7f692c7978dd4af09bd0f1ccebe8309, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buildingPrefab: {fileID: 7268972726147497452, guid: d0e9e485dc776404cace2c21ae6830ca,
+  buildingPrefab: {fileID: 7268972726147497452, guid: 23ff047669b024ea19d8a08fb52d2ddd,
     type: 3}
   bagPrefab: {fileID: 8776346270060902164, guid: a2154e623a0a249b0aa3f222d4d27e10,
     type: 3}

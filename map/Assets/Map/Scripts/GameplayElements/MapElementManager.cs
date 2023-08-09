@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 using UnityEngine;
 
 public class MapElementManager : MonoBehaviour
@@ -34,19 +36,48 @@ public class MapElementManager : MonoBehaviour
     private Dictionary<Vector3Int, GooController> _spawnedGoo =
         new Dictionary<Vector3Int, GooController>();
 
+    Dictionary<string, string> totemIDs;
+
     private void Awake()
     {
         instance = this;
+        LoadTotemIDs();
     }
 
-    public void CreateBuilding(Vector3Int cubicCoords, Transform tileTransform, string id)
+    private void LoadTotemIDs()
+    {
+        string json = Resources.Load<TextAsset>("totemIDs").text;
+        totemIDs = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+    }
+
+    public string[] GetTotemNamesFromStackCode(string stackCode)
+    {
+        Regex rx = new Regex(@"\d{2}");
+        MatchCollection matches = rx.Matches(stackCode);
+        if (matches.Count != 2)
+        {
+            return null;
+        }
+        string[] names = new string[2];
+        names[0] = totemIDs[matches[0].Value];
+        names[1] = totemIDs[matches[1].Value];
+        return names;
+    }
+
+    public void CreateBuilding(
+        Vector3Int cubicCoords,
+        Transform tileTransform,
+        string id,
+        string model
+    )
     {
         if (!_spawnedBuildings.ContainsKey(cubicCoords))
         {
-            MapElementController building = Instantiate(buildingPrefab, transform, true)
-                .GetComponent<MapElementController>();
+            StackableBuildingController building = Instantiate(buildingPrefab, transform, true)
+                .GetComponent<StackableBuildingController>();
             _spawnedBuildings.Add(cubicCoords, building);
-            building.Setup(cubicCoords, tileTransform, id);
+            string[] totemNames = GetTotemNamesFromStackCode(model);
+            building.Setup(cubicCoords, tileTransform, id, totemNames);
         }
     }
 

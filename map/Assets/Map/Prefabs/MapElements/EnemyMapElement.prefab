@@ -212,6 +212,20 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 5657960569550214559}
   m_PrefabAsset: {fileID: 0}
+--- !u!136 &5078123364497435227
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8730588450062426084}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.17
+  m_Height: 0.59
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.28, z: 0.19}
 --- !u!114 &2084428698437571845
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -227,24 +241,12 @@ MonoBehaviour:
   iconParent: {fileID: 8730588450661582252}
   iconPrefab: {fileID: 2167013614747121971, guid: 58a41a29608144c348eb2c954e04eaef,
     type: 3}
-  outlineObj: {fileID: 7332151296190956936}
+  outlineObjs:
+  - {fileID: 7332151296190956936}
   createIcon: 0
-  rend: {fileID: 1707543866641914083}
+  renderers:
+  - {fileID: 1707543866641914083}
   highlightColor: {r: 0.079432175, g: 0.34517217, b: 0.4811321, a: 1}
---- !u!136 &5078123364497435227
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8730588450062426084}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.17
-  m_Height: 0.59
-  m_Direction: 1
-  m_Center: {x: 0, y: 0.28, z: 0.19}
 --- !u!4 &8730588450661582252 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4011681257694613555, guid: a699dfdf8ea904492a4f3bc5ea3d169d,

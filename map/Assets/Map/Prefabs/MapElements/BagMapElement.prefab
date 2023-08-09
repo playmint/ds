@@ -211,6 +211,22 @@ PrefabInstance:
       value: 0.079432175
       objectReference: {fileID: 0}
     - target: {fileID: 1410422685, guid: a699dfdf8ea904492a4f3bc5ea3d169d, type: 3}
+      propertyPath: renderers.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1410422685, guid: a699dfdf8ea904492a4f3bc5ea3d169d, type: 3}
+      propertyPath: outlineObjs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1410422685, guid: a699dfdf8ea904492a4f3bc5ea3d169d, type: 3}
+      propertyPath: renderers.Array.data[0]
+      value: 
+      objectReference: {fileID: 1772846297209200667}
+    - target: {fileID: 1410422685, guid: a699dfdf8ea904492a4f3bc5ea3d169d, type: 3}
+      propertyPath: outlineObjs.Array.data[0]
+      value: 
+      objectReference: {fileID: 129297559762308546}
+    - target: {fileID: 1410422685, guid: a699dfdf8ea904492a4f3bc5ea3d169d, type: 3}
       propertyPath: _moveCurve.m_Curve.Array.data[0].time
       value: 0
       objectReference: {fileID: 0}
