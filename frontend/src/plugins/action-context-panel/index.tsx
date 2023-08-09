@@ -1,8 +1,16 @@
 /** @format */
 import { TileAction } from '@app/components/organisms/tile-action';
+import { getCoords, getNeighbours, getTileDistance } from '@app/helpers/tile';
+import { Bag } from '@app/plugins/inventory/bag';
+import { BuildingInventory } from '@app/plugins/inventory/building-inventory';
+import { getBuildingEquipSlot, getBuildingId } from '@app/plugins/inventory/helpers';
+import { useInventory } from '@app/plugins/inventory/inventory-provider';
+import { TileInventory } from '@app/plugins/inventory/tile-inventory';
+import { MobileUnitList } from '@app/plugins/mobile-unit-list';
 import { ComponentProps } from '@app/types/component-props';
 import {
     BiomeKind,
+    BuildingKindFragment,
     CogAction,
     ConnectedPlayer,
     SelectedMobileUnitFragment,
@@ -13,22 +21,13 @@ import {
     usePluginState,
     useSelection,
     useWorld,
+    World,
     WorldBuildingFragment,
-    BuildingKindFragment,
-    WorldTileFragment,
-    World
+    WorldTileFragment
 } from '@downstream/core';
 import React, { Fragment, FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { useInventory } from '@app/plugins/inventory/inventory-provider';
-import { getCoords, getTileDistance, getNeighbours } from '@app/helpers/tile';
-import { BuildingInventory } from '@app/plugins/inventory/building-inventory';
-import { getBuildingEquipSlot, getBuildingId } from '@app/plugins/inventory/helpers';
-import { MobileUnitList } from '@app/plugins/mobile-unit-list';
-import { TileInventory } from '@app/plugins/inventory/tile-inventory';
-import { Bag } from '@app/plugins/inventory/bag';
 import { styles } from './action-context-panel.styles';
-import { formatNameOrId } from '@app/helpers';
 
 export interface ActionContextPanelProps extends ComponentProps {
     onShowCombatModal?: (isNewSession: boolean) => void;
