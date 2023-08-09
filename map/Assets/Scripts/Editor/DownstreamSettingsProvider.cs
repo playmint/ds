@@ -9,6 +9,8 @@ class DownstreamSettingsProvider : SettingsProvider
 {
     SerializedObject SerialisedSettings;
     SerializedProperty NodePath;
+    SerializedProperty NPXPath;
+    SerializedProperty Network;
     SerializedProperty PrivateKey;
 
     private class Styles
@@ -16,6 +18,14 @@ class DownstreamSettingsProvider : SettingsProvider
         public static readonly GUIContent NodePathLabel = EditorGUIUtility.TrTextContent(
             "NodePath",
             "Node Path"
+        );
+        public static readonly GUIContent NPXPathLabel = EditorGUIUtility.TrTextContent(
+            "NPXPath",
+            "NPX Path"
+        );
+        public static readonly GUIContent NetworkLabel = EditorGUIUtility.TrTextContent(
+            "Network",
+            "Network"
         );
         public static readonly GUIContent PrivateKeyLabel = EditorGUIUtility.TrTextContent(
             "PrivateKey",
@@ -32,10 +42,10 @@ class DownstreamSettingsProvider : SettingsProvider
 
     public override void OnActivate(string searchContext, VisualElement rootElement)
     {
-        Debug.Log("DownstreamSettingsProvider::OnActivate()");
-        // MySingleton.instance.Save();
         SerialisedSettings = new SerializedObject(DownstreamDevSettings.instance);
         NodePath = SerialisedSettings.FindProperty("NodePath");
+        NPXPath = SerialisedSettings.FindProperty("NPXPath");
+        Network = SerialisedSettings.FindProperty("Network");
         PrivateKey = SerialisedSettings.FindProperty("PrivateKey");
     }
 
@@ -48,6 +58,12 @@ class DownstreamSettingsProvider : SettingsProvider
 
             EditorGUILayout.LabelField("Node Absolute Path");
             NodePath.stringValue = EditorGUILayout.TextField(NodePath.stringValue);
+
+            EditorGUILayout.LabelField("NPX Absolute Path");
+            NPXPath.stringValue = EditorGUILayout.TextField(NPXPath.stringValue);
+
+            EditorGUILayout.LabelField("Network (local, devnet, testnet)");
+            Network.stringValue = EditorGUILayout.TextField(Network.stringValue);
 
             EditorGUILayout.LabelField("Private Key");
             PrivateKey.stringValue = EditorGUILayout.TextField(PrivateKey.stringValue);

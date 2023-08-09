@@ -68,7 +68,6 @@ namespace Cog
         public World World { get; set; }
     }
 
-    // TODO: No longer a PluginController. Rename to StateMediator
     public class GameStateMediator : MonoBehaviour
     {
         [DllImport("__Internal")]
@@ -98,7 +97,7 @@ namespace Cog
 
         protected void Start()
         {
-            Debug.Log("PluginController::Start()");
+            Debug.Log("GameStateMediator::Start()");
 
 #if UNITY_EDITOR
             StartNodeProcess();
@@ -146,6 +145,8 @@ namespace Cog
 
         // -- Downstream Bridge node.js thread
         private string _nodePath;
+        private string _npxPath;
+        private string _network;
         private string _privateKey;
 
 
@@ -162,6 +163,8 @@ namespace Cog
             Debug.Log("StartNodeProcess()");
 
             _nodePath = DownstreamDevSettings.instance.NodePath;
+            _npxPath = DownstreamDevSettings.instance.NPXPath;
+            _network = DownstreamDevSettings.instance.Network;
             _privateKey = DownstreamDevSettings.instance.PrivateKey;
 
             try
@@ -187,19 +190,18 @@ namespace Cog
         {
             if (DownstreamDevSettings.instance.NodePath == "")
             {
-                Debug.LogError("PluginController: Node path not set. Make sure the absolute path to node is set in the Edit > Project Settings > Downstream panel");
+                Debug.LogError("GameStateMediator: Node path not set. Make sure the absolute path to node is set in the Edit > Project Settings > Downstream panel");
                 return;
             }
 
-            Debug.Log($"PluginController:NodeProcessThread() Starting DownstreamBridge \nNodePath: {DownstreamDevSettings.instance.NodePath} \nPrivKey: {DownstreamDevSettings.instance.PrivateKey}");
+            Debug.Log($"GameStateMediator:NodeProcessThread() Starting DownstreamBridge \nNodePath: {DownstreamDevSettings.instance.NodePath} \nPrivKey: {DownstreamDevSettings.instance.PrivateKey}");
 
             _nodeJSProcess = new System.Diagnostics.Process
             {
                 StartInfo = new System.Diagnostics.ProcessStartInfo
                 {
-                    WorkingDirectory = "../bridge",
                     FileName = _nodePath,
-                    Arguments = "./dist/index.js " + _privateKey,
+                    Arguments = $"{_npxPath} -y -g @playmint/ds-cli -n {_network} -k {_privateKey} unity-bridge",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardInput = true,
@@ -214,7 +216,7 @@ namespace Cog
             catch (Exception e)
             {
                 Debug.LogError(e);
-                Debug.LogError("PluginController: Unable to start bridge. Please check your Node path and make sure that the bridge has been built with npm run build");
+                Debug.LogError("GameStateMediator: Unable to start bridge. Please check you have node js installed and have correctly configured a private key, and the paths to node and npx in ProjectSettings/Downstream. Use 'where node' and 'where npx' commands from a terminal to discover your paths to set.");
                 return;
             }
 
@@ -384,7 +386,7 @@ namespace Cog
             }
             catch (Exception e)
             {
-                Debug.Log("PluginController::OnState():\n" + stateJson);
+                Debug.Log("GameStateMediator::OnState():\n" + stateJson);
                 Debug.LogError(e);
             }
         }
