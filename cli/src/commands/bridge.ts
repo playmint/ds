@@ -115,7 +115,7 @@ async function start(ctx) {
 
 export const bridge = {
     command: 'unity-bridge',
-    describe: 'start the unity dev server bridge',
+    describe: false, //'start the unity dev server bridge to allow development in editor',
     builder: (cli) => {
         cli.option('echo', { describe: 'echo input', type: 'boolean' });
     },
