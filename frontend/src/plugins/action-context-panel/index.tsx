@@ -15,7 +15,8 @@ import {
     useWorld,
     WorldBuildingFragment,
     BuildingKindFragment,
-    WorldTileFragment
+    WorldTileFragment,
+    World
 } from '@downstream/core';
 import React, { Fragment, FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -27,6 +28,7 @@ import { MobileUnitList } from '@app/plugins/mobile-unit-list';
 import { TileInventory } from '@app/plugins/inventory/tile-inventory';
 import { Bag } from '@app/plugins/inventory/bag';
 import { styles } from './action-context-panel.styles';
+import { formatNameOrId } from '@app/helpers';
 
 export interface ActionContextPanelProps extends ComponentProps {
     onShowCombatModal?: (isNewSession: boolean) => void;
@@ -73,11 +75,12 @@ const byKey = (a: KeyedThing, b: KeyedThing) => {
 interface TileBuildingProps {
     player?: ConnectedPlayer;
     building: WorldBuildingFragment;
+    world?: World;
     showFull: boolean;
     selectIntent: Selector<string | undefined>;
     selectTiles: Selector<string[] | undefined>;
 }
-const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull, player }) => {
+const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull, player, world }) => {
     const { tiles: selectedTiles } = useSelection();
     const selectedTile = selectedTiles?.[0];
     const tileMobileUnits = selectedTile?.mobileUnits ?? [];
@@ -109,10 +112,23 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull
 
     const isEnemy = buildingKind?.model?.value === 'enemy';
 
+    const author = world?.players.find((p) => p.id === building?.kind?.owner?.id);
+    const owner = world?.players.find((p) => p.id === building?.owner?.id);
+
     return (
         <StyledActionContextPanel className="action">
             <h3>{component?.title ?? building?.kind?.name?.value ?? 'Unnamed Building'}</h3>
             <span className="sub-title">{component?.summary || ''}</span>
+            {author && (
+                <span className="label">
+                    <strong>AUTHOR:</strong> {author.addr}
+                </span>
+            )}
+            {owner && (
+                <span className="label">
+                    <strong>OWNER:</strong> {owner.addr}
+                </span>
+            )}
             {isEnemy ? <ImageEnemy /> : <ImageBuilding />}
             {component && showFull && (
                 <Fragment>
@@ -667,6 +683,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({
                     return (
                         <TileBuilding
                             building={selectedTile.building}
+                            world={world}
                             showFull={false}
                             selectIntent={selectIntent}
                             selectTiles={selectTiles}
@@ -677,6 +694,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({
                         <TileBuilding
                             player={player}
                             building={selectedTile.building}
+                            world={world}
                             showFull={true}
                             selectIntent={selectIntent}
                             selectTiles={selectTiles}
