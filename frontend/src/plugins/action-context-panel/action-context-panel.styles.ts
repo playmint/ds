@@ -54,6 +54,21 @@ const baseStyles = (_: Partial<ActionContextPanelProps>) => css`
     .secondary-action-button {
         margin: 0 auto;
     }
+
+    .label {
+        width: 60%;
+        height: 1.7rem;
+        white-space: nowrap;
+        font-size: 1.4rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        margin: 0.5rem 0;
+        > strong {
+            display: inline-block;
+            width: 6rem;
+        }
+    }
 `;
 
 /**
