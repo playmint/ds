@@ -54,7 +54,7 @@ public class MapElementManager : MonoBehaviour
     {
         Regex rx = new Regex(@"\d{2}");
         MatchCollection matches = rx.Matches(stackCode);
-        if (matches.Count != 2)
+        if (matches.Count != 2 || !totemIDs.ContainsKey(matches[0].Value) || !totemIDs.ContainsKey(matches[1].Value))
         {
             return null;
         }
