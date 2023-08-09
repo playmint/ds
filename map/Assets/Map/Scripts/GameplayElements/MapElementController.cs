@@ -13,13 +13,13 @@ public class MapElementController : MonoBehaviour
     protected GameObject iconPrefab;
 
     [SerializeField]
-    protected GameObject outlineObj;
+    protected GameObject[] outlineObjs;
 
     [SerializeField]
     private bool createIcon = true;
 
     [SerializeField]
-    protected Renderer rend;
+    protected Renderer[] renderers;
 
     [SerializeField]
     protected Color highlightColor;
@@ -33,7 +33,6 @@ public class MapElementController : MonoBehaviour
 
     private void Awake()
     {
-        _defaultColor = rend.material.GetColor("_EmissionColor");
         GameStateMediator.Instance.EventStateUpdated += StateUpdated;
     }
 
@@ -44,6 +43,7 @@ public class MapElementController : MonoBehaviour
 
     public void Setup(Vector3Int cell, Transform parent, string id)
     {
+        _defaultColor = renderers[0].material.GetColor("_EmissionColor");
         _id = id;
         Vector3 pos = MapManager.instance.grid.CellToWorld(GridExtensions.CubeToGrid(cell));
         float height = MapHeightManager.instance.GetHeightAtPosition(pos);
@@ -69,7 +69,10 @@ public class MapElementController : MonoBehaviour
 
     public string GetElementID()
     {
-        rend.material.SetColor("_EmissionColor", highlightColor);
+        foreach (Renderer rend in renderers)
+        {
+            rend.material.SetColor("_EmissionColor", highlightColor);
+        }
         return _id;
     }
 
@@ -80,13 +83,19 @@ public class MapElementController : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit))
         {
-            if (hit.transform == transform && !outlineObj.activeSelf)
+            if (hit.transform == transform && !outlineObjs[0].activeSelf)
             {
-                rend.material.SetColor("_EmissionColor", highlightColor);
+                foreach (Renderer rend in renderers)
+                {
+                    rend.material.SetColor("_EmissionColor", highlightColor);
+                }
                 return;
             }
         }
-        rend.material.SetColor("_EmissionColor", _defaultColor);
+        foreach (Renderer rend in renderers)
+        {
+            rend.material.SetColor("_EmissionColor", _defaultColor);
+        }
     }
 
     private void StateUpdated(GameState state)
@@ -115,10 +124,19 @@ public class MapElementController : MonoBehaviour
         }
         if (activateOutline)
         {
-            outlineObj.SetActive(true);
+            foreach (GameObject outlineObj in outlineObjs)
+            {
+                outlineObj.SetActive(true);
+            }
             return;
         }
-        outlineObj.SetActive(false);
-        rend.material.SetColor("_Emission", _defaultColor);
+        foreach (GameObject outlineObj in outlineObjs)
+        {
+            outlineObj.SetActive(false);
+        }
+        foreach (Renderer rend in renderers)
+        {
+            rend.material.SetColor("_Emission", _defaultColor);
+        }
     }
 }

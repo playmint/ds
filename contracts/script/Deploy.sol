@@ -270,7 +270,7 @@ contract GameDeployer is Script {
             })
         );
 
-        BuildingUtils.construct(ds, cocktailHut, "building", 5, 13, -18);
+        BuildingUtils.construct(ds, cocktailHut, "01-02", 5, 13, -18);
     }
 
     function _rubberDuckChain(Game ds, bytes24 l33tBricks) private {
@@ -388,9 +388,9 @@ contract GameDeployer is Script {
             })
         );
 
-        BuildingUtils.construct(ds, foulFiends, "story-building", 3, -3, 0);
-        BuildingUtils.construct(ds, kwikTyre, "story-building", -4, 3, 1);
-        BuildingUtils.construct(ds, allThingsRubber, "story-building", -10, 0, 10);
+        BuildingUtils.construct(ds, foulFiends, "03-04", 3, -3, 0);
+        BuildingUtils.construct(ds, kwikTyre, "05-06", -4, 3, 1);
+        BuildingUtils.construct(ds, allThingsRubber, "07-08", -10, 0, 10);
     }
 
     function _greenGooChain(Game ds, bytes24 l33tBricks) private returns (bytes24) {
@@ -508,9 +508,9 @@ contract GameDeployer is Script {
             })
         );
 
-        BuildingUtils.construct(ds, greenGooFission, "story-building", -10, -15, 25);
-        BuildingUtils.construct(ds, greenGooFusion, "story-building", -20, 0, 20);
-        BuildingUtils.construct(ds, crazyHermit, "story-building", 7, 7, -14);
+        BuildingUtils.construct(ds, greenGooFission, "08-07", -10, -15, 25);
+        BuildingUtils.construct(ds, greenGooFusion, "06-05", -20, 0, 20);
+        BuildingUtils.construct(ds, crazyHermit, "04-03", 7, 7, -14);
 
         return dismemberedHand;
     }

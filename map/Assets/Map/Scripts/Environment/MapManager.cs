@@ -180,7 +180,8 @@ public class MapManager : MonoBehaviour
                 MapElementManager.instance.CreateBuilding(
                     cellPosCube,
                     tileTransform,
-                    tile.Building.Id
+                    tile.Building.Id,
+                    tile.Building.Kind.Model.Value
                 );
                 MapElementManager.instance.CheckIncompleteBuildingIconRemoved(cellPosCube);
             }

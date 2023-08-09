@@ -27,8 +27,10 @@ public class MobileUnitController : MapElementController
     private void Awake()
     {
         GameStateMediator.Instance.EventStateUpdated += StateUpdated;
-
-        rend.material.SetFloat("_Fade", 1);
+        foreach (Renderer rend in renderers)
+        {
+            rend.material.SetFloat("_Fade", 1);
+        }
     }
 
     private void OnDestroy()
@@ -42,12 +44,21 @@ public class MobileUnitController : MapElementController
         {
             if (state.Selected.MobileUnit.Id == _id)
             {
-                outlineObj.SetActive(true);
+                foreach (GameObject outlineObj in outlineObjs)
+                {
+                    outlineObj.SetActive(true);
+                }
                 return;
             }
         }
-        outlineObj.SetActive(false);
-        rend.material.SetColor("_Emission", _defaultColor);
+        foreach (GameObject outlineObj in outlineObjs)
+        {
+            outlineObj.SetActive(false);
+        }
+        foreach (Renderer rend in renderers)
+        {
+            rend.material.SetColor("_Emission", _defaultColor);
+        }
     }
 
     public void Setup(
@@ -168,7 +179,7 @@ public class MobileUnitController : MapElementController
     {
         float t = 0;
         Vector3 startScale = _meshesTrans.localScale;
-        float startFade = rend.material.GetFloat("_Fade");
+        float startFade = renderers[0].material.GetFloat("_Fade");
         yield return new WaitForSeconds(delay);
         while (t < 1)
         {
@@ -178,10 +189,13 @@ public class MobileUnitController : MapElementController
                 endScale,
                 _shrinkCurve.Evaluate(t)
             );
-            rend.material.SetFloat(
-                "_Fade",
-                Mathf.Lerp(startFade, endFade, _shrinkCurve.Evaluate(t))
-            );
+            foreach (Renderer rend in renderers)
+            {
+                rend.material.SetFloat(
+                    "_Fade",
+                    Mathf.Lerp(startFade, endFade, _shrinkCurve.Evaluate(t))
+                );
+            }
             yield return null;
         }
     }
