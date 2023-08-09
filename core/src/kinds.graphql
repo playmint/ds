@@ -20,6 +20,10 @@ fragment BuildingKind on Node {
     outputs: edges(match: { kinds: ["Item"], via: { rel: "Output" } }) {
         ...ItemSlot
     }
+    # who deployed this building kind
+    owner: node(match: { kinds: "Player", via: { rel: "Owner" } }) {
+        id
+    }
 }
 
 query GetAvailableBuildingKinds($gameID: ID!) {

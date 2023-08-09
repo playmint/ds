@@ -216,6 +216,9 @@ interface ConstructProps {
     mobileUnit?: SelectedMobileUnitFragment;
 }
 const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUnit, player, selectIntent }) => {
+    const [selectedKindRaw, selectKind] = useState<undefined | BuildingKindFragment>();
+    const [showAllKinds, setShowAllKinds] = useState<boolean>(false);
+
     const selectedTile = selectedTiles.find(() => true);
     const selectedTileIsAdjacent =
         selectedTile && mobileUnit?.nextLocation?.tile
@@ -233,22 +236,32 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
     const world = useWorld();
     const slotsRef = useRef<HTMLDivElement>(null);
     const kinds = useBuildingKinds();
-    const availableKinds = (kinds || []).sort(byName);
-    // temp excluding of any building annotated with a non-building model this
-    // is only expected to be used during Blueprint to exlcuding "story
-    // buildings" or until we have a nicer solution to avoiding a giant list
-    const constructableKinds = availableKinds.filter(
-        (kind) => !kind.model || !kind.model.value || kind.model.value === 'building'
-    );
-
-    const [selectedKindRaw, selectKind] = useState<undefined | BuildingKindFragment>();
-    const selectedKind = selectedKindRaw || constructableKinds.find(() => true);
+    const constructableKinds = (kinds || []).sort(byName);
+    const playerKinds = constructableKinds.filter((kind) => kind.owner?.id === player?.id);
+    const otherKinds = constructableKinds
+        .filter((kind) => kind.owner?.id !== player?.id)
+        .filter((kind) => kind.model?.value !== 'story-building');
+    const selectedKind = selectedKindRaw;
 
     const onChangeSelectedKind = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const kindID = e.target.value;
         const kind = kindID ? constructableKinds.find((k) => k.id == kindID) : undefined;
         selectKind(kind);
     };
+
+    // deselect kind if became unavailable
+    useEffect(() => {
+        if (!selectedKind) {
+            return;
+        }
+        const selectableKinds = playerKinds.concat(otherKinds);
+        if (!selectableKinds.some((kind) => kind.id === selectedKind.id)) {
+            selectKind(undefined);
+        }
+        if (otherKinds.some((kind) => kind.id === selectedKind.id) && !showAllKinds) {
+            selectKind(undefined);
+        }
+    }, [selectedKind, showAllKinds, selectKind, otherKinds, playerKinds]);
 
     const clearIntent = useCallback(
         (e?: React.MouseEvent) => {
@@ -302,7 +315,9 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
         recipe.every((ingredient, index) => {
             const bag = equipSlot && equipSlot.bag;
             return bag && bag.slots[index] && bag.slots[index].balance >= ingredient.balance;
-        }) && selectedTiles.length > 0;
+        }) &&
+        constructableTile &&
+        selectedKind;
 
     const help = selectedTile?.building
         ? 'Can&apos;t build on a tile that already has a building on it'
@@ -319,18 +334,45 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
                 {constructableTile && (
                     <>
                         <div className="select">
-                            <select
-                                name="kind"
-                                placeholder="select kind"
-                                onChange={onChangeSelectedKind}
-                                value={selectedKind?.id}
-                            >
-                                {constructableKinds.map((k) => (
-                                    <option key={k.id} value={k.id}>
-                                        {k.name?.value || '<unnamed>'}
-                                    </option>
-                                ))}
+                            <select name="kind" onChange={onChangeSelectedKind} value={selectedKind?.id || ''}>
+                                <option value={''}>Select...</option>
+                                <optgroup label="Your kinds">
+                                    {playerKinds.length > 0 ? (
+                                        playerKinds.map((k) => (
+                                            <option key={k.id} value={k.id}>
+                                                {k.name?.value || k.id}
+                                            </option>
+                                        ))
+                                    ) : (
+                                        <option key="player-none" disabled={true}>
+                                            You have not deployed any building kinds
+                                        </option>
+                                    )}
+                                </optgroup>
+                                <optgroup label="Other kinds">
+                                    {showAllKinds ? (
+                                        otherKinds.map((k) => (
+                                            <option key={k.id} value={k.id}>
+                                                {k.name?.value || k.id}
+                                            </option>
+                                        ))
+                                    ) : (
+                                        <option key="other" disabled={true}>
+                                            {otherKinds.length} kinds hidden
+                                        </option>
+                                    )}
+                                </optgroup>
                             </select>
+                        </div>
+                        <div className="toggle">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={showAllKinds}
+                                    onChange={() => setShowAllKinds((prev) => !prev)}
+                                />
+                                Show all
+                            </label>
                         </div>
                         {buildingId && (
                             <div ref={slotsRef} className="ingredients">
