@@ -316,31 +316,35 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
             <span className="sub-title">{help}</span>
             <ImageConstruct />
             <form onSubmit={handleConstruct}>
-                <div className="select">
-                    <select
-                        name="kind"
-                        placeholder="select kind"
-                        onChange={onChangeSelectedKind}
-                        value={selectedKind?.id}
-                    >
-                        {constructableKinds.map((k) => (
-                            <option key={k.id} value={k.id}>
-                                {k.name?.value || '<unnamed>'}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                {buildingId && (
-                    <div ref={slotsRef} className="ingredients">
-                        <BuildingInventory buildingId={buildingId} recipe={recipe} />
-                    </div>
+                {constructableTile && (
+                    <>
+                        <div className="select">
+                            <select
+                                name="kind"
+                                placeholder="select kind"
+                                onChange={onChangeSelectedKind}
+                                value={selectedKind?.id}
+                            >
+                                {constructableKinds.map((k) => (
+                                    <option key={k.id} value={k.id}>
+                                        {k.name?.value || '<unnamed>'}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        {buildingId && (
+                            <div ref={slotsRef} className="ingredients">
+                                <BuildingInventory buildingId={buildingId} recipe={recipe} />
+                            </div>
+                        )}
+                        <button className="action-button" type="submit" disabled={!canConstruct}>
+                            Confirm Construction
+                        </button>
+                        <button className="secondary-action-button" onClick={clearIntent}>
+                            Cancel Construction
+                        </button>
+                    </>
                 )}
-                <button className="action-button" type="submit" disabled={!canConstruct}>
-                    Confirm Construction
-                </button>
-                <button className="secondary-action-button" onClick={clearIntent}>
-                    Cancel Construction
-                </button>
             </form>
         </StyledActionContextPanel>
     );
