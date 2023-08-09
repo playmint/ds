@@ -21,7 +21,7 @@ CORE_SRC := $(shell find core/src)
 NODE := node
 NPM := npm
 
-all: node_modules contracts/lib/cog/services/bin/ds-node contracts/out/Actions.sol/Actions.json core/dist/core.js frontend/public/ds-unity/Build/ds-unity.wasm
+all: node_modules contracts/lib/cog/services/bin/ds-node core/dist/core.js frontend/public/ds-unity/Build/ds-unity.wasm
 
 map:
 	$(UNITY_EDITOR) -batchmode -quit -projectPath ./map -executeMethod BuildScript.GitHubBuild -buildTarget WebGL -logFile -
@@ -41,7 +41,7 @@ contracts/out/Actions.sol/Actions.json:
 core/src/gql:
 	# noop
 
-core/dist/core.js: $(CORE_SRC)
+core/dist/core.js: $(CORE_SRC) contracts/out/Actions.sol/Actions.json 
 	(cd core && npm run build)
 
 frontend/public/ds-unity/Build/ds-unity.wasm:
@@ -54,7 +54,7 @@ node_modules: package.json package-lock.json
 contracts/lib/cog/services/bin/ds-node: contracts/lib/cog/services/Makefile $(COG_SERVICES_SRC)
 	$(MAKE) -C contracts/lib/cog/services bin/ds-node
 
-cli:
+cli: node_modules core/dist/core.js
 	(cd cli && npm run build && npm install -g --force .)
 
 publish: cli
@@ -62,6 +62,7 @@ publish: cli
 
 clean:
 	rm -rf cli/dist
+	rm -rf cli/node_modules
 	rm -f  contracts/lib/cog/services/bin/ds-node
 	rm -rf contracts/out
 	rm -rf core/dist
