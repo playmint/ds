@@ -118,16 +118,6 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull
         <StyledActionContextPanel className="action">
             <h3>{component?.title ?? building?.kind?.name?.value ?? 'Unnamed Building'}</h3>
             <span className="sub-title">{component?.summary || ''}</span>
-            {author && (
-                <span className="label">
-                    <strong>AUTHOR:</strong> {author.addr}
-                </span>
-            )}
-            {owner && (
-                <span className="label">
-                    <strong>OWNER:</strong> {owner.addr}
-                </span>
-            )}
             {isEnemy ? <ImageEnemy /> : <ImageBuilding />}
             {component && showFull && (
                 <Fragment>
@@ -174,6 +164,16 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull
                 <MobileUnitList mobileUnits={tileMobileUnits} player={player} />
             )}
             {!showFull && selectedTile && <TileInventory tile={selectedTile} />}
+            {author && (
+                <span className="label">
+                    <strong>AUTHOR:</strong> {author.addr}
+                </span>
+            )}
+            {owner && (
+                <span className="label">
+                    <strong>OWNER:</strong> {owner.addr}
+                </span>
+            )}
         </StyledActionContextPanel>
     );
 };
