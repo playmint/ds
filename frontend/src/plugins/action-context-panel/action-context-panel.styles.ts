@@ -63,7 +63,8 @@ const baseStyles = (_: Partial<ActionContextPanelProps>) => css`
         overflow: hidden;
         text-overflow: ellipsis;
         display: inline-block;
-        margin: 0rem 0.1rem 0.5rem 0;
+        margin: 2rem 0.1rem 0rem 0;
+        opacity: 0.4;
     }
 `;
 
