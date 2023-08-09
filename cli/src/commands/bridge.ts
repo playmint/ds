@@ -41,7 +41,7 @@ interface SetMapElementMessage extends Message {
 async function start(ctx) {
     const { logger } = makeLogger({ name: 'main' });
     const { client } = ctx.makeClient();
-    const wallet = makeKeyWallet(ctx.k ? `0x${ctx.k}` : DEFAULT_UNITY_KEY);
+    const wallet = makeKeyWallet(ctx.k ? (ctx.k.startsWith('0x') ? ctx.k : `0x${ctx.k}`) : DEFAULT_UNITY_KEY);
     const player = makeConnectedPlayer(client, wallet, logger);
     const world = makeWorld(client);
     const { selection, ...selectors } = makeSelection(client, world, player);
