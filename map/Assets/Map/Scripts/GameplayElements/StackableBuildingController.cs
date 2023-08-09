@@ -41,7 +41,11 @@ public class StackableBuildingController : MapElementController
 
             outlineObjs[i] = renderers[i].transform.GetChild(0).gameObject;
         }
-        stackPositions[0].transform.parent.localEulerAngles = new Vector3(0, Random.Range(-30, 30), 0);
+        stackPositions[0].transform.parent.localEulerAngles = new Vector3(
+            0,
+            Random.Range(-30, 30),
+            0
+        );
     }
 
     private void GetDefaultBuilding()
