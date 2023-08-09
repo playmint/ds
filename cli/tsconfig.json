@@ -9,6 +9,13 @@
     "noUnusedLocals": true,
     "rootDir": ".",
     "baseUrl": ".",
+    "paths": {
+      "@app/*": [
+        "*"
+      ],
+      "@downstream/*": ["../../*"],
+      "*": ["../node_modules/*"]
+    },
     "outDir": "dist/cjs",
     "lib": ["dom", "esnext"],
     "jsx": "react",
