@@ -43,7 +43,7 @@ public class StackableBuildingController : MapElementController
         }
         stackPositions[0].transform.parent.localEulerAngles = new Vector3(
             0,
-            Random.Range(-30, 30),
+            Random.Range(150, 210),
             0
         );
     }
