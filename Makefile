@@ -21,13 +21,13 @@ CORE_SRC := $(shell find core/src)
 NODE := node
 NPM := npm
 
-all: node_modules contracts/lib/cog/services/bin/ds-node contracts/out/Actions.sol/Actions.json core/dist/core.js frontend/public/ds-unity/Build/ds-unity.wasm bridge/dist/index.js
+all: node_modules contracts/lib/cog/services/bin/ds-node contracts/out/Actions.sol/Actions.json core/dist/core.js frontend/public/ds-unity/Build/ds-unity.wasm
 
 map:
-	$(UNITY_EDITOR) -batchmode -quit -projectPath ./map -executeMethod BuildScript.GitHubBuild -buildTarget WebGL -logFile - 
+	$(UNITY_EDITOR) -batchmode -quit -projectPath ./map -executeMethod BuildScript.GitHubBuild -buildTarget WebGL -logFile -
 
 debugmap:
-	$(UNITY_EDITOR) -batchmode -quit -projectPath ./map -executeMethod BuildScript.DevBuild -buildTarget WebGL -logFile - 
+	$(UNITY_EDITOR) -batchmode -quit -projectPath ./map -executeMethod BuildScript.DevBuild -buildTarget WebGL -logFile -
 
 dev: all
 	$(NODE) .devstartup.js
@@ -43,9 +43,6 @@ core/src/gql:
 
 core/dist/core.js: $(CORE_SRC)
 	(cd core && npm run build)
-
-bridge/dist/index.js: core/dist/core.js bridge/src/index.ts
-	(cd bridge && npm run build)
 
 frontend/public/ds-unity/Build/ds-unity.wasm:
 	$(MAKE) map
@@ -65,8 +62,6 @@ publish: cli
 
 clean:
 	rm -rf cli/dist
-	rm -rf bridge/dist
-	rm -rf bridge/node_modules
 	rm -f  contracts/lib/cog/services/bin/ds-node
 	rm -rf contracts/out
 	rm -rf core/dist
