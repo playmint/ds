@@ -15,18 +15,21 @@ import {
     Rel,
     LocationKey,
     BiomeKind,
+    BuildingCategory,
     GOO_GREEN,
     GOO_BLUE,
     GOO_RED,
     DEFAULT_ZONE,
-    BuildingCategory
+    BLOCK_TIME_SECS
 } from "@ds/schema/Schema.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
+import {GOO_PER_SEC, GOO_RESERVOIR_MAX} from "@ds/rules/ExtractionRule.sol";
 
 using Schema for State;
 
 uint8 constant MAX_CRAFT_INPUT_ITEMS = 4;
+uint64 constant BLOCKS_TO_MAX_RESERVOIR = ((GOO_RESERVOIR_MAX * 100) / (GOO_PER_SEC * BLOCK_TIME_SECS) + 50) / 100;
 
 bool constant ITEM_STACKABLE = true;
 bool constant ITEM_EQUIPABLE = false;
@@ -48,7 +51,6 @@ contract ExtractionRuleTest is Test {
 
     // mock building implementation
     bytes24 mockBuildingKind;
-    bytes24 mockBuildingInstance;
     MockCraftBuildingContract mockBuildingContract;
 
     function setUp() public {
@@ -73,7 +75,6 @@ contract ExtractionRuleTest is Test {
         // setup a mock building instance owned by alice
         mockBuildingContract = new MockCraftBuildingContract();
         mockBuildingKind = _registerBuildingKind(1001, address(mockBuildingContract));
-        mockBuildingInstance = _constructBuildingInstance(mockBuildingKind, aliceMobileUnit, -1, 1, 0);
 
         ( /*uint64 id*/ , BuildingCategory category) = state.getBuildingKindInfo(mockBuildingKind);
         assertEq(
@@ -84,27 +85,81 @@ contract ExtractionRuleTest is Test {
 
         // stop being alice
         vm.stopPrank();
+    }
 
-        uint64 blockNum = state.getBlockNum(mockBuildingInstance, 0);
+    function testBlockNum() public {
+        vm.startPrank(aliceAccount);
+        bytes24 buildingInstance = _constructBuildingInstance(mockBuildingKind, aliceMobileUnit, -1, 1, 0);
+        vm.stopPrank();
+
+        uint64 blockNum = state.getBlockNum(buildingInstance, 0);
         assertEq(uint64(block.number), blockNum, "Block number expected to be set on building instance");
     }
 
-    function testBlockNum() public {}
+    function testExtractionFailureNoElapsedTime() public {
+        vm.startPrank(aliceAccount);
+        bytes24 buildingInstance = _constructBuildingInstance(mockBuildingKind, aliceMobileUnit, -1, 1, 0);
+        vm.stopPrank();
 
-    function _testExtraction() private {
-        // forcibly put some goo values onto the tile
+        // Expect to revert as no time has passed for exaction to have occured
+        vm.startPrank(address(mockBuildingContract));
+        vm.expectRevert("not enough green goo extracted to make item");
+        dispatcher.dispatch(abi.encodeCall(Actions.EXTRACT, (buildingInstance)));
+        vm.stopPrank();
+    }
+
+    function testExtractionFailureNoTileGoo() public {
+        vm.startPrank(aliceAccount);
+        bytes24 buildingInstance = _constructBuildingInstance(mockBuildingKind, aliceMobileUnit, -1, 1, 0);
+        vm.stopPrank();
+
+        // forcibly set goo values onto the tile
+        bytes24 tile = Node.Tile(0, -1, 1, 0);
+        state.setTileAtomValues(tile, [uint64(0), uint64(0), uint64(0)]);
+
+        // -- Move time forward
+        vm.roll(block.number + 200);
+
+        // Even with elapsed time, there still shouldn't be sufficient goo
+        vm.startPrank(address(mockBuildingContract));
+        vm.expectRevert("not enough green goo extracted to make item");
+        dispatcher.dispatch(abi.encodeCall(Actions.EXTRACT, (buildingInstance)));
+        vm.stopPrank();
+    }
+
+    function testExtraction() public {
+        vm.startPrank(aliceAccount);
+        bytes24 buildingInstance = _constructBuildingInstance(mockBuildingKind, aliceMobileUnit, -1, 1, 0);
+        vm.stopPrank();
+
+        // forcibly set goo values onto the tile
+        bytes24 tile = Node.Tile(0, -1, 1, 0);
+        state.setTileAtomValues(tile, [uint64(255), uint64(0), uint64(0)]);
+
+        // -- Move time forward to completely fill reservoir
+        vm.roll(block.number + 200);
 
         // extract
         vm.startPrank(address(mockBuildingContract));
-        dispatcher.dispatch(abi.encodeCall(Actions.EXTRACT, (mockBuildingInstance)));
+        dispatcher.dispatch(abi.encodeCall(Actions.EXTRACT, (buildingInstance)));
         vm.stopPrank();
 
         // check that output item now exists in outputBag slot 0
-        bytes24 outputBag = state.getEquipSlot(mockBuildingInstance, 0);
+        bytes24 outputBag = state.getEquipSlot(buildingInstance, 0);
         (bytes24 expItem, uint64 expBalance) = state.getOutput(mockBuildingKind, 0);
         (bytes24 gotItem, uint64 gotBalance) = state.getItemSlot(outputBag, 0);
         assertEq(gotItem, expItem, "expected output slot to contain expected output item");
         assertEq(gotBalance, expBalance, "expected output balance match");
+
+        // expect reservoir to be minus the cost of the item batch
+        uint64[3] memory reservoirAtoms = state.getBuildingReservoirAtoms(buildingInstance);
+        (uint32[3] memory outputItemAtoms, /*bool isStackable*/ ) = state.getItemStructure(expItem);
+
+        assertEq(
+            reservoirAtoms[GOO_GREEN],
+            GOO_RESERVOIR_MAX - outputItemAtoms[GOO_GREEN] * expBalance,
+            "expected total atomic value of output items to be taken from reservoir"
+        );
     }
 
     // _spawnMobileUnitWithResources spawns a mobileUnit for the current sender at

@@ -21,6 +21,7 @@ import {NewPlayerRule} from "@ds/rules/NewPlayerRule.sol";
 import {CombatRule} from "@ds/rules/CombatRule.sol";
 import {NamingRule} from "@ds/rules/NamingRule.sol";
 import {BagRule} from "@ds/rules/BagRule.sol";
+import {ExtractionRule} from "@ds/rules/ExtractionRule.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
 using Schema for BaseState;
@@ -117,6 +118,7 @@ contract DownstreamGame is BaseGame {
         dispatcher.registerRule(new CombatRule());
         dispatcher.registerRule(new NamingRule());
         dispatcher.registerRule(new BagRule());
+        dispatcher.registerRule(new ExtractionRule(this));
         dispatcher.registerRouter(router);
 
         // update the game with this config
