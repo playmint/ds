@@ -53,6 +53,11 @@ yargs
         choices: ['json', 'yaml', 'table'] as const,
         type: 'string',
     })
+    .option('status', {
+        default: true,
+        describe: 'hide status field from output',
+        type: 'boolean',
+    })
     .option('private-key', {
         alias: 'k',
         describe: 'player private key (insecure!)',

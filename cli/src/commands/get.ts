@@ -1,5 +1,23 @@
+import { z } from 'zod';
 import { getCoords } from '@downstream/core';
 import { pipe, take, toPromise } from 'wonka';
+import { BiomeTypes, Manifest, Slot } from '../utils/manifest';
+
+const SLOT_FRAGMENT = `
+    key
+    balance: weight
+    item: node {
+        id
+        name: annotation(name: "name") {
+            id
+            value
+        }
+        icon: annotation(name: "icon") {
+            id
+            value
+        }
+    }
+`;
 
 const NODE_FRAGMENT = `
                 id
@@ -12,6 +30,29 @@ const NODE_FRAGMENT = `
                     kind
                     addr: key
                 }
+
+                model: annotation(name: "model") {
+                    id
+                    value
+                }
+                icon: annotation(name: "icon") {
+                    id
+                    value
+                }
+                # materials are the construction costs to build
+                materials: edges(match: { kinds: ["Item"], via: { rel: "Material" } }) {
+                    ${SLOT_FRAGMENT}
+                }
+
+                # inputs (if set) are the registered crafting inputs
+                inputs: edges(match: { kinds: ["Item"], via: { rel: "Input" } }) {
+                    ${SLOT_FRAGMENT}
+                }
+
+                # outputs (if set) are the registered crafting outputs
+                outputs: edges(match: { kinds: ["Item"], via: { rel: "Output" } }) {
+                    ${SLOT_FRAGMENT}
+                }
                 buildingkind: node(match: { kinds: "BuildingKind", via: { rel: "Is" } }) {
                     id
                     name: annotation(name: "name") { value }
@@ -22,6 +63,9 @@ const NODE_FRAGMENT = `
                         id
                         coords: keys
                     }
+                }
+                implementation: node(match: { via: { rel: "Is" } }) {
+                    id
                 }
 `;
 const GET_NODES_BY_KIND = `query GetNodes($gameID: ID!, $kinds: [String!]!) {
@@ -49,48 +93,94 @@ const getItemDetails = (itemId) => {
     return { stackable: stackable === 1, green, blue, red };
 };
 
-const formatNodeObject = (node) => {
-    const name = node.name?.value || null;
+const nodeToManifest = (node): z.infer<typeof Manifest> => {
+    const name = node.name?.value || '';
     const owner = node.owner?.addr;
     if (node.kind == 'Item') {
         const { stackable, red, green, blue } = getItemDetails(node.id);
-        const { id, kind } = node;
-        return { kind, id, name, owner, goo: { red, green, blue }, stackable };
+        const { kind, icon, id } = node;
+        const status = { id, owner };
+        const spec = { name, icon: icon?.value || '', goo: { red, green, blue }, stackable };
+        return { kind, spec, status };
     } else if (node.kind == 'Building') {
-        const buildingkind = node.buildingkind?.name?.value || '';
+        const buildingKindName = node.buildingkind?.name?.value || '';
         const { kind, id } = node;
-        const coords = node.location
+        const location = node.location
             .map((l) => getCoords(l.tile))
             .map(({ q, r, s }) => [q, r, s])
             .find(() => true);
-        return { kind, id, owner, buildingkind, coords };
+        const spec = { name: buildingKindName, location };
+        const status = { owner, id };
+        return { kind, spec, status };
     } else if (node.kind == 'MobileUnit') {
         const { kind, id } = node;
-        const coords = node.location
+        const location = node.location
             .map((l) => getCoords(l.tile))
             .map(({ q, r, s }) => [q, r, s])
             .find(() => true);
-        return { kind, id, owner, name, coords };
+        const spec = { name };
+        const status = { id, owner, location };
+        return { kind, spec, status };
     } else if (node.kind == 'BuildingKind') {
-        const { kind, id } = node;
-        return { kind, id, name, owner };
+        const { kind, id, materials, inputs, outputs, implementation } = node;
+        const getSlotConfig = (slot): z.infer<typeof Slot> => {
+            return { name: slot.item?.name?.value, quantity: slot.balance };
+        };
+        const model = node.model?.value || '';
+        // TODO: fixup once category and extractor is a real thing, this is currently a guess
+        const category = outputs.length > 0 ? 'factory' : implementation ? 'custom' : 'blocker';
+        const spec = (() => {
+            if (category === 'factory') {
+                return {
+                    name,
+                    category,
+                    model,
+                    materials: materials.map(getSlotConfig),
+                    inputs: inputs.map(getSlotConfig),
+                    outputs: outputs.map(getSlotConfig),
+                };
+            } else if (category === 'custom') {
+                return {
+                    name,
+                    category,
+                    model,
+                    materials: materials.map(getSlotConfig),
+                };
+            } else if (category === 'blocker') {
+                return {
+                    name,
+                    category,
+                    model,
+                    materials: materials.map(getSlotConfig),
+                };
+            } else {
+                throw new Error(`unsupported category ${category}`);
+            }
+        })();
+
+        const status = { id, owner };
+        return { kind, spec, status };
     } else if (node.kind == 'Player') {
         const { kind, id, key } = node;
-        return { kind, id, addr: key, name };
+        const spec = { address: key, name };
+        const status = { id };
+        return { kind, spec, status };
     } else if (node.kind == 'Tile') {
         const { q, r, s } = getCoords({ coords: node.keys });
-        const coords = [q, r, s];
+        const location: [number, number, number] = [q, r, s];
         const { kind, id } = node;
-        return { kind, id, coords };
+        const spec = { location, biome: BiomeTypes[1] };
+        const status = { id };
+        return { kind, spec, status };
     } else {
         throw new Error(`formatting for ${node.kind} not implemented yet sorry`);
     }
 };
 
-const getNodesByKind = async (ctx, kinds: string[]) => {
+export const getManifestsByKind = async (ctx, kinds: string[]): Promise<z.infer<typeof Manifest>[]> => {
     const client = await ctx.client();
     const res: any = await pipe(client.query(GET_NODES_BY_KIND, { gameID: ctx.game, kinds }), take(1), toPromise);
-    return res.game.state.nodes.map(formatNodeObject);
+    return res.game.state.nodes.map(nodeToManifest);
 };
 
 const kindNames = {
@@ -99,7 +189,7 @@ const kindNames = {
     BuildingKind: ['buildingkinds', 'buildingkind'],
     Building: ['buildings', 'building'],
     Tile: ['tiles', 'tile'],
-    MobileUnit: ['units', 'mobileunit', 'mobileunits', 'unit'],
+    MobileUnit: ['units', 'unit', 'mobileunit', 'mobileunits'],
 };
 
 const normalizeKind = (givenKindName) => {
@@ -113,7 +203,7 @@ const command = {
         cli.positional('kind', {
             describe: 'entity kind',
             type: 'string',
-            choices: Object.values(kindNames).flatMap((v) => v[0]),
+            choices: Object.values(kindNames).flatMap((v) => v),
         });
         cli.positional('id', {
             describe: 'filter by a specific id',
@@ -138,20 +228,31 @@ const command = {
             throw new Error(`must specify at least one kind or id`);
         }
 
-        let nodes = await getNodesByKind(ctx, kind);
+        let manifests = await getManifestsByKind(ctx, kind);
 
         // filter by id or name
         if (ctx.id) {
             if (ctx.id.startsWith('0x')) {
-                nodes = nodes.filter((n) => n.id === ctx.id);
+                manifests = manifests.filter(({ status }) => status && status.id === ctx.id);
             } else {
                 const re = new RegExp(ctx.id, 'i');
-                nodes = nodes.filter((n) => n.name && n.name.length > 0 && re.test(n.name));
+                manifests = manifests.filter((manifest: any) => manifest.spec?.name && re.test(manifest.spec?.name));
             }
         }
 
-        ctx.output.write(nodes);
+        manifests = manifests.sort(bySpecName);
+
+        ctx.output.write(manifests);
     },
 };
+
+function bySpecName(a: z.infer<typeof Manifest>, b: z.infer<typeof Manifest>): number {
+    const nameA = (a.spec as any).name || '';
+    const nameB = (b.spec as any).name || '';
+    if (!nameA && !nameB) {
+        return 0;
+    }
+    return (nameA || '') > (nameB || '') ? 1 : -1;
+}
 
 export default command;

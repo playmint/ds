@@ -15,11 +15,9 @@ function truncate(v: any): string {
     return v.length > 24 ? `${v.slice(0, 24)}...` : v;
 }
 
-function printTable(args: any[], opts: TableOpts) {
-    if (args.length === 0) {
-        console.log('No results');
-        return;
-    }
+const IS_SLOT = /materials|inputs|outputs/;
+
+function toTable(args: any[], opts: TableOpts) {
     const head = Object.keys(args[0]);
     const table = new Table({
         head,
@@ -27,10 +25,19 @@ function printTable(args: any[], opts: TableOpts) {
     args.forEach((arg) =>
         table.push(
             head.reduce((o, key, idx) => {
-                if (typeof arg[key] === 'object') {
-                    o[idx] = JSON.stringify(arg[key]);
+                const v = arg[key];
+                if (Array.isArray(v) && v.length === 0) {
+                    o[idx] = undefined;
+                } else if (Array.isArray(v) && IS_SLOT.test(key)) {
+                    o[idx] = v
+                        .concat([null, null, null, null])
+                        .slice(0, 4)
+                        .map((slot) => (slot ? `${slot.quantity}x ${slot.name}` : ''))
+                        .join('\n');
+                } else if (typeof v === 'object') {
+                    o[idx] = YAML.stringify(v);
                 } else {
-                    o[idx] = arg[key] || '';
+                    o[idx] = v || '';
                     if (opts.truncate) {
                         o[idx] = truncate(o[idx]);
                     }
@@ -39,21 +46,46 @@ function printTable(args: any[], opts: TableOpts) {
             }, [] as any[])
         )
     );
-    console.log(table.toString());
+    return table;
 }
+
+const toStringDefaults = { indentSeq: false };
+
+const toYAML = (o: any): string => {
+    const doc = new YAML.Document(o, { toStringDefaults });
+    const specField: any = doc.get('spec');
+    if (specField) {
+        const locField: any = specField.get('location');
+        if (locField) {
+            locField.flow = true; // always inline coords
+        }
+    }
+    return doc.toString();
+};
 
 export function output(ctx) {
     ctx.output = {
-        write: (args: any[]) => {
+        write: (entities: any[]) => {
+            const args = entities.map((entity) => {
+                const o = { ...entity };
+                if (ctx.status === false && o.status) {
+                    delete o.status;
+                }
+                return o;
+            });
             if (ctx.format == 'json') {
                 const data = args.map((d) => JSON.stringify(d, null, 4));
                 console.log(...data);
             } else if (ctx.format === 'yaml') {
-                console.log(
-                    `${args.length > 0 ? '\n---\n' : ''}${args.map((arg) => YAML.stringify(arg)).join('\n---\n')}`
-                );
+                const data = `${args.length > 0 ? '\n---\n' : ''}${args.map(toYAML).join('\n---\n')}`;
+                console.log(data);
             } else if (ctx.format === 'table') {
-                printTable(args, { truncate: false });
+                if (args.length === 0) {
+                    console.log('No results');
+                    return;
+                }
+                const table = toTable(args, { truncate: false });
+                console.log(table.toString());
             } else {
                 throw new Error(`unknown output format: ${ctx.o}`);
             }

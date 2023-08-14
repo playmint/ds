@@ -1,35 +1,40 @@
 ---
-kind: item
-name: spoon
-goo:
-  red: 1
-  green: 1
-  blue: 1
-icon: 00-01
-stackable: true
+kind: Item
+spec:
+  name: Spoon
+  goo:
+    red: 1
+    green: 1
+    blue: 1
+  icon: 00-01
+  stackable: true
 ---
-kind: building
-name: spoon factory
-contract:
-  file: ./Building.sol
-plugin:
-  file: ./Building.js
-materials:
-- item: "0x6a7a67f0e0f51af400000001000000000000000200000000"
-  quantity: 25
-- item: "0x6a7a67f0cca240f900000001000000020000000000000000"
-  quantity: 25
-- item: "0x6a7a67f0006f223600000001000000000000000000000002"
-  quantity: 25
-inputs:
-- item: "0x6a7a67f0cca240f900000001000000020000000000000000"
-  quantity: 2
-- item: "0x6a7a67f0006f223600000001000000000000000000000002"
-  quantity: 2
-- item: "0x6a7a67f0e0f51af400000001000000000000000200000000"
-  quantity: 2
-outputs:
-- item: spoon
-  quantity: 1
+kind: BuildingKind
+spec:
+  name: Spoon Factory
+  model: 01-02
+  category: factory
+  contract:
+    file: ./Building.sol
+  plugin:
+    file: ./Building.js
+  materials:
+  - name: Glass of Green Goo
+    quantity: 25
+  - name: Flask of Red Goo
+    quantity: 25
+  - name: Beaker of Blue Goo
+    quantity: 25
+  inputs:
+  - name: Glass of Green Goo
+    quantity: 2
+  - name: Beaker of Blue Goo
+    quantity: 2
+  - name: Flask of Red Goo
+    quantity: 2
+  outputs:
+  outputs:
+  - name: Spoon
+    quantity: 1
 
 
