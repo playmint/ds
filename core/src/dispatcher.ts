@@ -1,4 +1,4 @@
-import { concatMap, fromPromise, makeSubject, pipe, subscribe, tap } from 'wonka';
+import { concatMap, fromPromise, makeSubject, pipe, publish, tap } from 'wonka';
 import { Logger } from './logger';
 import {
     CogAction,
@@ -60,14 +60,14 @@ export function makeDispatcher(client: CogServices, wallet: Wallet, logger: Logg
         ),
     );
 
-    const { unsubscribe: disconnect } = pipe(
+    pipe(
         dispatched,
         tap((q) =>
             q.status == DispatchedActionsStatus.REJECTED_CLIENT && q.error
                 ? logger.error(`failed ${q.actions.map((a) => a.name).join(', ')}: ${q.error}`)
                 : logger.info(`dispatched ${q.actions.map((a) => a.name).join(', ')}`),
         ),
-        subscribe((a) => console.debug(`[wallet-${wallet.id}] dispatched`, a)),
+        publish,
     );
 
     // TODO: subscribe to transaction status to build a "commits/rejected" pile
@@ -90,7 +90,6 @@ export function makeDispatcher(client: CogServices, wallet: Wallet, logger: Logg
             return currentSession ? currentSession.expires > Date.now() : false;
         },
         login: () => findOrCreateSession(client, wallet),
-        disconnect,
     };
 }
 
