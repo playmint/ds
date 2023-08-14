@@ -1,0 +1,36 @@
+---
+kind: Item
+spec:
+  name: Cocktail
+  icon: 02-40
+  goo:
+    red: 0
+    green: 0
+    blue: 2
+  stackable: false
+
+---
+kind: BuildingKind
+spec:
+  name: Cocktail Hut
+  category: factory
+  model: 01-02
+  contract:
+    file: ./CocktailHut.sol
+  plugin:
+    file: ./CocktailHut.js
+  materials:
+  - name: Glass of Green Goo
+    quantity: 25
+  - name: Beaker of Blue Goo
+    quantity: 25
+  - name: Flask of Red Goo
+    quantity: 25
+  inputs:
+  - name: Beaker of Blue Goo
+    quantity: 2
+  - name: Flask of Red Goo
+    quantity: 2
+  outputs:
+  - name: Cocktail
+    quantity: 1
