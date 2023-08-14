@@ -30,16 +30,26 @@ anvil \
     --gas-limit 9999999999999999 \
 	&
 
-# wait for node to start
-while ! curl -sf -X POST --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' localhost:8545 >/dev/null; do
-	echo "waiting for evm node to start..."
-	sleep 1
-done
 
 echo "+---------------------+"
 echo "| deploying contracts |"
 echo "+---------------------+"
-forge script script/Deploy.sol:GameDeployer --broadcast --slow --rpc-url "http://localhost:8545"
+while ! curl -sf -X POST --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' localhost:8545 >/dev/null; do
+	echo "waiting for evm node to respond..."
+	sleep 1
+done
+forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545"
+
+echo "+---------------------+"
+echo "| deploying fixtures  |"
+echo "+---------------------+"
+SERVICES_HTTP=${SERVICES_URL_HTTP:-"http://localhost:8080/query"}
+SERVICES_WS=${SERVICES_URL_WS:-"ws://localhost:8080/query"}
+while ! curl -sf -X GET "${SERVICES_HTTP}" >/dev/null; do
+	echo "waiting for services to respond..."
+	sleep 1
+done
+ds -k "${DEPLOYER_PRIVATE_KEY}" -n local --ws-endpoint="${SERVICES_WS}" --http-endpoint="${SERVICES_HTTP}" apply -R -f ./src/fixtures
 
 echo "+-------+"
 echo "| ready |"

@@ -67,6 +67,10 @@ spec:
           env:
           - name: DEPLOYER_PRIVATE_KEY
             value: "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff9524d487fb5d57a8"
+          - name: SERVICES_URL_HTTP
+            value: "http://localhost:8080/query"
+          - name: SERVICES_URL_WS
+            value: "ws://localhost:8080/query"
           ports:
             - name: network
               containerPort: 8545
@@ -77,7 +81,7 @@ spec:
         - name: sim
           image: {{ printf "ghcr.io/playmint/ds-contracts:%s-%s" $.Release.Name $.Values.version }}
           imagePullPolicy: Always
-          command: ["/bin/ash"]
+          command: ["/bin/bash"]
           args:
           - -eu
           - -c

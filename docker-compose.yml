@@ -4,21 +4,25 @@ services:
 
   contracts:
     build:
-      context: ./contracts
+      context: .
+      dockerfile: ./contracts/Dockerfile
     image: playmint/ds-contracts:local
     ports:
       - 8545:8545
     environment:
       DEPLOYER_PRIVATE_KEY: "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff9524d487fb5d57a8"
+      SERVICES_URL_HTTP: "http://cog:8080/query"
+      SERVICES_URL_WS: "ws://cog:8080/query"
 
   sim:
     build:
-      context: ./contracts
+      context: .
+      dockerfile: ./contracts/Dockerfile
     image: playmint/ds-contracts:local
     ports:
       - 8546:8546
     entrypoint:
-    - /bin/ash
+    - /bin/bash
     - -eu
     - -c
     - |
@@ -30,12 +34,14 @@ services:
     build:
       context: .
       dockerfile: ./frontend/Dockerfile
+    image: playmint/ds-frontend:local
     ports:
       - 3000:80
 
   cog:
     build:
       context: ./contracts/lib/cog/services
+    image: playmint/ds-services:local
     restart: always
     entrypoint:
     - /bin/ash
