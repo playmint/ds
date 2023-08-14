@@ -26,13 +26,6 @@ contract GameDeployer is Script {
         DownstreamGame ds = new DownstreamGame(deployerAddr, allowlist);
         console2.log("deployed", address(ds));
 
-        Dispatcher dispatcher = ds.getDispatcher();
-
-        // init with a unit and some tiles
-        bytes24 mobileUnit = Node.MobileUnit(1);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (mobileUnit)));
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (0, 0, 0)));
-
         vm.stopBroadcast();
     }
 
