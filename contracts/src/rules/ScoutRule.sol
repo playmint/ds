@@ -56,7 +56,7 @@ contract ScoutRule is Rule {
 
         if (bytes4(action) == Actions.DEV_SPAWN_TILE.selector) {
             // decode action
-            ( /*BiomeKind kind*/ , int16 q, int16 r, int16 s) = abi.decode(action[4:], (BiomeKind, int16, int16, int16));
+            (int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16));
             bytes24 targetTile = Node.Tile(DEFAULT_ZONE, q, r, s);
             _generateAtomValues(state, targetTile, [q, r, s]);
         }

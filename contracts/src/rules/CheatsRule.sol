@@ -9,26 +9,54 @@ import {Actions} from "@ds/actions/Actions.sol";
 
 using Schema for State;
 
-// Cheats are only enabled for local dev builds to allow messing with the
-// game state in ways that are usually illegal
+// Cheats are game actions that are disabled shortly after the world
+// deployment. They allow for some initial setup or local development
+// testing that would otherwise be illegal.
 
 contract CheatsRule is Rule {
-    function reduce(State state, bytes calldata action, Context calldata /*ctx*/ ) public returns (State) {
+
+    address authorizedCheater;
+    bool disabled;
+
+    constructor(address cheater) {
+        authorizedCheater = cheater;
+    }
+
+    function isCheatAllowed(address cheater) internal view returns (bool) {
+        if (!disabled && cheater == authorizedCheater) {
+            return true;
+        }
+        return false;
+    }
+
+    function reduce(State state, bytes calldata action, Context calldata ctx ) public returns (State) {
+
         if (bytes4(action) == Actions.DEV_SPAWN_TILE.selector) {
-            // decode action
-            (BiomeKind kind, int16 q, int16 r, int16 s) = abi.decode(action[4:], (BiomeKind, int16, int16, int16));
-            // discover the tile
-            state.setBiome(Node.Tile(DEFAULT_ZONE, q, r, s), kind);
+            require(isCheatAllowed(ctx.sender), "DEV_SPAWN_TILE not allowed");
+
+            (int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16));
+            _spawnTile(state, q, r, s);
         } else if (bytes4(action) == Actions.DEV_SPAWN_BAG.selector) {
+            require(isCheatAllowed(ctx.sender), "DEV_SPAWN_BAG not allowed");
+
             (
-                uint64 bagID,
+                bytes24 bagID,
                 address owner,
                 bytes24 equipee,
                 uint8 equipSlot,
                 bytes24[] memory slotContents,
                 uint64[] memory slotBalances
-            ) = abi.decode(action[4:], (uint64, address, bytes24, uint8, bytes24[], uint64[]));
+            ) = abi.decode(action[4:], (bytes24, address, bytes24, uint8, bytes24[], uint64[]));
             _spawnBag(state, bagID, owner, equipee, equipSlot, slotContents, slotBalances);
+        } else if (bytes4(action) == Actions.DEV_SPAWN_BUILDING.selector) {
+            require(isCheatAllowed(ctx.sender), "DEV_SPAWN_BUILDING not allowed");
+
+            (bytes24 buildingKind, int16 q, int16 r, int16 s) = abi.decode(action[4:], (bytes24, int16, int16, int16));
+            _construct(state, buildingKind, q, r, s);
+        } else if (bytes4(action) == Actions.DEV_DISABLE_CHEATS.selector) {
+            require(isCheatAllowed(ctx.sender), "DEV_DISABLE_CHEATS not allowed");
+
+            disabled = true;
         }
 
         return state;
@@ -36,14 +64,13 @@ contract CheatsRule is Rule {
 
     function _spawnBag(
         State state,
-        uint64 bagID,
+        bytes24 bag,
         address owner,
         bytes24 equipee,
         uint8 equipSlot,
         bytes24[] memory slotContents,
         uint64[] memory slotBalances
     ) private {
-        bytes24 bag = Node.Bag(bagID);
         for (uint8 i = 0; i < slotContents.length; i++) {
             state.setItemSlot(bag, i, slotContents[i], slotBalances[i]);
         }
@@ -51,9 +78,22 @@ contract CheatsRule is Rule {
         state.setEquipSlot(equipee, equipSlot, bag);
     }
 
-    function _spawnBag2(State state, bytes24 mobileUnit, address owner, uint8 equipSlot) private {
-        bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode(mobileUnit)))));
-        state.setOwner(bag, Node.Player(owner));
-        state.setEquipSlot(mobileUnit, equipSlot, bag);
+    function _spawnTile(State state, int16 q, int16 r, int16 s) private {
+        state.setBiome(Node.Tile(DEFAULT_ZONE, q, r, s), BiomeKind.DISCOVERED);
+    }
+
+    // allow constructing a building without any materials
+    function _construct(State state, bytes24 buildingKind, int16 q, int16 r, int16 s) internal {
+        _spawnTile(state, q, r, s);
+        bytes24 targetTile = Node.Tile(0, q, r, s);
+        bytes24 buildingInstance = Node.Building(0, q, r, s);
+        state.setBuildingKind(buildingInstance, buildingKind);
+        state.setOwner(buildingInstance, Node.Player(msg.sender));
+        state.setFixedLocation(buildingInstance, targetTile);
+        // attach the inputs/output bags
+        bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "input")))));
+        bytes24 outputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "output")))));
+        state.setEquipSlot(buildingInstance, 0, inputBag);
+        state.setEquipSlot(buildingInstance, 1, outputBag);
     }
 }
