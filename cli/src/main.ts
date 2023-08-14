@@ -45,6 +45,14 @@ yargs
         choices: networks.map((n) => n.name),
         type: 'string',
     })
+    .option('ws-endpoint', {
+        describe: 'override websocket query endpoint',
+        type: 'string',
+    })
+    .option('http-endpoint', {
+        describe: 'override http query endpoint',
+        type: 'string',
+    })
     .option('format', {
         alias: 'o',
         demandOption: true,

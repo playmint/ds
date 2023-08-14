@@ -57,9 +57,9 @@ export const session = async (ctx) => {
             return __client;
         }
         const client = makeCogClient({
-            wsEndpoint: network.wsEndpoint,
+            wsEndpoint: ctx.wsEndpoint || network.wsEndpoint,
             wsSocketImpl: WebSocket,
-            httpEndpoint: network.httpEndpoint,
+            httpEndpoint: ctx.httpEndpoint || network.httpEndpoint,
             httpFetchImpl: fetch,
         });
         __client = client;
