@@ -1,6 +1,7 @@
 import {
     ConnectedPlayer,
     EthereumProvider,
+    LogLevel,
     makeConnectedPlayer,
     makeKeyWallet,
     makeLogger,
@@ -66,10 +67,10 @@ export const session = async (ctx) => {
     };
 
     const getPlayerSession = async () => {
-        const { logger } = makeLogger({ name: 'main' });
+        const { logger } = makeLogger({ name: 'main', level: LogLevel.FATAL });
         const { client } = ctx.makeClient();
         if (ctx.k) {
-            const wallet = makeKeyWallet(`0x${ctx.k}`);
+            const wallet = makeKeyWallet(ctx.k.startsWith('0x') ? ctx.k : `0x${ctx.k}`);
             const player = pipe(
                 makeConnectedPlayer(client, wallet, logger),
                 skipWhile((p): p is ConnectedPlayer => typeof p === 'undefined'),
