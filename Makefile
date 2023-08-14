@@ -21,7 +21,7 @@ CORE_SRC := $(shell find core/src)
 NODE := node
 NPM := npm
 
-all: node_modules contracts/lib/cog/services/bin/ds-node core/dist/core.js frontend/public/ds-unity/Build/ds-unity.wasm
+all: node_modules contracts/lib/cog/services/bin/ds-node cli core/dist/core.js frontend/public/ds-unity/Build/ds-unity.wasm
 
 map:
 	$(UNITY_EDITOR) -batchmode -quit -projectPath ./map -executeMethod BuildScript.GitHubBuild -buildTarget WebGL -logFile -
