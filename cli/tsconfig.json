@@ -10,7 +10,7 @@
     "rootDir": ".",
     "baseUrl": ".",
     "paths": {
-      "@downstream/*": ["../*"],
+      "@downstream/core": ["../core/src"],
       "yaml": ["./node_modules/yaml"],
       "*": ["../node_modules/*"]
     },
