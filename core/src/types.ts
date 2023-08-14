@@ -32,6 +32,7 @@ export enum LogLevel {
     INFO,
     WARN,
     ERROR,
+    FATAL,
 }
 
 export type LogValue = string | number;
@@ -50,6 +51,7 @@ export interface Log {
 }
 
 export interface LoggerConfig {
+    level?: LogLevel;
     name: string;
     values?: LogValues;
     sender?: LogSender;
@@ -352,7 +354,6 @@ export interface ConnectedPlayer extends SelectedPlayerFragment {
     dispatched: Source<DispatchedAction>;
     active: () => boolean;
     login: () => Promise<CogSession | undefined>;
-    disconnect: () => void;
 }
 
 export type UnconnectedPlayer = undefined;

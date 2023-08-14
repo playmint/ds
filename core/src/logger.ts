@@ -95,6 +95,9 @@ export class Logger {
     }
 
     public send({ level, text, timestamp, values }: Omit<Log, 'name'>, subloggerName?: string): void {
+        if (this.cfg.level && level < this.cfg.level) {
+            return;
+        }
         const vs = { ...(this.cfg.values || {}), ...values };
         const name = subloggerName ? `${this.cfg.name}: ${subloggerName}` : this.cfg.name || 'logger';
         const log = { name, level, text, values: vs };
@@ -130,6 +133,7 @@ export class Logger {
             name,
             values: { ...(this.cfg.values || {}), ...values },
             sender: (log) => this.send(log, name),
+            level: this.cfg.level,
         });
     }
 }
