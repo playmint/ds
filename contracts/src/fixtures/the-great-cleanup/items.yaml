@@ -1,0 +1,142 @@
+---
+kind: Item
+spec:
+  name: L33t Bricks
+  icon: 07-191
+  goo:
+    red: 1
+    green: 99999
+    blue: 99999
+  stackable: true
+
+---
+kind: Item
+spec:
+  name: Dismembered Hand
+  icon: 01-140
+  goo:
+    red: 0
+    green: 111
+    blue: 0
+  stackable: false
+
+---
+kind: Item
+spec:
+  name: Paperclip
+  icon: 24-129
+  goo:
+    red: 50
+    green: 100
+    blue: 25
+  stackable: true
+
+---
+kind: Item
+spec:
+  name: Ancient Artefact
+  icon: 08-30
+  goo:
+    red: 25
+    green: 105
+    blue: 12
+  stackable: false
+
+---
+kind: Item
+spec:
+  name: Vibrant Green Goo
+  icon: 22-197
+  goo:
+    red: 0
+    green: 20
+    blue: 0
+  stackable: true
+
+---
+kind: Item
+spec:
+  name: Really Green Goo
+  icon: 22-192
+  goo:
+    red: 0
+    green: 200
+    blue: 0
+  stackable: true
+
+---
+kind: Item
+spec:
+  name: Rubber Duck
+  icon: 27-101
+  goo:
+    red: 25
+    green: 25
+    blue: 25
+  stackable: false
+
+---
+kind: Item
+spec:
+  name: Gold Coin
+  icon: 10-33
+  goo:
+    red: 5
+    green: 10
+    blue: 10
+  stackable: true
+
+---
+kind: Item
+spec:
+  name: Budget Tyre
+  icon: 19-231
+  goo:
+    red: 0
+    green: 50
+    blue: 50
+  stackable: false
+
+---
+kind: Item
+spec:
+  name: Smelly Duck
+  icon: 30-280
+  goo:
+    red: 50
+    green: 0
+    blue: 0
+  stackable: false
+
+---
+kind: Item
+spec:
+  name: Shuttlecock
+  icon: 05-296
+  goo:
+    red: 105
+    green: 10
+    blue: 10
+  stackable: false
+
+---
+kind: Item
+spec:
+  name: Racket
+  icon: 22-13
+  goo:
+    red: 5
+    green: 10
+    blue: 110
+  stackable: false
+
+---
+kind: Item
+spec:
+  name: Gold Note
+  icon: 10-32
+  goo:
+    red: 25
+    green: 50
+    blue: 10
+  stackable: true

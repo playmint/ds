@@ -1,0 +1,21 @@
+---
+kind: BuildingKind
+spec:
+  name: All Things Rubber
+  category: factory
+  model: 07-08
+  contract:
+    file: ./AllThingsRubber.sol
+  plugin:
+    file: ./AllThingsRubber.js
+  materials:
+  - name: L33t Bricks
+    quantity: 100
+  inputs:
+  - name: Smelly Duck
+    quantity: 1
+  - name: Budget Tyre
+    quantity: 1
+  outputs:
+  - name: Rubber Duck
+    quantity: 1

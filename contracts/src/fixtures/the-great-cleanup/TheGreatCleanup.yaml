@@ -1,0 +1,17 @@
+---
+kind: BuildingKind
+spec:
+  name: The Great Cleanup
+  category: factory
+  model: 01-02
+  materials:
+  - name: L33t Bricks
+    quantity: 100
+  inputs:
+  - name: Dismembered Hand
+    quantity: 1
+  - name: Paperclip
+    quantity: 1
+  outputs:
+  - name: Ancient Artefact
+    quantity: 1

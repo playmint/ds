@@ -1,0 +1,29 @@
+---
+kind: BuildingKind
+spec:
+  name: Badminton Weapons
+  category: factory
+  model: 01-01
+  contract:
+    file: ./BadmintonWeapons.sol
+  plugin:
+    file: ./BadmintonWeapons.js
+  materials:
+  - name: Gold Coin
+    quantity: 5
+  - name: Glass of Green Goo
+    quantity: 50
+  - name: Beaker of Blue Goo
+    quantity: 50
+  - name: Flask of Red Goo
+    quantity: 50
+  inputs:
+  - name: Gold Coin
+    quantity: 2
+  - name: Flask of Red Goo
+    quantity: 100
+  - name: Flask of Red Goo
+    quantity: 100
+  outputs:
+  - name: Shuttlecock
+    quantity: 1

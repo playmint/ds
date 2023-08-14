@@ -1,0 +1,21 @@
+---
+kind: BuildingKind
+spec:
+  name: Kwik Tyre
+  category: factory
+  model: 05-06
+  contract:
+    file: ./KwikTyre.sol
+  plugin:
+    file: ./KwikTyre.js
+  materials:
+  - name: L33t Bricks
+    quantity: 100
+  inputs:
+  - name: Glass of Green Goo
+    quantity: 100
+  - name: Beaker of Blue Goo
+    quantity: 100
+  outputs:
+  - name: Budget Tyre
+    quantity: 1

@@ -1,0 +1,656 @@
+
+---
+kind: Building
+spec:
+  name: Mecha-Kaiju
+  location: [ 10, -21, 11 ]
+
+---
+kind: Building
+spec:
+  name: All Things Rubber
+  location: [ -10, 0, 10 ]
+
+---
+kind: Building
+spec:
+  name: Slime
+  location: [ 1, 5, -6 ]
+
+---
+kind: Building
+spec:
+  name: Slime
+  location: [ 0, -12, 12 ]
+
+---
+kind: Building
+spec:
+  name: Kwik Tyre
+  location: [ -4, 3, 1 ]
+
+---
+kind: Building
+spec:
+  name: Green Goo Fusion
+  location: [ -20, 0, 20 ]
+
+---
+kind: Building
+spec:
+  name: Foul Fiends
+  location: [ 3, -3, 0 ]
+
+---
+kind: Building
+spec:
+  name: Non-compliant Unit
+  location: [ 10, 2, -12 ]
+
+---
+kind: Building
+spec:
+  name: Non-compliant Unit
+  location: [ 10, -7, -3 ]
+
+---
+kind: Building
+spec:
+  name: Slime
+  location: [ -1, -4, 5 ]
+
+---
+kind: Building
+spec:
+  name: Slime
+  location: [ -4, -8, 12 ]
+
+---
+kind: Building
+spec:
+  name: Slime
+  location: [ -4, 8, -4 ]
+
+---
+kind: Building
+spec:
+  name: The Great Cleanup
+  location: [ -1, 2, -1 ]
+
+---
+kind: Building
+spec:
+  name: Non-compliant Unit
+  location: [ -3, 13, -10 ]
+
+---
+kind: Building
+spec:
+  name: Slime
+  location: [ 6, -5, -1 ]
+
+---
+kind: Building
+spec:
+  name: Mecha-Kaiju
+  location: [ -14, -7, 21 ]
+
+---
+kind: Building
+spec:
+  name: Green Goo Fission
+  location: [ -10, -15, 25 ]
+
+---
+kind: Building
+spec:
+  name: Slime
+  location: [ -6, -4, 10 ]
+
+---
+kind: Building
+spec:
+  name: Mecha-Kaiju
+  location: [ -5, 20, -15 ]
+
+---
+kind: Building
+spec:
+  name: Non-compliant Unit
+  location: [ -13, -4, 17 ]
+
+---
+kind: Building
+spec:
+  name: Paperclip Maximiser
+  location: [ -15, 27, -12 ]
+
+---
+kind: Building
+spec:
+  name: Mecha-Kaiju
+  location: [ 15, 6, -21 ]
+
+---
+kind: Building
+spec:
+  name: Non-compliant Unit
+  location: [ 10, 8, -18 ]
+
+---
+kind: Building
+spec:
+  name: Prime Evil
+  location: [ 12, -25, 13 ]
+
+---
+kind: Building
+spec:
+  name: Non-compliant Unit
+  location: [ -18, 8, 10 ]
+
+---
+kind: Building
+spec:
+  name: Cocktail Hut
+  location: [ 5, 13, -18 ]
+
+---
+kind: Building
+spec:
+  name: Slime
+  location: [ 9, 0, -9 ]
+
+---
+kind: Building
+spec:
+  name: Slime
+  location: [ 5, 7, -12 ]
+
+---
+kind: Building
+spec:
+  name: Slime
+  location: [ 3, -7, 4 ]
+
+---
+kind: Building
+spec:
+  name: Slime
+  location: [ 8, -12, 4 ]
+
+---
+kind: Building
+spec:
+  name: Crazy Hermit
+  location: [ 7, 7, -14 ]
+
+---
+kind: Building
+spec:
+  name: Prime Evil
+  location: [ -26, 18, 8 ]
+
+---
+kind: Building
+spec:
+  name: Slime
+  location: [ -8, 9, -1 ]
+
+
+---
+kind: Tile
+spec:
+  location: [ 3, -1, -2 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -2, -1, 3 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 10, -7, -3 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -1, -4, 5 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -20, -1, 21 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 2, -1, -1 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -4, -8, 12 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -1, 2, -1 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -4, 8, -4 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -1, -1, 2 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -3, 13, -10 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -10, -1, 11 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 6, -5, -1 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -9, -15, 24 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -14, -7, 21 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -10, -15, 25 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -11, -14, 25 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -6, -4, 10 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -5, 20, -15 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -10, -16, 26 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -13, -4, 17 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -15, 27, -12 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 15, 6, -21 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 10, 8, -18 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -18, 8, 10 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 12, -25, 13 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 5, 13, -18 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 6, 7, -13 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 3, 5, -8 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -26, 18, 8 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 9, 0, -9 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -9, 0, 9 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 3, 4, -7 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 3, -7, 4 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 5, 7, -12 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 4, 7, -11 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 8, -12, 4 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 3, 7, -10 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 7, 7, -14 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 3, 6, -9 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -8, 9, -1 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 0, 0, 0 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 10, -21, 11 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -21, 1, 20 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 2, -2, 0 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 0, 12, -12 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 4, 2, -6 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 2, -3, 1 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 1, 0, -1 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 1, -1, 0 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 3, 3, -6 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -1, 1, 0 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 1, -2, 1 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 0, 1, -1 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 4, 1, -5 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -1, 0, 1 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -10, 0, 10 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -2, 2, 0 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 0, -1, 1 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 1, 5, -6 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 3, 1, -4 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -3, 3, 0 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -2, 1, 1 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 0, -2, 2 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -11, 1, 10 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -2, 0, 2 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 0, -12, 12 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -19, 0, 19 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 3, 0, -3 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -3, 2, 1 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -4, 3, 1 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -3, 1, 2 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 3, -3, 0 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 10, 2, -12 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -3, 0, 3 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ -20, 0, 20 ]
+  biome: DISCOVERED
+
