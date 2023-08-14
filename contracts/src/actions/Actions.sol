@@ -132,6 +132,10 @@ interface Actions {
     // spawn a building at any location
     function DEV_SPAWN_BUILDING(bytes24 buildingKind, int16 q, int16 r, int16 s) external;
 
+    // set model annotation
+    // TODO: temp until extractor stuff is in
+    function DEV_SET_MODEL(bytes24 buildingKind, string calldata model) external;
+
     // spawn a bag with resources equip somewhere
     function DEV_SPAWN_BAG(
         bytes24 bagID,
