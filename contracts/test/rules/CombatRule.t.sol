@@ -63,9 +63,7 @@ contract CombatRuleTest is Test, GameTest {
         vm.recordLogs();
 
         vm.startPrank(players[0].addr);
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.START_COMBAT, (mobileUnit0, targetTileID, attackers, defenders))
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.START_COMBAT, (mobileUnit0, targetTileID, attackers, defenders)));
         vm.stopPrank();
 
         Vm.Log[] memory entries = vm.getRecordedLogs();
@@ -119,15 +117,11 @@ contract CombatRuleTest is Test, GameTest {
         vm.recordLogs();
 
         vm.startPrank(players[0].addr);
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.START_COMBAT, (mobileUnit0, targetTileID, attackers, defenders))
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.START_COMBAT, (mobileUnit0, targetTileID, attackers, defenders)));
 
         vm.expectRevert("CombatSessionAlreadyActive");
 
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.START_COMBAT, (mobileUnit0, targetTileID, attackers, defenders))
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.START_COMBAT, (mobileUnit0, targetTileID, attackers, defenders)));
 
         // Should be allowed to start a combat session after a finished session has been finalised
         vm.roll(block.number + 100);
@@ -142,9 +136,7 @@ contract CombatRuleTest is Test, GameTest {
             abi.encodeCall(Actions.FINALISE_COMBAT, (Node.CombatSession(1), sessionUpdates, sortedListIndexes))
         );
 
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.START_COMBAT, (mobileUnit0, targetTileID, attackers, defenders))
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.START_COMBAT, (mobileUnit0, targetTileID, attackers, defenders)));
 
         vm.stopPrank();
     }
@@ -160,9 +152,7 @@ contract CombatRuleTest is Test, GameTest {
         vm.recordLogs();
 
         vm.startPrank(players[0].addr);
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.START_COMBAT, (mobileUnit0, targetTileID, attackers, defenders))
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.START_COMBAT, (mobileUnit0, targetTileID, attackers, defenders)));
         vm.stopPrank();
 
         vm.startPrank(players[2].addr);
@@ -191,9 +181,7 @@ contract CombatRuleTest is Test, GameTest {
         vm.recordLogs();
 
         vm.startPrank(players[0].addr);
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.START_COMBAT, (mobileUnit0, targetTileID, attackers, defenders))
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.START_COMBAT, (mobileUnit0, targetTileID, attackers, defenders)));
         vm.stopPrank();
 
         // Fast forward to end of battle and finalise
@@ -330,9 +318,7 @@ contract CombatRuleTest is Test, GameTest {
         );
         // check building has owner
         assertEq(
-            state.getOwner(buildingInstance),
-            Node.Player(players[3].addr),
-            "expected building to be owned by alice"
+            state.getOwner(buildingInstance), Node.Player(players[3].addr), "expected building to be owned by alice"
         );
         // check building has kind
         assertEq(state.getBuildingKind(buildingInstance), buildingKind, "expected building to have kind");

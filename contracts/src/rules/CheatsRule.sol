@@ -14,7 +14,6 @@ using Schema for State;
 // testing that would otherwise be illegal.
 
 contract CheatsRule is Rule {
-
     address authorizedCheater;
     bool disabled;
 
@@ -29,14 +28,12 @@ contract CheatsRule is Rule {
         return false;
     }
 
-    function reduce(State state, bytes calldata action, Context calldata ctx ) public returns (State) {
-
+    function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.DEV_SPAWN_TILE.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_SPAWN_TILE not allowed");
 
             (int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16));
             _spawnTile(state, q, r, s);
-
         } else if (bytes4(action) == Actions.DEV_SPAWN_BAG.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_SPAWN_BAG not allowed");
 
@@ -49,19 +46,16 @@ contract CheatsRule is Rule {
                 uint64[] memory slotBalances
             ) = abi.decode(action[4:], (bytes24, address, bytes24, uint8, bytes24[], uint64[]));
             _spawnBag(state, bagID, owner, equipee, equipSlot, slotContents, slotBalances);
-
         } else if (bytes4(action) == Actions.DEV_SPAWN_BUILDING.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_SPAWN_BUILDING not allowed");
 
             (bytes24 buildingKind, int16 q, int16 r, int16 s) = abi.decode(action[4:], (bytes24, int16, int16, int16));
             _construct(state, buildingKind, q, r, s);
-
         } else if (bytes4(action) == Actions.DEV_SET_MODEL.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_SET_MODEL not allowed");
 
             (bytes24 entity, string memory model) = abi.decode(action[4:], (bytes24, string));
             state.annotate(entity, "model", model);
-
         } else if (bytes4(action) == Actions.DEV_DISABLE_CHEATS.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_DISABLE_CHEATS not allowed");
 

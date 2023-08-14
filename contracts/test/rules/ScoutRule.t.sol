@@ -10,10 +10,9 @@ using Schema for State;
 uint32 constant TEST_MOBILE_UNIT_ID = 1;
 
 contract ScoutRuleTest is Test, GameTest {
-
     function setUp() public {
         // force tile 0,0,0 DISCOVERED
-        dev.spawnTile(0,0,0);
+        dev.spawnTile(0, 0, 0);
 
         // place a mobileUnit at 0,0,0
         vm.startPrank(players[0].addr);
@@ -68,5 +67,4 @@ contract ScoutRuleTest is Test, GameTest {
         // stop being alice
         vm.stopPrank();
     }
-
 }

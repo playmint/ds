@@ -61,7 +61,9 @@ contract DownstreamRouter is BaseRouter {
 contract DownstreamGame is BaseGame {
     NewPlayerRule playerRule;
 
-    constructor(address authorizedCheater, address[] memory allowlist) BaseGame("DOWNSTREAM", "http://downstream.game/") {
+    constructor(address authorizedCheater, address[] memory allowlist)
+        BaseGame("DOWNSTREAM", "http://downstream.game/")
+    {
         // create a state
         BaseState state = new BaseState();
 

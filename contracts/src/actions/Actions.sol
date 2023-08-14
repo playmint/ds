@@ -125,10 +125,10 @@ interface Actions {
     // only available by a single authorized account and only for a short
     // period after initial world deployment.
     // ---------------------
-    
+
     // spawn a tile at any location
     function DEV_SPAWN_TILE(int16 q, int16 r, int16 s) external;
-    
+
     // spawn a building at any location
     function DEV_SPAWN_BUILDING(bytes24 buildingKind, int16 q, int16 r, int16 s) external;
 
