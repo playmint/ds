@@ -10,10 +10,8 @@
     "rootDir": ".",
     "baseUrl": ".",
     "paths": {
-      "@app/*": [
-        "*"
-      ],
-      "@downstream/*": ["../../*"],
+      "@downstream/*": ["../*"],
+      "yaml": ["./node_modules/yaml"],
       "*": ["../node_modules/*"]
     },
     "outDir": "dist/cjs",
