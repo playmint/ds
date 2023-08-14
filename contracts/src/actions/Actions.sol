@@ -120,16 +120,29 @@ interface Actions {
 
     function SPAWN_EMPTY_BAG(bytes24 equipee, uint8 equipSlot) external;
 
-    // [dev/debug only] set a tile biome at any location
-    function DEV_SPAWN_TILE(BiomeKind kind, int16 q, int16 r, int16 s) external;
+    // ---------------------
+    // the DEV_ actions below this point are not for public use they are
+    // only available by a single authorized account and only for a short
+    // period after initial world deployment.
+    // ---------------------
+    
+    // spawn a tile at any location
+    function DEV_SPAWN_TILE(int16 q, int16 r, int16 s) external;
+    
+    // spawn a building at any location
+    function DEV_SPAWN_BUILDING(bytes24 buildingKind, int16 q, int16 r, int16 s) external;
 
     // spawn a bag with resources equip somewhere
     function DEV_SPAWN_BAG(
-        uint64 bagID,
+        bytes24 bagID,
         address owner,
         bytes24 equipee,
         uint8 equipSlot,
         bytes24[] calldata slotContents,
         uint64[] calldata slotBalances
     ) external;
+
+    // calling DEV_DISABLE_CHEATS will disable cheats this action cannot
+    // be undone, DEV_ cheat actions will be disabled and ignored forever
+    function DEV_DISABLE_CHEATS() external;
 }

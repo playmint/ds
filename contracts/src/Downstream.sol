@@ -61,7 +61,7 @@ contract DownstreamRouter is BaseRouter {
 contract DownstreamGame is BaseGame {
     NewPlayerRule playerRule;
 
-    constructor(address[] memory allowlist) BaseGame("DOWNSTREAM", "http://downstream.game/") {
+    constructor(address authorizedCheater, address[] memory allowlist) BaseGame("DOWNSTREAM", "http://downstream.game/") {
         // create a state
         BaseState state = new BaseState();
 
@@ -104,7 +104,7 @@ contract DownstreamGame is BaseGame {
         // configure our dispatcher with state, rules and trust the router
         BaseDispatcher dispatcher = new BaseDispatcher();
         dispatcher.registerState(state);
-        dispatcher.registerRule(new CheatsRule());
+        dispatcher.registerRule(new CheatsRule(authorizedCheater));
         dispatcher.registerRule(new MovementRule());
         dispatcher.registerRule(new ScoutRule());
         dispatcher.registerRule(new InventoryRule());
