@@ -14,18 +14,12 @@ import "@ds/schema/Schema.sol";
 import "@ds/utils/ItemUtils.sol";
 
 contract Dev {
-
     Game internal ds;
 
     uint64 lastBag;
 
     function spawnTile(int16 q, int16 r, int16 s) public {
-        ds.getDispatcher().dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_TILE,
-                ( q, r, s )
-            )
-        );
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (q, r, s)));
     }
 
     function spawnBag(
@@ -37,19 +31,12 @@ contract Dev {
     ) public returns (bytes24) {
         bytes24 bagID = Node.Bag(++lastBag);
         ds.getDispatcher().dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_BAG, 
-                (bagID, owner, equipNode, equipSlot, resources, qty)
-            )
+            abi.encodeCall(Actions.DEV_SPAWN_BAG, (bagID, owner, equipNode, equipSlot, resources, qty))
         );
         return bagID;
     }
 
-    function spawnFullBag(
-        address owner,
-        bytes24 equipNode,
-        uint8 equipSlot
-    ) public returns (bytes24) {
+    function spawnFullBag(address owner, bytes24 equipNode, uint8 equipSlot) public returns (bytes24) {
         bytes24[] memory items = new bytes24[](3);
         items[0] = ItemUtils.GlassGreenGoo();
         items[1] = ItemUtils.BeakerBlueGoo();
@@ -60,10 +47,7 @@ contract Dev {
         balances[1] = 100;
         balances[2] = 100;
 
-        return spawnBag(
-            owner,
-            equipNode, equipSlot, items, balances
-        );
+        return spawnBag(owner, equipNode, equipSlot, items, balances);
     }
 
     function setGame(Game game) public {
@@ -71,11 +55,8 @@ contract Dev {
     }
 
     function disableCheats() public {
-        ds.getDispatcher().dispatch(
-            abi.encodeCall( Actions.DEV_DISABLE_CHEATS, ())
-        );
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_DISABLE_CHEATS, ()));
     }
-
 }
 
 struct PlayerAccount {
@@ -102,7 +83,7 @@ abstract contract GameTest {
         players[1] = PlayerAccount({key: 0xb2, addr: __vm.addr(0xb2)});
         players[2] = PlayerAccount({key: 0xc3, addr: __vm.addr(0xc3)});
         players[3] = PlayerAccount({key: 0xd4, addr: __vm.addr(0xd4)});
-        
+
         // allow all the players
         address[] memory allowlist = new address[](4);
         allowlist[0] = players[0].addr;
@@ -115,29 +96,17 @@ abstract contract GameTest {
         dispatcher = game.getDispatcher();
         dev.setGame(game);
 
-
         // fetch the State
         state = game.getState();
     }
 
-
     function moveMobileUnit(uint32 id, int16 q, int16 r, int16 s) public {
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.MOVE_MOBILE_UNIT,
-                ( id, q, r, s )
-            )
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (id, q, r, s)));
     }
 
     function spawnMobileUnit(uint64 id) public returns (bytes24) {
         bytes24 unitID = Node.MobileUnit(id);
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.SPAWN_MOBILE_UNIT,
-                (unitID)
-            )
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (unitID)));
         return unitID;
     }
 
@@ -156,12 +125,7 @@ abstract contract GameTest {
     }
 
     function setName(bytes24 entity, string memory name) public {
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.NAME_OWNED_ENTITY, 
-                (entity, name)
-            )
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.NAME_OWNED_ENTITY, (entity, name)));
     }
 
     function transferItem(
@@ -173,11 +137,7 @@ abstract contract GameTest {
         uint64 qty
     ) public {
         dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.TRANSFER_ITEM_MOBILE_UNIT,
-                (actor, equipees, equipSlots, itemSlots, bagID, qty)
-            )
+            abi.encodeCall(Actions.TRANSFER_ITEM_MOBILE_UNIT, (actor, equipees, equipSlots, itemSlots, bagID, qty))
         );
     }
-
 }

@@ -8,7 +8,6 @@ using Schema for State;
 uint32 constant TEST_MOBILE_UNIT_ID = 1;
 
 contract MovementRuleTest is Test, GameTest {
-
     function setUp() public {
         // discover a star shape of tiles 6-axis from center
         for (int16 i = 0; i < 3; i++) {
@@ -97,12 +96,12 @@ contract MovementRuleTest is Test, GameTest {
     function testNoMoveNotOwner() public {
         vm.expectRevert("NoMoveNotOwner");
         moveMobileUnit(TEST_MOBILE_UNIT_ID, 0, 1, 1); // should fail without prank
-        // dispatcher.dispatch(
-        //     abi.encodeCall(
-        //         Actions.MOVE_MOBILE_UNIT,
-        //         ( TEST_MOBILE_UNIT_ID, 0, 1, -1 )
-        //     )
-        // );
+            // dispatcher.dispatch(
+            //     abi.encodeCall(
+            //         Actions.MOVE_MOBILE_UNIT,
+            //         ( TEST_MOBILE_UNIT_ID, 0, 1, -1 )
+            //     )
+            // );
     }
 
     function testNoMoveToUndiscovered() public {
@@ -152,5 +151,4 @@ contract MovementRuleTest is Test, GameTest {
         // stop being alice
         vm.stopPrank();
     }
-
 }

@@ -13,7 +13,6 @@ uint8 constant ITEM_SLOT_0 = 0;
 uint8 constant ITEM_SLOT_1 = 1;
 
 contract InventoryRuleTest is Test, GameTest {
-
     function setUp() public {
         dev.spawnTile(0, 0, 0);
         dev.spawnTile(1, 0, -1);
@@ -355,10 +354,7 @@ contract InventoryRuleTest is Test, GameTest {
         assertEq(toBalanceAfter, 50, "expected mobileUnit1-equip1-bag-item0 balance to increase to 50 after xfer");
     }
 
-    function _spawnBagWithWood(address owner, bytes24 equipNode, uint8 equipSlot)
-        private
-        returns (bytes24)
-    {
+    function _spawnBagWithWood(address owner, bytes24 equipNode, uint8 equipSlot) private returns (bytes24) {
         bytes24[] memory items = new bytes24[](1);
         items[0] = ItemUtils.GlassGreenGoo();
         uint64[] memory balances = new uint64[](1);
@@ -366,10 +362,7 @@ contract InventoryRuleTest is Test, GameTest {
         return dev.spawnBag(owner, equipNode, equipSlot, items, balances);
     }
 
-    function _spawnBagWithStone(address owner, bytes24 equipNode, uint8 equipSlot)
-        private
-        returns (bytes24)
-    {
+    function _spawnBagWithStone(address owner, bytes24 equipNode, uint8 equipSlot) private returns (bytes24) {
         bytes24[] memory items = new bytes24[](1);
         items[0] = ItemUtils.BeakerBlueGoo();
         uint64[] memory balances = new uint64[](1);
@@ -377,10 +370,7 @@ contract InventoryRuleTest is Test, GameTest {
         return dev.spawnBag(owner, equipNode, equipSlot, items, balances);
     }
 
-    function _spawnBagEmpty(address owner, bytes24 equipNode, uint8 equipSlot)
-        private
-        returns (bytes24)
-    {
+    function _spawnBagEmpty(address owner, bytes24 equipNode, uint8 equipSlot) private returns (bytes24) {
         bytes24[] memory items = new bytes24[](0);
         uint64[] memory balances = new uint64[](0);
         return dev.spawnBag(owner, equipNode, equipSlot, items, balances);
@@ -392,5 +382,4 @@ contract InventoryRuleTest is Test, GameTest {
         vm.roll(block.number + 100);
         return Node.MobileUnit(sid);
     }
-
 }

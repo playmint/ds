@@ -41,5 +41,4 @@ contract GameDeployer is Script {
         allowlist[addresses.length] = deployer; // allowlist the deployer address
         return allowlist;
     }
-
 }

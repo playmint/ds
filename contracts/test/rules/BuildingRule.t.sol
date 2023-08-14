@@ -56,7 +56,9 @@ contract BuildingRuleTest is Test, GameTest {
             "expected building to have location"
         );
         // check building has owner
-        assertEq(state.getOwner(buildingInstance), Node.Player(players[0].addr), "expected building to be owned by alice");
+        assertEq(
+            state.getOwner(buildingInstance), Node.Player(players[0].addr), "expected building to be owned by alice"
+        );
         // check building has kind
         assertEq(state.getBuildingKind(buildingInstance), buildingKind, "expected building to have kind");
         // check building has a bag equip
@@ -213,7 +215,6 @@ contract BuildingRuleTest is Test, GameTest {
             )
         );
     }
-
 }
 
 contract MockBuildingKind is BuildingKind {

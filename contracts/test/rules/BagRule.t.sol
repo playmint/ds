@@ -220,7 +220,10 @@ contract BagRuleTest is Test, GameTest {
 
     // ------------------------------------------------------------------------------------------- //
 
-    function _constructBuilding(address builderAccount, bytes24 mobileUnit, int16 q, int16 r, int16 s) private returns (bytes24) {
+    function _constructBuilding(address builderAccount, bytes24 mobileUnit, int16 q, int16 r, int16 s)
+        private
+        returns (bytes24)
+    {
         // register a building kind
         bytes24 buildingKind = Node.BuildingKind(20);
         string memory buildingName = "hut";
@@ -287,7 +290,6 @@ contract BagRuleTest is Test, GameTest {
             )
         );
     }
-
 }
 
 contract MockBuildingKind is BuildingKind {
