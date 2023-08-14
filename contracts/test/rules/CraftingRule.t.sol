@@ -1,17 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "forge-std/Test.sol";
-
-import "cog/IState.sol";
-import "cog/IDispatcher.sol";
-import "cog/IGame.sol";
-
-import {DownstreamGame} from "@ds/Downstream.sol";
-import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
-import {Schema, Node, Rel, LocationKey, GOO_GREEN, GOO_BLUE, GOO_RED, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
-import {ItemUtils} from "@ds/utils/ItemUtils.sol";
-import {BuildingKind} from "@ds/ext/BuildingKind.sol";
+import "../helpers/GameTest.sol";
 
 using Schema for State;
 
@@ -24,15 +14,8 @@ contract MockCraftBuildingContract {
     function use(Game, /*ds*/ bytes24, /*buildingInstance*/ bytes24, /*mobileUnit*/ bytes memory /*payload*/ ) public {}
 }
 
-contract CraftingRuleTest is Test {
-    Game internal game;
-    Dispatcher internal dispatcher;
-    State internal state;
-
+contract CraftingRuleTest is Test, GameTest {
     uint64 sid;
-
-    // accounts
-    address aliceAccount;
     bytes24 aliceMobileUnit;
 
     // mock building implementation
@@ -41,23 +24,9 @@ contract CraftingRuleTest is Test {
     MockCraftBuildingContract mockBuildingContract;
 
     function setUp() public {
-        // setup players
-        uint256 alicePrivateKey = 0xA11CE;
-        aliceAccount = vm.addr(alicePrivateKey);
-
-        // setup allowlist
-        address[] memory allowlist = new address[](1);
-        allowlist[0] = aliceAccount;
-
-        // setup game
-        game = new DownstreamGame(allowlist);
-        dispatcher = game.getDispatcher();
-
-        // fetch the State to play with
-        state = game.getState();
+        vm.startPrank(players[0].addr);
 
         // mobileUnits
-        vm.startPrank(aliceAccount);
         aliceMobileUnit = _spawnMobileUnitWithResources();
 
         // setup a mock building instance owned by alice
@@ -87,7 +56,7 @@ contract CraftingRuleTest is Test {
     }
 
     function testRegisteringCraftRecipe() public {
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
 
         bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItem;
         inputItem[0] = ItemUtils.GlassGreenGoo();
@@ -129,8 +98,8 @@ contract CraftingRuleTest is Test {
 
     function testCrafting() public {
         // alice puts the input items into the building's bag
-        vm.startPrank(aliceAccount);
-        _transferItem(
+        vm.startPrank(players[0].addr);
+        transferItem(
             aliceMobileUnit,
             [aliceMobileUnit, mockBuildingInstance],
             [0, 0], // from/to equip
@@ -138,7 +107,7 @@ contract CraftingRuleTest is Test {
             0x0, // unused
             4 // move 4 but only need 2
         );
-        _transferItem(
+        transferItem(
             aliceMobileUnit,
             [aliceMobileUnit, mockBuildingInstance],
             [0, 0],
@@ -146,7 +115,7 @@ contract CraftingRuleTest is Test {
             0x0, // unused
             4 // move 4 but only need 2
         );
-        _transferItem(
+        transferItem(
             aliceMobileUnit,
             [aliceMobileUnit, mockBuildingInstance],
             [0, 0],
@@ -180,8 +149,8 @@ contract CraftingRuleTest is Test {
 
     function testBadSender() public {
         // alice puts the input items into the building's bag
-        vm.startPrank(aliceAccount);
-        _transferItem(
+        vm.startPrank(players[0].addr);
+        transferItem(
             aliceMobileUnit,
             [aliceMobileUnit, mockBuildingInstance],
             [0, 0], // from/to equip
@@ -189,7 +158,7 @@ contract CraftingRuleTest is Test {
             0x0, // unused
             4 // move 4 but only need 2
         );
-        _transferItem(
+        transferItem(
             aliceMobileUnit,
             [aliceMobileUnit, mockBuildingInstance],
             [0, 0],
@@ -197,7 +166,7 @@ contract CraftingRuleTest is Test {
             0x0, // unused
             4 // move 4 but only need 2
         );
-        _transferItem(
+        transferItem(
             aliceMobileUnit,
             [aliceMobileUnit, mockBuildingInstance],
             [0, 0],
@@ -221,8 +190,8 @@ contract CraftingRuleTest is Test {
 
     function testNotEnoughInputs() public {
         // alice puts the input items into the building's bag
-        vm.startPrank(aliceAccount);
-        _transferItem(
+        vm.startPrank(players[0].addr);
+        transferItem(
             aliceMobileUnit,
             [aliceMobileUnit, mockBuildingInstance],
             [0, 0], // from/to equip
@@ -230,7 +199,7 @@ contract CraftingRuleTest is Test {
             0x0, // unused
             1 // too few
         );
-        _transferItem(
+        transferItem(
             aliceMobileUnit,
             [aliceMobileUnit, mockBuildingInstance],
             [0, 0],
@@ -238,7 +207,7 @@ contract CraftingRuleTest is Test {
             0x0, // unused
             1 // too few
         );
-        _transferItem(
+        transferItem(
             aliceMobileUnit,
             [aliceMobileUnit, mockBuildingInstance],
             [0, 0],
@@ -264,41 +233,11 @@ contract CraftingRuleTest is Test {
     // 0,0,0 with 100 of each resource in an equiped bag
     function _spawnMobileUnitWithResources() private returns (bytes24) {
         sid++;
-        bytes24 mobileUnit = Node.MobileUnit(sid);
-        _discover(0, 0, 0);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (mobileUnit)));
-        bytes24[] memory items = new bytes24[](3);
-        items[0] = ItemUtils.GlassGreenGoo();
-        items[1] = ItemUtils.BeakerBlueGoo();
-        items[2] = ItemUtils.FlaskRedGoo();
-
-        uint64[] memory balances = new uint64[](3);
-        balances[0] = 100;
-        balances[1] = 100;
-        balances[2] = 100;
-
-        uint64 mobileUnitBag = uint64(uint256(keccak256(abi.encode(mobileUnit))));
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_BAG,
-                (mobileUnitBag, state.getOwnerAddress(mobileUnit), mobileUnit, 0, items, balances)
-            )
-        );
+        dev.spawnTile(0, 0, 0);
+        bytes24 mobileUnit = spawnMobileUnit(sid);
+        dev.spawnFullBag(state.getOwnerAddress(mobileUnit), mobileUnit, 0);
 
         return mobileUnit;
-    }
-
-    function _transferItem(
-        bytes24 mobileUnit,
-        bytes24[2] memory equipees,
-        uint8[2] memory equipSlots,
-        uint8[2] memory itemSlots,
-        bytes24 bagID,
-        uint64 qty
-    ) private {
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.TRANSFER_ITEM_MOBILE_UNIT, (mobileUnit, equipees, equipSlots, itemSlots, bagID, qty))
-        );
     }
 
     function _registerBuildingKind(uint64 uid, address buildingContract) private returns (bytes24) {
@@ -318,20 +257,6 @@ contract CraftingRuleTest is Test {
         );
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (buildingKind, buildingContract)));
         return buildingKind;
-    }
-
-    function _discover(int16 q, int16 r, int16 s) private {
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_TILE,
-                (
-                    BiomeKind.DISCOVERED,
-                    q, // q
-                    r, // r
-                    s // s
-                )
-            )
-        );
     }
 
     // _constructCraftingBuilding sets up and constructs a crafting building that
@@ -359,7 +284,7 @@ contract CraftingRuleTest is Test {
         );
 
         // discover an adjacent tile for our building site
-        _discover(q, r, s);
+        dev.spawnTile(q, r, s);
         // get our building and give it the resources to construct
         buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
         // magic 100 items into the construct slot

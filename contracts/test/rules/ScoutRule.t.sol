@@ -2,78 +2,41 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
-
-import "cog/IState.sol";
-import "cog/IDispatcher.sol";
-import "cog/IGame.sol";
-
-import {DownstreamGame} from "@ds/Downstream.sol";
-import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
-import {Schema, Node, Rel, LocationKey, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import "../helpers/GameTest.sol";
+import "@ds/schema/Schema.sol";
 
 using Schema for State;
 
 uint32 constant TEST_MOBILE_UNIT_ID = 1;
 
-contract ScoutRuleTest is Test {
-    Game internal game;
-    Dispatcher internal dispatcher;
-    State internal state;
-
-    // accounts
-    address aliceAccount;
+contract ScoutRuleTest is Test, GameTest {
 
     function setUp() public {
-        // setup users
-        uint256 alicePrivateKey = 0xA11CE;
-        aliceAccount = vm.addr(alicePrivateKey);
-
-        // setup allowlist
-        address[] memory allowlist = new address[](1);
-        allowlist[0] = aliceAccount;
-
-        // setup game
-        game = new DownstreamGame(allowlist);
-        dispatcher = game.getDispatcher();
-
-        // fetch the State to play with
-        state = game.getState();
-
         // force tile 0,0,0 DISCOVERED
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_TILE,
-                (
-                    BiomeKind.DISCOVERED,
-                    0, // q
-                    0, // r
-                    0 // s
-                )
-            )
-        );
+        dev.spawnTile(0,0,0);
 
         // place a mobileUnit at 0,0,0
-        vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (Node.MobileUnit(TEST_MOBILE_UNIT_ID))));
+        vm.startPrank(players[0].addr);
+        spawnMobileUnit(TEST_MOBILE_UNIT_ID);
         vm.stopPrank();
     }
 
     function testScoutErrorAlreadyDiscovered() public {
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         vm.expectRevert("NoScoutAlreadyDiscovered");
-        _scout(0, 0, 0); // expect fail as 0,0,0 already discovered in setUp
+        scoutMobileUnit(TEST_MOBILE_UNIT_ID, 0, 0, 0); // expect fail as 0,0,0 already discovered in setUp
         vm.stopPrank();
     }
 
     function testScoutErrorNotOwner() public {
         vm.expectRevert("NoScoutNotOwner");
-        _scout(0, 1, -1); // expect fail as no prank
+        scoutMobileUnit(TEST_MOBILE_UNIT_ID, 0, 1, -1); // expect fail as no prank
     }
 
     function testScoutNotAdjacent() public {
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         vm.expectRevert("NoScoutUnadjacent");
-        _scout(0, 2, -2); // expect fail as too far away from mobileUnit at 0,0,0
+        scoutMobileUnit(TEST_MOBILE_UNIT_ID, 0, 2, -2); // expect fail as too far away from mobileUnit at 0,0,0
         vm.stopPrank();
     }
 
@@ -83,7 +46,7 @@ contract ScoutRuleTest is Test {
         int16 s = -1;
 
         // be alice
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
 
         bytes24 targetTile = Node.Tile(DEFAULT_ZONE, q, r, s);
 
@@ -94,7 +57,7 @@ contract ScoutRuleTest is Test {
         );
 
         // dispatch SCOUT_MOBILE_UNIT
-        _scout(q, r, s);
+        scoutMobileUnit(TEST_MOBILE_UNIT_ID, q, r, s);
 
         assertEq(
             uint256(state.getBiome(targetTile)),
@@ -106,17 +69,4 @@ contract ScoutRuleTest is Test {
         vm.stopPrank();
     }
 
-    function _scout(int16 q, int16 r, int16 s) private {
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.SCOUT_MOBILE_UNIT,
-                (
-                    TEST_MOBILE_UNIT_ID, // mobileUnit id (sid)
-                    q, // q
-                    r, // r
-                    s // s
-                )
-            )
-        );
-    }
 }

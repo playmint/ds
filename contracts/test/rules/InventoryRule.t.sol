@@ -1,21 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "forge-std/Test.sol";
-
-import "cog/IState.sol";
-import "cog/IDispatcher.sol";
-import "cog/IGame.sol";
-
-import {DownstreamGame} from "@ds/Downstream.sol";
-import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
-import {Schema, Node, Rel, LocationKey, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
-import {ItemUtils} from "@ds/utils/ItemUtils.sol";
+import "../helpers/GameTest.sol";
 import "@ds/rules/InventoryRule.sol";
 
 using Schema for State;
-
-uint32 constant TEST_MOBILE_UNIT_ID = 1;
 
 uint8 constant EQUIP_SLOT_0 = 0;
 uint8 constant EQUIP_SLOT_1 = 1;
@@ -23,42 +12,17 @@ uint8 constant EQUIP_SLOT_1 = 1;
 uint8 constant ITEM_SLOT_0 = 0;
 uint8 constant ITEM_SLOT_1 = 1;
 
-contract InventoryRuleTest is Test {
-    Game internal game;
-    Dispatcher internal dispatcher;
-    State internal state;
-
-    // accounts
-    address aliceAccount;
-    address bobAccount;
+contract InventoryRuleTest is Test, GameTest {
 
     function setUp() public {
-        // setup users
-        uint256 alicePrivateKey = 0xA11CE;
-        uint256 bobPrivateKey = 0xB0B0B;
-        aliceAccount = vm.addr(alicePrivateKey);
-        bobAccount = vm.addr(bobPrivateKey);
-
-        // setup allowlist
-        address[] memory allowlist = new address[](2);
-        allowlist[0] = aliceAccount;
-        allowlist[1] = bobAccount;
-
-        // setup game
-        game = new DownstreamGame(allowlist);
-        dispatcher = game.getDispatcher();
-
-        // fetch the State to play with
-        state = game.getState();
-
-        _discover(0, 0, 0);
-        _discover(1, 0, -1);
-        _discover(2, 0, -2);
-        _discover(3, 0, -3);
+        dev.spawnTile(0, 0, 0);
+        dev.spawnTile(1, 0, -1);
+        dev.spawnTile(2, 0, -2);
+        dev.spawnTile(3, 0, -3);
     }
 
     function testTransferItemMobileUnitBagToMobileUnitBag() public {
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
         _testTransferItemBetweenEquipees(
             mobileUnit, // mobileUnit perfoming the action
@@ -69,7 +33,7 @@ contract InventoryRuleTest is Test {
     }
 
     function testTransferItemMobileUnitBagToTileBag() public {
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
         bytes24 tile = Node.Tile(DEFAULT_ZONE, 0, 0, 0);
         _testTransferItemBetweenEquipees(
@@ -81,7 +45,7 @@ contract InventoryRuleTest is Test {
     }
 
     function testTransferItemTileBagToTileBag() public {
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
         bytes24 tile = Node.Tile(DEFAULT_ZONE, 0, 0, 0);
         _testTransferItemBetweenEquipees(
@@ -93,7 +57,7 @@ contract InventoryRuleTest is Test {
     }
 
     function testTransferItemMobileUnitBagToBuildingBagNotAtOrigin() public {
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         bytes24 mobileUnit = _spawnMobileUnit(1, 2, 0, -2);
         (int16 q, int16 r, int16 s) = (3, 0, -3);
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
@@ -108,11 +72,11 @@ contract InventoryRuleTest is Test {
     }
 
     function testTransferItemFailNotOwner() public {
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
         vm.stopPrank();
 
-        vm.startPrank(bobAccount); // bob trying to use alice's mobileUnit
+        vm.startPrank(players[1].addr); // bob trying to use alice's mobileUnit
         _testTransferItemFailBetweenEquipees(
             mobileUnit, // mobileUnit perfoming the action
             mobileUnit, // location of from-bag
@@ -123,14 +87,14 @@ contract InventoryRuleTest is Test {
     }
 
     function testTransferItemFailNotSameLocationMobileUnit() public {
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         bytes24 mobileUnit1 = _spawnMobileUnit(1, 0, 0, 0);
         vm.stopPrank();
-        vm.startPrank(bobAccount);
+        vm.startPrank(players[1].addr);
         bytes24 mobileUnit2 = _spawnMobileUnit(2, 3, 0, -3);
         vm.stopPrank();
 
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         _testTransferItemFailBetweenEquipees(
             mobileUnit1, // mobileUnit perfoming the action
             mobileUnit1, // location of from-bag
@@ -141,7 +105,7 @@ contract InventoryRuleTest is Test {
     }
 
     function testTransferItemFailNotSameLocationTile() public {
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         bytes24 mobileUnit1 = _spawnMobileUnit(1, 0, 0, 0);
         bytes24 tile = Node.Tile(DEFAULT_ZONE, 3, 0, -3);
         _testTransferItemFailBetweenEquipees(
@@ -154,25 +118,24 @@ contract InventoryRuleTest is Test {
     }
 
     function testTransferItemFailNotYourBag() public {
-        vm.startPrank(bobAccount);
+        vm.startPrank(players[1].addr);
         bytes24 mobileUnitStranger = _spawnMobileUnit(2, 0, 0, 0);
         vm.stopPrank();
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         bytes24 mobileUnitAlice = _spawnMobileUnit(1, 0, 0, 0);
         _spawnBagWithWood(
-            1,
             address(1), // stranger's bag
             mobileUnitStranger,
             EQUIP_SLOT_0
         );
-        _spawnBagEmpty(2, aliceAccount, mobileUnitAlice, EQUIP_SLOT_1);
+        _spawnBagEmpty(players[0].addr, mobileUnitAlice, EQUIP_SLOT_1);
 
         uint8[2] memory equipSlots = [EQUIP_SLOT_0, EQUIP_SLOT_1];
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
         // as alice, try to steal from stranger's bag
         vm.expectRevert("NoTransferNotYourBag");
-        _transferItem(
+        transferItem(
             mobileUnitAlice,
             [mobileUnitStranger, mobileUnitAlice], // where are bags equipt
             equipSlots, // which equipment slots
@@ -184,16 +147,16 @@ contract InventoryRuleTest is Test {
     }
 
     function testTransferItemFailIncompatibleSlot() public {
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
-        _spawnBagWithWood(1, aliceAccount, mobileUnit, EQUIP_SLOT_0);
-        _spawnBagWithStone(2, aliceAccount, mobileUnit, EQUIP_SLOT_1);
+        _spawnBagWithWood(players[0].addr, mobileUnit, EQUIP_SLOT_0);
+        _spawnBagWithStone(players[0].addr, mobileUnit, EQUIP_SLOT_1);
 
         uint8[2] memory equipSlots = [EQUIP_SLOT_0, EQUIP_SLOT_1];
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
         vm.expectRevert("NoTransferIncompatibleSlot"); // should fail cos can't stack wood on stone
-        _transferItem(
+        transferItem(
             mobileUnit,
             [mobileUnit, mobileUnit], // where are bags equipt
             equipSlots, // which equipment slots
@@ -205,16 +168,16 @@ contract InventoryRuleTest is Test {
     }
 
     function testTransferItemFailSameSlot() public {
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
-        _spawnBagWithWood(1, aliceAccount, mobileUnit, EQUIP_SLOT_0);
-        _spawnBagWithStone(2, aliceAccount, mobileUnit, EQUIP_SLOT_1);
+        _spawnBagWithWood(players[0].addr, mobileUnit, EQUIP_SLOT_0);
+        _spawnBagWithStone(players[0].addr, mobileUnit, EQUIP_SLOT_1);
 
         uint8[2] memory equipSlots = [EQUIP_SLOT_1, EQUIP_SLOT_1];
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
         vm.expectRevert("NoTransferSameSlot"); // should fail cos can't xfer to same slot
-        _transferItem(
+        transferItem(
             mobileUnit,
             [mobileUnit, mobileUnit], // where are bags equipt
             equipSlots, // which equipment slots
@@ -226,16 +189,16 @@ contract InventoryRuleTest is Test {
     }
 
     function testTransferItemFailLowBalance() public {
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
-        _spawnBagWithWood(1, aliceAccount, mobileUnit, EQUIP_SLOT_0);
-        _spawnBagEmpty(2, aliceAccount, mobileUnit, EQUIP_SLOT_1);
+        _spawnBagWithWood(players[0].addr, mobileUnit, EQUIP_SLOT_0);
+        _spawnBagEmpty(players[0].addr, mobileUnit, EQUIP_SLOT_1);
 
         uint8[2] memory equipSlots = [EQUIP_SLOT_0, EQUIP_SLOT_1];
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
         vm.expectRevert("NoTransferLowBalance"); // should fail cos we don't have 999 balance
-        _transferItem(
+        transferItem(
             mobileUnit,
             [mobileUnit, mobileUnit], // where are bags equipt
             equipSlots, // which equipment slots
@@ -253,8 +216,8 @@ contract InventoryRuleTest is Test {
         string memory expectedError
     ) private {
         // equip two bags to mobileUnit
-        bytes24 fromBag = _spawnBagWithWood(1, aliceAccount, fromEquipee, EQUIP_SLOT_0);
-        bytes24 toBag = _spawnBagEmpty(2, aliceAccount, toEquipee, EQUIP_SLOT_1);
+        bytes24 fromBag = _spawnBagWithWood(players[0].addr, fromEquipee, EQUIP_SLOT_0);
+        bytes24 toBag = _spawnBagEmpty(players[0].addr, toEquipee, EQUIP_SLOT_1);
         // confirm bag1 has 100 wood
         (bytes24 fromResourceBefore, uint64 fromBalanceBefore) = state.getItemSlot(fromBag, ITEM_SLOT_0);
         (bytes24 toResourceBefore, uint64 toBalanceBefore) = state.getItemSlot(toBag, ITEM_SLOT_0);
@@ -272,7 +235,7 @@ contract InventoryRuleTest is Test {
 
         // perform xfer as alice
         vm.expectRevert(bytes(expectedError));
-        _transferItem(
+        transferItem(
             mobileUnit,
             [fromEquipee, toEquipee], // where are bags equipt
             equipSlots, // which equipment slots
@@ -293,8 +256,8 @@ contract InventoryRuleTest is Test {
         bytes24 bag
     ) private {
         // equip two bags to mobileUnit
-        bytes24 fromBag = _spawnBagWithWood(1, aliceAccount, fromEquipee, EQUIP_SLOT_0);
-        bytes24 toBag = _spawnBagEmpty(2, aliceAccount, toEquipee, EQUIP_SLOT_1);
+        bytes24 fromBag = _spawnBagWithWood(players[0].addr, fromEquipee, EQUIP_SLOT_0);
+        bytes24 toBag = _spawnBagEmpty(players[0].addr, toEquipee, EQUIP_SLOT_1);
         // confirm bag1 has 100 wood
         (bytes24 fromResourceBefore, uint64 fromBalanceBefore) = state.getItemSlot(fromBag, ITEM_SLOT_0);
         (bytes24 toResourceBefore, uint64 toBalanceBefore) = state.getItemSlot(toBag, ITEM_SLOT_0);
@@ -311,7 +274,7 @@ contract InventoryRuleTest is Test {
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
         // perform xfer as alice
-        _transferItem(
+        transferItem(
             mobileUnit,
             [fromEquipee, toEquipee], // where are bags equipt
             equipSlots, // which equipment slots
@@ -338,12 +301,12 @@ contract InventoryRuleTest is Test {
     }
 
     function testTransferItemBetweenEquipeeAndMissingBag() public {
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
         bytes24 fromEquipee = mobileUnit;
 
         // equip two bags to mobileUnit
-        bytes24 fromBag = _spawnBagWithWood(1, aliceAccount, fromEquipee, EQUIP_SLOT_0);
+        bytes24 fromBag = _spawnBagWithWood(players[0].addr, fromEquipee, EQUIP_SLOT_0);
 
         bytes24 buildingInstance = Node.Building(0, 0, 0, 0);
         bytes24 toBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
@@ -365,7 +328,7 @@ contract InventoryRuleTest is Test {
         uint8[2] memory itemSlots = [ITEM_SLOT_0, ITEM_SLOT_0];
 
         // perform xfer as alice
-        _transferItem(
+        transferItem(
             mobileUnit,
             [fromEquipee, toEquipee], // where are bags equipt
             equipSlots, // which equipment slots
@@ -392,20 +355,7 @@ contract InventoryRuleTest is Test {
         assertEq(toBalanceAfter, 50, "expected mobileUnit1-equip1-bag-item0 balance to increase to 50 after xfer");
     }
 
-    function _transferItem(
-        bytes24 mobileUnit,
-        bytes24[2] memory equipees,
-        uint8[2] memory equipSlots,
-        uint8[2] memory itemSlots,
-        bytes24 bagID,
-        uint64 qty
-    ) private {
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.TRANSFER_ITEM_MOBILE_UNIT, (mobileUnit, equipees, equipSlots, itemSlots, bagID, qty))
-        );
-    }
-
-    function _spawnBagWithWood(uint64 bagID, address owner, bytes24 equipNode, uint8 equipSlot)
+    function _spawnBagWithWood(address owner, bytes24 equipNode, uint8 equipSlot)
         private
         returns (bytes24)
     {
@@ -413,10 +363,10 @@ contract InventoryRuleTest is Test {
         items[0] = ItemUtils.GlassGreenGoo();
         uint64[] memory balances = new uint64[](1);
         balances[0] = 100;
-        return _spawnBag(bagID, owner, equipNode, equipSlot, items, balances);
+        return dev.spawnBag(owner, equipNode, equipSlot, items, balances);
     }
 
-    function _spawnBagWithStone(uint64 bagID, address owner, bytes24 equipNode, uint8 equipSlot)
+    function _spawnBagWithStone(address owner, bytes24 equipNode, uint8 equipSlot)
         private
         returns (bytes24)
     {
@@ -424,48 +374,23 @@ contract InventoryRuleTest is Test {
         items[0] = ItemUtils.BeakerBlueGoo();
         uint64[] memory balances = new uint64[](1);
         balances[0] = 100;
-        return _spawnBag(bagID, owner, equipNode, equipSlot, items, balances);
+        return dev.spawnBag(owner, equipNode, equipSlot, items, balances);
     }
 
-    function _spawnBagEmpty(uint64 bagID, address owner, bytes24 equipNode, uint8 equipSlot)
+    function _spawnBagEmpty(address owner, bytes24 equipNode, uint8 equipSlot)
         private
         returns (bytes24)
     {
         bytes24[] memory items = new bytes24[](0);
         uint64[] memory balances = new uint64[](0);
-        return _spawnBag(bagID, owner, equipNode, equipSlot, items, balances);
-    }
-
-    function _spawnBag(
-        uint64 bagID,
-        address owner,
-        bytes24 equipNode,
-        uint8 equipSlot,
-        bytes24[] memory resources,
-        uint64[] memory qty
-    ) private returns (bytes24) {
-        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_BAG, (bagID, owner, equipNode, equipSlot, resources, qty)));
-        return Node.Bag(bagID);
+        return dev.spawnBag(owner, equipNode, equipSlot, items, balances);
     }
 
     function _spawnMobileUnit(uint32 sid, int16 q, int16 r, int16 s) private returns (bytes24) {
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (Node.MobileUnit(sid))));
-        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (sid, q, r, s)));
+        spawnMobileUnit(sid);
+        moveMobileUnit(sid, q, r, s);
         vm.roll(block.number + 100);
         return Node.MobileUnit(sid);
     }
 
-    function _discover(int16 q, int16 r, int16 s) private {
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_TILE,
-                (
-                    BiomeKind.DISCOVERED,
-                    q, // q
-                    r, // r
-                    s // s
-                )
-            )
-        );
-    }
 }
