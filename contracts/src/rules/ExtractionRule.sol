@@ -99,9 +99,11 @@ contract ExtractionRule is Rule {
             reservoirAtoms[GOO_RED] -= outputItemAtoms[GOO_RED] * qty;
 
             state.setBuildingReservoirAtoms(buildingInstance, reservoirAtoms);
+            state.setBlockNum(buildingInstance, 0, ctx.clock);
         }
 
-        bytes24 outBag = state.getEquipSlot(buildingInstance, 0);
+        // Output bag is at slot 1 same as crafting building.
+        bytes24 outBag = state.getEquipSlot(buildingInstance, 1);
         _requireIsBag(outBag);
 
         (bytes24 bagItem, uint64 bagBal) = state.getItemSlot(outBag, 0);

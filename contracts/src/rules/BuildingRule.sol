@@ -239,25 +239,19 @@ contract BuildingRule is Rule {
         // set building location
         state.setFixedLocation(buildingInstance, targetTile);
 
+        // attach the inputs/output bags
+        bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "input")))));
+        bytes24 outputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "output")))));
+        state.setEquipSlot(buildingInstance, 0, inputBag);
+        state.setEquipSlot(buildingInstance, 1, outputBag);
+
         // -- Category specific calls
 
         ( /*uint64 id*/ , BuildingCategory category) = state.getBuildingKindInfo(buildingKind);
 
-        if (category == BuildingCategory.ITEM_FACTORY) {
-            // attach the inputs/output bags
-            bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "input")))));
-            bytes24 outputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "output")))));
-            state.setEquipSlot(buildingInstance, 0, inputBag);
-            state.setEquipSlot(buildingInstance, 1, outputBag);
-        }
-
         if (category == BuildingCategory.EXTRACTOR) {
             // set initial extraction timestamp
             state.setBlockNum(buildingInstance, 0, ctx.clock);
-
-            // attach output bag
-            bytes24 outputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "output")))));
-            state.setEquipSlot(buildingInstance, 0, outputBag);
         }
     }
 
