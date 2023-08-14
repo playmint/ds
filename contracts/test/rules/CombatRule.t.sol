@@ -1,92 +1,46 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "forge-std/Test.sol";
-import "forge-std/console.sol";
-
-import "cog/IState.sol";
-import "cog/IDispatcher.sol";
-import "cog/IGame.sol";
-
-import {DownstreamGame} from "@ds/Downstream.sol";
-import {Actions, BiomeKind, CombatAction, CombatActionKind} from "@ds/actions/Actions.sol";
-import {Schema, Node, Rel, LocationKey, DEFAULT_ZONE, GOO_GREEN, GOO_BLUE, GOO_RED} from "@ds/schema/Schema.sol";
-import {ItemUtils} from "@ds/utils/ItemUtils.sol";
-import {CombatRule, JoinActionInfo, HASH_EDGE_INDEX} from "@ds/rules/CombatRule.sol";
+import "../helpers/GameTest.sol";
+import "@ds/rules/CombatRule.sol";
 
 using Schema for State;
 
-contract CombatRuleTest is Test {
+contract CombatRuleTest is Test, GameTest {
     event AnnotationSet(bytes24 id, AnnotationKind kind, string label, bytes32 ref, string data);
-
-    Game internal game;
-    Dispatcher internal dispatcher;
-    State internal state;
 
     bytes24[4] defaultMaterialItem;
     uint64[4] defaultMaterialQty;
 
-    // accounts
-    address aliceAccount;
-    address bobAccount;
-    address thirdAccount;
-    address buildingOwnerAccount;
-
-    // mobileUnits
     uint32 sid;
 
-    bytes24 aliceMobileUnitID;
-    bytes24 bobMobileUnitID;
-    bytes24 thirdMobileUnitID;
-    bytes24 buildingOwnerMobileUnitID;
+    bytes24 mobileUnit0;
+    bytes24 mobileUnit1;
+    bytes24 mobileUnit2;
 
     function setUp() public {
-        // setup users
-        uint256 alicePrivateKey = 0xA11CE;
-        aliceAccount = vm.addr(alicePrivateKey);
-        uint256 bobPrivateKey = 0xB0B;
-        bobAccount = vm.addr(bobPrivateKey);
-        uint256 thirdPrivateKey = 0x3;
-        thirdAccount = vm.addr(thirdPrivateKey);
-        uint256 buildingOwnerPrivateKey = 0x4;
-        buildingOwnerAccount = vm.addr(buildingOwnerPrivateKey);
-
-        // setup allowlist
-        address[] memory allowlist = new address[](4);
-        allowlist[0] = aliceAccount;
-        allowlist[1] = bobAccount;
-        allowlist[2] = thirdAccount;
-        allowlist[3] = buildingOwnerAccount;
-
-        // setup game
-        game = new DownstreamGame(allowlist);
-        dispatcher = game.getDispatcher();
-
-        // fetch the State to play with
-        state = game.getState();
-
         // discover a star shape of tiles 6-axis from center
         for (int16 i = 0; i < 3; i++) {
-            _discover(0, -i, i);
-            _discover(0, i, -i);
-            _discover(i, 0, -i);
-            _discover(-i, 0, i);
-            _discover(-i, i, 0);
-            _discover(i, -i, 0);
+            dev.spawnTile(0, -i, i);
+            dev.spawnTile(0, i, -i);
+            dev.spawnTile(i, 0, -i);
+            dev.spawnTile(-i, 0, i);
+            dev.spawnTile(-i, i, 0);
+            dev.spawnTile(i, -i, 0);
         }
 
         // place mobileUnits (maybe using separate accounts was overkill...)
 
-        vm.startPrank(aliceAccount);
-        aliceMobileUnitID = _spawnMobileUnit(++sid, 0, 0, 0);
+        vm.startPrank(players[0].addr);
+        mobileUnit0 = _spawnMobileUnit(++sid, 0, 0, 0);
         vm.stopPrank();
 
-        vm.startPrank(bobAccount);
-        bobMobileUnitID = _spawnMobileUnit(++sid, 1, 0, -1);
+        vm.startPrank(players[1].addr);
+        mobileUnit1 = _spawnMobileUnit(++sid, 1, 0, -1);
         vm.stopPrank();
 
-        vm.startPrank(thirdAccount);
-        thirdMobileUnitID = _spawnMobileUnit(++sid, 0, 1, -1);
+        vm.startPrank(players[2].addr);
+        mobileUnit2 = _spawnMobileUnit(++sid, 0, 1, -1);
         vm.stopPrank();
 
         // setup default material construction costs
@@ -98,33 +52,19 @@ contract CombatRuleTest is Test {
         defaultMaterialQty[2] = 25;
     }
 
-    function _discover(int16 q, int16 r, int16 s) private {
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_TILE,
-                (
-                    BiomeKind.DISCOVERED,
-                    q, // q
-                    r, // r
-                    s // s
-                )
-            )
-        );
-    }
-
     function testStartCombat() public {
         bytes24 targetTileID = Node.Tile(0, 1, 0, -1);
         bytes24[] memory attackers = new bytes24[](1);
-        attackers[0] = aliceMobileUnitID;
+        attackers[0] = mobileUnit0;
 
         bytes24[] memory defenders = new bytes24[](1);
-        defenders[0] = bobMobileUnitID;
+        defenders[0] = mobileUnit1;
 
         vm.recordLogs();
 
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         dispatcher.dispatch(
-            abi.encodeCall(Actions.START_COMBAT, (aliceMobileUnitID, targetTileID, attackers, defenders))
+            abi.encodeCall(Actions.START_COMBAT, (mobileUnit0, targetTileID, attackers, defenders))
         );
         vm.stopPrank();
 
@@ -171,22 +111,22 @@ contract CombatRuleTest is Test {
     function testDuplicateSessions() public {
         bytes24 targetTileID = Node.Tile(0, 1, 0, -1);
         bytes24[] memory attackers = new bytes24[](1);
-        attackers[0] = aliceMobileUnitID;
+        attackers[0] = mobileUnit0;
 
         bytes24[] memory defenders = new bytes24[](1);
-        defenders[0] = bobMobileUnitID;
+        defenders[0] = mobileUnit1;
 
         vm.recordLogs();
 
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         dispatcher.dispatch(
-            abi.encodeCall(Actions.START_COMBAT, (aliceMobileUnitID, targetTileID, attackers, defenders))
+            abi.encodeCall(Actions.START_COMBAT, (mobileUnit0, targetTileID, attackers, defenders))
         );
 
         vm.expectRevert("CombatSessionAlreadyActive");
 
         dispatcher.dispatch(
-            abi.encodeCall(Actions.START_COMBAT, (aliceMobileUnitID, targetTileID, attackers, defenders))
+            abi.encodeCall(Actions.START_COMBAT, (mobileUnit0, targetTileID, attackers, defenders))
         );
 
         // Should be allowed to start a combat session after a finished session has been finalised
@@ -203,7 +143,7 @@ contract CombatRuleTest is Test {
         );
 
         dispatcher.dispatch(
-            abi.encodeCall(Actions.START_COMBAT, (aliceMobileUnitID, targetTileID, attackers, defenders))
+            abi.encodeCall(Actions.START_COMBAT, (mobileUnit0, targetTileID, attackers, defenders))
         );
 
         vm.stopPrank();
@@ -212,23 +152,23 @@ contract CombatRuleTest is Test {
     function testJoiningAndLeaving() public {
         bytes24 targetTileID = Node.Tile(0, 1, 0, -1);
         bytes24[] memory attackers = new bytes24[](1);
-        attackers[0] = aliceMobileUnitID;
+        attackers[0] = mobileUnit0;
 
         bytes24[] memory defenders = new bytes24[](1);
-        defenders[0] = bobMobileUnitID;
+        defenders[0] = mobileUnit1;
 
         vm.recordLogs();
 
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         dispatcher.dispatch(
-            abi.encodeCall(Actions.START_COMBAT, (aliceMobileUnitID, targetTileID, attackers, defenders))
+            abi.encodeCall(Actions.START_COMBAT, (mobileUnit0, targetTileID, attackers, defenders))
         );
         vm.stopPrank();
 
-        vm.startPrank(thirdAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (state.getSid(thirdMobileUnitID), 0, 0, 0)));
+        vm.startPrank(players[2].addr);
+        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (state.getSid(mobileUnit2), 0, 0, 0)));
         vm.roll(block.number + 10);
-        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (state.getSid(thirdMobileUnitID), 0, 1, -1)));
+        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (state.getSid(mobileUnit2), 0, 1, -1)));
         vm.stopPrank();
 
         // Gather session update events
@@ -242,17 +182,17 @@ contract CombatRuleTest is Test {
     function testStartCombatAgainstBuilding() public {
         bytes24 targetTileID = Node.Tile(0, 1, -1, 0);
         bytes24[] memory attackers = new bytes24[](1);
-        attackers[0] = aliceMobileUnitID;
-        // attackers[1] = thirdMobileUnitID;
+        attackers[0] = mobileUnit0;
+        // attackers[1] = mobileUnit2;
 
         bytes24[] memory defenders = new bytes24[](1);
         defenders[0] = _constructBuilding();
 
         vm.recordLogs();
 
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         dispatcher.dispatch(
-            abi.encodeCall(Actions.START_COMBAT, (aliceMobileUnitID, targetTileID, attackers, defenders))
+            abi.encodeCall(Actions.START_COMBAT, (mobileUnit0, targetTileID, attackers, defenders))
         );
         vm.stopPrank();
 
@@ -369,11 +309,11 @@ contract CombatRuleTest is Test {
             )
         );
         // spawn a mobileUnit
-        vm.startPrank(buildingOwnerAccount);
+        vm.startPrank(players[3].addr);
         bytes24 mobileUnit = _spawnMobileUnitWithResources();
         // discover an adjacent tile for our building site
         (int16 q, int16 r, int16 s) = (1, -1, 0);
-        _discover(q, r, s);
+        dev.spawnTile(q, r, s);
         // get our building and give it the resources to construct
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
         // construct our building
@@ -391,7 +331,7 @@ contract CombatRuleTest is Test {
         // check building has owner
         assertEq(
             state.getOwner(buildingInstance),
-            Node.Player(buildingOwnerAccount),
+            Node.Player(players[3].addr),
             "expected building to be owned by alice"
         );
         // check building has kind
@@ -406,33 +346,16 @@ contract CombatRuleTest is Test {
     // 0,0,0 with 100 of each resource in an equiped bag
     function _spawnMobileUnitWithResources() private returns (bytes24) {
         sid++;
-        bytes24 mobileUnit = Node.MobileUnit(sid);
-        _discover(0, 0, 0);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (mobileUnit)));
-        bytes24[] memory items = new bytes24[](3);
-        items[0] = ItemUtils.GlassGreenGoo();
-        items[1] = ItemUtils.BeakerBlueGoo();
-        items[2] = ItemUtils.FlaskRedGoo();
-
-        uint64[] memory balances = new uint64[](3);
-        balances[0] = 100;
-        balances[1] = 100;
-        balances[2] = 100;
-
-        uint64 mobileUnitBag = uint64(uint256(keccak256(abi.encode(mobileUnit))));
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_BAG,
-                (mobileUnitBag, state.getOwnerAddress(mobileUnit), mobileUnit, 0, items, balances)
-            )
-        );
+        dev.spawnTile(0, 0, 0);
+        bytes24 mobileUnit = spawnMobileUnit(sid);
+        dev.spawnFullBag(state.getOwnerAddress(mobileUnit), mobileUnit, 0);
 
         return mobileUnit;
     }
 
     function _spawnMobileUnit(uint32 mobileUnitID, int16 q, int16 r, int16 s) private returns (bytes24) {
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (Node.MobileUnit(mobileUnitID))));
-        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (sid, q, r, s)));
+        spawnMobileUnit(mobileUnitID);
+        moveMobileUnit(sid, q, r, s);
         vm.roll(block.number + 100);
         return Node.MobileUnit(sid);
     }

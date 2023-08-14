@@ -1,50 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "forge-std/Test.sol";
-
-import "cog/IState.sol";
-import "cog/IDispatcher.sol";
-import "cog/IGame.sol";
-
-import {DownstreamGame} from "@ds/Downstream.sol";
-import {Actions} from "@ds/actions/Actions.sol";
-import {Schema, Node, Rel, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
-import {ItemUtils} from "@ds/utils/ItemUtils.sol";
+import "../helpers/GameTest.sol";
 import "@ds/rules/PluginRule.sol";
 
 using Schema for State;
 
-contract PluginRuleTest is Test {
+contract PluginRuleTest is Test, GameTest {
     event AnnotationSet(bytes24 id, AnnotationKind kind, string label, bytes32 ref, string data);
-
-    Game internal game;
-    Dispatcher internal dispatcher;
-    State internal state;
-
-    // accounts
-    address aliceAccount;
-    address bobAccount;
-
-    function setUp() public {
-        // setup users
-        uint256 alicePrivateKey = 0xA11CE;
-        aliceAccount = vm.addr(alicePrivateKey);
-        uint256 bobPrivateKey = 0xB0B0B;
-        bobAccount = vm.addr(bobPrivateKey);
-
-        // setup allowlist
-        address[] memory allowlist = new address[](2);
-        allowlist[0] = aliceAccount;
-        allowlist[1] = bobAccount;
-
-        // setup game
-        game = new DownstreamGame(allowlist);
-        dispatcher = game.getDispatcher();
-
-        // fetch the State to play with
-        state = game.getState();
-    }
 
     function testRegisterClientPlugin() public {
         bytes24 pluginID = Node.ClientPlugin(10);
@@ -66,7 +29,7 @@ contract PluginRuleTest is Test {
 
     function testRegisterBuildingKindPlugin() public {
         // register a building kind
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         bytes24 buildingKind = Node.BuildingKind(20);
         bytes24[4] memory defaultMaterialItem;
         defaultMaterialItem[0] = ItemUtils.GlassGreenGoo();
@@ -86,7 +49,7 @@ contract PluginRuleTest is Test {
         bytes24 pluginID = Node.ClientPlugin(20);
         string memory pluginName = "building-plugin";
         string memory pluginSrc = "function(){}";
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         // expect plugin metadata emitted
         vm.expectEmit(true, true, true, true, address(state));
         emit AnnotationSet(pluginID, AnnotationKind.CALLDATA, "name", keccak256(bytes(pluginName)), pluginName);
@@ -99,7 +62,7 @@ contract PluginRuleTest is Test {
         assertEq(state.getPlugin(pluginID), buildingKind, "expected plugin to reference building kind");
 
         // check that bob is not able to overwrite alice's plugin metadata
-        vm.startPrank(bobAccount);
+        vm.startPrank(players[1].addr);
         vm.expectRevert("PluginNotPluginOwner"); // expect fail as one wood short
         dispatcher.dispatch(
             abi.encodeCall(Actions.REGISTER_KIND_PLUGIN, (pluginID, buildingKind, pluginName, "BAD_CODE"))
@@ -109,7 +72,7 @@ contract PluginRuleTest is Test {
 
     function testPluginOwnerNotTargetOwner() public {
         // alice registers a building kind
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         bytes24 buildingKind = Node.BuildingKind(30);
         bytes24[4] memory defaultMaterialItem;
         defaultMaterialItem[0] = ItemUtils.GlassGreenGoo();
@@ -131,7 +94,7 @@ contract PluginRuleTest is Test {
         string memory pluginName = "cheeky-plugin";
         string memory pluginSrc = "function(){}";
         // expect fail as bob was not the owner of the building kind
-        vm.startPrank(bobAccount);
+        vm.startPrank(players[1].addr);
         vm.expectRevert("PluginNotTargetOwner"); // expect fail as one wood short
         dispatcher.dispatch(
             abi.encodeCall(Actions.REGISTER_KIND_PLUGIN, (pluginID, buildingKind, pluginName, pluginSrc))

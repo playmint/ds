@@ -1,50 +1,20 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "forge-std/Test.sol";
-
-import {Game} from "cog/IGame.sol";
-import {State, AnnotationKind} from "cog/IState.sol";
-import {Dispatcher} from "cog/IDispatcher.sol";
-
-import {DownstreamGame} from "@ds/Downstream.sol";
-import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
-import {Schema, Node, Rel, LocationKey, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
-import {ItemUtils} from "@ds/utils/ItemUtils.sol";
+import "../helpers/GameTest.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 
 using Schema for State;
 
-contract BuildingRuleTest is Test {
+contract BuildingRuleTest is Test, GameTest {
     event AnnotationSet(bytes24 id, AnnotationKind kind, string label, bytes32 ref, string data);
 
-    Game internal game;
-    Dispatcher internal dispatcher;
-    State internal state;
-
-    // accounts
-    address aliceAccount;
     uint64 sid;
 
     bytes24[4] defaultMaterialItem;
     uint64[4] defaultMaterialQty;
 
     function setUp() public {
-        // setup users
-        uint256 alicePrivateKey = 0xA11CE;
-        aliceAccount = vm.addr(alicePrivateKey);
-
-        // setup allowlist
-        address[] memory allowlist = new address[](1);
-        allowlist[0] = aliceAccount;
-
-        // setup game
-        game = new DownstreamGame(allowlist);
-        dispatcher = game.getDispatcher();
-
-        // fetch the State to play with
-        state = game.getState();
-
         // setup default material construction costs
         defaultMaterialItem[0] = ItemUtils.GlassGreenGoo();
         defaultMaterialItem[1] = ItemUtils.BeakerBlueGoo();
@@ -66,11 +36,11 @@ contract BuildingRuleTest is Test {
             )
         );
         // spawn a mobileUnit
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         bytes24 mobileUnit = _spawnMobileUnitWithResources();
         // discover an adjacent tile for our building site
         (int16 q, int16 r, int16 s) = (1, -1, 0);
-        _discover(q, r, s);
+        dev.spawnTile(q, r, s);
         // get our building and give it the resources to construct
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
         // construct our building
@@ -86,7 +56,7 @@ contract BuildingRuleTest is Test {
             "expected building to have location"
         );
         // check building has owner
-        assertEq(state.getOwner(buildingInstance), Node.Player(aliceAccount), "expected building to be owned by alice");
+        assertEq(state.getOwner(buildingInstance), Node.Player(players[0].addr), "expected building to be owned by alice");
         // check building has kind
         assertEq(state.getBuildingKind(buildingInstance), buildingKind, "expected building to have kind");
         // check building has a bag equip
@@ -94,7 +64,7 @@ contract BuildingRuleTest is Test {
     }
 
     function testConstructFailPayment() public {
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         // register a building kind
         bytes24 buildingKind = Node.BuildingKind(25);
         dispatcher.dispatch(
@@ -106,7 +76,7 @@ contract BuildingRuleTest is Test {
         bytes24 mobileUnit = _spawnMobileUnitWithResources();
         // discover an adjacent tile for our building site
         (int16 q, int16 r, int16 s) = (1, -1, 0);
-        _discover(q, r, s);
+        dev.spawnTile(q, r, s);
         // get our building and give it not enough resources to construct
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
         _transferFromMobileUnit(mobileUnit, 0, 1, buildingInstance); // 1 is intentionaly too few
@@ -119,7 +89,7 @@ contract BuildingRuleTest is Test {
     }
 
     function testConstructFailStackableMaterial() public {
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         // register building with a a non-stackable construction material
         uint64[4] memory qtys;
         qtys[0] = 1;
@@ -172,9 +142,9 @@ contract BuildingRuleTest is Test {
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (buildingKind, address(mockBuilding))));
         // discover an adjacent tile for our building site
         (int16 q, int16 r, int16 s) = (1, -1, 0);
-        _discover(q, r, s);
+        dev.spawnTile(q, r, s);
         // spawn a mobileUnit
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         bytes24 mobileUnit = _spawnMobileUnitWithResources();
         // get our building and give it the resources to construct
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
@@ -206,10 +176,10 @@ contract BuildingRuleTest is Test {
             )
         );
         // spawn a mobileUnit
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         bytes24 mobileUnit = _spawnMobileUnitWithResources();
         // target building site
-        _discover(q, r, s);
+        dev.spawnTile(q, r, s);
         // get our building and magic it the resources to construct
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
         bytes24 buildingBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
@@ -227,26 +197,9 @@ contract BuildingRuleTest is Test {
     // 0,0,0 with 100 of each resource in an equiped bag
     function _spawnMobileUnitWithResources() private returns (bytes24) {
         sid++;
-        bytes24 mobileUnit = Node.MobileUnit(sid);
-        _discover(0, 0, 0);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (mobileUnit)));
-        bytes24[] memory items = new bytes24[](3);
-        items[0] = ItemUtils.GlassGreenGoo();
-        items[1] = ItemUtils.BeakerBlueGoo();
-        items[2] = ItemUtils.FlaskRedGoo();
-
-        uint64[] memory balances = new uint64[](3);
-        balances[0] = 100;
-        balances[1] = 100;
-        balances[2] = 100;
-
-        uint64 mobileUnitBag = uint64(uint256(keccak256(abi.encode(mobileUnit))));
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_BAG,
-                (mobileUnitBag, state.getOwnerAddress(mobileUnit), mobileUnit, 0, items, balances)
-            )
-        );
+        dev.spawnTile(0, 0, 0);
+        bytes24 mobileUnit = spawnMobileUnit(sid);
+        dev.spawnFullBag(state.getOwnerAddress(mobileUnit), mobileUnit, 0);
 
         return mobileUnit;
     }
@@ -261,19 +214,6 @@ contract BuildingRuleTest is Test {
         );
     }
 
-    function _discover(int16 q, int16 r, int16 s) private {
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_TILE,
-                (
-                    BiomeKind.DISCOVERED,
-                    q, // q
-                    r, // r
-                    s // s
-                )
-            )
-        );
-    }
 }
 
 contract MockBuildingKind is BuildingKind {

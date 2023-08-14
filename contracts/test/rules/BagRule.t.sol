@@ -1,30 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "forge-std/Test.sol";
-
-import {Game} from "cog/IGame.sol";
-import {State, AnnotationKind} from "cog/IState.sol";
-import {Dispatcher} from "cog/IDispatcher.sol";
-
-import {DownstreamGame} from "@ds/Downstream.sol";
-import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
-import {Schema, Node, Rel, LocationKey, Kind, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
-import {ItemUtils} from "@ds/utils/ItemUtils.sol";
+import "../helpers/GameTest.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 
 using Schema for State;
 
-contract BagRuleTest is Test {
+contract BagRuleTest is Test, GameTest {
     event AnnotationSet(bytes24 id, AnnotationKind kind, string label, bytes32 ref, string data);
 
-    Game internal game;
-    Dispatcher internal dispatcher;
-    State internal state;
-
-    // accounts
-    address aliceAccount;
-    address bobAccount;
     uint64 sid;
 
     bytes24[4] defaultMaterialItem;
@@ -33,28 +17,13 @@ contract BagRuleTest is Test {
     bytes24 _buildingInstance;
     MockBuildingKind _buildingImplementation;
 
-    bytes24 _mobileUnitAlice;
-    bytes24 _mobileUnitBob;
+    bytes24 _mobileUnit0;
+    bytes24 _mobileUnit1;
 
     function setUp() public {
-        // setup users
-        uint256 alicePrivateKey = 0xA11CE;
-        aliceAccount = vm.addr(alicePrivateKey);
-        uint256 bobPrivateKey = 0xB0b;
-        bobAccount = vm.addr(bobPrivateKey);
-
-        // setup allowlist
-        address[] memory allowlist = new address[](2);
-        allowlist[0] = aliceAccount;
-        allowlist[1] = bobAccount;
-
-        // setup game
-        game = new DownstreamGame(allowlist);
-        dispatcher = game.getDispatcher();
-
-        // fetch the State to play with
-        state = game.getState();
-
+        // spawn tiles
+        dev.spawnTile(0, 0, 0);
+        dev.spawnTile(1, -1, 0);
         // setup default material construction costs
         defaultMaterialItem[0] = ItemUtils.GlassGreenGoo();
         defaultMaterialItem[1] = ItemUtils.BeakerBlueGoo();
@@ -63,59 +32,59 @@ contract BagRuleTest is Test {
         defaultMaterialQty[1] = 25;
         defaultMaterialQty[2] = 25;
 
-        vm.startPrank(aliceAccount);
-        _mobileUnitAlice = _spawnMobileUnitWithResources();
+        vm.startPrank(players[0].addr);
+        _mobileUnit0 = _spawnMobileUnitWithResources();
         vm.stopPrank();
 
-        vm.startPrank(bobAccount);
-        _mobileUnitBob = _spawnMobileUnitWithResources();
+        vm.startPrank(players[1].addr);
+        _mobileUnit1 = _spawnMobileUnitWithResources();
         vm.stopPrank();
 
-        _buildingInstance = _constructBuilding(bobAccount, _mobileUnitBob);
+        _buildingInstance = _constructBuilding(players[1].addr, _mobileUnit1, 1, -1, 0);
     }
 
     function testTransferToAndFromMobileUnits() public {
-        bytes24 bag = state.getEquipSlot(_mobileUnitAlice, 0);
+        bytes24 bag = state.getEquipSlot(_mobileUnit0, 0);
         assertEq(bytes4(bag), Kind.Bag.selector, "Entity at equip slot 0 isn't a bag");
 
         // -- Transfer from Alice to Bob
-        vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnitAlice, _mobileUnitBob, 2)));
-        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, _mobileUnitBob)));
+        vm.startPrank(players[0].addr);
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnit0, _mobileUnit1, 2)));
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, _mobileUnit1)));
         vm.stopPrank();
 
-        assertEq(state.getEquipSlot(_mobileUnitAlice, 0), bytes24(0), "Expected bag not to be equipped to Alice");
-        assertEq(state.getOwner(bag), Node.Player(bobAccount), "Expected the bag to be owned by bobAccount");
+        assertEq(state.getEquipSlot(_mobileUnit0, 0), bytes24(0), "Expected bag not to be equipped to Alice");
+        assertEq(state.getOwner(bag), Node.Player(players[1].addr), "Expected the bag to be owned by players[1].addr");
 
         // Mobile units are spawned with two bags at slots 0 and 1. Expecting the transferred bag to be at the next available slot
-        assertEq(state.getEquipSlot(_mobileUnitBob, 2), bag, "Expected bag to be equipped to Bob at slot 2");
+        assertEq(state.getEquipSlot(_mobileUnit1, 2), bag, "Expected bag to be equipped to Bob at slot 2");
 
         // -- Transfer back to Alice
 
-        vm.startPrank(bobAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnitBob, _mobileUnitAlice, 0)));
-        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, _mobileUnitAlice)));
+        vm.startPrank(players[1].addr);
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnit1, _mobileUnit0, 0)));
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, _mobileUnit0)));
         vm.stopPrank();
 
-        assertEq(state.getEquipSlot(_mobileUnitBob, 2), bytes24(0), "Expected bag not to be equipped to Bob");
-        assertEq(state.getOwner(bag), Node.Player(aliceAccount), "Expected the bag to be owned by aliceAccount");
+        assertEq(state.getEquipSlot(_mobileUnit1, 2), bytes24(0), "Expected bag not to be equipped to Bob");
+        assertEq(state.getOwner(bag), Node.Player(players[0].addr), "Expected the bag to be owned by players[0].addr");
 
         // Bag should end up back at slot 0 for Alice as it was empty
-        assertEq(state.getEquipSlot(_mobileUnitAlice, 0), bag, "Expected bag to be equipped to Alice at slot 0");
+        assertEq(state.getEquipSlot(_mobileUnit0, 0), bag, "Expected bag to be equipped to Alice at slot 0");
     }
 
     function testTransferToAndFromBuilding() public {
-        bytes24 bag = state.getEquipSlot(_mobileUnitAlice, 0);
+        bytes24 bag = state.getEquipSlot(_mobileUnit0, 0);
         assertEq(bytes4(bag), Kind.Bag.selector, "Entity at equip slot 0 isn't a bag");
 
         // -- Transfer from Alice to building
 
-        vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnitAlice, _buildingInstance, 2)));
+        vm.startPrank(players[0].addr);
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnit0, _buildingInstance, 2)));
         dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, _buildingInstance)));
         vm.stopPrank();
 
-        assertEq(state.getEquipSlot(_mobileUnitAlice, 0), bytes24(0), "Expected bag not to be equipped to Alice");
+        assertEq(state.getEquipSlot(_mobileUnit0, 0), bytes24(0), "Expected bag not to be equipped to Alice");
         assertEq(state.getOwner(bag), _buildingInstance, "Expected the bag to be owned by _buildingInstance");
 
         // -- Transfer from building back to Alice
@@ -124,78 +93,78 @@ contract BagRuleTest is Test {
         assertEq(state.getEquipSlot(_buildingInstance, 2), bag, "Expected bag to be equipped to Bob at slot 2");
 
         vm.startPrank(address(_buildingImplementation));
-        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _buildingInstance, _mobileUnitAlice, 0)));
-        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, _mobileUnitAlice)));
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _buildingInstance, _mobileUnit0, 0)));
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, _mobileUnit0)));
         vm.stopPrank();
 
         assertEq(state.getEquipSlot(_buildingInstance, 2), bytes24(0), "Expected bag not to be equipped to building");
-        assertEq(state.getOwner(bag), Node.Player(aliceAccount), "Expected the bag to be owned by aliceAccount");
+        assertEq(state.getOwner(bag), Node.Player(players[0].addr), "Expected the bag to be owned by players[0].addr");
 
         // Bag should end up back at slot 0 for Alice as it was empty
-        assertEq(state.getEquipSlot(_mobileUnitAlice, 0), bag, "Expected bag to be equipped to Alice at slot 0");
+        assertEq(state.getEquipSlot(_mobileUnit0, 0), bag, "Expected bag to be equipped to Alice at slot 0");
     }
 
     function testUnitEquipeeAllowedToTransfer() public {
-        bytes24 bag = state.getEquipSlot(_mobileUnitAlice, 0);
+        bytes24 bag = state.getEquipSlot(_mobileUnit0, 0);
         assertEq(bytes4(bag), Kind.Bag.selector, "Entity at equip slot 0 isn't a bag");
 
         // -- Transfer from Alice to Bob (NOT INCLUDING OWNERSHIP)
-        vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnitAlice, _mobileUnitBob, 2)));
+        vm.startPrank(players[0].addr);
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnit0, _mobileUnit1, 2)));
         vm.stopPrank();
 
-        assertEq(state.getEquipSlot(_mobileUnitAlice, 0), bytes24(0), "Expected bag not to be equipped to Alice");
-        assertEq(state.getOwner(bag), Node.Player(aliceAccount), "Expected the bag to be owned by alice");
+        assertEq(state.getEquipSlot(_mobileUnit0, 0), bytes24(0), "Expected bag not to be equipped to Alice");
+        assertEq(state.getOwner(bag), Node.Player(players[0].addr), "Expected the bag to be owned by alice");
 
         // -- Transfer back to Alice
 
-        vm.startPrank(bobAccount);
+        vm.startPrank(players[1].addr);
         vm.expectRevert();
-        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, _mobileUnitBob)));
-        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnitBob, _mobileUnitAlice, 0)));
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, _mobileUnit1)));
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnit1, _mobileUnit0, 0)));
         vm.stopPrank();
 
-        assertEq(state.getEquipSlot(_mobileUnitBob, 2), bytes24(0), "Expected bag not to be equipped to Bob");
-        assertEq(state.getOwner(bag), Node.Player(aliceAccount), "Expected the bag to be owned by aliceAccount");
-        assertEq(state.getEquipSlot(_mobileUnitAlice, 0), bag, "Expected bag to be equipped to Alice at slot 0");
+        assertEq(state.getEquipSlot(_mobileUnit1, 2), bytes24(0), "Expected bag not to be equipped to Bob");
+        assertEq(state.getOwner(bag), Node.Player(players[0].addr), "Expected the bag to be owned by players[0].addr");
+        assertEq(state.getEquipSlot(_mobileUnit0, 0), bag, "Expected bag to be equipped to Alice at slot 0");
     }
 
     function testBuildingEquipeeAllowedToTransfer() public {
-        bytes24 bag = state.getEquipSlot(_mobileUnitAlice, 0);
+        bytes24 bag = state.getEquipSlot(_mobileUnit0, 0);
         assertEq(bytes4(bag), Kind.Bag.selector, "Entity at equip slot 0 isn't a bag");
 
         // -- Transfer from Alice to building (NOT INCLUDING OWNERSHIP)
-        vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnitAlice, _buildingInstance, 2)));
+        vm.startPrank(players[0].addr);
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _mobileUnit0, _buildingInstance, 2)));
         vm.stopPrank();
 
-        assertEq(state.getEquipSlot(_mobileUnitAlice, 0), bytes24(0), "Expected bag not to be equipped to Alice");
-        assertEq(state.getOwner(bag), Node.Player(aliceAccount), "Expected the bag to be owned by alice");
+        assertEq(state.getEquipSlot(_mobileUnit0, 0), bytes24(0), "Expected bag not to be equipped to Alice");
+        assertEq(state.getOwner(bag), Node.Player(players[0].addr), "Expected the bag to be owned by alice");
 
         // -- Transfer back to Alice
 
         vm.startPrank(address(_buildingImplementation));
         vm.expectRevert();
         dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, _buildingInstance)));
-        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _buildingInstance, _mobileUnitAlice, 0)));
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG, (bag, _buildingInstance, _mobileUnit0, 0)));
         vm.stopPrank();
 
         assertEq(state.getEquipSlot(_buildingInstance, 2), bytes24(0), "Expected bag not to be equipped to building");
-        assertEq(state.getOwner(bag), Node.Player(aliceAccount), "Expected the bag to be owned by aliceAccount");
-        assertEq(state.getEquipSlot(_mobileUnitAlice, 0), bag, "Expected bag to be equipped to Alice at slot 0");
+        assertEq(state.getOwner(bag), Node.Player(players[0].addr), "Expected the bag to be owned by players[0].addr");
+        assertEq(state.getEquipSlot(_mobileUnit0, 0), bag, "Expected bag to be equipped to Alice at slot 0");
     }
 
     function testSpawnEmptyBagOnUnit() public {
-        bytes24 bag = state.getEquipSlot(_mobileUnitAlice, 2);
+        bytes24 bag = state.getEquipSlot(_mobileUnit0, 2);
         assertEq(bag, bytes24(0), "Expected no entity to be equipped to alice at slot 2");
 
-        vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_EMPTY_BAG, (_mobileUnitAlice, 2)));
+        vm.startPrank(players[0].addr);
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_EMPTY_BAG, (_mobileUnit0, 2)));
         vm.stopPrank();
 
-        bag = state.getEquipSlot(_mobileUnitAlice, 2);
+        bag = state.getEquipSlot(_mobileUnit0, 2);
         assertEq(bytes4(bag), Kind.Bag.selector, "Expected alice to be equipped with new bag at slot 2");
-        assertEq(state.getOwner(bag), Node.Player(aliceAccount), "Expected the bag to be owned by aliceAccount");
+        assertEq(state.getOwner(bag), Node.Player(players[0].addr), "Expected the bag to be owned by players[0].addr");
     }
 
     function testSpawnEmptyBagOnBuilding() public {
@@ -212,24 +181,24 @@ contract BagRuleTest is Test {
     }
 
     function testFailSpawnEmptyBagOnNonOwnedEntity() public {
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_EMPTY_BAG, (_buildingInstance, 2)));
         vm.stopPrank();
     }
 
     function testFailSpawnEmptyBagOnNonEmptySlot() public {
-        vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_EMPTY_BAG, (_mobileUnitAlice, 0)));
+        vm.startPrank(players[0].addr);
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_EMPTY_BAG, (_mobileUnit0, 0)));
         vm.stopPrank();
     }
 
     function testMakingABagPublic() public {
-        bytes24 bag = state.getEquipSlot(_mobileUnitAlice, 2);
+        bytes24 bag = state.getEquipSlot(_mobileUnit0, 2);
         assertEq(bag, bytes24(0), "Expected no entity to be equipped to alice at slot 2");
 
-        vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_EMPTY_BAG, (_mobileUnitAlice, 2)));
-        bag = state.getEquipSlot(_mobileUnitAlice, 2);
+        vm.startPrank(players[0].addr);
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_EMPTY_BAG, (_mobileUnit0, 2)));
+        bag = state.getEquipSlot(_mobileUnit0, 2);
         dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, bytes24(0))));
         vm.stopPrank();
 
@@ -238,20 +207,20 @@ contract BagRuleTest is Test {
     }
 
     function testFailClaimingAPublicBag() public {
-        bytes24 bag = state.getEquipSlot(_mobileUnitAlice, 2);
+        bytes24 bag = state.getEquipSlot(_mobileUnit0, 2);
         assertEq(bag, bytes24(0), "Expected no entity to be equipped to alice at slot 2");
 
-        vm.startPrank(aliceAccount);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_EMPTY_BAG, (_mobileUnitAlice, 2)));
-        bag = state.getEquipSlot(_mobileUnitAlice, 2);
+        vm.startPrank(players[0].addr);
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_EMPTY_BAG, (_mobileUnit0, 2)));
+        bag = state.getEquipSlot(_mobileUnit0, 2);
         dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, bytes24(0))));
-        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, _mobileUnitAlice)));
+        dispatcher.dispatch(abi.encodeCall(Actions.TRANSFER_BAG_OWNERSHIP, (bag, _mobileUnit0)));
         vm.stopPrank();
     }
 
     // ------------------------------------------------------------------------------------------- //
 
-    function _constructBuilding(address builderAccount, bytes24 mobileUnit) private returns (bytes24) {
+    function _constructBuilding(address builderAccount, bytes24 mobileUnit, int16 q, int16 r, int16 s) private returns (bytes24) {
         // register a building kind
         bytes24 buildingKind = Node.BuildingKind(20);
         string memory buildingName = "hut";
@@ -270,9 +239,6 @@ contract BagRuleTest is Test {
 
         // spawn a mobileUnit
         vm.startPrank(builderAccount);
-        // discover an adjacent tile for our building site
-        (int16 q, int16 r, int16 s) = (1, -1, 0);
-        _discover(q, r, s);
         // get our building and give it the resources to construct
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
         // construct our building
@@ -305,26 +271,9 @@ contract BagRuleTest is Test {
     // 0,0,0 with 100 of each resource in an equiped bag
     function _spawnMobileUnitWithResources() private returns (bytes24) {
         sid++;
-        bytes24 mobileUnit = Node.MobileUnit(sid);
-        _discover(0, 0, 0);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (mobileUnit)));
-        bytes24[] memory items = new bytes24[](3);
-        items[0] = ItemUtils.GlassGreenGoo();
-        items[1] = ItemUtils.BeakerBlueGoo();
-        items[2] = ItemUtils.FlaskRedGoo();
-
-        uint64[] memory balances = new uint64[](3);
-        balances[0] = 100;
-        balances[1] = 100;
-        balances[2] = 100;
-
-        uint64 mobileUnitBag = uint64(uint256(keccak256(abi.encode(mobileUnit))));
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_BAG,
-                (mobileUnitBag, state.getOwnerAddress(mobileUnit), mobileUnit, 0, items, balances)
-            )
-        );
+        dev.spawnTile(0, 0, 0);
+        bytes24 mobileUnit = spawnMobileUnit(sid);
+        dev.spawnFullBag(state.getOwnerAddress(mobileUnit), mobileUnit, 0);
 
         return mobileUnit;
     }
@@ -339,19 +288,6 @@ contract BagRuleTest is Test {
         );
     }
 
-    function _discover(int16 q, int16 r, int16 s) private {
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_TILE,
-                (
-                    BiomeKind.DISCOVERED,
-                    q, // q
-                    r, // r
-                    s // s
-                )
-            )
-        );
-    }
 }
 
 contract MockBuildingKind is BuildingKind {

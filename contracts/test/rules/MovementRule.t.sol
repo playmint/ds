@@ -1,57 +1,28 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "forge-std/Test.sol";
-
-import "cog/IState.sol";
-import "cog/IDispatcher.sol";
-import "cog/IGame.sol";
-
-import {DownstreamGame} from "@ds/Downstream.sol";
-import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
-import {Schema, Node, Rel, LocationKey, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import "../helpers/GameTest.sol";
 
 using Schema for State;
 
 uint32 constant TEST_MOBILE_UNIT_ID = 1;
 
-contract MovementRuleTest is Test {
-    Game internal game;
-    Dispatcher internal dispatcher;
-    State internal state;
-
-    // accounts
-    address aliceAccount;
+contract MovementRuleTest is Test, GameTest {
 
     function setUp() public {
-        // setup users
-        uint256 alicePrivateKey = 0xA11CE;
-        aliceAccount = vm.addr(alicePrivateKey);
-
-        // setup allowlist
-        address[] memory allowlist = new address[](1);
-        allowlist[0] = aliceAccount;
-
-        // setup game
-        game = new DownstreamGame(allowlist);
-        dispatcher = game.getDispatcher();
-
-        // fetch the State to play with
-        state = game.getState();
-
         // discover a star shape of tiles 6-axis from center
         for (int16 i = 0; i < 3; i++) {
-            _discover(0, -i, i);
-            _discover(0, i, -i);
-            _discover(i, 0, -i);
-            _discover(-i, 0, i);
-            _discover(-i, i, 0);
-            _discover(i, -i, 0);
+            dev.spawnTile(0, -i, i);
+            dev.spawnTile(0, i, -i);
+            dev.spawnTile(i, 0, -i);
+            dev.spawnTile(-i, 0, i);
+            dev.spawnTile(-i, i, 0);
+            dev.spawnTile(i, -i, 0);
         }
 
         // place a mobileUnit at 0,0,0
-        vm.startPrank(aliceAccount);
-        game.getDispatcher().dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (Node.MobileUnit(TEST_MOBILE_UNIT_ID))));
+        vm.startPrank(players[0].addr);
+        spawnMobileUnit(TEST_MOBILE_UNIT_ID);
         vm.stopPrank();
     }
 
@@ -81,10 +52,10 @@ contract MovementRuleTest is Test {
 
     // function testMoveWhenMoving() public {
     //     // be alice
-    //     vm.startPrank(aliceAccount);
+    //     vm.startPrank(players[0].addr);
     //     bytes24 mobileUnit = Node.MobileUnit(TEST_MOBILE_UNIT_ID);
     //     // move 2 tiles away
-    //     _tryMoveTo(0, 2, -2);
+    //     moveMobileUnit(TEST_MOBILE_UNIT_ID, 0, 2, -2);
     //     // assuming speed is 1 tile per block
     //     // if we move 1 block forward we should be at (0,1,-1)
     //     // TODO: this test will break if TRAVEL_SPEED changes, fix it!
@@ -96,7 +67,7 @@ contract MovementRuleTest is Test {
     //     );
     //     // try to move away from current location...
     //     // _discover(-1,1,0);
-    //     _tryMoveTo(-1, 1, 0);
+    //     moveMobileUnit(TEST_MOBILE_UNIT_ID, -1, 1, 0);
     //     assertEq(
     //         state.getPrevLocation(mobileUnit), Node.Tile(DEFAULT_ZONE, 0, 1, -1), "expected prev location to now be 0,1,-1"
     //     );
@@ -125,29 +96,35 @@ contract MovementRuleTest is Test {
 
     function testNoMoveNotOwner() public {
         vm.expectRevert("NoMoveNotOwner");
-        _tryMoveTo(0, 1, 1); // should fail without prank
+        moveMobileUnit(TEST_MOBILE_UNIT_ID, 0, 1, 1); // should fail without prank
+        // dispatcher.dispatch(
+        //     abi.encodeCall(
+        //         Actions.MOVE_MOBILE_UNIT,
+        //         ( TEST_MOBILE_UNIT_ID, 0, 1, -1 )
+        //     )
+        // );
     }
 
     function testNoMoveToUndiscovered() public {
-        vm.startPrank(aliceAccount);
+        vm.startPrank(players[0].addr);
         vm.expectRevert("NoMoveToUndiscovered");
-        _tryMoveTo(0, 5, -5);
+        moveMobileUnit(TEST_MOBILE_UNIT_ID, 0, 5, -5);
         vm.stopPrank();
     }
 
     function testNoMoveIndirect() public {
-        vm.startPrank(aliceAccount);
-        _tryMoveTo(0, -2, 2);
+        vm.startPrank(players[0].addr);
+        moveMobileUnit(TEST_MOBILE_UNIT_ID, 0, -2, 2);
         vm.roll(block.number + 100); // resolve the move
         vm.expectRevert("NoMoveToIndirect");
-        _tryMoveTo(1, -1, 0);
+        moveMobileUnit(TEST_MOBILE_UNIT_ID, 1, -1, 0);
         vm.stopPrank();
     }
 
     function _testMoveTo(int16 q, int16 r, int16 s) private {
         // dispatch as alice
-        vm.startPrank(aliceAccount);
-        _tryMoveTo(q, r, s);
+        vm.startPrank(players[0].addr);
+        moveMobileUnit(TEST_MOBILE_UNIT_ID, q, r, s);
 
         bytes24 mobileUnit = Node.MobileUnit(TEST_MOBILE_UNIT_ID);
 
@@ -176,31 +153,4 @@ contract MovementRuleTest is Test {
         vm.stopPrank();
     }
 
-    function _discover(int16 q, int16 r, int16 s) private {
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_TILE,
-                (
-                    BiomeKind.DISCOVERED,
-                    q, // q
-                    r, // r
-                    s // s
-                )
-            )
-        );
-    }
-
-    function _tryMoveTo(int16 q, int16 r, int16 s) private {
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.MOVE_MOBILE_UNIT,
-                (
-                    TEST_MOBILE_UNIT_ID, // mobileUnit id (sid)
-                    q, // q
-                    r, // r
-                    s // s
-                )
-            )
-        );
-    }
 }

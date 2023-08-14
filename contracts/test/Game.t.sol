@@ -1,61 +1,22 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "forge-std/Test.sol";
-
-import "cog/IState.sol";
+import "./helpers/GameTest.sol";
 import {LibString} from "cog/utils/LibString.sol";
-import {PREFIX_MESSAGE, REVOKE_MESSAGE} from "cog/BaseRouter.sol";
-
-import {DownstreamGame} from "@ds/Downstream.sol";
-import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
-import {Schema, Node} from "@ds/schema/Schema.sol";
 
 using Schema for State;
 
-contract GameTest is Test {
-    DownstreamGame internal game;
-    State internal state;
-
-    // accounts
-    uint256 alicePrivateKey;
-    address aliceAccount;
-
-    function setUp() public {
-        // setup users
-        alicePrivateKey = 0xA11CE;
-        aliceAccount = vm.addr(alicePrivateKey);
-
-        // setup allowlist
-        address[] memory allowlist = new address[](1);
-        allowlist[0] = aliceAccount;
-
-        // setup game
-        game = new DownstreamGame(allowlist);
-
-        // fetch the State to play with
-        state = game.getState();
-    }
+contract DownstreamTest is Test, GameTest {
 
     function testSpawn() public {
-        // dispatch as alice
-        vm.startPrank(aliceAccount);
-
         // spawn a tile
-        game.getDispatcher().dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_TILE,
-                (
-                    BiomeKind.DISCOVERED,
-                    1, // q
-                    -2, // r
-                    1 // s
-                )
-            )
-        );
+        dev.spawnTile( 1, -2, 1);
+
+        // dispatch as alice
+        vm.startPrank(players[0].addr);
 
         // spawn a mobileUnit at that tile
-        game.getDispatcher().dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (Node.MobileUnit(1))));
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (Node.MobileUnit(1))));
 
         assertEq(
             state.getCurrentLocation(Node.MobileUnit(1), uint64(block.number)),
@@ -87,7 +48,7 @@ contract GameTest is Test {
 
         // owner signs the message authorizing the session
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(
-            alicePrivateKey,
+            players[0].key,
             keccak256(abi.encodePacked(PREFIX_MESSAGE, LibString.toString(authMessage.length), authMessage))
         );
         bytes memory sig = abi.encodePacked(r, s, v);
@@ -109,6 +70,6 @@ contract GameTest is Test {
         vm.prank(relayAddr);
         game.getRouter().dispatch(batchedActions, batchedSigs);
         // check the action created mobileUnit with correct owner
-        assertEq(state.getOwnerAddress(mobileUnit), aliceAccount);
+        assertEq(state.getOwnerAddress(mobileUnit), players[0].addr);
     }
 }
