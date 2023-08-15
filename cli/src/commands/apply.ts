@@ -25,6 +25,11 @@ const encodePluginID = ({ name }) => {
     return CompoundKeyEncoder.encodeUint160(NodeSelectors.ClientPlugin, id);
 };
 
+// TODO: Is there a way of referencing the Solidity enum?
+const getBuildingCategoryEnum = (category: string): number => {
+    return ['none', 'blocker', 'extractor', 'factory', 'custom'].indexOf(category);
+};
+
 const buildingKindDeploymentActions = async (
     ctx,
     file: ReturnType<typeof ManifestDocument.parse>,
@@ -84,11 +89,57 @@ const buildingKindDeploymentActions = async (
     // pick kind id
     const id = encodeBuildingKindID(spec);
 
+    const buildingCategoryEnum = getBuildingCategoryEnum(spec.category);
+    if (buildingCategoryEnum === -1) {
+        throw new Error(`building category '${spec.category}' does not exist on enum`);
+    }
+
+    let inputItems: string[] = [];
+    let inputQtys: number[] = [];
+    let outputItems: string[] = [];
+    let outputQtys: number[] = [];
+
+    if (spec.category == 'factory') {
+        if (!Array.isArray(spec.outputs) || spec.outputs.length !== 1) {
+            throw new Error('crafting recipe must specify exactly 1 output');
+        }
+        if (!Array.isArray(spec.inputs) || spec.inputs.length === 0) {
+            throw new Error('crafting recipe must specify at least 1 input');
+        }
+        const input = encodeSlotConfig(spec.inputs || []);
+        inputItems = input.items;
+        inputQtys = input.quantities;
+
+        const output = encodeSlotConfig(spec.outputs || []);
+        outputItems = output.items;
+        outputQtys = output.quantities;
+    }
+
+    if (spec.category == 'extractor') {
+        if (!Array.isArray(spec.outputs) || spec.outputs.length !== 1) {
+            throw new Error('extractor must specify exactly 1 output');
+        }
+        const output = encodeSlotConfig(spec.outputs || []);
+        outputItems = output.items;
+        outputQtys = output.quantities;
+    }
+
     // register kind + construction materials
     const { items: materialItems, quantities: materialQtys } = encodeSlotConfig(spec.materials);
     ops.push({
         name: 'REGISTER_BUILDING_KIND',
-        args: [id, spec.name, materialItems, materialQtys],
+        args: [
+            id,
+            spec.name,
+            buildingCategoryEnum,
+            spec.model,
+            materialItems,
+            materialQtys,
+            inputItems,
+            inputQtys,
+            outputItems,
+            outputQtys,
+        ],
     });
 
     // compile and deploy an implementation if given
@@ -116,29 +167,6 @@ const buildingKindDeploymentActions = async (
             args: [pluginID, id, spec.name, js],
         });
     }
-
-    // register crafting recipe if given
-    if (spec.category == 'factory') {
-        if (!Array.isArray(spec.outputs) || spec.outputs.length !== 1) {
-            throw new Error('crafting recipe must specify exactly 1 output');
-        }
-        if (!Array.isArray(spec.inputs) || spec.inputs.length === 0) {
-            throw new Error('crafting recipe must specify at least 1 input');
-        }
-        const { items: inputItems, quantities: inputQtys } = encodeSlotConfig(spec.inputs || []);
-        const { items: outputItems, quantities: outputQtys } = encodeSlotConfig(spec.outputs || []);
-        ops.push({
-            name: 'REGISTER_CRAFT_RECIPE',
-            args: [id, inputItems, inputQtys, outputItems[0], outputQtys[0]],
-        });
-    }
-
-    // set the model annotation
-    // TODO: remove once extractor stuff is in
-    ops.push({
-        name: 'DEV_SET_MODEL',
-        args: [id, spec.model],
-    });
 
     return ops;
 };

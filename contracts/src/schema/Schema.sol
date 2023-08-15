@@ -53,7 +53,8 @@ enum BuildingCategory {
     NONE,
     BLOCKER,
     EXTRACTOR,
-    ITEM_FACTORY
+    ITEM_FACTORY,
+    CUSTOM
 }
 
 int16 constant DEFAULT_ZONE = 0;

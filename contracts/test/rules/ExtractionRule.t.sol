@@ -1,29 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "forge-std/Test.sol";
+import "../helpers/GameTest.sol";
 
-import {Game} from "cog/IGame.sol";
-import {State, AnnotationKind} from "cog/IState.sol";
-import {Dispatcher} from "cog/IDispatcher.sol";
-
-import {DownstreamGame} from "@ds/Downstream.sol";
-import {Actions} from "@ds/actions/Actions.sol";
-import {
-    Schema,
-    Node,
-    Rel,
-    LocationKey,
-    BiomeKind,
-    BuildingCategory,
-    GOO_GREEN,
-    GOO_BLUE,
-    GOO_RED,
-    DEFAULT_ZONE,
-    BLOCK_TIME_SECS
-} from "@ds/schema/Schema.sol";
-import {ItemUtils} from "@ds/utils/ItemUtils.sol";
-import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 import {GOO_PER_SEC, GOO_RESERVOIR_MAX} from "@ds/rules/ExtractionRule.sol";
 
 using Schema for State;
@@ -38,11 +17,7 @@ contract MockCraftBuildingContract {
     function use(Game, /*ds*/ bytes24, /*buildingInstance*/ bytes24, /*mobileUnit*/ bytes memory /*payload*/ ) public {}
 }
 
-contract ExtractionRuleTest is Test {
-    Game internal game;
-    Dispatcher internal dispatcher;
-    State internal state;
-
+contract ExtractionRuleTest is Test, GameTest {
     uint64 sid;
 
     // accounts
@@ -54,24 +29,14 @@ contract ExtractionRuleTest is Test {
     MockCraftBuildingContract mockBuildingContract;
 
     function setUp() public {
-        // setup players
-        uint256 alicePrivateKey = 0xA11CE;
-        aliceAccount = vm.addr(alicePrivateKey);
+        aliceAccount = players[0].addr;
 
-        // setup allowlist
-        address[] memory allowlist = new address[](1);
-        allowlist[0] = aliceAccount;
-
-        // setup game
-        game = new DownstreamGame(allowlist);
-        dispatcher = game.getDispatcher();
-
-        // fetch the State to play with
-        state = game.getState();
+        dev.spawnTile(0, 0, 0);
+        dev.spawnTile(-1, 1, 0);
 
         // mobileUnits
         vm.startPrank(aliceAccount);
-        aliceMobileUnit = _spawnMobileUnitWithResources(0, 0, 0);
+        aliceMobileUnit = spawnMobileUnit(1);
         // setup a mock building instance owned by alice
         mockBuildingContract = new MockCraftBuildingContract();
         mockBuildingKind = _registerBuildingKind(1001, address(mockBuildingContract));
@@ -144,8 +109,8 @@ contract ExtractionRuleTest is Test {
         dispatcher.dispatch(abi.encodeCall(Actions.EXTRACT, (buildingInstance)));
         vm.stopPrank();
 
-        // check that output item now exists in outputBag slot 0
-        bytes24 outputBag = state.getEquipSlot(buildingInstance, 0);
+        // check that output item now exists in outputBag slot 1
+        bytes24 outputBag = state.getEquipSlot(buildingInstance, 1);
         (bytes24 expItem, uint64 expBalance) = state.getOutput(mockBuildingKind, 0);
         (bytes24 gotItem, uint64 gotBalance) = state.getItemSlot(outputBag, 0);
         assertEq(gotItem, expItem, "expected output slot to contain expected output item");
@@ -159,47 +124,6 @@ contract ExtractionRuleTest is Test {
             reservoirAtoms[GOO_GREEN],
             GOO_RESERVOIR_MAX - outputItemAtoms[GOO_GREEN] * expBalance,
             "expected total atomic value of output items to be taken from reservoir"
-        );
-    }
-
-    // _spawnMobileUnitWithResources spawns a mobileUnit for the current sender at
-    // 0,0,0 with 100 of each resource in an equiped bag
-    function _spawnMobileUnitWithResources(uint64 g, uint64 b, uint64 r) private returns (bytes24) {
-        sid++;
-        bytes24 mobileUnit = Node.MobileUnit(sid);
-        _discover(0, 0, 0);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (mobileUnit)));
-        bytes24[] memory items = new bytes24[](3);
-        items[0] = ItemUtils.GlassGreenGoo();
-        items[1] = ItemUtils.BeakerBlueGoo();
-        items[2] = ItemUtils.FlaskRedGoo();
-
-        uint64[] memory balances = new uint64[](3);
-        balances[0] = g;
-        balances[1] = b;
-        balances[2] = r;
-
-        uint64 mobileUnitBag = uint64(uint256(keccak256(abi.encode(mobileUnit))));
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_BAG,
-                (mobileUnitBag, state.getOwnerAddress(mobileUnit), mobileUnit, 0, items, balances)
-            )
-        );
-
-        return mobileUnit;
-    }
-
-    function _transferItem(
-        bytes24 mobileUnit,
-        bytes24[2] memory equipees,
-        uint8[2] memory equipSlots,
-        uint8[2] memory itemSlots,
-        bytes24 bagID,
-        uint64 qty
-    ) private {
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.TRANSFER_ITEM_MOBILE_UNIT, (mobileUnit, equipees, equipSlots, itemSlots, bagID, qty))
         );
     }
 
@@ -227,7 +151,7 @@ contract ExtractionRuleTest is Test {
                     uid,
                     buildingName,
                     BuildingCategory.EXTRACTOR,
-                    "model-name",
+                    "green",
                     defaultMaterialItem,
                     defaultMaterialQty,
                     inputItemIDs,
@@ -241,27 +165,11 @@ contract ExtractionRuleTest is Test {
         return buildingKind;
     }
 
-    function _discover(int16 q, int16 r, int16 s) private {
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_TILE,
-                (
-                    BiomeKind.DISCOVERED,
-                    q, // q
-                    r, // r
-                    s // s
-                )
-            )
-        );
-    }
-
     // _constructCraftingBuilding sets up and constructs a crafting building that
     function _constructBuildingInstance(bytes24 buildingKind, bytes24 mobileUnit, int16 q, int16 r, int16 s)
         private
         returns (bytes24 buildingInstance)
     {
-        // discover an adjacent tile for our building site
-        _discover(q, r, s);
         // get our building and give it the resources to construct
         buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
         // magic 100 items into the construct slot
