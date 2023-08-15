@@ -1,6 +1,7 @@
 using UnityEngine;
 using Newtonsoft.Json;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -194,8 +195,9 @@ namespace Cog
                 return;
             }
 
-            Debug.Log($"GameStateMediator:NodeProcessThread() Starting DownstreamBridge \nNodePath: {DownstreamDevSettings.instance.NodePath} \nPrivKey: {DownstreamDevSettings.instance.PrivateKey}");
+            var cwd = Directory.GetParent(Directory.GetParent(Directory.GetCurrentDirectory()).FullName).FullName;
 
+            Debug.Log($"GameStateMediator:NodeProcessThread() Starting DownstreamBridge: {_nodePath} {_npxPath} -y -g @playmint/ds-cli -n {_network} -k {_privateKey} unity-bridge ..... in {cwd}");
             _nodeJSProcess = new System.Diagnostics.Process
             {
                 StartInfo = new System.Diagnostics.ProcessStartInfo
@@ -205,6 +207,8 @@ namespace Cog
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardInput = true,
+                    RedirectStandardError = false,
+                    WorkingDirectory = cwd,
                     CreateNoWindow = true
                 }
             };
