@@ -25,8 +25,8 @@ RUN forge build
 # install ds-cli
 WORKDIR /
 COPY package*.json ./
-COPY cli /cli
-COPY core /core
+COPY cli ./cli
+COPY core ./core
 RUN npm ci \
     && npm run build -w core \
     && npm run build -w cli \
