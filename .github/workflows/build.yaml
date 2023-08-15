@@ -213,7 +213,8 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v3
       with:
-        context: contracts
+        context: .
+        file: contracts/Dockerfile
         push: true
         tags: ${{ steps.docker_tagging.outputs.docker_tags }}
         labels: ${{ steps.meta.outputs.labels }}
