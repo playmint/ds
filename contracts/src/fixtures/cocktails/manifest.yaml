@@ -14,7 +14,7 @@ kind: BuildingKind
 spec:
   name: Cocktail Hut
   category: factory
-  model: 01-02
+  model: 01-08
   contract:
     file: ./CocktailHut.sol
   plugin:
