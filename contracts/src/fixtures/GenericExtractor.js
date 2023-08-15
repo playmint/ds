@@ -103,10 +103,13 @@ export default function update({ selected, world }) {
         .slice(-3);
 
     const gooIndex = outItemAtomVals.findIndex((gooVal) => gooVal > 0n);
-    const gooCost = BigInt(out0.balance) * outItemAtomVals[gooIndex];
+    const gooCost = Number(BigInt(out0.balance) * outItemAtomVals[gooIndex]);
+    const numberOfItems = Math.floor(
+        extractedGoo[gooIndex] / Number(outItemAtomVals[gooIndex])
+    );
 
     // TODO: enable when there is enough goo in the reservoir
-    const canExtract = gooCost <= BigInt(extractedGoo[gooIndex]);
+    const canExtract = gooCost <= extractedGoo[gooIndex];
 
     const extract = () => {
         if (!selectedEngineer) {
@@ -149,15 +152,13 @@ export default function update({ selected, world }) {
                             },
                         ],
                         html: `
-                            <p>Extraction block: ${
-                                selectedBuilding.timestamp[0].blockNum
-                            }</p>
-                            <p>Current block: ${world.block}</p>
-                            <h3>Reservoir</h3>
-                            <p>${Math.floor(
+                            <p>Reservoir is ${Math.floor(
                                 (extractedGoo[gooIndex] / GOO_RESERVOIR_MAX) *
                                     100
                             )}% full</p>
+                            <p>Extracted ${numberOfItems} x ${
+                            out0.item.name.value
+                        }</p>
                         `,
                     },
                 ],
