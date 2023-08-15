@@ -28,6 +28,7 @@ import {
 import React, { Fragment, FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { styles } from './action-context-panel.styles';
+import { isExtractor } from '@app/helpers/building';
 
 export interface ActionContextPanelProps extends ComponentProps {
     onShowCombatModal?: (isNewSession: boolean) => void;
@@ -233,6 +234,7 @@ interface ConstructProps {
 const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUnit, player, selectIntent }) => {
     const [selectedKindRaw, selectKind] = useState<undefined | BuildingKindFragment>();
     const [showAllKinds, setShowAllKinds] = useState<boolean>(false);
+    const [showExtractors, setShowExtractors] = useState<boolean>(true);
 
     const selectedTile = selectedTiles.find(() => true);
     const selectedTileIsAdjacent =
@@ -255,7 +257,10 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
     const playerKinds = constructableKinds.filter((kind) => kind.owner?.id === player?.id);
     const otherKinds = constructableKinds
         .filter((kind) => kind.owner?.id !== player?.id)
-        .filter((kind) => kind.model?.value !== 'story-building');
+        .filter((kind) => kind.model?.value !== 'story-building' && !isExtractor(kind));
+    const extractorKinds = constructableKinds
+        .filter((kind) => kind.owner?.id !== player?.id)
+        .filter((kind) => isExtractor(kind));
     const selectedKind = selectedKindRaw;
 
     const onChangeSelectedKind = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -269,14 +274,17 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
         if (!selectedKind) {
             return;
         }
-        const selectableKinds = playerKinds.concat(otherKinds);
+        const selectableKinds = playerKinds.concat(otherKinds).concat(extractorKinds);
         if (!selectableKinds.some((kind) => kind.id === selectedKind.id)) {
             selectKind(undefined);
         }
         if (otherKinds.some((kind) => kind.id === selectedKind.id) && !showAllKinds) {
             selectKind(undefined);
         }
-    }, [selectedKind, showAllKinds, selectKind, otherKinds, playerKinds]);
+        if (extractorKinds.some((kind) => kind.id === selectedKind.id) && !showExtractors) {
+            selectKind(undefined);
+        }
+    }, [selectedKind, showAllKinds, selectKind, otherKinds, playerKinds, extractorKinds, showExtractors]);
 
     const clearIntent = useCallback(
         (e?: React.MouseEvent) => {
@@ -364,6 +372,19 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
                                         </option>
                                     )}
                                 </optgroup>
+                                <optgroup label="Extractors">
+                                    {showExtractors ? (
+                                        extractorKinds.map((k) => (
+                                            <option key={k.id} value={k.id}>
+                                                {k.name?.value || k.id}
+                                            </option>
+                                        ))
+                                    ) : (
+                                        <option key="other" disabled={true}>
+                                            {extractorKinds.length} extractors hidden
+                                        </option>
+                                    )}
+                                </optgroup>
                                 <optgroup label="Other kinds">
                                     {showAllKinds ? (
                                         otherKinds.map((k) => (
@@ -383,10 +404,18 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
                             <label>
                                 <input
                                     type="checkbox"
+                                    checked={showExtractors}
+                                    onChange={() => setShowExtractors((prev) => !prev)}
+                                />
+                                Show extractors
+                            </label>
+                            <label>
+                                <input
+                                    type="checkbox"
                                     checked={showAllKinds}
                                     onChange={() => setShowAllKinds((prev) => !prev)}
                                 />
-                                Show all
+                                Show all other
                             </label>
                         </div>
                         {buildingId && (
