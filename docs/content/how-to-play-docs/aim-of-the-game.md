@@ -1,3 +1,7 @@
+---
+sidebar_position: 1
+---
+
 # Aim of the Game
 
 Although access to this early version of *****Downstream***** is primarily to see what creators can (or can’t) do with our game, we have created a simple quest to get the party started

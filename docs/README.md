@@ -1,24 +1,43 @@
-![](./images/docs-header.png)
+# Downstream Docs
 
-# How To Play
+The downstream docs website is built using [Docusaurus 2](https://docusaurus.io/).
 
-1. [Aim of the Game](./how-to-play-docs/aim-of-the-game.md)
-2. [Game Controls](./how-to-play-docs/game-controls.md)
-3. [Combat](./how-to-play-docs/combat.md)
-   
-# How to Create
+The documentation content is written in markdown in the docs/ folder.
 
-1. [Developing a New Building](./how-to-create-docs/developing-a-new-building.md)
-2. [Creating New Items](./how-to-create-docs/creating-new-items.md)
-3. [Example Javacript Functionality](./how-to-create-docs/example-javascript-functionality.md)
-   
-# Code Docs
-## Overview
+### Installation
 
-1. [Extending Downstream with Buildings](./code-docs/extending-downstream.md)
+```
+$ yarn
+```
 
-## API 
+### Local Development
 
+```
+$ yarn start
+```
 
-1. [Solidity](./code-docs/plugin-solidity.md)
-3. [Javascript](./code-docs/plugin-javascript.md)
+This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
+
+### Build
+
+```
+$ yarn build
+```
+
+This command generates static content into the `build` directory and can be served using any static contents hosting service.
+
+### Deployment
+
+Using SSH:
+
+```
+$ USE_SSH=true yarn deploy
+```
+
+Not using SSH:
+
+```
+$ GIT_USER=<Your GitHub username> yarn deploy
+```
+
+If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
