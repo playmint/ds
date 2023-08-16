@@ -104,10 +104,11 @@ const buildingKindDeploymentActions = async (
     }
 
     // input / output items
-    let inputItems: string[] = [];
-    let inputQtys: number[] = [];
-    let outputItems: string[] = [];
-    let outputQtys: number[] = [];
+    const null24bytes = '0x000000000000000000000000000000000000000000000000';
+    let inputItems: string[] = [null24bytes, null24bytes, null24bytes, null24bytes];
+    let inputQtys: number[] = [0, 0, 0, 0];
+    let outputItems: string[] = [null24bytes];
+    let outputQtys: number[] = [0];
 
     if (spec.category == 'factory') {
         if (!Array.isArray(spec.outputs) || spec.outputs.length !== 1) {
