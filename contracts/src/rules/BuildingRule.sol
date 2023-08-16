@@ -16,7 +16,7 @@ import {ItemKind} from "@ds/ext/ItemKind.sol";
 using Schema for State;
 
 struct BuildingKindCfg {
-    uint32 id;
+    bytes24 buildingKind;
     string name;
     BuildingCategory category;
     string model;
@@ -38,7 +38,7 @@ contract BuildingRule is Rule {
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.REGISTER_BUILDING_KIND.selector) {
             (
-                uint32 id,
+                bytes24 buildingKind,
                 string memory name,
                 BuildingCategory category,
                 string memory model,
@@ -51,7 +51,7 @@ contract BuildingRule is Rule {
             ) = abi.decode(
                 action[4:],
                 (
-                    uint32,
+                    bytes24,
                     string,
                     BuildingCategory,
                     string,
@@ -67,7 +67,7 @@ contract BuildingRule is Rule {
                 state,
                 ctx,
                 BuildingKindCfg(
-                    id,
+                    buildingKind,
                     name,
                     category,
                     model,
@@ -130,15 +130,14 @@ contract BuildingRule is Rule {
 
     function _registerBuildingKind(State state, Context calldata ctx, BuildingKindCfg memory cfg) private {
         bytes24 player = Node.Player(ctx.sender);
-        bytes24 buildingKind = Node.BuildingKind(cfg.id, cfg.category);
         // set owner of the building kind
-        bytes24 existingOwner = state.getOwner(buildingKind);
+        bytes24 existingOwner = state.getOwner(cfg.buildingKind);
         if (existingOwner != 0x0 && existingOwner != player) {
             revert("BuildingAlreadyRegistered");
         }
-        state.setOwner(buildingKind, player);
-        state.annotate(buildingKind, "name", cfg.name);
-        state.annotate(buildingKind, "model", cfg.model);
+        state.setOwner(cfg.buildingKind, player);
+        state.annotate(cfg.buildingKind, "name", cfg.name);
+        state.annotate(cfg.buildingKind, "model", cfg.model);
 
         // min construction cost
         {
@@ -166,10 +165,10 @@ contract BuildingRule is Rule {
         }
 
         // store the construction materials recipe
-        state.setMaterial(buildingKind, 0, cfg.materialItem[0], cfg.materialQty[0]);
-        state.setMaterial(buildingKind, 1, cfg.materialItem[1], cfg.materialQty[1]);
-        state.setMaterial(buildingKind, 2, cfg.materialItem[2], cfg.materialQty[2]);
-        state.setMaterial(buildingKind, 3, cfg.materialItem[3], cfg.materialQty[3]);
+        state.setMaterial(cfg.buildingKind, 0, cfg.materialItem[0], cfg.materialQty[0]);
+        state.setMaterial(cfg.buildingKind, 1, cfg.materialItem[1], cfg.materialQty[1]);
+        state.setMaterial(cfg.buildingKind, 2, cfg.materialItem[2], cfg.materialQty[2]);
+        state.setMaterial(cfg.buildingKind, 3, cfg.materialItem[3], cfg.materialQty[3]);
 
         // -- Category specific calls
 
@@ -178,7 +177,7 @@ contract BuildingRule is Rule {
             _registerRecipe(
                 state,
                 player, // TODO: If were never going to update recipes externally to registration this param is pointless
-                buildingKind,
+                cfg.buildingKind,
                 cfg.inputItemIDs,
                 cfg.inputItemQtys,
                 cfg.outputItemIDs[0],
@@ -187,7 +186,7 @@ contract BuildingRule is Rule {
         }
 
         if (cfg.category == BuildingCategory.EXTRACTOR) {
-            _setExtractionProperties(state, buildingKind, cfg.outputItemIDs[0], cfg.outputItemQtys[0]);
+            _setExtractionProperties(state, cfg.buildingKind, cfg.outputItemIDs[0], cfg.outputItemQtys[0]);
         }
     }
 

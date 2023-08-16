@@ -27,7 +27,7 @@ struct Output {
 }
 
 struct BuildingConfig {
-    uint32 id;
+    bytes24 buildingKind;
     string name;
     BuildingCategory category;
     string model;
@@ -66,7 +66,7 @@ library BuildingUtils {
             abi.encodeCall(
                 Actions.REGISTER_BUILDING_KIND,
                 (
-                    cfg.id,
+                    cfg.buildingKind,
                     cfg.name,
                     cfg.category,
                     cfg.model,
@@ -80,25 +80,28 @@ library BuildingUtils {
             )
         );
 
-        bytes24 buildingKind = Node.BuildingKind(cfg.id, cfg.category);
-
         // Implementation
         if (address(cfg.implementation) != address(0)) {
             dispatcher.dispatch(
-                abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (buildingKind, address(cfg.implementation)))
+                abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (cfg.buildingKind, address(cfg.implementation)))
             );
         }
 
         // Plugin
+        (uint64 id, /*BuildingCategory category*/ ) = getBuildingKindInfo(cfg.buildingKind);
         if (abi.encodePacked(cfg.plugin).length != 0) {
             dispatcher.dispatch(
                 abi.encodeCall(
-                    Actions.REGISTER_KIND_PLUGIN,
-                    (Node.ClientPlugin(uint64(cfg.id)), buildingKind, cfg.name, cfg.plugin)
+                    Actions.REGISTER_KIND_PLUGIN, (Node.ClientPlugin(id), cfg.buildingKind, cfg.name, cfg.plugin)
                 )
             );
         }
 
-        return buildingKind;
+        return cfg.buildingKind;
+    }
+
+    function getBuildingKindInfo(bytes24 buildingKind) internal pure returns (uint64 id, BuildingCategory category) {
+        id = uint64(uint192(buildingKind) >> 64 & type(uint64).max);
+        category = BuildingCategory(uint64(uint192(buildingKind) & type(uint64).max));
     }
 }

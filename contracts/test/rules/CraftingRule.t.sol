@@ -279,7 +279,7 @@ contract CraftingRuleTest is Test, GameTest {
             abi.encodeCall(
                 Actions.REGISTER_BUILDING_KIND,
                 (
-                    uid,
+                    buildingKind,
                     buildingName,
                     BuildingCategory.ITEM_FACTORY,
                     "",

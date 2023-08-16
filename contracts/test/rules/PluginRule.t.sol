@@ -39,8 +39,7 @@ contract PluginRuleTest is Test, GameTest {
         defaultMaterialQty[1] = 25;
         defaultMaterialQty[2] = 25;
 
-        uint32 buildingKindID = 20;
-        bytes24 buildingKind = Node.BuildingKind(buildingKindID);
+        bytes24 buildingKind = Node.BuildingKind(20);
         string memory buildingName = "hut";
         bytes24[4] memory inputItemIDs;
         uint64[4] memory inputQtys;
@@ -48,7 +47,7 @@ contract PluginRuleTest is Test, GameTest {
             abi.encodeCall(
                 Actions.REGISTER_BUILDING_KIND,
                 (
-                    buildingKindID,
+                    buildingKind,
                     buildingName,
                     BuildingCategory.NONE,
                     "",
@@ -90,8 +89,7 @@ contract PluginRuleTest is Test, GameTest {
     function testPluginOwnerNotTargetOwner() public {
         // alice registers a building kind
         vm.startPrank(players[0].addr);
-        uint32 buildingKindID = 30;
-        bytes24 buildingKind = Node.BuildingKind(buildingKindID);
+        bytes24 buildingKind = Node.BuildingKind(30);
         bytes24[4] memory defaultMaterialItem;
         defaultMaterialItem[0] = ItemUtils.GlassGreenGoo();
         defaultMaterialItem[1] = ItemUtils.BeakerBlueGoo();
@@ -107,7 +105,7 @@ contract PluginRuleTest is Test, GameTest {
             abi.encodeCall(
                 Actions.REGISTER_BUILDING_KIND,
                 (
-                    buildingKindID,
+                    buildingKind,
                     buildingName,
                     BuildingCategory.NONE,
                     "",

@@ -148,7 +148,7 @@ contract ExtractionRuleTest is Test, GameTest {
             abi.encodeCall(
                 Actions.REGISTER_BUILDING_KIND,
                 (
-                    uid,
+                    buildingKind,
                     buildingName,
                     BuildingCategory.EXTRACTOR,
                     "green",

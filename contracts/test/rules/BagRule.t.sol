@@ -234,7 +234,7 @@ contract BagRuleTest is Test, GameTest {
             abi.encodeCall(
                 Actions.REGISTER_BUILDING_KIND,
                 (
-                    20,
+                    buildingKind,
                     buildingName,
                     BuildingCategory.NONE,
                     "",

@@ -3,7 +3,14 @@ import { id as keccak256UTF8, solidityPacked } from 'ethers';
 import fs from 'fs';
 import glob from 'glob';
 import path from 'path';
-import { ItemSpec, ManifestDocument, Slot, readManifestsDocumentsSync } from '../utils/manifest';
+import {
+    ItemSpec,
+    ManifestDocument,
+    Slot,
+    readManifestsDocumentsSync,
+    BuildingCategoryEnumVals,
+    BuildingCategoryEnum,
+} from '../utils/manifest';
 import { compile } from '../utils/solidity';
 import { getManifestsByKind } from './get';
 
@@ -15,9 +22,10 @@ const encodeItemID = ({ name, stackable, goo }: ReturnType<typeof ItemSpec.parse
     );
 };
 
-const encodeBuildingKindID = ({ name }) => {
+const encodeBuildingKindID = ({ name, category }) => {
     const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`building/${name}`))));
-    return CompoundKeyEncoder.encodeUint160(NodeSelectors.BuildingKind, id);
+    const categoryEnum = getBuildingCategoryEnum(category);
+    return solidityPacked(['bytes4', 'uint32', 'uint64', 'uint64'], [NodeSelectors.BuildingKind, 0, id, categoryEnum]);
 };
 
 const encodePluginID = ({ name }) => {
@@ -26,8 +34,8 @@ const encodePluginID = ({ name }) => {
 };
 
 // TODO: Is there a way of referencing the Solidity enum?
-const getBuildingCategoryEnum = (category: string): number => {
-    return ['none', 'blocker', 'extractor', 'factory', 'custom'].indexOf(category);
+const getBuildingCategoryEnum = (category: BuildingCategoryEnum): number => {
+    return BuildingCategoryEnumVals.indexOf(category);
 };
 
 const buildingKindDeploymentActions = async (
@@ -89,11 +97,13 @@ const buildingKindDeploymentActions = async (
     // pick kind id
     const id = encodeBuildingKindID(spec);
 
+    // convert category string to Solidity enum
     const buildingCategoryEnum = getBuildingCategoryEnum(spec.category);
     if (buildingCategoryEnum === -1) {
         throw new Error(`building category '${spec.category}' does not exist on enum`);
     }
 
+    // input / output items
     let inputItems: string[] = [];
     let inputQtys: number[] = [];
     let outputItems: string[] = [];
@@ -106,25 +116,28 @@ const buildingKindDeploymentActions = async (
         if (!Array.isArray(spec.inputs) || spec.inputs.length === 0) {
             throw new Error('crafting recipe must specify at least 1 input');
         }
+
         const input = encodeSlotConfig(spec.inputs || []);
         inputItems = input.items;
         inputQtys = input.quantities;
 
         const output = encodeSlotConfig(spec.outputs || []);
-        outputItems = output.items;
-        outputQtys = output.quantities;
+        outputItems = output.items.slice(0, 1);
+        outputQtys = output.quantities.slice(0, 1);
     }
 
     if (spec.category == 'extractor') {
         if (!Array.isArray(spec.outputs) || spec.outputs.length !== 1) {
             throw new Error('extractor must specify exactly 1 output');
         }
+
         const output = encodeSlotConfig(spec.outputs || []);
-        outputItems = output.items;
-        outputQtys = output.quantities;
+        outputItems = output.items.slice(0, 1);
+        outputQtys = output.quantities.slice(0, 1);
     }
 
     // register kind + construction materials
+    console.log(`Registering: ${spec.name}`);
     const { items: materialItems, quantities: materialQtys } = encodeSlotConfig(spec.materials);
     ops.push({
         name: 'REGISTER_BUILDING_KIND',

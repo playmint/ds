@@ -33,8 +33,7 @@ contract BuildingRuleTest is Test, GameTest {
 
     function testConstructBuilding() public {
         // register a building kind
-        uint32 buildingKindID = 20;
-        bytes24 buildingKind = Node.BuildingKind(buildingKindID);
+        bytes24 buildingKind = Node.BuildingKind(20);
         string memory buildingName = "hut";
         bytes24[4] memory inputItemIDs;
         uint64[4] memory inputQtys;
@@ -46,7 +45,7 @@ contract BuildingRuleTest is Test, GameTest {
             abi.encodeCall(
                 Actions.REGISTER_BUILDING_KIND,
                 (
-                    buildingKindID,
+                    buildingKind,
                     buildingName,
                     BuildingCategory.NONE,
                     "",
@@ -92,8 +91,7 @@ contract BuildingRuleTest is Test, GameTest {
     function testConstructFailPayment() public {
         vm.startPrank(players[0].addr);
         // register a building kind
-        uint32 buildingKindID = 25;
-        bytes24 buildingKind = Node.BuildingKind(buildingKindID);
+        bytes24 buildingKind = Node.BuildingKind(25);
         string memory buildingName = "hut";
         bytes24[4] memory inputItemIDs;
         uint64[4] memory inputQtys;
@@ -102,7 +100,7 @@ contract BuildingRuleTest is Test, GameTest {
             abi.encodeCall(
                 Actions.REGISTER_BUILDING_KIND,
                 (
-                    buildingKindID,
+                    buildingKind,
                     buildingName,
                     BuildingCategory.NONE,
                     "",
@@ -140,7 +138,7 @@ contract BuildingRuleTest is Test, GameTest {
         materials[0] = Node.Item("non-stackable-ball", [uint32(20), uint32(20), uint32(20)], false);
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (materials[0], "non-stackable-ball", "00-00")));
         // register a building kind
-        uint32 buildingKindID = 25;
+        bytes24 buildingKind = Node.BuildingKind(25);
         string memory buildingName = "hut";
         bytes24[4] memory inputItemIDs;
         uint64[4] memory inputQtys;
@@ -150,7 +148,7 @@ contract BuildingRuleTest is Test, GameTest {
             abi.encodeCall(
                 Actions.REGISTER_BUILDING_KIND,
                 (
-                    buildingKindID,
+                    buildingKind,
                     buildingName,
                     BuildingCategory.NONE,
                     "",
@@ -176,8 +174,7 @@ contract BuildingRuleTest is Test, GameTest {
 
     function testRegisterBuildingKindContract() public {
         // register a building kind
-        uint32 buildingKindID = 20;
-        bytes24 buildingKind = Node.BuildingKind(buildingKindID);
+        bytes24 buildingKind = Node.BuildingKind(20);
         string memory buildingName = "hut";
         bytes24[4] memory inputItemIDs;
         uint64[4] memory inputQtys;
@@ -185,7 +182,7 @@ contract BuildingRuleTest is Test, GameTest {
             abi.encodeCall(
                 Actions.REGISTER_BUILDING_KIND,
                 (
-                    buildingKindID,
+                    buildingKind,
                     buildingName,
                     BuildingCategory.NONE,
                     "",
@@ -211,8 +208,7 @@ contract BuildingRuleTest is Test, GameTest {
 
     function testUseBuilding() public {
         // register a building kind
-        uint32 buildingKindID = 100;
-        bytes24 buildingKind = Node.BuildingKind(buildingKindID);
+        bytes24 buildingKind = Node.BuildingKind(100);
         string memory buildingName = "hut";
         bytes24[4] memory inputItemIDs;
         uint64[4] memory inputQtys;
@@ -220,7 +216,7 @@ contract BuildingRuleTest is Test, GameTest {
             abi.encodeCall(
                 Actions.REGISTER_BUILDING_KIND,
                 (
-                    buildingKindID,
+                    buildingKind,
                     buildingName,
                     BuildingCategory.NONE,
                     "",
@@ -265,8 +261,7 @@ contract BuildingRuleTest is Test, GameTest {
 
     function _testConstructFailNotAdjacent(int16 q, int16 r, int16 s) private {
         // register a building kind
-        uint32 buildingKindID = 30;
-        bytes24 buildingKind = Node.BuildingKind(buildingKindID);
+        bytes24 buildingKind = Node.BuildingKind(30);
         string memory buildingName = "hut";
         bytes24[4] memory inputItemIDs;
         uint64[4] memory inputQtys;
@@ -274,7 +269,7 @@ contract BuildingRuleTest is Test, GameTest {
             abi.encodeCall(
                 Actions.REGISTER_BUILDING_KIND,
                 (
-                    buildingKindID,
+                    buildingKind,
                     buildingName,
                     BuildingCategory.NONE,
                     "",

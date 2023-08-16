@@ -287,8 +287,7 @@ contract CombatRuleTest is Test, GameTest {
 
     function _constructBuilding() private returns (bytes24) {
         // register a building kind
-        uint32 buildingKindID = 20;
-        bytes24 buildingKind = Node.BuildingKind(buildingKindID);
+        bytes24 buildingKind = Node.BuildingKind(20);
         string memory buildingName = "hut";
         bytes24[4] memory inputItemIDs;
         uint64[4] memory inputQtys;
@@ -296,7 +295,7 @@ contract CombatRuleTest is Test, GameTest {
             abi.encodeCall(
                 Actions.REGISTER_BUILDING_KIND,
                 (
-                    buildingKindID,
+                    buildingKind,
                     buildingName,
                     BuildingCategory.NONE,
                     "",

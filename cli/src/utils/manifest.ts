@@ -2,6 +2,10 @@ import fs from 'fs';
 import { z } from 'zod';
 import YAML from 'yaml';
 
+export const BuildingCategoryEnumVals = ['none', 'blocker', 'extractor', 'factory', 'custom'] as const;
+export const BuildingCategoryEnum = z.enum(BuildingCategoryEnumVals);
+export type BuildingCategoryEnum = z.infer<typeof BuildingCategoryEnum>;
+
 export const ContractSource = z.object({
     file: z.string(),
     includes: z.string().array().optional(), // list of library search paths
@@ -109,6 +113,7 @@ export const BuildingKind = z.object({
 
 export const BuildingSpec = z.object({
     name: Name,
+    category: BuildingCategoryEnum,
     location: Coords,
 });
 
