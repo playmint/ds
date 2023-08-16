@@ -19,36 +19,42 @@ spec:
       priorityClassName: {{ $.Values.priorityClassName | quote }}
       containers:
         - name: services
-          image: {{ printf "ghcr.io/playmint/ds-services:%s-%s" $.Release.Name $.Values.version }}
+          image: {{ printf "ghcr.io/playmint/ds-services:%s" $.Values.version }}
           imagePullPolicy: Always
           env:
             - name: PORT
               value: "8080"
             - name: CHAIN_ID
-              value: "1337"
+              value: {{ $.Values.chainId | quote }}
             - name: SEQUENCER_PRIVATE_KEY
-              value: "095a37ef5b5d87db7fe50551725cb64804c8c554868d3d729c0dd17f0e664c87"
+              value: {{ $.Values.sequencer.privateKey | quote }}
             - name: SEQUENCER_PROVIDER_URL_HTTP
-              value: "http://localhost:8545"
+              value: {{ $.Values.sequencer.providerUrlHttp | quote }}
             - name: SEQUENCER_PROVIDER_URL_WS
-              value: "ws://localhost:8545"
+              value: {{ $.Values.sequencer.providerUrlWs | quote }}
+            - name: SEQUENCER_MINE_EMPTY
+              value: {{ $.Values.sequencer.mineEmpty | quote }}
             - name: SIMULATION_PROVIDER_URL_HTTP
               value: "http://localhost:8546"
             - name: SIMULATION_PROVIDER_URL_WS
               value: "ws://localhost:8546"
             - name: INDEXER_WATCH_PENDING
-              value: "false"
+              value: {{ $.Values.indexer.watchPending | quote }}
             - name: INDEXER_PROVIDER_URL_HTTP
-              value: "http://localhost:8545"
+              value: {{ $.Values.indexer.providerUrlHttp | quote }}
             - name: INDEXER_PROVIDER_URL_WS
-              value: "ws://localhost:8545"
+              value: {{ $.Values.indexer.providerUrlWs | quote }}
+            - name: INDEXER_GAME_ADDRESS
+              value: {{ $.Values.game.address | quote }}
           command: ["/bin/ash"]
           args:
           - -eu
           - -c
           - |
+            {{ if $.Values.anvil.enabled -}}
             echo "waiting"
             /wait-for -it localhost:8545 -t 300
+            {{ end -}}
             echo "starting"
             exec /ds-node
           ports:
@@ -61,8 +67,9 @@ spec:
               port: http
             initialDelaySeconds: 30
             periodSeconds: 5
+        {{ if $.Values.anvil.enabled -}}
         - name: contracts
-          image: {{ printf "ghcr.io/playmint/ds-contracts:%s-%s" $.Release.Name $.Values.version }}
+          image: {{ printf "ghcr.io/playmint/ds-contracts:%s" $.Values.version }}
           imagePullPolicy: Always
           env:
           - name: DEPLOYER_PRIVATE_KEY
@@ -78,15 +85,16 @@ spec:
           volumeMounts:
           - mountPath: "/root/.foundry/anvil/tmp"
             name: contracts-scratch
+        {{ end -}}
         - name: sim
-          image: {{ printf "ghcr.io/playmint/ds-contracts:%s-%s" $.Release.Name $.Values.version }}
+          image: {{ printf "ghcr.io/playmint/ds-contracts:%s" $.Values.version }}
           imagePullPolicy: Always
           command: ["/bin/bash"]
           args:
           - -eu
           - -c
           - |
-            anvil --code-size-limit 9999999999999 --gas-limit 9999999999999999 --port 8546 --fork-url http://localhost:8545 --no-mining --no-rate-limit --no-storage-caching
+            anvil --code-size-limit 9999999999999 --gas-limit 9999999999999999 --port 8546 --fork-url {{ $.Values.sequencer.providerUrlHttp | quote }} --no-mining --no-rate-limit --no-storage-caching
           ports:
             - name: network
               containerPort: 8546
@@ -104,6 +112,7 @@ spec:
               resources:
                 requests:
                   storage: 5Gi
+      {{ if $.Values.anvil.enabled }}
       - name: contracts-scratch
         ephemeral:
           volumeClaimTemplate:
@@ -113,6 +122,22 @@ spec:
               resources:
                 requests:
                   storage: 20Gi
+      {{ end }}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $.Release.Name }}-frontend
+  namespace: {{ $.Release.Namespace }}
+data:
+  config.json: |
+    {
+      "gameID": {{ $.Values.game.address | quote}},
+      "build": {{ $.Values.version | quote }},
+      "wsEndpoint": "wss://services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}/query",
+      "httpEndpoint": "https://services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}/query"
+    }
 
 ---
 apiVersion: apps/v1
@@ -135,12 +160,20 @@ spec:
       priorityClassName: {{ $.Values.priorityClassName | quote }}
       containers:
         - name: frontend
-          image: {{ printf "ghcr.io/playmint/ds-shell:%s-%s" $.Release.Name $.Values.version }}
+          image: {{ printf "ghcr.io/playmint/ds-shell:%s" $.Values.version }}
           imagePullPolicy: Always
           ports:
             - name: http
               containerPort: 80
               protocol: TCP
+          volumeMounts:
+            - mountPath: /usr/share/caddy/config.json
+              name: config
+              subPath: config.json
+      volumes:
+        - name: config
+          configMap:
+            name: {{ $.Release.Name }}-frontend
 
 ---
 apiVersion: v1
@@ -203,6 +236,7 @@ spec:
     recordType: "CNAME"
     targets: ["{{ $.Values.cluster.domain }}"]
 
+{{ if $.Values.anvil.enabled }}
 ---
 apiVersion: externaldns.k8s.io/v1alpha1
 kind: DNSEndpoint
@@ -215,6 +249,7 @@ spec:
     recordTTL: 60
     recordType: "CNAME"
     targets: ["{{ $.Values.cluster.domain }}"]
+{{ end }}
 
 ---
 apiVersion: externaldns.k8s.io/v1alpha1
@@ -261,6 +296,7 @@ spec:
       name: "cluster-domain-certificate"
       namespace: "ingress-system"
 
+{{ if $.Values.anvil.enabled }}
 ---
 apiVersion: "gateway.solo.io/v1"
 kind: VirtualService
@@ -292,6 +328,7 @@ spec:
     secretRef:
       name: "cluster-domain-certificate"
       namespace: "ingress-system"
+{{ end }}
 
 ---
 apiVersion: "gateway.solo.io/v1"

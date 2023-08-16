@@ -32,6 +32,14 @@ export const GlobalStyles = createGlobalStyle`
         overflow: hidden;
     }
 
+    .build-version {
+        position: fixed;
+        bottom: 1rem;
+        right: 1rem;
+        opacity: 0.5;
+        font-size: 1.3rem;
+    }
+
     code {
         font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
         monospace;

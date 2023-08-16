@@ -23,8 +23,6 @@ RUN forge build
 
 # build static site
 FROM node:18-alpine AS builder
-ARG NEXT_PUBLIC_DEFAULT_COG_WS_ENDPOINT="ws://localhost:8080/query"
-ARG NEXT_PUBLIC_DEFAULT_COG_HTTP_ENDPOINT="http://localhost:8080/query"
 ENV NEXT_TELEMETRY_DISABLED 1
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules

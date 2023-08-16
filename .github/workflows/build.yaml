@@ -36,22 +36,6 @@ on:
         required: true
         default: linux/arm64/v8,linux/amd64
         type: string
-      AZURE_FRONT_DOOR_PURGE:
-        description: purge the CDN cache after deploy
-        required: true
-        type: boolean
-      AZURE_FRONT_DOOR_PROFILE:
-        description: name of profile
-        default: ""
-        type: string
-      AZURE_FRONT_DOOR_DOMAIN:
-        description: domain to purge
-        default: ""
-        type: string
-      AZURE_FRONT_DOOR_ENDPOINT:
-        description: endpoint to purge
-        default: ""
-        type: string
 
     secrets:
       AZURE_REGISTRY_URL:
@@ -147,7 +131,7 @@ jobs:
     - name: Finalize Docker Metadata
       id: docker_tagging
       run: |
-          echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ inputs.FRONTEND_IMAGE_NAME }}:ds-${{ inputs.DEPLOYMENT_ENVIRONMENT }}-${GITHUB_SHA}"
+          echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ inputs.FRONTEND_IMAGE_NAME }}:${GITHUB_SHA}"
     - name: Inspect Docker Metadata
       run: |
         echo "TAGS -> ${{ steps.docker_tagging.outputs.docker_tags }}"
@@ -167,8 +151,6 @@ jobs:
             BUILDTIME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
             VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
             REVISION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
-            NEXT_PUBLIC_DEFAULT_COG_WS_ENDPOINT=wss://services-ds-${{ inputs.DEPLOYMENT_ENVIRONMENT }}.dev.playmint.com/query
-            NEXT_PUBLIC_DEFAULT_COG_HTTP_ENDPOINT=https://services-ds-${{ inputs.DEPLOYMENT_ENVIRONMENT }}.dev.playmint.com/query
 
   contracts:
     name: Contracts
@@ -205,7 +187,7 @@ jobs:
     - name: Finalize Docker Metadata
       id: docker_tagging
       run: |
-        echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ inputs.CONTRACTS_IMAGE_NAME }}:ds-${{ inputs.DEPLOYMENT_ENVIRONMENT }}-${GITHUB_SHA}"
+        echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ inputs.CONTRACTS_IMAGE_NAME }}:${GITHUB_SHA}"
     - name: Inspect Docker Metadata
       run: |
         echo "TAGS -> ${{ steps.docker_tagging.outputs.docker_tags }}"
@@ -261,7 +243,7 @@ jobs:
     - name: Finalize Docker Metadata
       id: docker_tagging
       run: |
-        echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ inputs.SERVICES_IMAGE_NAME }}:ds-${{ inputs.DEPLOYMENT_ENVIRONMENT }}-${GITHUB_SHA}"
+        echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ inputs.SERVICES_IMAGE_NAME }}:${GITHUB_SHA}"
     - name: Inspect Docker Metadata
       run: |
         echo "TAGS -> ${{ steps.docker_tagging.outputs.docker_tags }}"
@@ -320,19 +302,13 @@ jobs:
           priorityClassName: ${{ inputs.DEPLOYMENT_PRIORITY }}
       run: |
         echo "${CHART_VALUES}" > /tmp/values.yaml
-        helm upgrade --timeout "30m" --history-max 5 --install --wait ${CHART_NAMESPACE} ./chart --values /tmp/values.yaml --create-namespace -n "${CHART_NAMESPACE}"
-    - name: Azure login
-      if: ${{ inputs.AZURE_FRONT_DOOR_PURGE }}
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-    - name: Azure purge cache
-      if: ${{ inputs.AZURE_FRONT_DOOR_PURGE }}
-      uses: azure/CLI@v1
-      with:
-        azcliversion: 2.49.0
-        inlineScript: |
-          az afd endpoint purge --profile-name "${{ inputs.AZURE_FRONT_DOOR_PROFILE }}" --domain "${{ inputs.AZURE_FRONT_DOOR_DOMAIN }}" --resource-group dev --endpoint-name "${{ inputs.AZURE_FRONT_DOOR_ENDPOINT }}" --content-paths '/*'
+        helm upgrade --install --wait \
+          --timeout "30m" \
+          --history-max 5 \
+          ds ./chart \
+            --values /tmp/values.yaml \
+            --create-namespace \
+            -n "${CHART_NAMESPACE}"
     - name: Update deployment status
       uses: bobheadxi/deployments@v0.6.2
       if: always()

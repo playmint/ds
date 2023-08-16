@@ -2,18 +2,16 @@
 
 import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
-import { Fragment, useEffect } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import { GlobalStyles } from '@app/styles/global.styles';
 import { DSProvider } from '@downstream/core';
 import { InventoryProvider } from '@app/plugins/inventory/inventory-provider';
 
-const initialConfig = {
-    wsEndpoint: process.env.NEXT_PUBLIC_DEFAULT_COG_WS_ENDPOINT || 'ws://localhost:8080/query',
-    httpEndpoint: process.env.NEXT_PUBLIC_DEFAULT_COG_HTTP_ENDPOINT || 'http://localhost:8080/query'
-};
-
 const App = ({ Component, pageProps }: AppProps) => {
+    const [config, setConfig] = useState<any>();
+    const commit = useMemo(() => (config?.build || '').slice(0, 8), [config?.build]);
+
     useEffect(() => {
         const handleContextMenu = (e: MouseEvent) => {
             e.preventDefault();
@@ -23,6 +21,12 @@ const App = ({ Component, pageProps }: AppProps) => {
         return () => {
             document.removeEventListener('contextmenu', handleContextMenu);
         };
+    }, []);
+
+    useEffect(() => {
+        fetch('/config.json')
+            .then((res) => res.json())
+            .then(setConfig);
     }, []);
 
     return (
@@ -41,11 +45,14 @@ const App = ({ Component, pageProps }: AppProps) => {
                 <meta name="theme-color" content="#ffffff" />
             </Head>
             <GlobalStyles />
-            <DSProvider initialConfig={initialConfig}>
-                <InventoryProvider>
-                    <Component {...pageProps} />
-                </InventoryProvider>
-            </DSProvider>
+            {config && (
+                <DSProvider initialConfig={config}>
+                    <InventoryProvider>
+                        <Component {...pageProps} />
+                    </InventoryProvider>
+                </DSProvider>
+            )}
+            <div className="build-version">build v0.1-{commit}</div>
         </Fragment>
     );
 };

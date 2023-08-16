@@ -15,10 +15,6 @@ jobs:
       CONTRACTS_IMAGE_NAME: playmint/ds-contracts
       SERVICES_IMAGE_NAME: playmint/ds-services
       PLATFORMS: linux/amd64
-      AZURE_FRONT_DOOR_PURGE: true
-      AZURE_FRONT_DOOR_PROFILE: downstream-test
-      AZURE_FRONT_DOOR_DOMAIN: testnet.downstream.game
-      AZURE_FRONT_DOOR_ENDPOINT: frontend-ds-test
     secrets:
       AZURE_REGISTRY_URL: ${{ secrets.AZURE_REGISTRY_URL }}
       AZURE_REGISTRY_USERNAME: ${{ secrets.AZURE_REGISTRY_USERNAME }}
