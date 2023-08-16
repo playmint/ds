@@ -1,3 +1,7 @@
+---
+sidebar_position: 2
+---
+
 # Game Controls
 
 ## Getting Into the Game

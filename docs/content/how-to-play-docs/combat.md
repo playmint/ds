@@ -1,3 +1,7 @@
+---
+sidebar_position: 3
+---
+
 # Combat
 
 When a Unit attacks a Building it begins a combat session. This will continue until one side has 0 life remaining. 
