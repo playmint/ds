@@ -15,7 +15,6 @@ jobs:
       CONTRACTS_IMAGE_NAME: playmint/ds-contracts
       SERVICES_IMAGE_NAME: playmint/ds-services
       PLATFORMS: linux/amd64
-      AZURE_FRONT_DOOR_PURGE: false
     secrets:
       AZURE_REGISTRY_URL: ${{ secrets.AZURE_REGISTRY_URL }}
       AZURE_REGISTRY_USERNAME: ${{ secrets.AZURE_REGISTRY_USERNAME }}
