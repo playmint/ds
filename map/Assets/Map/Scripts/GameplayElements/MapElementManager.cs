@@ -15,6 +15,7 @@ public class MapElementManager : MonoBehaviour
 
     [SerializeField]
     private GameObject buildingPrefab,
+        extractorPrefab,
         bagPrefab,
         enemyPrefab,
         incompleteBuildingPrefab,
@@ -72,16 +73,28 @@ public class MapElementManager : MonoBehaviour
         Vector3Int cubicCoords,
         Transform tileTransform,
         string id,
+        uint category,
         string model
     )
     {
         if (!_spawnedBuildings.ContainsKey(cubicCoords))
         {
-            StackableBuildingController building = Instantiate(buildingPrefab, transform, true)
-                .GetComponent<StackableBuildingController>();
-            _spawnedBuildings.Add(cubicCoords, building);
-            string[] totemNames = GetTotemNamesFromStackCode(model);
-            building.Setup(cubicCoords, tileTransform, id, totemNames);
+            bool isExtractor = category == 2;
+            if (isExtractor)
+            {
+                ExtractorBuildingController building = Instantiate(extractorPrefab, transform, true)
+                    .GetComponent<ExtractorBuildingController>();
+                _spawnedBuildings.Add(cubicCoords, building);
+                building.Setup(cubicCoords, tileTransform, id, model);
+            }
+            else
+            {
+                StackableBuildingController building = Instantiate(buildingPrefab, transform, true)
+                    .GetComponent<StackableBuildingController>();
+                _spawnedBuildings.Add(cubicCoords, building);
+                string[] totemNames = GetTotemNamesFromStackCode(model);
+                building.Setup(cubicCoords, tileTransform, id, totemNames);
+            }
         }
     }
 

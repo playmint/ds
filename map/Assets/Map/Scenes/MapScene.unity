@@ -2575,6 +2575,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildingPrefab: {fileID: 7268972726147497452, guid: 23ff047669b024ea19d8a08fb52d2ddd,
     type: 3}
+  extractorPrefab: {fileID: 7268972726147497452, guid: b1df6dba335ad4b26987b28f60e3c546,
+    type: 3}
   bagPrefab: {fileID: 8776346270060902164, guid: a2154e623a0a249b0aa3f222d4d27e10,
     type: 3}
   enemyPrefab: {fileID: 8730588450062426084, guid: 9ec9e30cff91ca147ae048bb5a54efcd,
