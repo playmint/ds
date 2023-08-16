@@ -121,6 +121,7 @@ export default function update({ selected, world }) {
             return;
         }
 
+        ds.log("about to dispatch BUILDING_USE");
         ds.dispatch({
             name: "BUILDING_USE",
             args: [selectedBuilding.id, selectedEngineer.id, []],

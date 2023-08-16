@@ -1,0 +1,20 @@
+---
+kind: BuildingKind
+spec:
+  name: Green Goo Extractor
+  category: extractor
+  model: green
+  contract:
+    file: ./GreenExtractor.sol
+  plugin:
+    file: ./GenericExtractor.js
+  materials:
+    - name: Glass of Green Goo
+      quantity: 25
+    - name: Beaker of Blue Goo
+      quantity: 25
+    - name: Flask of Red Goo
+      quantity: 25
+  outputs:
+    - name: Glass of Green Goo
+      quantity: 10
