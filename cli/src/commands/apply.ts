@@ -138,7 +138,6 @@ const buildingKindDeploymentActions = async (
     }
 
     // register kind + construction materials
-    console.log(`Registering: ${spec.name}`);
     const { items: materialItems, quantities: materialQtys } = encodeSlotConfig(spec.materials);
     ops.push({
         name: 'REGISTER_BUILDING_KIND',
