@@ -38,6 +38,9 @@ compose: frontend/public/ds-unity/Build/ds-unity.wasm
 contracts/out/Actions.sol/Actions.json:
 	(cd contracts && forge build)
 
+contracts:
+	(cd contracts && forge build)
+
 core/src/gql:
 	# noop
 
@@ -60,6 +63,10 @@ cli: node_modules core/dist/core.js
 publish: cli
 	(cd cli && npm version patch && npm publish)
 
+release: contracts node_modules cli
+	./scripts/release.mjs -i
+
+
 clean:
 	rm -rf cli/dist
 	rm -rf cli/node_modules
@@ -77,5 +84,5 @@ clean:
 	$(MAKE) -C contracts/lib/cog/services clean
 
 
-.PHONY: all clean dev map compose debugmap cli
+.PHONY: all clean dev map compose debugmap cli contracts release
 .SILENT: contracts/lib/cog/services/bin/ds-node frontend/public/ds-unity/Build/ds-unity.wasm
