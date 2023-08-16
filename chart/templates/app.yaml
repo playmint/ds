@@ -1,3 +1,10 @@
+{{ define "frontend.config" }}
+gameID: {{ $.Values.frontend.gameAddress | quote}}
+build: {{ $.Values.version | quote }}
+wsEndpoint: "wss://services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}/query"
+httpEndpoint: "https://services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}/query"
+{{ end }}
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -25,7 +32,7 @@ spec:
             - name: PORT
               value: "8080"
             - name: CHAIN_ID
-              value: {{ $.Values.chainId | quote }}
+              value: {{ $.Values.chainId | toString | quote }}
             - name: SEQUENCER_PRIVATE_KEY
               value: {{ $.Values.sequencer.privateKey | quote }}
             - name: SEQUENCER_PROVIDER_URL_HTTP
@@ -45,7 +52,9 @@ spec:
             - name: INDEXER_PROVIDER_URL_WS
               value: {{ $.Values.indexer.providerUrlWs | quote }}
             - name: INDEXER_GAME_ADDRESS
-              value: {{ $.Values.game.address | quote }}
+              value: {{ $.Values.indexer.gameAddress | quote }}
+            - name: INDEXER_MAX_LOG_RANGE
+              value: {{ $.Values.indexer.maxLogRange | toString | quote }}
           command: ["/bin/ash"]
           args:
           - -eu
@@ -124,6 +133,7 @@ spec:
                   storage: 20Gi
       {{ end }}
 
+
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -132,12 +142,7 @@ metadata:
   namespace: {{ $.Release.Namespace }}
 data:
   config.json: |
-    {
-      "gameID": {{ $.Values.game.id | quote}},
-      "build": {{ $.Values.version | quote }},
-      "wsEndpoint": "wss://services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}/query",
-      "httpEndpoint": "https://services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}/query"
-    }
+    {{ include "frontend.config" . | fromYaml | toJson }}
 
 ---
 apiVersion: apps/v1
@@ -156,6 +161,7 @@ spec:
         app: {{ $.Release.Name }}-frontend
       annotations:
         gitsha: {{ $.Values.version | quote }}
+        configsha: {{ include "frontend.config" . | sha256sum | quote }}
     spec:
       priorityClassName: {{ $.Values.priorityClassName | quote }}
       containers:

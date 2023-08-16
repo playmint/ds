@@ -3,8 +3,6 @@ priorityClassName: default
 cluster:
   domain: dev.playmint.com
 chainId: 1337
-game:
-  id: "DOWNSTREAM" # use contract addr to pin version
 anvil:
   enabled: true
 sequencer:
@@ -16,4 +14,8 @@ indexer:
   providerUrlHttp: "http://localhost:8545"
   providerUrlWs: "ws://localhost:8545"
   watchPending: false
+  maxLogRange: 10000
+  gameAddress: ""
+frontend:
+  gameAddress: "DOWNSTREAM" # default to latest address
 
