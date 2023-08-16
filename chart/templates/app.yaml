@@ -133,7 +133,7 @@ metadata:
 data:
   config.json: |
     {
-      "gameID": {{ $.Values.game.address | quote}},
+      "gameID": {{ $.Values.game.id | quote}},
       "build": {{ $.Values.version | quote }},
       "wsEndpoint": "wss://services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}/query",
       "httpEndpoint": "https://services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}/query"

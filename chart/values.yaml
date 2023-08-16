@@ -4,7 +4,7 @@ cluster:
   domain: dev.playmint.com
 chainId: 1337
 game:
-  address: "" # leave empty for latest
+  id: "DOWNSTREAM" # use contract addr to pin version
 anvil:
   enabled: true
 sequencer:
