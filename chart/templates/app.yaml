@@ -103,7 +103,7 @@ spec:
           - -eu
           - -c
           - |
-            anvil --code-size-limit 9999999999999 --gas-limit 9999999999999999 --port 8546 --fork-url {{ $.Values.sequencer.providerUrlHttp | quote }} --no-mining --no-rate-limit --no-storage-caching
+            anvil --port 8546 --fork-url {{ $.Values.sequencer.providerUrlHttp | quote }} --no-mining --no-rate-limit
           ports:
             - name: network
               containerPort: 8546
