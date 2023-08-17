@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
+// TODO: Move BuildingCategory into this file
+import {BuildingCategory} from "@ds/schema/Schema.sol";
+
 enum BiomeKind {
     UNDISCOVERED,
     DISCOVERED
@@ -50,16 +53,14 @@ interface Actions {
     function REGISTER_BUILDING_KIND(
         bytes24 buildingKind,
         string calldata name,
+        BuildingCategory category,
+        string calldata model,
         bytes24[4] calldata materialItem,
-        uint64[4] calldata materialQty
-    ) external;
-
-    function REGISTER_CRAFT_RECIPE(
-        bytes24 buildingKind,
-        bytes24[4] calldata inputItem,
-        uint64[4] calldata inputQty,
-        bytes24 outputItem,
-        uint64 outputQty
+        uint64[4] calldata materialQty,
+        bytes24[4] calldata inputItemIDs,
+        uint64[4] calldata inputItemQtys,
+        bytes24[1] calldata outputItemIDs,
+        uint64[1] calldata outputItemQtys
     ) external;
 
     // register kind implementation contract
@@ -94,6 +95,10 @@ interface Actions {
 
     function CRAFT(
         bytes24 buildingInstance // the building performing CRAFT
+    ) external;
+
+    function EXTRACT(
+        bytes24 buildingInstance // the building performing EXTRACT
     ) external;
 
     // spawn a mobileUnit for the sender

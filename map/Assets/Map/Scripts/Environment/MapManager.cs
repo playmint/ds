@@ -181,6 +181,7 @@ public class MapManager : MonoBehaviour
                     cellPosCube,
                     tileTransform,
                     tile.Building.Id,
+                    BuildingHelper.GetBuildingCategory(tile.Building.Kind.Id),
                     tile.Building.Kind.Model.Value
                 );
                 MapElementManager.instance.CheckIncompleteBuildingIconRemoved(cellPosCube);

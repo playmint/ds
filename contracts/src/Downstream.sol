@@ -21,6 +21,7 @@ import {NewPlayerRule} from "@ds/rules/NewPlayerRule.sol";
 import {CombatRule} from "@ds/rules/CombatRule.sol";
 import {NamingRule} from "@ds/rules/NamingRule.sol";
 import {BagRule} from "@ds/rules/BagRule.sol";
+import {ExtractionRule} from "@ds/rules/ExtractionRule.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
 using Schema for BaseState;
@@ -80,6 +81,7 @@ contract DownstreamGame is BaseGame {
         state.registerNodeType(Kind.CombatSession.selector, "CombatSession", CompoundKeyKind.UINT160);
         state.registerNodeType(Kind.Hash.selector, "Hash", CompoundKeyKind.BYTES);
         state.registerNodeType(Kind.Atom.selector, "Atom", CompoundKeyKind.UINT160);
+        state.registerNodeType(Kind.BlockNum.selector, "BlockNum", CompoundKeyKind.UINT160);
 
         // register the relationship ids we are using
         state.registerEdgeType(Rel.Owner.selector, "Owner", WeightKind.UINT64);
@@ -117,6 +119,7 @@ contract DownstreamGame is BaseGame {
         dispatcher.registerRule(new CombatRule());
         dispatcher.registerRule(new NamingRule());
         dispatcher.registerRule(new BagRule());
+        dispatcher.registerRule(new ExtractionRule(this));
         dispatcher.registerRouter(router);
 
         // update the game with this config

@@ -5,14 +5,28 @@ import "cog/IGame.sol";
 import "cog/IState.sol";
 import "cog/IRule.sol";
 
-import {Schema, Node, Kind, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Schema, Node, Kind, DEFAULT_ZONE, BuildingCategory} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 import {CraftingRule} from "@ds/rules/CraftingRule.sol";
+import {ItemKind} from "@ds/ext/ItemKind.sol";
 
 using Schema for State;
+
+struct BuildingKindCfg {
+    bytes24 buildingKind;
+    string name;
+    BuildingCategory category;
+    string model;
+    bytes24[4] materialItem;
+    uint64[4] materialQty;
+    bytes24[4] inputItemIDs;
+    uint64[4] inputItemQtys;
+    bytes24[1] outputItemIDs;
+    uint64[1] outputItemQtys;
+}
 
 contract BuildingRule is Rule {
     Game game;
@@ -25,11 +39,46 @@ contract BuildingRule is Rule {
         if (bytes4(action) == Actions.REGISTER_BUILDING_KIND.selector) {
             (
                 bytes24 buildingKind,
-                string memory buildingName,
+                string memory name,
+                BuildingCategory category,
+                string memory model,
                 bytes24[4] memory materialItem,
-                uint64[4] memory materialQty
-            ) = abi.decode(action[4:], (bytes24, string, bytes24[4], uint64[4]));
-            _registerBuildingKind(state, Node.Player(ctx.sender), buildingKind, buildingName, materialItem, materialQty);
+                uint64[4] memory materialQty,
+                bytes24[4] memory inputItemIDs,
+                uint64[4] memory inputItemQtys,
+                bytes24[1] memory outputItemIDs,
+                uint64[1] memory outputItemQtys
+            ) = abi.decode(
+                action[4:],
+                (
+                    bytes24,
+                    string,
+                    BuildingCategory,
+                    string,
+                    bytes24[4],
+                    uint64[4],
+                    bytes24[4],
+                    uint64[4],
+                    bytes24[1],
+                    uint64[1]
+                )
+            );
+            _registerBuildingKind(
+                state,
+                ctx,
+                BuildingKindCfg(
+                    buildingKind,
+                    name,
+                    category,
+                    model,
+                    materialItem,
+                    materialQty,
+                    inputItemIDs,
+                    inputItemQtys,
+                    outputItemIDs,
+                    outputItemQtys
+                )
+            );
         } else if (bytes4(action) == Actions.CONSTRUCT_BUILDING_MOBILE_UNIT.selector) {
             (
                 bytes24 mobileUnit, // which mobileUnit is performing the construction
@@ -79,38 +128,35 @@ contract BuildingRule is Rule {
         buildingImplementation.use(game, buildingInstance, mobileUnit, payload);
     }
 
-    function _registerBuildingKind(
-        State state,
-        bytes24 player,
-        bytes24 buildingKind,
-        string memory buildingName,
-        bytes24[4] memory materialItem,
-        uint64[4] memory materialQty
-    ) private {
+    function _registerBuildingKind(State state, Context calldata ctx, BuildingKindCfg memory cfg) private {
+        bytes24 player = Node.Player(ctx.sender);
         // set owner of the building kind
-        bytes24 existingOwner = state.getOwner(buildingKind);
+        bytes24 existingOwner = state.getOwner(cfg.buildingKind);
         if (existingOwner != 0x0 && existingOwner != player) {
             revert("BuildingAlreadyRegistered");
         }
-        state.setOwner(buildingKind, player);
-        state.annotate(buildingKind, "name", buildingName);
+        state.setOwner(cfg.buildingKind, player);
+        state.annotate(cfg.buildingKind, "name", cfg.name);
+        state.annotate(cfg.buildingKind, "model", cfg.model);
 
         // min construction cost
         {
             uint32[3] memory availableInputAtoms;
             for (uint8 i = 0; i < 4; i++) {
-                if (materialItem[i] == 0x0) {
+                if (cfg.materialItem[i] == 0x0) {
                     continue;
                 }
                 // check input item is registered
-                require(state.getOwner(materialItem[i]) != 0x0, "input item must be registered before use in recipe");
+                require(
+                    state.getOwner(cfg.materialItem[i]) != 0x0, "input item must be registered before use in recipe"
+                );
                 // get atomic structure
-                (uint32[3] memory inputAtoms, bool inputStackable) = state.getItemStructure(materialItem[i]);
+                (uint32[3] memory inputAtoms, bool inputStackable) = state.getItemStructure(cfg.materialItem[i]);
                 require(inputStackable, "non-stackable items not allowed as construction materials");
-                require(materialQty[i] > 0 && materialQty[i] <= 100, "stackable input item must be qty 0-100");
-                availableInputAtoms[0] = availableInputAtoms[0] + (inputAtoms[0] * uint32(materialQty[i]));
-                availableInputAtoms[1] = availableInputAtoms[1] + (inputAtoms[1] * uint32(materialQty[i]));
-                availableInputAtoms[2] = availableInputAtoms[2] + (inputAtoms[2] * uint32(materialQty[i]));
+                require(cfg.materialQty[i] > 0 && cfg.materialQty[i] <= 100, "stackable input item must be qty 0-100");
+                availableInputAtoms[0] = availableInputAtoms[0] + (inputAtoms[0] * uint32(cfg.materialQty[i]));
+                availableInputAtoms[1] = availableInputAtoms[1] + (inputAtoms[1] * uint32(cfg.materialQty[i]));
+                availableInputAtoms[2] = availableInputAtoms[2] + (inputAtoms[2] * uint32(cfg.materialQty[i]));
             }
 
             require(availableInputAtoms[0] >= 10, "construction cost should require at least 10 LIFE atoms");
@@ -119,10 +165,53 @@ contract BuildingRule is Rule {
         }
 
         // store the construction materials recipe
-        state.setMaterial(buildingKind, 0, materialItem[0], materialQty[0]);
-        state.setMaterial(buildingKind, 1, materialItem[1], materialQty[1]);
-        state.setMaterial(buildingKind, 2, materialItem[2], materialQty[2]);
-        state.setMaterial(buildingKind, 3, materialItem[3], materialQty[3]);
+        state.setMaterial(cfg.buildingKind, 0, cfg.materialItem[0], cfg.materialQty[0]);
+        state.setMaterial(cfg.buildingKind, 1, cfg.materialItem[1], cfg.materialQty[1]);
+        state.setMaterial(cfg.buildingKind, 2, cfg.materialItem[2], cfg.materialQty[2]);
+        state.setMaterial(cfg.buildingKind, 3, cfg.materialItem[3], cfg.materialQty[3]);
+
+        // -- Category specific calls
+
+        if (cfg.category == BuildingCategory.ITEM_FACTORY) {
+            // NOTE: Actions.REGISTER_CRAFT_RECIPE has been removed from CraftingRule
+            _registerRecipe(
+                state,
+                player, // TODO: If were never going to update recipes externally to registration this param is pointless
+                cfg.buildingKind,
+                cfg.inputItemIDs,
+                cfg.inputItemQtys,
+                cfg.outputItemIDs[0],
+                cfg.outputItemQtys[0]
+            );
+        }
+
+        if (cfg.category == BuildingCategory.EXTRACTOR) {
+            _setExtractionProperties(state, cfg.buildingKind, cfg.outputItemIDs[0], cfg.outputItemQtys[0]);
+        }
+    }
+
+    function _setExtractionProperties(State state, bytes24 buildingKind, bytes24 outputItemID, uint64 outputItemQty)
+        private
+    {
+        // check that the output item has been registerd
+        bytes24 outputOwner = state.getOwner(outputItemID);
+        require(outputOwner != 0x0, "output item must be a registered item");
+
+        // check that the item is stackable
+        (uint32[3] memory atoms, bool isStackable) = state.getItemStructure(outputItemID);
+        require(isStackable, "output item must be stackable");
+
+        // must be of one atom type
+        uint8 atomTypes;
+        for (uint256 i = 0; i < 3; i++) {
+            if (atoms[i] > 0) atomTypes++;
+        }
+
+        require(atomTypes == 1, "output item must be of one atomic type");
+
+        // Check that the number we want to produce can be possible with MAX_GOO_RESERVOIR (?) Maybe we don't enforce this.
+
+        state.setOutput(buildingKind, 0, outputItemID, outputItemQty);
     }
 
     function _constructBuilding(
@@ -148,11 +237,21 @@ contract BuildingRule is Rule {
         state.setOwner(buildingInstance, Node.Player(ctx.sender));
         // set building location
         state.setFixedLocation(buildingInstance, targetTile);
+
         // attach the inputs/output bags
         bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "input")))));
         bytes24 outputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "output")))));
         state.setEquipSlot(buildingInstance, 0, inputBag);
         state.setEquipSlot(buildingInstance, 1, outputBag);
+
+        // -- Category specific calls
+
+        ( /*uint64 id*/ , BuildingCategory category) = state.getBuildingKindInfo(buildingKind);
+
+        if (category == BuildingCategory.EXTRACTOR) {
+            // set initial extraction timestamp
+            state.setBlockNum(buildingInstance, 0, ctx.clock);
+        }
     }
 
     function _payConstructionFee(State state, bytes24 buildingKind, bytes24 buildingInstance) private {
@@ -206,5 +305,95 @@ contract BuildingRule is Rule {
         bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode(mobileUnit, equipSlot)))));
         state.setOwner(bag, Node.Player(owner));
         state.setEquipSlot(mobileUnit, equipSlot, bag);
+    }
+
+    function _registerRecipe(
+        State state,
+        bytes24 player,
+        bytes24 buildingKind,
+        bytes24[4] memory inputItem,
+        uint64[4] memory inputQty,
+        bytes24 outputItem,
+        uint64 outputQty
+    ) internal {
+        (uint32[3] memory outputAtoms, bool outputStackable) = state.getItemStructure(outputItem);
+        {
+            bytes24 owner = state.getOwner(buildingKind);
+            require(owner == player, "only building kind owner can configure building crafting");
+            if (outputStackable) {
+                require(outputQty > 0 && outputQty <= 100, "stackable output qty must be between 0-100");
+            } else {
+                require(outputQty == 1, "equipable item crafting cannot output multiple items");
+            }
+
+            // check that the output item has been registerd
+            bytes24 outputOwner = state.getOwner(outputItem);
+            require(outputOwner != 0x0, "output item must be a registered item");
+
+            // if player is not the owner of the item, then ask the item implementation contract
+            // if it's ok to use this item as an output
+            if (outputOwner != player) {
+                address implementation = state.getImplementation(outputItem);
+                require(
+                    implementation != address(0),
+                    "you are not the owner of the output item and no item contract exists to ask for permission"
+                );
+                ItemKind kind = ItemKind(implementation);
+                require(
+                    kind.onRegisterRecipeOutput(game, player, buildingKind, inputItem, inputQty, outputItem, outputQty),
+                    "owner of the output item denied use in crafting"
+                );
+            }
+        }
+
+        // calc total output atoms
+        uint32[3] memory totalOutputAtoms;
+        totalOutputAtoms[0] = outputAtoms[0] * uint32(outputQty);
+        totalOutputAtoms[1] = outputAtoms[1] * uint32(outputQty);
+        totalOutputAtoms[2] = outputAtoms[2] * uint32(outputQty);
+
+        // calc total input atoms available to use
+        {
+            uint32[3] memory availableInputAtoms;
+            for (uint8 i = 0; i < 4; i++) {
+                if (inputItem[i] == 0x0) {
+                    continue;
+                }
+                // check input item is registered
+                require(state.getOwner(inputItem[i]) != 0x0, "input item must be registered before use in recipe");
+                // get atomic structure
+                (uint32[3] memory inputAtoms, bool inputStackable) = state.getItemStructure(inputItem[i]);
+                if (inputStackable) {
+                    require(inputQty[i] > 0 && inputQty[i] <= 100, "stackable input item must be qty 0-100");
+                } else {
+                    require(inputQty[i] == 1, "equipable input item must have qty=1");
+                }
+                availableInputAtoms[0] = availableInputAtoms[0] + (inputAtoms[0] * uint32(inputQty[i])) / 2;
+                availableInputAtoms[1] = availableInputAtoms[1] + (inputAtoms[1] * uint32(inputQty[i])) / 2;
+                availableInputAtoms[2] = availableInputAtoms[2] + (inputAtoms[2] * uint32(inputQty[i])) / 2;
+            }
+
+            // require that the total number of each atom in the total number of
+            // output items is less than half of the total input of each atom
+            require(
+                availableInputAtoms[0] >= totalOutputAtoms[0],
+                "cannot craft an item that outputs more 0-atoms than it inputs"
+            );
+            require(
+                availableInputAtoms[1] >= totalOutputAtoms[1],
+                "cannot craft an item that outputs more 1-atoms than it inputs"
+            );
+            require(
+                availableInputAtoms[2] >= totalOutputAtoms[2],
+                "cannot craft an item that outputs more 2-atoms than it inputs"
+            );
+        }
+
+        // store the recipe
+        state.setInput(buildingKind, 0, inputItem[0], inputQty[0]);
+        state.setInput(buildingKind, 1, inputItem[1], inputQty[1]);
+        state.setInput(buildingKind, 2, inputItem[2], inputQty[2]);
+        state.setInput(buildingKind, 3, inputItem[3], inputQty[3]);
+        state.setOutput(buildingKind, 0, outputItem, outputQty);
     }
 }

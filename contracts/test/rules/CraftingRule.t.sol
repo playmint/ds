@@ -58,42 +58,31 @@ contract CraftingRuleTest is Test, GameTest {
     function testRegisteringCraftRecipe() public {
         vm.startPrank(players[0].addr);
 
-        bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItem;
-        inputItem[0] = ItemUtils.GlassGreenGoo();
-        inputItem[1] = ItemUtils.BeakerBlueGoo();
-        inputItem[2] = ItemUtils.FlaskRedGoo();
-
-        uint64[MAX_CRAFT_INPUT_ITEMS] memory inputQty;
-        inputQty[0] = 2;
-        inputQty[1] = 2;
-        inputQty[2] = 2;
-
-        uint32[3] memory outputItemAtoms = [uint32(1), uint32(1), uint32(1)];
-        bytes24 outputItem = Node.Item("thing", outputItemAtoms, ITEM_STACKABLE);
-        uint64 outputQty = 1;
+        // Craft Recipe (same recipe as used when registering the building during setup)
+        (
+            bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItemIDs,
+            uint64[MAX_CRAFT_INPUT_ITEMS] memory inputQtys,
+            bytes24 outputItem,
+            /*uint64 outputQty*/
+        ) = _getCraftRecipe();
 
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (outputItem, "thing", "icon")));
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.REGISTER_CRAFT_RECIPE, (mockBuildingKind, inputItem, inputQty, outputItem, outputQty)
-            )
-        );
         vm.stopPrank();
 
         bytes24 registeredItem;
         uint64 registeredQty;
 
         (registeredItem, registeredQty) = state.getInput(mockBuildingKind, 0);
-        assertEq(registeredItem, inputItem[0]);
-        assertEq(registeredQty, inputQty[0]);
+        assertEq(registeredItem, inputItemIDs[0]);
+        assertEq(registeredQty, inputQtys[0]);
 
         (registeredItem, registeredQty) = state.getInput(mockBuildingKind, 1);
-        assertEq(registeredItem, inputItem[1]);
-        assertEq(registeredQty, inputQty[1]);
+        assertEq(registeredItem, inputItemIDs[1]);
+        assertEq(registeredQty, inputQtys[1]);
 
         (registeredItem, registeredQty) = state.getInput(mockBuildingKind, 2);
-        assertEq(registeredItem, inputItem[2]);
-        assertEq(registeredQty, inputQty[2]);
+        assertEq(registeredItem, inputItemIDs[2]);
+        assertEq(registeredQty, inputQtys[2]);
     }
 
     function testCrafting() public {
@@ -240,7 +229,31 @@ contract CraftingRuleTest is Test, GameTest {
         return mobileUnit;
     }
 
-    function _registerBuildingKind(uint64 uid, address buildingContract) private returns (bytes24) {
+    function _getCraftRecipe()
+        private
+        pure
+        returns (
+            bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItemIDs,
+            uint64[MAX_CRAFT_INPUT_ITEMS] memory inputQtys,
+            bytes24 outputItem,
+            uint64 outputQty
+        )
+    {
+        // Input
+        inputItemIDs[0] = ItemUtils.GlassGreenGoo();
+        inputItemIDs[1] = ItemUtils.BeakerBlueGoo();
+        inputItemIDs[2] = ItemUtils.FlaskRedGoo();
+        inputQtys[0] = 2;
+        inputQtys[1] = 2;
+        inputQtys[2] = 2;
+
+        // Output
+        uint32[3] memory outputItemAtoms = [uint32(1), uint32(1), uint32(1)];
+        outputItem = Node.Item("thing", outputItemAtoms, ITEM_STACKABLE);
+        outputQty = 1;
+    }
+
+    function _registerBuildingKind(uint32 uid, address buildingContract) private returns (bytes24) {
         bytes24[4] memory defaultMaterialItem;
         defaultMaterialItem[0] = ItemUtils.GlassGreenGoo();
         defaultMaterialItem[1] = ItemUtils.BeakerBlueGoo();
@@ -249,10 +262,34 @@ contract CraftingRuleTest is Test, GameTest {
         defaultMaterialQty[0] = 25;
         defaultMaterialQty[1] = 25;
         defaultMaterialQty[2] = 25;
-        bytes24 buildingKind = Node.BuildingKind(uid);
+        bytes24 buildingKind = Node.BuildingKind(uid, BuildingCategory.ITEM_FACTORY);
+        string memory buildingName = "TestBuilding";
+
+        // Craft Recipe
+        (
+            bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItemIDs,
+            uint64[MAX_CRAFT_INPUT_ITEMS] memory inputQtys,
+            bytes24 outputItem,
+            uint64 outputQty
+        ) = _getCraftRecipe();
+
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (outputItem, "thing", "icon")));
+
         dispatcher.dispatch(
             abi.encodeCall(
-                Actions.REGISTER_BUILDING_KIND, (buildingKind, "TestBuilding", defaultMaterialItem, defaultMaterialQty)
+                Actions.REGISTER_BUILDING_KIND,
+                (
+                    buildingKind,
+                    buildingName,
+                    BuildingCategory.ITEM_FACTORY,
+                    "",
+                    defaultMaterialItem,
+                    defaultMaterialQty,
+                    inputItemIDs,
+                    inputQtys,
+                    [outputItem],
+                    [outputQty]
+                )
             )
         );
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (buildingKind, buildingContract)));
@@ -264,25 +301,6 @@ contract CraftingRuleTest is Test, GameTest {
         private
         returns (bytes24 buildingInstance)
     {
-        bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItem;
-        inputItem[0] = ItemUtils.GlassGreenGoo();
-        inputItem[1] = ItemUtils.BeakerBlueGoo();
-        inputItem[2] = ItemUtils.FlaskRedGoo();
-
-        uint64[MAX_CRAFT_INPUT_ITEMS] memory inputQty;
-        inputQty[0] = 2;
-        inputQty[1] = 2;
-        inputQty[2] = 2;
-
-        uint32[3] memory outputItemAtoms = [uint32(1), uint32(1), uint32(1)];
-        bytes24 outputItem = Node.Item("thing", outputItemAtoms, ITEM_STACKABLE);
-        uint64 outputQty = 1;
-
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (outputItem, "thing", "icon")));
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_CRAFT_RECIPE, (buildingKind, inputItem, inputQty, outputItem, outputQty))
-        );
-
         // discover an adjacent tile for our building site
         dev.spawnTile(q, r, s);
         // get our building and give it the resources to construct

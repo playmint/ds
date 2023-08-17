@@ -5,7 +5,8 @@ import "cog/IState.sol";
 import "cog/IGame.sol";
 import "cog/IDispatcher.sol";
 
-import {Node, Schema} from "@ds/schema/Schema.sol";
+// TODO: BuildingCategory to be imported from Actions.sol
+import {Node, Schema, BuildingCategory} from "@ds/schema/Schema.sol";
 import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
 
 using Schema for State;
@@ -26,8 +27,10 @@ struct Output {
 }
 
 struct BuildingConfig {
-    uint256 id;
+    bytes24 buildingKind;
     string name;
+    BuildingCategory category;
+    string model;
     Material[4] materials;
     Input[4] inputs;
     Output[1] outputs;
@@ -38,45 +41,67 @@ struct BuildingConfig {
 library BuildingUtils {
     function register(Game ds, BuildingConfig memory cfg) internal returns (bytes24) {
         Dispatcher dispatcher = ds.getDispatcher();
-        bytes24 buildingKind = Node.BuildingKind(uint64(cfg.id));
-        bytes24[4] memory materialItem;
-        uint64[4] memory materialQty;
+
+        // Building material
+        bytes24[4] memory materialItemIDs;
+        uint64[4] memory materialItemQtys;
         for (uint8 i = 0; i < cfg.materials.length; i++) {
-            materialItem[i] = cfg.materials[i].item;
-            materialQty[i] = uint64(cfg.materials[i].quantity);
+            materialItemIDs[i] = cfg.materials[i].item;
+            materialItemQtys[i] = uint64(cfg.materials[i].quantity);
         }
+
+        // Input items
+        bytes24[4] memory inputItemIDs;
+        uint64[4] memory inputItemQtys;
+        for (uint8 i = 0; i < cfg.inputs.length; i++) {
+            inputItemIDs[i] = cfg.inputs[i].item;
+            inputItemQtys[i] = uint64(cfg.inputs[i].quantity);
+        }
+
+        // Output items
+        bytes24[1] memory outputItemIDs = [cfg.outputs[0].item];
+        uint64[1] memory outputItemQtys = [uint64(cfg.outputs[0].quantity)];
+
         dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_BUILDING_KIND, (buildingKind, cfg.name, materialItem, materialQty))
+            abi.encodeCall(
+                Actions.REGISTER_BUILDING_KIND,
+                (
+                    cfg.buildingKind,
+                    cfg.name,
+                    cfg.category,
+                    cfg.model,
+                    materialItemIDs,
+                    materialItemQtys,
+                    inputItemIDs,
+                    inputItemQtys,
+                    outputItemIDs,
+                    outputItemQtys
+                )
+            )
         );
+
+        // Implementation
         if (address(cfg.implementation) != address(0)) {
             dispatcher.dispatch(
-                abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (buildingKind, address(cfg.implementation)))
+                abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (cfg.buildingKind, address(cfg.implementation)))
             );
         }
+
+        // Plugin
+        (uint64 id, /*BuildingCategory category*/ ) = getBuildingKindInfo(cfg.buildingKind);
         if (abi.encodePacked(cfg.plugin).length != 0) {
             dispatcher.dispatch(
                 abi.encodeCall(
-                    Actions.REGISTER_KIND_PLUGIN,
-                    (Node.ClientPlugin(uint64(cfg.id)), buildingKind, cfg.name, cfg.plugin)
+                    Actions.REGISTER_KIND_PLUGIN, (Node.ClientPlugin(id), cfg.buildingKind, cfg.name, cfg.plugin)
                 )
             );
         }
-        // register building as capable of crafting if an output is given
-        if (cfg.outputs[0].item != 0x0) {
-            bytes24[4] memory inputItem;
-            uint64[4] memory inputQty;
-            for (uint8 i = 0; i < cfg.inputs.length; i++) {
-                inputItem[i] = cfg.inputs[i].item;
-                inputQty[i] = uint64(cfg.inputs[i].quantity);
-            }
-            bytes24 outputItem = cfg.outputs[0].item;
-            uint64 outputQty = uint64(cfg.outputs[0].quantity);
-            dispatcher.dispatch(
-                abi.encodeCall(
-                    Actions.REGISTER_CRAFT_RECIPE, (buildingKind, inputItem, inputQty, outputItem, outputQty)
-                )
-            );
-        }
-        return buildingKind;
+
+        return cfg.buildingKind;
+    }
+
+    function getBuildingKindInfo(bytes24 buildingKind) internal pure returns (uint64 id, BuildingCategory category) {
+        id = uint64(uint192(buildingKind) >> 64 & type(uint64).max);
+        category = BuildingCategory(uint64(uint192(buildingKind) & type(uint64).max));
     }
 }
