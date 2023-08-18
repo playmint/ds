@@ -243,6 +243,46 @@ const deploy = {
     handler: async (ctx) => {
         const manifestFilenames = getManifestFilenames(ctx.filename, ctx.recursive);
         const docs = (await Promise.all(manifestFilenames.map(readManifestsDocumentsSync))).flatMap((docs) => docs);
+        const existingBuildingKinds = await getManifestsByKind(ctx, ['BuildingKind']);
+
+        const getBuildingKindIDByName = (name: string) => {
+            const foundBuildingKinds = existingBuildingKinds.filter(
+                ({ kind, spec }) => kind === 'BuildingKind' && spec.name === name
+            );
+            if (foundBuildingKinds.length === 1) {
+                const manifest = foundBuildingKinds[0];
+                if (manifest.kind !== 'BuildingKind') {
+                    throw new Error(`unexpect kind`);
+                }
+                if (!manifest.status || !manifest.status.id) {
+                    throw new Error(`missing status.id field for BuildingKind ${name}`);
+                }
+                return manifest.status.id;
+            } else if (foundBuildingKinds.length > 1) {
+                throw new Error(
+                    `BuildingKind ${name} is ambiguous, found ${foundBuildingKinds.length} existing BuildingKinds with that name`
+                );
+            }
+            // find ID based on pending specs
+            const manifests = docs
+                .map((doc) => doc.manifest)
+                .filter(({ kind, spec }) => kind === 'BuildingKind' && spec.name === name);
+            if (manifests.length === 0) {
+                throw new Error(
+                    `unable to find BuildingKind id for reference: ${name}, are you missing an BuildingKind manifest?`
+                );
+            }
+            if (manifests.length > 1) {
+                throw new Error(
+                    `BuildingKind ${name} is ambiguous, found ${manifests.length} different manifests that declare BuildingKinds with that name`
+                );
+            }
+            const manifest = manifests[0];
+            if (manifest.kind !== 'BuildingKind') {
+                throw new Error(`unexpected kind: wanted BuildingKind got ${manifest.kind}`);
+            }
+            return encodeBuildingKindID(manifest.spec);
+        };
 
         // build list of operations
         let ops: CogAction[] = [];
@@ -285,7 +325,7 @@ const deploy = {
                 ...ops,
                 {
                     name: 'DEV_SPAWN_BUILDING',
-                    args: [encodeBuildingKindID(spec), ...spec.location],
+                    args: [getBuildingKindIDByName(spec.name), ...spec.location],
                 },
             ];
             notes.push(`✅ spawned building instance of ${spec.name} at ${spec.location.join(',')}`);
