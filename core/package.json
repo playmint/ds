@@ -7,15 +7,6 @@
     "main": "./dist/core",
     "module": "./dist/core.mjs",
     "types": "./dist/core.d.ts",
-    "exports": {
-        ".": {
-            "import": "./dist/core.mjs",
-            "require": "./dist/core.js",
-            "types": "./dist/core.d.ts",
-            "source": "./src/index.ts"
-        },
-        "./package.json": "./package.json"
-    },
     "sideEffects": false,
     "files": [
         "src",
