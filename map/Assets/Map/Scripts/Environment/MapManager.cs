@@ -85,8 +85,20 @@ public class MapManager : MonoBehaviour
         }
         else
         {
+            bool wasDiscoveredTile = IsDiscoveredTile(cellCubicCoords);
             tilePositions[cellCubicCoords] = tile;
-            if (IsDiscoveredTile(cellCubicCoords))
+
+            if (!IsDiscoveredTile(cellCubicCoords) && wasDiscoveredTile)
+            {
+                GameObject tileGO = GameObject.Find("Tile_" + cellCubicCoords.ToString());
+                if (tileGO != null)
+                {
+                    TileController tileController = tileGO.GetComponent<TileController>();
+                    tileController.Appear();
+                    return tileController;
+                }
+            }
+            else if (IsDiscoveredTile(cellCubicCoords))
             {
                 GameObject tileGO = GameObject.Find("Tile_" + cellCubicCoords.ToString());
                 if (tileGO != null)

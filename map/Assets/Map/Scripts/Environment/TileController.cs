@@ -54,6 +54,7 @@ public class TileController : MonoBehaviour
 
     public void Appear()
     {
+        hasRisen = false;
         transform.position = new Vector3(transform.position.x, -1, transform.position.z);
         delay = Mathf.Clamp(Camera.main.WorldToViewportPoint(transform.position).x, 0, 1);
         rend.SetPropertyBlock(MapManager.instance.unscoutedMatProps);
