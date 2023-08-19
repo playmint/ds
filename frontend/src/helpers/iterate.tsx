@@ -3,7 +3,7 @@
 import { Fragment, ReactNode } from 'react';
 
 export const Iterate = ({ component, number }: { component: ReactNode; number: number }) => {
-    const items = [];
+    const items: ReactNode[] = [];
     for (let i = 0; i < number; i += 1) {
         items.push(component);
     }

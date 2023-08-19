@@ -269,7 +269,7 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
         return () => {
             console.log('fileref', fileRef.current.files);
             const files = fileRef.current.files;
-            const uploads = [];
+            const uploads: z.infer<typeof Manifest>[] = [];
             for (let i = 0; i < files.length; i++) {
                 if (!/ya?ml$/.test(files[i].name)) {
                     continue;
