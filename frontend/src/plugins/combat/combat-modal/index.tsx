@@ -14,7 +14,7 @@ import {
     SelectedMobileUnitFragment,
     SelectedTileFragment,
     useSelection,
-    WorldStateFragment
+    WorldStateFragment,
 } from '@downstream/core';
 import {
     CombatSession,
@@ -23,7 +23,7 @@ import {
     getActions,
     getLatestSession,
     getTileEntities,
-    sumParticipants
+    sumParticipants,
 } from '@app/plugins/combat/helpers';
 import { Combat, CombatWinState } from '@app/plugins/combat/combat';
 import { useBlockTime } from '@app/contexts/block-time-provider';
@@ -133,7 +133,7 @@ const PreCombatState: FunctionComponent<PreCombatStateProps> = (props) => {
         defendersMaxHealth,
         defendersCurrentHealth,
         isStarted,
-        onStartCombat
+        onStartCombat,
     } = props;
 
     const combatTiles = selectedTiles
@@ -166,7 +166,7 @@ const PreCombatState: FunctionComponent<PreCombatStateProps> = (props) => {
 
         const action: CogAction = {
             name: 'START_COMBAT',
-            args: [selectedMobileUnit.id, combatTiles[1].id, attackers, defenders]
+            args: [selectedMobileUnit.id, combatTiles[1].id, attackers, defenders],
         };
         player.dispatch(action);
         onStartCombat();
@@ -208,7 +208,7 @@ const CombatState: FunctionComponent<CombatStateProps> = (props) => {
         defendersMaxHealth,
         defendersCurrentHealth,
         blockNumber,
-        blockTime
+        blockTime,
     } = props;
 
     return (
@@ -310,7 +310,7 @@ const PostCombatState: FunctionComponent<PostCombatStateProps> = (props) => {
         attackersCurrentHealth,
         defenders,
         defendersMaxHealth,
-        defendersCurrentHealth
+        defendersCurrentHealth,
     } = props;
 
     return (
@@ -344,7 +344,7 @@ const PostCombatState: FunctionComponent<PostCombatStateProps> = (props) => {
 enum CombatModalState {
     PreCombat,
     Combat,
-    PostCombat
+    PostCombat,
 }
 
 export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatModalProps) => {
@@ -368,7 +368,7 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
     const handleFinaliseCombat = () => {
         const action: CogAction = {
             name: 'FINALISE_COMBAT',
-            args: [latestSession?.id, actions, orderedListIndexes]
+            args: [latestSession?.id, actions, orderedListIndexes],
         };
         player?.dispatch(action);
     };

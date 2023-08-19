@@ -15,7 +15,7 @@ import {
     CompoundKeyEncoder,
     NodeSelectors,
     WorldBuildingFragment,
-    WorldTileFragment
+    WorldTileFragment,
 } from '@app/../../core/src';
 import { ethers, id as keccak256UTF8, solidityPacked } from 'ethers';
 
@@ -44,7 +44,7 @@ const Building = ({
     model,
     position,
     name,
-    showLabels
+    showLabels,
 }: {
     model: string;
     position: [number, number, number];
@@ -77,7 +77,7 @@ const Building = ({
                         color: '#eee',
                         textAlign: 'center',
                         fontSize: '10px',
-                        pointerEvents: 'none'
+                        pointerEvents: 'none',
                     }}
                     position={[0, 1, 0]}
                 >
@@ -171,9 +171,9 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                         Array.from(buildingKinds.values())
                             .map(({ spec }) => spec.name)
                             .sort()
-                    )
+                    ),
                 },
-                labels: false
+                labels: false,
             };
         },
         [buildingKinds, Array.from(buildingKinds.values()).length]
@@ -191,7 +191,7 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                     tiles.push({
                         id: location.join(':'),
                         location,
-                        position: getTileXYZ(location)
+                        position: getTileXYZ(location),
                     });
                 }
             }
@@ -213,14 +213,14 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
     }, [manifests]);
 
     const { preview } = useControls('View', {
-        preview: false
+        preview: false,
     });
     useControls(
         'Mannifests',
         () => ({
             Reset: button(() => setManifests(new Map())),
             Import: button(() => fileRef.current.click()),
-            Export: button(() => window.location.replace(getManifestDownloadURL()))
+            Export: button(() => window.location.replace(getManifestDownloadURL())),
         }),
         [getManifestDownloadURL]
     );
@@ -234,8 +234,8 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                 kind: 'Tile',
                 spec: {
                     biome: 'DISCOVERED',
-                    location: t.location
-                }
+                    location: t.location,
+                },
             };
             const newManifestsForTile: z.infer<typeof Manifest>[] = (() => {
                 if (brush === 'DISCOVERED TILE') {
@@ -255,9 +255,9 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                             spec: {
                                 name: buildingKind.spec.name,
                                 category: 'custom',
-                                location: t.location
-                            }
-                        }
+                                location: t.location,
+                            },
+                        },
                     ];
                 }
             })();
@@ -302,8 +302,8 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                                     kind: 'Tile',
                                     spec: {
                                         biome: 'DISCOVERED',
-                                        location: m.spec.location
-                                    }
+                                        location: m.spec.location,
+                                    },
                                 };
                                 manifests = new Map(manifests.set(id, [tile, m]));
                                 console.log('imported', m);
@@ -380,7 +380,7 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                     blocker: 1,
                     extractor: 2,
                     factory: 3,
-                    custom: 4
+                    custom: 4,
                 }[kind.spec.category] || 0;
             const kindID = solidityPacked(
                 ['bytes4', 'uint32', 'uint64', 'uint64'],
@@ -394,11 +394,11 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                     model: { id: '', value: kind.spec.model },
                     materials: [],
                     inputs: [],
-                    outputs: []
+                    outputs: [],
                 },
                 bags: [],
                 timestamp: [],
-                gooReservoir: []
+                gooReservoir: [],
             };
         };
 
@@ -418,7 +418,7 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                 sessions: [],
                 bags: [],
                 atoms: [],
-                building: worldBuildingForTile(t)
+                building: worldBuildingForTile(t),
             };
         });
 
@@ -426,7 +426,7 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
         args.push([
             'GameStateMediator',
             'StartOnState',
-            JSON.stringify({ tiles: [], buildings: [], players: [], block: 1 })
+            JSON.stringify({ tiles: [], buildings: [], players: [], block: 1 }),
         ]);
         args.push(['GameStateMediator', 'ResetWorldTiles']);
         args.push(['GameStateMediator', 'AddWorldTiles', JSON.stringify(worldTiles)]);

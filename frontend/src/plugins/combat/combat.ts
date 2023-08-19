@@ -11,14 +11,14 @@ export const ATOM_ATTACK = 2;
 
 enum CombatSideKey {
     ATTACK,
-    DEFENCE
+    DEFENCE,
 }
 
 export enum CombatActionKind {
     NONE,
     JOIN,
     LEAVE,
-    EQUIP
+    EQUIP,
 }
 
 export interface CombatAction {
@@ -66,7 +66,7 @@ export enum CombatWinState {
     NONE,
     ATTACKERS,
     DEFENDERS,
-    DRAW
+    DRAW,
 }
 
 export class Combat {
@@ -83,7 +83,7 @@ export class Combat {
             attackerCount: 0,
             defenderCount: 0,
             winState: CombatWinState.NONE,
-            tickCount: 0
+            tickCount: 0,
         };
 
         for (let x = 0; x < sortedListIndexes.length; x++) {
@@ -106,7 +106,7 @@ export class Combat {
                 const result = ethers.AbiCoder.defaultAbiCoder().decode(['uint8', 'uint32[3]'], combatAction.data);
                 const info: JoinActionInfo = {
                     combatSide: Number(result[0]),
-                    stats: [Number(result[1][0]), Number(result[1][1]), Number(result[1][2])]
+                    stats: [Number(result[1][0]), Number(result[1][1]), Number(result[1][2])],
                 };
                 if (
                     info.combatSide === CombatSideKey.ATTACK &&
@@ -119,7 +119,7 @@ export class Combat {
             } else if (combatAction.kind === CombatActionKind.LEAVE) {
                 const result = ethers.AbiCoder.defaultAbiCoder().decode(['uint8'], combatAction.data);
                 const info: LeaveActionInfo = {
-                    combatSide: Number(result[0])
+                    combatSide: Number(result[0]),
                 };
 
                 _removeEntityFromCombat(combatState, combatAction, info);
@@ -135,7 +135,7 @@ export class Combat {
                 const result = ethers.AbiCoder.defaultAbiCoder().decode(['uint8', 'uint32[3]'], combatAction.data);
                 const info: JoinActionInfo = {
                     combatSide: Number(result[0]),
-                    stats: [Number(result[1][0]), Number(result[1][1]), Number(result[1][2])]
+                    stats: [Number(result[1][0]), Number(result[1][1]), Number(result[1][2])],
                 };
 
                 _updateEntityStats(combatState, combatAction, info);
@@ -246,7 +246,7 @@ export class Combat {
                     damageInflicted: 0,
                     isPresent: true,
                     isDead: false,
-                    hasClaimed: false
+                    hasClaimed: false,
                 };
                 return true;
             }
@@ -269,7 +269,7 @@ export class Combat {
                 flattenedIndexes[currentIndex] = {
                     blockNum: sessionUpdates[i][j].blockNum,
                     i: i,
-                    j: j
+                    j: j,
                 };
                 currentIndex++;
             }

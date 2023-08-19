@@ -47,7 +47,7 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
             isInteractable,
             isPending: false,
             bagId,
-            placeholder: recipe && recipe[index]
+            placeholder: recipe && recipe[index],
         }))
         .map((slot: BagSlotProps) => {
             // we want to check if the bag has a slot for this index

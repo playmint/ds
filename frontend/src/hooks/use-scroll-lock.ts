@@ -15,6 +15,6 @@ export const useScrollLock = () => {
 
     return {
         lockScroll,
-        unlockScroll
+        unlockScroll,
     };
 };

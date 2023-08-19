@@ -43,7 +43,7 @@ export const BlockTimeProvider = ({ block, children }: BlockTimeContextProviderP
 
     const store: BlockTimeContextStore = {
         blockTime: BLOCK_TIME_SECS,
-        blockNumberRef: estimatedBlockRef
+        blockNumberRef: estimatedBlockRef,
     };
 
     return <BlockTimeContext.Provider value={store}>{children}</BlockTimeContext.Provider>;

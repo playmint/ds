@@ -19,7 +19,7 @@ export function getCoords(t: Locatable) {
     return {
         q: Number(ethers.fromTwos(t.coords[1], 16)),
         r: Number(ethers.fromTwos(t.coords[2], 16)),
-        s: Number(ethers.fromTwos(t.coords[3], 16))
+        s: Number(ethers.fromTwos(t.coords[3], 16)),
     };
 }
 
@@ -27,7 +27,7 @@ function getCoordsArray(coords: any[]): [number, number, number] {
     return [
         Number(ethers.fromTwos(coords[1], 16)),
         Number(ethers.fromTwos(coords[2], 16)),
-        Number(ethers.fromTwos(coords[3], 16))
+        Number(ethers.fromTwos(coords[3], 16)),
     ];
 }
 
@@ -49,6 +49,6 @@ export function getNeighbours(tiles: WorldTileFragment[], t: Pick<WorldTileFragm
         getTileByQRS(tiles, q, r - 1, s + 1),
         getTileByQRS(tiles, q - 1, r, s + 1),
         getTileByQRS(tiles, q - 1, r + 1, s),
-        getTileByQRS(tiles, q, r + 1, s - 1)
+        getTileByQRS(tiles, q, r + 1, s - 1),
     ].filter((t): t is WorldTileFragment => !!t);
 }

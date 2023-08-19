@@ -11,7 +11,7 @@ import {
     PluginStateComponentContentType,
     PluginStateButtonAction,
     PluginStateButtonToggle,
-    PluginSubmitCallValues
+    PluginSubmitCallValues,
 } from '@downstream/core';
 
 type ToggleContentFunc = (contentID: string) => void;
@@ -33,7 +33,7 @@ const StyledTileAction = styled('div')`
 const PluginContent = ({
     content,
     toggleContent,
-    children
+    children,
 }: {
     content: PluginStateComponentContent;
     toggleContent: ToggleContentFunc;
@@ -105,7 +105,7 @@ export const TileAction: FunctionComponent<TileActionProps> = (props: TileAction
     const [contentIdForType, setContentIdForType] = useState<PluginContentTypeMap>({
         inline: 'default',
         popout: '',
-        dialog: ''
+        dialog: '',
     });
 
     const getVisibleContentForType = (

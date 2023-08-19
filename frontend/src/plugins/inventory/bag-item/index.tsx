@@ -48,7 +48,7 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
             equipIndex,
             slotKey,
             newBalance: 0,
-            itemId
+            itemId,
         };
         const item = { name, icon, quantity, transferInfo };
         pickUpItem(item);

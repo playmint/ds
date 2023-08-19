@@ -23,7 +23,7 @@ import {
     WorldStateFragment,
     Wallet,
     EthereumProvider,
-    Selector
+    Selector,
 } from '@downstream/core';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { EthereumProvider as WalletConnectProvider } from '@walletconnect/ethereum-provider';
@@ -111,7 +111,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
             const wc = await WalletConnectProvider.init({
                 projectId: '0061224af3af75d7af2bbfa60d3c49c3',
                 chains: [1], // REQUIRED chain ids
-                showQrModal: false // REQUIRED set to "true" to use @web3modal/standalone,
+                showQrModal: false, // REQUIRED set to "true" to use @web3modal/standalone,
                 // methods, // OPTIONAL ethereum methods
                 // events, // OPTIONAL ethereum events
                 // rpcMap, // OPTIONAL rpc urls for each chain
@@ -293,7 +293,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                     src: '/qrunit.png',
                                     width: 48,
                                     height: 41,
-                                    excavate: true
+                                    excavate: true,
                                 }}
                             />
                             Scan the QR code with a WalletConnect compatible phone app to connect
