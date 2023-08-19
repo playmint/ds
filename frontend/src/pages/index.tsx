@@ -62,7 +62,7 @@ export default function ShellPage() {
         selectMobileUnit,
         selectTiles,
         selectIntent: rawSelectIntent,
-        selectMapElement
+        selectMapElement,
     } = useGameState();
     const block = world ? world.block : 0;
     const { dispatch } = player || {};
@@ -102,7 +102,7 @@ export default function ShellPage() {
                     args.push([
                         'GameStateMediator',
                         'StartOnState',
-                        JSON.stringify({ tiles: [], buildings: [], players: [], block: pendingBlock })
+                        JSON.stringify({ tiles: [], buildings: [], players: [], block: pendingBlock }),
                     ]);
 
                     if (pendingPlayers) {
@@ -159,7 +159,7 @@ export default function ShellPage() {
                     pendingPlayers.push([
                         'GameStateMediator',
                         'AddWorldPlayers',
-                        JSON.stringify(game.world.players.slice(i, i + CHUNK_PLAYERS))
+                        JSON.stringify(game.world.players.slice(i, i + CHUNK_PLAYERS)),
                     ]);
                 }
                 prevPlayersJSON = nextPlayersJSON;
@@ -174,7 +174,7 @@ export default function ShellPage() {
                     pendingTiles.push([
                         'GameStateMediator',
                         'AddWorldTiles',
-                        JSON.stringify(game.world.tiles.slice(i, i + CHUNK_TILES))
+                        JSON.stringify(game.world.tiles.slice(i, i + CHUNK_TILES)),
                     ]);
                 }
                 prevTilesJSON = nextTilesJSON;
@@ -189,7 +189,7 @@ export default function ShellPage() {
                     pendingBuildings.push([
                         'GameStateMediator',
                         'AddWorldBuildings',
-                        JSON.stringify(game.world.buildings.slice(i, i + CHUNK_BUILDINGS))
+                        JSON.stringify(game.world.buildings.slice(i, i + CHUNK_BUILDINGS)),
                     ]);
                 }
                 prevBuildingsJSON = nextBuildingsJSON;
@@ -289,7 +289,7 @@ export default function ShellPage() {
         addEventListener,
         removeEventListener,
         selectMobileUnit,
-        selectMapElement
+        selectMapElement,
     ]);
 
     // We'll round the loading progression to a whole number to represent the
@@ -308,7 +308,7 @@ export default function ShellPage() {
                 maxWidth: '300px',
                 textAlign: 'center',
                 color: '#fff',
-                borderRadius: '5px'
+                borderRadius: '5px',
             }}
         >
             <div
@@ -317,7 +317,7 @@ export default function ShellPage() {
                     height: '100%',
                     width: `${loadingPercentage}%`,
                     transition: 'width .3s',
-                    borderRadius: '5px'
+                    borderRadius: '5px',
                 }}
             />
         </div>

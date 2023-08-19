@@ -46,7 +46,7 @@ export const TickTimerProgressBar: FunctionComponent<TickTimerProgressBarProps> 
             gsap.to(progressRef.current, {
                 scaleX: Math.max((remainingTime - 1) / (blockTime - 1), 0),
                 duration: 1,
-                ease: 'none'
+                ease: 'none',
             });
         }
     }, [remainingTime, blockTime]);

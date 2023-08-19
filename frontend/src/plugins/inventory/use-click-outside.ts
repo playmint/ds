@@ -44,6 +44,6 @@ export const useClickOutside = (handler: (event: any) => void) => {
 
     return {
         addRef,
-        removeRef
+        removeRef,
     };
 };

@@ -19,7 +19,7 @@ export function getItemDetails(itemSlot: ItemSlotFragment) {
         itemId,
         name,
         icon,
-        quantity
+        quantity,
     };
 }
 

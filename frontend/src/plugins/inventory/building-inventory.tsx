@@ -20,7 +20,7 @@ export const BuildingInventory: FunctionComponent<BuildingInventoryProps> = (pro
     const equipSlot = getBuildingEquipSlot(useWorld(), buildingId, 0) ?? {
         id: '',
         key: 0,
-        bag: { id: bagId, slots: [] }
+        bag: { id: bagId, slots: [] },
     };
 
     return (

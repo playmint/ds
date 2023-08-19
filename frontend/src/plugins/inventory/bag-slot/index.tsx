@@ -68,7 +68,7 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
             {
                 id: ownerId,
                 equipIndex,
-                slotKey
+                slotKey,
             },
             itemSlotBalance,
             transferQuantity,

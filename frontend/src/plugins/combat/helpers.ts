@@ -10,7 +10,7 @@ import {
     SelectedTileFragment,
     WorldMobileUnitFragment,
     WorldStateFragment,
-    WorldTileFragment
+    WorldTileFragment,
 } from '@downstream/core';
 import { AbiCoder, BigNumberish, BytesLike, hexlify } from 'ethers';
 
@@ -66,7 +66,7 @@ export function getActionsFlat(session: CombatSession): CombatActionStruct[] {
                 actionKind,
                 entityID,
                 blockNum,
-                data
+                data,
             };
         });
     });
@@ -102,7 +102,7 @@ export function getActions(session: CombatSession) {
                 kind,
                 entityID,
                 blockNum,
-                data
+                data,
             };
         });
     });
@@ -120,7 +120,7 @@ export function convertCombatActions(actions: CombatActionStruct[][]): CombatAct
                 kind: Number(actionStruct.kind),
                 entityID: actionStruct.entityID,
                 blockNum: Number(actionStruct.blockNum),
-                data: actionStruct.data
+                data: actionStruct.data,
             };
 
             row.push(convertedAction);
@@ -212,7 +212,7 @@ export const unitToCombatParticipantProps = (
         attack: stats[ATOM_ATTACK] + UNIT_BASE_ATTACK,
         defence: stats[ATOM_DEFENSE] + UNIT_BASE_DEFENCE,
         isDead: false,
-        isPresent: true
+        isPresent: true,
     };
 };
 
@@ -226,7 +226,7 @@ export const buildingToCombatParticipantProps = (buildingKind: BuildingKindFragm
         attack: stats[ATOM_ATTACK],
         defence: stats[ATOM_DEFENSE],
         isDead: false,
-        isPresent: true
+        isPresent: true,
     };
 };
 
@@ -242,7 +242,7 @@ export const entityStateToCombatParticipantProps = (
     attack: stats[ATOM_ATTACK],
     defence: stats[ATOM_DEFENSE],
     isDead,
-    isPresent
+    isPresent,
 });
 
 export const sumParticipants = (

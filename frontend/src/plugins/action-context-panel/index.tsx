@@ -23,7 +23,7 @@ import {
     useWorld,
     World,
     WorldBuildingFragment,
-    WorldTileFragment
+    WorldTileFragment,
 } from '@downstream/core';
 import React, { Fragment, FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -317,8 +317,8 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
                 data.kind,
                 constructableTile.coords[1],
                 constructableTile.coords[2],
-                constructableTile.coords[3]
-            ]
+                constructableTile.coords[3],
+            ],
         });
         clearIntent();
     };
@@ -461,7 +461,7 @@ const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selecte
             const [_zone, q, r, s] = tile.coords;
             return {
                 name: 'MOVE_MOBILE_UNIT',
-                args: [mobileUnit.key, q, r, s]
+                args: [mobileUnit.key, q, r, s],
             };
         });
         actions.reduce(
@@ -523,7 +523,7 @@ const Combat: FunctionComponent<CombatProps> = ({
     selectIntent,
     selectedTiles,
     player,
-    mobileUnit
+    mobileUnit,
 }) => {
     const combatTiles = selectedTiles
         .filter((t) => t.biome === BiomeKind.DISCOVERED)
@@ -592,7 +592,7 @@ const Scout: FunctionComponent<ScoutProps> = ({ selectTiles, selectIntent, selec
             const [_zone, q, r, s] = tile.coords;
             return {
                 name: 'SCOUT_MOBILE_UNIT',
-                args: [mobileUnit.key, q, r, s]
+                args: [mobileUnit.key, q, r, s],
             };
         });
         player.dispatch(...actions);

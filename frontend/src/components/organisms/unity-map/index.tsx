@@ -21,7 +21,7 @@ export const useUnityMap = () => {
         streamingAssetsUrl: `/ds-unity/StreamingAssets/`,
         companyName: `Playmint`,
         productName: `Downstream`,
-        productVersion: `blueprint`
+        productVersion: `blueprint`,
     });
 };
 
@@ -78,7 +78,7 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ unityProvider, ...o
                     which: e.which,
                     shiftKey: false,
                     ctrlKey: false,
-                    metaKey: false
+                    metaKey: false,
                 })
             );
         };

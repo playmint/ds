@@ -58,5 +58,5 @@ const App = ({ Component, pageProps }: AppProps) => {
 };
 
 export default dynamic(() => Promise.resolve(App), {
-    ssr: false
+    ssr: false,
 });

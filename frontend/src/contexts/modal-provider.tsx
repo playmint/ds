@@ -40,7 +40,7 @@ export const ModalProvider = ({ children }: ModalContextProviderProps) => {
     const [{ isVisible, closable, showCloseButton }, update] = useReducer(reducer, {
         isVisible: false,
         closable: true,
-        showCloseButton: true
+        showCloseButton: true,
     });
 
     function openModal(options?: ModalOptions) {
@@ -48,7 +48,7 @@ export const ModalProvider = ({ children }: ModalContextProviderProps) => {
         update(() => ({
             isVisible: true,
             closable: options?.closable ?? true,
-            showCloseButton: options?.showCloseButton ?? true
+            showCloseButton: options?.showCloseButton ?? true,
         }));
     }
 
@@ -57,7 +57,7 @@ export const ModalProvider = ({ children }: ModalContextProviderProps) => {
         update(() => ({
             isVisible: false,
             closable,
-            showCloseButton
+            showCloseButton,
         }));
     }
 
@@ -68,7 +68,7 @@ export const ModalProvider = ({ children }: ModalContextProviderProps) => {
     const store: ModalContextStore = {
         openModal,
         closeModal,
-        setModalContent
+        setModalContent,
     };
 
     return (

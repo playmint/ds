@@ -141,7 +141,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
                 equipIndex: target.equipIndex,
                 slotKey: target.slotKey,
                 newBalance: targetCurrentBalance + transferQuantity,
-                itemId: pickedUpItemRef.current.transferInfo.itemId
+                itemId: pickedUpItemRef.current.transferInfo.itemId,
             },
             transferQuantity,
             bagId
@@ -179,8 +179,8 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
                 [from.equipIndex, to.equipIndex],
                 [from.slotKey, to.slotKey],
                 bagId || nullBagId,
-                quantity
-            ]
+                quantity,
+            ],
         });
     };
 
@@ -191,7 +191,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         drop,
         isMobileUnitAtLocation,
         addBagRef,
-        removeBagRef
+        removeBagRef,
     };
 
     return (
@@ -206,7 +206,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
                         left: '0',
                         transform: 'translate(-50%, -50%)',
                         pointerEvents: 'none',
-                        zIndex: '999999'
+                        zIndex: '999999',
                     }}
                 >
                     <StyledPickedUpItem isPickable={false}>

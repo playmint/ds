@@ -46,7 +46,7 @@ const plugin: PluginConfig = {
     hash: 'move',
     type: PluginType.CORE,
     trust: PluginTrust.TRUSTED,
-    src: src
+    src: src,
 };
 
 export default plugin;
