@@ -434,7 +434,7 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
         for (let i = 0; i < args.length; i++) {
             sendMessage(args[i][0], args[i][1], args[i][2]);
         }
-    }, [sendMessage, tiles, manifests, preview]);
+    }, [sendMessage, tiles, manifests, preview, buildingKinds]);
 
     return (
         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
