@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { ComponentProps } from '@app/types/component-props';
 import { styles } from './tile-coords.styles';
 import { ethers } from 'ethers';
-import { SelectedTileFragment } from '@app/../../core/dist/core';
+import { SelectedTileFragment } from '@downstream/core';
 
 export interface TileCoordsProps extends ComponentProps {
     selectedTiles: SelectedTileFragment[];
