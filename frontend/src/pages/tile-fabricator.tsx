@@ -1,6 +1,6 @@
 /** @format */
 
-import { FunctionComponent, useEffect, useMemo, useRef, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { z } from 'zod';
 
 import { BuildingKind, Manifest, parseManifestDocuments } from '@playmint/ds-cli/src/utils/manifest';
@@ -18,6 +18,7 @@ import {
     WorldTileFragment,
 } from '@app/../../core/src';
 import { ethers, id as keccak256UTF8, solidityPacked } from 'ethers';
+import { useDebounce } from '@app/hooks/use-debounce';
 
 const TILE_SIZE = 1;
 
@@ -98,7 +99,6 @@ interface GridProps {
 }
 
 const Grid = ({ tiles, onPaintTile, manifests }: GridProps) => {
-    //
     const instances = useMemo(() => {
         return tiles.map((t, i) => {
             const manifest = manifests.get(t.id) || [];
@@ -116,6 +116,7 @@ const Grid = ({ tiles, onPaintTile, manifests }: GridProps) => {
                     key={`${i + 1}`}
                     scale={1}
                     onClick={paint}
+                    onPointerEnter={paint}
                     onPointerMove={paint}
                     onPointerOver={paint}
                     position={t.position}
@@ -165,7 +166,7 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
         'Tiles',
         () => {
             return {
-                diameter: { value: 30, min: 5, max: 40, step: 1 },
+                diameter: { value: 30, min: 5, max: 50, step: 1 },
                 brush: {
                     options: ['DISCOVERED TILE', 'UNDISCOVERED TILE'].concat(
                         Array.from(buildingKinds.values())
@@ -199,25 +200,23 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
         return tiles;
     }, [diameter]);
 
-    const getManifestDownloadURL = useMemo(() => {
-        console.log('remade');
-        return (): string => {
-            const exportable = Array.from(manifests.values())
-                .flatMap((v) => v)
-                .filter((m) => m.kind === 'Tile' || m.kind === 'Building');
-            const data = `${exportable.length > 0 ? '\n---\n' : ''}${exportable.map(toYAML).join('\n---\n')}`;
-            console.log(data);
-            const blob = new Blob([data], { type: 'application/x-yaml' });
-            return URL.createObjectURL(blob);
-        };
+    const getManifestDownloadURL = useCallback((): string => {
+        const exportable = Array.from(manifests.values())
+            .flatMap((v) => v)
+            .filter((m) => m.kind === 'Tile' || m.kind === 'Building');
+        const data = `${exportable.length > 0 ? '\n---\n' : ''}${exportable.map(toYAML).join('\n---\n')}`;
+        const blob = new Blob([data], { type: 'application/x-yaml' });
+        return URL.createObjectURL(blob);
     }, [manifests]);
 
     const { preview } = useControls('View', {
         preview: false,
     });
-    useControls(
+
+    const [{}, setManifestControl] = useControls(
         'Mannifests',
         () => ({
+            stats: { editable: false, value: '' },
             Reset: button(() => setManifests(new Map())),
             Import: button(() => fileRef.current.click()),
             Export: button(() => window.location.replace(getManifestDownloadURL())),
@@ -225,11 +224,16 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
         [getManifestDownloadURL]
     );
 
-    const onPaintTile = useMemo(() => {
-        return (t: GridTile) => {
+    useEffect(() => {
+        setManifestControl({ stats: `Tile count: ${Array.from(manifests.values()).length}` });
+    }, [manifests, setManifestControl]);
+
+    const onPaintTile = useCallback(
+        (t: GridTile) => {
             if (!mouseDown) {
                 return;
             }
+            const existingManifests = manifests.get(t.id);
             const tile: z.infer<typeof Manifest> = {
                 kind: 'Tile',
                 spec: {
@@ -237,11 +241,11 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                     location: t.location,
                 },
             };
-            const newManifestsForTile: z.infer<typeof Manifest>[] = (() => {
+            const newManifestsForTile: z.infer<typeof Manifest>[] | undefined = (() => {
                 if (brush === 'DISCOVERED TILE') {
-                    return [tile];
+                    return existingManifests && existingManifests.length === 1 ? undefined : [tile];
                 } else if (brush === 'UNDISCOVERED TILE') {
-                    return [];
+                    return !existingManifests || existingManifests.length === 0 ? undefined : [];
                 } else {
                     const buildingKind = buildingKinds.get(brush);
                     if (!buildingKind) {
@@ -261,72 +265,69 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                     ];
                 }
             })();
-            setManifests((prev) => new Map(prev.set(t.id, newManifestsForTile)));
-        };
-    }, [mouseDown, brush, buildingKinds]);
-
-    const onLoadManifests = useMemo(() => {
-        return () => {
-            console.log('fileref', fileRef.current.files);
-            const files = fileRef.current.files;
-            const uploads: z.infer<typeof Manifest>[] = [];
-            for (let i = 0; i < files.length; i++) {
-                if (!/ya?ml$/.test(files[i].name)) {
-                    continue;
-                }
-                uploads.push(
-                    files[i]
-                        .text()
-                        .then((txt: string) => parseManifestDocuments(txt, files[i].name))
-                        .then((docs: any[]) => docs.flatMap((doc) => doc.manifest))
-                );
+            if (typeof newManifestsForTile !== 'undefined') {
+                setManifests((prev) => new Map(prev.set(t.id, newManifestsForTile)));
             }
-            Promise.all(uploads)
-                .then((upload) => upload.flatMap((manifests) => manifests))
-                .then((importedManifests) => {
-                    // merge imported into scene
-                    setManifests((manifests) => {
-                        importedManifests.forEach((m) => {
-                            if (m.kind === 'Tile') {
-                                const id = m.spec.location.join(':');
-                                const existing = manifests.get(id);
-                                if (existing && existing.length > 0) {
-                                    // tile already exists, don't overrite
-                                } else {
-                                    manifests = new Map(manifests.set(id, [m]));
-                                    console.log('imported', m);
-                                }
-                            } else if (m.kind === 'Building') {
-                                const id = m.spec.location.join(':');
-                                const tile: z.infer<typeof Manifest> = {
-                                    kind: 'Tile',
-                                    spec: {
-                                        biome: 'DISCOVERED',
-                                        location: m.spec.location,
-                                    },
-                                };
-                                manifests = new Map(manifests.set(id, [tile, m]));
-                                console.log('imported', m);
+        },
+        [mouseDown, brush, buildingKinds, manifests]
+    );
+
+    const onLoadManifests = useCallback(() => {
+        const files = fileRef.current.files;
+        const uploads: z.infer<typeof Manifest>[] = [];
+        for (let i = 0; i < files.length; i++) {
+            if (!/ya?ml$/.test(files[i].name)) {
+                continue;
+            }
+            uploads.push(
+                files[i]
+                    .text()
+                    .then((txt: string) => parseManifestDocuments(txt, files[i].name))
+                    .then((docs: any[]) => docs.flatMap((doc) => doc.manifest))
+            );
+        }
+        Promise.all(uploads)
+            .then((upload) => upload.flatMap((manifests) => manifests))
+            .then((importedManifests) => {
+                // merge imported into scene
+                setManifests((manifests) => {
+                    importedManifests.forEach((m) => {
+                        if (m.kind === 'Tile') {
+                            const id = m.spec.location.join(':');
+                            const existing = manifests.get(id);
+                            if (existing && existing.length > 0) {
+                                // tile already exists, don't overrite
+                            } else {
+                                manifests = new Map(manifests.set(id, [m]));
                             }
-                        });
-                        return manifests;
+                        } else if (m.kind === 'Building') {
+                            const id = m.spec.location.join(':');
+                            const tile: z.infer<typeof Manifest> = {
+                                kind: 'Tile',
+                                spec: {
+                                    biome: 'DISCOVERED',
+                                    location: m.spec.location,
+                                },
+                            };
+                            manifests = new Map(manifests.set(id, [tile, m]));
+                        }
                     });
-                    setBuildingKinds((kinds) => {
-                        importedManifests.forEach((m) => {
-                            if (m.kind === 'BuildingKind') {
-                                kinds = new Map(kinds.set(m.spec.name, m));
-                                console.log('imported', m);
-                            }
-                        });
-                        return kinds;
+                    return manifests;
+                });
+                setBuildingKinds((kinds) => {
+                    importedManifests.forEach((m) => {
+                        if (m.kind === 'BuildingKind') {
+                            kinds = new Map(kinds.set(m.spec.name, m));
+                        }
                     });
-                })
-                .catch((err) => console.error(`failed to parse manifests: ${err}`));
-        };
+                    return kinds;
+                });
+            })
+            .catch((err) => console.error(`failed to parse manifests: ${err}`));
     }, []);
 
-    const buildingForTile = useMemo(() => {
-        return (t: GridTile) => {
+    const buildingForTile = useCallback(
+        (t: GridTile) => {
             const building = manifests.get(t.id)?.find((m) => m.kind === 'Building');
             if (!building || building.kind !== 'Building') {
                 return undefined;
@@ -349,8 +350,9 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                 }
             })();
             return <Building key={t.id} model={model} position={t.position} name={label} showLabels={labels} />;
-        };
-    }, [buildingKinds, manifests, labels]);
+        },
+        [buildingKinds, manifests, labels]
+    );
 
     useEffect(() => {
         if (!preview) {
@@ -436,6 +438,9 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
         }
     }, [sendMessage, tiles, manifests, preview, buildingKinds]);
 
+    const debouncedTiles = useDebounce(tiles, 25);
+    const debouncedManifests = useDebounce(manifests, 25);
+
     return (
         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
             <div
@@ -467,8 +472,8 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                     <ambientLight color="#ffffff" intensity={0.55} />
                     <directionalLight color="#fff" position={[100, 100, 100]} />
                     <OrthographicCamera makeDefault zoom={20} near={0} far={10000} position={[0, 100, 0]} />
-                    <Grid tiles={tiles} manifests={manifests} onPaintTile={onPaintTile} />
-                    {tiles.map(buildingForTile).filter((v) => !!v)}
+                    <Grid tiles={debouncedTiles} manifests={debouncedManifests} onPaintTile={onPaintTile} />
+                    {debouncedTiles.map(buildingForTile).filter((v) => !!v)}
                 </Canvas>
                 <input
                     ref={fileRef}
