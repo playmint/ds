@@ -126,11 +126,13 @@ const Grid = ({ tiles, onPaintTile, manifests }: GridProps) => {
         });
     }, [tiles, manifests, onPaintTile]);
 
+    const debouncedInstances = useDebounce(instances, 30);
+
     return (
         <Instances limit={10000} range={10000}>
             <cylinderGeometry args={[TILE_SIZE - 0.05, TILE_SIZE - 0.05, 0.01, 6]} />
             <meshBasicMaterial />
-            {instances}
+            {debouncedInstances}
         </Instances>
     );
 };
@@ -166,7 +168,7 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
         'Tiles',
         () => {
             return {
-                diameter: { value: 30, min: 5, max: 50, step: 1 },
+                diameter: { value: 30, min: 5, max: 40, step: 1 },
                 brush: {
                     options: ['DISCOVERED TILE', 'UNDISCOVERED TILE'].concat(
                         Array.from(buildingKinds.values())
@@ -438,9 +440,6 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
         }
     }, [sendMessage, tiles, manifests, preview, buildingKinds]);
 
-    const debouncedTiles = useDebounce(tiles, 25);
-    const debouncedManifests = useDebounce(manifests, 25);
-
     return (
         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
             <div
@@ -472,8 +471,8 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                     <ambientLight color="#ffffff" intensity={0.55} />
                     <directionalLight color="#fff" position={[100, 100, 100]} />
                     <OrthographicCamera makeDefault zoom={20} near={0} far={10000} position={[0, 100, 0]} />
-                    <Grid tiles={debouncedTiles} manifests={debouncedManifests} onPaintTile={onPaintTile} />
-                    {debouncedTiles.map(buildingForTile).filter((v) => !!v)}
+                    <Grid tiles={tiles} manifests={manifests} onPaintTile={onPaintTile} />
+                    {tiles.map(buildingForTile).filter((v) => !!v)}
                 </Canvas>
                 <input
                     ref={fileRef}
