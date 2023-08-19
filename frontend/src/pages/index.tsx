@@ -1,10 +1,10 @@
 /** @format */
+import { useUnityMap } from '@app/components/organisms/unity-map';
 import Shell from '@app/components/views/shell';
 import { BlockTimeProvider } from '@app/contexts/block-time-provider';
 import { ModalProvider } from '@app/contexts/modal-provider';
 import { ActionName, useGameState, useWallet } from '@downstream/core';
 import { useCallback, useEffect, useState } from 'react';
-import { useUnityContext } from 'react-unity-webgl';
 
 interface Message {
     msg: string;
@@ -67,16 +67,7 @@ export default function ShellPage() {
     const block = world ? world.block : 0;
     const { dispatch } = player || {};
     const [isReady, setIsReady] = useState(false);
-    const { unityProvider, sendMessage, addEventListener, removeEventListener, loadingProgression } = useUnityContext({
-        loaderUrl: `/ds-unity/Build/ds-unity.loader.js`,
-        dataUrl: `/ds-unity/Build/ds-unity.data`,
-        frameworkUrl: `/ds-unity/Build/ds-unity.framework.js`,
-        codeUrl: `/ds-unity/Build/ds-unity.wasm`,
-        streamingAssetsUrl: `/ds-unity/StreamingAssets/`,
-        companyName: `Playmint`,
-        productName: `Downstream`,
-        productVersion: `blueprint`
-    });
+    const { unityProvider, sendMessage, addEventListener, removeEventListener, loadingProgression } = useUnityMap();
 
     const selectIntent = useCallback(
         (intent: string | undefined, tileId?: string) => {

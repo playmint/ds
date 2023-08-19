@@ -448,7 +448,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                 </div>
             </div>
             <div className="map-container">
-                <UnityMap unityProvider={unityProvider} sendMessage={sendMessage} {...otherProps} />
+                <UnityMap unityProvider={unityProvider} />
             </div>
         </StyledShell>
     );

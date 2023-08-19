@@ -3,25 +3,33 @@
 import { ComponentProps } from '@app/types/component-props';
 import { SelectionSelectors } from '@downstream/core';
 import { FunctionComponent, useEffect, useRef, useState } from 'react';
-import { Unity } from 'react-unity-webgl';
+import { Unity, useUnityContext } from 'react-unity-webgl';
 import { UnityProvider } from 'react-unity-webgl/distribution/types/unity-provider';
 import styled from 'styled-components';
 import { styles } from './unity-map.styles';
 
 export interface UnityMapProps extends ComponentProps, Partial<SelectionSelectors> {
     unityProvider: UnityProvider;
-    sendMessage: (gameObjectName: string, methodName: string, parameter?: any) => void;
 }
+
+export const useUnityMap = () => {
+    return useUnityContext({
+        loaderUrl: `/ds-unity/Build/ds-unity.loader.js`,
+        dataUrl: `/ds-unity/Build/ds-unity.data`,
+        frameworkUrl: `/ds-unity/Build/ds-unity.framework.js`,
+        codeUrl: `/ds-unity/Build/ds-unity.wasm`,
+        streamingAssetsUrl: `/ds-unity/StreamingAssets/`,
+        companyName: `Playmint`,
+        productName: `Downstream`,
+        productVersion: `blueprint`
+    });
+};
 
 const StyledUnityMap = styled('div')`
     ${styles}
 `;
 
-export const UnityMap: FunctionComponent<UnityMapProps> = ({
-    unityProvider,
-    sendMessage,
-    ...otherProps
-}: UnityMapProps) => {
+export const UnityMap: FunctionComponent<UnityMapProps> = ({ unityProvider, ...otherProps }: UnityMapProps) => {
     // We'll use a state to store the device pixel ratio.
     const [devicePixelRatio, setDevicePixelRatio] = useState(window.devicePixelRatio);
     const canvasRef = useRef(null);
