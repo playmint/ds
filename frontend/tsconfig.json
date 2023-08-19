@@ -34,7 +34,8 @@
       "@app/*": [
         "*"
       ],
-      "@downstream/*": ["../../*"],
+      "@downstream/core": ["../../core/src"],
+      "@playmint/ds-cli": ["../cli/src"],
       "*": ["../node_modules/*"]
     },
     "skipLibCheck": true,
