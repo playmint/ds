@@ -262,7 +262,7 @@ export const getTileEntities = (
     if (!tile) {
         return [];
     }
-    const entities = [];
+    const entities: CombatParticipantProps[] = [];
     if (tile.building && tile.building.kind) {
         entities.push(buildingToCombatParticipantProps(tile.building.kind));
     }
