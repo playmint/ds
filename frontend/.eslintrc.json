@@ -23,7 +23,7 @@
     "react/prop-types": "off",
     "react/display-name": "off",
     "react/react-in-jsx-scope": "off",
-    "react/no-unknown-property": ["error", { "ignore": ["args"] }],
+    "react/no-unknown-property": "off",
     "@next/next/no-img-element": "off"
   }
 }
