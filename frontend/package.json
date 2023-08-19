@@ -17,6 +17,8 @@
     "@dnd-kit/utilities": "^3.2.1",
     "@downstream/core": "file:core",
     "@metamask/detect-provider": "^2.0.0",
+    "@react-three/drei": "^9.80.3",
+    "@react-three/fiber": "^8.13.6",
     "@walletconnect/ethereum-provider": "^2.9.1",
     "@walletconnect/modal": "^2.6.1",
     "@web3-react/core": "^6.1.9",
@@ -28,6 +30,7 @@
     "ethers": "^6.0.8",
     "framer-motion": "^9.0.1",
     "gsap": "^3.11.5",
+    "leva": "^0.9.35",
     "next": "13.2.4",
     "polished": "4.2.2",
     "qrcode.react": "^3.1.0",
@@ -36,7 +39,10 @@
     "react-dom": "18.2.0",
     "react-unity-webgl": "^9.4.0",
     "styled-components": "5.3.5",
-    "uuid": "^9.0.0"
+    "three": "^0.155.0",
+    "uuid": "^9.0.0",
+    "yaml": "^2.3.1",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@metamask/detect-provider": "^2.0.0",
