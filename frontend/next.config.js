@@ -5,7 +5,7 @@ const nextConfig = {
     },
     output: 'standalone',
 
-    // transpilePackages: ['@downstream/core'],
+    transpilePackages: ['@playmint/ds-cli', '@downstream/core'],
 
     webpack: (config, options) => {
         // stub out the fs module, as we have some escripten
