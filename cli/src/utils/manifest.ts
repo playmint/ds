@@ -189,8 +189,7 @@ const readStdin = async () => {
     return Buffer.concat(chunks).toString('utf8');
 };
 
-export const readManifestsDocumentsSync = async (filename: string): Promise<z.infer<typeof ManifestDocument>[]> => {
-    const filedata = filename === '-' ? await readStdin() : fs.readFileSync(filename).toString();
+export const parseManifestDocuments = (filedata: string, filename?: string): z.infer<typeof ManifestDocument>[] => {
     return YAML.parseAllDocuments(filedata)
         .map((content) => content.toJSON())
         .map((content: any) => {
@@ -214,4 +213,9 @@ export const readManifestsDocumentsSync = async (filename: string): Promise<z.in
             }
             return result.data;
         });
+};
+
+export const readManifestsDocumentsSync = async (filename: string): Promise<z.infer<typeof ManifestDocument>[]> => {
+    const filedata = filename === '-' ? await readStdin() : fs.readFileSync(filename).toString();
+    return parseManifestDocuments(filedata, filename);
 };
