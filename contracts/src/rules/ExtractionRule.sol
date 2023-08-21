@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
+import {ABDKMath64x64 as Math} from "abdk-libraries-solidity/ABDKMath64x64.sol";
+
 import "cog/IState.sol";
 import "cog/IRule.sol";
 import "cog/IGame.sol";
@@ -22,6 +24,7 @@ import {Actions} from "@ds/actions/Actions.sol";
 import {ItemKind} from "@ds/ext/ItemKind.sol";
 
 using Schema for State;
+using Math for int128;
 
 uint64 constant GOO_RESERVOIR_MAX = 500;
 uint64 constant GOO_PER_SEC = GOO_RESERVOIR_MAX / 120; // 4 goo a sec
@@ -132,14 +135,30 @@ contract ExtractionRule is Rule {
         uint64[3] memory atoms = state.getTileAtomValues(tile);
 
         // Get time passed. TODO: Cog to expose a global clock in the state so we have some source of constant time
-        uint64 elapsedSecs = (ctx.clock - state.getBlockNum(buildingInstance, 0)) * BLOCK_TIME_SECS;
+        int128 elapsedSecs = Math.fromUInt((ctx.clock - state.getBlockNum(buildingInstance, 0)) * BLOCK_TIME_SECS);
 
-        // How much would we have harvested if the tile goo was 255
-        uint64 maxHarvestPotential = elapsedSecs / GOO_PER_SEC;
+        for (uint256 i = 0; i < 3; i++) {
+            extractedAtoms[i] = _getGooPerSec(atoms[i]).mul(elapsedSecs).toUInt();
+            if (extractedAtoms[i] > GOO_RESERVOIR_MAX) extractedAtoms[i] = GOO_RESERVOIR_MAX;
+        }
+    }
 
-        extractedAtoms[GOO_GREEN] = (((atoms[GOO_GREEN] * 100) / TILE_ATOM_MAX) * maxHarvestPotential) / 100;
-        extractedAtoms[GOO_BLUE] = (((atoms[GOO_BLUE] * 100) / TILE_ATOM_MAX) * maxHarvestPotential) / 100;
-        extractedAtoms[GOO_RED] = (((atoms[GOO_RED] * 100) / TILE_ATOM_MAX) * maxHarvestPotential) / 100;
+    // https://www.notion.so/playmint/Extraction-6b36dcb3f95e4ab8a57cb6b99d24bb8f#cb8cc764f9ef436e9847e631ef12b157
+
+    function _getSecsPerGoo(uint64 atomVal) private pure returns (int128) {
+        if (atomVal < 10) return Math.fromUInt(0);
+
+        uint256 x = atomVal > 32 ? atomVal - 32 : 0;
+        int128 baseSecsPerGoo = Math.fromUInt(120).mul(Math.fromUInt(98).div(Math.fromUInt(100)).pow(x));
+
+        if (atomVal >= 200) return baseSecsPerGoo.div(Math.fromUInt(4));
+        else if (atomVal >= 170) return baseSecsPerGoo.div(Math.fromUInt(2));
+        else return baseSecsPerGoo;
+    }
+
+    function _getGooPerSec(uint64 atomVal) private pure returns (int128) {
+        int128 secsPerGoo = _getSecsPerGoo(atomVal);
+        return secsPerGoo > 0 ? Math.fromUInt(1).div(secsPerGoo) : Math.fromUInt(0);
     }
 
     function _requireIsBag(bytes24 item) private pure {
