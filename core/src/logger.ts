@@ -88,7 +88,7 @@ export const LogLevelNames = {
 export class Logger {
     constructor(readonly cfg: LoggerConfig) {}
 
-    private sendUnstructured(level: LogLevel, ...args: any[]) {
+    public sendUnstructured(level: LogLevel, ...args: any[]) {
         const text = args.map((arg) => arg.toString()).join(' ');
         const timestamp = new Date();
         this.send({ level, text, timestamp, values: {} });
