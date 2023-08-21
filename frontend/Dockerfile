@@ -30,4 +30,5 @@ RUN npm run export -w frontend
 # output image
 FROM caddy:2.6.4
 COPY --from=builder /app/frontend/out /usr/share/caddy
+COPY frontend/Caddyfile /etc/caddy/Caddyfile
 
