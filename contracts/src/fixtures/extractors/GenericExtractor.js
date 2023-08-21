@@ -83,11 +83,11 @@ export default function update({ selected, world }) {
 
     const gooIndex = outItemAtomVals.findIndex((gooVal) => gooVal > 0n);
     // const gooCost = Number(BigInt(out0.balance) * outItemAtomVals[gooIndex]);
-    // const numberOfItems = Math.floor(
-    //     extractedGoo[gooIndex] / Number(outItemAtomVals[gooIndex])
-    // );
+    const numberOfItems = Math.floor(
+        extractedGoo[gooIndex] / Number(outItemAtomVals[gooIndex])
+    );
 
-    const canExtract = extractedGoo[gooIndex] >= 1;
+    const canExtract = numberOfItems >= 1;
 
     const extract = () => {
         if (!selectedEngineer) {
@@ -139,7 +139,9 @@ export default function update({ selected, world }) {
                             )}% full</p>
                             <p>Extracted ${
                                 extractedGoo[gooIndex]
-                            } ${getGooColor(gooIndex)} Goo</p>
+                            } ${getGooColor(
+                            gooIndex
+                        )} Goo (${numberOfItems} items)</p>
                         </p>
                         `,
                     },

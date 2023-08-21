@@ -69,53 +69,60 @@ contract ExtractionRule is Rule {
         }
 
         // Get output item and qty
-        (bytes24 outputItemID, uint64 qty) = state.getOutput(buildingKind, 0);
+        // NOTE: No longer care about the quanity. We just check if we can make at least 1
+        (bytes24 outputItemID, /*uint64 qty*/ ) = state.getOutput(buildingKind, 0);
+
+        // Output bag is at slot 1 same as crafting building.
+        bytes24 outBag = state.getEquipSlot(buildingInstance, 1);
+        _requireIsBag(outBag);
+        (bytes24 bagItem, uint64 bagBal) = state.getItemSlot(outBag, 0);
+        if (bagItem != bytes24(0)) {
+            require(bagItem == outputItemID, "Item at slot 0 doesn't match extractor output item");
+            require(bagBal < 100, "Not enough space in slot to put output item");
+        }
+
+        uint64 qty;
 
         // Calculate extracted atoms (goo) and check if we have sufficient to create a batch of output items
         {
             uint64[3] memory reservoirAtoms = state.getBuildingReservoirAtoms(buildingInstance);
             uint64[3] memory extractedAtoms = _calcExtractedGoo(state, ctx, buildingInstance);
 
-            reservoirAtoms[GOO_GREEN] =
-                uint64(min(reservoirAtoms[GOO_GREEN] + extractedAtoms[GOO_GREEN], GOO_RESERVOIR_MAX));
-            reservoirAtoms[GOO_BLUE] =
-                uint64(min(reservoirAtoms[GOO_BLUE] + extractedAtoms[GOO_BLUE], GOO_RESERVOIR_MAX));
-            reservoirAtoms[GOO_RED] = uint64(min(reservoirAtoms[GOO_RED] + extractedAtoms[GOO_RED], GOO_RESERVOIR_MAX));
+            for (uint256 i = 0; i < 3; i++) {
+                reservoirAtoms[i] = uint64(min(reservoirAtoms[i] + extractedAtoms[i], GOO_RESERVOIR_MAX));
+            }
 
             (uint32[3] memory outputItemAtoms, /*bool isStackable*/ ) = state.getItemStructure(outputItemID);
 
             // Check we have enough atoms (goo) in the reservoir to make
             require(
-                outputItemAtoms[GOO_GREEN] * qty <= reservoirAtoms[GOO_GREEN],
-                "not enough green goo extracted to make item"
+                outputItemAtoms[GOO_GREEN] <= reservoirAtoms[GOO_GREEN], "not enough green goo extracted to make item"
             );
-            require(
-                outputItemAtoms[GOO_BLUE] * qty <= reservoirAtoms[GOO_BLUE],
-                "not enough blue goo extracted to make item"
-            );
-            require(
-                outputItemAtoms[GOO_RED] * qty <= reservoirAtoms[GOO_RED], "not enough red goo extracted to make item"
-            );
+            require(outputItemAtoms[GOO_BLUE] <= reservoirAtoms[GOO_BLUE], "not enough blue goo extracted to make item");
+            require(outputItemAtoms[GOO_RED] <= reservoirAtoms[GOO_RED], "not enough red goo extracted to make item");
 
-            reservoirAtoms[GOO_GREEN] -= outputItemAtoms[GOO_GREEN] * qty;
-            reservoirAtoms[GOO_BLUE] -= outputItemAtoms[GOO_BLUE] * qty;
-            reservoirAtoms[GOO_RED] -= outputItemAtoms[GOO_RED] * qty;
+            // How many items can I make with the extracted goo (We pick the lowest mulitple above zero)
+            for (uint256 i = 0; i < 3; i++) {
+                if (outputItemAtoms[i] > 0) {
+                    uint64 numItems = reservoirAtoms[i] / outputItemAtoms[i];
+                    if (qty == 0 || numItems < qty) {
+                        qty = numItems;
+                    }
+                }
+            }
+
+            // Can only fit 100 items in a slot so set the qty to the difference
+            if (bagBal + qty > 100) {
+                qty = 100 - bagBal;
+            }
+
+            // Spend the extracted atoms
+            for (uint256 i = 0; i < 3; i++) {
+                reservoirAtoms[i] -= outputItemAtoms[i] * qty;
+            }
 
             state.setBuildingReservoirAtoms(buildingInstance, reservoirAtoms);
             state.setBlockNum(buildingInstance, 0, ctx.clock);
-        }
-
-        // Output bag is at slot 1 same as crafting building.
-        bytes24 outBag = state.getEquipSlot(buildingInstance, 1);
-        _requireIsBag(outBag);
-
-        (bytes24 bagItem, uint64 bagBal) = state.getItemSlot(outBag, 0);
-
-        if (bagItem != bytes24(0)) {
-            require(bagItem == outputItemID, "Item at slot 0 doesn't match extractor output item");
-
-            // TODO: Should we be filling up the other slots?
-            require(bagBal + qty <= 100, "Not enough space in slot to put output item");
         }
 
         state.setItemSlot(outBag, 0, outputItemID, bagBal + qty);
