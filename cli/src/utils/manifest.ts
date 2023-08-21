@@ -113,7 +113,6 @@ export const BuildingKind = z.object({
 
 export const BuildingSpec = z.object({
     name: Name,
-    category: BuildingCategoryEnum,
     location: Coords,
 });
 
