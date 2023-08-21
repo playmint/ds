@@ -261,7 +261,7 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                             kind: 'Building',
                             spec: {
                                 name: buildingKind.spec.name,
-                                category: 'custom',
+                                category: buildingKind.spec.category, // TODO: remove this as category is deprecated on kind=Building
                                 location: t.location,
                             },
                         },
