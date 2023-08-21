@@ -3,13 +3,6 @@
 import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { z } from 'zod';
 
-import { BuildingKind, Manifest, parseManifestDocuments } from '@playmint/ds-cli/src/utils/manifest';
-import { Html, Instance, Instances, MapControls, OrthographicCamera, useFBX } from '@react-three/drei';
-import { Canvas } from '@react-three/fiber';
-import { button, useControls } from 'leva';
-import * as THREE from 'three';
-import YAML from 'yaml';
-import { UnityMap, useUnityMap } from '@app/components/organisms/unity-map';
 import {
     BiomeKind,
     CompoundKeyEncoder,
@@ -17,8 +10,15 @@ import {
     WorldBuildingFragment,
     WorldTileFragment,
 } from '@app/../../core/src';
+import { UnityMap, useUnityMap } from '@app/components/organisms/unity-map';
+import { useThrottle } from '@app/hooks/use-throttle';
+import { BuildingKind, Manifest, parseManifestDocuments } from '@playmint/ds-cli/src/utils/manifest';
+import { Html, Instance, Instances, MapControls, OrthographicCamera, useFBX } from '@react-three/drei';
+import { Canvas } from '@react-three/fiber';
 import { ethers, id as keccak256UTF8, solidityPacked } from 'ethers';
-import { useDebounce } from '@app/hooks/use-debounce';
+import { button, useControls } from 'leva';
+import * as THREE from 'three';
+import YAML from 'yaml';
 
 const TILE_SIZE = 1;
 
@@ -126,7 +126,7 @@ const Grid = ({ tiles, onPaintTile, manifests }: GridProps) => {
         });
     }, [tiles, manifests, onPaintTile]);
 
-    const debouncedInstances = useDebounce(instances, 30);
+    const debouncedInstances = useThrottle(instances, 40);
 
     return (
         <Instances limit={10000} range={10000}>
@@ -159,7 +159,8 @@ export interface PageProps {}
 
 export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
     const fileRef = useRef<any>();
-    const [manifests, setManifests] = useState<ManifestMap>(new Map());
+    const [manifestsz, setManifests] = useState<ManifestMap>(new Map());
+    const manifests = useThrottle(manifestsz, 15);
     const [mouseDown, setMouseDown] = useState(false);
     const [buildingKinds, setBuildingKinds] = useState<BuildingKindMap>(new Map());
     const { unityProvider, sendMessage } = useUnityMap();
