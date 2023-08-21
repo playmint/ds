@@ -6,9 +6,8 @@ RUN apt-get update && \
 
 # foundry
 SHELL ["/bin/bash", "-c"]
-ENV PATH "$HOME/.foundry/bin:$PATH:"
+ENV PATH "/root/.foundry/bin:$PATH"
 RUN curl -L https://foundry.paradigm.xyz | bash \
-    && source $HOME/.bashrc \
     && foundryup \
     && which forge
 
@@ -22,8 +21,7 @@ COPY contracts/test ./test
 COPY contracts/remappings.txt ./
 COPY contracts/foundry.toml ./
 COPY contracts/entrypoint.sh ./
-RUN source $HOME/.bashrc \
-    && forge build
+RUN forge build
 
 # install ds-cli
 WORKDIR /
