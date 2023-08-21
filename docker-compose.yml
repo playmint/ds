@@ -26,7 +26,7 @@ services:
     - -eu
     - -c
     - |
-      anvil --code-size-limit 9999999999999 --gas-limit 9999999999999999 --host 0.0.0.0 --port 8546 --fork-url http://contracts:8545 --no-mining --no-rate-limit --no-storage-caching
+      anvil --host 0.0.0.0 --port 8546 --fork-url http://contracts:8545 --no-mining --no-rate-limit
     depends_on:
       - contracts
 

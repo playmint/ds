@@ -49,6 +49,9 @@ while ! curl -sf -X GET "${SERVICES_HTTP}" >/dev/null; do
 	echo "waiting for services to respond..."
 	sleep 1
 done
+echo "waiting for services to settle..."
+sleep 5
+echo "ds apply..."
 ds -k "${DEPLOYER_PRIVATE_KEY}" -n local --ws-endpoint="${SERVICES_WS}" --http-endpoint="${SERVICES_HTTP}" apply -R -f ./src/fixtures
 
 echo "+-------+"
