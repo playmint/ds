@@ -14,6 +14,7 @@
     "jsx": "preserve",
     "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": true,
     "noImplicitReturns": true,
     "noImplicitThis": false,
     "noImplicitAny": false,
@@ -35,7 +36,7 @@
         "*"
       ],
       "@downstream/core": ["../../core/src"],
-      "@playmint/ds-cli": ["../cli/src"],
+      "@downstream/cli/*": ["../../cli/src/*"],
       "*": ["../node_modules/*"]
     },
     "skipLibCheck": true,

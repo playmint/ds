@@ -1,17 +1,3 @@
-# Install dependencies only when needed
-FROM node:18-alpine AS deps
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat
-WORKDIR /app
-
-# Install dependencies based on the preferred package manager
-RUN apk add --update python3 make g++\
-   && rm -rf /var/cache/apk/*
-COPY package*.json ./
-COPY frontend/package*.json ./frontend/
-COPY core/package*.json ./core/
-COPY cli/package*.json ./cli/
-RUN npm ci
 
 # build the contracts to get the abi
 FROM playmint/foundry:v0.8.17 AS contracts
@@ -21,20 +7,24 @@ WORKDIR /contracts
 COPY contracts /contracts
 RUN forge build
 
-# build static site
+# build frontend
 FROM node:18-alpine AS builder
-ENV NEXT_TELEMETRY_DISABLED 1
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+RUN apk add --update python3 make g++\
+   && rm -rf /var/cache/apk/*
 COPY package*.json ./
 COPY frontend ./frontend
-# explicitly copy the ds-unity folder so build explodes if missing
 COPY frontend/public/ds-unity ./frontend/public/ds-unity
 COPY core ./core
-COPY contracts/lib/cog/services/schema/*.graphqls ./contracts/lib/cog/services/schema/
+COPY cli ./cli
+COPY --from=contracts /contracts/lib/cog/services/schema/*.graphqls ./contracts/lib/cog/services/schema/
 COPY --from=contracts /contracts/out/Actions.sol/Actions.json ./contracts/out/Actions.sol/Actions.json
-RUN npm install -w core
-RUN npm run build -w core
+RUN npm ci
+RUN npm run build:abi -w core
+RUN npm run build:graphql -w core
+ENV NEXT_TELEMETRY_DISABLED 1
+WORKDIR /app
 RUN npm run export -w frontend
 
 # output image

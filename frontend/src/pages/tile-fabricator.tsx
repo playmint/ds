@@ -9,10 +9,10 @@ import {
     NodeSelectors,
     WorldBuildingFragment,
     WorldTileFragment,
-} from '@app/../../core/src';
+} from '@downstream/core';
 import { UnityMap, useUnityMap } from '@app/components/organisms/unity-map';
 import { useThrottle } from '@app/hooks/use-throttle';
-import { BuildingKind, Manifest, parseManifestDocuments } from '@playmint/ds-cli/src/utils/manifest';
+import { BuildingKind, Manifest, parseManifestDocuments } from '@downstream/cli/utils/manifest';
 import { Html, Instance, Instances, MapControls, OrthographicCamera, useFBX } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { ethers, id as keccak256UTF8, solidityPacked } from 'ethers';

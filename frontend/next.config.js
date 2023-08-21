@@ -1,11 +1,11 @@
 const nextConfig = {
     reactStrictMode: false,
     compiler: {
-        styledComponents: true
+        styledComponents: true,
     },
     output: 'standalone',
 
-    transpilePackages: ['@playmint/ds-cli', '@downstream/core'],
+    transpilePackages: ['@downstream/cli', '@downstream/core'],
 
     webpack: (config, options) => {
         // stub out the fs module, as we have some escripten
@@ -13,10 +13,10 @@ const nextConfig = {
         // during compilation
         config.resolve.fallback = {
             ...config.resolve.fallback,
-            fs: false
+            fs: false,
         };
         return config;
-    }
+    },
 };
 
 export default nextConfig;
