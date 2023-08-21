@@ -72,3 +72,6 @@ Thumbs.db
 
 /node_modules
 *.tsbuildinfo
+
+# dev script
+.livestartup.js

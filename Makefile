@@ -72,6 +72,8 @@ clean:
 	rm -rf cli/node_modules
 	rm -f  contracts/lib/cog/services/bin/ds-node
 	rm -rf contracts/out
+	rm -rf contracts/broadcast
+	rm -rf contracts/cache
 	rm -rf core/dist
 	rm -rf core/src/gql
 	rm -rf core/src/abi

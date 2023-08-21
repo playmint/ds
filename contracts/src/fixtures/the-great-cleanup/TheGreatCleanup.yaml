@@ -4,6 +4,10 @@ spec:
   name: The Great Cleanup
   category: factory
   model: 01-02
+  contract:
+    file: ./TheGreatCleanup.sol
+  plugin:
+    file: ./TheGreatCleanup.js
   materials:
   - name: L33t Bricks
     quantity: 100
