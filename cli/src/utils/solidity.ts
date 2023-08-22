@@ -12,7 +12,7 @@ interface CompileOpts {
     verbose?: boolean;
 }
 
-export function compile(filepath: string, opts: CompileOpts) {
+export async function compile(filepath: string, opts: CompileOpts) {
     const filename = path.basename(filepath);
     const content = fs.readFileSync(filepath, 'utf8');
 

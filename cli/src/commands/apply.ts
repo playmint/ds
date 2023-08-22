@@ -160,7 +160,7 @@ const buildingKindDeploymentActions = async (
     if (spec.category != 'blocker' && spec.contract && spec.contract.file) {
         const relativeFilename = path.join(manifestDir, spec.contract.file);
         const libs = [path.join(path.dirname(relativeFilename)), ...(spec.contract.includes || [])];
-        const { bytecode } = compile(relativeFilename, { libs, verbose });
+        const { bytecode } = await compile(relativeFilename, { libs, verbose });
         // call  to deploy an implementation
         ops.push({
             name: 'DEPLOY_KIND_IMPLEMENTATION',
