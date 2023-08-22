@@ -201,6 +201,13 @@ const getManifestFilenames = (filename: string, isRecursive: boolean): string[] 
     }
 };
 
+type Op = {
+    actions: CogAction[];
+    note: string;
+};
+
+type OpSet = Op[];
+
 const deploy = {
     command: 'apply',
     describe: 'deploy an extension configuration to the game',
@@ -220,11 +227,6 @@ const deploy = {
             .option('dry-run', {
                 describe: 'show changes that would be applied',
                 type: 'boolean',
-            })
-            .option('batch', {
-                describe: 'number of actions to bundle together per batch',
-                default: 10,
-                type: 'number',
             })
             .check((ctx) => {
                 if (ctx.filename === '-') {
@@ -285,76 +287,95 @@ const deploy = {
         };
 
         // build list of operations
-        let ops: CogAction[] = [];
-        const notes: string[] = [];
+        const opsets: OpSet[] = [];
+        let opn = -1;
 
         // process item kinds first
+        opn++;
+        opsets[opn] = [];
         for (const doc of docs) {
             if (doc.manifest.kind != 'Item') {
                 continue;
             }
             const spec = doc.manifest.spec;
             const itemID = encodeItemID(spec);
-            ops = [
-                ...ops,
-                {
-                    name: 'REGISTER_ITEM_KIND',
-                    args: [itemID, spec.name, spec.icon],
-                },
-            ];
-            notes.push(`✅ registered item ${spec.name} (${itemID})`);
+            opsets[opn].push({
+                actions: [
+                    {
+                        name: 'REGISTER_ITEM_KIND',
+                        args: [itemID, spec.name, spec.icon],
+                    },
+                ],
+                note: `✅ registered item ${spec.name} (${itemID})`,
+            });
         }
 
         // process building kinds
+        opn++;
+        opsets[opn] = [];
         for (const doc of docs) {
             if (doc.manifest.kind != 'BuildingKind') {
                 continue;
             }
             const actions = await buildingKindDeploymentActions(ctx, doc, docs, ctx.verbose);
-            ops = [...ops, ...actions];
-            notes.push(`✅ registered building ${doc.manifest.spec.name} (${encodeBuildingKindID(doc.manifest.spec)})`);
+            opsets[opn].push({
+                actions,
+                note: `✅ registered building ${doc.manifest.spec.name} (${encodeBuildingKindID(doc.manifest.spec)})`,
+            });
         }
 
         // spawn building instances
+        opn++;
+        opsets[opn] = [];
         for (const doc of docs) {
             if (doc.manifest.kind != 'Building') {
                 continue;
             }
             const spec = doc.manifest.spec;
-            ops = [
-                ...ops,
-                {
-                    name: 'DEV_SPAWN_BUILDING',
-                    args: [getBuildingKindIDByName(spec.name), ...spec.location],
-                },
-            ];
-            notes.push(`✅ spawned building instance of ${spec.name} at ${spec.location.join(',')}`);
+            opsets[opn].push({
+                actions: [
+                    {
+                        name: 'DEV_SPAWN_BUILDING',
+                        args: [getBuildingKindIDByName(spec.name), ...spec.location],
+                    },
+                ],
+                note: `✅ spawned building instance of ${spec.name} at ${spec.location.join(',')}`,
+            });
         }
 
         // spawn tile manifests (this is only valid while cheats are enabled)
+        opn++;
+        opsets[opn] = [];
         for (const doc of docs) {
             if (doc.manifest.kind != 'Tile') {
                 continue;
             }
             const spec = doc.manifest.spec;
-            ops = [
-                ...ops,
-                {
-                    name: 'DEV_SPAWN_TILE',
-                    args: spec.location,
-                },
-            ];
-            notes.push(`✅ spawned tile ${spec.location.join(',')}`);
+            opsets[opn].push({
+                actions: [
+                    {
+                        name: 'DEV_SPAWN_TILE',
+                        args: spec.location,
+                    },
+                ],
+                note: `✅ spawned tile ${spec.location.join(',')}`,
+            });
         }
         //
-
-        // dump the dry run of ops
 
         // abort here if dry-run
         if (ctx.dryRun) {
             console.error('The following actions will be performed:');
             console.error(
-                ops.map((op) => `    ${op.name}(${op.args.map((arg) => JSON.stringify(arg)).join(', ')})`).join('\n')
+                opsets
+                    .flatMap((op) =>
+                        op.flatMap(({ actions }) =>
+                            actions.map(
+                                (op) => `    ${op.name}(${op.args.map((arg) => JSON.stringify(arg)).join(', ')})`
+                            )
+                        )
+                    )
+                    .join('\n')
             );
             console.error('');
             process.exit(0);
@@ -365,19 +386,12 @@ const deploy = {
         const player = await ctx.player();
 
         // apply the ops
-        while (ops.length !== 0) {
-            const batch = ops.splice(0, ctx.batch);
-            if (ctx.slow) {
-                for (const op of batch) {
-                    await player.dispatch(op);
-                }
-            } else {
-                await player.dispatch(...batch);
-            }
+        for (let i = 0; i < opsets.length; i++) {
+            const pending = opsets[i].map((op) => player.dispatch(...op.actions).then(() => console.log(op.note)));
+            await Promise.all(pending);
         }
 
         // done!
-        console.log(notes.join('\n'));
         process.exit(0);
     },
 };
