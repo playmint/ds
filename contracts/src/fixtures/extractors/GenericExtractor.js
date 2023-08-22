@@ -87,7 +87,10 @@ export default function update({ selected, world }) {
         extractedGoo[gooIndex] / Number(outItemAtomVals[gooIndex])
     );
 
-    const canExtract = numberOfItems >= 1;
+    const canExtract =
+        numberOfItems >= 1 &&
+        (!selectedBuilding.bags[1].bag.owner ||
+            selectedBuilding.bags[1].bag.owner.id == mobileUnit.owner.id);
 
     const extract = () => {
         if (!selectedEngineer) {
@@ -142,6 +145,13 @@ export default function update({ selected, world }) {
                             } ${getGooColor(
                             gooIndex
                         )} Goo (${numberOfItems} items)</p>
+                        ${
+                            selectedBuilding.bags[1].bag.owner &&
+                            selectedBuilding.bags[1].bag.owner.id !=
+                                mobileUnit.owner.id
+                                ? `</br><p>You are not the owner of this extractor. Only the owner can extract goo from this extractor</p>`
+                                : ``
+                        }
                         </p>
                         `,
                     },
