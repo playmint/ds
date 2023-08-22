@@ -58,16 +58,12 @@ contract PluginRule is Rule {
     }
 
     function _deployImplementation(State state, bytes24 player, bytes24 kind, bytes memory bytecode) private {
-        bytes32 _salt = bytes32(uint256(keccak256(abi.encodePacked(player, kind, address(state)))));
-        address addr = address(
-            uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), address(this), _salt, keccak256(bytecode)))))
-        );
+        address addr;
 
-        if (!_isDeployed(addr)) {
-            assembly {
-                addr := create2(callvalue(), add(bytecode, 0x20), mload(bytecode), _salt)
-
-                if iszero(extcodesize(addr)) { revert(0, 0) }
+        assembly {
+            addr := create(0, add(bytecode, 0x20), mload(bytecode))
+            if iszero(extcodesize(addr)) {
+                revert(0, 0)
             }
         }
 
@@ -82,11 +78,4 @@ contract PluginRule is Rule {
         state.setImplementation(kind, contractAddr);
     }
 
-    function _isDeployed(address addr) private view returns (bool) {
-        uint32 size;
-        assembly {
-            size := extcodesize(addr)
-        }
-        return (size > 0);
-    }
 }
