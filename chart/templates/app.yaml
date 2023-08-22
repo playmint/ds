@@ -41,10 +41,6 @@ spec:
               value: {{ $.Values.sequencer.providerUrlWs | quote }}
             - name: SEQUENCER_MINE_EMPTY
               value: {{ $.Values.sequencer.mineEmpty | quote }}
-            - name: SIMULATION_PROVIDER_URL_HTTP
-              value: "http://localhost:8546"
-            - name: SIMULATION_PROVIDER_URL_WS
-              value: "ws://localhost:8546"
             - name: INDEXER_WATCH_PENDING
               value: {{ $.Values.indexer.watchPending | quote }}
             - name: INDEXER_PROVIDER_URL_HTTP
@@ -95,33 +91,8 @@ spec:
           - mountPath: "/root/.foundry/anvil/tmp"
             name: contracts-scratch
         {{ end -}}
-        - name: sim
-          image: {{ printf "ghcr.io/playmint/ds-contracts:%s" $.Values.version }}
-          imagePullPolicy: Always
-          command: ["/bin/bash"]
-          args:
-          - -eu
-          - -c
-          - |
-            anvil --port 8546 --fork-url {{ $.Values.sequencer.providerUrlHttp | quote }} --no-mining --no-rate-limit
-          ports:
-            - name: network
-              containerPort: 8546
-              protocol: TCP
-          volumeMounts:
-          - mountPath: "/root/.foundry/anvil/tmp"
-            name: sim-scratch
-      volumes:
-      - name: sim-scratch
-        ephemeral:
-          volumeClaimTemplate:
-            spec:
-              accessModes: [ "ReadWriteOnce" ]
-              storageClassName: default
-              resources:
-                requests:
-                  storage: 5Gi
       {{ if $.Values.anvil.enabled }}
+      volumes:
       - name: contracts-scratch
         ephemeral:
           volumeClaimTemplate:

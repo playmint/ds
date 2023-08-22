@@ -15,20 +15,14 @@ const DEPLOYER_PRIVATE_KEY = "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff
 const commands = [
     {
         name: 'networks',
-        command: "anvil -m 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --code-size-limit 9999999999999 --gas-limit 9999999999999999 --silent",
-        prefixColor: 'black',
-    },
-
-    {
-        name: 'sim',
-        command: "anvil --code-size-limit 9999999999999 --gas-limit 9999999999999999 --port 8546 --fork-url http://localhost:8545 --no-mining --no-rate-limit --no-storage-caching --silent",
+        command: "anvil -m 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --code-size-limit 9999999999999  --block-time 2 --silent",
         prefixColor: 'black',
     },
 
     {
         name: 'contract',
         command: `./lib/cog/services/bin/wait-for -it localhost:8545 -t 300 \
-            && forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545" \
+            && forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545" --slow \
             && ./lib/cog/services/bin/wait-for -it localhost:8080 -t 300 \
             && sleep 2 \
             && ds -k ${DEPLOYER_PRIVATE_KEY} -n local apply -R -f ./src/fixtures/ --slow\
@@ -42,15 +36,13 @@ const commands = [
 
     {
         name: 'services',
-        command: './bin/wait-for -it localhost:8545 -t 300 && ./bin/wait-for -it localhost:8546 -t 300 && ./bin/ds-node',
+        command: './bin/wait-for -it localhost:8545 -t 300 && ./bin/ds-node',
         env: {
             PORT: "8181",
             CHAIN_ID: "1337",
             SEQUENCER_PRIVATE_KEY,
             SEQUENCER_PROVIDER_URL_HTTP: "http://localhost:8545",
             SEQUENCER_PROVIDER_URL_WS: "ws://localhost:8545",
-            SIMULATION_PROVIDER_URL_HTTP: "http://localhost:8546",
-            SIMULATION_PROVIDER_URL_WS: "ws://localhost:8546",
             INDEXER_WATCH_PENDING: "false",
             INDEXER_PROVIDER_URL_HTTP: "http://localhost:8545",
             INDEXER_PROVIDER_URL_WS: "ws://localhost:8545",
