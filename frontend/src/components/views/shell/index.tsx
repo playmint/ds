@@ -96,7 +96,10 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
             setLoggingIn(true);
             sleep(100)
                 .then(() => player.login())
-                .catch(() => window.location.reload()) // reset
+                .catch((err) => {
+                    console.error(err);
+                    window.location.reload(); // error is fatal, reload
+                })
                 .finally(() => setLoggingIn(false));
         }
     }, [player, loggingIn]);
