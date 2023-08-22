@@ -24,10 +24,10 @@ echo "+-------------------+"
 echo "| starting evm node |"
 echo "+-------------------+"
 anvil \
+    --block-time 2 \
 	--host 0.0.0.0 \
 	-m "${ACCOUNT_MNEMONIC}" \
     --code-size-limit 9999999999999 \
-    --gas-limit 9999999999999999 \
 	&
 
 
@@ -38,7 +38,7 @@ while ! curl -sf -X POST --data '{"jsonrpc":"2.0","method":"eth_blockNumber","pa
 	echo "waiting for evm node to respond..."
 	sleep 1
 done
-forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545"
+forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545" --slow
 
 echo "+---------------------+"
 echo "| deploying fixtures  |"

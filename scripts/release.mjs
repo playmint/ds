@@ -161,7 +161,7 @@ async function main({
                 `--ws-endpoint ${servicesWS}/query`,
                 `--http-endpoint ${servicesURL}/query`,
                 `-k ${deployerPrivateKey}`,
-                `apply -R -f ./contracts/src/fixtures --slow`
+                `apply -R -f ./contracts/src/fixtures`
             ].join(' '), {
                 stdio: 'inherit'
             })
