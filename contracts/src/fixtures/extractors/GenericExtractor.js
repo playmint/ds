@@ -6,7 +6,7 @@ const GOO_RED = 2;
 
 const GOO_RESERVOIR_MAX = 500;
 // const TILE_ATOM_MAX = 255;
-const BLOCK_TIME_SECS = 10;
+const BLOCK_TIME_SECS = 2;
 
 function getGooColor(gooIndex) {
     switch (gooIndex) {

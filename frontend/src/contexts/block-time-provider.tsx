@@ -16,7 +16,7 @@ export const BlockTimeContext = createContext<BlockTimeContextStore>({} as Block
 
 export const useBlockTime = () => useContext(BlockTimeContext);
 
-const BLOCK_TIME_SECS = 10;
+const BLOCK_TIME_SECS = 2;
 
 export const BlockTimeProvider = ({ block, children }: BlockTimeContextProviderProps) => {
     const lastBlockRef = useRef<number>(0);

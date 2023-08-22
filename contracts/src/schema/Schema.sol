@@ -37,7 +37,7 @@ interface Kind {
     function BlockNum() external;
 }
 
-uint64 constant BLOCK_TIME_SECS = 10;
+uint64 constant BLOCK_TIME_SECS = 2;
 
 uint8 constant GOO_GREEN = 0;
 uint8 constant GOO_BLUE = 1;
