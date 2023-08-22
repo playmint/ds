@@ -13,6 +13,7 @@ import {
 } from '../utils/manifest';
 import { compile } from '../utils/solidity';
 import { getManifestsByKind } from './get';
+import { z } from 'zod';
 
 const encodeItemID = ({ name, stackable, goo }: ReturnType<typeof ItemSpec.parse>) => {
     const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`item/${name}`))));
@@ -202,11 +203,18 @@ const getManifestFilenames = (filename: string, isRecursive: boolean): string[] 
 };
 
 type Op = {
+    doc: z.infer<typeof ManifestDocument>;
     actions: CogAction[];
     note: string;
 };
 
 type OpSet = Op[];
+
+type OpResult = {
+    ok: boolean;
+    err?: Error;
+    op: Op;
+};
 
 const deploy = {
     command: 'apply',
@@ -300,13 +308,14 @@ const deploy = {
             const spec = doc.manifest.spec;
             const itemID = encodeItemID(spec);
             opsets[opn].push({
+                doc,
                 actions: [
                     {
                         name: 'REGISTER_ITEM_KIND',
                         args: [itemID, spec.name, spec.icon],
                     },
                 ],
-                note: `✅ registered item ${spec.name} (${itemID})`,
+                note: `registered item ${spec.name} (${itemID})`,
             });
         }
 
@@ -319,8 +328,9 @@ const deploy = {
             }
             const actions = await buildingKindDeploymentActions(ctx, doc, docs, ctx.verbose);
             opsets[opn].push({
+                doc,
                 actions,
-                note: `✅ registered building ${doc.manifest.spec.name} (${encodeBuildingKindID(doc.manifest.spec)})`,
+                note: `registered building ${doc.manifest.spec.name} (${encodeBuildingKindID(doc.manifest.spec)})`,
             });
         }
 
@@ -333,13 +343,14 @@ const deploy = {
             }
             const spec = doc.manifest.spec;
             opsets[opn].push({
+                doc,
                 actions: [
                     {
                         name: 'DEV_SPAWN_BUILDING',
                         args: [getBuildingKindIDByName(spec.name), ...spec.location],
                     },
                 ],
-                note: `✅ spawned building instance of ${spec.name} at ${spec.location.join(',')}`,
+                note: `spawned building instance of ${spec.name} at ${spec.location.join(',')}`,
             });
         }
 
@@ -352,13 +363,14 @@ const deploy = {
             }
             const spec = doc.manifest.spec;
             opsets[opn].push({
+                doc,
                 actions: [
                     {
                         name: 'DEV_SPAWN_TILE',
                         args: spec.location,
                     },
                 ],
-                note: `✅ spawned tile ${spec.location.join(',')}`,
+                note: `spawned tile ${spec.location.join(',')}`,
             });
         }
         //
@@ -386,9 +398,43 @@ const deploy = {
         const player = await ctx.player();
 
         // apply the ops
+        let results: OpResult[] = [];
         for (let i = 0; i < opsets.length; i++) {
-            const pending = opsets[i].map((op) => player.dispatch(...op.actions).then(() => console.log(op.note)));
-            await Promise.all(pending);
+            const pending = opsets[i].map((op) =>
+                player
+                    .dispatch(...op.actions)
+                    .then(() => {
+                        console.log(`✅ ${op.note}\n`);
+                        return {
+                            ok: true,
+                            op,
+                        };
+                    })
+                    .catch((err) => {
+                        console.log(`❌ ${op.note}\n`);
+                        return {
+                            ok: false,
+                            err,
+                            op,
+                        };
+                    })
+            );
+            const res = await Promise.all(pending);
+            results = [...results, ...res];
+        }
+
+        // report any failures
+        const errs = results
+            .filter((res) => !res.ok)
+            .map(
+                (res) =>
+                    `file: ${res.op.doc.filename}\nerror:${res.err || 'unknown'}\nactions:${JSON.stringify(
+                        res.op.actions
+                    )}`
+            );
+        if (errs.length > 0) {
+            console.error(`\n${errs.length} manifests failed to apply:\n\n${errs.join('\n\n')}`);
+            process.exit(1);
         }
 
         // done!
