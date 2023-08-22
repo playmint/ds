@@ -17,4 +17,4 @@ spec:
       quantity: 25
   outputs:
     - name: Glass of Green Goo
-      quantity: 10
+      quantity: 1

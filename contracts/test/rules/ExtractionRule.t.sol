@@ -111,10 +111,10 @@ contract ExtractionRuleTest is Test, GameTest {
 
         // check that output item now exists in outputBag slot 1
         bytes24 outputBag = state.getEquipSlot(buildingInstance, 1);
-        (bytes24 expItem, uint64 expBalance) = state.getOutput(mockBuildingKind, 0);
+        (bytes24 expItem, /*uint64 expBalance*/ ) = state.getOutput(mockBuildingKind, 0);
         (bytes24 gotItem, uint64 gotBalance) = state.getItemSlot(outputBag, 0);
         assertEq(gotItem, expItem, "expected output slot to contain expected output item");
-        assertEq(gotBalance, expBalance, "expected output balance match");
+        assertEq(gotBalance, 100, "expected output balance to be a full stack of 100");
 
         // expect reservoir to be minus the cost of the item batch
         uint64[3] memory reservoirAtoms = state.getBuildingReservoirAtoms(buildingInstance);
@@ -122,7 +122,7 @@ contract ExtractionRuleTest is Test, GameTest {
 
         assertEq(
             reservoirAtoms[GOO_GREEN],
-            GOO_RESERVOIR_MAX - outputItemAtoms[GOO_GREEN] * expBalance,
+            GOO_RESERVOIR_MAX - outputItemAtoms[GOO_GREEN] * 100,
             "expected total atomic value of output items to be taken from reservoir"
         );
     }

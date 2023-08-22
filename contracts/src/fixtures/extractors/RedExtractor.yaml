@@ -17,4 +17,4 @@ spec:
       quantity: 25
   outputs:
     - name: Flask of Red Goo
-      quantity: 10
+      quantity: 1

@@ -17,4 +17,4 @@ spec:
       quantity: 25
   outputs:
     - name: Beaker of Blue Goo
-      quantity: 10
+      quantity: 1
