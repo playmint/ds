@@ -149,7 +149,7 @@ export default function update({ selected, world }) {
                             selectedBuilding.bags[1].bag.owner &&
                             selectedBuilding.bags[1].bag.owner.id !=
                                 mobileUnit.owner.id
-                                ? `</br><p>You are not the owner of this extractor. Only the owner can extract goo from this extractor</p>`
+                                ? `</br><p>You are not the owner of this extractor, only the owner can extract goo from here</p>`
                                 : ``
                         }
                         </p>
