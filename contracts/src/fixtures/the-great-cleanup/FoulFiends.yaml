@@ -9,12 +9,11 @@ spec:
   plugin:
     file: ./FoulFiends.js
   materials:
-  - name: L33t Bricks
-    quantity: 100
+    - name: L33t Bricks
+      quantity: 100
   inputs:
-  - name: Flask of Red Goo
-    quantity: 100
+    - name: Red Goo
+      quantity: 100
   outputs:
-  - name: Smelly Duck
-    quantity: 1
-
+    - name: Smelly Duck
+      quantity: 1

@@ -129,9 +129,9 @@ contract ExtractionRuleTest is Test, GameTest {
 
     function _registerBuildingKind(uint32 uid, address buildingContract) private returns (bytes24) {
         bytes24[4] memory defaultMaterialItem;
-        defaultMaterialItem[0] = ItemUtils.GlassGreenGoo();
-        defaultMaterialItem[1] = ItemUtils.BeakerBlueGoo();
-        defaultMaterialItem[2] = ItemUtils.FlaskRedGoo();
+        defaultMaterialItem[0] = ItemUtils.GreenGoo();
+        defaultMaterialItem[1] = ItemUtils.BlueGoo();
+        defaultMaterialItem[2] = ItemUtils.RedGoo();
         uint64[4] memory defaultMaterialQty;
         defaultMaterialQty[0] = 25;
         defaultMaterialQty[1] = 25;
@@ -141,7 +141,7 @@ contract ExtractionRuleTest is Test, GameTest {
 
         bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItemIDs;
         uint64[MAX_CRAFT_INPUT_ITEMS] memory inputQtys;
-        bytes24 outputItem = ItemUtils.GlassGreenGoo();
+        bytes24 outputItem = ItemUtils.GreenGoo();
         uint64 outputQty = 10; // How many we can make in one extraction
 
         dispatcher.dispatch(
@@ -175,9 +175,9 @@ contract ExtractionRuleTest is Test, GameTest {
         // magic 100 items into the construct slot
         bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
         state.setEquipSlot(buildingInstance, 0, inputBag);
-        state.setItemSlot(inputBag, 0, ItemUtils.GlassGreenGoo(), 25);
-        state.setItemSlot(inputBag, 1, ItemUtils.BeakerBlueGoo(), 25);
-        state.setItemSlot(inputBag, 2, ItemUtils.FlaskRedGoo(), 25);
+        state.setItemSlot(inputBag, 0, ItemUtils.GreenGoo(), 25);
+        state.setItemSlot(inputBag, 1, ItemUtils.BlueGoo(), 25);
+        state.setItemSlot(inputBag, 2, ItemUtils.RedGoo(), 25);
         // construct our building
         dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, q, r, s)));
         return buildingInstance;
