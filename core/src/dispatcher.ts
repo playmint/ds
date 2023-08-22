@@ -1,4 +1,4 @@
-import { concatMap, fromPromise, makeSubject, pipe, publish, tap } from 'wonka';
+import { concatMap, fromPromise, fromValue, makeSubject, pipe, publish, tap } from 'wonka';
 import { Logger } from './logger';
 import {
     CogAction,
@@ -38,11 +38,11 @@ export type Dispatcher = ReturnType<typeof makeDispatcher>;
 export function makeDispatcher(client: CogServices, wallet: Wallet, logger: Logger) {
     const { source: pending, next } = makeSubject<QueuedClientAction>();
 
-    const dispatched = pipe(
+    const dispatching = pipe(
         pending,
         // tap((q) => logger.info(`pending ${q.actions.map((a) => a.name).join(', ')}`)),
         concatMap((queuedAction) =>
-            fromPromise(
+            fromValue(
                 dispatch(client, wallet, queuedAction)
                     .then((dispatchedAction) => {
                         queuedAction.resolve(dispatchedAction);
@@ -58,6 +58,11 @@ export function makeDispatcher(client: CogServices, wallet: Wallet, logger: Logg
                     }),
             ),
         ),
+    );
+
+    const dispatched = pipe(
+        dispatching,
+        concatMap((dispatchedAction) => fromPromise(dispatchedAction)),
     );
 
     pipe(
