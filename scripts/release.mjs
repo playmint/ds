@@ -57,7 +57,7 @@ async function main({
     // will be nothing to run!
     for (const image of Object.values(images)) {
         await check(`docker image ${image.split('/').slice(-1)}`, () => {
-            execSync(`docker pull ${image}`);
+            execSync(`docker manifest inspect ${image}`);
         });
     };
 
