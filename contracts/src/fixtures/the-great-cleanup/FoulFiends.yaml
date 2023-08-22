@@ -12,7 +12,7 @@ spec:
     - name: L33t Bricks
       quantity: 100
   inputs:
-    - name: Red Goo
+    - name: Flask of Red Goo
       quantity: 100
   outputs:
     - name: Smelly Duck

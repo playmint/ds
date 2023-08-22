@@ -11,18 +11,18 @@ spec:
   materials:
     - name: Gold Coin
       quantity: 5
-    - name: Green Goo
+    - name: Glass of Green Goo
       quantity: 50
-    - name: Blue Goo
+    - name: Beaker of Blue Goo
       quantity: 50
-    - name: Red Goo
+    - name: Flask of Red Goo
       quantity: 50
   inputs:
     - name: Gold Coin
       quantity: 2
-    - name: Red Goo
+    - name: Flask of Red Goo
       quantity: 100
-    - name: Red Goo
+    - name: Flask of Red Goo
       quantity: 100
   outputs:
     - name: Shuttlecock

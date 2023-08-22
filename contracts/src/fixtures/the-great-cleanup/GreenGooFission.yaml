@@ -12,7 +12,7 @@ spec:
     - name: L33t Bricks
       quantity: 100
   inputs:
-    - name: Green Goo
+    - name: Glass of Green Goo
       quantity: 100
   outputs:
     - name: Vibrant Green Goo

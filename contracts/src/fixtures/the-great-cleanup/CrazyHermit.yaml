@@ -14,7 +14,7 @@ spec:
   inputs:
     - name: Really Green Goo
       quantity: 1
-    - name: Green Goo
+    - name: Glass of Green Goo
       quantity: 1
     - name: Vibrant Green Goo
       quantity: 1

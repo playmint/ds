@@ -28,9 +28,9 @@ spec:
       quantity: 25
   inputs:
     - name: Blue Goo
-      quantity: 2
+      quantity: 4
     - name: Red Goo
-      quantity: 2
+      quantity: 4
   outputs:
     - name: Cocktail
       quantity: 1

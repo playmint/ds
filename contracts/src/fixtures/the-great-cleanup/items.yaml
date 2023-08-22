@@ -1,6 +1,39 @@
 ---
 kind: Item
 spec:
+  name: Glass of Green Goo
+  icon: 22-27
+  goo:
+    red: 0
+    green: 2
+    blue: 0
+  stackable: true
+
+---
+kind: Item
+spec:
+  name: Beaker of Blue Goo
+  icon: 22-142
+  goo:
+    red: 0
+    green: 0
+    blue: 2
+  stackable: true
+
+---
+kind: Item
+spec:
+  name: Flask of Red Goo
+  icon: 22-24
+  goo:
+    red: 2
+    green: 0
+    blue: 0
+  stackable: true
+
+---
+kind: Item
+spec:
   name: L33t Bricks
   icon: 07-191
   goo:

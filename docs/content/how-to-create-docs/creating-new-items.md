@@ -14,9 +14,9 @@ You are able to register the item with lower values than these, but if you try t
 
 The easiest way to see how many atoms an item has is to hover over it in the inventory. The base resources found in the game contain:
 
--   Green Goo = 2 GREEN goo
--   Blue Goo = 2 BLUE goo
--   Red Goo = 2 RED goo
+-   Green Goo = 1 GREEN goo
+-   Blue Goo = 1 BLUE goo
+-   Red Goo = 1 RED goo
 
 Creators can choose to use goo however they wish. Downstream uses the goo values in combat where:
 
