@@ -7,6 +7,7 @@ import Head from 'next/head';
 import { GlobalStyles } from '@app/styles/global.styles';
 import { DSProvider } from '@downstream/core';
 import { InventoryProvider } from '@app/plugins/inventory/inventory-provider';
+import Analytics from '@app/components/organisms/analytics';
 
 const App = ({ Component, pageProps }: AppProps) => {
     const [config, setConfig] = useState<any>();
@@ -29,6 +30,8 @@ const App = ({ Component, pageProps }: AppProps) => {
             .then(setConfig);
     }, []);
 
+    const enableAnalytics = useMemo(() => /ds-test|downstream.game/.test(window.location.href), []);
+
     return (
         <Fragment>
             <Head>
@@ -44,6 +47,7 @@ const App = ({ Component, pageProps }: AppProps) => {
                 <meta name="msapplication-config" content="/favicon/browserconfig.xml" />
                 <meta name="theme-color" content="#ffffff" />
             </Head>
+            {enableAnalytics && <Analytics id="G-19E8TP90ZV" />}
             <GlobalStyles />
             {config && (
                 <DSProvider initialConfig={config}>
