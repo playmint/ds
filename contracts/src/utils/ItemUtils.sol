@@ -23,16 +23,16 @@ library ItemUtils {
     // these should not really be special, they are simply
     // how we seed the world with atoms at the moment by
     // dropping these per-atom resources in bags during scout
-    function GlassGreenGoo() internal pure returns (bytes24) {
-        return Node.Item("Glass of Green Goo", [uint32(2), uint32(0), uint32(0)], true);
+    function GreenGoo() internal pure returns (bytes24) {
+        return Node.Item("Green Goo", [uint32(1), uint32(0), uint32(0)], true);
     }
 
-    function BeakerBlueGoo() internal pure returns (bytes24) {
-        return Node.Item("Beaker of Blue Goo", [uint32(0), uint32(2), uint32(0)], true);
+    function BlueGoo() internal pure returns (bytes24) {
+        return Node.Item("Blue Goo", [uint32(0), uint32(1), uint32(0)], true);
     }
 
-    function FlaskRedGoo() internal pure returns (bytes24) {
-        return Node.Item("Flask of Red Goo", [uint32(0), uint32(0), uint32(2)], true);
+    function RedGoo() internal pure returns (bytes24) {
+        return Node.Item("Red Goo", [uint32(0), uint32(0), uint32(1)], true);
     }
 
     // register is a helper to declare a new kind of item

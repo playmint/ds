@@ -39,9 +39,9 @@ contract CraftingRuleTest is Test, GameTest {
     }
 
     function testResources() public {
-        assertEq(state.getAtoms(ItemUtils.GlassGreenGoo())[GOO_GREEN], 2);
-        assertEq(state.getAtoms(ItemUtils.BeakerBlueGoo())[GOO_BLUE], 2);
-        assertEq(state.getAtoms(ItemUtils.FlaskRedGoo())[GOO_RED], 2);
+        assertEq(state.getAtoms(ItemUtils.GreenGoo())[GOO_GREEN], 1);
+        assertEq(state.getAtoms(ItemUtils.BlueGoo())[GOO_BLUE], 1);
+        assertEq(state.getAtoms(ItemUtils.RedGoo())[GOO_RED], 1);
     }
 
     function testGetAtoms() public {
@@ -240,9 +240,9 @@ contract CraftingRuleTest is Test, GameTest {
         )
     {
         // Input
-        inputItemIDs[0] = ItemUtils.GlassGreenGoo();
-        inputItemIDs[1] = ItemUtils.BeakerBlueGoo();
-        inputItemIDs[2] = ItemUtils.FlaskRedGoo();
+        inputItemIDs[0] = ItemUtils.GreenGoo();
+        inputItemIDs[1] = ItemUtils.BlueGoo();
+        inputItemIDs[2] = ItemUtils.RedGoo();
         inputQtys[0] = 2;
         inputQtys[1] = 2;
         inputQtys[2] = 2;
@@ -255,9 +255,9 @@ contract CraftingRuleTest is Test, GameTest {
 
     function _registerBuildingKind(uint32 uid, address buildingContract) private returns (bytes24) {
         bytes24[4] memory defaultMaterialItem;
-        defaultMaterialItem[0] = ItemUtils.GlassGreenGoo();
-        defaultMaterialItem[1] = ItemUtils.BeakerBlueGoo();
-        defaultMaterialItem[2] = ItemUtils.FlaskRedGoo();
+        defaultMaterialItem[0] = ItemUtils.GreenGoo();
+        defaultMaterialItem[1] = ItemUtils.BlueGoo();
+        defaultMaterialItem[2] = ItemUtils.RedGoo();
         uint64[4] memory defaultMaterialQty;
         defaultMaterialQty[0] = 25;
         defaultMaterialQty[1] = 25;
@@ -308,9 +308,9 @@ contract CraftingRuleTest is Test, GameTest {
         // magic 100 items into the construct slot
         bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
         state.setEquipSlot(buildingInstance, 0, inputBag);
-        state.setItemSlot(inputBag, 0, ItemUtils.GlassGreenGoo(), 25);
-        state.setItemSlot(inputBag, 1, ItemUtils.BeakerBlueGoo(), 25);
-        state.setItemSlot(inputBag, 2, ItemUtils.FlaskRedGoo(), 25);
+        state.setItemSlot(inputBag, 0, ItemUtils.GreenGoo(), 25);
+        state.setItemSlot(inputBag, 1, ItemUtils.BlueGoo(), 25);
+        state.setItemSlot(inputBag, 2, ItemUtils.RedGoo(), 25);
         // construct our building
         dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, q, r, s)));
         return buildingInstance;

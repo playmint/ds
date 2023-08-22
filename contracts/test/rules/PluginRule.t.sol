@@ -31,9 +31,9 @@ contract PluginRuleTest is Test, GameTest {
         // register a building kind
         vm.startPrank(players[0].addr);
         bytes24[4] memory defaultMaterialItem;
-        defaultMaterialItem[0] = ItemUtils.GlassGreenGoo();
-        defaultMaterialItem[1] = ItemUtils.BeakerBlueGoo();
-        defaultMaterialItem[2] = ItemUtils.FlaskRedGoo();
+        defaultMaterialItem[0] = ItemUtils.GreenGoo();
+        defaultMaterialItem[1] = ItemUtils.BlueGoo();
+        defaultMaterialItem[2] = ItemUtils.RedGoo();
         uint64[4] memory defaultMaterialQty;
         defaultMaterialQty[0] = 25;
         defaultMaterialQty[1] = 25;
@@ -91,9 +91,9 @@ contract PluginRuleTest is Test, GameTest {
         vm.startPrank(players[0].addr);
         bytes24 buildingKind = Node.BuildingKind(30);
         bytes24[4] memory defaultMaterialItem;
-        defaultMaterialItem[0] = ItemUtils.GlassGreenGoo();
-        defaultMaterialItem[1] = ItemUtils.BeakerBlueGoo();
-        defaultMaterialItem[2] = ItemUtils.FlaskRedGoo();
+        defaultMaterialItem[0] = ItemUtils.GreenGoo();
+        defaultMaterialItem[1] = ItemUtils.BlueGoo();
+        defaultMaterialItem[2] = ItemUtils.RedGoo();
         uint64[4] memory defaultMaterialQty;
         defaultMaterialQty[0] = 25;
         defaultMaterialQty[1] = 25;

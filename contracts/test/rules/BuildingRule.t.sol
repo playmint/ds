@@ -16,9 +16,9 @@ contract BuildingRuleTest is Test, GameTest {
 
     function setUp() public {
         // setup default material construction costs
-        defaultMaterialItem[0] = ItemUtils.GlassGreenGoo();
-        defaultMaterialItem[1] = ItemUtils.BeakerBlueGoo();
-        defaultMaterialItem[2] = ItemUtils.FlaskRedGoo();
+        defaultMaterialItem[0] = ItemUtils.GreenGoo();
+        defaultMaterialItem[1] = ItemUtils.BlueGoo();
+        defaultMaterialItem[2] = ItemUtils.RedGoo();
         defaultMaterialQty[0] = 25;
         defaultMaterialQty[1] = 25;
         defaultMaterialQty[2] = 25;
@@ -291,9 +291,9 @@ contract BuildingRuleTest is Test, GameTest {
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
         bytes24 buildingBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
         state.setEquipSlot(buildingInstance, 0, buildingBag);
-        state.setItemSlot(buildingBag, 0, ItemUtils.GlassGreenGoo(), 100);
-        state.setItemSlot(buildingBag, 1, ItemUtils.BeakerBlueGoo(), 100);
-        state.setItemSlot(buildingBag, 2, ItemUtils.FlaskRedGoo(), 100);
+        state.setItemSlot(buildingBag, 0, ItemUtils.GreenGoo(), 100);
+        state.setItemSlot(buildingBag, 1, ItemUtils.BlueGoo(), 100);
+        state.setItemSlot(buildingBag, 2, ItemUtils.RedGoo(), 100);
         // construct our building
         vm.expectRevert("BuildingMustBeAdjacentToMobileUnit"); // expect fail as q/r/s not adjacent
         dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, q, r, s)));

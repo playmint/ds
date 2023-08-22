@@ -9,12 +9,11 @@ spec:
   plugin:
     file: ./GreenGooFission.js
   materials:
-  - name: L33t Bricks
-    quantity: 100
+    - name: L33t Bricks
+      quantity: 100
   inputs:
-  - name: Glass of Green Goo
-    quantity: 100
+    - name: Glass of Green Goo
+      quantity: 100
   outputs:
-  - name: Vibrant Green Goo
-    quantity: 5
-
+    - name: Vibrant Green Goo
+      quantity: 5

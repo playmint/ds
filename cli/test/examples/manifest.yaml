@@ -19,18 +19,18 @@ spec:
   plugin:
     file: ./Building.js
   materials:
-  - name: Glass of Green Goo
+  - name: Green Goo
     quantity: 25
-  - name: Flask of Red Goo
+  - name: Red Goo
     quantity: 25
-  - name: Beaker of Blue Goo
+  - name: Blue Goo
     quantity: 25
   inputs:
-  - name: Glass of Green Goo
+  - name: Green Goo
     quantity: 2
-  - name: Beaker of Blue Goo
+  - name: Blue Goo
     quantity: 2
-  - name: Flask of Red Goo
+  - name: Red Goo
     quantity: 2
   outputs:
   outputs:

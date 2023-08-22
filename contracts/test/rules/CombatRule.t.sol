@@ -44,9 +44,9 @@ contract CombatRuleTest is Test, GameTest {
         vm.stopPrank();
 
         // setup default material construction costs
-        defaultMaterialItem[0] = ItemUtils.GlassGreenGoo();
-        defaultMaterialItem[1] = ItemUtils.BeakerBlueGoo();
-        defaultMaterialItem[2] = ItemUtils.FlaskRedGoo();
+        defaultMaterialItem[0] = ItemUtils.GreenGoo();
+        defaultMaterialItem[1] = ItemUtils.BlueGoo();
+        defaultMaterialItem[2] = ItemUtils.RedGoo();
         defaultMaterialQty[0] = 25;
         defaultMaterialQty[1] = 25;
         defaultMaterialQty[2] = 25;

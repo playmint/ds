@@ -222,7 +222,7 @@ contract InventoryRuleTest is Test, GameTest {
         (bytes24 toResourceBefore, uint64 toBalanceBefore) = state.getItemSlot(toBag, ITEM_SLOT_0);
         assertEq(
             fromResourceBefore,
-            ItemUtils.GlassGreenGoo(),
+            ItemUtils.GreenGoo(),
             "expected mobileUnit1-equip0-bag-item0 (from) resource to be wood before xfer"
         );
         assertEq(toResourceBefore, 0x0, "expected mobileUnit1-equip1-bag-item0 (to) resource to be unset before xfer");
@@ -262,7 +262,7 @@ contract InventoryRuleTest is Test, GameTest {
         (bytes24 toResourceBefore, uint64 toBalanceBefore) = state.getItemSlot(toBag, ITEM_SLOT_0);
         assertEq(
             fromResourceBefore,
-            ItemUtils.GlassGreenGoo(),
+            ItemUtils.GreenGoo(),
             "expected mobileUnit1-equip0-bag-item0 (from) resource to be wood before xfer"
         );
         assertEq(toResourceBefore, 0x0, "expected mobileUnit1-equip1-bag-item0 (to) resource to be unset before xfer");
@@ -287,12 +287,12 @@ contract InventoryRuleTest is Test, GameTest {
         (bytes24 toResourceAfter, uint64 toBalanceAfter) = state.getItemSlot(toBag, itemSlots[1]);
         assertEq(
             fromResourceAfter,
-            ItemUtils.GlassGreenGoo(),
+            ItemUtils.GreenGoo(),
             "expected mobileUnit1-equip0-bag-item0 resource to be wood after xfer"
         );
         assertEq(
             toResourceAfter,
-            ItemUtils.GlassGreenGoo(),
+            ItemUtils.GreenGoo(),
             "expected mobileUnit1-equip1-bag-item0 resource to be wood after xfer"
         );
         assertEq(fromBalanceAfter, 50, "expected mobileUnit1-equip1-bag-item0 balance to decrease to 50 after xfer");
@@ -316,7 +316,7 @@ contract InventoryRuleTest is Test, GameTest {
         (bytes24 toResourceBefore, uint64 toBalanceBefore) = state.getItemSlot(toBag, ITEM_SLOT_0);
         assertEq(
             fromResourceBefore,
-            ItemUtils.GlassGreenGoo(),
+            ItemUtils.GreenGoo(),
             "expected mobileUnit1-equip0-bag-item0 (from) resource to be wood before xfer"
         );
         assertEq(toResourceBefore, 0x0, "expected mobileUnit1-equip1-bag-item0 (to) resource to be unset before xfer");
@@ -342,12 +342,12 @@ contract InventoryRuleTest is Test, GameTest {
         (bytes24 toResourceAfter, uint64 toBalanceAfter) = state.getItemSlot(toBag, itemSlots[1]);
         assertEq(
             fromResourceAfter,
-            ItemUtils.GlassGreenGoo(),
+            ItemUtils.GreenGoo(),
             "expected mobileUnit1-equip0-bag-item0 resource to be wood after xfer"
         );
         assertEq(
             toResourceAfter,
-            ItemUtils.GlassGreenGoo(),
+            ItemUtils.GreenGoo(),
             "expected mobileUnit1-equip1-bag-item0 resource to be wood after xfer"
         );
         assertEq(fromBalanceAfter, 50, "expected mobileUnit1-equip1-bag-item0 balance to decrease to 50 after xfer");
@@ -356,7 +356,7 @@ contract InventoryRuleTest is Test, GameTest {
 
     function _spawnBagWithWood(address owner, bytes24 equipNode, uint8 equipSlot) private returns (bytes24) {
         bytes24[] memory items = new bytes24[](1);
-        items[0] = ItemUtils.GlassGreenGoo();
+        items[0] = ItemUtils.GreenGoo();
         uint64[] memory balances = new uint64[](1);
         balances[0] = 100;
         return dev.spawnBag(owner, equipNode, equipSlot, items, balances);
@@ -364,7 +364,7 @@ contract InventoryRuleTest is Test, GameTest {
 
     function _spawnBagWithStone(address owner, bytes24 equipNode, uint8 equipSlot) private returns (bytes24) {
         bytes24[] memory items = new bytes24[](1);
-        items[0] = ItemUtils.BeakerBlueGoo();
+        items[0] = ItemUtils.BlueGoo();
         uint64[] memory balances = new uint64[](1);
         balances[0] = 100;
         return dev.spawnBag(owner, equipNode, equipSlot, items, balances);

@@ -62,9 +62,7 @@ contract PluginRule is Rule {
 
         assembly {
             addr := create(0, add(bytecode, 0x20), mload(bytecode))
-            if iszero(extcodesize(addr)) {
-                revert(0, 0)
-            }
+            if iszero(extcodesize(addr)) { revert(0, 0) }
         }
 
         _registerImplementation(state, player, kind, addr);
@@ -77,5 +75,4 @@ contract PluginRule is Rule {
         }
         state.setImplementation(kind, contractAddr);
     }
-
 }

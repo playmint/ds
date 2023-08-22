@@ -9,12 +9,12 @@ spec:
   plugin:
     file: ./GenericExtractor.js
   materials:
-    - name: Glass of Green Goo
+    - name: Green Goo
       quantity: 25
-    - name: Beaker of Blue Goo
+    - name: Blue Goo
       quantity: 25
-    - name: Flask of Red Goo
+    - name: Red Goo
       quantity: 25
   outputs:
-    - name: Flask of Red Goo
+    - name: Red Goo
       quantity: 1

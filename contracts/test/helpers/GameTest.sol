@@ -38,9 +38,9 @@ contract Dev {
 
     function spawnFullBag(address owner, bytes24 equipNode, uint8 equipSlot) public returns (bytes24) {
         bytes24[] memory items = new bytes24[](3);
-        items[0] = ItemUtils.GlassGreenGoo();
-        items[1] = ItemUtils.BeakerBlueGoo();
-        items[2] = ItemUtils.FlaskRedGoo();
+        items[0] = ItemUtils.GreenGoo();
+        items[1] = ItemUtils.BlueGoo();
+        items[2] = ItemUtils.RedGoo();
 
         uint64[] memory balances = new uint64[](3);
         balances[0] = 100;

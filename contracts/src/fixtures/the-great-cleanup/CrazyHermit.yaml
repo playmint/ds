@@ -9,16 +9,15 @@ spec:
   plugin:
     file: ./CrazyHermit.js
   materials:
-  - name: L33t Bricks
-    quantity: 100
+    - name: L33t Bricks
+      quantity: 100
   inputs:
-  - name: Really Green Goo
-    quantity: 1
-  - name: Glass of Green Goo
-    quantity: 1
-  - name: Vibrant Green Goo
-    quantity: 1
+    - name: Really Green Goo
+      quantity: 1
+    - name: Glass of Green Goo
+      quantity: 1
+    - name: Vibrant Green Goo
+      quantity: 1
   outputs:
-  - name: Dismembered Hand
-    quantity: 1
-
+    - name: Dismembered Hand
+      quantity: 1

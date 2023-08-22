@@ -20,17 +20,17 @@ spec:
   plugin:
     file: ./CocktailHut.js
   materials:
-  - name: Glass of Green Goo
-    quantity: 25
-  - name: Beaker of Blue Goo
-    quantity: 25
-  - name: Flask of Red Goo
-    quantity: 25
+    - name: Green Goo
+      quantity: 25
+    - name: Blue Goo
+      quantity: 25
+    - name: Red Goo
+      quantity: 25
   inputs:
-  - name: Beaker of Blue Goo
-    quantity: 2
-  - name: Flask of Red Goo
-    quantity: 2
+    - name: Blue Goo
+      quantity: 4
+    - name: Red Goo
+      quantity: 4
   outputs:
-  - name: Cocktail
-    quantity: 1
+    - name: Cocktail
+      quantity: 1
