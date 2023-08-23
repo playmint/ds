@@ -143,7 +143,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         }
     }, [selectProvider, closeAccountDialog]);
 
-    const connectMetamask = useCallback(() => {
+    const connectMetamask = useCallback(async () => {
         try {
             if (wallet) {
                 console.warn('already selected');
@@ -158,7 +158,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                 return;
             }
             selectProvider(browserProvider);
-            browserProvider.request({ method: 'eth_requestAccounts' });
+            await browserProvider.request({ method: 'eth_requestAccounts' });
         } finally {
             closeAccountDialog();
         }
@@ -247,7 +247,9 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                 alert('rejected: max 20 characters');
                 return;
             }
-            player.dispatch({ name: 'NAME_OWNED_ENTITY', args: [entityId, name] });
+            player
+                .dispatch({ name: 'NAME_OWNED_ENTITY', args: [entityId, name] })
+                .catch((err) => console.error('naming failed', err));
         },
         [player]
     );

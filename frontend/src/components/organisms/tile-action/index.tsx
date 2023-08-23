@@ -51,11 +51,11 @@ const PluginContent = ({
         for (const entry of formData.entries()) {
             values[entry[0]] = entry[1].toString();
         }
-        content.submit(values);
+        content.submit(values).catch((err) => console.error(`submit fail: ${err}`));
     };
 
     const clickActionButton = (btn: PluginStateButtonAction) => {
-        btn.action(); // TODO: I think we should suspend here
+        btn.action().catch((err) => console.error('btn action fail:', err)); // TODO: I think we should suspend here
     };
 
     const clickToggleButton = (btn: PluginStateButtonToggle) => {

@@ -171,17 +171,19 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         }
 
         // make our dispatch
-        player.dispatch({
-            name: 'TRANSFER_ITEM_MOBILE_UNIT',
-            args: [
-                selectedMobileUnit.id,
-                [from.id, to.id],
-                [from.equipIndex, to.equipIndex],
-                [from.slotKey, to.slotKey],
-                bagId || nullBagId,
-                quantity,
-            ],
-        });
+        player
+            .dispatch({
+                name: 'TRANSFER_ITEM_MOBILE_UNIT',
+                args: [
+                    selectedMobileUnit.id,
+                    [from.id, to.id],
+                    [from.equipIndex, to.equipIndex],
+                    [from.slotKey, to.slotKey],
+                    bagId || nullBagId,
+                    quantity,
+                ],
+            })
+            .catch((err) => console.error('transfer item failed', err));
     };
 
     const inventoryContextValue: InventoryContextStore = {

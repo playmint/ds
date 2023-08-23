@@ -168,7 +168,7 @@ const PreCombatState: FunctionComponent<PreCombatStateProps> = (props) => {
             name: 'START_COMBAT',
             args: [selectedMobileUnit.id, combatTiles[1].id, attackers, defenders],
         };
-        player.dispatch(action);
+        player.dispatch(action).catch((err) => console.error('start combat failed', err));
         onStartCombat();
     };
 
@@ -370,7 +370,7 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
             name: 'FINALISE_COMBAT',
             args: [latestSession?.id, actions, orderedListIndexes],
         };
-        player?.dispatch(action);
+        player?.dispatch(action).catch((err) => console.error(err));
     };
 
     const handleStartCombat = () => {

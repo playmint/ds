@@ -39,10 +39,6 @@ const MOVE_INTENT = 'move';
 const SCOUT_INTENT = 'scout';
 const COMBAT_INTENT = 'combat';
 
-function sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 const StyledActionContextPanel = styled('div')`
     ${styles}
 `;
@@ -310,16 +306,18 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
             return;
         }
 
-        player.dispatch({
-            name: 'CONSTRUCT_BUILDING_MOBILE_UNIT',
-            args: [
-                mobileUnit.id,
-                data.kind,
-                constructableTile.coords[1],
-                constructableTile.coords[2],
-                constructableTile.coords[3],
-            ],
-        });
+        player
+            .dispatch({
+                name: 'CONSTRUCT_BUILDING_MOBILE_UNIT',
+                args: [
+                    mobileUnit.id,
+                    data.kind,
+                    constructableTile.coords[1],
+                    constructableTile.coords[2],
+                    constructableTile.coords[3],
+                ],
+            })
+            .catch((err) => console.error(`failed construct`, err));
         clearIntent();
     };
 
@@ -464,10 +462,9 @@ const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selecte
                 args: [mobileUnit.key, q, r, s],
             };
         });
-        actions.reduce(
-            (chain, action) => chain.then(() => player.dispatch(action)).then(() => sleep(1500)),
-            Promise.resolve()
-        );
+        actions
+            .reduce((chain, action) => chain.then(() => player.dispatch(action)), Promise.resolve() as Promise<any>)
+            .catch((err) => console.error('move chain failed', err));
         if (selectIntent) {
             selectIntent(undefined);
         }
@@ -595,7 +592,7 @@ const Scout: FunctionComponent<ScoutProps> = ({ selectTiles, selectIntent, selec
                 args: [mobileUnit.key, q, r, s],
             };
         });
-        player.dispatch(...actions);
+        player.dispatch(...actions).catch((err) => console.error('scout failed', err));
         if (selectIntent) {
             selectIntent(undefined);
         }
