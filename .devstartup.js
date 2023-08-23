@@ -63,6 +63,13 @@ const commands = [
         prefixColor: 'blueBright',
     },
 
+    {
+        name: '  docs ',
+        command: 'npm run start',
+        prefixColor: 'blueBright',
+        cwd: path.resolve(__dirname, path.join('docs')),
+    },
+
 ];
 
 // run everything concurrently. if one exits, they all exit.
