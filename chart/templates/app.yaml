@@ -196,6 +196,7 @@ spec:
   selector:
     app: {{ $.Release.Name }}-services
 
+{{ if $.Values.anvil.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -211,6 +212,7 @@ spec:
       name: network
   selector:
     app: {{ $.Release.Name }}-services
+{{ end }}
 
 ---
 apiVersion: v1
