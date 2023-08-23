@@ -82,7 +82,7 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
                         Move
                     </button>
                 </li>
-                <li>
+                <li style={{ display: 'none' }}>
                     <button
                         className={`action-icon-button ${intent === SCOUT_INTENT ? 'active' : ''}`}
                         disabled={!canScout || intent === SCOUT_INTENT}
