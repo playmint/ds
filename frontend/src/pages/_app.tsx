@@ -27,7 +27,8 @@ const App = ({ Component, pageProps }: AppProps) => {
     useEffect(() => {
         fetch('/config.json')
             .then((res) => res.json())
-            .then(setConfig);
+            .then(setConfig)
+            .catch((err) => console.error('failed to load /config.json', err));
     }, []);
 
     const enableAnalytics = useMemo(() => /ds-test|downstream.game/.test(window.location.href), []);

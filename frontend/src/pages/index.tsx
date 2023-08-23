@@ -133,12 +133,10 @@ export default function ShellPage() {
                         gSendMessage(...args[i]);
                         await sleep(0);
                     }
-                } catch (err) {
-                    console.error('SendMessage:', err);
                 } finally {
                     isSending = false;
                 }
-            })();
+            })().catch((err) => console.error('SendMessage', err));
         }, 25);
         return () => {
             console.warn('clearing timer');
@@ -233,7 +231,9 @@ export default function ShellPage() {
                         console.warn('map attempted to dispatch when there was no player to dispatch with');
                         return;
                     }
-                    dispatch({ name: action as ActionName, args });
+                    dispatch({ name: action as ActionName, args }).catch((err) =>
+                        console.error('dispatch from map failed', err)
+                    );
                     break;
                 }
                 case 'selectTiles': {
