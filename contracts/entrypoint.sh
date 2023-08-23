@@ -24,6 +24,7 @@ echo "+-------------------+"
 echo "| starting evm node |"
 echo "+-------------------+"
 anvil \
+    --block-base-fee-per-gas 1 \
     --block-time 2 \
 	--host 0.0.0.0 \
 	-m "${ACCOUNT_MNEMONIC}" \
