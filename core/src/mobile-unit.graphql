@@ -24,6 +24,9 @@ fragment Bag on Node {
     slots: edges(match: { kinds: ["Item"], via: { rel: "Balance" } }) {
         ...ItemSlot
     }
+    owner: node(match: { via: { rel: "Owner" } }) {
+        id
+    }
 }
 
 fragment EquipmentSlot on Edge {

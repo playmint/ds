@@ -29,7 +29,7 @@ map:
 debugmap:
 	$(UNITY_EDITOR) -batchmode -quit -projectPath ./map -executeMethod BuildScript.DevBuild -buildTarget WebGL -logFile -
 
-dev: all
+dev: all docs
 	$(NODE) .devstartup.js
 
 compose: frontend/public/ds-unity/Build/ds-unity.wasm
@@ -60,6 +60,11 @@ contracts/lib/cog/services/bin/ds-node: contracts/lib/cog/services/Makefile $(CO
 cli: node_modules core/dist/core.js
 	(cd cli && npm run build && npm install -g --force .)
 
+docs/node_modules: docs/package.json docs/package-lock.json
+	(cd docs && npm ci)
+
+docs: docs/node_modules
+
 publish: cli
 	(cd cli && npm version patch && npm publish)
 
@@ -82,9 +87,12 @@ clean:
 	rm -rf frontend/public/ds-unity
 	rm -rf frontend/dist
 	rm -rf frontend/node_modules
+	rm -rf docs/node_modules
+	rm -rf docs/.docusaurus
+	rm -rf docs/build
 	rm -rf node_modules
 	$(MAKE) -C contracts/lib/cog/services clean
 
 
-.PHONY: all clean dev map compose debugmap cli contracts release
+.PHONY: all clean dev docs map compose debugmap cli contracts release
 .SILENT: contracts/lib/cog/services/bin/ds-node frontend/public/ds-unity/Build/ds-unity.wasm

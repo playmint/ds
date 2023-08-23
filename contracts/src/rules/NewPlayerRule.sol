@@ -7,6 +7,7 @@ import "cog/IDispatcher.sol";
 
 import {Schema, Node, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
+import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 
 using Schema for State;
 
@@ -45,16 +46,21 @@ contract NewPlayerRule is Rule {
             state.setPrevLocation(mobileUnit, locationTile, 0);
             state.setNextLocation(mobileUnit, locationTile, ctx.clock);
             // give the mobileUnit a couple of bags
-            _spawnBag(state, mobileUnit, ctx.sender, 0);
+            bytes24 bag0 = _spawnBag(state, mobileUnit, ctx.sender, 0);
             _spawnBag(state, mobileUnit, ctx.sender, 1);
+            // give the mobileUnit 100 of each of the base materials
+            state.setItemSlot(bag0, 0, ItemUtils.GreenGoo(), 100);
+            state.setItemSlot(bag0, 1, ItemUtils.BlueGoo(), 100);
+            state.setItemSlot(bag0, 2, ItemUtils.RedGoo(), 100);
         }
 
         return state;
     }
 
-    function _spawnBag(State state, bytes24 mobileUnit, address owner, uint8 equipSlot) private {
+    function _spawnBag(State state, bytes24 mobileUnit, address owner, uint8 equipSlot) private returns (bytes24) {
         bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode(mobileUnit, equipSlot)))));
         state.setOwner(bag, Node.Player(owner));
         state.setEquipSlot(mobileUnit, equipSlot, bag);
+        return bag;
     }
 }

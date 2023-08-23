@@ -27,7 +27,7 @@ jobs:
       - name: Install node
         uses: actions/setup-node@v1
         with:
-          node-version: 16.19.x
+          node-version: 18.16.x
       - name: Install
         run: |
           npm ci
