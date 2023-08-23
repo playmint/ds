@@ -22,6 +22,14 @@ services:
     ports:
       - 3000:80
 
+  docs:
+    build:
+      context: .
+      dockerfile: ./docs/Dockerfile
+    image: playmint/ds-docs:local
+    ports:
+      - 3002:80
+
   cog:
     build:
       context: ./contracts/lib/cog/services
