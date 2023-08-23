@@ -84,7 +84,7 @@ async function main({
     if (!gameAddress) {
         if (!dryRun) {
             await check(`contracts deployment`, () => {
-                execSync(`forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "${CHAIN_ENDPOINT_HTTP}"`, {
+                execSync(`forge script script/Deploy.sol:GameDeployer --force --broadcast --rpc-url "${CHAIN_ENDPOINT_HTTP}"`, {
                     cwd: './contracts',
                     stdio: 'inherit',
                     env: {
