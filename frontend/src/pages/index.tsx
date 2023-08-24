@@ -54,6 +54,7 @@ let pendingTiles: any;
 let pendingBuildings: any;
 let pendingBlock: any;
 let pendingSelection: any;
+let hasSentAtLeastOneTilesUpdate = false;
 
 export default function ShellPage() {
     const { wallet, selectProvider } = useWallet();
@@ -107,20 +108,28 @@ export default function ShellPage() {
                         JSON.stringify({ tiles: [], buildings: [], players: [], block: pendingBlock }),
                     ]);
 
-                    if (pendingPlayers) {
-                        args = [...args, ...pendingPlayers];
-                    }
-                    if (pendingTiles) {
-                        args = [...args, ...pendingTiles];
-                    }
-                    if (pendingBuildings) {
-                        args = [...args, ...pendingBuildings];
-                    }
-                    if (pendingPlayer) {
-                        args.push(pendingPlayer);
-                    }
-                    if (pendingSelection) {
-                        args.push(pendingSelection);
+                    // if there is a selection change pending,
+                    // then give it priority over the world state
+                    // so that the UI feels snappier.
+                    // any other updates will occur in the next loop
+                    if (pendingSelection && hasSentAtLeastOneTilesUpdate) {
+                        if (pendingSelection) {
+                            args.push(pendingSelection);
+                        }
+                    } else {
+                        if (pendingPlayers) {
+                            args = [...args, ...pendingPlayers];
+                        }
+                        if (pendingTiles) {
+                            hasSentAtLeastOneTilesUpdate = true;
+                            args = [...args, ...pendingTiles];
+                        }
+                        if (pendingBuildings) {
+                            args = [...args, ...pendingBuildings];
+                        }
+                        if (pendingPlayer) {
+                            args.push(pendingPlayer);
+                        }
                     }
                     args.push(['GameStateMediator', 'EndOnState']);
 
