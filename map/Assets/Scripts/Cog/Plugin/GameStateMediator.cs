@@ -88,6 +88,7 @@ namespace Cog
 
         // -- EVENTS
         public Action<GameState> EventStateUpdated;
+        public Action<Selection> EventSelectionUpdated;
 
         // -- //
 
@@ -432,6 +433,7 @@ namespace Cog
             try
             {
                 incoming.Selected = JsonConvert.DeserializeObject<Selection>(json);
+                EventSelectionUpdated.Invoke(incoming.Selected);
             }
             catch (Exception e)
             {
