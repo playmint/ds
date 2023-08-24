@@ -117,6 +117,21 @@ public class MapManager : MonoBehaviour
         return IsTileAtPosition(cellPosCube) && tilePositions[cellPosCube].Biome != 0;
     }
 
+    public bool IsDecoration(Vector3Int cubePos)
+    {
+        Tiles2 tile = GetTileByPos(cubePos);
+        if (tile != null && tile.Building != null && GetTileByPos(cubePos).Building.Kind != null)
+        {
+            string id = GetTileByPos(cubePos).Building.Kind.Id;
+            uint category = BuildingHelper.GetBuildingCategory(id);
+            if (category == 1)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Tiles2 GetTileByPos(Vector3Int cellPosCube)
     {
         Tiles2 t;

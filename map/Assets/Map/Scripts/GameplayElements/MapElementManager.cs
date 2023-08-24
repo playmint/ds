@@ -21,7 +21,8 @@ public class MapElementManager : MonoBehaviour
         incompleteBuildingPrefab,
         gooGreenPrefab,
         gooBluePrefab,
-        gooRedPrefab;
+        gooRedPrefab,
+        decorationPrefab;
 
     [SerializeField]
     private uint smallGooThreshold,
@@ -79,21 +80,28 @@ public class MapElementManager : MonoBehaviour
     {
         if (!_spawnedBuildings.ContainsKey(cubicCoords))
         {
-            bool isExtractor = category == 2;
-            if (isExtractor)
+            switch(category)
             {
-                ExtractorBuildingController building = Instantiate(extractorPrefab, transform, true)
+                //categories: 0 = 'none', 1 = 'blocker', 2 = 'extractor', 3 = 'factory', 4 = 'custom'
+                case 1:
+                    DecorationBuildingController decoration = Instantiate(decorationPrefab, transform, true)
+                    .GetComponent<DecorationBuildingController>();
+                    _spawnedBuildings.Add(cubicCoords, decoration);
+                    decoration.Setup(cubicCoords, tileTransform, id, model);
+                    break;
+                case 2:
+                    ExtractorBuildingController extractor = Instantiate(extractorPrefab, transform, true)
                     .GetComponent<ExtractorBuildingController>();
-                _spawnedBuildings.Add(cubicCoords, building);
-                building.Setup(cubicCoords, tileTransform, id, model);
-            }
-            else
-            {
-                StackableBuildingController building = Instantiate(buildingPrefab, transform, true)
+                    _spawnedBuildings.Add(cubicCoords, extractor);
+                    extractor.Setup(cubicCoords, tileTransform, id, model);
+                    break;
+                default:
+                    StackableBuildingController building = Instantiate(buildingPrefab, transform, true)
                     .GetComponent<StackableBuildingController>();
-                _spawnedBuildings.Add(cubicCoords, building);
-                string[] totemNames = GetTotemNamesFromStackCode(model);
-                building.Setup(cubicCoords, tileTransform, id, totemNames);
+                    _spawnedBuildings.Add(cubicCoords, building);
+                    string[] totemNames = GetTotemNamesFromStackCode(model);
+                    building.Setup(cubicCoords, tileTransform, id, totemNames);
+                    break;
             }
         }
     }
