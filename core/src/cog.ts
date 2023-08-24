@@ -141,7 +141,7 @@ export function configureClient({
     const signin = async (owner: ethers.Signer) => {
         const key = ethers.Wallet.createRandom();
         const scope = '0xffffffff';
-        const ttl = 9999;
+        const ttl = 25000; // ~13hrs
         const msg = authMessage(key.address.toLowerCase(), ttl);
         const auth = await owner.signMessage(msg);
         const res = await gql
