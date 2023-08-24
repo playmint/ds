@@ -8,7 +8,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const config = {
   title: 'Downstream',
   tagline: 'How to play and create',
-  favicon: 'img/favicon.png',
+  favicon: '/images/favicon.png',
 
   // Set the production url of your site here
   url: 'https://docs.downstream.game',
@@ -56,12 +56,12 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
-      image: 'img/social-card.png',
+      image: '/images/social-card.png',
       navbar: {
         title: 'Downstream',
         logo: {
           alt: 'Downstram Logo',
-          src: 'img/logo.png',
+          src: '/images/logo.png',
         },
         items: [
           {

@@ -21,7 +21,7 @@ These docs are not a complete and up to date reference so the best way to see th
 - Select Use
 - Select a building
 - Expand the log prefixed  `[0x3... send] `
-        ![](../images/code-docs-input-state.png)
+        ![](/images/code-docs-input-state.png)
 - Expand the data elements to explore what's in them
 - Anything you find here is availabe in your Update function
 
@@ -223,6 +223,6 @@ ds.dispatch({
 
 If your building kind defines Inputs and an Output, then the UI will show appropriate item slots as part of you plugin UI by default.
 
-![Default Building Craft UI](../images/default-craft-ui.png)
+![Default Building Craft UI](/images/default-craft-ui.png)
 
 There is no need for plugin code to handle these inputs, however it is up to you to call dispatch the CRAFT action, either via the solidity use() function for via dispatching the action directly from the javascript.
