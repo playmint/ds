@@ -43,21 +43,21 @@ public class MoveIntent : IntentHandler
     {
         MapInteractionManager.instance.EventTileLeftClick += OnTileLeftClick;
         MapInteractionManager.instance.EventTileRightClick += OnTileRightClick;
-        GameStateMediator.Instance.EventStateUpdated += OnStateUpdated;
+        GameStateMediator.Instance.EventSelectionUpdated += OnSelectionUpdated;
     }
 
     private void OnDestroy()
     {
-        GameStateMediator.Instance.EventStateUpdated -= OnStateUpdated;
+        GameStateMediator.Instance.EventSelectionUpdated -= OnSelectionUpdated;
         MapInteractionManager.instance.EventTileLeftClick -= OnTileLeftClick;
         MapInteractionManager.instance.EventTileRightClick -= OnTileRightClick;
     }
 
-    private void OnStateUpdated(GameState state)
+    private void OnSelectionUpdated(Selection selected)
     {
-        if (state.Selected.Intent == Intent)
+        if (selected.Intent == Intent)
         {
-            _mobileUnitPos = TileHelper.GetTilePosCube(state.Selected.MobileUnit.NextLocation);
+            _mobileUnitPos = TileHelper.GetTilePosCube(selected.MobileUnit.NextLocation);
 
             // HACK: Cannot be in move intent when the movement CR is running
             if (_isTracingPath)
@@ -71,14 +71,14 @@ public class MoveIntent : IntentHandler
                 ActivateMovementMode();
             }
 
-            var validPath = GetValidPath(state.Selected.Tiles.ToList());
+            var validPath = GetValidPath(selected.Tiles.ToList());
 
             _path = HighlightPath(_path, validPath);
 
             HighlightAvailableSpaces();
         }
 
-        if (state.Selected.Intent != Intent && isMoving)
+        if (selected.Intent != Intent && isMoving)
         {
             DeactivateMovementMode();
         }
@@ -239,7 +239,7 @@ public class MoveIntent : IntentHandler
             return;
 
         isMoving = false;
-        HideHighlights();
+        SetHighlights(null);
         HidePathHighlights();
         if (!_isTracingPath)
         {
@@ -249,17 +249,22 @@ public class MoveIntent : IntentHandler
 
     public void HighlightAvailableSpaces()
     {
-        HideHighlights();
-
         if (_path.Count == 0)
             return;
 
+        Dictionary<Vector3Int, GameObject> lit = new Dictionary<Vector3Int, GameObject>();
+
         foreach (Vector3Int space in TileHelper.GetTileNeighbours(_path[_path.Count - 1]))
         {
-            if (
-                !spawnedPathHighlights.ContainsKey(space)
-                && MapManager.instance.IsDiscoveredTile(space)
-            )
+            if (!MapManager.instance.IsDiscoveredTile(space))
+            {
+                continue;
+            }
+            if (spawnedValidCellHighlights.ContainsKey(space))
+            {
+                lit.Add(space, spawnedValidCellHighlights[space]);
+            }
+            else
             {
                 Transform highlight = Instantiate(greenHighlightPrefab).transform;
                 highlight.position = MapManager.instance.grid.CellToWorld(
@@ -270,18 +275,22 @@ public class MoveIntent : IntentHandler
                     MapHeightManager.instance.GetHeightAtPosition(highlight.position),
                     highlight.position.z
                 );
-                spawnedValidCellHighlights.Add(space, highlight.gameObject);
+                lit.Add(space, highlight.gameObject);
             }
         }
+        SetHighlights(lit);
     }
 
-    private void HideHighlights()
+    private void SetHighlights(Dictionary<Vector3Int, GameObject> lit)
     {
         foreach (KeyValuePair<Vector3Int, GameObject> go in spawnedValidCellHighlights)
         {
-            Destroy(go.Value);
+            if (lit == null || !lit.ContainsKey(go.Key))
+            {
+                Destroy(go.Value);
+            }
         }
-        spawnedValidCellHighlights = new Dictionary<Vector3Int, GameObject>();
+        spawnedValidCellHighlights = lit;
     }
 
     private void HidePathHighlights()
