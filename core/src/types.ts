@@ -209,6 +209,7 @@ export interface Wallet {
     address: string;
     signer: () => Promise<ethers.Signer>;
     session?: CogSession;
+    method: string;
 }
 
 export type AnyGameQuery = GetSelectedPlayerQuery | GetWorldQuery;

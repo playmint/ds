@@ -24,6 +24,7 @@ import {
     Wallet,
     EthereumProvider,
     Selector,
+    WalletProvider,
 } from '@downstream/core';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { EthereumProvider as WalletConnectProvider } from '@walletconnect/ethereum-provider';
@@ -31,10 +32,11 @@ import { Fragment, FunctionComponent, useCallback, useEffect, useState } from 'r
 import { UnityProvider } from 'react-unity-webgl/distribution/types/unity-provider';
 import styled from 'styled-components';
 import { styles } from './shell.styles';
+import { trackEvent, trackPlayer } from '@app/components/organisms/analytics';
 
 export interface ShellProps extends ComponentProps, Partial<SelectionSelectors> {
     wallet?: Wallet;
-    selectProvider: Selector<EthereumProvider>;
+    selectProvider: Selector<WalletProvider>;
     world?: WorldStateFragment;
     player?: ConnectedPlayer;
     selection?: Selection;
@@ -86,6 +88,9 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
 
     // trigger signin
     useEffect(() => {
+        if (!wallet) {
+            return;
+        }
         if (!player) {
             return;
         }
@@ -100,9 +105,11 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                     console.error(err);
                     window.location.reload(); // error is fatal, reload
                 })
+                .then(() => trackEvent('login', { method: wallet.method }))
+                .then(() => trackPlayer(wallet.address))
                 .finally(() => setLoggingIn(false));
         }
-    }, [player, loggingIn]);
+    }, [player, loggingIn, wallet]);
 
     const closeAccountDialog = useCallback(() => {
         setShowAccount(false);
@@ -131,7 +138,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
             return wc
                 .connect()
                 .then(() => sleep(1000))
-                .then(() => selectProvider(wc))
+                .then(() => selectProvider({ method: 'walletconnect', provider: wc }))
                 .catch((err) => console.error(`walletconnect: ${err}`))
                 .finally(() => {
                     wc.off('display_uri', onDisplayURI);
@@ -157,7 +164,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                 console.warn('browser provider not available');
                 return;
             }
-            selectProvider(browserProvider);
+            selectProvider({ method: 'metamask', provider: browserProvider });
             await browserProvider.request({ method: 'eth_requestAccounts' });
         } finally {
             closeAccountDialog();

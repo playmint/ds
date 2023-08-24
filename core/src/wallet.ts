@@ -3,21 +3,27 @@ import { concat, filter, fromPromise, fromValue, lazy, makeSubject, map, onEnd, 
 import { CompoundKeyEncoder, NodeSelectors } from './helpers';
 import { EthereumProvider, Selector, Wallet } from './types';
 
+export type WalletProvider = {
+    method: string;
+    provider: EthereumProvider;
+};
+
 export function makeWallet(): {
     wallet: Source<Wallet | undefined>;
-    selectProvider: Selector<EthereumProvider>;
+    selectProvider: Selector<WalletProvider>;
 } {
-    const { source: provider, next: selectProvider } = makeSubject<EthereumProvider>();
+    const { source: provider, next: selectProvider } = makeSubject<WalletProvider>();
     const wallet = pipe(
         provider,
-        filter((provider): provider is EthereumProvider => provider !== null),
+        filter((provider): provider is WalletProvider => provider !== null),
         switchMap(newBrowserAccountSource),
-        map(({ provider, address }) =>
+        map(({ provider, address, method }) =>
             address
                 ? ({
                       id: CompoundKeyEncoder.encodeAddress(NodeSelectors.Player, address),
                       address,
                       signer: async () => new ethers.BrowserProvider(provider).getSigner(address),
+                      method,
                   } satisfies Wallet)
                 : undefined,
         ),
@@ -33,11 +39,12 @@ export function makeKeyWallet(keyHexString: string): Source<Wallet> {
             id: CompoundKeyEncoder.encodeAddress(NodeSelectors.Player, signer.address),
             address: signer.address,
             signer: async () => signer,
+            method: 'privatekey',
         }),
     );
 }
 
-function newBrowserAccountSource(provider: EthereumProvider) {
+function newBrowserAccountSource({ provider, method }: WalletProvider) {
     const { source, next } = makeSubject<string | undefined>();
     const handleAccountsChanged = (accounts: string[]) => {
         const addr = getAddress(accounts);
@@ -49,7 +56,7 @@ function newBrowserAccountSource(provider: EthereumProvider) {
     provider.on('accountsChanged', handleAccountsChanged);
     return pipe(
         lazy(() => concat([fromPromise(fetchAccounts()), source])),
-        map((address) => ({ provider, address })),
+        map((address) => ({ provider, address, method })),
         onEnd(() => {
             provider.off('accountsChanged', handleAccountsChanged);
         }),
