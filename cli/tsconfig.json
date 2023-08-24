@@ -7,7 +7,6 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "noUnusedLocals": true,
-    "rootDir": ".",
     "baseUrl": ".",
     "paths": {
       "@downstream/core": ["../core/src"],

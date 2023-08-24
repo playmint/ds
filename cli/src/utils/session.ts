@@ -32,7 +32,21 @@ const newWalletConnectProvider = async (): Promise<EthereumProvider> => {
         const onDisplayURI = (uri: string) => {
             qrcode.generate(uri, { small: true }, (qr) => {
                 console.clear();
+                console.log(`\n`);
                 console.log(qr);
+                console.log(`
+
+█▀▀▄ █▀▀█ █───█ █▀▀▄ █▀▀ ▀▀█▀▀ █▀▀█ █▀▀ █▀▀█ █▀▄▀█
+█──█ █──█ █▄█▄█ █──█ ▀▀█ ──█── █▄▄▀ █▀▀ █▄▄█ █─▀─█
+▀▀▀─ ▀▀▀▀ ─▀─▀─ ▀──▀ ▀▀▀ ──▀── ▀─▀▀ ▀▀▀ ▀──▀ ▀───▀
+`);
+                console.log(`\n`);
+                console.log(`Authorization required to continue...`);
+                console.log(`\n`);
+                console.log(
+                    `Please scan the QR code with your mobile wallet to connect, you will be prompted to sign a message to authenticate your Downstream session`
+                );
+                console.log(`\n`);
             });
         };
         const onConnect = (_info) => {
@@ -92,7 +106,7 @@ export const session = async (ctx) => {
                 toPromise
             );
             const provider = await newWalletConnectProvider();
-            selectProvider(provider);
+            selectProvider({ method: 'walletconnect', provider });
             await sleep(1000); // seems to be a bit of an eventual consistency race outside our control on the walletconnect api side
             // await provider.request({ method: 'eth_accounts' }); // check connection or explode
             const p = await player;
