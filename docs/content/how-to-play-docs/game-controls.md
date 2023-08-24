@@ -12,7 +12,7 @@ sidebar_position: 2
 4. Click the “Sign" button when prompted
 5. You unit will appear in the middle of the map - they will have a red shield above their head
 
-![Spawning In](../images/spawn-in.png)
+![Spawning In](/images/spawn-in.png)
 
 ## Selecting and Deselecting Your Unit
 
@@ -25,7 +25,7 @@ When you deselect your unit you can view the details of tiles anywhere on the ma
 
 - To deselect your unit, click on any tile that is not adjacent to it.
 
-![Selecting Yout Unit](../images/selected-unit.png)
+![Selecting Yout Unit](/images/selected-unit.png)
 
 ## Moving Your Unit
 
@@ -35,7 +35,7 @@ With your Unit selected, you can give it a destination to travel to. This is don
 2. Left-click one off these tiles
 3. You can either press the “Confirm Move” button to move to this tile, or queue up additional moves by continuing to click on the highlighted tiles
 
-![Moving](../images/move-unit.png)
+![Moving](/images/move-unit.png)
 
 ## Scouting
 
@@ -45,7 +45,7 @@ When your unit is next to an unexplored tile it will have the ability to scout i
 2. Click on all adjacent tiles that you want to scout
 3. Click the “Confirm Scout” button
 
-![Scouting](../images/scout.png)
+![Scouting](/images/scout.png)
 
 ## Constructing a Building
 
@@ -60,7 +60,7 @@ Your Unit can construct a building on any empty adjacent tiles
     - Multiple players can contribute their resources to this cost
 6. When all resources have been added, click the “Confirm Construction” button.
 
-![Constructing a Building](../images/constructing-a-building.png)
+![Constructing a Building](/images/constructing-a-building.png)
 
 ## Using a Building
 
@@ -78,7 +78,7 @@ You unit is able to interact with any bags on the tile it is on, and any adjacen
 2. The bags contents will be displayed.
 3. You can drag-and-drop items between your bags and the tile’s bag
 
-![Moving Items Between Bags](../images/moving-between-bags.png)
+![Moving Items Between Bags](/images/moving-between-bags.png)
 
 ## Starting a Combat Session
 
@@ -90,7 +90,7 @@ Any buildings and monsters (which are technically buildings!) can be attacked.
 4. The combat info window will appear, this shows the strength of the attackers and defenders.
 5. Click “Start Combat” if you want to being the attack, or close the window if you want to chicken out
 
-![Combat Screen](../images/combat-screen.png)
+![Combat Screen](/images/combat-screen.png)
 
 ## Joining a Combat Session
 

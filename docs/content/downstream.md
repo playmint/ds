@@ -4,7 +4,7 @@ hide_title: true
 sidebar_position: 1
 ---
 
-![](./images/docs-header.png)
+![](/images/docs-header.png)
 
 ## How To Play
 

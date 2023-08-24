@@ -10,7 +10,7 @@ Although access to this early version of *****Downstream***** is primarily to se
 
 Just north of the spawn point is a building that requires two items. It will reward a medal to whomever can bring it those items.
 
-![The Great Cleanup Building](../images/the-great-cleanup.png)
+![The Great Cleanup Building](/images/the-great-cleanup.png)
 
 
 ## Starting the Quest
@@ -23,4 +23,4 @@ Go visit the buildings on the map, fight enemies and construct your own building
 
 *****Note: You can rename your Unit by double-clicking your name at the top-right. You will need to move your Unit before your will see your new name*****
 
-![Entering a name](../images/enter-name.png)
+![Entering a name](/images/enter-name.png)
