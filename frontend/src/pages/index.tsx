@@ -146,71 +146,89 @@ export default function ShellPage() {
         };
     }, []);
 
-    const game = { player, selected, world };
-    if (isReady && game.world) {
-        gSendMessage = sendMessage;
-        pendingBlock = game.world.block;
+    gSendMessage = sendMessage;
 
-        if (game.world.players) {
-            const nextPlayersJSON = JSON.stringify(game.world.players);
+    useEffect(() => {
+        if (!isReady) {
+            return;
+        }
+        if (!world) {
+            return;
+        }
+
+        if (world.players) {
+            const nextPlayersJSON = JSON.stringify(world.players);
             if (nextPlayersJSON != prevPlayersJSON) {
                 pendingPlayers = [['GameStateMediator', 'ResetWorldPlayers']];
-                for (let i = 0; i < game.world.players.length; i += CHUNK_PLAYERS) {
+                for (let i = 0; i < world.players.length; i += CHUNK_PLAYERS) {
                     pendingPlayers.push([
                         'GameStateMediator',
                         'AddWorldPlayers',
-                        JSON.stringify(game.world.players.slice(i, i + CHUNK_PLAYERS)),
+                        JSON.stringify(world.players.slice(i, i + CHUNK_PLAYERS)),
                     ]);
                 }
                 prevPlayersJSON = nextPlayersJSON;
             }
         }
 
-        if (game.world.tiles) {
-            const nextTilesJSON = JSON.stringify(game.world.tiles);
+        if (world.tiles) {
+            const nextTilesJSON = JSON.stringify(world.tiles);
             if (nextTilesJSON != prevTilesJSON) {
                 pendingTiles = [['GameStateMediator', 'ResetWorldTiles']];
-                for (let i = 0; i < game.world.tiles.length; i += CHUNK_TILES) {
+                for (let i = 0; i < world.tiles.length; i += CHUNK_TILES) {
                     pendingTiles.push([
                         'GameStateMediator',
                         'AddWorldTiles',
-                        JSON.stringify(game.world.tiles.slice(i, i + CHUNK_TILES)),
+                        JSON.stringify(world.tiles.slice(i, i + CHUNK_TILES)),
                     ]);
                 }
                 prevTilesJSON = nextTilesJSON;
             }
         }
 
-        if (game.world.buildings) {
-            const nextBuildingsJSON = JSON.stringify(game.world.buildings);
+        if (world.buildings) {
+            const nextBuildingsJSON = JSON.stringify(world.buildings);
             if (nextBuildingsJSON != prevBuildingsJSON) {
                 pendingBuildings = [['GameStateMediator', 'ResetWorldBuildings']];
-                for (let i = 0; i < game.world.buildings.length; i += CHUNK_BUILDINGS) {
+                for (let i = 0; i < world.buildings.length; i += CHUNK_BUILDINGS) {
                     pendingBuildings.push([
                         'GameStateMediator',
                         'AddWorldBuildings',
-                        JSON.stringify(game.world.buildings.slice(i, i + CHUNK_BUILDINGS)),
+                        JSON.stringify(world.buildings.slice(i, i + CHUNK_BUILDINGS)),
                     ]);
                 }
                 prevBuildingsJSON = nextBuildingsJSON;
             }
         }
 
-        if (game.player) {
-            // TODO: should allow setting player to null
-            const nextPlayerJSON = JSON.stringify(game.player);
-            if (nextPlayerJSON != prevPlayerJSON) {
-                pendingPlayer = ['GameStateMediator', 'SetPlayer', nextPlayerJSON];
-                prevPlayerJSON = nextPlayerJSON;
-            }
-        }
+        pendingBlock = world.block;
+    }, [isReady, world]);
 
-        const nextSelectionJSON = JSON.stringify(game.selected || {});
+    useEffect(() => {
+        if (!isReady) {
+            return;
+        }
+        // FIXME: map should allow setting player to null but currently explodes
+        if (!player) {
+            return;
+        }
+        const nextPlayerJSON = JSON.stringify(player);
+        if (nextPlayerJSON != prevPlayerJSON) {
+            pendingPlayer = ['GameStateMediator', 'SetPlayer', nextPlayerJSON];
+            prevPlayerJSON = nextPlayerJSON;
+        }
+    }, [isReady, player]);
+
+    useEffect(() => {
+        if (!isReady) {
+            return;
+        }
+        const nextSelectionJSON = JSON.stringify(selected || {});
         if (nextSelectionJSON != prevSelectionJSON) {
             pendingSelection = ['GameStateMediator', 'SetSelectionState', nextSelectionJSON];
             prevSelectionJSON = nextSelectionJSON;
         }
-    }
+    }, [isReady, selected]);
 
     useEffect(() => {
         if (!addEventListener || !removeEventListener) {
