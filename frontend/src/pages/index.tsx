@@ -116,9 +116,7 @@ export default function ShellPage() {
                         if (pendingPlayer) {
                             args.push(pendingPlayer);
                         }
-                        if (pendingSelection) {
-                            args.push(pendingSelection);
-                        }
+                        args.push(pendingSelection);
                         pendingPlayer = null;
                         pendingSelection = null;
                     } else {
