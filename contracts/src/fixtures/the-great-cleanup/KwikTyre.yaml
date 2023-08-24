@@ -12,9 +12,9 @@ spec:
     - name: L33t Bricks
       quantity: 100
   inputs:
-    - name: Glass of Green Goo
+    - name: Green Goo
       quantity: 100
-    - name: Beaker of Blue Goo
+    - name: Blue Goo
       quantity: 100
   outputs:
     - name: Budget Tyre
