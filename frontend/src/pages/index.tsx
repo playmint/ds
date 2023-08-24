@@ -113,9 +113,14 @@ export default function ShellPage() {
                     // so that the UI feels snappier.
                     // any other updates will occur in the next loop
                     if (pendingSelection && hasSentAtLeastOneTilesUpdate) {
+                        if (pendingPlayer) {
+                            args.push(pendingPlayer);
+                        }
                         if (pendingSelection) {
                             args.push(pendingSelection);
                         }
+                        pendingPlayer = null;
+                        pendingSelection = null;
                     } else {
                         if (pendingPlayers) {
                             args = [...args, ...pendingPlayers];
@@ -130,15 +135,13 @@ export default function ShellPage() {
                         if (pendingPlayer) {
                             args.push(pendingPlayer);
                         }
+                        pendingPlayer = null;
+                        pendingPlayers = null;
+                        pendingTiles = null;
+                        pendingBuildings = null;
+                        pendingBlock = null;
                     }
                     args.push(['GameStateMediator', 'EndOnState']);
-
-                    pendingPlayer = null;
-                    pendingPlayers = null;
-                    pendingTiles = null;
-                    pendingBuildings = null;
-                    pendingBlock = null;
-                    pendingSelection = null;
 
                     for (let i = 0; i < args.length; i++) {
                         gSendMessage(...args[i]);
