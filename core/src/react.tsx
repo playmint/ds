@@ -21,9 +21,8 @@ import {
     Selector,
     GameState,
     World,
-    EthereumProvider,
 } from './types';
-import { makeWallet } from './wallet';
+import { makeWallet, WalletProvider } from './wallet';
 import { makeWorld } from './world';
 
 export interface DSContextProviderProps {
@@ -46,7 +45,7 @@ export interface DSContextStore {
     state: Source<GameState>;
     selection: Source<Selection>;
     selectors: SelectionSelectors;
-    selectProvider: Selector<EthereumProvider>;
+    selectProvider: Selector<WalletProvider>;
     ui: Source<PluginState[]>;
     logger: Logger;
     logs: Source<Log>;
@@ -119,7 +118,7 @@ export function usePlayer(): ConnectedPlayer | undefined {
     return useSource(sources.player);
 }
 
-export function useWallet(): { wallet: Wallet | undefined; selectProvider: Selector<EthereumProvider> } {
+export function useWallet(): { wallet: Wallet | undefined; selectProvider: Selector<WalletProvider> } {
     const sources = useSources();
     const wallet = useSource(sources.wallet);
     const selectProvider = sources.selectProvider;

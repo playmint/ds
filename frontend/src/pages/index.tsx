@@ -1,10 +1,12 @@
 /** @format */
+import { trackEvent } from '@app/components/organisms/analytics';
 import { useUnityMap } from '@app/components/organisms/unity-map';
 import Shell from '@app/components/views/shell';
 import { BlockTimeProvider } from '@app/contexts/block-time-provider';
 import { ModalProvider } from '@app/contexts/modal-provider';
 import { ActionName, useGameState, useWallet } from '@downstream/core';
 import { useCallback, useEffect, useState } from 'react';
+import { pipe, subscribe } from 'wonka';
 
 interface Message {
     msg: string;
@@ -291,6 +293,18 @@ export default function ShellPage() {
         selectMobileUnit,
         selectMapElement,
     ]);
+
+    // collect client dispatch analytics
+    useEffect(() => {
+        if (!player) {
+            return;
+        }
+        const { unsubscribe } = pipe(
+            player.dispatched,
+            subscribe((event) => event.actions.map((action) => trackEvent('dispatch', { action: action.name })))
+        );
+        return unsubscribe;
+    }, [player]);
 
     // We'll round the loading progression to a whole number to represent the
     // percentage of the Unity Application that has loaded.

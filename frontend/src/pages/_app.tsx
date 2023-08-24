@@ -1,13 +1,13 @@
 /** @format */
 
-import type { AppProps } from 'next/app';
-import dynamic from 'next/dynamic';
-import { Fragment, useEffect, useMemo, useState } from 'react';
-import Head from 'next/head';
+import Analytics from '@app/components/organisms/analytics';
+import { InventoryProvider } from '@app/plugins/inventory/inventory-provider';
 import { GlobalStyles } from '@app/styles/global.styles';
 import { DSProvider } from '@downstream/core';
-import { InventoryProvider } from '@app/plugins/inventory/inventory-provider';
-import Analytics from '@app/components/organisms/analytics';
+import type { AppProps } from 'next/app';
+import dynamic from 'next/dynamic';
+import Head from 'next/head';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 
 const App = ({ Component, pageProps }: AppProps) => {
     const [config, setConfig] = useState<any>();
