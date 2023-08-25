@@ -31,14 +31,11 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
         return a.attackTile && b.attackTile ? b.attackTile.startBlock - a.attackTile.startBlock : 0;
     })[0];
 
-    console.log('session', latestSession);
     const actions = latestSession && getActions(latestSession);
 
     if (!actions || !blockNumber) return null;
 
-    console.log('actions', actions);
     const convertedActions = convertCombatActions(actions);
-    console.log('convertedactions', convertedActions);
     const combat = new Combat(); // Is a class because it was converted from solidity
     const orderedListIndexes = combat.getOrderedListIndexes(convertedActions);
     const combatState = combat.calcCombatState(convertedActions, orderedListIndexes, blockNumber);
