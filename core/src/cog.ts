@@ -21,7 +21,6 @@ import {
     makeSubject,
     map,
     pipe,
-    publish,
     share,
     Source,
     switchMap,
@@ -169,11 +168,6 @@ export function configureClient({
     const { source: blockSource, next: nextBlock } = makeSubject<number>();
     const blockPipe = pipe(blockSource, share);
     const block = lazy(() => (lastSeenBlock ? concat([fromValue(lastSeenBlock), blockPipe]) : blockPipe));
-    pipe(
-        block,
-        tap((b) => console.log('pub', b)),
-        publish,
-    );
 
     const subscription = <
         Data extends TypedDocumentNode<AnyGameSubscription, Variables>,
@@ -202,7 +196,8 @@ export function configureClient({
                     nextBlock(lastSeenBlock);
                 }
             }),
-            debounce(() => 500),
+            filter((data) => !!data.logs && data.logs > 0),
+            debounce(() => 25),
             share,
         );
 
