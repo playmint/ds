@@ -84,8 +84,8 @@ public class MapElementManager : MonoBehaviour
             {
                 //categories: 0 = 'none', 1 = 'blocker', 2 = 'extractor', 3 = 'factory', 4 = 'custom'
                 case 1:
-                    DecorationBuildingController decoration = Instantiate(decorationPrefab, transform, true)
-                    .GetComponent<DecorationBuildingController>();
+                    BlockerBuildingController decoration = Instantiate(decorationPrefab, transform, true)
+                    .GetComponent<BlockerBuildingController>();
                     _spawnedBuildings.Add(cubicCoords, decoration);
                     decoration.Setup(cubicCoords, tileTransform, id, model);
                     break;
