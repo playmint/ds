@@ -58,6 +58,9 @@ function newBrowserAccountSource({ provider, method }: WalletProvider) {
         lazy(() => concat([fromPromise(fetchAccounts()), source])),
         map((address) => ({ provider, address, method })),
         onEnd(() => {
+            if (!provider.off) {
+                return;
+            }
             provider.off('accountsChanged', handleAccountsChanged);
         }),
     );
