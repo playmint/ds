@@ -181,8 +181,6 @@ public class MapElementManager : MonoBehaviour
                         return;
                 }
 
-                Debug.Log($"Atom {atom.Key}: weight: {atom.Weight}");
-
                 var gooGO = Instantiate(gooPrefab, tileTransform, false);
                 var goo = gooGO.GetComponent<GooController>();
                 goo.Setup(atom.Weight >= bigGooThreshold);
