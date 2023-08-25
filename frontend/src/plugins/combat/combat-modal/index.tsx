@@ -125,7 +125,6 @@ const PreCombatState: FunctionComponent<PreCombatStateProps> = (props) => {
         player,
         selectedMobileUnit,
         selectedTiles = [],
-        closeModal,
         attackers,
         defenders,
         attackersMaxHealth,
@@ -174,11 +173,7 @@ const PreCombatState: FunctionComponent<PreCombatStateProps> = (props) => {
 
     return (
         <StyledCombatModal>
-            <button onClick={closeModal} className="close-modal-button">
-                <i className="bi bi-x" />
-            </button>
             <div className="header">
-                <img src="/combat-header.png" alt="" className="icon" />
                 <CombatParticipantSummary
                     attackersMaxHealth={attackersMaxHealth}
                     attackersCurrentHealth={attackersCurrentHealth}
@@ -200,7 +195,6 @@ const PreCombatState: FunctionComponent<PreCombatStateProps> = (props) => {
 
 const CombatState: FunctionComponent<CombatStateProps> = (props) => {
     const {
-        closeModal,
         attackers,
         attackersMaxHealth,
         attackersCurrentHealth,
@@ -213,11 +207,7 @@ const CombatState: FunctionComponent<CombatStateProps> = (props) => {
 
     return (
         <StyledCombatModal>
-            <button onClick={closeModal} className="close-modal-button">
-                <i className="bi bi-x" />
-            </button>
             <div className="header">
-                <img src="/combat-header.png" alt="" className="icon" />
                 <CombatParticipantSummary
                     attackersMaxHealth={attackersMaxHealth}
                     attackersCurrentHealth={attackersCurrentHealth}
@@ -239,31 +229,29 @@ const PostCombatHeader: FunctionComponent<{ winState: CombatWinState }> = ({ win
     switch (winState) {
         case CombatWinState.ATTACKERS:
             return (
-                <div className="attackers-win">
-                    <div className="winner">
-                        <span className="content">Attackers win!</span>
-                    </div>
+                <div className="winner">
+                    <span className="content">Attackers win!</span>
                 </div>
             );
         case CombatWinState.DEFENDERS:
             return (
-                <div className="defenders-win">
-                    <div className="winner">
-                        <span className="content">Defenders win!</span>
-                    </div>
+                <div className="winner">
+                    <span className="content">Defenders win!</span>
                 </div>
             );
         case CombatWinState.DRAW:
             return (
-                <div className="draw">
-                    <div className="winner">
-                        <span className="content">Draw!</span>
-                    </div>
+                <div className="winner">
+                    <span className="content">Draw!</span>
                 </div>
             );
         case CombatWinState.NONE:
         default:
-            return <img src="/combat-header.png" alt="" className="icon" />;
+            return (
+                <div className="winner">
+                    <span className="content"></span>
+                </div>
+            );
     }
 };
 
@@ -315,17 +303,16 @@ const PostCombatState: FunctionComponent<PostCombatStateProps> = (props) => {
 
     return (
         <StyledCombatModal>
-            <button onClick={closeModal} className="close-modal-button">
-                <i className="bi bi-x" aria-label="Close modal" />
-            </button>
             <div className="header">
-                <PostCombatHeader winState={winState} />
                 <CombatParticipantSummary
                     attackersMaxHealth={attackersMaxHealth}
                     attackersCurrentHealth={attackersCurrentHealth}
                     defendersMaxHealth={defendersMaxHealth}
                     defendersCurrentHealth={defendersCurrentHealth}
                 />
+            </div>
+            <div className="win-state">
+                <PostCombatHeader winState={winState} />
             </div>
             <div className="body">
                 <CombatParticipants attackers={attackers} defenders={defenders} />
@@ -363,7 +350,6 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
     const combat = new Combat(); // Is a class because it was converted from solidity
     const orderedListIndexes = combat.getOrderedListIndexes(convertedActions);
     const combatState = combat.calcCombatState(convertedActions, orderedListIndexes, blockNumber || 0);
-    console.log('modalcomstate', combatState);
 
     const handleFinaliseCombat = () => {
         if (!latestSession) {
@@ -453,7 +439,6 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
         entityStateToCombatParticipantProps(entity, world, player)
     );
     const [defendersMaxHealth, defendersCurrentHealth] = defenders.reduce(sumParticipants, [0, 0]);
-    console.log('modalstate', combatModalState);
 
     // During combat
     if (combatModalState === CombatModalState.Combat) {
@@ -469,7 +454,7 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
                 defendersMaxHealth={defendersMaxHealth}
                 defendersCurrentHealth={defendersCurrentHealth}
                 blockNumber={blockNumber || 0}
-                blockTime={2}
+                blockTime={3}
             />
         );
     }
