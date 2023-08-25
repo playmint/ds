@@ -129,6 +129,9 @@ public class MoveIntent : IntentHandler
         if (!isMoving)
             return;
 
+        if (MapManager.instance.IsDecoration(cellCubePos))
+            return;
+
         if (!MapManager.instance.IsDiscoveredTile(cellCubePos))
         {
             DeselectMobileUnitAndIntent(true);
@@ -256,6 +259,8 @@ public class MoveIntent : IntentHandler
 
         foreach (Vector3Int space in TileHelper.GetTileNeighbours(_path[_path.Count - 1]))
         {
+            if (MapManager.instance.IsDecoration(space))
+                continue;
             if (!MapManager.instance.IsDiscoveredTile(space))
             {
                 continue;
@@ -318,6 +323,7 @@ public class MoveIntent : IntentHandler
         bool validPosition =
             _path.Count == 0
             || TileHelper.GetTileNeighbours(_path[_path.Count - 1]).Contains(cellCubePos);
+
         if (!_path.Any(p => p == cellCubePos) && validPosition)
         {
             var tileIDs = _path.Select(cellPosCube => TileHelper.GetTileID(cellPosCube)).ToList();

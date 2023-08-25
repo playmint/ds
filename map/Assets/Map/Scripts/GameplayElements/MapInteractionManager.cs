@@ -54,6 +54,12 @@ public class MapInteractionManager : MonoBehaviour
         string mapElementID = "";
         if (Physics.Raycast(ray, out hit))
         {
+            //Get the point that is clicked
+            Vector3 hitPoint = hit.point;
+            Vector3Int cubePos = GridExtensions.GridToCube(
+                MapManager.instance.grid.WorldToCell(hitPoint)
+            );
+
             if (hit.transform.CompareTag("MobileUnit"))
                 mobileUnitID = hit.transform.GetComponent<MapElementController>().GetElementID();
             if (
@@ -63,11 +69,6 @@ public class MapInteractionManager : MonoBehaviour
             )
                 mapElementID = hit.transform.GetComponent<MapElementController>().GetElementID();
 
-            //Get the point that is clicked
-            Vector3 hitPoint = hit.point;
-            Vector3Int cubePos = GridExtensions.GridToCube(
-                MapManager.instance.grid.WorldToCell(hitPoint)
-            );
             CurrentMouseCell = MapManager.instance.grid.WorldToCell(hitPoint);
             Vector3 cursorPos = MapManager.instance.grid.CellToWorld(CurrentMouseCell);
             float height = MapHeightManager.UNSCOUTED_HEIGHT;
