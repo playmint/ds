@@ -2,6 +2,7 @@
 kind: BuildingKind
 spec:
   name: Red Goo Extractor
+  description: Extracts Red Goo
   category: extractor
   model: red
   contract:

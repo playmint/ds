@@ -111,10 +111,13 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull
     const author = world?.players.find((p) => p.id === building?.kind?.owner?.id);
     const owner = world?.players.find((p) => p.id === building?.owner?.id);
 
+    const name = building?.kind?.name?.value ?? 'Unnamed Building';
+    const description = building?.kind?.description?.value;
+
     return (
         <StyledActionContextPanel className="action">
-            <h3>{component?.title ?? building?.kind?.name?.value ?? 'Unnamed Building'}</h3>
-            <span className="sub-title">{component?.summary || ''}</span>
+            <h3>{name}</h3>
+            {description && <span className="sub-title">{description}</span>}
             {isEnemy ? <ImageEnemy /> : <ImageBuilding />}
             {component && showFull && (
                 <Fragment>

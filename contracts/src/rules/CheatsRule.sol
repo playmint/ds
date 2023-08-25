@@ -51,11 +51,6 @@ contract CheatsRule is Rule {
 
             (bytes24 buildingKind, int16 q, int16 r, int16 s) = abi.decode(action[4:], (bytes24, int16, int16, int16));
             _construct(state, ctx, buildingKind, q, r, s);
-        } else if (bytes4(action) == Actions.DEV_SET_MODEL.selector) {
-            // require(isCheatAllowed(ctx.sender), "DEV_SET_MODEL not allowed");
-
-            (bytes24 entity, string memory model) = abi.decode(action[4:], (bytes24, string));
-            state.annotate(entity, "model", model);
         } else if (bytes4(action) == Actions.DEV_DISABLE_CHEATS.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_DISABLE_CHEATS not allowed");
 

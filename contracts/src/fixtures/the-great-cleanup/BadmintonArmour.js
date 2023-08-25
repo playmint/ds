@@ -49,8 +49,6 @@ export default function update({ selected, world }) {
             {
                 type: 'building',
                 id: 'badminton-armour',
-                title: 'Badminton Armor',
-                summary: "We make amazing rackets! (Not the best option for fighting though...)",
                 content: [
                     {
                         id: 'default',

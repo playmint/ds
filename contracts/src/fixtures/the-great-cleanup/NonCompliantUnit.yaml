@@ -2,7 +2,7 @@
 kind: BuildingKind
 spec:
   name: Non-compliant Unit
-  summary: Looks like their collar has malfunctioned. Better recycle the goo!
+  description: Looks like their collar has malfunctioned. Better recycle the goo!
   category: blocker
   model: enemy
   materials:

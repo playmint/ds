@@ -2,7 +2,7 @@
 kind: BuildingKind
 spec:
   name: Mecha-Kaiju
-  summary: It's a huge robotoic reptile thing. Probably destroyed Japan in the before-times.
+  description: It's a huge robotoic reptile thing. Probably destroyed Japan in the before-times.
   category: blocker
   model: enemy
   materials:
