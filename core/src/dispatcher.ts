@@ -1,4 +1,4 @@
-import { concatMap, fromPromise, fromValue, makeSubject, pipe, publish, tap } from 'wonka';
+import { concatMap, fromPromise, fromValue, makeSubject, pipe, publish, share, tap } from 'wonka';
 import { Logger } from './logger';
 import {
     CogAction,
@@ -40,7 +40,7 @@ export function makeDispatcher(client: CogServices, wallet: Wallet, logger: Logg
 
     const dispatching = pipe(
         pending,
-        // tap((q) => logger.info(`pending ${q.actions.map((a) => a.name).join(', ')}`)),
+        tap((q) => logger.info(`send ${q.actions.map((a) => a.name).join(', ')}`)),
         concatMap((queuedAction) =>
             fromValue(
                 dispatch(client, wallet, queuedAction)
@@ -58,6 +58,7 @@ export function makeDispatcher(client: CogServices, wallet: Wallet, logger: Logg
                     }),
             ),
         ),
+        share,
     );
 
     const dispatched = pipe(
@@ -69,8 +70,8 @@ export function makeDispatcher(client: CogServices, wallet: Wallet, logger: Logg
         dispatched,
         tap((q) =>
             q.status == DispatchedActionsStatus.REJECTED_CLIENT && q.error
-                ? logger.error(`failed ${q.actions.map((a) => a.name).join(', ')}: ${q.error}`)
-                : logger.info(`dispatched ${q.actions.map((a) => a.name).join(', ')}`),
+                ? logger.error(`fail ${q.error}`)
+                : undefined,
         ),
         publish,
     );
