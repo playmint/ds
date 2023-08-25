@@ -192,10 +192,12 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
             BigInt(Math.floor(Math.random() * 10000))
         );
         setIsSpawningMobileUnit(true);
-        player.dispatch({ name: 'SPAWN_MOBILE_UNIT', args: [id] }).catch((e) => {
-            console.error('failed to spawn mobileUnit:', e);
-            setIsSpawningMobileUnit(false);
-        });
+        player
+            .dispatch({ name: 'SPAWN_MOBILE_UNIT', args: [id] })
+            .catch((e) => {
+                console.error('failed to spawn mobileUnit:', e);
+            })
+            .finally(() => setIsSpawningMobileUnit(false));
     }, [player, setIsSpawningMobileUnit]);
 
     const selectAndFocusMobileUnit = useCallback(() => {
