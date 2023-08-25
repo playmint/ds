@@ -6,7 +6,19 @@ export enum BuildingCategory {
     EXTRACTOR,
     ITEM_FACTORY,
 }
-export function isExtractor(kind: BuildingKindFragment) {
+export function getBuildingCategory(kind: BuildingKindFragment) {
     const buildingCategory = parseInt('0x' + kind.id.slice(-2));
-    return buildingCategory == BuildingCategory.EXTRACTOR;
+    switch (buildingCategory) {
+        case BuildingCategory.BLOCKER:
+            return BuildingCategory.BLOCKER;
+        case BuildingCategory.EXTRACTOR:
+            return BuildingCategory.EXTRACTOR;
+        case BuildingCategory.ITEM_FACTORY:
+            return BuildingCategory.ITEM_FACTORY;
+        default:
+            return BuildingCategory.NONE;
+    }
+}
+export function isExtractor(kind: BuildingKindFragment) {
+    return getBuildingCategory(kind) == BuildingCategory.EXTRACTOR;
 }
