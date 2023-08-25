@@ -2,7 +2,7 @@
 kind: BuildingKind
 spec:
   name: Prime Evil
-  summary: An invader from a totally different game. "Welcome to Hell!"
+  description: An invader from a totally different game. "Welcome to Hell!"
   category: blocker
   model: enemy
   materials:

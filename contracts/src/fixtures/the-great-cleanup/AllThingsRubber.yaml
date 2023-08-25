@@ -2,6 +2,7 @@
 kind: BuildingKind
 spec:
   name: All Things Rubber
+  description: We can read your mind, and can make your dreams come true (provided they're made of rubber)
   category: factory
   model: 07-08
   contract:

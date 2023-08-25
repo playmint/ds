@@ -2,6 +2,7 @@
 kind: BuildingKind
 spec:
   name: Blue Goo Extractor
+  description: Extracts Blue Goo
   category: extractor
   model: blue
   contract:

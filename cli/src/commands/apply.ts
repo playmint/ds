@@ -182,6 +182,13 @@ const buildingKindDeploymentActions = async (
         });
     }
 
+    if (spec.description && spec.description.length > 3) {
+        ops.push({
+            name: 'DESCRIBE_OWNED_ENTITY',
+            args: [id, spec.description],
+        });
+    }
+
     return ops;
 };
 

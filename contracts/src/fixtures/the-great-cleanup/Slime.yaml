@@ -3,7 +3,7 @@ kind: BuildingKind
 spec:
   name: Slime
   category: blocker
-  summary: Everyone knows that Slimes (or rats!) are the starter enemy in a game
+  description: Everyone knows that Slimes (or rats!) are the starter enemy in a game
   model: enemy
   materials:
   - name: Gold Coin

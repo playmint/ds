@@ -52,12 +52,11 @@ export default function update({ selected, world }) {
             {
                 type: 'building',
                 id: 'the-great-cleanup',
-                title: 'The Great Cleanup',
-                summary: "Prove your allegiance by tidying up Hexwood and retrieving Paperclips and a Dismembered Hand as proof.",
                 content: [
                     {
                         id: 'default',
                         type: 'inline',
+                        html: "Prove your allegiance by tidying up Hexwood and retrieving Paperclips and a Dismembered Hand as proof.",
                         buttons: [{ text: 'Win The Game!', type: 'action', action: craft, disabled: !canCraft }],
                     },
                 ],

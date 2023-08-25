@@ -23,7 +23,7 @@ export default function update({ selected, world }) {
         engineerDistance = distance(selectedEngineer.nextLocation.tile, selectedTile);
     }
 
-    
+
     //Show this if there is no selected engineer OR the engineer is not adjacent to the building's tile
     if (!selectedEngineer || engineerDistance > 1) {
         return {
@@ -32,13 +32,18 @@ export default function update({ selected, world }) {
                 {
                     type: 'building',
                     id: 'crazy-hermit',
-                    title: 'Crazy Hermit',
-                    summary: "A sign outside gives a simple instruction...\"LEAVE ME ALONE!\""
+                    content: [
+                        {
+                            id: 'default',
+                            type: 'inline',
+                            html: `A sign outside gives a simple instruction...LEAVE ME ALONE!`
+                        }
+                    ]
                 },
             ],
         };
     }
-    
+
 
     //Look for a rubber duck in their bags
     var hasRubberDuck = false
@@ -62,13 +67,18 @@ export default function update({ selected, world }) {
                 {
                     type: 'building',
                     id: 'crazy-hermit',
-                    title: 'Crazy Hermit',
-                    summary: 'The crazy hermit shouts \"GO AWAY!\".\nBefore he shuts the door in your face you briefly catch a glimpse of what you presume to be an extensive rubber duck collection'
+                    content: [
+                        {
+                            id: 'default',
+                            type: 'inline',
+                            html: 'The crazy hermit shouts GO AWAY!.<br />Before he shuts the door in your face you briefly catch a glimpse of what you presume to be an extensive rubber duck collection'
+                        }
+                    ],
                 },
             ],
         };
     }
-    
+
 
     // fetch the expected inputs item kinds
     const requiredInputs = selectedBuilding?.kind?.inputs || [];
@@ -120,12 +130,11 @@ export default function update({ selected, world }) {
                 {
                     type: 'building',
                     id: 'crazy-hermit',
-                    title: 'Crazy Hermit',
-                    summary: 'The crazy hermit looks in wonder at your rubber duck. "GIVE GREEN GOO?" he asks. He holds his hand out as if to offer a trade.',
                     content: [
                         {
                             id: 'default',
                             type: 'inline',
+                            html: 'The crazy hermit looks in wonder at your rubber duck. "GIVE GREEN GOO?" he asks. He holds his hand out as if to offer a trade.',
                             buttons: [{ text: 'It\'s a deal!', type: 'action', action: craft, disabled: !canCraft }],
                         },
                     ],

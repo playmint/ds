@@ -2,7 +2,7 @@
 kind: BuildingKind
 spec:
   name: Paperclip Maximiser
-  summary: This AI has gone rogue and is turning all the goo it can find into paperclips. You have to kill it!
+  description: This AI has gone rogue and is turning all the goo it can find into paperclips. You have to kill it!
   category: blocker
   model: enemy
   materials:

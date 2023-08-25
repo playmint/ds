@@ -117,14 +117,6 @@ export default function update({ selected, world }, block) {
             {
                 id: "extractor",
                 type: "building",
-                title: `${getGooColor(gooIndex)} Extractor`,
-                summary: `Extracts ${getGooColor(
-                    gooIndex
-                )} Goo from the ground at a rate of ${
-                    gooIndex < tileAtoms.length
-                        ? getGooPerSec(tileAtoms[gooIndex])
-                        : 0
-                } goo per second`,
                 content: [
                     {
                         id: "default",

@@ -394,8 +394,9 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                 id,
                 kind: {
                     id: kindID,
-                    name: { id: '', value: kind.spec.name },
-                    model: { id: '', value: kind.spec.model },
+                    name: { value: kind.spec.name },
+                    description: { value: kind.spec.description || '' },
+                    model: { value: kind.spec.model },
                     materials: [],
                     inputs: [],
                     outputs: [],

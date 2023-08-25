@@ -2,6 +2,7 @@
 kind: BuildingKind
 spec:
   name: Large Cactus
+  description: "It's very spikey!"
   category: blocker
   model: CactusLarge
   materials:
@@ -15,6 +16,7 @@ spec:
 kind: BuildingKind
 spec:
   name: Small Cactus
+  description: "It's a bit spikey!"
   category: blocker
   model: CactusSmall
   materials:

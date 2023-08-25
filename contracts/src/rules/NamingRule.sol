@@ -21,6 +21,9 @@ contract NamingRule is Rule {
         if (bytes4(action) == Actions.NAME_OWNED_ENTITY.selector) {
             (bytes24 entity, string memory name) = abi.decode(action[4:], (bytes24, string));
             _changeEntityName(state, Node.Player(ctx.sender), entity, name);
+        } else if (bytes4(action) == Actions.DESCRIBE_OWNED_ENTITY.selector) {
+            (bytes24 entity, string memory desc) = abi.decode(action[4:], (bytes24, string));
+            _changeEntityDescription(state, Node.Player(ctx.sender), entity, desc);
         }
         return state;
     }
@@ -31,5 +34,13 @@ contract NamingRule is Rule {
             revert("EntityNotOwnedByPlayer");
         }
         state.annotate(entity, "name", name);
+    }
+
+    function _changeEntityDescription(State state, bytes24 player, bytes24 entity, string memory desc) private {
+        bytes24 existingOwner = state.getOwner(entity);
+        if (existingOwner != 0x0 && existingOwner != player) {
+            revert("EntityNotOwnedByPlayer");
+        }
+        state.annotate(entity, "description", desc);
     }
 }

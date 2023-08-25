@@ -49,12 +49,11 @@ export default function update({ selected, world }) {
             {
                 type: 'building',
                 id: 'green-goo-fusion',
-                title: 'Green Goo Fusion',
-                summary: `A reactor that will fuse Vibrant Green Goo into Really Green Goo!`,
                 content: [
                     {
                         id: 'default',
                         type: 'inline',
+                        html: `A reactor that will fuse Vibrant Green Goo into Really Green Goo!`,
                         buttons: [{ text: 'Make My Goo Greener!', type: 'action', action: craft, disabled: !canCraft }],
                     },
                 ],

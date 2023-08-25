@@ -37,8 +37,6 @@ export interface PluginV1Component {
     id?: string;
     version?: number;
     type?: 'building' | 'tile' | 'mobileUnit' | 'nav';
-    title?: string;
-    summary?: string;
     content?: PluginV1ComponentContent[];
 }
 
@@ -111,8 +109,6 @@ function normalizePluginV1Component(c: PluginV1Component, submitProxy: PluginSub
     return {
         id: c.id,
         type: c.type,
-        title: c.title,
-        summary: c.summary,
         content: c.content
             ? c.content
                   .map((c) => normalizePluginV1Content(c, submitProxy))
