@@ -39,7 +39,7 @@ spec:
   icon: 08-30
   goo:
     red: 25
-    green: 105
+    green: 77
     blue: 12
   stackable: false
 
