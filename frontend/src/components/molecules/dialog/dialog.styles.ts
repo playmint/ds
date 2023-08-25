@@ -26,7 +26,7 @@ const baseStyles = ({ width, height }: Partial<DialogProps>) => css`
         color: #fff;
         border: 2px solid #fff;
         width: 100%;
-        height: ${height};
+        height: ${height || 'auto'};
         overflow: auto;
     }
     > .icon {
