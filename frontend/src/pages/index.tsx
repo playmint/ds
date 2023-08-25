@@ -2,7 +2,6 @@
 import { trackEvent } from '@app/components/organisms/analytics';
 import { useUnityMap } from '@app/components/organisms/unity-map';
 import Shell from '@app/components/views/shell';
-import { ModalProvider } from '@app/contexts/modal-provider';
 import { ActionName, useBlock, useGameState, useWallet } from '@downstream/core';
 import { useCallback, useEffect, useState } from 'react';
 import { pipe, subscribe } from 'wonka';
@@ -365,7 +364,7 @@ export default function ShellPage() {
     );
 
     return (
-        <ModalProvider>
+        <>
             {loading}
             <Shell
                 mapReady={isReady}
@@ -382,7 +381,7 @@ export default function ShellPage() {
                 wallet={wallet}
                 blockNumber={blockNumber}
             />
-        </ModalProvider>
+        </>
     );
 }
 

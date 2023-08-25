@@ -30,17 +30,13 @@ export const Dialog: FunctionComponent<DialogProps> = ({ icon, width, onClose, c
         <StyledDialog {...otherProps} ref={ref} onCancel={onClose} width={width}>
             {icon && (
                 <div className="icon">
-                    <div className="diamond-bg"></div>
-                    <div className="diamond-br-shift">
-                        <div className="diamond-br"></div>
-                    </div>
                     <img src={icon} alt="icon" />
                 </div>
             )}
             <div className="content">
                 {children}
-                <button className="close" onClick={onClose}>
-                    x
+                <button onClick={onClose} className="close-modal-button">
+                    <i className="bi bi-x" />
                 </button>
             </div>
         </StyledDialog>
