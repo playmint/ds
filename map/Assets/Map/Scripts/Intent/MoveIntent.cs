@@ -259,7 +259,7 @@ public class MoveIntent : IntentHandler
 
         foreach (Vector3Int space in TileHelper.GetTileNeighbours(_path[_path.Count - 1]))
         {
-		if (MapManager.instance.IsDecoration(space))
+            if (MapManager.instance.IsDecoration(space))
                 continue;
             if (!MapManager.instance.IsDiscoveredTile(space))
             {

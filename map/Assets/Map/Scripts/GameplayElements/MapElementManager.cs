@@ -80,24 +80,36 @@ public class MapElementManager : MonoBehaviour
     {
         if (!_spawnedBuildings.ContainsKey(cubicCoords))
         {
-            switch(category)
+            switch (category)
             {
                 //categories: 0 = 'none', 1 = 'blocker', 2 = 'extractor', 3 = 'factory', 4 = 'custom'
                 case 1:
-                    BlockerBuildingController decoration = Instantiate(decorationPrefab, transform, true)
-                    .GetComponent<BlockerBuildingController>();
+                    BlockerBuildingController decoration = Instantiate(
+                            decorationPrefab,
+                            transform,
+                            true
+                        )
+                        .GetComponent<BlockerBuildingController>();
                     _spawnedBuildings.Add(cubicCoords, decoration);
                     decoration.Setup(cubicCoords, tileTransform, id, model);
                     break;
                 case 2:
-                    ExtractorBuildingController extractor = Instantiate(extractorPrefab, transform, true)
-                    .GetComponent<ExtractorBuildingController>();
+                    ExtractorBuildingController extractor = Instantiate(
+                            extractorPrefab,
+                            transform,
+                            true
+                        )
+                        .GetComponent<ExtractorBuildingController>();
                     _spawnedBuildings.Add(cubicCoords, extractor);
                     extractor.Setup(cubicCoords, tileTransform, id, model);
                     break;
                 default:
-                    StackableBuildingController building = Instantiate(buildingPrefab, transform, true)
-                    .GetComponent<StackableBuildingController>();
+                    StackableBuildingController building = Instantiate(
+                            buildingPrefab,
+                            transform,
+                            true
+                        )
+                        .GetComponent<StackableBuildingController>();
                     _spawnedBuildings.Add(cubicCoords, building);
                     string[] totemNames = GetTotemNamesFromStackCode(model);
                     building.Setup(cubicCoords, tileTransform, id, totemNames);
