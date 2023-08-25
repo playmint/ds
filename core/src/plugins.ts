@@ -69,19 +69,26 @@ async function noopDispatcher(..._actions: CogAction[]): Promise<QueuedSequencer
  * makePluginUI sends the current State to each wanted plugin and returns a
  * stream of all the normalized plugin responses.
  */
-export function makePluginUI(logger: Logger, plugins: Source<PluginConfig[]>, state: Source<GameState>) {
+export function makePluginUI(
+    logger: Logger,
+    plugins: Source<PluginConfig[]>,
+    state: Source<GameState>,
+    block: Source<number>,
+) {
     const sandbox = makePluginSandbox();
     return pipe(
-        zip<any>({ sandbox, plugins, state }),
+        zip<any>({ sandbox, plugins, state, block }),
         map<any, PluginState[]>(
             ({
                 sandbox,
                 state,
                 plugins,
+                block,
             }: {
                 sandbox: { runtime: QuickJSRuntime; active: Map<string, ActivePlugin> };
                 state: GameState;
                 plugins: PluginConfig[];
+                block: number;
             }) =>
                 plugins
                     .map((p) => {
@@ -100,7 +107,7 @@ export function makePluginUI(logger: Logger, plugins: Source<PluginConfig[]>, st
                                 return null;
                             }
                             active.set(p.hash, plugin);
-                            return plugin.update(state);
+                            return plugin.update(state, block);
                         } catch (err) {
                             console.error(`plugin ${p.id}:`, err);
                             return { components: [], version: 1, error: `${err}` };
@@ -448,11 +455,11 @@ export function loadPlugin(
     };
 
     // setup the update func
-    const updateProxy = (state: GameState): PluginState => {
-        console.debug(`[${pluginId} send]`, state);
-        const res = context.evalCode(`(function(nextState){
+    const updateProxy = (state: GameState, block: number): PluginState => {
+        console.debug(`[${pluginId} send]`, state, block);
+        const res = context.evalCode(`(function(nextState, block){
 
-                const res = globalThis.__update(nextState);
+                const res = globalThis.__update(nextState, block);
 
                 // replace funcs with refs
                 const refs = {};
@@ -498,7 +505,7 @@ export function loadPlugin(
 
                 return JSON.stringify(res);
 
-            })(${JSON.stringify(state)})`);
+            })(${JSON.stringify(state)}, ${block})`);
         const pluginResponse = JSON.parse(context.unwrapResult(res).consume(context.getString));
         console.debug(`[${pluginId} recv]`, pluginResponse);
         return apiv1.normalizePluginState(pluginResponse, submitProxy);

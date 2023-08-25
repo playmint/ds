@@ -37,7 +37,7 @@ const getGooPerSec = (atomVal) => {
     return secsPerGoo > 0 ? Math.floor((1 / secsPerGoo) * 100) / 100 : 0;
 };
 
-export default function update({ selected, world }) {
+export default function update({ selected, world }, block) {
     const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
     const selectedBuilding =
@@ -49,7 +49,7 @@ export default function update({ selected, world }) {
         .sort((a, b) => a.key - b.key)
         .map((elm) => elm.weight);
     const elapsedSecs =
-        (world.block - selectedBuilding.timestamp[0].blockNum) *
+        (block - selectedBuilding.timestamp[0].blockNum) *
         BLOCK_TIME_SECS;
 
     // Calculate extracted goo and sum with previously extracted goo
@@ -108,6 +108,8 @@ export default function update({ selected, world }) {
             args: [selectedBuilding.id, selectedEngineer.id, []],
         });
     };
+    const reservoirPercent = Math.floor( (extractedGoo[gooIndex] / GOO_RESERVOIR_MAX) * 100);
+    const extractableNow = Math.min(numberOfItems, 100);
 
     return {
         version: 1,
@@ -129,22 +131,24 @@ export default function update({ selected, world }) {
                         type: "inline",
                         buttons: [
                             {
-                                text: "Extract",
+                                text: `EXTRACT ${extractableNow} ${getGooColor(gooIndex).toUpperCase()} GOO`,
                                 type: "action",
                                 action: extract,
                                 disabled: !canExtract,
                             },
                         ],
                         html: `
-                            <p>Reservoir is ${Math.floor(
-                                (extractedGoo[gooIndex] / GOO_RESERVOIR_MAX) *
-                                    100
-                            )}% full</p>
-                            <p>Extracted ${
-                                extractedGoo[gooIndex]
-                            } ${getGooColor(
-                            gooIndex
-                        )} Goo (${numberOfItems} items)</p>
+                            <div>EXTRACTOR CAPACITY</div>
+                            <div style="width: 26rem; height: 28px; border: 1px solid #fff; position: relative;">
+                                <div style="position: absolute; top:0; left:0; height: 100%; width: ${reservoirPercent}%; background: #fff;"></div>
+                                <div style="position: absolute; top:0; left:0; height: 100%; width: 100%; mix-blend-mode: difference; text-align: center; margin-top: 2px;">${reservoirPercent}%</div>
+                            </div>
+                            <br />
+                            <div>SLOT CAPACITY</div>
+                            <div style="width: 26rem; height: 28px; border: 1px solid #fff; position: relative;">
+                                <div style="position: absolute; top:0; left:0; height: 100%; width: ${extractableNow}%; background: #fff;"></div>
+                                <div style="position: absolute; top:0; left:0; height: 100%; width: 100%; mix-blend-mode: difference; text-align: center; margin-top: 4px;">${extractableNow} READY</div>
+                            </div>
                         ${
                             selectedBuilding.bags[1].bag.owner &&
                             selectedBuilding.bags[1].bag.owner.id !=

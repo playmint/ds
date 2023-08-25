@@ -89,12 +89,11 @@ export const DSProvider = ({ initialConfig, defaultPlugins, children }: DSContex
             selectors.selectIntent,
             selectors.selectMapElement,
         );
-        const ui = makePluginUI(logger, uiPlugins, state);
-
         const block = pipe(
             client,
             mergeMap((client) => client.block),
         );
+        const ui = makePluginUI(logger, uiPlugins, state, block);
 
         return {
             block,
