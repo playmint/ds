@@ -279,7 +279,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
 
     return (
         <StyledShell {...otherProps}>
-            {combatModalState !== CombatModalState.INACTIVE && player && world && blockNumber ? (
+            {!showAccount && combatModalState !== CombatModalState.INACTIVE && player && world && blockNumber ? (
                 <Dialog onClose={closeCombatModal} width="850px" height="" icon="/combat-header.png">
                     <CombatModal
                         player={player}
