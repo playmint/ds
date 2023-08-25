@@ -411,7 +411,7 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
                                     </optgroup>
                                 )}
                                 {enemyKinds.length > 0 && (
-                                    <optgroup label="Blockers">
+                                    <optgroup label="Enemies">
                                         {enemyKinds.map((k) => (
                                             <option key={k.id} value={k.id}>
                                                 {k.name?.value || k.id}

@@ -3,11 +3,9 @@
 import { createGlobalStyle } from 'styled-components';
 import { resetStyles } from './reset.styles';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import { robotoCondensedStyles } from '@app/styles/roboto-condensed.styles';
 
 export const GlobalStyles = createGlobalStyle`
     ${resetStyles}
-    ${robotoCondensedStyles}
 
     button {
         cursor: pointer;
