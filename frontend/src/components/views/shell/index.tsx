@@ -39,6 +39,7 @@ export interface ShellProps extends ComponentProps, Partial<SelectionSelectors> 
     selectProvider: Selector<WalletProvider>;
     world?: WorldStateFragment;
     player?: ConnectedPlayer;
+    blockNumber?: number;
     selection?: Selection;
     unityProvider: UnityProvider;
     sendMessage: (gameObjectName: string, methodName: string, parameter?: any) => void;
@@ -53,6 +54,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     const {
         mapReady,
         wallet,
+        blockNumber,
         selectProvider,
         world,
         player,
@@ -262,11 +264,17 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     );
 
     const showCombatModal = (isNewSession: boolean = false) => {
-        if (!player || !world) {
+        if (!player || !world || !blockNumber) {
             return;
         }
         setModalContent(
-            <CombatModal player={player} world={world} isNewSession={isNewSession} closeModal={closeModal} />
+            <CombatModal
+                player={player}
+                world={world}
+                isNewSession={isNewSession}
+                closeModal={closeModal}
+                blockNumber={blockNumber}
+            />
         );
         openModal({ closable: true, showCloseButton: false });
     };
@@ -346,7 +354,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                     <Logs className="logs" />
                 </div>
                 <div className="bottom-left">
-                    {selectedTiles && selectedTiles.length > 0 && (
+                    {selectedTiles && selectedTiles.length > 0 && blockNumber && (
                         <Fragment>
                             {selectedTiles[0].sessions.filter((s) => !s.isFinalised).length > 0 && (
                                 <CombatSummary
@@ -355,6 +363,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                     onShowCombatModal={showCombatModal}
                                     player={player}
                                     selectedMobileUnit={selectedMobileUnit}
+                                    blockNumber={blockNumber}
                                 />
                             )}
                             <TileCoords className="action" selectedTiles={selectedTiles} />
