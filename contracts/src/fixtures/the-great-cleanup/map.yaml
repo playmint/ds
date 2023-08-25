@@ -1,14 +1,53 @@
 ---
 kind: Building
 spec:
-  name: Mecha-Kaiju
-  location: [10, -21, 11]
+  name: The Great Cleanup
+  location: [-1, 2, -1]
 
 ---
 kind: Building
 spec:
   name: All Things Rubber
-  location: [-10, 0, 10]
+  location: [-13, -1, 14]
+
+---
+kind: Building
+spec:
+  name: Foul Fiends
+  location: [3, -3, 0]
+
+---
+kind: Building
+spec:
+  name: Kwik Tyre
+  location: [-4, 3, 1]
+
+---
+kind: Building
+spec:
+  name: Green Goo Fusion
+  location: [-30, -1, 31]
+
+---
+kind: Building
+spec:
+  name: Green Goo Fission
+  location: [-9, -17, 26]
+
+---
+kind: Building
+spec:
+  name: Crazy Hermit
+  location: [29, -14, -15]
+
+---
+kind: Building
+spec:
+  name: Cocktail Hut
+  location: [10, -18, 8]
+
+
+
 
 ---
 kind: Building
@@ -21,36 +60,6 @@ kind: Building
 spec:
   name: Slime
   location: [0, -12, 12]
-
----
-kind: Building
-spec:
-  name: Kwik Tyre
-  location: [-4, 3, 1]
-
----
-kind: Building
-spec:
-  name: Green Goo Fusion
-  location: [-20, 0, 20]
-
----
-kind: Building
-spec:
-  name: Foul Fiends
-  location: [3, -3, 0]
-
----
-kind: Building
-spec:
-  name: Non-compliant Unit
-  location: [10, 2, -12]
-
----
-kind: Building
-spec:
-  name: Non-compliant Unit
-  location: [10, -7, -3]
 
 ---
 kind: Building
@@ -73,98 +82,26 @@ spec:
 ---
 kind: Building
 spec:
-  name: The Great Cleanup
-  location: [-1, 2, -1]
-
----
-kind: Building
-spec:
-  name: Non-compliant Unit
-  location: [-3, 13, -10]
-
----
-kind: Building
-spec:
   name: Slime
   location: [6, -5, -1]
 
 ---
 kind: Building
 spec:
-  name: Mecha-Kaiju
-  location: [-14, -7, 21]
-
----
-kind: Building
-spec:
-  name: Green Goo Fission
-  location: [-10, -15, 25]
+  name: Slime
+  location: [-7, -12, 19]
 
 ---
 kind: Building
 spec:
   name: Slime
-  location: [-6, -4, 10]
-
----
-kind: Building
-spec:
-  name: Mecha-Kaiju
-  location: [-5, 20, -15]
-
----
-kind: Building
-spec:
-  name: Non-compliant Unit
-  location: [-13, -4, 17]
-
----
-kind: Building
-spec:
-  name: Paperclip Maximiser
-  location: [-15, 27, -12]
-
----
-kind: Building
-spec:
-  name: Mecha-Kaiju
-  location: [15, 6, -21]
-
----
-kind: Building
-spec:
-  name: Non-compliant Unit
-  location: [10, 8, -18]
-
----
-kind: Building
-spec:
-  name: Prime Evil
-  location: [12, -25, 13]
-
----
-kind: Building
-spec:
-  name: Non-compliant Unit
-  location: [-18, 8, 10]
-
----
-kind: Building
-spec:
-  name: Cocktail Hut
-  location: [5, 13, -18]
+  location: [20, -11, -9]
 
 ---
 kind: Building
 spec:
   name: Slime
-  location: [9, 0, -9]
-
----
-kind: Building
-spec:
-  name: Slime
-  location: [5, 7, -12]
+  location: [0, 19, -19]
 
 ---
 kind: Building
@@ -176,13 +113,82 @@ spec:
 kind: Building
 spec:
   name: Slime
-  location: [8, -12, 4]
+  location: [10, -18, 8]
 
 ---
 kind: Building
 spec:
-  name: Crazy Hermit
-  location: [7, 7, -14]
+  name: Slime
+  location: [-8, 9, -1]
+
+
+
+
+---
+kind: Building
+spec:
+  name: Non-compliant Unit
+  location: [20, -2, -18]
+
+---
+kind: Building
+spec:
+  name: Non-compliant Unit
+  location: [10, -7, -3]
+
+---
+kind: Building
+spec:
+  name: Non-compliant Unit
+  location: [-3, 13, -10]
+
+---
+kind: Building
+spec:
+  name: Non-compliant Unit
+  location: [-22, -4, 26]
+
+---
+kind: Building
+spec:
+  name: Non-compliant Unit
+  location: [10, 8, -18]
+
+---
+kind: Building
+spec:
+  name: Non-compliant Unit
+  location: [-18, 8, 10]
+
+
+
+
+---
+kind: Building
+spec:
+  name: Mecha-Kaiju
+  location: [-14, -7, 21]
+
+---
+kind: Building
+spec:
+  name: Mecha-Kaiju
+  location: [-3, 27, -24]
+
+---
+kind: Building
+spec:
+  name: Mecha-Kaiju
+  location: [23, 3, -26]
+
+---
+kind: Building
+spec:
+  name: Mecha-Kaiju
+  location: [4, -22, 18]
+
+
+
 
 ---
 kind: Building
@@ -193,6 +199,50 @@ spec:
 ---
 kind: Building
 spec:
-  name: Slime
-  location: [-8, 9, -1]
+  name: Prime Evil
+  location: [10, -34, 24]
 
+---
+kind: Building
+spec:
+  name: Prime Evil
+  location: [-32, 9, 23]
+
+---
+kind: Building
+spec:
+  name: Prime Evil
+  location: [34, -18, -16]
+
+---
+kind: Building
+spec:
+  name: Prime Evil
+  location: [29, -4, -25]
+
+---
+kind: Building
+spec:
+  name: Prime Evil
+  location: [12, -25, 13]
+
+
+
+
+---
+kind: Building
+spec:
+  name: Paperclip Maximiser
+  location: [0, 36, -36]
+
+---
+kind: Building
+spec:
+  name: Paperclip Maximiser
+  location: [-14, -21, 35]
+
+---
+kind: Building
+spec:
+  name: Paperclip Maximiser
+  location: [34, -32, -2]
