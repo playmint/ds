@@ -1,5 +1,5 @@
 import React from 'react';
-import { map, pipe, scan, Source, subscribe, zip } from 'wonka';
+import { map, mergeMap, pipe, scan, Source, subscribe, zip } from 'wonka';
 import { makeCogClient } from './cog';
 import { BuildingKindFragment } from './gql/graphql';
 import { makeAvailableBuildingKinds } from './kinds';
@@ -43,6 +43,7 @@ export interface DSContextStore {
     player: Source<ConnectedPlayer | undefined>;
     world: Source<World>;
     state: Source<GameState>;
+    block: Source<number>;
     selection: Source<Selection>;
     selectors: SelectionSelectors;
     selectProvider: Selector<WalletProvider>;
@@ -90,7 +91,13 @@ export const DSProvider = ({ initialConfig, defaultPlugins, children }: DSContex
         );
         const ui = makePluginUI(logger, uiPlugins, state);
 
+        const block = pipe(
+            client,
+            mergeMap((client) => client.block),
+        );
+
         return {
+            block,
             wallet,
             player,
             world,
@@ -111,6 +118,11 @@ export const DSProvider = ({ initialConfig, defaultPlugins, children }: DSContex
 
     return <DSContext.Provider value={sources}>{children}</DSContext.Provider>;
 };
+
+export function useBlock(): number | undefined {
+    const sources = useSources();
+    return useSource(sources.block);
+}
 
 // fetch the player and dispatcher for the currently connected wallet.
 export function usePlayer(): ConnectedPlayer | undefined {

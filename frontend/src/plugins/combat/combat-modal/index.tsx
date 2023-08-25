@@ -26,12 +26,12 @@ import {
     sumParticipants,
 } from '@app/plugins/combat/helpers';
 import { Combat, CombatWinState } from '@app/plugins/combat/combat';
-import { useBlockTime } from '@app/contexts/block-time-provider';
 import { useMounted } from '@app/hooks/use-mounted';
 
 export type CombatModalProps = ComponentProps & {
     world: WorldStateFragment;
     player: ConnectedPlayer;
+    blockNumber: number;
     isNewSession?: boolean;
     closeModal: () => void;
 };
@@ -348,11 +348,10 @@ enum CombatModalState {
 }
 
 export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatModalProps) => {
-    const { player, world, isNewSession } = props;
+    const { player, world, isNewSession, blockNumber } = props;
     const [combatModalState, setCombatModalState] = useState<CombatModalState | null>(null);
     const { mobileUnit: selectedMobileUnit, tiles: selectedTiles = [] } = useSelection();
-    const { blockNumberRef, blockTime } = useBlockTime();
-    const [blockNumber, setBlockNumber] = useState<number>(blockNumberRef.current);
+    // const [blockNumber, setBlockNumber] = useState<number>(blockNumberRef.current);
     const latestSession = getLatestSession(selectedTiles);
     const actions = latestSession && getActions(latestSession);
 
@@ -363,13 +362,19 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
     const convertedActions = convertCombatActions(actions || []);
     const combat = new Combat(); // Is a class because it was converted from solidity
     const orderedListIndexes = combat.getOrderedListIndexes(convertedActions);
-    const combatState = combat.calcCombatState(convertedActions, orderedListIndexes, blockNumber);
+    const combatState = combat.calcCombatState(convertedActions, orderedListIndexes, blockNumber || 0);
+    console.log('modalcomstate', combatState);
 
     const handleFinaliseCombat = () => {
+        if (!latestSession) {
+            console.error('no session to finalize');
+            return;
+        }
         const action: CogAction = {
             name: 'FINALISE_COMBAT',
-            args: [latestSession?.id, actions, orderedListIndexes],
+            args: [latestSession.id, actions, orderedListIndexes],
         };
+        console.log(latestSession.id, actions, orderedListIndexes);
         player?.dispatch(action).catch((err) => console.error(err));
     };
 
@@ -383,15 +388,6 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
     useEffect(() => {
         setDispatchComplete(isStarted && latestSessionId !== latestSession?.id);
     }, [latestSession, latestSessionId, isStarted]);
-
-    // re-render every block setting the new block time so that combat states are updated
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setBlockNumber(blockNumberRef.current);
-        }, blockTime);
-
-        return () => clearInterval(interval);
-    }, [blockNumberRef, blockTime]);
 
     // state transitions
     useLayoutEffect(() => {
@@ -457,6 +453,7 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
         entityStateToCombatParticipantProps(entity, world, player)
     );
     const [defendersMaxHealth, defendersCurrentHealth] = defenders.reduce(sumParticipants, [0, 0]);
+    console.log('modalstate', combatModalState);
 
     // During combat
     if (combatModalState === CombatModalState.Combat) {
@@ -471,8 +468,8 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
                 defenders={defenders}
                 defendersMaxHealth={defendersMaxHealth}
                 defendersCurrentHealth={defendersCurrentHealth}
-                blockNumber={blockNumber}
-                blockTime={blockTime}
+                blockNumber={blockNumber || 0}
+                blockTime={2}
             />
         );
     }
