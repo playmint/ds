@@ -246,7 +246,7 @@ export interface InactivePlugin {
 
 export interface ActivePlugin extends InactivePlugin {
     context: QuickJSContext;
-    update: (state: GameState) => PluginState;
+    update: (state: GameState, block: number) => PluginState;
 }
 
 export type PluginActionCallProxy = () => Promise<void>;
