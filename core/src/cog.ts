@@ -20,6 +20,7 @@ import {
     lazy,
     makeSubject,
     map,
+    merge,
     pipe,
     share,
     Source,
@@ -130,13 +131,22 @@ export function configureClient({
         return;
     };
 
+    const { source: forcedSource, next: force } = makeSubject<boolean>();
+    const forced = pipe(forcedSource, share);
+
     const dispatch = async (signer: ethers.Signer, ...unencodedActions: CogAction[]) => {
         const actions = unencodedActions.map((action) => encodeActionData(iactions, action.name, action.args));
         const actionDigest = ethers.getBytes(
             ethers.keccak256(abi.encode(['bytes[]'], [actions.map((action) => ethers.getBytes(action))])),
         );
         const auth = await signer.signMessage(actionDigest);
-        return gql.mutation(DispatchDocument, { gameID, auth, actions }, { requestPolicy: 'network-only' }).toPromise();
+        return gql
+            .mutation(DispatchDocument, { gameID, auth, actions }, { requestPolicy: 'network-only' })
+            .toPromise()
+            .then((res) => {
+                force(true);
+                return res;
+            });
     };
 
     const signin = async (owner: ethers.Signer) => {
@@ -198,10 +208,14 @@ export function configureClient({
             }),
             filter((data) => !!data.logs && data.logs > 0),
             debounce(() => 25),
+            map(() => true),
             share,
         );
 
-    const events = subscription(OnEventDocument, { gameID });
+    const events = pipe(
+        subscription(OnEventDocument, { gameID }),
+        tap(() => console.log('PROPER UPDATE')),
+    );
 
     // query executes a query which will get re-queried each time new data arrives
     // right now this is implemented rather naively (ANY new events causes ALL
@@ -219,7 +233,8 @@ export function configureClient({
                       typeof config?.poll === 'undefined'
                           ? pipe(
                                 // emit signal on notify of state update from events
-                                events,
+                                merge([events, forced]),
+                                tap(() => console.log('UPDATE')),
                                 map(() => CogEvent.STATE_CHANGED),
                             )
                           : pipe(
