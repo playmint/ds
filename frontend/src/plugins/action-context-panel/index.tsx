@@ -1,5 +1,6 @@
 /** @format */
 import { TileAction } from '@app/components/organisms/tile-action';
+import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
 import { getCoords, getNeighbours, getTileDistance } from '@app/helpers/tile';
 import { Bag } from '@app/plugins/inventory/bag';
 import { BuildingInventory } from '@app/plugins/inventory/building-inventory';
@@ -25,10 +26,17 @@ import {
     WorldBuildingFragment,
     WorldTileFragment,
 } from '@downstream/core';
+import Image from 'next/image';
 import React, { Fragment, FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { styles } from './action-context-panel.styles';
-import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
+
+import imgTileBuilding from '@app/../public/building-with-flag.png';
+import imgTileEnemy from '@app/../public/enemy.png';
+import imgIntentConstruct from '@app/../public/tile-construct.png';
+import imgTileAvailable from '@app/../public/tile-grass.png';
+import imgIntentScouting from '@app/../public/tile-scouting.png';
+import imgIntentMove from '@app/../public/tile-selecting.png';
 
 export interface ActionContextPanelProps extends ComponentProps {
     onShowCombatModal?: (isNewSession: boolean) => void;
@@ -53,12 +61,12 @@ interface KeyedThing {
     key: number;
 }
 
-const ImageConstruct = () => <img src="/tile-construct.png" alt="" className="building-image" width="33%" />;
-const ImageAvailable = () => <img src="/tile-grass.png" alt="" className="building-image" />;
-const ImageBuilding = () => <img src="/building-with-flag.png" alt="" className="building-image" />;
-const ImageEnemy = () => <img src="/enemy.png" alt="" className="building-image" />;
-const ImageScouting = () => <img src="/tile-scouting.png" alt="" className="building-image" width="33%" />;
-const ImageSelecting = () => <img src="/tile-selecting.png" alt="" className="building-image" width="33%" />;
+const ImageAvailable = () => <Image src={imgTileAvailable} alt="" className="building-image" width="127" />;
+const ImageBuilding = () => <Image src={imgTileBuilding} alt="" className="building-image" width="127" />;
+const ImageEnemy = () => <Image src={imgTileEnemy} alt="" className="building-image" width="127" />;
+const ImageScouting = () => <Image src={imgIntentScouting} alt="" className="building-image" width="100" />;
+const ImageSelecting = () => <Image src={imgIntentMove} alt="" className="building-image" width="100" height="100" />;
+const ImageConstruct = () => <Image src={imgIntentConstruct} alt="" className="building-image" width="127" />;
 
 const byName = (a: MaybeNamedThing, b: MaybeNamedThing) => {
     return a.name && b.name && a.name.value > b.name.value ? 1 : -1;
