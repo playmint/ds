@@ -66,13 +66,14 @@ contract ScoutRule is Rule {
 
     uint256 private _resourceSpawnCount = 0;
 
-    int16 private constant GOO_GREEN_OFFSET_X = 0;
-    int16 private constant GOO_GREEN_OFFSET_Y = 0;
-    int16 private constant GOO_BLUE_OFFSET_X = 26; // 0.33 * 80
-    int16 private constant GOO_BLUE_OFFSET_Y = 10; // 0.33 * 30
-    int16 private constant GOO_RED_OFFSET_X = 53; // 0.66 * 80
-    int16 private constant GOO_RED_OFFSET_Y = 20; // 0.66 * 30
-    int16 private constant GOO_SCALE = 5;
+    //These offsets make the goos spread differently, and keep good tiles away from the middle of the map
+    int16 private constant GOO_GREEN_OFFSET_X = 80;
+    int16 private constant GOO_GREEN_OFFSET_Y = 66;
+    int16 private constant GOO_BLUE_OFFSET_X = 28;
+    int16 private constant GOO_BLUE_OFFSET_Y = 2;
+    int16 private constant GOO_RED_OFFSET_X = 32;
+    int16 private constant GOO_RED_OFFSET_Y = 12;
+    int16 private constant GOO_SCALE = 18;
 
     function _generateAtomValues(State state, bytes24 targetTile, int16[3] memory coords) private {
         uint64[3] memory atoms;
@@ -86,48 +87,37 @@ contract ScoutRule is Rule {
 
         // NOTE: noise2d outputs from 0 to 1 in 64.64 fixed point. Using 8 bits of 'randomness' to randomise 25% of the potential goo value
         //       If we don't want to randomise we can simply set the precision param to 8 and get rid of the multiplication
+
+        int128 greenPerlin = Perlin.noise2d(
+            (coords2d[0] + GOO_GREEN_OFFSET_X) * GOO_SCALE,
+            (coords2d[1] + GOO_GREEN_OFFSET_Y) * GOO_SCALE,
+            80,
+            30,
+            64 // Precision
+        );
+
+        int128 bluePerlin = Perlin.noise2d(
+            (coords2d[0] + GOO_BLUE_OFFSET_X) * GOO_SCALE, (coords2d[1] + GOO_BLUE_OFFSET_Y) * GOO_SCALE, 80, 30, 64
+        );
+
+        int128 redPerlin = Perlin.noise2d(
+            (coords2d[0] + GOO_RED_OFFSET_X) * GOO_SCALE, (coords2d[1] + GOO_RED_OFFSET_Y) * GOO_SCALE, 80, 30, 64
+        );
+
+        greenPerlin = Math.mul(greenPerlin, greenPerlin);
+        bluePerlin = Math.mul(bluePerlin, bluePerlin);
+        redPerlin = Math.mul(redPerlin, redPerlin);
+
         atoms[GOO_GREEN] = uint64(
             uint128(
                 Math.mul(
-                    Perlin.noise2d(
-                        (coords2d[0] + GOO_GREEN_OFFSET_X) * GOO_SCALE,
-                        (coords2d[1] + GOO_GREEN_OFFSET_Y) * GOO_SCALE,
-                        80,
-                        30,
-                        64 // Precision
-                    ),
-                    Math.fromUInt(((rnd & 0xFF) >> 2) + 192) // players are gaurenteed 75% of the potential. Use Math.fromInt(255) to get the full potential
+                    greenPerlin,
+                    Math.fromUInt(255) // players are gaurenteed 75% of the potential. Use Math.fromInt(255) to get the full potential
                 ) >> (64)
             )
         );
-        atoms[GOO_BLUE] = uint64(
-            uint128(
-                Math.mul(
-                    Perlin.noise2d(
-                        (coords2d[0] + GOO_BLUE_OFFSET_X) * GOO_SCALE,
-                        (coords2d[1] + GOO_BLUE_OFFSET_Y) * GOO_SCALE,
-                        80,
-                        30,
-                        64
-                    ),
-                    Math.fromUInt((((rnd >> 8) & 0xFF) >> 2) + 192)
-                ) >> (64)
-            )
-        );
-        atoms[GOO_RED] = uint64(
-            uint128(
-                Math.mul(
-                    Perlin.noise2d(
-                        (coords2d[0] + GOO_RED_OFFSET_X) * GOO_SCALE,
-                        (coords2d[1] + GOO_RED_OFFSET_Y) * GOO_SCALE,
-                        80,
-                        30,
-                        64
-                    ),
-                    Math.fromUInt((((rnd >> 16) & 0xFF) >> 2) + 192)
-                ) >> (64)
-            )
-        );
+        atoms[GOO_BLUE] = uint64(uint128(Math.mul(bluePerlin, Math.fromUInt(255)) >> (64)));
+        atoms[GOO_RED] = uint64(uint128(Math.mul(redPerlin, Math.fromUInt(255)) >> (64)));
 
         state.setTileAtomValues(targetTile, atoms);
     }

@@ -2552,8 +2552,8 @@ MonoBehaviour:
     type: 3}
   decorationPrefab: {fileID: 4472640674203100138, guid: f1f3c1085b34a41f5ac7e6b0c511a204,
     type: 3}
-  smallGooThreshold: 170
-  bigGooThreshold: 200
+  smallGooThreshold: 155
+  bigGooThreshold: 165
 --- !u!4 &1329416958
 Transform:
   m_ObjectHideFlags: 0
@@ -3471,6 +3471,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: MapCamera
+      objectReference: {fileID: 0}
+    - target: {fileID: 6518314203346260187, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -4.9497476
+      objectReference: {fileID: 0}
+    - target: {fileID: 6518314203603543945, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -4.9497476
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 13c17ec3607f94f34a8d6fc7cf4300af, type: 3}
