@@ -49,12 +49,11 @@ export default function update({ selected, world }) {
             {
                 type: 'building',
                 id: 'foul-fiends',
-                title: 'Foul Fiends',
-                summary: "Come one, come all. We serve only the finest ducks.",
                 content: [
                     {
                         id: 'default',
                         type: 'inline',
+                        html: "Come one, come all. We serve only the finest ducks.",
                         buttons: [{ text: 'One duck good sir!', type: 'action', action: craft, disabled: !canCraft }],
                     },
                 ],

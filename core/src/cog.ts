@@ -24,6 +24,7 @@ import {
     share,
     Source,
     switchMap,
+    tap,
 } from 'wonka';
 import { Actions__factory } from './abi';
 import { DispatchDocument, OnEventDocument, SigninDocument, SignoutDocument } from './gql/graphql';
@@ -163,6 +164,11 @@ export function configureClient({
         };
     };
 
+    let lastSeenBlock: number | undefined;
+    const { source: blockSource, next: nextBlock } = makeSubject<number>();
+    const blockPipe = pipe(blockSource, share);
+    const block = lazy(() => (lastSeenBlock ? concat([fromValue(lastSeenBlock), blockPipe]) : blockPipe));
+
     const subscription = <
         Data extends TypedDocumentNode<AnyGameSubscription, Variables>,
         Variables extends AnyGameVariables = AnyGameVariables,
@@ -184,7 +190,14 @@ export function configureClient({
                 return res.data.events;
             }),
             filter((data): data is AnyGameSubscription['events'] => !!data),
-            debounce(() => 500),
+            tap((data) => {
+                if (data.block && (!lastSeenBlock || data.block > lastSeenBlock)) {
+                    lastSeenBlock = data.block;
+                    nextBlock(lastSeenBlock);
+                }
+            }),
+            filter((data) => !!data.logs && data.logs > 0),
+            debounce(() => 25),
             share,
         );
 
@@ -236,7 +249,7 @@ export function configureClient({
             ),
         );
 
-    return { gameID, signin, signout, query, subscription, dispatch };
+    return { gameID, signin, signout, query, subscription, dispatch, block };
 }
 
 /**

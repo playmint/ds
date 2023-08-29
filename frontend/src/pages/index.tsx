@@ -2,9 +2,7 @@
 import { trackEvent } from '@app/components/organisms/analytics';
 import { useUnityMap } from '@app/components/organisms/unity-map';
 import Shell from '@app/components/views/shell';
-import { BlockTimeProvider } from '@app/contexts/block-time-provider';
-import { ModalProvider } from '@app/contexts/modal-provider';
-import { ActionName, useGameState, useWallet } from '@downstream/core';
+import { ActionName, useBlock, useGameState, useWallet } from '@downstream/core';
 import { useCallback, useEffect, useState } from 'react';
 import { pipe, subscribe } from 'wonka';
 
@@ -67,7 +65,7 @@ export default function ShellPage() {
         selectIntent: rawSelectIntent,
         selectMapElement,
     } = useGameState();
-    const block = world ? world.block : 0;
+    const blockNumber = useBlock();
     const { dispatch } = player || {};
     const [isReady, setIsReady] = useState(false);
     const { unityProvider, sendMessage, addEventListener, removeEventListener, loadingProgression } = useUnityMap();
@@ -366,25 +364,24 @@ export default function ShellPage() {
     );
 
     return (
-        <BlockTimeProvider block={block}>
-            <ModalProvider>
-                {loading}
-                <Shell
-                    mapReady={isReady}
-                    world={world}
-                    player={player}
-                    selection={selected}
-                    selectMobileUnit={selectMobileUnit}
-                    selectTiles={selectTiles}
-                    selectIntent={selectIntent}
-                    selectMapElement={selectMapElement}
-                    unityProvider={unityProvider}
-                    sendMessage={sendMessage}
-                    selectProvider={selectProvider}
-                    wallet={wallet}
-                />
-            </ModalProvider>
-        </BlockTimeProvider>
+        <>
+            {loading}
+            <Shell
+                mapReady={isReady}
+                world={world}
+                player={player}
+                selection={selected}
+                selectMobileUnit={selectMobileUnit}
+                selectTiles={selectTiles}
+                selectIntent={selectIntent}
+                selectMapElement={selectMapElement}
+                unityProvider={unityProvider}
+                sendMessage={sendMessage}
+                selectProvider={selectProvider}
+                wallet={wallet}
+                blockNumber={blockNumber}
+            />
+        </>
     );
 }
 

@@ -16,83 +16,42 @@ const baseStyles = ({ width, height }: Partial<DialogProps>) => css`
     width: ${width};
     ::backdrop {
         background: rgba(15, 15, 15, 0.1);
-        backdrop-filter: blur(10px) !important;
+        backdrop-filter: blur(4px) !important;
         pointer-events: none;
     }
-    .content {
-        margin-top: 40px;
+    > .content {
+        z-index: 1;
+        margin-top: 30px;
         background: #143063;
         color: #fff;
         border: 2px solid #fff;
         width: 100%;
-        height: ${height};
+        height: ${height || 'auto'};
         overflow: auto;
     }
-    .icon {
-        position: relative;
-        margin-left: calc(50% - 43px);
-        top: -5px;
-    }
-    .diamond-bg {
+    > .icon {
+        z-index: 10;
         position: absolute;
-        top: -45px;
-        left: 0;
-        width: 0;
-        height: 0;
-        border: 45px solid transparent;
-        border-bottom-color: white;
+        margin-left: calc(50% - 60px);
+        top: 0;
     }
-    .diamond-bg:after {
-        content: '';
-        position: absolute;
-        left: -45px;
-        top: 45px;
-        width: 0;
-        height: 0;
-        border: 45px solid transparent;
-        border-top-color: white;
+    > .icon img {
+        width: 94px;
+        height: 94px;
     }
-    .diamond-br-shift {
+    .close-modal-button {
         position: absolute;
-        left: 2px;
-        top: 2px;
-    }
-    .diamond-br {
-        position: absolute;
-        top: -43px;
-        left: 0px;
-        width: 0;
-        height: 0;
-        border: 43px solid transparent;
-        border-bottom-color: #143063;
-    }
-    .diamond-br:after {
-        content: '';
-        position: absolute;
-        left: -43px;
-        top: 43px;
-        width: 0;
-        height: 0;
-        border: 43px solid transparent;
-        border-top-color: #143063;
-    }
-    img {
-        position: absolute;
-        left: 29px;
-        top: 25px;
-        width: 32px;
-        height: 32px;
-        filter: invert(100);
-    }
-    .close {
-        position: absolute;
+        top: 30px;
         right: 4px;
-        top: 42px;
+        width: 3.2rem;
+        height: 3.2rem;
         border-radius: 20px;
-        border: 0px solid transparent;
-        width: 3rem;
-        height: 3rem;
-        font-weight: bold;
+        border: 0;
+        border: none;
+        border-bottom: 3px solid #b7c5e0;
+        padding: 0;
+        font-size: 2rem;
+        font-weight: 600;
     }
 `;
 

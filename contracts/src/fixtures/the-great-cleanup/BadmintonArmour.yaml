@@ -2,6 +2,7 @@
 kind: BuildingKind
 spec:
   name: Badminton Armour
+  description: "We make amazing rackets! (Not the best option for fighting though...)"
   category: factory
   model: 01-01
   contract:

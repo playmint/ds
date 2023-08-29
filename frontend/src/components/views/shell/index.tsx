@@ -1,8 +1,9 @@
 /** @format */
 
+import { Dialog } from '@app/components/molecules/dialog';
+import { trackEvent, trackPlayer } from '@app/components/organisms/analytics';
 import { Logs } from '@app/components/organisms/logs';
 import { UnityMap } from '@app/components/organisms/unity-map';
-import { useModalContext } from '@app/contexts/modal-provider';
 import { formatNameOrId } from '@app/helpers';
 import { ActionBar } from '@app/plugins/action-bar';
 import { ActionContextPanel } from '@app/plugins/action-context-panel';
@@ -12,33 +13,38 @@ import { CombatSummary } from '@app/plugins/combat/combat-summary';
 import { MobileUnitInventory } from '@app/plugins/inventory/mobile-unit-inventory';
 import { TileCoords } from '@app/plugins/tile-coords';
 import { ComponentProps } from '@app/types/component-props';
-import { Dialog } from '@app/components/molecules/dialog';
-import { QRCodeSVG } from 'qrcode.react';
 import {
     CompoundKeyEncoder,
     ConnectedPlayer,
+    EthereumProvider,
     NodeSelectors,
     Selection,
     SelectionSelectors,
-    WorldStateFragment,
-    Wallet,
-    EthereumProvider,
     Selector,
+    Wallet,
     WalletProvider,
+    WorldStateFragment,
 } from '@downstream/core';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { EthereumProvider as WalletConnectProvider } from '@walletconnect/ethereum-provider';
+import { QRCodeSVG } from 'qrcode.react';
 import { Fragment, FunctionComponent, useCallback, useEffect, useState } from 'react';
 import { UnityProvider } from 'react-unity-webgl/distribution/types/unity-provider';
 import styled from 'styled-components';
 import { styles } from './shell.styles';
-import { trackEvent, trackPlayer } from '@app/components/organisms/analytics';
+
+enum CombatModalState {
+    INACTIVE,
+    NEW_SESSION,
+    EXISTING_SESSION,
+}
 
 export interface ShellProps extends ComponentProps, Partial<SelectionSelectors> {
     wallet?: Wallet;
     selectProvider: Selector<WalletProvider>;
     world?: WorldStateFragment;
     player?: ConnectedPlayer;
+    blockNumber?: number;
     selection?: Selection;
     unityProvider: UnityProvider;
     sendMessage: (gameObjectName: string, methodName: string, parameter?: any) => void;
@@ -53,6 +59,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     const {
         mapReady,
         wallet,
+        blockNumber,
         selectProvider,
         world,
         player,
@@ -63,11 +70,12 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         ...otherProps
     } = props;
     const { mobileUnit: selectedMobileUnit, tiles: selectedTiles } = selection || {};
-    const { openModal, setModalContent, closeModal } = useModalContext();
+    // const { openModal, setModalContent, closeModal } = useModalContext();
     const [browserProvider, setBrowserProvider] = useState<EthereumProvider | null>(null);
     const [isSpawningMobileUnit, setIsSpawningMobileUnit] = useState<boolean>(false);
     const [isGracePeriod, setIsGracePeriod] = useState<boolean>(true);
     const [showAccount, setShowAccount] = useState<boolean>(false);
+    const [combatModalState, setCombatModalState] = useState<CombatModalState>(CombatModalState.INACTIVE);
     const [walletConnectURI, setWalletConnectURI] = useState<string | null>(null);
     const [loggingIn, setLoggingIn] = useState<boolean>(false);
 
@@ -184,10 +192,12 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
             BigInt(Math.floor(Math.random() * 10000))
         );
         setIsSpawningMobileUnit(true);
-        player.dispatch({ name: 'SPAWN_MOBILE_UNIT', args: [id] }).catch((e) => {
-            console.error('failed to spawn mobileUnit:', e);
-            setIsSpawningMobileUnit(false);
-        });
+        player
+            .dispatch({ name: 'SPAWN_MOBILE_UNIT', args: [id] })
+            .catch((e) => {
+                console.error('failed to spawn mobileUnit:', e);
+            })
+            .finally(() => setIsSpawningMobileUnit(false));
     }, [player, setIsSpawningMobileUnit]);
 
     const selectAndFocusMobileUnit = useCallback(() => {
@@ -261,18 +271,27 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         [player]
     );
 
-    const showCombatModal = (isNewSession: boolean = false) => {
-        if (!player || !world) {
-            return;
-        }
-        setModalContent(
-            <CombatModal player={player} world={world} isNewSession={isNewSession} closeModal={closeModal} />
-        );
-        openModal({ closable: true, showCloseButton: false });
-    };
+    const showCombatModal = useCallback((isNewSession: boolean = false) => {
+        setCombatModalState(isNewSession ? CombatModalState.NEW_SESSION : CombatModalState.EXISTING_SESSION);
+    }, []);
+
+    const closeCombatModal = useCallback(() => {
+        setCombatModalState(CombatModalState.INACTIVE);
+    }, []);
 
     return (
         <StyledShell {...otherProps}>
+            {!showAccount && combatModalState !== CombatModalState.INACTIVE && player && world && blockNumber ? (
+                <Dialog onClose={closeCombatModal} width="850px" height="" icon="/combat-header.png">
+                    <CombatModal
+                        player={player}
+                        world={world}
+                        isNewSession={combatModalState === CombatModalState.NEW_SESSION}
+                        closeModal={closeCombatModal}
+                        blockNumber={blockNumber}
+                    />
+                </Dialog>
+            ) : null}
             {showAccount ? (
                 <Dialog onClose={closeAccountDialog} width="304px" height="">
                     {wallet ? (
@@ -346,7 +365,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                     <Logs className="logs" />
                 </div>
                 <div className="bottom-left">
-                    {selectedTiles && selectedTiles.length > 0 && (
+                    {selectedTiles && selectedTiles.length > 0 && blockNumber && (
                         <Fragment>
                             {selectedTiles[0].sessions.filter((s) => !s.isFinalised).length > 0 && (
                                 <CombatSummary
@@ -355,6 +374,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                     onShowCombatModal={showCombatModal}
                                     player={player}
                                     selectedMobileUnit={selectedMobileUnit}
+                                    blockNumber={blockNumber}
                                 />
                             )}
                             <TileCoords className="action" selectedTiles={selectedTiles} />

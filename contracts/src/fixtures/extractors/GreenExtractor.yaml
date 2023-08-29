@@ -2,6 +2,7 @@
 kind: BuildingKind
 spec:
   name: Green Goo Extractor
+  description: Extracts Green Goo
   category: extractor
   model: green
   contract:

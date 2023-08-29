@@ -14,20 +14,15 @@ public class ExtractorBuildingController : MapElementController
     [SerializeField]
     private Color _blue;
 
+    [SerializeField]
+    private Renderer gooRend;
+
     private Color _gooColor;
 
     public void Setup(Vector3Int cell, Transform parent, string id, string model)
     {
         Setup(cell, parent, id);
         setColor(model);
-    }
-
-    protected void Update()
-    {
-        foreach (Renderer rend in renderers)
-        {
-            rend.material.SetColor("_BaseColor", _gooColor);
-        }
     }
 
     private void setColor(string color)
@@ -44,5 +39,6 @@ public class ExtractorBuildingController : MapElementController
                 _gooColor = _blue;
                 break;
         }
+        gooRend.material.SetColor("_BaseColor", _gooColor);
     }
 }

@@ -1,18 +1,18 @@
 /** @format */
 
-import { FunctionComponent, useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { ComponentProps } from '@app/types/component-props';
-import { styles } from './combat-summary.styles';
-import { ConnectedPlayer, SelectedMobileUnitFragment, SelectedTileFragment } from '@downstream/core';
-import { Combat, ATOM_LIFE, EntityState } from '@app/plugins/combat/combat';
+import { ATOM_LIFE, Combat, EntityState } from '@app/plugins/combat/combat';
 import { convertCombatActions, getActions } from '@app/plugins/combat/helpers';
 import { ProgressBar } from '@app/plugins/combat/progress-bar';
-import { useBlockTime } from '@app/contexts/block-time-provider';
+import { ComponentProps } from '@app/types/component-props';
+import { ConnectedPlayer, SelectedMobileUnitFragment, SelectedTileFragment } from '@downstream/core';
+import { FunctionComponent } from 'react';
+import styled from 'styled-components';
+import { styles } from './combat-summary.styles';
 
 export interface CombatSummaryProps extends ComponentProps {
     selectedTiles: SelectedTileFragment[];
     player?: ConnectedPlayer;
+    blockNumber: number;
     selectedMobileUnit?: SelectedMobileUnitFragment;
     onShowCombatModal?: (isNewSession: boolean) => void;
 }
@@ -22,18 +22,7 @@ const StyledCombatSummary = styled('div')`
 `;
 
 export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: CombatSummaryProps) => {
-    const { selectedTiles, onShowCombatModal, ...otherProps } = props;
-    const { blockNumberRef, blockTime } = useBlockTime();
-    const [blockNumber, setBlockNumber] = useState<number>(blockNumberRef.current);
-
-    // re-render every block setting the new block time so that combat states are updated
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setBlockNumber(blockNumberRef.current);
-        }, blockTime);
-
-        return () => clearInterval(interval);
-    }, [blockNumberRef, blockTime]);
+    const { selectedTiles, onShowCombatModal, blockNumber, ...otherProps } = props;
 
     if (selectedTiles.length === 0 || selectedTiles[0].sessions.length === 0) return null;
 
@@ -44,7 +33,7 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
 
     const actions = latestSession && getActions(latestSession);
 
-    if (!actions) return null;
+    if (!actions || !blockNumber) return null;
 
     const convertedActions = convertCombatActions(actions);
     const combat = new Combat(); // Is a class because it was converted from solidity

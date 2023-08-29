@@ -29,7 +29,8 @@
     "react/display-name": "off",
     "react/react-in-jsx-scope": "off",
     "react/no-unknown-property": "off",
-    "@next/next/no-img-element": "off"
+    "@next/next/no-img-element": "off",
+    "@next/next/no-css-tags": "off"
   }
 }
 

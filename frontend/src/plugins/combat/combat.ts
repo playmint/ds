@@ -271,6 +271,7 @@ export class Combat {
                     i: i,
                     j: j,
                 };
+
                 currentIndex++;
             }
         }

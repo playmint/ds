@@ -17,6 +17,8 @@ export const PluginSource = z.object({
 
 export const Name = z.string().min(3).max(32);
 
+export const OneLiner = z.string().min(3).max(180);
+
 export const Atom = z.number().gte(0).lt(4294967295);
 
 export const Slot = z.object({
@@ -53,12 +55,28 @@ export const Item = z.object({
 });
 
 const TotemModel = z.string().regex(/^[0-9]{2}(-[0-9]{2})?$/);
-const DecorativeModel = z.enum(['enemy']);
+const DecorativeModel = z.enum([
+    'enemy',
+    'CactusLarge',
+    'CactusSmall',
+    'GrassLarge',
+    'LogWall',
+    'OakTreesLarge',
+    'OakTreesSmall',
+    'PalmTrees',
+    'PineTreesLarge',
+    'PineTreesSmall',
+    'rocksLarge',
+    'rocksSmall',
+    'Shrub',
+    'StoneWall',
+]);
 const ExtractorModel = z.enum(['red', 'green', 'blue']);
 
 export const BuildingKindFactorySpec = z.object({
     category: z.literal('factory'),
     name: Name,
+    description: OneLiner.optional(),
     model: TotemModel,
     contract: ContractSource.optional(),
     plugin: PluginSource.optional(),
@@ -70,6 +88,7 @@ export const BuildingKindFactorySpec = z.object({
 export const BuildingKindBlockerSpec = z.object({
     category: z.literal('blocker'),
     name: Name,
+    description: OneLiner.optional(),
     model: DecorativeModel,
     materials: Slot.array().nonempty().max(4),
 });
@@ -77,6 +96,7 @@ export const BuildingKindBlockerSpec = z.object({
 export const BuildingKindExtractorSpec = z.object({
     category: z.literal('extractor'),
     name: Name,
+    description: OneLiner.optional(),
     model: ExtractorModel,
     contract: ContractSource.optional(),
     plugin: PluginSource.optional(),
@@ -87,6 +107,7 @@ export const BuildingKindExtractorSpec = z.object({
 export const BuildingKindCustomSpec = z.object({
     category: z.literal('custom'),
     name: Name,
+    description: OneLiner.optional(),
     model: TotemModel,
     contract: ContractSource.optional(),
     plugin: PluginSource.optional(),

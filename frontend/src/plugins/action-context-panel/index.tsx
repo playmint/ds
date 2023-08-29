@@ -25,10 +25,10 @@ import {
     WorldBuildingFragment,
     WorldTileFragment,
 } from '@downstream/core';
-import React, { Fragment, FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
+import React, { Fragment, FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { styles } from './action-context-panel.styles';
-import { isExtractor } from '@app/helpers/building';
+import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
 
 export interface ActionContextPanelProps extends ComponentProps {
     onShowCombatModal?: (isNewSession: boolean) => void;
@@ -111,10 +111,13 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull
     const author = world?.players.find((p) => p.id === building?.kind?.owner?.id);
     const owner = world?.players.find((p) => p.id === building?.owner?.id);
 
+    const name = building?.kind?.name?.value ?? 'Unnamed Building';
+    const description = building?.kind?.description?.value;
+
     return (
         <StyledActionContextPanel className="action">
-            <h3>{component?.title ?? building?.kind?.name?.value ?? 'Unnamed Building'}</h3>
-            <span className="sub-title">{component?.summary || ''}</span>
+            <h3>{name}</h3>
+            {description && <span className="sub-title">{description}</span>}
             {isEnemy ? <ImageEnemy /> : <ImageBuilding />}
             {component && showFull && (
                 <Fragment>
@@ -229,8 +232,7 @@ interface ConstructProps {
 }
 const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUnit, player, selectIntent }) => {
     const [selectedKindRaw, selectKind] = useState<undefined | BuildingKindFragment>();
-    const [showAllKinds, setShowAllKinds] = useState<boolean>(false);
-    const [showExtractors, setShowExtractors] = useState<boolean>(true);
+    const [showOnlyConstructable, setShowOnlyConstructable] = useState<boolean>(true);
 
     const selectedTile = selectedTiles.find(() => true);
     const selectedTileIsAdjacent =
@@ -249,14 +251,32 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
     const world = useWorld();
     const slotsRef = useRef<HTMLDivElement>(null);
     const kinds = useBuildingKinds();
-    const constructableKinds = (kinds || []).sort(byName);
+
+    const byConstructable = useMemo(() => {
+        if (mobileUnit && showOnlyConstructable) {
+            const unitItems = mobileUnit.bags.flatMap((b) => b.bag.slots.map((s) => s.item.id));
+            return (kind) => kind.materials.every((s) => unitItems.some((id) => s.item.id == id));
+        }
+        return () => true;
+    }, [showOnlyConstructable, mobileUnit]);
+
+    const constructableKinds = (kinds || []).filter(byConstructable).sort(byName);
     const playerKinds = constructableKinds.filter((kind) => kind.owner?.id === player?.id);
     const otherKinds = constructableKinds
         .filter((kind) => kind.owner?.id !== player?.id)
-        .filter((kind) => kind.model?.value !== 'story-building' && !isExtractor(kind));
+        .filter((kind) => getBuildingCategory(kind) == BuildingCategory.NONE);
     const extractorKinds = constructableKinds
         .filter((kind) => kind.owner?.id !== player?.id)
-        .filter((kind) => isExtractor(kind));
+        .filter((kind) => getBuildingCategory(kind) == BuildingCategory.EXTRACTOR);
+    const factoryKinds = constructableKinds
+        .filter((kind) => kind.owner?.id !== player?.id)
+        .filter((kind) => getBuildingCategory(kind) == BuildingCategory.ITEM_FACTORY);
+    const blockerKinds = constructableKinds
+        .filter((kind) => kind.owner?.id !== player?.id)
+        .filter((kind) => getBuildingCategory(kind) == BuildingCategory.BLOCKER && kind.model?.value !== 'enemy');
+    const enemyKinds = constructableKinds
+        .filter((kind) => kind.owner?.id !== player?.id)
+        .filter((kind) => getBuildingCategory(kind) == BuildingCategory.BLOCKER && kind.model?.value === 'enemy');
     const selectedKind = selectedKindRaw;
 
     const onChangeSelectedKind = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -270,17 +290,10 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
         if (!selectedKind) {
             return;
         }
-        const selectableKinds = playerKinds.concat(otherKinds).concat(extractorKinds);
-        if (!selectableKinds.some((kind) => kind.id === selectedKind.id)) {
+        if (!constructableKinds.some((kind) => kind.id === selectedKind.id)) {
             selectKind(undefined);
         }
-        if (otherKinds.some((kind) => kind.id === selectedKind.id) && !showAllKinds) {
-            selectKind(undefined);
-        }
-        if (extractorKinds.some((kind) => kind.id === selectedKind.id) && !showExtractors) {
-            selectKind(undefined);
-        }
-    }, [selectedKind, showAllKinds, selectKind, otherKinds, playerKinds, extractorKinds, showExtractors]);
+    }, [selectedKind, selectKind, constructableKinds]);
 
     const clearIntent = useCallback(
         (e?: React.MouseEvent) => {
@@ -370,50 +383,63 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
                                         </option>
                                     )}
                                 </optgroup>
-                                <optgroup label="Extractors">
-                                    {showExtractors ? (
-                                        extractorKinds.map((k) => (
+                                {extractorKinds.length > 0 && (
+                                    <optgroup label="Extractors">
+                                        {extractorKinds.map((k) => (
                                             <option key={k.id} value={k.id}>
                                                 {k.name?.value || k.id}
                                             </option>
-                                        ))
-                                    ) : (
-                                        <option key="other" disabled={true}>
-                                            {extractorKinds.length} extractors hidden
-                                        </option>
-                                    )}
-                                </optgroup>
-                                <optgroup label="Other kinds">
-                                    {showAllKinds ? (
-                                        otherKinds.map((k) => (
+                                        ))}
+                                    </optgroup>
+                                )}
+                                {blockerKinds.length > 0 && (
+                                    <optgroup label="Blockers">
+                                        {blockerKinds.map((k) => (
                                             <option key={k.id} value={k.id}>
                                                 {k.name?.value || k.id}
                                             </option>
-                                        ))
-                                    ) : (
-                                        <option key="other" disabled={true}>
-                                            {otherKinds.length} kinds hidden
-                                        </option>
-                                    )}
-                                </optgroup>
+                                        ))}
+                                    </optgroup>
+                                )}
+                                {factoryKinds.length > 0 && (
+                                    <optgroup label="Factories">
+                                        {factoryKinds.map((k) => (
+                                            <option key={k.id} value={k.id}>
+                                                {k.name?.value || k.id}
+                                            </option>
+                                        ))}
+                                    </optgroup>
+                                )}
+                                {enemyKinds.length > 0 && (
+                                    <optgroup label="Enemies">
+                                        {enemyKinds.map((k) => (
+                                            <option key={k.id} value={k.id}>
+                                                {k.name?.value || k.id}
+                                            </option>
+                                        ))}
+                                    </optgroup>
+                                )}
+                                {otherKinds.length > 0 && (
+                                    <optgroup label="Other kinds">
+                                        {otherKinds.map((k) => (
+                                            <option key={k.id} value={k.id}>
+                                                {k.name?.value || k.id}
+                                            </option>
+                                        ))}
+                                    </optgroup>
+                                )}
                             </select>
                         </div>
                         <div className="toggle">
                             <label>
                                 <input
                                     type="checkbox"
-                                    checked={showExtractors}
-                                    onChange={() => setShowExtractors((prev) => !prev)}
+                                    checked={showOnlyConstructable}
+                                    onChange={() => setShowOnlyConstructable((prev) => !prev)}
                                 />
-                                Show extractors
-                            </label>
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    checked={showAllKinds}
-                                    onChange={() => setShowAllKinds((prev) => !prev)}
-                                />
-                                Show all other
+                                <abbr title="Hides building kinds from the list if you do not have items of the type to construct it">
+                                    Hide unconstructable
+                                </abbr>
                             </label>
                         </div>
                         {buildingId && (

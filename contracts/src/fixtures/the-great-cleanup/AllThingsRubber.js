@@ -53,8 +53,6 @@ export default function update({ selected, world }) {
             {
                 type: 'building',
                 id: 'foul-fiends',
-                title: 'All things rubber',
-                summary: `We can read your mind, and can make your dreams come true (provided they're made of rubber)`,
                 content: [
                     {
                         id: 'default',

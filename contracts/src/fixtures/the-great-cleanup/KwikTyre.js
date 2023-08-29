@@ -51,12 +51,11 @@ export default function update({ selected, world }) {
             {
                 type: 'building',
                 id: 'kwik-tyre',
-                title: 'Kwik Tyre',
-                summary: `Expert manufacturers of top-quality tyres`,
                 content: [
                     {
                         id: 'default',
                         type: 'inline',
+                        html: `Expert manufacturers of top-quality tyres`,
                         buttons: [{ text: 'Manufacture Tyre', type: 'action', action: craft, disabled: !canCraft }],
                     },
                 ],
