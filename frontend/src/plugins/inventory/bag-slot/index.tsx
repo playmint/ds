@@ -17,7 +17,7 @@ export interface BagSlotProps extends ComponentProps {
     bagId?: string;
     equipIndex: number;
     slotKey: number;
-    isInteractable?: boolean;
+    isInteractable?: boolean | ((ownerId: string, slot?: ItemSlotFragment) => boolean);
     isPending?: boolean;
 }
 
@@ -34,7 +34,7 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
         bagId,
         equipIndex,
         slotKey,
-        isInteractable,
+        isInteractable: isInteractableFunc,
         isPending,
         ...otherProps
     } = props;
@@ -43,6 +43,8 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
     const item = itemSlot?.balance ? getItemDetails(itemSlot) : null;
     const placeholderItem = placeholder?.balance ? getItemDetails(placeholder) : null;
     const itemSlotBalance = itemSlot?.balance || 0;
+    const isInteractable =
+        typeof isInteractableFunc === 'function' ? isInteractableFunc(ownerId, itemSlot) : isInteractableFunc;
 
     const handleDrop = (dropQuantity: number) => {
         if (!isPickedUpItemVisible || !isInteractable || !pickedUpItem) {

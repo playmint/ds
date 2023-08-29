@@ -76,10 +76,9 @@ interface TileBuildingProps {
     selectIntent: Selector<string | undefined>;
     selectTiles: Selector<string[] | undefined>;
 }
-const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull, player, world }) => {
+const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull, world }) => {
     const { tiles: selectedTiles } = useSelection();
     const selectedTile = selectedTiles?.[0];
-    const tileMobileUnits = selectedTile?.mobileUnits ?? [];
     const ui = usePluginState();
     const kinds = useBuildingKinds();
     const component = (ui || [])
@@ -160,9 +159,6 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull
                     </TileAction>
                 </Fragment>
             )}
-            {!showFull && tileMobileUnits.length > 0 && (
-                <MobileUnitList mobileUnits={tileMobileUnits} player={player} />
-            )}
             {!showFull && selectedTile && <TileInventory tile={selectedTile} />}
             {author && (
                 <span className="label">
@@ -192,11 +188,23 @@ interface TileAvailableProps {
     player?: ConnectedPlayer;
 }
 const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player }) => {
-    const { tiles: selectedTiles } = useSelection();
+    const { tiles: selectedTiles, mobileUnit: selectedMobileUnit } = useSelection();
     const selectedTile = selectedTiles?.[0];
     const tileMobileUnits = selectedTile?.mobileUnits ?? [];
 
-    if (tileMobileUnits.length === 0 && selectedTile?.bags.length == 0) {
+    const excludeSelected = useCallback(
+        (unit) => {
+            if (!selectedMobileUnit) {
+                return true;
+            }
+            return unit.id !== selectedMobileUnit.id;
+        },
+        [selectedMobileUnit]
+    );
+
+    const visibleUnits = tileMobileUnits.filter(excludeSelected);
+
+    if (visibleUnits.length === 0 && selectedTile?.bags.length == 0) {
         return null;
     }
 
@@ -205,7 +213,7 @@ const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player }) => {
             <h3 style={{ marginBottom: '2rem' }}>Tile contents</h3>
             {tileMobileUnits.length > 0 && (
                 <Fragment>
-                    <MobileUnitList mobileUnits={tileMobileUnits} player={player} />
+                    <MobileUnitList mobileUnits={visibleUnits} player={player} tile={selectedTile} />
                 </Fragment>
             )}
             {selectedTile && <TileInventory tile={selectedTile} />}
