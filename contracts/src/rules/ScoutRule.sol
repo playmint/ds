@@ -66,13 +66,14 @@ contract ScoutRule is Rule {
 
     uint256 private _resourceSpawnCount = 0;
 
-    int16 private constant GOO_GREEN_OFFSET_X = 0;
-    int16 private constant GOO_GREEN_OFFSET_Y = 0;
-    int16 private constant GOO_BLUE_OFFSET_X = 26; // 0.33 * 80
-    int16 private constant GOO_BLUE_OFFSET_Y = 10; // 0.33 * 30
-    int16 private constant GOO_RED_OFFSET_X = 53; // 0.66 * 80
-    int16 private constant GOO_RED_OFFSET_Y = 20; // 0.66 * 30
-    int16 private constant GOO_SCALE = 15;
+    //These offsets make the goos spread differently, and keep good tiles away from the middle of the map
+    int16 private constant GOO_GREEN_OFFSET_X = 80;
+    int16 private constant GOO_GREEN_OFFSET_Y = 66;
+    int16 private constant GOO_BLUE_OFFSET_X = 28;
+    int16 private constant GOO_BLUE_OFFSET_Y = 2;
+    int16 private constant GOO_RED_OFFSET_X = 32;
+    int16 private constant GOO_RED_OFFSET_Y = 12;
+    int16 private constant GOO_SCALE = 18;
 
     function _generateAtomValues(State state, bytes24 targetTile, int16[3] memory coords) private {
         uint64[3] memory atoms;
