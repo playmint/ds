@@ -86,16 +86,41 @@ contract ScoutRule is Rule {
 
         // NOTE: noise2d outputs from 0 to 1 in 64.64 fixed point. Using 8 bits of 'randomness' to randomise 25% of the potential goo value
         //       If we don't want to randomise we can simply set the precision param to 8 and get rid of the multiplication
-        atoms[GOO_GREEN] = uint64(
-            uint128(
-                Math.mul(
-                    Perlin.noise2d(
+
+       int128 greenPerlin = Perlin.noise2d(
                         (coords2d[0] + GOO_GREEN_OFFSET_X) * GOO_SCALE,
                         (coords2d[1] + GOO_GREEN_OFFSET_Y) * GOO_SCALE,
                         80,
                         30,
                         64 // Precision
-                    ),
+                        );
+
+        int128 bluePerlin = Perlin.noise2d(
+                        (coords2d[0] + GOO_BLUE_OFFSET_X) * GOO_SCALE,
+                        (coords2d[1] + GOO_BLUE_OFFSET_Y) * GOO_SCALE,
+                        80,
+                        30,
+                        64
+                        );
+
+        int128 redPerlin = Perlin.noise2d(
+                        (coords2d[0] + GOO_RED_OFFSET_X) * GOO_SCALE,
+                        (coords2d[1] + GOO_RED_OFFSET_Y) * GOO_SCALE,
+                        80,
+                        30,
+                        64
+                        );
+
+        greenPerlin = Math.mul(greenPerlin, greenPerlin);
+        bluePerlin = Math.mul(bluePerlin, bluePerlin);
+        redPerlin = Math.mul(redPerlin, redPerlin);
+
+
+
+        atoms[GOO_GREEN] = uint64(
+            uint128(
+                Math.mul(
+                    greenGoo,
                     Math.fromUInt(((rnd & 0xFF) >> 2) + 192) // players are gaurenteed 75% of the potential. Use Math.fromInt(255) to get the full potential
                 ) >> (64)
             )
@@ -103,13 +128,7 @@ contract ScoutRule is Rule {
         atoms[GOO_BLUE] = uint64(
             uint128(
                 Math.mul(
-                    Perlin.noise2d(
-                        (coords2d[0] + GOO_BLUE_OFFSET_X) * GOO_SCALE,
-                        (coords2d[1] + GOO_BLUE_OFFSET_Y) * GOO_SCALE,
-                        80,
-                        30,
-                        64
-                    ),
+                    bluePerlin,
                     Math.fromUInt((((rnd >> 8) & 0xFF) >> 2) + 192)
                 ) >> (64)
             )
@@ -117,13 +136,7 @@ contract ScoutRule is Rule {
         atoms[GOO_RED] = uint64(
             uint128(
                 Math.mul(
-                    Perlin.noise2d(
-                        (coords2d[0] + GOO_RED_OFFSET_X) * GOO_SCALE,
-                        (coords2d[1] + GOO_RED_OFFSET_Y) * GOO_SCALE,
-                        80,
-                        30,
-                        64
-                    ),
+                    redPerlin,
                     Math.fromUInt((((rnd >> 16) & 0xFF) >> 2) + 192)
                 ) >> (64)
             )
