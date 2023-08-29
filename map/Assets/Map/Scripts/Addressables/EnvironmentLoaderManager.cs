@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class EnvironmentLoaderManager : MonoBehaviour
 {
@@ -44,6 +43,8 @@ public class EnvironmentLoaderManager : MonoBehaviour
     async void Start()
     {
             await MapManager.instance.ready;
+            await HighlightManager.instance.ready;
+            await MobileUnitManager.instance.ready;
             EnvironmentAssetsLoaded?.Invoke();
     }
 

@@ -3,7 +3,7 @@
 import { Dialog } from '@app/components/molecules/dialog';
 import { trackEvent, trackPlayer } from '@app/components/organisms/analytics';
 import { Logs } from '@app/components/organisms/logs';
-import { UnityMap, Tile } from '@app/components/organisms/unity-map';
+import { UnityMap, Tile, Highlight, MobileUnit } from '@app/components/organisms/unity-map';
 import { formatNameOrId } from '@app/helpers';
 import { ActionBar } from '@app/plugins/action-bar';
 import { ActionContextPanel } from '@app/plugins/action-context-panel';
@@ -67,6 +67,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         world,
         player,
         selection,
+        selectTiles,
         selectMobileUnit,
         sendMessage,
         unityProvider,
@@ -290,9 +291,29 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         setHoverTile(t.id);
     }, []);
 
-    const onTileExit = useCallback((t) => {
-        setHoverTile((prev) => (prev === t.id ? undefined : prev));
+    const onTileExit = useCallback((_t) => {
+        // setHoverTile((prev) => (prev === t.id ? undefined : prev));
     }, []);
+
+    const onTileClick = useCallback(
+        (t) => {
+            if (!selectTiles) {
+                return;
+            }
+            selectTiles([t.id]);
+        },
+        [selectTiles]
+    );
+
+    const onUnitClick = useCallback(
+        ({ id }) => {
+            if (!selectMobileUnit) {
+                return;
+            }
+            selectMobileUnit(id);
+        },
+        [selectMobileUnit]
+    );
 
     return (
         <StyledShell {...otherProps}>
@@ -400,7 +421,6 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                             <button onClick={selectAndFocusMobileUnit}>Select Unit</button>
                         </div>
                     )}
-                    {hoverTile}
                 </div>
                 <div className="top-middle"></div>
                 <div className="bottom-middle">
@@ -511,12 +531,55 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                                       biome={hoverTile === t.id ? 0 : t.biome || 0}
                                       onPointerEnter={onTileEnter}
                                       onPointerExit={onTileExit}
+                                      onPointerClick={onTileClick}
                                       q={q}
                                       r={r}
                                       s={s}
                                   />
                               );
                           })
+                        : null}
+                    {selectedTiles
+                        ? selectedTiles.map((t) => {
+                              const { q, r, s } = getCoords(t);
+                              return (
+                                  <Highlight
+                                      key={`selected_${t.id}`}
+                                      sendMessage={sendMessage}
+                                      addUnityEventListener={addUnityEventListener}
+                                      removeUnityEventListener={removeUnityEventListener}
+                                      isReady={mapReady}
+                                      id={`selected_${t.id}`}
+                                      q={q}
+                                      r={r}
+                                      s={s}
+                                  />
+                              );
+                          })
+                        : null}
+                    {world
+                        ? world.tiles
+                              .flatMap((t) => t.mobileUnits)
+                              .map((u) => {
+                                  if (!u.nextLocation || !u.nextLocation.tile) {
+                                      return null;
+                                  }
+                                  const { q, r, s } = getCoords(u.nextLocation.tile);
+                                  return (
+                                      <MobileUnit
+                                          key={u.id}
+                                          sendMessage={sendMessage}
+                                          addUnityEventListener={addUnityEventListener}
+                                          removeUnityEventListener={removeUnityEventListener}
+                                          isReady={mapReady}
+                                          onPointerClick={onUnitClick}
+                                          id={u.id}
+                                          q={q}
+                                          r={r}
+                                          s={s}
+                                      />
+                                  );
+                              })
                         : null}
                 </UnityMap>
             </div>

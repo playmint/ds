@@ -14,7 +14,7 @@ public class TileData
     public int s;
 }
 
-public class TileController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class TileController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     [SerializeField]
     AnimationCurve popInCurve;
@@ -85,7 +85,7 @@ public class TileController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         Vector3 startPos = new Vector3(transform.position.x, transform.position.y, transform.position.z);
         Vector3 endPos = new Vector3(
             transform.position.x,
-            MapHeightManager.UNSCOUTED_HEIGHT,
+            MapHeightManager.instance.GetHeightAtPosition(transform.position),
             transform.position.z
         );
         yield return new WaitForSeconds(delay);
@@ -115,6 +115,18 @@ public class TileController : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         Vector3Int gridPos = MapManager.instance.grid.WorldToCell(transform.position);
         Vector3 cellCubicCoords = GridExtensions.GridToCube(gridPos);
         string eventName = $"tile_pointer_exit_{cellCubicCoords.x}_{cellCubicCoords.y}_{cellCubicCoords.z}";
+#if UNITY_EDITOR
+        // noop
+#elif UNITY_WEBGL
+        SendEventRPC(eventName);
+#endif
+    }
+
+    public void OnPointerClick(PointerEventData evt)
+    {
+        Vector3Int gridPos = MapManager.instance.grid.WorldToCell(transform.position);
+        Vector3 cellCubicCoords = GridExtensions.GridToCube(gridPos);
+        string eventName = $"tile_pointer_click_{cellCubicCoords.x}_{cellCubicCoords.y}_{cellCubicCoords.z}";
 #if UNITY_EDITOR
         // noop
 #elif UNITY_WEBGL

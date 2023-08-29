@@ -409,7 +409,7 @@ public class MoveIntent : IntentHandler
     IEnumerator TracePathCR()
     {
         _isTracingPath = true;
-        MobileUnitManager.instance.GetMobileUnitController().moveStepStarted += MobileUnitMoved;
+        /* MobileUnitManager.instance.GetMobileUnitController().moveStepStarted += MobileUnitMoved; */
         // Cloned so we aren't iterating over the path that can be manipulated outside of the CR
         var path = new List<Vector3Int>(_path);
         var mobileUnit = MobileUnitManager.instance.currentSelectedMobileUnit;

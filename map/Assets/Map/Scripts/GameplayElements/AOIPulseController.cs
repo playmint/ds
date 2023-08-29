@@ -35,7 +35,7 @@ public class AOIPulseController : MonoBehaviour
                 _currentMobileUnit == null
                 || gameState.Selected.MobileUnit.Id != _currentMobileUnit.Id
             )
-            && MobileUnitManager.instance.IsPlayerMobileUnit(gameState.Selected.MobileUnit.Id)
+            /* && MobileUnitManager.instance.IsPlayerMobileUnit(gameState.Selected.MobileUnit.Id) */
         )
         {
             _currentMobileUnit = gameState.Selected.MobileUnit;

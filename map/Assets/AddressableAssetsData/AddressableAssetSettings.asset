@@ -88,6 +88,7 @@ MonoBehaviour:
     - default
     - environmentObjects
     - Tile
+    - Highlight
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 5e5bfd107c8be4ff7951884a81423d02, type: 2}

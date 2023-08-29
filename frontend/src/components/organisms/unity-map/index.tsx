@@ -26,6 +26,8 @@ type SendMessageFunc = (gameObjectName: string, methodName: string, ...params: a
 export interface TileProps {
     sendMessage: SendMessageFunc;
     isReady: boolean;
+    addUnityEventListener: (event: string, handler: any) => void;
+    removeUnityEventListener: (event: string, handler: any) => void;
     id: string;
     biome: number;
     q: number;
@@ -33,8 +35,7 @@ export interface TileProps {
     s: number;
     onPointerEnter?: (o: { id: string }) => void;
     onPointerExit?: (o: { id: string }) => void;
-    addUnityEventListener: (event: string, handler: any) => void;
-    removeUnityEventListener: (event: string, handler: any) => void;
+    onPointerClick?: (o: { id: string }) => void;
 }
 
 export const Tile = memo(
@@ -47,6 +48,7 @@ export const Tile = memo(
         sendMessage,
         onPointerEnter,
         onPointerExit,
+        onPointerClick,
         isReady,
         addUnityEventListener,
         removeUnityEventListener,
@@ -55,7 +57,7 @@ export const Tile = memo(
             if (!isReady) {
                 return;
             }
-            console.log('SetTile', id);
+            // console.log('SetTile', id);
             sendMessage('MapManager', 'SetTileJSON', JSON.stringify({ id, q, r, s, biome }));
         }, [id, q, r, s, biome, sendMessage, isReady]);
 
@@ -67,7 +69,7 @@ export const Tile = memo(
                 if (!isReady) {
                     return;
                 }
-                console.log('RemoveTile', id);
+                // console.log('RemoveTile', id);
                 sendMessage('MapManager', 'RemoveTile', id);
             };
         }, [id, sendMessage, isReady]);
@@ -88,6 +90,14 @@ export const Tile = memo(
             // console.log('fired pointerexit', id);
         }, [id, onPointerExit]);
 
+        const pointerClickHandler = useCallback(() => {
+            if (!onPointerClick) {
+                return;
+            }
+            onPointerClick({ id });
+            // console.log('fired pointerexit', id);
+        }, [id, onPointerClick]);
+
         useEffect(() => {
             const eventName = `tile_pointer_enter_${q}_${r}_${s}`;
             addUnityEventListener(eventName, pointerEnterHandler);
@@ -105,9 +115,155 @@ export const Tile = memo(
             };
         }, [addUnityEventListener, removeUnityEventListener, pointerExitHandler, q, r, s]);
 
+        useEffect(() => {
+            const eventName = `tile_pointer_click_${q}_${r}_${s}`;
+            addUnityEventListener(eventName, pointerClickHandler);
+            return () => {
+                removeUnityEventListener(eventName, pointerClickHandler);
+            };
+        }, [addUnityEventListener, removeUnityEventListener, pointerClickHandler, q, r, s]);
+
         return null;
     }
 );
+
+export interface MobileUnitProps {
+    sendMessage: SendMessageFunc;
+    isReady: boolean;
+    addUnityEventListener: (event: string, handler: any) => void;
+    removeUnityEventListener: (event: string, handler: any) => void;
+    id: string;
+    q: number;
+    r: number;
+    s: number;
+    onPointerEnter?: (o: { id: string }) => void;
+    onPointerExit?: (o: { id: string }) => void;
+    onPointerClick?: (o: { id: string }) => void;
+}
+
+export const MobileUnit = memo(
+    ({
+        id,
+        q,
+        r,
+        s,
+        sendMessage,
+        onPointerEnter,
+        onPointerExit,
+        onPointerClick,
+        isReady,
+        addUnityEventListener,
+        removeUnityEventListener,
+    }: MobileUnitProps) => {
+        useEffect(() => {
+            if (!isReady) {
+                return;
+            }
+            // console.log('SetMobileUnit', id, q, r, s);
+            sendMessage('MobileUnitManager', 'SetJSON', JSON.stringify({ id, q, r, s }));
+        }, [id, q, r, s, sendMessage, isReady]);
+
+        useEffect(() => {
+            if (!isReady) {
+                return;
+            }
+            return () => {
+                if (!isReady) {
+                    return;
+                }
+                // console.log('RemoveMobileUnit', id);
+                sendMessage('MobileUnitManager', 'Remove', id);
+            };
+        }, [id, sendMessage, isReady]);
+
+        const pointerEnterHandler = useCallback(() => {
+            if (!onPointerEnter) {
+                return;
+            }
+            onPointerEnter({ id });
+            // console.log('fired pointerenter', id);
+        }, [id, onPointerEnter]);
+
+        const pointerExitHandler = useCallback(() => {
+            if (!onPointerExit) {
+                return;
+            }
+            onPointerExit({ id });
+            // console.log('fired pointerexit', id);
+        }, [id, onPointerExit]);
+
+        const pointerClickHandler = useCallback(() => {
+            if (!onPointerClick) {
+                return;
+            }
+            onPointerClick({ id });
+            // console.log('fired pointerexit', id);
+        }, [id, onPointerClick]);
+
+        useEffect(() => {
+            const eventName = `mobileunit_pointer_enter_${q}_${r}_${s}`;
+            addUnityEventListener(eventName, pointerEnterHandler);
+            // console.log('listening', eventName);
+            return () => {
+                removeUnityEventListener(eventName, pointerEnterHandler);
+            };
+        }, [addUnityEventListener, removeUnityEventListener, pointerEnterHandler, q, r, s]);
+
+        useEffect(() => {
+            const eventName = `mobileunit_pointer_exit_${q}_${r}_${s}`;
+            addUnityEventListener(eventName, pointerExitHandler);
+            return () => {
+                removeUnityEventListener(eventName, pointerExitHandler);
+            };
+        }, [addUnityEventListener, removeUnityEventListener, pointerExitHandler, q, r, s]);
+
+        useEffect(() => {
+            const eventName = `mobileunit_pointer_click_${q}_${r}_${s}`;
+            addUnityEventListener(eventName, pointerClickHandler);
+            return () => {
+                removeUnityEventListener(eventName, pointerClickHandler);
+            };
+        }, [addUnityEventListener, removeUnityEventListener, pointerClickHandler, q, r, s]);
+
+        return null;
+    }
+);
+
+export interface HighlightProps {
+    sendMessage: SendMessageFunc;
+    isReady: boolean;
+    addUnityEventListener: (event: string, handler: any) => void;
+    removeUnityEventListener: (event: string, handler: any) => void;
+    id: string;
+    q: number;
+    r: number;
+    s: number;
+}
+
+export const Highlight = memo(({ id, q, r, s, sendMessage, isReady }: HighlightProps) => {
+    useEffect(() => {
+        if (!isReady) {
+            return;
+        }
+        // console.log('SetHighlight', id);
+        sendMessage('HighlightManager', 'SetJSON', JSON.stringify({ id, q, r, s }));
+    }, [id, q, r, s, sendMessage, isReady]);
+
+    useEffect(() => {
+        if (!isReady) {
+            return;
+        }
+        return () => {
+            if (!isReady) {
+                return;
+            }
+            // console.log('RemoveHighlight', id);
+            sendMessage('HighlightManager', 'Remove', id);
+        };
+    }, [id, sendMessage, isReady]);
+
+    return null;
+});
 
 const StyledUnityMap = styled('div')`
     ${styles}

@@ -1,12 +1,25 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using Cog;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using System.Runtime.InteropServices;
 
-public class MobileUnitController : MapElementController
+[Serializable]
+public class MobileUnitData
+{
+    public string id;
+    public int q;
+    public int r;
+    public int s;
+}
+
+public class MobileUnitController : MapElementController, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     public System.Action<Vector3Int, MobileUnitController> moveStepStarted;
+
+    [DllImport("__Internal")]
+    private static extern void SendEventRPC(string eventName);
 
     [SerializeField]
     GameObject nonPlayerIconPrefab;
@@ -24,19 +37,21 @@ public class MobileUnitController : MapElementController
     private Transform _meshesTrans;
     private float _offsetRadius = 0.29f;
 
+    public MobileUnitData data;
+
     private void Awake()
     {
-        GameStateMediator.Instance.EventStateUpdated += StateUpdated;
+        /* GameStateMediator.Instance.EventStateUpdated += StateUpdated; */
         foreach (Renderer rend in renderers)
         {
             rend.material.SetFloat("_Fade", 1);
         }
     }
 
-    private void OnDestroy()
-    {
-        GameStateMediator.Instance.EventStateUpdated -= StateUpdated;
-    }
+    /* private void OnDestroy() */
+    /* { */
+    /*     GameStateMediator.Instance.EventStateUpdated -= StateUpdated; */
+    /* } */
 
     private void StateUpdated(GameState state)
     {
@@ -198,5 +213,41 @@ public class MobileUnitController : MapElementController
             }
             yield return null;
         }
+    }
+
+    public void OnPointerEnter(PointerEventData evt)
+    {
+        Vector3Int gridPos = MapManager.instance.grid.WorldToCell(transform.position);
+        Vector3 cellCubicCoords = GridExtensions.GridToCube(gridPos);
+        string eventName = $"mobileunit_pointer_enter_{cellCubicCoords.x}_{cellCubicCoords.y}_{cellCubicCoords.z}";
+#if UNITY_EDITOR
+        // noop
+#elif UNITY_WEBGL
+        SendEventRPC(eventName);
+#endif
+    }
+
+    public void OnPointerExit(PointerEventData evt)
+    {
+        Vector3Int gridPos = MapManager.instance.grid.WorldToCell(transform.position);
+        Vector3 cellCubicCoords = GridExtensions.GridToCube(gridPos);
+        string eventName = $"mobileunit_pointer_exit_{cellCubicCoords.x}_{cellCubicCoords.y}_{cellCubicCoords.z}";
+#if UNITY_EDITOR
+        // noop
+#elif UNITY_WEBGL
+        SendEventRPC(eventName);
+#endif
+    }
+
+    public void OnPointerClick(PointerEventData evt)
+    {
+        Vector3Int gridPos = MapManager.instance.grid.WorldToCell(transform.position);
+        Vector3 cellCubicCoords = GridExtensions.GridToCube(gridPos);
+        string eventName = $"mobileunit_pointer_click_{cellCubicCoords.x}_{cellCubicCoords.y}_{cellCubicCoords.z}";
+#if UNITY_EDITOR
+        // noop
+#elif UNITY_WEBGL
+        SendEventRPC(eventName);
+#endif
     }
 }
