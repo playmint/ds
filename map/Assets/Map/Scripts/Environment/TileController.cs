@@ -1,8 +1,20 @@
+using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using System.Runtime.InteropServices;
 
-public class TileController : MonoBehaviour
+[Serializable]
+public class TileData
+{
+    public string id;
+    public int biome;
+    public int q;
+    public int r;
+    public int s;
+}
+
+public class TileController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField]
     AnimationCurve popInCurve;
@@ -10,9 +22,15 @@ public class TileController : MonoBehaviour
     [SerializeField]
     Renderer rend;
 
+    public TileData data;
+
+    [DllImport("__Internal")]
+    private static extern void SendEventRPC(string eventName);
+
     private float delay;
 
     bool hasRisen = false;
+
 
     public void AppearFull()
     {
@@ -55,7 +73,7 @@ public class TileController : MonoBehaviour
     public void Appear()
     {
         hasRisen = false;
-        transform.position = new Vector3(transform.position.x, -1, transform.position.z);
+        transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
         delay = Mathf.Clamp(Camera.main.WorldToViewportPoint(transform.position).x, 0, 1);
         rend.SetPropertyBlock(MapManager.instance.unscoutedMatProps);
         StartCoroutine(AppearCR());
@@ -64,7 +82,7 @@ public class TileController : MonoBehaviour
     IEnumerator AppearCR()
     {
         float t = 0;
-        Vector3 startPos = new Vector3(transform.position.x, -1, transform.position.z);
+        Vector3 startPos = new Vector3(transform.position.x, transform.position.y, transform.position.z);
         Vector3 endPos = new Vector3(
             transform.position.x,
             MapHeightManager.UNSCOUTED_HEIGHT,
@@ -74,9 +92,33 @@ public class TileController : MonoBehaviour
 
         while (t < 1)
         {
-            t += Time.deltaTime * 3;
+            t += Time.deltaTime * 5;
             transform.position = Vector3.LerpUnclamped(startPos, endPos, popInCurve.Evaluate(t));
             yield return null;
         }
+    }
+
+    public void OnPointerEnter(PointerEventData evt)
+    {
+        Vector3Int gridPos = MapManager.instance.grid.WorldToCell(transform.position);
+        Vector3 cellCubicCoords = GridExtensions.GridToCube(gridPos);
+        string eventName = $"tile_pointer_enter_{cellCubicCoords.x}_{cellCubicCoords.y}_{cellCubicCoords.z}";
+#if UNITY_EDITOR
+        // noop
+#elif UNITY_WEBGL
+        SendEventRPC(eventName);
+#endif
+    }
+
+    public void OnPointerExit(PointerEventData evt)
+    {
+        Vector3Int gridPos = MapManager.instance.grid.WorldToCell(transform.position);
+        Vector3 cellCubicCoords = GridExtensions.GridToCube(gridPos);
+        string eventName = $"tile_pointer_exit_{cellCubicCoords.x}_{cellCubicCoords.y}_{cellCubicCoords.z}";
+#if UNITY_EDITOR
+        // noop
+#elif UNITY_WEBGL
+        SendEventRPC(eventName);
+#endif
     }
 }

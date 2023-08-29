@@ -3,7 +3,7 @@
 import { Dialog } from '@app/components/molecules/dialog';
 import { trackEvent, trackPlayer } from '@app/components/organisms/analytics';
 import { Logs } from '@app/components/organisms/logs';
-import { UnityMap } from '@app/components/organisms/unity-map';
+import { UnityMap, Tile } from '@app/components/organisms/unity-map';
 import { formatNameOrId } from '@app/helpers';
 import { ActionBar } from '@app/plugins/action-bar';
 import { ActionContextPanel } from '@app/plugins/action-context-panel';
@@ -17,6 +17,7 @@ import {
     CompoundKeyEncoder,
     ConnectedPlayer,
     EthereumProvider,
+    getCoords,
     NodeSelectors,
     Selection,
     SelectionSelectors,
@@ -47,8 +48,10 @@ export interface ShellProps extends ComponentProps, Partial<SelectionSelectors> 
     blockNumber?: number;
     selection?: Selection;
     unityProvider: UnityProvider;
-    sendMessage: (gameObjectName: string, methodName: string, parameter?: any) => void;
+    sendMessage: (gameObjectName: string, methodName: string, parameter?: string | number) => void;
     mapReady: boolean;
+    addUnityEventListener: (event: string, handler: any) => void;
+    removeUnityEventListener: (event: string, handler: any) => void;
 }
 
 const StyledShell = styled('div')`
@@ -67,6 +70,8 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         selectMobileUnit,
         sendMessage,
         unityProvider,
+        addUnityEventListener,
+        removeUnityEventListener,
         ...otherProps
     } = props;
     const { mobileUnit: selectedMobileUnit, tiles: selectedTiles } = selection || {};
@@ -279,6 +284,16 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         setCombatModalState(CombatModalState.INACTIVE);
     }, []);
 
+    const [hoverTile, setHoverTile] = useState<string>();
+    const onTileEnter = useCallback((t) => {
+        // console.log('enter', t);
+        setHoverTile(t.id);
+    }, []);
+
+    const onTileExit = useCallback((t) => {
+        setHoverTile((prev) => (prev === t.id ? undefined : prev));
+    }, []);
+
     return (
         <StyledShell {...otherProps}>
             {!showAccount && combatModalState !== CombatModalState.INACTIVE && player && world && blockNumber ? (
@@ -385,6 +400,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                             <button onClick={selectAndFocusMobileUnit}>Select Unit</button>
                         </div>
                     )}
+                    {hoverTile}
                 </div>
                 <div className="top-middle"></div>
                 <div className="bottom-middle">
@@ -480,7 +496,29 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                 </div>
             </div>
             <div className="map-container">
-                <UnityMap unityProvider={unityProvider} />
+                <UnityMap unityProvider={unityProvider}>
+                    {world?.tiles
+                        ? world.tiles.map((t) => {
+                              const { q, r, s } = getCoords(t);
+                              return (
+                                  <Tile
+                                      key={t.id}
+                                      sendMessage={sendMessage}
+                                      addUnityEventListener={addUnityEventListener}
+                                      removeUnityEventListener={removeUnityEventListener}
+                                      isReady={mapReady}
+                                      id={t.id}
+                                      biome={hoverTile === t.id ? 0 : t.biome || 0}
+                                      onPointerEnter={onTileEnter}
+                                      onPointerExit={onTileExit}
+                                      q={q}
+                                      r={r}
+                                      s={s}
+                                  />
+                              );
+                          })
+                        : null}
+                </UnityMap>
             </div>
         </StyledShell>
     );

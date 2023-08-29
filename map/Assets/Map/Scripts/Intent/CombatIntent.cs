@@ -134,19 +134,20 @@ public class CombatIntent : IntentHandler
     private Vector3Int[] GetValidTilePositions(GameState state)
     {
         var neighbourTiles = TileHelper.GetTileNeighbours(_mobileUnitPos);
-        var validTiles = neighbourTiles.Where(cellPosCube =>
-        {
-            var tile = MapManager.instance.GetTileByPos(cellPosCube);
-            return tile != null
-                && MapManager.instance.IsDiscoveredTile(cellPosCube)
-                && (
-                    MapElementManager.instance.HasBuilding(cellPosCube)
-                    || MapElementManager.instance.HasEnemy(cellPosCube)
-                )
-                && !TileHelper.HasActiveCombatSession(tile);
-        });
+        /* var validTiles = neighbourTiles.Where(cellPosCube => */
+        /* { */
+        /*     var tile = MapManager.instance.GetTileByPos(cellPosCube); */
+        /*     return tile != null */
+        /*         && MapManager.instance.IsDiscoveredTile(cellPosCube) */
+        /*         && ( */
+        /*             MapElementManager.instance.HasBuilding(cellPosCube) */
+        /*             || MapElementManager.instance.HasEnemy(cellPosCube) */
+        /*         ) */
+        /*         && !TileHelper.HasActiveCombatSession(tile); */
+        /* }); */
 
-        return validTiles.Append(_mobileUnitPos).ToArray();
+        /* return validTiles.Append(_mobileUnitPos).ToArray(); */
+        return neighbourTiles;
     }
 
     // -- Tile Highlighting

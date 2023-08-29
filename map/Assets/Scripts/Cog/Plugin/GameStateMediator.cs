@@ -95,17 +95,21 @@ namespace Cog
         protected void Awake()
         {
             Instance = this;
+            EnvironmentLoaderManager.EnvironmentAssetsLoaded += OnAssetsLoaded;
         }
 
-        protected void Start()
+        private void OnAssetsLoaded()
         {
-            Debug.Log("GameStateMediator::Start()");
-
 #if UNITY_EDITOR
             StartNodeProcess();
 #elif UNITY_WEBGL
             UnityReadyRPC();
 #endif
+        }
+
+        protected void Start()
+        {
+            Debug.Log("GameStateMediator::Start()");
         }
 
         protected void Update()
@@ -534,5 +538,6 @@ namespace Cog
             incoming = new GameState();
             UpdateState(state);
         }
+
     }
 }

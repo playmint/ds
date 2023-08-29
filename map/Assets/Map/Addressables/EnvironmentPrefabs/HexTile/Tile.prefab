@@ -10,9 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 2265421376858709839}
   - component: {fileID: -3611125150982830747}
+  - component: {fileID: 8722709626345881480}
   m_Layer: 7
   m_Name: Tile
-  m_TagString: Untagged
+  m_TagString: Tile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -69,9 +70,27 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  scoutColor: {r: 0.31176567, g: 0.41419315, b: 0.5849056, a: 1}
-  normalColor: {r: 0.44522065, g: 0.5320815, b: 0.6509434, a: 1}
   rend: {fileID: 7295057508587508784}
+  data:
+    id: 
+    biome: 0
+    q: 0
+    r: 0
+    s: 0
+--- !u!64 &8722709626345881480
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8808793146209390760}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 0}
 --- !u!1001 &8285732189812099252
 PrefabInstance:
   m_ObjectHideFlags: 0

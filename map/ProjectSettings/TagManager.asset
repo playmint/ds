@@ -8,6 +8,7 @@ TagManager:
   - Building
   - Enemy
   - Bag
+  - Tile
   layers:
   - Default
   - TransparentFX

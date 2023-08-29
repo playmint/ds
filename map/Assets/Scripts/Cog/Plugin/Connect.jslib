@@ -13,4 +13,10 @@ mergeInto(LibraryManager.library, {
 		);
 	},
 
+	SendEventRPC: function (eventName) {
+		window.dispatchReactUnityEvent(
+			UTF8ToString(eventName)
+		);
+	},
+
 });

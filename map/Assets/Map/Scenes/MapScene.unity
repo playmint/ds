@@ -855,9 +855,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   environmentAssetsLabel:
     m_LabelString: environmentObjects
-  tileContainer: {fileID: 823133098}
   loadDynamic: 1
-  tilePrefab: {fileID: 8808793146209390760, guid: 7983d528686114d8cb4fbc979e031ef0,
+  selectionPrefab: {fileID: 2665214193703751832, guid: 2630194eb020947e2a295fabca3d91b9,
     type: 3}
 --- !u!4 &500274715
 Transform:
@@ -971,7 +970,7 @@ RectTransform:
   - {fileID: 332946493}
   - {fileID: 1759083160}
   m_Father: {fileID: 0}
-  m_RootOrder: 13
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -1628,6 +1627,12 @@ MonoBehaviour:
   grid: {fileID: 913983447}
   scoutColor: {r: 0.31176567, g: 0.41419315, b: 0.5849056, a: 1}
   normalColor: {r: 0.44522065, g: 0.5320815, b: 0.6509434, a: 1}
+  tileAsset:
+    m_AssetGUID: 7983d528686114d8cb4fbc979e031ef0
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  tileContainer: {fileID: 823133098}
 --- !u!4 &755192403
 Transform:
   m_ObjectHideFlags: 0
@@ -1655,7 +1660,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 823133098}
-  - component: {fileID: 823133099}
   m_Layer: 0
   m_Name: TileContainer
   m_TagString: Untagged
@@ -1678,17 +1682,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!210 &823133099
-SortingGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 823133097}
-  m_Enabled: 1
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
 --- !u!1001 &830658347
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2928,7 +2921,7 @@ PrefabInstance:
     - target: {fileID: 2476847598487868881, guid: 6a7a5c2a730a843b4a48249413d547b6,
         type: 3}
       propertyPath: m_RootOrder
-      value: 19
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 2476847598487868881, guid: 6a7a5c2a730a843b4a48249413d547b6,
         type: 3}
@@ -3180,6 +3173,22 @@ Camera:
     type: 3}
   m_PrefabInstance: {fileID: 6518314204280695803}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1911231972
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1911231961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c49b4cc203aa6414fae5c798d1d0e7d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EventMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_MaxRayIntersections: 0
 --- !u!1 &1987954015
 GameObject:
   m_ObjectHideFlags: 0
@@ -3192,6 +3201,7 @@ GameObject:
   - component: {fileID: 1987954018}
   - component: {fileID: 1987954017}
   - component: {fileID: 1987954016}
+  - component: {fileID: 1987954020}
   m_Layer: 0
   m_Name: GroundPlane
   m_TagString: Untagged
@@ -3277,8 +3287,21 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 18
+  m_RootOrder: 19
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!65 &1987954020
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1987954015}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.99999994, y: 1.0000002, z: 6.614264e-15}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2111355694 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6518314203581509760, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
@@ -3447,7 +3470,7 @@ PrefabInstance:
     - target: {fileID: 6406227089287717616, guid: 6aed245e8122049368e7ebb7195afd6e,
         type: 3}
       propertyPath: m_RootOrder
-      value: 14
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 6406227089287717616, guid: 6aed245e8122049368e7ebb7195afd6e,
         type: 3}

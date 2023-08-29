@@ -45,7 +45,7 @@ const CHUNK_BUILDINGS = 50;
 
 // queue of state to send
 let isSending = false;
-let gSendMessage: any;
+// let gSendMessage: any;
 let pendingPlayer: any;
 let pendingPlayers: any;
 let pendingTiles: any;
@@ -140,7 +140,7 @@ export default function ShellPage() {
                     args.push(['GameStateMediator', 'EndOnState']);
 
                     for (let i = 0; i < args.length; i++) {
-                        gSendMessage(...args[i]);
+                        // gSendMessage(...args[i]);
                         await sleep(0);
                     }
                 } finally {
@@ -154,7 +154,7 @@ export default function ShellPage() {
         };
     }, []);
 
-    gSendMessage = sendMessage;
+    // gSendMessage = sendMessage;
 
     useEffect(() => {
         if (!isReady) {
@@ -300,9 +300,11 @@ export default function ShellPage() {
         };
 
         const processReady = () => {
+            console.log('process ready');
             setIsReady(true);
         };
 
+        console.log('process listening');
         addEventListener('sendMessage', processMessage);
         addEventListener('unityReady', processReady);
 
@@ -380,6 +382,8 @@ export default function ShellPage() {
                 selectProvider={selectProvider}
                 wallet={wallet}
                 blockNumber={blockNumber}
+                addUnityEventListener={addEventListener}
+                removeUnityEventListener={removeEventListener}
             />
         </>
     );

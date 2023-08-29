@@ -39,7 +39,7 @@ public class MapInteractionManager : MonoBehaviour
     {
         Cog.GameStateMediator.Instance.EventStateUpdated += OnStateUpdated;
 
-        selectedMarker1.gameObject.SetActive(false);
+        selectedMarker1.gameObject.SetActive(true);
     }
 
     private void Update()
@@ -100,19 +100,15 @@ public class MapInteractionManager : MonoBehaviour
             }
         }
         // Tile mouseover cursor
-        if (
-            GameStateMediator.Instance.gameState != null
-            && GameStateMediator.Instance.gameState.World != null
-        )
-            cursor.gameObject.SetActive(
-                (
-                    MapManager.instance.IsDiscoveredTile(
-                        GridExtensions.GridToCube(CurrentMouseCell)
-                    ) || TileNeighbourValid
-                )
-                    && String.IsNullOrEmpty(mobileUnitID)
-                    && String.IsNullOrEmpty(mapElementID)
-            );
+        cursor.gameObject.SetActive(
+            (
+                MapManager.instance.IsDiscoveredTile(
+                    GridExtensions.GridToCube(CurrentMouseCell)
+                ) || TileNeighbourValid
+            )
+                && String.IsNullOrEmpty(mobileUnitID)
+                && String.IsNullOrEmpty(mapElementID)
+        );
 
         if (Input.GetMouseButtonUp(0))
         {
@@ -156,7 +152,7 @@ public class MapInteractionManager : MonoBehaviour
         {
             if (MapManager.instance.IsDiscoveredTile(cellPosCube))
             { // If it's a discovered tile, select it, if not deselect everything
-                Cog.GameStateMediator.Instance.SendSelectTileMsg(new List<string>() { tile.Id });
+                Cog.GameStateMediator.Instance.SendSelectTileMsg(new List<string>() { tile.id });
                 if (string.IsNullOrEmpty(mobileUnitID))
                 {
                     // If we have a selected unit and we've clicked outside the unit's AOI and we haven't clicked the unit's tile
@@ -275,7 +271,7 @@ public class MapInteractionManager : MonoBehaviour
         }
         else
         {
-            selectedMarker1.gameObject.SetActive(false);
+            /* selectedMarker1.gameObject.SetActive(false); */
         }
     }
 

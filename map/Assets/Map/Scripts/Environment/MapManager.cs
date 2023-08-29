@@ -1,22 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Cog;
 using UnityEngine;
-using UnityEngine.Tilemaps;
+using UnityEngine.AddressableAssets;
 
 public class MapManager : MonoBehaviour
 {
     public static System.Action<Cog.GameState> MapUpdated;
     public static MapManager instance;
-
-    public struct MapCell
-    {
-        public Vector3Int cubicCoords;
-        public int typeID;
-        public int iconID;
-        public string cellName;
-    }
 
     public Grid grid;
 
@@ -26,18 +19,25 @@ public class MapManager : MonoBehaviour
     public MaterialPropertyBlock unscoutedMatProps;
     public MaterialPropertyBlock normalMatProps;
 
-    Dictionary<Vector3Int, Tiles2> tilePositions = new Dictionary<Vector3Int, Tiles2>();
+    [SerializeField]
+    AssetReference tileAsset;
+
+    [SerializeField]
+    Transform tileContainer;
+
+    GameObject prefab;
+
+    Dictionary<Vector3Int, TileController> tilePositions = new Dictionary<Vector3Int, TileController>();
+    Dictionary<string, TileController> tilePositions2 = new Dictionary<string, TileController>();
 
     private int interruptCount = 0;
     private bool _isUpdating;
     private float _chunkMultiplier = 0.01f; //What percentage of tiles to handle per frame
 
+    public Task<bool> ready;
+
     private void Awake()
     {
-#if !UNITY_EDITOR && UNITY_WEBGL
-        // disable WebGLInput.captureAllKeyboardInput so elements in web page can handle keyboard inputs
-        WebGLInput.captureAllKeyboardInput = false;
-#endif
         dynamicMatProps = new MaterialPropertyBlock();
         unscoutedMatProps = new MaterialPropertyBlock();
         normalMatProps = new MaterialPropertyBlock();
@@ -45,116 +45,183 @@ public class MapManager : MonoBehaviour
         unscoutedMatProps.SetColor("_Color", scoutColor);
         normalMatProps.SetColor("_Color", normalColor);
 
-        EnvironmentLoaderManager.EnvironmentAssetsLoaded += WaitForAssets;
         instance = this;
+        ready = LoadAssets();
     }
 
-    private void OnDestroy()
+    private async Task<bool> LoadAssets()
     {
-        EnvironmentLoaderManager.EnvironmentAssetsLoaded -= WaitForAssets;
-    }
-
-    private void WaitForAssets()
-    {
-        Cog.GameStateMediator.Instance.EventStateUpdated += OnStateUpdated;
-        if (Cog.GameStateMediator.Instance.gameState != null)
+        var op = Addressables.LoadAssetAsync<GameObject>(tileAsset);
+        await op.Task;
+        if (op.Result == null)
         {
-            OnStateUpdated(Cog.GameStateMediator.Instance.gameState);
+            Debug.LogError($"TileManager:LoadAssetAsync failed");
+            return false;
         }
+        prefab = op.Result;
+        return true;
     }
+
+    public void SetTileJSON(string json)
+    {
+        TileData data = JsonUtility.FromJson<TileData>(json);
+        SetTile(data);
+    }
+
+    public void SetTile(TileData data)
+    {
+        Vector3Int cellCubicCoords = new Vector3Int(data.q, data.r, data.s);
+        TileController controller;
+        tilePositions2.TryGetValue(data.id, out controller);
+
+        if (controller == null)
+        {
+            Vector3Int gridPos = GridExtensions.CubeToGrid(cellCubicCoords);
+            Vector3 worldPos = grid.CellToWorld(gridPos);
+            if (prefab == null) {
+                Debug.LogError($"TileManager:SetTile attempt to instantiate before asset loaded");
+                return;
+            }
+            GameObject obj = Instantiate(prefab, tileContainer);
+            obj.transform.name = "Tile_" + cellCubicCoords.ToString();
+            obj.transform.position = new Vector3(worldPos.x, -1, worldPos.z);
+            controller = obj.transform.GetComponent<TileController>();
+            tilePositions2[data.id] = controller;
+            tilePositions[cellCubicCoords] = controller;
+        } else {
+            GameObject obj = GameObject.Find("Tile_" + cellCubicCoords.ToString());
+            if (obj == null)
+            {
+                // something gone very wrong, this should not happen
+                // remove from dict and hope for the best
+                tilePositions2.Remove(data.id);
+                return;
+            }
+            controller = obj.GetComponent<TileController>();
+        }
+
+        controller.data = data;
+
+        if (data.biome == 1)
+            controller.AppearFull();
+        else
+            controller.Appear();
+    }
+
+    public void RemoveTile(string id)
+    {
+        TileController controller = tilePositions2[id];
+        if (controller == null)
+        {
+            return;
+        }
+        tilePositions2.Remove(id);
+
+        TileData data = controller.data;
+        if (data == null)
+        {
+            return;
+        }
+
+        Vector3Int cellCubicCoords = new Vector3Int(data.q, data.r, data.s);
+        if (!IsTileAtPosition(cellCubicCoords))
+        {
+            return;
+        }
+        tilePositions.Remove(cellCubicCoords);
+
+        GameObject obj = GameObject.Find("Tile_" + cellCubicCoords.ToString());
+        if (obj == null)
+        {
+            return;
+        }
+        Destroy(obj);
+    }
+
 
     public TileController AddTile(Vector3Int cellCubicCoords, Tiles2 tile)
     {
-        if (!IsTileAtPosition(cellCubicCoords))
-        {
-            tilePositions.Add(cellCubicCoords, tile);
+        /* if (!IsTileAtPosition(cellCubicCoords)) */
+        /* { */
+        /*     tilePositions.Add(cellCubicCoords, tile); */
 
-            Vector3Int gridPos = GridExtensions.CubeToGrid(cellCubicCoords);
-            Vector3 worldPos = grid.CellToWorld(gridPos);
-            TileController tc = EnvironmentLoaderManager.instance.AddTile(
-                worldPos,
-                cellCubicCoords
-            );
+        /*     Vector3Int gridPos = GridExtensions.CubeToGrid(cellCubicCoords); */
+        /*     Vector3 worldPos = grid.CellToWorld(gridPos); */
+        /*     TileController tc = EnvironmentLoaderManager.instance.AddTile( */
+        /*         worldPos, */
+        /*         cellCubicCoords */
+        /*     ); */
 
-            if (IsDiscoveredTile(cellCubicCoords))
-                tc.AppearFull();
-            else
-                tc.Appear();
+        /*     if (IsDiscoveredTile(cellCubicCoords)) */
+        /*         tc.AppearFull(); */
+        /*     else */
+        /*         tc.Appear(); */
 
-            return tc;
-        }
-        else
-        {
-            bool wasDiscoveredTile = IsDiscoveredTile(cellCubicCoords);
-            tilePositions[cellCubicCoords] = tile;
+        /*     return tc; */
+        /* } */
+        /* else */
+        /* { */
+        /*     bool wasDiscoveredTile = IsDiscoveredTile(cellCubicCoords); */
+        /*     tilePositions[cellCubicCoords] = tile; */
 
-            if (!IsDiscoveredTile(cellCubicCoords) && wasDiscoveredTile)
-            {
-                GameObject tileGO = GameObject.Find("Tile_" + cellCubicCoords.ToString());
-                if (tileGO != null)
-                {
-                    TileController tileController = tileGO.GetComponent<TileController>();
-                    tileController.Appear();
-                    return tileController;
-                }
-            }
-            else if (IsDiscoveredTile(cellCubicCoords))
-            {
-                GameObject tileGO = GameObject.Find("Tile_" + cellCubicCoords.ToString());
-                if (tileGO != null)
-                {
-                    TileController tileController = tileGO.GetComponent<TileController>();
-                    tileController.AppearFull();
-                    return tileController;
-                }
-            }
-        }
+        /*     if (!IsDiscoveredTile(cellCubicCoords) && wasDiscoveredTile) */
+        /*     { */
+        /*         GameObject tileGO = GameObject.Find("Tile_" + cellCubicCoords.ToString()); */
+        /*         if (tileGO != null) */
+        /*         { */
+        /*             TileController tileController = tileGO.GetComponent<TileController>(); */
+        /*             tileController.Appear(); */
+        /*             return tileController; */
+        /*         } */
+        /*     } */
+        /*     else if (IsDiscoveredTile(cellCubicCoords)) */
+        /*     { */
+        /*         GameObject tileGO = GameObject.Find("Tile_" + cellCubicCoords.ToString()); */
+        /*         if (tileGO != null) */
+        /*         { */
+        /*             TileController tileController = tileGO.GetComponent<TileController>(); */
+        /*             tileController.AppearFull(); */
+        /*             return tileController; */
+        /*         } */
+        /*     } */
+        /* } */
         return null;
     }
 
     public bool IsDiscoveredTile(Vector3Int cellPosCube)
     {
-        return IsTileAtPosition(cellPosCube) && tilePositions[cellPosCube].Biome != 0;
+        return IsTileAtPosition(cellPosCube) && tilePositions[cellPosCube].data.biome != 0;
     }
 
     public bool IsDecoration(Vector3Int cubePos)
     {
-        Tiles2 tile = GetTileByPos(cubePos);
-        if (tile != null && tile.Building != null && GetTileByPos(cubePos).Building.Kind != null)
-        {
-            string id = GetTileByPos(cubePos).Building.Kind.Id;
-            uint category = BuildingHelper.GetBuildingCategory(id);
-            if (category == 1)
-            {
-                return true;
-            }
-        }
+        /* Tiles2 tile = GetTileByPos(cubePos); */
+        /* if (tile != null && tile.Building != null && GetTileByPos(cubePos).Building.Kind != null) */
+        /* { */
+        /*     string id = GetTileByPos(cubePos).Building.Kind.Id; */
+        /*     uint category = BuildingHelper.GetBuildingCategory(id); */
+        /*     if (category == 1) */
+        /*     { */
+        /*         return true; */
+        /*     } */
+        /* } */
         return false;
     }
 
-    public Tiles2 GetTileByPos(Vector3Int cellPosCube)
+    public TileData GetTileByPos(Vector3Int cellPosCube)
     {
-        Tiles2 t;
-        tilePositions.TryGetValue(cellPosCube, out t);
-        return t;
+        TileController tc;
+        tilePositions.TryGetValue(cellPosCube, out tc);
+        if (tc == null)
+        {
+            return null;
+        }
+        return tc.data;
     }
 
     public bool IsTileAtPosition(Vector3Int cubicCoords)
     {
         return tilePositions.ContainsKey(cubicCoords);
-    }
-
-    private void OnStateUpdated(Cog.GameState state)
-    {
-        // If we get another state update while still updating the previous one,
-        // interrupt it and increase the number of tiles processed per chunk to catch up:
-        if (_isUpdating)
-        {
-            Debug.Log("Map Update Interrupted");
-            interruptCount++;
-            StopAllCoroutines();
-        }
-        StartCoroutine(OnStateUpdatedCR(state));
     }
 
     private IEnumerator OnStateUpdatedCR(Cog.GameState state)
@@ -184,11 +251,14 @@ public class MapManager : MonoBehaviour
 
             // Crudely showing atoms on the map
             Transform tileTransform = AddTile(cellPosCube, tile)?.transform;
+
+            // TODO: move to a GooManger
             if (tile.Atoms != null && tile.Atoms.Count > 0)
             {
                 MapElementManager.instance.CreateGoo(tile.Atoms, cellPosCube, tileTransform);
             }
 
+            // TODO: move to BagManager
             if (hasResource || hasReward)
             {
                 MapElementManager.instance.CreateBag(cellPosCube, tileTransform, "bag" + tile.Id);
@@ -196,6 +266,7 @@ public class MapManager : MonoBehaviour
             else
                 MapElementManager.instance.CheckBagIconRemoved(cellPosCube);
 
+            // TODO: move to a BuildingManager
             if (TileHelper.HasEnemy(tile))
                 MapElementManager.instance.CreateEnemy(
                     cellPosCube,

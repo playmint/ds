@@ -2,15 +2,11 @@
 
 import { ComponentProps } from '@app/types/component-props';
 import { SelectionSelectors } from '@downstream/core';
-import { FunctionComponent, useEffect, useRef, useState } from 'react';
+import { memo, PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
 import { Unity, useUnityContext } from 'react-unity-webgl';
 import { UnityProvider } from 'react-unity-webgl/distribution/types/unity-provider';
 import styled from 'styled-components';
 import { styles } from './unity-map.styles';
-
-export interface UnityMapProps extends ComponentProps, Partial<SelectionSelectors> {
-    unityProvider: UnityProvider;
-}
 
 export const useUnityMap = () => {
     return useUnityContext({
@@ -25,11 +21,103 @@ export const useUnityMap = () => {
     });
 };
 
+type SendMessageFunc = (gameObjectName: string, methodName: string, ...params: any[]) => void;
+
+export interface TileProps {
+    sendMessage: SendMessageFunc;
+    isReady: boolean;
+    id: string;
+    biome: number;
+    q: number;
+    r: number;
+    s: number;
+    onPointerEnter?: (o: { id: string }) => void;
+    onPointerExit?: (o: { id: string }) => void;
+    addUnityEventListener: (event: string, handler: any) => void;
+    removeUnityEventListener: (event: string, handler: any) => void;
+}
+
+export const Tile = memo(
+    ({
+        id,
+        q,
+        r,
+        s,
+        biome,
+        sendMessage,
+        onPointerEnter,
+        onPointerExit,
+        isReady,
+        addUnityEventListener,
+        removeUnityEventListener,
+    }: TileProps) => {
+        useEffect(() => {
+            if (!isReady) {
+                return;
+            }
+            console.log('SetTile', id);
+            sendMessage('MapManager', 'SetTileJSON', JSON.stringify({ id, q, r, s, biome }));
+        }, [id, q, r, s, biome, sendMessage, isReady]);
+
+        useEffect(() => {
+            if (!isReady) {
+                return;
+            }
+            return () => {
+                if (!isReady) {
+                    return;
+                }
+                console.log('RemoveTile', id);
+                sendMessage('MapManager', 'RemoveTile', id);
+            };
+        }, [id, sendMessage, isReady]);
+
+        const pointerEnterHandler = useCallback(() => {
+            if (!onPointerEnter) {
+                return;
+            }
+            onPointerEnter({ id });
+            // console.log('fired pointerenter', id);
+        }, [id, onPointerEnter]);
+
+        const pointerExitHandler = useCallback(() => {
+            if (!onPointerExit) {
+                return;
+            }
+            onPointerExit({ id });
+            // console.log('fired pointerexit', id);
+        }, [id, onPointerExit]);
+
+        useEffect(() => {
+            const eventName = `tile_pointer_enter_${q}_${r}_${s}`;
+            addUnityEventListener(eventName, pointerEnterHandler);
+            // console.log('listening', eventName);
+            return () => {
+                removeUnityEventListener(eventName, pointerEnterHandler);
+            };
+        }, [addUnityEventListener, removeUnityEventListener, pointerEnterHandler, q, r, s]);
+
+        useEffect(() => {
+            const eventName = `tile_pointer_exit_${q}_${r}_${s}`;
+            addUnityEventListener(eventName, pointerExitHandler);
+            return () => {
+                removeUnityEventListener(eventName, pointerExitHandler);
+            };
+        }, [addUnityEventListener, removeUnityEventListener, pointerExitHandler, q, r, s]);
+
+        return null;
+    }
+);
+
 const StyledUnityMap = styled('div')`
     ${styles}
 `;
 
-export const UnityMap: FunctionComponent<UnityMapProps> = ({ unityProvider, ...otherProps }: UnityMapProps) => {
+export interface UnityMapProps extends ComponentProps, Partial<SelectionSelectors> {
+    unityProvider: UnityProvider;
+}
+
+export const UnityMap = ({ unityProvider, children, ...otherProps }: PropsWithChildren<UnityMapProps>) => {
     // We'll use a state to store the device pixel ratio.
     const [devicePixelRatio, setDevicePixelRatio] = useState(window.devicePixelRatio);
     const canvasRef = useRef(null);
@@ -91,6 +179,7 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ unityProvider, ...o
     return (
         <StyledUnityMap {...otherProps}>
             <Unity ref={canvasRef} unityProvider={unityProvider} devicePixelRatio={devicePixelRatio} tabIndex={0} />
+            {children}
         </StyledUnityMap>
     );
 };
