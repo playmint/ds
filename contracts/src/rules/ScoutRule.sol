@@ -72,7 +72,7 @@ contract ScoutRule is Rule {
     int16 private constant GOO_BLUE_OFFSET_Y = 10; // 0.33 * 30
     int16 private constant GOO_RED_OFFSET_X = 53; // 0.66 * 80
     int16 private constant GOO_RED_OFFSET_Y = 20; // 0.66 * 30
-    int16 private constant GOO_SCALE = 5;
+    int16 private constant GOO_SCALE = 15;
 
     function _generateAtomValues(State state, bytes24 targetTile, int16[3] memory coords) private {
         uint64[3] memory atoms;
@@ -120,8 +120,8 @@ contract ScoutRule is Rule {
         atoms[GOO_GREEN] = uint64(
             uint128(
                 Math.mul(
-                    greenGoo,
-                    Math.fromUInt(((rnd & 0xFF) >> 2) + 192) // players are gaurenteed 75% of the potential. Use Math.fromInt(255) to get the full potential
+                    greenPerlin,
+                    Math.fromUInt(255) // players are gaurenteed 75% of the potential. Use Math.fromInt(255) to get the full potential
                 ) >> (64)
             )
         );
@@ -129,7 +129,7 @@ contract ScoutRule is Rule {
             uint128(
                 Math.mul(
                     bluePerlin,
-                    Math.fromUInt((((rnd >> 8) & 0xFF) >> 2) + 192)
+                    Math.fromUInt(255)
                 ) >> (64)
             )
         );
@@ -137,7 +137,7 @@ contract ScoutRule is Rule {
             uint128(
                 Math.mul(
                     redPerlin,
-                    Math.fromUInt((((rnd >> 16) & 0xFF) >> 2) + 192)
+                    Math.fromUInt(255)
                 ) >> (64)
             )
         );
