@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 3066246788535697536}
   - component: {fileID: 5558177901641226351}
   - component: {fileID: 2375076737720118635}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Block_Cactus_Outline
   m_TagString: Untagged
   m_Icon: {fileID: 0}
