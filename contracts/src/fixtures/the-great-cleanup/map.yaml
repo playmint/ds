@@ -59,7 +59,7 @@ spec:
 kind: Building
 spec:
   name: Slime
-  location: [0, -12, 12]
+  location: [-14, 22, -8]
 
 ---
 kind: Building
