@@ -110,6 +110,7 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull
     const description = building?.kind?.description?.value;
 
     const { q, r, s } = selectedTile ? getCoords(selectedTile) : { q: 0, r: 0, s: 0 };
+    const gooRates = selectedTile ? getGooRates(selectedTile) : [];
 
     return (
         <StyledActionContextPanel className="action">
@@ -161,6 +162,12 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull
             <span className="label" style={{ width: '100%', marginTop: '2rem' }}>
                 <strong>COORDINATES:</strong> {`${q}, ${r}, ${s}`}
             </span>
+            {gooRates.map((goo) => (
+                <span key={goo.name} className="label" style={{ width: '30%' }}>
+                    <strong>{goo.name.toUpperCase().slice(0, 1)}:</strong>{' '}
+                    {`${Math.floor(goo.gooPerSec * 100) / 100}/s`}
+                </span>
+            ))}
             {author && (
                 <span className="label">
                     <strong>AUTHOR:</strong> {author.addr}
