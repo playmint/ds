@@ -15,6 +15,11 @@ const baseStyles = (_: Partial<ShellProps>) => css`
     display: flex;
     flex-direction: column;
 
+    .controls {
+        width: 100%;
+        margin-bottom: 2rem;
+    }
+
     > .map-container {
         position: absolute;
         top: 0;
@@ -130,6 +135,7 @@ const baseStyles = (_: Partial<ShellProps>) => css`
             > .shield {
                 position: absolute;
                 left: 0.5rem;
+                top: -2.5rem;
                 width: 8rem;
             }
 
@@ -206,7 +212,7 @@ const baseStyles = (_: Partial<ShellProps>) => css`
         }
         > p {
             margin: 2rem 0;
-            font-size: 2rem;
+            font-size: 1.6rem;
         }
     }
 `;

@@ -29,6 +29,9 @@ const baseStyles = (_: Partial<ActionContextPanelProps>) => css`
         padding: 0 !important;
         border-bottom: 0 !important;
     }
+    > .description {
+        margin-bottom: 2rem;
+    }
     .process {
         text-align: center;
         width: 100%;
@@ -51,8 +54,40 @@ const baseStyles = (_: Partial<ActionContextPanelProps>) => css`
         }
     }
 
-    .secondary-action-button {
-        margin: 0 auto;
+    .control {
+        position: relative;
+        background: rgba(20, 48, 99, 0.85);
+        color: white;
+        margin: 2.2rem;
+        padding: 2rem;
+        display: flex;
+        align-items: center;
+
+        .guide {
+            width: 50%;
+        }
+
+        form {
+            width: 50%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .cancel {
+            position: absolute;
+            top: -1rem;
+            right: -1rem;
+            width: 3.2rem;
+            height: 3.2rem;
+            border-radius: 20px;
+            border: 0;
+            border: none;
+            border-bottom: 3px solid #b7c5e0;
+            padding: 0;
+            font-size: 2.2rem;
+            font-weight: 800;
+            opacity: 0.9;
+        }
     }
 
     .label {
@@ -63,7 +98,6 @@ const baseStyles = (_: Partial<ActionContextPanelProps>) => css`
         overflow: hidden;
         text-overflow: ellipsis;
         display: inline-block;
-        margin: 2rem 0.1rem 0rem 0;
         opacity: 0.4;
     }
 `;

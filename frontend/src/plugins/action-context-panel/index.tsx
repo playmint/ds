@@ -1,6 +1,6 @@
 /** @format */
 import { TileAction } from '@app/components/organisms/tile-action';
-import { getCoords, getNeighbours, getTileDistance } from '@app/helpers/tile';
+import { getCoords, getGooRates, getNeighbours, getTileDistance } from '@app/helpers/tile';
 import { Bag } from '@app/plugins/inventory/bag';
 import { BuildingInventory } from '@app/plugins/inventory/building-inventory';
 import { getBuildingEquipSlot, getBuildingId } from '@app/plugins/inventory/helpers';
@@ -53,12 +53,8 @@ interface KeyedThing {
     key: number;
 }
 
-const ImageConstruct = () => <img src="/tile-construct.png" alt="" className="building-image" width="33%" />;
-const ImageAvailable = () => <img src="/tile-grass.png" alt="" className="building-image" />;
 const ImageBuilding = () => <img src="/building-with-flag.png" alt="" className="building-image" />;
 const ImageEnemy = () => <img src="/enemy.png" alt="" className="building-image" />;
-const ImageScouting = () => <img src="/tile-scouting.png" alt="" className="building-image" width="33%" />;
-const ImageSelecting = () => <img src="/tile-selecting.png" alt="" className="building-image" width="33%" />;
 
 const byName = (a: MaybeNamedThing, b: MaybeNamedThing) => {
     return a.name && b.name && a.name.value > b.name.value ? 1 : -1;
@@ -113,6 +109,9 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull
     const name = building?.kind?.name?.value ?? 'Unnamed Building';
     const description = building?.kind?.description?.value;
 
+    const { q, r, s } = selectedTile ? getCoords(selectedTile) : { q: 0, r: 0, s: 0 };
+    const gooRates = selectedTile ? getGooRates(selectedTile) : [];
+
     return (
         <StyledActionContextPanel className="action">
             <h3>{name}</h3>
@@ -160,6 +159,15 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull
                 </Fragment>
             )}
             {!showFull && selectedTile && <TileInventory tile={selectedTile} />}
+            <span className="label" style={{ width: '100%', marginTop: '2rem' }}>
+                <strong>COORDINATES:</strong> {`${q}, ${r}, ${s}`}
+            </span>
+            {gooRates.map((goo) => (
+                <span key={goo.name} className="label" style={{ width: '30%' }}>
+                    <strong>{goo.name.toUpperCase().slice(0, 1)}:</strong>{' '}
+                    {`${Math.floor(goo.gooPerSec * 100) / 100}/s`}
+                </span>
+            ))}
             {author && (
                 <span className="label">
                     <strong>AUTHOR:</strong> {author.addr}
@@ -170,16 +178,6 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull
                     <strong>OWNER:</strong> {owner.addr}
                 </span>
             )}
-        </StyledActionContextPanel>
-    );
-};
-
-const TileMultiSelected: FunctionComponent<ActionContextPanelProps> = (_props) => {
-    return (
-        <StyledActionContextPanel className="action">
-            <h3>Multiple Tiles Selected</h3>
-            <span className="sub-title">Selecting...</span>
-            <ImageAvailable />
         </StyledActionContextPanel>
     );
 };
@@ -204,19 +202,43 @@ const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player }) => {
 
     const visibleUnits = tileMobileUnits.filter(excludeSelected);
 
-    if (visibleUnits.length === 0 && selectedTile?.bags.length == 0) {
+    const lastTile = selectedTiles?.slice(-1, 1).find(() => true);
+    if (!lastTile) {
         return null;
     }
+    const { q, r, s } = getCoords(lastTile);
+    const gooRates = getGooRates(lastTile);
+    const topGooRate = gooRates.length > 0 ? Math.floor(gooRates[0].gooPerSec * 100) / 100 : 0;
+    const topGooName = gooRates.length > 0 ? gooRates[0].name : '';
+    const hasSomeGoo = topGooRate >= 0.1;
+    const hasLotsGoo = topGooRate >= 0.3;
+
+    const tileName = hasSomeGoo ? `${topGooName.toUpperCase()} GOO TILE` : `TILE`;
+    const tileDescription = hasLotsGoo
+        ? `A tile rich in ${topGooName} goo! ${topGooName} goo extractors will be very effective here`
+        : hasSomeGoo
+        ? `The tile has some ${topGooName} goo, extractors that need ${topGooName} goo will work well here`
+        : undefined;
 
     return (
         <StyledActionContextPanel className="action">
-            <h3 style={{ marginBottom: '2rem' }}>Tile contents</h3>
+            <h3 style={{ marginBottom: '2rem' }}>{tileName}</h3>
+            <div className="description">{tileDescription}</div>
             {tileMobileUnits.length > 0 && (
                 <Fragment>
                     <MobileUnitList mobileUnits={visibleUnits} player={player} tile={selectedTile} />
                 </Fragment>
             )}
             {selectedTile && <TileInventory tile={selectedTile} />}
+            <span className="label" style={{ width: '100%' }}>
+                <strong>COORDINATES:</strong> {`${q}, ${r}, ${s}`}
+            </span>
+            {gooRates.map((goo) => (
+                <span key={goo.name} className="label" style={{ width: '30%' }}>
+                    <strong>{goo.name.toUpperCase().slice(0, 1)}:</strong>{' '}
+                    {`${Math.floor(goo.gooPerSec * 100) / 100}/s`}
+                </span>
+            ))}
         </StyledActionContextPanel>
     );
 };
@@ -226,7 +248,6 @@ const TileUndiscovered: FunctionComponent<unknown> = (_props) => {
         <StyledActionContextPanel className="action">
             <h3>Undiscovered Tile</h3>
             <span className="sub-title">You can&apos;t make out this tile. Scouting should help!</span>
-            <ImageAvailable />
         </StyledActionContextPanel>
     );
 };
@@ -362,108 +383,111 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
         selectedKind;
 
     const help = selectedTile?.building
-        ? 'Can&apos;t build on a tile that already has a building on it'
+        ? `Can't build on a tile that already has a building on it`
         : constructableTile
-        ? 'Select the type of building you&apos;d like to construct'
+        ? `Select the type of building you'd like to construct`
         : 'Choose an adjacent tile to build on';
 
     return (
-        <StyledActionContextPanel className="action">
-            <h3>Constructing</h3>
-            <span className="sub-title">{help}</span>
-            <ImageConstruct />
-            <form onSubmit={handleConstruct}>
-                {constructableTile && (
-                    <>
-                        <div className="select">
-                            <select name="kind" onChange={onChangeSelectedKind} value={selectedKind?.id || ''}>
-                                <option value={''}>Select...</option>
-                                <optgroup label="Your kinds">
-                                    {playerKinds.length > 0 ? (
-                                        playerKinds.map((k) => (
-                                            <option key={k.id} value={k.id}>
-                                                {k.name?.value || k.id}
+        <StyledActionContextPanel>
+            <div className="control">
+                <div className="guide">
+                    <h3>Constructing</h3>
+                    <span className="sub-title">{help}</span>
+                </div>
+                <form onSubmit={handleConstruct}>
+                    {constructableTile && (
+                        <>
+                            <div className="select">
+                                <select name="kind" onChange={onChangeSelectedKind} value={selectedKind?.id || ''}>
+                                    <option value={''}>Select...</option>
+                                    <optgroup label="Your kinds">
+                                        {playerKinds.length > 0 ? (
+                                            playerKinds.map((k) => (
+                                                <option key={k.id} value={k.id}>
+                                                    {k.name?.value || k.id}
+                                                </option>
+                                            ))
+                                        ) : (
+                                            <option key="player-none" disabled={true}>
+                                                You have not deployed any building kinds
                                             </option>
-                                        ))
-                                    ) : (
-                                        <option key="player-none" disabled={true}>
-                                            You have not deployed any building kinds
-                                        </option>
+                                        )}
+                                    </optgroup>
+                                    {extractorKinds.length > 0 && (
+                                        <optgroup label="Extractors">
+                                            {extractorKinds.map((k) => (
+                                                <option key={k.id} value={k.id}>
+                                                    {k.name?.value || k.id}
+                                                </option>
+                                            ))}
+                                        </optgroup>
                                     )}
-                                </optgroup>
-                                {extractorKinds.length > 0 && (
-                                    <optgroup label="Extractors">
-                                        {extractorKinds.map((k) => (
-                                            <option key={k.id} value={k.id}>
-                                                {k.name?.value || k.id}
-                                            </option>
-                                        ))}
-                                    </optgroup>
-                                )}
-                                {blockerKinds.length > 0 && (
-                                    <optgroup label="Blockers">
-                                        {blockerKinds.map((k) => (
-                                            <option key={k.id} value={k.id}>
-                                                {k.name?.value || k.id}
-                                            </option>
-                                        ))}
-                                    </optgroup>
-                                )}
-                                {factoryKinds.length > 0 && (
-                                    <optgroup label="Factories">
-                                        {factoryKinds.map((k) => (
-                                            <option key={k.id} value={k.id}>
-                                                {k.name?.value || k.id}
-                                            </option>
-                                        ))}
-                                    </optgroup>
-                                )}
-                                {enemyKinds.length > 0 && (
-                                    <optgroup label="Enemies">
-                                        {enemyKinds.map((k) => (
-                                            <option key={k.id} value={k.id}>
-                                                {k.name?.value || k.id}
-                                            </option>
-                                        ))}
-                                    </optgroup>
-                                )}
-                                {otherKinds.length > 0 && (
-                                    <optgroup label="Other kinds">
-                                        {otherKinds.map((k) => (
-                                            <option key={k.id} value={k.id}>
-                                                {k.name?.value || k.id}
-                                            </option>
-                                        ))}
-                                    </optgroup>
-                                )}
-                            </select>
-                        </div>
-                        <div className="toggle">
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    checked={showOnlyConstructable}
-                                    onChange={() => setShowOnlyConstructable((prev) => !prev)}
-                                />
-                                <abbr title="Hides building kinds from the list if you do not have items of the type to construct it">
-                                    Hide unconstructable
-                                </abbr>
-                            </label>
-                        </div>
-                        {buildingId && (
-                            <div ref={slotsRef} className="ingredients">
-                                <BuildingInventory buildingId={buildingId} recipe={recipe} />
+                                    {blockerKinds.length > 0 && (
+                                        <optgroup label="Blockers">
+                                            {blockerKinds.map((k) => (
+                                                <option key={k.id} value={k.id}>
+                                                    {k.name?.value || k.id}
+                                                </option>
+                                            ))}
+                                        </optgroup>
+                                    )}
+                                    {factoryKinds.length > 0 && (
+                                        <optgroup label="Factories">
+                                            {factoryKinds.map((k) => (
+                                                <option key={k.id} value={k.id}>
+                                                    {k.name?.value || k.id}
+                                                </option>
+                                            ))}
+                                        </optgroup>
+                                    )}
+                                    {enemyKinds.length > 0 && (
+                                        <optgroup label="Enemies">
+                                            {enemyKinds.map((k) => (
+                                                <option key={k.id} value={k.id}>
+                                                    {k.name?.value || k.id}
+                                                </option>
+                                            ))}
+                                        </optgroup>
+                                    )}
+                                    {otherKinds.length > 0 && (
+                                        <optgroup label="Other kinds">
+                                            {otherKinds.map((k) => (
+                                                <option key={k.id} value={k.id}>
+                                                    {k.name?.value || k.id}
+                                                </option>
+                                            ))}
+                                        </optgroup>
+                                    )}
+                                </select>
                             </div>
-                        )}
-                        <button className="action-button" type="submit" disabled={!canConstruct}>
-                            Confirm Construction
-                        </button>
-                        <button className="secondary-action-button" onClick={clearIntent}>
-                            Cancel Construction
-                        </button>
-                    </>
-                )}
-            </form>
+                            <div className="toggle">
+                                <label>
+                                    <input
+                                        type="checkbox"
+                                        checked={showOnlyConstructable}
+                                        onChange={() => setShowOnlyConstructable((prev) => !prev)}
+                                    />
+                                    <abbr title="Hides building kinds from the list if you do not have items of the type to construct it">
+                                        Hide unconstructable
+                                    </abbr>
+                                </label>
+                            </div>
+                            {buildingId && (
+                                <div ref={slotsRef} className="ingredients">
+                                    <BuildingInventory buildingId={buildingId} recipe={recipe} />
+                                </div>
+                            )}
+                        </>
+                    )}
+                    <button className="action-button" type="submit" disabled={!canConstruct}>
+                        Confirm Construction
+                    </button>
+                    <button onClick={clearIntent} className="cancel">
+                        <i className="bi bi-x" />
+                    </button>
+                </form>
+            </div>
         </StyledActionContextPanel>
     );
 };
@@ -518,24 +542,27 @@ const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selecte
         [selectIntent, selectTiles]
     );
     return (
-        <StyledActionContextPanel className="action">
-            <h3>Moving</h3>
-            <span className="sub-title">Select a tile to add to path</span>
-            <ImageSelecting />
-            <form>
-                <button
-                    className="action-button"
-                    type="button"
-                    onClick={move}
-                    disabled={!canMove}
-                    style={{ opacity: canMove ? 1 : 0.1 }}
-                >
-                    Confirm Move
-                </button>
-                <button className="secondary-action-button" onClick={clearIntent}>
-                    Cancel Move
-                </button>
-            </form>
+        <StyledActionContextPanel>
+            <div className="control">
+                <div className="guide">
+                    <h3>Moving</h3>
+                    <span className="sub-title">Select a tile to add to path</span>
+                </div>
+                <form>
+                    <button
+                        className="action-button"
+                        type="button"
+                        onClick={move}
+                        disabled={!canMove}
+                        style={{ opacity: canMove ? 1 : 0.1 }}
+                    >
+                        Confirm Move
+                    </button>
+                    <button onClick={clearIntent} className="cancel">
+                        <i className="bi bi-x" />
+                    </button>
+                </form>
+            </div>
         </StyledActionContextPanel>
     );
 };
@@ -587,18 +614,26 @@ const Combat: FunctionComponent<CombatProps> = ({
     };
 
     return (
-        <StyledActionContextPanel className="action">
-            <h3>Combat</h3>
-            <span className="sub-title">Select a tile to add to combat</span>
-            <ImageSelecting />
-            <form>
-                <button className="action-button" type="button" onClick={handleShowCombatModal} disabled={!canAttack}>
-                    Start Combat
-                </button>
-                <button className="secondary-action-button" onClick={clearIntent}>
-                    Cancel Combat
-                </button>
-            </form>
+        <StyledActionContextPanel>
+            <div className="control">
+                <div className="guide">
+                    <h3>Combat</h3>
+                    <span className="sub-title">Select a tile to attack</span>
+                </div>
+                <form>
+                    <button
+                        className="action-button"
+                        type="button"
+                        onClick={handleShowCombatModal}
+                        disabled={!canAttack}
+                    >
+                        Confirm Attack
+                    </button>
+                    <button onClick={clearIntent} className="cancel">
+                        <i className="bi bi-x" />
+                    </button>
+                </form>
+            </div>
         </StyledActionContextPanel>
     );
 };
@@ -647,30 +682,33 @@ const Scout: FunctionComponent<ScoutProps> = ({ selectTiles, selectIntent, selec
     const canScout = mobileUnit && player && scoutableTiles.length > 0;
     const note = canScout ? 'Click scout to reveal selected tiles' : 'Select tiles you want to reveal';
     return (
-        <StyledActionContextPanel className="action">
-            <h3>Scouting</h3>
-            <span className="sub-title">{note}</span>
-            <ImageScouting />
-            <form>
-                <button
-                    className="action-button"
-                    type="button"
-                    onClick={scout}
-                    disabled={!canScout}
-                    style={{ opacity: canScout ? 1 : 0.1 }}
-                >
-                    Confirm Scout
-                </button>
-                <button className="secondary-action-button" onClick={clearIntent}>
-                    Cancel Scout
-                </button>
-            </form>
+        <StyledActionContextPanel>
+            <div className="control">
+                <div className="guide">
+                    <h3>Scouting</h3>
+                    <span className="sub-title">{note}</span>
+                </div>
+                <form>
+                    <button
+                        className="action-button"
+                        type="button"
+                        onClick={scout}
+                        disabled={!canScout}
+                        style={{ opacity: canScout ? 1 : 0.1 }}
+                    >
+                        Confirm Scout
+                    </button>
+                    <button onClick={clearIntent} className="cancel">
+                        <i className="bi bi-x" />
+                    </button>
+                </form>
+            </div>
         </StyledActionContextPanel>
     );
 };
 
-export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({ onShowCombatModal }) => {
-    const { selectIntent, intent, tiles, mobileUnit, selectTiles } = useSelection();
+export const TileInfoPanel: FunctionComponent<ActionContextPanelProps> = () => {
+    const { selectIntent, tiles, mobileUnit, selectTiles } = useSelection();
     const player = usePlayer();
 
     const selectedTiles = tiles || [];
@@ -688,6 +726,49 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({
         : [];
 
     const canUse = useableTiles.length > 0 && mobileUnit;
+    const selectedTile = selectedTiles?.slice(-1).find(() => true);
+
+    if (selectedTile) {
+        if (selectedTile.biome == BiomeKind.UNDISCOVERED) {
+            return <TileUndiscovered />;
+        } else if (!selectedTile.building) {
+            return <TileAvailable player={player} />;
+        } else if (selectedTile.building) {
+            if (!canUse) {
+                return (
+                    <TileBuilding
+                        building={selectedTile.building}
+                        world={world}
+                        showFull={false}
+                        selectIntent={selectIntent}
+                        selectTiles={selectTiles}
+                    />
+                );
+            } else {
+                return (
+                    <TileBuilding
+                        player={player}
+                        building={selectedTile.building}
+                        world={world}
+                        showFull={true}
+                        selectIntent={selectIntent}
+                        selectTiles={selectTiles}
+                    />
+                );
+            }
+        } else {
+            return null; // fallback, don't expect this state
+        }
+    } else {
+        return null;
+    }
+};
+
+export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({ onShowCombatModal }) => {
+    const { selectIntent, intent, tiles, mobileUnit, selectTiles } = useSelection();
+    const player = usePlayer();
+
+    const selectedTiles = tiles || [];
 
     if (intent === CONSTRUCT_INTENT) {
         return (
@@ -731,42 +812,6 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({
             />
         );
     } else {
-        if (selectedTiles.length === 1) {
-            const selectedTile = selectedTiles[0];
-            if (selectedTile.biome == BiomeKind.UNDISCOVERED) {
-                return <TileUndiscovered />;
-            } else if (!selectedTile.building) {
-                return <TileAvailable player={player} />;
-            } else if (selectedTile.building) {
-                if (!canUse) {
-                    return (
-                        <TileBuilding
-                            building={selectedTile.building}
-                            world={world}
-                            showFull={false}
-                            selectIntent={selectIntent}
-                            selectTiles={selectTiles}
-                        />
-                    );
-                } else {
-                    return (
-                        <TileBuilding
-                            player={player}
-                            building={selectedTile.building}
-                            world={world}
-                            showFull={true}
-                            selectIntent={selectIntent}
-                            selectTiles={selectTiles}
-                        />
-                    );
-                }
-            } else {
-                return null; // fallback, don't expect this state
-            }
-        } else if (selectedTiles.length > 1) {
-            return <TileMultiSelected />;
-        } else {
-            return null;
-        }
+        return null;
     }
 };

@@ -64,8 +64,9 @@ Shader "Hidden/Box Blur"
                 float2 res = _MainTex_TexelSize.xy;
                 half4 sum = 0;
                 int samples = 2 * _rBlurStrength + 1;
+                float y;
 
-                for (float y = 0; y < samples; y++)
+                for (y = 0; y < samples; y++)
                 {
                     float2 offset = float2(0, y - _rBlurStrength);
                     sum.r += SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv + offset * res).r;
@@ -74,7 +75,7 @@ Shader "Hidden/Box Blur"
 
                 samples = 2 * _gBlurStrength + 1;
 
-                for (float y = 0; y < samples; y++)
+                for (y = 0; y < samples; y++)
                 {
                     float2 offset = float2(0, y - _gBlurStrength);
                     sum.g += SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv + offset * res).g;
@@ -83,7 +84,7 @@ Shader "Hidden/Box Blur"
 
                 samples = 2 * _bBlurStrength + 1;
 
-                for (float y = 0; y < samples; y++)
+                for (y = 0; y < samples; y++)
                 {
                     float2 offset = float2(0, y - _bBlurStrength);
                     sum.b += SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv + offset * res).b;
@@ -92,7 +93,7 @@ Shader "Hidden/Box Blur"
 
                 samples = 2 * _aBlurStrength + 1;
 
-                for (float y = 0; y < samples; y++)
+                for (y = 0; y < samples; y++)
                 {
                     float2 offset = float2(0,y - _aBlurStrength);
                     sum.a += SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv + offset * res).a;
@@ -115,8 +116,9 @@ Shader "Hidden/Box Blur"
                 float2 res = _MainTex_TexelSize.xy;
                 half4 sum = 0;
                 int samples = 2 * _rBlurStrength + 1;
+                float y;
 
-                for (float y = 0; y < samples; y++)
+                for (y = 0; y < samples; y++)
                 {
                     float2 offset = float2(y - _rBlurStrength,0);
                     sum.r += SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv + offset * res).r;
@@ -125,7 +127,7 @@ Shader "Hidden/Box Blur"
 
                 samples = 2 * _gBlurStrength + 1;
 
-                for (float y = 0; y < samples; y++)
+                for (y = 0; y < samples; y++)
                 {
                     float2 offset = float2(y - _gBlurStrength,0);
                     sum.g += SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv + offset * res).g;
@@ -134,7 +136,7 @@ Shader "Hidden/Box Blur"
 
                 samples = 2 * _bBlurStrength + 1;
 
-                for (float y = 0; y < samples; y++)
+                for (y = 0; y < samples; y++)
                 {
                     float2 offset = float2(y - _bBlurStrength,0);
                     sum.b += SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv + offset * res).b;
@@ -143,7 +145,7 @@ Shader "Hidden/Box Blur"
 
                 samples = 2 * _aBlurStrength + 1;
 
-                for (float y = 0; y < samples; y++)
+                for (y = 0; y < samples; y++)
                 {
                     float2 offset = float2(y - _aBlurStrength,0);
                     sum.a += SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv + offset * res).a;

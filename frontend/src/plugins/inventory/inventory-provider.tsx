@@ -148,9 +148,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         );
 
         pickedUpItemRef.current.quantity -= transferQuantity;
-        if (pickedUpItemRef.current.quantity == 0) {
-            clearPickedUpItem();
-        }
+        clearPickedUpItem();
     };
 
     const isTransferInfoEqual = (a: TransferInfo, b: TransferInfo) => {
