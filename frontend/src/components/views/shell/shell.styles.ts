@@ -135,6 +135,7 @@ const baseStyles = (_: Partial<ShellProps>) => css`
             > .shield {
                 position: absolute;
                 left: 0.5rem;
+                top: -2.5rem;
                 width: 8rem;
             }
 
