@@ -158,8 +158,8 @@ contract ExtractionRule is Rule {
         uint256 x = atomVal > 32 ? atomVal - 32 : 0;
         int128 baseSecsPerGoo = Math.fromUInt(120).mul(Math.fromUInt(98).div(Math.fromUInt(100)).pow(x));
 
-        if (atomVal >= 200) return baseSecsPerGoo.div(Math.fromUInt(4));
-        else if (atomVal >= 170) return baseSecsPerGoo.div(Math.fromUInt(2));
+        if (atomVal >= 165) return baseSecsPerGoo.div(Math.fromUInt(4));
+        else if (atomVal >= 155) return baseSecsPerGoo.div(Math.fromUInt(2));
         else return baseSecsPerGoo;
     }
 
