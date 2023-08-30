@@ -8,7 +8,7 @@ RUN apt-get update && \
 SHELL ["/bin/bash", "-c"]
 ENV PATH "/root/.foundry/bin:$PATH"
 RUN curl -L https://foundry.paradigm.xyz | bash \
-    && foundryup \
+    && foundryup --version nightly-ca67d15f4abd46394b324c50e21e66f306a1162d \
     && which forge
 
 # copy in contracts
