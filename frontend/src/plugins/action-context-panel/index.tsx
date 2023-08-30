@@ -53,12 +53,8 @@ interface KeyedThing {
     key: number;
 }
 
-const ImageConstruct = () => <img src="/tile-construct.png" alt="" className="building-image" width="33%" />;
-const ImageAvailable = () => <img src="/tile-grass.png" alt="" className="building-image" />;
 const ImageBuilding = () => <img src="/building-with-flag.png" alt="" className="building-image" />;
 const ImageEnemy = () => <img src="/enemy.png" alt="" className="building-image" />;
-const ImageScouting = () => <img src="/tile-scouting.png" alt="" className="building-image" width="33%" />;
-const ImageSelecting = () => <img src="/tile-selecting.png" alt="" className="building-image" width="33%" />;
 
 const byName = (a: MaybeNamedThing, b: MaybeNamedThing) => {
     return a.name && b.name && a.name.value > b.name.value ? 1 : -1;
@@ -245,7 +241,6 @@ const TileUndiscovered: FunctionComponent<unknown> = (_props) => {
         <StyledActionContextPanel className="action">
             <h3>Undiscovered Tile</h3>
             <span className="sub-title">You can&apos;t make out this tile. Scouting should help!</span>
-            <ImageAvailable />
         </StyledActionContextPanel>
     );
 };
