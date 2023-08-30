@@ -6,12 +6,11 @@ import { Logs } from '@app/components/organisms/logs';
 import { UnityMap } from '@app/components/organisms/unity-map';
 import { formatNameOrId } from '@app/helpers';
 import { ActionBar } from '@app/plugins/action-bar';
-import { ActionContextPanel } from '@app/plugins/action-context-panel';
+import { ActionContextPanel, TileInfoPanel } from '@app/plugins/action-context-panel';
 import { CombatModal } from '@app/plugins/combat/combat-modal';
 import { CombatRewards } from '@app/plugins/combat/combat-rewards';
 import { CombatSummary } from '@app/plugins/combat/combat-summary';
 import { MobileUnitInventory } from '@app/plugins/inventory/mobile-unit-inventory';
-import { TileCoords } from '@app/plugins/tile-coords';
 import { ComponentProps } from '@app/types/component-props';
 import {
     CompoundKeyEncoder,
@@ -365,36 +364,47 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                     <Logs className="logs" />
                 </div>
                 <div className="bottom-left">
-                    {selectedTiles && selectedTiles.length > 0 && blockNumber && (
-                        <Fragment>
-                            {selectedTiles[0].sessions.filter((s) => !s.isFinalised).length > 0 && (
-                                <CombatSummary
-                                    className="action"
-                                    selectedTiles={selectedTiles}
-                                    onShowCombatModal={showCombatModal}
-                                    player={player}
-                                    selectedMobileUnit={selectedMobileUnit}
-                                    blockNumber={blockNumber}
-                                />
-                            )}
-                            <TileCoords className="action" selectedTiles={selectedTiles} />
-                        </Fragment>
-                    )}
                     {!isGracePeriod && world && player && player.mobileUnits.length > 0 && !selectedMobileUnit && (
-                        <div className="onboarding" style={{ width: '30rem' }}>
+                        <div className="onboarding" style={{ width: '30rem', background: 'transparent' }}>
                             <button onClick={selectAndFocusMobileUnit}>Select Unit</button>
                         </div>
+                    )}
+                    {player && (
+                        <Fragment>
+                            <div className="mobile-unit-actions">
+                                {(!player || (player && player.mobileUnits.length > 0 && selectedMobileUnit)) && (
+                                    <div className="mobile-unit-selector">
+                                        <img src="/mobile-unit-yours.png" className="shield" alt="" />
+                                        <div className="controls">
+                                            <button className="icon-button" onClick={() => selectNextMobileUnit(-1)}>
+                                                <img src="/icons/prev.png" alt="Previous" />
+                                            </button>
+                                            <span
+                                                className="label"
+                                                onDoubleClick={() => nameEntity(selectedMobileUnit?.id)}
+                                            >
+                                                {formatNameOrId(selectedMobileUnit, 'Unit ')}
+                                            </span>
+                                            <button className="icon-button" onClick={() => selectNextMobileUnit(+1)}>
+                                                <img src="/icons/next.png" alt="Next" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                                {selectedMobileUnit && (
+                                    <MobileUnitInventory className="action" mobileUnit={selectedMobileUnit} />
+                                )}
+                            </div>
+                        </Fragment>
                     )}
                 </div>
                 <div className="top-middle"></div>
                 <div className="bottom-middle">
-                    {selectedTiles && selectedTiles.length > 0 && selectedTiles[0].sessions.length > 0 && (
-                        <CombatRewards
-                            className="action"
-                            selectedTiles={selectedTiles}
-                            player={player}
-                            selectedMobileUnit={selectedMobileUnit}
-                        />
+                    {player && player.mobileUnits.length > 0 && selectedMobileUnit && (
+                        <div className="controls">
+                            <ActionContextPanel onShowCombatModal={showCombatModal} />
+                            <ActionBar />
+                        </div>
                     )}
                 </div>
                 <div className="right">
@@ -443,39 +453,34 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                             )}
                         </div>
                     )}
-                    {player && (
+                    {player && player.mobileUnits.length > 0 && (
+                        <div className="tile-actions">
+                            <TileInfoPanel className="action" onShowCombatModal={showCombatModal} />
+                        </div>
+                    )}
+                    {selectedTiles && selectedTiles.length > 0 && blockNumber && (
                         <Fragment>
-                            <div className="mobile-unit-actions">
-                                {(!player || (player && player.mobileUnits.length > 0 && selectedMobileUnit)) && (
-                                    <div className="mobile-unit-selector">
-                                        <img src="/mobile-unit-yours.png" className="shield" alt="" />
-                                        <div className="controls">
-                                            <button className="icon-button" onClick={() => selectNextMobileUnit(-1)}>
-                                                <img src="/icons/prev.png" alt="Previous" />
-                                            </button>
-                                            <span
-                                                className="label"
-                                                onDoubleClick={() => nameEntity(selectedMobileUnit?.id)}
-                                            >
-                                                {formatNameOrId(selectedMobileUnit, 'Unit ')}
-                                            </span>
-                                            <button className="icon-button" onClick={() => selectNextMobileUnit(+1)}>
-                                                <img src="/icons/next.png" alt="Next" />
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-                                {selectedMobileUnit && (
-                                    <MobileUnitInventory className="action" mobileUnit={selectedMobileUnit} />
-                                )}
-                            </div>
-                            {player.mobileUnits.length > 0 && (
-                                <div className="tile-actions">
-                                    {selectedMobileUnit && <ActionBar className="action" />}
-                                    <ActionContextPanel className="action" onShowCombatModal={showCombatModal} />
-                                </div>
+                            {selectedTiles[0].sessions.filter((s) => !s.isFinalised).length > 0 && (
+                                <CombatSummary
+                                    className="action"
+                                    selectedTiles={selectedTiles}
+                                    onShowCombatModal={showCombatModal}
+                                    player={player}
+                                    selectedMobileUnit={selectedMobileUnit}
+                                    blockNumber={blockNumber}
+                                />
                             )}
                         </Fragment>
+                    )}
+                    {selectedTiles && selectedTiles.length > 0 && selectedTiles[0].sessions.length > 0 && (
+                        <div className="tile-actions">
+                            <CombatRewards
+                                className="action"
+                                selectedTiles={selectedTiles}
+                                player={player}
+                                selectedMobileUnit={selectedMobileUnit}
+                            />
+                        </div>
                     )}
                 </div>
             </div>

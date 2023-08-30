@@ -72,44 +72,37 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
 
     return (
         <StyledActionBar {...otherProps}>
-            <ul className="actions">
-                <li>
-                    <button
-                        className={`action-icon-button ${intent === MOVE_INTENT ? 'active' : ''}`}
-                        disabled={!canMove || intent === MOVE_INTENT}
-                        onClick={() => handleSelectIntent(MOVE_INTENT)}
-                    >
-                        Move
-                    </button>
-                </li>
-                <li style={{ display: 'none' }}>
-                    <button
-                        className={`action-icon-button ${intent === SCOUT_INTENT ? 'active' : ''}`}
-                        disabled={!canScout || intent === SCOUT_INTENT}
-                        onClick={() => handleSelectIntent(SCOUT_INTENT)}
-                    >
-                        Scout
-                    </button>
-                </li>
-                <li>
-                    <button
-                        className={`action-icon-button ${intent === CONSTRUCT_INTENT ? 'active' : ''}`}
-                        disabled={!canConstruct || intent === CONSTRUCT_INTENT}
-                        onClick={() => handleSelectIntent(CONSTRUCT_INTENT)}
-                    >
-                        Build
-                    </button>
-                </li>
-                <li>
-                    <button
-                        className={`action-icon-button ${intent === COMBAT_INTENT ? 'active' : ''}`}
-                        disabled={!canUse || intent === COMBAT_INTENT}
-                        onClick={() => handleSelectIntent(COMBAT_INTENT)}
-                    >
-                        Attack
-                    </button>
-                </li>
-            </ul>
+            <div className="actions">
+                <button
+                    className={`action-icon-button ${intent === MOVE_INTENT ? 'active' : ''}`}
+                    disabled={!canMove || intent === MOVE_INTENT}
+                    onClick={() => handleSelectIntent(MOVE_INTENT)}
+                >
+                    Move
+                </button>
+                <button
+                    className={`action-icon-button ${intent === SCOUT_INTENT ? 'active' : ''}`}
+                    disabled={!canScout || intent === SCOUT_INTENT}
+                    onClick={() => handleSelectIntent(SCOUT_INTENT)}
+                    style={{ display: 'none' }}
+                >
+                    Scout
+                </button>
+                <button
+                    className={`action-icon-button ${intent === CONSTRUCT_INTENT ? 'active' : ''}`}
+                    disabled={!canConstruct || intent === CONSTRUCT_INTENT}
+                    onClick={() => handleSelectIntent(CONSTRUCT_INTENT)}
+                >
+                    Build
+                </button>
+                <button
+                    className={`action-icon-button ${intent === COMBAT_INTENT ? 'active' : ''}`}
+                    disabled={!canUse || intent === COMBAT_INTENT}
+                    onClick={() => handleSelectIntent(COMBAT_INTENT)}
+                >
+                    Attack
+                </button>
+            </div>
         </StyledActionBar>
     );
 };

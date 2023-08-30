@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { WorldTileFragment } from '@downstream/core';
+import { SelectedTileFragment, WorldTileFragment } from '@downstream/core';
 
 export type Coords = Array<any>;
 export interface Locatable {
@@ -52,3 +52,51 @@ export function getNeighbours(tiles: WorldTileFragment[], t: Pick<WorldTileFragm
         getTileByQRS(tiles, q, r + 1, s - 1),
     ].filter((t): t is WorldTileFragment => !!t);
 }
+
+// https://www.notion.so/playmint/Extraction-6b36dcb3f95e4ab8a57cb6b99d24bb8f#cb8cc764f9ef436e9847e631ef12b157
+const GOO_GREEN = 0;
+const GOO_BLUE = 1;
+const GOO_RED = 2;
+
+export const getSecsPerGoo = (atomVal: number) => {
+    if (atomVal < 10) return 0;
+
+    const x = atomVal - 32;
+    const baseSecsPerGoo = 120 * Math.pow(0.98, x);
+
+    if (atomVal >= 200) return baseSecsPerGoo / 4;
+    else if (atomVal >= 170) return baseSecsPerGoo / 2;
+    else return baseSecsPerGoo;
+};
+
+export const getGooPerSec = (atomVal: number) => {
+    const secsPerGoo = getSecsPerGoo(atomVal);
+    return secsPerGoo > 0 ? 1 / secsPerGoo : 0;
+};
+
+export const getGooName = (index: number) => {
+    switch (index) {
+        case GOO_GREEN:
+            return 'green';
+        case GOO_BLUE:
+            return 'blue';
+        case GOO_RED:
+            return 'red';
+    }
+
+    return 'Unknown';
+};
+
+export const getGooRates = (tile: SelectedTileFragment) => {
+    return tile.atoms && tile.atoms.length > 0
+        ? tile.atoms
+              .sort((a, b) => b.weight - a.weight)
+              .map((elm) => {
+                  return {
+                      index: elm.key,
+                      name: getGooName(elm.key),
+                      gooPerSec: getGooPerSec(elm.weight),
+                  };
+              })
+        : [];
+};
