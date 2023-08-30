@@ -31,12 +31,12 @@ public class TravelMarkerController : MonoBehaviour
     {
         Vector3 startOffset = new Vector3(
             startPos.x,
-            MapHeightManager.instance.GetHeightAtPosition(startPos),
+            MapHeightManager.instance.GetHeightAtPosition(startPos) + 0.01f,
             startPos.z
         );
         Vector3 endOffset = new Vector3(
             endPos.x,
-            MapHeightManager.instance.GetHeightAtPosition(endPos),
+            MapHeightManager.instance.GetHeightAtPosition(endPos) + 0.01f,
             endPos.z
         );
         Vector3 worldEndPos = endOffset;

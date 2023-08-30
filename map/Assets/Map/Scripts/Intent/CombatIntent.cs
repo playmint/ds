@@ -219,7 +219,7 @@ public class CombatIntent : IntentHandler
                 );
                 highlight.transform.position = new Vector3(
                     cellPos.x,
-                    MapHeightManager.instance.GetHeightAtPosition(cellPos),
+                    MapHeightManager.instance.GetHeightAtPosition(cellPos) + 0.01f,
                     cellPos.z
                 );
                 spawnedHighlights.Add(cellPosCube, highlight);

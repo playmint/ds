@@ -277,7 +277,7 @@ public class MoveIntent : IntentHandler
                 );
                 highlight.position = new Vector3(
                     highlight.position.x,
-                    MapHeightManager.instance.GetHeightAtPosition(highlight.position),
+                    MapHeightManager.instance.GetHeightAtPosition(highlight.position) + 0.01f,
                     highlight.position.z
                 );
                 lit.Add(space, highlight.gameObject);
