@@ -71,7 +71,7 @@ public class AOIPulseController : MonoBehaviour
                     _spawnedHighlights[i].transform.position.x,
                     MapHeightManager.instance.GetHeightAtPosition(
                         _spawnedHighlights[i].transform.position
-                    ),
+                    ) + 0.01f,
                     _spawnedHighlights[i].transform.position.z
                 );
             }
@@ -79,7 +79,7 @@ public class AOIPulseController : MonoBehaviour
             {
                 _spawnedHighlights[i].transform.position = new Vector3(
                     _spawnedHighlights[i].transform.position.x,
-                    MapHeightManager.UNSCOUTED_HEIGHT,
+                    MapHeightManager.UNSCOUTED_HEIGHT + 0.01f,
                     _spawnedHighlights[i].transform.position.z
                 );
             }

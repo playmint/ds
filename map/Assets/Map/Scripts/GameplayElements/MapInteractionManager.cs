@@ -268,7 +268,7 @@ public class MapInteractionManager : MonoBehaviour
             Vector3 markerPos = MapManager.instance.grid.CellToWorld(CurrentSelectedCell);
             float height = MapHeightManager.UNSCOUTED_HEIGHT;
             if (MapManager.instance.IsDiscoveredTile(cellPosCube))
-                height = MapHeightManager.instance.GetHeightAtPosition(markerPos);
+                height = MapHeightManager.instance.GetHeightAtPosition(markerPos) + 0.01f;
             selectedMarker1.position = new Vector3(markerPos.x, height, markerPos.z);
 
             selectedMarker1.gameObject.SetActive(true);

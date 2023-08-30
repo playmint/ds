@@ -154,13 +154,17 @@ public class MapElementManager : MonoBehaviour
     public void CreateGoo(
         ICollection<Cog.Atoms2> atoms,
         Vector3Int cubicCoords,
-        Transform tileTransform
+        Transform tileTransform,
+        bool hasBuilding
     )
     {
         if (!_spawnedGoo.ContainsKey(cubicCoords))
         {
-            // Find highest goo val
+            if (hasBuilding)
+                return;
+
             var atom = atoms.OrderByDescending(atom => atom.Weight).First();
+            // Find highest goo val
             if (atom.Weight >= smallGooThreshold)
             {
                 GameObject gooPrefab;
@@ -185,6 +189,17 @@ public class MapElementManager : MonoBehaviour
                 var goo = gooGO.GetComponent<GooController>();
                 goo.Setup(atom.Weight >= bigGooThreshold);
                 _spawnedGoo.Add(cubicCoords, goo);
+            }
+        }
+        else
+        {
+            if (hasBuilding)
+            {
+                _spawnedGoo[cubicCoords].Hide();
+            }
+            else
+            {
+                _spawnedGoo[cubicCoords].Show();
             }
         }
     }

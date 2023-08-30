@@ -186,7 +186,12 @@ public class MapManager : MonoBehaviour
             Transform tileTransform = AddTile(cellPosCube, tile)?.transform;
             if (tile.Atoms != null && tile.Atoms.Count > 0)
             {
-                MapElementManager.instance.CreateGoo(tile.Atoms, cellPosCube, tileTransform);
+                MapElementManager.instance.CreateGoo(
+                    tile.Atoms,
+                    cellPosCube,
+                    tileTransform,
+                    tile.Building != null || incompleteBuildings.Contains(tile.Id.Substring(10))
+                );
             }
 
             if (hasResource || hasReward)
