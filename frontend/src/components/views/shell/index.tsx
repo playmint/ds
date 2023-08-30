@@ -345,9 +345,21 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                     )}
                 </Dialog>
             ) : loggingIn ? (
-                <Dialog onClose={() => window.location.reload()} width="304px" height="">
-                    <h3 style={{ padding: 10 }}>APPROVING...</h3>
-                    <div style={{ padding: 10 }}>Confirm transaction in your wallet app</div>
+                <Dialog onClose={() => window.location.reload()} width="350px" height="">
+                    <div style={{ padding: 10, lineHeight: '0px' }}>
+                        <img
+                            src="/loaders/spinner.svg"
+                            width="24"
+                            alt=""
+                            style={{ display: 'inline-block', filter: 'invert(1)' }}
+                        />
+                        <span
+                            className="notice"
+                            style={{ display: 'inline-block', marginLeft: '8px', position: 'relative', top: '-4px' }}
+                        >
+                            Waiting for wallet confirmation
+                        </span>
+                    </div>
                 </Dialog>
             ) : undefined}
 
