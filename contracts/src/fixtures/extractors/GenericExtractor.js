@@ -25,10 +25,10 @@ const getSecsPerGoo = (atomVal) => {
     if (atomVal < 10) return 0;
 
     const x = atomVal - 32;
-    const baseSecsPerGoo = 120 * Math.pow(0.98, x);
+    const baseSecsPerGoo = 120 * Math.pow(0.9775, x);
 
-    if (atomVal >= 200) return baseSecsPerGoo / 4;
-    else if (atomVal >= 170) return baseSecsPerGoo / 2;
+    if (atomVal >= 165) return Math.max(baseSecsPerGoo / 4, 1);
+    else if (atomVal >= 155) return baseSecsPerGoo / 3;
     else return baseSecsPerGoo;
 };
 
