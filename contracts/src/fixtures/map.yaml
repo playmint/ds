@@ -11766,6 +11766,12 @@ spec:
   biome: DISCOVERED
 
 ---
+kind: Building
+spec:
+  name: Large Grass
+  location: [ 13, 10, -23 ]
+
+---
 kind: Tile
 spec:
   location: [ 12, 11, -23 ]
@@ -11907,12 +11913,6 @@ spec:
 kind: Tile
 spec:
   biome: DISCOVERED
-  location: [ 14, 9, -23 ]
-
----
-kind: Building
-spec:
-  name: Large Grass
   location: [ 14, 9, -23 ]
 
 ---
