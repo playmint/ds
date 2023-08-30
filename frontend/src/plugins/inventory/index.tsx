@@ -10,6 +10,7 @@ export interface InventoryProps extends ComponentProps {
     ownerId: string;
     bags: EquipmentSlotFragment[];
     isInteractable: boolean;
+    showIcon?: boolean;
 }
 
 const StyledInventory = styled('div')`
@@ -21,7 +22,7 @@ const StyledInventory = styled('div')`
 `;
 
 export const Inventory: FunctionComponent<InventoryProps> = (props: InventoryProps) => {
-    const { bags, ownerId, isInteractable, ...otherProps } = props;
+    const { bags, ownerId, isInteractable, showIcon, ...otherProps } = props;
 
     return (
         <StyledInventory {...otherProps}>
@@ -33,6 +34,7 @@ export const Inventory: FunctionComponent<InventoryProps> = (props: InventoryPro
                         equipIndex={equipSlot.key}
                         ownerId={ownerId}
                         isInteractable={isInteractable}
+                        showIcon={showIcon}
                         as="li"
                     />
                 ))}

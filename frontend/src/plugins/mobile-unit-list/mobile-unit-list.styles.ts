@@ -10,7 +10,10 @@ import { MobileUnitListProps } from './index';
  * @return Base styles for the mobileUnit list component
  */
 const baseStyles = (_: Partial<MobileUnitListProps>) => css`
-    > .mobileUnit {
+    .mobileUnitListItem {
+        margin-bottom: 2rem;
+    }
+    .mobileUnit {
         position: relative;
         background: #030f25;
         margin-left: 1rem;
@@ -18,7 +21,7 @@ const baseStyles = (_: Partial<MobileUnitListProps>) => css`
         padding: 0.7rem 0 0.7rem 6rem;
         margin-bottom: 2.4rem;
 
-        img {
+        > img {
             position: absolute;
             left: -2rem;
             top: 50%;

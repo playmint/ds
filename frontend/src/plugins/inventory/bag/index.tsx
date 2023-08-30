@@ -13,7 +13,7 @@ export interface BagProps extends ComponentProps {
     bagId?: string;
     ownerId: string;
     equipIndex: number;
-    isInteractable: boolean;
+    isInteractable?: boolean | ((ownerId: string, slot?: ItemSlotFragment) => boolean);
     recipe?: ItemSlotFragment[];
     numBagSlots?: number;
     showIcon?: boolean;
