@@ -20,6 +20,18 @@ const baseStyles = (_: Partial<ActionContextPanelProps>) => css`
         left: -1rem;
     }
 
+    .sub-title {
+        display: block;
+        margin-bottom: 1rem;
+        font-size: 1.3rem;
+        margin-right: 1rem;
+    }
+
+    abbr {
+        display: inline-block;
+        padding-left: 0.6rem;
+    }
+
     .secondary-button {
         color: #ccc;
         text-align: center;

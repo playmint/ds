@@ -10,7 +10,7 @@ import { LogsProps } from './index';
  * @return Base styles for the tile action component
  */
 const baseStyles = (_: Partial<LogsProps>) => css`
-    max-width: 80rem;
+    max-width: 33vw;
     max-height: 20rem;
 
     > .log {

@@ -15,8 +15,8 @@ const baseStyles = (_: Partial<ShellProps>) => css`
     display: flex;
     flex-direction: column;
 
-    .controls {
-        width: 100%;
+    > .controls {
+        width: 33vw;
         margin-bottom: 2rem;
     }
 
@@ -163,11 +163,6 @@ const baseStyles = (_: Partial<ShellProps>) => css`
         width: 30rem;
         color: #fff;
         user-select: none;
-    }
-
-    .sub-title {
-        display: block;
-        margin-bottom: 1.2rem;
     }
 
     .action {
