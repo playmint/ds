@@ -64,7 +64,7 @@ publish: cli
 	(cd cli && $(NPM) version patch && $(NPM) publish)
 
 release: contracts node_modules cli
-	./scripts/release.mjs -i
+	./scripts/release.mjs -i --max-connections 10
 
 clean:
 	rm -rf cli/dist
