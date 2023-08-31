@@ -25,6 +25,7 @@ async function main({
     dryRun,
     gameAddress,
     deploymentName,
+    maxConnections,
 }) {
     // abort if attempt to overrite ds-main or ds-exp
     if (deploymentName === 'main') {
@@ -159,6 +160,7 @@ async function main({
         await check(`apply fixtures`, () => {
             execSync([
                 `ds`,
+                `--max-connections ${maxConnections}`,
                 `--ws-endpoint ${servicesWS}/query`,
                 `--http-endpoint ${servicesURL}/query`,
                 `-k ${deployerPrivateKey}`,
@@ -335,6 +337,11 @@ yargs
         cli.option('dry-run', {
             describe: 'skip contract deploy, dump deploy config, and exit',
             type: 'boolean'
+        });
+        cli.option('max-connections', {
+            describe: 'max connections to use during ds apply',
+            type: 'number',
+            default: 250,
         });
         cli.option('interactive', {
             alias: 'i',
