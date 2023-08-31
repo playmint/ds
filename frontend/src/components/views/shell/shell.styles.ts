@@ -15,11 +15,6 @@ const baseStyles = (_: Partial<ShellProps>) => css`
     display: flex;
     flex-direction: column;
 
-    > .controls {
-        width: 33vw;
-        margin-bottom: 2rem;
-    }
-
     > .map-container {
         position: absolute;
         top: 0;
