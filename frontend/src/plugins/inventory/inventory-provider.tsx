@@ -210,7 +210,14 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
                     }}
                 >
                     <StyledPickedUpItem isPickable={false}>
-                        <img src={pickedUpItemRef.current.icon} alt={pickedUpItemRef.current.name} className="icon" />
+                        <div
+                            className="icon"
+                            style={{
+                                maskImage: `url(${pickedUpItemRef.current.icon})`,
+                                WebkitMaskImage: `url(${pickedUpItemRef.current.icon})`,
+                                backgroundColor: 'white',
+                            }}
+                        ></div>
                         <span className="amount">{pickedUpItemRef.current.quantity}</span>
                     </StyledPickedUpItem>
                 </div>

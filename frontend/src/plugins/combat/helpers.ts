@@ -1,4 +1,4 @@
-import { formatNameOrId } from '@app/helpers';
+import { formatNameOrId, getItemStructure } from '@app/helpers';
 import { ATOM_ATTACK, ATOM_DEFENSE, ATOM_LIFE, CombatAction, EntityState } from '@app/plugins/combat/combat';
 import { CombatParticipantProps } from '@app/plugins/combat/combat-participant';
 import {
@@ -149,26 +149,12 @@ export const getEntityName = (entityID: BytesLike, world: WorldStateFragment) =>
     return formatNameOrId(unit, 'Unit ');
 };
 
-export const getItemStats = (itemId: string) => {
-    return [...itemId]
-        .slice(2)
-        .reduce((bs, b, idx) => {
-            if (idx % 8 === 0) {
-                bs.push('0x');
-            }
-            bs[bs.length - 1] += b;
-            return bs;
-        }, [] as string[])
-        .map((n: string) => Number(BigInt(n)))
-        .slice(-4);
-};
-
 export const getEquipmentStats = (equipmentSlots: EquipmentSlotFragment[]) => {
     return equipmentSlots.reduce(
         (stats, { bag }) => {
             bag.slots.forEach((slot) => {
                 if (slot.balance > 0) {
-                    const [stackable, life, defense, attack] = getItemStats(slot.item.id);
+                    const [stackable, life, defense, attack] = getItemStructure(slot.item.id);
                     if (!stackable) {
                         stats[ATOM_LIFE] += life * LIFE_MUL;
                         stats[ATOM_DEFENSE] += defense;
@@ -186,7 +172,7 @@ export const getMaterialStats = (materials: ItemSlotFragment[]) => {
     return materials.reduce(
         (stats, { item, balance }) => {
             if (balance > 0) {
-                const [_, life, defense, attack] = getItemStats(item.id);
+                const [_, life, defense, attack] = getItemStructure(item.id);
                 stats[ATOM_LIFE] += life * balance;
                 stats[ATOM_DEFENSE] += defense * balance;
                 stats[ATOM_ATTACK] += attack * balance;
