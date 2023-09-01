@@ -54,9 +54,9 @@ export function getNeighbours(tiles: WorldTileFragment[], t: Pick<WorldTileFragm
 }
 
 // https://www.notion.so/playmint/Extraction-6b36dcb3f95e4ab8a57cb6b99d24bb8f#cb8cc764f9ef436e9847e631ef12b157
-const GOO_GREEN = 0;
-const GOO_BLUE = 1;
-const GOO_RED = 2;
+export const GOO_GREEN = 0;
+export const GOO_BLUE = 1;
+export const GOO_RED = 2;
 
 export const getSecsPerGoo = (atomVal: number) => {
     if (atomVal < 70) return 0;
@@ -96,6 +96,7 @@ export const getGooRates = (tile: SelectedTileFragment) => {
                       index: elm.key,
                       name: getGooName(elm.key),
                       gooPerSec: getGooPerSec(elm.weight),
+                      weight: elm.weight,
                   };
               })
         : [];
