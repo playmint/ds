@@ -1,5 +1,6 @@
 /** @format */
 
+import { getItemStructure } from '@app/helpers';
 import { BagItem } from '@app/plugins/inventory/bag-item';
 import { getItemDetails } from '@app/plugins/inventory/helpers';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
@@ -91,19 +92,7 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
         handleDrop(quantity);
     };
 
-    const [isStackableItem] = item
-        ? [...item.itemId]
-              .slice(2)
-              .reduce((bs, b, idx) => {
-                  if (idx % 8 === 0) {
-                      bs.push('0x');
-                  }
-                  bs[bs.length - 1] += b;
-                  return bs;
-              }, [] as string[])
-              .map((n: string) => BigInt(n))
-              .slice(-4)
-        : [false];
+    const [isStackableItem] = item ? getItemStructure(item.itemId) : [false];
 
     const isCompatiblePlaceholder =
         pickedUpItem && ((placeholder && placeholder.item.id === pickedUpItem.transferInfo.itemId) || !placeholder);
@@ -144,7 +133,14 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
                   )
                 : placeholderItem && (
                       <div className="placeholder" title={`${placeholderItem.quantity} ${placeholderItem.name}`}>
-                          <img src={placeholderItem.icon} alt={placeholderItem.name} className="icon" />
+                          <div
+                              className="icon"
+                              style={{
+                                  maskImage: `url(${placeholderItem.icon})`,
+                                  WebkitMaskImage: `url(${placeholderItem.icon})`,
+                                  backgroundColor: 'white',
+                              }}
+                          ></div>
                           <span className="amount">{placeholderItem.quantity}</span>
                       </div>
                   )}

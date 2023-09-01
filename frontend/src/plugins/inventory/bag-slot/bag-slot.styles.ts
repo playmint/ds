@@ -33,8 +33,11 @@ const baseStyles = ({ isDroppable, isDisabled, isInteractable, isInvalid }: BagS
         opacity: 0.3;
 
         .icon {
-            filter: invert(100%);
-            width: 50%;
+            width: 100%;
+            height: 100%;
+            mask-size: 50%;
+            mask-repeat: no-repeat;
+            mask-position: center;
         }
 
         .amount {

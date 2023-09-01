@@ -24,8 +24,11 @@ const baseStyles = ({ isPickable, isInteractable }: BagItemStyleProps) => css`
     cursor: ${isPickable && !isInteractable ? 'pointer' : 'auto'};
 
     .icon {
-        filter: invert(100%);
-        width: 50%;
+        width: 100%;
+        height: 100%;
+        mask-size: 50%;
+        mask-repeat: no-repeat;
+        mask-position: center;
     }
 
     .amount {
