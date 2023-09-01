@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: cfadc4af243297f43b4b36a37e6f96e7
+guid: f8e12ff99eefda8488f78128b7b548e9
 ModelImporter:
   serializedVersion: 21300
   internalIDToNameTable: []
@@ -7,18 +7,8 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Extractor
-    second: {fileID: 2100000, guid: 7b6c97d31c834aa4883d83093675e90f, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Glass
-    second: {fileID: 2100000, guid: c05ceefa9a62172418d0526b986bd396, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Liquid
-    second: {fileID: 2100000, guid: 4c2f20a74b30d654d913eb58ef2ca818, type: 2}
+      name: Extractor_red
+    second: {fileID: 2100000, guid: d4e9509d4ed439d4791fbf8df4c04ebc, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
