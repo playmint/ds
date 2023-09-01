@@ -160,17 +160,13 @@ contract ExtractionRule is Rule {
 
         if (atomVal >= 165) {
             baseSecsPerGoo = Math.mul(baseSecsPerGoo, Math.fromUInt(75).div(Math.fromUInt(100)));
-        } 
-        else if (atomVal >= 155) {
+        } else if (atomVal >= 155) {
             baseSecsPerGoo = Math.mul(baseSecsPerGoo, Math.fromUInt(85).div(Math.fromUInt(100)));
         }
 
         if (baseSecsPerGoo < 4) return 4;
         else return baseSecsPerGoo;
     }
-        
-
-
 
     function _getGooPerSec(uint64 atomVal) private pure returns (int128) {
         int128 secsPerGoo = _getSecsPerGoo(atomVal);
