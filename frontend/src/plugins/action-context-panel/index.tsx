@@ -1,5 +1,5 @@
 /** @format */
-import { PluginContent, TileAction } from '@app/components/organisms/tile-action';
+import { PluginContent } from '@app/components/organisms/tile-action';
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
 import { getCoords, getGooRates, getNeighbours, getTileDistance } from '@app/helpers/tile';
 import { Bag } from '@app/plugins/inventory/bag';
