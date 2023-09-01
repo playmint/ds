@@ -10,7 +10,8 @@ import { ActionBarProps } from './index';
  * @return Base styles for the action bar component
  */
 const baseStyles = (_: Partial<ActionBarProps>) => css`
-    width: 100%;
+    min-width: 33vw;
+    margin-bottom: 1.5rem;
 
     h3 {
         margin-bottom: 0;

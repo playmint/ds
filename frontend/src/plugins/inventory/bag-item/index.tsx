@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { ComponentProps } from '@app/types/component-props';
 import { styles } from './bag-item.styles';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
+import { getItemColorCSS, getItemStructure } from '@app/helpers';
 
 export interface BagItemProps extends ComponentProps {
     name: string;
@@ -56,17 +57,7 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
 
     const isPickable = !isPickedUpItemVisible;
 
-    const [stackable, greenGoo, blueGoo, redGoo] = [...itemId]
-        .slice(2)
-        .reduce((bs, b, idx) => {
-            if (idx % 8 === 0) {
-                bs.push('0x');
-            }
-            bs[bs.length - 1] += b;
-            return bs;
-        }, [] as string[])
-        .map((n: string) => BigInt(n))
-        .slice(-4);
+    const [stackable, greenGoo, blueGoo, redGoo] = getItemStructure(itemId);
 
     const isStackable = !!stackable;
 
@@ -83,7 +74,14 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
             title={tooltip}
         >
             {isPending && <span className="spinner" />}
-            <img src={icon} alt={name} className="icon" />
+            <div
+                className="icon"
+                style={{
+                    maskImage: `url(${icon})`,
+                    WebkitMaskImage: `url(${icon})`,
+                    backgroundColor: getItemColorCSS(itemId),
+                }}
+            ></div>
             {isStackable && <span className="amount">{quantity}</span>}
         </StyledBagItem>
     );

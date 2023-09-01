@@ -1,9 +1,9 @@
 /** @format */
 import { TileAction } from '@app/components/organisms/tile-action';
+import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
 import { getCoords, getGooRates, getNeighbours, getTileDistance } from '@app/helpers/tile';
 import { Bag } from '@app/plugins/inventory/bag';
-import { BuildingInventory } from '@app/plugins/inventory/building-inventory';
-import { getBuildingEquipSlot, getBuildingId } from '@app/plugins/inventory/helpers';
+import { getBagId, getBuildingId } from '@app/plugins/inventory/helpers';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { TileInventory } from '@app/plugins/inventory/tile-inventory';
 import { MobileUnitList } from '@app/plugins/mobile-unit-list';
@@ -13,6 +13,7 @@ import {
     BuildingKindFragment,
     CogAction,
     ConnectedPlayer,
+    ItemSlotFragment,
     SelectedMobileUnitFragment,
     SelectedTileFragment,
     Selector,
@@ -25,10 +26,9 @@ import {
     WorldBuildingFragment,
     WorldTileFragment,
 } from '@downstream/core';
-import React, { Fragment, FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Fragment, FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { styles } from './action-context-panel.styles';
-import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
 
 export interface ActionContextPanelProps extends ComponentProps {
     onShowCombatModal?: (isNewSession: boolean) => void;
@@ -259,8 +259,21 @@ interface ConstructProps {
     player?: ConnectedPlayer;
     mobileUnit?: SelectedMobileUnitFragment;
 }
+
+type SlotSource = {
+    bagId: string;
+    equipKey: number;
+    slotKey: number;
+    balance: number;
+};
+type SlotMap = Map<string, SlotSource[]>;
+
+interface BuildingKindWithOps extends BuildingKindFragment {
+    ops: CogAction[] | undefined;
+}
+
 const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUnit, player, selectIntent }) => {
-    const [selectedKindRaw, selectKind] = useState<undefined | BuildingKindFragment>();
+    const [selectedKindRaw, selectKind] = useState<undefined | BuildingKindWithOps>();
     const [showOnlyConstructable, setShowOnlyConstructable] = useState<boolean>(true);
 
     const selectedTile = selectedTiles.find(() => true);
@@ -276,20 +289,87 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
             ? undefined
             : selectedTile;
     const constructionCoords = constructableTile ? getCoords(constructableTile) : undefined;
-    const { addBagRef, removeBagRef } = useInventory();
-    const world = useWorld();
-    const slotsRef = useRef<HTMLDivElement>(null);
     const kinds = useBuildingKinds();
 
-    const byConstructable = useMemo(() => {
-        if (mobileUnit && showOnlyConstructable) {
-            const unitItems = mobileUnit.bags.flatMap((b) => b.bag.slots.map((s) => s.item.id));
-            return (kind) => kind.materials.every((s) => unitItems.some((id) => s.item.id == id));
-        }
-        return () => true;
-    }, [showOnlyConstructable, mobileUnit]);
+    // build a map of itemid => {slotKey => balance} for player's inventories
+    //
+    const slotMap = mobileUnit?.bags
+        .flatMap((equip) => equip.bag.slots.map((slot) => ({ slot, equip })))
+        .reduce((slotMap, { equip, slot }) => {
+            if (!slot.item) {
+                return slotMap;
+            }
+            const slotSources = slotMap.has(slot.item.id) ? slotMap.get(slot.item.id) : [];
+            if (!slotSources) {
+                return slotMap;
+            }
+            slotSources.push({
+                bagId: equip.bag.id,
+                equipKey: equip.key,
+                slotKey: slot.key,
+                balance: slot.balance,
+            });
+            slotMap.set(slot.item.id, slotSources);
+            return slotMap;
+        }, new Map() as SlotMap);
 
-    const constructableKinds = (kinds || []).filter(byConstructable).sort(byName);
+    const targetBuildingId = constructionCoords
+        ? getBuildingId(constructionCoords.q, constructionCoords.r, constructionCoords.s)
+        : undefined;
+    const targetBagId = targetBuildingId ? getBagId(targetBuildingId) : undefined;
+    const targetEquipKey = 0;
+    const getTransfersForRecipe = useCallback(
+        (recipe: ItemSlotFragment[]): CogAction[] | undefined => {
+            if (!slotMap) {
+                return undefined;
+            }
+            if (!mobileUnit) {
+                return undefined;
+            }
+            if (!targetBagId) {
+                return undefined;
+            }
+            if (!targetBuildingId) {
+                return undefined;
+            }
+            const got = recipe.map((slot) => slot.balance);
+            const ops: CogAction[] = [];
+            for (let i = 0; i < recipe.length; i++) {
+                const available = slotMap.get(recipe[i].item.id);
+                if (!available) {
+                    return undefined;
+                }
+                for (let j = 0; j < available.length; j++) {
+                    const take = Math.min(available[j].balance, got[i]);
+                    got[i] -= take;
+                    ops.push({
+                        name: 'TRANSFER_ITEM_MOBILE_UNIT',
+                        args: [
+                            mobileUnit.id,
+                            [mobileUnit.id, targetBuildingId],
+                            [available[j].equipKey, targetEquipKey],
+                            [available[j].slotKey, recipe[i].key],
+                            targetBagId,
+                            take,
+                        ],
+                    });
+                }
+            }
+            const missing = got.reduce((sum, n) => (sum += n), 0);
+            if (missing > 0) {
+                return undefined;
+            }
+            return ops;
+        },
+        [slotMap, mobileUnit, targetBagId, targetBuildingId]
+    );
+
+    const kindsWithOps = (kinds || [])
+        .sort(byName)
+        .map((kind) => ({ ...kind, ops: getTransfersForRecipe(kind.materials.sort(byKey)) }));
+    const constructableKinds = showOnlyConstructable
+        ? kindsWithOps.filter((kind) => kind.ops && kind.ops.length > 0)
+        : kindsWithOps;
     const playerKinds = constructableKinds.filter((kind) => kind.owner?.id === player?.id);
     const otherKinds = constructableKinds
         .filter((kind) => kind.owner?.id !== player?.id)
@@ -334,66 +414,63 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
         [selectIntent]
     );
 
-    const handleConstruct = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const form = new FormData(e.target as any);
-        const data = Object.fromEntries(form.entries());
-        if (!player) {
-            return;
-        }
-        if (!mobileUnit) {
-            return;
-        }
-        if (!constructableTile) {
-            return;
-        }
+    const canConstruct = selectedKind && selectedKind.ops && selectedKind.ops.length > 0 && constructableTile;
 
-        player
-            .dispatch({
-                name: 'CONSTRUCT_BUILDING_MOBILE_UNIT',
-                args: [
-                    mobileUnit.id,
-                    data.kind,
-                    constructableTile.coords[1],
-                    constructableTile.coords[2],
-                    constructableTile.coords[3],
-                ],
-            })
-            .catch((err) => console.error(`failed construct`, err));
-        clearIntent();
-    };
+    const handleConstruct = useCallback(
+        (e: React.FormEvent<HTMLFormElement>) => {
+            e.preventDefault();
+            const form = new FormData(e.target as any);
+            const data = Object.fromEntries(form.entries());
+            if (!player) {
+                return;
+            }
+            if (!mobileUnit) {
+                return;
+            }
+            if (!constructableTile) {
+                return;
+            }
+            if (!selectedKind || !selectedKind.ops) {
+                return;
+            }
 
-    useEffect(() => {
-        addBagRef(slotsRef);
-        return () => removeBagRef(slotsRef);
-    }, [addBagRef, removeBagRef]);
+            const ops: CogAction[] = [
+                ...selectedKind.ops,
+                {
+                    name: 'CONSTRUCT_BUILDING_MOBILE_UNIT',
+                    args: [
+                        mobileUnit.id,
+                        data.kind,
+                        constructableTile.coords[1],
+                        constructableTile.coords[2],
+                        constructableTile.coords[3],
+                    ],
+                },
+            ];
 
-    const buildingId = constructionCoords
-        ? getBuildingId(constructionCoords.q, constructionCoords.r, constructionCoords.s)
-        : undefined;
-    const equipIndex = 0;
-    const equipSlot = buildingId ? getBuildingEquipSlot(world, buildingId, equipIndex) : undefined;
-    const recipe = selectedKind?.materials.sort(byKey) || [];
-    const canConstruct =
-        recipe.every((ingredient, index) => {
-            const bag = equipSlot && equipSlot.bag;
-            return bag && bag.slots[index] && bag.slots[index].balance >= ingredient.balance;
-        }) &&
-        constructableTile &&
-        selectedKind;
-
+            player.dispatch(...ops).catch((err) => console.error(`failed construct`, err));
+            clearIntent();
+        },
+        [player, mobileUnit, selectedKind, constructableTile, clearIntent]
+    );
+    const costs = selectedKind?.materials.map((slot) => `${slot.balance} ${slot.item?.name?.value || ''}`) || [];
     const help = selectedTile?.building
         ? `Can't build on a tile that already has a building on it`
         : constructableTile
-        ? `Select the type of building you'd like to construct`
+        ? selectedKind
+            ? `${selectedKind.description?.value || ''}`
+            : `Select the type of building you'd like to construct`
         : 'Choose an adjacent tile to build on';
 
     return (
         <StyledActionContextPanel>
             <div className="control">
                 <div className="guide">
-                    <h3>Constructing</h3>
+                    <h3>{selectedKind ? selectedKind.name?.value : 'Construct...'}</h3>
                     <span className="sub-title">{help}</span>
+                    {costs.map((cost, idx) => (
+                        <div key={idx}>{cost}</div>
+                    ))}
                 </div>
                 <form onSubmit={handleConstruct}>
                     {constructableTile && (
@@ -414,6 +491,13 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
                                             </option>
                                         )}
                                     </optgroup>
+                                    {constructableKinds.length === 0 && (
+                                        <optgroup label="Other kinds">
+                                            <option key="none" disabled={true}>
+                                                You do not have enough materials to construct any buildings
+                                            </option>
+                                        </optgroup>
+                                    )}
                                     {extractorKinds.length > 0 && (
                                         <optgroup label="Extractors">
                                             {extractorKinds.map((k) => (
@@ -468,16 +552,11 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
                                         checked={showOnlyConstructable}
                                         onChange={() => setShowOnlyConstructable((prev) => !prev)}
                                     />
-                                    <abbr title="Hides building kinds from the list if you do not have items of the type to construct it">
+                                    <abbr title="Only show building kinds that can be constructed from materials in this unit's inventory">
                                         Hide unconstructable
                                     </abbr>
                                 </label>
                             </div>
-                            {buildingId && (
-                                <div ref={slotsRef} className="ingredients">
-                                    <BuildingInventory buildingId={buildingId} recipe={recipe} />
-                                </div>
-                            )}
                         </>
                     )}
                     <button className="action-button" type="submit" disabled={!canConstruct}>

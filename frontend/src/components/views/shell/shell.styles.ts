@@ -15,11 +15,6 @@ const baseStyles = (_: Partial<ShellProps>) => css`
     display: flex;
     flex-direction: column;
 
-    .controls {
-        width: 100%;
-        margin-bottom: 2rem;
-    }
-
     > .map-container {
         position: absolute;
         top: 0;
@@ -163,11 +158,6 @@ const baseStyles = (_: Partial<ShellProps>) => css`
         width: 30rem;
         color: #fff;
         user-select: none;
-    }
-
-    .sub-title {
-        display: block;
-        margin-bottom: 1.2rem;
     }
 
     .action {
