@@ -103,7 +103,7 @@ PrefabInstance:
     - target: {fileID: 7796857855196861867, guid: d5bff666d70b98d4cb9e06b90e04eb47,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 7796857855196861867, guid: d5bff666d70b98d4cb9e06b90e04eb47,
         type: 3}
@@ -150,6 +150,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8802342354390869936, guid: d5bff666d70b98d4cb9e06b90e04eb47,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.056
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d5bff666d70b98d4cb9e06b90e04eb47, type: 3}
 --- !u!23 &4392196376253484981 stripped
@@ -158,6 +163,28 @@ MeshRenderer:
     type: 3}
   m_PrefabInstance: {fileID: 2453610119776138067}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &5004388841424305218 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7457908500531334929, guid: d5bff666d70b98d4cb9e06b90e04eb47,
+    type: 3}
+  m_PrefabInstance: {fileID: 2453610119776138067}
+  m_PrefabAsset: {fileID: 0}
+--- !u!111 &1563081407632050001
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5004388841424305218}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Animation: {fileID: 7400000, guid: 71dd139166bf05946a653bc2102a9636, type: 2}
+  m_Animations:
+  - {fileID: 7400000, guid: 71dd139166bf05946a653bc2102a9636, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 0
+  m_AnimatePhysics: 0
+  m_CullingType: 0
 --- !u!4 &5636529328674465528 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7796857855196861867, guid: d5bff666d70b98d4cb9e06b90e04eb47,
@@ -341,8 +368,8 @@ MonoBehaviour:
   renderers:
   - {fileID: 6806018015380479383}
   highlightColor: {r: 0.079432175, g: 0.34517217, b: 0.4811321, a: 1}
-  _red: {r: 0.8352941, g: 0.1882353, b: 0.5137255, a: 1}
-  _green: {r: 0.27450982, g: 0.8156863, b: 0.17254902, a: 1}
+  _red: {r: 1, g: 0.0990566, b: 0.3215619, a: 1}
+  _green: {r: 0.38685614, g: 0.6981132, b: 0.016464932, a: 1}
   _blue: {r: 0.12156863, g: 0.5803922, b: 0.98039216, a: 1}
   gooRend: {fileID: 4392196376253484981}
 --- !u!4 &7268972726949291940 stripped
