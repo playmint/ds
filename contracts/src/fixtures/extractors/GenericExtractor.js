@@ -65,6 +65,8 @@ export default function update({ selected, world }, block) {
             return Math.min(GOO_RESERVOIR_MAX, totalGoo);
         });
 
+    const secondsTilNextItem = getSecsPerGoo(tileAtoms[0]);
+
     // Use the output item to infer which type of extractor this is
     // fetch our output item details
     const expectedOutputs = selectedBuilding?.kind?.outputs || [];
@@ -89,8 +91,8 @@ export default function update({ selected, world }, block) {
 
     const canExtract =
         numberOfItems >= 1 &&
-        (!selectedBuilding.bags[1].bag.owner ||
-            selectedBuilding.bags[1].bag.owner.id == mobileUnit.owner.id);
+        (!selectedBuilding?.bags[1].bag?.owner ||
+            selectedBuilding?.bags[1].bag?.owner.id == mobileUnit?.owner.id);
 
     const extract = () => {
         if (!selectedEngineer) {
@@ -110,6 +112,68 @@ export default function update({ selected, world }, block) {
     };
     const reservoirPercent = Math.floor( (extractedGoo[gooIndex] / GOO_RESERVOIR_MAX) * 100);
     const extractableNow = Math.min(numberOfItems, 100);
+    const css = `
+        @keyframes extractorttni {
+            from { width: 0%; }
+            to { width: 99%; }
+        }
+
+        .extractor-progress-bar {
+            width: 26rem;
+            height: 28px;
+            background: black;
+            position: relative;
+        }
+
+        .extractor-progress-text {
+            position: absolute;
+            top:0; left:0;
+            height: 100%;
+            width: 100%;
+            text-align: center;
+            margin-top: 2px;
+        }
+
+        .extractor-progress-percent {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height:100%;
+            background: #007ff7;
+        }
+
+        .extractor-progress-tick {
+            animation: extractorttni;
+            animation-delay: 0;
+            transition: width 0.5s;
+            width: 100%;
+            animation-iteration-count: infinite;
+        }
+    `;
+
+    const liveExtractionTicker = reservoirPercent < 100 && secondsTilNextItem > 0
+        ? `<div class="extractor-progress-bar" style="height: 3px;"> <div class="extractor-progress-percent extractor-progress-tick" style="animation-duration: ${secondsTilNextItem}s;"></div></div>`
+        : ``;
+
+    const status = `
+        <br />
+        <div class="extractor-progress-bar">
+            <div class="extractor-progress-percent" style="width: ${reservoirPercent}%; background: #007ff7;"></div>
+            <div class="extractor-progress-text">${numberOfItems} / ${GOO_RESERVOIR_MAX}</div>
+        </div>
+        ${liveExtractionTicker}
+        <style>
+            ${css}
+        </style>
+    `;
+
+    const neverExtractWarning = secondsTilNextItem === 0
+        ? `<br/><p>This extractor is not functioning as the goo extraction rate for this tile is too low to be effective</p>`
+        : ``;
+
+    const notOwnerWarning = selectedBuilding.bags[1].bag.owner && selectedBuilding.bags[1].bag.owner.id != mobileUnit?.owner.id
+        ? `</br><p>You are not the owner of this extractor, only the owner can extract goo from here</p>`
+        : ``;
 
     return {
         version: 1,
@@ -130,25 +194,17 @@ export default function update({ selected, world }, block) {
                             },
                         ],
                         html: `
-                            <div>EXTRACTOR CAPACITY</div>
-                            <div style="width: 26rem; height: 28px; border: 1px solid #fff; position: relative;">
-                                <div style="position: absolute; top:0; left:0; height: 100%; width: ${reservoirPercent}%; background: #fff;"></div>
-                                <div style="position: absolute; top:0; left:0; height: 100%; width: 100%; mix-blend-mode: difference; text-align: center; margin-top: 2px;">${reservoirPercent}%</div>
-                            </div>
-                            <br />
-                            <div>SLOT CAPACITY</div>
-                            <div style="width: 26rem; height: 28px; border: 1px solid #fff; position: relative;">
-                                <div style="position: absolute; top:0; left:0; height: 100%; width: ${extractableNow}%; background: #fff;"></div>
-                                <div style="position: absolute; top:0; left:0; height: 100%; width: 100%; mix-blend-mode: difference; text-align: center; margin-top: 4px;">${extractableNow} READY</div>
-                            </div>
-                        ${
-                            selectedBuilding.bags[1].bag.owner &&
-                            selectedBuilding.bags[1].bag.owner.id !=
-                                mobileUnit.owner.id
-                                ? `</br><p>You are not the owner of this extractor, only the owner can extract goo from here</p>`
-                                : ``
-                        }
-                        </p>
+                            ${notOwnerWarning}
+                            ${neverExtractWarning}
+                            ${status}
+                        `,
+                    },
+                    {
+                        id: "view",
+                        type: "inline",
+                        html: `
+                            ${neverExtractWarning}
+                            ${status}
                         `,
                     },
                 ],
