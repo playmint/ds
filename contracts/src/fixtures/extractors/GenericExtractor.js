@@ -22,13 +22,13 @@ function getGooColor(gooIndex) {
 // https://www.notion.so/playmint/Extraction-6b36dcb3f95e4ab8a57cb6b99d24bb8f#cb8cc764f9ef436e9847e631ef12b157
 
 const getSecsPerGoo = (atomVal) => {
-    if (atomVal < 10) return 0;
+    if (atomVal < 70) return 0;
 
-    const x = atomVal - 32;
-    const baseSecsPerGoo = 120 * Math.pow(0.9775, x);
+    const x = atomVal - 63;
+    const baseSecsPerGoo = 120 * Math.pow(0.973, x);
 
-    if (atomVal >= 165) return Math.max(baseSecsPerGoo / 4, 1);
-    else if (atomVal >= 155) return baseSecsPerGoo / 3;
+    if (atomVal >= 165) return Math.max(baseSecsPerGoo * 0.75, 4);
+    else if (atomVal >= 155) return baseSecsPerGoo * 0.85;
     else return baseSecsPerGoo;
 };
 

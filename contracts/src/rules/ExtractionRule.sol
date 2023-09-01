@@ -153,22 +153,24 @@ contract ExtractionRule is Rule {
     // https://www.notion.so/playmint/Extraction-6b36dcb3f95e4ab8a57cb6b99d24bb8f#cb8cc764f9ef436e9847e631ef12b157
 
     function _getSecsPerGoo(uint64 atomVal) private pure returns (int128) {
-        if (atomVal < 10) return Math.fromUInt(0);
+        if (atomVal < 70) return Math.fromUInt(0);
 
-        uint256 x = atomVal > 32 ? atomVal - 32 : 0;
-        int128 baseSecsPerGoo = Math.fromUInt(120).mul(Math.fromUInt(9775).div(Math.fromUInt(10000)).pow(x));
+        uint256 x = atomVal > 70 ? atomVal - 63 : 0;
+        int128 baseSecsPerGoo = Math.fromUInt(120).mul(Math.fromUInt(9730).div(Math.fromUInt(10000)).pow(x));
 
         if (atomVal >= 165) {
-            baseSecsPerGoo = baseSecsPerGoo.div(Math.fromUInt(4));
-
-            if (baseSecsPerGoo < 1) return 1;
-            else return baseSecsPerGoo;
-        } else if (atomVal >= 155) {
-            return baseSecsPerGoo.div(Math.fromUInt(3));
-        } else {
-            return baseSecsPerGoo;
+            baseSecsPerGoo = Math.mul(baseSecsPerGoo, Math.fromUInt(75).div(Math.fromUInt(100)));
+        } 
+        else if (atomVal >= 155) {
+            baseSecsPerGoo = Math.mul(baseSecsPerGoo, Math.fromUInt(85).div(Math.fromUInt(100)));
         }
+
+        if (baseSecsPerGoo < 4) return 4;
+        else return baseSecsPerGoo;
     }
+        
+
+
 
     function _getGooPerSec(uint64 atomVal) private pure returns (int128) {
         int128 secsPerGoo = _getSecsPerGoo(atomVal);
