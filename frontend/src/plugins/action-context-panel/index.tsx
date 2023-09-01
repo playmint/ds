@@ -1,7 +1,15 @@
 /** @format */
 import { PluginContent } from '@app/components/organisms/tile-action';
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
-import { getCoords, getGooRates, getNeighbours, getTileDistance } from '@app/helpers/tile';
+import {
+    getCoords,
+    getGooRates,
+    getNeighbours,
+    getTileDistance,
+    GOO_BLUE,
+    GOO_GREEN,
+    GOO_RED,
+} from '@app/helpers/tile';
 import { Bag } from '@app/plugins/inventory/bag';
 import { getBagId, getBuildingId } from '@app/plugins/inventory/helpers';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
@@ -106,6 +114,10 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, world, m
 
     const { q, r, s } = selectedTile ? getCoords(selectedTile) : { q: 0, r: 0, s: 0 };
     const gooRates = selectedTile ? getGooRates(selectedTile) : [];
+    const gooRatesInNameOrder = [GOO_RED, GOO_GREEN, GOO_BLUE]
+        .map((idx) => gooRates.find((goo) => goo.index === idx))
+        .filter((goo) => !!goo);
+    console.log(gooRatesInNameOrder);
 
     const content = (component?.content || []).find((c) => {
         if (mobileUnit) {
@@ -167,10 +179,10 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, world, m
             <span className="label" style={{ width: '100%', marginTop: '2rem' }}>
                 <strong>COORDINATES:</strong> {`${q}, ${r}, ${s}`}
             </span>
-            {gooRates.map((goo) => (
-                <span key={goo.name} className="label" style={{ width: '30%' }}>
-                    <strong>{goo.name.toUpperCase().slice(0, 1)}:</strong>{' '}
-                    {`${Math.floor(goo.gooPerSec * 100) / 100}/s`}
+            {gooRatesInNameOrder.map((goo) => (
+                <span key={goo?.name} className="label" style={{ width: '30%' }}>
+                    <strong>{goo?.name.toUpperCase().slice(0, 1)}:</strong>{' '}
+                    {`${Math.floor((goo?.gooPerSec || 0) * 100) / 100}/s`}
                 </span>
             ))}
             {author && (
@@ -217,6 +229,9 @@ const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player }) => {
     const topGooName = gooRates.length > 0 ? gooRates[0].name : '';
     const hasSomeGoo = topGooRate >= 0.1;
     const hasLotsGoo = topGooRate >= 0.3;
+    const gooRatesInNameOrder = [GOO_RED, GOO_GREEN, GOO_BLUE]
+        .map((idx) => gooRates.find((goo) => goo.index === idx))
+        .filter((goo) => !!goo);
 
     const tileName = hasSomeGoo ? `${topGooName.toUpperCase()} GOO TILE` : `TILE`;
     const tileDescription = hasLotsGoo
@@ -238,10 +253,10 @@ const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player }) => {
             <span className="label" style={{ width: '100%' }}>
                 <strong>COORDINATES:</strong> {`${q}, ${r}, ${s}`}
             </span>
-            {gooRates.map((goo) => (
-                <span key={goo.name} className="label" style={{ width: '30%' }}>
-                    <strong>{goo.name.toUpperCase().slice(0, 1)}:</strong>{' '}
-                    {`${Math.floor(goo.gooPerSec * 100) / 100}/s`}
+            {gooRatesInNameOrder.map((goo) => (
+                <span key={goo?.name} className="label" style={{ width: '30%' }}>
+                    <strong>{goo?.name.toUpperCase().slice(0, 1)}:</strong>{' '}
+                    {`${Math.floor((goo?.gooPerSec || 0) * 100) / 100}/s`}
                 </span>
             ))}
         </StyledActionContextPanel>
