@@ -1540,7 +1540,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   heightScale: 0.5
-  heightOffset: -0.2
+  heightOffset: -0.3
   heightFrequency: 0.5
 --- !u!4 &739230786
 Transform:
@@ -3123,7 +3123,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 681872498}
   positionMask: {x: 1, y: 0, z: 1}
-  offset: {x: 0, y: -0.18, z: 0}
+  offset: {x: 0, y: -0.4, z: 0}
 --- !u!23 &1987954017
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3459,16 +3459,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: MapCamera
-      objectReference: {fileID: 0}
-    - target: {fileID: 6518314203346260187, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -4.949748
-      objectReference: {fileID: 0}
-    - target: {fileID: 6518314203603543945, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -4.949748
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 13c17ec3607f94f34a8d6fc7cf4300af, type: 3}
