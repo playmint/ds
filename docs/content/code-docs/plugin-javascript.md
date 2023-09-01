@@ -117,11 +117,10 @@ components: [
 	content: [
 	{
 		//
-		// Content example 1, default, using a toggle button and html form input
+		// Content example 1, default, using an html form input
 		//
 
 		// At least one element must have id 'default'.
-		// Other ids can be triggered with toggle buttons.
 		id: 'default',  
 
 		// Must be one of 'inline', 'popout' or 'dialog'.
@@ -141,22 +140,6 @@ components: [
 		// called for any input of type 'submit' in the html above        
 		submit:             
 			() => {ds.log("checked in");},
-
-		// list of buttons
-		buttons: [
-		{ 
-			// Text shown on button 
-			text: 'Next',
-
-			// either 'action' or 'toggle'
-			type: 'toggle',
-
-			// id of content to switch to ('toggle' type only)
-			content: 'sayhi',
-
-			// is button disabled - can set this based on State
-			disabled: false     
-		},],
 	},
 	{
 		//
