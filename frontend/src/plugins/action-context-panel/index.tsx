@@ -1,5 +1,5 @@
 /** @format */
-import { TileAction } from '@app/components/organisms/tile-action';
+import { PluginContent } from '@app/components/organisms/tile-action';
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
 import { getCoords, getGooRates, getNeighbours, getTileDistance } from '@app/helpers/tile';
 import { Bag } from '@app/plugins/inventory/bag';
@@ -53,9 +53,6 @@ interface KeyedThing {
     key: number;
 }
 
-const ImageBuilding = () => <img src="/building-with-flag.png" alt="" className="building-image" />;
-const ImageEnemy = () => <img src="/enemy.png" alt="" className="building-image" />;
-
 const byName = (a: MaybeNamedThing, b: MaybeNamedThing) => {
     return a.name && b.name && a.name.value > b.name.value ? 1 : -1;
 };
@@ -68,11 +65,11 @@ interface TileBuildingProps {
     player?: ConnectedPlayer;
     building: WorldBuildingFragment;
     world?: World;
-    showFull: boolean;
     selectIntent: Selector<string | undefined>;
     selectTiles: Selector<string[] | undefined>;
+    mobileUnit?: SelectedMobileUnitFragment;
 }
-const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull, world }) => {
+const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, world, mobileUnit }) => {
     const { tiles: selectedTiles } = useSelection();
     const selectedTile = selectedTiles?.[0];
     const ui = usePluginState();
@@ -101,8 +98,6 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull
     const inputBag = building.bags.find((b) => b.key == 0);
     const outputBag = building.bags.find((b) => b.key == 1);
 
-    const isEnemy = buildingKind?.model?.value === 'enemy';
-
     const author = world?.players.find((p) => p.id === building?.kind?.owner?.id);
     const owner = world?.players.find((p) => p.id === building?.owner?.id);
 
@@ -112,53 +107,63 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, showFull
     const { q, r, s } = selectedTile ? getCoords(selectedTile) : { q: 0, r: 0, s: 0 };
     const gooRates = selectedTile ? getGooRates(selectedTile) : [];
 
+    const content = (component?.content || []).find((c) => {
+        if (mobileUnit) {
+            return c.id === 'use' || c.id === 'default';
+        }
+        return c.id === 'view';
+    });
+
     return (
         <StyledActionContextPanel className="action">
             <h3>{name}</h3>
             {description && <span className="sub-title">{description}</span>}
-            {isEnemy ? <ImageEnemy /> : <ImageBuilding />}
-            {component && showFull && (
-                <Fragment>
-                    <TileAction showTitle={false} component={component} className="action">
-                        {inputs.length > 0 && inputBag && (
-                            <div ref={inputsRef} className="ingredients">
-                                <Bag
-                                    bag={inputBag.bag}
-                                    bagId={inputBag.bag.id}
-                                    equipIndex={0}
-                                    ownerId={building.id}
-                                    isInteractable={true}
-                                    recipe={inputs}
-                                    numBagSlots={inputs.length}
-                                    showIcon={false}
-                                    as="li"
-                                />
-                            </div>
+            {content && (
+                <div className="action">
+                    <PluginContent content={content}>
+                        {mobileUnit && (
+                            <>
+                                {inputs.length > 0 && inputBag && (
+                                    <div ref={inputsRef} className="ingredients">
+                                        <Bag
+                                            bag={inputBag.bag}
+                                            bagId={inputBag.bag.id}
+                                            equipIndex={0}
+                                            ownerId={building.id}
+                                            isInteractable={true}
+                                            recipe={inputs}
+                                            numBagSlots={inputs.length}
+                                            showIcon={false}
+                                            as="li"
+                                        />
+                                    </div>
+                                )}
+                                {outputs.length > 0 && outputBag && (
+                                    <div className="process">
+                                        <img src="/icons/downarrow.png" alt="output" className="arrow" />
+                                    </div>
+                                )}
+                                {outputs.length > 0 && outputBag && (
+                                    <div ref={outputsRef} className="ingredients">
+                                        <Bag
+                                            bag={outputBag.bag}
+                                            bagId={outputBag.bag.id}
+                                            equipIndex={1}
+                                            ownerId={building.id}
+                                            isInteractable={true}
+                                            recipe={outputs}
+                                            numBagSlots={outputs.length}
+                                            showIcon={false}
+                                            as="li"
+                                        />
+                                    </div>
+                                )}
+                            </>
                         )}
-                        {outputs.length > 0 && outputBag && (
-                            <div className="process">
-                                <img src="/icons/downarrow.png" alt="output" className="arrow" />
-                            </div>
-                        )}
-                        {outputs.length > 0 && outputBag && (
-                            <div ref={outputsRef} className="ingredients">
-                                <Bag
-                                    bag={outputBag.bag}
-                                    bagId={outputBag.bag.id}
-                                    equipIndex={1}
-                                    ownerId={building.id}
-                                    isInteractable={true}
-                                    recipe={outputs}
-                                    numBagSlots={outputs.length}
-                                    showIcon={false}
-                                    as="li"
-                                />
-                            </div>
-                        )}
-                    </TileAction>
-                </Fragment>
+                    </PluginContent>
+                </div>
             )}
-            {!showFull && selectedTile && <TileInventory tile={selectedTile} />}
+            {selectedTile && <TileInventory tile={selectedTile} />}
             <span className="label" style={{ width: '100%', marginTop: '2rem' }}>
                 <strong>COORDINATES:</strong> {`${q}, ${r}, ${s}`}
             </span>
@@ -818,9 +823,9 @@ export const TileInfoPanel: FunctionComponent<ActionContextPanelProps> = () => {
                     <TileBuilding
                         building={selectedTile.building}
                         world={world}
-                        showFull={false}
                         selectIntent={selectIntent}
                         selectTiles={selectTiles}
+                        mobileUnit={mobileUnit}
                     />
                 );
             } else {
@@ -829,9 +834,9 @@ export const TileInfoPanel: FunctionComponent<ActionContextPanelProps> = () => {
                         player={player}
                         building={selectedTile.building}
                         world={world}
-                        showFull={true}
                         selectIntent={selectIntent}
                         selectTiles={selectTiles}
+                        mobileUnit={mobileUnit}
                     />
                 );
             }
