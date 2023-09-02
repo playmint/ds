@@ -65,8 +65,6 @@ export default function update({ selected, world }, block) {
             return Math.min(GOO_RESERVOIR_MAX, totalGoo);
         });
 
-    const secondsTilNextItem = getSecsPerGoo(tileAtoms[0]);
-
     // Use the output item to infer which type of extractor this is
     // fetch our output item details
     const expectedOutputs = selectedBuilding?.kind?.outputs || [];
@@ -88,6 +86,8 @@ export default function update({ selected, world }, block) {
     const numberOfItems = Math.floor(
         extractedGoo[gooIndex] / Number(outItemAtomVals[gooIndex])
     );
+    const secondsTilNextItem = getSecsPerGoo(tileAtoms[gooIndex]);
+
 
     const canExtract =
         numberOfItems >= 1 &&
