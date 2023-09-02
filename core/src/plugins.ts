@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { getQuickJS, QuickJSRuntime } from 'quickjs-emscripten';
-import { concat, fromPromise, fromValue, lazy, makeSubject, map, pipe, Source, switchMap, zip } from 'wonka';
+import { concat, fromPromise, fromValue, lazy, makeSubject, map, mergeMap, pipe, Source, switchMap, zip } from 'wonka';
 import * as apiv1 from './api/v1';
 import { actionArgFromUnknown } from './cog';
 import {
@@ -78,7 +78,7 @@ export function makePluginUI(
     const sandbox = makePluginSandbox();
     return pipe(
         zip<any>({ sandbox, plugins, state, block }),
-        map<any, PluginState[]>(
+        map<any, Promise<PluginState>[]>(
             ({
                 sandbox,
                 state,
@@ -89,8 +89,8 @@ export function makePluginUI(
                 state: GameState;
                 plugins: PluginConfig[];
                 block: number;
-            }) =>
-                plugins
+            }) => {
+                const statePromises = plugins
                     .map((p) => {
                         try {
                             const { player } = state;
@@ -110,11 +110,15 @@ export function makePluginUI(
                             return plugin.update(state, block);
                         } catch (err) {
                             console.error(`plugin ${p.id}:`, err);
-                            return { components: [], version: 1, error: `${err}` };
+                            return Promise.resolve({ components: [], version: 1, error: `${err}` });
                         }
                     })
-                    .filter((res): res is PluginState => !!res),
+                    .filter((res): res is Promise<PluginState> => !!res);
+                sandbox.runtime.executePendingJobs();
+                return statePromises;
+            },
         ),
+        mergeMap((statePromises) => fromPromise(Promise.all(statePromises))),
     );
 }
 
@@ -412,6 +416,22 @@ export function loadPlugin(
     errorHandle.dispose();
     debugHandle.dispose();
 
+    // expose fetch api
+    const fetchHandle = context.newFunction('fetch', (pathHandle) => {
+        const path = context.getString(pathHandle);
+        const promise = context.newPromise();
+        // TODO: add a strict AbortController to force plugins to make fast requests
+        // TODO: returning text isn't really the fetch api is it.... implement the response object proper
+        fetch(path)
+            .then((res) => res.text())
+            .then((data) => {
+                promise.resolve(context.newString(data || ''));
+            });
+        promise.settled.then(context.runtime.executePendingJobs);
+        return promise.handle;
+    });
+    fetchHandle.consume((handle) => context.setProp(context.global, 'fetch', handle));
+
     // setup the module loader for the magic imports
     runtime.setModuleLoader((moduleName) => {
         switch (moduleName) {
@@ -455,11 +475,11 @@ export function loadPlugin(
     };
 
     // setup the update func
-    const updateProxy = (state: GameState, block: number): PluginState => {
+    const updateProxy = async (state: GameState, block: number): Promise<PluginState> => {
         console.debug(`[${pluginId} send]`, state, block);
-        const res = context.evalCode(`(function(nextState, block){
+        const res = context.evalCode(`(async (nextState, block) => {
 
-                const res = globalThis.__update(nextState, block);
+                const res = await Promise.resolve(globalThis.__update(nextState, block));
 
                 // replace funcs with refs
                 const refs = {};
@@ -506,9 +526,20 @@ export function loadPlugin(
                 return JSON.stringify(res);
 
             })(${JSON.stringify(state)}, ${block})`);
-        const pluginResponse = JSON.parse(context.unwrapResult(res).consume(context.getString));
-        console.debug(`[${pluginId} recv]`, pluginResponse);
-        return apiv1.normalizePluginState(pluginResponse, submitProxy);
+        const promiseHandle = context.unwrapResult(res);
+        // Convert the promise handle into a native promise and await it.
+        // If code like this deadlocks, make sure you are calling
+        // runtime.executePendingJobs appropriately.
+        // TODO: do we need Promise.race here to catch deadlocks?
+        return context.resolvePromise(promiseHandle).then((resolvedResult) => {
+            promiseHandle.dispose();
+            const resolvedHandle = context.unwrapResult(resolvedResult);
+            const pluginResponseJSON = context.getString(resolvedHandle);
+            resolvedHandle.dispose();
+            const pluginResponse = JSON.parse(pluginResponseJSON);
+            console.debug(`[${pluginId} recv]`, pluginResponse);
+            return apiv1.normalizePluginState(pluginResponse, submitProxy);
+        });
     };
 
     // loaded
