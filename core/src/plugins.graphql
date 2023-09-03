@@ -25,7 +25,7 @@ fragment SelectedPlugin on Node {
         hash: ref
         value
     }
-    supports: node(match: { via: { rel: "Supports", dir: IN } }) {
+    supports: node(match: { via: { rel: "Supports" } }) {
         id
         kind
         metadata: annotation(name: "name") {

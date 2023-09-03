@@ -30,6 +30,8 @@ export const Coords = z.tuple([z.number(), z.number(), z.number()]);
 
 export const ItemSpec = z.object({
     name: Name,
+    contract: ContractSource.optional(),
+    plugin: PluginSource.optional(),
     goo: z.object({
         red: Atom,
         green: Atom,

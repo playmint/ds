@@ -9,17 +9,17 @@ import { makeAutoloadPlugins, makeAvailablePlugins, makePluginSelector, makePlug
 import { makeSelection } from './selection';
 import { makeGameState } from './state';
 import {
-    Wallet,
     AvailableBuildingKind,
     AvailablePlugin,
     ConnectedPlayer,
     GameConfig,
+    GameState,
     Log,
     PluginConfig,
-    PluginState,
+    PluginUpdateResponse,
     Selection,
     Selector,
-    GameState,
+    Wallet,
     World,
 } from './types';
 import { makeWallet, WalletProvider } from './wallet';
@@ -47,7 +47,7 @@ export interface DSContextStore {
     selection: Source<Selection>;
     selectors: SelectionSelectors;
     selectProvider: Selector<WalletProvider>;
-    ui: Source<PluginState[]>;
+    ui: Source<PluginUpdateResponse[]>;
     logger: Logger;
     logs: Source<Log>;
     buildingKinds: Source<AvailableBuildingKind[]>;
@@ -153,7 +153,7 @@ export function useSelection(): Selection & SelectionSelectors {
 }
 
 // fetch the data that was rendered by the plugins
-export function usePluginState(): PluginState[] | undefined {
+export function usePluginState(): PluginUpdateResponse[] | undefined {
     const sources = useSources();
     return useSource(sources.ui);
 }

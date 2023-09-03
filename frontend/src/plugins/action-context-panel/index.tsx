@@ -22,6 +22,7 @@ import {
     CogAction,
     ConnectedPlayer,
     ItemSlotFragment,
+    PluginType,
     SelectedMobileUnitFragment,
     SelectedTileFragment,
     Selector,
@@ -83,8 +84,8 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, world, m
     const ui = usePluginState();
     const kinds = useBuildingKinds();
     const component = (ui || [])
-        .flatMap((p) => p.components)
-        .filter((c) => c.type === 'building')
+        .filter((p) => p.config.type === PluginType.BUILDING && p.config.kindID === building.kind?.id)
+        .flatMap((p) => p.state.components)
         .find(() => true);
 
     const buildingKind = (kinds || []).find((k) => k.id == building.kind?.id);
@@ -117,7 +118,6 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, world, m
     const gooRatesInNameOrder = [GOO_RED, GOO_GREEN, GOO_BLUE]
         .map((idx) => gooRates.find((goo) => goo.index === idx))
         .filter((goo) => !!goo);
-    console.log(gooRatesInNameOrder);
 
     const content = (component?.content || []).find((c) => {
         if (mobileUnit) {
