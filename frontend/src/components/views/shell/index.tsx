@@ -1,5 +1,6 @@
 /** @format */
 
+import { PluginContent } from '@app/components/organisms/tile-action';
 import { Dialog } from '@app/components/molecules/dialog';
 import { trackEvent, trackPlayer } from '@app/components/organisms/analytics';
 import { Logs } from '@app/components/organisms/logs';
@@ -17,9 +18,11 @@ import {
     ConnectedPlayer,
     EthereumProvider,
     NodeSelectors,
+    PluginType,
     Selection,
     SelectionSelectors,
     Selector,
+    usePluginState,
     Wallet,
     WalletProvider,
     WorldStateFragment,
@@ -77,6 +80,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
     const [combatModalState, setCombatModalState] = useState<CombatModalState>(CombatModalState.INACTIVE);
     const [walletConnectURI, setWalletConnectURI] = useState<string | null>(null);
     const [loggingIn, setLoggingIn] = useState<boolean>(false);
+    const ui = usePluginState();
 
     useEffect(() => {
         // arbitary time til until we show things like
@@ -278,6 +282,10 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         setCombatModalState(CombatModalState.INACTIVE);
     }, []);
 
+    const itemPluginStates = (ui || [])
+        .filter((p) => p.config.type === PluginType.ITEM)
+        .flatMap((p) => p.state.components.flatMap((c) => c.content));
+
     return (
         <StyledShell {...otherProps}>
             {!showAccount && combatModalState !== CombatModalState.INACTIVE && player && world && blockNumber ? (
@@ -383,6 +391,15 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                     )}
                     {player && (
                         <Fragment>
+                            {itemPluginStates.length > 0 && (
+                                <div className="tile-actions action">
+                                    <div className="controls">
+                                        {itemPluginStates.map((content, idx) =>
+                                            content ? <PluginContent key={idx} content={content} /> : undefined
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                             <div className="mobile-unit-actions">
                                 {(!player || (player && player.mobileUnits.length > 0 && selectedMobileUnit)) && (
                                     <div className="mobile-unit-selector">

@@ -48,9 +48,9 @@ export default function update({ selected, world }, block) {
     const tileAtoms = selectedTile.atoms
         .sort((a, b) => a.key - b.key)
         .map((elm) => elm.weight);
-    const elapsedSecs =
-        (block - selectedBuilding.timestamp[0].blockNum) *
-        BLOCK_TIME_SECS;
+    const elapsedSecs = selectedBuilding
+        ? (block - selectedBuilding.timestamp?.[0].blockNum) * BLOCK_TIME_SECS
+        : 0;
 
     // Calculate extracted goo and sum with previously extracted goo
     let extractedGoo = tileAtoms

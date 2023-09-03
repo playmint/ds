@@ -223,6 +223,7 @@ export enum PluginTrust {
 export enum PluginType {
     CORE,
     BUILDING,
+    ITEM,
 }
 
 export interface PluginConfig {
@@ -232,7 +233,7 @@ export interface PluginConfig {
     trust: PluginTrust;
     src: string;
     hash: string;
-    nodeID?: string;
+    kindID: string;
 }
 
 export interface InactivePlugin {
@@ -246,7 +247,7 @@ export interface InactivePlugin {
 
 export interface ActivePlugin extends InactivePlugin {
     context: QuickJSContext;
-    update: (state: GameState, block: number) => Promise<PluginState>;
+    update: (state: GameState, block: number) => Promise<PluginUpdateResponse>;
 }
 
 export type PluginActionCallProxy = () => Promise<void>;
@@ -275,25 +276,14 @@ export type PluginStateButtonSubmit = {
 
 export type PluginStateButton = PluginStateButtonAction | PluginStateButtonToggle | PluginStateButtonSubmit;
 
-export const PluginStateComponentContentTypes = ['popout', 'dialog', 'inline'] as const;
-export type PluginStateComponentContentType = (typeof PluginStateComponentContentTypes)[number];
-
-export function isComponentContentType(maybeType: unknown): maybeType is PluginStateComponentContentType {
-    return (
-        typeof maybeType === 'string' &&
-        PluginStateComponentContentTypes.includes(maybeType as PluginStateComponentContentType)
-    );
-}
-
 export interface PluginStateComponentContent {
     id: string;
-    type: PluginStateComponentContentType;
     submit?: PluginSubmitCallProxy;
     html?: string;
     buttons?: PluginStateButton[];
 }
 
-export const PluginStateComponentTypes = ['building', 'tile', 'mobileUnit', 'nav'];
+export const PluginStateComponentTypes = ['building', 'item'];
 export type PluginStateComponentType = (typeof PluginStateComponentTypes)[number];
 
 export function isComponentType(maybeType: unknown): maybeType is PluginStateComponentType {
@@ -310,6 +300,11 @@ export interface PluginStateComponent {
 
 export interface PluginState {
     components: PluginStateComponent[];
+}
+
+export interface PluginUpdateResponse {
+    config: PluginConfig;
+    state: PluginState;
 }
 
 export type PluginSubmitProxy = (ref: string, values: PluginSubmitCallValues) => Promise<void>;

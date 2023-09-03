@@ -39,6 +39,52 @@ const getBuildingCategoryEnum = (category: BuildingCategoryEnum): number => {
     return BuildingCategoryEnumVals.indexOf(category);
 };
 
+const itemKindDeploymentActions = async (
+    _ctx,
+    file: ReturnType<typeof ManifestDocument.parse>,
+    _files: ReturnType<typeof ManifestDocument.parse>[],
+    verbose: boolean
+): Promise<CogAction[]> => {
+    const ops: CogAction[] = [];
+    if (file.manifest.kind != 'Item') {
+        throw new Error(`expected Item kind spec`);
+    }
+    const manifestDir = path.dirname(file.filename);
+    const spec = file.manifest.spec;
+
+    const id = encodeItemID(spec);
+    ops.push({
+        name: 'REGISTER_ITEM_KIND',
+        args: [id, spec.name, spec.icon],
+    });
+
+    if (spec.plugin && spec.plugin.file) {
+        const relativeFilename = path.join(manifestDir, spec.plugin.file);
+        if (!fs.existsSync(relativeFilename)) {
+            throw new Error(`plugin source not found: ${spec.plugin.file}`);
+        }
+        const pluginID = encodePluginID(spec); // use building name for plugin id
+        const js = fs.readFileSync(relativeFilename, 'utf8').toString();
+        ops.push({
+            name: 'REGISTER_KIND_PLUGIN',
+            args: [pluginID, id, spec.name, js],
+        });
+    }
+
+    if (spec.contract && spec.contract.file) {
+        const relativeFilename = path.join(manifestDir, spec.contract.file);
+        const libs = [path.join(path.dirname(relativeFilename)), ...(spec.contract.includes || [])];
+        const { bytecode } = await compile(relativeFilename, { libs, verbose });
+        // call  to deploy an implementation
+        ops.push({
+            name: 'DEPLOY_KIND_IMPLEMENTATION',
+            args: [id, `0x${bytecode}`],
+        });
+    }
+
+    return ops;
+};
+
 const buildingKindDeploymentActions = async (
     ctx,
     file: ReturnType<typeof ManifestDocument.parse>,
@@ -209,6 +255,43 @@ const getManifestFilenames = (filename: string, isRecursive: boolean): string[] 
     }
 };
 
+const getBuildingKindIDByName = (existingBuildingKinds, pendingBuildingKinds, name: string) => {
+    const foundBuildingKinds = existingBuildingKinds.filter(
+        ({ kind, spec }) => kind === 'BuildingKind' && spec.name === name
+    );
+    if (foundBuildingKinds.length === 1) {
+        const manifest = foundBuildingKinds[0];
+        if (manifest.kind !== 'BuildingKind') {
+            throw new Error(`unexpect kind`);
+        }
+        if (!manifest.status || !manifest.status.id) {
+            throw new Error(`missing status.id field for BuildingKind ${name}`);
+        }
+        return manifest.status.id;
+    } else if (foundBuildingKinds.length > 1) {
+        throw new Error(
+            `BuildingKind ${name} is ambiguous, found ${foundBuildingKinds.length} existing BuildingKinds with that name`
+        );
+    }
+    // find ID based on pending specs
+    const manifests = pendingBuildingKinds.filter((m) => m.spec.name == name);
+    if (manifests.length === 0) {
+        throw new Error(
+            `unable to find BuildingKind id for reference: ${name}, are you missing an BuildingKind manifest?`
+        );
+    }
+    if (manifests.length > 1) {
+        throw new Error(
+            `BuildingKind ${name} is ambiguous, found ${manifests.length} different manifests that declare BuildingKinds with that name`
+        );
+    }
+    const manifest = manifests[0];
+    if (manifest.kind !== 'BuildingKind') {
+        throw new Error(`unexpected kind: wanted BuildingKind got ${manifest.kind}`);
+    }
+    return encodeBuildingKindID(manifest.spec);
+};
+
 type Op = {
     doc: z.infer<typeof ManifestDocument>;
     actions: CogAction[];
@@ -261,45 +344,7 @@ const deploy = {
         const manifestFilenames = getManifestFilenames(ctx.filename, ctx.recursive);
         const docs = (await Promise.all(manifestFilenames.map(readManifestsDocumentsSync))).flatMap((docs) => docs);
         const existingBuildingKinds = await getManifestsByKind(ctx, ['BuildingKind']);
-
-        const getBuildingKindIDByName = (name: string) => {
-            const foundBuildingKinds = existingBuildingKinds.filter(
-                ({ kind, spec }) => kind === 'BuildingKind' && spec.name === name
-            );
-            if (foundBuildingKinds.length === 1) {
-                const manifest = foundBuildingKinds[0];
-                if (manifest.kind !== 'BuildingKind') {
-                    throw new Error(`unexpect kind`);
-                }
-                if (!manifest.status || !manifest.status.id) {
-                    throw new Error(`missing status.id field for BuildingKind ${name}`);
-                }
-                return manifest.status.id;
-            } else if (foundBuildingKinds.length > 1) {
-                throw new Error(
-                    `BuildingKind ${name} is ambiguous, found ${foundBuildingKinds.length} existing BuildingKinds with that name`
-                );
-            }
-            // find ID based on pending specs
-            const manifests = docs
-                .map((doc) => doc.manifest)
-                .filter(({ kind, spec }) => kind === 'BuildingKind' && spec.name === name);
-            if (manifests.length === 0) {
-                throw new Error(
-                    `unable to find BuildingKind id for reference: ${name}, are you missing an BuildingKind manifest?`
-                );
-            }
-            if (manifests.length > 1) {
-                throw new Error(
-                    `BuildingKind ${name} is ambiguous, found ${manifests.length} different manifests that declare BuildingKinds with that name`
-                );
-            }
-            const manifest = manifests[0];
-            if (manifest.kind !== 'BuildingKind') {
-                throw new Error(`unexpected kind: wanted BuildingKind got ${manifest.kind}`);
-            }
-            return encodeBuildingKindID(manifest.spec);
-        };
+        const pendingBuildingKinds = docs.map((doc) => doc.manifest).filter(({ kind }) => kind === 'BuildingKind');
 
         // build list of operations
         const opsets: OpSet[] = [];
@@ -312,17 +357,11 @@ const deploy = {
             if (doc.manifest.kind != 'Item') {
                 continue;
             }
-            const spec = doc.manifest.spec;
-            const itemID = encodeItemID(spec);
+            const actions = await itemKindDeploymentActions(ctx, doc, docs, ctx.verbose);
             opsets[opn].push({
                 doc,
-                actions: [
-                    {
-                        name: 'REGISTER_ITEM_KIND',
-                        args: [itemID, spec.name, spec.icon],
-                    },
-                ],
-                note: `registered item ${spec.name} (${itemID})`,
+                actions,
+                note: `registered item ${doc.manifest.spec.name}`,
             });
         }
 
@@ -337,7 +376,7 @@ const deploy = {
             opsets[opn].push({
                 doc,
                 actions,
-                note: `registered building ${doc.manifest.spec.name} (${encodeBuildingKindID(doc.manifest.spec)})`,
+                note: `registered building ${doc.manifest.spec.name}`,
             });
         }
 
@@ -354,7 +393,10 @@ const deploy = {
                 actions: [
                     {
                         name: 'DEV_SPAWN_BUILDING',
-                        args: [getBuildingKindIDByName(spec.name), ...spec.location],
+                        args: [
+                            getBuildingKindIDByName(existingBuildingKinds, pendingBuildingKinds, spec.name),
+                            ...spec.location,
+                        ],
                     },
                 ],
                 note: `spawned building instance of ${spec.name} at ${spec.location.join(',')}`,

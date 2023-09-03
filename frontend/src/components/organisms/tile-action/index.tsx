@@ -3,7 +3,7 @@
 import { PluginStateButtonAction, PluginStateComponentContent, PluginSubmitCallValues } from '@downstream/core';
 import DOMPurify from 'dompurify';
 
-export const PluginContent = ({ content, children }: { content: PluginStateComponentContent; children: any }) => {
+export const PluginContent = ({ content, children }: { content: PluginStateComponentContent; children?: any }) => {
     const saferHTML = { __html: content.html ? DOMPurify.sanitize(content.html) : '' };
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {

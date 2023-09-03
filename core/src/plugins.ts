@@ -1,14 +1,23 @@
 import { ethers } from 'ethers';
 import { getQuickJS, QuickJSRuntime } from 'quickjs-emscripten';
-import { concat, fromPromise, fromValue, lazy, makeSubject, map, mergeMap, pipe, Source, switchMap, zip } from 'wonka';
+import {
+    concat,
+    fromPromise,
+    fromValue,
+    lazy,
+    makeSubject,
+    map,
+    mergeMap,
+    pipe,
+    share,
+    Source,
+    switchMap,
+    throttle,
+    zip,
+} from 'wonka';
 import * as apiv1 from './api/v1';
 import { actionArgFromUnknown } from './cog';
-import {
-    AvailablePluginFragment,
-    GetAvailablePluginsDocument,
-    GetSelectedPluginsDocument,
-    SelectedTileFragment,
-} from './gql/graphql';
+import { AvailablePluginFragment, GetAvailablePluginsDocument, GetSelectedPluginsDocument } from './gql/graphql';
 import { Logger } from './logger';
 import {
     ActivePlugin,
@@ -17,10 +26,10 @@ import {
     DispatchFunc,
     GameState,
     PluginConfig,
-    PluginState,
     PluginSubmitCallValues,
     PluginTrust,
     PluginType,
+    PluginUpdateResponse,
     QueuedSequencerAction,
     Selection,
 } from './types';
@@ -78,7 +87,8 @@ export function makePluginUI(
     const sandbox = makePluginSandbox();
     return pipe(
         zip<any>({ sandbox, plugins, state, block }),
-        map<any, Promise<PluginState>[]>(
+        throttle<any>(() => 1000),
+        map<any, Promise<PluginUpdateResponse>[]>(
             ({
                 sandbox,
                 state,
@@ -113,16 +123,17 @@ export function makePluginUI(
                             return Promise.resolve({ components: [], version: 1, error: `${err}` });
                         }
                     })
-                    .filter((res): res is Promise<PluginState> => !!res);
+                    .filter((res): res is Promise<PluginUpdateResponse> => !!res);
                 sandbox.runtime.executePendingJobs();
                 return statePromises;
             },
         ),
         mergeMap((statePromises) => fromPromise(Promise.all(statePromises))),
+        share,
     );
 }
 
-function isAutoloadableBuildingPlugin(p: AvailablePluginFragment, tiles?: SelectedTileFragment[]) {
+function isAutoloadableBuildingPlugin(p: AvailablePluginFragment, { tiles, mobileUnit }: Selection) {
     if (!p.supports) {
         return false;
     }
@@ -130,24 +141,32 @@ function isAutoloadableBuildingPlugin(p: AvailablePluginFragment, tiles?: Select
         // FIXME: use src annotation not metadata
         return false;
     }
-    if (pluginTypeForNodeKind(p.supports.kind) !== PluginType.BUILDING) {
-        return false;
+    switch (pluginTypeForNodeKind(p.supports.kind)) {
+        case PluginType.BUILDING:
+            if (!tiles) {
+                return false;
+            }
+            if (tiles.length !== 1) {
+                return false;
+            }
+            const selectedTile = tiles.find(() => true);
+            if (!selectedTile) {
+                return false;
+            }
+            const selectedBuilding = selectedTile.building;
+            if (!selectedBuilding) {
+                return false;
+            }
+            return p.supports.id == selectedBuilding.kind?.id;
+        case PluginType.ITEM:
+            if (!mobileUnit) {
+                return false;
+            }
+            const unitItemKindIds = mobileUnit.bags.flatMap((b) => b.bag.slots.flatMap((slot) => slot.item.id));
+            return unitItemKindIds.some((id) => p.supports?.id === id);
+        default:
+            return false;
     }
-    if (!tiles) {
-        return false;
-    }
-    if (tiles.length !== 1) {
-        return false;
-    }
-    const selectedTile = tiles.find(() => true);
-    if (!selectedTile) {
-        return false;
-    }
-    const selectedBuilding = selectedTile.building;
-    if (!selectedBuilding) {
-        return false;
-    }
-    return p.supports.id == selectedBuilding.kind?.id;
 }
 
 /**
@@ -157,11 +176,11 @@ function isAutoloadableBuildingPlugin(p: AvailablePluginFragment, tiles?: Select
 function makeAutoloadBuildingPlugins(
     cog: CogServices,
     availablePlugins: Source<AvailablePluginFragment[]>,
-    selection: Selection,
+    selected: Selection,
 ) {
     return pipe(
         availablePlugins,
-        map((plugins) => plugins.filter((p) => isAutoloadableBuildingPlugin(p, selection.tiles))),
+        map((plugins) => plugins.filter((p) => isAutoloadableBuildingPlugin(p, selected))),
         switchMap((plugins) =>
             makeSelectedPlugins(
                 cog,
@@ -210,6 +229,7 @@ function makeSelectedPlugins(cog: CogServices, pluginIDs: string[]) {
                               hash: p.src ? p.src.hash : p.id,
                               trust: PluginTrust.UNTRUSTED,
                               type: pluginTypeForNodeKind(p.supports?.kind),
+                              kindID: p.supports?.id || '<invalid>', // TODO: filter out invalid
                           } satisfies PluginConfig),
                   ),
               ),
@@ -266,17 +286,12 @@ export function makePluginSelector(cog: Source<CogServices>, defaultPlugins?: Pl
  * ```
  *
  */
-export function loadPlugin(
-    runtime: QuickJSRuntime,
-    dispatch: DispatchFunc,
-    logger: Logger,
-    { id: pluginId, src, type: pluginType, ...otherPluginProps }: PluginConfig,
-) {
-    if (!pluginId) {
+export function loadPlugin(runtime: QuickJSRuntime, dispatch: DispatchFunc, logger: Logger, config: PluginConfig) {
+    if (!config || !config.id) {
         throw new Error(`unabled to load plugin: no id provided`);
     }
-    if (!src) {
-        throw new Error(`unable to load plugin ${pluginId}: no src`);
+    if (!config.src) {
+        throw new Error(`unable to load plugin ${config.id}: no src`);
     }
     // create a flag that will be check to decide if
     // the api within the plugin is enabled or not.
@@ -298,7 +313,10 @@ export function loadPlugin(
     runtime.setMaxStackSize(1024 * 320);
     // Interrupt computation after 1024 calls to the interrupt handler
     // let interruptCycles = 0;
-    // runtime.setInterruptHandler(() => ++interruptCycles > 1024);
+    // runtime.setInterruptHandler(() => {
+    //     console.log('int');
+    //     return ++interruptCycles > 1024;
+    // });
     const context = runtime.newContext();
 
     // create the global __ds object where we stick all
@@ -310,20 +328,20 @@ export function loadPlugin(
         .newFunction('dispatch', (reqHandle) => {
             try {
                 if (!api.enabled) {
-                    console.warn(`plugin-${pluginId}: cannot dispatch outside of event handler`);
+                    console.warn(`plugin-${config.id}: cannot dispatch outside of event handler`);
                     return context.undefined;
                 }
                 const actions = JSON.parse(context.getString(reqHandle));
                 if (typeof actions === 'undefined' || !Array.isArray(actions)) {
-                    console.warn(`plugin-${pluginId}: invalid dispatch call`, actions);
+                    console.warn(`plugin-${config.id}: invalid dispatch call`, actions);
                     return context.undefined;
                 }
                 dispatch(...actions)
-                    .then(() => console.log(`plugin-${pluginId}: dispatched`, actions))
-                    .catch((err) => console.error(`plugin-${pluginId}: failed dispatch: ${err}`));
+                    .then(() => console.log(`plugin-${config.id}: dispatched`, actions))
+                    .catch((err) => console.error(`plugin-${config.id}: failed dispatch: ${err}`));
                 return context.newString('ok'); // TODO: return queue id
             } catch (err) {
-                console.error(`plugin-${pluginId}: failure attempting to dispatch: ${err}`);
+                console.error(`plugin-${config.id}: failure attempting to dispatch: ${err}`);
                 return context.undefined;
             }
         })
@@ -335,7 +353,7 @@ export function loadPlugin(
         .newFunction('encodeCall', (reqHandle) => {
             try {
                 if (!api.enabled) {
-                    console.warn(`plugin-${pluginId}: api disabled outside of event handlers`);
+                    console.warn(`plugin-${config.id}: api disabled outside of event handlers`);
                     return context.undefined;
                 }
                 const [funcsig, args] = JSON.parse(context.getString(reqHandle));
@@ -348,7 +366,7 @@ export function loadPlugin(
                 const callData = callInterface.encodeFunctionData(callFunc.name, callArgs);
                 return context.newString(JSON.stringify(callData));
             } catch (err) {
-                console.error(`plugin-${pluginId}: failure attempting to encodeCall: ${err}`);
+                console.error(`plugin-${config.id}: failure attempting to encodeCall: ${err}`);
                 return context.undefined;
             }
         })
@@ -359,13 +377,13 @@ export function loadPlugin(
         .newFunction('log', (reqHandle) => {
             try {
                 if (!api.enabled) {
-                    console.warn(`plugin-${pluginId}: ds api is unavilable outside of event handlers`);
+                    console.warn(`plugin-${config.id}: ds api is unavilable outside of event handlers`);
                     return context.undefined;
                 }
                 const args = JSON.parse(context.getString(reqHandle));
                 logger.log(...args);
             } catch (err) {
-                console.error(`plugin-${pluginId}: error while attempting to deliver log message: ${err}`);
+                console.error(`plugin-${config.id}: error while attempting to deliver log message: ${err}`);
             }
             return context.undefined;
         })
@@ -436,7 +454,7 @@ export function loadPlugin(
     runtime.setModuleLoader((moduleName) => {
         switch (moduleName) {
             case '__plugin__':
-                return src;
+                return config.src;
             case 'downstream':
                 return DS_GUEST_FUNCTIONS;
             default:
@@ -448,38 +466,9 @@ export function loadPlugin(
     const ok = context.evalCode(
         `
             import update from '__plugin__';
-            globalThis.__update = update;
-        `,
-    );
-    context.unwrapResult(ok).consume(context.getString);
+            globalThis.__update = async (nextState, block) => {
 
-    // setup the submit func
-    const submitProxy = async (ref: string, values: PluginSubmitCallValues): Promise<void> => {
-        if (api.enabled) {
-            console.error('plugin unable to handle event: already handling an event for this plugin');
-            return;
-        }
-        console.log('submit', ref, values);
-        try {
-            api.enabled = true;
-            // TODO: THIS MUST HAVE A TIMEOUT OR THE WHOLE THING WILL BE DEADLOCKED LOCKED!!!!
-            const res = await context.evalCode(`(function({ref, values}){
-                    const fn = globalThis.__refs[ref];
-                    fn && fn(values);
-                    return JSON.stringify({ok: true});
-                })(${JSON.stringify({ ref, values })})`);
-            context.unwrapResult(res).consume(context.getString);
-        } finally {
-            api.enabled = false;
-        }
-    };
-
-    // setup the update func
-    const updateProxy = async (state: GameState, block: number): Promise<PluginState> => {
-        console.debug(`[${pluginId} send]`, state, block);
-        const res = context.evalCode(`(async (nextState, block) => {
-
-                const res = await Promise.resolve(globalThis.__update(nextState, block));
+                const res = await Promise.resolve(update(nextState, block));
 
                 // replace funcs with refs
                 const refs = {};
@@ -525,31 +514,65 @@ export function loadPlugin(
 
                 return JSON.stringify(res);
 
-            })(${JSON.stringify(state)}, ${block})`);
+            };
+        `,
+    );
+    context.unwrapResult(ok).consume(context.getString);
+
+    // setup the submit func
+    const submitProxy = async (ref: string, values: PluginSubmitCallValues): Promise<void> => {
+        if (api.enabled) {
+            console.error('plugin unable to handle event: already handling an event for this plugin');
+            return;
+        }
+        console.log('submit', ref, values);
+        try {
+            api.enabled = true;
+            // TODO: THIS MUST HAVE A TIMEOUT OR THE WHOLE THING WILL BE DEADLOCKED LOCKED!!!!
+            const res = await context.evalCode(`(function({ref, values}){
+                    const fn = globalThis.__refs[ref];
+                    fn && fn(values);
+                    return JSON.stringify({ok: true});
+                })(${JSON.stringify({ ref, values })})`);
+            context.unwrapResult(res).consume(context.getString);
+        } finally {
+            api.enabled = false;
+        }
+    };
+
+    // setup the update func
+    const updateProxy = async (state: GameState, block: number): Promise<PluginUpdateResponse> => {
+        console.time(`updateProxy: ${config.name} ${config.id}`);
+        console.time(`updateProxy-eval: ${config.name} ${config.id}`);
+        const res = context.evalCode(`globalThis.__update(${JSON.stringify(state)}, ${block})`);
         const promiseHandle = context.unwrapResult(res);
+        console.timeEnd(`updateProxy-eval: ${config.name} ${config.id}`);
         // Convert the promise handle into a native promise and await it.
         // If code like this deadlocks, make sure you are calling
         // runtime.executePendingJobs appropriately.
-        // TODO: do we need Promise.race here to catch deadlocks?
-        return context.resolvePromise(promiseHandle).then((resolvedResult) => {
+        console.time(`updateProxy-getp: ${config.name} ${config.id}`);
+        const p = context.resolvePromise(promiseHandle);
+        console.timeEnd(`updateProxy-getp: ${config.name} ${config.id}`);
+
+        return p.then((resolvedResult) => {
             promiseHandle.dispose();
             const resolvedHandle = context.unwrapResult(resolvedResult);
             const pluginResponseJSON = context.getString(resolvedHandle);
             resolvedHandle.dispose();
             const pluginResponse = JSON.parse(pluginResponseJSON);
-            console.debug(`[${pluginId} recv]`, pluginResponse);
-            return apiv1.normalizePluginState(pluginResponse, submitProxy);
+            console.timeEnd(`updateProxy: ${config.name} ${config.id}`);
+            return {
+                config,
+                state: apiv1.normalizePluginState(pluginResponse, submitProxy),
+            };
         });
     };
 
     // loaded
     return {
-        id: pluginId,
-        type: pluginType,
-        src,
+        ...config,
         update: updateProxy,
         context,
-        ...otherPluginProps,
     };
 }
 
@@ -584,7 +607,10 @@ export function pluginTypeForNodeKind(kind: string | undefined): PluginType {
     switch (kind) {
         case 'BuildingKind':
             return PluginType.BUILDING;
+        case 'Item':
+            return PluginType.ITEM;
         default:
+            console.warn('unknown plugin type for node kind:', kind);
             return PluginType.CORE;
     }
 }

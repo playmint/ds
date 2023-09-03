@@ -5,7 +5,6 @@ import {
     PluginStateComponent,
     PluginSubmitCallValues,
     PluginSubmitProxy,
-    isComponentContentType,
     isComponentType,
 } from '../types';
 export type PluginV1SubmitValues = { [key: string]: string };
@@ -76,20 +75,15 @@ function normalizePluginV1Buttons(
 }
 
 function normalizePluginV1Content(
-    { id, type, html, submit, buttons }: PluginV1ComponentContent,
+    { id, html, submit, buttons }: PluginV1ComponentContent,
     submitProxy: PluginSubmitProxy,
 ): PluginStateComponentContent | null {
     if (!id) {
         throw new Error(`invalid plugin response: missing content.id`);
     }
-    if (!isComponentContentType(type)) {
-        console.warn(`ignoring unknown component content type: ${type}`);
-        return null;
-    }
     const ref: unknown = submit;
     return {
         id,
-        type,
         submit:
             ref && typeof ref === 'string'
                 ? async (values: PluginSubmitCallValues) => submitProxy(ref, values)
