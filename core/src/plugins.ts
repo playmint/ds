@@ -604,17 +604,13 @@ export function loadPlugin(runtime: QuickJSRuntime, dispatch: DispatchFunc, logg
 
     // setup the update func
     const updateProxy = async (state: GameState, block: number): Promise<PluginUpdateResponse> => {
-        console.time(`updateProxy: ${config.name} ${config.id}`);
-        console.time(`updateProxy-eval: ${config.name} ${config.id}`);
+        // console.time(`updateProxy: ${config.name} ${config.id}`);
         const res = context.evalCode(`globalThis.__update(${JSON.stringify(state)}, ${block})`);
         const promiseHandle = context.unwrapResult(res);
-        console.timeEnd(`updateProxy-eval: ${config.name} ${config.id}`);
         // Convert the promise handle into a native promise and await it.
         // If code like this deadlocks, make sure you are calling
         // runtime.executePendingJobs appropriately.
-        console.time(`updateProxy-getp: ${config.name} ${config.id}`);
         const p = context.resolvePromise(promiseHandle);
-        console.timeEnd(`updateProxy-getp: ${config.name} ${config.id}`);
 
         return p.then((resolvedResult) => {
             promiseHandle.dispose();
@@ -622,7 +618,7 @@ export function loadPlugin(runtime: QuickJSRuntime, dispatch: DispatchFunc, logg
             const pluginResponseJSON = context.getString(resolvedHandle);
             resolvedHandle.dispose();
             const pluginResponse = JSON.parse(pluginResponseJSON);
-            console.timeEnd(`updateProxy: ${config.name} ${config.id}`);
+            // console.timeEnd(`updateProxy: ${config.name} ${config.id}`);
             return {
                 config,
                 state: apiv1.normalizePluginState(pluginResponse, submitProxy),
