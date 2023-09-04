@@ -18,8 +18,8 @@ MonoBehaviour:
     downsample: 1
     rBlurStrength: 2
     gBlurStrength: 0
-    bBlurStrength: 0
-    aBlurStrength: 15
+    bBlurStrength: 7
+    aBlurStrength: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0

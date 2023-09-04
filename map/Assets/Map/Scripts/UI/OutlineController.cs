@@ -80,7 +80,7 @@ public class OutlineController : MonoBehaviour
         );
         if (zoom != currentZoom)
         {
-            outlineRenderer.passSettings.aBlurStrength = zoom;
+            outlineRenderer.passSettings.bBlurStrength = zoom;
             renderData.rendererFeatures[0].Create();
             currentZoom = zoom;
         }

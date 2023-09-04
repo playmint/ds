@@ -2522,6 +2522,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7f692c7978dd4af09bd0f1ccebe8309, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  redOutlineMat: {fileID: 2100000, guid: ce6f5126ced564b2895e09480182616f, type: 2}
+  greenOutlineMat: {fileID: 2100000, guid: 350e1b89b29f442e1ae981fd04ecfca4, type: 2}
   buildingPrefab: {fileID: 7268972726147497452, guid: 23ff047669b024ea19d8a08fb52d2ddd,
     type: 3}
   extractorPrefab: {fileID: 7268972726147497452, guid: b1df6dba335ad4b26987b28f60e3c546,

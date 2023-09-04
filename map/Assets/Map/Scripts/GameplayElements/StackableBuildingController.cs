@@ -30,7 +30,7 @@ public class StackableBuildingController : MapElementController
     private void GetTotemPrefabs(string[] stackCodes)
     {
         renderers = new Renderer[2];
-        outlineObjs = new GameObject[2];
+        outlineObjs = new Renderer[2];
         for (int i = 0; i < 2; i++)
         {
             renderers[i] = Instantiate(
@@ -39,7 +39,7 @@ public class StackableBuildingController : MapElementController
                 )
                 .GetComponentInChildren<Renderer>();
 
-            outlineObjs[i] = renderers[i].transform.GetChild(0).gameObject;
+            outlineObjs[i] = renderers[i].transform.GetChild(0).GetComponent<Renderer>();
         }
         stackPositions[0].transform.parent.localEulerAngles = new Vector3(
             0,
@@ -53,6 +53,6 @@ public class StackableBuildingController : MapElementController
         renderers = new Renderer[1];
         renderers[0] = Instantiate(defaultPrefab, stackPositions[0])
             .GetComponentInChildren<Renderer>();
-        outlineObjs = new GameObject[1] { renderers[0].transform.GetChild(0).gameObject };
+        outlineObjs = new Renderer[1] { renderers[0].transform.GetChild(0).GetComponent<Renderer>() };
     }
 }

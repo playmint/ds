@@ -130,7 +130,7 @@ PrefabInstance:
     - target: {fileID: 1410422685, guid: a699dfdf8ea904492a4f3bc5ea3d169d, type: 3}
       propertyPath: outlineObjs.Array.data[0]
       value: 
-      objectReference: {fileID: 7859648815774748197}
+      objectReference: {fileID: 8508399777304375280}
     - target: {fileID: 4011681256154013440, guid: a699dfdf8ea904492a4f3bc5ea3d169d,
         type: 3}
       propertyPath: m_LocalPosition.z
@@ -324,13 +324,19 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: db038f6e69b403e498a8bd24c3235fb1,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: db038f6e69b403e498a8bd24c3235fb1, type: 3}
 --- !u!1 &7859648815774748197 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: db038f6e69b403e498a8bd24c3235fb1,
+    type: 3}
+  m_PrefabInstance: {fileID: 7048833965991392116}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &8508399777304375280 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: db038f6e69b403e498a8bd24c3235fb1,
     type: 3}
   m_PrefabInstance: {fileID: 7048833965991392116}
   m_PrefabAsset: {fileID: 0}

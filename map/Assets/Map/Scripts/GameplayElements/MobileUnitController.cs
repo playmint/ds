@@ -44,16 +44,18 @@ public class MobileUnitController : MapElementController
         {
             if (state.Selected.MobileUnit.Id == _id)
             {
-                foreach (GameObject outlineObj in outlineObjs)
+                foreach (Renderer outlineObj in outlineObjs)
                 {
-                    outlineObj.SetActive(true);
+                    outlineActivated = true;
+                    outlineObj.material = MapElementManager.instance.redOutlineMat;
                 }
                 return;
             }
         }
-        foreach (GameObject outlineObj in outlineObjs)
+        foreach (Renderer outlineObj in outlineObjs)
         {
-            outlineObj.SetActive(false);
+            outlineActivated = false;
+            outlineObj.material = MapElementManager.instance.greenOutlineMat;
         }
         foreach (Renderer rend in renderers)
         {
