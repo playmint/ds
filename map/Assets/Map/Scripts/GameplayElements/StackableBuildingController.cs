@@ -53,6 +53,9 @@ public class StackableBuildingController : MapElementController
         renderers = new Renderer[1];
         renderers[0] = Instantiate(defaultPrefab, stackPositions[0])
             .GetComponentInChildren<Renderer>();
-        outlineObjs = new Renderer[1] { renderers[0].transform.GetChild(0).GetComponent<Renderer>() };
+        outlineObjs = new Renderer[1]
+        {
+            renderers[0].transform.GetChild(0).GetComponent<Renderer>()
+        };
     }
 }

@@ -13,7 +13,8 @@ public class MapElementManager : MonoBehaviour
     const uint GOO_BLUE = 1;
     const uint GOO_RED = 2;
 
-    public Material redOutlineMat, greenOutlineMat;
+    public Material redOutlineMat,
+        greenOutlineMat;
 
     [SerializeField]
     private GameObject buildingPrefab,

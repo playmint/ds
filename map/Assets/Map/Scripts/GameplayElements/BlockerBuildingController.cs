@@ -22,7 +22,10 @@ public class BlockerBuildingController : MapElementController
         }
         buildingModels.FirstOrDefault(m => m.name == model).SetActive(true);
         outlineObjs = new Renderer[1];
-        outlineObjs[0] = outlineModels.FirstOrDefault(m => m.name == model).GetComponent<Renderer>(); ;
+        outlineObjs[0] = outlineModels
+            .FirstOrDefault(m => m.name == model)
+            .GetComponent<Renderer>();
+        ;
         outlineObjs[0].gameObject.SetActive(true);
     }
 }
