@@ -10,10 +10,10 @@ async function getCocktailOfTheMoment() {
     if (!cocktail || !recentlyUpdate) {
         lastUpdated = now;
         cocktail = await fetch(`https://www.thecocktaildb.com/api/json/v1/1/random.php`)
-            .then(txt => JSON.parse(txt));
+            .then(res => res.json());
     }
     if (!cocktail) {
-        return '';
+        return 'A Mystery';
     }
     const drink = cocktail.drinks.find(() => true);
     const ingriedients = [

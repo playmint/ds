@@ -435,15 +435,79 @@ export function loadPlugin(runtime: QuickJSRuntime, dispatch: DispatchFunc, logg
     debugHandle.dispose();
 
     // expose fetch api
-    const fetchHandle = context.newFunction('fetch', (pathHandle) => {
+    // this is not the full fetch API... it's just enough to do:
+    //
+    //  // GET some json from a url
+    //  const data = await fetch(url).then(res => res.json())
+    //
+    //  // GET some text from a url
+    //  const txt = await fetch(url).then(res => res.text())
+    //
+    //  // POST some json data to a url and check status
+    //  const ok = await fetch(url, {method: 'POST', body: JSON.stringify({})}).then(res => res.ok);
+    //
+    // but the bits that are supported are following the fetch api
+    // so we may support more of the api in the future
+    const fetchHandle = context.newFunction('fetch', (pathHandle, optsHandle) => {
+        if (!pathHandle) {
+            throw new Error('first arg to fetch should be a url string');
+        }
         const path = context.getString(pathHandle);
+        const optsDump =
+            optsHandle && optsHandle !== context.undefined && optsHandle !== context.null
+                ? context.dump(optsHandle)
+                : {};
+        const unsafeOpts = typeof optsDump === 'object' ? optsDump : {};
+        const allowedOpts: RequestInit = {};
+        if (unsafeOpts.method) {
+            allowedOpts.method = unsafeOpts.method;
+        }
+        if (unsafeOpts.body) {
+            allowedOpts.body = unsafeOpts.body;
+        }
+        const opts: RequestInit = { method: 'GET', ...allowedOpts };
         const promise = context.newPromise();
         // TODO: add a strict AbortController to force plugins to make fast requests
-        // TODO: returning text isn't really the fetch api is it.... implement the response object proper
-        fetch(path)
-            .then((res) => res.text())
-            .then((data) => {
-                promise.resolve(context.newString(data || ''));
+        fetch(path, opts)
+            .then((res) => {
+                const resObj = context.newObject();
+
+                context.newNumber(res.status).consume((handle) => context.setProp(resObj, 'status', handle));
+                context.newString(res.statusText).consume((handle) => context.setProp(resObj, 'statusText', handle));
+                context.setProp(resObj, 'ok', res.ok ? context.true : context.false);
+
+                context
+                    .newFunction('json', () => {
+                        const p = context.newPromise();
+                        res.json().then((json) => {
+                            const bodyJSON = context.evalCode(`((json) => json)(${JSON.stringify(json)})`);
+                            const bodyJSONHandle = context.unwrapResult(bodyJSON);
+                            p.resolve(bodyJSONHandle);
+                            bodyJSONHandle.dispose();
+                        });
+                        p.settled.then(context.runtime.executePendingJobs);
+                        return p.handle;
+                    })
+                    .consume((handle) => context.setProp(resObj, 'json', handle));
+
+                context
+                    .newFunction('text', () => {
+                        const p = context.newPromise();
+                        res.text().then((txt) => {
+                            p.resolve(context.newString(txt || ''));
+                        });
+                        p.settled.then(context.runtime.executePendingJobs);
+                        return p.handle;
+                    })
+                    .consume((handle) => context.setProp(resObj, 'text', handle));
+
+                promise.resolve(resObj);
+                resObj.dispose();
+            })
+            .catch((err) => {
+                console.error(`[plugin ${config.name}] fetch: ${err}`);
+                // TODO: return proper Error not string
+                promise.reject(context.newString(`${err}`));
             });
         promise.settled.then(context.runtime.executePendingJobs);
         return promise.handle;
@@ -467,7 +531,6 @@ export function loadPlugin(runtime: QuickJSRuntime, dispatch: DispatchFunc, logg
         `
             import update from '__plugin__';
             globalThis.__update = async (nextState, block) => {
-
                 const res = await Promise.resolve(update(nextState, block));
 
                 // replace funcs with refs
@@ -513,7 +576,6 @@ export function loadPlugin(runtime: QuickJSRuntime, dispatch: DispatchFunc, logg
                 globalThis.__refs = refs;
 
                 return JSON.stringify(res);
-
             };
         `,
     );
