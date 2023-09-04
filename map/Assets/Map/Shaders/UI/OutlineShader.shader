@@ -113,9 +113,8 @@ Shader "UI/Outline"
             fixed4 frag(v2f IN) : SV_Target
             {
                 half4 img = tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd;
-                half4 img2 = img;
                 half4 color = _OutlineColor;//IN.color;
-                color.a = max(saturate(img.a*_OutlinePower)-img.r,saturate(step(1,img.a+_OutlinePower2))-img.r);
+                color.a = clamp(max(saturate(img.b*_OutlinePower)-img.r,saturate(step(1,img.b+_OutlinePower2))-img.r),0,1);
                 #ifdef UNITY_UI_CLIP_RECT
                 color.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);
                 #endif

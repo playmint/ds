@@ -13,7 +13,7 @@ public class MapElementController : MonoBehaviour
     protected GameObject iconPrefab;
 
     [SerializeField]
-    protected GameObject[] outlineObjs;
+    protected Renderer[] outlineObjs;
 
     [SerializeField]
     private bool createIcon = true;
@@ -30,6 +30,8 @@ public class MapElementController : MonoBehaviour
     protected string _id;
 
     protected Color _defaultColor;
+
+    protected bool outlineActivated;
 
     private void Awake()
     {
@@ -83,7 +85,7 @@ public class MapElementController : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit))
         {
-            if (hit.transform == transform && !outlineObjs[0].activeSelf)
+            if (hit.transform == transform && !outlineActivated)
             {
                 foreach (Renderer rend in renderers)
                 {
@@ -124,15 +126,17 @@ public class MapElementController : MonoBehaviour
         }
         if (activateOutline)
         {
-            foreach (GameObject outlineObj in outlineObjs)
+            foreach (Renderer outlineObj in outlineObjs)
             {
-                outlineObj.SetActive(true);
+                outlineActivated = true;
+                outlineObj.material = MapElementManager.instance.redOutlineMat;
             }
             return;
         }
-        foreach (GameObject outlineObj in outlineObjs)
+        foreach (Renderer outlineObj in outlineObjs)
         {
-            outlineObj.SetActive(false);
+            outlineActivated = false;
+            outlineObj.material = MapElementManager.instance.greenOutlineMat;
         }
         foreach (Renderer rend in renderers)
         {
