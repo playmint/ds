@@ -26,6 +26,7 @@ async function main({
     gameAddress,
     deploymentName,
     maxConnections,
+    version,
 }) {
     // abort if attempt to overrite ds-main or ds-exp
     if (deploymentName === 'main') {
@@ -37,8 +38,7 @@ async function main({
     console.log('\n');
 
     // get the current commit
-    const longSHA = execSync(`git rev-parse HEAD`).toString().trim();
-    const shortSHA = execSync(`git rev-parse HEAD`).toString().trim();
+    const longSHA = version || execSync(`git rev-parse HEAD`).toString().trim();
 
     // get the expected image names
     const images = {
@@ -66,7 +66,7 @@ async function main({
     // check that a deployment suceeded so that we know that this build is
     // at least in a deployable condition
     if (!dryRun) {
-        await check(`github action checks for ${shortSHA}`, async () => {
+        await check(`github action checks for ${longSHA}`, async () => {
             const workflows = await octokit.request(`GET /repos/${GITHUB_OWNER}/${GITHUB_REPO}/actions/runs?head_sha=${longSHA}`, {
                 owner: GITHUB_OWNER,
                 repo: GITHUB_REPO,
@@ -311,6 +311,10 @@ yargs
         cli.positional('allow-dirty', {
             describe: 'skip git dirty checking',
             type: 'boolean'
+        });
+        cli.option('version', {
+            describe: 'git commit to deploy',
+            type: 'string'
         });
         cli.option('sequencer-private-key', {
             required: true,
