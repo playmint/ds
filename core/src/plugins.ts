@@ -120,7 +120,7 @@ export function makePluginUI(
                             return plugin.update(state, block);
                         } catch (err) {
                             console.error(`plugin ${p.id}:`, err);
-                            return Promise.resolve({ components: [], version: 1, error: `${err}` });
+                            return null;
                         }
                     })
                     .filter((res): res is Promise<PluginUpdateResponse> => !!res);
