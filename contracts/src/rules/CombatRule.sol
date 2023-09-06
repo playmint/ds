@@ -34,6 +34,7 @@ uint32 constant UNIT_BASE_ATTACK = 30;
 uint32 constant LIFE_MUL = 10;
 
 uint64 constant BLOCKS_PER_TICK = 1;
+uint64 constant MAX_TICKS = 300;
 uint8 constant MAX_ENTITIES_PER_SIDE = 100; // No higher than 256 due to there being a reward bag for each entity and edges being 8 bit indices
 uint8 constant HASH_EDGE_INDEX = 2;
 
@@ -323,7 +324,7 @@ contract CombatRule is Rule {
         CombatAction[][] memory sessionUpdates,
         uint32[] memory sortedListIndexes,
         uint64 endBlockNum
-    ) public pure returns (CombatState memory combatState) {
+    ) private pure returns (CombatState memory combatState) {
         combatState = CombatState({
             attackerStates: new EntityState[](MAX_ENTITIES_PER_SIDE),
             defenderStates: new EntityState[](MAX_ENTITIES_PER_SIDE),
@@ -388,15 +389,20 @@ contract CombatRule is Rule {
                     combatState.winState = CombatWinState.DEFENDERS;
                     return (combatState);
                 }
-            }
 
-            combatState.tickCount++;
+                combatState.tickCount++;
+                if (combatState.tickCount == MAX_TICKS) {
+                    combatState.winState = CombatWinState.DRAW;
+                    return combatState;
+                }
+            }
         }
 
-        // As there is no longer a block limit to combat so cannot draw
-        // if (combatState.winState == CombatWinState.NONE) {
-        //     combatState.winState = CombatWinState.DRAW;
-        // }
+        // if we got here, then we hit MAX_TICKS without a winner, it's a DRAW
+        if (combatState.winState == CombatWinState.NONE && combatState.tickCount == MAX_TICKS) {
+            combatState.winState = CombatWinState.DRAW;
+        }
+        return combatState;
     }
 
     // NOTE: entityIndex is the index within one of the two arrays and entityNum is witin the whole battle
@@ -768,9 +774,9 @@ contract CombatRule is Rule {
 
     // -- MATH
 
-    // function min(int256 a, int256 b) public pure returns (int256) {
-    //     return a < b ? a : b;
-    // }
+    function min(uint64 a, uint64 b) private pure returns (uint64) {
+        return a < b ? a : b;
+    }
 
     // function max(int256 a, int256 b) public pure returns (int256) {
     //     return a > b ? a : b;
