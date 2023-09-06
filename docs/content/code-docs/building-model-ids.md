@@ -57,13 +57,13 @@ For example, `model: GrassLarge` would create a blocker with the Large Grass mod
     - ![](/images/building-totems/blockers/PineTreesLarge.png)
 - **ID: `'PineTreesSmall'`** 
     - ![](/images/building-totems/blockers/PineTreesSmall.png)
-- **ID: `'rocksLarge'`** 
-    - ![](/images/building-totems/blockers/Shrub.png)
-- **ID: `'rocksSmall'`** 
-    - ![](/images/building-totems/blockers/StoneWall.png)
 - **ID: `'Shrub'`** 
-    - ![](/images/building-totems/blockers/rocksLarge.png)
+    - ![](/images/building-totems/blockers/Shrub.png)
 - **ID: `'StoneWall'`** 
+    - ![](/images/building-totems/blockers/StoneWall.png)
+- **ID: `'rocksLarge'`** 
+    - ![](/images/building-totems/blockers/rocksLarge.png)
+- **ID: `'rocksSmall'`** 
     - ![](/images/building-totems/blockers/rocksSmall.png)
 
 ## Extractor Buildings ##
