@@ -19,6 +19,7 @@ const baseStyles = (_: TickTimerProgressBarStyleProps) => {
         padding: 0 0.4rem;
         display: flex;
         justify-content: center;
+        min-height: 2px;
 
         .progress-bar {
             position: absolute;

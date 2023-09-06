@@ -67,7 +67,7 @@ const baseStyles = (_: Partial<CombatModalProps>) => css`
         display: flex;
         flex-grow: 1;
         background: #061e3d;
-        max-height: 36rem;
+        // max-height: 36rem;
 
         .attackers,
         .defenders {
@@ -110,10 +110,11 @@ const baseStyles = (_: Partial<CombatModalProps>) => css`
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
-        height: 8.5rem;
+        // height: 8.5rem;
+        margin-top: 0.2rem;
 
         > .action-button {
-            margin: 0 auto 1.2rem;
+            margin: 1rem auto 1.2rem;
         }
     }
 `;

@@ -83,8 +83,6 @@ contract ScoutRule is Rule {
 
         // function noise2d(int256 _x, int256 _y, int256 denomX, int256 denomY, uint8 precision) internal pure returns (int128)
 
-        uint256 rnd = uint256(keccak256(abi.encodePacked(coords)));
-
         // NOTE: noise2d outputs from 0 to 1 in 64.64 fixed point. Using 8 bits of 'randomness' to randomise 25% of the potential goo value
         //       If we don't want to randomise we can simply set the precision param to 8 and get rid of the multiplication
 
