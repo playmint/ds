@@ -4,6 +4,7 @@ import { ethers, getUint, keccak256 } from 'ethers';
 
 const BLOCKS_PER_TICK = 1;
 const MAX_ENTITIES_PER_SIDE = 100;
+export const MAX_TICKS = 300;
 
 export const ATOM_LIFE = 0;
 export const ATOM_DEFENSE = 1;
@@ -158,13 +159,17 @@ export class Combat {
                 }
 
                 combatState.tickCount++;
+                if (combatState.tickCount == MAX_TICKS) {
+                    combatState.winState = CombatWinState.DRAW;
+                    return combatState;
+                }
             }
         }
 
-        // There isn't a hard limit on number of ticks at the moment so cannot draw
-        // if (combatState.winState === CombatWinState.NONE) {
-        //     combatState.winState = CombatWinState.DRAW;
-        // }
+        // if we got here, then we hit MAX_TICKS without a winner, it's a DRAW
+        if (combatState.winState === CombatWinState.NONE && combatState.tickCount == MAX_TICKS) {
+            combatState.winState = CombatWinState.DRAW;
+        }
 
         return combatState;
     }

@@ -25,7 +25,7 @@ import {
     getTileEntities,
     sumParticipants,
 } from '@app/plugins/combat/helpers';
-import { Combat, CombatWinState } from '@app/plugins/combat/combat';
+import { Combat, CombatWinState, MAX_TICKS } from '@app/plugins/combat/combat';
 import { useMounted } from '@app/hooks/use-mounted';
 
 export type CombatModalProps = ComponentProps & {
@@ -64,6 +64,7 @@ type CombatStateProps = CombatModalProps &
         selectedTiles: SelectedTileFragment[];
         blockNumber: number;
         blockTime: number;
+        tickCount: number;
     };
 
 type PostCombatStateProps = CombatModalProps &
@@ -201,8 +202,7 @@ const CombatState: FunctionComponent<CombatStateProps> = (props) => {
         defenders,
         defendersMaxHealth,
         defendersCurrentHealth,
-        blockNumber,
-        blockTime,
+        tickCount,
     } = props;
 
     return (
@@ -219,7 +219,8 @@ const CombatState: FunctionComponent<CombatStateProps> = (props) => {
                 <CombatParticipants attackers={attackers} defenders={defenders} />
             </div>
             <div className="footer">
-                <TickTimerProgressBar className="in-progress" blockTime={blockTime} blockNumber={blockNumber} />
+                <TickTimerProgressBar className="in-progress" every={2000} />
+                <ProgressBar maxValue={MAX_TICKS} currentValue={MAX_TICKS - tickCount} />
             </div>
         </StyledCombatModal>
     );
@@ -360,7 +361,6 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
             name: 'FINALISE_COMBAT',
             args: [latestSession.id, actions, orderedListIndexes],
         };
-        console.log(latestSession.id, actions, orderedListIndexes);
         player?.dispatch(action).catch((err) => console.error(err));
     };
 
@@ -455,6 +455,7 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
                 defendersCurrentHealth={defendersCurrentHealth}
                 blockNumber={blockNumber || 0}
                 blockTime={3}
+                tickCount={combatState.tickCount}
             />
         );
     }
