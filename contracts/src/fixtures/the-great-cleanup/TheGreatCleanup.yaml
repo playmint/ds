@@ -2,6 +2,7 @@
 kind: BuildingKind
 spec:
   name: The Great Cleanup
+  description: "A vital part of the simulation. Always eager to recruit new participants."
   category: factory
   model: 01-02
   contract:

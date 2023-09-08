@@ -68,7 +68,6 @@ export default async function update({ selected }) {
                         type: 'inline',
                         buttons: [ { text: 'Pour Cocktail', type: 'action', action: craft, disabled: !canPourDrink } ],
                         html: `
-                            <p>Come relax, and have a drink!</p>
                             <p>We supply the best drinks in Hexwood!</p>
                             <br />
                             <p>The current cocktail is:</p>

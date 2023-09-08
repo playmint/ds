@@ -55,7 +55,7 @@ export default function update({ selected, world }) {
                     {
                         id: 'default',
                         type: 'inline',
-                        html: `Expert manufacturers of top-quality tyres`,
+                       // html: `Expert manufacturers of top-quality tyres`,
                         buttons: [{ text: 'Manufacture Tyre', type: 'action', action: craft, disabled: !canCraft }],
                     },
                 ],

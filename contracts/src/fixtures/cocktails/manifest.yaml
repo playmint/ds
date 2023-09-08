@@ -15,6 +15,7 @@ spec:
 kind: BuildingKind
 spec:
   name: Cocktail Hut
+  description: "Come relax, and have a drink!"
   category: factory
   model: 01-08
   contract:

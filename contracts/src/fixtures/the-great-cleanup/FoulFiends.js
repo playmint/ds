@@ -53,7 +53,7 @@ export default function update({ selected, world }) {
                     {
                         id: 'default',
                         type: 'inline',
-                        html: "Come one, come all. We serve only the finest ducks.",
+                        //html: "Come one, come all. We serve only the finest ducks.",
                         buttons: [{ text: 'One duck good sir!', type: 'action', action: craft, disabled: !canCraft }],
                     },
                 ],
