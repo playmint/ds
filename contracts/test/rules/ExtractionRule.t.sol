@@ -102,7 +102,7 @@ contract ExtractionRuleTest is Test, GameTest {
         state.setTileAtomValues(tile, [uint64(255), uint64(0), uint64(0)]);
 
         // -- Move time forward to completely fill reservoir
-        vm.roll(block.number + 1000);
+        vm.roll(block.number + 2000);
 
         // extract
         vm.startPrank(address(mockBuildingContract));
