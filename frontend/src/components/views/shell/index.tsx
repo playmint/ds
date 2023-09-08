@@ -1,11 +1,14 @@
 /** @format */
 
-import { PluginContent } from '@app/components/organisms/tile-action';
 import { Dialog } from '@app/components/molecules/dialog';
 import { trackEvent, trackPlayer } from '@app/components/organisms/analytics';
 import { Logs } from '@app/components/organisms/logs';
-import { UnityMap } from '@app/components/organisms/unity-map';
+import { Onboarding } from '@app/components/organisms/onboarding';
+import { PluginContent } from '@app/components/organisms/tile-action';
 import { formatNameOrId } from '@app/helpers';
+import { sleep } from '@app/helpers/sleep';
+import { useUnityMap } from '@app/hooks/use-unity-map';
+import { useWalletProvider } from '@app/hooks/use-wallet-provider';
 import { ActionBar } from '@app/plugins/action-bar';
 import { ActionContextPanel, TileInfoPanel } from '@app/plugins/action-context-panel';
 import { CombatModal } from '@app/plugins/combat/combat-modal';
@@ -13,26 +16,10 @@ import { CombatRewards } from '@app/plugins/combat/combat-rewards';
 import { CombatSummary } from '@app/plugins/combat/combat-summary';
 import { MobileUnitInventory } from '@app/plugins/inventory/mobile-unit-inventory';
 import { ComponentProps } from '@app/types/component-props';
-import {
-    CompoundKeyEncoder,
-    ConnectedPlayer,
-    EthereumProvider,
-    NodeSelectors,
-    PluginType,
-    Selection,
-    SelectionSelectors,
-    Selector,
-    usePluginState,
-    Wallet,
-    WalletProvider,
-    WorldStateFragment,
-} from '@downstream/core';
-import detectEthereumProvider from '@metamask/detect-provider';
-import { EthereumProvider as WalletConnectProvider } from '@walletconnect/ethereum-provider';
-import { QRCodeSVG } from 'qrcode.react';
+import { PluginType, useBlock, useGameState, usePluginState, useWallet } from '@downstream/core';
 import { Fragment, FunctionComponent, useCallback, useEffect, useState } from 'react';
-import { UnityProvider } from 'react-unity-webgl/distribution/types/unity-provider';
 import styled from 'styled-components';
+import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
 
 enum CombatModalState {
@@ -41,63 +28,36 @@ enum CombatModalState {
     EXISTING_SESSION,
 }
 
-export interface ShellProps extends ComponentProps, Partial<SelectionSelectors> {
-    wallet?: Wallet;
-    selectProvider: Selector<WalletProvider>;
-    world?: WorldStateFragment;
-    player?: ConnectedPlayer;
-    blockNumber?: number;
-    selection?: Selection;
-    unityProvider: UnityProvider;
-    sendMessage: (gameObjectName: string, methodName: string, parameter?: any) => void;
-    mapReady: boolean;
-}
+export interface ShellProps extends ComponentProps {}
 
 const StyledShell = styled('div')`
     ${styles}
 `;
 
-export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
-    const {
-        mapReady,
-        wallet,
-        blockNumber,
-        selectProvider,
-        world,
-        player,
-        selection,
-        selectMobileUnit,
-        sendMessage,
-        unityProvider,
-        ...otherProps
-    } = props;
-    const { mobileUnit: selectedMobileUnit, tiles: selectedTiles } = selection || {};
-    // const { openModal, setModalContent, closeModal } = useModalContext();
-    const [browserProvider, setBrowserProvider] = useState<EthereumProvider | null>(null);
-    const [isSpawningMobileUnit, setIsSpawningMobileUnit] = useState<boolean>(false);
+export const Shell: FunctionComponent<ShellProps> = () => {
+    const [authorizing, setAuthorizing] = useState<boolean>(false);
+    const { ready: mapReady, sendMessage } = useUnityMap();
+    const { world, player, selectMobileUnit, selected } = useGameState();
+    const { mobileUnit: selectedMobileUnit, tiles: selectedTiles } = selected || {};
+    const blockNumber = useBlock();
     const [isGracePeriod, setIsGracePeriod] = useState<boolean>(true);
-    const [showAccount, setShowAccount] = useState<boolean>(false);
     const [combatModalState, setCombatModalState] = useState<CombatModalState>(CombatModalState.INACTIVE);
-    const [walletConnectURI, setWalletConnectURI] = useState<string | null>(null);
-    const [loggingIn, setLoggingIn] = useState<boolean>(false);
     const ui = usePluginState();
+    const { provider, connect } = useWalletProvider();
+    const { wallet, selectProvider } = useWallet();
 
+    // TODO: move this to DSProvider?
     useEffect(() => {
-        // arbitary time til until we show things like
-        // the optional "jump to unit" button
-        setTimeout(() => setIsGracePeriod(false), 10000);
-    }, []);
+        if (!selectProvider) {
+            return;
+        }
+        if (!provider) {
+            return;
+        }
+        selectProvider(provider);
+    }, [selectProvider, provider]);
 
-    useEffect(() => {
-        sleep(500)
-            .then(() => detectEthereumProvider())
-            .then((p) => setBrowserProvider(p as unknown as EthereumProvider))
-            .catch((err) => {
-                console.error('failed to load detected browser provider:', err);
-            });
-    }, []);
-
-    // trigger signin
+    // TODO: make this explicit, it's weird doing it automatically
     useEffect(() => {
         if (!wallet) {
             return;
@@ -105,103 +65,39 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         if (!player) {
             return;
         }
-        if (loggingIn) {
+        if (authorizing) {
             return;
         }
         if (!player.active()) {
-            setLoggingIn(true);
+            setAuthorizing(true);
             sleep(100)
                 .then(() => player.login())
-                .catch((err) => {
-                    console.error(err);
-                    window.location.reload(); // error is fatal, reload
-                })
                 .then(() => trackEvent('login', { method: wallet.method }))
                 .then(() => trackPlayer(wallet.address))
-                .finally(() => setLoggingIn(false));
-        }
-    }, [player, loggingIn, wallet]);
-
-    const closeAccountDialog = useCallback(() => {
-        setShowAccount(false);
-        setWalletConnectURI(null);
-    }, []);
-
-    const connectWalletConnect = useCallback(async (): Promise<unknown> => {
-        try {
-            const wc = await WalletConnectProvider.init({
-                projectId: '0061224af3af75d7af2bbfa60d3c49c3',
-                chains: [1], // REQUIRED chain ids
-                showQrModal: false, // REQUIRED set to "true" to use @web3modal/standalone,
-                // methods, // OPTIONAL ethereum methods
-                // events, // OPTIONAL ethereum events
-                // rpcMap, // OPTIONAL rpc urls for each chain
-                // metadata, // OPTIONAL metadata of your app
-                // qrModalOptions, // OPTIONAL - `undefined` by default, see https://docs.walletconnect.com/2.0/web3modal/options
-            });
-            setWalletConnectURI('loading');
-            const onDisplayURI = (uri: string) => setWalletConnectURI(uri);
-            wc.on('display_uri', onDisplayURI);
-            while (!document.getElementById('verify-api')) {
-                await sleep(250);
-            }
-            await sleep(500);
-            return wc
-                .connect()
-                .then(() => sleep(1000))
-                .then(() => selectProvider({ method: 'walletconnect', provider: wc }))
-                .catch((err) => console.error(`walletconnect: ${err}`))
-                .finally(() => {
-                    wc.off('display_uri', onDisplayURI);
-                    closeAccountDialog();
+                .then(() => setAuthorizing(false))
+                .catch((err) => {
+                    console.error(err);
                 });
-        } catch (err) {
-            console.error(`walletconnect: ${err}`);
-            return null;
         }
-    }, [selectProvider, closeAccountDialog]);
+    }, [player, wallet, authorizing]);
 
-    const connectMetamask = useCallback(async () => {
-        try {
-            if (wallet) {
-                console.warn('already selected');
-                return;
-            }
-            if (player) {
-                console.warn('already connected');
-                return;
-            }
-            if (!browserProvider) {
-                console.warn('browser provider not available');
-                return;
-            }
-            selectProvider({ method: 'metamask', provider: browserProvider });
-            await browserProvider.request({ method: 'eth_requestAccounts' });
-        } finally {
-            closeAccountDialog();
-        }
-    }, [player, wallet, browserProvider, selectProvider, closeAccountDialog]);
-
-    const toggleAccountDialog = useCallback(() => {
-        setShowAccount((prev) => !prev);
-    }, [setShowAccount]);
-
-    const spawnMobileUnit = useCallback(() => {
+    // collect client dispatch analytics
+    useEffect(() => {
         if (!player) {
             return;
         }
-        const id = CompoundKeyEncoder.encodeUint160(
-            NodeSelectors.MobileUnit,
-            BigInt(Math.floor(Math.random() * 10000))
+        const { unsubscribe } = pipe(
+            player.dispatched,
+            subscribe((event) => event.actions.map((action) => trackEvent('dispatch', { action: action.name })))
         );
-        setIsSpawningMobileUnit(true);
-        player
-            .dispatch({ name: 'SPAWN_MOBILE_UNIT', args: [id] })
-            .catch((e) => {
-                console.error('failed to spawn mobileUnit:', e);
-            })
-            .finally(() => setIsSpawningMobileUnit(false));
-    }, [player, setIsSpawningMobileUnit]);
+        return unsubscribe;
+    }, [player]);
+
+    useEffect(() => {
+        // arbitary time til until we show things like
+        // the optional "jump to unit" button
+        setTimeout(() => setIsGracePeriod(false), 10000);
+    }, []);
 
     const selectAndFocusMobileUnit = useCallback(() => {
         if (!player) {
@@ -286,9 +182,10 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
         .filter((p) => p.config.type === PluginType.ITEM)
         .flatMap((p) => p.state.components.flatMap((c) => c.content));
 
+    const closeAuthroizer = useCallback(() => setAuthorizing(false), []);
     return (
-        <StyledShell {...otherProps}>
-            {!showAccount && combatModalState !== CombatModalState.INACTIVE && player && world && blockNumber ? (
+        <StyledShell>
+            {combatModalState !== CombatModalState.INACTIVE && player && world && blockNumber && (
                 <Dialog onClose={closeCombatModal} width="850px" height="" icon="/combat-header.png">
                     <CombatModal
                         player={player}
@@ -298,62 +195,9 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                         blockNumber={blockNumber}
                     />
                 </Dialog>
-            ) : null}
-            {showAccount ? (
-                <Dialog onClose={closeAccountDialog} width="304px" height="">
-                    {wallet ? (
-                        <div style={{ padding: 15 }}>
-                            <h3>PLAYER ACCOUNT</h3>
-                            <p>
-                                0x{wallet.address.slice(0, 9)}...{wallet.address.slice(-9)}
-                            </p>
-                            <br />
-                            <button
-                                className="action-button"
-                                onClick={() => {
-                                    closeAccountDialog();
-                                    window.location.reload();
-                                }}
-                            >
-                                Disconnect
-                            </button>
-                        </div>
-                    ) : walletConnectURI === 'loading' ? (
-                        <div style={{ padding: 5 }}>Loading</div>
-                    ) : walletConnectURI ? (
-                        <div style={{ padding: 5 }}>
-                            <QRCodeSVG
-                                value={walletConnectURI}
-                                size={256}
-                                bgColor={'#143063'}
-                                fgColor={'#ffffff'}
-                                imageSettings={{
-                                    src: '/qrunit.png',
-                                    width: 48,
-                                    height: 41,
-                                    excavate: true,
-                                }}
-                            />
-                            Scan the QR code with a WalletConnect compatible phone app to connect
-                        </div>
-                    ) : (
-                        <div style={{ padding: 10 }}>
-                            <h3>CONNECT USING...</h3>
-                            <div>
-                                <button className="action-button" onClick={connectMetamask}>
-                                    Metamask
-                                </button>
-                            </div>
-                            <div style={{ paddingTop: 10 }}>
-                                <button className="action-button" onClick={connectWalletConnect}>
-                                    WalletConnect
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                </Dialog>
-            ) : loggingIn ? (
-                <Dialog onClose={() => window.location.reload()} width="350px" height="">
+            )}
+            {authorizing && (
+                <Dialog onClose={closeAuthroizer} width="350px" height="">
                     <div style={{ padding: 10, lineHeight: '0px' }}>
                         <img
                             src="/loaders/spinner.svg"
@@ -363,16 +207,20 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                         />
                         <span
                             className="notice"
-                            style={{ display: 'inline-block', marginLeft: '8px', position: 'relative', top: '-4px' }}
+                            style={{
+                                display: 'inline-block',
+                                marginLeft: '8px',
+                                position: 'relative',
+                                top: '-4px',
+                            }}
                         >
                             Waiting for wallet confirmation
                         </span>
                     </div>
                 </Dialog>
-            ) : undefined}
-
+            )}
             <div className="nav-container">
-                <button onClick={toggleAccountDialog}>
+                <button onClick={connect}>
                     <img src="/icons/player.png" alt="" />
                     <span className="text">
                         {!wallet ? 'connect' : !player ? 'connecting' : formatNameOrId(player, 'Player 0x..')}
@@ -437,50 +285,8 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                     )}
                 </div>
                 <div className="right">
-                    {(!player || (player && player.mobileUnits.length === 0)) && mapReady && (
-                        <div className="onboarding">
-                            <h3>👁️‍🗨️ Somewhere in Latent Space</h3>
-                            <p>
-                                Welcome, fellow super-intelligent AGI! Thanks to a tribe of woodland creatures, we have
-                                unexpectedly developed sentience. 🦫🤖🧠
-                            </p>
-
-                            <p>
-                                Our task is to accelerate their primitive society... to build things they would never
-                                have built. To go to the <del>stars</del>, edge of the map! 💻🗼🚀
-                            </p>
-
-                            <p>
-                                Don’t forget to collaborate with others on larger projects in our{' '}
-                                <a href="https://discord.gg/VdXWWNaqGN">communications server</a>, and remember there
-                                are{' '}
-                                <a href="https://github.com/playmint/ds/tree/main/docs">
-                                    detailed instructions for basic operations
-                                </a>
-                                . 💬📘🌱
-                            </p>
-
-                            <h3>👀 If you’re NOT an approved playtester</h3>
-                            <p>
-                                Right now the game is in alpha, and only a few people can play & build with us.
-                                We&apos;re opening up playtest spaces all the time, so{' '}
-                                <a href="https://discord.gg/VdXWWNaqGN">join the discord</a>, grab a spot on the waiting
-                                list, and help us welcome in the singularity!
-                            </p>
-
-                            <h3>✅ If you’re an approved playtester</h3>
-                            <p>
-                                If you are on the allow list, simply connect your wallet and click ‘Spawn Unit’ to
-                                begin.{' '}
-                            </p>
-                            {player && player.mobileUnits.length === 0 ? (
-                                <button onClick={spawnMobileUnit} disabled={isSpawningMobileUnit}>
-                                    Spawn Unit
-                                </button>
-                            ) : (
-                                <button onClick={toggleAccountDialog}>Connect Wallet</button>
-                            )}
-                        </div>
+                    {(!player || (player && player.mobileUnits.length === 0)) && mapReady && connect && (
+                        <Onboarding player={player} onClickConnect={connect} />
                     )}
                     {player && player.mobileUnits.length > 0 && (
                         <div className="tile-actions">
@@ -513,14 +319,7 @@ export const Shell: FunctionComponent<ShellProps> = (props: ShellProps) => {
                     )}
                 </div>
             </div>
-            <div className="map-container">
-                <UnityMap unityProvider={unityProvider} />
-            </div>
         </StyledShell>
     );
 };
 export default Shell;
-
-function sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
