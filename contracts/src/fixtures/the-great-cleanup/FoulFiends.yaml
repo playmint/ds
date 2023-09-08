@@ -2,6 +2,7 @@
 kind: BuildingKind
 spec:
   name: Foul Fiends
+  description: "A shop that specialises in the procurement of ducks."
   category: factory
   model: 03-04
   contract:

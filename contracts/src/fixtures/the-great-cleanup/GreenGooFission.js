@@ -53,8 +53,8 @@ export default function update({ selected, world }) {
                     {
                         id: 'default',
                         type: 'inline',
-                        html: `A reactor that fuses Green Goo into Vibrant Green Goo`,
-                        buttons: [{ text: 'Commence Fusion', type: 'action', action: craft, disabled: !canCraft }],
+                        //html: `A reactor that fuses Green Goo into Vibrant Green Goo`,
+                        buttons: [{ text: 'Commence Fission', type: 'action', action: craft, disabled: !canCraft }],
                     },
                 ],
             },

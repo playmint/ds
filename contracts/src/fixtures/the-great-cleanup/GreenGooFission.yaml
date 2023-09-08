@@ -2,6 +2,7 @@
 kind: BuildingKind
 spec:
   name: Green Goo Fission
+  description: "A reactor that fuses Green Goo into Vibrant Green Goo."
   category: factory
   model: 08-07
   contract:

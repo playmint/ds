@@ -2,6 +2,7 @@
 kind: BuildingKind
 spec:
   name: Kwik Tyre
+  description: "Expert manufacturers of top-quality tyres."
   category: factory
   model: 05-06
   contract:

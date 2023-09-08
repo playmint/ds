@@ -2,6 +2,7 @@
 kind: BuildingKind
 spec:
   name: Crazy Hermit
+  description: "A strange humanoid resides here."
   category: factory
   model: 04-03
   contract:
