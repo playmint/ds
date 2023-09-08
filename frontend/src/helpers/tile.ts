@@ -61,10 +61,10 @@ export const GOO_RED = 2;
 export const getSecsPerGoo = (atomVal: number) => {
     if (atomVal < 70) return 0;
 
-    const x = atomVal - 63;
-    const baseSecsPerGoo = 120 * Math.pow(0.973, x);
+    const x = atomVal - 70;
+    const baseSecsPerGoo = 120 * Math.pow(0.985, x);
 
-    if (atomVal >= 165) return Math.max(baseSecsPerGoo * 0.75, 4);
+    if (atomVal >= 165) return Math.max(baseSecsPerGoo * 0.75, 20);
     else if (atomVal >= 155) return baseSecsPerGoo * 0.85;
     else return baseSecsPerGoo;
 };
