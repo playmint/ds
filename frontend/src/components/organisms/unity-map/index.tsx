@@ -42,11 +42,20 @@ export const UnityMap: FunctionComponent<UnityMapProps> = ({ unityProvider, ...o
         };
         // A media matcher which watches for changes in the device pixel ratio.
         const mediaMatcher = window.matchMedia(`screen and (resolution: ${devicePixelRatio}dppx)`);
+        if (!mediaMatcher) {
+            return;
+        }
         // Adding an event listener to the media matcher which will update the
         // device pixel ratio of the Unity Application when the device pixel
         // ratio changes.
+        if (!mediaMatcher.addEventListener) {
+            return;
+        }
         mediaMatcher.addEventListener('change', updateDevicePixelRatio);
         return function () {
+            if (!mediaMatcher.addEventListener) {
+                return;
+            }
             // Removing the event listener when the component unmounts.
             mediaMatcher.removeEventListener('change', updateDevicePixelRatio);
         };
