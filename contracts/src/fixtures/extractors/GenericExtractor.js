@@ -24,18 +24,19 @@ function getGooColor(gooIndex) {
 const getSecsPerGoo = (atomVal) => {
     if (atomVal < 70) return 0;
 
-    const x = atomVal - 63;
-    const baseSecsPerGoo = 120 * Math.pow(0.973, x);
+    const x = atomVal - 70;
+    const baseSecsPerGoo = 120 * Math.pow(0.985, x);
 
-    if (atomVal >= 165) return Math.max(baseSecsPerGoo * 0.75, 4);
+    if (atomVal >= 165) return Math.max(baseSecsPerGoo * 0.75, 20);
     else if (atomVal >= 155) return baseSecsPerGoo * 0.85;
     else return baseSecsPerGoo;
 };
 
 const getGooPerSec = (atomVal) => {
     const secsPerGoo = getSecsPerGoo(atomVal);
-    return secsPerGoo > 0 ? Math.floor((1 / secsPerGoo) * 100) / 100 : 0;
+    return secsPerGoo > 0 ? ((1 / secsPerGoo) * 100) / 100 : 0;
 };
+
 
 export default function update({ selected, world }, block) {
     const { tiles, mobileUnit } = selected || {};
