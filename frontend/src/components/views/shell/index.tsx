@@ -21,6 +21,8 @@ import { Fragment, FunctionComponent, useCallback, useEffect, useState } from 'r
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
+import Image from 'next/image';
+import spinner from '@app/../public/loaders/spinner.svg';
 
 enum CombatModalState {
     INACTIVE,
@@ -199,10 +201,10 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             {authorizing && (
                 <Dialog onClose={closeAuthroizer} width="350px" height="">
                     <div style={{ padding: 10, lineHeight: '0px' }}>
-                        <img
-                            src="/loaders/spinner.svg"
-                            width="24"
-                            alt=""
+                        <Image
+                            src={spinner}
+                            width={24}
+                            alt="loading"
                             style={{ display: 'inline-block', filter: 'invert(1)' }}
                         />
                         <span
