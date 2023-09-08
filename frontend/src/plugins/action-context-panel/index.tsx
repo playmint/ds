@@ -182,7 +182,7 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, world, m
             {gooRatesInNameOrder.map((goo) => (
                 <span key={goo?.name} className="label" style={{ width: '30%' }}>
                     <strong>{goo?.name.toUpperCase().slice(0, 1)}:</strong>{' '}
-                    {`${Math.floor((goo?.gooPerSec || 0) * 100) / 100}/s`}
+                    {`${Math.floor((goo?.gooPerSec || 0) * 3600)}/h`}
                 </span>
             ))}
             {author && (
@@ -256,7 +256,7 @@ const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player }) => {
             {gooRatesInNameOrder.map((goo) => (
                 <span key={goo?.name} className="label" style={{ width: '30%' }}>
                     <strong>{goo?.name.toUpperCase().slice(0, 1)}:</strong>{' '}
-                    {`${Math.floor((goo?.gooPerSec || 0) * 100) / 100}/s`}
+                    {`${Math.floor((goo?.gooPerSec || 0) * 3600)}/h`}
                 </span>
             ))}
         </StyledActionContextPanel>
