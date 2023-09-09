@@ -72,14 +72,14 @@ const cogDefaultConfig = {
  * the initial given config + whatever is passed to setConfig.
  *
  */
-export function makeCogClient(initialConfig: Partial<GameConfig>) {
-    let prev = configureClient({ ...cogDefaultConfig, ...initialConfig });
-    const { source, next } = makeSubject<typeof prev>();
+export function makeCogClient(initialConfig?: Partial<GameConfig>) {
+    let prev = initialConfig ? configureClient({ ...cogDefaultConfig, ...initialConfig }) : undefined;
+    const { source, next } = makeSubject<ReturnType<typeof configureClient>>();
     const setConfig = (cfg: Partial<GameConfig>) => {
         prev = configureClient({ ...cogDefaultConfig, ...initialConfig, ...cfg });
         next(prev);
     };
-    const client = lazy(() => concat([fromValue(prev), source]));
+    const client = lazy(() => (prev ? concat([fromValue(prev), source]) : source));
     return { client, setConfig };
 }
 
