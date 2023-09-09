@@ -1,11 +1,24 @@
 import { ActionName, useGameState } from '@app/../../core/src';
 import { sleep } from '@app/helpers/sleep';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { createRoot } from 'react-dom/client';
 import { Unity, useUnityContext } from 'react-unity-webgl';
+import { UnityContextHook } from 'react-unity-webgl/distribution/types/unity-context-hook';
+import { concat, fromValue, lazy, makeSubject, pipe, Subject, subscribe, tap } from 'wonka';
 
 interface Message {
     msg: string;
 }
+
+type SendMessageFunc = (...args: any[]) => void;
+
+interface GlobalUnityContext {
+    messages: Subject<Message>;
+    ready: Subject<boolean>;
+    unity: Subject<Partial<UnityContextHook>>;
+}
+
+const g = globalThis as unknown as { __globalUnityContext: GlobalUnityContext };
 
 interface DispatchMessage extends Message {
     action: string;
@@ -42,7 +55,6 @@ const CHUNK_BUILDINGS = 50;
 
 // queue of state to send
 let isSending = false;
-let gSendMessage: any;
 let pendingPlayer: any;
 let pendingPlayers: any;
 let pendingTiles: any;
@@ -53,16 +65,15 @@ let hasSentAtLeastOneTilesUpdate = false;
 
 // ---
 
-export interface UnityMapContextValue {
-    ready?: boolean;
-    sendMessage?: (gameObjectName: string, methodName: string, parameter?: any) => void;
-}
-
-export const UnityMapContext = createContext<UnityMapContextValue>({});
-export const useUnityMap = () => useContext(UnityMapContext);
-
-export const UnityMapProvider = ({ children }: { children: ReactNode }) => {
-    const { unityProvider, sendMessage, addEventListener, removeEventListener, loadingProgression } = useUnityContext({
+// [!] THIS COMPONENT IS RENDERED OUT OF THE MAIN REACT ROOT To avoid the fatal
+// issues that occur if the unity app gets even the slightest feeling that it
+// might get unloaded. we render the react canvas exactly once out of tree and
+// never again, this is weird, but significantly more stable than attempt to
+// handle react unmounting/remounting, esspecially when with hot reloading
+const UnityMap = () => {
+    const canvasRef = useRef(null);
+    const [devicePixelRatio, setDevicePixelRatio] = useState(window.devicePixelRatio);
+    const unity = useUnityContext({
         loaderUrl: `/ds-unity/Build/ds-unity.loader.js`,
         dataUrl: `/ds-unity/Build/ds-unity.data`,
         frameworkUrl: `/ds-unity/Build/ds-unity.framework.js`,
@@ -72,36 +83,19 @@ export const UnityMapProvider = ({ children }: { children: ReactNode }) => {
         productName: `Downstream`,
         productVersion: `blueprint`,
     });
-    const [ready, setReady] = useState(false);
-    const {
-        world,
-        player,
-        selectMobileUnit,
-        selectMapElement,
-        selectTiles,
-        selected,
-        selectIntent: rawSelectIntent,
-    } = useGameState();
-    const { dispatch } = player || {};
-    const loadingPercentage = Math.round(loadingProgression * 100);
+    const { unityProvider, loadingProgression, addEventListener, removeEventListener, sendMessage } = unity;
 
-    // We'll use a state to store the device pixel ratio.
-    const [devicePixelRatio, setDevicePixelRatio] = useState(window.devicePixelRatio);
-    const canvasRef = useRef(null);
-
-    const selectIntent = useCallback(
-        (intent: string | undefined, tileId?: string) => {
-            if (!selectTiles) {
-                return;
-            }
-            if (!rawSelectIntent) {
-                return;
-            }
-            selectTiles(tileId ? [tileId] : []);
-            rawSelectIntent(intent);
-        },
-        [selectTiles, rawSelectIntent]
-    );
+    useEffect(() => {
+        if (!g.__globalUnityContext) {
+            return;
+        }
+        g.__globalUnityContext.unity.next({
+            loadingProgression,
+            addEventListener,
+            removeEventListener,
+            sendMessage,
+        });
+    }, [sendMessage, loadingProgression, addEventListener, removeEventListener]);
 
     useEffect(() => {
         // A function which will update the device pixel ratio of the Unity
@@ -135,7 +129,7 @@ export const UnityMapProvider = ({ children }: { children: ReactNode }) => {
             if (typeof window === 'undefined') {
                 return;
             }
-            if (!canvasRef.current) {
+            if (!canvasRef || !canvasRef.current) {
                 return;
             }
             if (!(e.target instanceof Element)) {
@@ -170,7 +164,231 @@ export const UnityMapProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     useEffect(() => {
-        console.warn('setting up timer');
+        if (!addEventListener || !removeEventListener) {
+            return;
+        }
+
+        const onReady = () => {
+            g.__globalUnityContext.ready.next(true);
+        };
+
+        const onMessage = (msgJson: string) => {
+            let msgObj: Message;
+            try {
+                msgObj = JSON.parse(msgJson) as Message;
+            } catch (err) {
+                console.error(`unitymap: onMessage: ${err}`);
+                return;
+            }
+            g.__globalUnityContext.messages.next(msgObj);
+        };
+
+        addEventListener('sendMessage', onMessage);
+        addEventListener('unityReady', onReady);
+
+        return () => {
+            removeEventListener('sendMessage', onMessage);
+            removeEventListener('unityReady', onReady);
+        };
+    }, [addEventListener, removeEventListener]);
+
+    return (
+        <Unity
+            ref={canvasRef}
+            style={{ width: '100vw', height: '100vh', position: 'absolute' }}
+            unityProvider={unityProvider}
+            devicePixelRatio={devicePixelRatio}
+            tabIndex={0}
+        />
+    );
+};
+
+// --
+
+const makeUnityContextSubject = () => {
+    const { source, ...rest } = makeSubject<UnityContextHook>();
+    let prev: UnityContextHook;
+    return {
+        ...rest,
+        source: pipe(
+            lazy(() => (prev ? concat([fromValue(prev), source]) : source)),
+            tap((v) => (prev = v))
+        ),
+    };
+};
+
+const makeUnityReadySubject = () => {
+    const { source, ...rest } = makeSubject<boolean>();
+    let prev: boolean;
+    return {
+        ...rest,
+        source: pipe(
+            lazy(() => (prev ? concat([fromValue(prev), source]) : source)),
+            tap((v) => (prev = v))
+        ),
+    };
+};
+
+const makeUnityMessagesSubject = () => {
+    return makeSubject<Message>();
+};
+
+const useGlobalUnityMapContext = () => {
+    const [unity, setUnity] = useState<Partial<UnityContextHook>>({});
+    const [ready, setReady] = useState<boolean>(false);
+
+    const ctx = g.__globalUnityContext
+        ? g.__globalUnityContext
+        : ((): GlobalUnityContext => {
+              return {
+                  unity: makeUnityContextSubject(),
+                  messages: makeUnityMessagesSubject(),
+                  ready: makeUnityReadySubject(),
+              };
+          })();
+    g.__globalUnityContext = ctx;
+
+    const mapContainer = document.getElementById('map-container');
+    if (!mapContainer) {
+        const mapContainer = document.createElement('div');
+        mapContainer.id = 'map-container';
+        document.body.appendChild(mapContainer);
+        mapContainer.style.position = 'fixed';
+        mapContainer.style.top = '0px';
+        mapContainer.style.left = '0px';
+        mapContainer.style.bottom = '0px';
+        mapContainer.style.right = '0px';
+        const root = createRoot(mapContainer);
+        setTimeout(() => root.render(<UnityMap />), 0); // do this async or react cries about nested renders
+    }
+
+    useEffect(() => {
+        const { unsubscribe } = pipe(
+            ctx.unity.source,
+            subscribe((v) => setUnity(v))
+        );
+        return unsubscribe;
+    }, [ctx.unity.source]);
+
+    useEffect(() => {
+        const { unsubscribe } = pipe(
+            ctx.ready.source,
+            subscribe((v) => setReady(v))
+        );
+        return unsubscribe;
+    }, [ctx.ready.source]);
+
+    return { unity, ready, messages: ctx.messages.source };
+};
+
+// ---
+
+export interface UnityMapContextValue {
+    ready?: boolean;
+    sendMessage?: SendMessageFunc;
+}
+
+export const UnityMapContext = createContext<UnityMapContextValue>({});
+export const useUnityMap = () => useContext(UnityMapContext);
+
+export const UnityMapProvider = ({ children }: { children: ReactNode }) => {
+    const { unity, ready, messages } = useGlobalUnityMapContext();
+    const { sendMessage, loadingProgression } = unity;
+    const {
+        world,
+        player,
+        selectMobileUnit,
+        selectMapElement,
+        selectTiles,
+        selected,
+        selectIntent: rawSelectIntent,
+    } = useGameState();
+    const { dispatch } = player || {};
+    const loadingPercentage = loadingProgression ? Math.round(loadingProgression * 100) : 0;
+
+    const selectIntent = useCallback(
+        (intent: string | undefined, tileId?: string) => {
+            if (!selectTiles) {
+                return;
+            }
+            if (!rawSelectIntent) {
+                return;
+            }
+            selectTiles(tileId ? [tileId] : []);
+            rawSelectIntent(intent);
+        },
+        [selectTiles, rawSelectIntent]
+    );
+
+    const processMessage = useCallback(
+        (msgObj: Message) => {
+            switch (msgObj.msg) {
+                case 'dispatch': {
+                    const { action, args } = msgObj as DispatchMessage;
+                    if (!dispatch) {
+                        console.warn('map attempted to dispatch when there was no player to dispatch with');
+                        return;
+                    }
+                    dispatch({ name: action as ActionName, args }).catch((err) =>
+                        console.error('dispatch from map failed', err)
+                    );
+                    break;
+                }
+                case 'selectTiles': {
+                    const { tileIDs } = msgObj as SelectTileMessage;
+                    if (!selectTiles) {
+                        return;
+                    }
+                    selectTiles(tileIDs);
+                    break;
+                }
+                case 'setIntent': {
+                    const { intent } = msgObj as SetIntentMessage;
+                    selectIntent(intent);
+                    break;
+                }
+                case 'selectMobileUnit': {
+                    const { mobileUnitID } = msgObj as SetMobileUnitMessage;
+                    if (!selectMobileUnit) {
+                        return;
+                    }
+                    selectMobileUnit(mobileUnitID);
+                    break;
+                }
+                case 'selectMapElement': {
+                    const { mapElementID } = msgObj as SetMapElementMessage;
+                    if (!selectMapElement) {
+                        return;
+                    }
+                    selectMapElement(mapElementID);
+                    break;
+                }
+                default: {
+                    console.warn('unhandled message from map:', msgObj);
+                }
+            }
+        },
+        [dispatch, selectTiles, selectIntent, selectMobileUnit, selectMapElement]
+    );
+
+    useEffect(() => {
+        if (!processMessage) {
+            return;
+        }
+        if (!messages) {
+            return;
+        }
+        const { unsubscribe } = pipe(messages, subscribe(processMessage));
+        return unsubscribe;
+    }, [messages, processMessage]);
+
+    useEffect(() => {
+        if (!sendMessage) {
+            return;
+        }
+        if (!ready) {
+            return;
+        }
         const timer = setInterval(() => {
             if (isSending) {
                 return;
@@ -223,7 +441,7 @@ export const UnityMapProvider = ({ children }: { children: ReactNode }) => {
                     args.push(['GameStateMediator', 'EndOnState']);
 
                     for (let i = 0; i < args.length; i++) {
-                        gSendMessage(...args[i]);
+                        sendMessage.apply(sendMessage, args[i]);
                         await sleep(0);
                     }
                 } finally {
@@ -232,68 +450,62 @@ export const UnityMapProvider = ({ children }: { children: ReactNode }) => {
             })().catch((err) => console.error('SendMessage', err));
         }, 25);
         return () => {
-            console.warn('clearing timer');
             clearInterval(timer);
         };
-    }, []);
+    }, [sendMessage, ready]);
 
-    gSendMessage = sendMessage;
-
+    const { players, buildings, tiles, block } = world || {};
     useEffect(() => {
         if (!ready) {
             return;
         }
-        if (!world) {
-            return;
-        }
-
-        if (world.players) {
-            const nextPlayersJSON = JSON.stringify(world.players);
+        if (players) {
+            const nextPlayersJSON = JSON.stringify(players);
             if (nextPlayersJSON != prevPlayersJSON) {
                 pendingPlayers = [['GameStateMediator', 'ResetWorldPlayers']];
-                for (let i = 0; i < world.players.length; i += CHUNK_PLAYERS) {
+                for (let i = 0; i < players.length; i += CHUNK_PLAYERS) {
                     pendingPlayers.push([
                         'GameStateMediator',
                         'AddWorldPlayers',
-                        JSON.stringify(world.players.slice(i, i + CHUNK_PLAYERS)),
+                        JSON.stringify(players.slice(i, i + CHUNK_PLAYERS)),
                     ]);
                 }
                 prevPlayersJSON = nextPlayersJSON;
             }
         }
 
-        if (world.tiles) {
-            const nextTilesJSON = JSON.stringify(world.tiles);
+        if (tiles) {
+            const nextTilesJSON = JSON.stringify(tiles);
             if (nextTilesJSON != prevTilesJSON) {
                 pendingTiles = [['GameStateMediator', 'ResetWorldTiles']];
-                for (let i = 0; i < world.tiles.length; i += CHUNK_TILES) {
+                for (let i = 0; i < tiles.length; i += CHUNK_TILES) {
                     pendingTiles.push([
                         'GameStateMediator',
                         'AddWorldTiles',
-                        JSON.stringify(world.tiles.slice(i, i + CHUNK_TILES)),
+                        JSON.stringify(tiles.slice(i, i + CHUNK_TILES)),
                     ]);
                 }
                 prevTilesJSON = nextTilesJSON;
             }
         }
 
-        if (world.buildings) {
-            const nextBuildingsJSON = JSON.stringify(world.buildings);
+        if (buildings) {
+            const nextBuildingsJSON = JSON.stringify(buildings);
             if (nextBuildingsJSON != prevBuildingsJSON) {
                 pendingBuildings = [['GameStateMediator', 'ResetWorldBuildings']];
-                for (let i = 0; i < world.buildings.length; i += CHUNK_BUILDINGS) {
+                for (let i = 0; i < buildings.length; i += CHUNK_BUILDINGS) {
                     pendingBuildings.push([
                         'GameStateMediator',
                         'AddWorldBuildings',
-                        JSON.stringify(world.buildings.slice(i, i + CHUNK_BUILDINGS)),
+                        JSON.stringify(buildings.slice(i, i + CHUNK_BUILDINGS)),
                     ]);
                 }
                 prevBuildingsJSON = nextBuildingsJSON;
             }
         }
 
-        pendingBlock = world.block;
-    }, [ready, world]);
+        pendingBlock = block;
+    }, [ready, players, tiles, buildings, block]);
 
     useEffect(() => {
         if (!ready) {
@@ -321,96 +533,15 @@ export const UnityMapProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [ready, selected]);
 
-    useEffect(() => {
-        if (!addEventListener || !removeEventListener) {
-            return;
-        }
-        // Export this code so it's used both here and the bridge
-        const processMessage = (msgJson: any) => {
-            let msgObj: Message;
-            try {
-                msgObj = JSON.parse(msgJson) as Message;
-            } catch (e) {
-                console.error(e);
-                return;
-            }
-
-            switch (msgObj.msg) {
-                case 'dispatch': {
-                    const { action, args } = msgObj as DispatchMessage;
-                    if (!dispatch) {
-                        console.warn('map attempted to dispatch when there was no player to dispatch with');
-                        return;
-                    }
-                    dispatch({ name: action as ActionName, args }).catch((err) =>
-                        console.error('dispatch from map failed', err)
-                    );
-                    break;
-                }
-                case 'selectTiles': {
-                    const { tileIDs } = msgObj as SelectTileMessage;
-                    if (!selectTiles) {
-                        return;
-                    }
-                    selectTiles(tileIDs);
-                    break;
-                }
-                case 'setIntent': {
-                    const { intent } = msgObj as SetIntentMessage;
-                    selectIntent(intent);
-                    break;
-                }
-                case 'selectMobileUnit': {
-                    const { mobileUnitID } = msgObj as SetMobileUnitMessage;
-                    if (!selectMobileUnit) {
-                        return;
-                    }
-                    selectMobileUnit(mobileUnitID);
-                    break;
-                }
-                case 'selectMapElement': {
-                    const { mapElementID } = msgObj as SetMapElementMessage;
-                    if (!selectMapElement) {
-                        return;
-                    }
-                    selectMapElement(mapElementID);
-                    break;
-                }
-                default: {
-                    console.warn('unhandled message from map:', msgObj);
-                }
-            }
-        };
-
-        const processReady = () => {
-            setReady(true);
-        };
-
-        addEventListener('sendMessage', processMessage);
-        addEventListener('unityReady', processReady);
-
-        return () => {
-            removeEventListener('sendMessage', processMessage);
-            removeEventListener('unityReady', processReady);
-        };
-    }, [
-        dispatch,
-        selectTiles,
-        selectIntent,
-        addEventListener,
-        removeEventListener,
-        selectMobileUnit,
-        selectMapElement,
-    ]);
-
     const value = useMemo(() => {
+        if (!ready) {
+            return {};
+        }
         return {
             sendMessage,
             ready,
         };
     }, [ready, sendMessage]);
-
-    console.log('ready', ready, loadingPercentage);
 
     return (
         <UnityMapContext.Provider value={value}>
@@ -441,13 +572,6 @@ export const UnityMapProvider = ({ children }: { children: ReactNode }) => {
                     />
                 </div>
             )}
-            <Unity
-                ref={canvasRef}
-                style={{ width: '100vw', height: '100vh', position: 'absolute' }}
-                unityProvider={unityProvider}
-                devicePixelRatio={devicePixelRatio}
-                tabIndex={0}
-            />
             {children}
         </UnityMapContext.Provider>
     );
