@@ -6,11 +6,11 @@ import { z } from 'zod';
 import {
     BiomeKind,
     CompoundKeyEncoder,
+    DSProvider,
     NodeSelectors,
     WorldBuildingFragment,
     WorldTileFragment,
 } from '@downstream/core';
-import { UnityMap, useUnityMap } from '@app/components/organisms/unity-map';
 import { useThrottle } from '@app/hooks/use-throttle';
 import { BuildingKind, Manifest, parseManifestDocuments } from '@downstream/cli/utils/manifest';
 import { Html, Instance, Instances, MapControls, OrthographicCamera, useFBX } from '@react-three/drei';
@@ -19,6 +19,9 @@ import { ethers, id as keccak256UTF8, solidityPacked } from 'ethers';
 import { button, useControls } from 'leva';
 import * as THREE from 'three';
 import YAML from 'yaml';
+import { useConfig } from '@app/hooks/use-config';
+import { InventoryProvider } from '@app/plugins/inventory/inventory-provider';
+import { UnityMapProvider, useUnityMap } from '@app/hooks/use-unity-map';
 
 const TILE_SIZE = 1;
 
@@ -157,13 +160,13 @@ const toYAML = (o: any): string => {
 
 export interface PageProps {}
 
-export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
+const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
     const fileRef = useRef<any>();
     const [manifestsz, setManifests] = useState<ManifestMap>(new Map());
     const manifests = useThrottle(manifestsz, 15);
     const [mouseDown, setMouseDown] = useState(false);
     const [buildingKinds, setBuildingKinds] = useState<BuildingKindMap>(new Map());
-    const { unityProvider, sendMessage } = useUnityMap();
+    const { sendMessage, ready } = useUnityMap();
 
     const [{ diameter, brush, labels }] = useControls(
         'Tiles',
@@ -360,6 +363,12 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
         if (!preview) {
             return;
         }
+        if (!sendMessage) {
+            return;
+        }
+        if (!ready) {
+            return;
+        }
 
         const worldBuildingForTile = (t: GridTile): WorldBuildingFragment | undefined => {
             const [q, r, s] = t.location;
@@ -439,53 +448,65 @@ export const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
         for (let i = 0; i < args.length; i++) {
             sendMessage(args[i][0], args[i][1], args[i][2]);
         }
-    }, [sendMessage, tiles, manifests, preview, buildingKinds]);
+    }, [sendMessage, tiles, manifests, preview, buildingKinds, ready]);
 
     return (
-        <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
-            <div
-                style={{ position: 'fixed', top: 0, right: 0, bottom: 0, left: 0, display: preview ? 'block' : 'none' }}
+        <div
+            style={{
+                width: '100vw',
+                height: '100vh',
+                position: 'fixed',
+                display: preview ? 'none' : 'block',
+                zIndex: 50,
+                background: '#335c90',
+            }}
+        >
+            <Canvas
+                onPointerMissed={() => {}}
+                onPointerDown={(e) => {
+                    if (e.button == 0) {
+                        e.stopPropagation();
+                        setMouseDown(true);
+                        return;
+                    }
+                }}
+                onPointerUp={(e) => {
+                    if (e.button == 0) {
+                        e.stopPropagation();
+                        setMouseDown(false);
+                        return;
+                    }
+                }}
             >
-                <UnityMap unityProvider={unityProvider} />
-            </div>
-            <div
-                style={{ position: 'fixed', top: 0, right: 0, bottom: 0, left: 0, display: preview ? 'none' : 'block' }}
-            >
-                <Canvas
-                    onPointerMissed={() => {}}
-                    onPointerDown={(e) => {
-                        if (e.button == 0) {
-                            e.stopPropagation();
-                            setMouseDown(true);
-                            return;
-                        }
-                    }}
-                    onPointerUp={(e) => {
-                        if (e.button == 0) {
-                            e.stopPropagation();
-                            setMouseDown(false);
-                            return;
-                        }
-                    }}
-                >
-                    <MapControls makeDefault enablePan={false} />
-                    <ambientLight color="#ffffff" intensity={0.55} />
-                    <directionalLight color="#fff" position={[100, 100, 100]} />
-                    <OrthographicCamera makeDefault zoom={20} near={0} far={10000} position={[0, 100, 0]} />
-                    <Grid tiles={tiles} manifests={manifests} onPaintTile={onPaintTile} />
-                    {tiles.map(buildingForTile).filter((v) => !!v)}
-                </Canvas>
-                <input
-                    ref={fileRef}
-                    type="file"
-                    onChange={onLoadManifests}
-                    id="fileElem"
-                    multiple
-                    style={{ display: 'none' }}
-                />
-            </div>
+                <MapControls makeDefault enablePan={false} />
+                <ambientLight color="#ffffff" intensity={0.55} />
+                <directionalLight color="#fff" position={[100, 100, 100]} />
+                <OrthographicCamera makeDefault zoom={20} near={0} far={10000} position={[0, 100, 0]} />
+                <Grid tiles={tiles} manifests={manifests} onPaintTile={onPaintTile} />
+                {tiles.map(buildingForTile).filter((v) => !!v)}
+            </Canvas>
+            <input
+                ref={fileRef}
+                type="file"
+                onChange={onLoadManifests}
+                id="fileElem"
+                multiple
+                style={{ display: 'none' }}
+            />
         </div>
     );
 };
 
-export default TileFab;
+export default function Page() {
+    const config = useConfig();
+
+    return (
+        <DSProvider config={config}>
+            <InventoryProvider>
+                <UnityMapProvider disabled={true}>
+                    <TileFab />
+                </UnityMapProvider>
+            </InventoryProvider>
+        </DSProvider>
+    );
+}

@@ -129,6 +129,9 @@ const UnityMap = () => {
             if (typeof window === 'undefined') {
                 return;
             }
+            if (typeof document === 'undefined') {
+                return;
+            }
             if (!canvasRef || !canvasRef.current) {
                 return;
             }
@@ -248,18 +251,20 @@ const useGlobalUnityMapContext = () => {
           })();
     g.__globalUnityContext = ctx;
 
-    const mapContainer = document.getElementById('map-container');
-    if (!mapContainer) {
-        const mapContainer = document.createElement('div');
-        mapContainer.id = 'map-container';
-        document.body.appendChild(mapContainer);
-        mapContainer.style.position = 'fixed';
-        mapContainer.style.top = '0px';
-        mapContainer.style.left = '0px';
-        mapContainer.style.bottom = '0px';
-        mapContainer.style.right = '0px';
-        const root = createRoot(mapContainer);
-        setTimeout(() => root.render(<UnityMap />), 0); // do this async or react cries about nested renders
+    if (typeof document !== 'undefined') {
+        const mapContainer = document.getElementById('map-container');
+        if (!mapContainer) {
+            const mapContainer = document.createElement('div');
+            mapContainer.id = 'map-container';
+            document.body.appendChild(mapContainer);
+            mapContainer.style.position = 'fixed';
+            mapContainer.style.top = '0px';
+            mapContainer.style.left = '0px';
+            mapContainer.style.bottom = '0px';
+            mapContainer.style.right = '0px';
+            const root = createRoot(mapContainer);
+            setTimeout(() => root.render(<UnityMap />), 0); // do this async or react cries about nested renders
+        }
     }
 
     useEffect(() => {
@@ -291,7 +296,7 @@ export interface UnityMapContextValue {
 export const UnityMapContext = createContext<UnityMapContextValue>({});
 export const useUnityMap = () => useContext(UnityMapContext);
 
-export const UnityMapProvider = ({ children }: { children: ReactNode }) => {
+export const UnityMapProvider = ({ children, disabled }: { children: ReactNode; disabled?: boolean }) => {
     const { unity, ready, messages } = useGlobalUnityMapContext();
     const { sendMessage, loadingProgression } = unity;
     const {
@@ -383,6 +388,9 @@ export const UnityMapProvider = ({ children }: { children: ReactNode }) => {
     }, [messages, processMessage]);
 
     useEffect(() => {
+        if (disabled) {
+            return;
+        }
         if (!sendMessage) {
             return;
         }
@@ -444,6 +452,9 @@ export const UnityMapProvider = ({ children }: { children: ReactNode }) => {
                         sendMessage.apply(sendMessage, args[i]);
                         await sleep(0);
                     }
+                    if (args.length > 0) {
+                        console.log('sent map update');
+                    }
                 } finally {
                     isSending = false;
                 }
@@ -452,7 +463,7 @@ export const UnityMapProvider = ({ children }: { children: ReactNode }) => {
         return () => {
             clearInterval(timer);
         };
-    }, [sendMessage, ready]);
+    }, [sendMessage, ready, disabled]);
 
     const { players, buildings, tiles, block } = world || {};
     useEffect(() => {
@@ -524,6 +535,9 @@ export const UnityMapProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         if (!ready) {
+            return;
+        }
+        if (!selected) {
             return;
         }
         const nextSelectionJSON = JSON.stringify(selected || {});
