@@ -1,12 +1,11 @@
 /** @format */
 
 import { Dialog } from '@app/components/molecules/dialog';
-import { trackEvent, trackPlayer } from '@app/components/organisms/analytics';
+import { trackEvent } from '@app/components/organisms/analytics';
 import { Logs } from '@app/components/organisms/logs';
 import { Onboarding } from '@app/components/organisms/onboarding';
 import { PluginContent } from '@app/components/organisms/tile-action';
 import { formatNameOrId } from '@app/helpers';
-import { sleep } from '@app/helpers/sleep';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { useWalletProvider } from '@app/hooks/use-wallet-provider';
 import { ActionBar } from '@app/plugins/action-bar';
@@ -21,8 +20,6 @@ import { Fragment, FunctionComponent, useCallback, useEffect, useState } from 'r
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
-import Image from 'next/image';
-import spinner from '@app/../public/loaders/spinner.svg';
 
 enum CombatModalState {
     INACTIVE,
@@ -37,7 +34,6 @@ const StyledShell = styled('div')`
 `;
 
 export const Shell: FunctionComponent<ShellProps> = () => {
-    const [authorizing, setAuthorizing] = useState<boolean>(false);
     const { ready: mapReady, sendMessage } = useUnityMap();
     const { world, player, selectMobileUnit, selected } = useGameState();
     const { mobileUnit: selectedMobileUnit, tiles: selectedTiles } = selected || {};
@@ -45,43 +41,8 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const [isGracePeriod, setIsGracePeriod] = useState<boolean>(true);
     const [combatModalState, setCombatModalState] = useState<CombatModalState>(CombatModalState.INACTIVE);
     const ui = usePluginState();
-    const { provider, connect } = useWalletProvider();
-    const { wallet, selectProvider } = useWallet();
-
-    // TODO: move this to DSProvider?
-    useEffect(() => {
-        if (!selectProvider) {
-            return;
-        }
-        if (!provider) {
-            return;
-        }
-        selectProvider(provider);
-    }, [selectProvider, provider]);
-
-    // TODO: make this explicit, it's weird doing it automatically
-    useEffect(() => {
-        if (!wallet) {
-            return;
-        }
-        if (!player) {
-            return;
-        }
-        if (authorizing) {
-            return;
-        }
-        if (!player.active()) {
-            setAuthorizing(true);
-            sleep(100)
-                .then(() => player.login())
-                .then(() => trackEvent('login', { method: wallet.method }))
-                .then(() => trackPlayer(wallet.address))
-                .then(() => setAuthorizing(false))
-                .catch((err) => {
-                    console.error(err);
-                });
-        }
-    }, [player, wallet, authorizing]);
+    const { connect } = useWalletProvider();
+    const { wallet } = useWallet();
 
     // collect client dispatch analytics
     useEffect(() => {
@@ -184,7 +145,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         .filter((p) => p.config.type === PluginType.ITEM)
         .flatMap((p) => p.state.components.flatMap((c) => c.content));
 
-    const closeAuthroizer = useCallback(() => setAuthorizing(false), []);
     return (
         <StyledShell>
             {combatModalState !== CombatModalState.INACTIVE && player && world && blockNumber && (
@@ -196,29 +156,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         closeModal={closeCombatModal}
                         blockNumber={blockNumber}
                     />
-                </Dialog>
-            )}
-            {authorizing && (
-                <Dialog onClose={closeAuthroizer} width="350px" height="">
-                    <div style={{ padding: 10, lineHeight: '0px' }}>
-                        <Image
-                            src={spinner}
-                            width={24}
-                            alt="loading"
-                            style={{ display: 'inline-block', filter: 'invert(1)' }}
-                        />
-                        <span
-                            className="notice"
-                            style={{
-                                display: 'inline-block',
-                                marginLeft: '8px',
-                                position: 'relative',
-                                top: '-4px',
-                            }}
-                        >
-                            Waiting for wallet confirmation
-                        </span>
-                    </div>
                 </Dialog>
             )}
             <div className="nav-container">

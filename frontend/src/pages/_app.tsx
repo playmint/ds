@@ -2,7 +2,6 @@
 
 import Analytics from '@app/components/organisms/analytics';
 import { ConfigProvider } from '@app/hooks/use-config';
-import { WalletProviderProvider } from '@app/hooks/use-wallet-provider';
 import { GlobalStyles } from '@app/styles/global.styles';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
@@ -43,9 +42,7 @@ export const App = ({ Component, pageProps }: AppProps) => {
             {enableAnalytics && <Analytics id="G-19E8TP90ZV" />}
             <GlobalStyles />
             <ConfigProvider>
-                <WalletProviderProvider>
-                    <Component {...pageProps} />
-                </WalletProviderProvider>
+                <Component {...pageProps} />
             </ConfigProvider>
         </Fragment>
     );
