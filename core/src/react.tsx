@@ -1,11 +1,11 @@
-import React from 'react';
-import { map, mergeMap, pipe, scan, Source, subscribe, zip } from 'wonka';
+import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import { mergeMap, pipe, scan, Source, subscribe } from 'wonka';
 import { makeCogClient } from './cog';
 import { BuildingKindFragment } from './gql/graphql';
 import { makeAvailableBuildingKinds } from './kinds';
 import { Logger, makeLogger } from './logger';
 import { makeConnectedPlayer } from './player';
-import { makeAutoloadPlugins, makeAvailablePlugins, makePluginSelector, makePluginUI } from './plugins';
+import { makeAutoloadPlugins, makeAvailablePlugins, makePluginUI } from './plugins';
 import { makeSelection } from './selection';
 import { makeGameState } from './state';
 import {
@@ -26,9 +26,9 @@ import { makeWallet, WalletProvider } from './wallet';
 import { makeWorld } from './world';
 
 export interface DSContextProviderProps {
-    initialConfig?: Partial<GameConfig>;
+    config?: Partial<GameConfig>;
     defaultPlugins?: PluginConfig[]; // FIXME: this is temporary
-    children?: React.ReactNode;
+    children?: ReactNode;
 }
 
 export interface SelectionSelectors {
@@ -52,34 +52,26 @@ export interface DSContextStore {
     logs: Source<Log>;
     buildingKinds: Source<AvailableBuildingKind[]>;
     availablePlugins: Source<AvailablePlugin[]>;
-    enabledPlugins: Source<PluginConfig[]>;
-    selectPlugins: Selector<string[]>;
-    setConfig: (cfg: Partial<GameConfig>) => void;
 }
 
-export const DSContext = React.createContext<DSContextStore>({} as DSContextStore);
+export const DSContext = createContext({} as DSContextStore);
 
-export const useSources = () => React.useContext(DSContext);
+export const useSources = () => useContext(DSContext);
 
-export const DSProvider = ({ initialConfig, defaultPlugins, children }: DSContextProviderProps) => {
-    const sources = React.useMemo((): DSContextStore => {
+export const DSProvider = ({ config, children }: DSContextProviderProps) => {
+    const { sources, setConfig } = useMemo(() => {
         const { wallet, selectProvider } = makeWallet();
-        const { client, setConfig } = makeCogClient(initialConfig || {});
+        const { client, setConfig } = makeCogClient();
         const { logger, logs } = makeLogger({ name: 'main' });
         const player = makeConnectedPlayer(client, wallet, logger);
         const world = makeWorld(client);
         const { selection, ...selectors } = makeSelection(client, world, player);
 
         const { plugins: availablePlugins } = makeAvailablePlugins(client);
-        const { plugins: enabledPlugins, selectPlugins } = makePluginSelector(client, defaultPlugins);
-        const { plugins: autoloadPlugins } = makeAutoloadPlugins(client, availablePlugins, selection);
+        const { plugins: activePlugins } = makeAutoloadPlugins(client, availablePlugins, selection);
 
         const { kinds: buildingKinds } = makeAvailableBuildingKinds(client);
 
-        const uiPlugins: Source<PluginConfig[]> = pipe(
-            zip([enabledPlugins, autoloadPlugins]),
-            map((plugins) => [...plugins[0], ...plugins[1]]),
-        );
         const state = makeGameState(
             player,
             world,
@@ -93,27 +85,37 @@ export const DSProvider = ({ initialConfig, defaultPlugins, children }: DSContex
             client,
             mergeMap((client) => client.block),
         );
-        const ui = makePluginUI(logger, uiPlugins, state, block);
+        const ui = makePluginUI(logger, activePlugins, state, block);
 
         return {
-            block,
-            wallet,
-            player,
-            world,
-            selection,
-            selectors,
-            selectProvider,
-            state,
-            availablePlugins,
-            enabledPlugins,
-            buildingKinds,
-            ui,
-            logger,
-            logs,
+            sources: {
+                block,
+                wallet,
+                player,
+                world,
+                selection,
+                selectors,
+                selectProvider,
+                state,
+                availablePlugins,
+                buildingKinds,
+                ui,
+                logger,
+                logs,
+            },
             setConfig,
-            selectPlugins,
         };
-    }, [initialConfig]);
+    }, []);
+
+    useEffect(() => {
+        if (!setConfig) {
+            return;
+        }
+        if (!config) {
+            return;
+        }
+        setConfig(config);
+    }, [config, setConfig]);
 
     return <DSContext.Provider value={sources}>{children}</DSContext.Provider>;
 };
@@ -164,20 +166,12 @@ export function useBuildingKinds(): BuildingKindFragment[] | undefined {
     return useSource(sources.buildingKinds);
 }
 
-// fetch everything you need to list, and select plugins
-export function usePlugins() {
-    const { availablePlugins, enabledPlugins, selectPlugins } = useSources();
-    const available = useSource(availablePlugins);
-    const enabled = useSource(enabledPlugins);
-    return { available, enabled, selectPlugins: selectPlugins };
-}
-
 // subscribe to the last n most recent logs
 export function useLogs(limit: number): Log[] | undefined {
     const sources = useSources();
-    const [value, setValue] = React.useState<Log[] | undefined>(undefined);
+    const [value, setValue] = useState<Log[] | undefined>(undefined);
 
-    React.useEffect(() => {
+    useEffect(() => {
         const { unsubscribe } = pipe(
             sources.logs,
             scan((logs, log) => {
@@ -198,9 +192,9 @@ export function useLogs(limit: number): Log[] | undefined {
 // helper to merged togther all the state things (same shape plugins use)
 export function useGameState(): Partial<GameState> {
     const sources = useSources();
-    const [state, setState] = React.useState<Partial<GameState>>({});
+    const [state, setState] = useState<Partial<GameState>>({});
 
-    React.useEffect(() => {
+    useEffect(() => {
         const { unsubscribe } = pipe(sources.state, subscribe(setState));
         return unsubscribe;
     }, [sources.player, sources.world, sources.selection]);
@@ -210,9 +204,9 @@ export function useGameState(): Partial<GameState> {
 
 // helper to directly subscribe to a source
 export function useSource<T>(source: Source<T>): T | undefined {
-    const [value, setValue] = React.useState<T | undefined>();
+    const [value, setValue] = useState<T | undefined>();
 
-    React.useEffect(() => {
+    useEffect(() => {
         const { unsubscribe } = pipe(
             source,
             subscribe((v) => setValue(() => v)),
