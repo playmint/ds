@@ -9,15 +9,13 @@ export default function ShellPage() {
     const config = useConfig();
 
     return (
-        config && (
-            <DSProvider initialConfig={config}>
-                <InventoryProvider>
-                    <UnityMapProvider>
-                        <Shell />
-                        <div className="build-version">build v0.1-{config.commit}</div>
-                    </UnityMapProvider>
-                </InventoryProvider>
-            </DSProvider>
-        )
+        <DSProvider config={config}>
+            <InventoryProvider>
+                <UnityMapProvider>
+                    <Shell />
+                    {config && <div className="build-version">build v0.1-{config.commit}</div>}
+                </UnityMapProvider>
+            </InventoryProvider>
+        </DSProvider>
     );
 }
