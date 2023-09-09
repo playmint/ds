@@ -140,7 +140,8 @@ export function configureClient({
     };
 
     const signin = async (owner: ethers.Signer) => {
-        const key = ethers.Wallet.createRandom();
+        const rnd = ethers.Wallet.createRandom();
+        const key: ethers.Wallet = new ethers.Wallet(rnd.privateKey);
         const scope = '0xffffffff';
         const ttl = 25000; // ~13hrs
         const msg = authMessage(key.address.toLowerCase(), ttl);

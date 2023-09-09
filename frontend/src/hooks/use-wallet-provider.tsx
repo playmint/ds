@@ -4,7 +4,8 @@ import { EthereumProvider } from '@downstream/core';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { EthereumProvider as WalletConnectProvider } from '@walletconnect/ethereum-provider';
 import { QRCodeSVG } from 'qrcode.react';
-import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useLocalStorage } from './use-localstorage';
 
 export interface WalletProvider {
     method: string;
@@ -24,6 +25,7 @@ export const WalletProviderProvider = ({ children }: { children: ReactNode }) =>
     const [provider, setProvider] = useState<WalletProvider>();
     const [connecting, setConnecting] = useState<boolean>(false);
     const [walletConnectURI, setWalletConnectURI] = useState<string | null>(null);
+    const [autoconnectMetamask, setAutoconnectMetamask] = useLocalStorage<boolean>(`ds/autoconnect`, false);
 
     const connectMetamask = useCallback(async () => {
         try {
@@ -34,13 +36,14 @@ export const WalletProviderProvider = ({ children }: { children: ReactNode }) =>
             }
             setProvider({ method: 'metamask', provider: metamask });
             await metamask.request({ method: 'eth_requestAccounts' });
+            setAutoconnectMetamask(true); // TODO: make this optional
         } catch (err) {
             console.error(`connect: ${err}`);
             setProvider(undefined);
         } finally {
             setConnecting(false);
         }
-    }, []);
+    }, [setAutoconnectMetamask]);
 
     const connectWalletConnect = useCallback(async (): Promise<unknown> => {
         try {
@@ -73,8 +76,11 @@ export const WalletProviderProvider = ({ children }: { children: ReactNode }) =>
         } catch (err) {
             console.error(`walletconnect: ${err}`);
             return null;
+        } finally {
+            setConnecting(false);
+            setAutoconnectMetamask(false);
         }
-    }, []);
+    }, [setAutoconnectMetamask]);
 
     const closeWalletConnector = useCallback(() => setWalletConnectURI(''), []);
     const closeConnector = useCallback(() => setConnecting(false), []);
@@ -82,6 +88,22 @@ export const WalletProviderProvider = ({ children }: { children: ReactNode }) =>
     const connect = useCallback(() => {
         setConnecting(true);
     }, []);
+
+    useEffect(() => {
+        if (provider) {
+            return;
+        }
+        if (!autoconnectMetamask) {
+            return;
+        }
+        if (!connectMetamask) {
+            return;
+        }
+        if (connecting) {
+            return;
+        }
+        connectMetamask().catch((err) => console.error(err));
+    }, [autoconnectMetamask, connectMetamask, connecting, provider]);
 
     const value = useMemo(() => {
         return { connect, connecting, provider };

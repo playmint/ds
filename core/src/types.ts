@@ -125,7 +125,7 @@ export enum CogEvent {
 
 export interface CogSession {
     expires: number; // timestamp
-    key: ethers.HDNodeWallet;
+    key: ethers.Wallet;
     owner: ethers.Signer;
     dispatch: Awaited<ReturnType<ReturnType<typeof configureClient>['signin']>>['dispatch'];
     signout: Awaited<ReturnType<ReturnType<typeof configureClient>['signin']>>['signout'];
@@ -350,6 +350,7 @@ export interface ConnectedPlayer extends SelectedPlayerFragment {
     dispatched: Source<DispatchedAction>;
     active: () => boolean;
     login: () => Promise<CogSession | undefined>;
+    load: (key: ethers.Wallet, expires: number) => Promise<CogSession | undefined>;
 }
 
 export type UnconnectedPlayer = undefined;
