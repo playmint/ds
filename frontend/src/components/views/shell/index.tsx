@@ -5,8 +5,8 @@ import { Logs } from '@app/components/organisms/logs';
 import { Onboarding } from '@app/components/organisms/onboarding';
 import { ItemPluginPanel } from '@app/components/panels/item-plugin-panel';
 import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
-import { formatNameOrId } from '@app/helpers';
-import { useBlock, useGameState, useWallet } from '@app/hooks/use-game-state';
+import { NavPanel } from '@app/components/panels/nav-panel';
+import { useBlock, useGameState } from '@app/hooks/use-game-state';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { useWalletProvider } from '@app/hooks/use-wallet-provider';
 import { ActionBar } from '@app/plugins/action-bar';
@@ -31,9 +31,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const { mobileUnit: selectedMobileUnit, tiles: selectedTiles } = selected || {};
     const blockNumber = useBlock();
     const { connect } = useWalletProvider();
-    const { wallet } = useWallet();
-
-    console.log({ wallet, player });
 
     // collect client dispatch analytics
     // TODO: move to analytics provider
@@ -51,12 +48,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     return (
         <StyledShell>
             <div className="nav-container">
-                <button onClick={connect}>
-                    <img src="/icons/player.png" alt="" />
-                    <span className="text">
-                        {!wallet ? 'connect' : !player ? 'connecting' : formatNameOrId(player, 'Player 0x..')}
-                    </span>
-                </button>
+                <NavPanel />
             </div>
             <div className="hud-container">
                 <div className="top-left">

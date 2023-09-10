@@ -32,26 +32,6 @@ const baseStyles = (_: Partial<ShellProps>) => css`
         background: #030f25;
         user-select: none;
         zoom: 90%;
-
-        button {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            border: 0;
-            border-left: 1px solid #314a7b;
-            background: #050f25;
-            color: #fff;
-            padding: 0 2rem 0 1rem;
-
-            > img {
-                margin-right: 0.3rem;
-            }
-
-            > .text {
-                display: block;
-                padding-top: 5px;
-            }
-        }
     }
 
     > .hud-container {
@@ -74,7 +54,6 @@ const baseStyles = (_: Partial<ShellProps>) => css`
         .top-middle,
         .bottom-middle,
         .right {
-            //border: 1px solid red;
             display: flex;
             flex-direction: column;
             padding: 2.4rem;
@@ -114,41 +93,6 @@ const baseStyles = (_: Partial<ShellProps>) => css`
             grid-area: right;
             align-items: flex-end;
             justify-content: flex-start;
-        }
-    }
-
-    .mobile-unit-actions {
-        .mobile-unit-selector {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            overflow: visible;
-            min-height: 5rem;
-            padding: 1rem;
-            background: #143063;
-
-            > .shield {
-                position: absolute;
-                left: 0.5rem;
-                top: -2.5rem;
-                width: 8rem;
-            }
-
-            > .controls {
-                display: flex;
-                flex-direction: row;
-                width: 100%;
-                margin-left: 7rem;
-
-                .label {
-                    padding: 0 0.5rem;
-                    text-transform: uppercase;
-                    display: block;
-                    width: 100%;
-                    text-align: center;
-                    overflow: hidden;
-                }
-            }
         }
     }
 
