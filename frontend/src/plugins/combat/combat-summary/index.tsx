@@ -10,7 +10,7 @@ import {
     SelectedMobileUnitFragment,
     SelectedTileFragment,
     WorldStateFragment,
-} from '@downstream/core';
+} from '@app/../../core/src';
 import { FunctionComponent, useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { CombatModal } from '../combat-modal';

@@ -11,6 +11,14 @@ import {
     GOO_GREEN,
     GOO_RED,
 } from '@app/helpers/tile';
+import {
+    useBlock,
+    useBuildingKinds,
+    usePlayer,
+    usePluginState,
+    useSelection,
+    useWorld,
+} from '@app/hooks/use-game-state';
 import { Bag } from '@app/plugins/inventory/bag';
 import { getBagId, getBuildingId } from '@app/plugins/inventory/helpers';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
@@ -27,17 +35,11 @@ import {
     SelectedMobileUnitFragment,
     SelectedTileFragment,
     Selector,
-    useBlock,
-    useBuildingKinds,
-    usePlayer,
-    usePluginState,
-    useSelection,
-    useWorld,
     World,
     WorldBuildingFragment,
     WorldStateFragment,
     WorldTileFragment,
-} from '@downstream/core';
+} from '@app/../../core/src';
 import React, { Fragment, FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { CombatModal } from '../combat/combat-modal';

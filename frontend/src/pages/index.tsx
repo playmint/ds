@@ -1,18 +1,18 @@
 /** @format */
 import Shell from '@app/components/views/shell';
 import { useConfig } from '@app/hooks/use-config';
+import { GameStateProvider } from '@app/hooks/use-game-state';
 import { SessionProvider } from '@app/hooks/use-session';
 import { UnityMapProvider } from '@app/hooks/use-unity-map';
 import { WalletProviderProvider } from '@app/hooks/use-wallet-provider';
 import { InventoryProvider } from '@app/plugins/inventory/inventory-provider';
-import { DSProvider } from '@downstream/core';
 
 export default function ShellPage() {
     const config = useConfig();
 
     return (
         <WalletProviderProvider>
-            <DSProvider config={config}>
+            <GameStateProvider config={config}>
                 <SessionProvider>
                     <UnityMapProvider>
                         <InventoryProvider>
@@ -21,7 +21,7 @@ export default function ShellPage() {
                         </InventoryProvider>
                     </UnityMapProvider>
                 </SessionProvider>
-            </DSProvider>
+            </GameStateProvider>
         </WalletProviderProvider>
     );
 }

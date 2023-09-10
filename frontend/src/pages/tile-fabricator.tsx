@@ -3,25 +3,24 @@
 import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { z } from 'zod';
 
+import { useConfig } from '@app/hooks/use-config';
+import { GameStateProvider } from '@app/hooks/use-game-state';
+import { useThrottle } from '@app/hooks/use-throttle';
+import { UnityMapProvider, useUnityMap } from '@app/hooks/use-unity-map';
+import { BuildingKind, Manifest, parseManifestDocuments } from '@downstream/cli/utils/manifest';
 import {
     BiomeKind,
     CompoundKeyEncoder,
-    DSProvider,
     NodeSelectors,
     WorldBuildingFragment,
     WorldTileFragment,
 } from '@downstream/core';
-import { useThrottle } from '@app/hooks/use-throttle';
-import { BuildingKind, Manifest, parseManifestDocuments } from '@downstream/cli/utils/manifest';
 import { Html, Instance, Instances, MapControls, OrthographicCamera, useFBX } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { ethers, id as keccak256UTF8, solidityPacked } from 'ethers';
 import { button, useControls } from 'leva';
 import * as THREE from 'three';
 import YAML from 'yaml';
-import { useConfig } from '@app/hooks/use-config';
-import { InventoryProvider } from '@app/plugins/inventory/inventory-provider';
-import { UnityMapProvider, useUnityMap } from '@app/hooks/use-unity-map';
 
 const TILE_SIZE = 1;
 
@@ -501,12 +500,10 @@ export default function Page() {
     const config = useConfig();
 
     return (
-        <DSProvider config={config}>
-            <InventoryProvider>
-                <UnityMapProvider disabled={true}>
-                    <TileFab />
-                </UnityMapProvider>
-            </InventoryProvider>
-        </DSProvider>
+        <GameStateProvider config={config}>
+            <UnityMapProvider disabled={true}>
+                <TileFab />
+            </UnityMapProvider>
+        </GameStateProvider>
     );
 }

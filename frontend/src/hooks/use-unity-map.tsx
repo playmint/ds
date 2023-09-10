@@ -1,10 +1,11 @@
-import { ActionName, useGameState } from '@app/../../core/src';
+import { ActionName } from '@app/../../core/src';
 import { sleep } from '@app/helpers/sleep';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Unity, useUnityContext } from 'react-unity-webgl';
 import { UnityContextHook } from 'react-unity-webgl/distribution/types/unity-context-hook';
 import { concat, fromValue, lazy, makeSubject, pipe, Subject, subscribe, tap } from 'wonka';
+import { useGameState } from './use-game-state';
 
 interface Message {
     msg: string;
@@ -308,6 +309,7 @@ export const UnityMapProvider = ({ children, disabled }: { children: ReactNode; 
         selected,
         selectIntent: rawSelectIntent,
     } = useGameState();
+
     const { dispatch } = player || {};
     const loadingPercentage = loadingProgression ? Math.round(loadingProgression * 100) : 0;
 

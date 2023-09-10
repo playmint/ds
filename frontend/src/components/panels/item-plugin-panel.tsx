@@ -1,4 +1,5 @@
-import { PluginType, usePluginState } from '@app/../../core/src';
+import { PluginType } from '@app/../../core/src';
+import { usePluginState } from '@app/hooks/use-game-state';
 import { PluginContent } from '../organisms/tile-action';
 
 export const ItemPluginPanel = () => {

@@ -6,6 +6,7 @@ import { Onboarding } from '@app/components/organisms/onboarding';
 import { ItemPluginPanel } from '@app/components/panels/item-plugin-panel';
 import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
 import { formatNameOrId } from '@app/helpers';
+import { useBlock, useGameState, useWallet } from '@app/hooks/use-game-state';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { useWalletProvider } from '@app/hooks/use-wallet-provider';
 import { ActionBar } from '@app/plugins/action-bar';
@@ -13,7 +14,6 @@ import { ActionContextPanel, TileInfoPanel } from '@app/plugins/action-context-p
 import { CombatRewards } from '@app/plugins/combat/combat-rewards';
 import { CombatSummary } from '@app/plugins/combat/combat-summary';
 import { ComponentProps } from '@app/types/component-props';
-import { useBlock, useGameState, useWallet } from '@downstream/core';
 import { Fragment, FunctionComponent, useEffect } from 'react';
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
@@ -27,11 +27,13 @@ const StyledShell = styled('div')`
 
 export const Shell: FunctionComponent<ShellProps> = () => {
     const { ready: mapReady } = useUnityMap();
-    const { world, player, selected } = useGameState();
+    const { player, world, selected } = useGameState();
     const { mobileUnit: selectedMobileUnit, tiles: selectedTiles } = selected || {};
     const blockNumber = useBlock();
     const { connect } = useWalletProvider();
     const { wallet } = useWallet();
+
+    console.log({ wallet, player });
 
     // collect client dispatch analytics
     // TODO: move to analytics provider

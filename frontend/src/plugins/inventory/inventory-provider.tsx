@@ -1,9 +1,10 @@
 /** @format */
+import { Tile } from '@app/../../core/src';
 import { nullBagId } from '@app/fixtures/null-bag-id';
 import { getTileDistance } from '@app/helpers/tile';
+import { usePlayer, useSelection } from '@app/hooks/use-game-state';
 import { styles } from '@app/plugins/inventory/bag-item/bag-item.styles';
 import { useClickOutside } from '@app/plugins/inventory/use-click-outside';
-import { Tile, usePlayer, useSelection } from '@downstream/core';
 import { createContext, ReactNode, RefObject, useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
