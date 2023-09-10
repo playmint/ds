@@ -3,6 +3,40 @@ import { useGameState } from '@app/hooks/use-game-state';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { MobileUnitInventory } from '@app/plugins/inventory/mobile-unit-inventory';
 import { useCallback, useEffect, useState } from 'react';
+import styled from 'styled-components';
+
+const MobileUnitContainer = styled.div`
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    overflow: visible;
+    min-height: 5rem;
+    padding: 1rem;
+    background: #143063;
+
+    > .shield {
+        position: absolute;
+        left: 0.5rem;
+        top: -2.5rem;
+        width: 8rem;
+    }
+
+    > .controls {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        margin-left: 7rem;
+
+        .label {
+            padding: 0 0.5rem;
+            text-transform: uppercase;
+            display: block;
+            width: 100%;
+            text-align: center;
+            overflow: hidden;
+        }
+    }
+`;
 
 export const MobileUnitPanel = () => {
     const { ready: mapReady, sendMessage } = useUnityMap();
@@ -99,7 +133,7 @@ export const MobileUnitPanel = () => {
                 <>
                     <div className="mobile-unit-actions">
                         {(!player || (player && player.mobileUnits.length > 0 && selectedMobileUnit)) && (
-                            <div className="mobile-unit-selector">
+                            <MobileUnitContainer>
                                 <img src="/mobile-unit-yours.png" className="shield" alt="" />
                                 <div className="controls">
                                     <button className="icon-button" onClick={() => selectNextMobileUnit(-1)}>
@@ -112,7 +146,7 @@ export const MobileUnitPanel = () => {
                                         <img src="/icons/next.png" alt="Next" />
                                     </button>
                                 </div>
-                            </div>
+                            </MobileUnitContainer>
                         )}
                         {selectedMobileUnit && (
                             <MobileUnitInventory className="action" mobileUnit={selectedMobileUnit} />

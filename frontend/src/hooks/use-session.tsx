@@ -19,7 +19,7 @@ export interface SessionData {
     owner: string;
 }
 
-export const SessionContext = createContext<SessionContextValue | undefined>(undefined);
+export const SessionContext = createContext<Partial<SessionContextValue>>({});
 export const useSession = () => useContext(SessionContext);
 
 const decodeSessionData = (o: Partial<SessionData>): SessionData | undefined => {
@@ -142,7 +142,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
         newSession(); // TODO: auto login without prompt is bit weird
     }, [newSession, session, loadSession, player, setSessionData, clearSession]);
 
-    const value = useMemo(() => {
+    const value: SessionContextValue = useMemo(() => {
         return { newSession, clearSession };
     }, [newSession, clearSession]);
 
