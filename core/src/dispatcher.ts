@@ -144,6 +144,19 @@ async function dispatch(client: CogServices, wallet: Wallet, bundle: QueuedClien
         if (error.graphQLErrors && error.graphQLErrors.length > 0) {
             reason = error.graphQLErrors[0].toString();
         }
+        if (/SessionUnauthorized/.test(reason)) {
+            // FIXME: this is not the right place to do this, we should be able
+            // to register a callback to decide what to do when session
+            // unauthorized reloading the page is nasty, and this code is used
+            // outside of browsers too
+            sessions.delete(wallet.address);
+            if (typeof localStorage !== 'undefined') {
+                localStorage.clear();
+            }
+            if (typeof window !== 'undefined') {
+                window.location.reload();
+            }
+        }
         throw new Error(reason);
     }
     if (!data) {
