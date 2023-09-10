@@ -1,44 +1,31 @@
 import { ActionName } from '@app/../../core/src';
 import { sleep } from '@app/helpers/sleep';
-import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { createRoot } from 'react-dom/client';
-import { Unity, useUnityContext } from 'react-unity-webgl';
-import { UnityContextHook } from 'react-unity-webgl/distribution/types/unity-context-hook';
-import { concat, fromValue, lazy, makeSubject, pipe, Subject, subscribe, tap } from 'wonka';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo } from 'react';
+import { pipe, subscribe } from 'wonka';
 import { useGameState } from './use-game-state';
+import { useGlobalUnityInstance, UnityMessage, SendMessageFunc } from './use-unity-instance';
 
-interface Message {
-    msg: string;
-}
+// @refresh reset
+export const disableFastRefresh = 'this export only exists to disable fast-refresh of this file';
 
-type SendMessageFunc = (...args: any[]) => void;
-
-interface GlobalUnityContext {
-    messages: Subject<Message>;
-    ready: Subject<boolean>;
-    unity: Subject<Partial<UnityContextHook>>;
-}
-
-const g = globalThis as unknown as { __globalUnityContext: GlobalUnityContext };
-
-interface DispatchMessage extends Message {
+interface DispatchMessage extends UnityMessage {
     action: string;
     args: any[];
 }
 
-interface SelectTileMessage extends Message {
+interface SelectTileMessage extends UnityMessage {
     tileIDs: string[];
 }
 
-interface SetIntentMessage extends Message {
+interface SetIntentMessage extends UnityMessage {
     intent: string;
 }
 
-interface SetMobileUnitMessage extends Message {
+interface SetMobileUnitMessage extends UnityMessage {
     mobileUnitID: string;
 }
 
-interface SetMapElementMessage extends Message {
+interface SetMapElementMessage extends UnityMessage {
     mapElementID: string;
 }
 
@@ -66,229 +53,6 @@ let hasSentAtLeastOneTilesUpdate = false;
 
 // ---
 
-// [!] THIS COMPONENT IS RENDERED OUT OF THE MAIN REACT ROOT To avoid the fatal
-// issues that occur if the unity app gets even the slightest feeling that it
-// might get unloaded. we render the react canvas exactly once out of tree and
-// never again, this is weird, but significantly more stable than attempt to
-// handle react unmounting/remounting, esspecially when with hot reloading
-const UnityMap = () => {
-    const canvasRef = useRef(null);
-    const [devicePixelRatio, setDevicePixelRatio] = useState(window.devicePixelRatio);
-    const unity = useUnityContext({
-        loaderUrl: `/ds-unity/Build/ds-unity.loader.js`,
-        dataUrl: `/ds-unity/Build/ds-unity.data`,
-        frameworkUrl: `/ds-unity/Build/ds-unity.framework.js`,
-        codeUrl: `/ds-unity/Build/ds-unity.wasm`,
-        streamingAssetsUrl: `/ds-unity/StreamingAssets/`,
-        companyName: `Playmint`,
-        productName: `Downstream`,
-        productVersion: `blueprint`,
-    });
-    const { unityProvider, loadingProgression, addEventListener, removeEventListener, sendMessage } = unity;
-
-    useEffect(() => {
-        if (!g.__globalUnityContext) {
-            return;
-        }
-        g.__globalUnityContext.unity.next({
-            loadingProgression,
-            addEventListener,
-            removeEventListener,
-            sendMessage,
-        });
-    }, [sendMessage, loadingProgression, addEventListener, removeEventListener]);
-
-    useEffect(() => {
-        // A function which will update the device pixel ratio of the Unity
-        // Application to match the device pixel ratio of the browser.
-        const updateDevicePixelRatio = function () {
-            setDevicePixelRatio(window.devicePixelRatio);
-        };
-        // A media matcher which watches for changes in the device pixel ratio.
-        const mediaMatcher = window.matchMedia(`screen and (resolution: ${devicePixelRatio}dppx)`);
-        if (!mediaMatcher) {
-            return;
-        }
-        // Adding an event listener to the media matcher which will update the
-        // device pixel ratio of the Unity Application when the device pixel
-        // ratio changes.
-        if (!mediaMatcher.addEventListener) {
-            return;
-        }
-        mediaMatcher.addEventListener('change', updateDevicePixelRatio);
-        return function () {
-            if (!mediaMatcher.addEventListener) {
-                return;
-            }
-            // Removing the event listener when the component unmounts.
-            mediaMatcher.removeEventListener('change', updateDevicePixelRatio);
-        };
-    }, [devicePixelRatio]);
-
-    useEffect(() => {
-        const onKeyDown = (e: KeyboardEvent) => {
-            if (typeof window === 'undefined') {
-                return;
-            }
-            if (typeof document === 'undefined') {
-                return;
-            }
-            if (!canvasRef || !canvasRef.current) {
-                return;
-            }
-            if (!(e.target instanceof Element)) {
-                return;
-            }
-            if (document.activeElement == canvasRef.current) {
-                return;
-            }
-            const tagName = e.target.tagName.toLowerCase();
-            if (/select|input|textarea|select/.test(tagName)) {
-                return;
-            }
-            e.stopImmediatePropagation();
-            const canvas = canvasRef.current as HTMLElement;
-            canvas.focus();
-            canvas.dispatchEvent(
-                new KeyboardEvent('keydown', {
-                    key: e.key,
-                    keyCode: e.keyCode,
-                    code: e.code,
-                    which: e.which,
-                    shiftKey: false,
-                    ctrlKey: false,
-                    metaKey: false,
-                })
-            );
-        };
-        window.addEventListener('keydown', onKeyDown);
-        return () => {
-            window.removeEventListener('keydown', onKeyDown);
-        };
-    }, []);
-
-    useEffect(() => {
-        if (!addEventListener || !removeEventListener) {
-            return;
-        }
-
-        const onReady = () => {
-            g.__globalUnityContext.ready.next(true);
-        };
-
-        const onMessage = (msgJson: string) => {
-            let msgObj: Message;
-            try {
-                msgObj = JSON.parse(msgJson) as Message;
-            } catch (err) {
-                console.error(`unitymap: onMessage: ${err}`);
-                return;
-            }
-            g.__globalUnityContext.messages.next(msgObj);
-        };
-
-        addEventListener('sendMessage', onMessage);
-        addEventListener('unityReady', onReady);
-
-        return () => {
-            removeEventListener('sendMessage', onMessage);
-            removeEventListener('unityReady', onReady);
-        };
-    }, [addEventListener, removeEventListener]);
-
-    return (
-        <Unity
-            ref={canvasRef}
-            style={{ width: '100vw', height: '100vh', position: 'absolute' }}
-            unityProvider={unityProvider}
-            devicePixelRatio={devicePixelRatio}
-            tabIndex={0}
-        />
-    );
-};
-
-// --
-
-const makeUnityContextSubject = () => {
-    const { source, ...rest } = makeSubject<UnityContextHook>();
-    let prev: UnityContextHook;
-    return {
-        ...rest,
-        source: pipe(
-            lazy(() => (prev ? concat([fromValue(prev), source]) : source)),
-            tap((v) => (prev = v))
-        ),
-    };
-};
-
-const makeUnityReadySubject = () => {
-    const { source, ...rest } = makeSubject<boolean>();
-    let prev: boolean;
-    return {
-        ...rest,
-        source: pipe(
-            lazy(() => (prev ? concat([fromValue(prev), source]) : source)),
-            tap((v) => (prev = v))
-        ),
-    };
-};
-
-const makeUnityMessagesSubject = () => {
-    return makeSubject<Message>();
-};
-
-const useGlobalUnityMapContext = () => {
-    const [unity, setUnity] = useState<Partial<UnityContextHook>>({});
-    const [ready, setReady] = useState<boolean>(false);
-
-    const ctx = g.__globalUnityContext
-        ? g.__globalUnityContext
-        : ((): GlobalUnityContext => {
-              return {
-                  unity: makeUnityContextSubject(),
-                  messages: makeUnityMessagesSubject(),
-                  ready: makeUnityReadySubject(),
-              };
-          })();
-    g.__globalUnityContext = ctx;
-
-    if (typeof document !== 'undefined') {
-        const mapContainer = document.getElementById('map-container');
-        if (!mapContainer) {
-            const mapContainer = document.createElement('div');
-            mapContainer.id = 'map-container';
-            document.body.appendChild(mapContainer);
-            mapContainer.style.position = 'fixed';
-            mapContainer.style.top = '0px';
-            mapContainer.style.left = '0px';
-            mapContainer.style.bottom = '0px';
-            mapContainer.style.right = '0px';
-            const root = createRoot(mapContainer);
-            setTimeout(() => root.render(<UnityMap />), 0); // do this async or react cries about nested renders
-        }
-    }
-
-    useEffect(() => {
-        const { unsubscribe } = pipe(
-            ctx.unity.source,
-            subscribe((v) => setUnity(v))
-        );
-        return unsubscribe;
-    }, [ctx.unity.source]);
-
-    useEffect(() => {
-        const { unsubscribe } = pipe(
-            ctx.ready.source,
-            subscribe((v) => setReady(v))
-        );
-        return unsubscribe;
-    }, [ctx.ready.source]);
-
-    return { unity, ready, messages: ctx.messages.source };
-};
-
-// ---
-
 export interface UnityMapContextValue {
     ready?: boolean;
     sendMessage?: SendMessageFunc;
@@ -298,16 +62,16 @@ export const UnityMapContext = createContext<UnityMapContextValue>({});
 export const useUnityMap = () => useContext(UnityMapContext);
 
 export const UnityMapProvider = ({ children, disabled }: { children: ReactNode; disabled?: boolean }) => {
-    const { unity, ready, messages } = useGlobalUnityMapContext();
+    const { unity, ready, messages } = useGlobalUnityInstance();
     const { sendMessage, loadingProgression } = unity;
     const {
+        selectTiles,
+        selectMapElement,
+        selectIntent: rawSelectIntent,
+        selectMobileUnit,
+        selected,
         world,
         player,
-        selectMobileUnit,
-        selectMapElement,
-        selectTiles,
-        selected,
-        selectIntent: rawSelectIntent,
     } = useGameState();
 
     const { dispatch } = player || {};
@@ -328,7 +92,7 @@ export const UnityMapProvider = ({ children, disabled }: { children: ReactNode; 
     );
 
     const processMessage = useCallback(
-        (msgObj: Message) => {
+        (msgObj: UnityMessage) => {
             switch (msgObj.msg) {
                 case 'dispatch': {
                     const { action, args } = msgObj as DispatchMessage;
@@ -370,6 +134,7 @@ export const UnityMapProvider = ({ children, disabled }: { children: ReactNode; 
                     selectMapElement(mapElementID);
                     break;
                 }
+
                 default: {
                     console.warn('unhandled message from map:', msgObj);
                 }
@@ -450,12 +215,13 @@ export const UnityMapProvider = ({ children, disabled }: { children: ReactNode; 
                     }
                     args.push(['GameStateMediator', 'EndOnState']);
 
+                    if (args.length < 3) {
+                        return;
+                    }
+
                     for (let i = 0; i < args.length; i++) {
                         sendMessage.apply(sendMessage, args[i]);
                         await sleep(0);
-                    }
-                    if (args.length > 0) {
-                        console.log('sent map update');
                     }
                 } finally {
                     isSending = false;

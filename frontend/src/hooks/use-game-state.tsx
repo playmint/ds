@@ -1,5 +1,11 @@
 import {
+    AvailableBuildingKind,
+    AvailablePlugin,
     BuildingKindFragment,
+    ConnectedPlayer,
+    GameConfig,
+    GameState,
+    Log,
     Logger,
     makeAutoloadPlugins,
     makeAvailableBuildingKinds,
@@ -10,22 +16,16 @@ import {
     makeLogger,
     makePluginUI,
     makeSelection,
-    AvailableBuildingKind,
-    AvailablePlugin,
-    ConnectedPlayer,
-    GameConfig,
-    GameState,
-    Log,
+    makeWallet,
+    makeWorld,
     PluginUpdateResponse,
     Selection,
     Selector,
     Wallet,
-    World,
     WalletProvider,
-    makeWallet,
-    makeWorld,
+    World,
 } from '@app/../../core/src';
-import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { mergeMap, pipe, scan, Source, subscribe } from 'wonka';
 
 export interface DSContextProviderProps {
@@ -40,7 +40,7 @@ export interface SelectionSelectors {
     selectMapElement: Selector<string | undefined>;
 }
 
-export interface DSContextStore {
+export interface DSContextValue {
     wallet: Source<Wallet | undefined>;
     player: Source<ConnectedPlayer | undefined>;
     world: Source<World>;
@@ -56,14 +56,21 @@ export interface DSContextStore {
     availablePlugins: Source<AvailablePlugin[]>;
 }
 
+export type DSContextStore = Partial<DSContextValue>;
+
 export const DSContext = createContext({} as DSContextStore);
 
 export const useSources = () => useContext(DSContext);
 
 export const GameStateProvider = ({ config, children }: DSContextProviderProps) => {
-    const { sources, setConfig } = useMemo(() => {
+    const [sources, setSources] = useState<DSContextStore>({});
+
+    useEffect(() => {
+        if (!config) {
+            return;
+        }
         const { wallet, selectProvider } = makeWallet();
-        const { client, setConfig } = makeCogClient();
+        const { client } = makeCogClient(config);
         const { logger, logs } = makeLogger({ name: 'main' });
         const player = makeConnectedPlayer(client, wallet, logger);
         const world = makeWorld(client);
@@ -89,35 +96,22 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
         );
         const ui = makePluginUI(logger, activePlugins, state, block);
 
-        return {
-            sources: {
-                block,
-                wallet,
-                player,
-                world,
-                selection,
-                selectors,
-                selectProvider,
-                state,
-                availablePlugins,
-                buildingKinds,
-                ui,
-                logger,
-                logs,
-            },
-            setConfig,
-        };
-    }, []);
-
-    useEffect(() => {
-        if (!setConfig) {
-            return;
-        }
-        if (!config) {
-            return;
-        }
-        setConfig(config);
-    }, [config, setConfig]);
+        setSources({
+            block,
+            wallet,
+            player,
+            world,
+            selection,
+            selectors,
+            selectProvider,
+            state,
+            availablePlugins,
+            buildingKinds,
+            ui,
+            logger,
+            logs,
+        });
+    }, [config]);
 
     return <DSContext.Provider value={sources}>{children}</DSContext.Provider>;
 };
@@ -133,7 +127,7 @@ export function usePlayer(): ConnectedPlayer | undefined {
     return useSource(sources.player);
 }
 
-export function useWallet(): { wallet: Wallet | undefined; selectProvider: Selector<WalletProvider> } {
+export function useWallet(): { wallet: Wallet | undefined; selectProvider: Selector<WalletProvider> | undefined } {
     const sources = useSources();
     const wallet = useSource(sources.wallet);
     const selectProvider = sources.selectProvider;
@@ -150,7 +144,7 @@ export function useWorld(): World | undefined {
 }
 
 // fetch the current selection data + selector funcs
-export function useSelection(): Selection & SelectionSelectors {
+export function useSelection(): Partial<Selection> & Partial<SelectionSelectors> {
     const { selection, selectors } = useSources();
     const selected = useSource(selection) || {};
     return { ...selected, ...selectors };
@@ -174,6 +168,9 @@ export function useLogs(limit: number): Log[] | undefined {
     const [value, setValue] = useState<Log[] | undefined>(undefined);
 
     useEffect(() => {
+        if (!sources.logs) {
+            return;
+        }
         const { unsubscribe } = pipe(
             sources.logs,
             scan((logs, log) => {
@@ -197,6 +194,9 @@ export function useGameState(): Partial<GameState> {
     const [state, setState] = useState<Partial<GameState>>({});
 
     useEffect(() => {
+        if (!sources.state) {
+            return;
+        }
         const { unsubscribe } = pipe(sources.state, subscribe(setState));
         return unsubscribe;
     }, [sources.state]);
@@ -205,10 +205,13 @@ export function useGameState(): Partial<GameState> {
 }
 
 // helper to directly subscribe to a source
-export function useSource<T>(source: Source<T>): T | undefined {
+export function useSource<T>(source?: Source<T>): T | undefined {
     const [value, setValue] = useState<T | undefined>();
 
     useEffect(() => {
+        if (!source) {
+            return;
+        }
         const { unsubscribe } = pipe(
             source,
             subscribe((v) => setValue(() => v))
@@ -218,3 +221,10 @@ export function useSource<T>(source: Source<T>): T | undefined {
 
     return value;
 }
+
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// this is a hack to prevent next-js fast-refresh
+// from trying to be too clever. We need to render most
+// of the tree if the unity-map code changes
+import { disableFastRefresh } from './use-unity-map';
+export const _disableFastRefresh = disableFastRefresh;
