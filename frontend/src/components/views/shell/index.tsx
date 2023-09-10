@@ -6,7 +6,7 @@ import { Onboarding } from '@app/components/organisms/onboarding';
 import { ItemPluginPanel } from '@app/components/panels/item-plugin-panel';
 import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
 import { NavPanel } from '@app/components/panels/nav-panel';
-import { useBlock, useGameState } from '@app/hooks/use-game-state';
+import { useBlock, useGameState, usePlayer } from '@app/hooks/use-game-state';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { useWalletProvider } from '@app/hooks/use-wallet-provider';
 import { ActionBar } from '@app/plugins/action-bar';
@@ -27,7 +27,8 @@ const StyledShell = styled('div')`
 
 export const Shell: FunctionComponent<ShellProps> = () => {
     const { ready: mapReady } = useUnityMap();
-    const { player, world, selected } = useGameState();
+    const { world, selected } = useGameState();
+    const player = usePlayer();
     const { mobileUnit: selectedMobileUnit, tiles: selectedTiles } = selected || {};
     const blockNumber = useBlock();
     const { connect } = useWalletProvider();

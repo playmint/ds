@@ -36,7 +36,7 @@ export const WalletProviderProvider = ({ children }: { children: ReactNode }) =>
             }
             setProvider({ method: 'metamask', provider: metamask });
             await metamask.request({ method: 'eth_requestAccounts' });
-            setAutoconnectMetamask(true); // TODO: make this optional
+            setAutoconnectMetamask(true); // TODO: make this opt-in
         } catch (err) {
             console.error(`connect: ${err}`);
             setProvider(undefined);
@@ -48,14 +48,9 @@ export const WalletProviderProvider = ({ children }: { children: ReactNode }) =>
     const connectWalletConnect = useCallback(async (): Promise<unknown> => {
         try {
             const wc = await WalletConnectProvider.init({
-                projectId: '0061224af3af75d7af2bbfa60d3c49c3',
-                chains: [1], // REQUIRED chain ids
-                showQrModal: false, // REQUIRED set to "true" to use @web3modal/standalone,
-                // methods, // OPTIONAL ethereum methods
-                // events, // OPTIONAL ethereum events
-                // rpcMap, // OPTIONAL rpc urls for each chain
-                // metadata, // OPTIONAL metadata of your app
-                // qrModalOptions, // OPTIONAL - `undefined` by default, see https://docs.walletconnect.com/2.0/web3modal/options
+                projectId: '0061224af3af75d7af2bbfa60d3c49c3', // TODO: move to config.json
+                chains: [1],
+                showQrModal: false,
             });
             setWalletConnectURI('loading');
             const onDisplayURI = (uri: string) => setWalletConnectURI(uri);
@@ -66,7 +61,7 @@ export const WalletProviderProvider = ({ children }: { children: ReactNode }) =>
             await sleep(500);
             return wc
                 .connect()
-                .then(() => sleep(1000))
+                .then(() => sleep(1000)) // sleepy as if we go too fast it seems walletconnect api isn't ready
                 .then(() => setProvider({ method: 'walletconnect', provider: wc }))
                 .catch((err) => console.error(`walletconnect: ${err}`))
                 .finally(() => {
@@ -100,6 +95,7 @@ export const WalletProviderProvider = ({ children }: { children: ReactNode }) =>
             return;
         }
         if (connecting) {
+            console.warn('already connecting');
             return;
         }
         connectMetamask().catch((err) => console.error(err));
