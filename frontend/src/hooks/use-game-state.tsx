@@ -1,33 +1,35 @@
-import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
-import { mergeMap, pipe, scan, Source, subscribe } from 'wonka';
-import { makeCogClient } from './cog';
-import { BuildingKindFragment } from './gql/graphql';
-import { makeAvailableBuildingKinds } from './kinds';
-import { Logger, makeLogger } from './logger';
-import { makeConnectedPlayer } from './player';
-import { makeAutoloadPlugins, makeAvailablePlugins, makePluginUI } from './plugins';
-import { makeSelection } from './selection';
-import { makeGameState } from './state';
 import {
+    BuildingKindFragment,
+    Logger,
+    makeAutoloadPlugins,
+    makeAvailableBuildingKinds,
+    makeAvailablePlugins,
+    makeCogClient,
+    makeConnectedPlayer,
+    makeGameState,
+    makeLogger,
+    makePluginUI,
+    makeSelection,
     AvailableBuildingKind,
     AvailablePlugin,
     ConnectedPlayer,
     GameConfig,
     GameState,
     Log,
-    PluginConfig,
     PluginUpdateResponse,
     Selection,
     Selector,
     Wallet,
     World,
-} from './types';
-import { makeWallet, WalletProvider } from './wallet';
-import { makeWorld } from './world';
+    WalletProvider,
+    makeWallet,
+    makeWorld,
+} from '@app/../../core/src';
+import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import { mergeMap, pipe, scan, Source, subscribe } from 'wonka';
 
 export interface DSContextProviderProps {
     config?: Partial<GameConfig>;
-    defaultPlugins?: PluginConfig[]; // FIXME: this is temporary
     children?: ReactNode;
 }
 
@@ -58,7 +60,7 @@ export const DSContext = createContext({} as DSContextStore);
 
 export const useSources = () => useContext(DSContext);
 
-export const DSProvider = ({ config, children }: DSContextProviderProps) => {
+export const GameStateProvider = ({ config, children }: DSContextProviderProps) => {
     const { sources, setConfig } = useMemo(() => {
         const { wallet, selectProvider } = makeWallet();
         const { client, setConfig } = makeCogClient();
@@ -79,11 +81,11 @@ export const DSProvider = ({ config, children }: DSContextProviderProps) => {
             selectors.selectTiles,
             selectors.selectMobileUnit,
             selectors.selectIntent,
-            selectors.selectMapElement,
+            selectors.selectMapElement
         );
         const block = pipe(
             client,
-            mergeMap((client) => client.block),
+            mergeMap((client) => client.block)
         );
         const ui = makePluginUI(logger, activePlugins, state, block);
 
@@ -181,7 +183,7 @@ export function useLogs(limit: number): Log[] | undefined {
                 }
                 return [...logs];
             }, [] as Log[]),
-            subscribe(setValue),
+            subscribe(setValue)
         );
         return unsubscribe;
     }, [sources.logs, limit]);
@@ -197,7 +199,7 @@ export function useGameState(): Partial<GameState> {
     useEffect(() => {
         const { unsubscribe } = pipe(sources.state, subscribe(setState));
         return unsubscribe;
-    }, [sources.player, sources.world, sources.selection]);
+    }, [sources.state]);
 
     return state;
 }
@@ -209,7 +211,7 @@ export function useSource<T>(source: Source<T>): T | undefined {
     useEffect(() => {
         const { unsubscribe } = pipe(
             source,
-            subscribe((v) => setValue(() => v)),
+            subscribe((v) => setValue(() => v))
         );
         return unsubscribe;
     }, [source]);
