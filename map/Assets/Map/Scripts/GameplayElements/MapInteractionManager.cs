@@ -248,8 +248,9 @@ public class MapInteractionManager : MonoBehaviour
     {
         mapReady = true;
         if (
+            state.Selected != null && state.Selected.Intent != null &&
             IntentManager.Instance.IsHandledIntent(
-                GameStateMediator.Instance.gameState.Selected.Intent
+                state.Selected.Intent
             )
         )
         {
