@@ -1,11 +1,12 @@
 /** @format */
 
 import { ComponentProps } from '@app/types/component-props';
-import { ItemSlotFragment, useWorld } from '@downstream/core';
+import { ItemSlotFragment } from '@downstream/core';
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { Bag } from '@app/plugins/inventory/bag';
 import { getBagId, getBuildingEquipSlot } from '@app/plugins/inventory/helpers';
+import { useWorld } from '@app/hooks/use-game-state';
 
 export interface BuildingInventoryProps extends ComponentProps {
     buildingId: string;

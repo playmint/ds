@@ -1,7 +1,8 @@
 /** @format */
 
+import { useLogs } from '@app/hooks/use-game-state';
 import { ComponentProps } from '@app/types/component-props';
-import { useLogs, Log } from '@downstream/core';
+import { Log } from '@app/../../core/src';
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { styles } from './logs.styles';

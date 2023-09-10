@@ -1,10 +1,10 @@
-import { usePlayer, useWallet } from '@app/../../core/src';
 import spinner from '@app/../public/loaders/spinner.svg';
 import { Dialog } from '@app/components/molecules/dialog';
 import { trackEvent, trackPlayer } from '@app/components/organisms/analytics';
 import { ethers } from 'ethers';
 import Image from 'next/image';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { usePlayer, useWallet } from './use-game-state';
 import { useLocalStorage } from './use-localstorage';
 import { useWalletProvider } from './use-wallet-provider';
 

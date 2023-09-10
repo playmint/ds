@@ -1,5 +1,5 @@
-import { useGameState } from '@app/../../core/src';
 import { formatNameOrId } from '@app/helpers';
+import { useGameState } from '@app/hooks/use-game-state';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { MobileUnitInventory } from '@app/plugins/inventory/mobile-unit-inventory';
 import { useCallback, useEffect, useState } from 'react';
