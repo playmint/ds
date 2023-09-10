@@ -180,7 +180,7 @@ public class MapManager : MonoBehaviour
         {
             var hasResource = TileHelper.HasResource(tile);
             var cellPosCube = TileHelper.GetTilePosCube(tile);
-            var hasReward = TileHelper.HasReward(tile, state.Player.MobileUnits);
+            var hasReward = state.Player != null && TileHelper.HasReward(tile, state.Player.MobileUnits);
 
             // Crudely showing atoms on the map
             Transform tileTransform = AddTile(cellPosCube, tile)?.transform;

@@ -58,7 +58,7 @@ public class CombatIntent : IntentHandler
         // TODO: Doesn't belong in intent
         HighlightCombatTiles(state.World.Tiles);
 
-        if (state.Selected.Intent == Intent)
+        if (state.Selected != null && state.Selected.Intent == Intent)
         {
             _isActiveIntent = true;
             _mobileUnitPos = TileHelper.GetTilePosCube(state.Selected.MobileUnit.NextLocation);
