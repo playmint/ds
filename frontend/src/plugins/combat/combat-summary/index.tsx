@@ -1,20 +1,27 @@
 /** @format */
 
+import { Dialog } from '@app/components/molecules/dialog';
 import { ATOM_LIFE, Combat, EntityState } from '@app/plugins/combat/combat';
 import { convertCombatActions, getActions } from '@app/plugins/combat/helpers';
 import { ProgressBar } from '@app/plugins/combat/progress-bar';
 import { ComponentProps } from '@app/types/component-props';
-import { ConnectedPlayer, SelectedMobileUnitFragment, SelectedTileFragment } from '@downstream/core';
-import { FunctionComponent } from 'react';
+import {
+    ConnectedPlayer,
+    SelectedMobileUnitFragment,
+    SelectedTileFragment,
+    WorldStateFragment,
+} from '@downstream/core';
+import { FunctionComponent, useCallback, useState } from 'react';
 import styled from 'styled-components';
+import { CombatModal } from '../combat-modal';
 import { styles } from './combat-summary.styles';
 
 export interface CombatSummaryProps extends ComponentProps {
     selectedTiles: SelectedTileFragment[];
     player?: ConnectedPlayer;
+    world?: WorldStateFragment;
     blockNumber: number;
     selectedMobileUnit?: SelectedMobileUnitFragment;
-    onShowCombatModal?: (isNewSession: boolean) => void;
 }
 
 const StyledCombatSummary = styled('div')`
@@ -22,7 +29,16 @@ const StyledCombatSummary = styled('div')`
 `;
 
 export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: CombatSummaryProps) => {
-    const { selectedTiles, onShowCombatModal, blockNumber, ...otherProps } = props;
+    const { selectedTiles, world, blockNumber, player, ...otherProps } = props;
+    const [modal, setModal] = useState<boolean>(false);
+
+    const showModal = useCallback(() => {
+        setModal(true);
+    }, []);
+
+    const closeModal = useCallback(() => {
+        setModal(false);
+    }, []);
 
     if (selectedTiles.length === 0 || selectedTiles[0].sessions.length === 0) return null;
 
@@ -53,6 +69,17 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
 
     return (
         <StyledCombatSummary {...otherProps}>
+            {modal && player && world && blockNumber && (
+                <Dialog onClose={closeModal} width="850px" height="" icon="/combat-header.png">
+                    <CombatModal
+                        player={player}
+                        world={world}
+                        isNewSession={false}
+                        closeModal={closeModal}
+                        blockNumber={blockNumber}
+                    />
+                </Dialog>
+            )}
             <div className="header">
                 <img src="/combat-header.png" alt="" className="icon" />
                 <h3 className="title">Tile in combat</h3>
@@ -67,7 +94,7 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
                         <span className="heading">Defenders</span>
                         <ProgressBar maxValue={defendersMaxHealth} currentValue={defendersCurrentHealth} />
                     </div>
-                    <button onClick={() => onShowCombatModal && onShowCombatModal(false)} className="action-button">
+                    <button onClick={showModal} className="action-button">
                         View Combat
                     </button>
                 </div>

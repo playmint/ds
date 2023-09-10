@@ -1,4 +1,5 @@
 /** @format */
+import { Dialog } from '@app/components/molecules/dialog';
 import { PluginContent } from '@app/components/organisms/tile-action';
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
 import {
@@ -26,6 +27,7 @@ import {
     SelectedMobileUnitFragment,
     SelectedTileFragment,
     Selector,
+    useBlock,
     useBuildingKinds,
     usePlayer,
     usePluginState,
@@ -33,15 +35,15 @@ import {
     useWorld,
     World,
     WorldBuildingFragment,
+    WorldStateFragment,
     WorldTileFragment,
 } from '@downstream/core';
 import React, { Fragment, FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { CombatModal } from '../combat/combat-modal';
 import { styles } from './action-context-panel.styles';
 
-export interface ActionContextPanelProps extends ComponentProps {
-    onShowCombatModal?: (isNewSession: boolean) => void;
-}
+export interface ActionContextPanelProps extends ComponentProps {}
 
 const CONSTRUCT_INTENT = 'construct';
 const MOVE_INTENT = 'move';
@@ -671,17 +673,21 @@ interface CombatProps {
     selectIntent: Selector<string | undefined>;
     selectTiles: Selector<string[] | undefined>;
     player?: ConnectedPlayer;
+    world?: WorldStateFragment;
+    blockNumber: number;
     mobileUnit?: SelectedMobileUnitFragment;
-    onShowCombatModal?: (isNewSession: boolean) => void;
 }
 const Combat: FunctionComponent<CombatProps> = ({
-    onShowCombatModal,
     selectTiles,
     selectIntent,
     selectedTiles,
     player,
+    world,
     mobileUnit,
+    blockNumber,
 }) => {
+    const [combatModalState, setCombatModalState] = useState<boolean>(false);
+
     const combatTiles = selectedTiles
         .filter((t) => t.biome === BiomeKind.DISCOVERED)
         .filter(({ sessions }) => {
@@ -707,25 +713,34 @@ const Combat: FunctionComponent<CombatProps> = ({
         [selectIntent, selectTiles]
     );
 
-    const handleShowCombatModal = () => {
-        onShowCombatModal && onShowCombatModal(true);
-        selectIntent(undefined);
-    };
+    const showCombatModal = useCallback(() => {
+        setCombatModalState(true);
+    }, []);
+
+    const closeCombatModal = useCallback(() => {
+        setCombatModalState(false);
+    }, []);
 
     return (
         <StyledActionContextPanel>
+            {combatModalState && player && world && blockNumber && (
+                <Dialog onClose={closeCombatModal} width="850px" height="" icon="/combat-header.png">
+                    <CombatModal
+                        player={player}
+                        world={world}
+                        isNewSession={true}
+                        closeModal={closeCombatModal}
+                        blockNumber={blockNumber}
+                    />
+                </Dialog>
+            )}
             <div className="control">
                 <div className="guide">
                     <h3>Combat</h3>
                     <span className="sub-title">Select a tile to attack</span>
                 </div>
                 <form>
-                    <button
-                        className="action-button"
-                        type="button"
-                        onClick={handleShowCombatModal}
-                        disabled={!canAttack}
-                    >
+                    <button className="action-button" type="button" onClick={showCombatModal} disabled={!canAttack}>
                         Confirm Attack
                     </button>
                     <button onClick={clearIntent} className="cancel">
@@ -863,9 +878,11 @@ export const TileInfoPanel: FunctionComponent<ActionContextPanelProps> = () => {
     }
 };
 
-export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({ onShowCombatModal }) => {
+export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = () => {
     const { selectIntent, intent, tiles, mobileUnit, selectTiles } = useSelection();
     const player = usePlayer();
+    const world = useWorld();
+    const blockNumber = useBlock();
 
     const selectedTiles = tiles || [];
 
@@ -907,7 +924,8 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({
                 selectTiles={selectTiles}
                 mobileUnit={mobileUnit}
                 player={player}
-                onShowCombatModal={onShowCombatModal}
+                world={world}
+                blockNumber={blockNumber || 0}
             />
         );
     } else {
