@@ -1,16 +1,19 @@
+// @refresh reset
 import spinner from '@app/../public/loaders/spinner.svg';
+
 import { Dialog } from '@app/components/molecules/dialog';
 import { trackEvent, trackPlayer } from '@app/components/organisms/analytics';
 import { ethers } from 'ethers';
 import Image from 'next/image';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { usePlayer, useWallet } from './use-game-state';
+import { usePlayer } from './use-game-state';
 import { useLocalStorage } from './use-localstorage';
 import { useWalletProvider } from './use-wallet-provider';
 
 export interface SessionContextValue {
     newSession: () => void;
     clearSession: () => void;
+    loadingSession: boolean;
 }
 
 export interface SessionData {
@@ -39,29 +42,19 @@ const decodeSessionData = (o: Partial<SessionData>): SessionData | undefined => 
 };
 
 export const SessionProvider = ({ children }: { children: ReactNode }) => {
-    const [authorizing, setAuthorizing] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(false);
     const { provider } = useWalletProvider();
-    const { selectProvider } = useWallet();
+    const [authorizing, setAuthorizing] = useState<boolean>(false);
+    const [loadingSession, setLoading] = useState<boolean>(false);
     const player = usePlayer();
     const closeAuthroizer = useCallback(() => setAuthorizing(false), []);
     const [sessionData, setSessionData] = useLocalStorage<SessionData | null>(`ds/sessions`, null);
     const session = useMemo(() => (sessionData ? decodeSessionData(sessionData) : undefined), [sessionData]);
 
-    useEffect(() => {
-        if (!selectProvider) {
-            return;
-        }
-        if (!provider) {
-            return;
-        }
-        selectProvider(provider);
-    }, [selectProvider, provider]);
-
     const newSession = useCallback(() => {
         if (!provider) {
             return;
         }
+
         if (!player) {
             return;
         }
@@ -98,7 +91,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
         if (!session) {
             return;
         }
-        if (loading) {
+        if (loadingSession) {
             return;
         }
         setLoading(true);
@@ -106,7 +99,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
             .load(new ethers.Wallet(session.key), session.expires)
             .catch((err) => console.error(err))
             .finally(() => setLoading(false));
-    }, [session, player, loading]);
+    }, [session, player, loadingSession]);
 
     const clearSession = useCallback(() => {
         localStorage.clear();
@@ -143,8 +136,8 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     }, [newSession, session, loadSession, player, setSessionData, clearSession]);
 
     const value: SessionContextValue = useMemo(() => {
-        return { newSession, clearSession };
-    }, [newSession, clearSession]);
+        return { newSession, clearSession, loadingSession };
+    }, [newSession, clearSession, loadingSession]);
 
     return (
         <SessionContext.Provider value={value}>

@@ -1,5 +1,3 @@
-/** @format */
-
 import { trackEvent } from '@app/components/organisms/analytics';
 import { Logs } from '@app/components/organisms/logs';
 import { Onboarding } from '@app/components/organisms/onboarding';
@@ -7,6 +5,7 @@ import { ItemPluginPanel } from '@app/components/panels/item-plugin-panel';
 import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
 import { NavPanel } from '@app/components/panels/nav-panel';
 import { useBlock, useGameState, usePlayer } from '@app/hooks/use-game-state';
+import { useSession } from '@app/hooks/use-session';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { useWalletProvider } from '@app/hooks/use-wallet-provider';
 import { ActionBar } from '@app/plugins/action-bar';
@@ -28,6 +27,7 @@ const StyledShell = styled('div')`
 export const Shell: FunctionComponent<ShellProps> = () => {
     const { ready: mapReady } = useUnityMap();
     const { world, selected } = useGameState();
+    const { loadingSession } = useSession();
     const player = usePlayer();
     const { mobileUnit: selectedMobileUnit, tiles: selectedTiles } = selected || {};
     const blockNumber = useBlock();
@@ -69,9 +69,10 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     )}
                 </div>
                 <div className="right">
-                    {(!player || (player && player.mobileUnits.length === 0)) && mapReady && connect && (
-                        <Onboarding player={player} onClickConnect={connect} />
-                    )}
+                    {(!player || (player && player.mobileUnits.length === 0)) &&
+                        mapReady &&
+                        connect &&
+                        !loadingSession && <Onboarding player={player} onClickConnect={connect} />}
                     {player && player.mobileUnits.length > 0 && (
                         <div className="tile-actions">
                             <TileInfoPanel className="action" />
