@@ -66,8 +66,14 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
 
     const handleSelectIntent = (newIntent: string | undefined) => {
         if (newIntent != intent) {
-            selectTiles([]);
-            setTimeout(() => selectIntent(newIntent), 200);
+            if (selectTiles) {
+                selectTiles([]);
+            }
+            setTimeout(() => {
+                if (selectIntent) {
+                    selectIntent(newIntent);
+                }
+            }, 200);
         }
     };
 
