@@ -78,8 +78,8 @@ interface TileBuildingProps {
     player?: ConnectedPlayer;
     building: WorldBuildingFragment;
     world?: World;
-    selectIntent: Selector<string | undefined>;
-    selectTiles: Selector<string[] | undefined>;
+    selectIntent?: Selector<string | undefined>;
+    selectTiles?: Selector<string[] | undefined>;
     mobileUnit?: SelectedMobileUnitFragment;
 }
 const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, world, mobileUnit }) => {
@@ -278,8 +278,8 @@ const TileUndiscovered: FunctionComponent<unknown> = (_props) => {
 
 interface ConstructProps {
     selectedTiles: SelectedTileFragment[];
-    selectIntent: Selector<string | undefined>;
-    selectTiles: Selector<string[] | undefined>;
+    selectIntent?: Selector<string | undefined>;
+    selectTiles?: Selector<string[] | undefined>;
     player?: ConnectedPlayer;
     mobileUnit?: SelectedMobileUnitFragment;
 }
@@ -432,6 +432,9 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
         (e?: React.MouseEvent) => {
             if (e) {
                 e.preventDefault();
+            }
+            if (!selectIntent) {
+                return;
             }
             selectIntent(undefined);
         },
@@ -597,8 +600,8 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
 
 interface MoveProps {
     selectedTiles: SelectedTileFragment[];
-    selectIntent: Selector<string | undefined>;
-    selectTiles: Selector<string[] | undefined>;
+    selectIntent?: Selector<string | undefined>;
+    selectTiles?: Selector<string[] | undefined>;
     player?: ConnectedPlayer;
     mobileUnit?: SelectedMobileUnitFragment;
 }
@@ -639,6 +642,12 @@ const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selecte
             if (e) {
                 e.preventDefault();
             }
+            if (!selectIntent) {
+                return;
+            }
+            if (!selectTiles) {
+                return;
+            }
             selectIntent(undefined);
             selectTiles([]);
         },
@@ -672,8 +681,8 @@ const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selecte
 
 interface CombatProps {
     selectedTiles: SelectedTileFragment[];
-    selectIntent: Selector<string | undefined>;
-    selectTiles: Selector<string[] | undefined>;
+    selectIntent?: Selector<string | undefined>;
+    selectTiles?: Selector<string[] | undefined>;
     player?: ConnectedPlayer;
     world?: WorldStateFragment;
     blockNumber: number;
@@ -708,6 +717,12 @@ const Combat: FunctionComponent<CombatProps> = ({
         (e?: React.MouseEvent) => {
             if (e) {
                 e.preventDefault();
+            }
+            if (!selectIntent) {
+                return;
+            }
+            if (!selectTiles) {
+                return;
             }
             selectIntent(undefined);
             selectTiles([]);
@@ -756,8 +771,8 @@ const Combat: FunctionComponent<CombatProps> = ({
 
 interface ScoutProps {
     selectedTiles: SelectedTileFragment[];
-    selectIntent: Selector<string | undefined>;
-    selectTiles: Selector<string[] | undefined>;
+    selectIntent?: Selector<string | undefined>;
+    selectTiles?: Selector<string[] | undefined>;
     player?: ConnectedPlayer;
     mobileUnit?: SelectedMobileUnitFragment;
 }
@@ -789,6 +804,12 @@ const Scout: FunctionComponent<ScoutProps> = ({ selectTiles, selectIntent, selec
         (e?: React.MouseEvent) => {
             if (e) {
                 e.preventDefault();
+            }
+            if (!selectIntent) {
+                return;
+            }
+            if (!selectTiles) {
+                return;
             }
             selectIntent(undefined);
             selectTiles([]);
