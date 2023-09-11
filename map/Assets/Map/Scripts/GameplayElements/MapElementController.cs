@@ -102,7 +102,11 @@ public class MapElementController : MonoBehaviour
 
     private void StateUpdated(GameState state)
     {
-        Tiles tile = null;
+        if (state == null)
+        {
+            return;
+        }
+        Tiles tile;
         bool activateOutline = false;
         if (
             state.Selected != null && state.Selected.Tiles != null && state.Selected.Tiles.Count > 0
@@ -117,7 +121,7 @@ public class MapElementController : MonoBehaviour
                 }
             }
         }
-        if (state.Selected.MapElementID != null)
+        if (state.Selected != null && state.Selected.MapElementID != null)
         {
             if (state.Selected.MapElementID == _id)
             {
