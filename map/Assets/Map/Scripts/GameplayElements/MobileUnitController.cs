@@ -94,7 +94,6 @@ public class MobileUnitController : MapElementController
         if (isPlayer)
         {
             _icon = MapElementManager.instance.CreateIcon(iconParent, iconPrefab);
-            MapInteractionManager.instance.FocusTile(cell);
         }
         else
             _icon = MapElementManager.instance.CreateIcon(iconParent, nonPlayerIconPrefab);
