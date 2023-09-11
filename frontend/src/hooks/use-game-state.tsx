@@ -1,3 +1,4 @@
+// @refresh reset
 import {
     AvailableBuildingKind,
     AvailablePlugin,
@@ -27,6 +28,7 @@ import {
 } from '@app/../../core/src';
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { mergeMap, pipe, scan, Source, subscribe } from 'wonka';
+import { useWalletProvider } from './use-wallet-provider';
 
 export interface DSContextProviderProps {
     config?: Partial<GameConfig>;
@@ -63,6 +65,7 @@ export const DSContext = createContext({} as DSContextStore);
 export const useSources = () => useContext(DSContext);
 
 export const GameStateProvider = ({ config, children }: DSContextProviderProps) => {
+    const { provider } = useWalletProvider();
     const [sources, setSources] = useState<DSContextStore>({});
 
     useEffect(() => {
@@ -112,6 +115,18 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
             logs,
         });
     }, [config]);
+
+    const { selectProvider } = sources;
+
+    useEffect(() => {
+        if (!selectProvider) {
+            return;
+        }
+        if (!provider) {
+            return;
+        }
+        selectProvider(provider);
+    }, [selectProvider, provider]);
 
     return <DSContext.Provider value={sources}>{children}</DSContext.Provider>;
 };
@@ -221,10 +236,3 @@ export function useSource<T>(source?: Source<T>): T | undefined {
 
     return value;
 }
-
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// this is a hack to prevent next-js fast-refresh
-// from trying to be too clever. We need to render most
-// of the tree if the unity-map code changes
-import { disableFastRefresh } from './use-unity-map';
-export const _disableFastRefresh = disableFastRefresh;

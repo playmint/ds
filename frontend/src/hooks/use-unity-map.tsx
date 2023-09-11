@@ -1,11 +1,11 @@
+// @refresh reset
 import { ActionName } from '@app/../../core/src';
 import { sleep } from '@app/helpers/sleep';
-import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { pipe, subscribe } from 'wonka';
 import { useGameState } from './use-game-state';
 import { useGlobalUnityInstance, UnityMessage, SendMessageFunc } from './use-unity-instance';
 
-// @refresh reset
 export const disableFastRefresh = 'this export only exists to disable fast-refresh of this file';
 
 interface DispatchMessage extends UnityMessage {
@@ -29,27 +29,20 @@ interface SetMapElementMessage extends UnityMessage {
     mapElementID: string;
 }
 
-// caching previous state sends
-let prevPlayerJSON: string | undefined;
-let prevPlayersJSON: string | undefined;
-let prevTilesJSON: string | undefined;
-let prevBuildingsJSON: string | undefined;
-let prevSelectionJSON: string | undefined;
-
 // controling how we chunk up the state JSON
 const CHUNK_TILES = 50;
 const CHUNK_PLAYERS = 100;
 const CHUNK_BUILDINGS = 50;
 
 // queue of state to send
-let isSending = false;
-let pendingPlayer: any;
-let pendingPlayers: any;
-let pendingTiles: any;
-let pendingBuildings: any;
-let pendingBlock: any;
-let pendingSelection: any;
-let hasSentAtLeastOneTilesUpdate = false;
+interface PendingState {
+    player?: any;
+    players?: any;
+    tiles?: any;
+    buildings?: any;
+    block?: any;
+    selection?: any;
+}
 
 // ---
 
@@ -62,34 +55,14 @@ export const UnityMapContext = createContext<UnityMapContextValue>({});
 export const useUnityMap = () => useContext(UnityMapContext);
 
 export const UnityMapProvider = ({ children, disabled }: { children: ReactNode; disabled?: boolean }) => {
+    const [pending, setPendingState] = useState<PendingState>({});
+    const [isSending, setIsSending] = useState<boolean>(false);
     const { unity, ready, messages } = useGlobalUnityInstance();
     const { sendMessage, loadingProgression } = unity;
-    const {
-        selectTiles,
-        selectMapElement,
-        selectIntent: rawSelectIntent,
-        selectMobileUnit,
-        selected,
-        world,
-        player,
-    } = useGameState();
+    const { selectTiles, selectMapElement, selectIntent, selectMobileUnit, selected, world, player } = useGameState();
 
     const { dispatch } = player || {};
     const loadingPercentage = loadingProgression ? Math.round(loadingProgression * 100) : 0;
-
-    const selectIntent = useCallback(
-        (intent: string | undefined, tileId?: string) => {
-            if (!selectTiles) {
-                return;
-            }
-            if (!rawSelectIntent) {
-                return;
-            }
-            selectTiles(tileId ? [tileId] : []);
-            rawSelectIntent(intent);
-        },
-        [selectTiles, rawSelectIntent]
-    );
 
     const processMessage = useCallback(
         (msgObj: UnityMessage) => {
@@ -115,7 +88,12 @@ export const UnityMapProvider = ({ children, disabled }: { children: ReactNode; 
                 }
                 case 'setIntent': {
                     const { intent } = msgObj as SetIntentMessage;
-                    selectIntent(intent);
+                    if (selectTiles) {
+                        selectTiles([]);
+                    }
+                    if (selectIntent) {
+                        selectIntent(intent);
+                    }
                     break;
                 }
                 case 'selectMobileUnit': {
@@ -164,74 +142,64 @@ export const UnityMapProvider = ({ children, disabled }: { children: ReactNode; 
         if (!ready) {
             return;
         }
-        const timer = setInterval(() => {
-            if (isSending) {
+        if (isSending) {
+            return;
+        }
+        if (!pending.players && !pending.tiles && !pending.player && !pending.selection && !pending.buildings) {
+            return;
+        }
+        setIsSending(true);
+        (async () => {
+            let args: any[] = [];
+
+            args.push([
+                'GameStateMediator',
+                'StartOnState',
+                JSON.stringify({ tiles: [], buildings: [], players: [], block: pending.block }),
+            ]);
+
+            if (pending.player) {
+                args = [...args, pending.player];
+            }
+            if (pending.selection) {
+                args = [...args, pending.selection];
+            }
+            if (pending.players) {
+                args = [...args, ...pending.players];
+            }
+            if (pending.tiles) {
+                args = [...args, ...pending.tiles];
+            }
+            if (pending.buildings) {
+                args = [...args, ...pending.buildings];
+            }
+            if (pending.player) {
+                args.push(pending.player);
+            }
+            setPendingState((pending) => {
+                pending.player = null;
+                pending.players = null;
+                pending.tiles = null;
+                pending.buildings = null;
+                pending.block = null;
+                pending.selection = null;
+                return { ...pending };
+            });
+            args.push(['GameStateMediator', 'EndOnState']);
+
+            if (args.length < 3) {
                 return;
             }
-            if (!pendingPlayers && !pendingTiles && !pendingPlayer && !pendingSelection && !pendingBuildings) {
-                return;
+
+            for (let i = 0; i < args.length; i++) {
+                console.log('SEND', args[i]);
+                sendMessage.apply(sendMessage, args[i]);
+                await sleep(0);
             }
-            isSending = true;
-            (async () => {
-                try {
-                    let args: any[] = [];
-
-                    args.push([
-                        'GameStateMediator',
-                        'StartOnState',
-                        JSON.stringify({ tiles: [], buildings: [], players: [], block: pendingBlock }),
-                    ]);
-
-                    // if there is a selection change pending,
-                    // then give it priority over the world state
-                    // so that the UI feels snappier.
-                    // any other updates will occur in the next loop
-                    if (pendingSelection && hasSentAtLeastOneTilesUpdate) {
-                        if (pendingPlayer) {
-                            args.push(pendingPlayer);
-                        }
-                        args.push(pendingSelection);
-                        pendingPlayer = null;
-                        pendingSelection = null;
-                    } else {
-                        if (pendingPlayers) {
-                            args = [...args, ...pendingPlayers];
-                        }
-                        if (pendingTiles) {
-                            hasSentAtLeastOneTilesUpdate = true;
-                            args = [...args, ...pendingTiles];
-                        }
-                        if (pendingBuildings) {
-                            args = [...args, ...pendingBuildings];
-                        }
-                        if (pendingPlayer) {
-                            args.push(pendingPlayer);
-                        }
-                        pendingPlayer = null;
-                        pendingPlayers = null;
-                        pendingTiles = null;
-                        pendingBuildings = null;
-                        pendingBlock = null;
-                    }
-                    args.push(['GameStateMediator', 'EndOnState']);
-
-                    if (args.length < 3) {
-                        return;
-                    }
-
-                    for (let i = 0; i < args.length; i++) {
-                        sendMessage.apply(sendMessage, args[i]);
-                        await sleep(0);
-                    }
-                } finally {
-                    isSending = false;
-                }
-            })().catch((err) => console.error('SendMessage', err));
-        }, 25);
-        return () => {
-            clearInterval(timer);
-        };
-    }, [sendMessage, ready, disabled]);
+        })()
+            .catch((err) => console.error('SENDERR', err))
+            .finally(() => setIsSending(false));
+    }, [sendMessage, ready, disabled, isSending, pending]);
 
     const { players, buildings, tiles, block } = world || {};
     useEffect(() => {
@@ -239,51 +207,51 @@ export const UnityMapProvider = ({ children, disabled }: { children: ReactNode; 
             return;
         }
         if (players) {
-            const nextPlayersJSON = JSON.stringify(players);
-            if (nextPlayersJSON != prevPlayersJSON) {
-                pendingPlayers = [['GameStateMediator', 'ResetWorldPlayers']];
+            setPendingState((pending) => {
+                pending.players = [['GameStateMediator', 'ResetWorldPlayers']];
                 for (let i = 0; i < players.length; i += CHUNK_PLAYERS) {
-                    pendingPlayers.push([
+                    pending.players.push([
                         'GameStateMediator',
                         'AddWorldPlayers',
                         JSON.stringify(players.slice(i, i + CHUNK_PLAYERS)),
                     ]);
                 }
-                prevPlayersJSON = nextPlayersJSON;
-            }
+                return { ...pending };
+            });
         }
 
         if (tiles) {
-            const nextTilesJSON = JSON.stringify(tiles);
-            if (nextTilesJSON != prevTilesJSON) {
-                pendingTiles = [['GameStateMediator', 'ResetWorldTiles']];
+            setPendingState((pending) => {
+                pending.tiles = [['GameStateMediator', 'ResetWorldTiles']];
                 for (let i = 0; i < tiles.length; i += CHUNK_TILES) {
-                    pendingTiles.push([
+                    pending.tiles.push([
                         'GameStateMediator',
                         'AddWorldTiles',
                         JSON.stringify(tiles.slice(i, i + CHUNK_TILES)),
                     ]);
                 }
-                prevTilesJSON = nextTilesJSON;
-            }
+                return { ...pending };
+            });
         }
 
         if (buildings) {
-            const nextBuildingsJSON = JSON.stringify(buildings);
-            if (nextBuildingsJSON != prevBuildingsJSON) {
-                pendingBuildings = [['GameStateMediator', 'ResetWorldBuildings']];
+            setPendingState((pending) => {
+                pending.buildings = [['GameStateMediator', 'ResetWorldBuildings']];
                 for (let i = 0; i < buildings.length; i += CHUNK_BUILDINGS) {
-                    pendingBuildings.push([
+                    pending.buildings.push([
                         'GameStateMediator',
                         'AddWorldBuildings',
                         JSON.stringify(buildings.slice(i, i + CHUNK_BUILDINGS)),
                     ]);
                 }
-                prevBuildingsJSON = nextBuildingsJSON;
-            }
+                return { ...pending };
+            });
         }
 
-        pendingBlock = block;
+        setPendingState((pending) => {
+            pending.block = block;
+            return pending;
+        });
     }, [ready, players, tiles, buildings, block]);
 
     useEffect(() => {
@@ -294,11 +262,10 @@ export const UnityMapProvider = ({ children, disabled }: { children: ReactNode; 
         if (!player) {
             return;
         }
-        const nextPlayerJSON = JSON.stringify(player);
-        if (nextPlayerJSON != prevPlayerJSON) {
-            pendingPlayer = ['GameStateMediator', 'SetPlayer', nextPlayerJSON];
-            prevPlayerJSON = nextPlayerJSON;
-        }
+        setPendingState((pending) => {
+            pending.player = ['GameStateMediator', 'SetPlayer', JSON.stringify(player)];
+            return { ...pending };
+        });
     }, [ready, player]);
 
     useEffect(() => {
@@ -308,11 +275,10 @@ export const UnityMapProvider = ({ children, disabled }: { children: ReactNode; 
         if (!selected) {
             return;
         }
-        const nextSelectionJSON = JSON.stringify(selected || {});
-        if (nextSelectionJSON != prevSelectionJSON) {
-            pendingSelection = ['GameStateMediator', 'SetSelectionState', nextSelectionJSON];
-            prevSelectionJSON = nextSelectionJSON;
-        }
+        setPendingState((pending) => {
+            pending.selection = ['GameStateMediator', 'SetSelectionState', JSON.stringify(selected || {})];
+            return { ...pending };
+        });
     }, [ready, selected]);
 
     const value = useMemo(() => {
