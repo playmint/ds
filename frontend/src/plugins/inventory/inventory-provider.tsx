@@ -69,7 +69,6 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
     const [isPickedUpItemVisible, setIsPickedUpItemVisible] = useState<boolean>(false);
     const pickedUpItemRef = useRef<InventoryItem | null>(null);
     const pickedUpItemElementRef = useRef<HTMLDivElement>(null);
-
     const { addRef: addBagRef, removeRef: removeBagRef } = useClickOutside(clearPickedUpItem);
 
     useEffect(() => {

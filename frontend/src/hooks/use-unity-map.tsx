@@ -192,12 +192,11 @@ export const UnityMapProvider = ({ children, disabled }: { children: ReactNode; 
             }
 
             for (let i = 0; i < args.length; i++) {
-                console.log('SEND', args[i]);
                 sendMessage.apply(sendMessage, args[i]);
                 await sleep(0);
             }
         })()
-            .catch((err) => console.error('SENDERR', err))
+            .catch((err) => console.error('sendMessage', err))
             .finally(() => setIsSending(false));
     }, [sendMessage, ready, disabled, isSending, pending]);
 

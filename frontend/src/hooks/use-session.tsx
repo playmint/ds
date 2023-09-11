@@ -1,6 +1,5 @@
 // @refresh reset
 import spinner from '@app/../public/loaders/spinner.svg';
-
 import { Dialog } from '@app/components/molecules/dialog';
 import { trackEvent, trackPlayer } from '@app/components/organisms/analytics';
 import { ethers } from 'ethers';
@@ -9,6 +8,8 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, 
 import { usePlayer } from './use-game-state';
 import { useLocalStorage } from './use-localstorage';
 import { useWalletProvider } from './use-wallet-provider';
+
+export const disableSessionRefresh = 'this export only exists to disable fast-refresh of this file';
 
 export interface SessionContextValue {
     newSession: () => void;
