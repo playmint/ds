@@ -30,6 +30,10 @@ import { createContext, ReactNode, useContext, useEffect, useState } from 'react
 import { mergeMap, pipe, scan, Source, subscribe } from 'wonka';
 import { useWalletProvider } from './use-wallet-provider';
 
+// hack to force hot module reloading to give up
+export { disableFastRefresh } from './use-unity-map';
+export { disableSessionRefresh } from './use-session';
+
 export interface DSContextProviderProps {
     config?: Partial<GameConfig>;
     children?: ReactNode;
