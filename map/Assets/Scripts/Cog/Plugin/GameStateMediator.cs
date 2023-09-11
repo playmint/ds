@@ -398,11 +398,21 @@ namespace Cog
 
         private GameState incoming;
         private GameState state;
+        private bool isIncoming = false;
 
         public void StartOnState(string json)
         {
+            if (isIncoming)
+            {
+                return;
+            }
+            isIncoming = true;
             incoming = new GameState();
-            incoming.World = JsonConvert.DeserializeObject<World>(json);
+            var world = JsonConvert.DeserializeObject<World>(json);
+            if (world != null)
+            {
+                incoming.World = world;
+            }
             incoming.World.Tiles = new List<Tiles2>();
             incoming.World.Players = new List<Players>();
             incoming.World.Buildings = new List<Buildings>();
@@ -432,7 +442,13 @@ namespace Cog
 
             try
             {
-                incoming.Selected = JsonConvert.DeserializeObject<Selection>(json);
+                var selected = JsonConvert.DeserializeObject<Selection>(json);
+                if (selected == null)
+                {
+                    return;
+                }
+                incoming.Selected = selected;
+
                 EventSelectionUpdated.Invoke(incoming.Selected);
             }
             catch (Exception e)
@@ -463,10 +479,13 @@ namespace Cog
 
             try
             {
-                List<Tiles2> tiles = JsonConvert.DeserializeObject<List<Tiles2>>(json);
-                for (int i = 0; i < tiles.Count; i++)
+                List<Tiles2>? tiles = JsonConvert.DeserializeObject<List<Tiles2>?>(json);
+                if (tiles != null)
                 {
-                    incoming.World.Tiles.Add(tiles[i]);
+                    for (int i = 0; i < tiles.Count; i++)
+                    {
+                        incoming.World.Tiles.Add(tiles[i]);
+                    }
                 }
             }
             catch (Exception e)
@@ -482,10 +501,13 @@ namespace Cog
 
             try
             {
-                List<Players> players = JsonConvert.DeserializeObject<List<Players>>(json);
-                for (int i = 0; i < players.Count; i++)
+                List<Players>? players = JsonConvert.DeserializeObject<List<Players>?>(json);
+                if (players != null)
                 {
-                    incoming.World.Players.Add(players[i]);
+                    for (int i = 0; i < players.Count; i++)
+                    {
+                        incoming.World.Players.Add(players[i]);
+                    }
                 }
             }
             catch (Exception e)
@@ -501,10 +523,13 @@ namespace Cog
 
             try
             {
-                List<Buildings> buildings = JsonConvert.DeserializeObject<List<Buildings>>(json);
-                for (int i = 0; i < buildings.Count; i++)
+                List<Buildings>? buildings = JsonConvert.DeserializeObject<List<Buildings>?>(json);
+                if (buildings != null)
                 {
-                    incoming.World.Buildings.Add(buildings[i]);
+                    for (int i = 0; i < buildings.Count; i++)
+                    {
+                        incoming.World.Buildings.Add(buildings[i]);
+                    }
                 }
             }
             catch (Exception e)
@@ -520,7 +545,11 @@ namespace Cog
 
             try
             {
-                incoming.Player = JsonConvert.DeserializeObject<ConnectedPlayer>(json);
+                var player = JsonConvert.DeserializeObject<ConnectedPlayer>(json);
+                if (player != null)
+                {
+                    incoming.Player = player;
+                }
             }
             catch (Exception e)
             {
@@ -530,9 +559,17 @@ namespace Cog
 
         public void EndOnState()
         {
+            if (!isIncoming)
+            {
+                return;
+            }
+            isIncoming = false;
             state = incoming;
             incoming = new GameState();
-            UpdateState(state);
+            if (state != null)
+            {
+                UpdateState(state);
+            }
         }
     }
 }
