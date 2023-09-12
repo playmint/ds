@@ -248,9 +248,9 @@ public class MapInteractionManager : MonoBehaviour
     {
         mapReady = true;
         if (
-            IntentManager.Instance.IsHandledIntent(
-                GameStateMediator.Instance.gameState.Selected.Intent
-            )
+            state.Selected != null
+            && state.Selected.Intent != null
+            && IntentManager.Instance.IsHandledIntent(state.Selected.Intent)
         )
         {
             selectedMarker1.gameObject.SetActive(false);

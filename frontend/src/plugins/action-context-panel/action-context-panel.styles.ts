@@ -102,7 +102,7 @@ const baseStyles = (_: Partial<ActionContextPanelProps>) => css`
         }
     }
 
-    .label {
+    > .label {
         width: 12rem;
         height: 1.7rem;
         white-space: nowrap;

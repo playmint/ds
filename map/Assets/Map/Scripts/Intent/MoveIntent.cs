@@ -286,7 +286,7 @@ public class MoveIntent : IntentHandler
         SetHighlights(lit);
     }
 
-    private void SetHighlights(Dictionary<Vector3Int, GameObject> lit)
+    private void SetHighlights(Dictionary<Vector3Int, GameObject>? lit)
     {
         foreach (KeyValuePair<Vector3Int, GameObject> go in spawnedValidCellHighlights)
         {
@@ -295,7 +295,14 @@ public class MoveIntent : IntentHandler
                 Destroy(go.Value);
             }
         }
-        spawnedValidCellHighlights = lit;
+        if (lit == null)
+        {
+            spawnedValidCellHighlights = new Dictionary<Vector3Int, GameObject>();
+        }
+        else
+        {
+            spawnedValidCellHighlights = lit;
+        }
     }
 
     private void HidePathHighlights()

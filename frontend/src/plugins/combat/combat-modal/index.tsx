@@ -13,9 +13,8 @@ import {
     ConnectedPlayer,
     SelectedMobileUnitFragment,
     SelectedTileFragment,
-    useSelection,
     WorldStateFragment,
-} from '@downstream/core';
+} from '@app/../../core/src';
 import {
     CombatSession,
     convertCombatActions,
@@ -27,6 +26,7 @@ import {
 } from '@app/plugins/combat/helpers';
 import { Combat, CombatWinState, MAX_TICKS } from '@app/plugins/combat/combat';
 import { useMounted } from '@app/hooks/use-mounted';
+import { useSelection } from '@app/hooks/use-game-state';
 
 export type CombatModalProps = ComponentProps & {
     world: WorldStateFragment;

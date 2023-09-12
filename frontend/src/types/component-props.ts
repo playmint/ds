@@ -1,4 +1,3 @@
-/** @format */
 import { ElementType } from 'react';
 
 export interface ComponentProps {

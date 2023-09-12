@@ -50,10 +50,12 @@ function newBrowserAccountSource({ provider, method }: WalletProvider) {
         const addr = getAddress(accounts);
         next(addr);
     };
+
     const fetchAccounts = async (): Promise<string | undefined> => {
         return provider.request({ method: 'eth_accounts' }).then(getAddress);
     };
     provider.on('accountsChanged', handleAccountsChanged);
+
     return pipe(
         lazy(() => concat([fromPromise(fetchAccounts()), source])),
         map((address) => ({ provider, address, method })),

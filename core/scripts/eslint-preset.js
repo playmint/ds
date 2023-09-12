@@ -16,6 +16,7 @@ module.exports = {
         // 'no-console': ['error', { allow: ['warn', 'error'] }],
         'prefer-arrow/prefer-arrow-functions': 'off',
         'prefer-rest-params': 'off',
+        'react/react-in-jsx-scope': 'off',
 
         'prettier/prettier': [
             'error',

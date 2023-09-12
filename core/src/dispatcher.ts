@@ -1,3 +1,4 @@
+import { ethers } from 'ethers';
 import { concatMap, fromPromise, fromValue, makeSubject, pipe, publish, share, tap } from 'wonka';
 import { Logger } from './logger';
 import {
@@ -96,6 +97,17 @@ export function makeDispatcher(client: CogServices, wallet: Wallet, logger: Logg
             return currentSession ? currentSession.expires > Date.now() : false;
         },
         login: () => findOrCreateSession(client, wallet),
+        load: async (key: ethers.Wallet, expires: number) => {
+            const owner = await wallet.signer();
+            const session = {
+                key,
+                expires,
+                owner,
+                dispatch: (...bundle: CogAction[]) => client.dispatch(key, ...bundle),
+                signout: () => client.signout(owner, key.address),
+            };
+            return sessions.set(wallet.address, session).get(wallet.address);
+        },
     };
 }
 
@@ -107,7 +119,7 @@ export function makeDispatcher(client: CogServices, wallet: Wallet, logger: Logg
  * currently only an in-memory session cache is implemented.
  *
  */
-async function findOrCreateSession(client: CogServices, wallet: Wallet) {
+async function findOrCreateSession(client: CogServices, wallet: Wallet): Promise<CogSession | undefined> {
     const currentSession = sessions.get(wallet.address);
     return currentSession && currentSession.expires > Date.now()
         ? currentSession
@@ -131,6 +143,19 @@ async function dispatch(client: CogServices, wallet: Wallet, bundle: QueuedClien
         let reason = error.toString();
         if (error.graphQLErrors && error.graphQLErrors.length > 0) {
             reason = error.graphQLErrors[0].toString();
+        }
+        if (/SessionUnauthorized/.test(reason)) {
+            // FIXME: this is not the right place to do this, we should be able
+            // to register a callback to decide what to do when session
+            // unauthorized reloading the page is nasty, and this code is used
+            // outside of browsers too
+            sessions.delete(wallet.address);
+            if (typeof localStorage !== 'undefined') {
+                localStorage.clear();
+            }
+            if (typeof window !== 'undefined') {
+                window.location.reload();
+            }
         }
         throw new Error(reason);
     }

@@ -2,10 +2,11 @@
 
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
-import { BiomeKind, useSelection, useWorld, WorldTileFragment } from '@downstream/core';
+import { BiomeKind, WorldTileFragment } from '@downstream/core';
 import { ComponentProps } from '@app/types/component-props';
 import { styles } from './action-bar.styles';
 import { getNeighbours } from '@app/helpers/tile';
+import { useSelection, useWorld } from '@app/hooks/use-game-state';
 
 const CONSTRUCT_INTENT = 'construct';
 const MOVE_INTENT = 'move';
@@ -65,8 +66,14 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
 
     const handleSelectIntent = (newIntent: string | undefined) => {
         if (newIntent != intent) {
-            selectTiles([]);
-            setTimeout(() => selectIntent(newIntent), 200);
+            if (selectTiles) {
+                selectTiles([]);
+            }
+            setTimeout(() => {
+                if (selectIntent) {
+                    selectIntent(newIntent);
+                }
+            }, 200);
         }
     };
 

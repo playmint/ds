@@ -49,7 +49,7 @@ public class ConstructIntent : IntentHandler
 
     private void OnStateUpdated(GameState state)
     {
-        if (state.Selected.Intent == Intent)
+        if (state.Selected != null && state.Selected.Intent == Intent)
         {
             _isActiveIntent = true;
             _mobileUnitPos = TileHelper.GetTilePosCube(state.Selected.MobileUnit.NextLocation);

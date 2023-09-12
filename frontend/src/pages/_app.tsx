@@ -1,18 +1,13 @@
 /** @format */
 
 import Analytics from '@app/components/organisms/analytics';
-import { InventoryProvider } from '@app/plugins/inventory/inventory-provider';
+import { ConfigProvider } from '@app/hooks/use-config';
 import { GlobalStyles } from '@app/styles/global.styles';
-import { DSProvider } from '@downstream/core';
 import type { AppProps } from 'next/app';
-import dynamic from 'next/dynamic';
 import Head from 'next/head';
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo } from 'react';
 
-const App = ({ Component, pageProps }: AppProps) => {
-    const [config, setConfig] = useState<any>();
-    const commit = useMemo(() => (config?.build || '').slice(0, 8), [config?.build]);
-
+export const App = ({ Component, pageProps }: AppProps) => {
     useEffect(() => {
         const handleContextMenu = (e: MouseEvent) => {
             e.preventDefault();
@@ -24,14 +19,10 @@ const App = ({ Component, pageProps }: AppProps) => {
         };
     }, []);
 
-    useEffect(() => {
-        fetch('/config.json')
-            .then((res) => res.json())
-            .then(setConfig)
-            .catch((err) => console.error('failed to load /config.json', err));
-    }, []);
-
-    const enableAnalytics = useMemo(() => /ds-test|downstream.game/.test(window.location.href), []);
+    const enableAnalytics = useMemo(
+        () => typeof window != 'undefined' && /ds-test|downstream.game/.test(window.location.href),
+        []
+    );
 
     return (
         <Fragment>
@@ -50,18 +41,11 @@ const App = ({ Component, pageProps }: AppProps) => {
             </Head>
             {enableAnalytics && <Analytics id="G-19E8TP90ZV" />}
             <GlobalStyles />
-            {config && (
-                <DSProvider initialConfig={config}>
-                    <InventoryProvider>
-                        <Component {...pageProps} />
-                    </InventoryProvider>
-                </DSProvider>
-            )}
-            <div className="build-version">build v0.1-{commit}</div>
+            <ConfigProvider>
+                <Component {...pageProps} />
+            </ConfigProvider>
         </Fragment>
     );
 };
 
-export default dynamic(() => Promise.resolve(App), {
-    ssr: false,
-});
+export default App;
