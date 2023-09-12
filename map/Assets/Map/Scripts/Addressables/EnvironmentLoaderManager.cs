@@ -65,13 +65,13 @@ public class EnvironmentLoaderManager : MonoBehaviour
         Invoke("DelayedInvoke", 1);
     }
 
-    public TileController AddTile(Vector3 position, Vector3Int cellCubicCoords)
-    {
-        Transform tile = Instantiate(_tilePrefab, tileContainer).transform;
-        tile.name = "Tile_" + cellCubicCoords.ToString();
-        tile.position = new Vector3(position.x, -1, position.z);
-        return tile.GetComponent<TileController>();
-    }
+    // public TileController AddTile(Vector3 position, Vector3Int cellCubicCoords)
+    // {
+    //     Transform tile = Instantiate(_tilePrefab, tileContainer).transform;
+    //     tile.name = "Tile_" + cellCubicCoords.ToString();
+    //     tile.position = new Vector3(position.x, -1, position.z);
+    //     return tile.GetComponent<TileController>();
+    // }
 
     private void DelayedInvoke()
     {
