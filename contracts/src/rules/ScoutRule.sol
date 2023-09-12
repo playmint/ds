@@ -120,7 +120,7 @@ contract ScoutRule is Rule {
                 Math.mul(
                     greenPerlin,
                     Math.fromUInt(255) // players are gaurenteed 75% of the potential. Use Math.fromInt(255) to get the full potential
-                )>> (64)
+                ) >> (64)
             )
         );
         atoms[GOO_BLUE] = uint64(uint128(Math.mul(bluePerlin, Math.fromUInt(255)) >> (64)));
