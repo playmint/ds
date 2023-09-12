@@ -17,15 +17,11 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: fb4b6a4b24e044ea2833567cd5b75a95
   m_SerializeEntries:
-  - m_GUID: e5d177dd412794701bde20571e697efd
-    m_Address: Assets/Scenes/MapScene
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-  - m_GUID: cd1d0eece24a941cb80c63b01adcb182
-    m_Address: Assets/Map/Prefabs/Addressables/EnvironmentPrefabs
+  - m_GUID: b203730034aab4c75ab10296a04b1cd0
+    m_Address: Assets/Addressables
     m_ReadOnly: 0
     m_SerializedLabels:
-    - environmentObjects
+    - default
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 1f58d6e75013f48d5aa5adc43a151e09, type: 2}
   m_SchemaSet:
