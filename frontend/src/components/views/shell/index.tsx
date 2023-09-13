@@ -1,4 +1,5 @@
 import { trackEvent } from '@app/components/organisms/analytics';
+import { Tile } from '@app/components/map/Tile';
 import { Logs } from '@app/components/organisms/logs';
 import { Onboarding } from '@app/components/organisms/onboarding';
 import { ItemPluginPanel } from '@app/components/panels/item-plugin-panel';

@@ -6,7 +6,7 @@ mergeInto(LibraryManager.library, {
 		);
 	},
 
-	SendMessageRPC: function (msgJson) {
+	SendEventRPC: function (msgJson) {
 		window.dispatchReactUnityEvent(
 			"sendMessage",
 			UTF8ToString(msgJson)
