@@ -52,7 +52,7 @@ public class TileManager : MonoBehaviour, IComponentManager
         _assetPrefab = op.Result;
     }
 
-    public void Set(SetComponentMessage c)
+    public void Set(ComponentDataMessage c)
     {
         var data = JsonUtility.FromJson<TileData>(c.data);
         if (c.id == null)
@@ -69,19 +69,17 @@ public class TileManager : MonoBehaviour, IComponentManager
         controller.Set(data);
     }
 
-    // public bool Set(string jsonData)
-    // {
-    //     TileData data = JsonUtility.FromJson<TileData>(jsonData);
-    //     return Set(data);
-    // }
-
-    public bool Remove(string instanceId)
+    public bool Remove(ComponentMessage c)
     {
-        tiles.TryGetValue(instanceId, out TileController? controller);
+        if (c.id == null)
+        {
+            throw new Exception($"{GetType().Name}: failed to set: no instance id");
+        }
+        tiles.TryGetValue(c.id, out TileController? controller);
         if (controller != null)
         {
             Destroy(controller.gameObject);
-            tiles.Remove(instanceId);
+            tiles.Remove(c.id);
         }
         return true;
     }

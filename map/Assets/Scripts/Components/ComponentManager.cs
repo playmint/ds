@@ -4,19 +4,24 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
+
 [Serializable]
-public class SetComponentMessage
+public class ComponentMessage
 {
     public string? id; // instance id
     public string? type; // component name eg Tile
-    public string? data; // json encoded
 }
 
 [Serializable]
-public class RemoveComponentMessage
+public class ComponentDataMessage : ComponentMessage
 {
-    public string? id; // instance id
-    public string? type; // component name eg Tile
+    public string? data; // json encoded
+}
+
+public interface IComponentUpdater
+{
+    public void Set(ComponentDataMessage msg);
+    public void Remove(ComponentMessage msg);
 }
 
 [RequireComponent(typeof(TileManager))]
@@ -38,20 +43,42 @@ public class ComponentManager : MonoBehaviour
         }
     }
 
-    private void OnSet(SetComponentMessage msg)
+    private IComponentUpdater? GetManagerFor(ComponentMessage msg)
     {
         switch (msg.type)
         {
             case "Tile":
-                GetComponent<TileManager>().Set(msg);
-                return;
+                return (IComponentUpdater)GetComponent<TileManager>();
+            default:
+                return null;
         }
-
     }
 
     public void Set(string json)
     {
-        var msg = JsonUtility.FromJson<SetComponentMessage>(json);
-        OnSet(msg);
+        try
+        {
+            var msg = JsonUtility.FromJson<ComponentDataMessage>(json);
+            var manager = GetManagerFor(msg) ?? throw new Exception("no manager found for {msg}");
+            manager.Set(msg);
+        }
+        catch
+        {
+            Debug.Log("ComponentManager#Set: failed to set {json}");
+        }
+    }
+
+    public void Remove(string json)
+    {
+        try
+        {
+            var msg = JsonUtility.FromJson<ComponentMessage>(json);
+            var manager = GetManagerFor(msg) ?? throw new Exception("no manager found for {msg}");
+            manager.Remove(msg);
+        }
+        catch
+        {
+            Debug.Log("ComponentManager#Remove: failed to remove {json}");
+        }
     }
 }
