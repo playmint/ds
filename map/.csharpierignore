@@ -1,3 +1,4 @@
 /Library/*
 /Assets/ThirdParty/*
 /Generated/*
+/Assets/Scripts/**/Dioramas/*

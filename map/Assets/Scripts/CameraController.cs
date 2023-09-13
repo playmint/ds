@@ -12,10 +12,10 @@ public class CameraController : MonoBehaviour
     public float moveSpeed;
 
     [SerializeField]
-    public CinemachineVirtualCamera virtualCamera;
+    public CinemachineVirtualCamera? virtualCamera;
 
     [SerializeField]
-    private Transform target;
+    private Transform? target;
 
     [SerializeField]
     private float zoomSpeed = 5f;
@@ -30,14 +30,14 @@ public class CameraController : MonoBehaviour
     private float zoomDuration = 0.2f;
 
     [SerializeField]
-    PostProcessVolume PPVolume;
+    PostProcessVolume? PPVolume;
 
     [SerializeField]
     float minAOIntensity,
         maxAOIntensity;
 
-    private Camera mainCamera;
-    private Coroutine zoomCoroutine;
+    private Camera? mainCamera;
+    private Coroutine? zoomCoroutine;
 
     Plane m_Plane;
 
@@ -53,6 +53,22 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
+        if (mainCamera == null)
+        {
+            return;
+        }
+        if (virtualCamera == null)
+        {
+            return;
+        }
+        if (target == null)
+        {
+            return;
+        }
+        if (PPVolume == null)
+        {
+            return;
+        }
         float scrollInput = Input.GetAxis("Mouse ScrollWheel");
 
         if (Mathf.Abs(scrollInput) > Mathf.Epsilon)
@@ -127,6 +143,14 @@ public class CameraController : MonoBehaviour
         float duration
     )
     {
+        if (virtualCamera == null)
+        {
+            yield break;
+        }
+        if (target == null)
+        {
+            yield break;
+        }
         float elapsedTime = 0;
 
         while (elapsedTime < duration)

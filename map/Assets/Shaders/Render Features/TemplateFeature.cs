@@ -33,7 +33,7 @@ public class TemplateFeature : ScriptableRendererFeature
     }
 
     // References to our pass and its settings.
-    TemplatePass pass;
+    TemplatePass? pass;
     public PassSettings passSettings = new();
 
     // Gets called every time serialization happens.
@@ -55,6 +55,10 @@ public class TemplateFeature : ScriptableRendererFeature
     )
     {
         // Here you can queue up multiple passes after each other.
+        if (pass == null)
+        {
+            return;
+        }
         renderer.EnqueuePass(pass);
     }
 }
