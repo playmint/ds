@@ -1,8 +1,6 @@
 #nullable enable
 public class TileData
 {
-    public string? _instanceId;
-
     public string? id;
     public int q;
     public int r;

@@ -32,7 +32,11 @@ public class CoordsHelper
 
     public static Vector3 CubeToWorld(Vector3Int cubeCoords)
     {
-        Vector3 gridCoords = CubeToGrid(cubeCoords);
-        return new Vector3(gridCoords.x * 0.8659766f, 0.01f, gridCoords.y * 1f);
+        // the 0.5f here is related to the size of the tile
+        var x = 0.5f * (Mathf.Sqrt(3) * cubeCoords.x + (Mathf.Sqrt(3) / 2) * cubeCoords.y);
+        var y = 0.01f;
+        var z = 0.5f * ((3f / 2f) * cubeCoords.y);
+        return new Vector3(x, y, z);
+
     }
 }
