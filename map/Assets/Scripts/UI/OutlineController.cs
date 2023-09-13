@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using Cinemachine;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
@@ -7,22 +6,22 @@ using UnityEngine.Rendering.Universal;
 public class OutlineController : MonoBehaviour
 {
     [SerializeField]
-    RenderTexture outlineTexture;
+    RenderTexture? outlineTexture;
 
     [SerializeField]
-    Camera outlineCam;
+    Camera? outlineCam;
 
     [SerializeField]
-    CameraController camController;
+    CameraController? camController;
 
     [SerializeField]
-    TemplateFeature outlineRenderer;
+    TemplateFeature? outlineRenderer;
 
     [SerializeField]
-    UniversalRendererData renderData;
+    UniversalRendererData? renderData;
 
     [SerializeField]
-    Material outlineMat;
+    Material? outlineMat;
 
     [SerializeField]
     float falloffMultiplier = 8;
@@ -41,10 +40,18 @@ public class OutlineController : MonoBehaviour
 
     float updateTimer = 0;
 
-    private CinemachineFramingTransposer framingTransposer;
+    private CinemachineFramingTransposer? framingTransposer;
 
     private void Awake()
     {
+        if (outlineTexture == null)
+        {
+            throw new ArgumentException("outlineTexture not set");
+        }
+        if (camController == null || camController.virtualCamera == null)
+        {
+            throw new ArgumentException("camController not set");
+        }
         sWidth = Screen.width;
         sHeight = Screen.height;
         framingTransposer =
@@ -54,6 +61,30 @@ public class OutlineController : MonoBehaviour
 
     private void Update()
     {
+        if (renderData == null)
+        {
+            throw new ArgumentException("renderData not set");
+        }
+        if (camController == null)
+        {
+            throw new ArgumentException("camController not set");
+        }
+        if (outlineTexture == null)
+        {
+            throw new ArgumentException("outlineTexture not set");
+        }
+        if (outlineMat == null)
+        {
+            throw new ArgumentException("outlineMat not set");
+        }
+        if (outlineRenderer == null)
+        {
+            throw new ArgumentException("outlineRenderer not set");
+        }
+        if (framingTransposer == null)
+        {
+            throw new ArgumentException("framingTransposer not set");
+        }
         if (updateTimer < 0.2f)
             updateTimer += Time.deltaTime;
         if (updateTimer < 0.1f)
@@ -88,6 +119,10 @@ public class OutlineController : MonoBehaviour
 
     void Resize(RenderTexture renderTexture, int width, int height)
     {
+        if (outlineCam == null)
+        {
+            throw new ArgumentException("outlineCam not set");
+        }
         updateTimer = 0;
         if (renderTexture)
         {

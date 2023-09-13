@@ -1,13 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class TransformToTarget : MonoBehaviour
 {
-    Transform _trans;
+    Transform? _trans;
 
     [SerializeField]
-    Transform target;
+    Transform? target;
 
     [SerializeField]
     Vector3 positionMask;
@@ -15,13 +13,21 @@ public class TransformToTarget : MonoBehaviour
     [SerializeField]
     Vector3 offset;
 
-    private void Awake()
+    protected void Awake()
     {
         _trans = transform;
     }
 
     private void LateUpdate()
     {
+        if (_trans == null)
+        {
+            return;
+        }
+        if (target == null)
+        {
+            return;
+        }
         _trans.position =
             new Vector3(
                 target.position.x * positionMask.x,
