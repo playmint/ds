@@ -19,7 +19,7 @@ public class DioramaWindow : EditorWindow
 
     private Dictionary<string, object> _currentState = new();
 
-    public bool isLooping = false;
+    private bool _isLooping = false;
 
     private Task? _loop;
 
@@ -40,10 +40,17 @@ public class DioramaWindow : EditorWindow
         VisualElement root = rootVisualElement;
         var dioramas = GetAllDioramas();
 
-        List<string> choices = new() { "choose..." };
+        Label label = new Label("No Diorama Selected");
+        root.Add(label);
+
+        List<string> choices = new() { "" };
         picker = new PopupField<string>("Diorama", choices, 0);
         picker.RegisterCallback<ChangeEvent<string>>((evt) =>
         {
+            if (evt.newValue == "")
+            {
+                return;
+            }
             IDiorama? script = dioramas.Where(d => d?.GetType().Name == evt.newValue).FirstOrDefault();
             if (script == null)
             {
@@ -51,6 +58,7 @@ public class DioramaWindow : EditorWindow
                 return;
             }
             Load(script);
+            label.text = script.GetDescription();
         });
         dioramas.ForEach(d =>
         {
@@ -61,9 +69,6 @@ public class DioramaWindow : EditorWindow
             picker.choices.Add(d.GetType().Name);
         });
         root.Add(picker);
-
-        Label label = new Label("Diorama!");
-        root.Add(label);
 
         playPause = new()
         {
@@ -88,8 +93,8 @@ public class DioramaWindow : EditorWindow
         });
         root.Add(playPause);
 
-        Slider scrubber = new(0f, 100f);
-        root.Add(scrubber);
+        // Slider scrubber = new(0f, 100f);
+        // root.Add(scrubber);
     }
 
     List<IDiorama?> GetAllDioramas()
@@ -133,7 +138,7 @@ public class DioramaWindow : EditorWindow
         await manager.Ready();
 
         _loop = LoopForever();
-        isLooping = true;
+        _isLooping = true;
     }
 
     public async void StopLoop()
@@ -142,8 +147,9 @@ public class DioramaWindow : EditorWindow
         {
             return;
         }
-        isLooping = false;
+        _isLooping = false;
         await _loop;
+        _loop = null;
         return;
     }
 
@@ -160,12 +166,19 @@ public class DioramaWindow : EditorWindow
 
             Debug.Log("Tick");
 
-            if (!isLooping)
+            if (!_isLooping)
             {
                 Debug.Log("not playing");
                 return;
             }
 
+            if (!Application.isPlaying)
+            {
+                _isLooping = false;
+                _loop = null;
+                playPause.text = "Play";
+                return;
+            }
 
             Dictionary<string, object> step = GetNextState();
 
