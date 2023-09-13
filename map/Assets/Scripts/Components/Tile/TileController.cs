@@ -1,22 +1,10 @@
+using System.Runtime.InteropServices;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class TileController : MonoBehaviour
+public class TileController : BaseComponentController<TileData>
 {
-    private TileData _nextData;
-    private TileData _prevData;
-
-    protected void Awake()
-    {
-        _nextData = new TileData();
-        _prevData = _nextData;
-    }
-
-    public void Set(TileData newData)
-    {
-        _nextData = newData;
-    }
-
     protected void Update()
     {
         if (_prevData == _nextData)
@@ -25,7 +13,8 @@ public class TileController : MonoBehaviour
         }
         Vector3Int cubeCoords = new Vector3Int(_nextData.q, _nextData.r, _nextData.s);
         Vector3 worldPos = CoordsHelper.CubeToWorld(cubeCoords);
-        transform.position = new Vector3(worldPos.x, 0, worldPos.z);
+        transform.position = new Vector3(worldPos.x, _nextData.height, worldPos.z);
         _prevData = _nextData;
     }
+
 }

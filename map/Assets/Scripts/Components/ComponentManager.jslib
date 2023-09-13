@@ -1,15 +1,16 @@
 mergeInto(LibraryManager.library, {
 
 	UnityReadyRPC: function () {
+        console.log('UnityReadyRPC');
 		window.dispatchReactUnityEvent(
 			"unityReady"
 		);
 	},
 
-	SendEventRPC: function (msgJson) {
+	SendEventRPC: function (eventName) {
+        console.log('SendEventRPC', eventName);
 		window.dispatchReactUnityEvent(
-			"sendMessage",
-			UTF8ToString(msgJson)
+			UTF8ToString(eventName)
 		);
 	},
 

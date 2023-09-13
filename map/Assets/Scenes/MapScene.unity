@@ -517,11 +517,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   container: {fileID: 823133098}
-  _assetRef:
-    m_AssetGUID: 
-    m_SubObjectName: 
-    m_SubObjectType: 
-    m_EditorAssetChanged: 0
 --- !u!4 &752386731
 Transform:
   m_ObjectHideFlags: 0
@@ -746,6 +741,12 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
+--- !u!1 &1416475674 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6518314203603543956, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
+    type: 3}
+  m_PrefabInstance: {fileID: 6518314204280695803}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1750054048 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4966510462529191368, guid: 8711978a6989a44e69ebe8a5a40fa057,
@@ -875,6 +876,22 @@ Camera:
     type: 3}
   m_PrefabInstance: {fileID: 6518314204280695803}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1911231973
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1416475674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c49b4cc203aa6414fae5c798d1d0e7d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EventMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_MaxRayIntersections: 0
 --- !u!1 &1987954015
 GameObject:
   m_ObjectHideFlags: 0

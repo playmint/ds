@@ -4,45 +4,18 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-interface IComponentManager
-{
-    public Task Ready();
-    public void Set(ComponentDataMessage msg);
-    public void Remove(ComponentMessage msg);
-}
-
-public class TileManager : MonoBehaviour, IComponentManager
+public class TileManager : BaseComponentManager<TileData, TileController>, IComponentManager
 {
     [SerializeField]
     Transform container;
-
-    [SerializeField]
-    private AssetReference _assetRef;
-
-    private GameObject _assetPrefab;
-
-    protected Task _ready;
-
-    Dictionary<string, TileController> tiles = new Dictionary<string, TileController>();
 
     protected void Awake()
     {
         _ready = LoadAssets();
     }
 
-    public Task Ready()
-    {
-        return _ready;
-    }
-
     private async Task LoadAssets()
     {
-        if (_assetRef == null)
-        {
-            throw new ArgumentException(
-                $"{GetType().Name} failed to become ready: no assetRef set"
-            );
-        }
         var op = Addressables.LoadAssetAsync<GameObject>("Assets/Addressables/Tile/Tile.prefab");
         await op.Task;
         if (op.Result == null)
@@ -54,34 +27,13 @@ public class TileManager : MonoBehaviour, IComponentManager
         _assetPrefab = op.Result;
     }
 
-    public void Set(ComponentDataMessage c)
+    protected new GameObject InstantiatePrefab()
     {
-        var data = JsonUtility.FromJson<TileData>(c.data);
-        if (c.id == null)
+        if (_assetPrefab == null)
         {
-            throw new Exception($"{GetType().Name}: failed to set: no instance id");
+            throw new Exception("prefab not loaded");
         }
-        tiles.TryGetValue(c.id, out TileController? controller);
-        if (controller == null)
-        {
-            Transform tile = Instantiate(_assetPrefab, container).transform;
-            controller = tile.GetComponent<TileController>();
-            tiles.Add(c.id, controller);
-        }
-        controller.Set(data);
+        return Instantiate(_assetPrefab, container);
     }
 
-    public void Remove(ComponentMessage c)
-    {
-        if (c.id == null)
-        {
-            throw new Exception($"{GetType().Name}: failed to set: no instance id");
-        }
-        tiles.TryGetValue(c.id, out TileController? controller);
-        if (controller != null)
-        {
-            Destroy(controller.gameObject);
-            tiles.Remove(c.id);
-        }
-    }
 }
