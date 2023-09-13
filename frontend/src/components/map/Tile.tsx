@@ -10,61 +10,52 @@ export interface ComponentDataMessage extends ComponentMessage {
     data: string; // json encoded (eg TileData)
 }
 
-export interface TileData {
-    id: string;
-    q: number;
-    r: number;
-    s: number;
-    height: number;
-    color: string;
-}
-
-export interface TileProps extends TileData {
-    onPointerEnter?: (t: { id: string }) => void;
-}
-
-export const Tile = memo(({ onPointerEnter, ...data }: TileProps) => {
-    const { sendMessage, addUnityEventListener, removeUnityEventListener } = useUnityMap();
-    const ref = useMemo(() => Math.floor(Math.random() * 10000).toString(), []);
-    const { id, q, r, s, height, color } = data;
-
+const useUnityComponentEvent = (eventName: string, handler: () => void) => {
+    const { addUnityEventListener, removeUnityEventListener } = useUnityMap();
     useEffect(() => {
-        const pointerEnterHandler = () => {
-            console.log('got', ref);
-            if (!onPointerEnter) {
-                return;
-            }
-            onPointerEnter({ id });
-        };
-        const eventName = `tile_pointer_enter_${ref}`;
         if (!addUnityEventListener) {
-            console.log('NO addUnityEventListener', ref, eventName);
             return;
         }
-        console.log('listening', ref, eventName);
-        addUnityEventListener(eventName, pointerEnterHandler);
+        addUnityEventListener(eventName, handler);
         return () => {
             if (!removeUnityEventListener) {
                 return;
             }
-            console.log('removing', ref, eventName);
-            removeUnityEventListener(eventName, pointerEnterHandler);
+            removeUnityEventListener(eventName, handler);
         };
-    }, [addUnityEventListener, removeUnityEventListener, onPointerEnter, ref, id]);
+    }, [addUnityEventListener, removeUnityEventListener, handler, eventName]);
+};
+
+export interface ComponentEventHandlers {
+    onPointerEnter?: (id: string) => void;
+    onPointerExit?: (id: string) => void;
+    onPointerClick?: (id: string) => void;
+}
+
+export interface ComponentConfig<T> extends ComponentEventHandlers {
+    type: string;
+    id?: string;
+    data: T;
+}
+
+export type ComponentProp = number | string | boolean;
+
+const useUnityComponentManager = <T,>(cfg: ComponentConfig<T>) => {
+    const { type, id, data, onPointerEnter, onPointerExit, onPointerClick } = cfg;
+    const ref = useMemo(() => id ?? Math.floor(Math.random() * 10000).toString(), [id]); // TODO: pick a better ref unique id
+    const { sendMessage } = useUnityMap();
 
     useEffect(() => {
         if (!sendMessage) {
-            console.warn('no sendMessage');
             return;
         }
-        const data = JSON.stringify({ id, q, r, s, color, height });
         const msg: ComponentDataMessage = {
-            type: 'Tile',
+            type,
             id: ref,
-            data,
+            data: JSON.stringify(data),
         };
         sendMessage('ComponentManager', 'SetComponent', JSON.stringify(msg));
-    }, [id, q, r, s, height, color, sendMessage, ref]);
+    }, [sendMessage, ref, type, data]);
 
     useEffect(() => {
         return () => {
@@ -72,58 +63,52 @@ export const Tile = memo(({ onPointerEnter, ...data }: TileProps) => {
                 return;
             }
             const msg: ComponentMessage = {
-                type: 'Tile',
+                type,
                 id: ref,
             };
             sendMessage('ComponentManager', 'RemoveComponent', JSON.stringify(msg));
         };
-    }, [sendMessage, ref]);
+    }, [sendMessage, ref, type]);
 
-    return null;
-});
+    useUnityComponentEvent(
+        `tile_pointer_enter_${ref}`,
+        useCallback(() => (onPointerEnter ? onPointerEnter(ref) : null), [ref, onPointerEnter])
+    );
 
-// export const withUnityEvents = () => {
+    useUnityComponentEvent(
+        `tile_pointer_exit_${ref}`,
+        useCallback(() => (onPointerExit ? onPointerExit(ref) : null), [ref, onPointerExit])
+    );
 
-//     const pointerExitHandler = useCallback(() => {
-//         if (!onPointerExit) {
-//             return;
-//         }
-//         onPointerExit({ id });
-//         // console.log('fired pointerexit', id);
-//     }, [id, onPointerExit]);
+    useUnityComponentEvent(
+        `tile_pointer_click_${ref}`,
+        useCallback(() => (onPointerClick ? onPointerClick(ref) : null), [ref, onPointerClick])
+    );
+};
 
-//     const pointerClickHandler = useCallback(() => {
-//         if (!onPointerClick) {
-//             return;
-//         }
-//         onPointerClick({ id });
-//         // console.log('fired pointerexit', id);
-//     }, [id, onPointerClick]);
+export interface TileData {
+    q: number;
+    r: number;
+    s: number;
+    height: number;
+    color: string;
+}
 
-//     useEffect(() => {
-//         const eventName = `tile_pointer_enter_${q}_${r}_${s}`;
-//         addUnityEventListener(eventName, pointerEnterHandler);
-//         // console.log('listening', eventName);
-//         return () => {
-//             removeUnityEventListener(eventName, pointerEnterHandler);
-//         };
-//     }, [addUnityEventListener, removeUnityEventListener, pointerEnterHandler, q, r, s]);
+export interface ComponentProps extends ComponentEventHandlers {
+    id?: string;
+}
 
-//     useEffect(() => {
-//         const eventName = `tile_pointer_exit_${q}_${r}_${s}`;
-//         addUnityEventListener(eventName, pointerExitHandler);
-//         return () => {
-//             removeUnityEventListener(eventName, pointerExitHandler);
-//         };
-//     }, [addUnityEventListener, removeUnityEventListener, pointerExitHandler, q, r, s]);
+export const Tile = memo(
+    ({ id, q, r, s, height, color, onPointerEnter, onPointerExit, onPointerClick }: ComponentProps & TileData) => {
+        useUnityComponentManager<TileData>({
+            type: 'Tile',
+            id,
+            data: useMemo(() => ({ q, r, s, height, color }), [q, r, s, height, color]),
+            onPointerEnter,
+            onPointerExit,
+            onPointerClick,
+        });
 
-//     useEffect(() => {
-//         const eventName = `tile_pointer_click_${q}_${r}_${s}`;
-//         addUnityEventListener(eventName, pointerClickHandler);
-//         return () => {
-//             removeUnityEventListener(eventName, pointerClickHandler);
-//         };
-//     }, [addUnityEventListener, removeUnityEventListener, pointerClickHandler, q, r, s]);
-
-//     return null;
-// };
+        return null;
+    }
+);

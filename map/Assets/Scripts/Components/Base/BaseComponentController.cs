@@ -46,7 +46,6 @@ where Data : new()
     public void OnPointerEnter(PointerEventData evt)
     {
         string eventName = $"tile_pointer_enter_{GetInstanceId()}";
-        Debug.Log(eventName);
 #if UNITY_EDITOR
         // noop
 #elif UNITY_WEBGL
