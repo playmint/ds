@@ -177,7 +177,7 @@ public class DioramaWindow : EditorWindow
                 {
                     continue;
                 }
-                SetComponentMessage msg = new()
+                ComponentDataMessage msg = new()
                 {
                     type = "Tile",
                     id = instanceId,
@@ -205,14 +205,14 @@ public class DioramaWindow : EditorWindow
             {
                 if (_currentState.ContainsKey(instanceId))
                 {
-                    RemoveComponentMessage msg = new()
+                    ComponentMessage msg = new()
                     {
                         type = "Tile",
                         id = instanceId,
                     };
                     var jsonMsg = JsonUtility.ToJson(msg);
                     Debug.Log($"Remove {jsonMsg}");
-                    // ComponentManager.instance.Remove(jsonMsg); // use the json version to test it
+                    ComponentManager.instance.Remove(jsonMsg); // use the json version to test it
                     _currentState.Remove(instanceId);
                 }
             }
