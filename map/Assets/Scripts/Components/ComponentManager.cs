@@ -19,33 +19,27 @@ public class ComponentDataMessage : ComponentMessage
 [RequireComponent(typeof(TileManager))]
 public class ComponentManager : MonoBehaviour
 {
-    public static ComponentManager instance;
-
     [DllImport("__Internal")]
     private static extern void UnityReadyRPC();
 
     [DllImport("__Internal")]
     public static extern void SendEventRPC(string? eventName);
 
-    protected void Awake()
-    {
-        instance = this;
-    }
-
     protected async void Start()
     {
-        Debug.Log("STARTING");
         await Ready();
-        Debug.Log("READY");
 #if UNITY_EDITOR
 #elif UNITY_WEBGL
             UnityReadyRPC();
 #endif
-        Debug.Log("SENT");
     }
 
     public async Task Ready()
     {
+        if (!Application.isPlaying)
+        {
+            throw new Exception("Will never be ready as game is not playing");
+        }
         IComponentManager[] managers = GetComponents<IComponentManager>();
         foreach (IComponentManager manager in managers)
         {

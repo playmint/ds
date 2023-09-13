@@ -51,15 +51,56 @@ export const Shell: FunctionComponent<ShellProps> = () => {
 
     const enter = useCallback((thing) => {
         console.log('enter', thing);
-        setHeight((prev) => prev + 1);
+        setHeight((prev) => prev + 0.1);
+    }, []);
+
+    const click = useCallback((thing) => {
+        console.log('click', thing);
+        setHeight((prev) => prev - 0.1);
     }, []);
 
     return (
         <StyledShell>
-            <Tile q={0} r={0} s={0} height={height} color="bluef" id="jeff1" onPointerEnter={enter} />
-            <Tile q={-1} r={1} s={0} height={0} color="bluef" id="jeff3" onPointerEnter={enter} />
-            <Tile q={0} r={-1} s={1} height={0} color="bluef" id="jeff4" onPointerEnter={enter} />
-            <Tile q={1} r={0} s={-1} height={0} color="bluef" id="jeff5" onPointerEnter={enter} />
+            <Tile
+                q={0}
+                r={0}
+                s={0}
+                height={height}
+                color="bluef"
+                id="jeff1"
+                onPointerEnter={enter}
+                onPointerClick={click}
+            />
+            <Tile
+                q={-1}
+                r={1}
+                s={0}
+                height={0}
+                color="bluef"
+                id="jeff3"
+                onPointerEnter={enter}
+                onPointerClick={click}
+            />
+            <Tile
+                q={0}
+                r={-1}
+                s={1}
+                height={0}
+                color="bluef"
+                id="jeff4"
+                onPointerEnter={enter}
+                onPointerClick={click}
+            />
+            <Tile
+                q={1}
+                r={0}
+                s={-1}
+                height={0}
+                color="bluef"
+                id="jeff5"
+                onPointerEnter={enter}
+                onPointerClick={click}
+            />
 
             <div className="nav-container">
                 <NavPanel />

@@ -516,7 +516,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87ca052d34baa4544835378e9ca205c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  container: {fileID: 823133098}
+  _assetRef:
+    m_AssetGUID: 7983d528686114d8cb4fbc979e031ef0
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
 --- !u!4 &752386731
 Transform:
   m_ObjectHideFlags: 0
