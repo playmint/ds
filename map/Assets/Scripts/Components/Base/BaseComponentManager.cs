@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 interface IComponentManager
 {
@@ -17,11 +18,41 @@ public class BaseComponentManager<Data, Controller> : MonoBehaviour, IComponentM
 where Controller : IComponentController<Data>
 {
 
+    [SerializeField]
+    protected AssetReference _assetRef;
+
     protected GameObject? _assetPrefab;
 
     protected Task _ready;
 
     protected Dictionary<string, Controller> instances = new Dictionary<string, Controller>();
+
+    protected void Awake()
+    {
+        _ready = LoadAssets();
+    }
+
+    private async Task LoadAssets()
+    {
+        var op = Addressables.LoadAssetAsync<GameObject>(_assetRef);
+        await op.Task;
+        if (op.Result == null)
+        {
+            throw new ArgumentException(
+                $"{GetType().Name} failed to become ready: LoadAssetSync did not return asset"
+            );
+        }
+        _assetPrefab = op.Result;
+    }
+
+    protected GameObject InstantiatePrefab()
+    {
+        if (_assetPrefab == null)
+        {
+            throw new Exception("prefab not loaded");
+        }
+        return Instantiate(_assetPrefab);
+    }
 
     public Task Ready()
     {
@@ -38,8 +69,8 @@ where Controller : IComponentController<Data>
         instances.TryGetValue(c.id, out Controller? controller);
         if (controller == null)
         {
-            Transform tile = InstantiatePrefab().transform;
-            controller = tile.GetComponent<Controller>();
+            GameObject instance = InstantiatePrefab();
+            controller = instance.GetComponent<Controller>();
             if (controller == null)
             {
                 throw new Exception($"{GetType().Name}: failed to set: no controller found");
@@ -48,15 +79,6 @@ where Controller : IComponentController<Data>
             controller.Init(c.id);
         }
         controller.Set(data);
-    }
-
-    protected GameObject InstantiatePrefab()
-    {
-        if (_assetPrefab == null)
-        {
-            throw new Exception("prefab not loaded");
-        }
-        return Instantiate(_assetPrefab);
     }
 
     public void Remove(ComponentMessage c)
