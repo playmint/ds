@@ -185,7 +185,7 @@ public class DioramaWindow : EditorWindow
                 };
                 var jsonMsg = JsonUtility.ToJson(msg);
                 Debug.Log($"Set {jsonMsg}");
-                ComponentManager.instance.Set(jsonMsg); // use the json version to test it
+                ComponentManager.instance.SetComponent(jsonMsg); // use the json version to test it
                 _currentState[instanceId] = data;
             }
 
@@ -212,7 +212,7 @@ public class DioramaWindow : EditorWindow
                     };
                     var jsonMsg = JsonUtility.ToJson(msg);
                     Debug.Log($"Remove {jsonMsg}");
-                    ComponentManager.instance.Remove(jsonMsg); // use the json version to test it
+                    ComponentManager.instance.RemoveComponent(jsonMsg); // use the json version to test it
                     _currentState.Remove(instanceId);
                 }
             }

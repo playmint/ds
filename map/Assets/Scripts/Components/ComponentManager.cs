@@ -1,7 +1,6 @@
 using System;
-using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using UnityEditor;
 using UnityEngine;
 
 
@@ -23,9 +22,24 @@ public class ComponentManager : MonoBehaviour
 {
     public static ComponentManager instance;
 
+    [DllImport("__Internal")]
+    private static extern void UnityReadyRPC();
+
     protected void Awake()
     {
         instance = this;
+    }
+
+    protected async void Start()
+    {
+        Debug.Log("STARTING");
+        await Ready();
+        Debug.Log("READY");
+#if UNITY_EDITOR
+#elif UNITY_WEBGL
+            UnityReadyRPC();
+#endif
+        Debug.Log("SENT");
     }
 
     public async Task Ready()
@@ -48,7 +62,7 @@ public class ComponentManager : MonoBehaviour
         }
     }
 
-    public void Set(string json)
+    public void SetComponent(string json)
     {
         try
         {
@@ -62,7 +76,7 @@ public class ComponentManager : MonoBehaviour
         }
     }
 
-    public void Remove(string json)
+    public void RemoveComponent(string json)
     {
         try
         {
