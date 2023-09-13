@@ -8,6 +8,8 @@ export const disableFastRefresh = 'this export only exists to disable fast-refre
 export interface UnityMapContextValue {
     ready?: boolean;
     sendMessage?: SendMessageFunc;
+    addUnityEventListener?: (eventName: string, callback: (...parameters: any[]) => any) => void;
+    removeUnityEventListener?: (eventName: string, callback: (...parameters: any[]) => any) => void;
 }
 
 export const UnityMapContext = createContext<UnityMapContextValue>({});
@@ -15,7 +17,7 @@ export const useUnityMap = () => useContext(UnityMapContext);
 
 export const UnityMapProvider = ({ children }: { children: ReactNode; disabled?: boolean }) => {
     const { unity, ready, messages } = useGlobalUnityInstance();
-    const { sendMessage, loadingProgression } = unity;
+    const { sendMessage, loadingProgression, addEventListener, removeEventListener } = unity;
 
     const loadingPercentage = loadingProgression ? Math.round(loadingProgression * 100) : 0;
 
@@ -48,10 +50,12 @@ export const UnityMapProvider = ({ children }: { children: ReactNode; disabled?:
             return {};
         }
         return {
+            addUnityEventListener: addEventListener,
+            removeUnityEventListener: removeEventListener,
             sendMessage,
             ready,
         };
-    }, [ready, sendMessage]);
+    }, [ready, sendMessage, addEventListener, removeEventListener]);
 
     return (
         <UnityMapContext.Provider value={value}>

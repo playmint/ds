@@ -14,7 +14,7 @@ import { ActionContextPanel, TileInfoPanel } from '@app/plugins/action-context-p
 import { CombatRewards } from '@app/plugins/combat/combat-rewards';
 import { CombatSummary } from '@app/plugins/combat/combat-summary';
 import { ComponentProps } from '@app/types/component-props';
-import { Fragment, FunctionComponent, useEffect } from 'react';
+import { Fragment, FunctionComponent, useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
@@ -47,8 +47,20 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         return unsubscribe;
     }, [player]);
 
+    const [height, setHeight] = useState(0);
+
+    const enter = useCallback((thing) => {
+        console.log('enter', thing);
+        setHeight((prev) => prev + 1);
+    }, []);
+
     return (
         <StyledShell>
+            <Tile q={0} r={0} s={0} height={height} color="bluef" id="jeff1" onPointerEnter={enter} />
+            <Tile q={-1} r={1} s={0} height={0} color="bluef" id="jeff3" onPointerEnter={enter} />
+            <Tile q={0} r={-1} s={1} height={0} color="bluef" id="jeff4" onPointerEnter={enter} />
+            <Tile q={1} r={0} s={-1} height={0} color="bluef" id="jeff5" onPointerEnter={enter} />
+
             <div className="nav-container">
                 <NavPanel />
             </div>

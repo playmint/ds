@@ -3,7 +3,6 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using UnityEngine;
 
-
 [Serializable]
 public class ComponentMessage
 {
@@ -24,6 +23,9 @@ public class ComponentManager : MonoBehaviour
 
     [DllImport("__Internal")]
     private static extern void UnityReadyRPC();
+
+    [DllImport("__Internal")]
+    public static extern void SendEventRPC(string? eventName);
 
     protected void Awake()
     {
