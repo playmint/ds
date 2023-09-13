@@ -18,12 +18,6 @@ public class ComponentDataMessage : ComponentMessage
     public string? data; // json encoded
 }
 
-public interface IComponentUpdater
-{
-    public void Set(ComponentDataMessage msg);
-    public void Remove(ComponentMessage msg);
-}
-
 [RequireComponent(typeof(TileManager))]
 public class ComponentManager : MonoBehaviour
 {
@@ -43,12 +37,12 @@ public class ComponentManager : MonoBehaviour
         }
     }
 
-    private IComponentUpdater? GetManagerFor(ComponentMessage msg)
+    private IComponentManager? GetManagerFor(ComponentMessage msg)
     {
         switch (msg.type)
         {
             case "Tile":
-                return (IComponentUpdater)GetComponent<TileManager>();
+                return GetComponent<TileManager>();
             default:
                 return null;
         }
@@ -62,9 +56,9 @@ public class ComponentManager : MonoBehaviour
             var manager = GetManagerFor(msg) ?? throw new Exception("no manager found for {msg}");
             manager.Set(msg);
         }
-        catch
+        catch (Exception err)
         {
-            Debug.Log("ComponentManager#Set: failed to set {json}");
+            Debug.Log($"ComponentManager#Set: failed to set {json}: {err}");
         }
     }
 
@@ -76,9 +70,9 @@ public class ComponentManager : MonoBehaviour
             var manager = GetManagerFor(msg) ?? throw new Exception("no manager found for {msg}");
             manager.Remove(msg);
         }
-        catch
+        catch (Exception err)
         {
-            Debug.Log("ComponentManager#Remove: failed to remove {json}");
+            Debug.Log($"ComponentManager#Remove: failed to remove {json}: {err}");
         }
     }
 }
