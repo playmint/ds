@@ -7,6 +7,8 @@ using UnityEngine.AddressableAssets;
 interface IComponentManager
 {
     public Task Ready();
+    public void Set(ComponentDataMessage msg);
+    public void Remove(ComponentMessage msg);
 }
 
 public class TileManager : MonoBehaviour, IComponentManager
@@ -69,7 +71,7 @@ public class TileManager : MonoBehaviour, IComponentManager
         controller.Set(data);
     }
 
-    public bool Remove(ComponentMessage c)
+    public void Remove(ComponentMessage c)
     {
         if (c.id == null)
         {
@@ -81,6 +83,5 @@ public class TileManager : MonoBehaviour, IComponentManager
             Destroy(controller.gameObject);
             tiles.Remove(c.id);
         }
-        return true;
     }
 }
