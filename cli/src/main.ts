@@ -11,7 +11,6 @@ import { actions, dispatch } from './commands/actions';
 import config from './commands/config';
 import getter from './commands/get';
 import apply from './commands/apply';
-import bridge from './commands/bridge';
 import chalk from 'chalk';
 
 const yargs = _yargs(hideBin(process.argv));
@@ -79,7 +78,6 @@ yargs
     .command(config)
     .command(getter)
     .command(apply)
-    .command(bridge)
     .command({
         command: 'version',
         describe: 'show the current version and exit',
