@@ -1,7 +1,6 @@
 mergeInto(LibraryManager.library, {
 
 	UnityReadyRPC: function () {
-        console.log('UnityReadyRPC');
 		window.dispatchReactUnityEvent(
 			"unityReady"
 		);
