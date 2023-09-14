@@ -136,7 +136,6 @@ const UnityInstance = () => {
         }
 
         const onReady = () => {
-            console.warn('I AM READY!!!!!!');
             g.__globalUnityContext.ready.next(true);
         };
 
