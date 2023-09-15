@@ -18,6 +18,17 @@ public class ComponentDataMessage : ComponentMessage
 }
 
 [RequireComponent(typeof(TileManager))]
+[RequireComponent(typeof(TileHighlightManager))]
+[RequireComponent(typeof(TileIconManager))]
+[RequireComponent(typeof(TileGooManager))]
+[RequireComponent(typeof(BagManager))]
+[RequireComponent(typeof(MobileUnitManager))]
+[RequireComponent(typeof(PathManager))]
+[RequireComponent(typeof(FactoryBuildingManager))]
+[RequireComponent(typeof(ExtractorBuildingManager))]
+[RequireComponent(typeof(BlockerBuildingManager))]
+[RequireComponent(typeof(LabelManager))]
+[RequireComponent(typeof(IconManager))]
 public class ComponentManager : MonoBehaviour
 {
     [DllImport("__Internal")]
