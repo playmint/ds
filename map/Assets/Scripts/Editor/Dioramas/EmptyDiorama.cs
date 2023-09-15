@@ -7,7 +7,7 @@ class EmptyDiorama : IDiorama
         return "No components here, just nothingness";
     }
 
-    public List<Dictionary<string, object>> GetStates()
+    public List<Dictionary<string, BaseComponentData>> GetStates()
     {
         return new();
     }

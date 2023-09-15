@@ -14,10 +14,10 @@ public class DioramaWindow : EditorWindow
 
     private int _idx = 0;
     private IDiorama? _currentScript;
-    private List<Dictionary<string, object>>? _steps = new();
+    private List<Dictionary<string, BaseComponentData>>? _steps = new();
     private string? _description = "";
 
-    private Dictionary<string, object> _currentState = new();
+    private Dictionary<string, BaseComponentData> _currentState = new();
 
     private bool _isLooping = false;
 
@@ -32,7 +32,7 @@ public class DioramaWindow : EditorWindow
 
     public void Awake()
     {
-        _currentState = new Dictionary<string, object>();
+        _currentState = new Dictionary<string, BaseComponentData>();
     }
 
     public void CreateGUI()
@@ -191,25 +191,22 @@ public class DioramaWindow : EditorWindow
                 return;
             }
 
-            Dictionary<string, object> step = GetNextState();
+            Dictionary<string, BaseComponentData> step = GetNextState();
 
             // call Set on any components we have data for
             foreach (var keyPair in step)
             {
                 var instanceId = keyPair.Key;
-                if (keyPair.Value is not TileData data)
-                {
-                    continue;
-                }
+                BaseComponentData data = keyPair.Value;
                 ComponentDataMessage msg = new()
                 {
-                    type = "Tile",
+                    type = data.GetTypeName(),
                     id = instanceId,
                     data = JsonUtility.ToJson(data)
                 };
                 var jsonMsg = JsonUtility.ToJson(msg);
                 Debug.Log($"Set {jsonMsg}");
-                manager.SetComponent(jsonMsg); // use the json version to test it
+                manager.SetComponent(jsonMsg);
                 _currentState[instanceId] = data;
             }
 
@@ -218,9 +215,18 @@ public class DioramaWindow : EditorWindow
             foreach (var keyPair in _currentState)
             {
                 var instanceId = keyPair.Key;
-                var data = keyPair.Value;
+                BaseComponentData data = keyPair.Value;
                 if (!step.ContainsKey(instanceId))
                 {
+                    ComponentMessage msg = new()
+                    {
+                        type = data.GetTypeName(),
+                        id = instanceId,
+                    };
+                    var jsonMsg = JsonUtility.ToJson(msg);
+                    Debug.Log($"Remove {jsonMsg}");
+                    manager.RemoveComponent(jsonMsg);
+                    // mark to remove from local state
                     toRemove.Add(instanceId);
                 }
             }
@@ -229,14 +235,6 @@ public class DioramaWindow : EditorWindow
             {
                 if (_currentState.ContainsKey(instanceId))
                 {
-                    ComponentMessage msg = new()
-                    {
-                        type = "Tile",
-                        id = instanceId,
-                    };
-                    var jsonMsg = JsonUtility.ToJson(msg);
-                    Debug.Log($"Remove {jsonMsg}");
-                    manager.RemoveComponent(jsonMsg); // use the json version to test it
                     _currentState.Remove(instanceId);
                 }
             }
@@ -253,7 +251,7 @@ public class DioramaWindow : EditorWindow
         _description = script.GetDescription();
     }
 
-    public Dictionary<string, object> GetNextState()
+    public Dictionary<string, BaseComponentData> GetNextState()
     {
         if (_steps == null || _steps.Count == 0)
         {

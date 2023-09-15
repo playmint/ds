@@ -1,4 +1,4 @@
-public class TileData
+public class TileData : BaseComponentData
 {
     public int q;
     public int r;

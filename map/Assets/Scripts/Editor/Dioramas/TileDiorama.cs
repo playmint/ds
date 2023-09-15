@@ -7,9 +7,9 @@ class TileDiorama : IDiorama
         return "Render some tiles being added and removed";
     }
 
-    public List<Dictionary<string, object>> GetStates()
+    public List<Dictionary<string, BaseComponentData>> GetStates()
     {
-        return new List<Dictionary<string, object>>()
+        return new()
         {
             new()
             {
