@@ -11,4 +11,5 @@ public class MobileUnitData : BaseComponentData
     public float progress; // 0 -> 1 percent between prev/next
     public string? selected; // ={none/highlight/outline}
     public bool shared; //  ie sharing with a building
+    public bool isPlayer;
 }

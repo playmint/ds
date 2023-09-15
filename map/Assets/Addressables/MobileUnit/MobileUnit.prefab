@@ -99,6 +99,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ed67c054313d2594abada4044bb38698, type: 3}
+--- !u!23 &1212377827676904166 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: ed67c054313d2594abada4044bb38698,
+    type: 3}
+  m_PrefabInstance: {fileID: 509661659239761506}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5657960569550214559
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -184,7 +190,7 @@ PrefabInstance:
     - target: {fileID: 4011681257798519419, guid: a699dfdf8ea904492a4f3bc5ea3d169d,
         type: 3}
       propertyPath: m_Name
-      value: PlayerMapElement
+      value: MobileUnit
       objectReference: {fileID: 0}
     - target: {fileID: 4011681257798519419, guid: a699dfdf8ea904492a4f3bc5ea3d169d,
         type: 3}
@@ -232,6 +238,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38c61c9be631a410a89a3753cf6e4c7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  outlineObjs:
+  - {fileID: 1212377827676904166}
+  renderers:
+  - {fileID: 7673478584568408413}
+  highlightColor: {r: 0.078431375, g: 0.34509805, b: 0.48235294, a: 1}
+  redOutlineMat: {fileID: 2100000, guid: ce6f5126ced564b2895e09480182616f, type: 2}
+  greenOutlineMat: {fileID: 2100000, guid: 350e1b89b29f442e1ae981fd04ecfca4, type: 2}
 --- !u!1001 &9060180030959056345
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -326,3 +339,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ed67c054313d2594abada4044bb38698, type: 3}
+--- !u!23 &7673478584568408413 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: ed67c054313d2594abada4044bb38698,
+    type: 3}
+  m_PrefabInstance: {fileID: 9060180030959056345}
+  m_PrefabAsset: {fileID: 0}
