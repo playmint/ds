@@ -71,17 +71,17 @@ const useUnityComponentManager = <T,>(cfg: ComponentConfig<T>) => {
     }, [sendMessage, ref, type]);
 
     useUnityComponentEvent(
-        `tile_pointer_enter_${ref}`,
+        `${type}_pointer_enter_${ref}`,
         useCallback(() => (onPointerEnter ? onPointerEnter(ref) : null), [ref, onPointerEnter])
     );
 
     useUnityComponentEvent(
-        `tile_pointer_exit_${ref}`,
+        `${type}_pointer_exit_${ref}`,
         useCallback(() => (onPointerExit ? onPointerExit(ref) : null), [ref, onPointerExit])
     );
 
     useUnityComponentEvent(
-        `tile_pointer_click_${ref}`,
+        `${type}_pointer_click_${ref}`,
         useCallback(() => (onPointerClick ? onPointerClick(ref) : null), [ref, onPointerClick])
     );
 };
@@ -101,7 +101,7 @@ export interface ComponentProps extends ComponentEventHandlers {
 export const Tile = memo(
     ({ id, q, r, s, height, color, onPointerEnter, onPointerExit, onPointerClick }: ComponentProps & TileData) => {
         useUnityComponentManager<TileData>({
-            type: 'Tile',
+            type: 'TileData',
             id,
             data: useMemo(() => ({ q, r, s, height, color }), [q, r, s, height, color]),
             onPointerEnter,

@@ -7,12 +7,12 @@ public interface IComponentController<Data>
     public void Init(string instanceId);
     public void Set(Data data);
     public GameObject GetGameObject();
-    public string? GetInstanceId();
 }
 
 public class BaseComponentController<Data> : MonoBehaviour, IComponentController<Data>, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 where Data : new()
 {
+    protected string _dataTypeName = (new Data()).GetType().Name;
     protected string? _instanceId;
     protected Data _nextData;
     protected Data _prevData;
@@ -38,14 +38,9 @@ where Data : new()
         return gameObject;
     }
 
-    public string? GetInstanceId()
-    {
-        return _instanceId;
-    }
-
     public void OnPointerEnter(PointerEventData evt)
     {
-        string eventName = $"tile_pointer_enter_{GetInstanceId()}";
+        string eventName = $"{_dataTypeName}_pointer_enter_{_instanceId}";
 #if UNITY_EDITOR
         // noop
 #elif UNITY_WEBGL
@@ -55,7 +50,7 @@ where Data : new()
 
     public void OnPointerExit(PointerEventData evt)
     {
-        string eventName = $"tile_pointer_exit_{GetInstanceId()}";
+        string eventName = $"{_dataTypeName}_pointer_exit_{_instanceId}";
 #if UNITY_EDITOR
         // noop
 #elif UNITY_WEBGL
@@ -65,7 +60,7 @@ where Data : new()
 
     public void OnPointerClick(PointerEventData evt)
     {
-        string eventName = $"tile_pointer_click_{GetInstanceId()}";
+        string eventName = $"{_dataTypeName}_pointer_click_{_instanceId}";
 #if UNITY_EDITOR
         // noop
 #elif UNITY_WEBGL

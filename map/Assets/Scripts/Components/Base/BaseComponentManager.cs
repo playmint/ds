@@ -12,10 +12,12 @@ interface IComponentManager
     }
     public void Set(ComponentDataMessage msg);
     public void Remove(ComponentMessage msg);
+    public string GetDataTypeName();
 }
 
 public class BaseComponentManager<Data, Controller> : MonoBehaviour, IComponentManager
 where Controller : IComponentController<Data>
+where Data : new()
 {
 
     [SerializeField]
@@ -26,6 +28,8 @@ where Controller : IComponentController<Data>
     protected Task _ready;
 
     protected Dictionary<string, Controller> instances = new Dictionary<string, Controller>();
+
+    protected string _dataTypeName = (new Data()).GetType().Name;
 
     protected void Awake()
     {
@@ -57,6 +61,11 @@ where Controller : IComponentController<Data>
     public Task Ready()
     {
         return _ready;
+    }
+
+    public string GetDataTypeName()
+    {
+        return _dataTypeName;
     }
 
     public void Set(ComponentDataMessage c)

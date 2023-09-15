@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -47,15 +48,14 @@ public class ComponentManager : MonoBehaviour
         }
     }
 
-    private IComponentManager? GetManagerFor(ComponentMessage msg)
+    private IComponentManager GetManagerFor(ComponentMessage msg)
     {
-        switch (msg.type)
+        IComponentManager? manager = GetComponents<IComponentManager>().Where(m =>
         {
-            case "Tile":
-                return GetComponent<TileManager>();
-            default:
-                return null;
-        }
+            Debug.Log($"searching: {m.GetDataTypeName()} vs {msg.type}");
+            return m.GetDataTypeName() == msg.type;
+        }).FirstOrDefault() ?? throw new Exception($"ComponentManager: no manager found for msg type: {msg.type}");
+        return manager;
     }
 
     public void SetComponent(string json)
@@ -63,12 +63,12 @@ public class ComponentManager : MonoBehaviour
         try
         {
             var msg = JsonUtility.FromJson<ComponentDataMessage>(json);
-            var manager = GetManagerFor(msg) ?? throw new Exception("no manager found for {msg}");
+            var manager = GetManagerFor(msg);
             manager.Set(msg);
         }
         catch (Exception err)
         {
-            Debug.Log($"ComponentManager#Set: failed to set {json}: {err}");
+            Debug.LogWarning($"ComponentManager: failed to set {json}: {err}");
         }
     }
 
@@ -82,7 +82,7 @@ public class ComponentManager : MonoBehaviour
         }
         catch (Exception err)
         {
-            Debug.Log($"ComponentManager#Remove: failed to remove {json}: {err}");
+            Debug.LogWarning($"ComponentManager: failed to remove {json}: {err}");
         }
     }
 }
