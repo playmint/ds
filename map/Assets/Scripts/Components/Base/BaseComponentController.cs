@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -40,31 +41,27 @@ where Data : new()
 
     public void OnPointerEnter(PointerEventData evt)
     {
-        string eventName = $"{_dataTypeName}_pointer_enter_{_instanceId}";
-#if UNITY_EDITOR
-        // noop
-#elif UNITY_WEBGL
-        ComponentManager.SendEventRPC(eventName);
-#endif
+        SendEvent("pointer_enter");
     }
 
     public void OnPointerExit(PointerEventData evt)
     {
-        string eventName = $"{_dataTypeName}_pointer_exit_{_instanceId}";
-#if UNITY_EDITOR
-        // noop
-#elif UNITY_WEBGL
-        ComponentManager.SendEventRPC(eventName);
-#endif
+        SendEvent("pointer_exit");
     }
 
     public void OnPointerClick(PointerEventData evt)
     {
-        string eventName = $"{_dataTypeName}_pointer_click_{_instanceId}";
+        SendEvent("pointer_click");
+    }
+
+    protected void SendEvent(string eventName)
+    {
+        string fullEventName = $"{_dataTypeName}_{eventName}_{_instanceId}";
 #if UNITY_EDITOR
         // noop
+        Debug.Log($"TriggeredEvent: {fullEventName}");
 #elif UNITY_WEBGL
-        ComponentManager.SendEventRPC(eventName);
+        ComponentManager.SendEventRPC(fullEventName);
 #endif
     }
 }
