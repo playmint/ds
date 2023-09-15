@@ -774,7 +774,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _assetRef:
-    m_AssetGUID: 
+    m_AssetGUID: 7f40037dbe60e4a0d8b02da7ed0b821d
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
