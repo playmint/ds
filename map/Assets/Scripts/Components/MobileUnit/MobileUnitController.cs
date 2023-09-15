@@ -11,10 +11,27 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         {
             return;
         }
-        // Vector3Int cubeCoords = new Vector3Int(_nextData.q, _nextData.r, _nextData.s);
-        // Vector3 worldPos = CoordsHelper.CubeToWorld(cubeCoords);
-        // transform.position = new Vector3(worldPos.x, _nextData.height, worldPos.z);
+
+        Vector3Int cubeCoordsPrev = new Vector3Int(
+            _nextData.qPrev,
+            _nextData.rPrev,
+            _nextData.sPrev
+        );
+        Vector3 worldPosPrev = CoordsHelper.CubeToWorld(cubeCoordsPrev);
+
+        Vector3Int cubeCoordsNext = new Vector3Int(
+            _nextData.qNext,
+            _nextData.rNext,
+            _nextData.sNext
+        );
+        Vector3 worldPosNext = CoordsHelper.CubeToWorld(cubeCoordsNext);
+
+        transform.position = new Vector3(
+            Mathf.Lerp(worldPosPrev.x, worldPosNext.x, _nextData.progress),
+            Mathf.Lerp(_nextData.heightPrev, _nextData.heightNext, _nextData.progress),
+            Mathf.Lerp(worldPosPrev.z, worldPosNext.z, _nextData.progress)
+        );
+
         _prevData = _nextData;
     }
-
 }
