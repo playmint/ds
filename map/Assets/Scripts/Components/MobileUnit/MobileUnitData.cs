@@ -1,14 +1,14 @@
 public class MobileUnitData : BaseComponentData
 {
-		/* * [ ] qNext, */
-		/* * [ ] rNext, */
-		/* * [ ] sNext */
-		/* * [ ] heightNext */
-		/* * [ ] qPrev, */
-		/* * [ ] rPrev, */
-		/* * [ ] sPrev */
-		/* * [ ] heightPrev */
-		/* * [ ] progress 0 -> 1 percent between prev/next ? */
-		/* * [ ] selected={none/highlight/outline} */
-		/* * [ ] shared={} //  ie sharing with a building */
+    public int qNext;
+    public int rNext;
+    public int sNext;
+    public float heightNext;
+    public int qPrev;
+    public int rPrev;
+    public int sPrev;
+    public float heightPrev;
+    public float progress; // 0 -> 1 percent between prev/next
+    public string? selected; // ={none/highlight/outline}
+    public bool shared; //  ie sharing with a building
 }

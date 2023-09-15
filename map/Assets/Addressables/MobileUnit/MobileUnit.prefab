@@ -99,12 +99,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ed67c054313d2594abada4044bb38698, type: 3}
---- !u!23 &1212377827676904166 stripped
-MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: ed67c054313d2594abada4044bb38698,
-    type: 3}
-  m_PrefabInstance: {fileID: 509661659239761506}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5657960569550214559
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -226,7 +220,7 @@ CapsuleCollider:
   m_Height: 0.5
   m_Direction: 1
   m_Center: {x: 0, y: 0.22, z: 0}
---- !u!114 &6585548448354940290
+--- !u!114 &2009620539580969100
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -235,108 +229,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 8730588450062426084}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 83776057e86ab48b899b2966d2092774, type: 3}
+  m_Script: {fileID: 11500000, guid: 38c61c9be631a410a89a3753cf6e4c7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  iconParent: {fileID: 8730588450661582252}
-  iconPrefab: {fileID: 4200293388350177078, guid: 87b00e9807c374871b1cd063b867ba6e,
-    type: 3}
-  outlineObjs:
-  - {fileID: 1212377827676904166}
-  createIcon: 1
-  renderers:
-  - {fileID: 7673478584568408413}
-  highlightColor: {r: 0.079432175, g: 0.34517217, b: 0.4811321, a: 1}
-  nonPlayerIconPrefab: {fileID: 7482230774540498691, guid: 9d7d926df89fb45b09a4b5b4afb48628,
-    type: 3}
-  shrinkScale: 1
-  _moveCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  _jumpCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 4.2190776
-      outSlope: 4.2190776
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.055900622
-    - serializedVersion: 3
-      time: 0.5
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: -3.8815546
-      outSlope: -3.8815546
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.055900574
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  _shrinkCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: -1.660355
-      outSlope: -1.660355
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.054754052
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
---- !u!4 &8730588450661582252 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4011681257694613555, guid: a699dfdf8ea904492a4f3bc5ea3d169d,
-    type: 3}
-  m_PrefabInstance: {fileID: 5657960569550214559}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &9060180030959056345
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -431,9 +326,3 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ed67c054313d2594abada4044bb38698, type: 3}
---- !u!23 &7673478584568408413 stripped
-MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: ed67c054313d2594abada4044bb38698,
-    type: 3}
-  m_PrefabInstance: {fileID: 9060180030959056345}
-  m_PrefabAsset: {fileID: 0}

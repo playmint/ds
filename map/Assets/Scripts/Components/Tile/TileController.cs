@@ -74,5 +74,4 @@ public class TileController : BaseComponentController<TileData>
             _prevData = _nextData;
         }
     }
-
 }
