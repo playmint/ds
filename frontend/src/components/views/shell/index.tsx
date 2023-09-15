@@ -18,6 +18,7 @@ import { Fragment, FunctionComponent, useCallback, useEffect, useState } from 'r
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
+import { TileHighlight } from '@app/components/map/TileHighlight';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -92,7 +93,26 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 onPointerEnter={enter}
                 onPointerClick={click}
             />
-
+            <TileHighlight
+                q={1}
+                r={0}
+                s={-1}
+                height={0}
+                color="red"
+                style="gradient_outline"
+                animation="none"
+                id="highlight1"
+            />
+            <TileHighlight
+                q={-1}
+                r={1}
+                s={0}
+                height={0}
+                color="white"
+                style="gradient_blue"
+                animation="none"
+                id="highlight2"
+            />
             <div className="nav-container">
                 <NavPanel />
             </div>

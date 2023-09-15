@@ -4,5 +4,7 @@ public class TileHighlightData : BaseComponentData
     public int r;
     public int s;
     public float height;
-    public string? selected; // none/highlight/outline
+    public string? style;
+    public string? color;
+    public string? animation;
 }
