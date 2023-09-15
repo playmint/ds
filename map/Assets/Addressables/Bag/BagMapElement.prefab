@@ -30,7 +30,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: f50906aea88c91441a88b2c0396f5117,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0
+      value: -0.3420201
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f50906aea88c91441a88b2c0396f5117,
         type: 3}
@@ -40,7 +40,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: f50906aea88c91441a88b2c0396f5117,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: -1
+      value: -0.9396927
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f50906aea88c91441a88b2c0396f5117,
         type: 3}
@@ -55,7 +55,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: f50906aea88c91441a88b2c0396f5117,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: -40
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f50906aea88c91441a88b2c0396f5117,
         type: 3}
@@ -126,7 +126,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: f50906aea88c91441a88b2c0396f5117,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0
+      value: -0.3420201
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f50906aea88c91441a88b2c0396f5117,
         type: 3}
@@ -136,7 +136,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: f50906aea88c91441a88b2c0396f5117,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: -1
+      value: -0.9396927
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f50906aea88c91441a88b2c0396f5117,
         type: 3}
@@ -151,7 +151,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: f50906aea88c91441a88b2c0396f5117,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: -40
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f50906aea88c91441a88b2c0396f5117,
         type: 3}
@@ -311,7 +311,8 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Bag
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1410422685, guid: a699dfdf8ea904492a4f3bc5ea3d169d, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: a699dfdf8ea904492a4f3bc5ea3d169d, type: 3}
 --- !u!4 &8776346268483363439 stripped
 Transform:
@@ -333,9 +334,28 @@ CapsuleCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8776346270060902164}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   m_Radius: 0.11
   m_Height: 0.25
   m_Direction: 1
   m_Center: {x: 0.174, y: 0.09, z: -0.25}
+--- !u!114 &4484822563890456864
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8776346270060902164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef95f956471104ebd81ea5290f29e77e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineObjs:
+  - {fileID: 1930820493252406295}
+  renderers:
+  - {fileID: 1772846297209200667}
+  highlightColor: {r: 0.078431375, g: 0.34509805, b: 0.48235294, a: 1}
+  redOutlineMat: {fileID: 2100000, guid: ce6f5126ced564b2895e09480182616f, type: 2}
+  greenOutlineMat: {fileID: 2100000, guid: 350e1b89b29f442e1ae981fd04ecfca4, type: 2}
