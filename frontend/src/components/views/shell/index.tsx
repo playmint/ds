@@ -61,16 +61,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
 
     return (
         <StyledShell>
-            <Tile
-                q={0}
-                r={0}
-                s={0}
-                height={height}
-                color="bluef"
-                id="jeff1"
-                onPointerEnter={enter}
-                onPointerClick={click}
-            />
+            <Tile q={0} r={0} s={0} height={height} color="bluef" id="jeff1" onPointerClick={click} />
             <Tile
                 q={-1}
                 r={1}
