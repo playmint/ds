@@ -38,6 +38,10 @@ where Data : new()
 
     private async Task LoadAssets()
     {
+        if (_assetRef == null || !_assetRef.RuntimeKeyIsValid())
+        {
+            return;
+        }
         var op = Addressables.LoadAssetAsync<GameObject>(_assetRef);
         await op.Task;
         if (op.Result == null)
