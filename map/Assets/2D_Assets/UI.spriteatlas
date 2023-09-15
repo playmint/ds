@@ -69,7 +69,7 @@ SpriteAtlas:
   - MobileUnit_bg_yours
   - Tower_Icon02
   - Bag_Icon
-  - Hex_hoverState
+  - gradient_blue
   - constructIcon
   - LoaderSimple
   - MobileUnit_icon_yours

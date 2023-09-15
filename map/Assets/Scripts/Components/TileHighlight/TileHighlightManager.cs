@@ -1,5 +1,3 @@
-
-public class TileHighlightManager : BaseComponentManager<TileHighlightData, TileHighlightController>, IComponentManager
-{
-
-}
+public class TileHighlightManager
+    : BaseComponentManager<TileHighlightData, TileHighlightController>,
+        IComponentManager { }

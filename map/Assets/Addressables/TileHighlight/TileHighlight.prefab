@@ -11,8 +11,9 @@ GameObject:
   - component: {fileID: 4332068239960712993}
   - component: {fileID: 3319977055583762012}
   - component: {fileID: -6520456709730672038}
+  - component: {fileID: 6752353210799951238}
   m_Layer: 0
-  m_Name: GreenHighlight
+  m_Name: TileHighlight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -105,3 +106,20 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &6752353210799951238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9133061235819889254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 289486535f30a4868b419dd1031fdfbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sprites:
+  - {fileID: 21300000, guid: 0d5b8d37019c049828d3bf799be2ef0c, type: 3}
+  - {fileID: 21300000, guid: 7364bb2dfc7c7f740bf952f9e4d31286, type: 3}
+  - {fileID: 21300000, guid: 0c820ca8a14334c0f90f6f42d81b1bc7, type: 3}
+  - {fileID: 21300000, guid: 6da8d971b2cc2f5418472bad9888d8ec, type: 3}

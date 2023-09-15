@@ -1,10 +1,11 @@
-using System.Runtime.InteropServices;
-using Unity.VisualScripting;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class TileHighlightController : BaseComponentController<TileHighlightData>
 {
+    [SerializeField]
+    Sprite[] sprites;
+
     protected void Update()
     {
         if (_prevData == _nextData)
@@ -13,8 +14,13 @@ public class TileHighlightController : BaseComponentController<TileHighlightData
         }
         Vector3Int cubeCoords = new Vector3Int(_nextData.q, _nextData.r, _nextData.s);
         Vector3 worldPos = CoordsHelper.CubeToWorld(cubeCoords);
+        SpriteRenderer sr = GetComponentInChildren<SpriteRenderer>();
+        sr.sprite = sprites.FirstOrDefault(s => s.name == _nextData.style);
+        Color col = Color.clear;
+        ColorUtility.TryParseHtmlString(_nextData.color, out col);
+        sr.color = col;
+        GetComponentInChildren<Animator>().Play(_nextData.animation);
         transform.position = new Vector3(worldPos.x, _nextData.height, worldPos.z);
         _prevData = _nextData;
     }
-
 }
