@@ -4831,7 +4831,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4067005356612875343}
-  - component: {fileID: 3644092066334504119}
   m_Layer: 0
   m_Name: GooBlue
   m_TagString: Untagged
@@ -4857,20 +4856,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3644092066334504119
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8375757802600294371}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4b3723cfe4f2a400885bfb640844001f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  big: {fileID: 6367267245377638681}
-  small: {fileID: 8822676236504770786}
 --- !u!1001 &6096882148499516488
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4951,12 +4936,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 6096882148499516488}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &6367267245377638681 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 975dee02664cbe6479a312514cec28ce,
-    type: 3}
-  m_PrefabInstance: {fileID: 6096882148499516488}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8552644221371717043
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5034,12 +5013,6 @@ PrefabInstance:
 --- !u!4 &8159293161266868824 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 45794f9689f9ce749af153785e1aee72,
-    type: 3}
-  m_PrefabInstance: {fileID: 8552644221371717043}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &8822676236504770786 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 45794f9689f9ce749af153785e1aee72,
     type: 3}
   m_PrefabInstance: {fileID: 8552644221371717043}
   m_PrefabAsset: {fileID: 0}
