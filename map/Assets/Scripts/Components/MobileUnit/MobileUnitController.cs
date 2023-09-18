@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Runtime.InteropServices;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -14,9 +15,16 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
     [SerializeField]
     protected Color highlightColor;
 
+    [SerializeField]
+    private AnimationCurve _moveCurve,
+        _jumpCurve,
+        _visibilityCurve;
+
     public Material redOutlineMat,
         greenOutlineMat;
     protected Color _defaultColor;
+
+    private Transform _meshesTrans;
 
     protected void Start()
     {
@@ -25,6 +33,8 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         {
             _defaultColor = renderers[0].material.GetColor("_EmissionColor");
         }
+
+        _meshesTrans = transform.GetChild(0);
     }
 
     protected void Update()
@@ -34,25 +44,22 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
             return;
         }
 
-        Vector3Int cubeCoordsPrev = new Vector3Int(
-            _nextData.qPrev,
-            _nextData.rPrev,
-            _nextData.sPrev
-        );
-        Vector3 worldPosPrev = CoordsHelper.CubeToWorld(cubeCoordsPrev);
+        // movement
+        if (_prevData == null)
+        {
+            Vector3Int cubeCoords = new Vector3Int(_nextData.q, _nextData.r, _nextData.s);
+            Vector3 worldPos = CoordsHelper.CubeToWorld(cubeCoords);
+            transform.position = new Vector3(worldPos.x, _nextData.height, worldPos.z);
+        }
+        else if (
+            _prevData.q != _nextData.q || _prevData.r != _nextData.r || _prevData.s != _nextData.s
+        )
+        {
+            Vector3Int cubeCoords = new Vector3Int(_nextData.q, _nextData.r, _nextData.s);
+            Vector3 worldPos = CoordsHelper.CubeToWorld(cubeCoords);
 
-        Vector3Int cubeCoordsNext = new Vector3Int(
-            _nextData.qNext,
-            _nextData.rNext,
-            _nextData.sNext
-        );
-        Vector3 worldPosNext = CoordsHelper.CubeToWorld(cubeCoordsNext);
-
-        transform.position = new Vector3(
-            Mathf.Lerp(worldPosPrev.x, worldPosNext.x, _nextData.progress),
-            Mathf.Lerp(_nextData.heightPrev, _nextData.heightNext, _nextData.progress),
-            Mathf.Lerp(worldPosPrev.z, worldPosNext.z, _nextData.progress)
-        );
+            StartCoroutine(SmoothMoveCR(new Vector3(worldPos.x, _nextData.height, worldPos.z)));
+        }
 
         // selected
         if (_nextData.selected == "outline")
@@ -89,6 +96,65 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
             }
         }
 
+        // Visibility
+        if (_prevData == null)
+        {
+            StartCoroutine(VisibilityCR(new Vector3(1, 1, 1), _nextData.visible ? 1 : 0));
+        }
+        else if (_prevData.visible && !_nextData.visible)
+        {
+            StartCoroutine(VisibilityCR(new Vector3(1, 1, 1), 0, 0.35f));
+        }
+        else if (!_prevData.visible && _nextData.visible)
+        {
+            StartCoroutine(VisibilityCR(new Vector3(1, 1, 1), 1));
+        }
+
         _prevData = _nextData;
+    }
+
+    // Animations
+
+    private IEnumerator SmoothMoveCR(Vector3 endPos)
+    {
+        float t = 0;
+        Vector3 startPos = transform.position;
+        while (t < 1)
+        {
+            t += Time.deltaTime;
+            transform.position = Vector3.Lerp(startPos, endPos, _moveCurve.Evaluate(t));
+            transform.position = Vector3.Lerp(
+                new Vector3(transform.position.x, transform.position.y, transform.position.z),
+                new Vector3(transform.position.x, endPos.y + 0.5f, transform.position.z),
+                _jumpCurve.Evaluate(t)
+            );
+            yield return null;
+        }
+        transform.position = endPos;
+    }
+
+    IEnumerator VisibilityCR(Vector3 endScale, float endFade, float delay = 0)
+    {
+        float t = 0;
+        Vector3 startScale = _meshesTrans.localScale;
+        float startFade = renderers[0].material.GetFloat("_Fade");
+        yield return new WaitForSeconds(delay);
+        while (t < 1)
+        {
+            t += Time.deltaTime * 2;
+            _meshesTrans.localScale = Vector3.LerpUnclamped(
+                startScale,
+                endScale,
+                _visibilityCurve.Evaluate(t)
+            );
+            foreach (Renderer rend in renderers)
+            {
+                rend.material.SetFloat(
+                    "_Fade",
+                    Mathf.Lerp(startFade, endFade, _visibilityCurve.Evaluate(t))
+                );
+            }
+            yield return null;
+        }
     }
 }
