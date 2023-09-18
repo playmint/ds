@@ -23,6 +23,24 @@ export function getCoords(t: Locatable) {
     };
 }
 
+export const getTileCoordsFromId = (tileId: string): [number, number, number] => {
+    const coords = [...tileId]
+        .slice(2)
+        .reduce((bs, b, idx) => {
+            if (idx % 4 === 0) {
+                bs.push('0x');
+            }
+            bs[bs.length - 1] += b;
+            return bs;
+        }, [] as string[])
+        .map((n: string) => Number(ethers.fromTwos(n, 16)))
+        .slice(-3);
+    if (coords.length !== 3) {
+        throw new Error(`failed to get q,r,s from tile id ${tileId}`);
+    }
+    return coords as [number, number, number];
+};
+
 function getCoordsArray(coords: any[]): [number, number, number] {
     return [
         Number(ethers.fromTwos(coords[1], 16)),
