@@ -24,6 +24,7 @@ import { getTileHeight } from '@app/helpers/tile';
 import { FactoryBuilding } from '@app/components/map/FactoryBuilding';
 import { BlockerBuilding } from '@app/components/map/BlockerBuilding';
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
+import { ExtractorBuilding } from '@app/components/map/ExtractorBuilding';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -110,7 +111,23 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             {
                 if(t.building.kind == null)
                 return;
-                if(getBuildingCategory(t.building.kind) == BuildingCategory.BLOCKER)
+                if(getBuildingCategory(t.building.kind) == BuildingCategory.EXTRACTOR)
+                {
+                    return (
+                        <ExtractorBuilding
+                            progress={0.5} 
+                            key={t.building.id}
+                            id={t.building.id}
+                            height={getTileHeight(t)}
+                            rotation={0}
+                            color={'#0665F5FF'} //TODO: Get actual color values
+                            onPointerEnter={enter}
+                            onPointerExit={exit}
+                            onPointerClick={click}
+                            {...coords}                        />
+                    );
+                }
+                else if(getBuildingCategory(t.building.kind) == BuildingCategory.BLOCKER)
                 {
                     return (
                         <BlockerBuilding
@@ -118,7 +135,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             id={t.building.id}
                             height={getTileHeight(t)}
                             model={t.building.kind?.model?.value}
-                            rotation={'0'}
+                            rotation={0}
                             onPointerEnter={enter}
                             onPointerExit={exit}
                             onPointerClick={click}
@@ -134,7 +151,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             id={t.building.id}
                             height={getTileHeight(t)}
                             model={t.building.kind?.model?.value}
-                            rotation={'0'}
+                            rotation={0}
                             onPointerEnter={enter}
                             onPointerExit={exit}
                             onPointerClick={click}

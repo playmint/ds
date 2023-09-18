@@ -1,34 +1,36 @@
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
 import { memo, useMemo } from 'react';
 
-export interface FactoryBuildingData {
+export interface ExtractorBuildingData {
     q: number;
     r: number;
     s: number;
     height: number;
     rotation: number;
-    model?: string;
+    progress: number;
+    color?: string;
     selected?: '' | 'none' | 'highlight' | 'outline';
 }
 
-export const FactoryBuilding = memo(
+export const ExtractorBuilding = memo(
     ({
         id,
         q,
         r,
         s,
         height,
-        model,
+        color,
         selected,
         rotation,
+        progress,
         onPointerEnter,
         onPointerExit,
         onPointerClick,
-    }: UnityComponentProps & FactoryBuildingData) => {
-        useUnityComponentManager<FactoryBuildingData>({
-            type: 'FactoryBuildingData',
+    }: UnityComponentProps & ExtractorBuildingData) => {
+        useUnityComponentManager<ExtractorBuildingData>({
+            type: 'ExtractorBuildingData',
             id,
-            data: useMemo(() => ({ q, r, s, height, model, selected, rotation }), [q, r, s, height, model, selected, rotation]),
+            data: useMemo(() => ({ q, r, s, height, color, selected, rotation, progress }), [q, r, s, height, color, selected, rotation, progress]),
             onPointerEnter,
             onPointerExit,
             onPointerClick,
