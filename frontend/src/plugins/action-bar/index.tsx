@@ -21,7 +21,7 @@ const StyledActionBar = styled('div')`
 
 export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarProps) => {
     const { ...otherProps } = props;
-    const { mobileUnit: selectedMobileUnit, tiles: selectedTiles, selectIntent, intent, selectTiles } = useSelection();
+    const { mobileUnit: selectedMobileUnit, selectIntent, intent, selectTiles } = useSelection();
     const world = useWorld();
     const tiles = world?.tiles || ([] as WorldTileFragment[]);
 
@@ -29,32 +29,22 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
         ? tiles.find((t) => t.id === selectedMobileUnit.nextLocation?.tile?.id)
         : undefined;
 
-    const moveableFromTile =
-        (selectedTiles || [])
-            .filter((t) => t.biome === BiomeKind.DISCOVERED)
-            .slice(-1)
-            .find(() => true) || selectedMobileUnit?.nextLocation?.tile;
+    const neighbours = selectedMobileUnitTile ? getNeighbours(tiles, selectedMobileUnitTile) : [];
 
-    const moveableTiles = moveableFromTile
-        ? getNeighbours(tiles, moveableFromTile).filter(
-              (t): t is WorldTileFragment => !!t && t.biome === BiomeKind.DISCOVERED
-          )
+    const moveableTiles = selectedMobileUnitTile
+        ? neighbours.filter((t): t is WorldTileFragment => !!t && t.biome === BiomeKind.DISCOVERED)
         : [];
 
     const scoutableTiles = selectedMobileUnit?.nextLocation?.tile
-        ? getNeighbours(tiles, selectedMobileUnit.nextLocation.tile).filter(
-              (t): t is WorldTileFragment => !!t && t.biome === BiomeKind.UNDISCOVERED
-          )
+        ? neighbours.filter((t): t is WorldTileFragment => !!t && t.biome === BiomeKind.UNDISCOVERED)
         : [];
 
     const constructableTiles = selectedMobileUnit?.nextLocation?.tile
-        ? getNeighbours(tiles, selectedMobileUnit.nextLocation.tile).filter(
-              (t): t is WorldTileFragment => !!t && t.biome === BiomeKind.DISCOVERED && !t.building
-          )
+        ? neighbours.filter((t): t is WorldTileFragment => !!t && t.biome === BiomeKind.DISCOVERED && !t.building)
         : [];
 
     const useableTiles = selectedMobileUnitTile
-        ? getNeighbours(tiles, selectedMobileUnitTile)
+        ? neighbours
               .concat([selectedMobileUnitTile])
               .filter((t): t is WorldTileFragment => !!t && t.biome === BiomeKind.DISCOVERED && !!t.building)
         : [];
@@ -62,7 +52,7 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
     const canScout = scoutableTiles.length > 0 && selectedMobileUnit;
     const canConstruct = constructableTiles.length > 0 && selectedMobileUnit;
     const canMove = moveableTiles.length > 0 && selectedMobileUnit;
-    const canUse = useableTiles.length > 0 && selectedMobileUnit;
+    const canAttack = useableTiles.length > 0 && selectedMobileUnit;
 
     const handleSelectIntent = (newIntent: string | undefined) => {
         if (newIntent != intent) {
@@ -104,7 +94,7 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
                 </button>
                 <button
                     className={`action-icon-button ${intent === COMBAT_INTENT ? 'active' : ''}`}
-                    disabled={!canUse || intent === COMBAT_INTENT}
+                    disabled={!canAttack || intent === COMBAT_INTENT}
                     onClick={() => handleSelectIntent(COMBAT_INTENT)}
                 >
                     Attack

@@ -47,6 +47,7 @@ import { CombatModal } from '../combat/combat-modal';
 import { styles } from './action-context-panel.styles';
 import { Path } from '@app/components/map/Path';
 import { getPath } from '@app/helpers/pathfinding';
+import { sleep } from '@app/helpers/sleep';
 
 export interface ActionContextPanelProps extends ComponentProps {}
 
@@ -650,7 +651,10 @@ const Move: FunctionComponent<MoveProps> = ({
             };
         });
         actions
-            .reduce((chain, action) => chain.then(() => player.dispatch(action)), Promise.resolve() as Promise<any>)
+            .reduce(
+                (chain, action) => chain.then(() => player.dispatch(action).then(() => sleep(750))),
+                Promise.resolve() as Promise<any>
+            )
             .catch((err) => console.error('move chain failed', err));
         if (selectIntent) {
             selectIntent(undefined);
