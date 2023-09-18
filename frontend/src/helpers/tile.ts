@@ -42,34 +42,25 @@ export const getTileCoordsFromId = (tileId: string): [number, number, number] =>
     return coords as [number, number, number];
 };
 
-function getCoordsArray(coords: any[]): [number, number, number] {
-    return [
-        Number(ethers.fromTwos(coords[1], 16)),
-        Number(ethers.fromTwos(coords[2], 16)),
-        Number(ethers.fromTwos(coords[3], 16)),
-    ];
-}
-
-export function getTileByQRS(
+export function getNeighbours(
     tiles: WorldTileFragment[],
-    q: number,
-    r: number,
-    s: number
-): WorldTileFragment | undefined {
-    const coords = [0, q, r, s];
-    return tiles.find((t) => t.coords.every((n, idx) => coords[idx] == Number(ethers.fromTwos(n, 16))));
-}
-
-export function getNeighbours(tiles: WorldTileFragment[], t: Pick<WorldTileFragment, 'coords'>): WorldTileFragment[] {
-    const [q, r, s] = getCoordsArray(t.coords);
-    return [
-        getTileByQRS(tiles, q + 1, r, s - 1),
-        getTileByQRS(tiles, q + 1, r - 1, s),
-        getTileByQRS(tiles, q, r - 1, s + 1),
-        getTileByQRS(tiles, q - 1, r, s + 1),
-        getTileByQRS(tiles, q - 1, r + 1, s),
-        getTileByQRS(tiles, q, r + 1, s - 1),
-    ].filter((t): t is WorldTileFragment => !!t);
+    origin: Pick<WorldTileFragment, 'coords'>
+): WorldTileFragment[] {
+    const { q, r, s } = getCoords(origin);
+    const neighbours = [
+        { q: q + 1, r: r, s: s - 1 },
+        { q: q + 1, r: r - 1, s: s },
+        { q: q, r: r - 1, s: s + 1 },
+        { q: q - 1, r: r, s: s + 1 },
+        { q: q - 1, r: r + 1, s: s },
+        { q: q, r: r + 1, s: s - 1 },
+    ].map(({ q, r, s }) => {
+        return [BigInt('0x0'), BigInt(q), BigInt(r), BigInt(s)];
+    });
+    const isNeighbour = (t: WorldTileFragment) =>
+        neighbours.some((neighbour) => t.coords.every((n32, idx) => BigInt.asIntN(16, n32) == neighbour[idx]));
+    const ts = tiles.reduce((found, t) => (isNeighbour(t) ? [...found, t] : found), [] as WorldTileFragment[]);
+    return ts;
 }
 
 function getTileXYZ([q, r]: [number, number, number], size = 1): [number, number, number] {
