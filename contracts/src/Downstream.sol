@@ -9,19 +9,6 @@ import {LibString} from "cog/utils/LibString.sol";
 
 import "./IDownstream.sol";
 import {Schema, Node, Rel, Kind} from "@ds/schema/Schema.sol";
-import {ItemUtils} from "@ds/utils/ItemUtils.sol";
-import {CheatsRule} from "@ds/rules/CheatsRule.sol";
-import {MovementRule} from "@ds/rules/MovementRule.sol";
-import {ScoutRule} from "@ds/rules/ScoutRule.sol";
-import {InventoryRule} from "@ds/rules/InventoryRule.sol";
-import {BuildingRule} from "@ds/rules/BuildingRule.sol";
-import {CraftingRule} from "@ds/rules/CraftingRule.sol";
-import {PluginRule} from "@ds/rules/PluginRule.sol";
-import {NewPlayerRule} from "@ds/rules/NewPlayerRule.sol";
-import {CombatRule} from "@ds/rules/CombatRule.sol";
-import {NamingRule} from "@ds/rules/NamingRule.sol";
-import {BagRule} from "@ds/rules/BagRule.sol";
-import {ExtractionRule} from "@ds/rules/ExtractionRule.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
 using Schema for BaseState;
@@ -60,9 +47,8 @@ contract DownstreamRouter is BaseRouter {
 }
 
 contract DownstreamGame is BaseGame {
-    NewPlayerRule playerRule;
 
-    constructor(address authorizedCheater, address[] memory allowlist)
+    constructor()
         BaseGame("DOWNSTREAM", "http://downstream.game/")
     {
         // create a state
@@ -102,38 +88,15 @@ contract DownstreamGame is BaseGame {
         // create a session router
         BaseRouter router = new DownstreamRouter();
 
-        // setup the player rule with allowlist
-        playerRule = new NewPlayerRule(allowlist);
-
-        // configure our dispatcher with state, rules and trust the router
+        // configure our dispatcher with state
         BaseDispatcher dispatcher = new BaseDispatcher();
         dispatcher.registerState(state);
-        dispatcher.registerRule(new CheatsRule(authorizedCheater));
-        dispatcher.registerRule(new MovementRule());
-        dispatcher.registerRule(new ScoutRule());
-        dispatcher.registerRule(new InventoryRule());
-        dispatcher.registerRule(new BuildingRule(this));
-        dispatcher.registerRule(new CraftingRule(this));
-        dispatcher.registerRule(new PluginRule());
-        dispatcher.registerRule(playerRule);
-        dispatcher.registerRule(new CombatRule());
-        dispatcher.registerRule(new NamingRule());
-        dispatcher.registerRule(new BagRule());
-        dispatcher.registerRule(new ExtractionRule(this));
         dispatcher.registerRouter(router);
 
         // update the game with this config
         _registerState(state);
         _registerRouter(router);
         _registerDispatcher(dispatcher);
-
-        // register base resources used by temp scouting
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.GreenGoo(), "Green Goo", "15-185")));
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.BlueGoo(), "Blue Goo", "32-96")));
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.RedGoo(), "Red Goo", "22-256")));
     }
 
-    function allow(address addr) public {
-        playerRule.allow(addr);
-    }
 }
