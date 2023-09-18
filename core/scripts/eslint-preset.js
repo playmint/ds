@@ -9,7 +9,8 @@ module.exports = {
         },
     },
     extends: ['prettier'],
-    plugins: ['prettier'],
+    plugins: ['prettier', '@typescript-eslint'],
+    parser: '@typescript-eslint/parser',
     ignorePatterns: ['node_modules/', 'dist/', 'coverage/', 'perf/'],
     rules: {
         'sort-keys': 'off',
@@ -31,6 +32,7 @@ module.exports = {
         {
             files: ['*.ts', '*.tsx'],
             parser: '@typescript-eslint/parser',
+            plugins: ['@typescript-eslint'],
             extends: ['plugin:@typescript-eslint/recommended', 'prettier'],
             rules: {
                 '@typescript-eslint/explicit-module-boundary-types': 'off',
