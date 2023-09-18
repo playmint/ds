@@ -20,11 +20,12 @@ import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
 import { TileHighlight } from '@app/components/map/TileHighlight';
 import { getCoords } from '@app/../../core/src';
-import { getTileHeight } from '@app/helpers/tile';
+import { GOO_SMALL_THRESH, getGooColor, getGooSize, getTileHeight } from '@app/helpers/tile';
 import { FactoryBuilding } from '@app/components/map/FactoryBuilding';
 import { BlockerBuilding } from '@app/components/map/BlockerBuilding';
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
 import { ExtractorBuilding } from '@app/components/map/ExtractorBuilding';
+import { TileGoo } from '@app/components/map/TileGoo';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -99,6 +100,36 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         return ts;
     }, [tiles, click, enter, exit]);
 
+    const tileGooComponents = useMemo(() => {
+        console.time('tileGooloop');
+        if (!tiles) {
+            return [];
+        }
+
+        const gs = tiles
+            .filter((t) => {
+                t.atoms.sort((a, b) => b.weight - a.weight);
+                return t.atoms[0].weight >= GOO_SMALL_THRESH;
+            })
+            .map((t) => {
+                const coords = getCoords(t);
+
+                return (
+                    <TileGoo
+                        key={`tileGoo-${t.id}`}
+                        id={`tileGoo-${t.id}`}
+                        height={getTileHeight(t) + 0.01}
+                        color={getGooColor(t.atoms[0])}
+                        size={getGooSize(t.atoms[0])}
+                        {...coords}
+                    />
+                );
+            });
+
+        console.timeEnd('tileGooloop');
+        return gs;
+    }, [tiles]);
+
     const buildingComponents = useMemo(() => {
         console.time('buildingLoop');
         if (!tiles) {
@@ -107,15 +138,12 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         const bs = tiles.map((t) => {
             const coords = getCoords(t);
             //TODO: Need to properly implement buildings!!
-            if(t.building)
-            {
-                if(t.building.kind == null)
-                return;
-                if(getBuildingCategory(t.building.kind) == BuildingCategory.EXTRACTOR)
-                {
+            if (t.building) {
+                if (t.building.kind == null) return;
+                if (getBuildingCategory(t.building.kind) == BuildingCategory.EXTRACTOR) {
                     return (
                         <ExtractorBuilding
-                            progress={0.5} 
+                            progress={0.5}
                             key={t.building.id}
                             id={t.building.id}
                             height={getTileHeight(t)}
@@ -124,11 +152,10 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             onPointerEnter={enter}
                             onPointerExit={exit}
                             onPointerClick={click}
-                            {...coords}                        />
+                            {...coords}
+                        />
                     );
-                }
-                else if(getBuildingCategory(t.building.kind) == BuildingCategory.BLOCKER)
-                {
+                } else if (getBuildingCategory(t.building.kind) == BuildingCategory.BLOCKER) {
                     return (
                         <BlockerBuilding
                             key={t.building.id}
@@ -142,9 +169,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             {...coords}
                         />
                     );
-                }
-                else
-                {
+                } else {
                     return (
                         <FactoryBuilding
                             key={t.building.id}
@@ -170,6 +195,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             {mapReady && (
                 <>
                     {tileComponents}
+                    {tileGooComponents}
                     {buildingComponents}
                     {hoveredTile &&
                         [hoveredTile].map((t) => {

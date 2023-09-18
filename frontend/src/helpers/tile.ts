@@ -100,6 +100,9 @@ export const GOO_GREEN = 0;
 export const GOO_BLUE = 1;
 export const GOO_RED = 2;
 
+export const GOO_SMALL_THRESH = 150;
+export const GOO_BIG_THRESH = 200;
+
 export const getSecsPerGoo = (atomVal: number) => {
     if (atomVal < 70) return 0;
 
@@ -129,6 +132,11 @@ export const getGooName = (index: number) => {
     return 'Unknown';
 };
 
+export const getGooColor = (goo: { key: number; weight: number }) => {
+    const gooColor = getGooName(goo.key);
+    return gooColor == 'Unknown' ? undefined : gooColor;
+};
+
 export const getGooRates = (tile: SelectedTileFragment) => {
     return tile.atoms && tile.atoms.length > 0
         ? tile.atoms
@@ -142,4 +150,8 @@ export const getGooRates = (tile: SelectedTileFragment) => {
                   };
               })
         : [];
+};
+
+export const getGooSize = (goo: { key: number; weight: number }) => {
+    return goo.weight > GOO_BIG_THRESH ? 'big' : 'small';
 };
