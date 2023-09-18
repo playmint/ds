@@ -1,7 +1,7 @@
 import { CogAction, CompoundKeyEncoder, NodeSelectors } from '@downstream/core';
 import { id as keccak256UTF8, solidityPacked } from 'ethers';
 import fs from 'fs';
-import glob from 'glob';
+import {globSync} from 'glob';
 import path from 'path';
 import {
     ItemSpec,
@@ -247,7 +247,7 @@ const getManifestFilenames = (filename: string, isRecursive: boolean): string[] 
         if (!isRecursive) {
             throw new Error(`${filename} is a directory. use --recursive to apply all manifests in a directory`);
         }
-        return glob.sync(path.join(filename, '**/*.yaml'));
+        return globSync(path.join(filename, '**/*.yaml'));
     } else if (isRecursive) {
         throw new Error(`--filename must be a directory when used with --recursive`);
     } else {

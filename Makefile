@@ -15,7 +15,8 @@ endif
 
 # srcs
 COG_SERVICES_SRC := $(shell find contracts/lib/cog/services -name '*.go')
-CORE_SRC := $(shell find core/src)
+CORE_GRAPHQL_SRC := $(shell find core/src -name '*.graphql')
+CORE_TS_SRC := $(shell find core/src -maxdepth 1 -name '*.ts')
 
 # paths to tools
 NODE := node
@@ -41,36 +42,34 @@ contracts/out/Actions.sol/Actions.json:
 contracts:
 	(cd contracts && forge build)
 
-core/src/gql:
-	# noop
+core: core/dist/core.js
 
-core/dist/core.js: $(CORE_SRC) contracts/out/Actions.sol/Actions.json 
+core/dist/core.js: $(CORE_GRAPHQL_SRC) $(CORE_TS_SRC) contracts/out/Actions.sol/Actions.json
 	(cd core && npm run build)
 
 frontend/public/ds-unity/Build/ds-unity.wasm:
 	$(MAKE) map
 
 node_modules: package.json package-lock.json
-	$(NPM) install
+	$(NPM) ci
 	touch $@
 
 contracts/lib/cog/services/bin/ds-node: contracts/lib/cog/services/Makefile $(COG_SERVICES_SRC)
 	$(MAKE) -C contracts/lib/cog/services bin/ds-node
 
 cli: node_modules core/dist/core.js
-	(cd cli && npm run build && npm install -g --force .)
+	(cd cli && $(NPM) run build && $(NPM) install -g --force .)
 
 docs/node_modules: docs/package.json docs/package-lock.json
-	(cd docs && npm ci)
+	(cd docs && $(NPM) ci)
 
 docs: docs/node_modules
 
 publish: cli
-	(cd cli && npm version patch && npm publish)
+	(cd cli && $(NPM) version patch && $(NPM) publish)
 
 release: contracts node_modules cli
 	./scripts/release.mjs -i
-
 
 clean:
 	rm -rf cli/dist
