@@ -14,11 +14,13 @@ import { ActionContextPanel, TileInfoPanel } from '@app/plugins/action-context-p
 import { CombatRewards } from '@app/plugins/combat/combat-rewards';
 import { CombatSummary } from '@app/plugins/combat/combat-summary';
 import { ComponentProps } from '@app/types/component-props';
-import { Fragment, FunctionComponent, useCallback, useEffect, useState } from 'react';
+import { Fragment, FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
 import { TileHighlight } from '@app/components/map/TileHighlight';
+import { getCoords } from '@app/../../core/src';
+import { getTileHeight } from '@app/helpers/tile';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -28,7 +30,7 @@ const StyledShell = styled('div')`
 
 export const Shell: FunctionComponent<ShellProps> = () => {
     const { ready: mapReady } = useUnityMap();
-    const { world, selected } = useGameState();
+    const { world, selected, selectTiles } = useGameState();
     const { loadingSession } = useSession();
     const player = usePlayer();
     const { mobileUnit: selectedMobileUnit, tiles: selectedTiles } = selected || {};
@@ -48,71 +50,105 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         return unsubscribe;
     }, [player]);
 
-    const [height, setHeight] = useState(0);
+    const [hovered, setHovered] = useState<string | undefined>();
+    const hoveredTile = hovered ? world?.tiles?.find((t) => t.id === hovered) : undefined;
 
-    const enter = useCallback((thing) => {
-        console.log('enter', thing);
-        setHeight((prev) => prev + 0.1);
+    const enter = useCallback((id) => {
+        setHovered(id);
     }, []);
 
-    const click = useCallback((thing) => {
-        console.log('click', thing);
-        setHeight((prev) => prev - 0.1);
+    const exit = useCallback((id) => {
+        setHovered((prev) => (prev == id ? undefined : prev));
     }, []);
+
+    const click = useCallback(
+        (id) => {
+            if (!selectTiles) {
+                return;
+            }
+            selectTiles([id]);
+        },
+        [selectTiles]
+    );
+    const tiles = world?.tiles;
+    const tileComponents = useMemo(() => {
+        console.time('tileloop');
+        if (!tiles) {
+            return [];
+        }
+        const ts = tiles.map((t) => {
+            const coords = getCoords(t);
+            return (
+                <Tile
+                    key={t.id}
+                    id={t.id}
+                    height={getTileHeight(t)}
+                    color={t.building ? 'blue' : '#7288A6'} // blue is a fake building
+                    onPointerEnter={enter}
+                    onPointerExit={exit}
+                    onPointerClick={click}
+                    {...coords}
+                />
+            );
+        });
+        console.timeEnd('tileloop');
+        return ts;
+    }, [tiles, click, enter, exit]);
 
     return (
         <StyledShell>
-            <Tile q={0} r={0} s={0} height={height} color="bluef" id="jeff1" onPointerClick={click} />
-            <Tile
-                q={-1}
-                r={1}
-                s={0}
-                height={0}
-                color="bluef"
-                id="jeff3"
-                onPointerEnter={enter}
-                onPointerClick={click}
-            />
-            <Tile
-                q={0}
-                r={-1}
-                s={1}
-                height={0}
-                color="bluef"
-                id="jeff4"
-                onPointerEnter={enter}
-                onPointerClick={click}
-            />
-            <Tile
-                q={1}
-                r={0}
-                s={-1}
-                height={0}
-                color="bluef"
-                id="jeff5"
-                onPointerEnter={enter}
-                onPointerClick={click}
-            />
-            <TileHighlight
-                q={1}
-                r={0}
-                s={-1}
-                height={0}
-                color="red"
-                style="gradient_outline"
-                animation="none"
-                id="highlight1"
-            />
-            <TileHighlight
-                q={-1}
-                r={1}
-                s={0}
-                height={0}
-                color="white"
-                style="gradient_blue"
-                animation="none"
-                id="highlight2"
-            />
+            {mapReady && (
+                <>
+                    {tileComponents}
+                    {hoveredTile &&
+                        [hoveredTile].map((t) => {
+                            const coords = getCoords(t);
+                            return (
+                                <TileHighlight
+                                    key={`hov-${t.id}`}
+                                    id={`hov-${t.id}`}
+                                    height={getTileHeight(t)}
+                                    color="white"
+                                    style="gradient_blue"
+                                    animation="none"
+                                    {...coords}
+                                />
+                            );
+                        })}
+                    {selected &&
+                        (selected.tiles || []).map((t) => {
+                            const coords = getCoords(t);
+                            return (
+                                <TileHighlight
+                                    key={`selected-${t.id}`}
+                                    id={`selected-${t.id}`}
+                                    height={getTileHeight(t)}
+                                    color="white"
+                                    style="gradient_outline"
+                                    animation="none"
+                                    {...coords}
+                                />
+                            );
+                        })}
+                    {world &&
+                        world.tiles
+                            .flatMap((t) => t.mobileUnits.map((u) => ({ t, u })))
+                            .map(({ t, u }) => {
+                                const coords = getCoords(t);
+                                return (
+                                    <TileHighlight // using white highlight as fake unit
+                                        key={`unit-${u.id}`}
+                                        id={`unit-${u.id}`}
+                                        height={getTileHeight(t)}
+                                        color="#eeeeee"
+                                        style="flat"
+                                        animation="none"
+                                        {...coords}
+                                    />
+                                );
+                            })}
+                </>
+            )}
             <div className="nav-container">
                 <NavPanel />
             </div>

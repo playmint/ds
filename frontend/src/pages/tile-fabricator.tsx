@@ -26,13 +26,6 @@ const TILE_SIZE = 1;
 
 // ------------
 
-function getTileXYZ([q, r]: [number, number, number], size = TILE_SIZE): [number, number, number] {
-    const x = size * (Math.sqrt(3) * q + (Math.sqrt(3) / 2) * r);
-    const y = 0;
-    const z = size * ((3 / 2) * r);
-    return [x, y, -z];
-}
-
 type ManifestMap = Map<string, z.infer<typeof Manifest>[]>; // map of locationid => Manifests
 type BuildingKindMap = Map<string, z.infer<typeof BuildingKind>>; // map of building kinds name => spec
 type GridTile = {

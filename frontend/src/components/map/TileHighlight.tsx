@@ -7,8 +7,8 @@ export interface TileHighlightData {
     s: number;
     height: number;
     color: string;
-    animation: string;
-    style: string;
+    animation?: 'none' | 'pulse';
+    style?: 'flat' | 'gradient' | 'gradient_blue' | 'gradient_outline';
 }
 
 export const TileHighlight = memo(
@@ -17,7 +17,7 @@ export const TileHighlight = memo(
             type: 'TileHighlightData',
             id,
             data: useMemo(
-                () => ({ q, r, s, height, color, style, animation }),
+                () => ({ q, r, s, height, color, style: style || 'gradient_outline', animation: animation || 'none' }),
                 [q, r, s, height, color, style, animation]
             ),
         });

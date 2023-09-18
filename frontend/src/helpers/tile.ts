@@ -1,5 +1,6 @@
-import { ethers } from 'ethers';
 import { SelectedTileFragment, WorldTileFragment } from '@downstream/core';
+import { ethers } from 'ethers';
+import { makeNoise2D } from './noise';
 
 export type Coords = Array<any>;
 export interface Locatable {
@@ -69,6 +70,42 @@ export function getNeighbours(tiles: WorldTileFragment[], t: Pick<WorldTileFragm
         getTileByQRS(tiles, q - 1, r + 1, s),
         getTileByQRS(tiles, q, r + 1, s - 1),
     ].filter((t): t is WorldTileFragment => !!t);
+}
+
+function getTileXYZ([q, r]: [number, number, number], size = 1): [number, number, number] {
+    const x = size * (Math.sqrt(3) * q + (Math.sqrt(3) / 2) * r);
+    const y = 0;
+    const z = size * ((3 / 2) * r);
+    return [x, y, -z];
+}
+
+const tileHeightNoiseFunc = makeNoise2D(
+    (() => {
+        // this is a not-very random, seeded random func
+        // this func seeds the simplex noise
+        // you could use Math.random, but we want deterministic noise
+        let seed = 1;
+        return () => {
+            const x = Math.sin(seed++) * 10000;
+            return x - Math.floor(x);
+        };
+        // return Math.random;
+    })()
+);
+
+export function getTileHeight(t: WorldTileFragment): number {
+    const TILE_HEIGHT_OFFSET = -0.1; // lowest vally
+    const TILE_HEIGHT_FREQ = 0.15; // bigger == noisier
+    const TILE_HEIGHT_SCALE = 0.15; // heightest hill
+    const { q, r, s } = getCoords(t);
+    const [x, _y, z] = getTileXYZ([q, r, s]);
+    const height =
+        TILE_HEIGHT_OFFSET + tileHeightNoiseFunc(x * TILE_HEIGHT_FREQ, z * TILE_HEIGHT_FREQ) * TILE_HEIGHT_SCALE;
+    // FIXME: this is just temp until building components are built
+    if (t.building) {
+        return height + 0.4;
+    }
+    return height;
 }
 
 // https://www.notion.so/playmint/Extraction-6b36dcb3f95e4ab8a57cb6b99d24bb8f#cb8cc764f9ef436e9847e631ef12b157
