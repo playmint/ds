@@ -1,4 +1,5 @@
 import { formatNameOrId } from '@app/helpers';
+import { getTileCoordsFromId } from '@app/helpers/tile';
 import { useGameState } from '@app/hooks/use-game-state';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { MobileUnitInventory } from '@app/plugins/inventory/mobile-unit-inventory';
@@ -42,14 +43,6 @@ export const MobileUnitPanel = () => {
     const { ready: mapReady, sendMessage } = useUnityMap();
     const { world, player, selectMobileUnit, selected } = useGameState();
     const { mobileUnit: selectedMobileUnit } = selected || {};
-    const [isGracePeriod, setIsGracePeriod] = useState<boolean>(true);
-
-    // TODO: remove this once the map refactor is done - it's only here to prevent clicking the select button before map is ready
-    useEffect(() => {
-        // arbitary time til until we show things like
-        // the optional "jump to unit" button
-        setTimeout(() => setIsGracePeriod(false), 10000);
-    }, []);
 
     const selectAndFocusMobileUnit = useCallback(() => {
         if (!player) {
@@ -70,7 +63,11 @@ export const MobileUnitPanel = () => {
         }
         selectMobileUnit(mobileUnit.id);
         const tileId = mobileUnit.nextLocation?.tile.id;
-        sendMessage('MapInteractionManager', 'FocusTile', tileId);
+        if (!tileId) {
+            return;
+        }
+        const [q, r, s] = getTileCoordsFromId(tileId);
+        sendMessage('MapCamera', 'FocusTile', JSON.stringify({ q, r, s }));
     }, [selectMobileUnit, player, sendMessage, mapReady]);
 
     const selectNextMobileUnit = useCallback(
@@ -124,7 +121,7 @@ export const MobileUnitPanel = () => {
 
     return (
         <>
-            {!isGracePeriod && world && player && player.mobileUnits.length > 0 && !selectedMobileUnit && (
+            {mapReady && world && player && player.mobileUnits.length > 0 && !selectedMobileUnit && (
                 <div className="onboarding" style={{ width: '30rem', background: 'transparent' }}>
                     <button onClick={selectAndFocusMobileUnit}>Select Unit</button>
                 </div>
