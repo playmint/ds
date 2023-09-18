@@ -5,11 +5,25 @@ import "forge-std/Script.sol";
 
 import "cog/IState.sol";
 import "cog/IGame.sol";
-import "cog/IDispatcher.sol";
+import "cog/BaseDispatcher.sol";
 
 import {DownstreamGame} from "@ds/Downstream.sol";
 import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
 import {Node, Schema} from "@ds/schema/Schema.sol";
+import {ItemUtils} from "@ds/utils/ItemUtils.sol";
+
+import {CheatsRule} from "@ds/rules/CheatsRule.sol";
+import {MovementRule} from "@ds/rules/MovementRule.sol";
+import {ScoutRule} from "@ds/rules/ScoutRule.sol";
+import {InventoryRule} from "@ds/rules/InventoryRule.sol";
+import {BuildingRule} from "@ds/rules/BuildingRule.sol";
+import {CraftingRule} from "@ds/rules/CraftingRule.sol";
+import {PluginRule} from "@ds/rules/PluginRule.sol";
+import {NewPlayerRule} from "@ds/rules/NewPlayerRule.sol";
+import {CombatRule} from "@ds/rules/CombatRule.sol";
+import {NamingRule} from "@ds/rules/NamingRule.sol";
+import {BagRule} from "@ds/rules/BagRule.sol";
+import {ExtractionRule} from "@ds/rules/ExtractionRule.sol";
 
 using Schema for State;
 
@@ -23,8 +37,28 @@ contract GameDeployer is Script {
         vm.startBroadcast(deployerKey);
 
         address[] memory allowlist = _loadAllowList(deployerAddr);
-        DownstreamGame ds = new DownstreamGame(deployerAddr, allowlist);
+        DownstreamGame ds = new DownstreamGame();
         console2.log("deployed", address(ds));
+
+        // enable rules
+        BaseDispatcher dispatcher = BaseDispatcher(address(ds.getDispatcher()));
+        dispatcher.registerRule(new CheatsRule(deployerAddr));
+        dispatcher.registerRule(new MovementRule());
+        dispatcher.registerRule(new ScoutRule());
+        dispatcher.registerRule(new InventoryRule());
+        dispatcher.registerRule(new BuildingRule(ds));
+        dispatcher.registerRule(new CraftingRule(ds));
+        dispatcher.registerRule(new PluginRule());
+        dispatcher.registerRule(new NewPlayerRule(allowlist));
+        dispatcher.registerRule(new CombatRule());
+        dispatcher.registerRule(new NamingRule());
+        dispatcher.registerRule(new BagRule());
+        dispatcher.registerRule(new ExtractionRule(ds));
+
+        // register base goos
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.GreenGoo(), "Green Goo", "15-185")));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.BlueGoo(), "Blue Goo", "32-96")));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.RedGoo(), "Red Goo", "22-256")));
 
         vm.stopBroadcast();
     }
