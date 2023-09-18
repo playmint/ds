@@ -4,7 +4,7 @@ class FactoryBuildingDiorama : IDiorama
 {
     public string GetDescription()
     {
-        return "Render some tiles being added and removed";
+        return "Render some factory buildings being added, highlighted, selected and removed";
     }
 
     public List<Dictionary<string, BaseComponentData>> GetStates()
