@@ -7,6 +7,7 @@ import {
     getGooRates,
     getNeighbours,
     getTileDistance,
+    getTileHeight,
     GOO_BLUE,
     GOO_GREEN,
     GOO_RED,
@@ -40,10 +41,12 @@ import {
     WorldStateFragment,
     WorldTileFragment,
 } from '@app/../../core/src';
-import React, { Fragment, FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
+import React, { Fragment, FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { CombatModal } from '../combat/combat-modal';
 import { styles } from './action-context-panel.styles';
+import { Path } from '@app/components/map/Path';
+import { getPath } from '@app/helpers/pathfinding';
 
 export interface ActionContextPanelProps extends ComponentProps {}
 
@@ -603,23 +606,43 @@ interface MoveProps {
     selectIntent?: Selector<string | undefined>;
     selectTiles?: Selector<string[] | undefined>;
     player?: ConnectedPlayer;
+    world?: WorldStateFragment;
     mobileUnit?: SelectedMobileUnitFragment;
 }
-const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selectedTiles, player, mobileUnit }) => {
-    const moveableTiles = selectedTiles
-        .filter((t) => t.biome === BiomeKind.DISCOVERED)
-        .filter((t, idx) => (idx === 0 ? t.id !== mobileUnit?.nextLocation?.tile?.id : true)); // map include the start tile in selection, ignore it
-    const move = () => {
+const Move: FunctionComponent<MoveProps> = ({
+    selectTiles,
+    selectIntent,
+    selectedTiles,
+    world,
+    player,
+    mobileUnit,
+}) => {
+    const tiles = world?.tiles;
+
+    const { path, valid } = useMemo(() => {
+        const fromTile = mobileUnit && tiles && tiles.find((t) => t.id === mobileUnit.nextLocation?.tile.id);
+        if (!fromTile) {
+            return { path: [], valid: false };
+        }
+        const toTile = selectedTiles.find(() => true);
+        if (!toTile) {
+            return { path: [], valid: false };
+        }
+        if (!tiles) {
+            return { path: [], valid: false };
+        }
+        const path = getPath(tiles, fromTile, toTile);
+        return { path: [fromTile, ...path], valid: !path.slice(-1).find(() => true)?.building };
+    }, [mobileUnit, selectedTiles, tiles]);
+
+    const move = useCallback(() => {
         if (!player) {
             return;
         }
         if (!mobileUnit) {
             return;
         }
-        if (moveableTiles.length < 1) {
-            return;
-        }
-        const actions = moveableTiles.map((tile): CogAction => {
+        const actions = path.map((tile): CogAction => {
             const [_zone, q, r, s] = tile.coords;
             return {
                 name: 'MOVE_MOBILE_UNIT',
@@ -635,8 +658,10 @@ const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selecte
         if (selectTiles) {
             selectTiles([]);
         }
-    };
-    const canMove = mobileUnit && player && moveableTiles.length > 0;
+    }, [path, mobileUnit, player, selectIntent, selectTiles]);
+
+    const canMove = mobileUnit && player && path.length > 0 && valid;
+
     const clearIntent = useCallback(
         (e?: React.MouseEvent) => {
             if (e) {
@@ -653,9 +678,32 @@ const Move: FunctionComponent<MoveProps> = ({ selectTiles, selectIntent, selecte
         },
         [selectIntent, selectTiles]
     );
+
     return (
         <StyledActionContextPanel>
             <div className="control">
+                {path.map((t, idx) => {
+                    const fromCoords = getCoords(t);
+                    const toCoords = idx + 1 < path.length ? getCoords(path[idx + 1]) : undefined;
+                    if (!toCoords) {
+                        return null;
+                    }
+                    return (
+                        <Path
+                            key={`mv-${t.id}`}
+                            id={`mv-${t.id}`}
+                            qFrom={fromCoords.q}
+                            rFrom={fromCoords.r}
+                            sFrom={fromCoords.s}
+                            heightFrom={getTileHeight(t)}
+                            qTo={toCoords.q}
+                            rTo={toCoords.r}
+                            sTo={toCoords.s}
+                            heightTo={getTileHeight(path[idx + 1])}
+                            color={valid ? '#47E4FF' : 'red'}
+                        />
+                    );
+                })}
                 <div className="guide">
                     <h3>Moving</h3>
                     <span className="sub-title">Select a tile to add to path</span>
@@ -927,6 +975,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
                 selectTiles={selectTiles}
                 mobileUnit={mobileUnit}
                 player={player}
+                world={world}
             />
         );
     } else if (intent === SCOUT_INTENT) {
