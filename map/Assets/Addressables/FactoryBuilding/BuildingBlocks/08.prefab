@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &641601032772435162
+--- !u!1 &1178086877066462792
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,47 +8,47 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 264793263458543200}
-  - component: {fileID: 3747953134510795205}
-  - component: {fileID: 1434274218014612751}
+  - component: {fileID: 1950823251356212466}
+  - component: {fileID: 3223852737899254615}
+  - component: {fileID: 817856012940158877}
   m_Layer: 0
-  m_Name: Block_Cactus
+  m_Name: 08
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &264793263458543200
+--- !u!4 &1950823251356212466
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 641601032772435162}
+  m_GameObject: {fileID: 1178086877066462792}
   m_LocalRotation: {x: 0, y: -1, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3066246788535697536}
+  - {fileID: 5178479232684906435}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: -180, z: 0}
---- !u!33 &3747953134510795205
+--- !u!33 &3223852737899254615
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 641601032772435162}
-  m_Mesh: {fileID: -4562530893379237289, guid: d6c631883a9004647b3a7abe53a0ddcd, type: 3}
---- !u!23 &1434274218014612751
+  m_GameObject: {fileID: 1178086877066462792}
+  m_Mesh: {fileID: -7771613508976059695, guid: 978265d77ca35a44ebbe2ac451eb77f9, type: 3}
+--- !u!23 &817856012940158877
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 641601032772435162}
+  m_GameObject: {fileID: 1178086877066462792}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 79c0000fef5342a4088bfe724004c7c6, type: 2}
+  - {fileID: 2100000, guid: 5a41b81e1f61a1e4abf7c67780ef51c1, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -84,7 +84,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!1 &1456681752223980179
+--- !u!1 &1477568437744775013
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -92,46 +92,46 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 3066246788535697536}
-  - component: {fileID: 5558177901641226351}
-  - component: {fileID: 2375076737720118635}
+  - component: {fileID: 5178479232684906435}
+  - component: {fileID: 8894749745016080328}
+  - component: {fileID: 8026028986168359222}
   m_Layer: 8
-  m_Name: Block_Cactus_Outline
+  m_Name: Block_WoodenHut
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &3066246788535697536
+--- !u!4 &5178479232684906435
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1456681752223980179}
+  m_GameObject: {fileID: 1477568437744775013}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 264793263458543200}
+  m_Father: {fileID: 1950823251356212466}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: -180, z: 0}
---- !u!33 &5558177901641226351
+--- !u!33 &8894749745016080328
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1456681752223980179}
-  m_Mesh: {fileID: -4562530893379237289, guid: d6c631883a9004647b3a7abe53a0ddcd, type: 3}
---- !u!23 &2375076737720118635
+  m_GameObject: {fileID: 1477568437744775013}
+  m_Mesh: {fileID: -7771613508976059695, guid: 978265d77ca35a44ebbe2ac451eb77f9, type: 3}
+--- !u!23 &8026028986168359222
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1456681752223980179}
+  m_GameObject: {fileID: 1477568437744775013}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 1
