@@ -6,9 +6,9 @@ export interface BlockerBuildingData {
     r: number;
     s: number;
     height: number;
+    rotation: number;
     model?: string;
     selected?: '' | 'none' | 'highlight' | 'outline';
-    rotation?: string;
 }
 
 export const BlockerBuilding = memo(

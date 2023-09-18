@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 687513461674096077}
   - component: {fileID: 8302268039992338879}
   m_Layer: 8
-  m_Name: ExtractorGlass (1)
+  m_Name: ExtractorGlassOutline
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -163,28 +163,6 @@ MeshRenderer:
     type: 3}
   m_PrefabInstance: {fileID: 2453610119776138067}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &5004388841424305218 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7457908500531334929, guid: d5bff666d70b98d4cb9e06b90e04eb47,
-    type: 3}
-  m_PrefabInstance: {fileID: 2453610119776138067}
-  m_PrefabAsset: {fileID: 0}
---- !u!111 &1563081407632050001
-Animation:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5004388841424305218}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Animation: {fileID: 7400000, guid: 71dd139166bf05946a653bc2102a9636, type: 2}
-  m_Animations:
-  - {fileID: 7400000, guid: 71dd139166bf05946a653bc2102a9636, type: 2}
-  m_WrapMode: 0
-  m_PlayAutomatically: 0
-  m_AnimatePhysics: 0
-  m_CullingType: 0
 --- !u!4 &5636529328674465528 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7796857855196861867, guid: d5bff666d70b98d4cb9e06b90e04eb47,
@@ -346,7 +324,7 @@ CapsuleCollider:
   m_Height: 0.5
   m_Direction: 1
   m_Center: {x: 0, y: 0.22, z: -0.19}
---- !u!114 &6425857370662812754
+--- !u!114 &1162319876256002491
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -355,29 +333,38 @@ MonoBehaviour:
   m_GameObject: {fileID: 7268972726147497452}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c94c3cab288ab44e8bd94e1099c836a4, type: 3}
+  m_Script: {fileID: 11500000, guid: 814196b196caf434d8ae3030a04430db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  iconParent: {fileID: 7268972726949291940}
-  iconPrefab: {fileID: 2167013614747121971, guid: 58a41a29608144c348eb2c954e04eaef,
-    type: 3}
   outlineObjs:
   - {fileID: 8508399777304375280}
   - {fileID: 8302268039992338879}
-  createIcon: 0
   renderers:
   - {fileID: 6806018015380479383}
-  highlightColor: {r: 0.079432175, g: 0.34517217, b: 0.4811321, a: 1}
-  _red: {r: 0.7921569, g: 0, b: 0.16862746, a: 1}
-  _green: {r: 0.38685614, g: 0.6981132, b: 0.016464932, a: 1}
-  _blue: {r: 0.023529435, g: 0.39470777, b: 0.9607843, a: 1}
-  gooRend: {fileID: 4392196376253484981}
---- !u!4 &7268972726949291940 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4011681257694613555, guid: a699dfdf8ea904492a4f3bc5ea3d169d,
-    type: 3}
-  m_PrefabInstance: {fileID: 6002399967575701399}
+  highlightColor: {r: 0.078431375, g: 0.34509805, b: 0.48235294, a: 1}
+  gooRenderer: {fileID: 4392196376253484981}
+  redOutlineMat: {fileID: 2100000, guid: ce6f5126ced564b2895e09480182616f, type: 2}
+  greenOutlineMat: {fileID: 2100000, guid: 350e1b89b29f442e1ae981fd04ecfca4, type: 2}
+--- !u!95 &1919959808137741806
+Animator:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7268972726147497452}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: e4b93f93f7d9245998540d968cbdd535, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!4 &7268972727792134295 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4011681256154013440, guid: a699dfdf8ea904492a4f3bc5ea3d169d,
@@ -475,7 +462,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: db038f6e69b403e498a8bd24c3235fb1,
         type: 3}
       propertyPath: m_Name
-      value: Tower_Outline
+      value: ExtractorOutline
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: db038f6e69b403e498a8bd24c3235fb1,
         type: 3}
