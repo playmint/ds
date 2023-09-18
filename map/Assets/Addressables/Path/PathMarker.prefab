@@ -93,7 +93,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1589046891220825560}
-  - component: {fileID: 1589046891220825561}
   - component: {fileID: 1589046891220825562}
   m_Layer: 0
   m_Name: Line
@@ -117,55 +116,6 @@ Transform:
   m_Father: {fileID: 1589046891257299688}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1589046891220825561
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1589046891220825563}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3ffa22f2e3ec4e00a510a4744124800, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _resolution: 10
-  _lineHeight: 0.05
-  _lineHeightAdditionPerDistance: 0.3
-  _lineCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 4.2190776
-      outSlope: 4.2190776
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.055900622
-    - serializedVersion: 3
-      time: 0.5
-      value: 0.80495495
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.41085276
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: -3.8815546
-      outSlope: -3.8815546
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.055900574
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  lineRevealSpeedMultiplier: 0.12345
 --- !u!120 &1589046891220825562
 LineRenderer:
   m_ObjectHideFlags: 0
@@ -285,7 +235,7 @@ GameObject:
   - component: {fileID: 1589046891257299689}
   - component: {fileID: 145906369306067870}
   m_Layer: 0
-  m_Name: TravelMarkerController
+  m_Name: PathMarker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -317,11 +267,48 @@ MonoBehaviour:
   m_GameObject: {fileID: 1589046891257299690}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c358557e8a904c96be75a1035e71731, type: 3}
+  m_Script: {fileID: 11500000, guid: 19461518e8ff04743b2b6fd441b1f805, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   destinationMarker: {fileID: 1589046890603980465}
-  line: {fileID: 1589046891220825561}
+  lineMarker: {fileID: 1589046891220825563}
+  _resolution: 10
+  _lineHeight: 0.05
+  _lineHeightAdditionPerDistance: 0.3
+  _lineCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 4.2190776
+      outSlope: 4.2190776
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.055900622
+    - serializedVersion: 3
+      time: 0.5
+      value: 0.80495495
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.41085276
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: -3.8815546
+      outSlope: -3.8815546
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.055900574
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  lineRevealSpeedMultiplier: 0.12345
 --- !u!95 &145906369306067870
 Animator:
   serializedVersion: 4

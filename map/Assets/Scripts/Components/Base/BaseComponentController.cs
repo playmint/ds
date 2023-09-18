@@ -16,7 +16,7 @@ where Data : new()
     protected string _dataTypeName = (new Data()).GetType().Name;
     protected string? _instanceId;
     protected Data _nextData;
-    protected Data _prevData;
+    protected Data? _prevData;
 
     public void Init(string instanceId)
     {
@@ -26,7 +26,6 @@ where Data : new()
     protected void Awake()
     {
         _nextData = new Data();
-        _prevData = _nextData;
     }
 
     public void Set(Data data)

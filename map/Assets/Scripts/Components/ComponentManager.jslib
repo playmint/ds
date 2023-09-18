@@ -7,7 +7,6 @@ mergeInto(LibraryManager.library, {
 	},
 
 	SendEventRPC: function (eventName) {
-        console.log('SendEventRPC', eventName);
 		window.dispatchReactUnityEvent(
 			UTF8ToString(eventName)
 		);

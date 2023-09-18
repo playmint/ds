@@ -307,6 +307,25 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!1 &521048489 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5695526198840845041, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
+    type: 3}
+  m_PrefabInstance: {fileID: 6518314204280695803}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &521048491
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 521048489}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96d960c2d0c234bfdb3a3961d29371e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainCamera: {fileID: 324799505}
 --- !u!1 &527441469
 GameObject:
   m_ObjectHideFlags: 0
@@ -689,7 +708,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _assetRef:
-    m_AssetGUID: 
+    m_AssetGUID: c8b3858f074f744e8b9930fc6b831b59
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
@@ -1150,6 +1169,7 @@ GameObject:
   - component: {fileID: 1987954018}
   - component: {fileID: 1987954017}
   - component: {fileID: 1987954016}
+  - component: {fileID: 1987954020}
   m_Layer: 0
   m_Name: GroundPlane
   m_TagString: Untagged
@@ -1237,6 +1257,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!65 &1987954020
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1987954015}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.99999994, y: 1.0000002, z: 6.614264e-15}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &6518314204280695803
 PrefabInstance:
   m_ObjectHideFlags: 0
