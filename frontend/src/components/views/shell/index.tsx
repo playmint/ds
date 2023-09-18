@@ -26,6 +26,7 @@ import { BlockerBuilding } from '@app/components/map/BlockerBuilding';
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
 import { ExtractorBuilding } from '@app/components/map/ExtractorBuilding';
 import { TileGoo } from '@app/components/map/TileGoo';
+import { MobileUnit } from '@app/components/map/MobileUnit';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -35,7 +36,7 @@ const StyledShell = styled('div')`
 
 export const Shell: FunctionComponent<ShellProps> = () => {
     const { ready: mapReady } = useUnityMap();
-    const { world, selected, selectTiles } = useGameState();
+    const { world, selected, selectTiles, selectMobileUnit } = useGameState();
     const { loadingSession } = useSession();
     const player = usePlayer();
     const { mobileUnit: selectedMobileUnit, tiles: selectedTiles } = selected || {};
@@ -190,6 +191,96 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         return bs;
     }, [tiles, click, enter, exit]);
 
+    const [mobileUnitHovered, setMobileUnitHovered] = useState<string | undefined>();
+
+    const mobileUnitClick = useCallback(
+        (id) => {
+            if (!player) {
+                return;
+            }
+            if (!selectMobileUnit) {
+                return;
+            }
+
+            // Only allow select state on player's mobile units
+            const playerMobileUnit = player.mobileUnits.find((mu) => mu.id == id);
+            if (!playerMobileUnit) {
+                return;
+            }
+            selectMobileUnit(id);
+            setMobileUnitHovered(undefined);
+        },
+        [player, selectMobileUnit, setMobileUnitHovered]
+    );
+
+    const mobileUnitEnter = useCallback(
+        (id) => {
+            if (!player) {
+                return;
+            }
+
+            // No hover state over selected units
+            if (selected && selected.mobileUnit?.id == id) {
+                return;
+            }
+
+            // Only allow hover state on player's mobile units
+            const playerMobileUnit = player.mobileUnits.find((mu) => mu.id == id);
+            if (!playerMobileUnit) {
+                return;
+            }
+            setMobileUnitHovered(id);
+        },
+        [player, selected]
+    );
+
+    const mobileUnitExit = useCallback((id) => {
+        setMobileUnitHovered((prev) => (prev == id ? undefined : prev));
+    }, []);
+
+    const mobileUnitComponents = useMemo(() => {
+        console.time('mobileUnitsLoop');
+        if (!tiles) {
+            return [];
+        }
+
+        const getMobileUnitSelectionState = (mobileUnit) => {
+            if (mobileUnitHovered == mobileUnit.id) {
+                return 'highlight';
+            }
+
+            if (selected && selected.mobileUnit?.id == mobileUnit.id) {
+                return 'outline';
+            }
+
+            return 'none';
+        };
+
+        const mus = tiles
+            .flatMap((t) => t.mobileUnits.map((u) => ({ t, u })))
+            .map(({ t, u }) => {
+                const coords = getCoords(t);
+                return (
+                    <MobileUnit
+                        key={u.id}
+                        id={u.id}
+                        height={getTileHeight(t)}
+                        progress={1}
+                        selected={getMobileUnitSelectionState(u)}
+                        shared={false}
+                        visible={true}
+                        onPointerClick={mobileUnitClick}
+                        onPointerEnter={mobileUnitEnter}
+                        onPointerExit={mobileUnitExit}
+                        {...coords}
+                    />
+                );
+            });
+
+        console.timeEnd('mobileUnitsLoop');
+        return mus;
+    }, [mobileUnitClick, mobileUnitEnter, mobileUnitExit, mobileUnitHovered, selected, tiles]);
+
     return (
         <StyledShell>
             {mapReady && (
@@ -197,6 +288,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     {tileComponents}
                     {tileGooComponents}
                     {buildingComponents}
+                    {mobileUnitComponents}
                     {hoveredTile &&
                         [hoveredTile].map((t) => {
                             const coords = getCoords(t);
@@ -227,23 +319,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                                 />
                             );
                         })}
-                    {world &&
-                        world.tiles
-                            .flatMap((t) => t.mobileUnits.map((u) => ({ t, u })))
-                            .map(({ t, u }) => {
-                                const coords = getCoords(t);
-                                return (
-                                    <TileHighlight // using white highlight as fake unit
-                                        key={`unit-${u.id}`}
-                                        id={`unit-${u.id}`}
-                                        height={getTileHeight(t)}
-                                        color="#eeeeee"
-                                        style="flat"
-                                        animation="none"
-                                        {...coords}
-                                    />
-                                );
-                            })}
                 </>
             )}
             <div className="nav-container">
