@@ -21,6 +21,7 @@ import { styles } from './shell.styles';
 import { TileHighlight } from '@app/components/map/TileHighlight';
 import { getCoords } from '@app/../../core/src';
 import { getTileHeight } from '@app/helpers/tile';
+import { FactoryBuilding } from '@app/components/map/FactoryBuilding';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -95,11 +96,41 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         return ts;
     }, [tiles, click, enter, exit]);
 
+    const buildingComponents = useMemo(() => {
+        console.time('buildingLoop');
+        if (!tiles) {
+            return [];
+        }
+        const bs = tiles.map((t) => {
+            const coords = getCoords(t);
+            //TODO: Need to properly implement buildings!!
+            if(t.building)
+            {
+                return (
+                    <FactoryBuilding
+                        key={t.building.id}
+                        id={t.building.id}
+                        height={getTileHeight(t)}
+                        model={'00-01'}
+                        rotation={'0'}
+                        onPointerEnter={enter}
+                        onPointerExit={exit}
+                        onPointerClick={click}
+                        {...coords}
+                    />
+                );
+            }
+        });
+        console.timeEnd('buildingLoop');
+        return bs;
+    }, [tiles, click, enter, exit]);
+
     return (
         <StyledShell>
             {mapReady && (
                 <>
                     {tileComponents}
+                    {buildingComponents}
                     {hoveredTile &&
                         [hoveredTile].map((t) => {
                             const coords = getCoords(t);

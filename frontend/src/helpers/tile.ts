@@ -101,10 +101,6 @@ export function getTileHeight(t: WorldTileFragment): number {
     const [x, _y, z] = getTileXYZ([q, r, s]);
     const height =
         TILE_HEIGHT_OFFSET + tileHeightNoiseFunc(x * TILE_HEIGHT_FREQ, z * TILE_HEIGHT_FREQ) * TILE_HEIGHT_SCALE;
-    // FIXME: this is just temp until building components are built
-    if (t.building) {
-        return height + 0.4;
-    }
     return height;
 }
 

@@ -4,13 +4,7 @@ public class FactoryBuildingData : BaseComponentData
     public int r;
     public int s;
     public float height;
-    public string? color; // hex
-    public string? size; // small/big
-		/* * [ ] q */
-		/* * [ ] r */
-		/* * [ ] s */
-		/* * [ ] height */
-		/* * [ ] model={"01-01"} */
-		/* * [ ] selected={none/highlight/outline} */
-		/* * [ ] rotation={0-360} */
+	public string? model; // 00-08
+	public string? selected; //none/highlight/outline
+	public string? rotation; // 0 - 360
 }

@@ -23,14 +23,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1802934091674373361}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: 0.34, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7268972727792134295}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!1 &8900607897640364506
 GameObject:
   m_ObjectHideFlags: 0
@@ -54,14 +54,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8900607897640364506}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7268972727792134295}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!1001 &6002399967575701399
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -110,17 +110,17 @@ PrefabInstance:
     - target: {fileID: 4011681256154013440, guid: a699dfdf8ea904492a4f3bc5ea3d169d,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4011681256154013440, guid: a699dfdf8ea904492a4f3bc5ea3d169d,
-        type: 3}
-      propertyPath: m_LocalRotation.y
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4011681256154013440, guid: a699dfdf8ea904492a4f3bc5ea3d169d,
         type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4011681256154013440, guid: a699dfdf8ea904492a4f3bc5ea3d169d,
+        type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 180
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4011681257798519416, guid: a699dfdf8ea904492a4f3bc5ea3d169d,
         type: 3}
@@ -180,7 +180,7 @@ PrefabInstance:
     - target: {fileID: 4011681257798519419, guid: a699dfdf8ea904492a4f3bc5ea3d169d,
         type: 3}
       propertyPath: m_Name
-      value: StackableBuildingMapElement
+      value: FactoryBuilding
       objectReference: {fileID: 0}
     - target: {fileID: 4011681257798519419, guid: a699dfdf8ea904492a4f3bc5ea3d169d,
         type: 3}
@@ -210,7 +210,7 @@ CapsuleCollider:
   m_Height: 0.5
   m_Direction: 1
   m_Center: {x: 0, y: 0.22, z: -0.19}
---- !u!114 &4277066564123132098
+--- !u!114 &1221642879530676075
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -219,18 +219,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 7268972726147497452}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa943f03cf8974b298ec2b8b322da5ef, type: 3}
+  m_Script: {fileID: 11500000, guid: d4da8002e88af42289e50eac9073c381, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  iconParent: {fileID: 7268972726949291940}
-  iconPrefab: {fileID: 2167013614747121971, guid: 58a41a29608144c348eb2c954e04eaef,
-    type: 3}
-  outlineObj: {fileID: 0}
-  createIcon: 0
-  renderers: []
-  highlightColor: {r: 0.078431375, g: 0.34509805, b: 0.48235297, a: 1}
-  defaultPrefab: {fileID: 2354597029704061743, guid: 6c86cc503e3b342ecb612af89f911b5b,
-    type: 3}
+  highlightColor: {r: 0.078431375, g: 0.34509805, b: 0.48235294, a: 1}
   stackPositions:
   - {fileID: 6998059160179332206}
   - {fileID: 1649688143835902005}
@@ -244,12 +236,8 @@ MonoBehaviour:
   - {fileID: 8739145240360059592, guid: 9d4ed4deab78ffd458209996838f456d, type: 3}
   - {fileID: 895534542148363228, guid: b9c6f4b18e49aaa48bb212f5f59a6e2a, type: 3}
   - {fileID: 1178086877066462792, guid: 60b661bdfa4114043976bb75c832788d, type: 3}
---- !u!4 &7268972726949291940 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4011681257694613555, guid: a699dfdf8ea904492a4f3bc5ea3d169d,
-    type: 3}
-  m_PrefabInstance: {fileID: 6002399967575701399}
-  m_PrefabAsset: {fileID: 0}
+  redOutlineMat: {fileID: 2100000, guid: ce6f5126ced564b2895e09480182616f, type: 2}
+  greenOutlineMat: {fileID: 2100000, guid: 350e1b89b29f442e1ae981fd04ecfca4, type: 2}
 --- !u!4 &7268972727792134295 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4011681256154013440, guid: a699dfdf8ea904492a4f3bc5ea3d169d,
