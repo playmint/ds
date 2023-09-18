@@ -13,19 +13,12 @@ public class TileController : BaseComponentController<TileData>
     AnimationCurve popInCurve;
 
     private MaterialPropertyBlock _dynamicMatProps;
-    private MaterialPropertyBlock _unscoutedMatProps;
-    private MaterialPropertyBlock _normalMatProps;
     private float _t;
     private string _defaultMatColor = "#7288A6";
 
     protected void Start()
     {
         _dynamicMatProps = new MaterialPropertyBlock();
-        _unscoutedMatProps = new MaterialPropertyBlock();
-        _normalMatProps = new MaterialPropertyBlock();
-
-        // _unscoutedMatProps.SetColor("_Color", scoutColor);
-        // _normalMatProps.SetColor("_Color", normalColor);
     }
 
     protected void Update()
@@ -44,7 +37,7 @@ public class TileController : BaseComponentController<TileData>
         // transition height
         transform.position = new Vector3(
             targetWorldPos.x,
-            Mathf.LerpUnclamped(_prevData == null ? 0 : transform.position.y, targetWorldPos.y, popInCurve.Evaluate(_t)),
+            Mathf.LerpUnclamped(transform.position.y, targetWorldPos.y, popInCurve.Evaluate(_t)),
             targetWorldPos.z
         );
 

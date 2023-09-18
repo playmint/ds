@@ -7,21 +7,30 @@ using System.Threading.Tasks;
 using System.Linq;
 using System;
 
+[InitializeOnLoadAttribute]
 public class DioramaWindow : EditorWindow
 {
-    Button playPause;
     PopupField<string> picker;
+    private Label? description;
 
-    private int _idx = 0;
-    private IDiorama? _currentScript;
-    private List<Dictionary<string, BaseComponentData>>? _steps = new();
-    private string? _description = "";
+    private static int _idx = 0;
+    private static IDiorama? _currentScript;
+    private static List<Dictionary<string, BaseComponentData>>? _steps = new();
 
-    private Dictionary<string, BaseComponentData> _currentState = new();
+    private static readonly Dictionary<string, BaseComponentData> _currentState;
 
-    private bool _isLooping = false;
+    private static bool _isLooping = false;
 
-    private Task? _loop;
+    private static Task? _loop;
+
+    private static string? _fallbackDioramaName = "EmptyDiorama";
+    private static string? _initialDioramaName = "EmptyDiorama";
+
+    static DioramaWindow()
+    {
+        _currentState = new Dictionary<string, BaseComponentData>();
+        EditorApplication.playModeStateChanged += OnPlayModeStateChange;
+    }
 
     [MenuItem("Window/Dioramas")]
     public static void ShowDiaramaControls()
@@ -30,19 +39,41 @@ public class DioramaWindow : EditorWindow
         wnd.titleContent = new GUIContent("Diorama Controls");
     }
 
-    public void Awake()
+    private static void OnPlayModeStateChange(PlayModeStateChange state)
     {
-        _currentState = new Dictionary<string, BaseComponentData>();
+        switch (state)
+        {
+            case PlayModeStateChange.ExitingEditMode:
+                break;
+            case PlayModeStateChange.EnteredPlayMode:
+                PlayLoop();
+                break;
+            case PlayModeStateChange.ExitingPlayMode:
+                StopLoop();
+                break;
+            case PlayModeStateChange.EnteredEditMode:
+                break;
+        }
+    }
+
+    protected void OnEnable()
+    {
+        if (EditorPrefs.HasKey("selectedDiorama"))
+        {
+            _initialDioramaName = EditorPrefs.GetString("selectedDiorama", _fallbackDioramaName);
+        }
     }
 
     public void CreateGUI()
     {
         VisualElement root = rootVisualElement;
+
+        // info about the loaded diorama
+        description = new("");
+        root.Add(description);
+
+        // load list of all classes that implement IDiorama into selectbox
         var dioramas = GetAllDioramas();
-
-        Label label = new Label("No Diorama Selected");
-        root.Add(label);
-
         List<string> choices = new() { };
         dioramas.ForEach(d =>
         {
@@ -52,12 +83,22 @@ public class DioramaWindow : EditorWindow
             }
             choices.Add(d.GetType().Name);
         });
-        IDiorama? initialDiorama = dioramas.FirstOrDefault();
-        if (initialDiorama != null)
+
+        // try to load the last viewed diorama, or fallback to the empty diorama
+        IDiorama? initialDiorama = dioramas.Where(d => d?.GetType().Name == _initialDioramaName).FirstOrDefault();
+        if (initialDiorama == null)
         {
-            Load(initialDiorama);
+            initialDiorama = dioramas.Where(d => d?.GetType().Name == _fallbackDioramaName).FirstOrDefault();
         }
-        picker = new PopupField<string>("Diorama", choices, "EmptyDiorama");
+        if (initialDiorama == null)
+        {
+            throw new Exception("expected to find a diorama called {_initialDioramaName}");
+        }
+        Load(initialDiorama);
+
+
+        // show the diorama picker
+        picker = new PopupField<string>("Diorama", choices, initialDiorama.GetType().Name);
         picker.RegisterCallback<ChangeEvent<string>>((evt) =>
         {
             if (evt.newValue == "")
@@ -71,39 +112,9 @@ public class DioramaWindow : EditorWindow
                 return;
             }
             Load(script);
-            label.text = script.GetDescription();
+            EditorPrefs.SetString("selectedDiorama", script.GetType().Name);
         });
         root.Add(picker);
-
-        playPause = new()
-        {
-            name = "play",
-            text = "Play",
-        };
-        playPause.RegisterCallback<ClickEvent>((ClickEvent evt) =>
-        {
-            Debug.Log("click");
-            if (_loop != null)
-            {
-                Debug.Log("stopping");
-                StopLoop();
-                playPause.text = "Play";
-            }
-            else
-            {
-                if (!EditorApplication.isPlaying)
-                {
-                    EditorApplication.EnterPlaymode();
-                }
-                Debug.Log("starting");
-                PlayLoop();
-                playPause.text = "Pause";
-            }
-        });
-        root.Add(playPause);
-
-        // Slider scrubber = new(0f, 100f);
-        // root.Add(scrubber);
     }
 
     List<IDiorama?> GetAllDioramas()
@@ -127,22 +138,15 @@ public class DioramaWindow : EditorWindow
             .ToList();
     }
 
-    void Update()
-    {
-        if (!EditorApplication.isPlaying)
-        {
-            return;
-        }
-        // scale = EditorGUILayout.Slider(scale, 1, 100);
-    }
-
-    public async void PlayLoop()
+    private static async void PlayLoop()
     {
         if (_loop != null)
         {
+            Debug.Log("already play");
             return;
         }
 
+        Debug.Log("play");
         ComponentManager manager = GameObject.Find("ComponentManager").GetComponent<ComponentManager>();
         await manager.Ready();
 
@@ -150,7 +154,7 @@ public class DioramaWindow : EditorWindow
         _isLooping = true;
     }
 
-    public async void StopLoop()
+    private static async void StopLoop()
     {
         if (_loop == null)
         {
@@ -162,14 +166,11 @@ public class DioramaWindow : EditorWindow
         return;
     }
 
-    private async Task LoopForever()
+    private static async Task LoopForever()
     {
-        Debug.Log("Waiting for ready");
         ComponentManager manager = GameObject.Find("ComponentManager").GetComponent<ComponentManager>();
         await manager.Ready();
-        Debug.Log("ready");
 
-        Debug.Log("Start");
         for (; ; )
         {
             await Task.Delay(1000);
@@ -178,7 +179,7 @@ public class DioramaWindow : EditorWindow
 
             if (!_isLooping)
             {
-                Debug.Log("not looping");
+                Debug.Log("stopping diorama");
                 return;
             }
 
@@ -186,8 +187,7 @@ public class DioramaWindow : EditorWindow
             {
                 _isLooping = false;
                 _loop = null;
-                playPause.text = "Play";
-                Debug.Log("not playing");
+                Debug.Log("editor not playing, stopping diorama");
                 return;
             }
 
@@ -248,14 +248,14 @@ public class DioramaWindow : EditorWindow
         // reset
         _idx = 0;
         _steps = script.GetStates();
-        _description = script.GetDescription();
+        description.text = script.GetDescription();
     }
 
-    public Dictionary<string, BaseComponentData> GetNextState()
+    public static Dictionary<string, BaseComponentData> GetNextState()
     {
         if (_steps == null || _steps.Count == 0)
         {
-            Debug.Log("no step data");
+            Debug.Log("no diorama data, select a diorama from window->dioramas");
             return new();
         }
         _idx = _idx + 1;

@@ -19,8 +19,11 @@ public class TileHighlightController : BaseComponentController<TileHighlightData
         Color col = Color.clear;
         ColorUtility.TryParseHtmlString(_nextData.color, out col);
         sr.color = col;
-        GetComponentInChildren<Animator>().Play(_nextData.animation);
         transform.position = new Vector3(worldPos.x, _nextData.height, worldPos.z);
+        if (_prevData == null)
+        {
+            GetComponentInChildren<Animator>().Play(_nextData.animation);
+        }
         _prevData = _nextData;
     }
 }

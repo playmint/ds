@@ -1,17 +1,12 @@
 public class PathData : BaseComponentData
 {
-    public int q;
-    public int r;
-    public int s;
-    public float height;
+    public int qFrom;
+    public int rFrom;
+    public int sFrom;
+    public float heightFrom;
+    public int qTo;
+    public int rTo;
+    public int sTo;
+    public float heightTo;
     public string? color; // hex
-    public string? size; // small/big
-		/* * [ ] qFrom, */
-		/* * [ ] rFrom, */
-		/* * [ ] sFrom */
-		/* * [ ] heightFrom */
-		/* * [ ] qTo, */
-		/* * [ ] rTo, */
-		/* * [ ] sTo */
-		/* * [ ] heightTo */
 }
