@@ -22,6 +22,8 @@ import { TileHighlight } from '@app/components/map/TileHighlight';
 import { getCoords } from '@app/../../core/src';
 import { getTileHeight } from '@app/helpers/tile';
 import { FactoryBuilding } from '@app/components/map/FactoryBuilding';
+import { BlockerBuilding } from '@app/components/map/BlockerBuilding';
+import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -106,19 +108,40 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             //TODO: Need to properly implement buildings!!
             if(t.building)
             {
-                return (
-                    <FactoryBuilding
-                        key={t.building.id}
-                        id={t.building.id}
-                        height={getTileHeight(t)}
-                        model={'00-01'}
-                        rotation={'0'}
-                        onPointerEnter={enter}
-                        onPointerExit={exit}
-                        onPointerClick={click}
-                        {...coords}
-                    />
-                );
+                if(t.building.kind == null)
+                return;
+                if(getBuildingCategory(t.building.kind) == BuildingCategory.BLOCKER)
+                {
+                    return (
+                        <BlockerBuilding
+                            key={t.building.id}
+                            id={t.building.id}
+                            height={getTileHeight(t)}
+                            model={t.building.kind?.model?.value}
+                            rotation={'0'}
+                            onPointerEnter={enter}
+                            onPointerExit={exit}
+                            onPointerClick={click}
+                            {...coords}
+                        />
+                    );
+                }
+                else
+                {
+                    return (
+                        <FactoryBuilding
+                            key={t.building.id}
+                            id={t.building.id}
+                            height={getTileHeight(t)}
+                            model={t.building.kind?.model?.value}
+                            rotation={'0'}
+                            onPointerEnter={enter}
+                            onPointerExit={exit}
+                            onPointerClick={click}
+                            {...coords}
+                        />
+                    );
+                }
             }
         });
         console.timeEnd('buildingLoop');
