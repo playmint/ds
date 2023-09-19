@@ -60,6 +60,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 5e9b972c9964da048803f9258523d2ae, type: 3}
   - {fileID: 21300000, guid: f301f36c02a704c91b3187414065980b, type: 3}
   - {fileID: 21300000, guid: d753736d3ae358f4ca0a47de39e49a23, type: 3}
+  - {fileID: 21300000, guid: 33e7c8cd1d4bc457797d0416ca6be7f9, type: 3}
   - {fileID: 21300000, guid: 1d85744ec24aa483dbef77494ccc79e4, type: 3}
   - {fileID: 21300000, guid: 290419be135a6cb4fae2643c6afd83e2, type: 3}
   - {fileID: 21300000, guid: 5ca89a5f4425eb04d8c0eede0749ac2f, type: 3}
@@ -76,6 +77,7 @@ SpriteAtlas:
   - Sword_Icon
   - moveIcon
   - MapIconBG02
+  - Icon_BG_Lozenge
   - scoutIcon
   - MobileUnit_bg_theirs
   - MobileUnit_icon_theirs

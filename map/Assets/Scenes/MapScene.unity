@@ -640,7 +640,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _assetRef:
-    m_AssetGUID: 
+    m_AssetGUID: d1e75d09dd6784493a82a4a37ee131c1
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
