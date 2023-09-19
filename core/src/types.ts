@@ -128,6 +128,7 @@ export interface CogSession {
     key: ethers.Wallet;
     owner: ethers.Signer;
     dispatch: Awaited<ReturnType<ReturnType<typeof configureClient>['signin']>>['dispatch'];
+    dispatchAndWait: Awaited<ReturnType<ReturnType<typeof configureClient>['signin']>>['dispatchAndWait'];
     signout: Awaited<ReturnType<ReturnType<typeof configureClient>['signin']>>['signout'];
 }
 
@@ -144,6 +145,7 @@ export enum DispatchedActionsStatus {
 export interface QueuedClientAction {
     status: DispatchedActionsStatus.QUEUED_CLIENT;
     actions: CogAction[];
+    optimistic: boolean;
     clientQueueId: string;
     resolve: (action: QueuedSequencerAction) => void;
     reject: (err: Error) => void;
@@ -347,6 +349,7 @@ export interface GameState {
 
 export interface ConnectedPlayer extends SelectedPlayerFragment {
     dispatch: DispatchFunc;
+    dispatchAndWait: DispatchFunc;
     dispatched: Source<DispatchedAction>;
     active: () => boolean;
     login: () => Promise<CogSession | undefined>;

@@ -42,6 +42,7 @@ export function makeDispatcher(client: CogServices, wallet: Wallet, logger: Logg
     const dispatching = pipe(
         pending,
         tap((q) => logger.info(`send ${q.actions.map((a) => a.name).join(', ')}`)),
+        tap((q) => console.log(`DISPATCH send ${q.actions.map((a) => a.name).join(', ')}`)),
         concatMap((queuedAction) =>
             fromValue(
                 dispatch(client, wallet, queuedAction)
@@ -77,11 +78,8 @@ export function makeDispatcher(client: CogServices, wallet: Wallet, logger: Logg
         publish,
     );
 
-    // TODO: subscribe to transaction status to build a "commits/rejected" pile
-
-    return {
-        dispatched,
-        dispatch: async (...actions: CogAction[]): Promise<QueuedSequencerAction> => {
+    const addToQueue = (optimistic: boolean) => {
+        return async (...actions: CogAction[]): Promise<QueuedSequencerAction> => {
             return new Promise((resolve, reject) => {
                 next({
                     status: DispatchedActionsStatus.QUEUED_CLIENT,
@@ -89,9 +87,18 @@ export function makeDispatcher(client: CogServices, wallet: Wallet, logger: Logg
                     actions,
                     resolve,
                     reject,
+                    optimistic,
                 });
             });
-        },
+        };
+    };
+
+    // TODO: subscribe to transaction status to build a "commits/rejected" pile
+
+    return {
+        dispatched,
+        dispatch: addToQueue(true),
+        dispatchAndWait: addToQueue(false),
         active: (): boolean => {
             const currentSession = sessions.get(wallet.address);
             return currentSession ? currentSession.expires > Date.now() : false;
@@ -103,7 +110,8 @@ export function makeDispatcher(client: CogServices, wallet: Wallet, logger: Logg
                 key,
                 expires,
                 owner,
-                dispatch: (...bundle: CogAction[]) => client.dispatch(key, ...bundle),
+                dispatch: (...bundle: CogAction[]) => client.dispatch(key, true, ...bundle),
+                dispatchAndWait: (...bundle: CogAction[]) => client.dispatch(key, false, ...bundle),
                 signout: () => client.signout(owner, key.address),
             };
             return sessions.set(wallet.address, session).get(wallet.address);
@@ -138,7 +146,9 @@ async function dispatch(client: CogServices, wallet: Wallet, bundle: QueuedClien
     if (!session) {
         throw new Error(`no valid session`);
     }
-    const { data, error } = await session.dispatch(...bundle.actions);
+    const { data, error } = bundle.optimistic
+        ? await session.dispatch(...bundle.actions)
+        : await session.dispatchAndWait(...bundle.actions);
     if (error) {
         let reason = error.toString();
         if (error.graphQLErrors && error.graphQLErrors.length > 0) {

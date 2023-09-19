@@ -1,10 +1,21 @@
-import { trackEvent } from '@app/components/organisms/analytics';
+import { getCoords } from '@app/../../core/src';
+import { BlockerBuilding } from '@app/components/map/BlockerBuilding';
+import { ExtractorBuilding } from '@app/components/map/ExtractorBuilding';
+import { FactoryBuilding } from '@app/components/map/FactoryBuilding';
+import { Icon } from '@app/components/map/Icon';
+import { Label } from '@app/components/map/Label';
+import { MobileUnit } from '@app/components/map/MobileUnit';
 import { Tile } from '@app/components/map/Tile';
+import { TileGoo } from '@app/components/map/TileGoo';
+import { TileHighlight } from '@app/components/map/TileHighlight';
+import { trackEvent } from '@app/components/organisms/analytics';
 import { Logs } from '@app/components/organisms/logs';
 import { Onboarding } from '@app/components/organisms/onboarding';
 import { ItemPluginPanel } from '@app/components/panels/item-plugin-panel';
 import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
 import { NavPanel } from '@app/components/panels/nav-panel';
+import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
+import { GOO_SMALL_THRESH, getGooColor, getGooSize, getTileDistance, getTileHeight } from '@app/helpers/tile';
 import { useBlock, useGameState, usePlayer } from '@app/hooks/use-game-state';
 import { useSession } from '@app/hooks/use-session';
 import { useUnityMap } from '@app/hooks/use-unity-map';
@@ -18,17 +29,6 @@ import { Fragment, FunctionComponent, useCallback, useEffect, useMemo, useState 
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
-import { TileHighlight } from '@app/components/map/TileHighlight';
-import { getCoords } from '@app/../../core/src';
-import { GOO_SMALL_THRESH, getGooColor, getGooSize, getTileDistance, getTileHeight } from '@app/helpers/tile';
-import { FactoryBuilding } from '@app/components/map/FactoryBuilding';
-import { BlockerBuilding } from '@app/components/map/BlockerBuilding';
-import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
-import { ExtractorBuilding } from '@app/components/map/ExtractorBuilding';
-import { TileGoo } from '@app/components/map/TileGoo';
-import { MobileUnit } from '@app/components/map/MobileUnit';
-import { Icon } from '@app/components/map/Icon';
-import { Label } from '@app/components/map/Label';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -49,6 +49,9 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     } = selected || {};
     const blockNumber = useBlock();
     const { connect } = useWalletProvider();
+
+    // const units = (world?.tiles || []).flatMap((t) => t.mobileUnits.map((u) => u.nextLocation?.tile.id));
+    // console.log('location', units[0], blockNumber);
 
     // collect client dispatch analytics
     // TODO: move to analytics provider
@@ -83,7 +86,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             if (!selectTiles || !selectMapElement || !selectMobileUnit) {
                 return;
             }
-
             selectTiles([id]);
             const t = tiles?.find((t) => t.id == id);
             selectMapElement(t?.building?.id);
@@ -225,11 +227,14 @@ export const Shell: FunctionComponent<ShellProps> = () => {
 
         console.time('buildingLoop');
 
-        const bs = tiles.map((t) => {
-            const coords = getCoords(t);
-            //TODO: Need to properly implement buildings!!
-            if (t.building) {
-                if (t.building.kind == null) return;
+        const bs = tiles
+            .filter((t) => !!t.building)
+            .map((t) => {
+                const coords = getCoords(t);
+                //TODO: Need to properly implement buildings!!
+                if (!t.building || !t.building.kind) {
+                    return null;
+                }
                 if (getBuildingCategory(t.building.kind) == BuildingCategory.EXTRACTOR) {
                     return (
                         <ExtractorBuilding
@@ -277,8 +282,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         />
                     );
                 }
-            }
-        });
+            });
         console.timeEnd('buildingLoop');
         return bs;
     }, [tiles, hoveredBuildingId, selectedMapElementId, buildingEnter, buildingExit, buildingClick]);
@@ -302,10 +306,16 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 return;
             }
             selectMobileUnit(id);
-            setHoveredMobileUnitId(undefined);
 
+            setHoveredMobileUnitId(undefined);
             selectTiles(undefined);
             selectMapElement(undefined);
+
+            const unitTile = playerMobileUnit.nextLocation?.tile?.id;
+            if (!unitTile || !selectTiles) {
+                return;
+            }
+            selectTiles([unitTile]);
         },
         [player, selectMapElement, selectMobileUnit, selectTiles]
     );

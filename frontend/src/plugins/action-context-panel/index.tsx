@@ -646,7 +646,11 @@ const Move: FunctionComponent<MoveProps> = ({
         if (!mobileUnit) {
             return;
         }
-        const actions = path.map((tile): CogAction => {
+        if (path.length < 2) {
+            // first element is the origin
+            return;
+        }
+        const actions = path.slice(1).map((tile): CogAction => {
             const [_zone, q, r, s] = tile.coords;
             return {
                 name: 'MOVE_MOBILE_UNIT',

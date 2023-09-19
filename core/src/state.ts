@@ -37,6 +37,5 @@ export function makeGameState(
             {} as Partial<GameState>,
         ),
         filter((inputs): inputs is GameState => !!inputs.world),
-        debounce(() => 10),
     ) satisfies Source<GameState>;
 }
