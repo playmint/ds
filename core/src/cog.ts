@@ -25,11 +25,10 @@ import {
     Source,
     switchMap,
     tap,
-    throttle,
 } from 'wonka';
 import { Actions__factory } from './abi';
 import { DispatchDocument, OnEventDocument, SigninDocument, SignoutDocument } from './gql/graphql';
-import { AnyGameSubscription, AnyGameVariables, CogAction, CogEvent, CogQueryConfig, GameConfig } from './types';
+import { AnyGameSubscription, AnyGameVariables, CogAction, CogQueryConfig, GameConfig } from './types';
 // import { cacheExchange } from '@urql/exchange-graphcache';
 // import cogSchema from './gql/introspection';
 
@@ -130,20 +129,22 @@ export function configureClient({
         await gql.mutation(SignoutDocument, { gameID, session, auth }, { requestPolicy: 'network-only' }).toPromise();
         return;
     };
-    const { source: forcedSource, next: force } = makeSubject<boolean>();
+    const { source: forcedSource, next: force } = makeSubject<string>();
     const forced = pipe(forcedSource, share);
 
-    const dispatch = async (signer: ethers.Signer, ...unencodedActions: CogAction[]) => {
+    const dispatch = async (signer: ethers.Signer, optimistic: boolean, ...unencodedActions: CogAction[]) => {
         const actions = unencodedActions.map((action) => encodeActionData(iactions, action.name, action.args));
         const actionDigest = ethers.getBytes(
             ethers.keccak256(abi.encode(['bytes[]'], [actions.map((action) => ethers.getBytes(action))])),
         );
+        const txid = Math.floor(Math.random() * 10000).toString();
+        console.time(`dispatch ${txid}`);
         const auth = await signer.signMessage(actionDigest);
         return gql
-            .mutation(DispatchDocument, { gameID, auth, actions }, { requestPolicy: 'network-only' })
+            .mutation(DispatchDocument, { gameID, auth, actions, optimistic }, { requestPolicy: 'network-only' })
             .toPromise()
             .then((res) => {
-                force(true);
+                force(txid);
                 return res;
             });
     };
@@ -169,7 +170,8 @@ export function configureClient({
             key,
             expires: Date.now() + EXPIRES_MILLISECONDS,
             owner,
-            dispatch: (...bundle: CogAction[]) => dispatch(key, ...bundle),
+            dispatch: (...bundle: CogAction[]) => dispatch(key, true, ...bundle),
+            dispatchAndWait: (...bundle: CogAction[]) => dispatch(key, false, ...bundle),
             signout: () => signout(owner, key.address),
         };
     };
@@ -207,7 +209,6 @@ export function configureClient({
                 }
             }),
             filter((data) => !!data.logs && data.logs > 0),
-            throttle(() => 1000),
             map(() => true),
             share,
         );
@@ -215,6 +216,7 @@ export function configureClient({
     const events = pipe(
         subscription(OnEventDocument, { gameID }),
         tap(() => console.log('PROPER UPDATE')),
+        map(() => 'SUB'),
     );
 
     // query executes a query which will get re-queried each time new data arrives
@@ -227,23 +229,18 @@ export function configureClient({
     ): Source<Data> =>
         pipe(
             config?.subscribe === false
-                ? lazy(() => fromValue(CogEvent.STATE_CHANGED)) // no subscription, just do the query once
+                ? lazy(() => fromValue('STATE_SUB_START')) // no subscription, just do the query once
                 : concat([
-                      lazy(() => fromValue(CogEvent.STATE_CHANGED)), // always emit one to start
+                      lazy(() => fromValue('STATE_START')), // always emit one to start
                       typeof config?.poll === 'undefined'
-                          ? pipe(
-                                // emit signal on notify of state update from events
-                                merge([events, forced]),
-                                tap(() => console.log('UPDATE')),
-                                map(() => CogEvent.STATE_CHANGED),
-                            )
+                          ? merge([events, forced])
                           : pipe(
                                 // emit signal periodically
                                 interval(config.poll),
-                                map(() => CogEvent.STATE_CHANGED),
+                                map(() => 'POLL'),
                             ),
                   ]),
-            switchMap(() =>
+            switchMap((txid) =>
                 pipe(
                     fromPromise(gql.query(doc, vars, { requestPolicy: 'cache-and-network' }).toPromise()),
                     map((res) => {
@@ -259,6 +256,7 @@ export function configureClient({
                     }),
                     filter((res): res is OperationResult<Data, Variables> => typeof res !== 'undefined'),
                     map((res) => res.data),
+                    tap(() => (/^\d+/.test(txid) ? console.timeEnd(`dispatch ${txid}`) : undefined)),
                     filter((data): data is Data => typeof data !== 'undefined'),
                 ),
             ),
@@ -332,4 +330,8 @@ export function actionArgFromUnknown(wanted: ethers.ParamType, given: unknown): 
     }
     // else hope for the best
     return given;
+}
+
+function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }

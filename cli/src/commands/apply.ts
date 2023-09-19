@@ -451,7 +451,7 @@ const deploy = {
         for (let i = 0; i < opsets.length; i++) {
             const pending = opsets[i].map((op) =>
                 player
-                    .dispatch(...op.actions)
+                    .dispatchAndWait(...op.actions)
                     .then(() => {
                         console.log(`✅ ${op.note}\n`);
                         return {
