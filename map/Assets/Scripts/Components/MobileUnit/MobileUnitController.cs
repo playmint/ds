@@ -27,10 +27,11 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
     private Transform _meshesTrans;
 
     private Coroutine? _runningMovementCR;
+    private Coroutine? _runningVisibilityCR;
 
     protected void Start()
     {
-        // _renderers = GetComponentsInChildren<Renderer>();
+        Debug.Log("start");
         if (renderers.Length > 0)
         {
             _defaultColor = renderers[0].material.GetColor("_EmissionColor");
@@ -106,17 +107,28 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         }
 
         // Visibility
+        if (_runningVisibilityCR != null)
+        {
+            Debug.Log("Stopping vis CR");
+            StopCoroutine(_runningVisibilityCR);
+            _runningVisibilityCR = null;
+        }
+
         if (_prevData == null)
         {
-            StartCoroutine(VisibilityCR(new Vector3(1, 1, 1), _nextData.visible ? 1 : 0));
+            _runningVisibilityCR = StartCoroutine(
+                VisibilityCR(new Vector3(1, 1, 1), _nextData.visible ? 1 : 0)
+            );
         }
         else if (_prevData.visible && !_nextData.visible)
         {
-            StartCoroutine(VisibilityCR(new Vector3(1, 1, 1), 0, 0.35f));
+            _runningVisibilityCR = StartCoroutine(
+                VisibilityCR(new Vector3(1, 1, 1), 0, 0.35f, 3.5f)
+            );
         }
         else if (!_prevData.visible && _nextData.visible)
         {
-            StartCoroutine(VisibilityCR(new Vector3(1, 1, 1), 1));
+            _runningVisibilityCR = StartCoroutine(VisibilityCR(new Vector3(1, 1, 1), 1));
         }
 
         _prevData = _nextData;
@@ -143,15 +155,28 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         _runningMovementCR = null;
     }
 
-    IEnumerator VisibilityCR(Vector3 endScale, float endFade, float delay = 0)
+    IEnumerator VisibilityCR(
+        Vector3 endScale,
+        float endFade,
+        float delay = 0,
+        float deltaMultiplier = 2f
+    )
     {
+        _meshesTrans.gameObject.SetActive(true);
+
+        // disable the outline meshes if fading out
+        foreach (Renderer outlineObj in outlineObjs)
+        {
+            outlineObj.gameObject.SetActive(endFade > 0);
+        }
+
         float t = 0;
         Vector3 startScale = _meshesTrans.localScale;
         float startFade = renderers[0].material.GetFloat("_Fade");
         yield return new WaitForSeconds(delay);
         while (t < 1)
         {
-            t += Time.deltaTime * 2;
+            t += Time.deltaTime * deltaMultiplier;
             _meshesTrans.localScale = Vector3.LerpUnclamped(
                 startScale,
                 endScale,
@@ -166,5 +191,10 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
             }
             yield return null;
         }
+
+        // Turning off mesh after fadeout to disable both events and to fix problem with overlapping unit's outine not displaying
+        _meshesTrans.gameObject.SetActive(endFade > 0);
+
+        _runningVisibilityCR = null;
     }
 }
