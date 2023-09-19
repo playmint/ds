@@ -1,5 +1,6 @@
 import { getCoords, WorldTileFragment } from '@app/../../core/src';
 import { MinQueue } from 'heapify';
+import { BuildingCategory, getBuildingCategory } from './building';
 
 interface PassableTile {
     idx: number;
@@ -80,9 +81,8 @@ function getNeighboursWithDistanceFromDestination(
             if (t.tile.id === destination.tile.id) {
                 return true;
             }
-            // avoid tiles with buildings on
-            // TODO: should only be blockers really
-            if (t.tile.building) {
+            // avoid tiles with blockers
+            if (getBuildingCategory(t.tile.building?.kind) == BuildingCategory.BLOCKER) {
                 return false;
             }
             return true;

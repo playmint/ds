@@ -633,7 +633,10 @@ const Move: FunctionComponent<MoveProps> = ({
             return { path: [], valid: false };
         }
         const path = getPath(tiles, fromTile, toTile);
-        return { path: [fromTile, ...path], valid: !path.slice(-1).find(() => true)?.building };
+        return {
+            path: [fromTile, ...path],
+            valid: getBuildingCategory(path.slice(-1).find(() => true)?.building?.kind) != BuildingCategory.BLOCKER,
+        };
     }, [mobileUnit, selectedTiles, tiles]);
 
     const move = useCallback(() => {

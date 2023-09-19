@@ -56,6 +56,8 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         return unsubscribe;
     }, [player]);
 
+    // -- TILE
+
     const [hovered, setHovered] = useState<string | undefined>();
     const hoveredTile = hovered ? world?.tiles?.find((t) => t.id === hovered) : undefined;
 
@@ -89,7 +91,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     key={t.id}
                     id={t.id}
                     height={getTileHeight(t)}
-                    color={t.building ? 'blue' : '#7288A6'} // blue is a fake building
+                    color="#7288A6"
                     onPointerEnter={enter}
                     onPointerExit={exit}
                     onPointerClick={click}
@@ -100,6 +102,8 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         console.timeEnd('tileloop');
         return ts;
     }, [tiles, click, enter, exit]);
+
+    // -- GOO
 
     const tileGooComponents = useMemo(() => {
         console.time('tileGooloop');
@@ -130,6 +134,8 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         console.timeEnd('tileGooloop');
         return gs;
     }, [tiles]);
+
+    // -- BUILDINGS
 
     const buildingComponents = useMemo(() => {
         console.time('buildingLoop');
@@ -190,6 +196,8 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         console.timeEnd('buildingLoop');
         return bs;
     }, [tiles, click, enter, exit]);
+
+    // -- MOBILE UNIT
 
     const [mobileUnitHovered, setMobileUnitHovered] = useState<string | undefined>();
 
@@ -257,8 +265,20 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         };
 
         const mus = tiles
-            .flatMap((t) => t.mobileUnits.map((u) => ({ t, u })))
-            .map(({ t, u }) => {
+            .flatMap((t) => {
+                let foundPlayer = false;
+                return t.mobileUnits.map((u, i) => {
+                    // Show either the last unit in the array or the player unit in the array.
+                    const isPlayer = !!player?.mobileUnits?.find((playerUnit) => playerUnit.id == u.id);
+                    if (isPlayer) {
+                        foundPlayer = true;
+                    }
+                    const isLast = i == t.mobileUnits.length - 1;
+                    const visible = isPlayer || (isLast && !foundPlayer);
+                    return { t, u, visible };
+                });
+            })
+            .map(({ t, u, visible }) => {
                 const coords = getCoords(t);
                 return (
                     <MobileUnit
@@ -267,8 +287,8 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         height={getTileHeight(t)}
                         progress={1}
                         selected={getMobileUnitSelectionState(u)}
-                        shared={false}
-                        visible={true}
+                        shared={!!t.building}
+                        visible={visible}
                         onPointerClick={mobileUnitClick}
                         onPointerEnter={mobileUnitEnter}
                         onPointerExit={mobileUnitExit}
@@ -277,9 +297,11 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 );
             });
 
+        // const musAlt = tiles.map((t) => )
+
         console.timeEnd('mobileUnitsLoop');
         return mus;
-    }, [mobileUnitClick, mobileUnitEnter, mobileUnitExit, mobileUnitHovered, selected, tiles]);
+    }, [mobileUnitClick, mobileUnitEnter, mobileUnitExit, mobileUnitHovered, player, selected, tiles]);
 
     return (
         <StyledShell>
