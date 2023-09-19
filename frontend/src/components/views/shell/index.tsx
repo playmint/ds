@@ -27,6 +27,7 @@ import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
 import { ExtractorBuilding } from '@app/components/map/ExtractorBuilding';
 import { TileGoo } from '@app/components/map/TileGoo';
 import { MobileUnit } from '@app/components/map/MobileUnit';
+import { Icon } from '@app/components/map/Icon';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -281,7 +282,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             .map(({ t, u, visible }) => {
                 const coords = getCoords(t);
                 return (
-                    <MobileUnit
+                    <><MobileUnit
                         key={u.id}
                         id={u.id}
                         height={getTileHeight(t)}
@@ -292,8 +293,16 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         onPointerClick={mobileUnitClick}
                         onPointerEnter={mobileUnitEnter}
                         onPointerExit={mobileUnitExit}
-                        {...coords}
-                    />
+                        {...coords} />
+                        <Icon
+                            backgroundColor={'#000000FF'}
+                            foregroundColor={'#FFFFFFFF'}
+                            image={'https://assets.downstream.game/icons/31-122.svg'}
+                            key={`${u.id}-icon`}
+                            id={`${u.id}-icon`}
+                            height={getTileHeight(t) + 0.7}
+                            {...coords} />
+                        </>
                 );
             });
 
