@@ -73,7 +73,7 @@ class MobileUnitDiorama : IDiorama
                     s = 2,
                     height = 0.4f,
                     progress = 1,
-                    selected = "none",
+                    selected = "outline",
                     shared = false,
                     visible = true
                 } },
@@ -139,7 +139,7 @@ class MobileUnitDiorama : IDiorama
                     s = 1,
                     height = 0.4f,
                     progress = 1,
-                    selected = "none",
+                    selected = "outline",
                     shared = true,
                     visible = true
                 } },
