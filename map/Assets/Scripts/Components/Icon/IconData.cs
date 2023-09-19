@@ -4,5 +4,7 @@ public class IconData : BaseComponentData
     public int r;
     public int s;
     public float height;
-    public string? image; //  url ... svg support would be a nice bonus
+    public string? image;
+    public string? backgroundColor;
+    public string? foregroundColor;
 }
