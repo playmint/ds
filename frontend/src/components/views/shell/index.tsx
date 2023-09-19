@@ -28,6 +28,7 @@ import { ExtractorBuilding } from '@app/components/map/ExtractorBuilding';
 import { TileGoo } from '@app/components/map/TileGoo';
 import { MobileUnit } from '@app/components/map/MobileUnit';
 import { Icon } from '@app/components/map/Icon';
+import { Label } from '@app/components/map/Label';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -344,15 +345,19 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         (selected.tiles || []).map((t) => {
                             const coords = getCoords(t);
                             return (
-                                <TileHighlight
+                                <><TileHighlight
                                     key={`selected-${t.id}`}
                                     id={`selected-${t.id}`}
                                     height={getTileHeight(t)}
                                     color="white"
                                     style="gradient_outline"
                                     animation="none"
-                                    {...coords}
-                                />
+                                    {...coords} /><Label
+                                        key={`randomLabel`}
+                                        id={`randomLabel`}
+                                        height={getTileHeight(t) + 0.6}
+                                        text="It's-a-me, Labelio!"
+                                        {...coords} /></>
                             );
                         })}
                 </>
