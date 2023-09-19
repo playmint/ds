@@ -159,7 +159,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     // -- BUILDINGS
 
     const [hoveredBuildingId, setHoveredBuildingId] = useState<string | undefined>();
-    // const hoveredBuilding = hoveredBuildingId ? world?.buildings?.find((t) => t.id === hoveredBuildingId) : undefined;
 
     const buildingClick = useCallback(
         (id) => {
@@ -431,19 +430,24 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         (selected.tiles || []).map((t) => {
                             const coords = getCoords(t);
                             return (
-                                <><TileHighlight
-                                    key={`selected-${t.id}`}
-                                    id={`selected-${t.id}`}
-                                    height={getTileHeight(t)}
-                                    color="white"
-                                    style="gradient_outline"
-                                    animation="none"
-                                    {...coords} /><Label
+                                <>
+                                    <TileHighlight
+                                        key={`selected-${t.id}`}
+                                        id={`selected-${t.id}`}
+                                        height={getTileHeight(t)}
+                                        color="white"
+                                        style="gradient_outline"
+                                        animation="none"
+                                        {...coords}
+                                    />
+                                    <Label
                                         key={`randomLabel`}
                                         id={`randomLabel`}
                                         height={getTileHeight(t) + 0.6}
                                         text="It's-a-me, Labelio!"
-                                        {...coords} /></>
+                                        {...coords}
+                                    />
+                                </>
                             );
                         })}
                 </>
