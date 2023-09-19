@@ -31,7 +31,6 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
 
     protected void Start()
     {
-        Debug.Log("start");
         if (renderers.Length > 0)
         {
             _defaultColor = renderers[0].material.GetColor("_EmissionColor");
@@ -109,7 +108,6 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         // Visibility
         if (_runningVisibilityCR != null)
         {
-            Debug.Log("Stopping vis CR");
             StopCoroutine(_runningVisibilityCR);
             _runningVisibilityCR = null;
         }

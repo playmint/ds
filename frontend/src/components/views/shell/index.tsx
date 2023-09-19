@@ -276,33 +276,38 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     }
                     const isLast = i == t.mobileUnits.length - 1;
                     const visible = isPlayer || (isLast && !foundPlayer);
-                    return { t, u, visible };
+                    return { t, u, visible, isPlayer };
                 });
             })
-            .map(({ t, u, visible }) => {
+            .map(({ t, u, visible, isPlayer }) => {
                 const coords = getCoords(t);
                 return (
-                    <><MobileUnit
-                        key={u.id}
-                        id={u.id}
-                        height={getTileHeight(t)}
-                        progress={1}
-                        selected={getMobileUnitSelectionState(u)}
-                        shared={!!t.building}
-                        visible={visible}
-                        onPointerClick={mobileUnitClick}
-                        onPointerEnter={mobileUnitEnter}
-                        onPointerExit={mobileUnitExit}
-                        {...coords} />
-                        <Icon
-                            backgroundColor={'#000000FF'}
-                            foregroundColor={'#FFFFFFFF'}
-                            image={'https://assets.downstream.game/icons/31-122.svg'}
-                            key={`${u.id}-icon`}
-                            id={`${u.id}-icon`}
-                            height={getTileHeight(t) + 0.7}
-                            {...coords} />
-                        </>
+                    <>
+                        <MobileUnit
+                            key={u.id}
+                            id={u.id}
+                            height={getTileHeight(t)}
+                            progress={1}
+                            selected={getMobileUnitSelectionState(u)}
+                            shared={!!t.building}
+                            visible={visible}
+                            onPointerClick={mobileUnitClick}
+                            onPointerEnter={mobileUnitEnter}
+                            onPointerExit={mobileUnitExit}
+                            {...coords}
+                        />
+                        {isPlayer && (
+                            <Icon
+                                backgroundColor={'#000000FF'}
+                                foregroundColor={'#FFFFFFFF'}
+                                image={'https://assets.downstream.game/icons/31-122.svg'}
+                                key={`${u.id}-icon`}
+                                id={`${u.id}-icon`}
+                                height={getTileHeight(t) + 0.7}
+                                {...coords}
+                            />
+                        )}
+                    </>
                 );
             });
 
