@@ -26,6 +26,8 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
 
     private Transform _meshesTrans;
 
+    private Coroutine? _runningMovementCR;
+
     protected void Start()
     {
         // _renderers = GetComponentsInChildren<Renderer>();
@@ -58,7 +60,14 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
             Vector3Int cubeCoords = new Vector3Int(_nextData.q, _nextData.r, _nextData.s);
             Vector3 worldPos = CoordsHelper.CubeToWorld(cubeCoords);
 
-            StartCoroutine(SmoothMoveCR(new Vector3(worldPos.x, _nextData.height, worldPos.z)));
+            if (_runningMovementCR != null)
+            {
+                StopCoroutine(_runningMovementCR);
+            }
+
+            _runningMovementCR = StartCoroutine(
+                SmoothMoveCR(new Vector3(worldPos.x, _nextData.height, worldPos.z))
+            );
         }
 
         // selected
@@ -121,7 +130,7 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         Vector3 startPos = transform.position;
         while (t < 1)
         {
-            t += Time.deltaTime;
+            t += Time.deltaTime * 1.5f;
             transform.position = Vector3.Lerp(startPos, endPos, _moveCurve.Evaluate(t));
             transform.position = Vector3.Lerp(
                 new Vector3(transform.position.x, transform.position.y, transform.position.z),
@@ -131,6 +140,7 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
             yield return null;
         }
         transform.position = endPos;
+        _runningMovementCR = null;
     }
 
     IEnumerator VisibilityCR(Vector3 endScale, float endFade, float delay = 0)
