@@ -20,7 +20,7 @@ import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
 import { TileHighlight } from '@app/components/map/TileHighlight';
 import { getCoords } from '@app/../../core/src';
-import { GOO_SMALL_THRESH, getGooColor, getGooSize, getTileHeight } from '@app/helpers/tile';
+import { GOO_SMALL_THRESH, getGooColor, getGooSize, getTileDistance, getTileHeight } from '@app/helpers/tile';
 import { FactoryBuilding } from '@app/components/map/FactoryBuilding';
 import { BlockerBuilding } from '@app/components/map/BlockerBuilding';
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
@@ -38,10 +38,15 @@ const StyledShell = styled('div')`
 
 export const Shell: FunctionComponent<ShellProps> = () => {
     const { ready: mapReady } = useUnityMap();
-    const { world, selected, selectTiles, selectMobileUnit } = useGameState();
+    const { world, selected, selectTiles, selectMobileUnit, selectMapElement } = useGameState();
     const { loadingSession } = useSession();
     const player = usePlayer();
-    const { mobileUnit: selectedMobileUnit, tiles: selectedTiles } = selected || {};
+    const {
+        mobileUnit: selectedMobileUnit,
+        tiles: selectedTiles,
+        mapElement: selectedMapElementId,
+        intent: selectedIntent,
+    } = selected || {};
     const blockNumber = useBlock();
     const { connect } = useWalletProvider();
 
@@ -60,6 +65,8 @@ export const Shell: FunctionComponent<ShellProps> = () => {
 
     // -- TILE
 
+    const tiles = world?.tiles;
+
     const [hovered, setHovered] = useState<string | undefined>();
     const hoveredTile = hovered ? world?.tiles?.find((t) => t.id === hovered) : undefined;
 
@@ -73,14 +80,26 @@ export const Shell: FunctionComponent<ShellProps> = () => {
 
     const click = useCallback(
         (id) => {
-            if (!selectTiles) {
+            if (!selectTiles || !selectMapElement || !selectMobileUnit) {
                 return;
             }
+
             selectTiles([id]);
+            const t = tiles?.find((t) => t.id == id);
+            selectMapElement(t?.building?.id);
+
+            // Deselect unit if we aren't in move intent and tile isn't ajacent
+            if (selectedIntent != 'move' && t && selectedMobileUnit?.nextLocation) {
+                const dist = getTileDistance(t, selectedMobileUnit.nextLocation.tile);
+                if (dist > 1) {
+                    selectMobileUnit(undefined);
+                }
+                return;
+            }
         },
-        [selectTiles]
+        [selectTiles, selectMapElement, selectMobileUnit, tiles, selectedIntent, selectedMobileUnit]
     );
-    const tiles = world?.tiles;
+
     const tileComponents = useMemo(() => {
         console.time('tileloop');
         if (!tiles) {
@@ -139,11 +158,74 @@ export const Shell: FunctionComponent<ShellProps> = () => {
 
     // -- BUILDINGS
 
+    const [hoveredBuildingId, setHoveredBuildingId] = useState<string | undefined>();
+    // const hoveredBuilding = hoveredBuildingId ? world?.buildings?.find((t) => t.id === hoveredBuildingId) : undefined;
+
+    const buildingClick = useCallback(
+        (id) => {
+            if (!tiles) {
+                return;
+            }
+
+            if (!selectMapElement || !selectTiles || !selectMobileUnit) {
+                return;
+            }
+
+            selectMapElement(id);
+            setHoveredBuildingId(undefined);
+
+            // select tile that building is on
+            const t = tiles.find((t) => t.building?.id == id);
+            if (t) {
+                selectTiles([t.id]);
+            }
+
+            // Deselect unit if we aren't in move intent and tile isn't ajacent
+            if (selectedIntent != 'move' && t && selectedMobileUnit?.nextLocation) {
+                const dist = getTileDistance(t, selectedMobileUnit.nextLocation.tile);
+                if (dist > 1) {
+                    selectMobileUnit(undefined);
+                }
+                return;
+            }
+        },
+        [tiles, selectMapElement, selectTiles, selectMobileUnit, selectedIntent, selectedMobileUnit]
+    );
+
+    const buildingEnter = useCallback(
+        (id) => {
+            // No hover state over selected buildings
+            if (selectedMapElementId == id) {
+                return;
+            }
+
+            setHoveredBuildingId(id);
+        },
+        [selectedMapElementId]
+    );
+
+    const buildingExit = useCallback((id) => {
+        setHoveredBuildingId((prev) => (prev == id ? undefined : prev));
+    }, []);
+
     const buildingComponents = useMemo(() => {
-        console.time('buildingLoop');
+        const getBuildingSelectionState = (building) => {
+            if (hoveredBuildingId == building.id) {
+                return 'highlight';
+            }
+
+            if (selectedMapElementId == building.id) {
+                return 'outline';
+            }
+
+            return 'none';
+        };
         if (!tiles) {
             return [];
         }
+
+        console.time('buildingLoop');
+
         const bs = tiles.map((t) => {
             const coords = getCoords(t);
             //TODO: Need to properly implement buildings!!
@@ -158,9 +240,10 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             height={getTileHeight(t)}
                             rotation={0}
                             color={'#0665F5FF'} //TODO: Get actual color values
-                            onPointerEnter={enter}
-                            onPointerExit={exit}
-                            onPointerClick={click}
+                            selected={getBuildingSelectionState(t.building)}
+                            onPointerEnter={buildingEnter}
+                            onPointerExit={buildingExit}
+                            onPointerClick={buildingClick}
                             {...coords}
                         />
                     );
@@ -172,9 +255,10 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             height={getTileHeight(t)}
                             model={t.building.kind?.model?.value}
                             rotation={0}
-                            onPointerEnter={enter}
-                            onPointerExit={exit}
-                            onPointerClick={click}
+                            selected={getBuildingSelectionState(t.building)}
+                            onPointerEnter={buildingEnter}
+                            onPointerExit={buildingExit}
+                            onPointerClick={buildingClick}
                             {...coords}
                         />
                     );
@@ -186,9 +270,10 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             height={getTileHeight(t)}
                             model={t.building.kind?.model?.value}
                             rotation={0}
-                            onPointerEnter={enter}
-                            onPointerExit={exit}
-                            onPointerClick={click}
+                            selected={getBuildingSelectionState(t.building)}
+                            onPointerEnter={buildingEnter}
+                            onPointerExit={buildingExit}
+                            onPointerClick={buildingClick}
                             {...coords}
                         />
                     );
@@ -197,18 +282,18 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         });
         console.timeEnd('buildingLoop');
         return bs;
-    }, [tiles, click, enter, exit]);
+    }, [tiles, hoveredBuildingId, selectedMapElementId, buildingEnter, buildingExit, buildingClick]);
 
     // -- MOBILE UNIT
 
-    const [mobileUnitHovered, setMobileUnitHovered] = useState<string | undefined>();
+    const [hoveredMobileUnitId, setHoveredMobileUnitId] = useState<string | undefined>();
 
     const mobileUnitClick = useCallback(
         (id) => {
             if (!player) {
                 return;
             }
-            if (!selectMobileUnit) {
+            if (!selectMobileUnit || !selectTiles || !selectMapElement) {
                 return;
             }
 
@@ -218,9 +303,12 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 return;
             }
             selectMobileUnit(id);
-            setMobileUnitHovered(undefined);
+            setHoveredMobileUnitId(undefined);
+
+            selectTiles(undefined);
+            selectMapElement(undefined);
         },
-        [player, selectMobileUnit, setMobileUnitHovered]
+        [player, selectMapElement, selectMobileUnit, selectTiles]
     );
 
     const mobileUnitEnter = useCallback(
@@ -230,7 +318,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             }
 
             // No hover state over selected units
-            if (selected && selected.mobileUnit?.id == id) {
+            if (selectedMobileUnit?.id == id) {
                 return;
             }
 
@@ -239,13 +327,13 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             if (!playerMobileUnit) {
                 return;
             }
-            setMobileUnitHovered(id);
+            setHoveredMobileUnitId(id);
         },
-        [player, selected]
+        [player, selectedMobileUnit]
     );
 
     const mobileUnitExit = useCallback((id) => {
-        setMobileUnitHovered((prev) => (prev == id ? undefined : prev));
+        setHoveredMobileUnitId((prev) => (prev == id ? undefined : prev));
     }, []);
 
     const mobileUnitComponents = useMemo(() => {
@@ -255,11 +343,11 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         }
 
         const getMobileUnitSelectionState = (mobileUnit) => {
-            if (mobileUnitHovered == mobileUnit.id) {
+            if (hoveredMobileUnitId == mobileUnit.id) {
                 return 'highlight';
             }
 
-            if (selected && selected.mobileUnit?.id == mobileUnit.id) {
+            if (selectedMobileUnit?.id == mobileUnit.id) {
                 return 'outline';
             }
 
@@ -312,11 +400,9 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 );
             });
 
-        // const musAlt = tiles.map((t) => )
-
         console.timeEnd('mobileUnitsLoop');
         return mus;
-    }, [mobileUnitClick, mobileUnitEnter, mobileUnitExit, mobileUnitHovered, player, selected, tiles]);
+    }, [mobileUnitClick, mobileUnitEnter, mobileUnitExit, hoveredMobileUnitId, player, selectedMobileUnit, tiles]);
 
     return (
         <StyledShell>
