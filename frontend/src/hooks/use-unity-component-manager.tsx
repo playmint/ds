@@ -1,5 +1,5 @@
 import { useUnityMap } from '@app/hooks/use-unity-map';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 export interface ComponentMessage {
     id: string; // instance id
@@ -10,15 +10,21 @@ export interface ComponentDataMessage extends ComponentMessage {
     data: string; // json encoded (eg TileData)
 }
 
-export const useUnityComponentEvent = (eventName: string, handler: () => void) => {
+export const useUnityComponentEvent = (eventName: string, handler?: () => void) => {
     const { addUnityEventListener, removeUnityEventListener } = useUnityMap();
     useEffect(() => {
         if (!addUnityEventListener) {
             return;
         }
+        if (!handler) {
+            return;
+        }
         addUnityEventListener(eventName, handler);
         return () => {
             if (!removeUnityEventListener) {
+                return;
+            }
+            if (!handler) {
                 return;
             }
             removeUnityEventListener(eventName, handler);
@@ -36,6 +42,7 @@ export interface ComponentConfig<T> extends ComponentEventHandlers {
     type: string;
     id?: string;
     data: T;
+    events?: boolean;
 }
 
 export type ComponentProp = number | string | boolean;
@@ -78,16 +85,16 @@ export const useUnityComponentManager = <T,>(cfg: ComponentConfig<T>) => {
 
     useUnityComponentEvent(
         `${type}_pointer_enter_${ref}`,
-        useCallback(() => (onPointerEnter ? onPointerEnter(ref) : null), [ref, onPointerEnter])
+        useMemo(() => (onPointerEnter ? () => onPointerEnter(ref) : undefined), [ref, onPointerEnter])
     );
 
     useUnityComponentEvent(
         `${type}_pointer_exit_${ref}`,
-        useCallback(() => (onPointerExit ? onPointerExit(ref) : null), [ref, onPointerExit])
+        useMemo(() => (onPointerExit ? () => onPointerExit(ref) : undefined), [ref, onPointerExit])
     );
 
     useUnityComponentEvent(
         `${type}_pointer_click_${ref}`,
-        useCallback(() => (onPointerClick ? onPointerClick(ref) : null), [ref, onPointerClick])
+        useMemo(() => (onPointerClick ? () => onPointerClick(ref) : undefined), [ref, onPointerClick])
     );
 };
