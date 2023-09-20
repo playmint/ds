@@ -130,19 +130,27 @@ export function configureClient({
     const { source: forcedSource, next: force } = makeSubject<string>();
     const forced = pipe(forcedSource, share);
 
+    // nonce doesn't need to be unique forever... only unique within a short
+    // lifespan of hours and only within the same session
+    let nonceSeq = Math.floor(Math.random() * 100000);
+
     const dispatch = async (signer: ethers.Signer, optimistic: boolean, ...unencodedActions: CogAction[]) => {
         const actions = unencodedActions.map((action) => encodeActionData(iactions, action.name, action.args));
+        nonceSeq++;
+        const nonce = nonceSeq;
         const actionDigest = ethers.getBytes(
-            ethers.keccak256(abi.encode(['bytes[]'], [actions.map((action) => ethers.getBytes(action))])),
+            ethers.keccak256(
+                abi.encode(['bytes[]', 'uint256'], [actions.map((action) => ethers.getBytes(action)), nonce]),
+            ),
         );
-        const txid = Math.floor(Math.random() * 10000).toString();
-        console.time(`dispatch ${txid}`);
+        console.time(`dispatch ${nonce}`);
         const auth = await signer.signMessage(actionDigest);
+        console.log(`dispatching nonce=${nonce}, sig=${auth}`);
         return gql
-            .mutation(DispatchDocument, { gameID, auth, actions, optimistic }, { requestPolicy: 'network-only' })
+            .mutation(DispatchDocument, { gameID, auth, actions, nonce, optimistic }, { requestPolicy: 'network-only' })
             .toPromise()
             .then((res) => {
-                force(txid);
+                force(nonce.toString());
                 return res;
             });
     };
