@@ -26,7 +26,6 @@ export interface UnityMessage {
 }
 
 export interface GlobalUnityContext {
-    messages: Subject<UnityMessage>;
     ready: Subject<boolean>;
     unity: Subject<Partial<UnityContextHook>>;
 }
@@ -139,22 +138,9 @@ const UnityInstance = () => {
             g.__globalUnityContext.ready.next(true);
         };
 
-        const onMessage = (msgJson: string) => {
-            let msgObj: UnityMessage;
-            try {
-                msgObj = JSON.parse(msgJson) as UnityMessage;
-            } catch (err) {
-                console.error(`unitymap: onMessage: ${err}`);
-                return;
-            }
-            g.__globalUnityContext.messages.next(msgObj);
-        };
-
-        addEventListener('sendMessage', onMessage);
         addEventListener('unityReady', onReady);
 
         return () => {
-            removeEventListener('sendMessage', onMessage);
             removeEventListener('unityReady', onReady);
         };
     }, [addEventListener, removeEventListener]);
@@ -205,7 +191,6 @@ export const useGlobalUnityInstance = () => {
         : ((): GlobalUnityContext => {
               return {
                   unity: makeUnityContextSubject(),
-                  messages: makeSubject<UnityMessage>(),
                   ready: makeUnityReadySubject(),
               };
           })();
@@ -243,5 +228,5 @@ export const useGlobalUnityInstance = () => {
         return unsubscribe;
     }, [ctx.ready.source]);
 
-    return { unity, ready, messages: ctx.messages.source };
+    return { unity, ready };
 };

@@ -1,7 +1,6 @@
 // @refresh reset
-import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo } from 'react';
-import { pipe, subscribe } from 'wonka';
-import { SendMessageFunc, UnityMessage, useGlobalUnityInstance } from './use-unity-instance';
+import { createContext, ReactNode, useContext, useMemo } from 'react';
+import { SendMessageFunc, useGlobalUnityInstance } from './use-unity-instance';
 
 export const disableFastRefresh = 'this export only exists to disable fast-refresh of this file';
 
@@ -16,34 +15,10 @@ export const UnityMapContext = createContext<UnityMapContextValue>({});
 export const useUnityMap = () => useContext(UnityMapContext);
 
 export const UnityMapProvider = ({ children }: { children: ReactNode; disabled?: boolean }) => {
-    const { unity, ready, messages } = useGlobalUnityInstance();
+    const { unity, ready } = useGlobalUnityInstance();
     const { sendMessage, loadingProgression, addEventListener, removeEventListener } = unity;
 
     const loadingPercentage = loadingProgression ? Math.round(loadingProgression * 100) : 0;
-
-    const processMessage = useCallback((msgObj: UnityMessage) => {
-        switch (msgObj.msg) {
-            case 'something': {
-                // TODO: handle messages from unity land
-                break;
-            }
-
-            default: {
-                console.warn('unhandled message from map:', msgObj);
-            }
-        }
-    }, []);
-
-    useEffect(() => {
-        if (!processMessage) {
-            return;
-        }
-        if (!messages) {
-            return;
-        }
-        const { unsubscribe } = pipe(messages, subscribe(processMessage));
-        return unsubscribe;
-    }, [messages, processMessage]);
 
     const value = useMemo(() => {
         if (!ready) {
