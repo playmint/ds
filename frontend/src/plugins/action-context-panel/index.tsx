@@ -48,12 +48,14 @@ import { styles } from './action-context-panel.styles';
 import { Path } from '@app/components/map/Path';
 import { getPath } from '@app/helpers/pathfinding';
 import { sleep } from '@app/helpers/sleep';
+import { TileIcon } from '@app/components/map/TileIcon';
+import { TileHighlight } from '@app/components/map/TileHighlight';
 
 export interface ActionContextPanelProps extends ComponentProps {}
 
 const CONSTRUCT_INTENT = 'construct';
 const MOVE_INTENT = 'move';
-const SCOUT_INTENT = 'scout';
+// const SCOUT_INTENT = 'scout';
 const COMBAT_INTENT = 'combat';
 
 const StyledActionContextPanel = styled('div')`
@@ -285,7 +287,10 @@ interface ConstructProps {
     selectIntent?: Selector<string | undefined>;
     selectTiles?: Selector<string[] | undefined>;
     player?: ConnectedPlayer;
+    tiles: WorldTileFragment[] | undefined;
     mobileUnit?: SelectedMobileUnitFragment;
+    setActivePath: (path: WorldTileFragment[]) => void;
+    setDestinationAction: (op: CogAction[] | undefined) => void;
 }
 
 type SlotSource = {
@@ -300,27 +305,47 @@ interface BuildingKindWithOps extends BuildingKindFragment {
     ops: CogAction[] | undefined;
 }
 
-const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUnit, player, selectIntent }) => {
+const Construct: FunctionComponent<ConstructProps> = ({
+    selectedTiles,
+    mobileUnit,
+    player,
+    tiles,
+    selectIntent,
+    setDestinationAction,
+    setActivePath,
+}) => {
     const [selectedKindRaw, selectKind] = useState<undefined | BuildingKindWithOps>();
     const [showOnlyConstructable, setShowOnlyConstructable] = useState<boolean>(true);
 
+    const { path, valid } = useMemo(() => {
+        const fromTile = mobileUnit && tiles && tiles.find((t) => t.id === mobileUnit.nextLocation?.tile.id);
+        if (!fromTile) {
+            return { path: [], valid: false };
+        }
+        const toTile = selectedTiles.find(() => true);
+        if (!toTile) {
+            return { path: [], valid: false };
+        }
+        if (!tiles) {
+            return { path: [], valid: false };
+        }
+        const path = getPath(tiles, fromTile, toTile);
+        const isImposible = path.length === 1 && getTileDistance(fromTile, toTile) > 1;
+        return {
+            path: path.length > 0 ? [fromTile, ...path] : [],
+            valid: path.length > 0 && !isImposible && !path.slice(-1).find(() => true)?.building,
+        };
+    }, [mobileUnit, selectedTiles, tiles]);
+
     const selectedTile = selectedTiles.find(() => true);
-    const selectedTileIsAdjacent =
-        selectedTile && mobileUnit?.nextLocation?.tile
-            ? getTileDistance(selectedTile, mobileUnit.nextLocation.tile) === 1
-            : false;
     const constructableTile =
-        !!selectedTile?.building ||
-        !selectedTileIsAdjacent ||
-        !selectedTile ||
-        selectedTile.biome !== BiomeKind.DISCOVERED
-            ? undefined
-            : selectedTile;
+        selectedTile && !selectedTile.building && selectedTile.biome === BiomeKind.DISCOVERED && valid
+            ? selectedTile
+            : undefined;
     const constructionCoords = constructableTile ? getCoords(constructableTile) : undefined;
     const kinds = useBuildingKinds();
 
     // build a map of itemid => {slotKey => balance} for player's inventories
-    //
     const slotMap = mobileUnit?.bags
         .flatMap((equip) => equip.bag.slots.map((slot) => ({ slot, equip })))
         .reduce((slotMap, { equip, slot }) => {
@@ -452,9 +477,6 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
             e.preventDefault();
             const form = new FormData(e.target as any);
             const data = Object.fromEntries(form.entries());
-            if (!player) {
-                return;
-            }
             if (!mobileUnit) {
                 return;
             }
@@ -462,6 +484,9 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
                 return;
             }
             if (!selectedKind || !selectedKind.ops) {
+                return;
+            }
+            if (path.length < 2) {
                 return;
             }
 
@@ -478,11 +503,14 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
                     ],
                 },
             ];
-
-            player.dispatch(...ops).catch((err) => console.error(`failed construct`, err));
+            const needToMove = path.slice(1, -1);
+            if (needToMove.length > 0) {
+                setActivePath(needToMove);
+            }
+            setDestinationAction(ops);
             clearIntent();
         },
-        [player, mobileUnit, selectedKind, constructableTile, clearIntent]
+        [mobileUnit, selectedKind, constructableTile, clearIntent, setDestinationAction, setActivePath, path]
     );
     const costs = selectedKind?.materials.map((slot) => `${slot.balance} ${slot.item?.name?.value || ''}`) || [];
     const help = selectedTile?.building
@@ -496,6 +524,48 @@ const Construct: FunctionComponent<ConstructProps> = ({ selectedTiles, mobileUni
     return (
         <StyledActionContextPanel>
             <div className="control">
+                {path.map((t, idx) => {
+                    const fromCoords = getCoords(t);
+                    const toCoords = idx + 1 < path.length ? getCoords(path[idx + 1]) : undefined;
+                    if (!toCoords) {
+                        return null;
+                    }
+                    return (
+                        <Path
+                            key={`con-${t.id}`}
+                            id={`con-${t.id}`}
+                            qFrom={fromCoords.q}
+                            rFrom={fromCoords.r}
+                            sFrom={fromCoords.s}
+                            heightFrom={getTileHeight(t)}
+                            qTo={toCoords.q}
+                            rTo={toCoords.r}
+                            sTo={toCoords.s}
+                            heightTo={getTileHeight(path[idx + 1])}
+                            color={valid ? '#ff7315' : 'red'}
+                        />
+                    );
+                })}
+                {constructableTile && constructionCoords && (
+                    <>
+                        <TileHighlight
+                            key={`cons-${constructableTile.id}`}
+                            id={`cons-${constructableTile.id}`}
+                            height={getTileHeight(constructableTile)}
+                            color="white"
+                            style="gradient_outline"
+                            animation="none"
+                            {...constructionCoords}
+                        />
+                        <TileIcon
+                            key={`tileIcon-${constructableTile.id}`}
+                            id={`tileIcon-${constructableTile.id}`}
+                            height={getTileHeight(constructableTile)}
+                            icon={'https://assets.downstream.game/icons/31-122.svg'}
+                            {...constructionCoords}
+                        />
+                    </>
+                )}
                 <div className="guide">
                     <h3>{selectedKind ? selectedKind.name?.value : 'Construct...'}</h3>
                     <span className="sub-title">{help}</span>
@@ -607,19 +677,21 @@ interface MoveProps {
     selectIntent?: Selector<string | undefined>;
     selectTiles?: Selector<string[] | undefined>;
     player?: ConnectedPlayer;
-    world?: WorldStateFragment;
+    tiles: WorldTileFragment[] | undefined;
     mobileUnit?: SelectedMobileUnitFragment;
+    setActivePath: (path: WorldTileFragment[]) => void;
+    setDestinationAction: (op: CogAction[] | undefined) => void;
 }
 const Move: FunctionComponent<MoveProps> = ({
     selectTiles,
     selectIntent,
     selectedTiles,
-    world,
+    tiles,
     player,
     mobileUnit,
+    setActivePath,
+    setDestinationAction,
 }) => {
-    const tiles = world?.tiles;
-
     const { path, valid } = useMemo(() => {
         const fromTile = mobileUnit && tiles && tiles.find((t) => t.id === mobileUnit.nextLocation?.tile.id);
         if (!fromTile) {
@@ -633,43 +705,27 @@ const Move: FunctionComponent<MoveProps> = ({
             return { path: [], valid: false };
         }
         const path = getPath(tiles, fromTile, toTile);
+        const isImposible = path.length === 1 && getTileDistance(fromTile, toTile) > 1;
         return {
-            path: [fromTile, ...path],
-            valid: getBuildingCategory(path.slice(-1).find(() => true)?.building?.kind) != BuildingCategory.BLOCKER,
+            path: path.length > 0 ? [fromTile, ...path] : [],
+            valid:
+                path.length > 0 &&
+                !isImposible &&
+                getBuildingCategory(path.slice(-1).find(() => true)?.building?.kind) != BuildingCategory.BLOCKER,
         };
     }, [mobileUnit, selectedTiles, tiles]);
 
     const move = useCallback(() => {
-        if (!player) {
-            return;
-        }
-        if (!mobileUnit) {
-            return;
-        }
         if (path.length < 2) {
             // first element is the origin
             return;
         }
-        const actions = path.slice(1).map((tile): CogAction => {
-            const [_zone, q, r, s] = tile.coords;
-            return {
-                name: 'MOVE_MOBILE_UNIT',
-                args: [mobileUnit.key, q, r, s],
-            };
-        });
-        actions
-            .reduce(
-                (chain, action) => chain.then(() => player.dispatch(action).then(() => sleep(750))),
-                Promise.resolve() as Promise<any>
-            )
-            .catch((err) => console.error('move chain failed', err));
+        setDestinationAction(undefined);
+        setActivePath(path.slice(1));
         if (selectIntent) {
             selectIntent(undefined);
         }
-        if (selectTiles) {
-            selectTiles([]);
-        }
-    }, [path, mobileUnit, player, selectIntent, selectTiles]);
+    }, [path, setActivePath, setDestinationAction, selectIntent]);
 
     const canMove = mobileUnit && player && path.length > 0 && valid;
 
@@ -746,6 +802,8 @@ interface CombatProps {
     world?: WorldStateFragment;
     blockNumber: number;
     mobileUnit?: SelectedMobileUnitFragment;
+    setActivePath: (path: WorldTileFragment[]) => void;
+    setDestinationAction: (op: CogAction[] | undefined) => void;
 }
 const Combat: FunctionComponent<CombatProps> = ({
     selectTiles,
@@ -828,80 +886,80 @@ const Combat: FunctionComponent<CombatProps> = ({
     );
 };
 
-interface ScoutProps {
-    selectedTiles: SelectedTileFragment[];
-    selectIntent?: Selector<string | undefined>;
-    selectTiles?: Selector<string[] | undefined>;
-    player?: ConnectedPlayer;
-    mobileUnit?: SelectedMobileUnitFragment;
-}
-const Scout: FunctionComponent<ScoutProps> = ({ selectTiles, selectIntent, selectedTiles, player, mobileUnit }) => {
-    const scoutableTiles = selectedTiles.filter((t) => t.biome === BiomeKind.UNDISCOVERED);
-    const scout = () => {
-        if (!player) {
-            return;
-        }
-        if (!mobileUnit) {
-            return;
-        }
-        const actions = scoutableTiles.map((tile): CogAction => {
-            const [_zone, q, r, s] = tile.coords;
-            return {
-                name: 'SCOUT_MOBILE_UNIT',
-                args: [mobileUnit.key, q, r, s],
-            };
-        });
-        player.dispatch(...actions).catch((err) => console.error('scout failed', err));
-        if (selectIntent) {
-            selectIntent(undefined);
-        }
-        if (selectTiles) {
-            selectTiles([]);
-        }
-    };
-    const clearIntent = useCallback(
-        (e?: React.MouseEvent) => {
-            if (e) {
-                e.preventDefault();
-            }
-            if (!selectIntent) {
-                return;
-            }
-            if (!selectTiles) {
-                return;
-            }
-            selectIntent(undefined);
-            selectTiles([]);
-        },
-        [selectIntent, selectTiles]
-    );
-    const canScout = mobileUnit && player && scoutableTiles.length > 0;
-    const note = canScout ? 'Click scout to reveal selected tiles' : 'Select tiles you want to reveal';
-    return (
-        <StyledActionContextPanel>
-            <div className="control">
-                <div className="guide">
-                    <h3>Scouting</h3>
-                    <span className="sub-title">{note}</span>
-                </div>
-                <form>
-                    <button
-                        className="action-button"
-                        type="button"
-                        onClick={scout}
-                        disabled={!canScout}
-                        style={{ opacity: canScout ? 1 : 0.1 }}
-                    >
-                        Confirm Scout
-                    </button>
-                    <button onClick={clearIntent} className="cancel">
-                        <i className="bi bi-x" />
-                    </button>
-                </form>
-            </div>
-        </StyledActionContextPanel>
-    );
-};
+// interface ScoutProps {
+//     selectedTiles: SelectedTileFragment[];
+//     selectIntent?: Selector<string | undefined>;
+//     selectTiles?: Selector<string[] | undefined>;
+//     player?: ConnectedPlayer;
+//     mobileUnit?: SelectedMobileUnitFragment;
+// }
+// const Scout: FunctionComponent<ScoutProps> = ({ selectTiles, selectIntent, selectedTiles, player, mobileUnit }) => {
+//     const scoutableTiles = selectedTiles.filter((t) => t.biome === BiomeKind.UNDISCOVERED);
+//     const scout = () => {
+//         if (!player) {
+//             return;
+//         }
+//         if (!mobileUnit) {
+//             return;
+//         }
+//         const actions = scoutableTiles.map((tile): CogAction => {
+//             const [_zone, q, r, s] = tile.coords;
+//             return {
+//                 name: 'SCOUT_MOBILE_UNIT',
+//                 args: [mobileUnit.key, q, r, s],
+//             };
+//         });
+//         player.dispatch(...actions).catch((err) => console.error('scout failed', err));
+//         if (selectIntent) {
+//             selectIntent(undefined);
+//         }
+//         if (selectTiles) {
+//             selectTiles([]);
+//         }
+//     };
+//     const clearIntent = useCallback(
+//         (e?: React.MouseEvent) => {
+//             if (e) {
+//                 e.preventDefault();
+//             }
+//             if (!selectIntent) {
+//                 return;
+//             }
+//             if (!selectTiles) {
+//                 return;
+//             }
+//             selectIntent(undefined);
+//             selectTiles([]);
+//         },
+//         [selectIntent, selectTiles]
+//     );
+//     const canScout = mobileUnit && player && scoutableTiles.length > 0;
+//     const note = canScout ? 'Click scout to reveal selected tiles' : 'Select tiles you want to reveal';
+//     return (
+//         <StyledActionContextPanel>
+//             <div className="control">
+//                 <div className="guide">
+//                     <h3>Scouting</h3>
+//                     <span className="sub-title">{note}</span>
+//                 </div>
+//                 <form>
+//                     <button
+//                         className="action-button"
+//                         type="button"
+//                         onClick={scout}
+//                         disabled={!canScout}
+//                         style={{ opacity: canScout ? 1 : 0.1 }}
+//                     >
+//                         Confirm Scout
+//                     </button>
+//                     <button onClick={clearIntent} className="cancel">
+//                         <i className="bi bi-x" />
+//                     </button>
+//                 </form>
+//             </div>
+//         </StyledActionContextPanel>
+//     );
+// };
 
 export const TileInfoPanel: FunctionComponent<ActionContextPanelProps> = () => {
     const { selectIntent, tiles, mobileUnit, selectTiles } = useSelection();
@@ -961,12 +1019,67 @@ export const TileInfoPanel: FunctionComponent<ActionContextPanelProps> = () => {
 };
 
 export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = () => {
+    const [destinationAction, setDestinationAction] = useState<CogAction[]>();
+    const [activePath, setActivePath] = useState<WorldTileFragment[]>();
     const { selectIntent, intent, tiles, mobileUnit, selectTiles } = useSelection();
     const player = usePlayer();
     const world = useWorld();
     const blockNumber = useBlock();
 
     const selectedTiles = tiles || [];
+
+    useEffect(() => {
+        if (!activePath || activePath.length === 0) {
+            return;
+        }
+        const t = activePath[0];
+        if (!t) {
+            // TODO: attempt action
+            return;
+        }
+        if (!mobileUnit) {
+            return;
+        }
+        if (!player) {
+            return;
+        }
+        const [_zone, q, r, s] = t.coords;
+        player
+            .dispatch({
+                name: 'MOVE_MOBILE_UNIT',
+                args: [mobileUnit.key, q, r, s],
+            })
+            .then(() => sleep(750))
+            .then(() => {
+                // remove this tile from the top of the active path list
+                // ...but ONLY if the item is still at the top, since it
+                // is possible that something else changed the path while
+                // we were dispatching
+                setActivePath((prev) => {
+                    if (Array.isArray(prev) && prev.length > 0 && prev[0].id === t.id) {
+                        return [...activePath.slice(1)];
+                    }
+                    return prev;
+                });
+            })
+            .catch((err) => console.error(`move aborted ${err}`));
+    }, [activePath, player, mobileUnit]);
+
+    useEffect(() => {
+        if (!destinationAction) {
+            return;
+        }
+        if (activePath && activePath.length > 0) {
+            return;
+        }
+        if (!player) {
+            return;
+        }
+        setDestinationAction(undefined);
+        sleep(1500)
+            .then(() => player.dispatch(...destinationAction))
+            .catch((err) => console.error(`failed to perform action: ${err}`, destinationAction));
+    }, [activePath, destinationAction, player]);
 
     if (intent === CONSTRUCT_INTENT) {
         return (
@@ -976,6 +1089,9 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
                 selectTiles={selectTiles}
                 mobileUnit={mobileUnit}
                 player={player}
+                tiles={world?.tiles}
+                setActivePath={setActivePath}
+                setDestinationAction={setDestinationAction}
             />
         );
     } else if (intent === MOVE_INTENT) {
@@ -986,19 +1102,21 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
                 selectTiles={selectTiles}
                 mobileUnit={mobileUnit}
                 player={player}
-                world={world}
+                tiles={world?.tiles}
+                setActivePath={setActivePath}
+                setDestinationAction={setDestinationAction}
             />
         );
-    } else if (intent === SCOUT_INTENT) {
-        return (
-            <Scout
-                selectIntent={selectIntent}
-                selectedTiles={selectedTiles}
-                selectTiles={selectTiles}
-                mobileUnit={mobileUnit}
-                player={player}
-            />
-        );
+        // } else if (intent === SCOUT_INTENT) {
+        //     return (
+        //         <Scout
+        //             selectIntent={selectIntent}
+        //             selectedTiles={selectedTiles}
+        //             selectTiles={selectTiles}
+        //             mobileUnit={mobileUnit}
+        //             player={player}
+        //         />
+        //     );
     } else if (intent === COMBAT_INTENT) {
         return (
             <Combat
@@ -1009,6 +1127,8 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
                 player={player}
                 world={world}
                 blockNumber={blockNumber || 0}
+                setActivePath={setActivePath}
+                setDestinationAction={setDestinationAction}
             />
         );
     } else {
