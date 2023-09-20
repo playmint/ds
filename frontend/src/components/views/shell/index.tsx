@@ -50,9 +50,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const blockNumber = useBlock();
     const { connect } = useWalletProvider();
 
-    // const units = (world?.tiles || []).flatMap((t) => t.mobileUnits.map((u) => u.nextLocation?.tile.id));
-    // console.log('location', units[0], blockNumber);
-
     // collect client dispatch analytics
     // TODO: move to analytics provider
     useEffect(() => {
@@ -83,23 +80,24 @@ export const Shell: FunctionComponent<ShellProps> = () => {
 
     const click = useCallback(
         (id) => {
-            if (!selectTiles || !selectMapElement || !selectMobileUnit) {
+            if (!selectTiles) {
                 return;
             }
             selectTiles([id]);
-            const t = tiles?.find((t) => t.id == id);
-            selectMapElement(t?.building?.id);
 
+            // TODO: find another way to do this as it causes jank
+            // const t = tiles?.find((t) => t.id == id);
+            // selectMapElement(t?.building?.id);
             // Deselect unit if we aren't in move intent and tile isn't ajacent
-            if (selectedIntent != 'move' && t && selectedMobileUnit?.nextLocation) {
-                const dist = getTileDistance(t, selectedMobileUnit.nextLocation.tile);
-                if (dist > 1) {
-                    selectMobileUnit(undefined);
-                }
-                return;
-            }
+            // if (selectedIntent != 'move' && t && selectedMobileUnit?.nextLocation) {
+            //     const dist = getTileDistance(t, selectedMobileUnit.nextLocation.tile);
+            //     if (dist > 1) {
+            //         selectMobileUnit(undefined);
+            //     }
+            //     return;
+            // }
         },
-        [selectTiles, selectMapElement, selectMobileUnit, tiles, selectedIntent, selectedMobileUnit]
+        [selectTiles]
     );
 
     const tileComponents = useMemo(() => {
@@ -164,33 +162,29 @@ export const Shell: FunctionComponent<ShellProps> = () => {
 
     const buildingClick = useCallback(
         (id) => {
-            if (!tiles) {
-                return;
-            }
-
-            if (!selectMapElement || !selectTiles || !selectMobileUnit) {
+            if (!selectMapElement) {
                 return;
             }
 
             selectMapElement(id);
-            setHoveredBuildingId(undefined);
+            // setHoveredBuildingId(undefined);
 
             // select tile that building is on
-            const t = tiles.find((t) => t.building?.id == id);
-            if (t) {
-                selectTiles([t.id]);
-            }
+            // const t = tiles.find((t) => t.building?.id == id);
+            // if (t) {
+            //     selectTiles([t.id]);
+            // }
 
             // Deselect unit if we aren't in move intent and tile isn't ajacent
-            if (selectedIntent != 'move' && t && selectedMobileUnit?.nextLocation) {
-                const dist = getTileDistance(t, selectedMobileUnit.nextLocation.tile);
-                if (dist > 1) {
-                    selectMobileUnit(undefined);
-                }
-                return;
-            }
+            // if (selectedIntent != 'move' && t && selectedMobileUnit?.nextLocation) {
+            //     const dist = getTileDistance(t, selectedMobileUnit.nextLocation.tile);
+            //     if (dist > 1) {
+            //         selectMobileUnit(undefined);
+            //     }
+            //     return;
+            // }
         },
-        [tiles, selectMapElement, selectTiles, selectMobileUnit, selectedIntent, selectedMobileUnit]
+        [selectMapElement]
     );
 
     const buildingEnter = useCallback(
@@ -210,6 +204,9 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     }, []);
 
     const buildingComponents = useMemo(() => {
+        if (!tiles) {
+            return [];
+        }
         const getBuildingSelectionState = (building) => {
             if (hoveredBuildingId == building.id) {
                 return 'highlight';
@@ -221,9 +218,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
 
             return 'none';
         };
-        if (!tiles) {
-            return [];
-        }
 
         console.time('buildingLoop');
 
@@ -293,31 +287,31 @@ export const Shell: FunctionComponent<ShellProps> = () => {
 
     const mobileUnitClick = useCallback(
         (id) => {
-            if (!player) {
-                return;
-            }
+            // if (!player) {
+            //     return;
+            // }
             if (!selectMobileUnit || !selectTiles || !selectMapElement) {
                 return;
             }
 
             // Only allow select state on player's mobile units
-            const playerMobileUnit = player.mobileUnits.find((mu) => mu.id == id);
-            if (!playerMobileUnit) {
-                return;
-            }
+            // const playerMobileUnit = player.mobileUnits.find((mu) => mu.id == id);
+            // if (!playerMobileUnit) {
+            //     return;
+            // }
             selectMobileUnit(id);
 
             setHoveredMobileUnitId(undefined);
             selectTiles(undefined);
             selectMapElement(undefined);
 
-            const unitTile = playerMobileUnit.nextLocation?.tile?.id;
-            if (!unitTile || !selectTiles) {
-                return;
-            }
-            selectTiles([unitTile]);
+            // const unitTile = playerMobileUnit.nextLocation?.tile?.id;
+            // if (!unitTile || !selectTiles) {
+            //     return;
+            // }
+            // selectTiles([unitTile]);
         },
-        [player, selectMapElement, selectMobileUnit, selectTiles]
+        [selectMapElement, selectMobileUnit, selectTiles]
     );
 
     const mobileUnitEnter = useCallback(
