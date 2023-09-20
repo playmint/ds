@@ -95,15 +95,31 @@ async function main({
                 });
             });
         }
-        // read back latest game address
-        const broadcast = JSON.parse(fs.readFileSync(`contracts/broadcast/Deploy.sol/${CHAIN_ID}/run-latest.json`).toString());
-        const tx = broadcast.transactions.find(tx => tx.transactionType === 'CREATE' && tx.contractName === 'DownstreamGame');
-        gameAddress = tx?.contractAddress;
     }
 
-    // ensure we have a game address
+    // read back contract addrs
+    const addrs = JSON.parse(fs.readFileSync(`contracts/out/latest.json`).toString());
+    gameAddress = gameAddress ? gameAddress : addrs.gameAddress;
+    const { router: routerAddress, state: stateAddress, dispatcher: dispatcherAddress, game: loadedGameAddress } = addrs;
+
     await check(`game address ${gameAddress}`, () => {
         return !!gameAddress;
+    });
+
+    await check(`game address in latest.json matches provided addr '${loadedGameAddress}' vs '${gameAddress}'`, () => {
+        return gameAddress === loadedGameAddress;
+    });
+
+    await check(`state address ${stateAddress}`, () => {
+        return !!stateAddress && stateAddress != '';
+    });
+
+    await check(`router address ${routerAddress}`, () => {
+        return !!routerAddress && routerAddress != '';
+    });
+
+    await check(`router address ${dispatcherAddress}`, () => {
+        return !!dispatcherAddress && dispatcherAddress != '';
     });
 
     // ensure we have a deployment name
@@ -135,6 +151,8 @@ async function main({
             `--set indexer.providerUrlHttp=${CHAIN_ENDPOINT_HTTP}`,
             `--set indexer.providerUrlWs=${CHAIN_ENDPOINT_WS}`,
             `--set indexer.gameAddress=${gameAddress}`,
+            `--set indexer.stateAddress=${stateAddress}`,
+            `--set indexer.routerAddress=${routerAddress}`,
             `--set frontend.gameAddress=${gameAddress}`,
             '--create-namespace',
             `-n ${namespace}`,
@@ -150,9 +168,6 @@ async function main({
         contracts = await getGameContracts(servicesURL, gameAddress);
         await sleep(3000);
     }
-    await check(`router address ${contracts.router}`, () => !!contracts.router);
-    await check(`dispatcher address ${contracts.dispatcher}`, () => !!contracts.dispatcher);
-    await check(`state address ${contracts.state}`, () => !!contracts.state);
 
     // ds apply fixtures
     if (!dryRun) {
@@ -196,9 +211,9 @@ async function main({
 | contracts
 |
 | game       : https://playmint-testnet.calderaexplorer.xyz/address/${gameAddress}
-| router     : https://playmint-testnet.calderaexplorer.xyz/address/${contracts.router}
-| dispatcher : https://playmint-testnet.calderaexplorer.xyz/address/${contracts.dispatcher}
-| state      : https://playmint-testnet.calderaexplorer.xyz/address/${contracts.state}
+| router     : https://playmint-testnet.calderaexplorer.xyz/address/${routerAddress}
+| dispatcher : https://playmint-testnet.calderaexplorer.xyz/address/${dispatcherAddress}
+| state      : https://playmint-testnet.calderaexplorer.xyz/address/${stateAddress}
 |
 +--------------------------------------------------------------
 `;

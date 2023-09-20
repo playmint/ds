@@ -38,7 +38,13 @@ contract GameDeployer is Script {
 
         address[] memory allowlist = _loadAllowList(deployerAddr);
         DownstreamGame ds = new DownstreamGame();
-        console2.log("deployed", address(ds));
+
+        string memory o = "key";
+        vm.serializeAddress(o, "game", address(ds));
+        vm.serializeAddress(o, "state", address(ds.getState()));
+        vm.serializeAddress(o, "router", address(ds.getRouter()));
+        string memory latestJson = vm.serializeAddress(o, "dispatcher", address(ds.getDispatcher()));
+        vm.writeJson(latestJson, "./out/latest.json");
 
         // enable rules
         BaseDispatcher dispatcher = BaseDispatcher(address(ds.getDispatcher()));

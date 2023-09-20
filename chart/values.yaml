@@ -14,8 +14,10 @@ indexer:
   providerUrlHttp: "http://localhost:8545"
   providerUrlWs: "ws://localhost:8545"
   watchPending: false
-  maxLogRange: 10000
+  maxLogRange: 50000
   gameAddress: ""
+  stateAddress: ""
+  routerAddress: ""
 frontend:
   gameAddress: "DOWNSTREAM" # default to latest address
 
