@@ -95,6 +95,14 @@ export function getTileHeight(t: WorldTileFragment): number {
     return height;
 }
 
+export function getUnscaledNoise(t: WorldTileFragment): number {
+    const TILE_HEIGHT_FREQ = 0.15; // bigger == noisier
+    const { q, r, s } = getCoords(t);
+    const [x, _y, z] = getTileXYZ([q, r, s]);
+    const value = tileHeightNoiseFunc(x * TILE_HEIGHT_FREQ, z * TILE_HEIGHT_FREQ);
+    return value;
+}
+
 // https://www.notion.so/playmint/Extraction-6b36dcb3f95e4ab8a57cb6b99d24bb8f#cb8cc764f9ef436e9847e631ef12b157
 export const GOO_GREEN = 0;
 export const GOO_BLUE = 1;

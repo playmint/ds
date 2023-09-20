@@ -15,7 +15,15 @@ import { ItemPluginPanel } from '@app/components/panels/item-plugin-panel';
 import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
 import { NavPanel } from '@app/components/panels/nav-panel';
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
-import { GOO_SMALL_THRESH, getGooColor, getGooSize, getNeighbours, getTileDistance, getTileHeight } from '@app/helpers/tile';
+import {
+    GOO_SMALL_THRESH,
+    getGooColor,
+    getGooSize,
+    getNeighbours,
+    getTileDistance,
+    getTileHeight,
+    getUnscaledNoise,
+} from '@app/helpers/tile';
 import { useBlock, useGameState, usePlayer } from '@app/hooks/use-game-state';
 import { useSession } from '@app/hooks/use-session';
 import { useUnityMap } from '@app/hooks/use-unity-map';
@@ -50,6 +58,8 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     } = selected || {};
     const blockNumber = useBlock();
     const { connect } = useWalletProvider();
+
+    const lerp = (x, y, a) => x * (1 - a) + y * a;
 
     // collect client dispatch analytics
     // TODO: move to analytics provider
@@ -237,7 +247,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             key={t.building.id}
                             id={t.building.id}
                             height={getTileHeight(t)}
-                            rotation={0}
+                            rotation={lerp(-20, 20, 0.5-getUnscaledNoise(t))}
                             color={'#0665F5FF'} //TODO: Get actual color values
                             selected={getBuildingSelectionState(t.building)}
                             onPointerEnter={buildingEnter}
@@ -253,7 +263,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             id={t.building.id}
                             height={getTileHeight(t)}
                             model={t.building.kind?.model?.value}
-                            rotation={0}
+                            rotation={lerp(-20, 20, 0.5-getUnscaledNoise(t))}
                             selected={getBuildingSelectionState(t.building)}
                             onPointerEnter={buildingEnter}
                             onPointerExit={buildingExit}
@@ -268,7 +278,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             id={t.building.id}
                             height={getTileHeight(t)}
                             model={t.building.kind?.model?.value}
-                            rotation={0}
+                            rotation={lerp(-20, 20, 0.5-getUnscaledNoise(t))}
                             selected={getBuildingSelectionState(t.building)}
                             onPointerEnter={buildingEnter}
                             onPointerExit={buildingExit}
