@@ -1,4 +1,4 @@
-import { getCoords } from '@app/../../core/src';
+import { WorldTileFragment, getCoords } from '@app/../../core/src';
 import { BlockerBuilding } from '@app/components/map/BlockerBuilding';
 import { ExtractorBuilding } from '@app/components/map/ExtractorBuilding';
 import { FactoryBuilding } from '@app/components/map/FactoryBuilding';
@@ -15,7 +15,7 @@ import { ItemPluginPanel } from '@app/components/panels/item-plugin-panel';
 import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
 import { NavPanel } from '@app/components/panels/nav-panel';
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
-import { GOO_SMALL_THRESH, getGooColor, getGooSize, getTileDistance, getTileHeight } from '@app/helpers/tile';
+import { GOO_SMALL_THRESH, getGooColor, getGooSize, getNeighbours, getTileDistance, getTileHeight } from '@app/helpers/tile';
 import { useBlock, useGameState, usePlayer } from '@app/hooks/use-game-state';
 import { useSession } from '@app/hooks/use-session';
 import { useUnityMap } from '@app/hooks/use-unity-map';
@@ -29,6 +29,7 @@ import { Fragment, FunctionComponent, useCallback, useEffect, useMemo, useState 
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
+import { TileIcon } from '@app/components/map/TileIcon';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -430,29 +431,58 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                                 />
                             );
                         })}
-                    {selected &&
+                    {selected && tiles && selectedMobileUnit && 
                         (selected.tiles || []).map((t) => {
                             const coords = getCoords(t);
-                            return (
-                                <>
-                                    <TileHighlight
-                                        key={`selected-${t.id}`}
-                                        id={`selected-${t.id}`}
-                                        height={getTileHeight(t)}
-                                        color="white"
-                                        style="gradient_outline"
-                                        animation="none"
-                                        {...coords}
-                                    />
-                                    <Label
-                                        key={`randomLabel`}
-                                        id={`randomLabel`}
-                                        height={getTileHeight(t) + 0.6}
-                                        text="It's-a-me, Labelio!"
-                                        {...coords}
-                                    />
-                                </>
-                            );
+                            const selectedMobileUnitTile: WorldTileFragment | undefined = selectedMobileUnit?.nextLocation?.tile
+                            ? tiles.find((t) => t.id === selectedMobileUnit.nextLocation?.tile?.id)
+                            : undefined;
+                            if(selectedIntent == 'construct' && selectedMobileUnitTile && getNeighbours(tiles, selectedMobileUnitTile).includes(t) )
+                            {
+                                return (
+                                    <>
+                                        <TileHighlight
+                                            key={`selected-${t.id}`}
+                                            id={`selected-${t.id}`}
+                                            height={getTileHeight(t)}
+                                            color="white"
+                                            style="gradient_outline"
+                                            animation="none"
+                                            {...coords}
+                                        />
+                                        <TileIcon
+                                            key={`tileIcon-${t.id}`}
+                                            id={`tileIcon-${t.id}`}
+                                            height={getTileHeight(t)}
+                                            icon={'https://assets.downstream.game/icons/31-122.svg'}
+                                            {...coords}
+                                        />
+                                    </>
+                                );
+                            }
+                            else
+                            {
+                                return (
+                                    <>
+                                        <TileHighlight
+                                            key={`selected-${t.id}`}
+                                            id={`selected-${t.id}`}
+                                            height={getTileHeight(t)}
+                                            color="white"
+                                            style="gradient_outline"
+                                            animation="none"
+                                            {...coords}
+                                        />
+                                        <Label
+                                            key={`randomLabel`}
+                                            id={`randomLabel`}
+                                            height={getTileHeight(t) + 0.6}
+                                            text="It's-a-me, Labelio!"
+                                            {...coords}
+                                        />
+                                    </>
+                                );
+                            }
                         })}
                 </>
             )}
