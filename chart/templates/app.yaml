@@ -49,6 +49,10 @@ spec:
               value: {{ $.Values.indexer.providerUrlWs | quote }}
             - name: INDEXER_GAME_ADDRESS
               value: {{ $.Values.indexer.gameAddress | quote }}
+            - name: INDEXER_STATE_ADDRESS
+              value: {{ $.Values.indexer.stateAddress | quote }}
+            - name: INDEXER_ROUTER_ADDRESS
+              value: {{ $.Values.indexer.routerAddress | quote }}
             - name: INDEXER_MAX_LOG_RANGE
               value: {{ $.Values.indexer.maxLogRange | toString | quote }}
           command: ["/bin/ash"]
