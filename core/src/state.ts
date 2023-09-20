@@ -1,5 +1,5 @@
-import { debounce, filter, map, merge, pipe, scan, Source } from 'wonka';
-import { ConnectedPlayer, Selection, GameState, World, Selector } from './types';
+import { filter, map, merge, pipe, scan, Source } from 'wonka';
+import { ConnectedPlayer, GameState, Selection, Selector, World } from './types';
 
 /**
  * makeState is a helper to merge player+world+selection together into the State object.
