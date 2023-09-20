@@ -1,4 +1,4 @@
-import { WorldTileFragment, getCoords } from '@app/../../core/src';
+import { getCoords } from '@app/../../core/src';
 import { BlockerBuilding } from '@app/components/map/BlockerBuilding';
 import { ExtractorBuilding } from '@app/components/map/ExtractorBuilding';
 import { FactoryBuilding } from '@app/components/map/FactoryBuilding';
@@ -15,15 +15,7 @@ import { ItemPluginPanel } from '@app/components/panels/item-plugin-panel';
 import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
 import { NavPanel } from '@app/components/panels/nav-panel';
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
-import {
-    GOO_SMALL_THRESH,
-    getGooColor,
-    getGooSize,
-    getNeighbours,
-    getTileDistance,
-    getTileHeight,
-    getUnscaledNoise,
-} from '@app/helpers/tile';
+import { GOO_SMALL_THRESH, getGooColor, getGooSize, getTileHeight, getUnscaledNoise } from '@app/helpers/tile';
 import { useBlock, useGameState, usePlayer } from '@app/hooks/use-game-state';
 import { useSession } from '@app/hooks/use-session';
 import { useUnityMap } from '@app/hooks/use-unity-map';
@@ -37,7 +29,6 @@ import { Fragment, FunctionComponent, useCallback, useEffect, useMemo, useState 
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
-import { TileIcon } from '@app/components/map/TileIcon';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -247,7 +238,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             key={t.building.id}
                             id={t.building.id}
                             height={getTileHeight(t)}
-                            rotation={lerp(-20, 20, 0.5-getUnscaledNoise(t))}
+                            rotation={lerp(-20, 20, 0.5 - getUnscaledNoise(t))}
                             color={'#0665F5FF'} //TODO: Get actual color values
                             selected={getBuildingSelectionState(t.building)}
                             onPointerEnter={buildingEnter}
@@ -263,7 +254,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             id={t.building.id}
                             height={getTileHeight(t)}
                             model={t.building.kind?.model?.value}
-                            rotation={lerp(-20, 20, 0.5-getUnscaledNoise(t))}
+                            rotation={lerp(-20, 20, 0.5 - getUnscaledNoise(t))}
                             selected={getBuildingSelectionState(t.building)}
                             onPointerEnter={buildingEnter}
                             onPointerExit={buildingExit}
@@ -278,7 +269,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             id={t.building.id}
                             height={getTileHeight(t)}
                             model={t.building.kind?.model?.value}
-                            rotation={lerp(-20, 20, 0.5-getUnscaledNoise(t))}
+                            rotation={lerp(-20, 20, 0.5 - getUnscaledNoise(t))}
                             selected={getBuildingSelectionState(t.building)}
                             onPointerEnter={buildingEnter}
                             onPointerExit={buildingExit}
@@ -385,31 +376,31 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             .map(({ t, u, visible, isPlayer }) => {
                 const coords = getCoords(t);
                 if (t.mobileUnits.length > 1) {
-                    return(
+                    return (
                         <>
-                        <MobileUnit
-                            key={u.id}
-                            id={u.id}
-                            height={getTileHeight(t)}
-                            progress={1}
-                            selected={getMobileUnitSelectionState(u)}
-                            shared={!!t.building}
-                            visible={visible}
-                            onPointerClick={mobileUnitClick}
-                            onPointerEnter={mobileUnitEnter}
+                            <MobileUnit
+                                key={u.id}
+                                id={u.id}
+                                height={getTileHeight(t)}
+                                progress={1}
+                                selected={getMobileUnitSelectionState(u)}
+                                shared={!!t.building}
+                                visible={visible}
+                                onPointerClick={mobileUnitClick}
+                                onPointerEnter={mobileUnitEnter}
                                 onPointerExit={mobileUnitExit}
-                            {...coords}
-                        />
-                        {isPlayer && (
-                            <Label
-                                    text={t.mobileUnits.length.toString()} 
+                                {...coords}
+                            />
+                            {isPlayer && (
+                                <Label
+                                    text={t.mobileUnits.length.toString()}
                                     key={`${u.id}-icon`}
                                     id={`${u.id}-icon`}
                                     height={getTileHeight(t) + 0.7}
                                     {...coords}
-                            />
-                        )}
-                    </>
+                                />
+                            )}
+                        </>
                     );
                 }
 
@@ -470,47 +461,20 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                                 />
                             );
                         })}
-                    {selected && tiles && selectedMobileUnit && 
-                        (selected.tiles || []).map((t) => {
-                            const coords = getCoords(t);
-                            const selectedMobileUnitTile: WorldTileFragment | undefined = selectedMobileUnit?.nextLocation?.tile
-                            ? tiles.find((t) => t.id === selectedMobileUnit.nextLocation?.tile?.id)
-                            : undefined;
-                            if(selectedIntent == 'construct' && selectedMobileUnitTile && getNeighbours(tiles, selectedMobileUnitTile).includes(t) )
-                            {
-                                return (
-                                    <>
-                                        <TileHighlight
-                                            key={`selected-${t.id}`}
-                                            id={`selected-${t.id}`}
-                                            height={getTileHeight(t)}
-                                            color="white"
-                                            style="gradient_outline"
-                                            animation="none"
-                                            {...coords}
-                                        />
-                                        <TileIcon
-                                            key={`tileIcon-${t.id}`}
-                                            id={`tileIcon-${t.id}`}
-                                            height={getTileHeight(t)}
-                                            icon={'https://assets.downstream.game/icons/31-122.svg'}
-                                            {...coords}
-                                        />
-                                    </>
-                                );
-                            }
-                            return (
-                                <TileHighlight
-                                    key={`selected-${t.id}`}
-                                    id={`selected-${t.id}`}
-                                    height={getTileHeight(t)}
-                                    color="white"
-                                    style="gradient_outline"
-                                    animation="none"
-                                    {...coords}
-                                />
-                            );
-                        })}
+                    {(selected?.tiles || []).map((t) => {
+                        const coords = getCoords(t);
+                        return (
+                            <TileHighlight
+                                key={`selected-${t.id}`}
+                                id={`selected-${t.id}`}
+                                height={getTileHeight(t)}
+                                color="white"
+                                style="gradient_outline"
+                                animation="none"
+                                {...coords}
+                            />
+                        );
+                    })}
                 </>
             )}
             <div className="nav-container">
