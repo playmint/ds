@@ -374,6 +374,35 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             })
             .map(({ t, u, visible, isPlayer }) => {
                 const coords = getCoords(t);
+                if (t.mobileUnits.length > 1) {
+                    return(
+                        <>
+                        <MobileUnit
+                            key={u.id}
+                            id={u.id}
+                            height={getTileHeight(t)}
+                            progress={1}
+                            selected={getMobileUnitSelectionState(u)}
+                            shared={!!t.building}
+                            visible={visible}
+                            onPointerClick={mobileUnitClick}
+                            onPointerEnter={mobileUnitEnter}
+                                onPointerExit={mobileUnitExit}
+                            {...coords}
+                        />
+                        {isPlayer && (
+                            <Label
+                                    text={t.mobileUnits.length.toString()} 
+                                    key={`${u.id}-icon`}
+                                    id={`${u.id}-icon`}
+                                    height={getTileHeight(t) + 0.7}
+                                    {...coords}
+                            />
+                        )}
+                    </>
+                    );
+                }
+
                 return (
                     <>
                         <MobileUnit
@@ -460,29 +489,17 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                                     </>
                                 );
                             }
-                            else
-                            {
-                                return (
-                                    <>
-                                        <TileHighlight
-                                            key={`selected-${t.id}`}
-                                            id={`selected-${t.id}`}
-                                            height={getTileHeight(t)}
-                                            color="white"
-                                            style="gradient_outline"
-                                            animation="none"
-                                            {...coords}
-                                        />
-                                        <Label
-                                            key={`randomLabel`}
-                                            id={`randomLabel`}
-                                            height={getTileHeight(t) + 0.6}
-                                            text="It's-a-me, Labelio!"
-                                            {...coords}
-                                        />
-                                    </>
-                                );
-                            }
+                            return (
+                                <TileHighlight
+                                    key={`selected-${t.id}`}
+                                    id={`selected-${t.id}`}
+                                    height={getTileHeight(t)}
+                                    color="white"
+                                    style="gradient_outline"
+                                    animation="none"
+                                    {...coords}
+                                />
+                            );
                         })}
                 </>
             )}
