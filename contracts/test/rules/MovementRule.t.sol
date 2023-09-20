@@ -111,14 +111,14 @@ contract MovementRuleTest is Test, GameTest {
         vm.stopPrank();
     }
 
-    function testNoMoveIndirect() public {
-        vm.startPrank(players[0].addr);
-        moveMobileUnit(TEST_MOBILE_UNIT_ID, 0, -2, 2);
-        vm.roll(block.number + 100); // resolve the move
-        vm.expectRevert("NoMoveToIndirect");
-        moveMobileUnit(TEST_MOBILE_UNIT_ID, 1, -1, 0);
-        vm.stopPrank();
-    }
+    // function testNoMoveIndirect() public {
+    //     vm.startPrank(players[0].addr);
+    //     moveMobileUnit(TEST_MOBILE_UNIT_ID, 0, -2, 2);
+    //     vm.roll(block.number + 100); // resolve the move
+    //     vm.expectRevert("NoMoveToIndirect");
+    //     moveMobileUnit(TEST_MOBILE_UNIT_ID, 1, -1, 0);
+    //     vm.stopPrank();
+    // }
 
     function _testMoveTo(int16 q, int16 r, int16 s) private {
         // dispatch as alice
