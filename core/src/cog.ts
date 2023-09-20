@@ -1,7 +1,5 @@
 import {
-    cacheExchange,
     createClient as createHTTPClient,
-    dedupExchange,
     fetchExchange,
     OperationResult,
     subscriptionExchange,
@@ -102,8 +100,8 @@ export function configureClient({
         fetch: httpFetchImpl ? httpFetchImpl : fetch,
         exchanges: [
             // devtoolsExchange, // TODO: allow enabling this from config
-            dedupExchange,
-            cacheExchange,
+            // dedupExchange,
+            // cacheExchange,
             // cacheExchange({
             //     schema: cogSchema,
             //     // updates: {
@@ -242,7 +240,7 @@ export function configureClient({
                   ]),
             switchMap((txid) =>
                 pipe(
-                    fromPromise(gql.query(doc, vars, { requestPolicy: 'cache-and-network' }).toPromise()),
+                    fromPromise(gql.query(doc, vars, { requestPolicy: 'network-only' }).toPromise()),
                     map((res) => {
                         if (res.error) {
                             console.warn('cog query error:', res.error);
@@ -332,6 +330,6 @@ export function actionArgFromUnknown(wanted: ethers.ParamType, given: unknown): 
     return given;
 }
 
-function sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
+// function sleep(ms: number): Promise<void> {
+//     return new Promise((resolve) => setTimeout(resolve, ms));
+// }
