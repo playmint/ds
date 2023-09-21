@@ -38,6 +38,7 @@ import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
 import { Bag } from '@app/components/map/Bag';
 import { Bag as BagComp } from '@app/plugins/inventory/bag';
+import { GroundPlane } from '@app/components/map/GroundPlane';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -448,6 +449,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         <StyledShell>
             {mapReady && (
                 <>
+                    <GroundPlane height={-0.4} />
                     {tileComponents}
                     {tileGooComponents}
                     {buildingComponents}
