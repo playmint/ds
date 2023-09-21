@@ -259,7 +259,6 @@ const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player }) => {
                     <MobileUnitList mobileUnits={visibleUnits} player={player} tile={selectedTile} />
                 </Fragment>
             )}
-            {selectedTile && <TileInventory tile={selectedTile} />}
             <span className="label" style={{ width: '100%' }}>
                 <strong>COORDINATES:</strong> {`${q}, ${r}, ${s}`}
             </span>

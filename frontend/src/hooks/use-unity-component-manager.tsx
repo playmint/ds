@@ -33,9 +33,9 @@ export const useUnityComponentEvent = (eventName: string, handler?: () => void) 
 };
 
 export interface ComponentEventHandlers {
-    onPointerEnter?: (id: string) => void;
-    onPointerExit?: (id: string) => void;
-    onPointerClick?: (id: string) => void;
+    onPointerEnter?: (id: string, type: string) => void;
+    onPointerExit?: (id: string, type: string) => void;
+    onPointerClick?: (id: string, type: string) => void;
 }
 
 export interface ComponentConfig<T> extends ComponentEventHandlers {
@@ -85,16 +85,16 @@ export const useUnityComponentManager = <T,>(cfg: ComponentConfig<T>) => {
 
     useUnityComponentEvent(
         `${type}_pointer_enter_${ref}`,
-        useMemo(() => (onPointerEnter ? () => onPointerEnter(ref) : undefined), [ref, onPointerEnter])
+        useMemo(() => (onPointerEnter ? () => onPointerEnter(ref, type) : undefined), [onPointerEnter, ref, type])
     );
 
     useUnityComponentEvent(
         `${type}_pointer_exit_${ref}`,
-        useMemo(() => (onPointerExit ? () => onPointerExit(ref) : undefined), [ref, onPointerExit])
+        useMemo(() => (onPointerExit ? () => onPointerExit(ref, type) : undefined), [onPointerExit, ref, type])
     );
 
     useUnityComponentEvent(
         `${type}_pointer_click_${ref}`,
-        useMemo(() => (onPointerClick ? () => onPointerClick(ref) : undefined), [ref, onPointerClick])
+        useMemo(() => (onPointerClick ? () => onPointerClick(ref, type) : undefined), [onPointerClick, ref, type])
     );
 };
