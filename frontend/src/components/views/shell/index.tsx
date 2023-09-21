@@ -1,4 +1,4 @@
-import { getCoords } from '@app/../../core/src';
+import { BagFragment, SelectedTileFragment, WorldTileFragment, getCoords } from '@app/../../core/src';
 import { BlockerBuilding } from '@app/components/map/BlockerBuilding';
 import { ExtractorBuilding } from '@app/components/map/ExtractorBuilding';
 import { FactoryBuilding } from '@app/components/map/FactoryBuilding';
@@ -15,7 +15,14 @@ import { ItemPluginPanel } from '@app/components/panels/item-plugin-panel';
 import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
 import { NavPanel } from '@app/components/panels/nav-panel';
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
-import { GOO_SMALL_THRESH, getGooColor, getGooSize, getTileHeight, getUnscaledNoise } from '@app/helpers/tile';
+import {
+    GOO_SMALL_THRESH,
+    getGooColor,
+    getGooSize,
+    getTileDistance,
+    getTileHeight,
+    getUnscaledNoise,
+} from '@app/helpers/tile';
 import { useBlock, useGameState, usePlayer } from '@app/hooks/use-game-state';
 import { useSession } from '@app/hooks/use-session';
 import { useUnityMap } from '@app/hooks/use-unity-map';
@@ -29,6 +36,8 @@ import { Fragment, FunctionComponent, useCallback, useEffect, useMemo, useState 
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
+import { Bag } from '@app/components/map/Bag';
+import { Bag as BagComp } from '@app/plugins/inventory/bag';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -38,17 +47,19 @@ const StyledShell = styled('div')`
 
 export const Shell: FunctionComponent<ShellProps> = () => {
     const { ready: mapReady } = useUnityMap();
-    const { world, selected, selectTiles, selectMobileUnit, selectMapElement } = useGameState();
+    const { world, selected, selectTiles, selectMobileUnit } = useGameState();
     const { loadingSession } = useSession();
     const player = usePlayer();
-    const {
-        mobileUnit: selectedMobileUnit,
-        tiles: selectedTiles,
-        mapElement: selectedMapElementId,
-        intent: selectedIntent,
-    } = selected || {};
+    const { mobileUnit: selectedMobileUnit, tiles: selectedTiles, intent: selectedIntent } = selected || {};
     const blockNumber = useBlock();
     const { connect } = useWalletProvider();
+    const [selectedMapElement, setSelectedMapElement] = useState<{ id: string; type: string }>();
+    const [selectedBag, setSelectedBag] = useState<{
+        equipIndex: number;
+        bag: BagFragment;
+        parentTile: WorldTileFragment;
+    }>();
+    const tiles = world?.tiles;
 
     const lerp = (x, y, a) => x * (1 - a) + y * a;
 
@@ -65,9 +76,67 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         return unsubscribe;
     }, [player]);
 
-    // -- TILE
+    const [hoveredMapElementId, setHoveredMapElementId] = useState<string | undefined>();
 
-    const tiles = world?.tiles;
+    const mapElementClick = useCallback(
+        (id: string, type: string) => {
+            if (!setSelectedMapElement) {
+                return;
+            }
+
+            setSelectedMapElement({ id, type });
+        },
+        [setSelectedMapElement]
+    );
+
+    const mapElementEnter = useCallback((id) => {
+        setHoveredMapElementId(id);
+    }, []);
+
+    const mapElementExit = useCallback((id) => {
+        setHoveredMapElementId((prev) => (prev == id ? undefined : prev));
+    }, []);
+
+    const getMapElementSelectionState = useCallback(
+        (mapElement) => {
+            if (selectedMapElement?.id == mapElement.id) {
+                return 'outline';
+            }
+
+            if (hoveredMapElementId == mapElement.id) {
+                return 'highlight';
+            }
+
+            return 'none';
+        },
+        [selectedMapElement, hoveredMapElementId]
+    );
+
+    // Handle map element selection update. Purposely not put in the click handler as updates to `tiles` invalidate the memo
+    useEffect(() => {
+        if (!selectedMapElement) {
+            return;
+        }
+        if (!tiles) {
+            return;
+        }
+
+        switch (selectedMapElement.type) {
+            case 'BagData':
+                const t = tiles.find((t) => t.bags?.some((equipSlot) => equipSlot.bag.id == selectedMapElement.id));
+                const equipSlot = t?.bags.find((equipSlot) => equipSlot.bag.id == selectedMapElement.id);
+
+                if (t && equipSlot) {
+                    console.log(`found bag: `, equipSlot.bag);
+                    setSelectedBag({ equipIndex: equipSlot.key, bag: equipSlot.bag, parentTile: t });
+                } else {
+                    setSelectedBag(undefined);
+                }
+                break;
+        }
+    }, [selectedMapElement, tiles]);
+
+    // -- TILE
 
     const [hovered, setHovered] = useState<string | undefined>();
     const hoveredTile = hovered ? world?.tiles?.find((t) => t.id === hovered) : undefined;
@@ -86,18 +155,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 return;
             }
             selectTiles([id]);
-
-            // TODO: find another way to do this as it causes jank
-            // const t = tiles?.find((t) => t.id == id);
-            // selectMapElement(t?.building?.id);
-            // Deselect unit if we aren't in move intent and tile isn't ajacent
-            // if (selectedIntent != 'move' && t && selectedMobileUnit?.nextLocation) {
-            //     const dist = getTileDistance(t, selectedMobileUnit.nextLocation.tile);
-            //     if (dist > 1) {
-            //         selectMobileUnit(undefined);
-            //     }
-            //     return;
-            // }
         },
         [selectTiles]
     );
@@ -110,21 +167,40 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         const ts = tiles.map((t) => {
             const coords = getCoords(t);
             return (
-                <Tile
-                    key={t.id}
-                    id={t.id}
-                    height={getTileHeight(t)}
-                    color="#7288A6"
-                    onPointerEnter={enter}
-                    onPointerExit={exit}
-                    onPointerClick={click}
-                    {...coords}
-                />
+                <>
+                    <Tile
+                        key={t.id}
+                        id={t.id}
+                        height={getTileHeight(t)}
+                        color="#7288A6"
+                        onPointerEnter={enter}
+                        onPointerExit={exit}
+                        onPointerClick={click}
+                        {...coords}
+                    />
+
+                    {t.bagCount > 0 &&
+                        t.bags.map((slot) => {
+                            return (
+                                <Bag
+                                    id={slot.bag.id}
+                                    key={slot.bag.id}
+                                    height={getTileHeight(t)}
+                                    corner={1}
+                                    selected={getMapElementSelectionState(slot.bag)}
+                                    onPointerEnter={mapElementEnter}
+                                    onPointerExit={mapElementExit}
+                                    onPointerClick={mapElementClick}
+                                    {...coords}
+                                />
+                            );
+                        })}
+                </>
             );
         });
         console.timeEnd('tileloop');
         return ts;
-    }, [tiles, click, enter, exit]);
+    }, [tiles, enter, exit, click, getMapElementSelectionState, mapElementEnter, mapElementExit, mapElementClick]);
 
     // -- GOO
 
@@ -160,66 +236,10 @@ export const Shell: FunctionComponent<ShellProps> = () => {
 
     // -- BUILDINGS
 
-    const [hoveredBuildingId, setHoveredBuildingId] = useState<string | undefined>();
-
-    const buildingClick = useCallback(
-        (id) => {
-            if (!selectMapElement) {
-                return;
-            }
-
-            selectMapElement(id);
-            // setHoveredBuildingId(undefined);
-
-            // select tile that building is on
-            // const t = tiles.find((t) => t.building?.id == id);
-            // if (t) {
-            //     selectTiles([t.id]);
-            // }
-
-            // Deselect unit if we aren't in move intent and tile isn't ajacent
-            // if (selectedIntent != 'move' && t && selectedMobileUnit?.nextLocation) {
-            //     const dist = getTileDistance(t, selectedMobileUnit.nextLocation.tile);
-            //     if (dist > 1) {
-            //         selectMobileUnit(undefined);
-            //     }
-            //     return;
-            // }
-        },
-        [selectMapElement]
-    );
-
-    const buildingEnter = useCallback(
-        (id) => {
-            // No hover state over selected buildings
-            if (selectedMapElementId == id) {
-                return;
-            }
-
-            setHoveredBuildingId(id);
-        },
-        [selectedMapElementId]
-    );
-
-    const buildingExit = useCallback((id) => {
-        setHoveredBuildingId((prev) => (prev == id ? undefined : prev));
-    }, []);
-
     const buildingComponents = useMemo(() => {
         if (!tiles) {
             return [];
         }
-        const getBuildingSelectionState = (building) => {
-            if (hoveredBuildingId == building.id) {
-                return 'highlight';
-            }
-
-            if (selectedMapElementId == building.id) {
-                return 'outline';
-            }
-
-            return 'none';
-        };
 
         console.time('buildingLoop');
 
@@ -240,10 +260,10 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             height={getTileHeight(t)}
                             rotation={lerp(-20, 20, 0.5 - getUnscaledNoise(t))}
                             color={'#0665F5FF'} //TODO: Get actual color values
-                            selected={getBuildingSelectionState(t.building)}
-                            onPointerEnter={buildingEnter}
-                            onPointerExit={buildingExit}
-                            onPointerClick={buildingClick}
+                            selected={getMapElementSelectionState(t.building)}
+                            onPointerEnter={mapElementEnter}
+                            onPointerExit={mapElementExit}
+                            onPointerClick={mapElementClick}
                             {...coords}
                         />
                     );
@@ -255,10 +275,10 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             height={getTileHeight(t)}
                             model={t.building.kind?.model?.value}
                             rotation={lerp(-20, 20, 0.5 - getUnscaledNoise(t))}
-                            selected={getBuildingSelectionState(t.building)}
-                            onPointerEnter={buildingEnter}
-                            onPointerExit={buildingExit}
-                            onPointerClick={buildingClick}
+                            selected={getMapElementSelectionState(t.building)}
+                            onPointerEnter={mapElementEnter}
+                            onPointerExit={mapElementExit}
+                            onPointerClick={mapElementClick}
                             {...coords}
                         />
                     );
@@ -270,10 +290,10 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             height={getTileHeight(t)}
                             model={t.building.kind?.model?.value}
                             rotation={lerp(-20, 20, 0.5 - getUnscaledNoise(t))}
-                            selected={getBuildingSelectionState(t.building)}
-                            onPointerEnter={buildingEnter}
-                            onPointerExit={buildingExit}
-                            onPointerClick={buildingClick}
+                            selected={getMapElementSelectionState(t.building)}
+                            onPointerEnter={mapElementEnter}
+                            onPointerExit={mapElementExit}
+                            onPointerClick={mapElementClick}
                             {...coords}
                         />
                     );
@@ -281,7 +301,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             });
         console.timeEnd('buildingLoop');
         return bs;
-    }, [tiles, hoveredBuildingId, selectedMapElementId, buildingEnter, buildingExit, buildingClick]);
+    }, [tiles, getMapElementSelectionState, mapElementEnter, mapElementExit, mapElementClick]);
 
     // -- MOBILE UNIT
 
@@ -289,31 +309,17 @@ export const Shell: FunctionComponent<ShellProps> = () => {
 
     const mobileUnitClick = useCallback(
         (id) => {
-            // if (!player) {
-            //     return;
-            // }
-            if (!selectMobileUnit || !selectTiles || !selectMapElement) {
+            if (!selectMobileUnit || !selectTiles || !setSelectedMapElement) {
                 return;
             }
 
-            // Only allow select state on player's mobile units
-            // const playerMobileUnit = player.mobileUnits.find((mu) => mu.id == id);
-            // if (!playerMobileUnit) {
-            //     return;
-            // }
             selectMobileUnit(id);
 
             setHoveredMobileUnitId(undefined);
             selectTiles(undefined);
-            selectMapElement(undefined);
-
-            // const unitTile = playerMobileUnit.nextLocation?.tile?.id;
-            // if (!unitTile || !selectTiles) {
-            //     return;
-            // }
-            // selectTiles([unitTile]);
+            setSelectedMapElement(undefined);
         },
-        [selectMapElement, selectMobileUnit, selectTiles]
+        [setSelectedMapElement, selectMobileUnit, selectTiles]
     );
 
     const mobileUnitEnter = useCallback(
@@ -528,6 +534,27 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                                 selectedTiles={selectedTiles}
                                 player={player}
                                 selectedMobileUnit={selectedMobileUnit}
+                            />
+                        </div>
+                    )}
+                    {selectedBag && (
+                        <div className="tile-actions">
+                            <BagComp
+                                className="action"
+                                key={selectedBag.equipIndex}
+                                bag={selectedBag.bag}
+                                equipIndex={selectedBag.equipIndex}
+                                ownerId={selectedBag.parentTile.id}
+                                isInteractable={
+                                    !!(
+                                        selectedMobileUnit &&
+                                        selectedMobileUnit.nextLocation &&
+                                        getTileDistance(selectedMobileUnit.nextLocation.tile, selectedBag.parentTile) <
+                                            2
+                                    )
+                                }
+                                showIcon={true}
+                                as="li"
                             />
                         </div>
                     )}
