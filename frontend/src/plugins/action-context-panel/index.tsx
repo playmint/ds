@@ -820,7 +820,7 @@ const Combat: FunctionComponent<CombatProps> = ({
         [selectIntent, selectTiles]
     );
 
-    const { path, attackers, defenders, defenceTile, valid } = useMemo(() => {
+    const { path, attackers, defenders, defenceTile, valid, reason } = useMemo(() => {
         if (!tiles) {
             return { path: [], valid: false, reason: 'no tiles' };
         }
@@ -859,16 +859,25 @@ const Combat: FunctionComponent<CombatProps> = ({
         if (!defenceTile.building) {
             return { path: [], valid: false, reason: 'no target building found' };
         }
-        const destTile = path.slice(-1).find(() => true);
+        const destTile =
+            getTileDistance(fromTile, defenceTile) <= 1 && !activeSessionAttackTile
+                ? fromTile
+                : path.slice(-1).find(() => true);
         if (!destTile) {
             return { path: [], valid: false, reason: 'no route to destination' };
         }
         const destTileHasDifferentActiveSession =
             activeSession && destTile.sessions.find((s) => !s.isFinalised)?.id !== activeSession.id;
         const isImposible = path.length === 1 && getTileDistance(fromTile, destTile) > 1;
+        if (isImposible) {
+            return { path: [], valid: false, reason: 'no route to destination' };
+        }
+        if (destTileHasDifferentActiveSession) {
+            return { path: [], valid: false, reason: 'another combat already active, move to join the fight' };
+        }
         return {
-            path: path.length > 0 ? [fromTile, ...path] : [],
-            valid: path.length > 0 && !isImposible && destTile && !destTileHasDifferentActiveSession,
+            path: [fromTile, ...path],
+            valid: true,
             attackers: destTile.mobileUnits
                 .map((s) => s.id)
                 .concat(destTile.building ? [destTile.building.id] : [])
@@ -883,18 +892,18 @@ const Combat: FunctionComponent<CombatProps> = ({
     const attackTile = path.slice(-1).find(() => true);
 
     const canAttack = mobileUnit && player && valid && attackTile;
+    if (!valid) {
+        console.log('not valid cos', reason);
+    }
 
     const handleJoinCombat = useCallback(() => {
         if (!mobileUnit) {
-            console.error('nounit');
             return;
         }
         if (path.length == 0) {
-            console.error('nopath');
             return;
         }
         if (!attackers || attackers.length === 0) {
-            console.error('noattackers');
             return;
         }
         const hasActiveSession = defenceTile.sessions.some((s) => !s.isFinalised);
@@ -919,6 +928,9 @@ const Combat: FunctionComponent<CombatProps> = ({
 
     const highlights: WorldTileFragment[] = [defenceTile, attackTile].filter((t): t is WorldTileFragment => !!t);
     const joining = attackTile && attackTile.sessions.some((s) => !s.isFinalised);
+    const help = valid
+        ? `Attack ${defenceTile?.building?.kind?.name?.value}`
+        : `Select a tile with a building to attack. ${reason}`;
 
     return (
         <StyledActionContextPanel>
@@ -958,7 +970,7 @@ const Combat: FunctionComponent<CombatProps> = ({
                 ))}
                 <div className="guide">
                     <h3>Combat</h3>
-                    <span className="sub-title">Select a tile to attack</span>
+                    <span className="sub-title">{help}</span>
                 </div>
                 <form>
                     <button className="action-button" type="button" onClick={handleJoinCombat} disabled={!canAttack}>
