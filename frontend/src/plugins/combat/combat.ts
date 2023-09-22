@@ -45,6 +45,7 @@ interface CombatState {
     defenderCount: number;
     winState: CombatWinState;
     tickCount: number;
+    lastActionBlockNum: number;
 }
 
 export interface EntityState {
@@ -85,6 +86,7 @@ export class Combat {
             defenderCount: 0,
             winState: CombatWinState.NONE,
             tickCount: 0,
+            lastActionBlockNum: 0,
         };
 
         for (let x = 0; x < sortedListIndexes.length; x++) {
@@ -94,13 +96,14 @@ export class Combat {
                 return combatState;
             }
 
-            let actionEndBlock =
+            const actionEndBlock =
                 x + 1 < sortedListIndexes.length
                     ? sessionUpdates[sortedListIndexes[x + 1] & 0xffff][sortedListIndexes[x + 1] >> 16].blockNum
                     : endBlockNum;
 
             if (actionEndBlock > endBlockNum) {
-                actionEndBlock = endBlockNum;
+                continue; // ignore future actions until they occur
+                // actionEndBlock = endBlockNum;
             }
 
             if (combatAction.kind === CombatActionKind.JOIN) {
@@ -143,6 +146,7 @@ export class Combat {
             }
 
             const numTicks = Math.floor((actionEndBlock - combatAction.blockNum) / BLOCKS_PER_TICK);
+            combatState.lastActionBlockNum = Math.max(combatState.lastActionBlockNum, combatAction.blockNum);
             for (let t = 0; t < numTicks; t++) {
                 // Attackers attack
                 this._combatLogic(combatState, CombatSideKey.ATTACK, combatAction.blockNum);

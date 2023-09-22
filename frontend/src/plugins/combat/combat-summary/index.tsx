@@ -74,9 +74,9 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
                     <CombatModal
                         player={player}
                         world={world}
-                        isNewSession={false}
                         closeModal={closeModal}
                         blockNumber={blockNumber}
+                        session={latestSession}
                     />
                 </Dialog>
             )}
