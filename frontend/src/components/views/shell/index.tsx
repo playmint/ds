@@ -1,7 +1,9 @@
-import { BagFragment, SelectedTileFragment, WorldTileFragment, getCoords } from '@app/../../core/src';
+import { BagFragment, WorldTileFragment, getCoords } from '@app/../../core/src';
+import { Bag } from '@app/components/map/Bag';
 import { BlockerBuilding } from '@app/components/map/BlockerBuilding';
 import { ExtractorBuilding } from '@app/components/map/ExtractorBuilding';
 import { FactoryBuilding } from '@app/components/map/FactoryBuilding';
+import { GroundPlane } from '@app/components/map/GroundPlane';
 import { Icon } from '@app/components/map/Icon';
 import { Label } from '@app/components/map/Label';
 import { MobileUnit } from '@app/components/map/MobileUnit';
@@ -31,14 +33,12 @@ import { ActionBar } from '@app/plugins/action-bar';
 import { ActionContextPanel, TileInfoPanel } from '@app/plugins/action-context-panel';
 import { CombatRewards } from '@app/plugins/combat/combat-rewards';
 import { CombatSummary } from '@app/plugins/combat/combat-summary';
+import { Bag as BagComp } from '@app/plugins/inventory/bag';
 import { ComponentProps } from '@app/types/component-props';
 import { Fragment, FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
-import { Bag } from '@app/components/map/Bag';
-import { Bag as BagComp } from '@app/plugins/inventory/bag';
-import { GroundPlane } from '@app/components/map/GroundPlane';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -51,7 +51,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const { world, selected, selectTiles, selectMobileUnit } = useGameState();
     const { loadingSession } = useSession();
     const player = usePlayer();
-    const { mobileUnit: selectedMobileUnit, tiles: selectedTiles, intent: selectedIntent } = selected || {};
+    const { mobileUnit: selectedMobileUnit, tiles: selectedTiles } = selected || {};
     const blockNumber = useBlock();
     const { connect } = useWalletProvider();
     const [selectedMapElement, setSelectedMapElement] = useState<{ id: string; type: string }>();
@@ -202,6 +202,25 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         console.timeEnd('tileloop');
         return ts;
     }, [tiles, enter, exit, click, getMapElementSelectionState, mapElementEnter, mapElementExit, mapElementClick]);
+
+    const activeCombatHighlights = useMemo(() => {
+        if (!tiles) {
+            return [];
+        }
+        return tiles
+            .filter((t) => t.sessions.some((s) => !s.isFinalised))
+            .map((t) => (
+                <TileHighlight
+                    key={`session-${t.id}`}
+                    id={`session-${t.id}`}
+                    height={getTileHeight(t)}
+                    color="red"
+                    style="gradient_outline"
+                    animation="none"
+                    {...getCoords(t)}
+                />
+            ));
+    }, [tiles]);
 
     // -- GOO
 
@@ -454,6 +473,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     {tileGooComponents}
                     {buildingComponents}
                     {mobileUnitComponents}
+                    {activeCombatHighlights}
                     {hoveredTile &&
                         [hoveredTile].map((t) => {
                             const coords = getCoords(t);
