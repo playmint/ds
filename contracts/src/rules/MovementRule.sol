@@ -39,7 +39,7 @@ contract MovementRule is Rule {
     function moveTo(State state, bytes24 mobileUnit, bytes24 destTile, uint64 nowTime) private {
         //
         // fetch the mobileUnit's current location
-        // (bytes24 currentTile) = state.getCurrentLocation(mobileUnit, nowTime);
+        (bytes24 currentTile) = state.getCurrentLocation(mobileUnit, nowTime);
         // check that destTile is direct 6-axis line from currentTile
         // require(TileUtils.isDirect(currentTile, destTile), "NoMoveToIndirect");
         // require(state.getBiome(currentTile) == BiomeKind.DISCOVERED, "NoMoveToUndiscovered");
@@ -62,6 +62,6 @@ contract MovementRule is Rule {
         //     and only the client is restricting movement until we have the
         //     process nailed more
         state.setNextLocation(mobileUnit, destTile, nowTime);
-        state.setPrevLocation(mobileUnit, destTile, nowTime);
+        state.setPrevLocation(mobileUnit, currentTile, nowTime);
     }
 }
