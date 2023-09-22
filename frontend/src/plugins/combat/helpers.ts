@@ -256,9 +256,9 @@ export const getTileEntities = (
     return entities;
 };
 
-export const getLatestSession = (selectedTiles: SelectedTileFragment[]) => {
-    return selectedTiles.length > 0 && selectedTiles[0].sessions.length > 0
-        ? selectedTiles[0].sessions.sort((a, b) => {
+export const getLatestCombatSession = (tile: SelectedTileFragment) => {
+    return tile.sessions.length > 0
+        ? tile.sessions.sort((a, b) => {
               return a.attackTile && b.attackTile ? b.attackTile.startBlock - a.attackTile.startBlock : 0;
           })[0]
         : undefined;
