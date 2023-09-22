@@ -120,6 +120,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     // Handle map element selection update. Purposely not put in the click handler as updates to `tiles` invalidate the memo
     useEffect(() => {
         if (!selectedMapElement) {
+            setSelectedBags(undefined);
             return;
         }
         if (!tiles) {
@@ -216,6 +217,9 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             const rewardBags =
                 cs && selectedMobileUnit
                     ? cs.bags.filter((equipSlot) => {
+                          if (cs.attackTile?.tile.id !== t.id) {
+                              return false;
+                          }
                           // reward containing bags have an ID that is made up of 16bits of sessionID and 48bits of MobileUnitID
                           // bagIDs are 64bits
                           const mobileUnitIdMask = BigInt('0xFFFFFFFFFFFF'); // 48bit mask (6 bytes)
