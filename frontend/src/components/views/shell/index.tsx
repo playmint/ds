@@ -31,7 +31,6 @@ import { useUnityMap } from '@app/hooks/use-unity-map';
 import { useWalletProvider } from '@app/hooks/use-wallet-provider';
 import { ActionBar } from '@app/plugins/action-bar';
 import { ActionContextPanel, TileInfoPanel } from '@app/plugins/action-context-panel';
-import { CombatRewards } from '@app/plugins/combat/combat-rewards';
 import { CombatSummary } from '@app/plugins/combat/combat-summary';
 import { Bag as BagComp } from '@app/plugins/inventory/bag';
 import { ComponentProps } from '@app/types/component-props';
@@ -39,12 +38,21 @@ import { Fragment, FunctionComponent, useCallback, useEffect, useMemo, useState 
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
+import { getLatestCombatSession } from '@app/plugins/combat/helpers';
 
 export interface ShellProps extends ComponentProps {}
 
 const StyledShell = styled('div')`
     ${styles}
 `;
+
+export type SelectedBag = {
+    equipIndex: number;
+    bag: BagFragment;
+    ownerId: string;
+    parentTile: WorldTileFragment;
+    isCombatReward?: boolean;
+};
 
 export const Shell: FunctionComponent<ShellProps> = () => {
     const { ready: mapReady } = useUnityMap();
@@ -55,11 +63,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const blockNumber = useBlock();
     const { connect } = useWalletProvider();
     const [selectedMapElement, setSelectedMapElement] = useState<{ id: string; type: string }>();
-    const [selectedBag, setSelectedBag] = useState<{
-        equipIndex: number;
-        bag: BagFragment;
-        parentTile: WorldTileFragment;
-    }>();
+    const [selectedBags, setSelectedBags] = useState<SelectedBag[]>();
     const tiles = world?.tiles;
 
     const lerp = (x, y, a) => x * (1 - a) + y * a;
@@ -99,12 +103,12 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     }, []);
 
     const getMapElementSelectionState = useCallback(
-        (mapElement) => {
-            if (selectedMapElement?.id == mapElement.id) {
+        (mapElementId) => {
+            if (selectedMapElement?.id == mapElementId) {
                 return 'outline';
             }
 
-            if (hoveredMapElementId == mapElement.id) {
+            if (hoveredMapElementId == mapElementId) {
                 return 'highlight';
             }
 
@@ -122,20 +126,60 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             return;
         }
 
+        if (!selectTiles) {
+            return;
+        }
+
+        selectTiles(undefined);
+
         switch (selectedMapElement.type) {
             case 'BagData':
-                const t = tiles.find((t) => t.bags?.some((equipSlot) => equipSlot.bag.id == selectedMapElement.id));
-                const equipSlot = t?.bags.find((equipSlot) => equipSlot.bag.id == selectedMapElement.id);
-
-                if (t && equipSlot) {
-                    console.log(`found bag: `, equipSlot.bag);
-                    setSelectedBag({ equipIndex: equipSlot.key, bag: equipSlot.bag, parentTile: t });
-                } else {
-                    setSelectedBag(undefined);
+                const tileId = selectedMapElement.id.replace('bag/', '');
+                const t = tiles.find((t) => t.id == tileId);
+                if (!t) {
+                    setSelectedBags(undefined);
+                    return;
                 }
+
+                // Tile bags
+                const selectedBags: SelectedBag[] = t.bags.map((equipSlot, equipIndex): SelectedBag => {
+                    return { equipIndex, bag: equipSlot.bag, ownerId: t.id, parentTile: t };
+                });
+
+                // Combat rewards
+                if (selectedMobileUnit) {
+                    const cs = getLatestCombatSession(t);
+                    const selectedRewardBags = cs?.bags
+                        .filter((equipSlot) => {
+                            // reward containing bags have an ID that is made up of 16bits of sessionID and 48bits of MobileUnitID
+                            // bagIDs are 64bits
+                            const mobileUnitIdMask = BigInt('0xFFFFFFFFFFFF'); // 48bit mask (6 bytes)
+                            const bagMobileUnitID = (BigInt(equipSlot.bag.id) >> BigInt(16)) & mobileUnitIdMask;
+                            const truncatedMobileUnitID = BigInt(selectedMobileUnit.id) & mobileUnitIdMask;
+                            return bagMobileUnitID === truncatedMobileUnitID;
+                        })
+                        ?.map((equipSlot, equipIndex): SelectedBag => {
+                            return {
+                                equipIndex,
+                                bag: equipSlot.bag,
+                                ownerId: cs.id, // Very confusing because I expected the `ownerId` to be the unit's ID
+                                parentTile: t,
+                                isCombatReward: true,
+                            };
+                        });
+
+                    if (selectedRewardBags) {
+                        selectedBags.push(...selectedRewardBags);
+                    }
+                }
+
+                setSelectedBags(selectedBags);
+                break;
+            default:
+                setSelectedBags(undefined);
                 break;
         }
-    }, [selectedMapElement, tiles]);
+    }, [selectTiles, selectedMapElement, selectedMobileUnit, tiles]);
 
     // -- TILE
 
@@ -156,6 +200,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 return;
             }
             selectTiles([id]);
+            setSelectedMapElement(undefined);
         },
         [selectTiles]
     );
@@ -167,6 +212,19 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         }
         const ts = tiles.map((t) => {
             const coords = getCoords(t);
+            const cs = getLatestCombatSession(t);
+            const rewardBags =
+                cs && selectedMobileUnit
+                    ? cs.bags.filter((equipSlot) => {
+                          // reward containing bags have an ID that is made up of 16bits of sessionID and 48bits of MobileUnitID
+                          // bagIDs are 64bits
+                          const mobileUnitIdMask = BigInt('0xFFFFFFFFFFFF'); // 48bit mask (6 bytes)
+                          const bagMobileUnitID = (BigInt(equipSlot.bag.id) >> BigInt(16)) & mobileUnitIdMask;
+                          const truncatedMobileUnitID = BigInt(selectedMobileUnit.id) & mobileUnitIdMask;
+                          return bagMobileUnitID === truncatedMobileUnitID;
+                      })
+                    : [];
+
             return (
                 <>
                     <Tile
@@ -180,28 +238,35 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         {...coords}
                     />
 
-                    {t.bagCount > 0 &&
-                        t.bags.map((slot) => {
-                            return (
-                                <Bag
-                                    id={slot.bag.id}
-                                    key={slot.bag.id}
-                                    height={getTileHeight(t)}
-                                    corner={1}
-                                    selected={getMapElementSelectionState(slot.bag)}
-                                    onPointerEnter={mapElementEnter}
-                                    onPointerExit={mapElementExit}
-                                    onPointerClick={mapElementClick}
-                                    {...coords}
-                                />
-                            );
-                        })}
+                    {(t.bagCount > 0 || rewardBags.length > 0) && (
+                        <Bag
+                            id={`bag/${t.id}`}
+                            key={`bag/${t.id}`}
+                            height={getTileHeight(t)}
+                            corner={0}
+                            selected={getMapElementSelectionState(`bag/${t.id}`)}
+                            onPointerEnter={mapElementEnter}
+                            onPointerExit={mapElementExit}
+                            onPointerClick={mapElementClick}
+                            {...coords}
+                        />
+                    )}
                 </>
             );
         });
         console.timeEnd('tileloop');
         return ts;
-    }, [tiles, enter, exit, click, getMapElementSelectionState, mapElementEnter, mapElementExit, mapElementClick]);
+    }, [
+        tiles,
+        selectedMobileUnit,
+        enter,
+        exit,
+        click,
+        getMapElementSelectionState,
+        mapElementEnter,
+        mapElementExit,
+        mapElementClick,
+    ]);
 
     const activeCombatHighlights = useMemo(() => {
         if (!tiles) {
@@ -280,7 +345,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             height={getTileHeight(t)}
                             rotation={lerp(-20, 20, 0.5 - getUnscaledNoise(t))}
                             color={'#0665F5FF'} //TODO: Get actual color values
-                            selected={getMapElementSelectionState(t.building)}
+                            selected={getMapElementSelectionState(t.building.id)}
                             onPointerEnter={mapElementEnter}
                             onPointerExit={mapElementExit}
                             onPointerClick={mapElementClick}
@@ -295,7 +360,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             height={getTileHeight(t)}
                             model={t.building.kind?.model?.value}
                             rotation={lerp(-20, 20, 0.5 - getUnscaledNoise(t))}
-                            selected={getMapElementSelectionState(t.building)}
+                            selected={getMapElementSelectionState(t.building.id)}
                             onPointerEnter={mapElementEnter}
                             onPointerExit={mapElementExit}
                             onPointerClick={mapElementClick}
@@ -310,7 +375,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             height={getTileHeight(t)}
                             model={t.building.kind?.model?.value}
                             rotation={lerp(-20, 20, 0.5 - getUnscaledNoise(t))}
-                            selected={getMapElementSelectionState(t.building)}
+                            selected={getMapElementSelectionState(t.building.id)}
                             onPointerEnter={mapElementEnter}
                             onPointerExit={mapElementExit}
                             onPointerClick={mapElementClick}
@@ -549,35 +614,33 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             )}
                         </Fragment>
                     )}
-                    {selectedTiles && selectedTiles.length > 0 && selectedTiles[0].sessions.length > 0 && (
+                    {selectedBags && (
                         <div className="tile-actions">
-                            <CombatRewards
-                                className="action"
-                                selectedTiles={selectedTiles}
-                                player={player}
-                                selectedMobileUnit={selectedMobileUnit}
-                            />
-                        </div>
-                    )}
-                    {selectedBag && (
-                        <div className="tile-actions">
-                            <BagComp
-                                className="action"
-                                key={selectedBag.equipIndex}
-                                bag={selectedBag.bag}
-                                equipIndex={selectedBag.equipIndex}
-                                ownerId={selectedBag.parentTile.id}
-                                isInteractable={
-                                    !!(
-                                        selectedMobileUnit &&
-                                        selectedMobileUnit.nextLocation &&
-                                        getTileDistance(selectedMobileUnit.nextLocation.tile, selectedBag.parentTile) <
-                                            2
-                                    )
-                                }
-                                showIcon={true}
-                                as="li"
-                            />
+                            {selectedBags.map((selectedBag, index) => {
+                                return (
+                                    <div className="action" key={index}>
+                                        {selectedBag.isCombatReward && <h3>Combat rewards</h3>}
+                                        <BagComp
+                                            key={selectedBag.equipIndex}
+                                            bag={selectedBag.bag}
+                                            equipIndex={selectedBag.equipIndex}
+                                            ownerId={selectedBag.ownerId}
+                                            isInteractable={
+                                                !!(
+                                                    selectedMobileUnit &&
+                                                    selectedMobileUnit.nextLocation &&
+                                                    getTileDistance(
+                                                        selectedMobileUnit.nextLocation.tile,
+                                                        selectedBag.parentTile
+                                                    ) < 2
+                                                )
+                                            }
+                                            showIcon={true}
+                                            as="li"
+                                        />
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
