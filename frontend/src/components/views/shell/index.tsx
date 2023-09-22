@@ -468,7 +468,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         <StyledShell>
             {mapReady && (
                 <>
-                    <GroundPlane height={-0.4} />
+                    <GroundPlane height={-0.1} />
                     {tileComponents}
                     {tileGooComponents}
                     {buildingComponents}
