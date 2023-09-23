@@ -918,9 +918,7 @@ const Combat: FunctionComponent<CombatProps> = ({
             ]);
         }
         const needToMove = path.slice(1);
-        if (needToMove.length > 0) {
-            setActivePath(needToMove);
-        }
+        setActivePath(needToMove);
         if (clearIntent) {
             clearIntent();
         }
