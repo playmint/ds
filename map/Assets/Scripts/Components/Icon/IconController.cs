@@ -29,16 +29,12 @@ public class IconController : BaseComponentController<IconData>
         {
             return;
         }
-        background.SetActive(false);
-        rend.sprite = null;
         Vector3Int cubeCoords = new Vector3Int(_nextData.q, _nextData.r, _nextData.s);
         Vector3 worldPos = CoordsHelper.CubeToWorld(cubeCoords);
         transform.position = new Vector3(worldPos.x, _nextData.height, worldPos.z);
 
-        Color bgCol;
-        Color fgCol;
-        ColorUtility.TryParseHtmlString(_nextData.backgroundColor, out bgCol);
-        ColorUtility.TryParseHtmlString(_nextData.foregroundColor, out fgCol);
+        ColorUtility.TryParseHtmlString(_nextData.backgroundColor, out Color bgCol);
+        ColorUtility.TryParseHtmlString(_nextData.foregroundColor, out Color fgCol);
 
         backgroundFill.color = bgCol;
         foregroundFill.color = fgCol;
@@ -47,10 +43,12 @@ public class IconController : BaseComponentController<IconData>
         {
             if (_prevData == null || _nextData.image != _prevData.image)
             {
+                rend.sprite = null;
+                background.SetActive(false);
                 StartCoroutine(LoadSVG(_nextData.image));
             }
         }
-        
+
         _prevData = _nextData;
     }
 
@@ -92,7 +90,7 @@ public class IconController : BaseComponentController<IconData>
 
         //This next bit is a bit of a faff, but it normalises the sprite so that different size SVGs are scaled to fit in the icon:
         var mat = new Material(Shader.Find("Unlit/Vector"));
-        sprite = Sprite.Create(VectorUtils.RenderSpriteToTexture2D(sprite, 256, 256, mat),new Rect(0,0,256,256),Vector2.one*0.5f);
+        sprite = Sprite.Create(VectorUtils.RenderSpriteToTexture2D(sprite, 256, 256, mat), new Rect(0, 0, 256, 256), Vector2.one * 0.5f);
 
         sprite.name = "icon";
         return sprite;

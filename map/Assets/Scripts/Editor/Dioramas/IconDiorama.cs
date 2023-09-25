@@ -46,8 +46,9 @@ class IconDiorama : IDiorama
                 { "Tile/7", new TileData() { q = -1, r = 0, s = 1, height = 0.4f } },
                 { "Tile/8", new TileData() { q = -1, r = -1, s = 2, height = 0.4f } },
 
-                { "Icon/1", new IconData() { q = 1, r = 0, s = -1, height = 1.1f, image = "https://assets.downstream.game/icons/30-66.svg", backgroundColor = "#01A6FAFF", foregroundColor = "#FBE734FF" } },
-                { "Icon/2", new IconData() { q = -1, r = 0, s = 1, height = 1.1f, image = "https://assets.downstream.game/icons/30-1.svg", backgroundColor = "#FB7001FF", foregroundColor = "#FFFFFFFF" } },
+                { "Icon/1", new IconData() { q = 1, r = 0, s = -1, height = 2.1f , image = "https://assets.downstream.game/icons/xx-01.svg", backgroundColor = "#000000FF", foregroundColor = "#FFFFFFFF"} },
+                { "Icon/2", new IconData() { q = 1, r = 0, s = -1, height = 1.1f, image = "https://assets.downstream.game/icons/30-66.svg", backgroundColor = "#01A6FAFF", foregroundColor = "#FBE734FF" } },
+                { "Icon/3", new IconData() { q = -1, r = 0, s = 1, height = 1.1f, image = "https://assets.downstream.game/icons/30-1.svg", backgroundColor = "#FB7001FF", foregroundColor = "#FFFFFFFF" } },
             },
         };
     }
