@@ -2,12 +2,10 @@ using System;
 using Cinemachine;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
 
 public class OutlineController : MonoBehaviour
 {
-    [SerializeField]
-    RenderTexture? outlineTexture;
-
     [SerializeField]
     Camera? outlineCam;
 
@@ -39,14 +37,21 @@ public class OutlineController : MonoBehaviour
     int currentZoom = 0;
 
     float updateTimer = 0;
+    private RenderTexture _outlineTexture;
 
     private CinemachineFramingTransposer? framingTransposer;
 
     private void Awake()
     {
-        if (outlineTexture == null)
+        if (outlineCam == null)
         {
-            throw new ArgumentException("outlineTexture not set");
+            throw new ArgumentException("outlineCam not set");
+        }
+        if (_outlineTexture == null)
+        {
+            _outlineTexture = new RenderTexture(Screen.width, Screen.height, 0);
+            outlineCam.targetTexture = _outlineTexture;
+            GetComponent<RawImage>().texture = _outlineTexture;
         }
         if (camController == null || camController.virtualCamera == null)
         {
@@ -56,7 +61,12 @@ public class OutlineController : MonoBehaviour
         sHeight = Screen.height;
         framingTransposer =
             camController.virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
-        Resize(outlineTexture, sWidth, sHeight);
+        Resize(_outlineTexture, sWidth, sHeight);
+    }
+
+    private void OnDestroy()
+    {
+        _outlineTexture.Release();
     }
 
     private void Update()
@@ -69,7 +79,7 @@ public class OutlineController : MonoBehaviour
         {
             throw new ArgumentException("camController not set");
         }
-        if (outlineTexture == null)
+        if (_outlineTexture == null)
         {
             throw new ArgumentException("outlineTexture not set");
         }
@@ -93,7 +103,7 @@ public class OutlineController : MonoBehaviour
         {
             sWidth = Screen.width;
             sHeight = Screen.height;
-            Resize(outlineTexture, sWidth, sHeight);
+            Resize(_outlineTexture, sWidth, sHeight);
             outlineMat.SetFloat("_OutlinePower", falloffMultiplier);
             outlineMat.SetFloat("_OutlinePower2", strokeCutoff);
         }
