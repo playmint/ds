@@ -17,15 +17,15 @@ export interface CombatParticipantProps extends ComponentProps {
     isPresent: boolean;
 }
 
-const StyledCombatParticipant = styled('div')`
+const StyledCombatParticipant = styled.div`
     ${styles}
 `;
 
 export const CombatParticipant: FunctionComponent<CombatParticipantProps> = (props: CombatParticipantProps) => {
-    const { name, icon, maxHealth, currentHealth, attack, defence, ...otherProps } = props;
+    const { name, icon, maxHealth, currentHealth, attack, defence, isDead } = props;
 
     return (
-        <StyledCombatParticipant {...otherProps}>
+        <StyledCombatParticipant isDead={isDead}>
             <div className="icon">
                 <img src={icon} alt="" />
             </div>

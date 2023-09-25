@@ -10,15 +10,13 @@ export interface ProgressBarProps extends ComponentProps {
     currentValue: number;
 }
 
-const StyledProgressBar = styled('div')`
+const StyledProgressBar = styled.div`
     ${styles}
 `;
 
-export const ProgressBar: FunctionComponent<ProgressBarProps> = (props: ProgressBarProps) => {
-    const { maxValue, currentValue } = props;
-
+export const ProgressBar: FunctionComponent<ProgressBarProps> = ({ maxValue, currentValue }: ProgressBarProps) => {
     return (
-        <StyledProgressBar {...props}>
+        <StyledProgressBar maxValue={maxValue} currentValue={currentValue}>
             <div className="progress-bar"></div>
             <span className="label">
                 {currentValue}/{maxValue}

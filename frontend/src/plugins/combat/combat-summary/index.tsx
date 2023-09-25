@@ -29,7 +29,7 @@ const StyledCombatSummary = styled('div')`
 `;
 
 export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: CombatSummaryProps) => {
-    const { selectedTiles, world, blockNumber, player, ...otherProps } = props;
+    const { selectedTiles, world, blockNumber, player } = props;
     const [modal, setModal] = useState<boolean>(false);
 
     const showModal = useCallback(() => {
@@ -68,7 +68,7 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
     const [defendersMaxHealth, defendersCurrentHealth] = combatState.defenderStates.reduce(sumStats, [0, 0]);
 
     return (
-        <StyledCombatSummary {...otherProps}>
+        <StyledCombatSummary>
             {modal && player && world && blockNumber && (
                 <Dialog onClose={closeModal} width="850px" height="" icon="/combat-header.png">
                     <CombatModal

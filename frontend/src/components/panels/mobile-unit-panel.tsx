@@ -3,7 +3,7 @@ import { getTileCoordsFromId } from '@app/helpers/tile';
 import { useGameState } from '@app/hooks/use-game-state';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { MobileUnitInventory } from '@app/plugins/inventory/mobile-unit-inventory';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import styled from 'styled-components';
 
 const MobileUnitContainer = styled.div`
@@ -14,6 +14,11 @@ const MobileUnitContainer = styled.div`
     min-height: 5rem;
     padding: 1rem;
     background: #143063;
+
+    position: relative;
+    width: 30rem;
+    color: #fff;
+    user-select: none;
 
     > .shield {
         position: absolute;
@@ -145,9 +150,7 @@ export const MobileUnitPanel = () => {
                                 </div>
                             </MobileUnitContainer>
                         )}
-                        {selectedMobileUnit && (
-                            <MobileUnitInventory className="action" mobileUnit={selectedMobileUnit} />
-                        )}
+                        {selectedMobileUnit && <MobileUnitInventory mobileUnit={selectedMobileUnit} />}
                     </div>
                 </>
             )}

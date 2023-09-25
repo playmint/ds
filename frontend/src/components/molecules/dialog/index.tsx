@@ -13,11 +13,11 @@ export interface DialogProps extends ComponentProps {
     onClose: () => void;
 }
 
-const StyledDialog = styled('dialog')`
+const StyledDialog = styled.dialog`
     ${styles}
 `;
 
-export const Dialog: FunctionComponent<DialogProps> = ({ icon, width, onClose, children, ...otherProps }) => {
+export const Dialog: FunctionComponent<DialogProps> = ({ icon, width, height, onClose, children }) => {
     const ref = useRef<HTMLDialogElement>(null);
 
     useEffect(() => {
@@ -27,7 +27,7 @@ export const Dialog: FunctionComponent<DialogProps> = ({ icon, width, onClose, c
     }, []);
 
     return (
-        <StyledDialog {...otherProps} ref={ref} onCancel={onClose} width={width}>
+        <StyledDialog ref={ref} onCancel={onClose} width={width} height={height}>
             {icon && (
                 <div className="icon">
                     <img src={icon} alt="icon" />

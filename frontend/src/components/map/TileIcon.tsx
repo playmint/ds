@@ -9,14 +9,12 @@ export interface TileIconData {
     icon: string;
 }
 
-export const TileIcon = memo(
-    ({ id, q, r, s, height, icon }: UnityComponentProps & TileIconData) => {
-        useUnityComponentManager<TileIconData>({
-            type: 'TileIconData',
-            id,
-            data: useMemo(() => ({ q, r, s, height, icon }), [q, r, s, height, icon]),
-        });
+export const TileIcon = memo(({ id, q, r, s, height, icon }: UnityComponentProps & TileIconData) => {
+    useUnityComponentManager<TileIconData>({
+        type: 'TileIconData',
+        id,
+        data: useMemo(() => ({ q, r, s, height, icon }), [q, r, s, height, icon]),
+    });
 
-        return null;
-    }
-);
+    return null;
+});

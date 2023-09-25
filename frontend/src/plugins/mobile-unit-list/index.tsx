@@ -30,12 +30,12 @@ export interface MobileUnitListProps extends ComponentProps {
     tile?: SelectedTileFragment;
 }
 
-const StyledMobileUnitList = styled('div')`
+const StyledMobileUnitList = styled.div`
     ${styles}
 `;
 
 export const MobileUnitList: FunctionComponent<MobileUnitListProps> = (props: MobileUnitListProps) => {
-    const { mobileUnits, player, tile, ...otherProps } = props;
+    const { mobileUnits, player, tile } = props;
     const { isMobileUnitAtLocation } = useInventory();
 
     const isInteractable = useCallback(
@@ -55,7 +55,7 @@ export const MobileUnitList: FunctionComponent<MobileUnitListProps> = (props: Mo
     );
 
     return (
-        <StyledMobileUnitList {...otherProps}>
+        <StyledMobileUnitList>
             {mobileUnits.map((unit) => (
                 <MobileUnitListItem
                     key={unit.id}

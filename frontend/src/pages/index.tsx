@@ -11,17 +11,17 @@ export default function ShellPage() {
     const config = useConfig();
 
     return (
-        <WalletProviderProvider>
-            <GameStateProvider config={config}>
-                <SessionProvider>
-                    <UnityMapProvider>
+        <UnityMapProvider>
+            <WalletProviderProvider>
+                <GameStateProvider config={config}>
+                    <SessionProvider>
                         <InventoryProvider>
                             <Shell />
                             {config && <div className="build-version">build v0.1-{config.commit}</div>}
                         </InventoryProvider>
-                    </UnityMapProvider>
-                </SessionProvider>
-            </GameStateProvider>
-        </WalletProviderProvider>
+                    </SessionProvider>
+                </GameStateProvider>
+            </WalletProviderProvider>
+        </UnityMapProvider>
     );
 }

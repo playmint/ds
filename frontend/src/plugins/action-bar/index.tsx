@@ -16,8 +16,7 @@ const StyledActionBar = styled('div')`
     ${styles}
 `;
 
-export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarProps) => {
-    const { ...otherProps } = props;
+export const ActionBar: FunctionComponent<ActionBarProps> = ({}: ActionBarProps) => {
     const { selectIntent, intent, selectTiles } = useSelection();
 
     const handleSelectIntent = useCallback(
@@ -35,7 +34,7 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
     );
 
     return (
-        <StyledActionBar {...otherProps}>
+        <StyledActionBar>
             <div className="actions">
                 <button
                     className={`action-icon-button ${intent === MOVE_INTENT ? 'active' : ''}`}

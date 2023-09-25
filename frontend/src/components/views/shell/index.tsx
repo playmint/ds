@@ -30,16 +30,26 @@ import { useSession } from '@app/hooks/use-session';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { useWalletProvider } from '@app/hooks/use-wallet-provider';
 import { ActionBar } from '@app/plugins/action-bar';
-import { ActionContextPanel, TileInfoPanel } from '@app/plugins/action-context-panel';
+import { ActionContextPanel } from '@app/plugins/action-context-panel';
 import { CombatSummary } from '@app/plugins/combat/combat-summary';
 import { Bag as BagComp } from '@app/plugins/inventory/bag';
 import { ComponentProps } from '@app/types/component-props';
-import { Fragment, FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
+import { TileInfoPanel } from '@app/components/panels/tile-info-panel';
 
 export interface ShellProps extends ComponentProps {}
+
+const Panel = styled.div`
+    background: #143063;
+    color: #fff;
+    padding: 2rem 2rem;
+    margin-bottom: 1.2rem;
+    width: 30rem;
+    position: relative;
+`;
 
 const StyledShell = styled('div')`
     ${styles}
@@ -507,32 +517,19 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 }
 
                 return (
-                    <>
-                        <MobileUnit
-                            key={u.id}
-                            id={u.id}
-                            height={getTileHeight(t)}
-                            progress={1}
-                            selected={getMobileUnitSelectionState(u)}
-                            shared={!!t.building}
-                            visible={visible}
-                            onPointerClick={mobileUnitClick}
-                            onPointerEnter={mobileUnitEnter}
-                            onPointerExit={mobileUnitExit}
-                            {...coords}
-                        />
-                        {isPlayer && (
-                            <Icon
-                                backgroundColor={'#000000FF'}
-                                foregroundColor={'#FFFFFFFF'}
-                                image={'https://assets.downstream.game/icons/31-122.svg'}
-                                key={`${u.id}-icon`}
-                                id={`${u.id}-icon`}
-                                height={getTileHeight(t) + 0.7}
-                                {...coords}
-                            />
-                        )}
-                    </>
+                    <MobileUnit
+                        key={u.id}
+                        id={u.id}
+                        height={getTileHeight(t)}
+                        progress={1}
+                        selected={getMobileUnitSelectionState(u)}
+                        shared={!!t.building}
+                        visible={visible}
+                        onPointerClick={mobileUnitClick}
+                        onPointerEnter={mobileUnitEnter}
+                        onPointerExit={mobileUnitExit}
+                        {...coords}
+                    />
                 );
             });
 
@@ -540,11 +537,33 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         return mus;
     }, [mobileUnitClick, mobileUnitEnter, mobileUnitExit, hoveredMobileUnitId, player, selectedMobileUnit, tiles]);
 
+    const playerId = player?.id;
+    const unitIcons = useMemo(
+        () =>
+            tiles?.flatMap((t) =>
+                t.mobileUnits.map((u) => {
+                    return u.owner?.id === playerId ? (
+                        <Icon
+                            backgroundColor={'#000000FF'}
+                            foregroundColor={'#FFFFFFFF'}
+                            image={'https://assets.downstream.game/icons/31-122.svg'}
+                            key={u.id}
+                            id={u.id}
+                            height={getTileHeight(t) + 0.7}
+                            {...getCoords(t)}
+                        />
+                    ) : null;
+                })
+            ),
+        [tiles, playerId]
+    );
+
     return (
         <StyledShell>
             {mapReady && (
                 <>
                     <GroundPlane height={-0.1} />
+                    {unitIcons}
                     {tileComponents}
                     {tileGooComponents}
                     {buildingComponents}
@@ -595,10 +614,10 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 <div className="top-middle"></div>
                 <div className="bottom-middle">
                     {player && player.mobileUnits.length > 0 && selectedMobileUnit && (
-                        <div className="controls">
+                        <>
                             <ActionContextPanel />
                             <ActionBar />
-                        </div>
+                        </>
                     )}
                 </div>
                 <div className="right">
@@ -606,14 +625,12 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         mapReady &&
                         connect &&
                         !loadingSession && <Onboarding player={player} onClickConnect={connect} />}
-                    {player && player.mobileUnits.length > 0 && (
-                        <div className="tile-actions">
-                            <TileInfoPanel className="action" />
-                        </div>
-                    )}
-                    {selectedTiles && selectedTiles.length > 0 && blockNumber && (
-                        <Fragment>
-                            {selectedTiles[0].sessions.filter((s) => !s.isFinalised).length > 0 && (
+                    {player && player.mobileUnits.length > 0 && <TileInfoPanel />}
+                    {selectedTiles &&
+                        selectedTiles.length > 0 &&
+                        blockNumber &&
+                        selectedTiles[0].sessions.filter((s) => !s.isFinalised).length > 0 && (
+                            <Panel>
                                 <CombatSummary
                                     className="action"
                                     selectedTiles={selectedTiles}
@@ -622,65 +639,58 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                                     selectedMobileUnit={selectedMobileUnit}
                                     blockNumber={blockNumber}
                                 />
-                            )}
-                        </Fragment>
-                    )}
+                            </Panel>
+                        )}
                     {selectedTileBags && selectedTileBags.length > 0 && (
-                        <div className="tile-actions">
-                            <div className="action">
-                                {selectedTileBags.map((selectedBag) => {
-                                    return (
-                                        <BagComp
-                                            key={selectedBag.equipIndex}
-                                            bag={selectedBag.bag}
-                                            equipIndex={selectedBag.equipIndex}
-                                            ownerId={selectedBag.ownerId}
-                                            isInteractable={
-                                                !!(
-                                                    selectedMobileUnit &&
-                                                    selectedMobileUnit.nextLocation &&
-                                                    getTileDistance(
-                                                        selectedMobileUnit.nextLocation.tile,
-                                                        selectedBag.parentTile
-                                                    ) < 2
-                                                )
-                                            }
-                                            showIcon={true}
-                                            as="li"
-                                        />
-                                    );
-                                })}
-                            </div>
-                        </div>
+                        <Panel>
+                            {selectedTileBags.map((selectedBag) => {
+                                return (
+                                    <BagComp
+                                        key={selectedBag.equipIndex}
+                                        bag={selectedBag.bag}
+                                        equipIndex={selectedBag.equipIndex}
+                                        ownerId={selectedBag.ownerId}
+                                        isInteractable={
+                                            !!(
+                                                selectedMobileUnit &&
+                                                selectedMobileUnit.nextLocation &&
+                                                getTileDistance(
+                                                    selectedMobileUnit.nextLocation.tile,
+                                                    selectedBag.parentTile
+                                                ) < 2
+                                            )
+                                        }
+                                        showIcon={true}
+                                    />
+                                );
+                            })}
+                        </Panel>
                     )}
                     {selectedRewardBags && selectedRewardBags.length > 0 && (
-                        <div className="tile-actions">
-                            <div className="action">
-                                <h3>Combat rewards</h3>
-                                {selectedRewardBags.map((selectedBag) => {
-                                    return (
-                                        <BagComp
-                                            key={selectedBag.equipIndex}
-                                            bag={selectedBag.bag}
-                                            equipIndex={selectedBag.equipIndex}
-                                            ownerId={selectedBag.ownerId}
-                                            isInteractable={
-                                                !!(
-                                                    selectedMobileUnit &&
-                                                    selectedMobileUnit.nextLocation &&
-                                                    getTileDistance(
-                                                        selectedMobileUnit.nextLocation.tile,
-                                                        selectedBag.parentTile
-                                                    ) < 2
-                                                )
-                                            }
-                                            showIcon={true}
-                                            as="li"
-                                        />
-                                    );
-                                })}
-                            </div>
-                        </div>
+                        <Panel>
+                            <h3>Combat rewards</h3>
+                            {selectedRewardBags.map((selectedBag) => {
+                                return (
+                                    <BagComp
+                                        key={selectedBag.equipIndex}
+                                        bag={selectedBag.bag}
+                                        equipIndex={selectedBag.equipIndex}
+                                        ownerId={selectedBag.ownerId}
+                                        isInteractable={
+                                            !!(
+                                                selectedMobileUnit &&
+                                                selectedMobileUnit.nextLocation &&
+                                                getTileDistance(
+                                                    selectedMobileUnit.nextLocation.tile,
+                                                    selectedBag.parentTile
+                                                ) < 2
+                                            )
+                                        }
+                                        showIcon={true}
+                                    />
+                                );
+                            })}
+                        </Panel>
                     )}
                 </div>
             </div>

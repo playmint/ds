@@ -28,7 +28,10 @@ export const BlockerBuilding = memo(
         useUnityComponentManager<BlockerBuildingData>({
             type: 'BlockerBuildingData',
             id,
-            data: useMemo(() => ({ q, r, s, height, model, selected, rotation }), [q, r, s, height, model, selected, rotation]),
+            data: useMemo(
+                () => ({ q, r, s, height, model, selected, rotation }),
+                [q, r, s, height, model, selected, rotation]
+            ),
             onPointerEnter,
             onPointerExit,
             onPointerClick,

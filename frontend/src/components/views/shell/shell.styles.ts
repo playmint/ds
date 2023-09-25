@@ -96,27 +96,6 @@ const baseStyles = (_: Partial<ShellProps>) => css`
         }
     }
 
-    .tile-actions,
-    .mobile-unit-actions {
-        position: relative;
-        width: 30rem;
-        color: #fff;
-        user-select: none;
-    }
-
-    .action {
-        background: #143063;
-        color: #fff;
-        padding: 2rem 2rem;
-        margin-bottom: 1.2rem;
-
-        > .content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-    }
-
     .onboarding {
         background: #143063;
         padding: 2rem 2rem;
