@@ -64,7 +64,7 @@ MonoBehaviour:
       - m_Id: cc2c4f88578cb4f11862cd1e76d96a65
         m_Value: ../frontend/public/ds-unity/StreamingAssets/aa
       - m_Id: 4adf120aefafc4ed1af1edaca32849d0
-        m_Value: '{UnityEngine.Application.absoluteURL}/ds-unity/StreamingAssets/aa'
+        m_Value: '{AppController.RemoteLoadPath}/ds-unity/StreamingAssets/aa'
     m_ProfileEntryNames:
     - m_Id: f55b294221f3747f691efa597f57f212
       m_Name: BuildTarget
