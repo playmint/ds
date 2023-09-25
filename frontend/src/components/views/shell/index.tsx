@@ -353,11 +353,11 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             ?.item.name?.value;
         switch (outputName) {
             case 'Green Goo':
-                return '#1ED139FF';
+                return '#63B204FF';
             case 'Red Goo':
-                return '#E40161FF';
+                return '#CA002BFF';
             case 'Blue Goo':
-                return '#0197E4FF';
+                return '#0665F5FF';
             default:
                 return '#FFFFFFFF';
         }
