@@ -6,8 +6,7 @@ using UnityEngine.Rendering.PostProcessing;
 
 public class CameraController : MonoBehaviour
 {
-    [HideInInspector]
-    public bool hasDragged = false;
+    public static bool hasDragged = false;
 
     public float moveSpeed;
 
