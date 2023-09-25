@@ -346,6 +346,21 @@ export const Shell: FunctionComponent<ShellProps> = () => {
 
     // -- BUILDINGS
 
+    function getColorFromGoo(kind) {
+        const outputName = kind?.outputs?.find((e) => ['Green Goo', 'Red Goo', 'Blue Goo'].includes(e.item.name?.value))
+            ?.item.name?.value;
+        switch (outputName) {
+            case 'Green Goo':
+                return '#1ED139FF';
+            case 'Red Goo':
+                return '#E40161FF';
+            case 'Blue Goo':
+                return '#0197E4FF';
+            default:
+                return '#FFFFFFFF';
+        }
+    }
+
     const buildingComponents = useMemo(() => {
         if (!tiles) {
             return [];
@@ -369,7 +384,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             id={t.building.id}
                             height={getTileHeight(t)}
                             rotation={lerp(-20, 20, 0.5 - getUnscaledNoise(t))}
-                            color={'#0665F5FF'} //TODO: Get actual color values
+                            color={getColorFromGoo(t.building.kind)}
                             selected={getMapElementSelectionState(t.building.id)}
                             onPointerEnter={mapElementEnter}
                             onPointerExit={mapElementExit}
