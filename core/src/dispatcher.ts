@@ -42,7 +42,6 @@ export function makeDispatcher(client: CogServices, wallet: Wallet, logger: Logg
     const dispatching = pipe(
         pending,
         tap((q) => logger.info(`send ${q.actions.map((a) => a.name).join(', ')}`)),
-        tap((q) => console.log(`DISPATCH send ${q.actions.map((a) => a.name).join(', ')}`)),
         concatMap((queuedAction) =>
             fromValue(
                 dispatch(client, wallet, queuedAction)

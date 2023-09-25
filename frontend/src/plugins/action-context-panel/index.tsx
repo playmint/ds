@@ -784,7 +784,6 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
             return;
         }
         const [_zone, q, r, s] = t.coords;
-        console.error('dispatching MOVE', q, r, s);
         dispatch({
             name: 'MOVE_MOBILE_UNIT',
             args: [mobileUnitKey, q, r, s],

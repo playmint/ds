@@ -66,7 +66,6 @@ export const useUnityComponentManager = <T,>(cfg: ComponentConfig<T>) => {
             data: JSON.stringify(data),
         };
 
-        console.log('SetComponent', type);
         sendMessage('ComponentManager', 'SetComponent', JSON.stringify(msg));
     }, [sendMessage, ref, type, data]);
 
