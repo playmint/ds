@@ -1,5 +1,3 @@
-
-public class TileIconManager : BaseComponentManager<TileIconData, TileIconController>, IComponentManager
-{
-
-}
+public class TileIconManager
+    : BaseComponentManager<TileIconData, TileIconController>,
+        IComponentManager { }

@@ -1,5 +1,3 @@
-
-public class TileGooManager : BaseComponentManager<TileGooData, TileGooController>, IComponentManager
-{
-
-}
+public class TileGooManager
+    : BaseComponentManager<TileGooData, TileGooController>,
+        IComponentManager { }

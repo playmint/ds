@@ -1,5 +1,1 @@
-
-public class IconManager : BaseComponentManager<IconData, IconController>, IComponentManager
-{
-
-}
+public class IconManager : BaseComponentManager<IconData, IconController>, IComponentManager { }

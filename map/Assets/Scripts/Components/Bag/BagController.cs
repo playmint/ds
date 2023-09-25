@@ -14,7 +14,8 @@ public class BagController : BaseComponentController<BagData>
     [SerializeField]
     protected Color highlightColor;
 
-    public Material redOutlineMat, greenOutlineMat;
+    public Material redOutlineMat,
+        greenOutlineMat;
 
     private Color _defaultColor;
 
@@ -34,7 +35,11 @@ public class BagController : BaseComponentController<BagData>
         Vector3Int cubeCoords = new Vector3Int(_nextData.q, _nextData.r, _nextData.s);
         Vector3 worldPos = CoordsHelper.CubeToWorld(cubeCoords);
         transform.position = new Vector3(worldPos.x, _nextData.height, worldPos.z);
-        transform.eulerAngles = new Vector3(transform.rotation.x, _nextData.corner % 6 * 60f, transform.rotation.z);
+        transform.eulerAngles = new Vector3(
+            transform.rotation.x,
+            _nextData.corner % 6 * 60f,
+            transform.rotation.z
+        );
 
         // selected
         if (_nextData.selected == "outline")
@@ -76,5 +81,4 @@ public class BagController : BaseComponentController<BagData>
 
         _prevData = _nextData;
     }
-
 }

@@ -85,10 +85,14 @@ public class DioramaWindow : EditorWindow
         });
 
         // try to load the last viewed diorama, or fallback to the empty diorama
-        IDiorama? initialDiorama = dioramas.Where(d => d?.GetType().Name == _initialDioramaName).FirstOrDefault();
+        IDiorama? initialDiorama = dioramas
+            .Where(d => d?.GetType().Name == _initialDioramaName)
+            .FirstOrDefault();
         if (initialDiorama == null)
         {
-            initialDiorama = dioramas.Where(d => d?.GetType().Name == _fallbackDioramaName).FirstOrDefault();
+            initialDiorama = dioramas
+                .Where(d => d?.GetType().Name == _fallbackDioramaName)
+                .FirstOrDefault();
         }
         if (initialDiorama == null)
         {
@@ -96,31 +100,35 @@ public class DioramaWindow : EditorWindow
         }
         Load(initialDiorama);
 
-
         // show the diorama picker
         picker = new PopupField<string>("Diorama", choices, initialDiorama.GetType().Name);
-        picker.RegisterCallback<ChangeEvent<string>>((evt) =>
-        {
-            if (evt.newValue == "")
+        picker.RegisterCallback<ChangeEvent<string>>(
+            (evt) =>
             {
-                return;
+                if (evt.newValue == "")
+                {
+                    return;
+                }
+                IDiorama? script = dioramas
+                    .Where(d => d?.GetType().Name == evt.newValue)
+                    .FirstOrDefault();
+                if (script == null)
+                {
+                    Debug.Log("failed to find diorama script: {evt.newValue}");
+                    return;
+                }
+                Load(script);
+                EditorPrefs.SetString("selectedDiorama", script.GetType().Name);
             }
-            IDiorama? script = dioramas.Where(d => d?.GetType().Name == evt.newValue).FirstOrDefault();
-            if (script == null)
-            {
-                Debug.Log("failed to find diorama script: {evt.newValue}");
-                return;
-            }
-            Load(script);
-            EditorPrefs.SetString("selectedDiorama", script.GetType().Name);
-        });
+        );
         root.Add(picker);
     }
 
     List<IDiorama?> GetAllDioramas()
     {
         // TODO: filter out junk to prevent debug noise
-        return AppDomain.CurrentDomain.GetAssemblies()
+        return AppDomain.CurrentDomain
+            .GetAssemblies()
             .SelectMany(assembly => assembly.GetTypes())
             .Where(t => typeof(IDiorama).IsAssignableFrom(t))
             .Select(t =>
@@ -147,7 +155,9 @@ public class DioramaWindow : EditorWindow
         }
 
         Debug.Log("play");
-        ComponentManager manager = GameObject.Find("ComponentManager").GetComponent<ComponentManager>();
+        ComponentManager manager = GameObject
+            .Find("ComponentManager")
+            .GetComponent<ComponentManager>();
         await manager.Ready();
 
         _loop = LoopForever();
@@ -168,7 +178,9 @@ public class DioramaWindow : EditorWindow
 
     private static async Task LoopForever()
     {
-        ComponentManager manager = GameObject.Find("ComponentManager").GetComponent<ComponentManager>();
+        ComponentManager manager = GameObject
+            .Find("ComponentManager")
+            .GetComponent<ComponentManager>();
         await manager.Ready();
 
         for (; ; )
@@ -198,12 +210,13 @@ public class DioramaWindow : EditorWindow
             {
                 var instanceId = keyPair.Key;
                 BaseComponentData data = keyPair.Value;
-                ComponentDataMessage msg = new()
-                {
-                    type = data.GetTypeName(),
-                    id = instanceId,
-                    data = JsonUtility.ToJson(data)
-                };
+                ComponentDataMessage msg =
+                    new()
+                    {
+                        type = data.GetTypeName(),
+                        id = instanceId,
+                        data = JsonUtility.ToJson(data)
+                    };
                 var jsonMsg = JsonUtility.ToJson(msg);
                 Debug.Log($"Set {jsonMsg}");
                 manager.SetComponent(jsonMsg);
@@ -218,11 +231,7 @@ public class DioramaWindow : EditorWindow
                 BaseComponentData data = keyPair.Value;
                 if (!step.ContainsKey(instanceId))
                 {
-                    ComponentMessage msg = new()
-                    {
-                        type = data.GetTypeName(),
-                        id = instanceId,
-                    };
+                    ComponentMessage msg = new() { type = data.GetTypeName(), id = instanceId, };
                     var jsonMsg = JsonUtility.ToJson(msg);
                     Debug.Log($"Remove {jsonMsg}");
                     manager.RemoveComponent(jsonMsg);

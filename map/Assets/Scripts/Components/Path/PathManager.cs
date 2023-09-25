@@ -1,5 +1,1 @@
-
-public class PathManager : BaseComponentManager<PathData, PathController>, IComponentManager
-{
-
-}
+public class PathManager : BaseComponentManager<PathData, PathController>, IComponentManager { }

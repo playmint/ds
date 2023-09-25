@@ -35,14 +35,21 @@ public class LabelController : BaseComponentController<LabelData>
     protected void LateUpdate()
     {
         if (canvasRect != null)
-            transform.position = WorldToUIPosition(new Vector3(worldPos.x, _nextData.height, worldPos.z));
+            transform.position = WorldToUIPosition(
+                new Vector3(worldPos.x, _nextData.height, worldPos.z)
+            );
     }
 
     public Vector3 WorldToUIPosition(Vector3 worldPos)
     {
         Vector3 screenPos = Camera.main.WorldToScreenPoint(worldPos);
         Vector3 UIPos;
-        RectTransformUtility.ScreenPointToWorldPointInRectangle(canvasRect, screenPos, cam, out UIPos);
+        RectTransformUtility.ScreenPointToWorldPointInRectangle(
+            canvasRect,
+            screenPos,
+            cam,
+            out UIPos
+        );
         return UIPos;
     }
 }

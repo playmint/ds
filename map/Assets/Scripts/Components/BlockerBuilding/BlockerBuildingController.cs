@@ -8,12 +8,15 @@ public class BlockerBuildingController : BaseComponentController<BlockerBuilding
 {
     [SerializeField]
     private Color highlightColor;
+
     [SerializeField]
     GameObject[] modelPrefabs;
+
     [SerializeField]
     Transform meshParent;
 
-    public Material redOutlineMat, greenOutlineMat;
+    public Material redOutlineMat,
+        greenOutlineMat;
 
     private Renderer[]? outlineObjs;
     private Renderer[]? renderers;
@@ -95,4 +98,3 @@ public class BlockerBuildingController : BaseComponentController<BlockerBuilding
         _defaultColor = renderers[0].material.GetColor("_EmissionColor");
     }
 }
-

@@ -1,5 +1,3 @@
-
-public class BlockerBuildingManager : BaseComponentManager<BlockerBuildingData, BlockerBuildingController>, IComponentManager
-{
-
-}
+public class BlockerBuildingManager
+    : BaseComponentManager<BlockerBuildingData, BlockerBuildingController>,
+        IComponentManager { }

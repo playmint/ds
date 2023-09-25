@@ -9,13 +9,15 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
 {
     [SerializeField]
     private Color highlightColor;
+
     [SerializeField]
     private Transform[] stackPositions;
 
     [SerializeField]
     private GameObject[] totemPrefabs;
 
-    public Material redOutlineMat, greenOutlineMat;
+    public Material redOutlineMat,
+        greenOutlineMat;
 
     private Renderer[]? outlineObjs;
     private Renderer[]? renderers;
@@ -32,15 +34,15 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
         Vector3 worldPos = CoordsHelper.CubeToWorld(cubeCoords);
         transform.position = new Vector3(worldPos.x, _nextData.height, worldPos.z);
         transform.GetChild(0).localEulerAngles = new Vector3(0, _nextData.rotation, 0);
-        
+
         if (_prevData == null)
         {
-            if(_nextData.model != null)
+            if (_nextData.model != null)
                 ShowTotems(_nextData.model);
             else
                 Debug.LogError("Building stack codes are null");
         }
-        
+
         // selected
         if (outlineObjs == null || renderers == null)
             return;
@@ -86,9 +88,7 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
         string[] names = new string[2];
         Regex rx = new Regex(@"\d{2}");
         MatchCollection matches = rx.Matches(stackCode);
-        if (
-            matches.Count != 2
-        )
+        if (matches.Count != 2)
         {
             names[0] = "00";
             names[1] = "00";

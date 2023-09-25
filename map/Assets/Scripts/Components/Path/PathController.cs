@@ -46,7 +46,10 @@ public class PathController : BaseComponentController<PathData>
         }
 
         // set line color
-        ColorUtility.TryParseHtmlString(_nextData.color == null || _nextData.color == "" ? _defaultColor : _nextData.color, out Color targetColor);
+        ColorUtility.TryParseHtmlString(
+            _nextData.color == null || _nextData.color == "" ? _defaultColor : _nextData.color,
+            out Color targetColor
+        );
         if (targetColor == null)
         {
             Debug.Log($"invalid color {_nextData.color} falling back to {_defaultColor}");
@@ -62,7 +65,7 @@ public class PathController : BaseComponentController<PathData>
 
         // calc end world pos of arc
         Vector3Int toCube = new(_nextData.qTo, _nextData.rTo, _nextData.sTo);
-        Vector3 toWorld = CoordsHelper.CubeToWorld(toCube); 
+        Vector3 toWorld = CoordsHelper.CubeToWorld(toCube);
         Vector3 endOffset = new(toWorld.x, _nextData.heightTo + 0.01f, toWorld.z);
 
         // TODO:
@@ -123,5 +126,4 @@ public class PathController : BaseComponentController<PathData>
         line.positionCount = _linePositions.Length;
         line.SetPositions(_linePositions);
     }
-
 }

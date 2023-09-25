@@ -1,5 +1,1 @@
-
-public class LabelManager : BaseComponentManager<LabelData, LabelController>, IComponentManager
-{
-
-}
+public class LabelManager : BaseComponentManager<LabelData, LabelController>, IComponentManager { }
