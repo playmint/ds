@@ -1,4 +1,4 @@
-import { BagFragment, WorldTileFragment, getCoords } from '@app/../../core/src';
+import { BagFragment, BuildingKindFragment, WorldTileFragment, getCoords } from '@app/../../core/src';
 import { Bag } from '@app/components/map/Bag';
 import { BlockerBuilding } from '@app/components/map/BlockerBuilding';
 import { ExtractorBuilding } from '@app/components/map/ExtractorBuilding';
@@ -18,8 +18,12 @@ import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
 import { NavPanel } from '@app/components/panels/nav-panel';
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
 import {
+    GOO_BLUE,
+    GOO_GREEN,
+    GOO_RED,
     GOO_SMALL_THRESH,
     getGooColor,
+    getGooPerSec,
     getGooSize,
     getTileDistance,
     getTileHeight,
@@ -358,7 +362,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     // -- BUILDINGS
 
     function getColorFromGoo(kind) {
-        const outputName = kind?.outputs?.find((e) => ['Green Goo', 'Red Goo', 'Blue Goo'].includes(e.item.name?.value))
+        const outputName = kind?.outputs?.find((e) => ['Green Goo', 'Blue Goo', 'Red Goo'].includes(e.item.name?.value))
             ?.item.name?.value;
         switch (outputName) {
             case 'Green Goo':
@@ -371,6 +375,23 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 return '#FFFFFFFF';
         }
     }
+
+    const getGooIndexFromBuildingOutput = (buildingKind?: BuildingKindFragment) => {
+        if (buildingKind?.outputs && buildingKind.outputs.length > 0) {
+            const outputName = buildingKind.outputs[0].item.name?.value;
+
+            switch (outputName) {
+                case 'Green Goo':
+                    return GOO_GREEN;
+                case 'Red Goo':
+                    return GOO_RED;
+                case 'Blue Goo':
+                    return GOO_BLUE;
+            }
+        }
+
+        return -1;
+    };
 
     const buildingComponents = useMemo(() => {
         if (!tiles) {
@@ -387,10 +408,34 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 if (!t.building || !t.building.kind) {
                     return null;
                 }
+                if (!blockNumber) {
+                    return null;
+                }
                 if (getBuildingCategory(t.building.kind) == BuildingCategory.EXTRACTOR) {
+                    const GOO_RESERVOIR_MAX = 500;
+                    const BLOCK_TIME_SECS = 2;
+
+                    const tileAtoms = t.atoms.sort((a, b) => a.key - b.key).map((elm) => elm.weight);
+                    const lastExtraction = t.building.timestamp?.blockNum || 0;
+                    const elapsedSecs =
+                        t.building && lastExtraction ? (blockNumber - lastExtraction) * BLOCK_TIME_SECS : 0;
+
+                    // Calculate extracted goo and sum with previously extracted goo
+                    const extractedGoo = tileAtoms
+                        .map((atomVal) => Math.floor(getGooPerSec(atomVal) * elapsedSecs))
+                        .map((calculatedGoo, index) => {
+                            const totalGoo =
+                                t.building?.gooReservoir && t.building.gooReservoir.length > index
+                                    ? calculatedGoo + t.building.gooReservoir[index].weight
+                                    : calculatedGoo;
+                            return Math.min(GOO_RESERVOIR_MAX, totalGoo);
+                        });
+                    const gooIndex = getGooIndexFromBuildingOutput(t.building?.kind);
+                    const progress = gooIndex > -1 ? extractedGoo[gooIndex] / GOO_RESERVOIR_MAX : 0;
+
                     return (
                         <ExtractorBuilding
-                            progress={0.5}
+                            progress={progress}
                             key={t.building.id}
                             id={t.building.id}
                             height={getTileHeight(t)}
@@ -437,7 +482,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             });
         console.timeEnd('buildingLoop');
         return bs;
-    }, [tiles, getMapElementSelectionState, mapElementEnter, mapElementExit, mapElementClick]);
+    }, [tiles, blockNumber, getMapElementSelectionState, mapElementEnter, mapElementExit, mapElementClick]);
 
     // -- MOBILE UNIT
 
