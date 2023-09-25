@@ -338,12 +338,7 @@ public class MoveIntent : IntentHandler
             GameStateMediator.Instance.SendSelectTileMsg(tileIDs);
         }
         else
-        {
-            // invalid selection
-            // - do nothing
-            // - might want to cancel moving here with DeselectMobileUnitAndIntent(true),
-            //   but that's currently too easy to do by mistake)
-        }
+            DeselectMobileUnitAndIntent(true);
     }
 
     void DeselectMobileUnitAndIntent(bool andTile = false)
