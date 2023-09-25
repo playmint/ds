@@ -47,10 +47,7 @@ contract DownstreamRouter is BaseRouter {
 }
 
 contract DownstreamGame is BaseGame {
-
-    constructor()
-        BaseGame("DOWNSTREAM", "http://downstream.game/")
-    {
+    constructor() BaseGame("DOWNSTREAM", "http://downstream.game/") {
         // create a state
         BaseState state = new BaseState();
 
@@ -98,5 +95,4 @@ contract DownstreamGame is BaseGame {
         _registerRouter(router);
         _registerDispatcher(dispatcher);
     }
-
 }
