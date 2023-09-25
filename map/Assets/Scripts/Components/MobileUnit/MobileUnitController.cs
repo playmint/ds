@@ -51,14 +51,15 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         {
             Vector3Int cubeCoords = new Vector3Int(_nextData.q, _nextData.r, _nextData.s);
             Vector3 worldPos = CoordsHelper.CubeToWorld(cubeCoords);
-            transform.position = new Vector3(worldPos.x, _nextData.height, worldPos.z);
+            transform.position =
+                new Vector3(worldPos.x, _nextData.height, worldPos.z) + GetOffset(_nextData.shared);
         }
         else if (
             _prevData.q != _nextData.q || _prevData.r != _nextData.r || _prevData.s != _nextData.s
         )
         {
             Vector3Int cubeCoords = new Vector3Int(_nextData.q, _nextData.r, _nextData.s);
-            Vector3 worldPos = CoordsHelper.CubeToWorld(cubeCoords);
+            Vector3 worldPos = CoordsHelper.CubeToWorld(cubeCoords) + GetOffset(_nextData.shared);
 
             if (_runningMovementCR != null)
             {
@@ -130,6 +131,26 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         }
 
         _prevData = _nextData;
+    }
+
+    private Vector3 GetOffset(bool isShared)
+    {
+        var offsetRadius = 0.29f;
+        var offset = Vector3.zero;
+        if (isShared)
+            offset = GetPositionOnCircle(offsetRadius, 6, 0);
+
+        return offset;
+    }
+
+    private Vector3 GetPositionOnCircle(float radius, int numObjects, int index)
+    {
+        float angle = (float)index / numObjects * 360f;
+        angle += 240;
+        float x = radius * Mathf.Sin(angle * Mathf.Deg2Rad);
+        float z = radius * Mathf.Cos(angle * Mathf.Deg2Rad);
+        float y = 0;
+        return new Vector3(x, y, z);
     }
 
     // Animations
