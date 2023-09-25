@@ -156,6 +156,7 @@ export interface QueuedSequencerAction {
     actions: CogAction[];
     clientQueueId: string;
     seqQueueId: string;
+    wait: () => Promise<boolean>;
 }
 
 export interface QueuedChainAction {
@@ -311,7 +312,7 @@ export interface PluginUpdateResponse {
 
 export type PluginSubmitProxy = (ref: string, values: PluginSubmitCallValues) => Promise<void>;
 
-export type DispatchFunc = (...actions: CogAction[]) => Promise<DispatchedAction>;
+export type DispatchFunc = (...actions: CogAction[]) => Promise<QueuedSequencerAction>;
 
 export type AvailablePlugin = AvailablePluginFragment;
 export type AvailableBuildingKind = BuildingKindFragment;

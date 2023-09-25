@@ -24,7 +24,7 @@ subscription OnEvent($gameID: ID!) {
         id
         ... on BlockEvent {
             block
-            logs
+            sigs
             simulated
         }
     }
