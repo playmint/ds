@@ -3,7 +3,6 @@ import {
     ConnectedPlayer,
     PluginType,
     SelectedMobileUnitFragment,
-    Selector,
     World,
     WorldBuildingFragment,
     WorldTileFragment,
@@ -303,7 +302,7 @@ const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player }) => {
 };
 
 export const TileInfoPanel = () => {
-    const { selectIntent, tiles, mobileUnit, selectTiles } = useSelection();
+    const { tiles, mobileUnit } = useSelection();
     const player = usePlayer();
 
     const selectedTiles = tiles || [];
