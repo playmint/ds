@@ -55,6 +55,7 @@ public class BaseComponentController<Data>
 
     public void OnPointerClick(PointerEventData evt)
     {
+        if(!CameraController.hasDragged)
         SendEvent("pointer_click");
     }
 
