@@ -45,12 +45,12 @@ export default function update({ selected, world }, block) {
         selectedTile && selectedTile.building
             ? selectedTile.building
             : undefined;
-    const selectedEngineer = mobileUnit;
     const tileAtoms = selectedTile.atoms
         .sort((a, b) => a.key - b.key)
         .map((elm) => elm.weight);
-    const elapsedSecs = selectedBuilding
-        ? (block - selectedBuilding.timestamp?.[0].blockNum) * BLOCK_TIME_SECS
+    const lastExtraction = selectedBuilding?.timestamp?.blockNum || 0;
+    const elapsedSecs = selectedBuilding && lastExtraction
+        ? (block - lastExtraction) * BLOCK_TIME_SECS
         : 0;
 
     // Calculate extracted goo and sum with previously extracted goo
@@ -58,7 +58,7 @@ export default function update({ selected, world }, block) {
         .map((atomVal) => Math.floor(getGooPerSec(atomVal) * elapsedSecs))
         .map((calculatedGoo, index) => {
             const totalGoo =
-                selectedBuilding.gooReservoir &&
+                selectedBuilding?.gooReservoir &&
                 selectedBuilding.gooReservoir.length > index
                     ? calculatedGoo +
                       selectedBuilding.gooReservoir[index].weight
@@ -96,7 +96,7 @@ export default function update({ selected, world }, block) {
             selectedBuilding?.bags[1].bag?.owner.id == mobileUnit?.owner.id);
 
     const extract = () => {
-        if (!selectedEngineer) {
+        if (!mobileUnit) {
             ds.log("no selected engineer");
             return;
         }
@@ -108,7 +108,7 @@ export default function update({ selected, world }, block) {
         ds.log("about to dispatch BUILDING_USE");
         ds.dispatch({
             name: "BUILDING_USE",
-            args: [selectedBuilding.id, selectedEngineer.id, []],
+            args: [selectedBuilding.id, mobileUnit.id, []],
         });
     };
     const reservoirPercent = Math.floor( (extractedGoo[gooIndex] / GOO_RESERVOIR_MAX) * 100);
