@@ -141,12 +141,16 @@ async function findOrCreateSession(client: CogServices, wallet: Wallet): Promise
  * dispatch executes the given bundle of actions by requesting a session
  * key for the given wallet, then signing and sending it on to cog
  */
-async function dispatch(client: CogServices, wallet: Wallet, bundle: QueuedClientAction) {
+async function dispatch(
+    client: CogServices,
+    wallet: Wallet,
+    bundle: QueuedClientAction,
+): Promise<QueuedSequencerAction> {
     const session = await findOrCreateSession(client, wallet);
     if (!session) {
         throw new Error(`no valid session`);
     }
-    const { data, error } = bundle.optimistic
+    const { data, error, wait } = bundle.optimistic
         ? await session.dispatch(...bundle.actions)
         : await session.dispatchAndWait(...bundle.actions);
     if (error) {
@@ -176,5 +180,6 @@ async function dispatch(client: CogServices, wallet: Wallet, bundle: QueuedClien
         ...bundle,
         seqQueueId: data.dispatch.id,
         status: DispatchedActionsStatus.QUEUED_SEQUENCER,
-    } satisfies QueuedSequencerAction;
+        wait,
+    };
 }

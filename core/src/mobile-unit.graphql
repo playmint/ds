@@ -11,6 +11,7 @@ fragment Item on Node {
 }
 
 fragment ItemSlot on Edge {
+    id
     key
     balance: weight
     item: node {

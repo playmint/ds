@@ -10,6 +10,7 @@ import { ethers } from 'ethers';
 import { createClient as createWSClient } from 'graphql-ws';
 import {
     concat,
+    debounce,
     filter,
     fromPromise,
     fromValue,
@@ -22,13 +23,13 @@ import {
     share,
     Source,
     switchMap,
+    take,
     tap,
+    toPromise,
 } from 'wonka';
 import { Actions__factory } from './abi';
 import { DispatchDocument, OnEventDocument, SigninDocument, SignoutDocument } from './gql/graphql';
 import { AnyGameSubscription, AnyGameVariables, CogAction, CogQueryConfig, GameConfig } from './types';
-// import { cacheExchange } from '@urql/exchange-graphcache';
-// import cogSchema from './gql/introspection';
 
 const EXPIRES_MILLISECONDS = 1000 * 60 * 60 * 12; // 12hrs
 
@@ -99,17 +100,6 @@ export function configureClient({
         url: httpEndpoint,
         fetch: httpFetchImpl ? httpFetchImpl : fetch,
         exchanges: [
-            // devtoolsExchange, // TODO: allow enabling this from config
-            // dedupExchange,
-            // cacheExchange,
-            // cacheExchange({
-            //     schema: cogSchema,
-            //     // updates: {
-            //     //     Subscription: {
-            //     //         events: invalidateCacheOnSubscriptionEvent,
-            //     //     },
-            //     // },
-            // }),
             fetchExchange,
             subscriptionExchange({
                 forwardSubscription: (request) => ({
@@ -120,6 +110,8 @@ export function configureClient({
             }),
         ],
     });
+
+    const waiting = new Map<string, boolean>();
 
     const signout = async (signer: ethers.Signer, session: string): Promise<void> => {
         const msg = ethers.concat([ethers.toUtf8Bytes(`You are signing out of session: `), ethers.getBytes(session)]);
@@ -143,16 +135,35 @@ export function configureClient({
                 abi.encode(['bytes[]', 'uint256'], [actions.map((action) => ethers.getBytes(action)), nonce]),
             ),
         );
-        console.time(`dispatch ${nonce}`);
         const auth = await signer.signMessage(actionDigest);
-        console.log(`dispatching nonce=${nonce}, sig=${auth}`);
+
+        waiting.set(auth, true);
+        const waiter: Promise<boolean> = pipe(
+            events,
+            filter((evt) => evt.simulated === false && evt.sigs.some((sig) => sig === auth)),
+            map(() => true),
+            take(1),
+            toPromise,
+        );
+
         return gql
             .mutation(DispatchDocument, { gameID, auth, actions, nonce, optimistic }, { requestPolicy: 'network-only' })
             .toPromise()
             .then((res) => {
-                force(nonce.toString());
-                return res;
-            });
+                if (res.error) {
+                    waiting.delete(auth);
+                    return {
+                        ...res,
+                        wait: () => Promise.resolve(false),
+                    };
+                }
+                force(auth);
+                return {
+                    ...res,
+                    wait: () => waiter,
+                };
+            })
+            .finally(() => setTimeout(() => waiting.delete(auth), 6000));
     };
 
     const signin = async (owner: ethers.Signer) => {
@@ -209,20 +220,27 @@ export function configureClient({
             }),
             filter((data): data is AnyGameSubscription['events'] => !!data),
             tap((data) => {
-                if (data.block && (!lastSeenBlock || data.block > lastSeenBlock)) {
+                if (data.block && data.simulated === false && (!lastSeenBlock || data.block > lastSeenBlock)) {
                     lastSeenBlock = data.block;
                     nextBlock(lastSeenBlock);
                 }
             }),
-            filter((data) => !!data.logs && data.logs > 0),
-            map(() => true),
+            filter((data): data is AnyGameSubscription['events'] => Array.isArray(data.sigs) && data.sigs.length > 0),
             share,
         );
 
-    const events = pipe(
-        subscription(OnEventDocument, { gameID }),
-        tap(() => console.log('PROPER UPDATE')),
-        map(() => 'SUB'),
+    const events = subscription(OnEventDocument, { gameID });
+
+    const externalEvents = pipe(
+        events,
+        filter((data) => {
+            const isExternalUpdate = !data.simulated || data.sigs.some((sig) => !waiting.has(sig));
+            return isExternalUpdate;
+        }), // ignore the update if they are all waiting as we force the same update in dispatch
+        debounce(() => 250),
+        tap((data) => console.log('EXTERNAL UPDATE', data)),
+        map(() => ''),
+        share,
     );
 
     // query executes a query which will get re-queried each time new data arrives
@@ -235,18 +253,18 @@ export function configureClient({
     ): Source<Data> =>
         pipe(
             config?.subscribe === false
-                ? lazy(() => fromValue('STATE_SUB_START')) // no subscription, just do the query once
+                ? lazy(() => fromValue('')) // no subscription, just do the query once
                 : concat([
-                      lazy(() => fromValue('STATE_START')), // always emit one to start
+                      lazy(() => fromValue('')), // always emit one to start
                       typeof config?.poll === 'undefined'
-                          ? merge([events, forced])
+                          ? merge([externalEvents, forced])
                           : pipe(
                                 // emit signal periodically
                                 interval(config.poll),
-                                map(() => 'POLL'),
+                                map(() => ''),
                             ),
                   ]),
-            switchMap((txid) =>
+            switchMap(() =>
                 pipe(
                     fromPromise(gql.query(doc, vars, { requestPolicy: 'network-only' }).toPromise()),
                     map((res) => {
@@ -262,7 +280,6 @@ export function configureClient({
                     }),
                     filter((res): res is OperationResult<Data, Variables> => typeof res !== 'undefined'),
                     map((res) => res.data),
-                    tap(() => (/^\d+/.test(txid) ? console.timeEnd(`dispatch ${txid}`) : undefined)),
                     filter((data): data is Data => typeof data !== 'undefined'),
                 ),
             ),
