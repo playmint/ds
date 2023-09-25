@@ -1,5 +1,3 @@
-/** @format */
-
 import { Inventory } from '@app/plugins/inventory/index';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { ComponentProps } from '@app/types/component-props';
@@ -12,18 +10,18 @@ export interface TileInventoryProps extends ComponentProps {
     tile: SelectedTileFragment;
 }
 
-const StyledTileInventory = styled('div')`
+const StyledTileInventory = styled.div`
     > h3 {
         margin-bottom: 1.6rem;
     }
 `;
 
 export const TileInventory: FunctionComponent<TileInventoryProps> = (props: TileInventoryProps) => {
-    const { title, tile, ...otherProps } = props;
+    const { title, tile } = props;
     const { isMobileUnitAtLocation } = useInventory();
 
     return (
-        <StyledTileInventory {...otherProps}>
+        <StyledTileInventory>
             {tile.bags.length > 0 && (
                 <Fragment>
                     {title && <h3>{title}</h3>}

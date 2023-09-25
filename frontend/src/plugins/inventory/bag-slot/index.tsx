@@ -6,7 +6,7 @@ import { getItemDetails } from '@app/plugins/inventory/helpers';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { ComponentProps } from '@app/types/component-props';
 import { ItemSlotFragment } from '@downstream/core';
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useMemo } from 'react';
 import styled from 'styled-components';
 import { styles } from './bag-slot.styles';
 
@@ -19,10 +19,9 @@ export interface BagSlotProps extends ComponentProps {
     equipIndex: number;
     slotKey: number;
     isInteractable?: boolean | ((ownerId: string, slot?: ItemSlotFragment) => boolean);
-    isPending?: boolean;
 }
 
-const StyledBagSlot = styled('div')`
+const StyledBagSlot = styled.li`
     ${styles}
 `;
 
@@ -36,11 +35,13 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
         equipIndex,
         slotKey,
         isInteractable: isInteractableFunc,
-        isPending,
-        ...otherProps
     } = props;
-    const { drop, isPickedUpItemVisible, pickedUpItem } = useInventory();
+    const { isBusySlot, drop, isPickedUpItemVisible, pickedUpItem } = useInventory();
 
+    const isPending = useMemo(
+        () => isBusySlot({ id: ownerId, equipIndex, slotKey }),
+        [ownerId, equipIndex, slotKey, isBusySlot]
+    );
     const item = itemSlot?.balance ? getItemDetails(itemSlot) : null;
     const placeholderItem = placeholder?.balance ? getItemDetails(placeholder) : null;
     const itemSlotBalance = itemSlot?.balance || 0;
@@ -111,11 +112,10 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
 
     return (
         <StyledBagSlot
-            {...otherProps}
             onClick={handleLeftClick}
             onContextMenu={handleRightClick}
-            isDroppable={isDroppable}
-            isDisabled={isDisabled}
+            isDroppable={!isPending && !!isDroppable}
+            isDisabled={isPending || isDisabled}
             isInteractable={isInteractable}
             isInvalid={isInvalid}
         >

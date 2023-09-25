@@ -13,10 +13,10 @@ export interface BuildingInventoryProps extends ComponentProps {
     recipe: ItemSlotFragment[];
 }
 
-const StyledBuildingInventory = styled('div')``;
+const StyledBuildingInventory = styled.div``;
 
 export const BuildingInventory: FunctionComponent<BuildingInventoryProps> = (props: BuildingInventoryProps) => {
-    const { buildingId, recipe, ...otherProps } = props;
+    const { buildingId, recipe } = props;
     const bagId = getBagId(buildingId);
     const equipSlot = getBuildingEquipSlot(useWorld(), buildingId, 0) ?? {
         id: '',
@@ -25,7 +25,7 @@ export const BuildingInventory: FunctionComponent<BuildingInventoryProps> = (pro
     };
 
     return (
-        <StyledBuildingInventory {...otherProps}>
+        <StyledBuildingInventory>
             <Bag
                 key={equipSlot.key}
                 bag={equipSlot.bag}
@@ -36,7 +36,6 @@ export const BuildingInventory: FunctionComponent<BuildingInventoryProps> = (pro
                 recipe={recipe}
                 numBagSlots={recipe.length}
                 showIcon={false}
-                as="li"
             />
         </StyledBuildingInventory>
     );

@@ -10,7 +10,7 @@ import { ActionBarProps } from './index';
  * @return Base styles for the action bar component
  */
 const baseStyles = (_: Partial<ActionBarProps>) => css`
-    min-width: 33vw;
+    width: 33vw;
     margin-bottom: 1.5rem;
 
     h3 {
@@ -18,14 +18,16 @@ const baseStyles = (_: Partial<ActionBarProps>) => css`
     }
 
     .actions {
+        width: 100%;
         display: flex;
         gap: 0.6rem;
         justify-content: center;
-        align-items: flex-start;
+        align-items: stretch;
         flex-wrap: nowrap;
 
         .action-icon-button {
-            width: 30%;
+            width: 10rem;
+            flex-grow: 1;
         }
     }
 `;

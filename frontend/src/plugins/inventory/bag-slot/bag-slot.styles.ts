@@ -18,7 +18,7 @@ const baseStyles = ({ isDroppable, isDisabled, isInteractable, isInvalid }: BagS
     box-sizing: content-box;
     width: 4.8rem;
     height: 4.8rem;
-    background: ${isDisabled || !isInteractable ? '#19212e' : '#030f25'};
+    background: ${isDisabled || !isInteractable ? '#03122d' : '#030f25'};
     border: 1px solid
         ${isDisabled || !isInteractable ? '#656585' : isInvalid ? 'red' : isDroppable ? 'white' : '#6c98d4'};
 

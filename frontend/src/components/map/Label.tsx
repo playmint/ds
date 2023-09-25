@@ -9,14 +9,12 @@ export interface LabelData {
     text: string;
 }
 
-export const Label = memo(
-    ({ id, q, r, s, height, text }: UnityComponentProps & LabelData) => {
-        useUnityComponentManager<LabelData>({
-            type: 'LabelData',
-            id,
-            data: useMemo(() => ({ q, r, s, height, text }), [q, r, s, height, text]),
-        });
+export const Label = memo(({ id, q, r, s, height, text }: UnityComponentProps & LabelData) => {
+    useUnityComponentManager<LabelData>({
+        type: 'LabelData',
+        id,
+        data: useMemo(() => ({ q, r, s, height, text }), [q, r, s, height, text]),
+    });
 
-        return null;
-    }
-);
+    return null;
+});

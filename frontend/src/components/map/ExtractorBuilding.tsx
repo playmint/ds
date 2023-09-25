@@ -30,7 +30,10 @@ export const ExtractorBuilding = memo(
         useUnityComponentManager<ExtractorBuildingData>({
             type: 'ExtractorBuildingData',
             id,
-            data: useMemo(() => ({ q, r, s, height, color, selected, rotation, progress }), [q, r, s, height, color, selected, rotation, progress]),
+            data: useMemo(
+                () => ({ q, r, s, height, color, selected, rotation, progress }),
+                [q, r, s, height, color, selected, rotation, progress]
+            ),
             onPointerEnter,
             onPointerExit,
             onPointerClick,

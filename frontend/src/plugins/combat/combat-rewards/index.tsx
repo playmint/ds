@@ -1,24 +1,23 @@
 /** @format */
 
+import { Bag } from '@app/plugins/inventory/bag';
+import { ComponentProps } from '@app/types/component-props';
+import { SelectedMobileUnitFragment, SelectedTileFragment } from '@downstream/core';
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
-import { ComponentProps } from '@app/types/component-props';
 import { styles } from './combat-rewards.styles';
-import { ConnectedPlayer, SelectedMobileUnitFragment, SelectedTileFragment } from '@downstream/core';
-import { Bag } from '@app/plugins/inventory/bag';
 
 export interface CombatRewardsProps extends ComponentProps {
     selectedTiles: SelectedTileFragment[];
-    player?: ConnectedPlayer;
     selectedMobileUnit?: SelectedMobileUnitFragment;
 }
 
-const StyledCombatRewards = styled('div')`
+const StyledCombatRewards = styled.div`
     ${styles}
 `;
 
 export const CombatRewards: FunctionComponent<CombatRewardsProps> = (props: CombatRewardsProps) => {
-    const { selectedTiles, player, selectedMobileUnit, ...otherProps } = props;
+    const { selectedTiles, selectedMobileUnit } = props;
 
     const latestSession =
         selectedTiles.length > 0 && selectedTiles[0].sessions.length > 0
@@ -48,7 +47,7 @@ export const CombatRewards: FunctionComponent<CombatRewardsProps> = (props: Comb
     }
 
     return (
-        <StyledCombatRewards {...otherProps}>
+        <StyledCombatRewards>
             <h3>Combat rewards</h3>
             <ul className="bags">
                 {latestSession &&
@@ -60,7 +59,6 @@ export const CombatRewards: FunctionComponent<CombatRewardsProps> = (props: Comb
                             equipIndex={equipSlot.key}
                             ownerId={latestSession.id}
                             isInteractable={true}
-                            as="li"
                         />
                     ))}
             </ul>

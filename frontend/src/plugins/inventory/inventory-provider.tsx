@@ -1,21 +1,24 @@
-/** @format */
 import { Tile } from '@app/../../core/src';
 import { nullBagId } from '@app/fixtures/null-bag-id';
 import { getTileDistance } from '@app/helpers/tile';
 import { usePlayer, useSelection } from '@app/hooks/use-game-state';
 import { styles } from '@app/plugins/inventory/bag-item/bag-item.styles';
 import { useClickOutside } from '@app/plugins/inventory/use-click-outside';
-import { createContext, ReactNode, RefObject, useContext, useEffect, useRef, useState } from 'react';
+import { ReactNode, RefObject, createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { getFullSlotID } from './helpers';
 
 export interface InventoryContextProviderProps {
     children?: ReactNode;
 }
 
-export interface TransferInfo {
+export interface TransferSlot {
     id: string;
     equipIndex: number;
     slotKey: number;
+}
+
+export interface TransferInfo extends TransferSlot {
     newBalance: number;
     itemId: string;
 }
@@ -28,6 +31,7 @@ export interface InventoryItem {
 }
 
 interface InventoryContextStore {
+    isBusySlot: (slot: TransferSlot) => boolean;
     isPickedUpItemVisible: boolean;
     pickedUpItem: InventoryItem | null;
     pickUpItem: (item: InventoryItem) => void;
@@ -67,9 +71,21 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
     const { mobileUnit: selectedMobileUnit } = useSelection();
     // const world = useWorld();
     const [isPickedUpItemVisible, setIsPickedUpItemVisible] = useState<boolean>(false);
+    const [busySlots, setBusySlots] = useState<Map<string, boolean>>();
     const pickedUpItemRef = useRef<InventoryItem | null>(null);
     const pickedUpItemElementRef = useRef<HTMLDivElement>(null);
     const { addRef: addBagRef, removeRef: removeBagRef } = useClickOutside(clearPickedUpItem);
+
+    const isBusySlot = useCallback(
+        (slot: TransferSlot): boolean => {
+            if (!busySlots) {
+                return false;
+            }
+            const slotID = getFullSlotID(slot);
+            return busySlots.get(slotID) || false;
+        },
+        [busySlots]
+    );
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -107,7 +123,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
     }
 
     const drop = (
-        target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotKey'>,
+        target: TransferSlot,
         targetCurrentBalance: number,
         transferQuantity: number,
         bagId?: string
@@ -168,6 +184,20 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
             return;
         }
 
+        const fromSlotID = getFullSlotID(from);
+        const toSlotID = getFullSlotID(to);
+
+        setBusySlots((busy) => {
+            if (!busy) {
+                busy = new Map<string, boolean>();
+            } else {
+                busy = new Map(busy);
+            }
+            busy.set(fromSlotID, true);
+            busy.set(toSlotID, true);
+            return busy;
+        });
+
         // make our dispatch
         player
             .dispatch({
@@ -181,10 +211,20 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
                     quantity,
                 ],
             })
-            .catch((err) => console.error('transfer item failed', err));
+            .then((res) => res.wait())
+            .catch((err) => console.error('transfer item failed', err))
+            .finally(() => {
+                setBusySlots((busy) => {
+                    busy = new Map(busy);
+                    busy.delete(fromSlotID);
+                    busy.delete(toSlotID);
+                    return busy;
+                });
+            });
     };
 
     const inventoryContextValue: InventoryContextStore = {
+        isBusySlot,
         isPickedUpItemVisible,
         pickedUpItem: pickedUpItemRef.current,
         pickUpItem,

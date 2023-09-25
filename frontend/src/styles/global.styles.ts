@@ -53,10 +53,6 @@ export const GlobalStyles = createGlobalStyle`
         width: 100%;
     }
 
-    .tile-actions {
-
-    }
-
     .action-button {
         border-radius: 30px;
         border: none;

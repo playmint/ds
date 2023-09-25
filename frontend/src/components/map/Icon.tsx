@@ -16,7 +16,10 @@ export const Icon = memo(
         useUnityComponentManager<IconData>({
             type: 'IconData',
             id,
-            data: useMemo(() => ({ q, r, s, height, backgroundColor, foregroundColor, image }), [q, r, s, height, backgroundColor, foregroundColor, image]),
+            data: useMemo(
+                () => ({ q, r, s, height, backgroundColor, foregroundColor, image }),
+                [q, r, s, height, backgroundColor, foregroundColor, image]
+            ),
         });
 
         return null;
