@@ -9,7 +9,15 @@ import {
     WorldTileFragment,
 } from '@app/../../core/src';
 import { PluginContent } from '@app/components/organisms/tile-action';
-import { GOO_BLUE, GOO_GREEN, GOO_RED, getCoords, getGooRates, getNeighbours } from '@app/helpers/tile';
+import {
+    GOO_BLUE,
+    GOO_GREEN,
+    GOO_RED,
+    getCoords,
+    getGooRates,
+    getNeighbours,
+    getTileDistance,
+} from '@app/helpers/tile';
 import { useBuildingKinds, usePlayer, usePluginState, useSelection, useWorld } from '@app/hooks/use-game-state';
 import { Bag } from '@app/plugins/inventory/bag';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
@@ -102,14 +110,12 @@ const Panel = styled.div`
 `;
 
 interface TileBuildingProps {
-    player?: ConnectedPlayer;
+    canUse: boolean;
     building: WorldBuildingFragment;
     world?: World;
-    selectIntent?: Selector<string | undefined>;
-    selectTiles?: Selector<string[] | undefined>;
     mobileUnit?: SelectedMobileUnitFragment;
 }
-const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, world, mobileUnit }) => {
+const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, world, mobileUnit, canUse }) => {
     const { tiles: selectedTiles } = useSelection();
     const selectedTile = selectedTiles?.[0];
     const ui = usePluginState();
@@ -161,7 +167,7 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, world, m
         <Panel>
             <h3>{name}</h3>
             {description && <span className="sub-title">{description}</span>}
-            {content && (
+            {canUse && content && (
                 <PluginContent content={content}>
                     {mobileUnit && (
                         <>
@@ -314,7 +320,6 @@ export const TileInfoPanel = () => {
               .filter((t): t is WorldTileFragment => !!t && t.biome === BiomeKind.DISCOVERED && !!t.building)
         : [];
 
-    const canUse = useableTiles.length > 0 && mobileUnit;
     const selectedTile = selectedTiles?.slice(-1).find(() => true);
 
     if (selectedTile) {
@@ -323,28 +328,19 @@ export const TileInfoPanel = () => {
         } else if (!selectedTile.building) {
             return <TileAvailable player={player} />;
         } else if (selectedTile.building) {
-            if (!canUse) {
-                return (
-                    <TileBuilding
-                        building={selectedTile.building}
-                        world={world}
-                        selectIntent={selectIntent}
-                        selectTiles={selectTiles}
-                        mobileUnit={mobileUnit}
-                    />
-                );
-            } else {
-                return (
-                    <TileBuilding
-                        player={player}
-                        building={selectedTile.building}
-                        world={world}
-                        selectIntent={selectIntent}
-                        selectTiles={selectTiles}
-                        mobileUnit={mobileUnit}
-                    />
-                );
-            }
+            const canUse =
+                useableTiles.length > 0 &&
+                mobileUnit &&
+                mobileUnit.nextLocation &&
+                getTileDistance(mobileUnit.nextLocation.tile, selectedTile) < 2;
+            return (
+                <TileBuilding
+                    canUse={!!canUse}
+                    building={selectedTile.building}
+                    world={world}
+                    mobileUnit={mobileUnit}
+                />
+            );
         } else {
             return null; // fallback, don't expect this state
         }
