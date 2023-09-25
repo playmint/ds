@@ -65,13 +65,12 @@ export type SelectedBag = {
 
 export const Shell: FunctionComponent<ShellProps> = () => {
     const { ready: mapReady } = useUnityMap();
-    const { world, selected, selectTiles, selectMobileUnit } = useGameState();
+    const { world, selected, selectTiles, selectMobileUnit, selectMapElement } = useGameState();
     const { loadingSession } = useSession();
     const player = usePlayer();
-    const { mobileUnit: selectedMobileUnit, tiles: selectedTiles } = selected || {};
+    const { mobileUnit: selectedMobileUnit, tiles: selectedTiles, mapElement: selectedMapElement } = selected || {};
     const blockNumber = useBlock();
     const { connect } = useWalletProvider();
-    const [selectedMapElement, setSelectedMapElement] = useState<{ id: string; type: string }>();
     const [selectedBags, setSelectedBags] = useState<SelectedBag[]>();
     const tiles = world?.tiles;
     const selectedTileBags = selectedBags?.filter((sb) => !sb.isCombatReward);
@@ -96,17 +95,17 @@ export const Shell: FunctionComponent<ShellProps> = () => {
 
     const mapElementClick = useCallback(
         (id?: string, type?: string) => {
-            if (!setSelectedMapElement) {
+            if (!selectMapElement) {
                 return;
             }
-            if (!id || !type) {
-                console.warn(`ignored attempt to selectedMapElement with id=${id} type=${type}`);
-                return;
+            if (id && type) {
+                selectMapElement({ id, type });
+            } else {
+                // This is how we deselect the selected map element if we click the ground plane
+                selectMapElement(undefined);
             }
-
-            setSelectedMapElement({ id, type });
         },
-        [setSelectedMapElement]
+        [selectMapElement]
     );
 
     const mapElementEnter = useCallback((id) => {
@@ -220,10 +219,13 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             if (!selectTiles) {
                 return;
             }
+            if (!selectMapElement) {
+                return;
+            }
             selectTiles([id]);
-            setSelectedMapElement(undefined);
+            selectMapElement(undefined);
         },
-        [selectTiles]
+        [selectMapElement, selectTiles]
     );
 
     const tileComponents = useMemo(() => {
@@ -434,7 +436,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
 
     const mobileUnitClick = useCallback(
         (id) => {
-            if (!selectMobileUnit || !selectTiles || !setSelectedMapElement) {
+            if (!selectMobileUnit || !selectTiles || !selectMapElement) {
                 return;
             }
 
@@ -442,9 +444,9 @@ export const Shell: FunctionComponent<ShellProps> = () => {
 
             setHoveredMobileUnitId(undefined);
             selectTiles(undefined);
-            setSelectedMapElement(undefined);
+            selectMapElement(undefined);
         },
-        [setSelectedMapElement, selectMobileUnit, selectTiles]
+        [selectMapElement, selectMobileUnit, selectTiles]
     );
 
     const mobileUnitEnter = useCallback(

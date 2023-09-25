@@ -1,5 +1,5 @@
 import { filter, map, merge, pipe, scan, Source } from 'wonka';
-import { ConnectedPlayer, GameState, Selection, Selector, World } from './types';
+import { ConnectedPlayer, GameState, SelectedMapElement, Selection, Selector, World } from './types';
 
 /**
  * makeState is a helper to merge player+world+selection together into the State object.
@@ -15,7 +15,7 @@ export function makeGameState(
     selectTiles: Selector<string[] | undefined>,
     selectMobileUnit: Selector<string | undefined>,
     selectIntent: Selector<string | undefined>,
-    selectMapElement: Selector<string | undefined>,
+    selectMapElement: Selector<SelectedMapElement | undefined>,
 ) {
     return pipe(
         merge<Partial<GameState>>([
