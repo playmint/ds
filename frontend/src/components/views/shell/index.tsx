@@ -95,7 +95,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const [hoveredMapElementId, setHoveredMapElementId] = useState<string | undefined>();
 
     const mapElementClick = useCallback(
-        (id: string, type: string) => {
+        (id?: string, type?: string) => {
             if (!setSelectedMapElement) {
                 return;
             }
@@ -562,7 +562,13 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         <StyledShell>
             {mapReady && (
                 <>
-                    <GroundPlane height={-0.1} />
+                    <GroundPlane
+                        height={-0.1}
+                        onPointerClick={() => {
+                            mapElementClick();
+                            mobileUnitClick(null);
+                        }}
+                    />
                     {unitIcons}
                     {tileComponents}
                     {tileGooComponents}
