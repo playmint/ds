@@ -20,6 +20,7 @@ import {
     makeWallet,
     makeWorld,
     PluginUpdateResponse,
+    SelectedMapElement,
     Selection,
     Selector,
     Wallet,
@@ -43,7 +44,7 @@ export interface SelectionSelectors {
     selectMobileUnit: Selector<string | undefined>;
     selectTiles: Selector<string[] | undefined>;
     selectIntent: Selector<string | undefined>;
-    selectMapElement: Selector<string | undefined>;
+    selectMapElement: Selector<SelectedMapElement | undefined>;
 }
 
 export interface DSContextValue {

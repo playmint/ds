@@ -326,7 +326,7 @@ export interface Selection {
     mobileUnit?: SelectedMobileUnitFragment;
     tiles?: SelectedTileFragment[];
     intent?: string;
-    mapElement?: string;
+    mapElement?: SelectedMapElement;
 }
 
 export type Selector<T> = (v: T) => void;
@@ -345,7 +345,7 @@ export interface GameState {
     selectTiles: Selector<string[] | undefined>;
     selectMobileUnit: Selector<string | undefined>;
     selectIntent: Selector<string | undefined>;
-    selectMapElement: Selector<string | undefined>;
+    selectMapElement: Selector<SelectedMapElement | undefined>;
 }
 
 export interface ConnectedPlayer extends SelectedPlayerFragment {
@@ -358,3 +358,5 @@ export interface ConnectedPlayer extends SelectedPlayerFragment {
 }
 
 export type UnconnectedPlayer = undefined;
+
+export type SelectedMapElement = { id: string; type: string };
