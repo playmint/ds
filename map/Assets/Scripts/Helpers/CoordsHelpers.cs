@@ -37,6 +37,5 @@ public class CoordsHelper
         var y = 0.01f;
         var z = 0.5f * ((3f / 2f) * cubeCoords.y);
         return new Vector3(x, y, z);
-
     }
 }

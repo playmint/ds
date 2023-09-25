@@ -1,6 +1,3 @@
-
 using UnityEngine;
 
-public class TileManager : BaseComponentManager<TileData, TileController>, IComponentManager
-{
-}
+public class TileManager : BaseComponentManager<TileData, TileController>, IComponentManager { }

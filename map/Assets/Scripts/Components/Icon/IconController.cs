@@ -9,10 +9,13 @@ public class IconController : BaseComponentController<IconData>
 {
     [SerializeField]
     SpriteMask rend;
+
     [SerializeField]
     GameObject background;
+
     [SerializeField]
     SpriteRenderer backgroundFill;
+
     [SerializeField]
     SpriteRenderer foregroundFill;
 
@@ -56,8 +59,13 @@ public class IconController : BaseComponentController<IconData>
     {
         var request = UnityWebRequest.Get(url);
         request.SendWebRequest();
-        while (!request.isDone) yield return null; // wait 1 frame until request done
-        if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.DataProcessingError || request.result == UnityWebRequest.Result.ProtocolError)
+        while (!request.isDone)
+            yield return null; // wait 1 frame until request done
+        if (
+            request.result == UnityWebRequest.Result.ConnectionError
+            || request.result == UnityWebRequest.Result.DataProcessingError
+            || request.result == UnityWebRequest.Result.ProtocolError
+        )
         {
             Debug.Log("Error: " + request.error);
         }
@@ -77,20 +85,34 @@ public class IconController : BaseComponentController<IconData>
     {
         using StringReader textReader = new StringReader(svgFile);
         var sceneInfo = SVGParser.ImportSVG(textReader);
-        var geoms = VectorUtils.TessellateScene(sceneInfo.Scene, new VectorUtils.TessellationOptions
-        {
-            StepDistance = 1f,
-            SamplingStepSize = 100,
-            MaxCordDeviation = 0.5f,
-            MaxTanAngleDeviation = 0.1f
-        });
+        var geoms = VectorUtils.TessellateScene(
+            sceneInfo.Scene,
+            new VectorUtils.TessellationOptions
+            {
+                StepDistance = 1f,
+                SamplingStepSize = 100,
+                MaxCordDeviation = 0.5f,
+                MaxTanAngleDeviation = 0.1f
+            }
+        );
 
         // Build a sprite with the tessellated geometry.
-        var sprite = VectorUtils.BuildSprite(geoms, 1.0f, VectorUtils.Alignment.Center, Vector2.zero, 64, true);
+        var sprite = VectorUtils.BuildSprite(
+            geoms,
+            1.0f,
+            VectorUtils.Alignment.Center,
+            Vector2.zero,
+            64,
+            true
+        );
 
         //This next bit is a bit of a faff, but it normalises the sprite so that different size SVGs are scaled to fit in the icon:
         var mat = new Material(Shader.Find("Unlit/Vector"));
-        sprite = Sprite.Create(VectorUtils.RenderSpriteToTexture2D(sprite, 256, 256, mat), new Rect(0, 0, 256, 256), Vector2.one * 0.5f);
+        sprite = Sprite.Create(
+            VectorUtils.RenderSpriteToTexture2D(sprite, 256, 256, mat),
+            new Rect(0, 0, 256, 256),
+            Vector2.one * 0.5f
+        );
 
         sprite.name = "icon";
         return sprite;

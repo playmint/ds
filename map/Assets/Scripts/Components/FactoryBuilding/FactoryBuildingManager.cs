@@ -1,5 +1,3 @@
-
-public class FactoryBuildingManager : BaseComponentManager<FactoryBuildingData, FactoryBuildingController>, IComponentManager
-{
-
-}
+public class FactoryBuildingManager
+    : BaseComponentManager<FactoryBuildingData, FactoryBuildingController>,
+        IComponentManager { }

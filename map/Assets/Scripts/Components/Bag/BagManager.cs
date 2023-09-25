@@ -1,5 +1,1 @@
-
-public class BagManager : BaseComponentManager<BagData, BagController>, IComponentManager
-{
-
-}
+public class BagManager : BaseComponentManager<BagData, BagController>, IComponentManager { }

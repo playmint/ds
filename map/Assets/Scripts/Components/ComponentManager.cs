@@ -61,10 +61,14 @@ public class ComponentManager : MonoBehaviour
 
     private IComponentManager GetManagerFor(ComponentMessage msg)
     {
-        IComponentManager? manager = GetComponents<IComponentManager>().Where(m =>
-        {
-            return m.GetDataTypeName() == msg.type;
-        }).FirstOrDefault() ?? throw new Exception($"ComponentManager: no manager found for msg type: {msg.type}");
+        IComponentManager? manager =
+            GetComponents<IComponentManager>()
+                .Where(m =>
+                {
+                    return m.GetDataTypeName() == msg.type;
+                })
+                .FirstOrDefault()
+            ?? throw new Exception($"ComponentManager: no manager found for msg type: {msg.type}");
         return manager;
     }
 

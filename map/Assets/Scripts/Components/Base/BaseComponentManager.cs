@@ -16,10 +16,9 @@ interface IComponentManager
 }
 
 public class BaseComponentManager<Data, Controller> : MonoBehaviour, IComponentManager
-where Controller : IComponentController<Data>
-where Data : new()
+    where Controller : IComponentController<Data>
+    where Data : new()
 {
-
     [SerializeField]
     protected AssetReference _assetRef;
 

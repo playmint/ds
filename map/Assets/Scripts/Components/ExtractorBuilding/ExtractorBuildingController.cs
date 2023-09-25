@@ -14,7 +14,8 @@ public class ExtractorBuildingController : BaseComponentController<ExtractorBuil
     [SerializeField]
     private Renderer gooRenderer;
 
-    public Material redOutlineMat, greenOutlineMat;
+    public Material redOutlineMat,
+        greenOutlineMat;
 
     private Color _defaultColor;
 
@@ -37,7 +38,7 @@ public class ExtractorBuildingController : BaseComponentController<ExtractorBuil
         ColorUtility.TryParseHtmlString(_nextData.color, out gooCol);
         gooRenderer.material.SetColor("_BaseColor", gooCol);
 
-        GetComponentInChildren<Animator>().Play("GooLevel",0,_nextData.progress);
+        GetComponentInChildren<Animator>().Play("GooLevel", 0, _nextData.progress);
 
         _prevData = _nextData;
 

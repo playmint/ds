@@ -42,23 +42,20 @@ public class TileController : BaseComponentController<TileData>
         );
 
         // transition color
-        ColorUtility.TryParseHtmlString(_nextData.color == null || _nextData.color == "" ? _defaultMatColor : _nextData.color, out Color targetColor);
+        ColorUtility.TryParseHtmlString(
+            _nextData.color == null || _nextData.color == "" ? _defaultMatColor : _nextData.color,
+            out Color targetColor
+        );
         if (targetColor == null)
         {
             Debug.Log($"invalid color {_nextData.color} falling back to {_defaultMatColor}");
             ColorUtility.TryParseHtmlString(_defaultMatColor, out targetColor);
         }
-        var currentColor = _prevData == null
-            ? targetColor
-            : _dynamicMatProps.GetColor("_Color");
+        var currentColor = _prevData == null ? targetColor : _dynamicMatProps.GetColor("_Color");
         _dynamicMatProps.SetColor(
-                "_Color",
-                Color.Lerp(
-                    currentColor,
-                    targetColor,
-                    popInCurve.Evaluate(_t)
-                )
-            );
+            "_Color",
+            Color.Lerp(currentColor, targetColor, popInCurve.Evaluate(_t))
+        );
         rend.SetPropertyBlock(_dynamicMatProps);
 
         if (transform.position == targetWorldPos && currentColor == targetColor)

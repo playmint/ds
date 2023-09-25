@@ -10,8 +10,13 @@ public interface IComponentController<Data>
     public GameObject GetGameObject();
 }
 
-public class BaseComponentController<Data> : MonoBehaviour, IComponentController<Data>, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
-where Data : new()
+public class BaseComponentController<Data>
+    : MonoBehaviour,
+        IComponentController<Data>,
+        IPointerEnterHandler,
+        IPointerExitHandler,
+        IPointerClickHandler
+    where Data : new()
 {
     protected string _dataTypeName = (new Data()).GetType().Name;
     protected string? _instanceId;
