@@ -166,8 +166,8 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, world, m
         <Panel>
             <h3>{name}</h3>
             {description && <span className="sub-title">{description}</span>}
-            {canUse && content && (
-                <PluginContent content={content}>
+            {content && (
+                <PluginContent canUse={canUse} content={content}>
                     {mobileUnit && (
                         <>
                             {inputs.length > 0 && inputBag && (
@@ -177,7 +177,7 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, world, m
                                         bagId={inputBag.bag.id}
                                         equipIndex={0}
                                         ownerId={building.id}
-                                        isInteractable={true}
+                                        isInteractable={canUse}
                                         recipe={inputs}
                                         numBagSlots={inputs.length}
                                         showIcon={false}
@@ -196,7 +196,7 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, world, m
                                         bagId={outputBag.bag.id}
                                         equipIndex={1}
                                         ownerId={building.id}
-                                        isInteractable={true}
+                                        isInteractable={canUse}
                                         recipe={outputs}
                                         numBagSlots={outputs.length}
                                         showIcon={false}
