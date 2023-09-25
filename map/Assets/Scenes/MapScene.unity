@@ -1136,7 +1136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1ab31ed6427e4d91910a0d1a1ae4cfb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  outlineTexture: {fileID: 8400000, guid: 3c1a086c21b434c8e9004e42b52ec3fc, type: 2}
+  outlineTexture: {fileID: 0}
   outlineCam: {fileID: 591643644}
   camController: {fileID: 324799505}
   outlineRenderer: {fileID: -1408938807035450848, guid: 27dd91c15039b4701906e82860452235,
