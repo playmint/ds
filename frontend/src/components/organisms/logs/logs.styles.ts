@@ -12,6 +12,8 @@ import { LogsProps } from './index';
 const baseStyles = (_: Partial<LogsProps>) => css`
     max-width: 33vw;
     max-height: 20rem;
+    pointer-events: none;
+    user-select: none;
 
     > .log {
         display: block;
