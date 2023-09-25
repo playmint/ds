@@ -238,7 +238,6 @@ export function configureClient({
             return isExternalUpdate;
         }), // ignore the update if they are all waiting as we force the same update in dispatch
         debounce(() => 250),
-        tap((data) => console.log('EXTERNAL UPDATE', data)),
         map(() => ''),
         share,
     );
