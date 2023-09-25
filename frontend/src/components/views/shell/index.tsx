@@ -146,8 +146,20 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         }
 
         selectTiles(undefined);
+        setSelectedBags(undefined);
 
         switch (selectedMapElement.type) {
+            case 'FactoryBuildingData':
+            case 'BlockerBuildingData':
+            case 'ExtractorBuildingData':
+                {
+                    const t = tiles.find((t) => t.building?.id == selectedMapElement.id);
+                    if (t) {
+                        selectTiles([t.id]);
+                    }
+                }
+                break;
+
             case 'BagData':
                 const tileId = selectedMapElement.id.replace('bag/', '');
                 const t = tiles.find((t) => t.id == tileId);
@@ -194,9 +206,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 }
 
                 setSelectedBags(selectedBags);
-                break;
-            default:
-                setSelectedBags(undefined);
                 break;
         }
     }, [selectTiles, selectedMapElement, selectedMobileUnit, tiles]);
