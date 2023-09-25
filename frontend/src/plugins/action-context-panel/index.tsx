@@ -11,7 +11,6 @@ import {
 } from '@app/../../core/src';
 import { Path } from '@app/components/map/Path';
 import { TileHighlight } from '@app/components/map/TileHighlight';
-import { TileIcon } from '@app/components/map/TileIcon';
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
 import { getPath } from '@app/helpers/pathfinding';
 import { getCoords, getTileDistance, getTileHeight } from '@app/helpers/tile';
