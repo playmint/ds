@@ -99,6 +99,10 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             if (!setSelectedMapElement) {
                 return;
             }
+            if (!id || !type) {
+                console.warn(`ignored attempt to selectedMapElement with id=${id} type=${type}`);
+                return;
+            }
 
             setSelectedMapElement({ id, type });
         },
