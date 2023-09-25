@@ -315,24 +315,15 @@ const Construct: FunctionComponent<ConstructProps> = ({
                 );
             })}
             {constructableTile && constructionCoords && (
-                <>
-                    <TileHighlight
-                        key={`cons-${constructableTile.id}`}
-                        id={`cons-${constructableTile.id}`}
-                        height={getTileHeight(constructableTile)}
-                        color="white"
-                        style="gradient_outline"
-                        animation="none"
-                        {...constructionCoords}
-                    />
-                    <TileIcon
-                        key={`tileIcon-${constructableTile.id}`}
-                        id={`tileIcon-${constructableTile.id}`}
-                        height={getTileHeight(constructableTile)}
-                        icon={'https://assets.downstream.game/icons/31-122.svg'}
-                        {...constructionCoords}
-                    />
-                </>
+                <TileHighlight
+                    key={`cons-${constructableTile.id}`}
+                    id={`cons-${constructableTile.id}`}
+                    height={getTileHeight(constructableTile)}
+                    color="white"
+                    style="gradient_outline"
+                    animation="none"
+                    {...constructionCoords}
+                />
             )}
             <div className="guide">
                 <h3>{selectedKind ? selectedKind.name?.value : 'Construct...'}</h3>
