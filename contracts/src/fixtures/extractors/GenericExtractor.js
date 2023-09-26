@@ -37,7 +37,6 @@ const getGooPerSec = (atomVal) => {
     return secsPerGoo > 0 ? ((1 / secsPerGoo) * 100) / 100 : 0;
 };
 
-
 export default function update({ selected, world }, block) {
     const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
@@ -70,6 +69,9 @@ export default function update({ selected, world }, block) {
     // fetch our output item details
     const expectedOutputs = selectedBuilding?.kind?.outputs || [];
     const out0 = expectedOutputs?.find((slot) => slot.key == 0);
+    if (!out0) {
+        return {};
+    }
     const outItemAtomVals = [...out0.item.id]
         .slice(2)
         .reduce((bs, b, idx) => {
