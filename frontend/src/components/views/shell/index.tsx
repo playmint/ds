@@ -16,6 +16,7 @@ import { Onboarding } from '@app/components/organisms/onboarding';
 import { ItemPluginPanel } from '@app/components/panels/item-plugin-panel';
 import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
 import { NavPanel } from '@app/components/panels/nav-panel';
+import { TileInfoPanel } from '@app/components/panels/tile-info-panel';
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
 import {
     GOO_BLUE,
@@ -23,7 +24,6 @@ import {
     GOO_RED,
     GOO_SMALL_THRESH,
     getGooColor,
-    getGooPerSec,
     getGooSize,
     getTileDistance,
     getTileHeight,
@@ -42,7 +42,6 @@ import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 're
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
-import { TileInfoPanel } from '@app/components/panels/tile-info-panel';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -408,36 +407,15 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 if (!t.building || !t.building.kind) {
                     return null;
                 }
-                if (!blockNumber) {
-                    return null;
-                }
                 if (getBuildingCategory(t.building.kind) == BuildingCategory.EXTRACTOR) {
-                    const GOO_RESERVOIR_MAX = 500;
-                    const BLOCK_TIME_SECS = 2;
-
-                    const tileAtoms = t.atoms.sort((a, b) => a.key - b.key).map((elm) => elm.weight);
-                    const lastExtraction = t.building.timestamp?.blockNum || 0;
-                    const elapsedSecs =
-                        t.building && lastExtraction ? (blockNumber - lastExtraction) * BLOCK_TIME_SECS : 0;
-
-                    // Calculate extracted goo and sum with previously extracted goo
-                    const extractedGoo = tileAtoms
-                        .map((atomVal) => Math.floor(getGooPerSec(atomVal) * elapsedSecs))
-                        .map((calculatedGoo, index) => {
-                            const totalGoo =
-                                t.building?.gooReservoir && t.building.gooReservoir.length > index
-                                    ? calculatedGoo + t.building.gooReservoir[index].weight
-                                    : calculatedGoo;
-                            return Math.min(GOO_RESERVOIR_MAX, totalGoo);
-                        });
-                    const gooIndex = getGooIndexFromBuildingOutput(t.building?.kind);
-                    const progress = gooIndex > -1 ? extractedGoo[gooIndex] / GOO_RESERVOIR_MAX : 0;
-
                     return (
                         <ExtractorBuilding
-                            progress={progress}
                             key={t.building.id}
                             id={t.building.id}
+                            atoms={(t.atoms || []).sort((a, b) => a.key - b.key).map((elm) => elm.weight)}
+                            lastExtraction={t.building.timestamp?.blockNum || 0}
+                            gooReservoir={t.building.gooReservoir}
+                            gooIndex={getGooIndexFromBuildingOutput(t.building?.kind)}
                             height={getTileHeight(t)}
                             rotation={lerp(-20, 20, 0.5 - getUnscaledNoise(t))}
                             color={getColorFromGoo(t.building.kind)}
@@ -482,7 +460,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             });
         console.timeEnd('buildingLoop');
         return bs;
-    }, [tiles, blockNumber, getMapElementSelectionState, mapElementEnter, mapElementExit, mapElementClick]);
+    }, [tiles, getMapElementSelectionState, mapElementEnter, mapElementExit, mapElementClick]);
 
     // -- MOBILE UNIT
 
