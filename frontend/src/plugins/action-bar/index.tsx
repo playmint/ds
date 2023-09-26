@@ -17,7 +17,7 @@ const StyledActionBar = styled('div')`
 `;
 
 export const ActionBar: FunctionComponent<ActionBarProps> = ({}: ActionBarProps) => {
-    const { selectIntent, intent, selectTiles } = useSelection();
+    const { selectIntent, intent, mobileUnit, selectTiles } = useSelection();
 
     const handleSelectIntent = useCallback(
         (newIntent: string | undefined) => {
@@ -32,6 +32,10 @@ export const ActionBar: FunctionComponent<ActionBarProps> = ({}: ActionBarProps)
         },
         [selectTiles, selectIntent, intent]
     );
+
+    if (!mobileUnit) {
+        return null;
+    }
 
     return (
         <StyledActionBar>
