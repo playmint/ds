@@ -48,29 +48,25 @@ export const Tiles = memo(
             setHovered((prev) => (prev == id ? undefined : prev));
         }, []);
 
-        const tileComponents = useMemo(() => {
-            console.time('tileloop');
-            if (!tiles) {
-                return [];
-            }
-            const ts = tiles.map((t) => {
-                const coords = getCoords(t);
-                return (
-                    <Tile
-                        key={t.id}
-                        id={t.id}
-                        height={getTileHeight(t)}
-                        color="#7288A6"
-                        onPointerEnter={enter}
-                        onPointerExit={exit}
-                        onPointerClick={onClickTile}
-                        {...coords}
-                    />
-                );
-            });
-            console.timeEnd('tileloop');
-            return ts;
-        }, [tiles, enter, exit, onClickTile]);
+        const tileComponents = useMemo(
+            () =>
+                (tiles || []).map((t) => {
+                    const coords = getCoords(t);
+                    return (
+                        <Tile
+                            key={t.id}
+                            id={t.id}
+                            height={getTileHeight(t)}
+                            color="#7288A6"
+                            onPointerEnter={enter}
+                            onPointerExit={exit}
+                            onPointerClick={onClickTile}
+                            {...coords}
+                        />
+                    );
+                }),
+            [tiles, enter, exit, onClickTile]
+        );
 
         return (
             <>
