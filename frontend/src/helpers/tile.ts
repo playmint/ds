@@ -7,6 +7,8 @@ export interface Locatable {
     coords: Coords;
 }
 
+const heightCache = new Map<string, number>();
+
 export function getTileDistance(t1: Locatable, t2: Locatable): number {
     if (!t1 || !t2) {
         return Infinity;
@@ -85,13 +87,17 @@ const tileHeightNoiseFunc = makeNoise2D(
 );
 
 export function getTileHeightFromCoords({ q, r, s }: { q: number; r: number; s: number }): number {
-    const TILE_HEIGHT_OFFSET = -0.1; // lowest vally
-    const TILE_HEIGHT_FREQ = 0.15; // bigger == noisier
-    const TILE_HEIGHT_SCALE = 0.15; // heightest hill
-    const [x, _y, z] = getTileXYZ([q, r, s]);
-    const height =
-        TILE_HEIGHT_OFFSET + tileHeightNoiseFunc(x * TILE_HEIGHT_FREQ, z * TILE_HEIGHT_FREQ) * TILE_HEIGHT_SCALE;
-    return height;
+    const cacheKey = `${q}:${r}:${s}`;
+    if (!heightCache.has(cacheKey)) {
+        const TILE_HEIGHT_OFFSET = -0.1; // lowest vally
+        const TILE_HEIGHT_FREQ = 0.15; // bigger == noisier
+        const TILE_HEIGHT_SCALE = 0.15; // heightest hill
+        const [x, _y, z] = getTileXYZ([q, r, s]);
+        const height =
+            TILE_HEIGHT_OFFSET + tileHeightNoiseFunc(x * TILE_HEIGHT_FREQ, z * TILE_HEIGHT_FREQ) * TILE_HEIGHT_SCALE;
+        heightCache.set(cacheKey, height);
+    }
+    return heightCache.get(cacheKey) as number;
 }
 
 export function getTileHeight(t: WorldTileFragment): number {
