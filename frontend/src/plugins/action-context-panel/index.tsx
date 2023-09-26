@@ -57,8 +57,7 @@ interface ConstructProps {
     player?: ConnectedPlayer;
     tiles: WorldTileFragment[] | undefined;
     mobileUnit?: SelectedMobileUnitFragment;
-    setActivePath: (path: WorldTileFragment[]) => void;
-    setDestinationAction: (op: CogAction[] | undefined) => void;
+    setActionQueue: (path: CogAction[][]) => void;
 }
 
 type SlotSource = {
@@ -79,8 +78,7 @@ const Construct: FunctionComponent<ConstructProps> = ({
     player,
     tiles,
     selectIntent,
-    setDestinationAction,
-    setActivePath,
+    setActionQueue,
 }) => {
     const [selectedKindRaw, selectKind] = useState<undefined | BuildingKindWithOps>();
     const [showOnlyConstructable, setShowOnlyConstructable] = useState<boolean>(true);
@@ -240,12 +238,15 @@ const Construct: FunctionComponent<ConstructProps> = ({
 
     const canConstruct = selectedKind && selectedKind.ops && selectedKind.ops.length > 0 && constructableTile;
 
+    const mobileUnitKey = mobileUnit?.key;
+    const mobileUnitId = mobileUnit?.id;
+
     const handleConstruct = useCallback(
         (e: React.FormEvent<HTMLFormElement>) => {
             e.preventDefault();
             const form = new FormData(e.target as any);
             const data = Object.fromEntries(form.entries());
-            if (!mobileUnit) {
+            if (!mobileUnitKey || !mobileUnitId) {
                 return;
             }
             if (!constructableTile) {
@@ -257,28 +258,35 @@ const Construct: FunctionComponent<ConstructProps> = ({
             if (path.length < 2) {
                 return;
             }
-
-            const ops: CogAction[] = [
-                ...selectedKind.ops,
-                {
-                    name: 'CONSTRUCT_BUILDING_MOBILE_UNIT',
-                    args: [
-                        mobileUnit.id,
-                        data.kind,
-                        constructableTile.coords[1],
-                        constructableTile.coords[2],
-                        constructableTile.coords[3],
-                    ],
-                },
+            const actions: CogAction[][] = [
+                ...path.slice(1, -1).map((t) => {
+                    const [_zone, q, r, s] = t.coords;
+                    return [
+                        {
+                            name: 'MOVE_MOBILE_UNIT',
+                            args: [mobileUnitKey, q, r, s],
+                        },
+                    ] satisfies CogAction[];
+                }),
+                [
+                    ...selectedKind.ops,
+                    {
+                        name: 'CONSTRUCT_BUILDING_MOBILE_UNIT',
+                        args: [
+                            mobileUnitId,
+                            data.kind,
+                            constructableTile.coords[1],
+                            constructableTile.coords[2],
+                            constructableTile.coords[3],
+                        ],
+                    },
+                ],
             ];
-            const needToMove = path.slice(1, -1);
-            if (needToMove.length > 0) {
-                setActivePath(needToMove);
-            }
-            setDestinationAction(ops);
+
+            setActionQueue(actions);
             clearIntent();
         },
-        [mobileUnit, selectedKind, constructableTile, clearIntent, setDestinationAction, setActivePath, path]
+        [mobileUnitId, mobileUnitKey, selectedKind, constructableTile, clearIntent, setActionQueue, path]
     );
     const costs = selectedKind?.materials.map((slot) => `${slot.balance} ${slot.item?.name?.value || ''}`) || [];
     const help = selectedTile?.building
@@ -436,8 +444,7 @@ interface MoveProps {
     player?: ConnectedPlayer;
     tiles: WorldTileFragment[] | undefined;
     mobileUnit?: SelectedMobileUnitFragment;
-    setActivePath: (path: WorldTileFragment[]) => void;
-    setDestinationAction: (op: CogAction[] | undefined) => void;
+    setActionQueue: (path: CogAction[][]) => void;
 }
 const Move: FunctionComponent<MoveProps> = ({
     selectTiles,
@@ -446,9 +453,10 @@ const Move: FunctionComponent<MoveProps> = ({
     tiles,
     player,
     mobileUnit,
-    setActivePath,
-    setDestinationAction,
+    setActionQueue,
 }) => {
+    const mobileUnitKey = mobileUnit?.key;
+
     const { path, valid } = useMemo(() => {
         const fromTile = mobileUnit && tiles && tiles.find((t) => t.id === mobileUnit.nextLocation?.tile.id);
         if (!fromTile) {
@@ -477,12 +485,25 @@ const Move: FunctionComponent<MoveProps> = ({
             // first element is the origin
             return;
         }
-        setDestinationAction(undefined);
-        setActivePath(path.slice(1));
+        if (!mobileUnitKey) {
+            return;
+        }
+
+        setActionQueue(
+            path.slice(1).map((t) => {
+                const [_zone, q, r, s] = t.coords;
+                return [
+                    {
+                        name: 'MOVE_MOBILE_UNIT',
+                        args: [mobileUnitKey, q, r, s],
+                    },
+                ];
+            })
+        );
         if (selectIntent) {
             selectIntent(undefined);
         }
-    }, [path, setActivePath, setDestinationAction, selectIntent]);
+    }, [path, setActionQueue, mobileUnitKey, selectIntent]);
 
     const canMove = mobileUnit && player && path.length > 0 && valid;
 
@@ -556,8 +577,7 @@ interface CombatProps {
     player?: ConnectedPlayer;
     tiles?: WorldTileFragment[];
     mobileUnit?: SelectedMobileUnitFragment;
-    setActivePath: (path: WorldTileFragment[]) => void;
-    setDestinationAction: (op: CogAction[] | undefined) => void;
+    setActionQueue: (path: CogAction[][]) => void;
 }
 const Combat: FunctionComponent<CombatProps> = ({
     selectTiles,
@@ -566,8 +586,7 @@ const Combat: FunctionComponent<CombatProps> = ({
     player,
     tiles,
     mobileUnit,
-    setActivePath,
-    setDestinationAction,
+    setActionQueue,
 }) => {
     const clearIntent = useCallback(
         (e?: React.MouseEvent) => {
@@ -662,8 +681,11 @@ const Combat: FunctionComponent<CombatProps> = ({
         console.log('not valid cos', reason);
     }
 
+    const mobileUnitKey = mobileUnit?.key;
+    const mobileUnitId = mobileUnit?.id;
+
     const handleJoinCombat = useCallback(() => {
-        if (!mobileUnit) {
+        if (!mobileUnitKey || !mobileUnitId) {
             return;
         }
         if (path.length == 0) {
@@ -672,23 +694,29 @@ const Combat: FunctionComponent<CombatProps> = ({
         if (!attackers || attackers.length === 0) {
             return;
         }
+        const actions: CogAction[][] = path.slice(1).map((t) => {
+            const [_zone, q, r, s] = t.coords;
+            return [
+                {
+                    name: 'MOVE_MOBILE_UNIT',
+                    args: [mobileUnitKey, q, r, s],
+                },
+            ];
+        });
         const hasActiveSession = defenceTile.sessions.some((s) => !s.isFinalised);
-        if (hasActiveSession) {
-            setDestinationAction(undefined);
-        } else {
-            setDestinationAction([
+        if (!hasActiveSession) {
+            actions.push([
                 {
                     name: 'START_COMBAT',
-                    args: [mobileUnit.id, defenceTile.id, attackers, defenders],
+                    args: [mobileUnitId, defenceTile.id, attackers, defenders],
                 },
             ]);
         }
-        const needToMove = path.slice(1);
-        setActivePath(needToMove);
+        setActionQueue(actions);
         if (clearIntent) {
             clearIntent();
         }
-    }, [setDestinationAction, setActivePath, clearIntent, path, mobileUnit, attackers, defenders, defenceTile]);
+    }, [setActionQueue, clearIntent, path, mobileUnitId, mobileUnitKey, attackers, defenders, defenceTile]);
 
     const highlights: WorldTileFragment[] = [defenceTile, attackTile].filter((t): t is WorldTileFragment => !!t);
     const joining = attackTile && attackTile.sessions.some((s) => !s.isFinalised);
@@ -748,8 +776,7 @@ const Combat: FunctionComponent<CombatProps> = ({
 };
 
 export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = () => {
-    const [destinationAction, setDestinationAction] = useState<CogAction[]>();
-    const [activePath, setActivePath] = useState<WorldTileFragment[]>();
+    const [actionQueue, setActionQueue] = useState<CogAction[][]>();
     const { selectIntent, intent, tiles, mobileUnit, selectTiles } = useSelection();
     const player = usePlayer();
     const world = useWorld();
@@ -759,56 +786,37 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
     const dispatch = player?.dispatch;
 
     useEffect(() => {
-        if (!activePath || activePath.length === 0) {
+        if (!actionQueue || actionQueue.length === 0) {
             return;
         }
-        const t = activePath[0];
-        if (!t) {
-            // TODO: attempt action
-            return;
-        }
-        if (!mobileUnitKey) {
+        const actions = actionQueue[0];
+        if (!actions) {
+            setActionQueue(undefined);
             return;
         }
         if (!dispatch) {
             return;
         }
-        const [_zone, q, r, s] = t.coords;
-        dispatch({
-            name: 'MOVE_MOBILE_UNIT',
-            args: [mobileUnitKey, q, r, s],
-        })
+        dispatch(...actions)
             .then((res) => res.wait())
             .then(() => {
-                // remove this tile from the top of the active path list
+                // remove this action from the top of the queue
                 // ...but ONLY if the item is still at the top, since it
-                // is possible that something else changed the path while
+                // is possible that something else changed the queue while
                 // we were dispatching
-                setActivePath((prev) => {
-                    if (Array.isArray(prev) && prev.length > 0 && prev[0].id === t.id) {
-                        return [...activePath.slice(1)];
+                setActionQueue((prev) => {
+                    if (Array.isArray(prev) && prev.length > 0 && prev[0] === actions) {
+                        return [...actionQueue.slice(1)];
                     }
                     return prev;
                 });
             })
             .catch((err) => console.error(`move aborted ${err}`));
-    }, [activePath, dispatch, mobileUnitKey]);
+    }, [actionQueue, dispatch, mobileUnitKey]);
 
-    useEffect(() => {
-        if (!destinationAction) {
-            return;
-        }
-        if (activePath && activePath.length > 0) {
-            return;
-        }
-        if (!dispatch) {
-            return;
-        }
-        setDestinationAction(undefined);
-        dispatch(...destinationAction).catch((err) =>
-            console.error(`failed to perform action: ${err}`, destinationAction)
-        );
-    }, [activePath, destinationAction, dispatch]);
+    if (!mobileUnit) {
+        return null;
+    }
 
     if (intent === CONSTRUCT_INTENT) {
         return (
@@ -819,8 +827,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
                 mobileUnit={mobileUnit}
                 player={player}
                 tiles={world?.tiles}
-                setActivePath={setActivePath}
-                setDestinationAction={setDestinationAction}
+                setActionQueue={setActionQueue}
             />
         );
     } else if (intent === MOVE_INTENT) {
@@ -832,8 +839,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
                 mobileUnit={mobileUnit}
                 player={player}
                 tiles={world?.tiles}
-                setActivePath={setActivePath}
-                setDestinationAction={setDestinationAction}
+                setActionQueue={setActionQueue}
             />
         );
     } else if (intent === COMBAT_INTENT) {
@@ -845,8 +851,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
                 mobileUnit={mobileUnit}
                 player={player}
                 tiles={world?.tiles}
-                setActivePath={setActivePath}
-                setDestinationAction={setDestinationAction}
+                setActionQueue={setActionQueue}
             />
         );
     } else {

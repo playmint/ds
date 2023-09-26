@@ -694,12 +694,8 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 </div>
                 <div className="top-middle"></div>
                 <div className="bottom-middle">
-                    {player && player.mobileUnits.length > 0 && selectedMobileUnit && (
-                        <>
-                            <ActionContextPanel />
-                            <ActionBar />
-                        </>
-                    )}
+                    <ActionContextPanel />
+                    <ActionBar />
                 </div>
                 <div className="right">
                     {(!player || (player && player.mobileUnits.length === 0)) &&
