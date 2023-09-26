@@ -21,7 +21,7 @@ export const ItemPluginPanel = () => {
             {itemPluginStates.length > 0 && (
                 <Panel>
                     {itemPluginStates.map((content, idx) =>
-                        content ? <PluginContent key={idx} content={content} /> : undefined
+                        content ? <PluginContent key={idx} content={content} canUse={true} /> : undefined
                     )}
                 </Panel>
             )}
