@@ -1,5 +1,5 @@
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
-import { memo, useMemo } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 
 export interface BlockerBuildingData {
     q: number;
@@ -25,6 +25,13 @@ export const BlockerBuilding = memo(
         onPointerExit,
         onPointerClick,
     }: UnityComponentProps & BlockerBuildingData) => {
+        const [hovered, setHovered] = useState(false);
+
+        onPointerEnter = useCallback(() => setHovered(true), []);
+        onPointerExit = useCallback(() => setHovered(false), []);
+
+        selected = selected != 'outline' && hovered ? 'highlight' : selected;
+
         useUnityComponentManager<BlockerBuildingData>({
             type: 'BlockerBuildingData',
             id,

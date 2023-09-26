@@ -1,5 +1,5 @@
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
-import { memo, useMemo } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 
 export interface BagData {
     q: number;
@@ -23,6 +23,13 @@ export const Bag = memo(
         onPointerExit,
         onPointerClick,
     }: UnityComponentProps & BagData) => {
+        const [hovered, setHovered] = useState(false);
+
+        onPointerEnter = useCallback(() => setHovered(true), []);
+        onPointerExit = useCallback(() => setHovered(false), []);
+
+        selected = selected != 'outline' && hovered ? 'highlight' : selected;
+
         useUnityComponentManager<BagData>({
             type: 'BagData',
             id,
