@@ -26,35 +26,29 @@ export const TileGoo = memo(({ id, q, r, s, height, color, size }: UnityComponen
 });
 
 export const TileGoos = memo(({ tiles }: { tiles?: WorldTileFragment[] }) => {
-    const tileGooComponents = useMemo(() => {
-        console.time('tileGooloop');
-        if (!tiles) {
-            return [];
-        }
+    const tileGooComponents = useMemo(
+        () =>
+            (tiles || [])
+                .filter((t) => {
+                    t.atoms.sort((a, b) => b.weight - a.weight);
+                    return t.atoms.length > 0 && t.atoms[0].weight >= GOO_SMALL_THRESH;
+                })
+                .map((t) => {
+                    const coords = getCoords(t);
 
-        const gs = tiles
-            .filter((t) => {
-                t.atoms.sort((a, b) => b.weight - a.weight);
-                return t.atoms.length > 0 && t.atoms[0].weight >= GOO_SMALL_THRESH;
-            })
-            .map((t) => {
-                const coords = getCoords(t);
-
-                return (
-                    <TileGoo
-                        key={`tileGoo-${t.id}`}
-                        id={`tileGoo-${t.id}`}
-                        height={getTileHeight(t) + 0.01}
-                        color={getGooColor(t.atoms[0])}
-                        size={getGooSize(t.atoms[0])}
-                        {...coords}
-                    />
-                );
-            });
-
-        console.timeEnd('tileGooloop');
-        return gs;
-    }, [tiles]);
+                    return (
+                        <TileGoo
+                            key={`tileGoo-${t.id}`}
+                            id={`tileGoo-${t.id}`}
+                            height={getTileHeight(t) + 0.01}
+                            color={getGooColor(t.atoms[0])}
+                            size={getGooSize(t.atoms[0])}
+                            {...coords}
+                        />
+                    );
+                }),
+        [tiles]
+    );
 
     return <>{tileGooComponents}</>;
 });

@@ -1,9 +1,9 @@
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
-import { GOO_BLUE, GOO_GREEN, GOO_RED, getTileHeight, getUnscaledNoise } from '@app/helpers/tile';
-import { BuildingKindFragment, WorldTileFragment, getCoords } from '@downstream/core';
+import { GOO_BLUE, GOO_GREEN, GOO_RED, getTileHeightFromCoords, getUnscaledNoiseFromCoords } from '@app/helpers/tile';
+import { BuildingKindFragment, WorldBuildingFragment, getCoords } from '@downstream/core';
 import { memo, useMemo } from 'react';
-import { ExtractorBuilding } from './ExtractorBuilding';
 import { BlockerBuilding } from './BlockerBuilding';
+import { ExtractorBuilding } from './ExtractorBuilding';
 import { FactoryBuilding } from './FactoryBuilding';
 
 function getColorFromGoo(kind) {
@@ -42,54 +42,54 @@ const lerp = (x, y, a) => x * (1 - a) + y * a;
 
 export const Buildings = memo(
     ({
-        tiles,
+        buildings,
         selectedElementID,
         onClickBuilding,
     }: {
-        tiles?: WorldTileFragment[];
+        buildings?: WorldBuildingFragment[];
         selectedElementID?: string;
         onClickBuilding: (id: string) => void;
     }) => {
-        const buildingComponents = useMemo(() => {
-            if (!tiles) {
-                return [];
-            }
-
-            console.time('buildingLoop');
-
-            const bs = tiles
-                .filter((t) => !!t.building)
-                .map((t) => {
-                    const coords = getCoords(t);
-                    if (!t.building || !t.building.kind) {
+        const buildingComponents = useMemo(
+            () =>
+                (buildings || []).map((b) => {
+                    if (!b.kind) {
                         return null;
                     }
-                    const selected = selectedElementID === t.building?.id ? 'outline' : 'none';
-                    if (getBuildingCategory(t.building.kind) == BuildingCategory.EXTRACTOR) {
+                    if (!b.location?.tile) {
+                        return null;
+                    }
+                    const coords = getCoords(b.location.tile);
+                    const height = getTileHeightFromCoords(coords);
+                    const selected = selectedElementID === b.id ? 'outline' : 'none';
+                    const rotation = lerp(-20, 20, 0.5 - getUnscaledNoiseFromCoords(coords));
+                    if (getBuildingCategory(b.kind) == BuildingCategory.EXTRACTOR) {
                         return (
                             <ExtractorBuilding
-                                key={t.building.id}
-                                id={t.building.id}
-                                atoms={(t.atoms || []).sort((a, b) => a.key - b.key).map((elm) => elm.weight)}
-                                lastExtraction={t.building.timestamp?.blockNum || 0}
-                                gooReservoir={t.building.gooReservoir}
-                                gooIndex={getGooIndexFromBuildingOutput(t.building?.kind)}
-                                height={getTileHeight(t)}
-                                rotation={lerp(-20, 20, 0.5 - getUnscaledNoise(t))}
-                                color={getColorFromGoo(t.building.kind)}
+                                key={b.id}
+                                id={b.id}
+                                atoms={(b.location.tile?.atoms || [])
+                                    .sort((a, b) => a.key - b.key)
+                                    .map((elm) => elm.weight)}
+                                lastExtraction={b.timestamp?.blockNum || 0}
+                                gooReservoir={b.gooReservoir}
+                                gooIndex={getGooIndexFromBuildingOutput(b?.kind)}
+                                height={height}
+                                rotation={rotation}
+                                color={getColorFromGoo(b.kind)}
                                 selected={selected}
                                 onPointerClick={onClickBuilding}
                                 {...coords}
                             />
                         );
-                    } else if (getBuildingCategory(t.building.kind) == BuildingCategory.BLOCKER) {
+                    } else if (getBuildingCategory(b.kind) == BuildingCategory.BLOCKER) {
                         return (
                             <BlockerBuilding
-                                key={t.building.id}
-                                id={t.building.id}
-                                height={getTileHeight(t)}
-                                model={t.building.kind?.model?.value}
-                                rotation={lerp(-20, 20, 0.5 - getUnscaledNoise(t))}
+                                key={b.id}
+                                id={b.id}
+                                height={height}
+                                model={b.kind?.model?.value}
+                                rotation={rotation}
                                 selected={selected}
                                 onPointerClick={onClickBuilding}
                                 {...coords}
@@ -98,21 +98,20 @@ export const Buildings = memo(
                     } else {
                         return (
                             <FactoryBuilding
-                                key={t.building.id}
-                                id={t.building.id}
-                                height={getTileHeight(t)}
-                                model={t.building.kind?.model?.value}
-                                rotation={lerp(-20, 20, 0.5 - getUnscaledNoise(t))}
+                                key={b.id}
+                                id={b.id}
+                                height={height}
+                                model={b.kind?.model?.value}
+                                rotation={rotation}
                                 selected={selected}
                                 onPointerClick={onClickBuilding}
                                 {...coords}
                             />
                         );
                     }
-                });
-            console.timeEnd('buildingLoop');
-            return bs;
-        }, [tiles, selectedElementID, onClickBuilding]);
+                }),
+            [buildings, selectedElementID, onClickBuilding]
+        );
 
         return <>{buildingComponents}</>;
     }

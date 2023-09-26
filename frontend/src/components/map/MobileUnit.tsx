@@ -1,9 +1,9 @@
-import { getTileHeight } from '@app/helpers/tile';
+import { getTileHeightFromCoords } from '@app/helpers/tile';
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
-import { WorldTileFragment, getCoords } from '@downstream/core';
+import { WorldMobileUnitFragment, getCoords } from '@downstream/core';
 import { memo, useCallback, useMemo, useState } from 'react';
-import { Label } from './Label';
 import { Icon } from './Icon';
+import { Label } from './Label';
 
 // public int q;
 // public int r;
@@ -65,89 +65,89 @@ export const MobileUnit = memo(
 
 export const MobileUnits = memo(
     ({
-        tiles,
+        mobileUnits,
         selectedMobileUnitID,
         onClickMobileUnit,
         playerID,
     }: {
-        tiles?: WorldTileFragment[];
+        mobileUnits?: WorldMobileUnitFragment[];
         selectedMobileUnitID?: string;
         playerID?: string;
         onClickMobileUnit: (id: string) => void;
     }) => {
-        const units = useMemo(
+        const units = useMemo(() => {
+            const counts = new Map<string, { count: number }>();
+            return (mobileUnits || [])
+                .filter((u) => !!u.nextLocation?.tile)
+                .map((u) => {
+                    const tile = u.nextLocation?.tile;
+                    if (!tile) {
+                        throw new Error('missing location');
+                    }
+                    const counter = counts.get(tile.id) || { count: 0 };
+                    counter.count++;
+                    const visible = counter.count == 1;
+                    counts.set(tile.id, counter);
+                    const coords = getCoords(tile);
+                    const height = getTileHeightFromCoords(coords);
+                    const isPlayer = u.owner?.id == playerID;
+                    const atBuilding = !!tile.building;
+                    return { ...u, visible, isPlayer, coords, counter, height, atBuilding };
+                });
+        }, [mobileUnits, playerID]);
+
+        const unitComponents = useMemo(
             () =>
-                (tiles || []).flatMap((t) => {
-                    const coords = getCoords(t);
-                    const height = getTileHeight(t);
-                    let foundPlayer = false;
-                    return t.mobileUnits.map((u, i) => {
-                        // Show either the last unit in the array or the player unit in the array.
-                        const isPlayer = u.owner?.id == playerID;
-                        if (isPlayer) {
-                            foundPlayer = true;
-                        }
-                        const isLast = i == t.mobileUnits.length - 1;
-                        const visible = isPlayer || (isLast && !foundPlayer);
-                        return { t, u, visible, isPlayer, coords, height };
-                    });
-                }),
-            [tiles, playerID]
-        );
-
-        const unitComponents = useMemo(() => {
-            console.time('mobileUnitsLoop');
-            const mus = units.map(({ t, u, visible, height, coords }) => {
-                return (
-                    <MobileUnit
-                        key={u.id}
-                        id={u.id}
-                        height={height}
-                        progress={1}
-                        selected={selectedMobileUnitID === u.id ? 'outline' : 'none'}
-                        shared={!!t.building}
-                        visible={visible}
-                        onPointerClick={onClickMobileUnit}
-                        {...coords}
-                    />
-                );
-            });
-
-            console.timeEnd('mobileUnitsLoop');
-            return mus;
-        }, [onClickMobileUnit, selectedMobileUnitID, units]);
-
-        const unitCounters = useMemo(() => {
-            const mus = units.map(({ t, u, coords, height, isPlayer }) => {
-                if (t.mobileUnits.length > 1 && !isPlayer) {
+                units.map((u) => {
                     return (
-                        <Label
-                            text={t.mobileUnits.length.toString()}
-                            key={`${u.id}-icon`}
-                            id={`${u.id}-icon`}
-                            height={height + 0.7}
-                            {...coords}
+                        <MobileUnit
+                            key={u.id}
+                            id={u.id}
+                            height={u.height}
+                            progress={1}
+                            selected={selectedMobileUnitID === u.id ? 'outline' : 'none'}
+                            shared={u.atBuilding}
+                            visible={u.visible}
+                            onPointerClick={onClickMobileUnit}
+                            {...u.coords}
                         />
                     );
-                }
+                }),
+            [onClickMobileUnit, selectedMobileUnitID, units]
+        );
 
-                return null;
-            });
-            return mus;
-        }, [units]);
+        const unitCounters = useMemo(
+            () =>
+                units.map((u) => {
+                    if (u.counter.count > 1 && !u.isPlayer) {
+                        return (
+                            <Label
+                                text={u.counter.count.toString()}
+                                key={`${u.id}-icon`}
+                                id={`${u.id}-icon`}
+                                height={u.height + 0.7}
+                                {...u.coords}
+                            />
+                        );
+                    }
+
+                    return null;
+                }),
+            [units]
+        );
 
         const unitIcons = useMemo(
             () =>
-                units.map(({ u, height, isPlayer, coords }) =>
-                    isPlayer ? (
+                units.map((u) =>
+                    u.isPlayer ? (
                         <Icon
                             backgroundColor={'#000000FF'}
                             foregroundColor={'#FFFFFFFF'}
                             image={'https://assets.downstream.game/icons/31-122.svg'}
                             key={u.id}
                             id={u.id}
-                            height={height + 0.7}
-                            {...coords}
+                            height={u.height + 0.7}
+                            {...u.coords}
                         />
                     ) : null
                 ),
