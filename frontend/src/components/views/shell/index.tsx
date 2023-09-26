@@ -94,8 +94,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         return unsubscribe;
     }, [player]);
 
-    const [hoveredMapElementId, setHoveredMapElementId] = useState<string | undefined>();
-
     const mapElementClick = useCallback(
         (id?: string, type?: string) => {
             if (!selectMapElement) {
@@ -111,27 +109,14 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         [selectMapElement]
     );
 
-    const mapElementEnter = useCallback((id) => {
-        setHoveredMapElementId(id);
-    }, []);
-
-    const mapElementExit = useCallback((id) => {
-        setHoveredMapElementId((prev) => (prev == id ? undefined : prev));
-    }, []);
-
     const getMapElementSelectionState = useCallback(
         (mapElementId) => {
             if (selectedMapElement?.id == mapElementId) {
                 return 'outline';
             }
-
-            if (hoveredMapElementId == mapElementId) {
-                return 'highlight';
-            }
-
             return 'none';
         },
-        [selectedMapElement, hoveredMapElementId]
+        [selectedMapElement]
     );
 
     // Handle map element selection update. Purposely not put in the click handler as updates to `tiles` invalidate the memo
@@ -247,6 +232,30 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         }
         const ts = tiles.map((t) => {
             const coords = getCoords(t);
+            return (
+                <Tile
+                    key={t.id}
+                    id={t.id}
+                    height={getTileHeight(t)}
+                    color="#7288A6"
+                    onPointerEnter={enter}
+                    onPointerExit={exit}
+                    onPointerClick={click}
+                    {...coords}
+                />
+            );
+        });
+        console.timeEnd('tileloop');
+        return ts;
+    }, [tiles, enter, exit, click]);
+
+    const bagComponents = useMemo(() => {
+        console.time('bagloop');
+        if (!tiles) {
+            return [];
+        }
+        const ts = tiles.map((t) => {
+            const coords = getCoords(t);
             const rewardBags =
                 (selectedMobileUnit &&
                     t.sessions.flatMap((cs) => {
@@ -264,48 +273,21 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     })) ||
                 [];
 
-            return (
-                <>
-                    <Tile
-                        key={t.id}
-                        id={t.id}
-                        height={getTileHeight(t)}
-                        color="#7288A6"
-                        onPointerEnter={enter}
-                        onPointerExit={exit}
-                        onPointerClick={click}
-                        {...coords}
-                    />
-
-                    {(t.bagCount > 0 || rewardBags.length > 0) && (
-                        <Bag
-                            id={`bag/${t.id}`}
-                            key={`bag/${t.id}`}
-                            height={getTileHeight(t)}
-                            corner={0}
-                            selected={getMapElementSelectionState(`bag/${t.id}`)}
-                            onPointerEnter={mapElementEnter}
-                            onPointerExit={mapElementExit}
-                            onPointerClick={mapElementClick}
-                            {...coords}
-                        />
-                    )}
-                </>
-            );
+            return t.bagCount > 0 || rewardBags.length > 0 ? (
+                <Bag
+                    id={`bag/${t.id}`}
+                    key={`bag/${t.id}`}
+                    height={getTileHeight(t)}
+                    corner={0}
+                    selected={getMapElementSelectionState(`bag/${t.id}`)}
+                    onPointerClick={mapElementClick}
+                    {...coords}
+                />
+            ) : null;
         });
-        console.timeEnd('tileloop');
+        console.timeEnd('bagloop');
         return ts;
-    }, [
-        tiles,
-        selectedMobileUnit,
-        enter,
-        exit,
-        click,
-        getMapElementSelectionState,
-        mapElementEnter,
-        mapElementExit,
-        mapElementClick,
-    ]);
+    }, [tiles, selectedMobileUnit, getMapElementSelectionState, mapElementClick]);
 
     const activeCombatHighlights = useMemo(() => {
         if (!tiles) {
@@ -420,8 +402,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             rotation={lerp(-20, 20, 0.5 - getUnscaledNoise(t))}
                             color={getColorFromGoo(t.building.kind)}
                             selected={getMapElementSelectionState(t.building.id)}
-                            onPointerEnter={mapElementEnter}
-                            onPointerExit={mapElementExit}
                             onPointerClick={mapElementClick}
                             {...coords}
                         />
@@ -435,8 +415,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             model={t.building.kind?.model?.value}
                             rotation={lerp(-20, 20, 0.5 - getUnscaledNoise(t))}
                             selected={getMapElementSelectionState(t.building.id)}
-                            onPointerEnter={mapElementEnter}
-                            onPointerExit={mapElementExit}
                             onPointerClick={mapElementClick}
                             {...coords}
                         />
@@ -450,8 +428,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             model={t.building.kind?.model?.value}
                             rotation={lerp(-20, 20, 0.5 - getUnscaledNoise(t))}
                             selected={getMapElementSelectionState(t.building.id)}
-                            onPointerEnter={mapElementEnter}
-                            onPointerExit={mapElementExit}
                             onPointerClick={mapElementClick}
                             {...coords}
                         />
@@ -460,7 +436,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             });
         console.timeEnd('buildingLoop');
         return bs;
-    }, [tiles, getMapElementSelectionState, mapElementEnter, mapElementExit, mapElementClick]);
+    }, [tiles, getMapElementSelectionState, mapElementClick]);
 
     // -- MOBILE UNIT
 
@@ -611,19 +587,26 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         [tiles, playerId]
     );
 
+    const deselectAll = useCallback(() => {
+        mapElementClick();
+        mobileUnitClick(null);
+    }, [mobileUnitClick, mapElementClick]);
+
+    const noop = useCallback(() => {}, []);
+
     return (
         <StyledShell>
             {mapReady && (
                 <>
                     <GroundPlane
                         height={-0.1}
-                        onPointerClick={() => {
-                            mapElementClick();
-                            mobileUnitClick(null);
-                        }}
+                        onPointerClick={deselectAll}
+                        onPointerEnter={noop}
+                        onPointerExit={noop}
                     />
                     {unitIcons}
                     {tileComponents}
+                    {bagComponents}
                     {tileGooComponents}
                     {buildingComponents}
                     {mobileUnitComponents}

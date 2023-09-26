@@ -2,7 +2,7 @@ import { getGooPerSec } from '@app/helpers/tile';
 import { useBlock } from '@app/hooks/use-game-state';
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
 import { WorldBuildingFragment } from '@downstream/core';
-import { memo, useMemo } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 
 export interface ExtractorBuildingData {
     q: number;
@@ -48,6 +48,12 @@ export const ExtractorBuilding = memo(
         onPointerClick,
     }: UnityComponentProps & ExtractorBuildingProps) => {
         const blockNumber = useBlock();
+        const [hovered, setHovered] = useState(false);
+
+        onPointerEnter = useCallback(() => setHovered(true), []);
+        onPointerExit = useCallback(() => setHovered(false), []);
+
+        selected = selected != 'outline' && hovered ? 'highlight' : selected;
 
         // Calculate extracted goo and sum with previously extracted goo
         const GOO_RESERVOIR_MAX = 500;
