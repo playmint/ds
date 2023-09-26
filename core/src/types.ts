@@ -235,7 +235,6 @@ export interface PluginConfig {
     type: PluginType;
     trust: PluginTrust;
     src: string;
-    hash: string;
     kindID: string;
 }
 
@@ -243,7 +242,6 @@ export interface InactivePlugin {
     id: string;
     name: string;
     src: string;
-    hash: string;
     type: PluginType;
     trust: PluginTrust;
 }
