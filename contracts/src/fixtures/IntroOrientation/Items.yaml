@@ -1,0 +1,47 @@
+---
+//Starter Item 1
+kind: Item
+spec:
+  name: Toothbrush
+  icon: 04-84
+  goo:
+    red: 75
+    green: 100
+    blue: 100
+  stackable: true
+
+---
+//Starter Item 2
+kind: Item
+spec:
+  name: Spare Sock
+  icon: 04-1
+  goo:
+    red: 75
+    green: 100
+    blue: 100
+  stackable: true
+
+---
+//User License
+kind: Item
+spec:
+  name: User License
+  icon: 10-46
+  goo:
+    red: 75
+    green: 100
+    blue: 100
+  stackable: true
+
+---
+//Deletion Tool
+kind: Item
+spec:
+  name: Deletion Tool
+  icon: 07-39
+  goo:
+    red: 50
+    green: 50
+    blue: 50
+  stackable: false
