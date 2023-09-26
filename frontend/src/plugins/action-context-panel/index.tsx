@@ -7,6 +7,7 @@ import {
     SelectedMobileUnitFragment,
     SelectedTileFragment,
     Selector,
+    WorldMobileUnitFragment,
     WorldTileFragment,
 } from '@app/../../core/src';
 import { Path } from '@app/components/map/Path';
@@ -576,6 +577,7 @@ interface CombatProps {
     selectTiles?: Selector<string[] | undefined>;
     player?: ConnectedPlayer;
     tiles?: WorldTileFragment[];
+    mobileUnits?: WorldMobileUnitFragment[];
     mobileUnit?: SelectedMobileUnitFragment;
     setActionQueue: (path: CogAction[][]) => void;
 }
@@ -583,6 +585,7 @@ const Combat: FunctionComponent<CombatProps> = ({
     selectTiles,
     selectIntent,
     selectedTiles,
+    mobileUnits,
     player,
     tiles,
     mobileUnit,
@@ -660,20 +663,22 @@ const Combat: FunctionComponent<CombatProps> = ({
         if (destTileHasDifferentActiveSession) {
             return { path: [], valid: false, reason: 'another combat already active, move to join the fight' };
         }
+        const attackMobileUnits = (mobileUnits || []).filter((u) => u.nextLocation?.tile.id === destTile.id);
+        const defenceMobileUnits = (mobileUnits || []).filter((u) => u.nextLocation?.tile.id === defenceTile.id);
         return {
             path: [fromTile, ...path],
             valid: true,
-            attackers: destTile.mobileUnits
+            attackers: attackMobileUnits
                 .filter((s) => s.id != mobileUnit.id)
                 .map((s) => s.id)
                 .concat(destTile.building ? [destTile.building.id] : [])
                 .concat(mobileUnit.id),
-            defenders: defenceTile.mobileUnits
+            defenders: defenceMobileUnits
                 .map((s) => s.id)
                 .concat(defenceTile.building ? [defenceTile.building.id] : []),
             defenceTile,
         };
-    }, [mobileUnit, tiles, selectedTiles]);
+    }, [mobileUnit, tiles, mobileUnits, selectedTiles]);
 
     const attackTile = path.slice(-1).find(() => true);
 
