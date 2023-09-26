@@ -68,7 +68,7 @@ export const ExtractorBuilding = memo(
                         : calculatedGoo;
                 return Math.min(GOO_RESERVOIR_MAX, totalGoo);
             });
-        const progress = gooIndex > -1 ? extractedGoo[gooIndex] / GOO_RESERVOIR_MAX : 0;
+        const progress = Math.min(gooIndex > -1 ? extractedGoo[gooIndex] / GOO_RESERVOIR_MAX : 0, 0.9999); // dunno why but 1 doesn't work
 
         useUnityComponentManager<ExtractorBuildingData>({
             type: 'ExtractorBuildingData',

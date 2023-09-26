@@ -84,23 +84,31 @@ const tileHeightNoiseFunc = makeNoise2D(
     })()
 );
 
-export function getTileHeight(t: WorldTileFragment): number {
+export function getTileHeightFromCoords({ q, r, s }: { q: number; r: number; s: number }): number {
     const TILE_HEIGHT_OFFSET = -0.1; // lowest vally
     const TILE_HEIGHT_FREQ = 0.15; // bigger == noisier
     const TILE_HEIGHT_SCALE = 0.15; // heightest hill
-    const { q, r, s } = getCoords(t);
     const [x, _y, z] = getTileXYZ([q, r, s]);
     const height =
         TILE_HEIGHT_OFFSET + tileHeightNoiseFunc(x * TILE_HEIGHT_FREQ, z * TILE_HEIGHT_FREQ) * TILE_HEIGHT_SCALE;
     return height;
 }
 
-export function getUnscaledNoise(t: WorldTileFragment): number {
+export function getTileHeight(t: WorldTileFragment): number {
+    const coords = getCoords(t);
+    return getTileHeightFromCoords(coords);
+}
+
+export function getUnscaledNoiseFromCoords({ q, r, s }: { q: number; r: number; s: number }): number {
     const TILE_HEIGHT_FREQ = 0.15; // bigger == noisier
-    const { q, r, s } = getCoords(t);
     const [x, _y, z] = getTileXYZ([q, r, s]);
     const value = tileHeightNoiseFunc(x * TILE_HEIGHT_FREQ, z * TILE_HEIGHT_FREQ);
     return value;
+}
+
+export function getUnscaledNoise(t: WorldTileFragment): number {
+    const coords = getCoords(t);
+    return getUnscaledNoiseFromCoords(coords);
 }
 
 // https://www.notion.so/playmint/Extraction-6b36dcb3f95e4ab8a57cb6b99d24bb8f#cb8cc764f9ef436e9847e631ef12b157

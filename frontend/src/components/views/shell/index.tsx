@@ -218,7 +218,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     />
                     <Tiles tiles={tiles} onClickTile={tileClick} selectedTiles={selectedTiles} />
                     <MobileUnits
-                        tiles={tiles}
+                        mobileUnits={world?.mobileUnits}
                         onClickMobileUnit={mobileUnitClick}
                         selectedMobileUnitID={selectedMobileUnit?.id}
                         playerID={player?.id}
@@ -231,7 +231,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     />
                     <TileGoos tiles={tiles} />
                     <Buildings
-                        tiles={tiles}
+                        buildings={world?.buildings}
                         onClickBuilding={mapElementClick}
                         selectedElementID={selectedMapElement?.id}
                     />
