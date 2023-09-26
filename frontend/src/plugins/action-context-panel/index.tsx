@@ -664,6 +664,7 @@ const Combat: FunctionComponent<CombatProps> = ({
             path: [fromTile, ...path],
             valid: true,
             attackers: destTile.mobileUnits
+                .filter((s) => s.id != mobileUnit.id)
                 .map((s) => s.id)
                 .concat(destTile.building ? [destTile.building.id] : [])
                 .concat(mobileUnit.id),
