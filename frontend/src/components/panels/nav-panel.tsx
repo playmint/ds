@@ -5,6 +5,8 @@ import { useWalletProvider } from '@app/hooks/use-wallet-provider';
 import { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Dialog } from '../molecules/dialog';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 const AccountButton = styled.button`
     display: flex;
@@ -26,12 +28,35 @@ const AccountButton = styled.button`
     }
 `;
 
+const NavContainer = styled.div`
+    position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: flex-start;
+    height: 5rem;
+    background: #030f25;
+    user-select: none;
+    zoom: 90%;
+`;
+
+const NavLink = styled.div`
+    padding: 1.4rem;
+    &.active {
+        background: #335c90;
+    }
+    a {
+        color: white;
+        text-decoration: none;
+    }
+`;
+
 export const NavPanel = () => {
     const { connect } = useWalletProvider();
     const { clearSession } = useSession();
     const { wallet } = useWallet();
     const player = usePlayer();
     const [showAccountDialog, setShowAccountDialog] = useState(false);
+    const router = useRouter();
 
     const closeAccountDialog = useCallback(() => {
         setShowAccountDialog(false);
@@ -50,7 +75,7 @@ export const NavPanel = () => {
     }, [clearSession]);
 
     return (
-        <>
+        <NavContainer>
             {showAccountDialog && wallet && (
                 <Dialog onClose={closeAccountDialog} width="304px" height="">
                     <div style={{ padding: 15 }}>
@@ -71,6 +96,13 @@ export const NavPanel = () => {
                     {!wallet ? 'connect' : !player ? 'connecting' : formatNameOrId(player, 'Player 0x..')}
                 </span>
             </AccountButton>
-        </>
+            <div style={{ flexGrow: 1 }}></div>
+            <NavLink className={router.pathname == '/' ? 'active' : ''}>
+                <Link href={`/`}>Map</Link>
+            </NavLink>
+            <NavLink className={router.pathname.startsWith('/docs') ? 'active' : ''}>
+                <Link href={`/docs/code-docs/extending-downstream`}>Docs</Link>
+            </NavLink>
+        </NavContainer>
     );
 };
