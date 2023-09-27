@@ -8,17 +8,20 @@ export interface TileGooData {
     height: number;
     color?: 'red' | 'green' | 'blue';
     size?: 'small' | 'big';
+    sendScreenPosition?: boolean;
 }
 
-export const TileGoo = memo(({ id, q, r, s, height, color, size }: UnityComponentProps & TileGooData) => {
-    useUnityComponentManager<TileGooData>({
-        type: 'TileGooData',
-        id,
-        data: useMemo(
-            () => ({ q, r, s, height, color: color || 'red', size: size || 'small' }),
-            [q, r, s, height, color, size]
-        ),
-    });
+export const TileGoo = memo(
+    ({ id, q, r, s, height, color, size, sendScreenPosition }: UnityComponentProps & TileGooData) => {
+        useUnityComponentManager<TileGooData>({
+            type: 'TileGooData',
+            id,
+            data: useMemo(
+                () => ({ q, r, s, height, sendScreenPosition, color: color || 'red', size: size || 'small' }),
+                [q, r, s, height, color, size, sendScreenPosition]
+            ),
+        });
 
-    return null;
-});
+        return null;
+    }
+);

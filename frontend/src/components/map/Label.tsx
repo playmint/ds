@@ -7,13 +7,17 @@ export interface LabelData {
     s: number;
     height: number;
     text: string;
+    sendScreenPosition?: boolean;
 }
 
-export const Label = memo(({ id, q, r, s, height, text }: UnityComponentProps & LabelData) => {
+export const Label = memo(({ id, q, r, s, height, text, sendScreenPosition }: UnityComponentProps & LabelData) => {
     useUnityComponentManager<LabelData>({
         type: 'LabelData',
         id,
-        data: useMemo(() => ({ q, r, s, height, text }), [q, r, s, height, text]),
+        data: useMemo(
+            () => ({ q, r, s, height, text, sendScreenPosition }),
+            [q, r, s, height, text, sendScreenPosition]
+        ),
     });
 
     return null;

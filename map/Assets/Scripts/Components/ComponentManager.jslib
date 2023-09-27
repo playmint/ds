@@ -12,4 +12,14 @@ mergeInto(LibraryManager.library, {
 		);
 	},
 
+	SendPositionRPC: function (eventName, x, y, z, isVisible) {
+		window.dispatchReactUnityEvent(
+			UTF8ToString(eventName),
+			x,
+			y,
+			z,
+			isVisible
+		);
+	},
+
 });

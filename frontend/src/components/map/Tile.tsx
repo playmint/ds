@@ -7,14 +7,29 @@ export interface TileData {
     s: number;
     height: number;
     color: string;
+    sendScreenPosition: boolean;
 }
 
 export const Tile = memo(
-    ({ id, q, r, s, height, color, onPointerEnter, onPointerExit, onPointerClick }: UnityComponentProps & TileData) => {
+    ({
+        id,
+        q,
+        r,
+        s,
+        height,
+        color,
+        sendScreenPosition,
+        onPointerEnter,
+        onPointerExit,
+        onPointerClick,
+    }: UnityComponentProps & TileData) => {
         useUnityComponentManager<TileData>({
             type: 'TileData',
             id,
-            data: useMemo(() => ({ q, r, s, height, color }), [q, r, s, height, color]),
+            data: useMemo(
+                () => ({ q, r, s, height, color, sendScreenPosition }),
+                [q, r, s, height, color, sendScreenPosition]
+            ),
             onPointerEnter,
             onPointerExit,
             onPointerClick,

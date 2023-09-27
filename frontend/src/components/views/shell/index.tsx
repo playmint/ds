@@ -558,6 +558,8 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         onPointerClick={mobileUnitClick}
                         onPointerEnter={mobileUnitEnter}
                         onPointerExit={mobileUnitExit}
+                        sendScreenPosition={isPlayer}
+                        screenPositionHeightOffset={0.5}
                         {...coords}
                     />
                 );
@@ -566,27 +568,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         console.timeEnd('mobileUnitsLoop');
         return mus;
     }, [mobileUnitClick, mobileUnitEnter, mobileUnitExit, hoveredMobileUnitId, player, selectedMobileUnit, tiles]);
-
-    const playerId = player?.id;
-    const unitIcons = useMemo(
-        () =>
-            tiles?.flatMap((t) =>
-                t.mobileUnits.map((u) => {
-                    return u.owner?.id === playerId ? (
-                        <Icon
-                            backgroundColor={'#000000FF'}
-                            foregroundColor={'#FFFFFFFF'}
-                            image={'https://assets.downstream.game/icons/31-122.svg'}
-                            key={u.id}
-                            id={u.id}
-                            height={getTileHeight(t) + 0.7}
-                            {...getCoords(t)}
-                        />
-                    ) : null;
-                })
-            ),
-        [tiles, playerId]
-    );
 
     return (
         <StyledShell>
@@ -599,7 +580,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             mobileUnitClick(null);
                         }}
                     />
-                    {unitIcons}
                     {tileComponents}
                     {tileGooComponents}
                     {buildingComponents}

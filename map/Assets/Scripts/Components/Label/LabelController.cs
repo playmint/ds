@@ -32,8 +32,10 @@ public class LabelController : BaseComponentController<LabelData>
         _prevData = _nextData;
     }
 
-    protected void LateUpdate()
+    protected override void LateUpdate()
     {
+        base.LateUpdate();
+
         if (canvasRect != null)
             transform.position = WorldToUIPosition(
                 new Vector3(worldPos.x, _nextData.height, worldPos.z)

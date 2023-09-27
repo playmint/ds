@@ -10,6 +10,7 @@ export interface ExtractorBuildingData {
     progress: number;
     color?: string;
     selected?: '' | 'none' | 'highlight' | 'outline';
+    sendScreenPosition?: boolean;
 }
 
 export const ExtractorBuilding = memo(
@@ -23,6 +24,7 @@ export const ExtractorBuilding = memo(
         selected,
         rotation,
         progress,
+        sendScreenPosition,
         onPointerEnter,
         onPointerExit,
         onPointerClick,
@@ -31,8 +33,8 @@ export const ExtractorBuilding = memo(
             type: 'ExtractorBuildingData',
             id,
             data: useMemo(
-                () => ({ q, r, s, height, color, selected, rotation, progress }),
-                [q, r, s, height, color, selected, rotation, progress]
+                () => ({ q, r, s, height, color, selected, rotation, progress, sendScreenPosition }),
+                [q, r, s, height, color, selected, rotation, progress, sendScreenPosition]
             ),
             onPointerEnter,
             onPointerExit,
