@@ -20,6 +20,8 @@ const nextConfig = {
     images: {
         unoptimized: true
     },
+
+    pageExtensions: ['md', 'mdx', 'tsx', 'ts', 'jsx', 'js'],
 };
 
 export default nextConfig;
