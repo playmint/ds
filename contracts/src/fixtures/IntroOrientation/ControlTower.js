@@ -60,8 +60,11 @@ export default function update({ selected, world }) {
         }
     }
 
-    //Show this if there's no user license (and TBD: 2nd quest isn't done)
-    if (!hasUserLicense) {
+    //Need to hook this up
+    var hasQuest2 = false;
+
+    //If quest 2 isn't active or completed
+    if (!hasUserLicense && !hasQuest2) {
         return {
             version: 1,
             components: [
@@ -73,7 +76,7 @@ export default function update({ selected, world }) {
                             id: 'default',
                             type: 'inline',
                             html: 'This should show when the player hasn\'t done quest 2 yet.',
-                            buttons: [{ text: 'Register User', type: 'action', action: noLicense, disabled: false }]
+                            buttons: [{ text: 'Register User', type: 'action', action: craft, disabled: true }]
                         }
                     ],
                 },
@@ -81,7 +84,8 @@ export default function update({ selected, world }) {
         };
     }
 
-    const noLicense = () => {
+    //Show this if quest 2 is active
+    if (!hasUserLicense && hasQuest2) {
         return {
             version: 1,
             components: [
@@ -92,14 +96,14 @@ export default function update({ selected, world }) {
                         {
                             id: 'default',
                             type: 'inline',
-                            html: 'ERROR! User not recognised. User License required'
+                            html: 'Registration Error! Please collect valid User License',
+                            buttons: [{ text: 'Register User', type: 'action', action: craft, disabled: true }]
                         }
                     ],
                 },
             ],
         };
     }
-
 
 
     // fetch the expected inputs item kinds

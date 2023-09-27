@@ -3,7 +3,7 @@ kind: BuildingKind
 spec:
   name: Control Tower
   description: "The Control Tower towers above the world it controls"
-  category: other
+  category: custom
   model: 04-03
   contract:
     file: ./ControlTower.sol

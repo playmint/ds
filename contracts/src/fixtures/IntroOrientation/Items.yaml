@@ -1,5 +1,4 @@
 ---
-//Starter Item 1
 kind: Item
 spec:
   name: Toothbrush
@@ -11,7 +10,6 @@ spec:
   stackable: true
 
 ---
-//Starter Item 2
 kind: Item
 spec:
   name: Spare Sock
@@ -23,7 +21,6 @@ spec:
   stackable: true
 
 ---
-//User License
 kind: Item
 spec:
   name: User License
@@ -35,7 +32,6 @@ spec:
   stackable: true
 
 ---
-//Deletion Tool
 kind: Item
 spec:
   name: Deletion Tool
