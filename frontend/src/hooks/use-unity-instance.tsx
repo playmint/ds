@@ -233,5 +233,19 @@ export const useGlobalUnityInstance = ({ disabled }: { disabled?: boolean }) => 
         return unsubscribe;
     }, [ctx.ready.source]);
 
+    // hide show on mount/unmount
+    useEffect(() => {
+        const mapContainer = document.getElementById('map-container');
+        if (mapContainer) {
+            mapContainer.style.display = 'block';
+        }
+        return () => {
+            const mapContainer = document.getElementById('map-container');
+            if (mapContainer) {
+                mapContainer.style.display = 'none';
+            }
+        };
+    }, []);
+
     return { unity, ready };
 };
