@@ -51,6 +51,7 @@ interface DocTree {
 }
 
 const Markdown = styled.div`
+    padding: 5rem;
     color: white;
     h1,
     h2,
@@ -77,6 +78,7 @@ export const DocBody = ({ content }: { content: string }) => {
 };
 
 const SidebarList = styled.ul`
+    padding: 0.5rem 0;
     a {
         color: white;
     }
@@ -202,7 +204,9 @@ export default function Page({ doc, tree }: InferGetStaticPropsType<typeof getSt
                         <NavPanel />
                     </div>
                     <div style={{ float: 'left', width: '30rem' }}>
-                        <DocsSidebar doc={tree} />
+                        <div style={{ padding: '5rem 0' }}>
+                            <DocsSidebar doc={tree} />
+                        </div>
                     </div>
                     <div style={{ float: 'left', width: '50%' }}>
                         <DocBody content={doc.html} />
