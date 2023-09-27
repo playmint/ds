@@ -45,10 +45,10 @@ const decodeSessionData = (o: Partial<SessionData>): SessionData | undefined => 
 export const SessionProvider = ({ children }: { children: ReactNode }) => {
     const { provider } = useWalletProvider();
     const [authorizing, setAuthorizing] = useState<boolean>(false);
-    const [loadingSession, setLoading] = useState<boolean>(true);
     const player = usePlayer();
     const closeAuthroizer = useCallback(() => setAuthorizing(false), []);
     const [sessionData, setSessionData] = useLocalStorage<SessionData | null>(`ds/sessions`, null);
+    const [loadingSession, setLoading] = useState<boolean>(!!sessionData);
     const session = useMemo(() => (sessionData ? decodeSessionData(sessionData) : undefined), [sessionData]);
 
     const newSession = useCallback(() => {
@@ -92,15 +92,12 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
         if (!session) {
             return;
         }
-        if (loadingSession) {
-            return;
-        }
         setLoading(true);
         player
             .load(new ethers.Wallet(session.key), session.expires)
             .catch((err) => console.error(err))
             .finally(() => setLoading(false));
-    }, [session, player, loadingSession]);
+    }, [session, player]);
 
     const clearSession = useCallback(() => {
         localStorage.clear();
@@ -132,8 +129,6 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
             } else {
                 clearSession();
             }
-        } else {
-            setLoading(false);
         }
         newSession(); // TODO: auto login without prompt is bit weird
     }, [newSession, session, loadSession, player, setSessionData, clearSession]);
