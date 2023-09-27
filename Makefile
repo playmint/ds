@@ -52,6 +52,7 @@ frontend/public/ds-unity/Build/ds-unity.wasm:
 
 node_modules: package.json package-lock.json
 	$(NPM) ci
+	npx playwright install --with-deps chromium
 	touch $@
 
 contracts/lib/cog/services/bin/ds-node: contracts/lib/cog/services/Makefile $(COG_SERVICES_SRC)
