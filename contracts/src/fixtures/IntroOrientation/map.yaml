@@ -1,0 +1,6 @@
+---
+kind: Building
+spec:
+  name: Control Tower
+  location: [-1, 2, -1]
+

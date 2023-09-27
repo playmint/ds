@@ -1,5 +1,4 @@
 ---
-//Retheme of budget tyre
 kind: Item
 spec:
   name: Boring Tie
@@ -11,7 +10,6 @@ spec:
   stackable: false
 
 ---
-//Retheme of smelly duck
 kind: Item
 spec:
   name: Boring Shirt
@@ -23,7 +21,6 @@ spec:
   stackable: false
 
 ---
-//Retheme of rubber duck
 kind: Item
 spec:
   name: Boring Disguise
@@ -57,7 +54,6 @@ spec:
   stackable: true
 
 ---
-//Retheme of Dismembered Hand
 kind: Item
 spec:
   name: Microchip
