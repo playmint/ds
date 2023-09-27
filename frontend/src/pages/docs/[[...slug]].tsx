@@ -131,7 +131,7 @@ export async function getDocBySlug(slug: string[]): Promise<Doc> {
 }
 
 async function getAllDocs(): Promise<Doc[]> {
-    return walk('../docs/content').then((files) =>
+    return walk(DOCS_CONTENT_DIR).then((files) =>
         Promise.all(
             files.flat().map((filename) => {
                 const slug = filename.replace(`${DOCS_CONTENT_DIR}/`, '').replace(/\.md$/, '').split('/');
