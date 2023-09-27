@@ -45,7 +45,7 @@ const decodeSessionData = (o: Partial<SessionData>): SessionData | undefined => 
 export const SessionProvider = ({ children }: { children: ReactNode }) => {
     const { provider } = useWalletProvider();
     const [authorizing, setAuthorizing] = useState<boolean>(false);
-    const [loadingSession, setLoading] = useState<boolean>(false);
+    const [loadingSession, setLoading] = useState<boolean>(true);
     const player = usePlayer();
     const closeAuthroizer = useCallback(() => setAuthorizing(false), []);
     const [sessionData, setSessionData] = useLocalStorage<SessionData | null>(`ds/sessions`, null);
@@ -132,6 +132,8 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
             } else {
                 clearSession();
             }
+        } else {
+            setLoading(false);
         }
         newSession(); // TODO: auto login without prompt is bit weird
     }, [newSession, session, loadSession, player, setSessionData, clearSession]);
