@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "playwright install --with-deps chromium && next dev",
     "build": "playwright install --with-deps chromium && next build",
-    "export": "next build && next export",
+    "export": "playwright install --with-deps chromium && next build && next export",
     "start": "next start",
     "lint": "next lint"
   },
