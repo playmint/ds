@@ -22,10 +22,11 @@ import { SessionProvider } from '@app/hooks/use-session';
 const DOCS_CONTENT_DIR = '../docs';
 
 async function markdownToHtml(markdown: string) {
+    console.log('doing the thing');
     const result = await unified()
         .use(remarkParse)
         .use(remarkRehype)
-        .use(rehypeMermaid, { strategy: 'pre-mermaid' })
+        .use(rehypeMermaid, { strategy: 'inline-svg' })
         .use(rehypeHighlight)
         .use(rehypeStringify)
         .process(markdown);
@@ -114,14 +115,13 @@ const walk = async (dirPath) => {
     );
 };
 
-export async function getDocBySlug(slug: string[]): Promise<Doc> {
+export async function getDocBySlug(slug: string[], processMarkdown?: boolean): Promise<Doc> {
     const filename = join(DOCS_CONTENT_DIR, ...slug) + '.md';
-    console.log('loading', filename);
     const fileContents = readFileSync(filename, 'utf8');
     const { data, content: markdown } = matter(fileContents);
     const sidebar_position = data.sidebar_position || 0;
     const title = data.title ?? slug.slice(-1).find(() => true) ?? '';
-    const html = await markdownToHtml(markdown);
+    const html = processMarkdown ? await markdownToHtml(markdown) : '';
 
     return {
         slug,
@@ -183,7 +183,7 @@ export const getStaticProps = (async ({ params }) => {
         slug: [],
         children: getChildDocs(docs, []),
     };
-    const doc = await getDocBySlug(slug);
+    const doc = await getDocBySlug(slug, true);
     return { props: { doc, tree } };
 }) satisfies GetStaticProps<{
     doc: Doc;

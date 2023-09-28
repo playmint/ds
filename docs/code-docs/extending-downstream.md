@@ -51,16 +51,12 @@ If a player has a MobileUnit next to the building, any buttons that trigger the 
 Pressing those buttons will result in the **Use** smart contract function being called.
 
 ```mermaid
----
-title: Building flow
----
-
 flowchart 
-	subgraph BS [Blockchain State]
-		S1[[BuildingKind]]
-		S2[[Building Instance]]
-		S3[["Implemnetion\n(building.sol)"]]
-		S4[["Plugin\n(building.js)"]]
+	subgraph Blockchain
+		S1[BuildingKind]
+		S2[Building Instance]
+		S3[building.sol]
+		S4[building.js]
 		S1-."has a".->S3
 		S1-."has a".->S4
 		S2-."is a".->S1
@@ -80,12 +76,12 @@ flowchart
 	end
 
 	subgraph Game
-			G5[Tile Info]
-			G1[Player] --> G2{Build}--"Dispatch(CONSTRUCT)"-->S2		
-			G1 -->G3{Select}-->CJ1
-			G1 -->G4{Use}-->CJ2--"Dispatch(USE_BUILDING)"-->CS1		
-			G5 -.-G4
-		end
+        G5[Tile Info]
+        G1[Player] --> G2{Build}--"Dispatch(CONSTRUCT)"-->S2		
+        G1 -->G3{Select}-->CJ1
+        G1 -->G4{Use}-->CJ2--"Dispatch(USE_BUILDING)"-->CS1		
+        G5 -.-G4
+    end
 	
 	CJ1-->G5
 	C1--"BuildingUtils.register"-->S1
