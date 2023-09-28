@@ -22,7 +22,6 @@ import { SessionProvider } from '@app/hooks/use-session';
 const DOCS_CONTENT_DIR = '../docs';
 
 async function markdownToHtml(markdown: string) {
-    console.log('doing the thing');
     const result = await unified()
         .use(remarkParse)
         .use(remarkRehype)
