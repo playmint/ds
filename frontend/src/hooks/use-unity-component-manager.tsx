@@ -10,24 +10,23 @@ export interface ComponentDataMessage extends ComponentMessage {
     data: string; // json encoded (eg TileData)
 }
 
-export const useUnityComponentEvent = (eventName: string, handler?: () => void) => {
+export const useUnityComponentEvent = (
+    eventName: string,
+    handler?: (x: number, y: number, z: number, isVisible: boolean) => void
+) => {
     const { addUnityEventListener, removeUnityEventListener } = useUnityMap();
+
     useEffect(() => {
-        if (!addUnityEventListener) {
-            return;
-        }
-        if (!handler) {
-            return;
-        }
-        addUnityEventListener(eventName, handler);
+        if (!addUnityEventListener || !handler) return;
+
+        const wrappedHandler = (x: number, y: number, z: number, isVisible: boolean) => {
+            handler(x, y, z, isVisible);
+        };
+
+        addUnityEventListener(eventName, wrappedHandler);
         return () => {
-            if (!removeUnityEventListener) {
-                return;
-            }
-            if (!handler) {
-                return;
-            }
-            removeUnityEventListener(eventName, handler);
+            if (!removeUnityEventListener) return;
+            removeUnityEventListener(eventName, wrappedHandler);
         };
     }, [addUnityEventListener, removeUnityEventListener, handler, eventName]);
 };
@@ -36,6 +35,7 @@ export interface ComponentEventHandlers {
     onPointerEnter?: (id: string, type: string) => void;
     onPointerExit?: (id: string, type: string) => void;
     onPointerClick?: (id: string, type: string) => void;
+    screenPosition?: (id: string, type: string, x: number, y: number, z: number, isVisible: boolean) => void;
 }
 
 export interface ComponentConfig<T> extends ComponentEventHandlers {
@@ -52,7 +52,7 @@ export interface UnityComponentProps extends ComponentEventHandlers {
 }
 
 export const useUnityComponentManager = <T,>(cfg: ComponentConfig<T>) => {
-    const { type, id, data, onPointerEnter, onPointerExit, onPointerClick } = cfg;
+    const { type, id, data, onPointerEnter, onPointerExit, onPointerClick, screenPosition } = cfg;
     const ref = useMemo(() => id ?? Math.floor(Math.random() * 10000).toString(), [id]); // TODO: pick a better ref unique id
     const { sendMessage } = useUnityMap();
 
@@ -95,5 +95,13 @@ export const useUnityComponentManager = <T,>(cfg: ComponentConfig<T>) => {
     useUnityComponentEvent(
         `${type}_pointer_click_${ref}`,
         useMemo(() => (onPointerClick ? () => onPointerClick(ref, type) : undefined), [onPointerClick, ref, type])
+    );
+
+    useUnityComponentEvent(
+        `${type}_screen_position_${ref}`,
+        useMemo(
+            () => (screenPosition ? (x, y, z, isVisible) => screenPosition(ref, type, x, y, z, isVisible) : undefined),
+            [screenPosition, ref, type]
+        )
     );
 };

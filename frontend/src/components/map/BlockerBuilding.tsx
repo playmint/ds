@@ -9,6 +9,7 @@ export interface BlockerBuildingData {
     rotation: number;
     model?: string;
     selected?: '' | 'none' | 'highlight' | 'outline';
+    sendScreenPosition?: boolean;
 }
 
 export const BlockerBuilding = memo(
@@ -21,6 +22,7 @@ export const BlockerBuilding = memo(
         model,
         selected,
         rotation,
+        sendScreenPosition,
         onPointerEnter,
         onPointerExit,
         onPointerClick,
@@ -36,14 +38,13 @@ export const BlockerBuilding = memo(
             type: 'BlockerBuildingData',
             id,
             data: useMemo(
-                () => ({ q, r, s, height, model, selected, rotation }),
-                [q, r, s, height, model, selected, rotation]
+                () => ({ q, r, s, height, model, selected, rotation, sendScreenPosition }),
+                [q, r, s, height, model, selected, rotation, sendScreenPosition]
             ),
             onPointerEnter,
             onPointerExit,
             onPointerClick,
         });
-
         return null;
     }
 );

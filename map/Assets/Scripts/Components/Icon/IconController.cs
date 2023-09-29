@@ -76,8 +76,9 @@ public class IconController : BaseComponentController<IconData>
         }
     }
 
-    protected void LateUpdate()
+    protected override void LateUpdate()
     {
+        base.LateUpdate();
         transform.rotation = _camTrans.rotation;
     }
 

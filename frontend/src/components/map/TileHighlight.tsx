@@ -9,16 +9,26 @@ export interface TileHighlightData {
     color: string;
     animation?: 'none' | 'pulse';
     style?: 'flat' | 'gradient' | 'gradient_blue' | 'gradient_outline';
+    sendScreenPosition?: boolean;
 }
 
 export const TileHighlight = memo(
-    ({ id, q, r, s, height, color, style, animation }: UnityComponentProps & TileHighlightData) => {
+    ({ id, q, r, s, height, color, style, animation, sendScreenPosition }: UnityComponentProps & TileHighlightData) => {
         useUnityComponentManager<TileHighlightData>({
             type: 'TileHighlightData',
             id,
             data: useMemo(
-                () => ({ q, r, s, height, color, style: style || 'gradient_outline', animation: animation || 'none' }),
-                [q, r, s, height, color, style, animation]
+                () => ({
+                    q,
+                    r,
+                    s,
+                    height,
+                    color,
+                    sendScreenPosition,
+                    style: style || 'gradient_outline',
+                    animation: animation || 'none',
+                }),
+                [q, r, s, height, color, style, animation, sendScreenPosition]
             ),
         });
 

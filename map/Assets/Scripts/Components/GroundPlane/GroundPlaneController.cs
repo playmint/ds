@@ -56,7 +56,7 @@ public class GroundPlaneController : BaseComponentController<GroundPlaneData>
         }
     }
 
-    private void LateUpdate()
+    protected override void LateUpdate()
     {
         if (_camTrans == null)
             return;

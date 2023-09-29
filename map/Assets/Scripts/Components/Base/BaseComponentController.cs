@@ -16,12 +16,14 @@ public class BaseComponentController<Data>
         IPointerEnterHandler,
         IPointerExitHandler,
         IPointerClickHandler
-    where Data : new()
+    where Data : BaseComponentData, new()
 {
     protected string _dataTypeName = (new Data()).GetType().Name;
     protected string? _instanceId;
     protected Data _nextData;
     protected Data? _prevData;
+
+    protected bool _isVisible;
 
     public void Init(string instanceId)
     {
@@ -31,6 +33,23 @@ public class BaseComponentController<Data>
     protected void Awake()
     {
         _nextData = new Data();
+    }
+
+    protected virtual void LateUpdate()
+    {
+        if (!_nextData.sendScreenPosition)
+            return;
+        Vector3 screenPoint = Camera.main.WorldToViewportPoint(transform.position + (Vector3.up * _nextData.screenPositionHeightOffset));
+        if (screenPoint.x > 0 && screenPoint.x < 1 && screenPoint.y > 0 && screenPoint.y < 1)
+        {
+            SendPosition("screen_position", screenPoint, true);
+            _isVisible = true;
+        }
+        else if(_isVisible)
+        {
+            SendPosition("screen_position", screenPoint, false);
+            _isVisible = false;
+        }
     }
 
     public void Set(Data data)
@@ -67,6 +86,17 @@ public class BaseComponentController<Data>
         Debug.Log($"TriggeredEvent: {fullEventName}");
 #elif UNITY_WEBGL
         ComponentManager.SendEventRPC(fullEventName);
+#endif
+    }
+
+    protected void SendPosition(string eventName, Vector3 position, bool isVisible)
+    {
+        string fullEventName = $"{_dataTypeName}_{eventName}_{_instanceId}";
+#if UNITY_EDITOR
+        // noop
+        Debug.Log($"TriggeredEvent: {fullEventName}, position: {position}, isVisible: {isVisible}");
+#elif UNITY_WEBGL
+        ComponentManager.SendPositionRPC(fullEventName, position.x, position.y, position.z, isVisible);
 #endif
     }
 }
