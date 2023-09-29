@@ -44,7 +44,7 @@ You will need the following tools installed:
 clone this repository:
 
 ```
-git clone https://github.com/playmint/ds-unity.git
+git clone --recurse-submodules https://github.com/playmint/ds-unity.git
 ```
 
 build and start the client and supporting services in development mode run:
