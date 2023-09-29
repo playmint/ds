@@ -85,6 +85,7 @@ export const Bags = memo(
 
                     return t.bagCount > 0 || rewardBags.length > 0 ? (
                         <Bag
+                            sendScreenPosition={false}
                             id={`bag/${t.id}`}
                             key={`bag/${t.id}`}
                             height={getTileHeight(t)}
