@@ -38,7 +38,13 @@ public class ComponentManager : MonoBehaviour
     public static extern void SendEventRPC(string? eventName);
 
     [DllImport("__Internal")]
-    public static extern void SendPositionRPC(string? eventName, float x, float y, float z, bool isVisible);
+    public static extern void SendPositionRPC(
+        string? eventName,
+        float x,
+        float y,
+        float z,
+        bool isVisible
+    );
 
     protected async void Start()
     {

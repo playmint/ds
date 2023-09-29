@@ -39,13 +39,15 @@ public class BaseComponentController<Data>
     {
         if (!_nextData.sendScreenPosition)
             return;
-        Vector3 screenPoint = Camera.main.WorldToViewportPoint(transform.position + (Vector3.up * _nextData.screenPositionHeightOffset));
+        Vector3 screenPoint = Camera.main.WorldToViewportPoint(
+            transform.position + (Vector3.up * _nextData.screenPositionHeightOffset)
+        );
         if (screenPoint.x > 0 && screenPoint.x < 1 && screenPoint.y > 0 && screenPoint.y < 1)
         {
             SendPosition("screen_position", screenPoint, true);
             _isVisible = true;
         }
-        else if(_isVisible)
+        else if (_isVisible)
         {
             SendPosition("screen_position", screenPoint, false);
             _isVisible = false;
