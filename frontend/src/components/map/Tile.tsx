@@ -69,7 +69,7 @@ export const Tiles = memo(
                     const coords = getCoords(t);
                     return (
                         <Tile
-                            key={t.id}
+                            sendScreenPosition={false} key={t.id}
                             id={t.id}
                             height={getTileHeight(t)}
                             color="#7288A6"
