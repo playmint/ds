@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.cyanilux.shadergraph-customlighting": {
+      "version": "https://github.com/Cyanilux/URP_ShaderGraphCustomLighting.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "4262886c09bb374db39944322999289f64110980"
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,
