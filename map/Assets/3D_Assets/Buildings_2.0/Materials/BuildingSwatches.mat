@@ -59,7 +59,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 9bca2430e60d04f7bbbacff33ed8254b, type: 3}
+        m_Texture: {fileID: 2800000, guid: 8ab5b6d8b6487874f948d684ec9837da, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -75,7 +75,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ShadowTexture:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: f230d3b69d32cdd44816793bc86cd6d3, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:
@@ -137,12 +137,12 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 2.270603, g: 2.270603, b: 2.270603, a: 1}
+    - _Color: {r: 1.7207954, g: 1.7207954, b: 1.7207954, a: 1}
     - _Color_1: {r: 0.13207549, g: 0.13207549, b: 0.13207549, a: 1}
     - _DynamicColor: {r: 0.27058825, g: 0.7411765, b: 0.8862746, a: 1}
     - _DynamicShadowColor: {r: 0.08627451, g: 0.3254902, b: 0.5568628, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _ShadowColor: {r: 0.8584906, g: 0.8584906, b: 0.8584906, a: 0}
+    - _ShadowColor: {r: 1, g: 1, b: 1, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _SpecularColor: {r: 0.6792453, g: 0.6792453, b: 0.6792453, a: 0}
   m_BuildTextureStacks: []
