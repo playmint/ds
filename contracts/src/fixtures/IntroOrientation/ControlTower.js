@@ -1,6 +1,13 @@
 import ds from 'downstream';
 
+
 export default function update({ selected, world }) {
+
+    var hasQ1Active = true;
+    var hasQ2Active = false;
+    var hasQ3Active = false;
+    var hasQ4Active = false;
+    var hasQ7AActive = false;
 
     //Function to test the distance between two tiles
     function distance(a, b) {
@@ -24,9 +31,9 @@ export default function update({ selected, world }) {
         engineerDistance = distance(selectedUnit.nextLocation.tile, selectedTile);
     }
 
+
     const placeholder = () => {
-        ds.log('placeholder');
-        return;
+        hasQ2Active = true;
     }
 
     //Show this if there is no selected engineer OR the engineer is not adjacent to the building's tile
@@ -65,11 +72,11 @@ export default function update({ selected, world }) {
     }
 
     //Need to hook this up
-    var hasQuest2Active = false;
-    var hasQuest2Completed = false;
+    //var hasQuest2Active = false;
+    //var hasQuest2Completed = false;
 
     //If quest 2 isn't active or completed
-    if (!hasQuest2Active && !hasQuest2Completed) {
+    if (hasQ1Active && !hasQ2Active) {
         return {
             version: 1,
             components: [
@@ -103,6 +110,28 @@ export default function update({ selected, world }) {
                             type: 'inline',
                             html: 'Registration Error! Please collect valid User License',
                             buttons: [{ text: 'Register User', type: 'action', action: placeholder, disabled: true }]
+                        }
+                    ],
+                },
+            ],
+        };
+    }
+
+    //Show this if quest 3 is active
+    if (hasQ3Active) {
+        return {
+            version: 1,
+            components: [
+                {
+                    type: 'building',
+                    id: 'control-tower',
+                    content: [
+                        {
+                            id: 'default',
+                            type: 'inline',
+                            html: 'User identified as a total N00b. Please accept newbie quests and level up A.S.A.P.',
+                            buttons: [{ text: 'Accept Orientation Quest', type: 'action', action: placeholder, disabled: !hasQ4Active },
+                                      { text: 'Accept Creation Quest', type: 'action', action: placeholder, disabled: !hasQ7AActive }]
                         }
                     ],
                 },
