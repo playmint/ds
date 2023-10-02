@@ -9,16 +9,27 @@ export interface IconData {
     backgroundColor: string;
     foregroundColor: string;
     image: string;
+    sendScreenPosition?: boolean;
 }
 
 export const Icon = memo(
-    ({ id, q, r, s, height, backgroundColor, foregroundColor, image }: UnityComponentProps & IconData) => {
+    ({
+        id,
+        q,
+        r,
+        s,
+        height,
+        backgroundColor,
+        foregroundColor,
+        image,
+        sendScreenPosition,
+    }: UnityComponentProps & IconData) => {
         useUnityComponentManager<IconData>({
             type: 'IconData',
             id,
             data: useMemo(
-                () => ({ q, r, s, height, backgroundColor, foregroundColor, image }),
-                [q, r, s, height, backgroundColor, foregroundColor, image]
+                () => ({ q, r, s, height, backgroundColor, foregroundColor, image, sendScreenPosition }),
+                [q, r, s, height, backgroundColor, foregroundColor, image, sendScreenPosition]
             ),
         });
 

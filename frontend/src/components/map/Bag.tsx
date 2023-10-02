@@ -10,6 +10,7 @@ export interface BagData {
     height: number;
     corner: number; // 0,1,2,3,3,4,5
     selected?: '' | 'none' | 'highlight' | 'outline';
+    sendScreenPosition: boolean;
 }
 
 export const Bag = memo(
@@ -21,6 +22,7 @@ export const Bag = memo(
         height,
         corner,
         selected,
+        sendScreenPosition,
         onPointerEnter,
         onPointerExit,
         onPointerClick,
@@ -35,7 +37,10 @@ export const Bag = memo(
         useUnityComponentManager<BagData>({
             type: 'BagData',
             id,
-            data: useMemo(() => ({ q, r, s, height, corner, selected }), [q, r, s, height, corner, selected]),
+            data: useMemo(
+                () => ({ q, r, s, height, corner, selected, sendScreenPosition }),
+                [q, r, s, height, corner, selected, sendScreenPosition]
+            ),
             onPointerEnter,
             onPointerExit,
             onPointerClick,
@@ -80,6 +85,7 @@ export const Bags = memo(
 
                     return t.bagCount > 0 || rewardBags.length > 0 ? (
                         <Bag
+                            sendScreenPosition={false}
                             id={`bag/${t.id}`}
                             key={`bag/${t.id}`}
                             height={getTileHeight(t)}

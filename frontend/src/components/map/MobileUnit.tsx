@@ -2,8 +2,6 @@ import { getTileHeightFromCoords } from '@app/helpers/tile';
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
 import { WorldMobileUnitFragment, getCoords } from '@downstream/core';
 import { memo, useCallback, useMemo, useState } from 'react';
-import { Icon } from './Icon';
-import { Label } from './Label';
 
 // public int q;
 // public int r;
@@ -23,6 +21,9 @@ export interface MobileUnitData {
     selected?: 'none' | 'highlight' | 'outline';
     shared: boolean;
     visible: boolean;
+    sendScreenPosition: boolean;
+    screenPositionHeightOffset: number;
+    onUpdatePosition?: (id: string, x: number, y: number, z: number, isVisible: boolean) => void;
 }
 
 export const MobileUnit = memo(
@@ -36,11 +37,44 @@ export const MobileUnit = memo(
         selected,
         shared,
         visible,
+        sendScreenPosition,
+        screenPositionHeightOffset,
         onPointerEnter,
         onPointerExit,
         onPointerClick,
+        screenPosition,
+        onUpdatePosition,
     }: UnityComponentProps & MobileUnitData) => {
         const [hovered, setHovered] = useState(false);
+        const [position, setPosition] = useState({ x: 0, y: 0, z: 0 });
+        const [isVisible, setVisible] = useState({ isVisible: false });
+
+        const screenPositionHandler = (
+            id?: string,
+            type?: string,
+            x?: number,
+            y?: number,
+            z?: number,
+            isVisible?: boolean
+        ) => {
+            if (screenPosition && id && type && x && y && z && isVisible !== undefined) {
+                screenPosition(id, type, x, y, z, isVisible);
+            }
+            if (x !== undefined && y !== undefined && z !== undefined) {
+                const scale = 1 / (1 + z);
+                setPosition({ x, y, z: scale });
+            }
+            if (isVisible !== undefined) {
+                setVisible({ isVisible });
+            }
+            if (x !== undefined && y !== undefined && z !== undefined && id !== undefined && isVisible !== undefined) {
+                const scale = 1 / (1 + z);
+                setPosition({ x, y, z: scale });
+                if (onUpdatePosition) {
+                    onUpdatePosition(id, x, y, scale, isVisible); // Call the callback here
+                }
+            }
+        };
 
         onPointerEnter = useCallback(() => setHovered(true), []);
         onPointerExit = useCallback(() => setHovered(false), []);
@@ -51,12 +85,39 @@ export const MobileUnit = memo(
             type: 'MobileUnitData',
             id,
             data: useMemo(
-                () => ({ q, r, s, height, progress, selected: selected || 'none', shared, visible }),
-                [q, r, s, height, progress, selected, shared, visible]
+                () => ({
+                    q,
+                    r,
+                    s,
+                    height,
+                    progress,
+                    sendScreenPosition,
+                    screenPositionHeightOffset,
+                    selected: selected || 'none',
+                    shared,
+                    visible,
+                    position,
+                    isVisible,
+                }),
+                [
+                    q,
+                    r,
+                    s,
+                    height,
+                    progress,
+                    selected,
+                    shared,
+                    visible,
+                    sendScreenPosition,
+                    screenPositionHeightOffset,
+                    position,
+                    isVisible,
+                ]
             ),
             onPointerEnter,
             onPointerExit,
             onPointerClick,
+            screenPosition: screenPositionHandler,
         });
 
         return null;
@@ -75,6 +136,12 @@ export const MobileUnits = memo(
         playerID?: string;
         onClickMobileUnit: (id: string) => void;
     }) => {
+        const [unitPositions, setUnitPositions] = useState({}); // New state for positions
+
+        const updatePosition = useCallback((id, x, y, z, isVisible) => {
+            setUnitPositions((prev) => ({ ...prev, [id]: { x, y, z, isVisible } }));
+        }, []);
+
         const units = useMemo(() => {
             const counts = new Map<string, { count: number }>();
             return (mobileUnits || [])
@@ -101,6 +168,8 @@ export const MobileUnits = memo(
                 units.map((u) => {
                     return (
                         <MobileUnit
+                            sendScreenPosition={true}
+                            screenPositionHeightOffset={0.5}
                             key={u.id}
                             id={u.id}
                             height={u.height}
@@ -109,56 +178,76 @@ export const MobileUnits = memo(
                             shared={u.atBuilding}
                             visible={u.visible}
                             onPointerClick={onClickMobileUnit}
+                            onUpdatePosition={updatePosition}
                             {...u.coords}
                         />
                     );
                 }),
-            [onClickMobileUnit, selectedMobileUnitID, units]
-        );
-
-        const unitCounters = useMemo(
-            () =>
-                units.map((u) => {
-                    if (u.counter.count > 1 && !u.isPlayer) {
-                        return (
-                            <Label
-                                text={u.counter.count.toString()}
-                                key={`${u.id}-icon`}
-                                id={`${u.id}-icon`}
-                                height={u.height + 0.7}
-                                {...u.coords}
-                            />
-                        );
-                    }
-
-                    return null;
-                }),
-            [units]
+            [onClickMobileUnit, selectedMobileUnitID, units, updatePosition]
         );
 
         const unitIcons = useMemo(
             () =>
                 units.map((u) =>
-                    u.isPlayer ? (
-                        <Icon
-                            backgroundColor={'#000000FF'}
-                            foregroundColor={'#FFFFFFFF'}
-                            image={'https://assets.downstream.game/icons/31-122.svg'}
+                    u.isPlayer && unitPositions[u.id]?.isVisible ? (
+                        <div
                             key={u.id}
-                            id={u.id}
-                            height={u.height + 0.7}
-                            {...u.coords}
-                        />
+                            style={{
+                                position: 'absolute',
+                                width: `${550 * unitPositions[u.id]?.z}px`,
+                                height: `${600 * unitPositions[u.id]?.z}px`,
+                                left: `${unitPositions[u.id]?.x * 100}vw`,
+                                bottom: `${unitPositions[u.id]?.y * 100}vh`,
+                                zIndex: '1',
+                                marginLeft: `-${275 * unitPositions[u.id]?.z}px`,
+                                marginTop: `-${275 * unitPositions[u.id]?.z}px`,
+                                backgroundImage: 'url("/Polygon 2.png")',
+                                backgroundRepeat: 'no-repeat',
+                                backgroundSize: 'cover',
+                                display: 'block',
+                                // other styles for the div, e.g., background color, width, height, etc.
+                            }}
+                        >
+                            {u.counter.count > 1 ? (
+                                <div
+                                    style={{
+                                        width: `100%`,
+                                        height: `100%`,
+                                        position: 'absolute',
+                                        top: '50%',
+                                        left: '50%',
+                                        transform: 'translate(-50%, -50%)',
+                                        textAlign: 'center',
+                                        fontSize: `${300 * unitPositions[u.id]?.z}pt`,
+                                        color: 'white',
+                                    }}
+                                >
+                                    {u.counter.count}
+                                </div>
+                            ) : (
+                                <img
+                                    src={'/Subtract.png'}
+                                    style={{
+                                        width: `${275 * unitPositions[u.id]?.z}px`,
+                                        height: `${275 * unitPositions[u.id]?.z}px`,
+                                        position: 'absolute',
+                                        top: '50%',
+                                        left: '50%',
+                                        transform: 'translate(-50%, -50%)',
+                                    }}
+                                    alt="unit"
+                                />
+                            )}
+                        </div>
                     ) : null
                 ),
-            [units]
+            [units, unitPositions]
         );
 
         return (
             <>
                 {unitComponents}
                 {unitIcons}
-                {unitCounters}
             </>
         );
     }
