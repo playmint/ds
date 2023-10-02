@@ -1,8 +1,8 @@
 ---
 kind: Item
 spec:
-  name: Toothbrush
-  icon: 04-84
+  name: Acceptance Letter
+  icon: 31-311
   goo:
     red: 75
     green: 100
@@ -12,19 +12,19 @@ spec:
 ---
 kind: Item
 spec:
-  name: Spare Sock
-  icon: 04-1
-  goo:
-    red: 75
-    green: 100
-    blue: 100
-  stackable: true
-
----
-kind: Item
-spec:
-  name: User License
+  name: ID Card
   icon: 10-46
+  goo:
+    red: 75
+    green: 100
+    blue: 100
+  stackable: true
+
+---
+kind: Item
+spec:
+  name: Registration Receipt
+  icon: 01-209
   goo:
     red: 75
     green: 100
