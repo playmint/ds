@@ -238,9 +238,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     <CombatSessions tiles={tiles} />
                 </>
             )}
-            <div className="nav-container">
-                <NavPanel />
-            </div>
+            <NavPanel />
             <div className="hud-container">
                 <div className="top-left">
                     <Logs className="logs" />
