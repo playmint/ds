@@ -15,4 +15,4 @@ spec:
 kind: Building
 spec:
   name: Deletion Supplies
-  location: [-2, 0, -2]
+  location: [-2, 0, 2]

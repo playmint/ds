@@ -5,6 +5,13 @@ export default function update({ selected, world }) {
     var q1isActive = false;
     var q2IsActive = true;
 
+
+    const { tiles, mobileUnit } = selected || {};
+    const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
+    const selectedBuilding = selectedTile?.building;
+    const selectedUnit = mobileUnit;
+
+
     //Look for a Registration Receipt in their bags
     var hasReceipt = false
     for (var j = 0; j < selectedUnit.bags.length; j++) {
@@ -19,10 +26,6 @@ export default function update({ selected, world }) {
         }
     }
 
-    const { tiles, mobileUnit } = selected || {};
-    const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
-    const selectedBuilding = selectedTile?.building;
-    const selectedEngineer = mobileUnit;
 
     // fetch the expected inputs item kinds
     const requiredInputs = selectedBuilding?.kind?.inputs || [];
@@ -40,13 +43,13 @@ export default function update({ selected, world }) {
     const out1 = expectedOutputs?.find(slot => slot.key == 1);
 
     // try to detect if the input slots contain enough stuff to craft
-    const canCraft = selectedEngineer
+    const canCraft = selectedUnit
         && want0 && got0 && want0.balance == got0.balance
         && want1 && got1 && want1.balance == got1.balance;
 
     const craft = () => {
-        if (!selectedEngineer) {
-            ds.log('no selected engineer');
+        if (!selectedUnit) {
+            ds.log('no selected unit');
             return;
         }
         if (!selectedBuilding) {
@@ -57,7 +60,7 @@ export default function update({ selected, world }) {
         ds.dispatch(
             {
                 name: 'BUILDING_USE',
-                args: [selectedBuilding.id, selectedEngineer.id, []]
+                args: [selectedBuilding.id, selectedUnit.id, []]
             },
         );
 
