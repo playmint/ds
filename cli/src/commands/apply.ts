@@ -1,7 +1,7 @@
 import { CogAction, CompoundKeyEncoder, NodeSelectors } from '@downstream/core';
-import { id as keccak256UTF8, solidityPacked } from 'ethers';
+import { id as keccak256UTF8, solidityPacked, AbiCoder } from 'ethers';
 import fs from 'fs';
-import {globSync} from 'glob';
+import { globSync } from 'glob';
 import path from 'path';
 import {
     ItemSpec,
@@ -32,6 +32,18 @@ const encodeBuildingKindID = ({ name, category }) => {
 const encodePluginID = ({ name }) => {
     const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`plugin/${name}`))));
     return CompoundKeyEncoder.encodeUint160(NodeSelectors.ClientPlugin, id);
+};
+
+const encodeTaskID = ({ name, kind }) => {
+    const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`task/${name}`))));
+    const kindHash = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(kind))));
+
+    return solidityPacked(['bytes4', 'uint64', 'uint32', 'uint64'], [NodeSelectors.Task, 0, kindHash, id]);
+};
+
+const encodeQuestID = ({ name }) => {
+    const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`quest/${name}`))));
+    return solidityPacked(['bytes4', 'uint32', 'uint64', 'uint64'], [NodeSelectors.Quest, 0, 0, id]);
 };
 
 // TODO: Is there a way of referencing the Solidity enum?
@@ -85,6 +97,39 @@ const itemKindDeploymentActions = async (
     return ops;
 };
 
+const getItemIdByName = (files, existingItems, name: string): string => {
+    const foundItems = existingItems.filter(({ kind, spec }) => kind === 'Item' && spec.name === name);
+    if (foundItems.length === 1) {
+        const manifest = foundItems[0];
+        if (manifest.kind !== 'Item') {
+            throw new Error(`unexpect kind`);
+        }
+        if (!manifest.status || !manifest.status.id) {
+            throw new Error(`missing status.id field for Item ${name}`);
+        }
+        return manifest.status.id;
+    } else if (foundItems.length > 1) {
+        throw new Error(`item ${name} is ambiguous, found ${foundItems.length} existing items with that name`);
+    }
+    // find ID based on pending specs
+    const manifests = files
+        .map((file) => file.manifest)
+        .filter((manifest) => manifest.kind === 'Item' && manifest.spec.name === name);
+    if (manifests.length === 0) {
+        throw new Error(`unable to find Item id for reference: ${name}, are you missing an Item manifest?`);
+    }
+    if (manifests.length > 1) {
+        throw new Error(
+            `item ${name} is ambiguous, found ${manifests.length} different manifests that declare items with that name`
+        );
+    }
+    const manifest = manifests[0];
+    if (manifest.kind !== 'Item') {
+        throw new Error(`unexpected kind: wanted Item got ${manifest.kind}`);
+    }
+    return encodeItemID(manifest.spec);
+};
+
 const buildingKindDeploymentActions = async (
     ctx,
     file: ReturnType<typeof ManifestDocument.parse>,
@@ -100,42 +145,11 @@ const buildingKindDeploymentActions = async (
     }
     const spec = file.manifest.spec;
 
-    const getItemIdByName = (name: string): string => {
-        const foundItems = existingItems.filter(({ kind, spec }) => kind === 'Item' && spec.name === name);
-        if (foundItems.length === 1) {
-            const manifest = foundItems[0];
-            if (manifest.kind !== 'Item') {
-                throw new Error(`unexpect kind`);
-            }
-            if (!manifest.status || !manifest.status.id) {
-                throw new Error(`missing status.id field for Item ${name}`);
-            }
-            return manifest.status.id;
-        } else if (foundItems.length > 1) {
-            throw new Error(`item ${name} is ambiguous, found ${foundItems.length} existing items with that name`);
-        }
-        // find ID based on pending specs
-        const manifests = files
-            .map((file) => file.manifest)
-            .filter((manifest) => manifest.kind === 'Item' && manifest.spec.name === name);
-        if (manifests.length === 0) {
-            throw new Error(`unable to find Item id for reference: ${name}, are you missing an Item manifest?`);
-        }
-        if (manifests.length > 1) {
-            throw new Error(
-                `item ${name} is ambiguous, found ${manifests.length} different manifests that declare items with that name`
-            );
-        }
-        const manifest = manifests[0];
-        if (manifest.kind !== 'Item') {
-            throw new Error(`unexpected kind: wanted Item got ${manifest.kind}`);
-        }
-        return encodeItemID(manifest.spec);
-    };
-
     const encodeSlotConfig = (slots: ReturnType<typeof Slot.parse>[]) => {
         const items = [0, 0, 0, 0].map((_, idx) =>
-            slots[idx] ? getItemIdByName(slots[idx].name) : '0x000000000000000000000000000000000000000000000000'
+            slots[idx]
+                ? getItemIdByName(files, existingItems, slots[idx].name)
+                : '0x000000000000000000000000000000000000000000000000'
         );
         const quantities = [0, 0, 0, 0].map((_, idx) => (slots[idx] ? slots[idx].quantity : 0));
         return { items, quantities };
@@ -234,6 +248,60 @@ const buildingKindDeploymentActions = async (
             args: [id, spec.description],
         });
     }
+
+    return ops;
+};
+
+const questDeploymentActions = async (
+    ctx,
+    file: ReturnType<typeof ManifestDocument.parse>,
+    files: ReturnType<typeof ManifestDocument.parse>[],
+    verbose: boolean
+): Promise<CogAction[]> => {
+    const ops: CogAction[] = [];
+
+    if (file.manifest.kind != 'Quest') {
+        throw new Error(`expected quest kind spec`);
+    }
+    const spec = file.manifest.spec;
+    const existingItems = await getManifestsByKind(ctx, ['Item']);
+
+    const encodeTaskData = (task: (typeof spec.tasks)[0]) => {
+        switch (task.kind) {
+            case 'coord': {
+                const coder = AbiCoder.defaultAbiCoder();
+                return coder.encode(['int16', 'int16', 'int16'], [...task.location]);
+            }
+            case 'inventory': {
+                const item = getItemIdByName(files, existingItems, task.item.name);
+                const coder = AbiCoder.defaultAbiCoder();
+                return coder.encode(['bytes24', 'uint64'], [item, task.item.quantity]);
+            }
+        }
+
+        return solidityPacked(['uint8'], [0]);
+    };
+
+    // register tasks
+    ops.push(
+        ...spec.tasks.map((task): CogAction => {
+            const id = encodeTaskID(task);
+            const taskData = encodeTaskData(task);
+            return {
+                name: 'REGISTER_TASK',
+                args: [id, task.name, taskData],
+            };
+        })
+    );
+
+    // register quest
+    const questId = encodeQuestID(spec);
+    const taskIds = spec.tasks.map((task) => encodeTaskID(task));
+    const [q, r, s] = spec.location ? spec.location : [0, 0, 0];
+    ops.push({
+        name: 'REGISTER_QUEST',
+        args: [questId, spec.name, spec.description, !!spec.location, q, r, s, taskIds],
+    });
 
     return ops;
 };
@@ -403,26 +471,41 @@ const deploy = {
             });
         }
 
-        // spawn tile manifests (this is only valid while cheats are enabled)
+        // process quests
         opn++;
         opsets[opn] = [];
         for (const doc of docs) {
-            if (doc.manifest.kind != 'Tile') {
+            if (doc.manifest.kind != 'Quest') {
                 continue;
             }
-            const spec = doc.manifest.spec;
+
+            const actions = await questDeploymentActions(ctx, doc, docs, ctx.verbose);
             opsets[opn].push({
                 doc,
-                actions: [
-                    {
-                        name: 'DEV_SPAWN_TILE',
-                        args: spec.location,
-                    },
-                ],
-                note: `spawned tile ${spec.location.join(',')}`,
+                actions,
+                note: `registered quest ${doc.manifest.spec.name}`,
             });
         }
-        //
+
+        // spawn tile manifests (this is only valid while cheats are enabled)
+        // opn++;
+        // opsets[opn] = [];
+        // for (const doc of docs) {
+        //     if (doc.manifest.kind != 'Tile') {
+        //         continue;
+        //     }
+        //     const spec = doc.manifest.spec;
+        //     opsets[opn].push({
+        //         doc,
+        //         actions: [
+        //             {
+        //                 name: 'DEV_SPAWN_TILE',
+        //                 args: spec.location,
+        //             },
+        //         ],
+        //         note: `spawned tile ${spec.location.join(',')}`,
+        //     });
+        // }
 
         // abort here if dry-run
         if (ctx.dryRun) {

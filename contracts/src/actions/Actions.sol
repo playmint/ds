@@ -126,6 +126,21 @@ interface Actions {
 
     function SPAWN_EMPTY_BAG(bytes24 equipee, uint8 equipSlot) external;
 
+    // Quests
+
+    function REGISTER_QUEST(
+        bytes24 quest,
+        string calldata name,
+        string calldata description,
+        bool hasLocation,
+        int16 q,
+        int16 r,
+        int16 s,
+        bytes24[] calldata tasks
+    ) external;
+
+    function REGISTER_TASK(bytes24 task, string calldata name, bytes calldata taskData) external;
+
     // ---------------------
     // the DEV_ actions below this point are not for public use they are
     // only available by a single authorized account and only for a short
