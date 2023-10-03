@@ -19,6 +19,8 @@ interface Rel {
     function Has() external;
     function Combat() external;
     function IsFinalised() external;
+    function HasTask() external;
+    function HasQuest() external;
 }
 
 interface Kind {
@@ -35,6 +37,8 @@ interface Kind {
     function CombatSession() external;
     function Hash() external;
     function BlockNum() external;
+    function Quest() external;
+    function Task() external;
 }
 
 uint64 constant BLOCK_TIME_SECS = 2;
@@ -134,6 +138,15 @@ library Node {
 
     function BlockNum() internal pure returns (bytes24) {
         return bytes24(Kind.BlockNum.selector);
+    }
+
+    function Task(uint64 id, string memory kind) internal pure returns (bytes24) {
+        uint32 kindHash = uint32(uint256(keccak256(abi.encode(kind))));
+        return CompoundKeyEncoder.BYTES(Kind.BuildingKind.selector, bytes20(abi.encodePacked(uint64(0), kindHash, id)));
+    }
+
+    function Quest(uint64 id) internal pure returns (bytes24) {
+        return CompoundKeyEncoder.BYTES(Kind.BuildingKind.selector, bytes20(abi.encodePacked(uint32(0), uint64(0), id)));
     }
 }
 
@@ -428,5 +441,9 @@ library Schema {
 
     function getBlockNum(State state, bytes24 kind, uint8 slot) internal view returns (uint64 blockNum) {
         ( /*bytes24 item*/ , blockNum) = state.get(Rel.Has.selector, slot, kind);
+    }
+
+    function getTaskKind(State, /*state*/ bytes24 task) internal pure returns (uint32) {
+        return uint32(uint192(task) >> 64 & type(uint32).max);
     }
 }

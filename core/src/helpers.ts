@@ -20,6 +20,8 @@ export const NodeSelectors = {
     BuildingKind: getSelector('BuildingKind'),
     ClientPlugin: getSelector('ClientPlugin'),
     Bag: getSelector('Bag'),
+    Quest: getSelector('Quest'),
+    Task: getSelector('Task'),
 };
 
 export const CompoundKeyEncoder = {
