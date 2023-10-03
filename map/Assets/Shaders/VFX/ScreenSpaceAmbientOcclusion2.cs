@@ -186,19 +186,19 @@ namespace UnityEngine.Rendering.Universal
                 m_CurrentSettings = featureSettings;
 
                 ScreenSpaceAmbientOcclusionSettings2.DepthSource source;
-                if (isRendererDeferred)
-                {
-                    renderPassEvent = featureSettings.AfterOpaque ? RenderPassEvent.AfterRenderingOpaques : RenderPassEvent.AfterRenderingGbuffer;
-                    source = ScreenSpaceAmbientOcclusionSettings2.DepthSource.DepthNormals;
-                }
-                else
-                {
+                //if (isRendererDeferred)
+                //{
+                //    renderPassEvent = featureSettings.AfterOpaque ? RenderPassEvent.AfterRenderingOpaques : RenderPassEvent.AfterRenderingGbuffer;
+                //    source = ScreenSpaceAmbientOcclusionSettings2.DepthSource.DepthNormals;
+                //}
+                //else
+                //{
                     // Rendering after PrePasses is usually correct except when depth priming is in play:
                     // then we rely on a depth resolve taking place after the PrePasses in order to have it ready for SSAO.
                     // Hence we set the event to RenderPassEvent.AfterRenderingPrePasses + 1 at the earliest.
-                    renderPassEvent = featureSettings.AfterOpaque ? RenderPassEvent.AfterRenderingOpaques : RenderPassEvent.AfterRenderingPrePasses + 1;
+                    renderPassEvent = featureSettings.AfterOpaque ? RenderPassEvent.BeforeRenderingPostProcessing : RenderPassEvent.AfterRenderingPrePasses + 1;
                     source = m_CurrentSettings.Source;
-                }
+                //}
 
 
                 switch (source)

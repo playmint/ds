@@ -131,19 +131,16 @@ Shader "Universal Render Pipeline/ScreenSpaceAmbientOcclusion2"
                 #define _SCREEN_SPACE_OCCLUSION
 
                 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-
+                #include "Blending.cginc"
                 sampler2D _CameraOpaqueTexture;
 
-                half OverlayBlendMode(half basePixel, half blendPixel)
+                half4 OverlayBlendMode(half4 basePixel, half4 blendPixel)
                 {
-                    if(basePixel < 0.5)
+                    if(length(basePixel) < 0.5)
                     {
                         return (2.0 * basePixel * blendPixel);
                     }
-                    else
-                    {
-                        return (1.0 - 2.0 * (1.0 - basePixel) * (1.0 - blendPixel));
-                    }
+                    return (1.0 - 2.0 * (1.0 - basePixel) * (1.0 - blendPixel));
                 }
 
                 half4 FragAfterOpaque(Varyings input) : SV_Target
@@ -154,7 +151,7 @@ Shader "Universal Render Pipeline/ScreenSpaceAmbientOcclusion2"
                     AmbientOcclusionFactor aoFactor = GetScreenSpaceAmbientOcclusion(input.uv);
                     half occlusion = aoFactor.indirectAmbientOcclusion;
 
-                    return lerp(diffuse,half4(1,1,1,1) , occlusion);// half4(0.1, 0.0, 0.0, 1.0)* (1-occlusion);
+                    return OverlayBlendMode(diffuse,half4(occlusion,occlusion,occlusion,1));//lerp(diffuse,half4(1,1,1,1) , occlusion);// half4(0.1, 0.0, 0.0, 1.0)* (1-occlusion);
                 }
 
             ENDHLSL
