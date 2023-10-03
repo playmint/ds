@@ -6,7 +6,11 @@ export enum BuildingCategory {
     EXTRACTOR,
     ITEM_FACTORY,
 }
-export function getBuildingCategory(kind: BuildingKindFragment) {
+export function getBuildingCategory(kind?: BuildingKindFragment | null) {
+    if (!kind) {
+        return BuildingCategory.NONE;
+    }
+
     const buildingCategory = parseInt('0x' + kind.id.slice(-2));
     switch (buildingCategory) {
         case BuildingCategory.BLOCKER:

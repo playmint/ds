@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: UI
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 1
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: -2413806693520163455, guid: 8ed38bd22db1e4a72988355c9d131085, type: 3}
+    - {fileID: 21300000, guid: f42a84a1f34fb4e4e94223bbd6d549e4, type: 3}
+    - {fileID: 102900000, guid: f56c2f0b584914e22b1502faa0369669, type: 3}
+    - {fileID: 21300000, guid: 0c820ca8a14334c0f90f6f42d81b1bc7, type: 3}
+    - {fileID: 21300000, guid: d753736d3ae358f4ca0a47de39e49a23, type: 3}
+    - {fileID: 2800000, guid: 290419be135a6cb4fae2643c6afd83e2, type: 3}
+    - {fileID: 2800000, guid: d1ae62449a84c604891eb88dec93ddc8, type: 3}
+    - {fileID: 2800000, guid: c60b97ca3f844a943b19580fdcca4a18, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: f42a84a1f34fb4e4e94223bbd6d549e4, type: 3}
+  - {fileID: -2413806693520163455, guid: 8ed38bd22db1e4a72988355c9d131085, type: 3}
+  - {fileID: 21300000, guid: d1ae62449a84c604891eb88dec93ddc8, type: 3}
+  - {fileID: 21300000, guid: 0c820ca8a14334c0f90f6f42d81b1bc7, type: 3}
+  - {fileID: 21300000, guid: 2d16a45a863784aa8a3278b8b1d9e628, type: 3}
+  - {fileID: 21300000, guid: c60b97ca3f844a943b19580fdcca4a18, type: 3}
+  - {fileID: 21300000, guid: d753736d3ae358f4ca0a47de39e49a23, type: 3}
+  - {fileID: 21300000, guid: 33e7c8cd1d4bc457797d0416ca6be7f9, type: 3}
+  - {fileID: 21300000, guid: 290419be135a6cb4fae2643c6afd83e2, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - MapIconBG
+  - Circle
+  - MobileUnit_bg_yours
+  - gradient_blue
+  - LoaderSimple
+  - MobileUnit_icon_yours
+  - MapIconBG02
+  - Icon_BG_Lozenge
+  - MobileUnit_bg_theirs
+  m_RenderDataMap: {}
+  m_Tag: UI
+  m_IsVariant: 0

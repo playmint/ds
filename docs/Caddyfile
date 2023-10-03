@@ -1,8 +1,0 @@
-# https://caddyserver.com/docs/caddyfile
-
-:80 {
-	root * /usr/share/caddy
-	file_server
-    try_files {path}.html {path}
-}
-

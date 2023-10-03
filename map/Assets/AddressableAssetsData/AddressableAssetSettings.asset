@@ -43,7 +43,6 @@ MonoBehaviour:
   m_GroupAssets:
   - {fileID: 11400000, guid: 551ce61ee549845d1a62e4ee993b369a, type: 2}
   - {fileID: 11400000, guid: 5d5d3560637bb4d5f99b9b4a5eef1374, type: 2}
-  - {fileID: 11400000, guid: e73fa87904f5247dbb34f92482f24d0a, type: 2}
   - {fileID: 11400000, guid: 82e8775c6a83a4e388047276001c2a8a, type: 2}
   m_BuildSettings:
     m_CompileScriptsInVirtualMode: 0
@@ -65,7 +64,7 @@ MonoBehaviour:
       - m_Id: cc2c4f88578cb4f11862cd1e76d96a65
         m_Value: ../frontend/public/ds-unity/StreamingAssets/aa
       - m_Id: 4adf120aefafc4ed1af1edaca32849d0
-        m_Value: '{UnityEngine.Application.absoluteURL}/ds-unity/StreamingAssets/aa'
+        m_Value: '{AppController.RemoteLoadPath}/ds-unity/StreamingAssets/aa'
     m_ProfileEntryNames:
     - m_Id: f55b294221f3747f691efa597f57f212
       m_Name: BuildTarget

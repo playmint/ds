@@ -5,6 +5,13 @@ fragment Location on Edge {
     tile: node {
         id
         coords: keys
+        building: node(match: { kinds: "Building", via: { rel: "Location", dir: IN } }) {
+            id
+        }
+        atoms: edges(match: { kinds: ["atom"], via: { rel: "balance" } }) {
+            key
+            weight
+        }
     }
 }
 
@@ -47,12 +54,15 @@ fragment WorldBuilding on Node {
     owner: node(match: { kinds: "Player", via: { rel: "Owner" } }) {
         id
     }
-    timestamp: edges(match: { kinds: ["BlockNum"], via: { rel: "Has" } }) {
+    timestamp: edge(match: { kinds: ["BlockNum"], via: { rel: "Has" } }) {
         blockNum: weight
     }
     gooReservoir: edges(match: { kinds: ["Atom"], via: { rel: "Balance" } }) {
         key
         weight
+    }
+    location: edge(match: { kinds: "Tile", via: { rel: "Location", key: 2 } }) {
+        ...Location
     }
 }
 
@@ -105,9 +115,6 @@ fragment WorldTile on Node {
     building: node(match: { kinds: "Building", via: { rel: "Location", dir: IN } }) {
         ...WorldBuilding
     }
-    mobileUnits: nodes(match: { kinds: "MobileUnit", via: { rel: "Location", dir: IN, key: 1 } }) {
-        ...WorldMobileUnit
-    }
     sessions: nodes(match: { kinds: "CombatSession", via: { rel: "Has", dir: IN } }) {
         ...WorldCombatSession
     }
@@ -132,6 +139,9 @@ fragment WorldState on State {
     }
     buildings: nodes(match: { kinds: "Building" }) {
         ...WorldBuilding
+    }
+    mobileUnits: nodes(match: { kinds: "MobileUnit" }) {
+        ...WorldMobileUnit
     }
 }
 

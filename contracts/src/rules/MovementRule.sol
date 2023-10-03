@@ -37,38 +37,31 @@ contract MovementRule is Rule {
     }
 
     function moveTo(State state, bytes24 mobileUnit, bytes24 destTile, uint64 nowTime) private {
+        //
         // fetch the mobileUnit's current location
         (bytes24 currentTile) = state.getCurrentLocation(mobileUnit, nowTime);
-
-        // TODO: if currentTile doesn't equal tile at LocationKey.NEXT then movement was cancelled.
-        //       dispatch MOVE_CANCEL action here so any systems that were tracking mvoement know about it
-
         // check that destTile is direct 6-axis line from currentTile
-        require(TileUtils.isDirect(currentTile, destTile), "NoMoveToIndirect");
-
-        // if jumping over an undiscovered hole in the map, prevent moving
-        // TODO: this is an artifact of allowing moving over undiscovered gaps
-        //       which we likely do not want. so we can remove this if that kind
-        //       of move is disallowed
-        require(state.getBiome(currentTile) == BiomeKind.DISCOVERED, "NoMoveToUndiscovered");
-
-        // set prev location to current location
-        state.setPrevLocation(mobileUnit, currentTile, nowTime);
-
+        // require(TileUtils.isDirect(currentTile, destTile), "NoMoveToIndirect");
+        // require(state.getBiome(currentTile) == BiomeKind.DISCOVERED, "NoMoveToUndiscovered");
+        // state.setPrevLocation(mobileUnit, currentTile, nowTime);
         // calc distance to next tile
         // x10 so we can move at speeds slower than 1TilePerBlock
-        uint256 distance = TileUtils.distance(currentTile, destTile) * 10;
-        if (distance == 0) {
-            return;
-        }
-
+        // uint256 distance = TileUtils.distance(currentTile, destTile) * 10;
+        // if (distance == 0) {
+        //     return;
+        // }
         // work out travel time
-        uint64 travelTime = uint64(uint16(distance) / uint64(uint16(TRAVEL_SPEED)));
-        if (travelTime == 0) {
-            travelTime = 1;
-        }
+        // uint64 travelTime = uint64(uint16(distance) / uint64(uint16(TRAVEL_SPEED)));
+        // if (travelTime == 0) {
+        //     travelTime = 1;
+        // }
 
-        // set destination and calc arrival
-        state.setNextLocation(mobileUnit, destTile, nowTime + travelTime);
+        // [!] various changes to the game mean that movement as initially
+        //     implemented does not work blockers, long paths, faster simulation,
+        //     etc we are temporarily letting you basically teleport anywhere ...
+        //     and only the client is restricting movement until we have the
+        //     process nailed more
+        state.setNextLocation(mobileUnit, destTile, nowTime);
+        state.setPrevLocation(mobileUnit, currentTile, nowTime);
     }
 }

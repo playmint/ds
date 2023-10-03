@@ -128,6 +128,7 @@ export interface CogSession {
     key: ethers.Wallet;
     owner: ethers.Signer;
     dispatch: Awaited<ReturnType<ReturnType<typeof configureClient>['signin']>>['dispatch'];
+    dispatchAndWait: Awaited<ReturnType<ReturnType<typeof configureClient>['signin']>>['dispatchAndWait'];
     signout: Awaited<ReturnType<ReturnType<typeof configureClient>['signin']>>['signout'];
 }
 
@@ -144,6 +145,7 @@ export enum DispatchedActionsStatus {
 export interface QueuedClientAction {
     status: DispatchedActionsStatus.QUEUED_CLIENT;
     actions: CogAction[];
+    optimistic: boolean;
     clientQueueId: string;
     resolve: (action: QueuedSequencerAction) => void;
     reject: (err: Error) => void;
@@ -154,6 +156,7 @@ export interface QueuedSequencerAction {
     actions: CogAction[];
     clientQueueId: string;
     seqQueueId: string;
+    wait: () => Promise<boolean>;
 }
 
 export interface QueuedChainAction {
@@ -232,7 +235,6 @@ export interface PluginConfig {
     type: PluginType;
     trust: PluginTrust;
     src: string;
-    hash: string;
     kindID: string;
 }
 
@@ -240,7 +242,6 @@ export interface InactivePlugin {
     id: string;
     name: string;
     src: string;
-    hash: string;
     type: PluginType;
     trust: PluginTrust;
 }
@@ -309,7 +310,7 @@ export interface PluginUpdateResponse {
 
 export type PluginSubmitProxy = (ref: string, values: PluginSubmitCallValues) => Promise<void>;
 
-export type DispatchFunc = (...actions: CogAction[]) => Promise<DispatchedAction>;
+export type DispatchFunc = (...actions: CogAction[]) => Promise<QueuedSequencerAction>;
 
 export type AvailablePlugin = AvailablePluginFragment;
 export type AvailableBuildingKind = BuildingKindFragment;
@@ -323,7 +324,7 @@ export interface Selection {
     mobileUnit?: SelectedMobileUnitFragment;
     tiles?: SelectedTileFragment[];
     intent?: string;
-    mapElement?: string;
+    mapElement?: SelectedMapElement;
 }
 
 export type Selector<T> = (v: T) => void;
@@ -342,11 +343,12 @@ export interface GameState {
     selectTiles: Selector<string[] | undefined>;
     selectMobileUnit: Selector<string | undefined>;
     selectIntent: Selector<string | undefined>;
-    selectMapElement: Selector<string | undefined>;
+    selectMapElement: Selector<SelectedMapElement | undefined>;
 }
 
 export interface ConnectedPlayer extends SelectedPlayerFragment {
     dispatch: DispatchFunc;
+    dispatchAndWait: DispatchFunc;
     dispatched: Source<DispatchedAction>;
     active: () => boolean;
     login: () => Promise<CogSession | undefined>;
@@ -354,3 +356,5 @@ export interface ConnectedPlayer extends SelectedPlayerFragment {
 }
 
 export type UnconnectedPlayer = undefined;
+
+export type SelectedMapElement = { id: string; type: string };

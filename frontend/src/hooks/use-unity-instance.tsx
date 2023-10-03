@@ -26,22 +26,24 @@ export interface UnityMessage {
 }
 
 export interface GlobalUnityContext {
-    messages: Subject<UnityMessage>;
     ready: Subject<boolean>;
     unity: Subject<Partial<UnityContextHook>>;
 }
 
 const g = globalThis as unknown as { __globalUnityContext: GlobalUnityContext };
 
+const host = typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}` : '';
+
 const UnityInstance = () => {
     const canvasRef = useRef(null);
     const [devicePixelRatio, setDevicePixelRatio] = useState(window.devicePixelRatio);
+    console.log('host', host);
     const unity = useUnityContext({
-        loaderUrl: `/ds-unity/Build/ds-unity.loader.js`,
-        dataUrl: `/ds-unity/Build/ds-unity.data`,
-        frameworkUrl: `/ds-unity/Build/ds-unity.framework.js`,
-        codeUrl: `/ds-unity/Build/ds-unity.wasm`,
-        streamingAssetsUrl: `/ds-unity/StreamingAssets/`,
+        loaderUrl: `${host}/ds-unity/Build/ds-unity.loader.js`,
+        dataUrl: `${host}/ds-unity/Build/ds-unity.data`,
+        frameworkUrl: `${host}/ds-unity/Build/ds-unity.framework.js`,
+        codeUrl: `${host}/ds-unity/Build/ds-unity.wasm`,
+        streamingAssetsUrl: `${host}/ds-unity/StreamingAssets/`,
         companyName: `Playmint`,
         productName: `Downstream`,
         productVersion: `blueprint`,
@@ -139,22 +141,9 @@ const UnityInstance = () => {
             g.__globalUnityContext.ready.next(true);
         };
 
-        const onMessage = (msgJson: string) => {
-            let msgObj: UnityMessage;
-            try {
-                msgObj = JSON.parse(msgJson) as UnityMessage;
-            } catch (err) {
-                console.error(`unitymap: onMessage: ${err}`);
-                return;
-            }
-            g.__globalUnityContext.messages.next(msgObj);
-        };
-
-        addEventListener('sendMessage', onMessage);
         addEventListener('unityReady', onReady);
 
         return () => {
-            removeEventListener('sendMessage', onMessage);
             removeEventListener('unityReady', onReady);
         };
     }, [addEventListener, removeEventListener]);
@@ -196,7 +185,7 @@ const makeUnityReadySubject = () => {
     };
 };
 
-export const useGlobalUnityInstance = () => {
+export const useGlobalUnityInstance = ({ disabled }: { disabled?: boolean }) => {
     const [unity, setUnity] = useState<Partial<UnityContextHook>>({});
     const [ready, setReady] = useState<boolean>(false);
 
@@ -205,25 +194,26 @@ export const useGlobalUnityInstance = () => {
         : ((): GlobalUnityContext => {
               return {
                   unity: makeUnityContextSubject(),
-                  messages: makeSubject<UnityMessage>(),
                   ready: makeUnityReadySubject(),
               };
           })();
     g.__globalUnityContext = ctx;
 
-    if (typeof document !== 'undefined') {
-        const mapContainer = document.getElementById('map-container');
-        if (!mapContainer) {
-            const mapContainer = document.createElement('div');
-            mapContainer.id = 'map-container';
-            document.body.appendChild(mapContainer);
-            mapContainer.style.position = 'fixed';
-            mapContainer.style.top = '0px';
-            mapContainer.style.left = '0px';
-            mapContainer.style.bottom = '0px';
-            mapContainer.style.right = '0px';
-            const root = createRoot(mapContainer);
-            setTimeout(() => root.render(<UnityInstance />), 0); // do this async or react cries about nested renders
+    if (!disabled) {
+        if (typeof document !== 'undefined') {
+            const mapContainer = document.getElementById('map-container');
+            if (!mapContainer) {
+                const mapContainer = document.createElement('div');
+                mapContainer.id = 'map-container';
+                document.body.appendChild(mapContainer);
+                mapContainer.style.position = 'fixed';
+                mapContainer.style.top = '0px';
+                mapContainer.style.left = '0px';
+                mapContainer.style.bottom = '0px';
+                mapContainer.style.right = '0px';
+                const root = createRoot(mapContainer);
+                setTimeout(() => root.render(<UnityInstance />), 0); // do this async or react cries about nested renders
+            }
         }
     }
 
@@ -243,5 +233,19 @@ export const useGlobalUnityInstance = () => {
         return unsubscribe;
     }, [ctx.ready.source]);
 
-    return { unity, ready, messages: ctx.messages.source };
+    // hide show on mount/unmount
+    useEffect(() => {
+        const mapContainer = document.getElementById('map-container');
+        if (mapContainer) {
+            mapContainer.style.display = 'block';
+        }
+        return () => {
+            const mapContainer = document.getElementById('map-container');
+            if (mapContainer) {
+                mapContainer.style.display = 'none';
+            }
+        };
+    }, []);
+
+    return { unity, ready };
 };

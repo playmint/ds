@@ -2,11 +2,16 @@
 
 import { CompoundKeyEncoder, ItemSlotFragment, NodeSelectors, WorldStateFragment } from '@downstream/core';
 import { AbiCoder, ethers } from 'ethers';
+import { TransferSlot } from './inventory-provider';
 
 export const resourceRegex = /^0x37f9b55d[0-9a-f]+$/g;
 
 export function iconURL(icon?: string) {
     return icon ? `https://assets.downstream.game/icons/${icon}.svg` : '/icons/unknown.png';
+}
+
+export function getFullSlotID(slot: TransferSlot): string {
+    return `${slot.id}-${slot.equipIndex}-${slot.slotKey}`;
 }
 
 export function getItemDetails(itemSlot: ItemSlotFragment) {

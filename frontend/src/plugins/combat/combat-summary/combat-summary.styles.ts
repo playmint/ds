@@ -10,8 +10,6 @@ import { CombatSummaryProps } from './index';
  * @return Base styles for the mobileUnit list component
  */
 const baseStyles = (_: Partial<CombatSummaryProps>) => css`
-    width: 30rem;
-
     > .header {
         display: flex;
         align-items: center;

@@ -12,7 +12,6 @@ import {
     share,
     Source,
     switchMap,
-    throttle,
     zip,
 } from 'wonka';
 import * as apiv1 from './api/v1';
@@ -87,7 +86,6 @@ export function makePluginUI(
     const sandbox = makePluginSandbox();
     return pipe(
         zip<any>({ sandbox, plugins, state, block }),
-        throttle<any>(() => 1000),
         map<any, Promise<PluginUpdateResponse>[]>(
             ({
                 sandbox,
@@ -105,18 +103,18 @@ export function makePluginUI(
                         try {
                             const { player } = state;
                             const dispatch = player ? player.dispatch : noopDispatcher;
-                            if (!p.hash || !p.src) {
-                                console.warn(`plugin ${p.id} has no src hash, skipping`);
+                            if (!p.id) {
+                                console.warn(`plugin has no id, skipping`);
                                 return null;
                             }
-                            const plugin = active.has(p.hash)
-                                ? active.get(p.hash)
+                            const plugin = active.has(p.id)
+                                ? active.get(p.id)
                                 : loadPlugin(sandbox.runtime, dispatch, logger.with({ name: `plugin-${p.id}` }), p);
                             if (!plugin) {
                                 console.warn(`failed to get or load plugin ${p.id}`);
                                 return null;
                             }
-                            active.set(p.hash, plugin);
+                            active.set(p.id, plugin);
                             return plugin.update(state, block);
                         } catch (err) {
                             console.error(`plugin ${p.id}:`, err);
@@ -226,7 +224,6 @@ function makeSelectedPlugins(cog: CogServices, pluginIDs: string[]) {
                               id: p.id,
                               name: p.name ? p.name.value : 'unnamed',
                               src: p.src ? p.src.value : '',
-                              hash: p.src ? p.src.hash : p.id,
                               trust: PluginTrust.UNTRUSTED,
                               type: pluginTypeForNodeKind(p.supports?.kind),
                               kindID: p.supports?.id || '<invalid>', // TODO: filter out invalid
@@ -605,7 +602,9 @@ export function loadPlugin(runtime: QuickJSRuntime, dispatch: DispatchFunc, logg
     // setup the update func
     const updateProxy = async (state: GameState, block: number): Promise<PluginUpdateResponse> => {
         // console.time(`updateProxy: ${config.name} ${config.id}`);
-        const res = context.evalCode(`globalThis.__update(${JSON.stringify(state)}, ${block})`);
+        const res = context.evalCode(`(async () => {
+            return globalThis.__update(${JSON.stringify(state)}, ${block})
+        })()`);
         const promiseHandle = context.unwrapResult(res);
         // Convert the promise handle into a native promise and await it.
         // If code like this deadlocks, make sure you are calling
@@ -614,15 +613,22 @@ export function loadPlugin(runtime: QuickJSRuntime, dispatch: DispatchFunc, logg
 
         return p.then((resolvedResult) => {
             promiseHandle.dispose();
-            const resolvedHandle = context.unwrapResult(resolvedResult);
-            const pluginResponseJSON = context.getString(resolvedHandle);
-            resolvedHandle.dispose();
-            const pluginResponse = JSON.parse(pluginResponseJSON);
-            // console.timeEnd(`updateProxy: ${config.name} ${config.id}`);
-            return {
-                config,
-                state: apiv1.normalizePluginState(pluginResponse, submitProxy),
-            };
+            try {
+                const resolvedHandle = context.unwrapResult(resolvedResult);
+                const pluginResponseJSON = context.getString(resolvedHandle);
+                resolvedHandle.dispose();
+                const pluginResponse = JSON.parse(pluginResponseJSON);
+                return {
+                    config,
+                    state: apiv1.normalizePluginState(pluginResponse, submitProxy),
+                };
+            } catch (err) {
+                console.error('plugin did not return an expected response object:', err);
+                return {
+                    config,
+                    state: apiv1.normalizePluginState({}, submitProxy),
+                };
+            }
         });
     };
 

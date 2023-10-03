@@ -1,5 +1,3 @@
-/** @format */
-
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { ComponentProps } from '@app/types/component-props';
@@ -20,24 +18,12 @@ export interface BagItemProps extends ComponentProps {
     isInvalid?: boolean;
 }
 
-const StyledBagItem = styled('div')`
+const StyledBagItem = styled.div`
     ${styles}
 `;
 
 export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) => {
-    const {
-        name,
-        icon,
-        quantity,
-        ownerId,
-        equipIndex,
-        slotKey,
-        itemId,
-        isPending,
-        isInteractable,
-        isInvalid,
-        ...otherProps
-    } = props;
+    const { name, icon, quantity, ownerId, equipIndex, slotKey, itemId, isPending, isInteractable, isInvalid } = props;
     const { pickUpItem, isPickedUpItemVisible } = useInventory();
 
     const handleClick = () => {
@@ -66,13 +52,7 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
         : `${quantity} ${name}\n\nGreen Goo: ${greenGoo}\nBlue Goo: ${blueGoo}\nRed Goo: ${redGoo}`;
 
     return (
-        <StyledBagItem
-            {...otherProps}
-            onClick={handleClick}
-            isPickable={isPickable}
-            isInteractable={isInteractable}
-            title={tooltip}
-        >
+        <StyledBagItem onClick={handleClick} isPickable={isPickable} isInteractable={isInteractable} title={tooltip}>
             {isPending && <span className="spinner" />}
             <div
                 className="icon"

@@ -6,11 +6,13 @@ mutation signout($gameID: ID!, $session: String!, $auth: String!) {
     signout(gameID: $gameID, session: $session, authorization: $auth)
 }
 
-mutation dispatch($gameID: ID!, $actions: [String!]!, $auth: String!) {
+mutation dispatch($gameID: ID!, $actions: [String!]!, $auth: String!, $nonce: Int!, $optimistic: Boolean!) {
     dispatch(
         gameID: $gameID
         actions: $actions # encoded action bytes
         authorization: $auth # session's signature of $action
+        nonce: $nonce
+        optimistic: $optimistic
     ) {
         id
         status
@@ -22,7 +24,7 @@ subscription OnEvent($gameID: ID!) {
         id
         ... on BlockEvent {
             block
-            logs
+            sigs
             simulated
         }
     }

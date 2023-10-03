@@ -10,13 +10,19 @@ export interface MobileUnitInventoryProps extends ComponentProps {
     mobileUnit: SelectedMobileUnitFragment;
 }
 
-const StyledMobileUnitInventory = styled('div')``;
+const StyledMobileUnitInventory = styled.div`
+    background: #143063;
+    color: #fff;
+    padding: 2rem 2rem;
+    margin-bottom: 1.2rem;
+    width: 30rem;
+`;
 
 export const MobileUnitInventory: FunctionComponent<MobileUnitInventoryProps> = (props: MobileUnitInventoryProps) => {
-    const { mobileUnit, ...otherProps } = props;
+    const { mobileUnit } = props;
 
     return (
-        <StyledMobileUnitInventory {...otherProps}>
+        <StyledMobileUnitInventory>
             {mobileUnit.bags.length > 0 ? (
                 <Inventory bags={mobileUnit.bags} ownerId={mobileUnit.id} isInteractable={true} />
             ) : (

@@ -1,6 +1,14 @@
 import { PluginType } from '@app/../../core/src';
 import { usePluginState } from '@app/hooks/use-game-state';
 import { PluginContent } from '../organisms/tile-action';
+import styled from 'styled-components';
+
+const Panel = styled.div`
+    background: #143063;
+    color: #fff;
+    padding: 2rem 2rem;
+    margin-bottom: 1.2rem;
+`;
 
 export const ItemPluginPanel = () => {
     const ui = usePluginState();
@@ -11,13 +19,11 @@ export const ItemPluginPanel = () => {
     return (
         <>
             {itemPluginStates.length > 0 && (
-                <div className="tile-actions action">
-                    <div className="controls">
-                        {itemPluginStates.map((content, idx) =>
-                            content ? <PluginContent key={idx} content={content} /> : undefined
-                        )}
-                    </div>
-                </div>
+                <Panel>
+                    {itemPluginStates.map((content, idx) =>
+                        content ? <PluginContent key={idx} content={content} canUse={true} /> : undefined
+                    )}
+                </Panel>
             )}
         </>
     );

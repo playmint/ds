@@ -2,8 +2,23 @@
 
 import { PluginStateButtonAction, PluginStateComponentContent, PluginSubmitCallValues } from '@downstream/core';
 import DOMPurify from 'dompurify';
+import styled, { css } from 'styled-components';
 
-export const PluginContent = ({ content, children }: { content: PluginStateComponentContent; children?: any }) => {
+const StylePluginContent = styled('div')`
+    ${({ canUse }: { canUse: boolean }) => css`
+        opacity: ${canUse ? 1 : 0.5};
+    `}
+`;
+
+export const PluginContent = ({
+    content,
+    canUse,
+    children,
+}: {
+    content: PluginStateComponentContent;
+    canUse: boolean;
+    children?: any;
+}) => {
     const saferHTML = { __html: content.html ? DOMPurify.sanitize(content.html) : '' };
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -24,7 +39,7 @@ export const PluginContent = ({ content, children }: { content: PluginStateCompo
     };
 
     return (
-        <div className="content">
+        <StylePluginContent canUse={canUse} className="content">
             <form onSubmit={submit}>
                 <div dangerouslySetInnerHTML={saferHTML} />
                 {children}
@@ -34,7 +49,7 @@ export const PluginContent = ({ content, children }: { content: PluginStateCompo
                             case 'action':
                                 return (
                                     <button
-                                        disabled={btn.disabled}
+                                        disabled={!canUse || btn.disabled}
                                         className="action-button"
                                         key={btn.text}
                                         onClick={() => clickActionButton(btn)}
@@ -44,7 +59,7 @@ export const PluginContent = ({ content, children }: { content: PluginStateCompo
                                 );
                             case 'toggle':
                                 return (
-                                    <button disabled={btn.disabled} className="action-button" key={btn.text}>
+                                    <button disabled={!canUse || btn.disabled} className="action-button" key={btn.text}>
                                         {btn.text}
                                     </button>
                                 );
@@ -54,6 +69,6 @@ export const PluginContent = ({ content, children }: { content: PluginStateCompo
                     })}
                 </div>
             </form>
-        </div>
+        </StylePluginContent>
     );
 };

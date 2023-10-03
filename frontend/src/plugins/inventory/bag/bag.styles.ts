@@ -1,5 +1,3 @@
-/** @format */
-
 import { css } from 'styled-components';
 import { BagProps } from './index';
 
@@ -24,6 +22,7 @@ const baseStyles = (_: Partial<BagProps>) => css`
     > .slots {
         display: flex;
         flex-direction: row;
+        margin: 0.5rem;
 
         li:not(:first-child) {
             margin-left: 0.6rem;

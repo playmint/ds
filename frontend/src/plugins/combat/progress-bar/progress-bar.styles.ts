@@ -9,7 +9,7 @@ import { ProgressBarProps } from './index';
  * @param _ The progress bar properties object
  * @return Base styles for the progress bar component
  */
-const baseStyles = ({ maxValue = 1, currentValue = 0 }: Partial<ProgressBarProps>) => {
+const baseStyles = ({ maxValue = 1, currentValue = 0 }: Pick<ProgressBarProps, 'maxValue' | 'currentValue'>) => {
     const progress = (currentValue / maxValue) * 100;
     return css`
         position: relative;
@@ -42,6 +42,6 @@ const baseStyles = ({ maxValue = 1, currentValue = 0 }: Partial<ProgressBarProps
  * @param props The progress bar properties object
  * @return Styles for the progress bar component
  */
-export const styles = (props: Partial<ProgressBarProps>) => css`
+export const styles = (props: Pick<ProgressBarProps, 'maxValue' | 'currentValue'>) => css`
     ${baseStyles(props)}
 `;

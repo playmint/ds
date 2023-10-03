@@ -8,16 +8,15 @@ module.exports = {
             modules: true,
         },
     },
-    extends: ['plugin:react/recommended', 'prettier'],
-    plugins: ['prettier', 'tsdoc'],
+    extends: ['prettier'],
+    plugins: ['prettier', '@typescript-eslint'],
+    parser: '@typescript-eslint/parser',
     ignorePatterns: ['node_modules/', 'dist/', 'coverage/', 'perf/'],
     rules: {
         'sort-keys': 'off',
         // 'no-console': ['error', { allow: ['warn', 'error'] }],
         'prefer-arrow/prefer-arrow-functions': 'off',
         'prefer-rest-params': 'off',
-        'react/react-in-jsx-scope': 'off',
-
         'prettier/prettier': [
             'error',
             {
@@ -33,6 +32,7 @@ module.exports = {
         {
             files: ['*.ts', '*.tsx'],
             parser: '@typescript-eslint/parser',
+            plugins: ['@typescript-eslint'],
             extends: ['plugin:@typescript-eslint/recommended', 'prettier'],
             rules: {
                 '@typescript-eslint/explicit-module-boundary-types': 'off',
@@ -51,7 +51,6 @@ module.exports = {
                 '@typescript-eslint/no-empty-function': 'off',
                 '@typescript-eslint/no-unused-vars': 'off',
                 'prefer-rest-params': 'off',
-                'tsdoc/syntax': 'error',
                 'prettier/prettier': [
                     'error',
                     {

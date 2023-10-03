@@ -1,7 +1,5 @@
 import {
-    cacheExchange,
     createClient as createHTTPClient,
-    dedupExchange,
     fetchExchange,
     OperationResult,
     subscriptionExchange,
@@ -20,17 +18,18 @@ import {
     lazy,
     makeSubject,
     map,
+    merge,
     pipe,
     share,
     Source,
     switchMap,
+    take,
     tap,
+    toPromise,
 } from 'wonka';
 import { Actions__factory } from './abi';
 import { DispatchDocument, OnEventDocument, SigninDocument, SignoutDocument } from './gql/graphql';
-import { AnyGameSubscription, AnyGameVariables, CogAction, CogEvent, CogQueryConfig, GameConfig } from './types';
-// import { cacheExchange } from '@urql/exchange-graphcache';
-// import cogSchema from './gql/introspection';
+import { AnyGameSubscription, AnyGameVariables, CogAction, CogQueryConfig, GameConfig } from './types';
 
 const EXPIRES_MILLISECONDS = 1000 * 60 * 60 * 12; // 12hrs
 
@@ -101,17 +100,6 @@ export function configureClient({
         url: httpEndpoint,
         fetch: httpFetchImpl ? httpFetchImpl : fetch,
         exchanges: [
-            // devtoolsExchange, // TODO: allow enabling this from config
-            dedupExchange,
-            cacheExchange,
-            // cacheExchange({
-            //     schema: cogSchema,
-            //     // updates: {
-            //     //     Subscription: {
-            //     //         events: invalidateCacheOnSubscriptionEvent,
-            //     //     },
-            //     // },
-            // }),
             fetchExchange,
             subscriptionExchange({
                 forwardSubscription: (request) => ({
@@ -123,20 +111,59 @@ export function configureClient({
         ],
     });
 
+    const waiting = new Map<string, boolean>();
+
     const signout = async (signer: ethers.Signer, session: string): Promise<void> => {
         const msg = ethers.concat([ethers.toUtf8Bytes(`You are signing out of session: `), ethers.getBytes(session)]);
         const auth = await signer.signMessage(msg);
         await gql.mutation(SignoutDocument, { gameID, session, auth }, { requestPolicy: 'network-only' }).toPromise();
         return;
     };
+    const { source: forcedSource, next: force } = makeSubject<string>();
+    const forced = pipe(forcedSource, share);
 
-    const dispatch = async (signer: ethers.Signer, ...unencodedActions: CogAction[]) => {
+    // nonce doesn't need to be unique forever... only unique within a short
+    // lifespan of hours and only within the same session
+    let nonceSeq = Math.floor(Math.random() * 100000);
+
+    const dispatch = async (signer: ethers.Signer, optimistic: boolean, ...unencodedActions: CogAction[]) => {
         const actions = unencodedActions.map((action) => encodeActionData(iactions, action.name, action.args));
+        nonceSeq++;
+        const nonce = nonceSeq;
         const actionDigest = ethers.getBytes(
-            ethers.keccak256(abi.encode(['bytes[]'], [actions.map((action) => ethers.getBytes(action))])),
+            ethers.keccak256(
+                abi.encode(['bytes[]', 'uint256'], [actions.map((action) => ethers.getBytes(action)), nonce]),
+            ),
         );
         const auth = await signer.signMessage(actionDigest);
-        return gql.mutation(DispatchDocument, { gameID, auth, actions }, { requestPolicy: 'network-only' }).toPromise();
+
+        waiting.set(auth, true);
+        const waiter: Promise<boolean> = pipe(
+            events,
+            filter((evt) => evt.simulated === false && evt.sigs.some((sig) => sig === auth)),
+            map(() => true),
+            take(1),
+            toPromise,
+        );
+
+        return gql
+            .mutation(DispatchDocument, { gameID, auth, actions, nonce, optimistic }, { requestPolicy: 'network-only' })
+            .toPromise()
+            .then((res) => {
+                if (res.error) {
+                    waiting.delete(auth);
+                    return {
+                        ...res,
+                        wait: () => Promise.resolve(false),
+                    };
+                }
+                force(auth);
+                return {
+                    ...res,
+                    wait: () => waiter,
+                };
+            })
+            .finally(() => setTimeout(() => waiting.delete(auth), 6000));
     };
 
     const signin = async (owner: ethers.Signer) => {
@@ -160,7 +187,8 @@ export function configureClient({
             key,
             expires: Date.now() + EXPIRES_MILLISECONDS,
             owner,
-            dispatch: (...bundle: CogAction[]) => dispatch(key, ...bundle),
+            dispatch: (...bundle: CogAction[]) => dispatch(key, true, ...bundle),
+            dispatchAndWait: (...bundle: CogAction[]) => dispatch(key, false, ...bundle),
             signout: () => signout(owner, key.address),
         };
     };
@@ -192,17 +220,27 @@ export function configureClient({
             }),
             filter((data): data is AnyGameSubscription['events'] => !!data),
             tap((data) => {
-                if (data.block && (!lastSeenBlock || data.block > lastSeenBlock)) {
+                if (data.block && data.simulated === false && (!lastSeenBlock || data.block > lastSeenBlock)) {
                     lastSeenBlock = data.block;
                     nextBlock(lastSeenBlock);
                 }
             }),
-            filter((data) => !!data.logs && data.logs > 0),
-            debounce(() => 25),
+            filter((data): data is AnyGameSubscription['events'] => Array.isArray(data.sigs) && data.sigs.length > 0),
             share,
         );
 
     const events = subscription(OnEventDocument, { gameID });
+
+    const externalEvents = pipe(
+        events,
+        filter((data) => {
+            const isExternalUpdate = !data.simulated || data.sigs.some((sig) => !waiting.has(sig));
+            return isExternalUpdate;
+        }), // ignore the update if they are all waiting as we force the same update in dispatch
+        debounce(() => 250),
+        map(() => ''),
+        share,
+    );
 
     // query executes a query which will get re-queried each time new data arrives
     // right now this is implemented rather naively (ANY new events causes ALL
@@ -214,24 +252,20 @@ export function configureClient({
     ): Source<Data> =>
         pipe(
             config?.subscribe === false
-                ? lazy(() => fromValue(CogEvent.STATE_CHANGED)) // no subscription, just do the query once
+                ? lazy(() => fromValue('')) // no subscription, just do the query once
                 : concat([
-                      lazy(() => fromValue(CogEvent.STATE_CHANGED)), // always emit one to start
+                      lazy(() => fromValue('')), // always emit one to start
                       typeof config?.poll === 'undefined'
-                          ? pipe(
-                                // emit signal on notify of state update from events
-                                events,
-                                map(() => CogEvent.STATE_CHANGED),
-                            )
+                          ? merge([externalEvents, forced])
                           : pipe(
                                 // emit signal periodically
                                 interval(config.poll),
-                                map(() => CogEvent.STATE_CHANGED),
+                                map(() => ''),
                             ),
                   ]),
             switchMap(() =>
                 pipe(
-                    fromPromise(gql.query(doc, vars, { requestPolicy: 'cache-and-network' }).toPromise()),
+                    fromPromise(gql.query(doc, vars, { requestPolicy: 'network-only' }).toPromise()),
                     map((res) => {
                         if (res.error) {
                             console.warn('cog query error:', res.error);
@@ -319,3 +353,7 @@ export function actionArgFromUnknown(wanted: ethers.ParamType, given: unknown): 
     // else hope for the best
     return given;
 }
+
+// function sleep(ms: number): Promise<void> {
+//     return new Promise((resolve) => setTimeout(resolve, ms));
+// }

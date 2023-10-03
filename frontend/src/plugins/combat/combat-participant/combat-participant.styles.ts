@@ -9,7 +9,7 @@ import { CombatParticipantProps } from './index';
  * @param _ The combat participant properties object
  * @return Base styles for the combat participant component
  */
-const baseStyles = ({ isDead }: Partial<CombatParticipantProps>) => css`
+const baseStyles = ({ isDead }: Pick<CombatParticipantProps, 'isDead'>) => css`
     display: grid;
     grid-template-columns: max-content 1fr max-content;
     grid-template-rows: auto auto;
@@ -65,6 +65,6 @@ const baseStyles = ({ isDead }: Partial<CombatParticipantProps>) => css`
  * @param props The combat participant properties object
  * @return Styles for the combat participant component
  */
-export const styles = (props: Partial<CombatParticipantProps>) => css`
+export const styles = (props: Pick<CombatParticipantProps, 'isDead'>) => css`
     ${baseStyles(props)}
 `;

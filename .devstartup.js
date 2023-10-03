@@ -15,17 +15,17 @@ const DEPLOYER_PRIVATE_KEY = "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff
 const commands = [
     {
         name: 'networks',
-        command: "anvil --block-base-fee-per-gas 1 -m 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --code-size-limit 9999999999999  --block-time 2 --silent",
+        command: "anvil -m 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --block-time 2 --block-base-fee-per-gas 1",
         prefixColor: 'black',
     },
 
     {
         name: 'contract',
         command: `./lib/cog/services/bin/wait-for -it localhost:8545 -t 300 \
-            && forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545" --slow \
+            && forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545" \
             && ./lib/cog/services/bin/wait-for -it localhost:8080 -t 300 \
             && sleep 2 \
-            && ds -k ${DEPLOYER_PRIVATE_KEY} -n local apply -R -f ./src/fixtures/ --slow\
+            && ds -k ${DEPLOYER_PRIVATE_KEY} -n local apply -R -f ./src/fixtures/\
             && sleep 9999999`,
         prefixColor: 'black',
         env: {
@@ -61,13 +61,6 @@ const commands = [
         name: '  core  ',
         command: 'npm run build:watch --workspace=core',
         prefixColor: 'blueBright',
-    },
-
-    {
-        name: '  docs ',
-        command: 'npm run start',
-        prefixColor: 'blueBright',
-        cwd: path.resolve(__dirname, path.join('docs')),
     },
 
 ];

@@ -23,17 +23,6 @@ const baseStyles = (_: Partial<ShellProps>) => css`
         right: 0;
     }
 
-    > .nav-container {
-        position: relative;
-        z-index: 10;
-        display: flex;
-        justify-content: flex-start;
-        height: 5rem;
-        background: #030f25;
-        user-select: none;
-        zoom: 90%;
-    }
-
     > .hud-container {
         position: relative;
         z-index: 10;
@@ -93,27 +82,6 @@ const baseStyles = (_: Partial<ShellProps>) => css`
             grid-area: right;
             align-items: flex-end;
             justify-content: flex-start;
-        }
-    }
-
-    .tile-actions,
-    .mobile-unit-actions {
-        position: relative;
-        width: 30rem;
-        color: #fff;
-        user-select: none;
-    }
-
-    .action {
-        background: #143063;
-        color: #fff;
-        padding: 2rem 2rem;
-        margin-bottom: 1.2rem;
-
-        > .content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
     }
 

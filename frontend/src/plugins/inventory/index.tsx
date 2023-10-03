@@ -22,10 +22,10 @@ const StyledInventory = styled('div')`
 `;
 
 export const Inventory: FunctionComponent<InventoryProps> = (props: InventoryProps) => {
-    const { bags, ownerId, isInteractable, showIcon, ...otherProps } = props;
+    const { bags, ownerId, isInteractable, showIcon } = props;
 
     return (
-        <StyledInventory {...otherProps}>
+        <StyledInventory>
             <ul className="bags">
                 {bags.map((equipSlot) => (
                     <Bag
@@ -35,7 +35,6 @@ export const Inventory: FunctionComponent<InventoryProps> = (props: InventoryPro
                         ownerId={ownerId}
                         isInteractable={isInteractable}
                         showIcon={showIcon}
-                        as="li"
                     />
                 ))}
             </ul>

@@ -410,7 +410,7 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                     outputs: [],
                 },
                 bags: [],
-                timestamp: [],
+                timestamp: null,
                 gooReservoir: [],
             };
         };
@@ -501,7 +501,7 @@ export default function Page() {
 
     return (
         <GameStateProvider config={config}>
-            <UnityMapProvider disabled={true}>
+            <UnityMapProvider>
                 <TileFab />
             </UnityMapProvider>
         </GameStateProvider>

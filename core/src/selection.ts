@@ -1,7 +1,7 @@
 import { concat, debounce, fromValue, lazy, makeSubject, map, merge, pipe, scan, Source, switchMap, tap } from 'wonka';
 import { makePlayerMobileUnit } from './mobile-unit';
 import { makeTiles } from './tile';
-import { CogServices, ConnectedPlayer, Selection, Selector, World } from './types';
+import { CogServices, ConnectedPlayer, SelectedMapElement, Selection, Selector, World } from './types';
 
 export function makeSelection(
     client: Source<CogServices>,
@@ -16,7 +16,9 @@ export function makeSelection(
 
     const { selector: selectIntent, selection: selectedIntent } = makeSelector<string | undefined>(player);
 
-    const { selector: selectMapElement, selection: selectedMapElement } = makeSelector<string | undefined>(player);
+    const { selector: selectMapElement, selection: selectedMapElement } = makeSelector<SelectedMapElement | undefined>(
+        player,
+    );
     //const selectedMapElement = makePlayerMobileUnit(player, selectedMobileUnitID);
 
     let prev: any;

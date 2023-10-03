@@ -5,13 +5,26 @@ import "forge-std/Test.sol";
 import "forge-std/Vm.sol";
 
 import "cog/IState.sol";
-import "cog/IDispatcher.sol";
+import "cog/BaseDispatcher.sol";
 import "cog/IGame.sol";
 
 import {DownstreamGame, PREFIX_MESSAGE} from "@ds/Downstream.sol";
 import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
 import "@ds/schema/Schema.sol";
 import "@ds/utils/ItemUtils.sol";
+
+import {CheatsRule} from "@ds/rules/CheatsRule.sol";
+import {MovementRule} from "@ds/rules/MovementRule.sol";
+import {ScoutRule} from "@ds/rules/ScoutRule.sol";
+import {InventoryRule} from "@ds/rules/InventoryRule.sol";
+import {BuildingRule} from "@ds/rules/BuildingRule.sol";
+import {CraftingRule} from "@ds/rules/CraftingRule.sol";
+import {PluginRule} from "@ds/rules/PluginRule.sol";
+import {NewPlayerRule} from "@ds/rules/NewPlayerRule.sol";
+import {CombatRule} from "@ds/rules/CombatRule.sol";
+import {NamingRule} from "@ds/rules/NamingRule.sol";
+import {BagRule} from "@ds/rules/BagRule.sol";
+import {ExtractionRule} from "@ds/rules/ExtractionRule.sol";
 
 contract Dev {
     Game internal ds;
@@ -66,7 +79,7 @@ struct PlayerAccount {
 
 abstract contract GameTest {
     Game internal game;
-    Dispatcher internal dispatcher;
+    BaseDispatcher internal dispatcher;
     State internal state;
     Dev internal dev;
     Vm internal __vm = Vm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
@@ -92,12 +105,29 @@ abstract contract GameTest {
         allowlist[3] = players[3].addr;
 
         // setup game
-        game = new DownstreamGame(address(dev), allowlist);
-        dispatcher = game.getDispatcher();
+        game = new DownstreamGame();
+        dispatcher = BaseDispatcher(address(game.getDispatcher()));
+        dispatcher.registerRule(new CheatsRule(address(dev)));
+        dispatcher.registerRule(new MovementRule());
+        dispatcher.registerRule(new ScoutRule());
+        dispatcher.registerRule(new InventoryRule());
+        dispatcher.registerRule(new BuildingRule(game));
+        dispatcher.registerRule(new CraftingRule(game));
+        dispatcher.registerRule(new PluginRule());
+        dispatcher.registerRule(new NewPlayerRule(allowlist));
+        dispatcher.registerRule(new CombatRule());
+        dispatcher.registerRule(new NamingRule());
+        dispatcher.registerRule(new BagRule());
+        dispatcher.registerRule(new ExtractionRule(game));
         dev.setGame(game);
 
         // fetch the State
         state = game.getState();
+
+        // register base goos
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.GreenGoo(), "Green Goo", "15-185")));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.BlueGoo(), "Blue Goo", "32-96")));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.RedGoo(), "Red Goo", "22-256")));
     }
 
     function moveMobileUnit(uint32 id, int16 q, int16 r, int16 s) public {

@@ -7,7 +7,10 @@ import { SelectedPlayerFragment } from './gql/graphql';
  *
  * if no mobileUnit selection is requested then we default to the first mobileUnit.
  */
-export function makePlayerMobileUnit(player: Source<SelectedPlayerFragment | undefined>, id: Source<string | undefined>) {
+export function makePlayerMobileUnit(
+    player: Source<SelectedPlayerFragment | undefined>,
+    id: Source<string | undefined>,
+) {
     return pipe(
         player,
         switchMap((player) =>

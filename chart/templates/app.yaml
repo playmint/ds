@@ -49,6 +49,10 @@ spec:
               value: {{ $.Values.indexer.providerUrlWs | quote }}
             - name: INDEXER_GAME_ADDRESS
               value: {{ $.Values.indexer.gameAddress | quote }}
+            - name: INDEXER_STATE_ADDRESS
+              value: {{ $.Values.indexer.stateAddress | quote }}
+            - name: INDEXER_ROUTER_ADDRESS
+              value: {{ $.Values.indexer.routerAddress | quote }}
             - name: INDEXER_MAX_LOG_RANGE
               value: {{ $.Values.indexer.maxLogRange | toString | quote }}
           command: ["/bin/ash"]
@@ -153,34 +157,6 @@ spec:
             name: {{ $.Release.Name }}-frontend
 
 ---
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: {{ $.Release.Name }}-docs
-  namespace: {{ $.Release.Namespace }}
-spec:
-  selector:
-    matchLabels:
-      app: {{ $.Release.Name }}-docs
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: {{ $.Release.Name }}-docs
-      annotations:
-        gitsha: {{ $.Values.version | quote }}
-    spec:
-      priorityClassName: {{ $.Values.priorityClassName | quote }}
-      containers:
-        - name: docs
-          image: {{ printf "ghcr.io/playmint/ds-docs:%s" $.Values.version }}
-          imagePullPolicy: Always
-          ports:
-            - name: http
-              containerPort: 80
-              protocol: TCP
-
----
 apiVersion: v1
 kind: Service
 metadata:
@@ -231,22 +207,6 @@ spec:
     app: {{ $.Release.Name }}-frontend
 
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ $.Release.Name }}-docs
-  namespace: {{ $.Release.Namespace }}
-spec:
-  type: ClusterIP
-  ports:
-    - port: 80
-      targetPort: http
-      protocol: TCP
-      name: http
-  selector:
-    app: {{ $.Release.Name }}-docs
-
----
 apiVersion: externaldns.k8s.io/v1alpha1
 kind: DNSEndpoint
 metadata:
@@ -283,19 +243,6 @@ metadata:
 spec:
   endpoints:
   - dnsName: "frontend-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
-    recordTTL: 60
-    recordType: "CNAME"
-    targets: ["{{ $.Values.cluster.domain }}"]
-
----
-apiVersion: externaldns.k8s.io/v1alpha1
-kind: DNSEndpoint
-metadata:
-  name: {{ $.Release.Name }}-docs
-  namespace: {{ $.Release.Namespace }}
-spec:
-  endpoints:
-  - dnsName: "docs-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
     recordTTL: 60
     recordType: "CNAME"
     targets: ["{{ $.Values.cluster.domain }}"]
@@ -396,32 +343,3 @@ spec:
       name: "cluster-domain-certificate"
       namespace: "ingress-system"
 
----
-apiVersion: "gateway.solo.io/v1"
-kind: VirtualService
-metadata:
-  name: {{ $.Release.Name }}-docs
-  namespace: {{ $.Release.Namespace }}
-spec:
-  virtualHost:
-    domains: ["docs-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"]
-    routes:
-    - matchers:
-      - prefix: "/"
-      routeAction:
-        single:
-          kube:
-            ref:
-              name: {{ $.Release.Name }}-docs
-              namespace: {{ $.Release.Namespace }}
-            port: 80
-      options:
-        timeout: 120s
-        retries:
-          retryOn: gateway-error
-          numRetries: 1
-          perTryTimeout: 120s
-  sslConfig:
-    secretRef:
-      name: "cluster-domain-certificate"
-      namespace: "ingress-system"
