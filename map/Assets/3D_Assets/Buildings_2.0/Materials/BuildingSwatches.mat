@@ -119,6 +119,9 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _LightOffset: 0.19
+    - _LightSharpness: 0.246
+    - _LightStrength: 0.17
     - _MetalDarkness: 1
     - _MetalOffset: 0.37
     - _MetalRimPower: 1.42
