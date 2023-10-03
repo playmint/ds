@@ -1,15 +1,17 @@
 import ds from 'downstream';
 
+let hasQ2Active = false
 
-
-export default function update({ selected, world }) {
+export default async function update({ selected, world }) {
 
     var hasQ1Active = true;
-    var hasQ2Active = false;
+
+    //var hasQ2Active = false;
     var hasQ3Active = false;
     var hasQ4Active = false;
     var hasQ7AActive = false;
 
+    var hasQ5Active = false;
 
     //Function to test the distance between two tiles
     function distance(a, b) {
@@ -99,7 +101,7 @@ export default function update({ selected, world }) {
     }
 
     //Show this if quest 2 is active
-    if (hasQuest2Active) {
+    else if (hasQuest2Active) {
         return {
             version: 1,
             components: [
@@ -120,7 +122,7 @@ export default function update({ selected, world }) {
     }
 
     //Show this if quest 3 is active
-    if (hasQ3Active) {
+    else if (hasQ3Active) {
         return {
             version: 1,
             components: [
@@ -133,7 +135,28 @@ export default function update({ selected, world }) {
                             type: 'inline',
                             html: 'User identified as a total N00b. Please accept newbie quests and level up A.S.A.P.',
                             buttons: [{ text: 'Accept Orientation Quest', type: 'action', action: placeholder, disabled: !hasQ4Active },
-                                      { text: 'Accept Creation Quest', type: 'action', action: placeholder, disabled: !hasQ7AActive }]
+                            { text: 'Accept Creation Quest', type: 'action', action: placeholder, disabled: !hasQ7AActive }]
+                        }
+                    ],
+                },
+            ],
+        };
+    }
+
+    else if (hasQ5Active) {
+        return {
+            version: 1,
+            components: [
+                {
+                    type: 'building',
+                    id: 'control-tower',
+                    content: [
+                        {
+                            id: 'default',
+                            type: 'inline',
+                            html: 'User identified as a total N00b. Please accept newbie quests and level up A.S.A.P.',
+                            buttons: [{ text: 'Accept Orientation Quest', type: 'action', action: placeholder, disabled: !hasQ4Active },
+                            { text: 'Accept Creation Quest', type: 'action', action: placeholder, disabled: !hasQ7AActive }]
                         }
                     ],
                 },
