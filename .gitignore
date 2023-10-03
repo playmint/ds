@@ -75,3 +75,6 @@ Thumbs.db
 
 # dev script
 .livestartup.js
+/test-results/
+/playwright-report/
+/playwright/.cache/
