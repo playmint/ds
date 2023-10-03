@@ -1,0 +1,22 @@
+---
+kind: BuildingKind
+spec:
+  name: Deletion Supplies
+  description: Supplying starter hardware to all new users
+  category: factory
+  model: 07-08
+  contract:
+    file: ./DeletionSupplies.sol
+  plugin:
+    file: ./DeletionSupplies.js
+  materials:
+  - name: L33t Bricks
+    quantity: 100
+  inputs:
+  - name: Registration Receipt
+    quantity: 1
+  - name: Red Goo
+    quantity: 50
+  outputs:
+  - name: Deletion Tool
+    quantity: 1

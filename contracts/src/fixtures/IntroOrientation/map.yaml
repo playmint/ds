@@ -4,3 +4,15 @@ spec:
   name: Control Tower
   location: [-1, 2, -1]
 
+
+---
+kind: Building
+spec:
+  name: Registration Office
+  location: [2, 0, -2]
+
+---
+kind: Building
+spec:
+  name: Deletion Supplies
+  location: [-2, 0, -2]

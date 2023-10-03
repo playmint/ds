@@ -1,6 +1,7 @@
 import ds from 'downstream';
 
 
+
 export default function update({ selected, world }) {
 
     var hasQ1Active = true;
@@ -8,6 +9,7 @@ export default function update({ selected, world }) {
     var hasQ3Active = false;
     var hasQ4Active = false;
     var hasQ7AActive = false;
+
 
     //Function to test the distance between two tiles
     function distance(a, b) {
