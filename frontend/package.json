@@ -4,9 +4,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "ext build",
-    "export": "next build && next export",
+    "dev": "playwright install --with-deps chromium && next dev",
+    "build": "playwright install --with-deps chromium && next build",
+    "export": "playwright install --with-deps chromium && next build && next export",
     "start": "next start",
     "lint": "next lint"
   },
