@@ -1300,32 +1300,6 @@ MonoBehaviour:
   m_Offset: {x: 0, y: 0, z: 0.12}
   m_Size: {x: 0.63, y: 0.55, z: 0.24}
   m_FadeFactor: 1
---- !u!1 &1394982058 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7103627626649240238, guid: 8711978a6989a44e69ebe8a5a40fa057,
-    type: 3}
-  m_PrefabInstance: {fileID: 7103627627158448603}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1394982060
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1394982058}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Version: 1
-  m_UsePipelineSettings: 1
-  m_AdditionalLightsShadowResolutionTier: 2
-  m_LightLayerMask: 1
-  m_CustomShadowLayers: 0
-  m_ShadowLayerMask: 1
-  m_LightCookieSize: {x: 1, y: 1}
-  m_LightCookieOffset: {x: 0, y: 0}
 --- !u!1 &1416475674 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6518314203603543956, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
@@ -1531,32 +1505,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 39ef6f0947a150742b03acab7789bd28, type: 3}
---- !u!1 &1750054048 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4966510462529191368, guid: 8711978a6989a44e69ebe8a5a40fa057,
-    type: 3}
-  m_PrefabInstance: {fileID: 7103627627158448603}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1750054050
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1750054048}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Version: 1
-  m_UsePipelineSettings: 1
-  m_AdditionalLightsShadowResolutionTier: 2
-  m_LightLayerMask: 1
-  m_CustomShadowLayers: 0
-  m_ShadowLayerMask: 1
-  m_LightCookieSize: {x: 1, y: 1}
-  m_LightCookieOffset: {x: 0, y: 0}
 --- !u!1 &1759083159
 GameObject:
   m_ObjectHideFlags: 0
@@ -1973,7 +1921,7 @@ PrefabInstance:
     - target: {fileID: 6518314203346260187, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5.303302
+      value: -5.3033013
       objectReference: {fileID: 0}
     - target: {fileID: 6518314203346260187, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
         type: 3}
@@ -2018,7 +1966,7 @@ PrefabInstance:
     - target: {fileID: 6518314203603543945, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5.303302
+      value: -5.3033013
       objectReference: {fileID: 0}
     - target: {fileID: 6518314203603543945, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
         type: 3}
@@ -2033,7 +1981,7 @@ PrefabInstance:
     - target: {fileID: 6518314203603543945, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.8923991
+      value: 0.89239913
       objectReference: {fileID: 0}
     - target: {fileID: 6518314203603543945, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
         type: 3}
@@ -2043,7 +1991,7 @@ PrefabInstance:
     - target: {fileID: 6518314203603543945, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.23911765
+      value: 0.23911767
       objectReference: {fileID: 0}
     - target: {fileID: 6518314203603543945, guid: 13c17ec3607f94f34a8d6fc7cf4300af,
         type: 3}
@@ -2118,11 +2066,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: MapLighting
-      objectReference: {fileID: 0}
-    - target: {fileID: 7103627626649240237, guid: 8711978a6989a44e69ebe8a5a40fa057,
-        type: 3}
-      propertyPath: m_Shadows.m_Strength
-      value: 0.558
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8711978a6989a44e69ebe8a5a40fa057, type: 3}
