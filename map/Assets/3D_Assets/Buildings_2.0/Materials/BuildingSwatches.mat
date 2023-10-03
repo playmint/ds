@@ -128,8 +128,8 @@ Material:
     - _Smoothness: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 0
-    - _SpecularOffset: 0.54
-    - _SpecularSharpness: 0.1
+    - _SpecularOffset: 0.549
+    - _SpecularSharpness: 0.337
     - _SrcBlend: 1
     - _Surface: 0
     - _UVSec: 0
@@ -139,8 +139,8 @@ Material:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1.7207954, g: 1.7207954, b: 1.7207954, a: 1}
     - _Color_1: {r: 0.13207549, g: 0.13207549, b: 0.13207549, a: 1}
-    - _DynamicColor: {r: 0.27058825, g: 0.7411765, b: 0.8862746, a: 1}
-    - _DynamicShadowColor: {r: 0.08627451, g: 0.3254902, b: 0.5568628, a: 1}
+    - _DynamicColor: {r: 0.042452812, g: 0.72963375, b: 1, a: 1}
+    - _DynamicShadowColor: {r: 0, g: 0.24020681, b: 0.5188679, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _ShadowColor: {r: 1, g: 1, b: 1, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
