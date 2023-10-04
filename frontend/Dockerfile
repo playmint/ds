@@ -12,7 +12,7 @@ FROM node:bookworm-slim AS builder
 WORKDIR /app
 RUN apt-get update && \
     apt-get install -y python3 python3-pip
-RUYN rm -rf /var/cache/apk/*
+RUN rm -rf /var/cache/apk/*
 COPY package*.json ./
 COPY frontend ./frontend
 COPY docs ./docs
