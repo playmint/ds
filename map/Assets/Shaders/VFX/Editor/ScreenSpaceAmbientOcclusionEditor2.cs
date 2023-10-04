@@ -23,14 +23,38 @@ namespace UnityEditor.Rendering.Universal
         // Structs
         private struct Styles
         {
-            public static GUIContent Downsample = EditorGUIUtility.TrTextContent("Downsample", "With this option enabled, Unity downsamples the SSAO effect texture to improve performance. Each dimension of the texture is reduced by a factor of 2.");
-            public static GUIContent AfterOpaque = EditorGUIUtility.TrTextContent("After Opaque", "With this option enabled, Unity calculates and apply SSAO after the opaque pass to improve performance on mobile platforms with tiled-based GPU architectures. This is not physically correct.");
-            public static GUIContent Source = EditorGUIUtility.TrTextContent("Source", "The source of the normal vector values.\nDepth Normals: the feature uses the values generated in the Depth Normal prepass.\nDepth: the feature reconstructs the normal values using the depth buffer.\nIn the Deferred rendering path, the feature uses the G-buffer normals texture.");
-            public static GUIContent NormalQuality = new GUIContent("Normal Quality", "The number of depth texture samples that Unity takes when computing the normals. Low:1 sample, Medium: 5 samples, High: 9 samples.");
-            public static GUIContent Intensity = EditorGUIUtility.TrTextContent("Intensity", "The degree of darkness that Ambient Occlusion adds.");
-            public static GUIContent DirectLightingStrength = EditorGUIUtility.TrTextContent("Direct Lighting Strength", "Controls how much the ambient occlusion affects direct lighting.");
-            public static GUIContent Radius = EditorGUIUtility.TrTextContent("Radius", "The radius around a given point, where Unity calculates and applies the effect.");
-            public static GUIContent SampleCount = EditorGUIUtility.TrTextContent("Sample Count", "The number of samples that Unity takes when calculating the obscurance value. Higher values have high performance impact.");
+            public static GUIContent Downsample = EditorGUIUtility.TrTextContent(
+                "Downsample",
+                "With this option enabled, Unity downsamples the SSAO effect texture to improve performance. Each dimension of the texture is reduced by a factor of 2."
+            );
+            public static GUIContent AfterOpaque = EditorGUIUtility.TrTextContent(
+                "After Opaque",
+                "With this option enabled, Unity calculates and apply SSAO after the opaque pass to improve performance on mobile platforms with tiled-based GPU architectures. This is not physically correct."
+            );
+            public static GUIContent Source = EditorGUIUtility.TrTextContent(
+                "Source",
+                "The source of the normal vector values.\nDepth Normals: the feature uses the values generated in the Depth Normal prepass.\nDepth: the feature reconstructs the normal values using the depth buffer.\nIn the Deferred rendering path, the feature uses the G-buffer normals texture."
+            );
+            public static GUIContent NormalQuality = new GUIContent(
+                "Normal Quality",
+                "The number of depth texture samples that Unity takes when computing the normals. Low:1 sample, Medium: 5 samples, High: 9 samples."
+            );
+            public static GUIContent Intensity = EditorGUIUtility.TrTextContent(
+                "Intensity",
+                "The degree of darkness that Ambient Occlusion adds."
+            );
+            public static GUIContent DirectLightingStrength = EditorGUIUtility.TrTextContent(
+                "Direct Lighting Strength",
+                "Controls how much the ambient occlusion affects direct lighting."
+            );
+            public static GUIContent Radius = EditorGUIUtility.TrTextContent(
+                "Radius",
+                "The radius around a given point, where Unity calculates and applies the effect."
+            );
+            public static GUIContent SampleCount = EditorGUIUtility.TrTextContent(
+                "Sample Count",
+                "The number of samples that Unity takes when calculating the obscurance value. Higher values have high performance impact."
+            );
         }
 
         private void Init()
@@ -54,7 +78,7 @@ namespace UnityEditor.Rendering.Universal
                 Init();
             }
 
-            bool isDeferredRenderingMode = false;// RendererIsDeferred();
+            bool isDeferredRenderingMode = false; // RendererIsDeferred();
 
             EditorGUILayout.PropertyField(m_Downsample, Styles.Downsample);
 
@@ -64,7 +88,10 @@ namespace UnityEditor.Rendering.Universal
             EditorGUILayout.PropertyField(m_Source, Styles.Source);
 
             // We only enable this field when depth source is selected
-            GUI.enabled = !isDeferredRenderingMode && m_Source.enumValueIndex == (int)ScreenSpaceAmbientOcclusionSettings2.DepthSource.Depth;
+            GUI.enabled =
+                !isDeferredRenderingMode
+                && m_Source.enumValueIndex
+                    == (int)ScreenSpaceAmbientOcclusionSettings2.DepthSource.Depth;
             EditorGUI.indentLevel++;
             EditorGUILayout.PropertyField(m_NormalQuality, Styles.NormalQuality);
             EditorGUI.indentLevel--;
@@ -72,10 +99,24 @@ namespace UnityEditor.Rendering.Universal
 
             EditorGUILayout.PropertyField(m_Intensity, Styles.Intensity);
             EditorGUILayout.PropertyField(m_Radius, Styles.Radius);
-            m_DirectLightingStrength.floatValue = EditorGUILayout.Slider(Styles.DirectLightingStrength, m_DirectLightingStrength.floatValue, 0f, 1f);
-            m_SampleCount.intValue = EditorGUILayout.IntSlider(Styles.SampleCount, m_SampleCount.intValue, 4, 20);
+            m_DirectLightingStrength.floatValue = EditorGUILayout.Slider(
+                Styles.DirectLightingStrength,
+                m_DirectLightingStrength.floatValue,
+                0f,
+                1f
+            );
+            m_SampleCount.intValue = EditorGUILayout.IntSlider(
+                Styles.SampleCount,
+                m_SampleCount.intValue,
+                4,
+                20
+            );
 
-            m_Intensity.floatValue = Mathf.Clamp(m_Intensity.floatValue, 0f, m_Intensity.floatValue);
+            m_Intensity.floatValue = Mathf.Clamp(
+                m_Intensity.floatValue,
+                0f,
+                m_Intensity.floatValue
+            );
             m_Radius.floatValue = Mathf.Clamp(m_Radius.floatValue, 0f, m_Radius.floatValue);
         }
 

@@ -5,6 +5,7 @@ using UnityEngine;
 public class BuildingColorTest : MonoBehaviour
 {
     Renderer rend;
+
     private void Awake()
     {
         rend = GetComponent<Renderer>();

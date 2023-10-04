@@ -107,16 +107,25 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
 
         renderers = new Renderer[2];
         outlineObjs = new Renderer[2];
-        for (int i = 0; i < 2; i++)
-        {
-            renderers[i] = Instantiate(
-                    totemPrefabs.FirstOrDefault(n => n.name == totemNames[i]),
-                    stackPositions[i]
-                )
-                .GetComponentInChildren<Renderer>();
 
-            outlineObjs[i] = renderers[i].transform.GetChild(0).GetComponent<Renderer>();
-        }
+        GameObject prefab = totemPrefabs.FirstOrDefault(n => n.name == "Base_" + totemNames[0]);
+        if (prefab == null)
+            prefab = totemPrefabs[0];
+        renderers[0] = Instantiate(prefab, stackPositions[0]).transform
+            .GetChild(0)
+            .GetComponent<Renderer>();
+
+        outlineObjs[0] = renderers[0].transform.parent.GetChild(1).GetComponent<Renderer>();
+
+        prefab = totemPrefabs.FirstOrDefault(n => n.name == "Roof_" + totemNames[1]);
+        if (prefab == null)
+            prefab = totemPrefabs.FirstOrDefault(n => n.name == "Roof_01");
+        renderers[1] = Instantiate(prefab, stackPositions[1]).transform
+            .GetChild(0)
+            .GetComponent<Renderer>();
+
+        outlineObjs[1] = renderers[1].transform.parent.GetChild(1).GetComponent<Renderer>();
+
         _defaultColor = renderers[0].material.GetColor("_EmissionColor");
     }
 }

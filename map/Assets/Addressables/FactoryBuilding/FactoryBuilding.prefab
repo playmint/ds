@@ -24,7 +24,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1802934091674373361}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: 0.34, z: 0}
+  m_LocalPosition: {x: 0, y: 0.36, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -227,15 +227,14 @@ MonoBehaviour:
   - {fileID: 6998059160179332206}
   - {fileID: 1649688143835902005}
   totemPrefabs:
-  - {fileID: 6029201483184471947, guid: c319f96014898f34c97555149bdbb704, type: 3}
-  - {fileID: 1879647446465007843, guid: 7911c2aa4a5aa8949b446c4bbfe14cf0, type: 3}
-  - {fileID: 6268923800251220781, guid: 19186ecc4f87691449981049eae5a846, type: 3}
-  - {fileID: 641601032772435162, guid: 646c0420defec884198190e7e7c142ca, type: 3}
-  - {fileID: 8207003856267016949, guid: b2e6418f191ae0c43a1c9ca723135838, type: 3}
-  - {fileID: 7852483692714220685, guid: 80ab964bb091c3e40b37e22229f82fa3, type: 3}
-  - {fileID: 8739145240360059592, guid: 9d4ed4deab78ffd458209996838f456d, type: 3}
-  - {fileID: 895534542148363228, guid: b9c6f4b18e49aaa48bb212f5f59a6e2a, type: 3}
-  - {fileID: 1178086877066462792, guid: 60b661bdfa4114043976bb75c832788d, type: 3}
+  - {fileID: 4550439216425272724, guid: 94e4159bddbfa364581aae6f9542a4f1, type: 3}
+  - {fileID: 719350535396179151, guid: 2732326c47e62484890e3b6998e37bcc, type: 3}
+  - {fileID: 4102167433657266420, guid: 62a4ee4e500520240ad7c266be1be2a9, type: 3}
+  - {fileID: 4802396434346469125, guid: 8c42dbb5df1bfce4e9c67e90fb59a3cc, type: 3}
+  - {fileID: 2082370878230655191, guid: df42edab2e23fa04e90d9f2436991bc3, type: 3}
+  - {fileID: 2491504539804000745, guid: e87f63844660f33409f9ec732bdc3310, type: 3}
+  - {fileID: 1931187956036435562, guid: 192bc56f3c6d2d34caca2754fdf347e1, type: 3}
+  - {fileID: 7276630459043352626, guid: 11920e76175a2ed49a1c24b2f6b29199, type: 3}
   redOutlineMat: {fileID: 2100000, guid: ce6f5126ced564b2895e09480182616f, type: 2}
   greenOutlineMat: {fileID: 2100000, guid: 350e1b89b29f442e1ae981fd04ecfca4, type: 2}
 --- !u!4 &7268972727792134295 stripped
