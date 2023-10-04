@@ -8,7 +8,7 @@ COPY contracts /contracts
 RUN forge build
 
 # build frontend
-FROM node:bookworm AS builder
+FROM node:bookworm-slim AS builder
 WORKDIR /app
 RUN apt-get update && \
     apt-get install -y python3 python3-pip
