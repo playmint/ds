@@ -8,13 +8,13 @@ COPY contracts /contracts
 RUN forge build
 
 # build frontend
-FROM node:18-alpine AS builder
-RUN apk add --no-cache libc6-compat
+FROM node:bookworm AS builder
 WORKDIR /app
-RUN apk add --update python3 make g++\
-   && rm -rf /var/cache/apk/*
+RUN apt-get update && \
+    apt-get install -y python3 python3-pip
 COPY package*.json ./
 COPY frontend ./frontend
+COPY docs ./docs
 COPY frontend/public/ds-unity ./frontend/public/ds-unity
 COPY core ./core
 COPY cli ./cli
@@ -25,6 +25,7 @@ RUN npm run build:abi -w core
 RUN npm run build:graphql -w core
 ENV NEXT_TELEMETRY_DISABLED 1
 WORKDIR /app
+RUN npm install sharp
 RUN npm run export -w frontend
 
 # output image
