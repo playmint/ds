@@ -15,6 +15,7 @@ RUN apk add --update python3 make g++\
    && rm -rf /var/cache/apk/*
 COPY package*.json ./
 COPY frontend ./frontend
+COPY docs ./docs
 COPY frontend/public/ds-unity ./frontend/public/ds-unity
 COPY core ./core
 COPY cli ./cli
