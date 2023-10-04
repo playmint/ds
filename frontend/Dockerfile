@@ -10,9 +10,6 @@ RUN forge build
 # build frontend
 FROM node:bookworm-slim AS builder
 WORKDIR /app
-RUN apt-get update && \
-    apt-get install -y python3 python3-pip
-RUN rm -rf /var/cache/apk/*
 COPY package*.json ./
 COPY frontend ./frontend
 COPY docs ./docs
@@ -27,6 +24,7 @@ RUN npm run build:graphql -w core
 ENV NEXT_TELEMETRY_DISABLED 1
 WORKDIR /app
 RUN npm install sharp
+RUN rm -rf /var/cache/apk/*
 RUN npm run export -w frontend
 
 # output image
