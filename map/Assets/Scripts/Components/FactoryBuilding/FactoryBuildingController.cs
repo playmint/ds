@@ -1,7 +1,6 @@
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -35,10 +34,23 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
         transform.position = new Vector3(worldPos.x, _nextData.height, worldPos.z);
         transform.GetChild(0).localEulerAngles = new Vector3(0, _nextData.rotation, 0);
 
+        Color dynamicColor;
+        Color shadowColor;
+        if (!string.IsNullOrEmpty(_nextData.color) && !string.IsNullOrEmpty(_nextData.shadowColor))
+        {
+            ColorUtility.TryParseHtmlString(_nextData.color, out dynamicColor);
+            ColorUtility.TryParseHtmlString(_nextData.color, out shadowColor);
+        }
+        else
+        {
+            ColorUtility.TryParseHtmlString("#2DAEE0", out dynamicColor);
+            ColorUtility.TryParseHtmlString("#135198", out shadowColor);
+        }
+
         if (_prevData == null)
         {
             if (_nextData.model != null)
-                ShowTotems(_nextData.model);
+                ShowTotems(_nextData.model, dynamicColor, shadowColor);
             else
                 Debug.LogError("Building stack codes are null");
         }
@@ -101,7 +113,7 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
         return names;
     }
 
-    private void ShowTotems(string stackCode)
+    private void ShowTotems(string stackCode, Color dynamicColor, Color shadowColor)
     {
         string[] totemNames = GetTotemNamesFromStackCode(stackCode);
 
@@ -127,5 +139,9 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
         outlineObjs[1] = renderers[1].transform.parent.GetChild(1).GetComponent<Renderer>();
 
         _defaultColor = renderers[0].material.GetColor("_EmissionColor");
+
+        renderers[0].material.SetColor("_DynamicColor", dynamicColor);
+        renderers[0].material.SetColor("_DynamicShadowColor", shadowColor);
+        renderers[1].material = renderers[0].material;
     }
 }
