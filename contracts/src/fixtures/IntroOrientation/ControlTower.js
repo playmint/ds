@@ -5,13 +5,16 @@ let hasQ2Active = false
 export default async function update({ selected, world }) {
 
     var hasQ1Active = true;
+    var hasQ2Active = false;
 
-    //var hasQ2Active = false;
     var hasQ3Active = false;
     var hasQ4Active = false;
     var hasQ7AActive = false;
 
     var hasQ5Active = false;
+    var hasQ5AActive = false;
+    var hasQ6AActive = false;
+
 
     //Function to test the distance between two tiles
     function distance(a, b) {
@@ -52,7 +55,7 @@ export default async function update({ selected, world }) {
                         {
                             id: 'default',
                             type: 'inline',
-                            html: `The Control Tower towers above the world it controls`
+                            html: `Select your unit to interact with a building`
                         }
                     ]
                 },
@@ -75,9 +78,6 @@ export default async function update({ selected, world }) {
         }
     }
 
-    //Need to hook this up
-    //var hasQuest2Active = false;
-    //var hasQuest2Completed = false;
 
     //If quest 2 isn't active or completed
     if (hasQ1Active && !hasQ2Active) {
@@ -91,7 +91,7 @@ export default async function update({ selected, world }) {
                         {
                             id: 'default',
                             type: 'inline',
-                            html: 'Appears before has collected quest 2.',
+                            html: 'Appears before has collected quest 2',
                             buttons: [{ text: 'Register User', type: 'action', action: placeholder, disabled: false }]
                         }
                     ],
@@ -154,9 +154,28 @@ export default async function update({ selected, world }) {
                         {
                             id: 'default',
                             type: 'inline',
-                            html: 'User identified as a total N00b. Please accept newbie quests and level up A.S.A.P.',
-                            buttons: [{ text: 'Accept Orientation Quest', type: 'action', action: placeholder, disabled: !hasQ4Active },
-                            { text: 'Accept Creation Quest', type: 'action', action: placeholder, disabled: !hasQ7AActive }]
+                            html: 'Simulation abnormalies have been detected. Please accept normalisation assignments.',
+                            buttons: [{ text: 'Accept Paperclip Maximiser Quest', type: 'action', action: placeholder, disabled: !hasQ5AActive },
+                            { text: 'Accept Corrupted User Quest', type: 'action', action: placeholder, disabled: !hasQ6AActive }]
+                        }
+                    ],
+                },
+            ],
+        };
+    }
+
+    else {
+        return {
+            version: 1,
+            components: [
+                {
+                    type: 'building',
+                    id: 'control-tower',
+                    content: [
+                        {
+                            id: 'default',
+                            type: 'inline',
+                            html: 'No quest are available at this time'
                         }
                     ],
                 },
