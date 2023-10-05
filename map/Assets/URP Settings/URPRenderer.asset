@@ -15,7 +15,7 @@ MonoBehaviour:
   m_Active: 1
   m_Shader: {fileID: 4800000, guid: 6acb6b0833fd941c7a34b178f6d31edf, type: 3}
   m_Settings:
-    Downsample: 0
+    Downsample: 1
     AfterOpaque: 1
     Source: 1
     NormalSamples: 0
