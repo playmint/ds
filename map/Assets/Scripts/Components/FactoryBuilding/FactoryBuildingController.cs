@@ -39,7 +39,7 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
         if (!string.IsNullOrEmpty(_nextData.color) && !string.IsNullOrEmpty(_nextData.shadowColor))
         {
             ColorUtility.TryParseHtmlString(_nextData.color, out dynamicColor);
-            ColorUtility.TryParseHtmlString(_nextData.color, out shadowColor);
+            ColorUtility.TryParseHtmlString(_nextData.shadowColor, out shadowColor);
         }
         else
         {
