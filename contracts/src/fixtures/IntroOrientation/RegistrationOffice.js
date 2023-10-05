@@ -97,7 +97,7 @@ export default function update({ selected, world }) {
                         {
                             id: 'default',
                             type: 'inline',
-                            html: 'To register please handover your ID Card and Acceptance Letter.',
+                            html: 'To register please handover your Acceptance Letter and proof of identification.',
                             buttons: [{ text: 'Register', type: 'action', action: craft, disabled: !canCraft }]
                         },
                     ],

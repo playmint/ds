@@ -13,9 +13,9 @@ spec:
   - name: L33t Bricks
     quantity: 100
   inputs:
-  - name: ID Card
-    quantity: 1
   - name: Acceptance Letter
+    quantity: 1
+  - name: ID Card
     quantity: 1
   outputs:
   - name: Registration Receipt

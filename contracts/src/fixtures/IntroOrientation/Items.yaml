@@ -1,28 +1,6 @@
 ---
 kind: Item
 spec:
-  name: Acceptance Letter
-  icon: 31-311
-  goo:
-    red: 76
-    green: 100
-    blue: 100
-  stackable: true
-
----
-kind: Item
-spec:
-  name: ID Card
-  icon: 10-46
-  goo:
-    red: 76
-    green: 100
-    blue: 100
-  stackable: true
-
----
-kind: Item
-spec:
   name: Registration Receipt
   icon: 01-209
   goo:
