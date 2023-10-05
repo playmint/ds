@@ -9,7 +9,7 @@ import rehypeHighlight from 'rehype-highlight';
 import remarkParse from 'remark-parse';
 import rehypeStringify from 'rehype-stringify';
 import remarkRehype from 'remark-rehype';
-import rehypeMermaid from 'rehype-mermaidjs';
+//import rehypeMermaid from 'rehype-mermaidjs';
 
 import type { InferGetStaticPropsType, GetStaticProps, GetStaticPaths } from 'next';
 import { NavPanel } from '@app/components/panels/nav-panel';
@@ -25,7 +25,7 @@ async function markdownToHtml(markdown: string) {
     const result = await unified()
         .use(remarkParse)
         .use(remarkRehype)
-        .use(rehypeMermaid, { strategy: 'inline-svg' })
+        //.use(rehypeMermaid, { strategy: 'inline-svg' })
         .use(rehypeHighlight)
         .use(rehypeStringify)
         .process(markdown);

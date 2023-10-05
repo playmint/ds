@@ -4,9 +4,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "playwright install --with-deps chromium && next dev",
-    "build": "playwright install --with-deps chromium && next build",
-    "export": "playwright install --with-deps chromium && next build && next export",
+    "dev": "next dev",
+    "build": "next build",
+    "export": "next build && next export",
     "start": "next start",
     "lint": "next lint"
   },
@@ -71,7 +71,6 @@
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-prettier": "4.0.0",
     "hygen": "6.2.3",
-    "playwright": "^1.38.1",
     "prettier": "2.8.8",
     "rehype-highlight": "^7.0.0",
     "rehype-stringify": "^10.0.0"
