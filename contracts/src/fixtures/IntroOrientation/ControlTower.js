@@ -1,11 +1,11 @@
 import ds from 'downstream';
 
-let hasQ2Active = false
+let questStage = 0;
 
 export default async function update({ selected, world }) {
 
     var hasQ1Active = true;
-    var hasQ2Active = false;
+   // var hasQ2Active = false;
 
     var hasQ3Active = false;
     var hasQ4Active = false;
@@ -40,7 +40,7 @@ export default async function update({ selected, world }) {
 
 
     const placeholder = () => {
-        hasQ2Active = true;
+        questStage++;
     }
 
     //Show this if there is no selected engineer OR the engineer is not adjacent to the building's tile
@@ -80,7 +80,7 @@ export default async function update({ selected, world }) {
 
 
     //If quest 2 isn't active or completed
-    if (hasQ1Active && !hasQ2Active) {
+    if (questStage === 0) {
         return {
             version: 1,
             components: [
@@ -101,7 +101,7 @@ export default async function update({ selected, world }) {
     }
 
     //Show this if quest 2 is active
-    else if (hasQuest2Active) {
+    else if (questStage === 1) {
         return {
             version: 1,
             components: [
@@ -113,7 +113,8 @@ export default async function update({ selected, world }) {
                             id: 'default',
                             type: 'inline',
                             html: 'Registration Error! Please collect valid User License',
-                            buttons: [{ text: 'Register User', type: 'action', action: placeholder, disabled: true }]
+                            buttons: [{ text: 'Register User', type: 'action', action: placeholder, disabled: true },
+                                        { text: 'Advance Quest', type: 'action', action: placeholder, disabled: false }] //placeholder
                         }
                     ],
                 },

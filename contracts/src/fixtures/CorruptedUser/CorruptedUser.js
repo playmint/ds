@@ -31,7 +31,7 @@ export default function update({ selected, world }) {
             components: [
                 {
                     type: 'building',
-                    id: 'crazy-hermit',
+                    id: 'corrupted-user',
                     content: [
                         {
                             id: 'default',
@@ -66,7 +66,7 @@ export default function update({ selected, world }) {
             components: [
                 {
                     type: 'building',
-                    id: 'crazy-hermit',
+                    id: 'corrupted-user',
                     content: [
                         {
                             id: 'default',
@@ -129,7 +129,7 @@ export default function update({ selected, world }) {
             components: [
                 {
                     type: 'building',
-                    id: 'crazy-hermit',
+                    id: 'corrupted-user',
                     content: [
                         {
                             id: 'default',
