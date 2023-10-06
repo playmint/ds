@@ -1,3 +1,5 @@
+* text=auto
+
 #folder
 source-art/** filter=lfs diff=lfs merge=lfs -text
 
