@@ -4,18 +4,6 @@ let questStage = 0;
 
 export default async function update({ selected, world }) {
 
-    var hasQ1Active = true;
-   // var hasQ2Active = false;
-
-    var hasQ3Active = false;
-    var hasQ4Active = false;
-    var hasQ7AActive = false;
-
-    var hasQ5Active = false;
-    var hasQ5AActive = false;
-    var hasQ6AActive = false;
-
-
     //Function to test the distance between two tiles
     function distance(a, b) {
         return (
