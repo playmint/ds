@@ -123,7 +123,7 @@ export default async function update({ selected, world }) {
     }
 
     //Show this if quest 3 is active
-    else if (hasQ3Active) {
+    else if (questStage >= 2 && questStage <= 4) {
         return {
             version: 1,
             components: [
@@ -135,8 +135,10 @@ export default async function update({ selected, world }) {
                             id: 'default',
                             type: 'inline',
                             html: 'User identified as a total N00b. Please accept newbie quests and level up A.S.A.P.',
-                            buttons: [{ text: 'Accept Orientation Quest', type: 'action', action: placeholder, disabled: !hasQ4Active },
-                            { text: 'Accept Creation Quest', type: 'action', action: placeholder, disabled: !hasQ7AActive }]
+                            buttons: [{ text: 'Accept Orientation Quest', type: 'action', action: placeholder, disabled: questStage > 2 },
+                                { text: 'Accept Creation Quest', type: 'action', action: placeholder, disabled: questStage > 3 },
+                                { text: 'Advance Quest', type: 'action', action: placeholder, disabled: questStage < 4 } //Placeholder
+                            ]
                         }
                     ],
                 },
@@ -144,7 +146,7 @@ export default async function update({ selected, world }) {
         };
     }
 
-    else if (hasQ5Active) {
+    else if (questStage >= 5 && questStage <= 7) {
         return {
             version: 1,
             components: [
@@ -156,8 +158,10 @@ export default async function update({ selected, world }) {
                             id: 'default',
                             type: 'inline',
                             html: 'Simulation abnormalies have been detected. Please accept normalisation assignments.',
-                            buttons: [{ text: 'Accept Paperclip Maximiser Quest', type: 'action', action: placeholder, disabled: !hasQ5AActive },
-                            { text: 'Accept Corrupted User Quest', type: 'action', action: placeholder, disabled: !hasQ6AActive }]
+                            buttons: [{ text: 'Accept Paperclip Maximiser Quest', type: 'action', action: placeholder, disabled: questStage > 5 },
+                                { text: 'Accept Corrupted User Quest', type: 'action', action: placeholder, disabled: questStage > 6 },
+                                { text: 'Advance Quest', type: 'action', action: placeholder, disabled: questStage < 7 } //Placeholder
+                            ]
                         }
                     ],
                 },
