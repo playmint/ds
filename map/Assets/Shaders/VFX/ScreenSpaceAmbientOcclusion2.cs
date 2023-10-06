@@ -493,7 +493,7 @@ namespace UnityEngine.Rendering.Universal
                     {
                         CoreUtils.SetKeyword(cmd, ShaderKeywordStrings.ScreenSpaceOcclusion, true);
                     }
-                    //PostProcessUtils.SetSourceSize(cmd, m_AOPassDescriptor);
+                    SetSourceSize(cmd, m_AOPassDescriptor);
 
                     Vector4 scaleBiasRt = new Vector4(-1, 1.0f, -1.0f, 1.0f);
                     cmd.SetGlobalVector(Shader.PropertyToID("_ScaleBiasRt"), scaleBiasRt);
@@ -509,7 +509,7 @@ namespace UnityEngine.Rendering.Universal
                         ShaderPasses.BlurHorizontal
                     );
 
-                    //PostProcessUtils.SetSourceSize(cmd, m_BlurPassesDescriptor);
+                    SetSourceSize(cmd, m_BlurPassesDescriptor);
                     RenderAndSetBaseMap(
                         cmd,
                         m_SSAOTexture2Target,
@@ -566,6 +566,18 @@ namespace UnityEngine.Rendering.Universal
 
                 context.ExecuteCommandBuffer(cmd);
                 CommandBufferPool.Release(cmd);
+            }
+
+            private void SetSourceSize(CommandBuffer cmd, RenderTextureDescriptor desc)
+            {
+                float width = desc.width;
+                float height = desc.height;
+                if (desc.useDynamicScale)
+                {
+                    width *= ScalableBufferManager.widthScaleFactor;
+                    height *= ScalableBufferManager.heightScaleFactor;
+                }
+                cmd.SetGlobalVector(Shader.PropertyToID("_SourceSize"), new Vector4(width, height, 1.0f / width, 1.0f / height));
             }
 
             private void Render(CommandBuffer cmd, RenderTargetIdentifier target, ShaderPasses pass)

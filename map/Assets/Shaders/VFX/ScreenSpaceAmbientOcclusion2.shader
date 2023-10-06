@@ -131,7 +131,6 @@ Shader "Universal Render Pipeline/ScreenSpaceAmbientOcclusion2"
                 #define _SCREEN_SPACE_OCCLUSION
 
                 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-                #include "Blending.cginc"
                 sampler2D _CameraOpaqueTexture;
 
                 half4 OverlayBlendMode(half4 basePixel, half4 blendPixel)
