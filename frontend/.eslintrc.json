@@ -2,7 +2,8 @@
   "plugins": ["@typescript-eslint"],
   "parserOptions": {
     "project": true,
-    "tsconfigRootDir": "."
+    "tsconfigRootDir": ".",
+    "endOfLine": "off"
   },
   "extends": [
     "next/core-web-vitals",
