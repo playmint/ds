@@ -3,7 +3,23 @@
 
 # Explicitly declare text files you want to always be normalized and converted
 # to native line endings on checkout.
+*.cs text eol=lf
+*.sol text eol=lf
+*.go text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.xml text eol=lf
+*.sh text eol=lf
 *.tsx text eol=lf
+*.ts text eol=lf
+*.jsx text eol=lf
+*.txt text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.graphql text eol=lf
+*.graphqls text eol=lf
 
 #folder
 source-art/** filter=lfs diff=lfs merge=lfs -text
