@@ -462,6 +462,13 @@ export function loadPlugin(runtime: QuickJSRuntime, dispatch: DispatchFunc, logg
         if (unsafeOpts.body) {
             allowedOpts.body = unsafeOpts.body;
         }
+        if (unsafeOpts.headers) {
+            if (typeof unsafeOpts.headers['Content-Type'] == 'string') {
+                allowedOpts.headers = {
+                    'Content-Type': unsafeOpts.headers['Content-Type'],
+                };
+            }
+        }
         const opts: RequestInit = { method: 'GET', ...allowedOpts };
         const promise = context.newPromise();
         // TODO: add a strict AbortController to force plugins to make fast requests
