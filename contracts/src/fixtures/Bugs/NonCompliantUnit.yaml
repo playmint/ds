@@ -1,0 +1,11 @@
+---
+kind: BuildingKind
+spec:
+  name: Non-compliant Unit
+  description: Looks like their collar has malfunctioned. Better recycle the goo!
+  category: blocker
+  model: enemy
+  materials:
+  - name: Gold Coin
+    quantity: 20
+
