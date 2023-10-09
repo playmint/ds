@@ -27,6 +27,7 @@ import { FunctionComponent, useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
+import { QuestPanel } from '@app/components/panels/quest-panel';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -241,7 +242,8 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             <NavPanel />
             <div className="hud-container">
                 <div className="top-left">
-                    <Logs className="logs" />
+                    {/* <Logs className="logs" /> */}
+                    {player && <QuestPanel quests={player.quests} />}
                 </div>
                 <div className="bottom-left">
                     <ItemPluginPanel />

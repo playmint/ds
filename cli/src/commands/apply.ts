@@ -42,7 +42,7 @@ const encodeTaskID = ({ name, kind }) => {
 };
 
 const encodeQuestID = ({ name }) => {
-    const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`quest/${name}`))));
+    const id = BigInt.asUintN(64, BigInt(keccak256UTF8(`quest/${name}`)));
     return solidityPacked(['bytes4', 'uint32', 'uint64', 'uint64'], [NodeSelectors.Quest, 0, 0, id]);
 };
 
@@ -488,24 +488,24 @@ const deploy = {
         }
 
         // spawn tile manifests (this is only valid while cheats are enabled)
-        // opn++;
-        // opsets[opn] = [];
-        // for (const doc of docs) {
-        //     if (doc.manifest.kind != 'Tile') {
-        //         continue;
-        //     }
-        //     const spec = doc.manifest.spec;
-        //     opsets[opn].push({
-        //         doc,
-        //         actions: [
-        //             {
-        //                 name: 'DEV_SPAWN_TILE',
-        //                 args: spec.location,
-        //             },
-        //         ],
-        //         note: `spawned tile ${spec.location.join(',')}`,
-        //     });
-        // }
+        opn++;
+        opsets[opn] = [];
+        for (const doc of docs) {
+            if (doc.manifest.kind != 'Tile') {
+                continue;
+            }
+            const spec = doc.manifest.spec;
+            opsets[opn].push({
+                doc,
+                actions: [
+                    {
+                        name: 'DEV_SPAWN_TILE',
+                        args: spec.location,
+                    },
+                ],
+                note: `spawned tile ${spec.location.join(',')}`,
+            });
+        }
 
         // abort here if dry-run
         if (ctx.dryRun) {

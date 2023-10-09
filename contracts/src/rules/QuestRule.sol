@@ -5,7 +5,7 @@ import "cog/IState.sol";
 import "cog/IRule.sol";
 import "cog/IDispatcher.sol";
 
-import {Schema, Node, Kind, Rel, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Schema, Node, Kind, Rel, DEFAULT_ZONE, QuestStatus} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
 import "forge-std/console.sol";
@@ -68,6 +68,18 @@ contract QuestRule is Rule {
                 bytes24 task = tasks[i];
                 state.set(Rel.HasTask.selector, i, quest, task, 0);
             }
+
+            // Point to next quest
+        }
+
+        if (bytes4(action) == Actions.ACCEPT_QUEST.selector) {
+            (bytes24 quest, uint8 questNum) = abi.decode(action[4:], (bytes24, uint8));
+
+            ( /*bytes24 currentQuest*/ , QuestStatus questStatus) =
+                state.getPlayerQuest(Node.Player(ctx.sender), questNum);
+            require(questStatus == QuestStatus.NONE, "Quest already present at given questNum");
+
+            state.setQuestAccepted(quest, Node.Player(ctx.sender), questNum);
         }
         return state;
     }
