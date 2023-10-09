@@ -1,8 +1,8 @@
 ---
 kind: BuildingKind
 spec:
-  name: Mecha-Kaiju
-  description: It's a huge robotoic reptile thing. Probably destroyed Japan in the before-times.
+  name: Corrupted Sector
+  description: A glitch in the simulation, and a threat to the stability of the world
   category: blocker
   model: enemy
   materials:

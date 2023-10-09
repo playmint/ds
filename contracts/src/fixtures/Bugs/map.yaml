@@ -97,56 +97,63 @@ spec:
 ---
 kind: Building
 spec:
-  name: Mecha-Kaiju
+  name: Corrupted Sector
   location: [ 23, 3, -26 ]
 
 ---
 kind: Building
 spec:
-  name: Mecha-Kaiju
+  name: Corrupted Sector
   location: [ 4, -22, 18 ]
 
 ---
 kind: Building
 spec:
-  name: Mecha-Kaiju
+  name: Corrupted Sector
   location: [ -14, -7, 21 ]
 
 ---
 kind: Building
 spec:
-  name: Mecha-Kaiju
+  name: Corrupted Sector
   location: [ -3, 27, -24 ]
 
 ---
 kind: Building
 spec:
-  name: Prime Evil
+  name: Buffer Overflow
   location: [ 10, -34, 24 ]
 
 ---
 kind: Building
 spec:
-  name: Prime Evil
+  name: Buffer Overflow
   location: [ -26, 18, 8 ]
 
 ---
 kind: Building
 spec:
-  name: Prime Evil
+  name: Buffer Overflow
   location: [ 29, -4, -25 ]
 
 ---
 kind: Building
 spec:
-  name: Prime Evil
+  name: Buffer Overflow
   location: [ 34, -18, -16 ]
 
 ---
 kind: Building
 spec:
-  name: Prime Evil
+  name: Buffer Overflow
   location: [ 12, -25, 13 ]
+
+---
+kind: Building
+spec:
+  name: Buffer Overflow
+  location: [ -32, 9, 23 ]
+
 ---
 kind: Building
 spec:

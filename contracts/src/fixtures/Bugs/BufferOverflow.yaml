@@ -1,8 +1,8 @@
 ---
 kind: BuildingKind
 spec:
-  name: Prime Evil
-  description: An invader from a totally different game. "Welcome to Hell!"
+  name: Buffer Overflow
+  description: An dangerous bug caused by an external attack
   category: blocker
   model: enemy
   materials:
