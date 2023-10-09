@@ -70,7 +70,7 @@ namespace UnityEngine.Rendering.Universal
         private Shader m_Shader = null;
 
         [SerializeField]
-        private ScreenSpaceAmbientOcclusionSettings2 m_Settings =
+        public ScreenSpaceAmbientOcclusionSettings2 m_Settings =
             new ScreenSpaceAmbientOcclusionSettings2();
 
         // Private Fields

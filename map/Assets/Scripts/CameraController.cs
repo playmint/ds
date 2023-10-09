@@ -2,13 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 public class CameraController : MonoBehaviour
 {
     public static bool hasDragged = false;
 
     public float moveSpeed;
+
+    public UniversalRendererData rendererData;
 
     [SerializeField]
     public CinemachineVirtualCamera? virtualCamera;
@@ -29,13 +32,14 @@ public class CameraController : MonoBehaviour
     private float zoomDuration = 0.2f;
 
     [SerializeField]
-    PostProcessVolume? PPVolume;
-
-    [SerializeField]
     float minAOIntensity,
         maxAOIntensity;
 
-    public Camera? mainCamera;
+    [SerializeField]
+    float minAORadius,
+        maxAORadius;
+
+    private Camera? mainCamera;
     private Coroutine? zoomCoroutine;
 
     Plane m_Plane;
@@ -46,6 +50,7 @@ public class CameraController : MonoBehaviour
 
     void Start()
     {
+        mainCamera = Camera.main;
         m_Plane = new Plane(Vector3.up, -0.3f);
     }
 
@@ -60,10 +65,6 @@ public class CameraController : MonoBehaviour
             return;
         }
         if (target == null)
-        {
-            return;
-        }
-        if (PPVolume == null)
         {
             return;
         }
@@ -113,17 +114,35 @@ public class CameraController : MonoBehaviour
                 );
             }
         }
-        PPVolume.sharedProfile.GetSetting<AmbientOcclusion>().intensity.value = Mathf.Lerp(
-            minAOIntensity,
-            maxAOIntensity,
-            Mathf.InverseLerp(
-                minCameraDistance,
-                maxCameraDistance,
-                virtualCamera
-                    .GetCinemachineComponent<CinemachineFramingTransposer>()
-                    .m_CameraDistance
-            )
-        );
+
+        for (int i = 0; i < rendererData.rendererFeatures.Count; i++)
+        {
+            ScriptableRendererFeature feature = rendererData.rendererFeatures[i];
+            if (feature is ScreenSpaceAmbientOcclusion2)
+            {
+                ScreenSpaceAmbientOcclusion2 aoFeature = feature as ScreenSpaceAmbientOcclusion2;
+                float lerp = Mathf.InverseLerp(
+                        minCameraDistance,
+                        maxCameraDistance,
+                        virtualCamera
+                            .GetCinemachineComponent<CinemachineFramingTransposer>()
+                            .m_CameraDistance
+                    );
+                // Adjust the intensity
+                aoFeature.m_Settings.Intensity = Mathf.Lerp(
+                    minAOIntensity,
+                    maxAOIntensity,
+                    lerp
+                );
+                aoFeature.m_Settings.Radius = Mathf.Lerp(
+                    minAORadius,
+                    maxAORadius,
+                    lerp
+                );
+            }
+        }
+
+         
         HandleMouseCameraDrag();
         float speed = moveSpeed * Mathf.Abs(mainCamera.transform.position.y);
         Vector3 inputVector =
@@ -183,8 +202,8 @@ public class CameraController : MonoBehaviour
         }
         if (Input.GetMouseButton(0))
         {
-            Ray mouseDownRay = mainCamera.ScreenPointToRay(mouseDownPos);
-            Ray currentMouseRay = mainCamera.ScreenPointToRay(Input.mousePosition);
+            Ray mouseDownRay = Camera.main.ScreenPointToRay(mouseDownPos);
+            Ray currentMouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
             float mouseDownDist = 0.0f;
             float currentMouseDist = 0.0f;
             m_Plane.Raycast(mouseDownRay, out mouseDownDist);
