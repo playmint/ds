@@ -358,3 +358,5 @@ export interface ConnectedPlayer extends SelectedPlayerFragment {
 export type UnconnectedPlayer = undefined;
 
 export type SelectedMapElement = { id: string; type: string };
+
+export type QuestFragment = SelectedPlayerFragment['quests'][0];

@@ -141,6 +141,10 @@ interface Actions {
 
     function REGISTER_TASK(bytes24 task, string calldata name, bytes calldata taskData) external;
 
+    function ACCEPT_QUEST(bytes24 quest, uint8 questNum) external;
+
+    function COMPLETE_QUEST(bytes24 quest, uint8 questNum) external;
+
     // ---------------------
     // the DEV_ actions below this point are not for public use they are
     // only available by a single authorized account and only for a short

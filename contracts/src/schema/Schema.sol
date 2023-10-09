@@ -61,6 +61,12 @@ enum BuildingCategory {
     CUSTOM
 }
 
+enum QuestStatus {
+    NONE,
+    ACCEPTED,
+    COMPLETED
+}
+
 int16 constant DEFAULT_ZONE = 0;
 
 library Node {
@@ -142,11 +148,12 @@ library Node {
 
     function Task(uint64 id, string memory kind) internal pure returns (bytes24) {
         uint32 kindHash = uint32(uint256(keccak256(abi.encode(kind))));
-        return CompoundKeyEncoder.BYTES(Kind.BuildingKind.selector, bytes20(abi.encodePacked(uint64(0), kindHash, id)));
+        return CompoundKeyEncoder.BYTES(Kind.Task.selector, bytes20(abi.encodePacked(uint64(0), kindHash, id)));
     }
 
-    function Quest(uint64 id) internal pure returns (bytes24) {
-        return CompoundKeyEncoder.BYTES(Kind.BuildingKind.selector, bytes20(abi.encodePacked(uint32(0), uint64(0), id)));
+    function Quest(string memory name) internal pure returns (bytes24) {
+        uint64 id = uint64(uint256(keccak256(abi.encodePacked("quest/", name))));
+        return CompoundKeyEncoder.BYTES(Kind.Quest.selector, bytes20(abi.encodePacked(uint32(0), uint64(0), id)));
     }
 }
 
@@ -445,5 +452,14 @@ library Schema {
 
     function getTaskKind(State, /*state*/ bytes24 task) internal pure returns (uint32) {
         return uint32(uint192(task) >> 64 & type(uint32).max);
+    }
+
+    function setQuestAccepted(State state, bytes24 quest, bytes24 player, uint8 questNum) internal {
+        state.set(Rel.HasQuest.selector, questNum, player, quest, uint8(QuestStatus.ACCEPTED));
+    }
+
+    function getPlayerQuest(State state, bytes24 player, uint8 questNum) internal view returns (bytes24, QuestStatus) {
+        (bytes24 quest, uint64 status) = state.get(Rel.HasQuest.selector, questNum, player);
+        return (quest, QuestStatus(status));
     }
 }
