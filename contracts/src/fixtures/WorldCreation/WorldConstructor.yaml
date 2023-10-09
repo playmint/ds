@@ -1,0 +1,14 @@
+---
+kind: BuildingKind
+spec:
+  name: World Constructor
+  description: "MORTON's many attempts to create the perfect world are constructed here"
+  category: custom
+  model: 04-03
+  contract:
+    file: ./WorldConstructor.sol
+  plugin:
+    file: ./WorldConstructor.js
+  materials:
+    - name: L33t Bricks
+      quantity: 100
