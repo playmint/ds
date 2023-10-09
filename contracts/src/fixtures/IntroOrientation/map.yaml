@@ -2,17 +2,16 @@
 kind: Building
 spec:
   name: Control Tower
-  location: [-1, 2, -1]
-
+  location: [-6, 5, 1]
 
 ---
 kind: Building
 spec:
   name: Registration Office
-  location: [2, 0, -2]
+  location: [5, -1, -4]
 
 ---
 kind: Building
 spec:
   name: Deletion Supplies
-  location: [-2, 0, 2]
+  location: [-12, 16, -4]

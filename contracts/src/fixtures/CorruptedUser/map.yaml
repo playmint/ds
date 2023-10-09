@@ -2,19 +2,19 @@
 kind: Building
 spec:
   name: Shirt Shop
-  location: [-1, -2, 3]
+  location: [1, -18, 17]
 
 ---
 kind: Building
 spec:
   name: Tie Shop
-  location: [1, -2, 1]
+  location: [18, 14, -32]
 
 ---
 kind: Building
 spec:
   name: Industrial Espionage
-  location: [0, -3, 3]
+  location: [23, -19, -4]
 
 ---
 kind: Building

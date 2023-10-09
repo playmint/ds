@@ -85,13 +85,13 @@ spec:
 ---
 kind: Building
 spec:
-  name: Large Cactus
+  name: Large Pine Trees
   location: [ -27, 10, 17 ]
 
 ---
 kind: Building
 spec:
-  name: Large Cactus
+  name: Large Pine Trees
   location: [ -32, 3, 29 ]
 
 ---
@@ -175,31 +175,31 @@ spec:
 ---
 kind: Building
 spec:
-  name: Palm Trees
+  name: Small Pine Trees
   location: [ 20, -19, -1 ]
 
 ---
 kind: Building
 spec:
-  name: Palm Trees
+  name: Small Pine Trees
   location: [ 33, -23, -10 ]
 
 ---
 kind: Building
 spec:
-  name: Palm Trees
+  name: Small Pine Trees
   location: [ 21, -20, -1 ]
 
 ---
 kind: Building
 spec:
-  name: Palm Trees
+  name: Small Pine Trees
   location: [ 2, -30, 28 ]
 
 ---
 kind: Building
 spec:
-  name: Palm Trees
+  name: Small Pine Trees
   location: [ 8, -28, 20 ]
 
 ---
@@ -295,7 +295,7 @@ spec:
 ---
 kind: Building
 spec:
-  name: Large Cactus
+  name: Large Pine Trees
   location: [ -16, -1, 17 ]
 
 ---
@@ -313,7 +313,7 @@ spec:
 ---
 kind: Building
 spec:
-  name: Large Cactus
+  name: Large Pine Trees
   location: [ -28, 11, 17 ]
 
 ---
@@ -343,19 +343,19 @@ spec:
 ---
 kind: Building
 spec:
-  name: Large Cactus
+  name: Large Pine Trees
   location: [ -5, -25, 30 ]
 
 ---
 kind: Building
 spec:
-  name: Large Cactus
+  name: Large Pine Trees
   location: [ -1, -23, 24 ]
 
 ---
 kind: Building
 spec:
-  name: Large Cactus
+  name: Large Pine Trees
   location: [ -7, -8, 15 ]
 
 ---
@@ -367,61 +367,61 @@ spec:
 ---
 kind: Building
 spec:
-  name: Palm Trees
+  name: Small Pine Trees
   location: [ 5, -21, 16 ]
 
 ---
 kind: Building
 spec:
-  name: Palm Trees
+  name: Small Pine Trees
   location: [ 8, -23, 15 ]
 
 ---
 kind: Building
 spec:
-  name: Palm Trees
+  name: Small Pine Trees
   location: [ 8, -29, 21 ]
 
 ---
 kind: Building
 spec:
-  name: Palm Trees
+  name: Small Pine Trees
   location: [ 4, -27, 23 ]
 
 ---
 kind: Building
 spec:
-  name: Palm Trees
+  name: Small Pine Trees
   location: [ 12, -19, 7 ]
 
 ---
 kind: Building
 spec:
-  name: Palm Trees
+  name: Small Pine Trees
   location: [ 16, -11, -5 ]
 
 ---
 kind: Building
 spec:
-  name: Palm Trees
+  name: Small Pine Trees
   location: [ 26, -31, 5 ]
 
 ---
 kind: Building
 spec:
-  name: Palm Trees
+  name: Small Pine Trees
   location: [ 26, -24, -2 ]
 
 ---
 kind: Building
 spec:
-  name: Palm Trees
+  name: Small Pine Trees
   location: [ 26, -25, -1 ]
 
 ---
 kind: Building
 spec:
-  name: Palm Trees
+  name: Small Pine Trees
   location: [ 27, -25, -2 ]
 
 ---
@@ -538,5 +538,5 @@ spec:
 ---
 kind: Building
 spec:
-  name: Palm Trees
+  name: Small Pine Trees
   location: [ 34, -34, 0 ]
