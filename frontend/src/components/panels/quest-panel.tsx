@@ -40,7 +40,7 @@ export const COMPLETED = 2;
 
 // TODO: Generate these
 export const taskCoord = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.coord))).toString(16);
-export const taskButton = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.button))).toString(16);
+export const taskButton = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.message))).toString(16);
 export const taskInventory = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.inventory))).toString(16);
 export const taskCombat = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.combat))).toString(16);
 export const taskCombatWinAttack =
@@ -68,6 +68,7 @@ const evalTaskCompletion = (task: Task, player: Player) => {
     switch (task.node.keys[0]) {
         case taskCoord:
             return player.mobileUnits?.some((unit) => {
+                console.log(`compare loc: ${unit.nextLocation?.tile.coords} : ${task.node.location?.coords}`);
                 return (
                     unit.nextLocation &&
                     task.node.location &&

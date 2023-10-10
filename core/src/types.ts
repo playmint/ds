@@ -364,7 +364,7 @@ export type QuestFragment = SelectedPlayerFragment['quests'][0];
 // TODO: Generate these from the contract
 export enum TaskKinds {
     coord = 'coord',
-    button = 'button',
+    message = 'message',
     inventory = 'inventory',
     combat = 'combat',
     combatWinAttack = 'combatWinAttack',

@@ -269,16 +269,27 @@ const questDeploymentActions = async (
     const spec = file.manifest.spec;
     const existingItems = await getManifestsByKind(ctx, ['Item']);
 
+    const existingBuildingKinds = await getManifestsByKind(ctx, ['BuildingKind']);
+    const pendingBuildingKinds = files.map((doc) => doc.manifest).filter(({ kind }) => kind === 'BuildingKind');
+
     const encodeTaskData = (task: (typeof spec.tasks)[0]) => {
+        const coder = AbiCoder.defaultAbiCoder();
+
         switch (task.kind) {
             case 'coord': {
-                const coder = AbiCoder.defaultAbiCoder();
                 return coder.encode(['int16', 'int16', 'int16'], [...task.location]);
             }
             case 'inventory': {
                 const item = getItemIdByName(files, existingItems, task.item.name);
-                const coder = AbiCoder.defaultAbiCoder();
                 return coder.encode(['bytes24', 'uint64'], [item, task.item.quantity]);
+            }
+            case 'message': {
+                const buildingKindId = getBuildingKindIDByName(
+                    existingBuildingKinds,
+                    pendingBuildingKinds,
+                    task.buildingKind
+                );
+                return coder.encode(['bytes24', 'string'], [buildingKindId, task.message]);
             }
         }
 
