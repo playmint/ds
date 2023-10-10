@@ -12,6 +12,10 @@ export default function update({ selected, world }) {
     const selectedUnit = mobileUnit;
 
 
+    if (!selectedUnit) {
+        return;
+    }
+
     //Look for a Registration Receipt in their bags
     var hasReceipt = false
     for (var j = 0; j < selectedUnit.bags.length; j++) {
@@ -63,8 +67,6 @@ export default function update({ selected, world }) {
                 args: [selectedBuilding.id, selectedUnit.id, []]
             },
         );
-
-        ds.log('A prescient rubber item manufacturer.');
     };
 
     if (q1isActive) {

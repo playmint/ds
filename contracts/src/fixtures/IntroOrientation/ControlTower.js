@@ -20,12 +20,6 @@ export default async function update({ selected, world }) {
     const selectedUnit = mobileUnit;
 
 
-    //Not using this at the moment
-    var engineerDistance = 0;
-    if (selectedUnit) {
-        engineerDistance = distance(selectedUnit.nextLocation.tile, selectedTile);
-    }
-
 
     const placeholder = () => {
         questStage++;
@@ -52,21 +46,6 @@ export default async function update({ selected, world }) {
     }
 
 
-    //Look for a user license in their bags
-    var hasUserLicense = false
-    for (var j = 0; j < selectedUnit.bags.length; j++) {
-        for (var i = 0; i < 4; i++) {
-            if (selectedUnit.bags[j].bag.slots[i]) {
-                var slot = selectedUnit.bags[j].bag.slots[i];
-
-                if (slot.item && slot.item.id === 'User License' && slot.balance >= 1) {
-                    hasUserLicense = true;
-                }
-            }
-        }
-    }
-
-
     //If quest 2 isn't active or completed
     if (questStage === 0) {
         return {
@@ -79,8 +58,8 @@ export default async function update({ selected, world }) {
                         {
                             id: 'default',
                             type: 'inline',
-                            html: 'Appears before has collected quest 2',
-                            buttons: [{ text: 'Register User', type: 'action', action: placeholder, disabled: false }]
+                            html: 'M.O.R.T.O.N. welcomes you to Hexwood, whilst wondering who you are. Please verify your credentials.',
+                            buttons: [{ text: 'Verify Credentials', type: 'action', action: placeholder, disabled: false }]
                         }
                     ],
                 },
@@ -122,7 +101,7 @@ export default async function update({ selected, world }) {
                         {
                             id: 'default',
                             type: 'inline',
-                            html: 'User identified as a total N00b. Please accept newbie quests and level up A.S.A.P.',
+                            html: 'User identified as with status: "Newb". Please accept newbie quests and level up A.S.A.P.',
                             buttons: [{ text: 'Accept Orientation Quest', type: 'action', action: placeholder, disabled: questStage > 2 },
                                 { text: 'Accept Creation Quest', type: 'action', action: placeholder, disabled: questStage > 3 },
                                 { text: 'Advance Quest', type: 'action', action: placeholder, disabled: questStage < 4 } //Placeholder

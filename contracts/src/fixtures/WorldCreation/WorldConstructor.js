@@ -47,8 +47,6 @@ export default function update({ selected, world }) {
                 args: [selectedBuilding.id, selectedUnit.id, []]
             },
         );
-
-        ds.log('A prescient rubber item manufacturer.');
     };
 
     if (!q6cIsActive) {
