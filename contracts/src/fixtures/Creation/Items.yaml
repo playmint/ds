@@ -2,7 +2,7 @@
 kind: Item
 spec:
   name: Squircle
-  icon: 15-265
+  icon: 31-286
   goo:
     red: 10
     green: 10
@@ -13,9 +13,9 @@ spec:
 kind: Item
 spec:
   name: Very Important Stuff
-  icon: 15-265
+  icon: 14-134
   goo:
-    red: 10
-    green: 10
-    blue: 10
+    red: 5
+    green: 5
+    blue: 5
   stackable: true
