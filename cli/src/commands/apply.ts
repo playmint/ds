@@ -38,7 +38,10 @@ const encodeTaskID = ({ name, kind }) => {
     const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`task/${name}`))));
     const kindHash = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(kind))));
 
-    return solidityPacked(['bytes4', 'uint64', 'uint32', 'uint64'], [NodeSelectors.Task, 0, kindHash, id]);
+    return solidityPacked(
+        ['bytes4', 'uint32', 'uint32', 'uint32', 'uint32', 'uint32'],
+        [NodeSelectors.Task, 0, 0, 0, kindHash, id]
+    );
 };
 
 const encodeQuestID = ({ name }) => {
