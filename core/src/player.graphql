@@ -37,8 +37,11 @@ fragment SelectedPlayer on Node {
                             id
                         }
                     }
-                    button: annotation(name: "button") {
+                    message: annotation(name: "message") {
                         value
+                    }
+                    buildingKind: node(match: { kinds: "buildingKind" }) {
+                        id
                     }
                 }
             }

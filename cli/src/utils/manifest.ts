@@ -206,11 +206,11 @@ export const TaskCoord = z.object({
     location: Coords,
 });
 
-export const TaskButton = z.object({
-    kind: z.literal('button'),
+export const TaskMessage = z.object({
+    kind: z.literal('message'),
     name: z.string(),
-    button: z.string().min(1).max(32),
-    location: z.string().min(1).max(32),
+    message: z.string(),
+    buildingKind: z.string(),
 });
 
 export const TaskInventory = z.object({
@@ -251,7 +251,7 @@ export const TaskQuestComplete = z.object({
 
 export const Task = z.discriminatedUnion('kind', [
     TaskCoord,
-    TaskButton,
+    TaskMessage,
     TaskInventory,
     TaskCombat,
     TaskCombatWinAttack,

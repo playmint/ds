@@ -9,15 +9,15 @@ kind: Quest
 spec:
   name: Report to Control
   description: "Welcome new user. Report to the control tower for further instructions"
-  location: [1, 1, -2]
+  location: [1, -1, 0]
   tasks:
     - kind: coord
       name: Move to the Control Tower
-      location: [1, 1, -2]
-    - kind: button
+      location: [1, -1, 0]
+    - kind: message
       name: Click on the Control Tower’s Report button
-      button: report
-      location: Cocktail Hut
+      message: report
+      buildingKind: Control Tower
   next: ["Registration Error"]
 
 ---
@@ -42,11 +42,11 @@ kind: Quest
 spec:
   name: Report to Control (again!)
   description: "TBD"
-  location: [1, 1, -2]
+  location: [1, -1, 0]
   tasks:
     - kind: coord
       name: Move to the Control Tower
-      location: [1, 1, -2]
+      location: [1, -1, 0]
     - kind: questAccept
       name: Accept Orientation quest
       quest: Orientation

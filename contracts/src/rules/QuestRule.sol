@@ -36,6 +36,10 @@ contract QuestRule is Rule {
             } else if (uint32(uint256(keccak256(abi.encodePacked("inventory")))) == taskKind) {
                 (bytes24 item, uint64 quantity) = abi.decode(taskData, (bytes24, uint64));
                 state.set(Rel.Balance.selector, 0, task, item, quantity);
+            } else if (uint32(uint256(keccak256(abi.encodePacked("message")))) == taskKind) {
+                (bytes24 buildingKind, string memory message) = abi.decode(taskData, (bytes24, string));
+                state.set(Rel.Has.selector, 0, task, buildingKind, 0);
+                state.annotate(task, "message", message);
             }
 
             _setName(state, Node.Player(ctx.sender), task, name);
