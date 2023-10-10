@@ -7,7 +7,13 @@ using UnityEngine.UI;
 public class OutlineController : MonoBehaviour
 {
     [SerializeField]
+    Camera? mainCamera;
+
+    [SerializeField]
     Camera? outlineCam;
+
+    [SerializeField]
+    RawImage screenImage, outlineImage;
 
     [SerializeField]
     CameraController? camController;
@@ -37,6 +43,7 @@ public class OutlineController : MonoBehaviour
     int currentZoom = 0;
 
     float updateTimer = 0;
+    private RenderTexture _screenTexture;
     private RenderTexture _outlineTexture;
 
     private CinemachineFramingTransposer? framingTransposer;
@@ -47,11 +54,21 @@ public class OutlineController : MonoBehaviour
         {
             throw new ArgumentException("outlineCam not set");
         }
+        if (mainCamera == null)
+        {
+            throw new ArgumentException("mainCamera not set");
+        }
         if (_outlineTexture == null)
         {
             _outlineTexture = new RenderTexture(Screen.width, Screen.height, 0);
             outlineCam.targetTexture = _outlineTexture;
-            GetComponent<RawImage>().texture = _outlineTexture;
+            outlineImage.texture = _outlineTexture;
+        }
+        if (_screenTexture == null)
+        {
+            _screenTexture = new RenderTexture(Screen.width, Screen.height, 0);
+            mainCamera.targetTexture = _screenTexture;
+            screenImage.texture = _screenTexture;
         }
         if (camController == null || camController.virtualCamera == null)
         {
@@ -61,7 +78,13 @@ public class OutlineController : MonoBehaviour
         sHeight = Screen.height;
         framingTransposer =
             camController.virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
-        Resize(_outlineTexture, sWidth, sHeight);
+        Resize(_outlineTexture, outlineCam, sWidth, sHeight);
+        Resize(_screenTexture, mainCamera, sWidth, sHeight);
+    }
+
+    protected void Start()
+    {
+        mainCamera.enabled = false;
     }
 
     private void OnDestroy()
@@ -69,8 +92,14 @@ public class OutlineController : MonoBehaviour
         _outlineTexture.Release();
     }
 
+    private void LateUpdate()
+    {
+        mainCamera.Render();
+    }
+
     private void Update()
     {
+        
         if (renderData == null)
         {
             throw new ArgumentException("renderData not set");
@@ -103,7 +132,8 @@ public class OutlineController : MonoBehaviour
         {
             sWidth = Screen.width;
             sHeight = Screen.height;
-            Resize(_outlineTexture, sWidth, sHeight);
+            Resize(_outlineTexture, outlineCam, sWidth, sHeight);
+            Resize(_screenTexture, mainCamera, sWidth, sHeight);
             outlineMat.SetFloat("_OutlinePower", falloffMultiplier);
             outlineMat.SetFloat("_OutlinePower2", strokeCutoff);
         }
@@ -127,7 +157,7 @@ public class OutlineController : MonoBehaviour
         }
     }
 
-    void Resize(RenderTexture renderTexture, int width, int height)
+    void Resize(RenderTexture renderTexture, Camera cam, int width, int height)
     {
         if (outlineCam == null)
         {
@@ -136,13 +166,13 @@ public class OutlineController : MonoBehaviour
         updateTimer = 0;
         if (renderTexture)
         {
-            outlineCam.targetTexture = null;
+            cam.targetTexture = null;
             Debug.Log("Resize");
             renderTexture.Release();
             renderTexture.width = width;
             renderTexture.height = height;
             renderTexture.Create();
-            outlineCam.targetTexture = renderTexture;
+            cam.targetTexture = renderTexture;
         }
     }
 }

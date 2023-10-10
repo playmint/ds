@@ -25,6 +25,8 @@ public class BaseComponentController<Data>
 
     protected bool _isVisible;
 
+    private Camera mainCam;
+
     public void Init(string instanceId)
     {
         _instanceId = instanceId;
@@ -32,6 +34,7 @@ public class BaseComponentController<Data>
 
     protected void Awake()
     {
+        mainCam = GameObject.Find("Main Camera").GetComponent<Camera>();
         _nextData = new Data();
     }
 
@@ -39,7 +42,7 @@ public class BaseComponentController<Data>
     {
         if (!_nextData.sendScreenPosition)
             return;
-        Vector3 screenPoint = Camera.main.WorldToViewportPoint(
+        Vector3 screenPoint = mainCam.WorldToViewportPoint(
             transform.position + (Vector3.up * _nextData.screenPositionHeightOffset)
         );
         if (screenPoint.x > 0 && screenPoint.x < 1 && screenPoint.y > 0 && screenPoint.y < 1)

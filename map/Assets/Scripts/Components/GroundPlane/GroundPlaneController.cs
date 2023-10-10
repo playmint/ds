@@ -18,6 +18,13 @@ public class GroundPlaneController : BaseComponentController<GroundPlaneData>
     private string _defaultMatColor = "#445C84";
     private float _defaultHeight = -0.4f;
 
+    private Camera mainCam;
+
+    private void Awake()
+    {
+        mainCam = GameObject.Find("Main Camera").GetComponent<Camera>();
+    }
+
     protected void Update()
     {
         if (_prevData == _nextData)
@@ -26,7 +33,7 @@ public class GroundPlaneController : BaseComponentController<GroundPlaneData>
         }
         if (_camTrans == null)
         {
-            _camTrans = Camera.main.transform;
+            _camTrans = mainCam.transform;
             transform.localEulerAngles = Vector3.zero;
             _offset.y = _nextData.height;
         }
