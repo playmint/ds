@@ -44,7 +44,6 @@ library ItemUtils {
         return Node.Item("ID Card", [uint32(100), uint32(100), uint32(76)], true);
     }
 
-
     // register is a helper to declare a new kind of item
     function register(Game ds, ItemConfig memory cfg) internal returns (bytes24) {
         Dispatcher dispatcher = ds.getDispatcher();

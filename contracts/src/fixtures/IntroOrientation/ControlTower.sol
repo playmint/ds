@@ -10,4 +10,3 @@ contract ControlTower is BuildingKind {
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.EXTRACT, (buildingInstance)));
     }
 }
-
