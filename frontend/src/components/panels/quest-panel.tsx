@@ -1,9 +1,8 @@
-import { Player, QuestFragment, TaskKinds } from '@app/../../core/src';
+import { ConnectedPlayer, Player, QuestFragment, TaskKinds } from '@app/../../core/src';
 import styled from 'styled-components';
 import { FunctionComponent } from 'react';
 import { Locatable, getCoords, getTileDistance } from '@app/helpers/tile';
 import { id as keccak256UTF8 } from 'ethers';
-import { MobileUnit } from '../map/MobileUnit';
 
 const Panel = styled.div`
     background: #143063;
@@ -33,7 +32,7 @@ const Panel = styled.div`
 `;
 
 export interface QuestProps {
-    player: Player;
+    player: ConnectedPlayer;
 }
 
 export const ACCEPTED = 1;
@@ -81,22 +80,23 @@ const evalTaskCompletion = (task: Task, player: Player) => {
                 return false;
             }
             const taskItemSlot = task.node.itemSlot;
-            const itemCount = player.mobileUnits?.reduce((playerTotal, unit) => {
-                return (
-                    playerTotal +
-                    unit.bags.reduce((bagTotal, bagSlot) => {
-                        return (
-                            bagTotal +
-                            bagSlot.bag.slots.reduce((slotTotal, itemSlot) => {
-                                return itemSlot.item.id == taskItemSlot.item.id
-                                    ? slotTotal + itemSlot.balance
-                                    : slotTotal;
-                            }, 0)
-                        );
-                    }, 0)
-                );
-            }, 0);
-            return itemCount == taskItemSlot.balance;
+            const itemCount =
+                player.mobileUnits?.reduce((playerTotal, unit) => {
+                    return (
+                        playerTotal +
+                        unit.bags.reduce((bagTotal, bagSlot) => {
+                            return (
+                                bagTotal +
+                                bagSlot.bag.slots.reduce((slotTotal, itemSlot) => {
+                                    return itemSlot.item.id == taskItemSlot.item.id
+                                        ? slotTotal + itemSlot.balance
+                                        : slotTotal;
+                                }, 0)
+                            );
+                        }, 0)
+                    );
+                }, 0) || 0;
+            return itemCount >= taskItemSlot.balance;
         }
     }
     return false;
@@ -118,8 +118,16 @@ export const QuestPanel: FunctionComponent<QuestProps> = ({ player }: QuestProps
     const numCompleted = tasks.reduce((acc, t) => (t.isCompleted ? acc + 1 : acc), 0);
     const allCompleted = numCompleted == tasks.length;
 
-    const onCompleteClick = () => {
-        console.log('Complete quest!!' + numCompleted);
+    const onCompleteClick = (quest: QuestFragment) => {
+        console.log('Complete quest!!', quest);
+        player
+            .dispatch({
+                name: 'COMPLETE_QUEST',
+                args: [quest.node.id, quest.key],
+            })
+            .catch((e) => {
+                console.error('Failed to complete quest', quest, e);
+            });
     };
 
     return (
@@ -142,7 +150,10 @@ export const QuestPanel: FunctionComponent<QuestProps> = ({ player }: QuestProps
                         </div>
                         {allCompleted && (
                             <div className="buttonContainer">
-                                <button onClick={onCompleteClick} className="action-icon-button completeQuestButton">
+                                <button
+                                    onClick={() => onCompleteClick(quest)}
+                                    className="action-icon-button completeQuestButton"
+                                >
                                     Complete Quest
                                 </button>
                             </div>

@@ -460,6 +460,10 @@ library Schema {
         state.set(Rel.HasQuest.selector, questNum, player, quest, uint8(QuestStatus.ACCEPTED));
     }
 
+    function setQuestCompleted(State state, bytes24 quest, bytes24 player, uint8 questNum) internal {
+        state.set(Rel.HasQuest.selector, questNum, player, quest, uint8(QuestStatus.COMPLETED));
+    }
+
     function getPlayerQuest(State state, bytes24 player, uint8 questNum) internal view returns (bytes24, QuestStatus) {
         (bytes24 quest, uint64 status) = state.get(Rel.HasQuest.selector, questNum, player);
         return (quest, QuestStatus(status));

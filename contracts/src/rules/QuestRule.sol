@@ -81,6 +81,20 @@ contract QuestRule is Rule {
 
             state.setQuestAccepted(quest, Node.Player(ctx.sender), questNum);
         }
+
+        if (bytes4(action) == Actions.COMPLETE_QUEST.selector) {
+            (bytes24 quest, uint8 questNum) = abi.decode(action[4:], (bytes24, uint8));
+
+            (bytes24 currentQuest, QuestStatus questStatus) = state.getPlayerQuest(Node.Player(ctx.sender), questNum);
+
+            require(quest == currentQuest, "Quest at given questNum doesn't match supplied quest ID");
+            require(questStatus == QuestStatus.ACCEPTED, "Quest must be in ACCEPTED state to be completed");
+
+            state.setQuestCompleted(quest, Node.Player(ctx.sender), questNum);
+
+            // Auto accept next quest
+        }
+
         return state;
     }
 
