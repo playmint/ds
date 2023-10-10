@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { FunctionComponent } from 'react';
 import { Locatable, getCoords, getTileDistance } from '@app/helpers/tile';
 import { id as keccak256UTF8 } from 'ethers';
+import { MobileUnit } from '../map/MobileUnit';
 
 const Panel = styled.div`
     background: #143063;
@@ -65,11 +66,9 @@ const LocationButton: FunctionComponent<{ location: Locatable }> = ({ location }
 };
 
 const evalTaskCompletion = (task: Task, player: Player) => {
-    console.log(`compare ${task.node.keys[0]} with ${taskCoord}`);
     switch (task.node.keys[0]) {
         case taskCoord:
             return player.mobileUnits?.some((unit) => {
-                console.log(`compare ${unit.nextLocation?.tile.coords} : ${task.node.location?.coords}`);
                 return (
                     unit.nextLocation &&
                     task.node.location &&
@@ -77,8 +76,28 @@ const evalTaskCompletion = (task: Task, player: Player) => {
                 );
             });
 
-        case taskInventory:
-            return true;
+        case taskInventory: {
+            if (!task.node.itemSlot) {
+                return false;
+            }
+            const taskItemSlot = task.node.itemSlot;
+            const itemCount = player.mobileUnits?.reduce((playerTotal, unit) => {
+                return (
+                    playerTotal +
+                    unit.bags.reduce((bagTotal, bagSlot) => {
+                        return (
+                            bagTotal +
+                            bagSlot.bag.slots.reduce((slotTotal, itemSlot) => {
+                                return itemSlot.item.id == taskItemSlot.item.id
+                                    ? slotTotal + itemSlot.balance
+                                    : slotTotal;
+                            }, 0)
+                        );
+                    }, 0)
+                );
+            }, 0);
+            return itemCount == taskItemSlot.balance;
+        }
     }
     return false;
 };
