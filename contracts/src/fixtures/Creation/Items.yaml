@@ -1,0 +1,21 @@
+---
+kind: Item
+spec:
+  name: Squircle
+  icon: 15-265
+  goo:
+    red: 10
+    green: 10
+    blue: 10
+  stackable: true
+
+---
+kind: Item
+spec:
+  name: Very Important Stuff
+  icon: 15-265
+  goo:
+    red: 10
+    green: 10
+    blue: 10
+  stackable: true
