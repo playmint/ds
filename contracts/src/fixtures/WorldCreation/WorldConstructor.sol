@@ -6,8 +6,7 @@ import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 
 contract WorldConstructor is BuildingKind {
-    function use(Game ds, bytes24 buildingInstance, bytes24, /*actor*/ bytes memory /*payload*/ ) public {
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.EXTRACT, (buildingInstance)));
+    function use(Game ds, bytes24 buildingInstance, bytes24, /*mobileUnit*/ bytes calldata /*payload*/ ) public {
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.CRAFT, (buildingInstance)));
     }
 }
-

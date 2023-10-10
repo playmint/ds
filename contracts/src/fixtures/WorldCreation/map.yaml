@@ -2,4 +2,4 @@
 kind: Building
 spec:
   name: World Constructor
-  location: [0, 2, 0]
+  location: [-18, 32, -14]
