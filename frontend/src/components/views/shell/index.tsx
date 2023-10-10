@@ -243,7 +243,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             <div className="hud-container">
                 <div className="top-left">
                     {/* <Logs className="logs" /> */}
-                    {player && <QuestPanel quests={player.quests} />}
+                    {player && <QuestPanel player={player} />}
                 </div>
                 <div className="bottom-left">
                     <ItemPluginPanel />

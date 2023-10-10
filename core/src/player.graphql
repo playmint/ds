@@ -17,16 +17,19 @@ fragment SelectedPlayer on Node {
             }
             location: node(match: { kinds: "tile" }) {
                 id
+                coords: keys
             }
             tasks: edges(match: { kinds: "task" }) {
                 key
-                task: node {
+                node {
                     id
+                    keys
                     name: annotation(name: "name") {
                         value
                     }
                     location: node(match: { kinds: "tile" }) {
                         id
+                        coords: keys
                     }
                     itemSlot: edge(match: { kinds: "item" }) {
                         balance: weight
