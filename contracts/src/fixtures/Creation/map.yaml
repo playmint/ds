@@ -1,0 +1,5 @@
+---
+kind: Building
+spec:
+  name: Vault of Knowledge
+  location: [0, 2, -2]
