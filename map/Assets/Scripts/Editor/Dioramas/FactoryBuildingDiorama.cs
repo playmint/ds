@@ -74,6 +74,7 @@ class FactoryBuildingDiorama : IDiorama
                 { "Factory/5", new FactoryBuildingData() { q = 1, r = -1, s = 0, height = 0.1f, model = "08-00", rotation = -30, selected = "outline", color = "#EC5C61", shadowColor = "#9A201C" } },
                 { "Factory/6", new FactoryBuildingData() { q = 0, r = -1, s = 1, height = 0.2f, model = "01-02", rotation = -30, selected = "outline", color = "#9C74FD", shadowColor = "#6226B9" } },
                 { "Factory/7", new FactoryBuildingData() { q = -1, r = 0, s = 1, height = 0.4f, model = "03-04", rotation = -30, selected = "outline", color = "#2DAEE0", shadowColor = "#135198" } },
+                { "TileHighlight/2", new TileHighlightData() { q = -1, r = 1, s = 0, height = 0.2f, style = "gradient_blue", color = "#FFFFFFFF", animation = "none" } },
             },
         };
     }
