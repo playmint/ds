@@ -41,6 +41,12 @@ contract QuestRule is Rule {
                 (bytes24 buildingKind, string memory message) = abi.decode(taskData, (bytes24, string));
                 state.set(Rel.Has.selector, 0, task, buildingKind, 0);
                 state.annotate(task, "message", message);
+            } else if (
+                uint32(uint256(keccak256(abi.encodePacked("questAccept")))) == taskKind
+                    || uint32(uint256(keccak256(abi.encodePacked("questComplete")))) == taskKind
+            ) {
+                (bytes24 quest) = abi.decode(taskData, (bytes24));
+                state.set(Rel.HasQuest.selector, 0, task, quest, 0);
             }
 
             _setName(state, Node.Player(ctx.sender), task, name);

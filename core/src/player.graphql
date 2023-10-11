@@ -19,7 +19,7 @@ fragment SelectedPlayer on Node {
                 id
                 coords: keys
             }
-            tasks: edges(match: { kinds: "task" }) {
+            tasks: edges(match: { kinds: "task", via: { rel: "HasTask", dir: OUT } }) {
                 key
                 node {
                     id
@@ -41,6 +41,9 @@ fragment SelectedPlayer on Node {
                         value
                     }
                     buildingKind: node(match: { kinds: "buildingKind" }) {
+                        id
+                    }
+                    quest: node(match: { kinds: "quest", via: { rel: "HasQuest", dir: OUT } }) {
                         id
                     }
                 }
