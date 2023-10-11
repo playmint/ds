@@ -136,7 +136,8 @@ interface Actions {
         int16 q,
         int16 r,
         int16 s,
-        bytes24[] calldata tasks
+        bytes24[] calldata tasks,
+        bytes24[] calldata nextQuests
     ) external;
 
     function REGISTER_TASK(bytes24 task, string calldata name, bytes calldata taskData) external;

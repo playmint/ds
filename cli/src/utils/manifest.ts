@@ -265,7 +265,7 @@ export const QuestSpec = z.object({
     description: OneLiner.nonempty(),
     location: Coords.optional(),
     tasks: Task.array().min(1),
-    next: Name.array().optional(),
+    next: Name.array().max(5).optional(),
 });
 
 export const Quest = z.object({
