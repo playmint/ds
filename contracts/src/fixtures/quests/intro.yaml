@@ -1,10 +1,4 @@
 ---
-kind: Building
-spec:
-  name: Cocktail Hut
-  location: [-1, -1, 2]
-
----
 kind: Quest
 spec:
   name: Report to Control
@@ -15,7 +9,7 @@ spec:
       name: Move to the Control Tower
       location: [-6, 5, 1]
     - kind: message
-      name: Click on the Control Tower’s Report button
+      name: Verify credentials
       message: verifyCredentials
       buildingKind: Control Tower
   next: ["Registration Error"]
@@ -24,16 +18,16 @@ spec:
 kind: Quest
 spec:
   name: Registration Error
-  description: "Cannot recognise user profile. Please rectify this issue by crafting a new user license"
-  location: [-1, -1, 2]
+  description: "Cannot recognise user profile. Please rectify this issue by crafting a new Registration Receipt"
+  location: [5, -1, -4]
   tasks:
     - kind: coord
       name: Move to the Registration Office
-      location: [-1, -1, 2]
+      location: [5, -1, -4]
     - kind: inventory
-      name: Make a cocktail
+      name: Convert Acceptance Letter and ID Card into a Registration Receipt
       item:
-        name: Cocktail
+        name: Registration Receipt
         quantity: 1
   next: ["Report to Control (again!)"]
 
@@ -42,11 +36,12 @@ kind: Quest
 spec:
   name: Report to Control (again!)
   description: "TBD"
-  location: [1, -1, 0]
+  location: [-6, 5, 1]
   tasks:
     - kind: coord
       name: Move to the Control Tower
-      location: [1, -1, 0]
+      location: [-6, 5, 1]
+      buildingKind: Control Tower
     - kind: questAccept
       name: Accept Orientation quest
       quest: Orientation
