@@ -102,7 +102,7 @@ export const Buildings = memo(
                                 id={b.id}
                                 height={height}
                                 model={b.kind?.model?.value}
-                                rotation={rotation}
+                                rotation={-30}
                                 selected={selected}
                                 onPointerClick={onClickBuilding}
                                 {...coords}

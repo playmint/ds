@@ -9,8 +9,13 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Building
     second: {fileID: 2100000, guid: b20ca193af5167e45a96233007db858e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Building.003
+    second: {fileID: 2100000, guid: b20ca193af5167e45a96233007db858e, type: 2}
   materials:
-    materialImportMode: 2
+    materialImportMode: 1
     materialName: 0
     materialSearch: 1
     materialLocation: 1

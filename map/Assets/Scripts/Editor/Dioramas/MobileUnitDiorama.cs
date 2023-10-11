@@ -23,6 +23,8 @@ class MobileUnitDiorama : IDiorama
                 { "Tile/6", new TileData() { q = -1, r = 1, s = 2, height = 0.4f } },
                 { "Tile/7", new TileData() { q = 0, r = 1, s = 3, height = 0.4f } },
 
+                { "Factory/2", new FactoryBuildingData() { q = 0, r = 1, s = 3, height = 0.4f, model = "02-03", rotation = -30 } },
+
                 // Movement
                 { "MobileUnit/1", new MobileUnitData() { 
                     q = 0,
@@ -99,6 +101,8 @@ class MobileUnitDiorama : IDiorama
                 { "Tile/5", new TileData() { q = -2, r = 1, s = 1, height = 0.4f } },
                 { "Tile/6", new TileData() { q = -1, r = 1, s = 2, height = 0.4f } },
                 { "Tile/7", new TileData() { q = 0, r = 1, s = 3, height = 0.4f } },
+
+                { "Factory/2", new FactoryBuildingData() { q = 0, r = 1, s = 3, height = 0.4f, model = "02-03", rotation = -30 } },
 
                 // movement
                 { "MobileUnit/1", new MobileUnitData() { 

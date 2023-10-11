@@ -93,6 +93,7 @@ public class OutlineController : MonoBehaviour
     protected void Start()
     {
         mainCamera.enabled = false;
+        outlineCam.enabled = false;
     }
 #endif
 
@@ -104,6 +105,7 @@ public class OutlineController : MonoBehaviour
 #if !UNITY_EDITOR
     private void LateUpdate()
     {
+        outlineCam.Render();
         mainCamera.Render();
     }
 #endif
@@ -134,6 +136,7 @@ public class OutlineController : MonoBehaviour
         {
             throw new ArgumentException("framingTransposer not set");
         }
+
         if (updateTimer < 0.2f)
             updateTimer += Time.deltaTime;
         if (updateTimer < 0.1f)

@@ -1,7 +1,7 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -19,8 +19,8 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
     public Material redOutlineMat,
         greenOutlineMat;
 
-    private Renderer[]? outlineObjs;
-    private Renderer[]? renderers;
+    private List<Renderer>? outlineObjs = new();
+    private List<Renderer>? renderers = new();
 
     private Color _defaultColor;
 
@@ -35,10 +35,23 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
         transform.position = new Vector3(worldPos.x, _nextData.height, worldPos.z);
         transform.GetChild(0).localEulerAngles = new Vector3(0, _nextData.rotation, 0);
 
+        Color dynamicColor;
+        Color shadowColor;
+        if (!string.IsNullOrEmpty(_nextData.color) && !string.IsNullOrEmpty(_nextData.shadowColor))
+        {
+            ColorUtility.TryParseHtmlString(_nextData.color, out dynamicColor);
+            ColorUtility.TryParseHtmlString(_nextData.shadowColor, out shadowColor);
+        }
+        else
+        {
+            ColorUtility.TryParseHtmlString("#2DAEE0", out dynamicColor);
+            ColorUtility.TryParseHtmlString("#135198", out shadowColor);
+        }
+
         if (_prevData == null)
         {
             if (_nextData.model != null)
-                ShowTotems(_nextData.model);
+                ShowTotems(_nextData.model, dynamicColor, shadowColor);
             else
                 Debug.LogError("Building stack codes are null");
         }
@@ -101,22 +114,32 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
         return names;
     }
 
-    private void ShowTotems(string stackCode)
+    private void ShowTotems(string stackCode, Color dynamicColor, Color shadowColor)
     {
         string[] totemNames = GetTotemNamesFromStackCode(stackCode);
 
-        renderers = new Renderer[2];
-        outlineObjs = new Renderer[2];
-        for (int i = 0; i < 2; i++)
-        {
-            renderers[i] = Instantiate(
-                    totemPrefabs.FirstOrDefault(n => n.name == totemNames[i]),
-                    stackPositions[i]
-                )
-                .GetComponentInChildren<Renderer>();
-
-            outlineObjs[i] = renderers[i].transform.GetChild(0).GetComponent<Renderer>();
-        }
+        renderers = new();
+        outlineObjs = new();
+        GetRenderers("Base_" + totemNames[0], stackPositions[0], "Base_01");
+        GetRenderers("Roof_" + totemNames[1], stackPositions[1], "Roof_01");
         _defaultColor = renderers[0].material.GetColor("_EmissionColor");
+
+        foreach (Renderer rend in renderers)
+        {
+            rend.material.SetColor("_DynamicColor", dynamicColor);
+            rend.material.SetColor("_DynamicShadowColor", shadowColor);
+        }
+    }
+
+    private void GetRenderers(string prefabName, Transform stackPos, string defaultBuilding = "")
+    {
+        GameObject prefab = totemPrefabs.FirstOrDefault(n => n.name == prefabName);
+        if (prefab == null)
+            prefab = totemPrefabs.FirstOrDefault(n => n.name == defaultBuilding);
+        FactoryBuildingBlockController controller = Instantiate(prefab, stackPos)
+            .GetComponent<FactoryBuildingBlockController>();
+
+        renderers.AddRange(controller.renderers);
+        outlineObjs.AddRange(controller.outlineRenderers);
     }
 }

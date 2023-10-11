@@ -20,6 +20,9 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         _jumpCurve,
         _visibilityCurve;
 
+    [SerializeField]
+    private float offsetRadius = 0.29f;
+
     public Material redOutlineMat,
         greenOutlineMat;
     protected Color _defaultColor;
@@ -135,7 +138,6 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
 
     private Vector3 GetOffset(bool isShared)
     {
-        var offsetRadius = 0.29f;
         var offset = Vector3.zero;
         if (isShared)
             offset = GetPositionOnCircle(offsetRadius, 6, 0);
@@ -146,7 +148,7 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
     private Vector3 GetPositionOnCircle(float radius, int numObjects, int index)
     {
         float angle = (float)index / numObjects * 360f;
-        angle += 240;
+        angle += 180;
         float x = radius * Mathf.Sin(angle * Mathf.Deg2Rad);
         float z = radius * Mathf.Cos(angle * Mathf.Deg2Rad);
         float y = 0;

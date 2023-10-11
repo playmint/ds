@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 public class CameraController : MonoBehaviour
 {
@@ -27,13 +28,6 @@ public class CameraController : MonoBehaviour
 
     [SerializeField]
     private float zoomDuration = 0.2f;
-
-    [SerializeField]
-    PostProcessVolume? PPVolume;
-
-    [SerializeField]
-    float minAOIntensity,
-        maxAOIntensity;
 
     public Camera? mainCamera;
     private Coroutine? zoomCoroutine;
@@ -60,10 +54,6 @@ public class CameraController : MonoBehaviour
             return;
         }
         if (target == null)
-        {
-            return;
-        }
-        if (PPVolume == null)
         {
             return;
         }
@@ -113,17 +103,7 @@ public class CameraController : MonoBehaviour
                 );
             }
         }
-        PPVolume.sharedProfile.GetSetting<AmbientOcclusion>().intensity.value = Mathf.Lerp(
-            minAOIntensity,
-            maxAOIntensity,
-            Mathf.InverseLerp(
-                minCameraDistance,
-                maxCameraDistance,
-                virtualCamera
-                    .GetCinemachineComponent<CinemachineFramingTransposer>()
-                    .m_CameraDistance
-            )
-        );
+
         HandleMouseCameraDrag();
         float speed = moveSpeed * Mathf.Abs(mainCamera.transform.position.y);
         Vector3 inputVector =
