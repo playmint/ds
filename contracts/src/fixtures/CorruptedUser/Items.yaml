@@ -1,0 +1,65 @@
+---
+kind: Item
+spec:
+  name: Boring Tie
+  icon: 09-225
+  goo:
+    red: 0
+    green: 50
+    blue: 50
+  stackable: false
+
+---
+kind: Item
+spec:
+  name: Boring Shirt
+  icon: 28-100
+  goo:
+    red: 50
+    green: 0
+    blue: 0
+  stackable: false
+
+---
+kind: Item
+spec:
+  name: Boring Disguise
+  icon: 18-1
+  goo:
+    red: 25
+    green: 25
+    blue: 25
+  stackable: false
+
+---
+kind: Item
+spec:
+  name: Vibrant Green Goo
+  icon: 22-197
+  goo:
+    red: 0
+    green: 10
+    blue: 0
+  stackable: true
+
+---
+kind: Item
+spec:
+  name: Really Green Goo
+  icon: 22-192
+  goo:
+    red: 0
+    green: 100
+    blue: 0
+  stackable: true
+
+---
+kind: Item
+spec:
+  name: Microchip
+  icon: 15-171
+  goo:
+    red: 0
+    green: 55
+    blue: 0
+  stackable: false

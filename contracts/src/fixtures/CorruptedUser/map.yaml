@@ -1,0 +1,35 @@
+---
+kind: Building
+spec:
+  name: Shirt Shop
+  location: [1, -18, 17]
+
+---
+kind: Building
+spec:
+  name: Tie Shop
+  location: [18, 14, -32]
+
+---
+kind: Building
+spec:
+  name: Industrial Espionage
+  location: [23, -19, -4]
+
+---
+kind: Building
+spec:
+  name: Green Goo Fusion
+  location: [ -30, -1, 31 ]
+
+---
+kind: Building
+spec:
+  name: Green Goo Fission
+  location: [ -9, -17, 26 ]
+
+---
+kind: Building
+spec:
+  name: Corrupted User
+  location: [ 29, -14, -15 ]

@@ -1,0 +1,11 @@
+---
+kind: Building
+spec:
+  name: Vault of Knowledge
+  location: [-18, 2, 16]
+
+---
+kind: Building
+spec:
+  name: Very Important Factory
+  location: [-23, 2, 21]

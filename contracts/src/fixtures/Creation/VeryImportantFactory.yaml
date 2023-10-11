@@ -1,0 +1,20 @@
+---
+kind: BuildingKind
+spec:
+  name: Very Important Factory
+  description: A factory that makes Very Important Stuff
+  category: factory
+  model: 07-08
+  contract:
+    file: ./VeryImportantFactory.sol
+  plugin:
+    file: ./VeryImportantFactory.js
+  materials:
+  - name: L33t Bricks
+    quantity: 100
+  inputs:
+  - name: Squircle
+    quantity: 1
+  outputs:
+  - name: Very Important Stuff
+    quantity: 1

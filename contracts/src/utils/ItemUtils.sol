@@ -35,6 +35,15 @@ library ItemUtils {
         return Node.Item("Red Goo", [uint32(0), uint32(0), uint32(1)], true);
     }
 
+    //items that need to spawned with the player
+    function AcceptanceLetter() internal pure returns (bytes24) {
+        return Node.Item("Acceptance Letter", [uint32(100), uint32(100), uint32(76)], true);
+    }
+
+    function IDCard() internal pure returns (bytes24) {
+        return Node.Item("ID Card", [uint32(100), uint32(100), uint32(76)], true);
+    }
+
     // register is a helper to declare a new kind of item
     function register(Game ds, ItemConfig memory cfg) internal returns (bytes24) {
         Dispatcher dispatcher = ds.getDispatcher();

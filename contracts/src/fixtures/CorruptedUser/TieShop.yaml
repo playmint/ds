@@ -1,0 +1,22 @@
+---
+kind: BuildingKind
+spec:
+  name: Tie Shop
+  description: "Expert suppliers of top-quality ties."
+  category: factory
+  model: 05-06
+  contract:
+    file: ./TieShop.sol
+  plugin:
+    file: ./TieShop.js
+  materials:
+    - name: L33t Bricks
+      quantity: 100
+  inputs:
+    - name: Green Goo
+      quantity: 100
+    - name: Blue Goo
+      quantity: 100
+  outputs:
+    - name: Boring Tie
+      quantity: 1

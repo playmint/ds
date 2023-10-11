@@ -1,0 +1,22 @@
+---
+kind: BuildingKind
+spec:
+  name: Registration Office
+  description: All new users are requested to register here. 
+  category: factory
+  model: 07-08
+  contract:
+    file: ./RegistrationOffice.sol
+  plugin:
+    file: ./RegistrationOffice.js
+  materials:
+  - name: L33t Bricks
+    quantity: 100
+  inputs:
+  - name: Acceptance Letter
+    quantity: 1
+  - name: ID Card
+    quantity: 1
+  outputs:
+  - name: Registration Receipt
+    quantity: 1

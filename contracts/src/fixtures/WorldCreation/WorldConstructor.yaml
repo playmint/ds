@@ -1,0 +1,20 @@
+---
+kind: BuildingKind
+spec:
+  name: World Constructor
+  description: MORTON's numerous attempts to create the perfect world have been constructed here
+  category: factory
+  model: 07-08
+  contract:
+    file: ./WorldConstructor.sol
+  plugin:
+    file: ./WorldConstructor.js
+  materials:
+  - name: L33t Bricks
+    quantity: 100
+  inputs:
+  - name: Microchip
+    quantity: 1
+  outputs:
+  - name: Broken Component
+    quantity: 1
