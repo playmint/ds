@@ -311,10 +311,12 @@ const questDeploymentActions = async (
     // register quest
     const questId = encodeQuestID(spec);
     const taskIds = spec.tasks.map((task) => encodeTaskID(task));
+    const nextQuestIds = spec.next?.map((questName) => encodeQuestID({ name: questName })) || [];
     const [q, r, s] = spec.location ? spec.location : [0, 0, 0];
+
     ops.push({
         name: 'REGISTER_QUEST',
-        args: [questId, spec.name, spec.description, !!spec.location, q, r, s, taskIds],
+        args: [questId, spec.name, spec.description, !!spec.location, q, r, s, taskIds, nextQuestIds],
     });
 
     return ops;
