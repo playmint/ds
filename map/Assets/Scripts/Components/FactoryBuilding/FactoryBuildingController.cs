@@ -124,7 +124,7 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
         GetRenderers("Roof_" + totemNames[1], stackPositions[1], "Roof_01");
         _defaultColor = renderers[0].material.GetColor("_EmissionColor");
 
-        foreach(Renderer rend in renderers)
+        foreach (Renderer rend in renderers)
         {
             rend.material.SetColor("_DynamicColor", dynamicColor);
             rend.material.SetColor("_DynamicShadowColor", shadowColor);
@@ -136,7 +136,8 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
         GameObject prefab = totemPrefabs.FirstOrDefault(n => n.name == prefabName);
         if (prefab == null)
             prefab = totemPrefabs.FirstOrDefault(n => n.name == defaultBuilding);
-        FactoryBuildingBlockController controller = Instantiate(prefab, stackPos).GetComponent<FactoryBuildingBlockController>();
+        FactoryBuildingBlockController controller = Instantiate(prefab, stackPos)
+            .GetComponent<FactoryBuildingBlockController>();
 
         renderers.AddRange(controller.renderers);
         outlineObjs.AddRange(controller.outlineRenderers);

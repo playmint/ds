@@ -138,7 +138,6 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
 
     private Vector3 GetOffset(bool isShared)
     {
-        
         var offset = Vector3.zero;
         if (isShared)
             offset = GetPositionOnCircle(offsetRadius, 6, 0);

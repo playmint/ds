@@ -577,7 +577,10 @@ namespace UnityEngine.Rendering.Universal
                     width *= ScalableBufferManager.widthScaleFactor;
                     height *= ScalableBufferManager.heightScaleFactor;
                 }
-                cmd.SetGlobalVector(Shader.PropertyToID("_SourceSize"), new Vector4(width, height, 1.0f / width, 1.0f / height));
+                cmd.SetGlobalVector(
+                    Shader.PropertyToID("_SourceSize"),
+                    new Vector4(width, height, 1.0f / width, 1.0f / height)
+                );
             }
 
             private void Render(CommandBuffer cmd, RenderTargetIdentifier target, ShaderPasses pass)
