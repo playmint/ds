@@ -59,6 +59,8 @@ export interface DSContextValue {
     ui: Source<PluginUpdateResponse[]>;
     logger: Logger;
     logs: Source<Log>;
+    questMsgSender: Logger;
+    questMsgs: Source<Log>;
     buildingKinds: Source<AvailableBuildingKind[]>;
     availablePlugins: Source<AvailablePlugin[]>;
 }
@@ -80,6 +82,7 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
         const { wallet, selectProvider } = makeWallet();
         const { client } = makeCogClient(config);
         const { logger, logs } = makeLogger({ name: 'main' });
+        const { logger: questMsgSender, logs: questMsgs } = makeLogger({ name: 'questMessages' });
         const player = makeConnectedPlayer(client, wallet, logger);
         const world = makeWorld(client);
         const { selection, ...selectors } = makeSelection(client, world, player);
@@ -102,7 +105,7 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
             client,
             mergeMap((client) => client.block)
         );
-        const ui = makePluginUI(logger, activePlugins, state, block);
+        const ui = makePluginUI(logger, questMsgSender, activePlugins, state, block);
 
         setSources({
             block,
@@ -118,6 +121,8 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
             ui,
             logger,
             logs,
+            questMsgSender,
+            questMsgs,
         });
     }, [config]);
 
@@ -204,6 +209,32 @@ export function useLogs(limit: number): Log[] | undefined {
         );
         return unsubscribe;
     }, [sources.logs, limit]);
+
+    return value;
+}
+
+// subscribe to the last n most recent quest messages
+export function useQuestMessages(limit: number): Log[] | undefined {
+    const sources = useSources();
+    const [value, setValue] = useState<Log[] | undefined>(undefined);
+
+    useEffect(() => {
+        if (!sources.questMsgs) {
+            return;
+        }
+        const { unsubscribe } = pipe(
+            sources.questMsgs,
+            scan((logs, log) => {
+                logs.push(log);
+                if (logs.length > limit) {
+                    logs.shift();
+                }
+                return [...logs];
+            }, [] as Log[]),
+            subscribe(setValue)
+        );
+        return unsubscribe;
+    }, [sources.questMsgs, limit]);
 
     return value;
 }
