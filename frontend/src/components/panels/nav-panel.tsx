@@ -98,10 +98,10 @@ export const NavPanel = () => {
             </AccountButton>
             <div style={{ flexGrow: 1 }}></div>
             <NavLink className={router.pathname == '/' ? 'active' : ''}>
-                <Link href={`/`}>Map</Link>
+                <Link href={`/`}>Hexwood</Link>
             </NavLink>
             <NavLink className={router.pathname.startsWith('/docs') ? 'active' : ''}>
-                <Link href={`/docs/code-docs/extending-downstream`}>Docs</Link>
+                <Link href={`/docs/code-docs/extending-downstream`}>Factory Fabricator</Link>
             </NavLink>
         </NavContainer>
     );
