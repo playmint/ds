@@ -97,19 +97,19 @@ spec:
 ---
 kind: Building
 spec:
-  name: Small Cactus
+  name: Small Pine Trees
   location: [ -16, -7, 23 ]
 
 ---
 kind: Building
 spec:
-  name: Small Cactus
+  name: Small Pine Trees
   location: [ -28, 10, 18 ]
 
 ---
 kind: Building
 spec:
-  name: Small Cactus
+  name: Small Pine Trees
   location: [ -17, 0, 17 ]
 
 ---
@@ -289,7 +289,7 @@ spec:
 ---
 kind: Building
 spec:
-  name: Small Cactus
+  name: Small Pine Trees
   location: [ -17, 1, 16 ]
 
 ---
@@ -301,13 +301,13 @@ spec:
 ---
 kind: Building
 spec:
-  name: Small Cactus
+  name: Small Pine Trees
   location: [ -19, -4, 23 ]
 
 ---
 kind: Building
 spec:
-  name: Small Cactus
+  name: Small Pine Trees
   location: [ -30, 5, 25 ]
 
 ---
@@ -325,19 +325,19 @@ spec:
 ---
 kind: Building
 spec:
-  name: Small Cactus
+  name: Small Pine Trees
   location: [ -11, -19, 30 ]
 
 ---
 kind: Building
 spec:
-  name: Small Cactus
+  name: Small Pine Trees
   location: [ -10, -23, 33 ]
 
 ---
 kind: Building
 spec:
-  name: Small Cactus
+  name: Small Pine Trees
   location: [ -5, -24, 29 ]
 
 ---
@@ -361,7 +361,7 @@ spec:
 ---
 kind: Building
 spec:
-  name: Small Cactus
+  name: Small Pine Trees
   location: [ -7, -9, 16 ]
 
 ---
