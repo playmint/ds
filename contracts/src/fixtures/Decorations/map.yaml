@@ -157,19 +157,19 @@ spec:
 ---
 kind: Building
 spec:
-  name: Large Grass
+  name: Small Rocks
   location: [ 27, 2, -29 ]
 
 ---
 kind: Building
 spec:
-  name: Large Grass
+  name: Small Rocks
   location: [ 32, -3, -29 ]
 
 ---
 kind: Building
 spec:
-  name: Large Grass
+  name: Small Rocks
   location: [ 25, -5, -20 ]
 
 ---
@@ -464,13 +464,13 @@ spec:
 ---
 kind: Building
 spec:
-  name: Large Grass
+  name: Small Rocks
   location: [ 13, 10, -23 ]
 
 ---
 kind: Building
 spec:
-  name: Large Grass
+  name: Small Rocks
   location: [ 11, 11, -22 ]
 
 ---
@@ -494,13 +494,13 @@ spec:
 ---
 kind: Building
 spec:
-  name: Large Grass
+  name: Small Rocks
   location: [ 13, 19, -32 ]
 
 ---
 kind: Building
 spec:
-  name: Large Grass
+  name: Small Rocks
   location: [ 21, 11, -32 ]
 
 ---
