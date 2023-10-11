@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Icon = ({ position, isSelected, count, iconMask }) => {
-    const commonStyles = {
+    const commonStyles: React.CSSProperties = {
         position: `absolute`,
         width: `${550 * position?.z}px`,
         height: `${600 * position?.z}px`,
@@ -17,7 +17,7 @@ const Icon = ({ position, isSelected, count, iconMask }) => {
         display: 'block',
     };
 
-    const selectedStyles = {
+    const selectedStyles: React.CSSProperties = {
         ...commonStyles,
         backgroundColor: '#fa6501',
         position: `relative`,
@@ -27,7 +27,7 @@ const Icon = ({ position, isSelected, count, iconMask }) => {
         marginTop: `11%`,
     };
 
-    const unselectedStyles = {
+    const unselectedStyles: React.CSSProperties = {
         ...commonStyles,
         backgroundColor: '#000',
     };
