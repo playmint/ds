@@ -13,7 +13,8 @@ public class OutlineController : MonoBehaviour
     Camera? outlineCam;
 
     [SerializeField]
-    RawImage screenImage, outlineImage;
+    RawImage screenImage,
+        outlineImage;
 
     [SerializeField]
     CameraController? camController;
@@ -64,12 +65,7 @@ public class OutlineController : MonoBehaviour
             outlineCam.targetTexture = _outlineTexture;
             outlineImage.texture = _outlineTexture;
         }
-        if (_screenTexture == null)
-        {
-            _screenTexture = new RenderTexture(Screen.width, Screen.height, 0);
-            mainCamera.targetTexture = _screenTexture;
-            screenImage.texture = _screenTexture;
-        }
+
         if (camController == null || camController.virtualCamera == null)
         {
             throw new ArgumentException("camController not set");
@@ -79,27 +75,41 @@ public class OutlineController : MonoBehaviour
         framingTransposer =
             camController.virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
         Resize(_outlineTexture, outlineCam, sWidth, sHeight);
+
+#if !UNITY_EDITOR
+        if (_screenTexture == null)
+        {
+            _screenTexture = new RenderTexture(Screen.width, Screen.height, 0);
+            mainCamera.targetTexture = _screenTexture;
+            screenImage.texture = _screenTexture;
+        }
         Resize(_screenTexture, mainCamera, sWidth, sHeight);
+#else
+        screenImage.enabled = false;
+#endif
     }
 
+#if !UNITY_EDITOR
     protected void Start()
     {
         mainCamera.enabled = false;
     }
+#endif
 
     private void OnDestroy()
     {
         _outlineTexture.Release();
     }
 
+#if !UNITY_EDITOR
     private void LateUpdate()
     {
         mainCamera.Render();
     }
+#endif
 
     private void Update()
     {
-        
         if (renderData == null)
         {
             throw new ArgumentException("renderData not set");
@@ -133,7 +143,9 @@ public class OutlineController : MonoBehaviour
             sWidth = Screen.width;
             sHeight = Screen.height;
             Resize(_outlineTexture, outlineCam, sWidth, sHeight);
+#if !UNITY_EDITOR
             Resize(_screenTexture, mainCamera, sWidth, sHeight);
+#endif
             outlineMat.SetFloat("_OutlinePower", falloffMultiplier);
             outlineMat.SetFloat("_OutlinePower2", strokeCutoff);
         }

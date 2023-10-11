@@ -2,6 +2,7 @@ import { getTileHeightFromCoords } from '@app/helpers/tile';
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
 import { WorldMobileUnitFragment, getCoords } from '@downstream/core';
 import { memo, useCallback, useMemo, useState } from 'react';
+import Icon from './Icon';
 
 // public int q;
 // public int r;
@@ -191,73 +192,14 @@ export const MobileUnits = memo(
                 units.map((u) => {
                     if (u.isPlayer && unitPositions[u.id]?.isVisible) {
                         const isSelected = selectedMobileUnitID === u.id;
-
-                        const commonStyles = {
-                            position: 'absolute',
-                            width: `${550 * unitPositions[u.id]?.z}px`,
-                            height: `${600 * unitPositions[u.id]?.z}px`,
-                            left: `${unitPositions[u.id]?.x * 100}vw`,
-                            bottom: `${unitPositions[u.id]?.y * 100}vh`,
-                            zIndex: '1',
-                            marginLeft: `-${275 * unitPositions[u.id]?.z}px`,
-                            marginTop: `-${275 * unitPositions[u.id]?.z}px`,
-                            WebkitMaskImage: `url("/icons/HexBadge_Icons.svg")`,
-                            WebkitMaskRepeat: 'no-repeat',
-                            WebkitMaskSize: '100%',
-                            WebkitMaskPosition: `center`,
-                            display: 'block',
-                        };
-
-                        const selectedStyles = {
-                            ...commonStyles,
-                            backgroundColor: '#fa6501',
-                        };
-
-                        const unselectedStyles = {
-                            ...commonStyles,
-                            backgroundColor: '#000',
-                        };
-
                         return (
-                            <div key={u.id} style={isSelected ? selectedStyles : unselectedStyles}>
-                                {u.counter.count > 1 ? (
-                                    <div
-                                        style={{
-                                            width: `100%`,
-                                            height: `100%`,
-                                            position: 'absolute',
-                                            top: '50%',
-                                            left: '50%',
-                                            transform: 'translate(-50%, -50%)',
-                                            textAlign: 'center',
-                                            verticalAlign: 'middle',
-                                            lineHeight: '100%',
-                                            fontSize: `${200 * unitPositions[u.id]?.z}pt`,
-                                            color: 'white',
-                                            fontWeight: '800',
-                                            display: 'flex',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        {u.counter.count}
-                                    </div>
-                                ) : (
-                                    <div
-                                        style={{
-                                            width: `100%`,
-                                            height: `100%`,
-                                            position: 'absolute',
-                                            WebkitMaskImage: `url("/icons/UnitIcon.svg")`,
-                                            WebkitMaskRepeat: 'no-repeat',
-                                            WebkitMaskSize: '50%',
-                                            WebkitMaskPosition: `center`,
-                                            display: 'block',
-                                            backgroundColor: '#FFF',
-                                        }}
-                                    ></div>
-                                )}
-                            </div>
+                            <Icon
+                                key={u.id}
+                                count={u.counter.count}
+                                iconMask={`url('/icons/UnitIcon.svg')`}
+                                position={unitPositions[u.id]}
+                                isSelected={isSelected}
+                            />
                         );
                     } else {
                         return null;
