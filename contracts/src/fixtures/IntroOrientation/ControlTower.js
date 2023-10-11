@@ -4,15 +4,6 @@ let questStage = 0;
 
 export default async function update({ selected, world }) {
 
-    //Function to test the distance between two tiles
-    function distance(a, b) {
-        return (
-            (Math.abs(Number(BigInt.asIntN(16, a.coords[1])) - Number(BigInt.asIntN(16, b.coords[1]))) +
-                Math.abs(Number(BigInt.asIntN(16, a.coords[2])) - Number(BigInt.asIntN(16, b.coords[2]))) +
-                Math.abs(Number(BigInt.asIntN(16, a.coords[3])) - Number(BigInt.asIntN(16, b.coords[3])))) /
-            2
-        );
-    }
 
     const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
@@ -25,7 +16,8 @@ export default async function update({ selected, world }) {
         questStage++;
     }
 
-    //Show this if there is no selected engineer OR the engineer is not adjacent to the building's tile
+
+    //Show this if there is no selected unit
     if (!selectedUnit) {
         return {
             version: 1,
@@ -37,7 +29,7 @@ export default async function update({ selected, world }) {
                         {
                             id: 'default',
                             type: 'inline',
-                            html: `Select your unit to interact with a building`
+                            html: `Select your unit and stand next to the building to interact with it`
                         }
                     ]
                 },

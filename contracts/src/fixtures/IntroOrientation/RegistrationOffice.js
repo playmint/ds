@@ -12,8 +12,24 @@ export default function update({ selected, world }) {
     const selectedUnit = mobileUnit;
 
 
+    //Show this if there is no selected unit
     if (!selectedUnit) {
-        return;
+        return {
+            version: 1,
+            components: [
+                {
+                    type: 'building',
+                    id: 'control-tower',
+                    content: [
+                        {
+                            id: 'default',
+                            type: 'inline',
+                            html: `Select your unit and stand next to the building to interact with it`
+                        }
+                    ]
+                },
+            ],
+        };
     }
 
     //Look for a Registration Receipt in their bags

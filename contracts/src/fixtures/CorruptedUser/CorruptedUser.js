@@ -2,30 +2,16 @@ import ds from 'downstream';
 
 export default function update({ selected, world }) {
 
-    //Function to test the distance between two tiles
-    function distance(a, b) {
-        return (
-            (Math.abs(Number(BigInt.asIntN(16, a.coords[1])) - Number(BigInt.asIntN(16, b.coords[1]))) +
-                Math.abs(Number(BigInt.asIntN(16, a.coords[2])) - Number(BigInt.asIntN(16, b.coords[2]))) +
-                Math.abs(Number(BigInt.asIntN(16, a.coords[3])) - Number(BigInt.asIntN(16, b.coords[3])))) /
-            2
-        );
-    }
 
     const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
     const selectedBuilding = selectedTile?.building;
-    const selectedEngineer = mobileUnit;
+    const selectedUnit = mobileUnit;
 
-
-    var engineerDistance = 0;
-    if (selectedEngineer) {
-        engineerDistance = distance(selectedEngineer.nextLocation.tile, selectedTile);
-    }
 
 
     //Show this if there is no selected engineer OR the engineer is not adjacent to the building's tile
-    if (!selectedEngineer || engineerDistance > 1) {
+    if (!selectedUnit) {
         return {
             version: 1,
             components: [
@@ -36,7 +22,7 @@ export default function update({ selected, world }) {
                         {
                             id: 'default',
                             type: 'inline',
-                            html: `A sign outside gives a simple instruction...LEAVE ME ALONE!`
+                            html: `Units are not welcome here. Maybe a cunning disguise would gain access?`
                         }
                     ]
                 },
@@ -46,37 +32,17 @@ export default function update({ selected, world }) {
 
 
     //Look for a rubber duck in their bags
-    var hasRubberDuck = false
-    for (var j = 0; j < selectedEngineer.bags.length; j++) {
+    var hasBoringDisguise = false
+    for (var j = 0; j < selectedUnit.bags.length; j++) {
         for (var i = 0; i < 4; i++) {
-            if (selectedEngineer.bags[j].bag.slots[i]) {
-                var slot = selectedEngineer.bags[j].bag.slots[i];
+            if (selectedUnit.bags[j].bag.slots[i]) {
+                var slot = selectedUnit.bags[j].bag.slots[i];
 
-                if (slot.item && slot.item.id === '0x6a7a67f00000006900000000000000190000001900000019' && slot.balance >= 1) {
-                    hasRubberDuck = true;
+                if (slot.item && slot.item.id === 'Boring Disguise' && slot.balance >= 1) {
+                    hasBoringDisguise = true;
                 }
             }
         }
-    }
-
-    //Show this if there's no rubber duck
-    if (!hasRubberDuck) {
-        return {
-            version: 1,
-            components: [
-                {
-                    type: 'building',
-                    id: 'corrupted-user',
-                    content: [
-                        {
-                            id: 'default',
-                            type: 'inline',
-                            html: 'The crazy hermit shouts GO AWAY!.<br />Before he shuts the door in your face you briefly catch a glimpse of what you presume to be an extensive rubber duck collection'
-                        }
-                    ],
-                },
-            ],
-        };
     }
 
 
@@ -97,13 +63,13 @@ export default function update({ selected, world }) {
     const out0 = expectedOutputs?.find(slot => slot.key == 0);
 
     // try to detect if the input slots contain enough stuff to craft
-    const canCraft = selectedEngineer
+    const canCraft = selectedUnit
         && want0 && got0 && want0.balance == got0.balance
         && want1 && got1 && want1.balance == got1.balance
         && want2 && got2 && want2.balance == got2.balance;
 
     const craft = () => {
-        if (!selectedEngineer) {
+        if (!selectedUnit) {
             ds.log('no selected engineer');
             return;
         }
@@ -115,15 +81,13 @@ export default function update({ selected, world }) {
         ds.dispatch(
             {
                 name: 'BUILDING_USE',
-                args: [selectedBuilding.id, selectedEngineer.id, []]
+                args: [selectedBuilding.id, selectedUnit.id, []]
             },
         );
-
-        ds.log('The hermit cuts off his hand and gives it to you.');
     };
 
     //Show this if there's a rubber duck
-    if (hasRubberDuck) {
+    if (hasBoringDisguise) {
         return {
             version: 1,
             components: [
@@ -134,7 +98,7 @@ export default function update({ selected, world }) {
                         {
                             id: 'default',
                             type: 'inline',
-                            html: 'The crazy hermit looks in wonder at your rubber duck. "GIVE GREEN GOO?" he asks. He holds his hand out as if to offer a trade.',
+                            html: 'With your disguise equipped the Corrupted User listens to your request. But they are unwilling to relinquish the Microchip for free',
                             buttons: [{ text: 'It\'s a deal!', type: 'action', action: craft, disabled: !canCraft }],
                         },
                     ],
