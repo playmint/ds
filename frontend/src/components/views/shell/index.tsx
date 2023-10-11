@@ -242,8 +242,8 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             <NavPanel />
             <div className="hud-container">
                 <div className="top-left">
-                    {/* <Logs className="logs" /> */}
                     {player && <QuestPanel player={player} />}
+                    <Logs className="logs" />
                 </div>
                 <div className="bottom-left">
                     <ItemPluginPanel />

@@ -1,8 +1,9 @@
-import { ConnectedPlayer, Player, QuestFragment, TaskKinds } from '@app/../../core/src';
+import { ConnectedPlayer, Log, Player, QuestFragment, TaskKinds } from '@app/../../core/src';
 import styled from 'styled-components';
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useEffect } from 'react';
 import { Locatable, getCoords, getTileDistance } from '@app/helpers/tile';
 import { id as keccak256UTF8 } from 'ethers';
+import { useQuestMessages } from '@app/hooks/use-game-state';
 
 const Panel = styled.div`
     background: #143063;
@@ -40,7 +41,7 @@ export const COMPLETED = 2;
 
 // TODO: Generate these
 export const taskCoord = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.coord))).toString(16);
-export const taskButton = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.message))).toString(16);
+export const taskMessage = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.message))).toString(16);
 export const taskInventory = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.inventory))).toString(16);
 export const taskCombat = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.combat))).toString(16);
 export const taskCombatWinAttack =
@@ -64,11 +65,13 @@ const LocationButton: FunctionComponent<{ location: Locatable }> = ({ location }
     return <p>{`${q} ${r} ${s}`}</p>;
 };
 
-const evalTaskCompletion = (task: Task, player: Player) => {
+// TODO: Make each of these task evaluations a memo
+const evalTaskCompletion = (task: Task, player: Player, questMessages?: Log[]) => {
+    // console.log('evalTaskCompletion');
     switch (task.node.keys[0]) {
         case taskCoord:
             return player.mobileUnits?.some((unit) => {
-                console.log(`compare loc: ${unit.nextLocation?.tile.coords} : ${task.node.location?.coords}`);
+                // console.log(`compare loc: ${unit.nextLocation?.tile.coords} : ${task.node.location?.coords}`);
                 return (
                     unit.nextLocation &&
                     task.node.location &&
@@ -99,20 +102,41 @@ const evalTaskCompletion = (task: Task, player: Player) => {
                 }, 0) || 0;
             return itemCount >= taskItemSlot.balance;
         }
+
+        case taskMessage: {
+            // console.log('** eval taskMessage');
+            // console.log(`** building: ${task.node.buildingKind?.id}`);
+            // console.log(`** questMsgs: ${questMessages}`);
+            if (!task.node.buildingKind) return false;
+            if (!questMessages) return false;
+
+            console.log(`buildingKindID: ${task.node.buildingKind?.id}`);
+            const pluginMessages = questMessages.filter(
+                (m) => m.name === `questMessages: ${task.node.buildingKind?.id}`
+            );
+            return pluginMessages.some((m) => m.text == task.node.message?.value);
+        }
     }
     return false;
 };
 
 export const QuestPanel: FunctionComponent<QuestProps> = ({ player }: QuestProps) => {
+    const questMessages = useQuestMessages(5);
     const acceptedQuests = player.quests?.filter((q) => q.status == ACCEPTED).sort((a, b) => a.key - b.key) || [];
+
+    useEffect(() => {
+        console.log(`effect questMessages:`, questMessages);
+    }, [questMessages]);
+
     if (acceptedQuests.length === 0) {
         return <></>;
     }
 
+    console.log('rebuilding task list');
     const tasks: Task[] = acceptedQuests[0].node.tasks.map((task) => {
         return {
             ...task,
-            isCompleted: evalTaskCompletion(task, player),
+            isCompleted: evalTaskCompletion(task, player, questMessages),
         };
     });
 

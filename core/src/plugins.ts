@@ -79,6 +79,7 @@ async function noopDispatcher(..._actions: CogAction[]): Promise<QueuedSequencer
  */
 export function makePluginUI(
     logger: Logger,
+    questMsgSender: Logger,
     plugins: Source<PluginConfig[]>,
     state: Source<GameState>,
     block: Source<number>,
@@ -109,7 +110,13 @@ export function makePluginUI(
                             }
                             const plugin = active.has(p.id)
                                 ? active.get(p.id)
-                                : loadPlugin(sandbox.runtime, dispatch, logger.with({ name: `plugin-${p.id}` }), p);
+                                : loadPlugin(
+                                      sandbox.runtime,
+                                      dispatch,
+                                      logger.with({ name: `plugin-${p.id}` }),
+                                      questMsgSender.with({ name: p.kindID }),
+                                      p,
+                                  );
                             if (!plugin) {
                                 console.warn(`failed to get or load plugin ${p.id}`);
                                 return null;
@@ -283,7 +290,13 @@ export function makePluginSelector(cog: Source<CogServices>, defaultPlugins?: Pl
  * ```
  *
  */
-export function loadPlugin(runtime: QuickJSRuntime, dispatch: DispatchFunc, logger: Logger, config: PluginConfig) {
+export function loadPlugin(
+    runtime: QuickJSRuntime,
+    dispatch: DispatchFunc,
+    logger: Logger,
+    sendQuestMessage: Logger,
+    config: PluginConfig,
+) {
     if (!config || !config.id) {
         throw new Error(`unabled to load plugin: no id provided`);
     }
@@ -385,6 +398,24 @@ export function loadPlugin(runtime: QuickJSRuntime, dispatch: DispatchFunc, logg
             return context.undefined;
         })
         .consume((fn: any) => context.setProp(dsHandle, 'log', fn));
+
+    // setup quest message
+    context
+        .newFunction('sendQuestMessage', (reqHandle) => {
+            try {
+                if (!api.enabled) {
+                    console.warn(`plugin-${config.id}: ds api is unavilable outside of event handlers`);
+                    return context.undefined;
+                }
+                const [message] = JSON.parse(context.getString(reqHandle));
+                // console.log(`Send quest message: ${message} from buildingKind: ${config.kindID}`);
+                sendQuestMessage.log(message);
+            } catch (err) {
+                console.error(`plugin-${config.id}: error while attempting to send quest message: ${err}`);
+            }
+            return context.undefined;
+        })
+        .consume((fn: any) => context.setProp(dsHandle, 'sendQuestMessage', fn));
 
     // attach the __ds proxy to global object
     context.setProp(context.global, '__ds', dsHandle);
@@ -667,10 +698,16 @@ export function log(...args) {
     return globalThis.__ds.log(req);
 }
 
+export function sendQuestMessage(...args) {
+    const req = JSON.stringify(args);
+    return globalThis.__ds.sendQuestMessage(req);
+}
+
 export default {
     encodeCall,
     dispatch,
     log,
+    sendQuestMessage,
 };
 `;
 
