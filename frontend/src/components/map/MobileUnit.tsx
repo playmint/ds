@@ -2,6 +2,7 @@ import { getTileHeightFromCoords } from '@app/helpers/tile';
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
 import { WorldMobileUnitFragment, getCoords } from '@downstream/core';
 import { memo, useCallback, useMemo, useState } from 'react';
+import Icon from './Icon';
 
 // public int q;
 // public int r;
@@ -169,7 +170,7 @@ export const MobileUnits = memo(
                     return (
                         <MobileUnit
                             sendScreenPosition={true}
-                            screenPositionHeightOffset={0.5}
+                            screenPositionHeightOffset={0.55}
                             key={u.id}
                             id={u.id}
                             height={u.height}
@@ -188,60 +189,23 @@ export const MobileUnits = memo(
 
         const unitIcons = useMemo(
             () =>
-                units.map((u) =>
-                    u.isPlayer && unitPositions[u.id]?.isVisible ? (
-                        <div
-                            key={u.id}
-                            style={{
-                                position: 'absolute',
-                                width: `${550 * unitPositions[u.id]?.z}px`,
-                                height: `${600 * unitPositions[u.id]?.z}px`,
-                                left: `${unitPositions[u.id]?.x * 100}vw`,
-                                bottom: `${unitPositions[u.id]?.y * 100}vh`,
-                                zIndex: '1',
-                                marginLeft: `-${275 * unitPositions[u.id]?.z}px`,
-                                marginTop: `-${275 * unitPositions[u.id]?.z}px`,
-                                backgroundImage: 'url("/Polygon 2.png")',
-                                backgroundRepeat: 'no-repeat',
-                                backgroundSize: 'cover',
-                                display: 'block',
-                                // other styles for the div, e.g., background color, width, height, etc.
-                            }}
-                        >
-                            {u.counter.count > 1 ? (
-                                <div
-                                    style={{
-                                        width: `100%`,
-                                        height: `100%`,
-                                        position: 'absolute',
-                                        top: '50%',
-                                        left: '50%',
-                                        transform: 'translate(-50%, -50%)',
-                                        textAlign: 'center',
-                                        fontSize: `${300 * unitPositions[u.id]?.z}pt`,
-                                        color: 'white',
-                                    }}
-                                >
-                                    {u.counter.count}
-                                </div>
-                            ) : (
-                                <img
-                                    src={'/Subtract.png'}
-                                    style={{
-                                        width: `${275 * unitPositions[u.id]?.z}px`,
-                                        height: `${275 * unitPositions[u.id]?.z}px`,
-                                        position: 'absolute',
-                                        top: '50%',
-                                        left: '50%',
-                                        transform: 'translate(-50%, -50%)',
-                                    }}
-                                    alt="unit"
-                                />
-                            )}
-                        </div>
-                    ) : null
-                ),
-            [units, unitPositions]
+                units.map((u) => {
+                    if (u.isPlayer && unitPositions[u.id]?.isVisible) {
+                        const isSelected = selectedMobileUnitID === u.id;
+                        return (
+                            <Icon
+                                key={u.id}
+                                count={u.counter.count}
+                                iconMask={`url('/icons/UnitIcon.svg')`}
+                                position={unitPositions[u.id]}
+                                isSelected={isSelected}
+                            />
+                        );
+                    } else {
+                        return null;
+                    }
+                }),
+            [units, unitPositions, selectedMobileUnitID]
         );
 
         return (

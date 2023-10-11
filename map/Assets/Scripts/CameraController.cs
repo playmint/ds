@@ -35,7 +35,7 @@ public class CameraController : MonoBehaviour
     float minAOIntensity,
         maxAOIntensity;
 
-    private Camera? mainCamera;
+    public Camera? mainCamera;
     private Coroutine? zoomCoroutine;
 
     Plane m_Plane;
@@ -46,7 +46,6 @@ public class CameraController : MonoBehaviour
 
     void Start()
     {
-        mainCamera = Camera.main;
         m_Plane = new Plane(Vector3.up, -0.3f);
     }
 
@@ -184,8 +183,8 @@ public class CameraController : MonoBehaviour
         }
         if (Input.GetMouseButton(0))
         {
-            Ray mouseDownRay = Camera.main.ScreenPointToRay(mouseDownPos);
-            Ray currentMouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Ray mouseDownRay = mainCamera.ScreenPointToRay(mouseDownPos);
+            Ray currentMouseRay = mainCamera.ScreenPointToRay(Input.mousePosition);
             float mouseDownDist = 0.0f;
             float currentMouseDist = 0.0f;
             m_Plane.Raycast(mouseDownRay, out mouseDownDist);
