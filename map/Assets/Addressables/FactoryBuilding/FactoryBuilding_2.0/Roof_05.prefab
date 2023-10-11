@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8962414217500922416}
   - component: {fileID: 6755538053067374383}
+  - component: {fileID: 5249543248185975765}
   m_Layer: 0
   m_Name: Roof_05
   m_TagString: Untagged
@@ -50,6 +51,24 @@ Animation:
   m_PlayAutomatically: 1
   m_AnimatePhysics: 0
   m_CullingType: 0
+--- !u!114 &5249543248185975765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 117537351849697117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d5a9d936fda7475185e38b61b144a5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  renderers:
+  - {fileID: 5497879650755665930}
+  - {fileID: 6746336986611796449}
+  outlineRenderers:
+  - {fileID: 6737193351060783572}
+  - {fileID: 5525064069069580351}
 --- !u!1001 &5385957749659573584
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -114,9 +133,29 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: a7e156fdd802c86439ca725a5e3e56d6,
         type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: a7e156fdd802c86439ca725a5e3e56d6,
+        type: 3}
+      propertyPath: m_LightProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: a7e156fdd802c86439ca725a5e3e56d6,
+        type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 350e1b89b29f442e1ae981fd04ecfca4, type: 2}
+    - target: {fileID: 437478595163731311, guid: a7e156fdd802c86439ca725a5e3e56d6,
+        type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 437478595163731311, guid: a7e156fdd802c86439ca725a5e3e56d6,
+        type: 3}
+      propertyPath: m_LightProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 437478595163731311, guid: a7e156fdd802c86439ca725a5e3e56d6,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -169,9 +208,21 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a7e156fdd802c86439ca725a5e3e56d6, type: 3}
+--- !u!23 &5525064069069580351 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 437478595163731311, guid: a7e156fdd802c86439ca725a5e3e56d6,
+    type: 3}
+  m_PrefabInstance: {fileID: 5385957749659573584}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &5563209380989893307 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a7e156fdd802c86439ca725a5e3e56d6,
+    type: 3}
+  m_PrefabInstance: {fileID: 5385957749659573584}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &6737193351060783572 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: a7e156fdd802c86439ca725a5e3e56d6,
     type: 3}
   m_PrefabInstance: {fileID: 5385957749659573584}
   m_PrefabAsset: {fileID: 0}
@@ -274,9 +325,21 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a7e156fdd802c86439ca725a5e3e56d6, type: 3}
+--- !u!23 &5497879650755665930 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: a7e156fdd802c86439ca725a5e3e56d6,
+    type: 3}
+  m_PrefabInstance: {fileID: 6597194870522215566}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6631348920653716325 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a7e156fdd802c86439ca725a5e3e56d6,
+    type: 3}
+  m_PrefabInstance: {fileID: 6597194870522215566}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &6746336986611796449 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 437478595163731311, guid: a7e156fdd802c86439ca725a5e3e56d6,
     type: 3}
   m_PrefabInstance: {fileID: 6597194870522215566}
   m_PrefabAsset: {fileID: 0}

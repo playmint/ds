@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3706703531299351543}
+  - component: {fileID: 8870698330872952192}
   m_Layer: 0
   m_Name: Roof_01
   m_TagString: Untagged
@@ -33,6 +34,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8870698330872952192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2082370878230655191}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d5a9d936fda7475185e38b61b144a5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  renderers:
+  - {fileID: 7806365778260429080}
+  outlineRenderers:
+  - {fileID: 5051119995111013145}
 --- !u!1 &8904845654280222562
 GameObject:
   m_ObjectHideFlags: 0
@@ -177,6 +194,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 45ec799b5741c5e449487e62521104a4, type: 3}
+--- !u!23 &5051119995111013145 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 45ec799b5741c5e449487e62521104a4,
+    type: 3}
+  m_PrefabInstance: {fileID: 5897669863774906269}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6220036247501996150 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 45ec799b5741c5e449487e62521104a4,
@@ -252,6 +275,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 45ec799b5741c5e449487e62521104a4, type: 3}
+--- !u!23 &7806365778260429080 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 45ec799b5741c5e449487e62521104a4,
+    type: 3}
+  m_PrefabInstance: {fileID: 8904845654721303964}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8943837200284742263 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 45ec799b5741c5e449487e62521104a4,

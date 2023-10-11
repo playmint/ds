@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -18,8 +19,8 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
     public Material redOutlineMat,
         greenOutlineMat;
 
-    private Renderer[]? outlineObjs;
-    private Renderer[]? renderers;
+    private List<Renderer>? outlineObjs = new();
+    private List<Renderer>? renderers = new();
 
     private Color _defaultColor;
 
@@ -117,31 +118,27 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
     {
         string[] totemNames = GetTotemNamesFromStackCode(stackCode);
 
-        renderers = new Renderer[2];
-        outlineObjs = new Renderer[2];
-
-        GameObject prefab = totemPrefabs.FirstOrDefault(n => n.name == "Base_" + totemNames[0]);
-        if (prefab == null)
-            prefab = totemPrefabs[0];
-        renderers[0] = Instantiate(prefab, stackPositions[0]).transform
-            .GetChild(0)
-            .GetComponent<Renderer>();
-
-        outlineObjs[0] = renderers[0].transform.parent.GetChild(1).GetComponent<Renderer>();
-
-        prefab = totemPrefabs.FirstOrDefault(n => n.name == "Roof_" + totemNames[1]);
-        if (prefab == null)
-            prefab = totemPrefabs.FirstOrDefault(n => n.name == "Roof_01");
-        renderers[1] = Instantiate(prefab, stackPositions[1]).transform
-            .GetChild(0)
-            .GetComponent<Renderer>();
-
-        outlineObjs[1] = renderers[1].transform.parent.GetChild(1).GetComponent<Renderer>();
-
+        renderers = new();
+        outlineObjs = new();
+        GetRenderers("Base_" + totemNames[0], stackPositions[0], "Base_01");
+        GetRenderers("Roof_" + totemNames[1], stackPositions[1], "Roof_01");
         _defaultColor = renderers[0].material.GetColor("_EmissionColor");
 
-        renderers[0].material.SetColor("_DynamicColor", dynamicColor);
-        renderers[0].material.SetColor("_DynamicShadowColor", shadowColor);
-        renderers[1].material = renderers[0].material;
+        foreach(Renderer rend in renderers)
+        {
+            rend.material.SetColor("_DynamicColor", dynamicColor);
+            rend.material.SetColor("_DynamicShadowColor", shadowColor);
+        }
+    }
+
+    private void GetRenderers(string prefabName, Transform stackPos, string defaultBuilding = "")
+    {
+        GameObject prefab = totemPrefabs.FirstOrDefault(n => n.name == prefabName);
+        if (prefab == null)
+            prefab = totemPrefabs.FirstOrDefault(n => n.name == defaultBuilding);
+        FactoryBuildingBlockController controller = Instantiate(prefab, stackPos).GetComponent<FactoryBuildingBlockController>();
+
+        renderers.AddRange(controller.renderers);
+        outlineObjs.AddRange(controller.outlineRenderers);
     }
 }

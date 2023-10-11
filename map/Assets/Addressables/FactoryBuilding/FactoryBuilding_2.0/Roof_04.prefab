@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1871296695929943909}
+  - component: {fileID: 8031218940238404151}
   m_Layer: 0
   m_Name: Roof_04
   m_TagString: Untagged
@@ -33,6 +34,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8031218940238404151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7276630459043352626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d5a9d936fda7475185e38b61b144a5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  renderers:
+  - {fileID: 7738028618943378037}
+  outlineRenderers:
+  - {fileID: 8734172621964072723}
 --- !u!1 &8980905147635091174
 GameObject:
   m_ObjectHideFlags: 0
@@ -183,6 +200,12 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 7996024695553969047}
   m_PrefabAsset: {fileID: 0}
+--- !u!23 &8734172621964072723 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 39ef6f0947a150742b03acab7789bd28,
+    type: 3}
+  m_PrefabInstance: {fileID: 7996024695553969047}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8980905147786833649
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -252,6 +275,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 39ef6f0947a150742b03acab7789bd28, type: 3}
+--- !u!23 &7738028618943378037 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 39ef6f0947a150742b03acab7789bd28,
+    type: 3}
+  m_PrefabInstance: {fileID: 8980905147786833649}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8874392386352105754 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 39ef6f0947a150742b03acab7789bd28,

@@ -11,8 +11,6 @@ public class CameraController : MonoBehaviour
 
     public float moveSpeed;
 
-    public UniversalRendererData rendererData;
-
     [SerializeField]
     public CinemachineVirtualCamera? virtualCamera;
 
@@ -30,14 +28,6 @@ public class CameraController : MonoBehaviour
 
     [SerializeField]
     private float zoomDuration = 0.2f;
-
-    [SerializeField]
-    float minAOIntensity,
-        maxAOIntensity;
-
-    [SerializeField]
-    float minAORadius,
-        maxAORadius;
 
     private Camera? mainCamera;
     private Coroutine? zoomCoroutine;
@@ -115,34 +105,6 @@ public class CameraController : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < rendererData.rendererFeatures.Count; i++)
-        {
-            ScriptableRendererFeature feature = rendererData.rendererFeatures[i];
-            if (feature is ScreenSpaceAmbientOcclusion2)
-            {
-                ScreenSpaceAmbientOcclusion2 aoFeature = feature as ScreenSpaceAmbientOcclusion2;
-                float lerp = Mathf.InverseLerp(
-                        minCameraDistance,
-                        maxCameraDistance,
-                        virtualCamera
-                            .GetCinemachineComponent<CinemachineFramingTransposer>()
-                            .m_CameraDistance
-                    );
-                // Adjust the intensity
-                aoFeature.m_Settings.Intensity = Mathf.Lerp(
-                    minAOIntensity,
-                    maxAOIntensity,
-                    lerp
-                );
-                aoFeature.m_Settings.Radius = Mathf.Lerp(
-                    minAORadius,
-                    maxAORadius,
-                    lerp
-                );
-            }
-        }
-
-         
         HandleMouseCameraDrag();
         float speed = moveSpeed * Mathf.Abs(mainCamera.transform.position.y);
         Vector3 inputVector =
