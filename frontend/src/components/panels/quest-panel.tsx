@@ -36,8 +36,8 @@ export interface QuestProps {
     player: ConnectedPlayer;
 }
 
-export const ACCEPTED = 1;
-export const COMPLETED = 2;
+export const QUEST_ACCEPTED = 1;
+export const QUEST_COMPLETED = 2;
 
 // TODO: Generate these
 export const taskCoord = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.coord))).toString(16);
@@ -71,7 +71,6 @@ const evalTaskCompletion = (task: Task, player: Player, questMessages?: Log[]) =
     switch (task.node.keys[0]) {
         case taskCoord:
             return player.mobileUnits?.some((unit) => {
-                // console.log(`compare loc: ${unit.nextLocation?.tile.coords} : ${task.node.location?.coords}`);
                 return (
                     unit.nextLocation &&
                     task.node.location &&
@@ -104,9 +103,6 @@ const evalTaskCompletion = (task: Task, player: Player, questMessages?: Log[]) =
         }
 
         case taskMessage: {
-            // console.log('** eval taskMessage');
-            // console.log(`** building: ${task.node.buildingKind?.id}`);
-            // console.log(`** questMsgs: ${questMessages}`);
             if (!task.node.buildingKind) return false;
             if (!questMessages) return false;
 
@@ -116,13 +112,22 @@ const evalTaskCompletion = (task: Task, player: Player, questMessages?: Log[]) =
             );
             return pluginMessages.some((m) => m.text == task.node.message?.value);
         }
+
+        case taskQuestAccept: {
+            // passes if the quest is either accepted or completed
+            return player.quests?.some((q) => q.node.id == task.node.quest?.id);
+        }
+
+        case taskQuestComplete: {
+            return player.quests?.some((q) => q.node.id == task.node.quest?.id && q.status == QUEST_COMPLETED);
+        }
     }
     return false;
 };
 
 export const QuestPanel: FunctionComponent<QuestProps> = ({ player }: QuestProps) => {
     const questMessages = useQuestMessages(5);
-    const acceptedQuests = player.quests?.filter((q) => q.status == ACCEPTED).sort((a, b) => a.key - b.key) || [];
+    const acceptedQuests = player.quests?.filter((q) => q.status == QUEST_ACCEPTED).sort((a, b) => a.key - b.key) || [];
 
     useEffect(() => {
         console.log(`effect questMessages:`, questMessages);

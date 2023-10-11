@@ -291,6 +291,10 @@ const questDeploymentActions = async (
                 );
                 return coder.encode(['bytes24', 'string'], [buildingKindId, task.message]);
             }
+            case 'questAccept':
+            case 'questComplete': {
+                return coder.encode(['bytes24'], [encodeQuestID({ name: task.quest })]);
+            }
         }
 
         return solidityPacked(['uint8'], [0]);
