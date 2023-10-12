@@ -45,6 +45,8 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
+        minCameraDistance = 1f;
+
         if (mainCamera == null)
         {
             return;

@@ -210,32 +210,11 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         <StyledShell>
             {mapReady && (
                 <>
-                    <GroundPlane
-                        height={-0.1}
-                        onPointerClick={deselectAll}
-                        onPointerEnter={noop}
-                        onPointerExit={noop}
-                    />
-                    <Tiles tiles={tiles} onClickTile={tileClick} selectedTiles={selectedTiles} />
-                    <MobileUnits
-                        mobileUnits={world?.mobileUnits}
-                        onClickMobileUnit={mobileUnitClick}
-                        selectedMobileUnitID={selectedMobileUnit?.id}
-                        playerID={player?.id}
-                    />
-                    <Bags
-                        tiles={tiles}
-                        onClickBag={mapElementClick}
-                        selectedMobileUnitID={selectedMobileUnit?.id}
-                        selectedElementID={selectedMapElement?.id}
-                    />
-                    <TileGoos tiles={tiles} />
                     <Buildings
                         buildings={world?.buildings}
                         onClickBuilding={mapElementClick}
                         selectedElementID={selectedMapElement?.id}
                     />
-                    <CombatSessions tiles={tiles} />
                 </>
             )}
             <NavPanel />
