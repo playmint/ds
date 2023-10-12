@@ -1,11 +1,5 @@
 import { BagFragment, WorldTileFragment } from '@app/../../core/src';
-import { Bags } from '@app/components/map/Bag';
 import { Buildings } from '@app/components/map/Buildings';
-import { CombatSessions } from '@app/components/map/CombatSession';
-import { GroundPlane } from '@app/components/map/GroundPlane';
-import { MobileUnits } from '@app/components/map/MobileUnit';
-import { Tiles } from '@app/components/map/Tile';
-import { TileGoos } from '@app/components/map/TileGoo';
 import { trackEvent } from '@app/components/organisms/analytics';
 import { Logs } from '@app/components/organisms/logs';
 import { Onboarding } from '@app/components/organisms/onboarding';
@@ -53,7 +47,7 @@ export type SelectedBag = {
 
 export const Shell: FunctionComponent<ShellProps> = () => {
     const { ready: mapReady } = useUnityMap();
-    const { world, selected, selectTiles, selectMobileUnit, selectMapElement } = useGameState();
+    const { world, selected, selectTiles, selectMapElement } = useGameState();
     const { loadingSession } = useSession();
     const player = usePlayer();
     const { mobileUnit: selectedMobileUnit, tiles: selectedTiles, mapElement: selectedMapElement } = selected || {};
@@ -170,41 +164,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 break;
         }
     }, [selectTiles, selectedMapElement, selectedMobileUnit, tiles]);
-
-    const tileClick = useCallback(
-        (id) => {
-            if (!selectTiles) {
-                return;
-            }
-            if (!selectMapElement) {
-                return;
-            }
-            selectTiles([id]);
-            selectMapElement(undefined);
-        },
-        [selectMapElement, selectTiles]
-    );
-
-    const mobileUnitClick = useCallback(
-        (id) => {
-            if (!selectMobileUnit || !selectTiles || !selectMapElement) {
-                return;
-            }
-
-            selectMobileUnit(id);
-
-            selectTiles(undefined);
-            selectMapElement(undefined);
-        },
-        [selectMapElement, selectMobileUnit, selectTiles]
-    );
-
-    const deselectAll = useCallback(() => {
-        mapElementClick();
-        mobileUnitClick(null);
-    }, [mobileUnitClick, mapElementClick]);
-
-    const noop = useCallback(() => {}, []);
 
     return (
         <StyledShell>
