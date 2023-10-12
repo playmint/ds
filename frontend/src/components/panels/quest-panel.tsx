@@ -18,7 +18,29 @@ const Panel = styled.div`
     }
 
     > .taskContainer {
-        margin-top: 1rem;
+        margin-top: 2rem;
+    }
+
+    .taskItem {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .taskItem .tickBox {
+        flex-shrink: 0;
+        margin-right: 1rem;
+        background: white;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .taskItem svg {
+        fill: #63b204;
     }
 
     > .buttonContainer {
@@ -31,6 +53,12 @@ const Panel = styled.div`
         width: 30rem;
     }
 `;
+
+const tick = (
+    <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
+        <path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z" />
+    </svg>
+);
 
 export interface QuestProps {
     player: ConnectedPlayer;
@@ -55,9 +83,10 @@ type Task = QuestFragment['node']['tasks'][0] & Partial<{ isCompleted: boolean }
 
 const TaskItem: FunctionComponent<{ task: Task }> = ({ task }) => {
     return (
-        <p>
-            {task.isCompleted ? '[X]' : '[ ]'} {task.node.name?.value}
-        </p>
+        <div className="taskItem">
+            <div className="tickBox">{task.isCompleted && tick}</div>
+            <p>{task.node.name?.value}</p>
+        </div>
     );
 };
 const LocationButton: FunctionComponent<{ location: Locatable }> = ({ location }) => {
