@@ -18,13 +18,6 @@ public class GroundPlaneController : BaseComponentController<GroundPlaneData>
     private string _defaultMatColor = "#445C84";
     private float _defaultHeight = -0.4f;
 
-    private Camera mainCam;
-
-    private void Awake()
-    {
-        mainCam = GameObject.Find("Main Camera").GetComponent<Camera>();
-    }
-
     protected void Update()
     {
         if (_prevData == _nextData)
@@ -54,7 +47,7 @@ public class GroundPlaneController : BaseComponentController<GroundPlaneData>
         rend.material.color = Color.Lerp(currentColor, col, popInCurve.Evaluate(_t));
 
         if (_prevData != null)
-            _offset.y = Mathf.Lerp(_prevData.height, _nextData.height, popInCurve.Evaluate(_t));
+            _offset.y = _nextData.height; //Mathf.Lerp(_prevData.height, _nextData.height, popInCurve.Evaluate(_t));
 
         if (_t > 1)
         {
