@@ -5,6 +5,7 @@ using UnityEngine;
 public class BuilderModeSwitcher : MonoBehaviour
 {
     public static BuilderModeSwitcher instance;
+
     [SerializeField]
     GameObject[] sceneRenderingObjects;
 
@@ -15,7 +16,7 @@ public class BuilderModeSwitcher : MonoBehaviour
 
     public void ToggleSceneRendering(bool switchOn)
     {
-        foreach(GameObject obj in sceneRenderingObjects)
+        foreach (GameObject obj in sceneRenderingObjects)
         {
             obj.SetActive(switchOn);
         }

@@ -12,7 +12,6 @@ public class BuilderCameraController : BaseComponentController<BuilderCameraData
         BuilderModeSwitcher.instance.ToggleSceneRendering(true);
     }
 
-
     protected void Update()
     {
         if (_prevData == _nextData)

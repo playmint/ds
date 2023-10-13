@@ -12,9 +12,9 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
 
     [SerializeField]
     private Color[] diffuseColors;
+
     [SerializeField]
     private Color[] shadowColors;
-
 
     [SerializeField]
     private Transform[] stackPositions;

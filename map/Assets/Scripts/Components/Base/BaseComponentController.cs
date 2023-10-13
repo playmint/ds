@@ -40,7 +40,7 @@ public class BaseComponentController<Data>
 
     protected virtual void LateUpdate()
     {
-        if(mainCam == null)
+        if (mainCam == null)
             mainCam = GameObject.Find("Main Camera")?.GetComponent<Camera>();
         if (!_nextData.sendScreenPosition || mainCam == null)
             return;
