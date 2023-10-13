@@ -1,15 +1,12 @@
 import ds from 'downstream';
 
-export default function update({ selected, world }) {
-
-    var q1isActive = false;
-    var q2IsActive = true;
-
+export default function update({ selected, player }) {
 
     const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
     const selectedBuilding = selectedTile?.building;
     const selectedUnit = mobileUnit;
+    const quests = player.quests;
 
 
     //Show this if there is no selected unit
@@ -32,6 +29,16 @@ export default function update({ selected, world }) {
         };
     }
 
+    const QUEST_ACCEPTED = 1;
+    const QUEST_COMPLETED = 2;
+
+    const QUEST_1 = "Verification Error";
+
+    const findQuestByName = (questName) => {
+        return quests.find((q) => q.node.name.value == questName);
+    };
+
+
     //Look for a Registration Receipt in their bags
     var hasReceipt = false
     for (var j = 0; j < selectedUnit.bags.length; j++) {
@@ -46,6 +53,16 @@ export default function update({ selected, world }) {
         }
     }
 
+    const getQuestStage = () => {
+        if (!quests) return 0;
+
+        const verificationQuest = findQuestByName(QUEST_1);
+        if (!verificationQuest) return 0;
+        if (verificationQuest.status === QUEST_ACCEPTED && !hasReceipt) return 1;
+        return 2;
+    }
+
+
 
     // fetch the expected inputs item kinds
     const requiredInputs = selectedBuilding?.kind?.inputs || [];
@@ -58,9 +75,9 @@ export default function update({ selected, world }) {
     const got1 = inputSlots?.find(slot => slot.key == 1);
 
     // fetch our output item details
-    const expectedOutputs = selectedBuilding?.kind?.outputs || [];
-    const out0 = expectedOutputs?.find(slot => slot.key == 0);
-    const out1 = expectedOutputs?.find(slot => slot.key == 1);
+    //const expectedOutputs = selectedBuilding?.kind?.outputs || [];
+    //const out0 = expectedOutputs?.find(slot => slot.key == 0);
+    //const out1 = expectedOutputs?.find(slot => slot.key == 1);
 
     // try to detect if the input slots contain enough stuff to craft
     const canCraft = selectedUnit
@@ -85,7 +102,9 @@ export default function update({ selected, world }) {
         );
     };
 
-    if (q1isActive) {
+    const questStage = getQuestStage();
+
+    if (questStage === 0) {
         return {
             version: 1,
             components: [
@@ -96,7 +115,7 @@ export default function update({ selected, world }) {
                         {
                             id: 'default',
                             type: 'inline',
-                            html: 'Stop trying to speedrun the simulation!! You need to complete the first quest!'
+                            html: 'Our bureaucracy demands that you must be instructed to come here, before we can deal with you.'
                         },
                     ],
                 },
@@ -104,7 +123,7 @@ export default function update({ selected, world }) {
         };
     }
 
-    else if (q2IsActive && !hasReceipt)
+    else if (questStage === 1)
         return {
             version: 1,
             components: [
@@ -134,7 +153,7 @@ export default function update({ selected, world }) {
                         {
                             id: 'default',
                             type: 'inline',
-                            html: 'You\'re a registered user. The creation of your Registration Receipt required the destruction of your ID and letter'
+                            html: 'You are a registered user. The creation of your Registration Receipt required the destruction of your ID and letter'
                         },
                     ],
                 },

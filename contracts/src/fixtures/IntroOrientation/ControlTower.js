@@ -6,13 +6,13 @@ let towerState = 0;
 const QUEST_ACCEPTED = 1;
 const QUEST_COMPLETED = 2;
 
-// const QUEST_1 = "Report to Control";
-const QUEST_2 = "Verification Error";
-const QUEST_3 = "Report to Control (again!)";
-const QUEST_4 = "Orientation";
-const QUEST_5 = "Creation";
-const QUEST_6 = "Paperclip Maximiser";
-const QUEST_7 = "Corrupted User";
+// const QUEST_0 = "Report to Control";
+const QUEST_1 = "Verification Error";
+const QUEST_2 = "Report to Control (again!)";
+const QUEST_3 = "Orientation";
+const QUEST_4 = "Creation";
+const QUEST_5 = "Paperclip Maximiser";
+const QUEST_6 = "Corrupted User";
 
 export default async function update({ selected, player }) {
     const { tiles, mobileUnit } = selected || {};
@@ -61,18 +61,18 @@ export default async function update({ selected, player }) {
     const getQuestStage = () => {
         if (!quests) return 0;
 
-        const questRegError = findQuestByName(QUEST_2);
+        const questRegError = findQuestByName(QUEST_1);
         if (!questRegError && towerState < 1) return 0;
 
-        const questReturn = findQuestByName(QUEST_3);
+        const questReturn = findQuestByName(QUEST_2);
         if (!questReturn) return 1;
-        if (questReturn.status === QUEST_ACCEPTED || towerState < 2) return 2;
+        if (questReturn.status === QUEST_ACCEPTED && towerState < 2) return 2;
 
         // show newb quests if not complete
-        if (!areAllQuestsCompleted([QUEST_4, QUEST_5])) return 3;
+        if (!areAllQuestsCompleted([QUEST_3, QUEST_4])) return 3;
 
         // show advanced quests if not complete
-        if (!areAllQuestsCompleted([QUEST_6, QUEST_7])) return 4;
+        if (!areAllQuestsCompleted([QUEST_5, QUEST_6])) return 4;
 
         // out of quests
         return -1;
@@ -100,22 +100,17 @@ export default async function update({ selected, player }) {
 
     const questStage = getQuestStage();
 
-    const failVerification = () => {
-        ds.sendQuestMessage("failCredentials");
-        ds.log("MESSAGE SENT");
-        towerState = 1;
-        ds.log("TOWER STATE UPDATED");
-    }
-
-    const verificationSuccess = () => {
-        ds.sendQuestMessage("passCredentials");
-        ds.log("MESSAGE SENT");
-        towerState = 2;
-        ds.log("TOWER STATE UPDATED");
-    }
 
     //If quest 2 isn't active or completed
     if (questStage === 0) {
+
+        const failVerification = () => {
+            ds.sendQuestMessage("failCredentials");
+            ds.log("MESSAGE SENT");
+            towerState = 1;
+            ds.log("TOWER STATE UPDATED");
+        }
+
         return {
             version: 1,
             components: [
@@ -152,40 +147,48 @@ export default async function update({ selected, player }) {
                         {
                             id: "default",
                             type: "inline",
-                            html: "User Credentials cannot be verified.<br>Please resolve this issue at the Registration Office...<br>...or remove yourself from the Simulation!"
+                            html: "User Credentials cannot be verified.<br>Please resolve this issue at the Registration Office... or delete yourself from this world!"
                         }
                     ],
                 },
             ],
         }
     }
- 
+
     //If quest 2 isn't active or completed
     else if (questStage === 2) {
-            return {
-                version: 1,
-                components: [
-                    {
-                        type: "building",
-                        id: "control-tower",
-                        content: [
-                            {
-                                id: "default",
-                                type: "inline",
-                                html: "M.O.R.T.O.N. again welcomes you to Hexwood, and is hoping that this time you can successfully verify your credentials.",
-                                buttons: [
-                                    {
-                                        text: "Verify Credentials",
-                                        type: "action",
-                                        action: verificationSuccess,
-                                        disabled: false,
-                                    },
-                                ],
-                            },
-                        ],
-                    },
-                ],
-            };
+
+        const verificationSuccess = () => {
+            ds.sendQuestMessage("passCredentials");
+            ds.log("MESSAGE SENT");
+            towerState = 2;
+            ds.log("TOWER STATE UPDATED");
+        }
+
+        return {
+            version: 1,
+            components: [
+                {
+                    type: "building",
+                    id: "control-tower",
+                    content: [
+                        {
+                            id: "default",
+                            type: "inline",
+                            html: "M.O.R.T.O.N. again welcomes you to Hexwood, and is hoping that this time you can successfully verify your credentials.",
+                            buttons: [
+                                {
+                                    text: "Verify Credentials",
+                                    type: "action",
+                                    action: verificationSuccess,
+                                    disabled: false,
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        };
     }
 
     else if (questStage === 3) {
@@ -193,14 +196,17 @@ export default async function update({ selected, player }) {
         const orientationQuest = findQuestByName(QUEST_4);
         const creationQuest = findQuestByName(QUEST_5);
 
+        const acceptOrientation = () => {
+            acceptQuest("0xadbb33ce000000000000000000000000c533c3b1b9d5856c"); //Orientation
+            acceptQuest("0xadbb33ce0000000000000000000000001296e6522b8258fd"); //Goo Harvesting
+            acceptQuest("0xadbb33ce00000000000000000000000065b3cb8a1f5db1f3"); //Deletion Preparation
+            acceptQuest("0xadbb33ce0000000000000000000000009d39a8f0c10e1ee7"); //Deletion Dury
+        }
+
         var orientationButton = {
             text: "Accept Orientation Quest",
             type: "action",
-            action: () => {
-                acceptQuest(
-                    "0xadbb33ce000000000000000000000000c533c3b1b9d5856c",
-                );
-            }, // TODO: use name instead of ID
+            action: acceptOrientation,
             disabled: false
         };
 
@@ -219,7 +225,7 @@ export default async function update({ selected, player }) {
         var htmlString = "";
         var buttons;
         if (!orientationQuest && !creationQuest) {
-            htmlString = "Two quests are available for your skill level: 'Total Newb'.<br>Please accept one to improve simulation competency";
+            htmlString = "Two quests are available for your skill level (currently set as 'Total Newb').<br>Please accept one to improve your simulation competency";
             buttons = [orientationButton, creationButton];
         }
         else if (!orientationQuest) {
