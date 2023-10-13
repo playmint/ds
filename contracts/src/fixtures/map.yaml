@@ -4198,3 +4198,21 @@ kind: Tile
 spec:
   biome: DISCOVERED
   location: [ -12, 1, 11 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 2, -18, 16 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 23, -20, -3 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 18, 15, -33]
