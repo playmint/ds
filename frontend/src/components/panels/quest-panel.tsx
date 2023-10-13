@@ -115,25 +115,26 @@ const FocusButton: FunctionComponent<{
     );
 };
 
-export interface QuestPanelProps {
+export const QuestItem: FunctionComponent<{
+    quest: QuestFragment;
+    setFocusLocation: ReturnType<typeof useState<Location>>[1];
     player: ConnectedPlayer;
-}
-
-export const QuestPanel: FunctionComponent<QuestPanelProps> = ({ player }: QuestPanelProps) => {
+}> = ({ player, quest, setFocusLocation }) => {
     const questMessages = useQuestMessages(5);
-    const acceptedQuests =
-        player.quests?.filter((q) => q.status == QUEST_STATUS_ACCEPTED).sort((a, b) => a.key - b.key) || [];
-    const [focusLocation, setFocusLocation] = useState<Location>();
-    const [allCompleted, setAllCompleted] = useState<boolean | undefined>(true);
-    const { ready: mapReady, sendMessage } = useUnityMap();
+    const [taskCompletion, setTaskCompletion] = useState<{ [key: string]: boolean }>({});
+    const [allCompleted, setAllCompleted] = useState<boolean>(false);
 
     useEffect(() => {
-        if (!focusLocation) return;
-        if (!mapReady) return;
-        if (!sendMessage) return;
+        if (!taskCompletion) return;
+        if (!setAllCompleted) return;
 
-        sendMessage('MapCamera', 'FocusTile', JSON.stringify(focusLocation));
-    }, [focusLocation, mapReady, sendMessage]);
+        const allCompleted = quest.node.tasks.reduce(
+            (isCompleted, t) => !!(isCompleted && taskCompletion && taskCompletion[t.node.id]),
+            true
+        );
+
+        setAllCompleted(allCompleted);
+    }, [quest, taskCompletion, setAllCompleted]);
 
     const onCompleteClick = (quest: QuestFragment) => {
         player
@@ -147,44 +148,63 @@ export const QuestPanel: FunctionComponent<QuestPanelProps> = ({ player }: Quest
     };
 
     return (
+        <div className="questItem">
+            <div className="header">
+                <h2>{quest.node.name?.value}</h2>
+                {quest.node.location && (
+                    <FocusButton location={quest.node.location} setFocusLocation={setFocusLocation} />
+                )}
+            </div>
+            <p>{quest.node.description?.value}</p>
+            <div className="taskContainer">
+                {quest.node.tasks
+                    .sort((a, b) => a.key - b.key)
+                    .map((task, idx) => (
+                        <TaskItem
+                            key={idx}
+                            task={task}
+                            player={player}
+                            questMessages={questMessages}
+                            setTaskCompletion={setTaskCompletion}
+                        />
+                    ))}
+            </div>
+            {allCompleted && (
+                <div className="buttonContainer">
+                    <button onClick={() => onCompleteClick(quest)} className="action-icon-button completeQuestButton">
+                        Complete Quest
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export interface QuestPanelProps {
+    player: ConnectedPlayer;
+}
+
+export const QuestPanel: FunctionComponent<QuestPanelProps> = ({ player }: QuestPanelProps) => {
+    const { ready: mapReady, sendMessage } = useUnityMap();
+    const acceptedQuests =
+        player.quests?.filter((q) => q.status == QUEST_STATUS_ACCEPTED).sort((a, b) => a.key - b.key) || [];
+    const [focusLocation, setFocusLocation] = useState<Location>();
+
+    useEffect(() => {
+        if (!focusLocation) return;
+        if (!mapReady) return;
+        if (!sendMessage) return;
+
+        sendMessage('MapCamera', 'FocusTile', JSON.stringify(focusLocation));
+    }, [focusLocation, mapReady, sendMessage]);
+
+    return (
         <>
             {acceptedQuests.length > 0 && (
                 <Panel>
                     <h1>Q.U.E.S.T.s</h1>
-                    {[acceptedQuests[0]].map((quest, questIdx) => (
-                        <div className="questItem" key={questIdx}>
-                            <div className="header">
-                                <h2>{quest.node.name?.value}</h2>
-                                {quest.node.location && (
-                                    <FocusButton location={quest.node.location} setFocusLocation={setFocusLocation} />
-                                )}
-                            </div>
-                            <p>{quest.node.description?.value}</p>
-                            <div className="taskContainer">
-                                {quest.node.tasks
-                                    .sort((a, b) => a.key - b.key)
-                                    .map((task, idx) => (
-                                        <TaskItem
-                                            key={idx}
-                                            isFirst={idx == 0}
-                                            task={task}
-                                            player={player}
-                                            questMessages={questMessages}
-                                            setAllCompleted={setAllCompleted}
-                                        />
-                                    ))}
-                            </div>
-                            {allCompleted && (
-                                <div className="buttonContainer">
-                                    <button
-                                        onClick={() => onCompleteClick(quest)}
-                                        className="action-icon-button completeQuestButton"
-                                    >
-                                        Complete Quest
-                                    </button>
-                                </div>
-                            )}
-                        </div>
+                    {acceptedQuests.map((quest, questIdx) => (
+                        <QuestItem key={questIdx} quest={quest} player={player} setFocusLocation={setFocusLocation} />
                     ))}
                 </Panel>
             )}

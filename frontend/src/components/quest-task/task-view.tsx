@@ -1,5 +1,5 @@
-import { QuestTask } from '@downstream/core';
-import { FunctionComponent, useState } from 'react';
+import { FunctionComponent } from 'react';
+import { TaskItemProps } from './task-item';
 
 const tickSvg = (
     <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
@@ -7,14 +7,15 @@ const tickSvg = (
     </svg>
 );
 
-export const TaskView: FunctionComponent<{
-    isFirst: boolean;
-    isCompleted: boolean;
-    task: QuestTask;
-    setAllCompleted: ReturnType<typeof useState<boolean>>[1];
-}> = ({ isFirst, isCompleted, task, setAllCompleted }) => {
-    setAllCompleted((allCompleted) => {
-        return (allCompleted || isFirst) && isCompleted;
+export const TaskView: FunctionComponent<
+    {
+        isCompleted: boolean;
+    } & Pick<TaskItemProps, 'task' | 'setTaskCompletion'>
+> = ({ isCompleted, task, setTaskCompletion }) => {
+    setTaskCompletion((oldObj) => {
+        const newObj = oldObj ? { ...oldObj } : {};
+        newObj[task.node.id] = isCompleted;
+        return newObj;
     });
 
     return (

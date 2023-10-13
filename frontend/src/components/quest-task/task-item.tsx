@@ -9,70 +9,36 @@ import { TaskQuestComplete } from './kinds/task-quest-complete';
 import { TaskView } from './task-view';
 
 export interface TaskItemProps {
-    isFirst: boolean;
     task: QuestTask;
     player: Player;
     questMessages?: Log[];
-    setAllCompleted: ReturnType<typeof useState<boolean>>[1];
+    setTaskCompletion: ReturnType<typeof useState<{ [key: string]: boolean }>>[1];
 }
 
-export const TaskItem: FunctionComponent<TaskItemProps> = ({
-    isFirst,
-    task,
-    player,
-    questMessages,
-    setAllCompleted,
-}) => {
+export const TaskItem: FunctionComponent<TaskItemProps> = ({ task, player, questMessages, setTaskCompletion }) => {
     // const calculation = useMemo(() => expensiveCalculation(count), [count]);
 
     const taskKind = task.node.keys[0];
     switch (taskKind) {
         case taskCoord:
             return (
-                <TaskCoord
-                    isFirst={isFirst}
-                    task={task}
-                    mobileUnits={player.mobileUnits || []}
-                    setAllCompleted={setAllCompleted}
-                />
+                <TaskCoord task={task} mobileUnits={player.mobileUnits || []} setTaskCompletion={setTaskCompletion} />
             );
         case taskInventory:
             return (
                 <TaskInventory
-                    isFirst={isFirst}
                     task={task}
                     mobileUnits={player.mobileUnits || []}
-                    setAllCompleted={setAllCompleted}
+                    setTaskCompletion={setTaskCompletion}
                 />
             );
         case taskMessage:
-            return (
-                <TaskMessage
-                    isFirst={isFirst}
-                    task={task}
-                    questMessages={questMessages}
-                    setAllCompleted={setAllCompleted}
-                />
-            );
+            return <TaskMessage task={task} questMessages={questMessages} setTaskCompletion={setTaskCompletion} />;
         case taskQuestAccept:
-            return (
-                <TaskQuestAccept
-                    isFirst={isFirst}
-                    task={task}
-                    quests={player.quests}
-                    setAllCompleted={setAllCompleted}
-                />
-            );
+            return <TaskQuestAccept task={task} quests={player.quests} setTaskCompletion={setTaskCompletion} />;
         case taskQuestComplete:
-            return (
-                <TaskQuestComplete
-                    isFirst={isFirst}
-                    task={task}
-                    quests={player.quests}
-                    setAllCompleted={setAllCompleted}
-                />
-            );
+            return <TaskQuestComplete task={task} quests={player.quests} setTaskCompletion={setTaskCompletion} />;
         default:
-            return <TaskView isFirst={isFirst} task={task} isCompleted={false} setAllCompleted={setAllCompleted} />;
+            return <TaskView task={task} isCompleted={false} setTaskCompletion={setTaskCompletion} />;
     }
 };

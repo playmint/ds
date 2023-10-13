@@ -1,24 +1,21 @@
-import { QuestTask, QuestFragment, QUEST_STATUS_COMPLETED } from '@downstream/core';
-import { memo, useState } from 'react';
+import { QuestFragment, QUEST_STATUS_COMPLETED } from '@downstream/core';
+import { memo } from 'react';
 import { TaskView } from '../task-view';
+import { TaskItemProps } from '../task-item';
 
 export const TaskQuestComplete = memo(
     ({
-        isFirst,
         task,
         quests,
-        setAllCompleted,
+        setTaskCompletion,
     }: {
-        isFirst: boolean;
-        task: QuestTask;
         quests?: QuestFragment[];
-        setAllCompleted: ReturnType<typeof useState<boolean>>[1];
-    }) => {
+    } & Pick<TaskItemProps, 'task' | 'setTaskCompletion'>) => {
         console.log(`evaluating TaskQuestCompleted`);
         const isCompleted = !!quests?.some(
             (q) => q.node.id == task.node.quest?.id && q.status == QUEST_STATUS_COMPLETED
         );
 
-        return <TaskView isFirst={isFirst} isCompleted={isCompleted} task={task} setAllCompleted={setAllCompleted} />;
+        return <TaskView isCompleted={isCompleted} task={task} setTaskCompletion={setTaskCompletion} />;
     }
 );

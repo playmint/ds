@@ -1,19 +1,16 @@
-import { QuestTask, MobileUnit } from '@downstream/core';
-import { memo, useState } from 'react';
+import { MobileUnit } from '@downstream/core';
+import { memo } from 'react';
 import { TaskView } from '../task-view';
+import { TaskItemProps } from '../task-item';
 
 export const TaskInventory = memo(
     ({
-        isFirst,
         task,
         mobileUnits,
-        setAllCompleted,
+        setTaskCompletion,
     }: {
-        isFirst: boolean;
-        task: QuestTask;
         mobileUnits: MobileUnit[];
-        setAllCompleted: ReturnType<typeof useState<boolean>>[1];
-    }) => {
+    } & Pick<TaskItemProps, 'task' | 'setTaskCompletion'>) => {
         console.log(`evaluating TaskInventory`);
 
         let isCompleted = false;
@@ -40,6 +37,6 @@ export const TaskInventory = memo(
             isCompleted = itemCount >= taskItemSlot.balance;
         }
 
-        return <TaskView isFirst={isFirst} isCompleted={isCompleted} task={task} setAllCompleted={setAllCompleted} />;
+        return <TaskView isCompleted={isCompleted} task={task} setTaskCompletion={setTaskCompletion} />;
     }
 );

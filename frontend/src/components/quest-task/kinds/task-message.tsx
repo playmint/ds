@@ -1,19 +1,16 @@
-import { Log, QuestTask } from '@downstream/core';
-import { memo, useState } from 'react';
+import { Log } from '@downstream/core';
+import { memo } from 'react';
 import { TaskView } from '../task-view';
+import { TaskItemProps } from '../task-item';
 
 export const TaskMessage = memo(
     ({
-        isFirst,
         task,
         questMessages,
-        setAllCompleted,
+        setTaskCompletion,
     }: {
-        isFirst: boolean;
-        task: QuestTask;
         questMessages?: Log[];
-        setAllCompleted: ReturnType<typeof useState<boolean>>[1];
-    }) => {
+    } & Pick<TaskItemProps, 'task' | 'setTaskCompletion'>) => {
         console.log(`evaluating TaskMessage`);
 
         const pluginMessages =
@@ -23,6 +20,6 @@ export const TaskMessage = memo(
             [];
         const isCompleted = pluginMessages.some((m) => m.text == task.node.message?.value);
 
-        return <TaskView isFirst={isFirst} isCompleted={isCompleted} task={task} setAllCompleted={setAllCompleted} />;
+        return <TaskView isCompleted={isCompleted} task={task} setTaskCompletion={setTaskCompletion} />;
     }
 );
