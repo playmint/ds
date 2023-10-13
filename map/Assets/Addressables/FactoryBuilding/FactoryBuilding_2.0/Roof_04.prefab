@@ -103,8 +103,8 @@ MonoBehaviour:
   m_UVBias: {x: 0, y: 0}
   m_ScaleMode: 0
   m_Offset: {x: 0, y: 0, z: 0.12}
-  m_Size: {x: 0.31, y: 0.64, z: 0.24}
-  m_FadeFactor: 1
+  m_Size: {x: 0.36, y: 0.64, z: 0.24}
+  m_FadeFactor: 0.31
 --- !u!1001 &7996024695553969047
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -191,6 +191,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Layer
       value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 39ef6f0947a150742b03acab7789bd28,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 39ef6f0947a150742b03acab7789bd28, type: 3}
