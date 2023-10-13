@@ -1,0 +1,17 @@
+
+---
+kind: Quest
+spec:
+  name: Verification Error
+  description: "User profile is not recognised. Please complete the registration process."
+  location: [5, -1, -4]
+  tasks:
+    - kind: coord
+      name: Move to the Registration Office
+      location: [5, -1, -4]
+    - kind: inventory
+      name: Collect the Registration Receipt and put it into one of your bags
+      item:
+        name: Registration Receipt
+        quantity: 1
+  next: ["Report to Control (again!)"]

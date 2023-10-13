@@ -1,10 +1,13 @@
+
 import ds from "downstream";
+
+let towerState = 0;
 
 const QUEST_ACCEPTED = 1;
 const QUEST_COMPLETED = 2;
 
 // const QUEST_1 = "Report to Control";
-const QUEST_2 = "Registration Error";
+const QUEST_2 = "Verification Error";
 const QUEST_3 = "Report to Control (again!)";
 const QUEST_4 = "Orientation";
 const QUEST_5 = "Creation";
@@ -61,11 +64,11 @@ export default async function update({ selected, player }) {
         const questRegError = findQuestByName(QUEST_2);
         if (!questRegError) return 0;
 
-        if (questRegError.status == QUEST_ACCEPTED) return 1;
+        if (questRegError.status === QUEST_ACCEPTED) return 1;
 
         const questReturn = findQuestByName(QUEST_3);
         if (!questReturn) return 1;
-        if (questReturn.status == QUEST_ACCEPTED) return 2;
+        if (questReturn.status === QUEST_ACCEPTED) return 2;
 
         // show newb quests if not complete
         if (!areAllQuestsCompleted([QUEST_4, QUEST_5])) return 2;
@@ -99,114 +102,140 @@ export default async function update({ selected, player }) {
 
     const questStage = getQuestStage();
 
+    const failVerificationOnQuest1 = () => {
+        ds.sendQuestMessage("failCredentials");
+        towerState = 1;
+    }
+
+    const verificationSuccess = () => {
+        ds.sendQuestMessage("passCredentials");
+        towerState = 2;
+    }
+
     //If quest 2 isn't active or completed
-    if (questStage === 0) {
-        return {
-            version: 1,
-            components: [
-                {
-                    type: "building",
-                    id: "control-tower",
-                    content: [
-                        {
-                            id: "default",
-                            type: "inline",
-                            html:
-                                "M.O.R.T.O.N. welcomes you to Hexwood, whilst wondering who you are. Please verify your credentials." +
-                                quests.length,
-                            buttons: [
-                                {
-                                    text: "Verify Credentials",
-                                    type: "action",
-                                    action: () => {
-                                        ds.sendQuestMessage(
-                                            "verifyCredentials",
-                                        );
-                                    },
-                                    disabled: false,
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        };
-    }
+    if (questStage < 2) {
 
-    //Show this if quest 2 is active
-    else if (questStage === 1) {
-        return {
-            version: 1,
-            components: [
-                {
-                    type: "building",
-                    id: "control-tower",
-                    content: [
-                        {
-                            id: "default",
-                            type: "inline",
-                            html: "Registration Error! Please collect valid Registration Receipt",
-                            buttons: [
-                                {
-                                    text: "Register User",
-                                    type: "action",
-                                    action: () => {
-                                        ds.sendQuestMessage(
-                                            "verifyCredentials2",
-                                        );
-                                    },
-                                    disabled: true, // This button is never used as the quest will advance on by itself when the receipt is collected
-                                },
-                            ], //placeholder
-                        },
-                    ],
-                },
-            ],
-        };
-    }
+        if (towerState === 0) {
 
-    //Show this if quest 3 is active
-    else if (questStage === 2) {
-        const orientationQuest = findQuestByName(QUEST_4);
-        const creationQuest = findQuestByName(QUEST_5);
-        return {
-            version: 1,
-            components: [
-                {
-                    type: "building",
-                    id: "control-tower",
-                    content: [
-                        {
-                            id: "default",
-                            type: "inline",
-                            html: 'User identified as with status: "Newb". Please accept newbie quests and level up A.S.A.P.',
-                            buttons: [
-                                {
-                                    text: "Accept Orientation Quest",
-                                    type: "action",
-                                    action: () => {
-                                        acceptQuest(
-                                            "0xadbb33ce000000000000000000000000c533c3b1b9d5856c",
-                                        );
-                                    }, // TODO: use name instead of ID
-                                    disabled: !!orientationQuest,
-                                },
-                                {
-                                    text: "Accept Creation Quest",
-                                    type: "action",
-                                    action: () => {
-                                        acceptQuest(
-                                            "0xadbb33ce000000000000000000000000de3bb0a48fe15c39",
-                                        );
+            return {
+                version: 1,
+                components: [
+                    {
+                        type: "building",
+                        id: "control-tower",
+                        content: [
+                            {
+                                id: "default",
+                                type: "inline",
+                                html: "M.O.R.T.O.N. welcomes you to Hexwood, and yet is wondering who you are. Please verify your credentials.",
+                                buttons: [
+                                    {
+                                        text: "Verify Credentials",
+                                        type: "action",
+                                        action: failVerificationOnQuest1,
+                                        disabled: false,
                                     },
-                                    disabled: !!creationQuest,
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        };
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            };
+        }
+        else {
+            return {
+                version: 1,
+                components: [
+                    {
+                        type: "building",
+                        id: "control-tower",
+                        content: [
+                            {
+                                id: "default",
+                                type: "inline",
+                                html: "User Credentials cannot be verified.<br>Please resolve this issue at the Registration Office...<br>...or remove yourself from the Simulation!"
+                            }
+                        ],
+                    },
+                ],
+            }
+        }
+    }
+    //If quest 2 isn't active or completed
+    else if (questStage >= 2) {
+
+        if (towerState < 2) {
+
+            return {
+                version: 1,
+                components: [
+                    {
+                        type: "building",
+                        id: "control-tower",
+                        content: [
+                            {
+                                id: "default",
+                                type: "inline",
+                                html: "M.O.R.T.O.N. again welcomes you to Hexwood, and is hoping that this time you can successfully verify your credentials.",
+                                buttons: [
+                                    {
+                                        text: "Verify Credentials",
+                                        type: "action",
+                                        action: verificationSuccess,
+                                        disabled: false,
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            };
+        }
+        else {
+
+            const orientationQuest = findQuestByName(QUEST_4);
+            const creationQuest = findQuestByName(QUEST_5);
+            return {
+                version: 1,
+                components: [
+                    {
+                        type: "building",
+                        id: "control-tower",
+                        content: [
+                            {
+                                id: "default",
+                                type: "inline",
+                                html: 'User identified as with status: "Newb". Please accept newbie quests and level up A.S.A.P.',
+                                buttons: [
+                                    {
+                                        text: "Accept Orientation Quest",
+                                        type: "action",
+                                        action: () => {
+                                            acceptQuest(
+                                                "0xadbb33ce000000000000000000000000c533c3b1b9d5856c",
+                                            );
+                                        }, // TODO: use name instead of ID
+                                        disabled: !!orientationQuest,
+                                    },
+                                    {
+                                        text: "Accept Creation Quest",
+                                        type: "action",
+                                        action: () => {
+                                            acceptQuest(
+                                                "0xadbb33ce000000000000000000000000de3bb0a48fe15c39",
+                                            );
+                                        },
+                                        disabled: !!creationQuest,
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            };
+        }
+
+        
     } else if (questStage === 3) {
         const paperclipQuest = findQuestByName(QUEST_6);
         const corruptQuest = findQuestByName(QUEST_7);
