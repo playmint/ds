@@ -10,6 +10,6 @@ spec:
       location: [-6, 5, 1]
       buildingKind: Control Tower
     - kind: message
-      name: "Press the 'Verify Credentials' button"
+      name: "Press the 'Verify Credentials' button again"
       message: passCredentials
       buildingKind: Control Tower
