@@ -1,8 +1,7 @@
-import { ConnectedPlayer, QUEST_STATUS_ACCEPTED, QuestFragment, TaskKinds } from '@app/../../core/src';
+import { ConnectedPlayer, QUEST_STATUS_ACCEPTED, QuestFragment } from '@app/../../core/src';
 import styled from 'styled-components';
-import { FunctionComponent, useEffect, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { Locatable, getCoords } from '@app/helpers/tile';
-import { id as keccak256UTF8 } from 'ethers';
 import { useQuestMessages } from '@app/hooks/use-game-state';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { TaskItem } from '../quest-task/task-item';
@@ -85,18 +84,6 @@ const targetSvg = (
     </svg>
 );
 
-// TODO: Generate these
-export const taskCoord = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.coord))).toString(16);
-export const taskMessage = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.message))).toString(16);
-export const taskInventory = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.inventory))).toString(16);
-export const taskCombat = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.combat))).toString(16);
-export const taskCombatWinAttack =
-    '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.combatWinAttack))).toString(16);
-export const taskCombatWinDefense =
-    '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.combatWinDefense))).toString(16);
-export const taskQuestAccept = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.questAccept))).toString(16);
-export const taskQuestComplete = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.questComplete))).toString(16);
-
 type Location = ReturnType<typeof getCoords>;
 
 const FocusButton: FunctionComponent<{
@@ -116,10 +103,12 @@ const FocusButton: FunctionComponent<{
 };
 
 export const QuestItem: FunctionComponent<{
+    expanded: boolean;
     quest: QuestFragment;
-    setFocusLocation: ReturnType<typeof useState<Location>>[1];
     player: ConnectedPlayer;
-}> = ({ player, quest, setFocusLocation }) => {
+    setFocusLocation: ReturnType<typeof useState<Location>>[1];
+    onExpandClick: (questId: string) => void;
+}> = ({ expanded, player, quest, setFocusLocation, onExpandClick }) => {
     const questMessages = useQuestMessages(5);
     const [taskCompletion, setTaskCompletion] = useState<{ [key: string]: boolean }>({});
     const [allCompleted, setAllCompleted] = useState<boolean>(false);
@@ -149,32 +138,41 @@ export const QuestItem: FunctionComponent<{
 
     return (
         <div className="questItem">
-            <div className="header">
-                <h2>{quest.node.name?.value}</h2>
+            <div className="header" onClick={expanded ? undefined : () => onExpandClick(quest.node.id)}>
+                <h2>
+                    {expanded ? `[-]` : `[+]`} {quest.node.name?.value}
+                </h2>
                 {quest.node.location && (
                     <FocusButton location={quest.node.location} setFocusLocation={setFocusLocation} />
                 )}
             </div>
-            <p>{quest.node.description?.value}</p>
-            <div className="taskContainer">
-                {quest.node.tasks
-                    .sort((a, b) => a.key - b.key)
-                    .map((task, idx) => (
-                        <TaskItem
-                            key={idx}
-                            task={task}
-                            player={player}
-                            questMessages={questMessages}
-                            setTaskCompletion={setTaskCompletion}
-                        />
-                    ))}
-            </div>
-            {allCompleted && (
-                <div className="buttonContainer">
-                    <button onClick={() => onCompleteClick(quest)} className="action-icon-button completeQuestButton">
-                        Complete Quest
-                    </button>
-                </div>
+            {expanded && (
+                <>
+                    <p>{quest.node.description?.value}</p>
+                    <div className="taskContainer">
+                        {quest.node.tasks
+                            .sort((a, b) => a.key - b.key)
+                            .map((task, idx) => (
+                                <TaskItem
+                                    key={idx}
+                                    task={task}
+                                    player={player}
+                                    questMessages={questMessages}
+                                    setTaskCompletion={setTaskCompletion}
+                                />
+                            ))}
+                    </div>
+                    {allCompleted && (
+                        <div className="buttonContainer">
+                            <button
+                                onClick={() => onCompleteClick(quest)}
+                                className="action-icon-button completeQuestButton"
+                            >
+                                Complete Quest
+                            </button>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );
@@ -186,10 +184,29 @@ export interface QuestPanelProps {
 
 export const QuestPanel: FunctionComponent<QuestPanelProps> = ({ player }: QuestPanelProps) => {
     const { ready: mapReady, sendMessage } = useUnityMap();
-    const acceptedQuests =
-        player.quests?.filter((q) => q.status == QUEST_STATUS_ACCEPTED).sort((a, b) => a.key - b.key) || [];
-    const [focusLocation, setFocusLocation] = useState<Location>();
+    const [expandedQuest, setExpandedQuest] = useState<string>();
 
+    const acceptedQuests = useMemo(() => {
+        return player.quests?.filter((q) => q.status == QUEST_STATUS_ACCEPTED).sort((a, b) => a.key - b.key) || [];
+    }, [player.quests]);
+
+    useEffect(() => {
+        if (!acceptedQuests) return;
+        if (acceptedQuests.length === 0) return;
+
+        // Set to the first if no quests expanded
+        if (!expandedQuest) {
+            setExpandedQuest(acceptedQuests[0].node.id);
+        }
+
+        // Set to first quest if quest that was expanded is no longer in the list
+        if (!acceptedQuests.some((q) => q.node.id == expandedQuest)) {
+            setExpandedQuest(acceptedQuests[0].node.id);
+        }
+    }, [expandedQuest, acceptedQuests]);
+
+    // TODO: Make this a callback
+    const [focusLocation, setFocusLocation] = useState<Location>();
     useEffect(() => {
         if (!focusLocation) return;
         if (!mapReady) return;
@@ -198,13 +215,28 @@ export const QuestPanel: FunctionComponent<QuestPanelProps> = ({ player }: Quest
         sendMessage('MapCamera', 'FocusTile', JSON.stringify(focusLocation));
     }, [focusLocation, mapReady, sendMessage]);
 
+    const onExpandClick = useCallback(
+        (questId: string) => {
+            if (!setExpandedQuest) return;
+            setExpandedQuest(questId);
+        },
+        [setExpandedQuest]
+    );
+
     return (
         <>
             {acceptedQuests.length > 0 && (
                 <Panel>
                     <h1>Q.U.E.S.T.s</h1>
                     {acceptedQuests.map((quest, questIdx) => (
-                        <QuestItem key={questIdx} quest={quest} player={player} setFocusLocation={setFocusLocation} />
+                        <QuestItem
+                            expanded={(!expandedQuest && questIdx == 0) || expandedQuest == quest.node.id}
+                            key={questIdx}
+                            quest={quest}
+                            player={player}
+                            setFocusLocation={setFocusLocation}
+                            onExpandClick={onExpandClick}
+                        />
                     ))}
                 </Panel>
             )}

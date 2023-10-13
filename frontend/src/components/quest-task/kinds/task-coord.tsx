@@ -1,6 +1,6 @@
 import { getTileDistance } from '@app/helpers/tile';
-import { QuestTask, MobileUnit } from '@downstream/core';
-import { memo, useState } from 'react';
+import { MobileUnit } from '@downstream/core';
+import { memo } from 'react';
 import { TaskView } from '../task-view';
 import { TaskItemProps } from '../task-item';
 

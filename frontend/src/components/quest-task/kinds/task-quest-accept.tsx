@@ -1,5 +1,5 @@
-import { QuestTask, QuestFragment } from '@downstream/core';
-import { memo, useState } from 'react';
+import { QuestFragment } from '@downstream/core';
+import { memo } from 'react';
 import { TaskView } from '../task-view';
 import { TaskItemProps } from '../task-item';
 
