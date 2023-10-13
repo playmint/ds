@@ -10,7 +10,6 @@ const Panel = styled.div`
     background: #143063;
     color: #fff;
     padding: 2rem 2rem;
-    margin-bottom: 1.2rem;
     width: 52rem;
 
     > h1 {
@@ -18,7 +17,7 @@ const Panel = styled.div`
         margin-bottom: 1rem;
     }
 
-    > .taskContainer {
+    > .questItem .taskContainer {
         margin-top: 2rem;
     }
 
@@ -68,13 +67,13 @@ const Panel = styled.div`
         height: 100%;
     }
 
-    > .buttonContainer {
+    > .questItem .buttonContainer {
         margin-top: 1rem;
         display: flex;
         justify-content: center;
     }
 
-    > .buttonContainer .completeQuestButton {
+    > .questItem .buttonContainer .completeQuestButton {
         width: 30rem;
     }
 `;
@@ -91,10 +90,6 @@ const targetSvg = (
     </svg>
 );
 
-export interface QuestProps {
-    player: ConnectedPlayer;
-}
-
 export const QUEST_ACCEPTED = 1;
 export const QUEST_COMPLETED = 2;
 
@@ -110,17 +105,9 @@ export const taskCombatWinDefense =
 export const taskQuestAccept = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.questAccept))).toString(16);
 export const taskQuestComplete = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.questComplete))).toString(16);
 
-type Task = QuestFragment['node']['tasks'][0] & Partial<{ isCompleted: boolean }>;
+type Task = QuestFragment['node']['tasks'][0];
 type Location = ReturnType<typeof getCoords>;
 
-const TaskItem: FunctionComponent<{ task: Task }> = ({ task }) => {
-    return (
-        <div className="taskItem">
-            <div className="tickBox">{task.isCompleted && tickSvg}</div>
-            <p>{task.node.name?.value}</p>
-        </div>
-    );
-};
 const FocusButton: FunctionComponent<{
     location: Locatable;
     setFocusLocation: ReturnType<typeof useState<Location>>[1];
@@ -137,70 +124,102 @@ const FocusButton: FunctionComponent<{
     );
 };
 
-// TODO: Make each of these task evaluations a memo
-const evalTaskCompletion = (task: Task, player: Player, questMessages?: Log[]) => {
-    // console.log('evalTaskCompletion');
-    switch (task.node.keys[0]) {
-        case taskCoord:
-            return player.mobileUnits?.some((unit) => {
-                return (
-                    unit.nextLocation &&
-                    task.node.location &&
-                    getTileDistance(unit.nextLocation.tile, task.node.location) < 2
-                );
-            });
+export interface TaskItemProps {
+    isFirst: boolean;
+    task: Task;
+    player: Player;
+    questMessages?: Log[];
+    setAllCompleted: ReturnType<typeof useState<boolean>>[1];
+}
 
-        case taskInventory: {
-            if (!task.node.itemSlot) {
-                return false;
-            }
-            const taskItemSlot = task.node.itemSlot;
-            const itemCount =
-                player.mobileUnits?.reduce((playerTotal, unit) => {
+const TaskItem: FunctionComponent<TaskItemProps> = ({ isFirst, task, player, questMessages, setAllCompleted }) => {
+    // const calculation = useMemo(() => expensiveCalculation(count), [count]);
+
+    // TODO: Make each of these task evaluations a memo
+    const evalTaskCompletion = (task: Task, player: Player, questMessages?: Log[]) => {
+        console.log(`evalTaskCompletion: ${task.key}`);
+        switch (task.node.keys[0]) {
+            case taskCoord:
+                return player.mobileUnits?.some((unit) => {
                     return (
-                        playerTotal +
-                        unit.bags.reduce((bagTotal, bagSlot) => {
-                            return (
-                                bagTotal +
-                                bagSlot.bag.slots.reduce((slotTotal, itemSlot) => {
-                                    return itemSlot.item.id == taskItemSlot.item.id
-                                        ? slotTotal + itemSlot.balance
-                                        : slotTotal;
-                                }, 0)
-                            );
-                        }, 0)
+                        unit.nextLocation &&
+                        task.node.location &&
+                        getTileDistance(unit.nextLocation.tile, task.node.location) < 2
                     );
-                }, 0) || 0;
-            return itemCount >= taskItemSlot.balance;
-        }
+                });
 
-        case taskMessage: {
-            if (!task.node.buildingKind) return false;
-            if (!questMessages) return false;
+            case taskInventory: {
+                if (!task.node.itemSlot) {
+                    return false;
+                }
+                const taskItemSlot = task.node.itemSlot;
+                const itemCount =
+                    player.mobileUnits?.reduce((playerTotal, unit) => {
+                        return (
+                            playerTotal +
+                            unit.bags.reduce((bagTotal, bagSlot) => {
+                                return (
+                                    bagTotal +
+                                    bagSlot.bag.slots.reduce((slotTotal, itemSlot) => {
+                                        return itemSlot.item.id == taskItemSlot.item.id
+                                            ? slotTotal + itemSlot.balance
+                                            : slotTotal;
+                                    }, 0)
+                                );
+                            }, 0)
+                        );
+                    }, 0) || 0;
+                return itemCount >= taskItemSlot.balance;
+            }
 
-            console.log(`buildingKindID: ${task.node.buildingKind?.id}`);
-            const pluginMessages = questMessages.filter(
-                (m) => m.name === `questMessages: ${task.node.buildingKind?.id}`
-            );
-            return pluginMessages.some((m) => m.text == task.node.message?.value);
-        }
+            case taskMessage: {
+                if (!task.node.buildingKind) return false;
+                if (!questMessages) return false;
 
-        case taskQuestAccept: {
-            // passes if the quest is either accepted or completed
-            return player.quests?.some((q) => q.node.id == task.node.quest?.id);
-        }
+                console.log(`buildingKindID: ${task.node.buildingKind?.id}`);
+                const pluginMessages = questMessages.filter(
+                    (m) => m.name === `questMessages: ${task.node.buildingKind?.id}`
+                );
+                return pluginMessages.some((m) => m.text == task.node.message?.value);
+            }
 
-        case taskQuestComplete: {
-            return player.quests?.some((q) => q.node.id == task.node.quest?.id && q.status == QUEST_COMPLETED);
+            case taskQuestAccept: {
+                // passes if the quest is either accepted or completed
+                return player.quests?.some((q) => q.node.id == task.node.quest?.id);
+            }
+
+            case taskQuestComplete: {
+                return player.quests?.some((q) => q.node.id == task.node.quest?.id && q.status == QUEST_COMPLETED);
+            }
         }
-    }
-    return false;
+        return false;
+    };
+
+    const isCompleted = evalTaskCompletion(task, player, questMessages);
+
+    // console.log(`Setting all complete to: ${allCompleted && isCompleted}`);
+    setAllCompleted((allCompleted) => {
+        console.log(`current state of complete: ${allCompleted}. isFirst: ${isFirst}`);
+        return (allCompleted || isFirst) && isCompleted;
+    });
+
+    return (
+        <div className="taskItem">
+            <div className="tickBox">{isCompleted && tickSvg}</div>
+            <p>{task.node.name?.value}</p>
+        </div>
+    );
 };
 
-export const QuestPanel: FunctionComponent<QuestProps> = ({ player }: QuestProps) => {
+export interface QuestPanelProps {
+    player: ConnectedPlayer;
+}
+
+export const QuestPanel: FunctionComponent<QuestPanelProps> = ({ player }: QuestPanelProps) => {
     const questMessages = useQuestMessages(5);
     const acceptedQuests = player.quests?.filter((q) => q.status == QUEST_ACCEPTED).sort((a, b) => a.key - b.key) || [];
     const [focusLocation, setFocusLocation] = useState<Location>();
+    const [allCompleted, setAllCompleted] = useState<boolean | undefined>(true);
     const { ready: mapReady, sendMessage } = useUnityMap();
 
     useEffect(() => {
@@ -211,23 +230,7 @@ export const QuestPanel: FunctionComponent<QuestProps> = ({ player }: QuestProps
         sendMessage('MapCamera', 'FocusTile', JSON.stringify(focusLocation));
     }, [focusLocation, mapReady, sendMessage]);
 
-    if (acceptedQuests.length === 0) {
-        return <></>;
-    }
-
-    // console.log('rebuilding task list');
-    const tasks: Task[] = acceptedQuests[0].node.tasks.map((task) => {
-        return {
-            ...task,
-            isCompleted: evalTaskCompletion(task, player, questMessages),
-        };
-    });
-
-    const numCompleted = tasks.reduce((acc, t) => (t.isCompleted ? acc + 1 : acc), 0);
-    const allCompleted = numCompleted == tasks.length;
-
     const onCompleteClick = (quest: QuestFragment) => {
-        console.log('Complete quest!!', quest);
         player
             .dispatch({
                 name: 'COMPLETE_QUEST',
@@ -242,8 +245,8 @@ export const QuestPanel: FunctionComponent<QuestProps> = ({ player }: QuestProps
         <>
             <Panel>
                 <h1>Q.U.E.S.T.s</h1>
-                {[acceptedQuests[0]].map((quest) => (
-                    <>
+                {[acceptedQuests[0]].map((quest, questIdx) => (
+                    <div className="questItem" key={questIdx}>
                         <div className="header">
                             <h2>{quest.node.name?.value}</h2>
                             {quest.node.location && (
@@ -252,10 +255,17 @@ export const QuestPanel: FunctionComponent<QuestProps> = ({ player }: QuestProps
                         </div>
                         <p>{quest.node.description?.value}</p>
                         <div className="taskContainer">
-                            {tasks
+                            {quest.node.tasks
                                 .sort((a, b) => a.key - b.key)
                                 .map((task, idx) => (
-                                    <TaskItem key={idx} task={task} />
+                                    <TaskItem
+                                        key={idx}
+                                        isFirst={idx == 0}
+                                        task={task}
+                                        player={player}
+                                        questMessages={questMessages}
+                                        setAllCompleted={setAllCompleted}
+                                    />
                                 ))}
                         </div>
                         {allCompleted && (
@@ -268,7 +278,7 @@ export const QuestPanel: FunctionComponent<QuestProps> = ({ player }: QuestProps
                                 </button>
                             </div>
                         )}
-                    </>
+                    </div>
                 ))}
             </Panel>
         </>
