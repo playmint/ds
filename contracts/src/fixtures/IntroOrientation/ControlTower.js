@@ -58,6 +58,18 @@ export default async function update({ selected, player }) {
         });
     };
 
+    const acceptMultipleQuests = (questIds) => {
+        var questNum = getNextQuestNum();
+        for (var i = 0; i < questIds.length; i++) {
+            ds.dispatch({
+                name: "ACCEPT_QUEST",
+                args: [questIds[i], questNum],
+
+            });
+            questNum++;
+        }
+    };
+
     const getQuestStage = () => {
         if (!quests) return 0;
 
@@ -193,14 +205,15 @@ export default async function update({ selected, player }) {
 
     else if (questStage === 3) {
 
-        const orientationQuest = findQuestByName(QUEST_4);
-        const creationQuest = findQuestByName(QUEST_5);
+        const orientationQuest = findQuestByName(QUEST_3);
+        const creationQuest = findQuestByName(QUEST_4);
 
         const acceptOrientation = () => {
-            acceptQuest("0xadbb33ce000000000000000000000000c533c3b1b9d5856c"); //Orientation
-            acceptQuest("0xadbb33ce0000000000000000000000001296e6522b8258fd"); //Goo Harvesting
-            acceptQuest("0xadbb33ce00000000000000000000000065b3cb8a1f5db1f3"); //Deletion Preparation
-            acceptQuest("0xadbb33ce0000000000000000000000009d39a8f0c10e1ee7"); //Deletion Dury
+            acceptMultipleQuests([
+                "0xadbb33ce000000000000000000000000c533c3b1b9d5856c", //Orientation
+                "0xadbb33ce0000000000000000000000001296e6522b8258fd", //Goo Harvesting
+                "0xadbb33ce00000000000000000000000065b3cb8a1f5db1f3", //Deletion Preparation
+                "0xadbb33ce0000000000000000000000009d39a8f0c10e1ee7"]); //Deletion Dury
         }
 
         var orientationButton = {
@@ -225,19 +238,19 @@ export default async function update({ selected, player }) {
         var htmlString = "";
         var buttons;
         if (!orientationQuest && !creationQuest) {
-            htmlString = "Two quests are available for your skill level (currently set as 'Total Newb').<br>Please accept one to improve your simulation competency";
+            htmlString = "Two quests are available for users of your minimal skill level.<br>Please accept one to improve your simulation competency";
             buttons = [orientationButton, creationButton];
         }
         else if (!orientationQuest) {
-            htmlString = "Orientation quest is still available for your skill level.<br>Acceptance and completion will improve user ability within the simulation";
+            htmlString = "The Orientation quest is recommended for your skill level.<br>Acceptance and completion will improve user ability within the simulation";
             buttons = [orientationButton];
         }
         else if (!creationQuest) {
-            htmlString = "Creation quest is still available for your skill level.<br>Acceptance and completion will show user's ability to compose improvements to the simulation";
+            htmlString = "The Creation quest is recommended for your skill level.<br>Acceptance and completion will show user's ability to compose improvements to the simulation";
             buttons = [creationButton];
         }
         else {
-            html = "No quests are available at this time. Please return when both 'Orientation' and 'Creation' quests are completed";
+            html = "No quests are available at this time";
         }
 
 

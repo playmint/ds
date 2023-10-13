@@ -5,7 +5,7 @@ spec:
   description: "Test out your Deletion skills. Find an entity you have power to delete, and remove it."
   tasks:
     - kind: inventory
-      name: Have 50 x Red Goo in your bag (from any extractor)
+      name: Delete any Building or Bug
       item:
         name: Red Goo
         quantity: 50

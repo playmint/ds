@@ -58,7 +58,7 @@ export default function update({ selected, player }) {
 
         const verificationQuest = findQuestByName(QUEST_1);
         if (!verificationQuest) return 0;
-        if (verificationQuest.status === QUEST_ACCEPTED && !hasReceipt) return 1;
+        if (verificationQuest.status === QUEST_ACCEPTED && !hasReceipt) return 1; //Registration receipt check isn't working. Not super important...
         return 2;
     }
 
