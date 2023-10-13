@@ -42,7 +42,7 @@ class BuilderCameraDiorama : IDiorama
                 { "Tile/7", new TileData() { q = -1, r = 0, s = 1, height = 0f, color = "#506A95" } },
                 { "BuilderCamera", new BuilderCameraData() { q = -1, r = 0, s = 1, height = 0.01f} },
                 { "Factory/7", new FactoryBuildingData() { q = -1, r = 0, s = 1, height = 0.01f, model = "03-04", rotation = -30, color = "0" } },
-                { "GroundPlane/1", new GroundPlaneData() { height = -0.22f, color = "#33486D" } },
+                { "GroundPlane/1", new GroundPlaneData() { height = 0f, color = "#33486D" } },
             },
         };
     }
