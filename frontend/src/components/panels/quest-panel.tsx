@@ -11,6 +11,7 @@ const Panel = styled.div`
     color: #fff;
     padding: 2rem 2rem;
     width: 52rem;
+    position: absolute;
 
     > h1 {
         text-align: center;
