@@ -3,6 +3,53 @@ fragment SelectedPlayer on Node {
     mobileUnits: nodes(match: { kinds: "MobileUnit", via: { rel: "Owner", dir: IN } }) {
         ...SelectedMobileUnit
     }
+
+    quests: edges(match: { via: { rel: "HasQuest" } }) {
+        key
+        status: weight
+        node {
+            id
+            name: annotation(name: "name") {
+                value
+            }
+            description: annotation(name: "description") {
+                value
+            }
+            location: node(match: { kinds: "tile" }) {
+                id
+                coords: keys
+            }
+            tasks: edges(match: { kinds: "task", via: { rel: "HasTask", dir: OUT } }) {
+                key
+                node {
+                    id
+                    keys
+                    name: annotation(name: "name") {
+                        value
+                    }
+                    location: node(match: { kinds: "tile" }) {
+                        id
+                        coords: keys
+                    }
+                    itemSlot: edge(match: { kinds: "item" }) {
+                        balance: weight
+                        item: node {
+                            id
+                        }
+                    }
+                    message: annotation(name: "message") {
+                        value
+                    }
+                    buildingKind: node(match: { kinds: "buildingKind" }) {
+                        id
+                    }
+                    quest: node(match: { kinds: "quest", via: { rel: "HasQuest", dir: OUT } }) {
+                        id
+                    }
+                }
+            }
+        }
+    }
 }
 
 query GetSelectedPlayer($gameID: ID!, $id: String!) {

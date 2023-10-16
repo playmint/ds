@@ -7,7 +7,6 @@ import { MobileUnits } from '@app/components/map/MobileUnit';
 import { Tiles } from '@app/components/map/Tile';
 import { TileGoos } from '@app/components/map/TileGoo';
 import { trackEvent } from '@app/components/organisms/analytics';
-import { Logs } from '@app/components/organisms/logs';
 import { Onboarding } from '@app/components/organisms/onboarding';
 import { ItemPluginPanel } from '@app/components/panels/item-plugin-panel';
 import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
@@ -27,6 +26,7 @@ import { FunctionComponent, useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
+import { QuestPanel } from '@app/components/panels/quest-panel';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -241,7 +241,8 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             <NavPanel />
             <div className="hud-container">
                 <div className="top-left">
-                    <Logs className="logs" />
+                    {player && <QuestPanel player={player} />}
+                    {/* <Logs className="logs" /> */}
                 </div>
                 <div className="bottom-left">
                     <ItemPluginPanel />

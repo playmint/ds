@@ -198,7 +198,84 @@ export const Player = z.object({
         .optional(),
 });
 
-export const Manifest = z.discriminatedUnion('kind', [BuildingKind, Item, Building, Tile, MobileUnit, Player]);
+// Quest
+
+export const TaskCoord = z.object({
+    kind: z.literal('coord'),
+    name: z.string(),
+    location: Coords,
+});
+
+export const TaskMessage = z.object({
+    kind: z.literal('message'),
+    name: z.string(),
+    message: z.string(),
+    buildingKind: z.string(),
+});
+
+export const TaskInventory = z.object({
+    kind: z.literal('inventory'),
+    name: z.string(),
+    item: Slot,
+});
+
+export const TaskCombat = z.object({
+    kind: z.literal('combat'),
+    name: z.string(),
+    // optional location of tile to be attacked?
+});
+
+export const TaskCombatWinAttack = z.object({
+    kind: z.literal('combatWinAttack'),
+    name: z.string(),
+    // optional location of tile to be attacked?
+});
+
+export const TaskCombatWinDefense = z.object({
+    kind: z.literal('combatWinDefense'),
+    name: z.string(),
+    // optional location of tile to be defended?
+});
+
+export const TaskQuestAccept = z.object({
+    kind: z.literal('questAccept'),
+    name: z.string(),
+    quest: Name,
+});
+
+export const TaskQuestComplete = z.object({
+    kind: z.literal('questComplete'),
+    name: z.string(),
+    quest: Name,
+});
+
+export const Task = z.discriminatedUnion('kind', [
+    TaskCoord,
+    TaskMessage,
+    TaskInventory,
+    TaskCombat,
+    TaskCombatWinAttack,
+    TaskCombatWinDefense,
+    TaskQuestAccept,
+    TaskQuestComplete,
+]);
+
+export const QuestSpec = z.object({
+    name: Name,
+    description: OneLiner.nonempty(),
+    location: Coords.optional(),
+    tasks: Task.array().min(1),
+    next: Name.array().max(5).optional(),
+});
+
+export const Quest = z.object({
+    kind: z.literal('Quest'),
+    spec: QuestSpec,
+});
+
+// -- //
+
+export const Manifest = z.discriminatedUnion('kind', [BuildingKind, Item, Building, Tile, MobileUnit, Player, Quest]);
 
 export const ManifestDocument = z.object({
     filename: z.string(),

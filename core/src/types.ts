@@ -358,3 +358,22 @@ export interface ConnectedPlayer extends SelectedPlayerFragment {
 export type UnconnectedPlayer = undefined;
 
 export type SelectedMapElement = { id: string; type: string };
+
+export type QuestFragment = SelectedPlayerFragment['quests'][0];
+
+// TODO: Generate these from the contract
+export enum TaskKinds {
+    coord = 'coord',
+    message = 'message',
+    inventory = 'inventory',
+    combat = 'combat',
+    combatWinAttack = 'combatWinAttack',
+    combatWinDefense = 'combatWinDefense',
+    questAccept = 'questAccept',
+    questComplete = 'questComplete',
+}
+
+export type QuestTask = QuestFragment['node']['tasks'][0];
+
+export const QUEST_STATUS_ACCEPTED = 1;
+export const QUEST_STATUS_COMPLETED = 2;
