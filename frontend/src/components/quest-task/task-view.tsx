@@ -1,4 +1,4 @@
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useEffect } from 'react';
 import { TaskItemProps } from './task-item';
 
 const tickSvg = (
@@ -12,11 +12,14 @@ export const TaskView: FunctionComponent<
         isCompleted: boolean;
     } & Pick<TaskItemProps, 'task' | 'setTaskCompletion'>
 > = ({ isCompleted, task, setTaskCompletion }) => {
-    setTaskCompletion((oldObj) => {
-        const newObj = oldObj ? { ...oldObj } : {};
-        newObj[task.node.id] = isCompleted;
-        return newObj;
-    });
+    const taskId = task.node.id;
+    useEffect(() => {
+        setTaskCompletion((oldObj) => {
+            const newObj = oldObj ? { ...oldObj } : {};
+            newObj[taskId] = isCompleted;
+            return newObj;
+        });
+    }, [taskId, isCompleted, setTaskCompletion]);
 
     return (
         <div className="taskItem">
