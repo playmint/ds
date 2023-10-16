@@ -372,3 +372,8 @@ export enum TaskKinds {
     questAccept = 'questAccept',
     questComplete = 'questComplete',
 }
+
+export type QuestTask = QuestFragment['node']['tasks'][0];
+
+export const QUEST_STATUS_ACCEPTED = 1;
+export const QUEST_STATUS_COMPLETED = 2;

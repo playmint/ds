@@ -254,7 +254,6 @@ export default async function update({ selected, player }) {
         }
 
 
-
         return {
             version: 1,
             components: [
@@ -266,53 +265,13 @@ export default async function update({ selected, player }) {
                             id: "default",
                             type: "inline",
                             html: htmlString,
-                            buttons: buttons,                    
+                            buttons: buttons,
                         },
                     ],
                 },
             ],
         };
-    }
-
-        
-    else if (questStage === 4) {
-        const paperclipQuest = findQuestByName(QUEST_6);
-        const corruptQuest = findQuestByName(QUEST_7);
-
-        return {
-            version: 1,
-            components: [
-                {
-                    type: "building",
-                    id: "control-tower",
-                    content: [
-                        {
-                            id: "default",
-                            type: "inline",
-                            html: "Simulation abnormalies have been detected. Please accept normalisation assignments.",
-                            buttons: [
-                                {
-                                    text: "Accept Paperclip Maximiser Quest",
-                                    type: "action",
-                                    action: () => {
-                                        acceptQuest(QUEST_6);
-                                    },
-                                    disabled: !!paperclipQuest,
-                                },
-                                {
-                                    text: "Accept Corrupted User Quest",
-                                    type: "action",
-                                    action: () => {
-                                        acceptQuest(QUEST_7);
-                                    },
-                                    disabled: !!corruptQuest,
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        };
+    
     } else {
         return {
             version: 1,

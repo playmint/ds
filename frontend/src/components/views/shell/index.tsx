@@ -7,7 +7,6 @@ import { MobileUnits } from '@app/components/map/MobileUnit';
 import { Tiles } from '@app/components/map/Tile';
 import { TileGoos } from '@app/components/map/TileGoo';
 import { trackEvent } from '@app/components/organisms/analytics';
-import { Logs } from '@app/components/organisms/logs';
 import { Onboarding } from '@app/components/organisms/onboarding';
 import { ItemPluginPanel } from '@app/components/panels/item-plugin-panel';
 import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
@@ -243,7 +242,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             <div className="hud-container">
                 <div className="top-left">
                     {player && <QuestPanel player={player} />}
-                    <Logs className="logs" />
+                    {/* <Logs className="logs" /> */}
                 </div>
                 <div className="bottom-left">
                     <ItemPluginPanel />

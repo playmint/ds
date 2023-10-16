@@ -1,0 +1,11 @@
+---
+kind: Quest
+spec:
+  name: Orientation
+  description: "This world was created from the gooey remains of the last. You need to learn how to extract this gooo."
+  tasks:
+    - kind: inventory
+      name: Have 50 x Red Goo in your bag (from any extractor)
+      item:
+        name: Red Goo
+        quantity: 50
