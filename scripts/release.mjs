@@ -99,7 +99,7 @@ async function main({
 
     // read back contract addrs
     const addrs = JSON.parse(fs.readFileSync(`contracts/out/latest.json`).toString());
-    gameAddress = gameAddress ? gameAddress : addrs.gameAddress;
+    gameAddress = gameAddress ? gameAddress : addrs.game;
     const { router: routerAddress, state: stateAddress, dispatcher: dispatcherAddress, game: loadedGameAddress } = addrs;
 
     await check(`game address ${gameAddress}`, () => {
