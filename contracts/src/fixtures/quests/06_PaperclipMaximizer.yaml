@@ -1,0 +1,19 @@
+---
+kind: Quest
+spec:
+  name: Paperclip Maximizer
+  description: "Some extra-nasty bugs are threatening the existence of this world. We request a team of advanced users to delete this threat" 
+  location: [34, -32, -2]
+  tasks:
+    - kind: message
+      name: Have strength + defence > 50
+      message: failCredentials
+      buildingKind: Control Tower
+    - kind: message
+      name: Have life > 100
+      message: failCredentials
+      buildingKind: Control Tower
+    - kind: message
+      name: Delete a Paperclip Maximizer
+      message: failCredentials
+      buildingKind: Control Tower

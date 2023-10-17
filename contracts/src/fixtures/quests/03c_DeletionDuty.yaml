@@ -9,3 +9,4 @@ spec:
       item:
         name: Red Goo
         quantity: 50
+  next: ["Calling All Users"]
