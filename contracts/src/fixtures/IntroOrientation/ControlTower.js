@@ -1,15 +1,18 @@
+
 import ds from "downstream";
+
+let towerState = 0;
 
 const QUEST_ACCEPTED = 1;
 const QUEST_COMPLETED = 2;
 
-// const QUEST_1 = "Report to Control";
-const QUEST_2 = "Registration Error";
-const QUEST_3 = "Report to Control (again!)";
-const QUEST_4 = "Orientation";
-const QUEST_5 = "Creation";
-const QUEST_6 = "Paperclip Maximiser";
-const QUEST_7 = "Corrupted User";
+// const QUEST_0 = "Report to Control";
+const QUEST_1 = "Verification Error";
+const QUEST_2 = "Report to Control (again!)";
+const QUEST_3 = "Orientation";
+const QUEST_4 = "Creation";
+const QUEST_5 = "Paperclip Maximiser";
+const QUEST_6 = "Corrupted User";
 
 export default async function update({ selected, player }) {
     const { tiles, mobileUnit } = selected || {};
@@ -55,23 +58,33 @@ export default async function update({ selected, player }) {
         });
     };
 
+    const acceptMultipleQuests = (questIds) => {
+        var questNum = getNextQuestNum();
+        for (var i = 0; i < questIds.length; i++) {
+            ds.dispatch({
+                name: "ACCEPT_QUEST",
+                args: [questIds[i], questNum],
+
+            });
+            questNum++;
+        }
+    };
+
     const getQuestStage = () => {
         if (!quests) return 0;
 
-        const questRegError = findQuestByName(QUEST_2);
-        if (!questRegError) return 0;
+        const questRegError = findQuestByName(QUEST_1);
+        if (!questRegError && towerState < 1) return 0;
 
-        if (questRegError.status == QUEST_ACCEPTED) return 1;
-
-        const questReturn = findQuestByName(QUEST_3);
+        const questReturn = findQuestByName(QUEST_2);
         if (!questReturn) return 1;
-        if (questReturn.status == QUEST_ACCEPTED) return 2;
+        if (questReturn.status === QUEST_ACCEPTED && towerState < 2) return 2;
 
         // show newb quests if not complete
-        if (!areAllQuestsCompleted([QUEST_4, QUEST_5])) return 2;
+        if (!areAllQuestsCompleted([QUEST_3, QUEST_4])) return 3;
 
         // show advanced quests if not complete
-        if (!areAllQuestsCompleted([QUEST_6, QUEST_7])) return 3;
+        if (!areAllQuestsCompleted([QUEST_5, QUEST_6])) return 4;
 
         // out of quests
         return -1;
@@ -99,8 +112,17 @@ export default async function update({ selected, player }) {
 
     const questStage = getQuestStage();
 
+
     //If quest 2 isn't active or completed
     if (questStage === 0) {
+
+        const failVerification = () => {
+            ds.sendQuestMessage("failCredentials");
+            ds.log("MESSAGE SENT");
+            towerState = 1;
+            ds.log("TOWER STATE UPDATED");
+        }
+
         return {
             version: 1,
             components: [
@@ -111,18 +133,12 @@ export default async function update({ selected, player }) {
                         {
                             id: "default",
                             type: "inline",
-                            html:
-                                "M.O.R.T.O.N. welcomes you to Hexwood, whilst wondering who you are. Please verify your credentials." +
-                                quests.length,
+                            html: "M.O.R.T.O.N. welcomes you to Hexwood, and yet is wondering who you are. Please verify your credentials.",
                             buttons: [
                                 {
                                     text: "Verify Credentials",
                                     type: "action",
-                                    action: () => {
-                                        ds.sendQuestMessage(
-                                            "verifyCredentials",
-                                        );
-                                    },
+                                    action: failVerification,
                                     disabled: false,
                                 },
                             ],
@@ -132,8 +148,6 @@ export default async function update({ selected, player }) {
             ],
         };
     }
-
-    //Show this if quest 2 is active
     else if (questStage === 1) {
         return {
             version: 1,
@@ -145,19 +159,43 @@ export default async function update({ selected, player }) {
                         {
                             id: "default",
                             type: "inline",
-                            html: "Registration Error! Please collect valid Registration Receipt",
+                            html: "User Credentials cannot be verified.<br>Please resolve this issue at the Registration Office... or delete yourself from this world!"
+                        }
+                    ],
+                },
+            ],
+        }
+    }
+
+    //If quest 2 isn't active or completed
+    else if (questStage === 2) {
+
+        const verificationSuccess = () => {
+            ds.sendQuestMessage("passCredentials");
+            ds.log("MESSAGE SENT");
+            towerState = 2;
+            ds.log("TOWER STATE UPDATED");
+        }
+
+        return {
+            version: 1,
+            components: [
+                {
+                    type: "building",
+                    id: "control-tower",
+                    content: [
+                        {
+                            id: "default",
+                            type: "inline",
+                            html: "M.O.R.T.O.N. again welcomes you to Hexwood, and is hoping that this time you can successfully verify your credentials.",
                             buttons: [
                                 {
-                                    text: "Register User",
+                                    text: "Verify Credentials",
                                     type: "action",
-                                    action: () => {
-                                        ds.sendQuestMessage(
-                                            "verifyCredentials2",
-                                        );
-                                    },
-                                    disabled: true, // This button is never used as the quest will advance on by itself when the receipt is collected
+                                    action: verificationSuccess,
+                                    disabled: false,
                                 },
-                            ], //placeholder
+                            ],
                         },
                     ],
                 },
@@ -165,51 +203,55 @@ export default async function update({ selected, player }) {
         };
     }
 
-    //Show this if quest 3 is active
-    else if (questStage === 2) {
-        const orientationQuest = findQuestByName(QUEST_4);
-        const creationQuest = findQuestByName(QUEST_5);
-        return {
-            version: 1,
-            components: [
-                {
-                    type: "building",
-                    id: "control-tower",
-                    content: [
-                        {
-                            id: "default",
-                            type: "inline",
-                            html: 'User identified as with status: "Newb". Please accept newbie quests and level up A.S.A.P.',
-                            buttons: [
-                                {
-                                    text: "Accept Orientation Quest",
-                                    type: "action",
-                                    action: () => {
-                                        acceptQuest(
-                                            "0xadbb33ce000000000000000000000000c533c3b1b9d5856c",
-                                        );
-                                    }, // TODO: use name instead of ID
-                                    disabled: !!orientationQuest,
-                                },
-                                {
-                                    text: "Accept Creation Quest",
-                                    type: "action",
-                                    action: () => {
-                                        acceptQuest(
-                                            "0xadbb33ce000000000000000000000000de3bb0a48fe15c39",
-                                        );
-                                    },
-                                    disabled: !!creationQuest,
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
+    else if (questStage === 3) {
+
+        const orientationQuest = findQuestByName(QUEST_3);
+        const creationQuest = findQuestByName(QUEST_4);
+
+        const acceptOrientation = () => {
+            acceptMultipleQuests([
+                "0xadbb33ce000000000000000000000000c533c3b1b9d5856c", //Orientation
+                "0xadbb33ce0000000000000000000000001296e6522b8258fd", //Goo Harvesting
+                "0xadbb33ce00000000000000000000000065b3cb8a1f5db1f3"]); //Deletion Preparation
+        }
+
+        var orientationButton = {
+            text: "Accept Orientation Quest",
+            type: "action",
+            action: acceptOrientation,
+            disabled: false
         };
-    } else if (questStage === 3) {
-        const paperclipQuest = findQuestByName(QUEST_6);
-        const corruptQuest = findQuestByName(QUEST_7);
+
+        var creationButton = {
+            text: "Accept Creation Quest",
+            type: "action",
+            action: () => {
+                acceptQuest(
+                    "0xadbb33ce000000000000000000000000de3bb0a48fe15c39",
+                );
+            },
+            disabled: false
+        };
+
+
+        var htmlString = "";
+        var buttons;
+        if (!orientationQuest && !creationQuest) {
+            htmlString = "Two quests are available for users of your minimal skill level.<br>Please accept one to improve your simulation competency";
+            buttons = [orientationButton, creationButton];
+        }
+        else if (!orientationQuest) {
+            htmlString = "The Orientation quest is recommended for your skill level.<br>Acceptance and completion will improve user ability within the simulation";
+            buttons = [orientationButton];
+        }
+        else if (!creationQuest) {
+            htmlString = "The Creation quest is recommended for your skill level.<br>Acceptance and completion will show user's ability to compose improvements to the simulation";
+            buttons = [creationButton];
+        }
+        else {
+            html = "No quests are available at this time";
+        }
+
 
         return {
             version: 1,
@@ -221,30 +263,14 @@ export default async function update({ selected, player }) {
                         {
                             id: "default",
                             type: "inline",
-                            html: "Simulation abnormalies have been detected. Please accept normalisation assignments.",
-                            buttons: [
-                                {
-                                    text: "Accept Paperclip Maximiser Quest",
-                                    type: "action",
-                                    action: () => {
-                                        acceptQuest(QUEST_6);
-                                    },
-                                    disabled: !!paperclipQuest,
-                                },
-                                {
-                                    text: "Accept Corrupted User Quest",
-                                    type: "action",
-                                    action: () => {
-                                        acceptQuest(QUEST_7);
-                                    },
-                                    disabled: !!corruptQuest,
-                                },
-                            ],
+                            html: htmlString,
+                            buttons: buttons,
                         },
                     ],
                 },
             ],
         };
+    
     } else {
         return {
             version: 1,

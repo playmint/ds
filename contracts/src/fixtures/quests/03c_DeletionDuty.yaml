@@ -1,0 +1,11 @@
+---
+kind: Quest
+spec:
+  name: Deletion Duty
+  description: "Test out your Deletion skills. Find an entity you have power to delete, and remove it."
+  tasks:
+    - kind: inventory
+      name: Delete any Building or Bug
+      item:
+        name: Red Goo
+        quantity: 50

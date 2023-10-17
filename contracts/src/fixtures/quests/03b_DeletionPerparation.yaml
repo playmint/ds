@@ -1,0 +1,13 @@
+---
+kind: Quest
+spec:
+  name: Deletion Preparation
+  description: "Not all simulation entities are desirable. All users are expected to be prepared for Deletion duty."
+  location: [-12, 16, -4]
+  tasks:
+    - kind: inventory
+      name: Have a Deletion Tool in your bag
+      item:
+        name: Deletion Tool
+        quantity: 1
+  next: ["Deletion Duty"]

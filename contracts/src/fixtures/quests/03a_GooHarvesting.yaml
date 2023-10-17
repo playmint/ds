@@ -1,7 +1,7 @@
 ---
 kind: Quest
 spec:
-  name: Orientation
+  name: Goo Harvesting
   description: "This world was created from the gooey remains of the last. You need to learn how to extract this gooo."
   tasks:
     - kind: inventory

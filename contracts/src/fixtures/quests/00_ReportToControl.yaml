@@ -1,0 +1,15 @@
+---
+kind: Quest
+spec:
+  name: Report to Control
+  description: "Welcome new user. Please report to the control tower for further instructions"
+  location: [-6, 5, 1]
+  tasks:
+    - kind: coord
+      name: Move to the Control Tower
+      location: [-6, 5, 1]
+    - kind: message
+      name: "Press the 'Verify Credentials' button"
+      message: failCredentials
+      buildingKind: Control Tower
+  next: ["Verification Error"]
