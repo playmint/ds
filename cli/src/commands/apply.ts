@@ -414,6 +414,11 @@ const deploy = {
                 describe: 'show changes that would be applied',
                 type: 'boolean',
             })
+            .option('max-connections', {
+                describe: 'max number of connections to use for submitting parallel tx',
+                type: 'number',
+                default: 250,
+            })
             .check((ctx) => {
                 if (ctx.filename === '-') {
                     return true;
@@ -552,27 +557,32 @@ const deploy = {
         // apply the ops
         let results: OpResult[] = [];
         for (let i = 0; i < opsets.length; i++) {
-            const pending = opsets[i].map((op) =>
-                player
-                    .dispatchAndWait(...op.actions)
-                    .then(() => {
-                        console.log(`✅ ${op.note}\n`);
-                        return {
-                            ok: true,
-                            op,
-                        };
-                    })
-                    .catch((err) => {
-                        console.log(`❌ ${op.note}\n`);
-                        return {
-                            ok: false,
-                            err,
-                            op,
-                        };
-                    })
-            );
-            const res = await Promise.all(pending);
-            results = [...results, ...res];
+            // batch up the op in the opset to avoid opening too many
+            // connections at once
+            const batches = batched(opsets[i], ctx.maxConnections);
+            for (let j = 0; j < batches.length; j++) {
+                const pending = batches[j].map((op) => {
+                    return player
+                        .dispatchAndWait(...op.actions)
+                        .then(() => {
+                            console.log(`✅ ${op.note}\n`);
+                            return {
+                                ok: true,
+                                op,
+                            };
+                        })
+                        .catch((err) => {
+                            console.log(`❌ ${op.note}\n`);
+                            return {
+                                ok: false,
+                                err,
+                                op,
+                            };
+                        });
+                });
+                const res = await Promise.all(pending);
+                results = [...results, ...res];
+            }
         }
 
         // report any failures
@@ -595,3 +605,17 @@ const deploy = {
 };
 
 export default deploy;
+
+function batched<T>(input: T[], perChunk: number): T[][] {
+    return input.reduce((output, item, index) => {
+        const chunkIndex = Math.floor(index / perChunk);
+
+        if (!output[chunkIndex]) {
+            output[chunkIndex] = []; // start a new chunk
+        }
+
+        output[chunkIndex].push(item);
+
+        return output;
+    }, [] as T[][]);
+}

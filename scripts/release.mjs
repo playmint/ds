@@ -25,6 +25,8 @@ async function main({
     dryRun,
     gameAddress,
     deploymentName,
+    maxConnections,
+    version,
 }) {
     // abort if attempt to overrite ds-main or ds-exp
     if (deploymentName === 'main') {
@@ -36,15 +38,13 @@ async function main({
     console.log('\n');
 
     // get the current commit
-    const longSHA = execSync(`git rev-parse HEAD`).toString().trim();
-    const shortSHA = execSync(`git rev-parse HEAD`).toString().trim();
+    const longSHA = version || execSync(`git rev-parse HEAD`).toString().trim();
 
     // get the expected image names
     const images = {
         contracts: containerImage('ds-contracts', longSHA),
         services: containerImage('ds-services', longSHA),
         shell: containerImage('ds-shell', longSHA),
-        docs: containerImage('ds-docs', longSHA),
     };
 
     // check not dirty
@@ -65,7 +65,7 @@ async function main({
     // check that a deployment suceeded so that we know that this build is
     // at least in a deployable condition
     if (!dryRun) {
-        await check(`github action checks for ${shortSHA}`, async () => {
+        await check(`github action checks for ${longSHA}`, async () => {
             const workflows = await octokit.request(`GET /repos/${GITHUB_OWNER}/${GITHUB_REPO}/actions/runs?head_sha=${longSHA}`, {
                 owner: GITHUB_OWNER,
                 repo: GITHUB_REPO,
@@ -99,7 +99,7 @@ async function main({
 
     // read back contract addrs
     const addrs = JSON.parse(fs.readFileSync(`contracts/out/latest.json`).toString());
-    gameAddress = gameAddress ? gameAddress : addrs.gameAddress;
+    gameAddress = gameAddress ? gameAddress : addrs.game;
     const { router: routerAddress, state: stateAddress, dispatcher: dispatcherAddress, game: loadedGameAddress } = addrs;
 
     await check(`game address ${gameAddress}`, () => {
@@ -174,6 +174,7 @@ async function main({
         await check(`apply fixtures`, () => {
             execSync([
                 `ds`,
+                `--max-connections ${maxConnections}`,
                 `--ws-endpoint ${servicesWS}/query`,
                 `--http-endpoint ${servicesURL}/query`,
                 `-k ${deployerPrivateKey}`,
@@ -325,6 +326,10 @@ yargs
             describe: 'skip git dirty checking',
             type: 'boolean'
         });
+        cli.option('version', {
+            describe: 'git commit to deploy',
+            type: 'string'
+        });
         cli.option('sequencer-private-key', {
             required: true,
             describe: 'private key for sequencer',
@@ -350,6 +355,11 @@ yargs
         cli.option('dry-run', {
             describe: 'skip contract deploy, dump deploy config, and exit',
             type: 'boolean'
+        });
+        cli.option('max-connections', {
+            describe: 'max connections to use during ds apply',
+            type: 'number',
+            default: 250,
         });
         cli.option('interactive', {
             alias: 'i',
