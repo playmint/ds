@@ -227,7 +227,7 @@ export default async function update({ selected, player }) {
             type: "action",
             action: () => {
                 acceptQuest(
-                    "0xadbb33ce000000000000000000000000de3bb0a48fe15c39",
+                    "0xadbb33ce000000000000000000000000a217b97e1de447f5", //Vault of Knowledge
                 );
             },
             disabled: false
