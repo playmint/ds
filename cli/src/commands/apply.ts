@@ -561,9 +561,7 @@ const deploy = {
             // connections at once
             const batches = batched(opsets[i], ctx.maxConnections);
             for (let j = 0; j < batches.length; j++) {
-                console.log('batch size', batches[j].length);
                 const pending = batches[j].map((op) => {
-                    console.log('send', op);
                     return player
                         .dispatchAndWait(...op.actions)
                         .then(() => {
