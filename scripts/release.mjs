@@ -44,7 +44,6 @@ async function main({
         contracts: containerImage('ds-contracts', longSHA),
         services: containerImage('ds-services', longSHA),
         shell: containerImage('ds-shell', longSHA),
-        docs: containerImage('ds-docs', longSHA),
     };
 
     // check not dirty
