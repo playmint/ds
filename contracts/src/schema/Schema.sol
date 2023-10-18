@@ -46,6 +46,9 @@ uint64 constant BLOCK_TIME_SECS = 2;
 uint8 constant GOO_GREEN = 0;
 uint8 constant GOO_BLUE = 1;
 uint8 constant GOO_RED = 2;
+uint8 constant LIFE = GOO_GREEN;
+uint8 constant DEFENCE = GOO_BLUE;
+uint8 constant ATTACK = GOO_RED;
 
 enum LocationKey {
     PREV,

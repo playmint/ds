@@ -1,0 +1,56 @@
+fragment Quest on Node {
+    id
+    name: annotation(name: "name") {
+        value
+    }
+    description: annotation(name: "description") {
+        value
+    }
+    location: node(match: { kinds: "tile" }) {
+        id
+        coords: keys
+    }
+    tasks: edges(match: { kinds: "task", via: { rel: "HasTask", dir: OUT } }) {
+        key
+        node {
+            ...QuestTask
+        }
+    }
+}
+
+# TODO: Break QuestTasks into the kinds. Can I do a discriminated union using the keys?
+# https://spin.atomicobject.com/2019/04/15/discriminated-unions/
+
+fragment QuestTask on Node {
+    id
+    keys
+    name: annotation(name: "name") {
+        value
+    }
+    location: node(match: { kinds: "tile" }) {
+        id
+        coords: keys
+    }
+    itemSlot: edge(match: { kinds: "item" }) {
+        balance: weight
+        item: node {
+            id
+        }
+    }
+    message: annotation(name: "message") {
+        value
+    }
+    buildingKind: node(match: { kinds: "buildingKind" }) {
+        id
+    }
+    quest: node(match: { kinds: "quest", via: { rel: "HasQuest", dir: OUT } }) {
+        id
+    }
+    combatState: edge(match: { kinds: "task", via: { rel: "Has", dir: OUT } }) {
+        value: weight
+    }
+    unitStats: edges(match: { kinds: "atom", via: { rel: "Balance", dir: OUT } }) {
+        key
+        weight
+    }
+}

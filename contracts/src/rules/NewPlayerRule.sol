@@ -59,7 +59,8 @@ contract NewPlayerRule is Rule {
             state.setItemSlot(bag1, 2, ItemUtils.RedGoo(), 100);
 
             // Accept the first quest in the chain
-            state.setQuestAccepted(Node.Quest("Report to Control"), Node.Player(ctx.sender), 0);
+            // state.setQuestAccepted(Node.Quest("Report to Control"), Node.Player(ctx.sender), 0);
+            state.setQuestAccepted(Node.Quest("Creation"), Node.Player(ctx.sender), 0);
         }
 
         return state;

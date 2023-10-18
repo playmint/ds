@@ -15,6 +15,8 @@ import { compile } from '../utils/solidity';
 import { getManifestsByKind } from './get';
 import { z } from 'zod';
 
+const null24bytes = '0x000000000000000000000000000000000000000000000000';
+
 const encodeItemID = ({ name, stackable, goo }: ReturnType<typeof ItemSpec.parse>) => {
     const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`item/${name}`))));
     return solidityPacked(
@@ -44,9 +46,12 @@ const encodeTaskID = ({ name, kind }) => {
     );
 };
 
+const getQuestKey = (name: string) => {
+    return BigInt.asUintN(64, BigInt(keccak256UTF8(`quest/${name}`)));
+};
+
 const encodeQuestID = ({ name }) => {
-    const id = BigInt.asUintN(64, BigInt(keccak256UTF8(`quest/${name}`)));
-    return solidityPacked(['bytes4', 'uint32', 'uint64', 'uint64'], [NodeSelectors.Quest, 0, 0, id]);
+    return solidityPacked(['bytes4', 'uint32', 'uint64', 'uint64'], [NodeSelectors.Quest, 0, 0, getQuestKey(name)]);
 };
 
 // TODO: Is there a way of referencing the Solidity enum?
@@ -168,7 +173,6 @@ const buildingKindDeploymentActions = async (
     }
 
     // input / output items
-    const null24bytes = '0x000000000000000000000000000000000000000000000000';
     let inputItems: string[] = [null24bytes, null24bytes, null24bytes, null24bytes];
     let inputQtys: number[] = [0, 0, 0, 0];
     let outputItems: string[] = [null24bytes];
@@ -258,8 +262,7 @@ const buildingKindDeploymentActions = async (
 const questDeploymentActions = async (
     ctx,
     file: ReturnType<typeof ManifestDocument.parse>,
-    files: ReturnType<typeof ManifestDocument.parse>[],
-    verbose: boolean
+    files: ReturnType<typeof ManifestDocument.parse>[]
 ): Promise<CogAction[]> => {
     const ops: CogAction[] = [];
 
@@ -295,12 +298,26 @@ const questDeploymentActions = async (
             case 'questComplete': {
                 return coder.encode(['bytes24'], [encodeQuestID({ name: task.quest })]);
             }
+            case 'combat': {
+                const combatState = task.combatState == 'winAttack' ? 0 : 1;
+                return coder.encode(['uint8'], [combatState]);
+            }
+            case 'construct': {
+                const buildingKindId = task.buildingKind
+                    ? getBuildingKindIDByName(existingBuildingKinds, pendingBuildingKinds, task.buildingKind)
+                    : null24bytes;
+                return coder.encode(['bytes24'], [encodeQuestID({ name: buildingKindId })]);
+            }
+            case 'unitStats': {
+                return coder.encode(['uint64', 'uint64', 'uint64'], [task.life, task.defence, task.attack]);
+            }
         }
 
         return solidityPacked(['uint8'], [0]);
     };
 
     // register tasks
+    // const questKey = getQuestKey(spec.name); // TODO: Add questKey to taskID so tasks do not require a unique name globally
     ops.push(
         ...spec.tasks.map((task): CogAction => {
             const id = encodeTaskID(task);
@@ -504,7 +521,7 @@ const deploy = {
                 continue;
             }
 
-            const actions = await questDeploymentActions(ctx, doc, docs, ctx.verbose);
+            const actions = await questDeploymentActions(ctx, doc, docs);
             opsets[opn].push({
                 doc,
                 actions,
