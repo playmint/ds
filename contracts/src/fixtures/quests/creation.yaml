@@ -23,7 +23,7 @@ spec:
     - kind: combat
       name: Delete any Building or Bug
       combatState: winAttack
-next: ["Deploy a building kind"]
+  next: ["Deploy a building kind"]
 
 ---
 kind: Quest
@@ -33,6 +33,7 @@ spec:
   tasks:
     - kind: deployBuilding
       name: Deploy any building
+  next: ["Increase your Unit's stats"]
 
 ---
 kind: Quest

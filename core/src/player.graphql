@@ -4,7 +4,7 @@ fragment SelectedPlayer on Node {
         ...SelectedMobileUnit
     }
 
-    quests: edges(match: { via: { rel: "HasQuest" } }) {
+    quests: edges(match: { via: { rel: "HasQuest", dir: OUT } }) {
         key
         status: weight
         node {
