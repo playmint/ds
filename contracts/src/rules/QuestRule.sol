@@ -36,9 +36,14 @@ contract QuestRule is Rule {
                 state.set(Rel.Location.selector, 0, task, tile, 0);
             } else if (uint32(uint256(keccak256(abi.encodePacked("inventory")))) == taskKind) {
                 (bytes24 item, uint64 quantity) = abi.decode(taskData, (bytes24, uint64));
+                require(bytes4(item) == Kind.Item.selector, "inventoryTask: item ID not Item node");
                 state.set(Rel.Balance.selector, 0, task, item, quantity);
             } else if (uint32(uint256(keccak256(abi.encodePacked("message")))) == taskKind) {
                 (bytes24 buildingKind, string memory message) = abi.decode(taskData, (bytes24, string));
+                require(
+                    bytes4(buildingKind) == Kind.BuildingKind.selector,
+                    "messageTask: buildingKind ID not BuildingKind node"
+                );
                 state.set(Rel.Has.selector, 0, task, buildingKind, 0);
                 state.annotate(task, "message", message);
             } else if (
@@ -46,6 +51,7 @@ contract QuestRule is Rule {
                     || uint32(uint256(keccak256(abi.encodePacked("questComplete")))) == taskKind
             ) {
                 (bytes24 quest) = abi.decode(taskData, (bytes24));
+                require(bytes4(quest) == Kind.Quest.selector, "questAccept/questComplete: quest ID not Quest node");
                 state.set(Rel.HasQuest.selector, 0, task, quest, 0);
             } else if (uint32(uint256(keccak256(abi.encodePacked("combat")))) == taskKind) {
                 (uint8 combatState) = abi.decode(taskData, (uint8));
@@ -55,6 +61,10 @@ contract QuestRule is Rule {
                 // Building kind is optional
                 (bytes24 buildingKind) = abi.decode(taskData, (bytes24));
                 if (buildingKind != bytes24(0)) {
+                    require(
+                        bytes4(buildingKind) == Kind.BuildingKind.selector,
+                        "constructTask: buildingKind ID not BuildingKind node"
+                    );
                     state.set(Rel.Has.selector, 0, task, buildingKind, 0);
                 }
             } else if (uint32(uint256(keccak256(abi.encodePacked("unitStats")))) == taskKind) {

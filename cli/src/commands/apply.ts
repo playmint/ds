@@ -306,7 +306,7 @@ const questDeploymentActions = async (
                 const buildingKindId = task.buildingKind
                     ? getBuildingKindIDByName(existingBuildingKinds, pendingBuildingKinds, task.buildingKind)
                     : null24bytes;
-                return coder.encode(['bytes24'], [encodeQuestID({ name: buildingKindId })]);
+                return coder.encode(['bytes24'], [buildingKindId]);
             }
             case 'unitStats': {
                 return coder.encode(['uint64', 'uint64', 'uint64'], [task.life, task.defence, task.attack]);
