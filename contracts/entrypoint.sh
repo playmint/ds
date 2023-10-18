@@ -26,9 +26,10 @@ echo "+-------------------+"
 anvil \
     --block-base-fee-per-gas 1 \
     --block-time 2 \
+    --transaction-block-keeper 25 \
+    --prune-history \
 	--host 0.0.0.0 \
 	-m "${ACCOUNT_MNEMONIC}" \
-    --code-size-limit 9999999999999 \
 	&
 
 
