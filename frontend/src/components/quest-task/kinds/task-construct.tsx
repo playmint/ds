@@ -13,7 +13,7 @@ export const TaskConstruct = memo(
         playerID: string;
         tiles: WorldTileFragment[];
     } & Pick<TaskItemProps, 'task' | 'setTaskCompletion'>) => {
-        console.log(`evaluating TaskConstruct`);
+        // console.log(`evaluating TaskConstruct`);
         const isCompleted = !!tiles.some((t) => {
             return (
                 t.building?.owner?.id == playerID &&

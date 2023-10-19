@@ -20,7 +20,7 @@ export const TaskUnitStats = memo(
     }: {
         mobileUnits?: MobileUnit[];
     } & Pick<TaskItemProps, 'task' | 'setTaskCompletion'>) => {
-        console.log(`evaluating TaskUnitStats`);
+        // console.log(`evaluating TaskUnitStats`);
 
         const isCompleted =
             !!mobileUnits &&

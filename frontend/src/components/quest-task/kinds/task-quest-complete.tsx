@@ -11,7 +11,7 @@ export const TaskQuestComplete = memo(
     }: {
         quests?: QuestFragment[];
     } & Pick<TaskItemProps, 'task' | 'setTaskCompletion'>) => {
-        console.log(`evaluating TaskQuestCompleted`);
+        // console.log(`evaluating TaskQuestCompleted`);
         const isCompleted = !!quests?.some(
             (q) => q.node.id == task.node.quest?.id && q.status == QUEST_STATUS_COMPLETED
         );

@@ -18,7 +18,7 @@ export const TaskCombat = memo(
         mobileUnits?: WorldMobileUnitFragment[];
         tiles: WorldTileFragment[];
     } & Pick<TaskItemProps, 'task' | 'setTaskCompletion'>) => {
-        console.log(`evaluating TaskCombat`);
+        // console.log(`evaluating TaskCombat`);
         const isCompleted =
             !!mobileUnits &&
             !!tiles.some((t) => {

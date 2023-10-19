@@ -13,7 +13,7 @@ export const TaskDeployBuilding = memo(
         playerID: string;
         buildingKinds: BuildingKindFragment[];
     } & Pick<TaskItemProps, 'task' | 'setTaskCompletion'>) => {
-        console.log(`evaluating TaskDeployBuilding`);
+        // console.log(`evaluating TaskDeployBuilding`);
         const isCompleted = buildingKinds.some((b) => {
             return b.owner?.id == playerID;
         });

@@ -11,7 +11,7 @@ export const TaskQuestAccept = memo(
     }: {
         quests?: QuestFragment[];
     } & Pick<TaskItemProps, 'task' | 'setTaskCompletion'>) => {
-        console.log(`evaluating TaskQuestAccept`);
+        // console.log(`evaluating TaskQuestAccept`);
         const isCompleted = !!quests?.some((q) => q.node.id == task.node.quest?.id);
 
         return <TaskView isCompleted={isCompleted} task={task} setTaskCompletion={setTaskCompletion} />;
