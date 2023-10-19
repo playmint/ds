@@ -367,10 +367,11 @@ export enum TaskKinds {
     message = 'message',
     inventory = 'inventory',
     combat = 'combat',
-    combatWinAttack = 'combatWinAttack',
-    combatWinDefense = 'combatWinDefense',
     questAccept = 'questAccept',
     questComplete = 'questComplete',
+    construct = 'construct',
+    deployBuilding = 'deployBuilding',
+    unitStats = 'unitStats',
 }
 
 export type QuestTask = QuestFragment['node']['tasks'][0];

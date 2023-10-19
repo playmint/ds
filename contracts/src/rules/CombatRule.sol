@@ -18,7 +18,11 @@ import {
     DEFAULT_ZONE,
     GOO_GREEN,
     GOO_BLUE,
-    GOO_RED
+    GOO_RED,
+    UNIT_BASE_LIFE,
+    UNIT_BASE_DEFENCE,
+    UNIT_BASE_ATTACK,
+    LIFE_MUL
 } from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import "forge-std/console.sol";
@@ -27,11 +31,6 @@ import "@ds/utils/LibString.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 
 using Schema for State;
-
-uint32 constant UNIT_BASE_LIFE = 50;
-uint32 constant UNIT_BASE_DEFENCE = 23;
-uint32 constant UNIT_BASE_ATTACK = 30;
-uint32 constant LIFE_MUL = 10;
 
 uint64 constant BLOCKS_PER_TICK = 1;
 uint64 constant MAX_TICKS = 300;

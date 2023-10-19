@@ -12,7 +12,7 @@ export const TaskCoord = memo(
     }: {
         mobileUnits: MobileUnit[];
     } & Pick<TaskItemProps, 'task' | 'setTaskCompletion'>) => {
-        console.log(`evaluating TaskCoord`);
+        // console.log(`evaluating TaskCoord`);
         const isCompleted = mobileUnits?.some((unit) => {
             return (
                 unit.nextLocation &&

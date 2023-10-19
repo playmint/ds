@@ -1,8 +1,14 @@
-import { ConnectedPlayer, QUEST_STATUS_ACCEPTED, QuestFragment } from '@app/../../core/src';
+import {
+    BuildingKindFragment,
+    ConnectedPlayer,
+    QUEST_STATUS_ACCEPTED,
+    QuestFragment,
+    WorldStateFragment,
+} from '@app/../../core/src';
 import styled from 'styled-components';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { Locatable, getCoords } from '@app/helpers/tile';
-import { useQuestMessages } from '@app/hooks/use-game-state';
+import { useBuildingKinds, useQuestMessages } from '@app/hooks/use-game-state';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { TaskItem } from '../quest-task/task-item';
 
@@ -106,10 +112,12 @@ const FocusButton: FunctionComponent<{
 export const QuestItem: FunctionComponent<{
     expanded: boolean;
     quest: QuestFragment;
+    world: WorldStateFragment;
     player: ConnectedPlayer;
+    buildingKinds: BuildingKindFragment[];
     setFocusLocation: ReturnType<typeof useState<Location>>[1];
     onExpandClick: (questId: string) => void;
-}> = ({ expanded, player, quest, setFocusLocation, onExpandClick }) => {
+}> = ({ expanded, world, player, buildingKinds, quest, setFocusLocation, onExpandClick }) => {
     const questMessages = useQuestMessages(5);
     const [taskCompletion, setTaskCompletion] = useState<{ [key: string]: boolean }>({});
     const [allCompleted, setAllCompleted] = useState<boolean>(false);
@@ -157,6 +165,8 @@ export const QuestItem: FunctionComponent<{
                                 <TaskItem
                                     key={idx}
                                     task={task}
+                                    world={world}
+                                    buildingKinds={buildingKinds}
                                     player={player}
                                     questMessages={questMessages}
                                     setTaskCompletion={setTaskCompletion}
@@ -181,10 +191,12 @@ export const QuestItem: FunctionComponent<{
 
 export interface QuestPanelProps {
     player: ConnectedPlayer;
+    world: WorldStateFragment;
 }
 
-export const QuestPanel: FunctionComponent<QuestPanelProps> = ({ player }: QuestPanelProps) => {
+export const QuestPanel: FunctionComponent<QuestPanelProps> = ({ world, player }: QuestPanelProps) => {
     const { ready: mapReady, sendMessage } = useUnityMap();
+    const buildingKinds = useBuildingKinds();
     const [expandedQuest, setExpandedQuest] = useState<string>();
 
     const acceptedQuests = useMemo(() => {
@@ -235,6 +247,8 @@ export const QuestPanel: FunctionComponent<QuestPanelProps> = ({ player }: Quest
                             key={questIdx}
                             quest={quest}
                             player={player}
+                            world={world}
+                            buildingKinds={buildingKinds || []}
                             setFocusLocation={setFocusLocation}
                             onExpandClick={onExpandClick}
                         />
