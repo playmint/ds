@@ -249,7 +249,7 @@ export default async function update({ selected, player }) {
             buttons = [creationButton];
         }
         else {
-            html = "No quests are available at this time";
+            htmlString = "No quests are available at this time";
         }
 
 
