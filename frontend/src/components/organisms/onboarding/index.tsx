@@ -29,9 +29,7 @@ export const Onboarding = ({ player, onClickConnect }: OnboardingProps) => {
     return (
         <div className="onboarding">
             <h3>👁️‍🗨️ Somewhere in Latent Space</h3>
-            <p>
-                Welcome to Downstream!
-            </p>
+            <p>Welcome to Downstream!</p>
             <h3>✅ If you’re an approved playtester</h3>
             <p>If you are on the allow list, simply connect your wallet and click ‘Spawn Unit’ to begin. </p>
             <p>
