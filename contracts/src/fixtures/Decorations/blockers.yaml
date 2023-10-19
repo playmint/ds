@@ -1,60 +1,6 @@
 ---
 kind: BuildingKind
 spec:
-  name: Large Cactus
-  description: "It's very spikey!"
-  category: blocker
-  model: CactusLarge
-  materials:
-    - name: Green Goo
-      quantity: 10
-    - name: Blue Goo
-      quantity: 10
-    - name: Red Goo
-      quantity: 10
----
-kind: BuildingKind
-spec:
-  name: Small Cactus
-  description: "It's a bit spikey!"
-  category: blocker
-  model: CactusSmall
-  materials:
-    - name: Green Goo
-      quantity: 10
-    - name: Blue Goo
-      quantity: 10
-    - name: Red Goo
-      quantity: 10
----
-kind: BuildingKind
-spec:
-  name: Large Grass
-  category: blocker
-  model: GrassLarge
-  materials:
-    - name: Green Goo
-      quantity: 10
-    - name: Blue Goo
-      quantity: 10
-    - name: Red Goo
-      quantity: 10
----
-kind: BuildingKind
-spec:
-  name: Log Wall
-  category: blocker
-  model: LogWall
-  materials:
-    - name: Green Goo
-      quantity: 10
-    - name: Blue Goo
-      quantity: 10
-    - name: Red Goo
-      quantity: 10
----
-kind: BuildingKind
-spec:
   name: Large Oak Trees
   category: blocker
   model: OakTreesLarge
@@ -71,19 +17,6 @@ spec:
   name: Small Oak Trees
   category: blocker
   model: OakTreesSmall
-  materials:
-    - name: Green Goo
-      quantity: 10
-    - name: Blue Goo
-      quantity: 10
-    - name: Red Goo
-      quantity: 10
----
-kind: BuildingKind
-spec:
-  name: Palm Trees
-  category: blocker
-  model: PalmTrees
   materials:
     - name: Green Goo
       quantity: 10
@@ -136,32 +69,6 @@ spec:
   name: Small Rocks
   category: blocker
   model: rocksSmall
-  materials:
-    - name: Green Goo
-      quantity: 10
-    - name: Blue Goo
-      quantity: 10
-    - name: Red Goo
-      quantity: 10
----
-kind: BuildingKind
-spec:
-  name: Shrub
-  category: blocker
-  model: Shrub
-  materials:
-    - name: Green Goo
-      quantity: 10
-    - name: Blue Goo
-      quantity: 10
-    - name: Red Goo
-      quantity: 10
----
-kind: BuildingKind
-spec:
-  name: Stone Wall
-  category: blocker
-  model: StoneWall
   materials:
     - name: Green Goo
       quantity: 10
