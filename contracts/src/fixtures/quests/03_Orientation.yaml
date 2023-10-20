@@ -13,3 +13,4 @@ spec:
     - kind: questComplete
       name: Complete Deletion Duty quest
       quest: Deletion Duty
+  next: ["Calling All Users"]

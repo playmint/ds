@@ -6,7 +6,7 @@ spec:
   location: [-6, 5, 1]
   tasks:
     - kind: coord
-      name: "Return to the Control Tower"
+      name: "Stand next to the Control Tower"
       location: [-6, 5, 1]
       buildingKind: Control Tower
     - kind: message

@@ -7,10 +7,10 @@ spec:
   location: [5, -1, -4]
   tasks:
     - kind: coord
-      name: Move to the Registration Office
+      name: Move your unit so that you are standing next to the Registration Office
       location: [5, -1, -4]
     - kind: inventory
-      name: Collect the Registration Receipt and put it into one of your bags
+      name: Use the Registration office to get the Receipt, and put it into one of your bags
       item:
         name: Registration Receipt
         quantity: 1

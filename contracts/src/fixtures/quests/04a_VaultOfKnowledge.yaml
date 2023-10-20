@@ -5,10 +5,6 @@ spec:
   description: "Travel to the vault of knowledge and learn the secrets of creation"
   location: [-18, 2, 16]
   tasks:
-    - kind: coord
-      name: "Travel to the Vault of Knowledge"
-      location: [-18, 2, 16]
-      buildingKind: Vault of Knowledge 
     - kind: message
       name: "Read the D.O.C."
       message: readTheDoc

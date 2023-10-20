@@ -2,10 +2,8 @@
 kind: Quest
 spec:
   name: Goo Harvesting
-  description: "This world was created from the gooey remains of the last. You need to learn how to extract this gooo."
+  description: "This world was created from the gooey remains of the last. You need to learn how to extract this goo."
   tasks:
-    - kind: inventory
-      name: Have 50 x Red Goo in your bag (from any extractor)
-      item:
-        name: Red Goo
-        quantity: 50
+    - kind: construct
+      name: Construct a Red Goo Extractor (it works better on a tile with a decent goo per hour value)
+      buildingKind: Red Goo Extractor
