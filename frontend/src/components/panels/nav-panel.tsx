@@ -7,6 +7,9 @@ import styled from 'styled-components';
 import { Dialog } from '../molecules/dialog';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { GlobalUnityContext } from '@app/hooks/use-unity-instance';
+
+const g = globalThis as unknown as { __globalUnityContext: GlobalUnityContext };
 
 const AccountButton = styled.button`
     display: flex;
@@ -74,6 +77,17 @@ export const NavPanel = () => {
         window.location.reload();
     }, [clearSession]);
 
+    const canvasHeight = g.__globalUnityContext?.getCanvasHeight ? g.__globalUnityContext.getCanvasHeight() : -1;
+    const onChangeQuality = useCallback((e) => {
+        if (!e) {
+            return;
+        }
+        const newHeight = parseInt(e.target.value, 10);
+        if (g.__globalUnityContext?.setCanvasHeight) {
+            g.__globalUnityContext.setCanvasHeight(newHeight);
+        }
+    }, []);
+
     return (
         <NavContainer>
             {showAccountDialog && wallet && (
@@ -84,6 +98,22 @@ export const NavPanel = () => {
                             0x{wallet.address.slice(0, 9)}...{wallet.address.slice(-9)}
                         </p>
                         <br />
+                        <fieldset>
+                            <legend>Quality:</legend>
+                            <select onChange={onChangeQuality} value={canvasHeight}>
+                                <option value="480">Low (480p)</option>
+                                <option value="720">Medium (720p)</option>
+                                <option value="1080">High (1080p)</option>
+                                <option value="-1">
+                                    Auto ({Math.min(window.innerHeight, window.innerHeight * window.devicePixelRatio)}p)
+                                </option>
+                                <option value="-2">
+                                    Native ({Math.floor(window.innerHeight * window.devicePixelRatio)}p)
+                                </option>
+                            </select>
+                        </fieldset>
+                        <br />
+
                         <button className="action-button" onClick={disconnect}>
                             Disconnect
                         </button>

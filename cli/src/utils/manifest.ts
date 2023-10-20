@@ -59,19 +59,12 @@ export const Item = z.object({
 const TotemModel = z.string().regex(/^[0-9]{2}(-[0-9]{2})?$/);
 const DecorativeModel = z.enum([
     'enemy',
-    'CactusLarge',
-    'CactusSmall',
-    'GrassLarge',
-    'LogWall',
     'OakTreesLarge',
     'OakTreesSmall',
-    'PalmTrees',
     'PineTreesLarge',
     'PineTreesSmall',
     'rocksLarge',
     'rocksSmall',
-    'Shrub',
-    'StoneWall',
 ]);
 const ExtractorModel = z.enum(['red', 'green', 'blue']);
 
@@ -222,19 +215,8 @@ export const TaskInventory = z.object({
 export const TaskCombat = z.object({
     kind: z.literal('combat'),
     name: z.string(),
+    combatState: z.enum(['winAttack', 'winDefence']),
     // optional location of tile to be attacked?
-});
-
-export const TaskCombatWinAttack = z.object({
-    kind: z.literal('combatWinAttack'),
-    name: z.string(),
-    // optional location of tile to be attacked?
-});
-
-export const TaskCombatWinDefense = z.object({
-    kind: z.literal('combatWinDefense'),
-    name: z.string(),
-    // optional location of tile to be defended?
 });
 
 export const TaskQuestAccept = z.object({
@@ -249,15 +231,35 @@ export const TaskQuestComplete = z.object({
     quest: Name,
 });
 
+export const TaskConstruct = z.object({
+    kind: z.literal('construct'),
+    name: z.string(),
+    buildingKind: z.string().optional(),
+});
+
+export const TaskDeployBuilding = z.object({
+    kind: z.literal('deployBuilding'),
+    name: z.string(),
+});
+
+export const TaskUnitStats = z.object({
+    kind: z.literal('unitStats'),
+    name: z.string(),
+    life: z.number(),
+    defence: z.number(),
+    attack: z.number(),
+});
+
 export const Task = z.discriminatedUnion('kind', [
     TaskCoord,
     TaskMessage,
     TaskInventory,
     TaskCombat,
-    TaskCombatWinAttack,
-    TaskCombatWinDefense,
     TaskQuestAccept,
     TaskQuestComplete,
+    TaskConstruct,
+    TaskDeployBuilding,
+    TaskUnitStats,
 ]);
 
 export const QuestSpec = z.object({

@@ -15,6 +15,8 @@ import { compile } from '../utils/solidity';
 import { getManifestsByKind } from './get';
 import { z } from 'zod';
 
+const null24bytes = '0x000000000000000000000000000000000000000000000000';
+
 const encodeItemID = ({ name, stackable, goo }: ReturnType<typeof ItemSpec.parse>) => {
     const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`item/${name}`))));
     return solidityPacked(
@@ -44,9 +46,12 @@ const encodeTaskID = ({ name, kind }) => {
     );
 };
 
+const getQuestKey = (name: string) => {
+    return BigInt.asUintN(64, BigInt(keccak256UTF8(`quest/${name}`)));
+};
+
 const encodeQuestID = ({ name }) => {
-    const id = BigInt.asUintN(64, BigInt(keccak256UTF8(`quest/${name}`)));
-    return solidityPacked(['bytes4', 'uint32', 'uint64', 'uint64'], [NodeSelectors.Quest, 0, 0, id]);
+    return solidityPacked(['bytes4', 'uint32', 'uint64', 'uint64'], [NodeSelectors.Quest, 0, 0, getQuestKey(name)]);
 };
 
 // TODO: Is there a way of referencing the Solidity enum?
@@ -168,7 +173,6 @@ const buildingKindDeploymentActions = async (
     }
 
     // input / output items
-    const null24bytes = '0x000000000000000000000000000000000000000000000000';
     let inputItems: string[] = [null24bytes, null24bytes, null24bytes, null24bytes];
     let inputQtys: number[] = [0, 0, 0, 0];
     let outputItems: string[] = [null24bytes];
@@ -258,8 +262,7 @@ const buildingKindDeploymentActions = async (
 const questDeploymentActions = async (
     ctx,
     file: ReturnType<typeof ManifestDocument.parse>,
-    files: ReturnType<typeof ManifestDocument.parse>[],
-    verbose: boolean
+    files: ReturnType<typeof ManifestDocument.parse>[]
 ): Promise<CogAction[]> => {
     const ops: CogAction[] = [];
 
@@ -295,12 +298,26 @@ const questDeploymentActions = async (
             case 'questComplete': {
                 return coder.encode(['bytes24'], [encodeQuestID({ name: task.quest })]);
             }
+            case 'combat': {
+                const combatState = task.combatState == 'winAttack' ? 0 : 1;
+                return coder.encode(['uint8'], [combatState]);
+            }
+            case 'construct': {
+                const buildingKindId = task.buildingKind
+                    ? getBuildingKindIDByName(existingBuildingKinds, pendingBuildingKinds, task.buildingKind)
+                    : null24bytes;
+                return coder.encode(['bytes24'], [buildingKindId]);
+            }
+            case 'unitStats': {
+                return coder.encode(['uint64', 'uint64', 'uint64'], [task.life, task.defence, task.attack]);
+            }
         }
 
         return solidityPacked(['uint8'], [0]);
     };
 
     // register tasks
+    // const questKey = getQuestKey(spec.name); // TODO: Add questKey to taskID so tasks do not require a unique name globally
     ops.push(
         ...spec.tasks.map((task): CogAction => {
             const id = encodeTaskID(task);
@@ -414,6 +431,11 @@ const deploy = {
                 describe: 'show changes that would be applied',
                 type: 'boolean',
             })
+            .option('max-connections', {
+                describe: 'max number of connections to use for submitting parallel tx',
+                type: 'number',
+                default: 250,
+            })
             .check((ctx) => {
                 if (ctx.filename === '-') {
                     return true;
@@ -499,7 +521,7 @@ const deploy = {
                 continue;
             }
 
-            const actions = await questDeploymentActions(ctx, doc, docs, ctx.verbose);
+            const actions = await questDeploymentActions(ctx, doc, docs);
             opsets[opn].push({
                 doc,
                 actions,
@@ -552,27 +574,32 @@ const deploy = {
         // apply the ops
         let results: OpResult[] = [];
         for (let i = 0; i < opsets.length; i++) {
-            const pending = opsets[i].map((op) =>
-                player
-                    .dispatchAndWait(...op.actions)
-                    .then(() => {
-                        console.log(`✅ ${op.note}\n`);
-                        return {
-                            ok: true,
-                            op,
-                        };
-                    })
-                    .catch((err) => {
-                        console.log(`❌ ${op.note}\n`);
-                        return {
-                            ok: false,
-                            err,
-                            op,
-                        };
-                    })
-            );
-            const res = await Promise.all(pending);
-            results = [...results, ...res];
+            // batch up the op in the opset to avoid opening too many
+            // connections at once
+            const batches = batched(opsets[i], ctx.maxConnections);
+            for (let j = 0; j < batches.length; j++) {
+                const pending = batches[j].map((op) => {
+                    return player
+                        .dispatchAndWait(...op.actions)
+                        .then(() => {
+                            console.log(`✅ ${op.note}\n`);
+                            return {
+                                ok: true,
+                                op,
+                            };
+                        })
+                        .catch((err) => {
+                            console.log(`❌ ${op.note}\n`);
+                            return {
+                                ok: false,
+                                err,
+                                op,
+                            };
+                        });
+                });
+                const res = await Promise.all(pending);
+                results = [...results, ...res];
+            }
         }
 
         // report any failures
@@ -595,3 +622,17 @@ const deploy = {
 };
 
 export default deploy;
+
+function batched<T>(input: T[], perChunk: number): T[][] {
+    return input.reduce((output, item, index) => {
+        const chunkIndex = Math.floor(index / perChunk);
+
+        if (!output[chunkIndex]) {
+            output[chunkIndex] = []; // start a new chunk
+        }
+
+        output[chunkIndex].push(item);
+
+        return output;
+    }, [] as T[][]);
+}

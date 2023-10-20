@@ -14,6 +14,7 @@ import {
 } from '@downstream/core';
 import { AbiCoder, BigNumberish, BytesLike, hexlify } from 'ethers';
 
+export const NUM_STAT_KINDS = 3; // LIFE, DEFENCE, ATTACK
 export const UNIT_BASE_LIFE = 50;
 export const UNIT_BASE_DEFENCE = 23;
 export const UNIT_BASE_ATTACK = 30;

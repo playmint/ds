@@ -11,7 +11,7 @@ export const TaskInventory = memo(
     }: {
         mobileUnits: MobileUnit[];
     } & Pick<TaskItemProps, 'task' | 'setTaskCompletion'>) => {
-        console.log(`evaluating TaskInventory`);
+        // console.log(`evaluating TaskInventory`);
 
         let isCompleted = false;
 

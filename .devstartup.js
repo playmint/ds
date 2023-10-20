@@ -15,7 +15,7 @@ const DEPLOYER_PRIVATE_KEY = "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff
 const commands = [
     {
         name: 'networks',
-        command: "anvil -m 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --block-time 2 --block-base-fee-per-gas 1",
+        command: "anvil -m 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --block-time 2 --block-base-fee-per-gas 1 --transaction-block-keeper 25 --prune-history",
         prefixColor: 'black',
     },
 
@@ -25,7 +25,7 @@ const commands = [
             && forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545" \
             && ./lib/cog/services/bin/wait-for -it localhost:8080 -t 300 \
             && sleep 2 \
-            && ds -k ${DEPLOYER_PRIVATE_KEY} -n local apply -R -f ./src/fixtures/\
+            && ds -k ${DEPLOYER_PRIVATE_KEY} -n local apply -R -f ./src/fixtures/ --max-connections 500 \
             && sleep 9999999`,
         prefixColor: 'black',
         env: {
