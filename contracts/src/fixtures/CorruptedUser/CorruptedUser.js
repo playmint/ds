@@ -22,7 +22,7 @@ export default function update({ selected, world }) {
                         {
                             id: 'default',
                             type: 'inline',
-                            html: `Units are not welcome here. Maybe a cunning disguise would gain access?`
+                            html: 'You have a feeling that now is not the right time to alert the Corrupted User to your presence'
                         }
                     ]
                 },
@@ -35,11 +35,15 @@ export default function update({ selected, world }) {
     var hasBoringDisguise = false
     for (var j = 0; j < selectedUnit.bags.length; j++) {
         for (var i = 0; i < 4; i++) {
+            ds.log(j + ":" + i + " = " + slot.item.id + " x " + slot.balance);
             if (selectedUnit.bags[j].bag.slots[i]) {
                 var slot = selectedUnit.bags[j].bag.slots[i];
 
-                if (slot.item && slot.item.id === 'Boring Disguise' && slot.balance >= 1) {
-                    hasBoringDisguise = true;
+                if (slot.item) {
+                    ds.log(j + ":" + i + " = " + slot.item.id + " x " + slot.balance);
+                    if (slot.item.id === 'Boring Disguise' && slot.balance >= 1) {
+                        hasBoringDisguise = true;
+                    }
                 }
             }
         }
@@ -86,7 +90,7 @@ export default function update({ selected, world }) {
         );
     };
 
-    //Show this if there's a rubber duck
+    //Show this if there's a boring disguise
     if (hasBoringDisguise) {
         return {
             version: 1,

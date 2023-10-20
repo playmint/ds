@@ -6,8 +6,8 @@ spec:
   location: [17, 21, -38]
   tasks:
     - kind: inventory
-      name: The last unit that was sent to on this mission was deleted. You'll need some way of masking your true identity.
+      name: The last unit sent on this mission was deleted. You need some way of masking your true identity.
       item:
         name: Boring Disguise
         quantity: 1
-  next: ["Retrieving the Hardware"]
+  next: ["Retrieving The Hardware"]

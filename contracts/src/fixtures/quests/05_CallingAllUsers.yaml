@@ -6,8 +6,8 @@ spec:
   location: [-6, 5, 1]
   tasks:
     - kind: questAccept
-      name: Accept Paperclip Maximizer quest
-      quest: Paperclip Maximizer
-    - kind: questAccept
       name: Accept Corrupted User quest
       quest: Corrupted User
+    - kind: questAccept
+      name: Accept Paperclip Maximizer quest
+      quest: Paperclip Maximizer

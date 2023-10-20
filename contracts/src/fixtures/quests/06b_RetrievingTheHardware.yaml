@@ -10,4 +10,4 @@ spec:
       item:
         name: Microchip
         quantity: 1
-  next: ["Retrieving the Hardware"]
+  next: ["Fixing The World Constructor"]
