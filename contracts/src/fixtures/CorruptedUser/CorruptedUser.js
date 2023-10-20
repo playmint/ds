@@ -35,13 +35,12 @@ export default function update({ selected, world }) {
     var hasBoringDisguise = false
     for (var j = 0; j < selectedUnit.bags.length; j++) {
         for (var i = 0; i < 4; i++) {
-            ds.log(j + ":" + i + " = " + slot.item.id + " x " + slot.balance);
             if (selectedUnit.bags[j].bag.slots[i]) {
                 var slot = selectedUnit.bags[j].bag.slots[i];
 
                 if (slot.item) {
-                    ds.log(j + ":" + i + " = " + slot.item.id + " x " + slot.balance);
-                    if (slot.item.id === 'Boring Disguise' && slot.balance >= 1) {
+                    console.log(j + ":" + i + " = " + slot.item.id + " x " + slot.balance);
+                    if (slot.item.id === '0x6a7a67f0a50379fc00000000000000190000001900000019' && slot.balance >= 1) {
                         hasBoringDisguise = true;
                     }
                 }
@@ -102,7 +101,7 @@ export default function update({ selected, world }) {
                         {
                             id: 'default',
                             type: 'inline',
-                            html: 'With your disguise equipped the Corrupted User listens to your request. But they are unwilling to relinquish the Microchip for free',
+                            html: 'With your disguise equipped the Corrupted User listens to your request.<br>However they are unwilling to relinquish the Microchip for free',
                             buttons: [{ text: 'It\'s a deal!', type: 'action', action: craft, disabled: !canCraft }],
                         },
                     ],
