@@ -1,15 +1,19 @@
-import { MobileUnit } from '@downstream/core';
+import { BagFragment, MobileUnit } from '@downstream/core';
 import { memo } from 'react';
 import { TaskView } from '../task-view';
 import { TaskItemProps } from '../task-item';
+import { getBagsAtEquipee } from '@downstream/core/src/utils';
 
 export const TaskInventory = memo(
     ({
         task,
         mobileUnits,
+        bags,
+
         setTaskCompletion,
     }: {
         mobileUnits: MobileUnit[];
+        bags: BagFragment[];
     } & Pick<TaskItemProps, 'task' | 'setTaskCompletion'>) => {
         // console.log(`evaluating TaskInventory`);
 
@@ -19,13 +23,14 @@ export const TaskInventory = memo(
         if (taskItemSlot) {
             const itemCount =
                 mobileUnits.reduce((playerTotal, unit) => {
-                    if (!unit.bags) return playerTotal;
+                    const unitBags = getBagsAtEquipee(bags, unit);
+                    if (unitBags.length === 0) return playerTotal;
                     return (
                         playerTotal +
-                        unit.bags.reduce((bagTotal, bagSlot) => {
+                        unitBags.reduce((bagTotal, bag) => {
                             return (
                                 bagTotal +
-                                bagSlot.bag.slots.reduce((slotTotal, itemSlot) => {
+                                bag.slots.reduce((slotTotal, itemSlot) => {
                                     return itemSlot.item.id == taskItemSlot.item.id
                                         ? slotTotal + itemSlot.balance
                                         : slotTotal;

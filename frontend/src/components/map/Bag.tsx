@@ -1,6 +1,7 @@
 import { getTileHeight } from '@app/helpers/tile';
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
-import { WorldTileFragment, getCoords } from '@downstream/core';
+import { WorldStateFragment, WorldTileFragment, getCoords } from '@downstream/core';
+import { getBagsAtEquipee, getSessionsAtTile } from '@downstream/core/src/utils';
 import { memo, useCallback, useMemo, useState } from 'react';
 
 export interface BagData {
@@ -53,11 +54,13 @@ export const Bag = memo(
 export const Bags = memo(
     ({
         tiles,
+        world,
         selectedMobileUnitID,
         selectedElementID,
         onClickBag,
     }: {
-        tiles?: WorldTileFragment[];
+        tiles: WorldTileFragment[];
+        world?: WorldStateFragment;
         selectedMobileUnitID?: string;
         selectedElementID?: string;
         onClickBag: (id: string) => void;
@@ -65,25 +68,26 @@ export const Bags = memo(
         const bagComponents = useMemo(
             () =>
                 (tiles || []).map((t) => {
+                    const tileBags = getBagsAtEquipee(world?.bags || [], t);
                     const coords = getCoords(t);
                     const rewardBags =
                         (selectedMobileUnitID &&
-                            t.sessions.flatMap((cs) => {
-                                return cs.bags.filter((equipSlot) => {
+                            getSessionsAtTile(world?.sessions || [], t).flatMap((cs) => {
+                                return getBagsAtEquipee(world?.bags || [], cs).filter((bag) => {
                                     if (!cs.attackTile || cs.attackTile.tile.id !== t.id) {
                                         return false;
                                     }
                                     // reward containing bags have an ID that is made up of 16bits of sessionID and 48bits of MobileUnitID
                                     // bagIDs are 64bits
                                     const mobileUnitIdMask = BigInt('0xFFFFFFFFFFFF'); // 48bit mask (6 bytes)
-                                    const bagMobileUnitID = (BigInt(equipSlot.bag.id) >> BigInt(16)) & mobileUnitIdMask;
+                                    const bagMobileUnitID = (BigInt(bag.id) >> BigInt(16)) & mobileUnitIdMask;
                                     const truncatedMobileUnitID = BigInt(selectedMobileUnitID) & mobileUnitIdMask;
                                     return bagMobileUnitID === truncatedMobileUnitID;
                                 });
                             })) ||
                         [];
 
-                    return t.bagCount > 0 || rewardBags.length > 0 ? (
+                    return tileBags.length > 0 || rewardBags.length > 0 ? (
                         <Bag
                             sendScreenPosition={false}
                             id={`bag/${t.id}`}
@@ -96,7 +100,7 @@ export const Bags = memo(
                         />
                     ) : null;
                 }),
-            [tiles, selectedMobileUnitID, selectedElementID, onClickBag]
+            [tiles, selectedMobileUnitID, selectedElementID, onClickBag, world]
         );
 
         return <>{bagComponents}</>;

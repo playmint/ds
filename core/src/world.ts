@@ -1,6 +1,12 @@
 import { ethers } from 'ethers';
 import { concat, debounce, fromValue, lazy, map, pipe, share, Source, switchMap, tap } from 'wonka';
-import { GetWorldDocument, GetWorldQuery, WorldStateFragment } from './gql/graphql';
+import {
+    GetTilesDocument,
+    GetWorldDocument,
+    GetWorldQuery,
+    WorldStateFragment,
+    WorldTileFragment,
+} from './gql/graphql';
 import { CogServices } from './types';
 
 /**
@@ -25,6 +31,23 @@ export function makeWorld(cog: Source<CogServices>) {
 
     return pipe(
         lazy(() => (prev ? concat([fromValue(prev), world]) : world)),
+        debounce(() => 10),
+    );
+}
+
+export function makeTiles(cog: Source<CogServices>) {
+    let prev: WorldTileFragment[] | undefined;
+
+    const tiles = pipe(
+        cog,
+        switchMap(({ query, gameID }) => query(GetTilesDocument, { gameID }, { poll: 60 * 1000 * 10 })),
+        map(({ game }) => game?.state?.tiles || []),
+        tap((next) => (prev = next)),
+        share,
+    );
+
+    return pipe(
+        lazy(() => (prev ? concat([fromValue(prev), tiles]) : tiles)),
         debounce(() => 10),
     );
 }

@@ -2,26 +2,18 @@ import {
     BiomeKind,
     ConnectedPlayer,
     PluginType,
-    SelectedMobileUnitFragment,
     World,
     WorldBuildingFragment,
-    WorldTileFragment,
+    WorldMobileUnitFragment,
 } from '@app/../../core/src';
 import { PluginContent } from '@app/components/organisms/tile-action';
-import {
-    GOO_BLUE,
-    GOO_GREEN,
-    GOO_RED,
-    getCoords,
-    getGooRates,
-    getNeighbours,
-    getTileDistance,
-} from '@app/helpers/tile';
+import { GOO_BLUE, GOO_GREEN, GOO_RED, getCoords, getGooRates, getTileDistance } from '@app/helpers/tile';
 import { useBuildingKinds, usePlayer, usePluginState, useSelection, useWorld } from '@app/hooks/use-game-state';
 import { Bag } from '@app/plugins/inventory/bag';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { TileInventory } from '@app/plugins/inventory/tile-inventory';
 import { MobileUnitList } from '@app/plugins/mobile-unit-list';
+import { getBagsAtEquipee, getBuildingAtTile, getMobileUnitsAtTile } from '@downstream/core/src/utils';
 import { FunctionComponent, useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
@@ -112,7 +104,7 @@ interface TileBuildingProps {
     canUse: boolean;
     building: WorldBuildingFragment;
     world?: World;
-    mobileUnit?: SelectedMobileUnitFragment;
+    mobileUnit?: WorldMobileUnitFragment;
 }
 const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, world, mobileUnit, canUse }) => {
     const { tiles: selectedTiles } = useSelection();
@@ -140,8 +132,9 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, world, m
         };
     }, [addBagRef, removeBagRef]);
 
-    const inputBag = building.bags.find((b) => b.key == 0);
-    const outputBag = building.bags.find((b) => b.key == 1);
+    const buildingBags = getBagsAtEquipee(world?.bags || [], building);
+    const inputBag = buildingBags.find((b) => b.equipee?.key == 0);
+    const outputBag = buildingBags.find((b) => b.equipee?.key == 1);
 
     const author = world?.players.find((p) => p.id === building?.kind?.owner?.id);
     const owner = world?.players.find((p) => p.id === building?.owner?.id);
@@ -173,8 +166,8 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, world, m
                             {inputs.length > 0 && inputBag && (
                                 <div ref={inputsRef} className="ingredients">
                                     <Bag
-                                        bag={inputBag.bag}
-                                        bagId={inputBag.bag.id}
+                                        bag={inputBag}
+                                        bagId={inputBag.id}
                                         equipIndex={0}
                                         ownerId={building.id}
                                         isInteractable={canUse}
@@ -192,8 +185,8 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, world, m
                             {outputs.length > 0 && outputBag && (
                                 <div ref={outputsRef} className="ingredients">
                                     <Bag
-                                        bag={outputBag.bag}
-                                        bagId={outputBag.bag.id}
+                                        bag={outputBag}
+                                        bagId={outputBag.id}
                                         equipIndex={1}
                                         ownerId={building.id}
                                         isInteractable={canUse}
@@ -207,7 +200,7 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, world, m
                     )}
                 </PluginContent>
             )}
-            {selectedTile && <TileInventory tile={selectedTile} />}
+            {selectedTile && <TileInventory tile={selectedTile} bags={world?.bags || []} />}
             <span className="label" style={{ width: '100%', marginTop: '2rem' }}>
                 <strong>COORDINATES:</strong> {`${q}, ${r}, ${s}`}
             </span>
@@ -242,11 +235,12 @@ const TileUndiscovered: FunctionComponent<unknown> = (_props) => {
 
 interface TileAvailableProps {
     player?: ConnectedPlayer;
+    mobileUnits: WorldMobileUnitFragment[];
 }
-const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player }) => {
+const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUnits }) => {
     const { tiles: selectedTiles, mobileUnit: selectedMobileUnit } = useSelection();
     const selectedTile = selectedTiles?.[0];
-    const tileMobileUnits = selectedTile?.mobileUnits ?? [];
+    const tileMobileUnits = selectedTile ? getMobileUnitsAtTile(mobileUnits, selectedTile) : [];
 
     const excludeSelected = useCallback(
         (unit) => {
@@ -308,38 +302,21 @@ export const TileInfoPanel = () => {
     const selectedTiles = tiles || [];
 
     const world = useWorld();
-    const worldTiles = world?.tiles || ([] as WorldTileFragment[]);
-    const selectedMobileUnitTile: WorldTileFragment | undefined = mobileUnit?.nextLocation?.tile
-        ? worldTiles.find((t) => t.id === mobileUnit.nextLocation?.tile?.id)
-        : undefined;
-
-    const useableTiles = selectedMobileUnitTile
-        ? getNeighbours(worldTiles, selectedMobileUnitTile)
-              .concat([selectedMobileUnitTile])
-              .filter((t): t is WorldTileFragment => !!t && t.biome === BiomeKind.DISCOVERED && !!t.building)
-        : [];
 
     const selectedTile = selectedTiles?.slice(-1).find(() => true);
 
     if (selectedTile) {
+        const building = getBuildingAtTile(world?.buildings || [], selectedTile);
         if (selectedTile.biome == BiomeKind.UNDISCOVERED) {
             return <TileUndiscovered />;
-        } else if (!selectedTile.building) {
-            return <TileAvailable player={player} />;
-        } else if (selectedTile.building) {
+        } else if (!building) {
+            return <TileAvailable player={player} mobileUnits={world?.mobileUnits || []} />;
+        } else if (building) {
             const canUse =
-                useableTiles.length > 0 &&
                 mobileUnit &&
                 mobileUnit.nextLocation &&
                 getTileDistance(mobileUnit.nextLocation.tile, selectedTile) < 2;
-            return (
-                <TileBuilding
-                    canUse={!!canUse}
-                    building={selectedTile.building}
-                    world={world}
-                    mobileUnit={mobileUnit}
-                />
-            );
+            return <TileBuilding canUse={!!canUse} building={building} world={world} mobileUnit={mobileUnit} />;
         } else {
             return null; // fallback, don't expect this state
         }

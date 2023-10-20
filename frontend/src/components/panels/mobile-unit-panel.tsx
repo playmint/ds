@@ -3,7 +3,7 @@ import { getTileCoordsFromId } from '@app/helpers/tile';
 import { useGameState } from '@app/hooks/use-game-state';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { MobileUnitInventory } from '@app/plugins/inventory/mobile-unit-inventory';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 
 const MobileUnitContainer = styled.div`
@@ -48,12 +48,16 @@ export const MobileUnitPanel = () => {
     const { ready: mapReady, sendMessage } = useUnityMap();
     const { world, player, selectMobileUnit, selected } = useGameState();
     const { mobileUnit: selectedMobileUnit } = selected || {};
+    const playerUnits = useMemo(
+        () => world?.mobileUnits.filter((mu) => mu.owner && player && mu.owner.id === player.id) || [],
+        [world, player]
+    );
 
     const selectAndFocusMobileUnit = useCallback(() => {
-        if (!player) {
+        if (playerUnits.length === 0) {
             return;
         }
-        const mobileUnit = player.mobileUnits.find(() => true);
+        const mobileUnit = playerUnits.find(() => true);
         if (!mobileUnit) {
             return;
         }
@@ -73,11 +77,11 @@ export const MobileUnitPanel = () => {
         }
         const [q, r, s] = getTileCoordsFromId(tileId);
         sendMessage('MapCamera', 'FocusTile', JSON.stringify({ q, r, s }));
-    }, [selectMobileUnit, player, sendMessage, mapReady]);
+    }, [selectMobileUnit, playerUnits, sendMessage, mapReady]);
 
     const selectNextMobileUnit = useCallback(
         (n: number) => {
-            if (!player) {
+            if (playerUnits.length === 0) {
                 return;
             }
             if (!selectMobileUnit) {
@@ -86,19 +90,19 @@ export const MobileUnitPanel = () => {
             if (!selectedMobileUnit) {
                 return;
             }
-            if (player.mobileUnits.length === 0) {
+            if (playerUnits.length === 0) {
                 return;
             }
-            const mobileUnitIndex = player.mobileUnits.map((s) => s.id).indexOf(selectedMobileUnit.id);
+            const mobileUnitIndex = playerUnits.map((s) => s.id).indexOf(selectedMobileUnit.id);
             const nextIndex =
-                mobileUnitIndex + n > player.mobileUnits.length - 1
+                mobileUnitIndex + n > playerUnits.length - 1
                     ? 0
                     : mobileUnitIndex + n < 0
-                    ? player.mobileUnits.length - 1
+                    ? playerUnits.length - 1
                     : mobileUnitIndex + n;
-            selectMobileUnit(player.mobileUnits[nextIndex].id);
+            selectMobileUnit(playerUnits[nextIndex].id);
         },
-        [player, selectMobileUnit, selectedMobileUnit]
+        [playerUnits, selectMobileUnit, selectedMobileUnit]
     );
 
     const nameEntity = useCallback(
@@ -126,7 +130,7 @@ export const MobileUnitPanel = () => {
 
     return (
         <>
-            {mapReady && world && player && player.mobileUnits.length > 0 && !selectedMobileUnit && (
+            {mapReady && world && player && playerUnits.length > 0 && !selectedMobileUnit && (
                 <div className="onboarding" style={{ width: '30rem', background: 'transparent' }}>
                     <button onClick={selectAndFocusMobileUnit}>Select Unit</button>
                 </div>
@@ -134,7 +138,7 @@ export const MobileUnitPanel = () => {
             {player && (
                 <>
                     <div className="mobile-unit-actions">
-                        {(!player || (player && player.mobileUnits.length > 0 && selectedMobileUnit)) && (
+                        {(!player || (player && playerUnits.length > 0 && selectedMobileUnit)) && (
                             <MobileUnitContainer>
                                 <img src="/mobile-unit-yours.png" className="shield" alt="" />
                                 <div className="controls">
@@ -150,7 +154,9 @@ export const MobileUnitPanel = () => {
                                 </div>
                             </MobileUnitContainer>
                         )}
-                        {selectedMobileUnit && <MobileUnitInventory mobileUnit={selectedMobileUnit} />}
+                        {selectedMobileUnit && (
+                            <MobileUnitInventory mobileUnit={selectedMobileUnit} bags={world?.bags || []} />
+                        )}
                     </div>
                 </>
             )}

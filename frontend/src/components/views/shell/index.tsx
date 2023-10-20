@@ -27,6 +27,7 @@ import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
 import { QuestPanel } from '@app/components/panels/quest-panel';
+import { getBagsAtEquipee, getBuildingAtTile, getSessionsAtTile } from '@downstream/core/src/utils';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -53,14 +54,14 @@ export type SelectedBag = {
 
 export const Shell: FunctionComponent<ShellProps> = () => {
     const { ready: mapReady } = useUnityMap();
-    const { world, selected, selectTiles, selectMobileUnit, selectMapElement } = useGameState();
+    const { world, selected, tiles, selectTiles, selectMobileUnit, selectMapElement } = useGameState();
     const { loadingSession } = useSession();
     const player = usePlayer();
+    const playerUnits = world?.mobileUnits.filter((mu) => mu.owner && player && mu.owner.id === player.id) || [];
     const { mobileUnit: selectedMobileUnit, tiles: selectedTiles, mapElement: selectedMapElement } = selected || {};
     const blockNumber = useBlock();
     const { connect } = useWalletProvider();
     const [selectedBags, setSelectedBags] = useState<SelectedBag[]>();
-    const tiles = world?.tiles;
     const selectedTileBags = selectedBags?.filter((sb) => !sb.isCombatReward);
     const selectedRewardBags = selectedBags?.filter((sb) => sb.isCombatReward);
 
@@ -114,7 +115,9 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             case 'BlockerBuildingData':
             case 'ExtractorBuildingData':
                 {
-                    const t = tiles.find((t) => t.building?.id == selectedMapElement.id);
+                    const t = tiles.find(
+                        (t) => getBuildingAtTile(world?.buildings || [], t)?.id == selectedMapElement.id
+                    );
                     if (t) {
                         selectTiles([t.id]);
                     }
@@ -130,30 +133,32 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 }
 
                 // Tile bags
-                const selectedBags: SelectedBag[] = t.bags.map((equipSlot, equipIndex): SelectedBag => {
-                    return { equipIndex, bag: equipSlot.bag, ownerId: t.id, parentTile: t };
-                });
+                const selectedBags: SelectedBag[] = getBagsAtEquipee(world?.bags || [], t).map(
+                    (bag, equipIndex): SelectedBag => {
+                        return { equipIndex, bag, ownerId: t.id, parentTile: t };
+                    }
+                );
 
                 // Combat rewards
                 if (selectedMobileUnit) {
                     // const cs = getLatestCombatSession(t);
-                    const selectedRewardBags = t.sessions.flatMap((cs) => {
-                        return cs.bags
-                            .filter((equipSlot) => {
+                    const selectedRewardBags = getSessionsAtTile(world?.sessions || [], t).flatMap((cs) => {
+                        return getBagsAtEquipee(world?.bags || [], cs)
+                            .filter((bag) => {
                                 if (!cs.attackTile || cs.attackTile.tile.id !== t.id) {
                                     return false;
                                 }
                                 // reward containing bags have an ID that is made up of 16bits of sessionID and 48bits of MobileUnitID
                                 // bagIDs are 64bits
                                 const mobileUnitIdMask = BigInt('0xFFFFFFFFFFFF'); // 48bit mask (6 bytes)
-                                const bagMobileUnitID = (BigInt(equipSlot.bag.id) >> BigInt(16)) & mobileUnitIdMask;
+                                const bagMobileUnitID = (BigInt(bag.id) >> BigInt(16)) & mobileUnitIdMask;
                                 const truncatedMobileUnitID = BigInt(selectedMobileUnit.id) & mobileUnitIdMask;
                                 return bagMobileUnitID === truncatedMobileUnitID;
                             })
-                            ?.map((equipSlot, equipIndex): SelectedBag => {
+                            ?.map((bag, equipIndex): SelectedBag => {
                                 return {
                                     equipIndex,
-                                    bag: equipSlot.bag,
+                                    bag,
                                     ownerId: cs.id, // Very confusing because I expected the `ownerId` to be the unit's ID
                                     parentTile: t,
                                     isCombatReward: true,
@@ -169,7 +174,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 setSelectedBags(selectedBags);
                 break;
         }
-    }, [selectTiles, selectedMapElement, selectedMobileUnit, tiles]);
+    }, [selectTiles, selectedMapElement, selectedMobileUnit, tiles, world]);
 
     const tileClick = useCallback(
         (id) => {
@@ -219,29 +224,32 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     <Tiles tiles={tiles} onClickTile={tileClick} selectedTiles={selectedTiles} />
                     <MobileUnits
                         mobileUnits={world?.mobileUnits}
+                        buildings={world?.buildings || []}
                         onClickMobileUnit={mobileUnitClick}
                         selectedMobileUnitID={selectedMobileUnit?.id}
                         playerID={player?.id}
                     />
                     <Bags
-                        tiles={tiles}
+                        tiles={tiles || []}
+                        world={world}
                         onClickBag={mapElementClick}
                         selectedMobileUnitID={selectedMobileUnit?.id}
                         selectedElementID={selectedMapElement?.id}
                     />
                     <TileGoos tiles={tiles} />
                     <Buildings
-                        buildings={world?.buildings}
+                        tiles={tiles || []}
+                        buildings={world?.buildings || []}
                         onClickBuilding={mapElementClick}
                         selectedElementID={selectedMapElement?.id}
                     />
-                    <CombatSessions tiles={tiles} />
+                    <CombatSessions tiles={tiles || []} sessions={world?.sessions || []} />
                 </>
             )}
             <NavPanel />
             <div className="hud-container">
                 <div className="top-left">
-                    {world && player && <QuestPanel world={world} player={player} />}
+                    {world && player && <QuestPanel world={world} tiles={tiles || []} player={player} />}
                     {/* <Logs className="logs" /> */}
                 </div>
                 <div className="bottom-left">
@@ -254,15 +262,15 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     <ActionBar />
                 </div>
                 <div className="right">
-                    {(!player || (player && player.mobileUnits.length === 0)) &&
-                        mapReady &&
-                        connect &&
-                        !loadingSession && <Onboarding player={player} onClickConnect={connect} />}
-                    {player && player.mobileUnits.length > 0 && <TileInfoPanel />}
+                    {(!player || (player && playerUnits.length === 0)) && mapReady && connect && !loadingSession && (
+                        <Onboarding player={player} playerUnits={playerUnits} onClickConnect={connect} />
+                    )}
+                    {player && playerUnits.length > 0 && <TileInfoPanel />}
                     {selectedTiles &&
                         selectedTiles.length > 0 &&
                         blockNumber &&
-                        selectedTiles[0].sessions.filter((s) => !s.isFinalised).length > 0 && (
+                        getSessionsAtTile(world?.sessions || [], selectedTiles[0]).filter((s) => !s.isFinalised)
+                            .length > 0 && (
                             <Panel>
                                 <CombatSummary
                                     className="action"

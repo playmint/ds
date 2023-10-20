@@ -1,12 +1,13 @@
-import { CompoundKeyEncoder, ConnectedPlayer, NodeSelectors } from '@app/../../core/src';
+import { CompoundKeyEncoder, ConnectedPlayer, NodeSelectors, WorldMobileUnitFragment } from '@app/../../core/src';
 import { useCallback, useState } from 'react';
 
 export interface OnboardingProps {
     player?: ConnectedPlayer;
+    playerUnits: WorldMobileUnitFragment[];
     onClickConnect: () => void;
 }
 
-export const Onboarding = ({ player, onClickConnect }: OnboardingProps) => {
+export const Onboarding = ({ player, playerUnits, onClickConnect }: OnboardingProps) => {
     const [isSpawningMobileUnit, setIsSpawningMobileUnit] = useState<boolean>(false);
 
     const spawnMobileUnit = useCallback(() => {
@@ -34,7 +35,7 @@ export const Onboarding = ({ player, onClickConnect }: OnboardingProps) => {
                 If you want to join the community, check out our{' '}
                 <a href="https://discord.gg/VdXWWNaqGN">communications server!</a>
             </p>
-            {player && player.mobileUnits.length === 0 ? (
+            {player && playerUnits.length === 0 ? (
                 <button onClick={spawnMobileUnit} disabled={isSpawningMobileUnit}>
                     Spawn Unit
                 </button>
