@@ -1,6 +1,5 @@
-import { DispatchFunc, PluginConfig, Sandbox, actionArgFromUnknown } from '@downstream/core';
+import { DispatchFunc, PluginConfig, Sandbox } from '@downstream/core';
 import * as Comlink from 'comlink';
-import { ethers } from 'ethers';
 import { QuickJSContext, QuickJSRuntime, getQuickJS } from 'quickjs-emscripten';
 
 let runtime: QuickJSRuntime;
@@ -87,8 +86,7 @@ export async function evalCode(contextID: number, code: string) {
 }
 
 export async function newContext(dispatch: DispatchFunc, config: PluginConfig): Promise<number> {
-    const api = { enabled: false };
-    console.log('hello');
+    const api = { enabled: true }; // TODO: do we need to restrict this again?
 
     const context = runtime.newContext();
     contexts.push(context);
