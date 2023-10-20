@@ -6,6 +6,8 @@ import {
     WorldTileFragment,
 } from './gql/graphql';
 
+const bagsCache = new WeakMap<any, Map<string, BagFragment[]>>();
+
 export function getBuildingAtTile(buildings: WorldBuildingFragment[], tile: { id: string }) {
     return buildings.find((b) => b.location && b.location.tile.id === tile.id);
 }
@@ -15,7 +17,20 @@ export function getMobileUnitsAtTile(units: WorldMobileUnitFragment[], tile: { i
 }
 
 export function getBagsAtEquipee(bags: BagFragment[], equipee: { id: string }) {
-    return bags.filter((b) => b.equipee && b.equipee.node?.id === equipee.id);
+    let cache = bagsCache.get(bags);
+    if (!cache) {
+        cache = new Map<string, BagFragment[]>();
+        bagsCache.set(bags, cache);
+        for (const bag of bags) {
+            if (bag.equipee?.node) {
+                const equipeeBags = cache.get(bag.equipee.node.id) || [];
+                equipeeBags.push(bag);
+                cache.set(bag.equipee.node.id, equipeeBags);
+            }
+        }
+    }
+
+    return cache.get(equipee.id) || [];
 }
 
 export function getSessionsAtTile(sessions: WorldCombatSessionFragment[], tile: WorldTileFragment) {

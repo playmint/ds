@@ -69,10 +69,11 @@ export const Bags = memo(
             () =>
                 (tiles || []).map((t) => {
                     const tileBags = getBagsAtEquipee(world?.bags || [], t);
+                    const tileSessions = getSessionsAtTile(world?.sessions || [], t);
                     const coords = getCoords(t);
                     const rewardBags =
                         (selectedMobileUnitID &&
-                            getSessionsAtTile(world?.sessions || [], t).flatMap((cs) => {
+                            tileSessions.flatMap((cs) => {
                                 return getBagsAtEquipee(world?.bags || [], cs).filter((bag) => {
                                     if (!cs.attackTile || cs.attackTile.tile.id !== t.id) {
                                         return false;

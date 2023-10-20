@@ -1,6 +1,6 @@
 import { Eip1193Provider, ethers } from 'ethers';
-import { QuickJSContext } from 'quickjs-emscripten';
 import { Source } from 'wonka';
+import { ActionsInterface } from './abi/Actions';
 import { configureClient } from './cog';
 import {
     AvailablePluginFragment,
@@ -9,12 +9,11 @@ import {
     GetWorldQuery,
     OnEventSubscription,
     SelectedPlayerFragment,
-    WorldPlayerFragment,
     WorldMobileUnitFragment,
+    WorldPlayerFragment,
     WorldStateFragment,
     WorldTileFragment,
 } from './gql/graphql';
-import { ActionsInterface } from './abi/Actions';
 
 export interface EthereumProvider extends Eip1193Provider {
     isMetaMask?: boolean;
