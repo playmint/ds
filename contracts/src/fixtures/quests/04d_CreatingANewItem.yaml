@@ -1,0 +1,10 @@
+---
+kind: Quest
+spec:
+  name: Creating a New Item
+  description: "The Very Important Stuff can be converted into something new and exciting. Are you up to the task?"
+  tasks:
+    - kind: message
+      name: "Deploy a factory that uses Very Important Stuff as an ingredient for a new item"
+      message: createABuildingPage
+      buildingKind: Vault of Knowledge

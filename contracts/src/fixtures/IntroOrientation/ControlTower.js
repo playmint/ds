@@ -10,7 +10,7 @@ const QUEST_COMPLETED = 2;
 const QUEST_1 = "Verification Error";
 const QUEST_2 = "Report to Control (again!)";
 const QUEST_3 = "Orientation";
-const QUEST_4 = "Creation";
+const QUEST_4 = "The Vault of Knowledge";
 const QUEST_5 = "Paperclip Maximiser";
 const QUEST_6 = "Corrupted User";
 
@@ -227,7 +227,7 @@ export default async function update({ selected, player }) {
             type: "action",
             action: () => {
                 acceptQuest(
-                    "0xadbb33ce000000000000000000000000de3bb0a48fe15c39",
+                    "0xadbb33ce000000000000000000000000a217b97e1de447f5", //Vault of Knowledge
                 );
             },
             disabled: false

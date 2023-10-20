@@ -1,0 +1,12 @@
+---
+kind: Quest
+spec:
+  name: The Vault of Knowledge
+  description: "Travel to the vault of knowledge and learn the secrets of creation"
+  location: [-18, 2, 16]
+  tasks:
+    - kind: message
+      name: "Read the D.O.C."
+      message: readTheDoc
+      buildingKind: Vault of Knowledge
+  next: ["A Squircle-Shaped Hole"]

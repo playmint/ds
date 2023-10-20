@@ -6,10 +6,10 @@ spec:
   location: [-6, 5, 1]
   tasks:
     - kind: coord
-      name: Move to the Control Tower
+      name: Move your unit so that you are standing next to the Control Tower
       location: [-6, 5, 1]
     - kind: message
-      name: "Press the 'Verify Credentials' button"
+      name: "Click the tower and press the 'Verify Credentials' button"
       message: failCredentials
       buildingKind: Control Tower
   next: ["Verification Error"]

@@ -1,0 +1,20 @@
+---
+kind: Quest
+spec:
+  name: A Squircle-Shaped Hole
+  description: "MORTON requests your craft a 'Squircle'. Use the Vault's knowledge to create a factory to craft one "
+  location: [-18, 2, 16]
+  tasks:
+    - kind: message
+      name: "Open the Create a Building page"
+      message: createABuildingPage
+      buildingKind: Vault of Knowledge
+    - kind: message
+      name: "Deploy a factory that crafts Squircles"
+      message: createABuildingPage
+      buildingKind: Vault of Knowledge
+    - kind: message
+      name: Put a Squircle in your bag
+      message: createABuildingPage
+      buildingKind: Vault of Knowledge
+  next: ["A Very Important Task"]

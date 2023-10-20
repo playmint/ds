@@ -11,8 +11,12 @@ export default async function update({ selected, world }) {
 
 
 
-    const placeholder = () => {
-       //Does nothing
+    const openDocs = () => {
+        ds.sendQuestMessage("readTheDoc");
+    }
+
+    const openBuildingCreator = () => {
+        ds.sendQuestMessage("createABuildingPage");
     }
 
     return {
@@ -26,8 +30,8 @@ export default async function update({ selected, world }) {
                         id: 'default',
                         type: 'inline',
                         html: 'A wealth of information pertaining to the Details of Object Creation is accessible here',
-                        buttons: [{ text: 'Read the D.O.C.s', type: 'action', action: placeholder, disabled: false }, //This should take players to the docs
-                            { text: 'Create a Building', type: 'action', action: placeholder, disabled: false }] //This should take players to the builder creation page
+                        buttons: [{ text: 'Read the D.O.C.s', type: 'action', action: openDocs, disabled: false }, //This should take players to the docs
+                            { text: 'Create a Building', type: 'action', action: openBuildingCreator, disabled: false }] //This should take players to the builder creation page
                     }
                 ],
             },
