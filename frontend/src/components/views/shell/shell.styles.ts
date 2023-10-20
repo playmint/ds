@@ -36,7 +36,6 @@ const baseStyles = (_: Partial<ShellProps>) => css`
             'bottom-left bottom-middle right';
         flex-grow: 1;
         pointer-events: none;
-        zoom: 90%;
 
         .top-left,
         .bottom-left,

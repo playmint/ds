@@ -25,7 +25,7 @@ const baseStyles = (_: Partial<ActionBarProps>) => css`
         align-items: stretch;
         flex-wrap: nowrap;
 
-        .action-icon-button {
+        button {
             width: 10rem;
             flex-grow: 1;
         }

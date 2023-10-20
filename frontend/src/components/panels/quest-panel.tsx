@@ -12,11 +12,12 @@ import { Locatable, getCoords } from '@app/helpers/tile';
 import { useBuildingKinds, useQuestMessages } from '@app/hooks/use-game-state';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { TaskItem } from '../quest-task/task-item';
+import { BasePanelStyles } from '@app/styles/base-panel.styles';
+import { TextButton } from '@app/styles/button.styles';
 
-const Panel = styled.div`
-    background: #143063;
-    color: #fff;
-    padding: 2rem 2rem;
+const StyledQuestPanel = styled.div`
+    ${BasePanelStyles}
+
     width: 52rem;
     position: absolute;
 
@@ -84,6 +85,10 @@ const Panel = styled.div`
     > .questItem .buttonContainer .completeQuestButton {
         width: 30rem;
     }
+`;
+
+const CompleteQuestButton = styled(TextButton)`
+    color: red;
 `;
 
 const targetSvg = (
@@ -178,12 +183,9 @@ export const QuestItem: FunctionComponent<{
                     </div>
                     {allCompleted && (
                         <div className="buttonContainer">
-                            <button
-                                onClick={() => onCompleteClick(quest)}
-                                className="action-icon-button completeQuestButton"
-                            >
+                            <CompleteQuestButton onClick={() => onCompleteClick(quest)} className="completeQuestButton">
                                 Complete Quest
-                            </button>
+                            </CompleteQuestButton>
                         </div>
                     )}
                 </>
@@ -243,7 +245,7 @@ export const QuestPanel: FunctionComponent<QuestPanelProps> = ({ world, tiles, p
     return (
         <>
             {acceptedQuests.length > 0 && (
-                <Panel>
+                <StyledQuestPanel>
                     <h1>Q.U.E.S.T.s</h1>
                     {acceptedQuests.map((quest, questIdx) => (
                         <QuestItem
@@ -258,7 +260,7 @@ export const QuestPanel: FunctionComponent<QuestPanelProps> = ({ world, tiles, p
                             onExpandClick={onExpandClick}
                         />
                     ))}
-                </Panel>
+                </StyledQuestPanel>
             )}
         </>
     );

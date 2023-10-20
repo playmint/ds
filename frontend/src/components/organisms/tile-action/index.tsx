@@ -1,5 +1,6 @@
 /** @format */
 
+import { ActionButton } from '@app/styles/button.styles';
 import { PluginStateButtonAction, PluginStateComponentContent, PluginSubmitCallValues } from '@downstream/core';
 import DOMPurify from 'dompurify';
 import styled, { css } from 'styled-components';
@@ -48,20 +49,19 @@ export const PluginContent = ({
                         switch (btn.type) {
                             case 'action':
                                 return (
-                                    <button
+                                    <ActionButton
                                         disabled={!canUse || btn.disabled}
-                                        className="action-button"
                                         key={btn.text}
                                         onClick={() => clickActionButton(btn)}
                                     >
                                         {btn.text}
-                                    </button>
+                                    </ActionButton>
                                 );
                             case 'toggle':
                                 return (
-                                    <button disabled={!canUse || btn.disabled} className="action-button" key={btn.text}>
+                                    <ActionButton disabled={!canUse || btn.disabled} key={btn.text}>
                                         {btn.text}
-                                    </button>
+                                    </ActionButton>
                                 );
                             default:
                                 return 'undefined';

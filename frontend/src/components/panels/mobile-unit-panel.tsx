@@ -4,20 +4,21 @@ import { useGameState } from '@app/hooks/use-game-state';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { MobileUnitInventory } from '@app/plugins/inventory/mobile-unit-inventory';
 import { useCallback, useMemo } from 'react';
+import { BasePanelStyles } from '@app/styles/base-panel.styles';
+import { TextButton } from '@app/styles/button.styles';
 import styled from 'styled-components';
 
 const MobileUnitContainer = styled.div`
+    ${BasePanelStyles}
+
     display: flex;
     justify-content: flex-end;
     align-items: center;
     overflow: visible;
     min-height: 5rem;
-    padding: 1rem;
-    background: #143063;
 
     position: relative;
     width: 30rem;
-    color: #fff;
     user-select: none;
 
     > .shield {
@@ -132,7 +133,7 @@ export const MobileUnitPanel = () => {
         <>
             {mapReady && world && player && playerUnits.length > 0 && !selectedMobileUnit && (
                 <div className="onboarding" style={{ width: '30rem', background: 'transparent' }}>
-                    <button onClick={selectAndFocusMobileUnit}>Select Unit</button>
+                    <TextButton onClick={selectAndFocusMobileUnit}>Select Unit</TextButton>
                 </div>
             )}
             {player && (

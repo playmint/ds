@@ -5,6 +5,7 @@ import { ComponentProps } from '@app/types/component-props';
 import { FunctionComponent, useCallback } from 'react';
 import styled from 'styled-components';
 import { styles } from './action-bar.styles';
+import { UnitActionButton } from '@app/styles/button.styles';
 
 const CONSTRUCT_INTENT = 'construct';
 const MOVE_INTENT = 'move';
@@ -40,24 +41,24 @@ export const ActionBar: FunctionComponent<ActionBarProps> = ({}: ActionBarProps)
     return (
         <StyledActionBar>
             <div className="actions">
-                <button
-                    className={`action-icon-button ${intent === MOVE_INTENT ? 'active' : ''}`}
+                <UnitActionButton
+                    className={`${intent === MOVE_INTENT ? 'active' : ''}`}
                     onClick={() => handleSelectIntent(MOVE_INTENT)}
                 >
                     Move
-                </button>
-                <button
-                    className={`action-icon-button ${intent === CONSTRUCT_INTENT ? 'active' : ''}`}
+                </UnitActionButton>
+                <UnitActionButton
+                    className={`${intent === CONSTRUCT_INTENT ? 'active' : ''}`}
                     onClick={() => handleSelectIntent(CONSTRUCT_INTENT)}
                 >
                     Build
-                </button>
-                <button
-                    className={`action-icon-button ${intent === COMBAT_INTENT ? 'active' : ''}`}
+                </UnitActionButton>
+                <UnitActionButton
+                    className={`${intent === COMBAT_INTENT ? 'active' : ''}`}
                     onClick={() => handleSelectIntent(COMBAT_INTENT)}
                 >
                     Attack
-                </button>
+                </UnitActionButton>
             </div>
         </StyledActionBar>
     );

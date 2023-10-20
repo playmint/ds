@@ -23,6 +23,7 @@ import { getBagsAtEquipee, getBuildingAtTile, getSessionsAtTile } from '@downstr
 import React, { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { styles } from './action-context-panel.styles';
+import { ActionButton } from '@app/styles/button.styles';
 
 export interface ActionContextPanelProps extends ComponentProps {}
 
@@ -441,9 +442,9 @@ const Construct: FunctionComponent<ConstructProps> = ({
                         </div>
                     </>
                 )}
-                <button className="action-button" type="submit" disabled={!canConstruct}>
+                <ActionButton type="submit" disabled={!canConstruct}>
                     Confirm Construction
-                </button>
+                </ActionButton>
                 <button onClick={clearIntent} className="cancel">
                     <i className="bi bi-x" />
                 </button>
@@ -572,15 +573,9 @@ const Move: FunctionComponent<MoveProps> = ({
                 <span className="sub-title">Select a tile to add to path</span>
             </div>
             <form>
-                <button
-                    className="action-button"
-                    type="button"
-                    onClick={move}
-                    disabled={!canMove}
-                    style={{ opacity: canMove ? 1 : 0.1 }}
-                >
+                <ActionButton type="button" onClick={move} disabled={!canMove} style={{ opacity: canMove ? 1 : 0.1 }}>
                     Confirm Move
-                </button>
+                </ActionButton>
                 <button onClick={clearIntent} className="cancel">
                     <i className="bi bi-x" />
                 </button>
@@ -794,12 +789,12 @@ const Combat: FunctionComponent<CombatProps> = ({
                 <span className="sub-title">{help}</span>
             </div>
             <form>
-                <button className="action-button" type="button" onClick={handleJoinCombat} disabled={!canAttack}>
+                <ActionButton type="button" onClick={handleJoinCombat} disabled={!canAttack}>
                     {joining ? 'Join' : 'Confirm'} Attack
-                </button>
-                <button onClick={clearIntent} className="cancel">
+                </ActionButton>
+                <ActionButton onClick={clearIntent} className="cancel">
                     <i className="bi bi-x" />
-                </button>
+                </ActionButton>
             </form>
         </StyledActionContextPanel>
     );

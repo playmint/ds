@@ -17,6 +17,7 @@ import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { TileInventory } from '@app/plugins/inventory/tile-inventory';
 import { MobileUnitList } from '@app/plugins/mobile-unit-list';
 import { getBagsAtEquipee, getBuildingAtTile, getMobileUnitsAtTile } from '@downstream/core/src/utils';
+import { BasePanelStyles } from '@app/styles/base-panel.styles';
 import { FunctionComponent, useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
@@ -29,9 +30,8 @@ const byKey = (a: KeyedThing, b: KeyedThing) => {
 };
 
 const Panel = styled.div`
-    background: #143063;
-    color: #fff;
-    padding: 2rem 2rem;
+    ${BasePanelStyles}
+
     margin-bottom: 1.2rem;
     width: 30rem;
 

@@ -7,6 +7,7 @@ import { EthereumProvider as WalletConnectProvider } from '@walletconnect/ethere
 import { QRCodeSVG } from 'qrcode.react';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from './use-localstorage';
+import { ActionButton } from '@app/styles/button.styles';
 
 export interface WalletProvider {
     method: string;
@@ -132,14 +133,10 @@ export const WalletProviderProvider = ({ children }: { children: ReactNode }) =>
                     <div style={{ padding: 10 }}>
                         <h3>CONNECT USING...</h3>
                         <div>
-                            <button className="action-button" onClick={connectMetamask}>
-                                Metamask
-                            </button>
+                            <ActionButton onClick={connectMetamask}>Metamask</ActionButton>
                         </div>
                         <div style={{ paddingTop: 10 }}>
-                            <button className="action-button" onClick={connectWalletConnect}>
-                                WalletConnect
-                            </button>
+                            <ActionButton onClick={connectWalletConnect}>WalletConnect</ActionButton>
                         </div>
                     </div>
                 </Dialog>

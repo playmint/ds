@@ -3,6 +3,7 @@
 import { createGlobalStyle } from 'styled-components';
 import { resetStyles } from './reset.styles';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import { colorMap } from './colors';
 
 export const GlobalStyles = createGlobalStyle`
     ${resetStyles}
@@ -22,8 +23,8 @@ export const GlobalStyles = createGlobalStyle`
         font-family: 'Recursive', monospace;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        background: #335c90;
-        font-size: 1.6rem;
+        background: ${colorMap.documentBackground};
+        font-size: 1.478rem;
     }
 
     .build-version {
@@ -40,9 +41,12 @@ export const GlobalStyles = createGlobalStyle`
     }
 
     h1, h2, h3, h4 {
-        text-transform: uppercase;
+        /* text-transform: uppercase; */
     }
 
+    h2 {
+        font-size: 2.4rem;
+    }
 
     h3 {
         margin-bottom: 2rem;
@@ -50,41 +54,6 @@ export const GlobalStyles = createGlobalStyle`
 
     form {
         width: 100%;
-    }
-
-    .action-button {
-        border-radius: 30px;
-        border: none;
-        border-bottom: 4px solid #b7c5e0;
-        display: block;
-        width: 100%;
-        max-width: 26rem;
-        box-sizing: border-box;
-        background: #fff;
-        color: #143063;
-        padding: 1.2rem 2rem 0.8rem;
-        font-weight: 600;
-
-        &:disabled {
-            opacity: 0.5;
-        }
-    }
-
-    .secondary-action-button {
-        border-radius: 30px;
-        border: 2px solid #8697af;
-        display: block;
-        width: 100%;
-        max-width: 20rem;
-        box-sizing: border-box;
-        background: #5f789b;
-        color: white;
-        padding: 0.8rem 2rem 0.6rem;
-        font-weight: 600;
-
-        &:disabled {
-            opacity: 0.5;
-        }
     }
 
     .icon-button {
@@ -105,34 +74,6 @@ export const GlobalStyles = createGlobalStyle`
         color: white;
     }
 
-    .action-icon-button {
-        border-radius: 5px;
-        border: none;
-        border-bottom: 4px solid #b7c5e0;
-        display: block;
-        width: 50px;
-        height: 50px;
-        box-sizing: border-box;
-        background: #fff;
-        color: #143063;
-        padding: 1.2rem 0rem 0.8rem;
-        font-weight: 600;
-
-        &:disabled {
-            opacity: 0.5;
-        }
-
-        &.active {
-            background: #ddeeff;
-            opacity: 1;
-        }
-
-        &.short {
-            height: 35px;
-            padding: 0rem 0rem 0rem;
-        }
-    }
-
     form {
         width: 100%;
 
@@ -145,7 +86,7 @@ export const GlobalStyles = createGlobalStyle`
                 box-sizing: border-box;
                 background-color: #143063;
                 border: 1px solid white;
-                border-radius: 5px;
+                border-radius: 0.5rem;
                 padding: 1rem;
                 margin: 0;
                 width: 100%;
