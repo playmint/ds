@@ -8,9 +8,11 @@ import { BasePanelStyles } from '@app/styles/base-panel.styles';
 import { TextButton } from '@app/styles/button.styles';
 import styled from 'styled-components';
 
-const MobileUnitContainer = styled.div`
+const StyledMobileUnitPanel = styled.div`
     ${BasePanelStyles}
+`;
 
+const MobileUnitContainer = styled.div`
     display: flex;
     justify-content: flex-end;
     align-items: center;
@@ -18,13 +20,14 @@ const MobileUnitContainer = styled.div`
     min-height: 5rem;
 
     position: relative;
-    width: 30rem;
+
     user-select: none;
 
     > .shield {
+        /* background: red; */
         position: absolute;
-        left: 0.5rem;
-        top: -2.5rem;
+        left: -2rem;
+        top: -5.5rem;
         width: 8rem;
     }
 
@@ -32,7 +35,6 @@ const MobileUnitContainer = styled.div`
         display: flex;
         flex-direction: row;
         width: 100%;
-        margin-left: 7rem;
 
         .label {
             padding: 0 0.5rem;
@@ -131,17 +133,20 @@ export const MobileUnitPanel = () => {
 
     return (
         <>
-            {mapReady && world && player && playerUnits.length > 0 && !selectedMobileUnit && (
-                <div className="onboarding" style={{ width: '30rem', background: 'transparent' }}>
-                    <TextButton onClick={selectAndFocusMobileUnit}>Select Unit</TextButton>
-                </div>
-            )}
-            {player && (
-                <>
-                    <div className="mobile-unit-actions">
-                        {(!player || (player && playerUnits.length > 0 && selectedMobileUnit)) && (
+            {mapReady &&
+                world &&
+                player &&
+                playerUnits.length > 0 &&
+                (selectedMobileUnit ? (
+                    <StyledMobileUnitPanel>
+                        <div className="mobile-unit-actions">
                             <MobileUnitContainer>
-                                <img src="/mobile-unit-yours.png" className="shield" alt="" />
+                                <img
+                                    src="/mobile-unit-yours.png"
+                                    className="shield"
+                                    alt=""
+                                    onClick={selectAndFocusMobileUnit}
+                                />
                                 <div className="controls">
                                     <button className="icon-button" onClick={() => selectNextMobileUnit(-1)}>
                                         <img src="/icons/prev.png" alt="Previous" />
@@ -154,13 +159,12 @@ export const MobileUnitPanel = () => {
                                     </button>
                                 </div>
                             </MobileUnitContainer>
-                        )}
-                        {selectedMobileUnit && (
                             <MobileUnitInventory mobileUnit={selectedMobileUnit} bags={world?.bags || []} />
-                        )}
-                    </div>
-                </>
-            )}
+                        </div>
+                    </StyledMobileUnitPanel>
+                ) : (
+                    <TextButton onClick={selectAndFocusMobileUnit}>Select Unit</TextButton>
+                ))}
         </>
     );
 };

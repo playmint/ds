@@ -1,40 +1,41 @@
 /** @format */
 
-export const colors = {
-    // Orange (light to dark)
-    color0: '#FB7001',
-    color1: '#B25001',
-    // Green
-    color2: '#21E63F',
-    color3: '#17A32D',
-    // Grey ramp (light to dark)
-    color4: '#F7F5FA',
-    color5: '#E4E1EB',
-    color6: '#CDC9D5',
-    color7: '#0D090F',
-    // Goo
-    gooGreen: '#63B204',
-    gooBlue: '#0665F5',
-    gooRed: '#CA002B',
-};
-
 export const oldColors = {
     // Blues (light to dark)
     color0: '#b7c5e0',
     color1: '#6c98d4',
     color2: '#143063',
     color3: '#030f25',
-    color7: '#335c90',
+    color4: '#335c90',
 
     // Grey ramp
-    color4: '#FFFFFF',
+    color5: '#FFFFFF',
 
     // Orange
-    color5: '#FB7001',
+    color6: '#FB7001',
 
     // Green
-    color6: '#63b204',
+    color7: '#63b204',
 
+    // Goo
+    gooGreen: '#63B204',
+    gooBlue: '#0665F5',
+    gooRed: '#CA002B',
+};
+
+export const colors = {
+    // Orange (light to dark)
+    orange_0: '#FB7001',
+    orange_1: '#B25001',
+    // Green
+    green_0: '#21E63F',
+    green_1: '#17A32D',
+    // Grey ramp (light to dark)
+    grey_0: '#F7F5FA',
+    grey_1: '#E4E1EB',
+    grey_2: '#CDC9D5',
+    grey_3: '#90879E',
+    grey_4: '#0D090F',
     // Goo
     gooGreen: '#63B204',
     gooBlue: '#0665F5',
@@ -42,9 +43,16 @@ export const oldColors = {
 };
 
 export const colorMap = {
-    documentBackground: oldColors.color7,
-    primaryText: oldColors.color4,
-    primaryBackground: oldColors.color2,
-    primaryButtonText: oldColors.color7,
-    primaryButtonBackground: oldColors.color4,
+    documentBackground: colors.grey_4,
+    primaryText: colors.grey_4,
+    primaryBackground: colors.grey_0,
+    secondaryBackground: colors.grey_1,
+
+    primaryButtonText: colors.orange_0,
+    primaryButtonBackground1: colors.grey_0,
+    primaryButtonBackground2: colors.grey_1,
+    primaryButtonActiveBackground: colors.orange_0,
+    primaryButtonActiveText: colors.grey_0,
+
+    primaryBorderColor: colors.grey_4,
 };

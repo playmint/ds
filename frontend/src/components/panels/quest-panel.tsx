@@ -6,89 +6,32 @@ import {
     WorldStateFragment,
     WorldTileFragment,
 } from '@app/../../core/src';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { Locatable, getCoords } from '@app/helpers/tile';
 import { useBuildingKinds, useQuestMessages } from '@app/hooks/use-game-state';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { TaskItem } from '../quest-task/task-item';
 import { BasePanelStyles } from '@app/styles/base-panel.styles';
-import { TextButton } from '@app/styles/button.styles';
+import { ActionButton } from '@app/styles/button.styles';
+import { colorMap, colors } from '@app/styles/colors';
 
+// NOTE: QuestPanel is a misnomer as it is no longer a panel but just a container. Each of the quest items are panels in their own right
 const StyledQuestPanel = styled.div`
-    ${BasePanelStyles}
-
-    width: 52rem;
+    width: 43.5rem;
     position: absolute;
-
-    > h1 {
-        text-align: center;
-        margin-bottom: 1rem;
-    }
-
-    > .questItem .taskContainer {
-        margin-top: 2rem;
-    }
-
-    .taskItem {
-        display: flex;
-        align-items: center;
-        margin-bottom: 1rem;
-    }
-
-    .taskItem .tickBox {
-        flex-shrink: 0;
-        margin-right: 1rem;
-        background: white;
-        width: 2rem;
-        height: 2rem;
-        border-radius: 0.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .taskItem svg {
-        fill: #63b204;
-    }
-
-    .header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .focusButton {
-        cursor: pointer;
-        top: 1rem;
-        right: 1rem;
-        width: 3rem;
-        height: 3rem;
-        background-color: #0665f5ff;
-        border-radius: 0.5rem;
-        padding: 0.3rem;
-    }
-
-    .focusButton svg {
-        /* fill: #ca002b; */
-        fill: white;
-        width: 100%;
-        height: 100%;
-    }
-
-    > .questItem .buttonContainer {
-        margin-top: 1rem;
-        display: flex;
-        justify-content: center;
-    }
-
-    > .questItem .buttonContainer .completeQuestButton {
-        width: 30rem;
-    }
 `;
 
-const CompleteQuestButton = styled(TextButton)`
-    color: red;
+const CompleteQuestButton = styled(ActionButton)`
+    color: ${colors.green_0};
+    background: ${colors.grey_4};
+
+    &:hover,
+    &.active {
+        background: ${colors.green_0};
+        color: ${colors.grey_4};
+        opacity: 1;
+    }
 `;
 
 const targetSvg = (
@@ -99,21 +42,87 @@ const targetSvg = (
 
 type Location = ReturnType<typeof getCoords>;
 
+const StyledFocusButton = styled.div`
+    position: absolute;
+    cursor: pointer;
+    top: 1rem;
+    right: 1rem;
+    width: 3rem;
+    height: 3rem;
+    background-color: ${colorMap.primaryBackground};
+    border-radius: 1rem;
+    padding: 0.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    > svg {
+        fill: ${colorMap.primaryText};
+        width: 80%;
+        height: 80%;
+    }
+`;
+
 const FocusButton: FunctionComponent<{
     location: Locatable;
     setFocusLocation: ReturnType<typeof useState<Location>>[1];
 }> = ({ location, setFocusLocation }) => {
     return (
-        <div
-            className="focusButton"
+        <StyledFocusButton
             onClick={() => {
                 setFocusLocation(getCoords(location));
             }}
         >
             {targetSvg}
-        </div>
+        </StyledFocusButton>
     );
 };
+
+const QuestItemStyles = ({ expanded }: { expanded: boolean }) => css`
+    position: relative;
+    padding: ${expanded ? 0 : `var(--panel-padding)`};
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+
+    ${!expanded &&
+    `&:hover {
+        background: ${colorMap.secondaryBackground};
+    }`}
+
+    cursor: ${expanded ? `default` : `pointer`};
+
+    h3 {
+        margin: 0;
+    }
+
+    .header {
+        background: ${colorMap.secondaryBackground};
+        padding: var(--panel-padding);
+
+        p {
+            color: ${colors.grey_3};
+        }
+    }
+
+    .taskContainer {
+        padding: var(--panel-padding) var(--panel-padding) 0 var(--panel-padding);
+    }
+
+    .buttonContainer {
+        margin: var(--panel-padding) 0;
+        display: flex;
+        justify-content: center;
+    }
+
+    .buttonContainer .completeQuestButton {
+        width: 30rem;
+    }
+`;
+
+const StyledQuestItem = styled.div`
+    ${BasePanelStyles}
+    ${QuestItemStyles}
+`;
 
 export const QuestItem: FunctionComponent<{
     expanded: boolean;
@@ -153,18 +162,17 @@ export const QuestItem: FunctionComponent<{
     };
 
     return (
-        <div className="questItem">
-            <div className="header" onClick={expanded ? undefined : () => onExpandClick(quest.node.id)}>
-                <h2>
-                    {expanded ? `[-]` : `[+]`} {quest.node.name?.value}
-                </h2>
-                {quest.node.location && (
-                    <FocusButton location={quest.node.location} setFocusLocation={setFocusLocation} />
-                )}
-            </div>
-            {expanded && (
+        <StyledQuestItem expanded={expanded} onClick={expanded ? undefined : () => onExpandClick(quest.node.id)}>
+            {expanded ? (
                 <>
-                    <p>{quest.node.description?.value}</p>
+                    <div className="header">
+                        <h2>{quest.node.name?.value}</h2>
+                        {quest.node.location && (
+                            <FocusButton location={quest.node.location} setFocusLocation={setFocusLocation} />
+                        )}
+                        <p>{quest.node.description?.value}</p>
+                    </div>
+
                     <div className="taskContainer">
                         {quest.node.tasks
                             .sort((a, b) => a.key - b.key)
@@ -189,8 +197,10 @@ export const QuestItem: FunctionComponent<{
                         </div>
                     )}
                 </>
+            ) : (
+                <h3>{quest.node.name?.value}</h3>
             )}
-        </div>
+        </StyledQuestItem>
     );
 };
 
@@ -246,7 +256,6 @@ export const QuestPanel: FunctionComponent<QuestPanelProps> = ({ world, tiles, p
         <>
             {acceptedQuests.length > 0 && (
                 <StyledQuestPanel>
-                    <h1>Q.U.E.S.T.s</h1>
                     {acceptedQuests.map((quest, questIdx) => (
                         <QuestItem
                             tiles={tiles}

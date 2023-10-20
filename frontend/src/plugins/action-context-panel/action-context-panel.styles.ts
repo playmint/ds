@@ -1,5 +1,6 @@
 import { css } from 'styled-components';
 import { ActionContextPanelProps } from './index';
+import { BasePanelStyles } from '@app/styles/base-panel.styles';
 
 /**
  * Base styles for the action context panel component
@@ -8,14 +9,12 @@ import { ActionContextPanelProps } from './index';
  * @return Base styles for the action context panel component
  */
 const baseStyles = (_: Partial<ActionContextPanelProps>) => css`
-    color: #fff;
+    ${BasePanelStyles}
 
     position: relative;
-    background: rgba(20, 48, 99, 0.85);
-    margin: 2.2rem;
-    padding: 2rem;
     display: flex;
     align-items: center;
+    margin-bottom: 1.5rem;
     width: 33vw;
 
     .guide {

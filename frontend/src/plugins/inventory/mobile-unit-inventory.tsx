@@ -6,18 +6,13 @@ import { BagFragment, WorldMobileUnitFragment } from '@downstream/core';
 import { getBagsAtEquipee } from '@downstream/core/src/utils';
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
-import { BasePanelStyles } from '@app/styles/base-panel.styles';
 
 export interface MobileUnitInventoryProps extends ComponentProps {
     mobileUnit: WorldMobileUnitFragment;
     bags: BagFragment[];
 }
 
-const StyledMobileUnitInventory = styled.div`
-    ${BasePanelStyles}
-    margin-bottom: 1.2rem;
-    width: 30rem;
-`;
+const StyledMobileUnitInventory = styled.div``;
 
 export const MobileUnitInventory: FunctionComponent<MobileUnitInventoryProps> = (props: MobileUnitInventoryProps) => {
     const { mobileUnit, bags } = props;

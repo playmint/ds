@@ -95,22 +95,6 @@ const baseStyles = (_: Partial<ShellProps>) => css`
             color: #fff;
         }
 
-        > button {
-            border-radius: 30px;
-            border: none;
-            border-bottom: 4px solid #b7c5e0;
-            display: block;
-            width: 100%;
-            box-sizing: border-box;
-            background: #fff;
-            color: #143063;
-            padding: 1.2rem 2rem 0.8rem;
-            font-weight: 600;
-
-            &:disabled {
-                opacity: 0.5;
-            }
-        }
         > p {
             margin: 2rem 0;
             font-size: 1.6rem;
