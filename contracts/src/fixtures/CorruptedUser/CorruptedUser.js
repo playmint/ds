@@ -106,5 +106,23 @@ export default function update({ selected, world }) {
             ],
         };
     }
+    else {
+        return {
+            version: 1,
+            components: [
+                {
+                    type: 'building',
+                    id: 'corrupted-user',
+                    content: [
+                        {
+                            id: 'default',
+                            type: 'inline',
+                            html: 'You have a feeling that now is not the right time to alert the Corrupted User to your presence',
+                        },
+                    ],
+                },
+            ],
+        };
+    }
 }
 
