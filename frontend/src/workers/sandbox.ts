@@ -67,12 +67,9 @@ export async function init() {
 }
 
 export async function evalCode(contextID: number, code: string) {
-    console.log('evaling', 1);
     const context = contexts[contextID];
     const res = context.evalCode(code);
-    console.log('evaling', 2);
     const promiseHandle = context.unwrapResult(res);
-    console.log('evaling', 3);
     // Convert the promise handle into a native promise and await it.
     // If code like this deadlocks, make sure you are calling
     // runtime.executePendingJobs appropriately.
