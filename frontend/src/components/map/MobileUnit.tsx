@@ -1,8 +1,9 @@
 import { getTileHeightFromCoords } from '@app/helpers/tile';
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
-import { WorldMobileUnitFragment, getCoords } from '@downstream/core';
+import { WorldBuildingFragment, WorldMobileUnitFragment, getCoords } from '@downstream/core';
 import { memo, useCallback, useMemo, useState } from 'react';
 import Icon from './Icon';
+import { getBuildingAtTile } from '@downstream/core/src/utils';
 
 // public int q;
 // public int r;
@@ -128,11 +129,13 @@ export const MobileUnit = memo(
 export const MobileUnits = memo(
     ({
         mobileUnits,
+        buildings,
         selectedMobileUnitID,
         onClickMobileUnit,
         playerID,
     }: {
         mobileUnits?: WorldMobileUnitFragment[];
+        buildings: WorldBuildingFragment[];
         selectedMobileUnitID?: string;
         playerID?: string;
         onClickMobileUnit: (id: string) => void;
@@ -159,10 +162,11 @@ export const MobileUnits = memo(
                     const coords = getCoords(tile);
                     const height = getTileHeightFromCoords(coords);
                     const isPlayer = u.owner?.id == playerID;
-                    const atBuilding = !!tile.building;
+                    const building = getBuildingAtTile(buildings, tile);
+                    const atBuilding = !!building;
                     return { ...u, visible, isPlayer, coords, counter, height, atBuilding };
                 });
-        }, [mobileUnits, playerID]);
+        }, [mobileUnits, playerID, buildings]);
 
         const unitComponents = useMemo(
             () =>

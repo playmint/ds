@@ -4,6 +4,7 @@ import {
     QUEST_STATUS_ACCEPTED,
     QuestFragment,
     WorldStateFragment,
+    WorldTileFragment,
 } from '@app/../../core/src';
 import styled from 'styled-components';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
@@ -113,11 +114,12 @@ export const QuestItem: FunctionComponent<{
     expanded: boolean;
     quest: QuestFragment;
     world: WorldStateFragment;
+    tiles: WorldTileFragment[];
     player: ConnectedPlayer;
     buildingKinds: BuildingKindFragment[];
     setFocusLocation: ReturnType<typeof useState<Location>>[1];
     onExpandClick: (questId: string) => void;
-}> = ({ expanded, world, player, buildingKinds, quest, setFocusLocation, onExpandClick }) => {
+}> = ({ expanded, world, tiles, player, buildingKinds, quest, setFocusLocation, onExpandClick }) => {
     const questMessages = useQuestMessages(5);
     const [taskCompletion, setTaskCompletion] = useState<{ [key: string]: boolean }>({});
     const [allCompleted, setAllCompleted] = useState<boolean>(false);
@@ -163,6 +165,7 @@ export const QuestItem: FunctionComponent<{
                             .sort((a, b) => a.key - b.key)
                             .map((task, idx) => (
                                 <TaskItem
+                                    tiles={tiles}
                                     key={idx}
                                     task={task}
                                     world={world}
@@ -192,9 +195,10 @@ export const QuestItem: FunctionComponent<{
 export interface QuestPanelProps {
     player: ConnectedPlayer;
     world: WorldStateFragment;
+    tiles: WorldTileFragment[];
 }
 
-export const QuestPanel: FunctionComponent<QuestPanelProps> = ({ world, player }: QuestPanelProps) => {
+export const QuestPanel: FunctionComponent<QuestPanelProps> = ({ world, tiles, player }: QuestPanelProps) => {
     const { ready: mapReady, sendMessage } = useUnityMap();
     const buildingKinds = useBuildingKinds();
     const [expandedQuest, setExpandedQuest] = useState<string>();
@@ -243,6 +247,7 @@ export const QuestPanel: FunctionComponent<QuestPanelProps> = ({ world, player }
                     <h1>Q.U.E.S.T.s</h1>
                     {acceptedQuests.map((quest, questIdx) => (
                         <QuestItem
+                            tiles={tiles}
                             expanded={(!expandedQuest && questIdx == 0) || expandedQuest == quest.node.id}
                             key={questIdx}
                             quest={quest}

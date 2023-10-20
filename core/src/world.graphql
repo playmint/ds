@@ -1,3 +1,40 @@
+fragment Item on Node {
+    id
+    name: annotation(name: "name") {
+        id
+        value
+    }
+    icon: annotation(name: "icon") {
+        id
+        value
+    }
+}
+
+fragment ItemSlot on Edge {
+    key
+    balance: weight
+    item: node {
+        ...Item
+    }
+}
+
+fragment Bag on Node {
+    id
+    key
+    slots: edges(match: { kinds: ["Item"], via: { rel: "Balance" } }) {
+        ...ItemSlot
+    }
+    owner: node(match: { via: { rel: "Owner" } }) {
+        id
+    }
+    equipee: edge(match: { via: { rel: "Equip", dir: IN } }) {
+        key
+        node {
+            id
+        }
+    }
+}
+
 fragment Location on Edge {
     id
     key # 0=LAST_LOCATION, 1=DEST_LOCATION
@@ -5,13 +42,13 @@ fragment Location on Edge {
     tile: node {
         id
         coords: keys
-        building: node(match: { kinds: "Building", via: { rel: "Location", dir: IN } }) {
-            id
-        }
-        atoms: edges(match: { kinds: ["atom"], via: { rel: "balance" } }) {
-            key
-            weight
-        }
+        # building: node(match: { kinds: "Building", via: { rel: "Location", dir: IN } }) {
+        #     id
+        # }
+        # atoms: edges(match: { kinds: ["atom"], via: { rel: "balance" } }) {
+        #     key
+        #     weight
+        # }
     }
 }
 
@@ -47,9 +84,6 @@ fragment WorldBuilding on Node {
     id
     kind: node(match: { kinds: "BuildingKind", via: { rel: "Is" } }) {
         ...BuildingKind
-    }
-    bags: edges(match: { kinds: "Bag", via: { rel: "Equip" } }) {
-        ...EquipmentSlot
     }
     owner: node(match: { kinds: "Player", via: { rel: "Owner" } }) {
         id
@@ -88,9 +122,6 @@ fragment WorldCombatSession on Node {
     isFinalised: edge(match: { kinds: "CombatSession", via: { rel: "IsFinalised" } }) {
         flag: weight
     }
-    bags: edges(match: { kinds: "Bag", via: { rel: "Equip" } }) {
-        ...EquipmentSlot
-    }
 }
 
 fragment WorldTile on Node {
@@ -106,18 +137,6 @@ fragment WorldTile on Node {
     # this is recorded on the biome edge weight for now
     # but this is temporary until we know what we need
     biome: value(match: { via: { rel: "Biome" } }) # 0=UNDISCOVERED, 1=DISCOVERED
-    # bags equip to tiles
-    bagCount: count(match: { kinds: "Bag", via: { rel: "Equip" } })
-    bagBalances: nodes(match: { kinds: "Bag", via: { rel: "Equip", dir: OUT } }) {
-        id
-        balance: sum(match: { kinds: "Item", via: { rel: "Balance" } })
-    }
-    building: node(match: { kinds: "Building", via: { rel: "Location", dir: IN } }) {
-        ...WorldBuilding
-    }
-    sessions: nodes(match: { kinds: "CombatSession", via: { rel: "Has", dir: IN } }) {
-        ...WorldCombatSession
-    }
     atoms: edges(match: { kinds: ["atom"], via: { rel: "balance" } }) {
         key
         weight
@@ -134,14 +153,38 @@ fragment WorldState on State {
     players: nodes(match: { kinds: "Player" }) {
         ...WorldPlayer
     }
-    tiles: nodes(match: { kinds: "Tile" }) {
-        ...SelectedTile
-    }
     buildings: nodes(match: { kinds: "Building" }) {
         ...WorldBuilding
     }
     mobileUnits: nodes(match: { kinds: "MobileUnit" }) {
         ...WorldMobileUnit
+    }
+    sessions: nodes(match: { kinds: "CombatSession" }) {
+        ...WorldCombatSession
+    }
+    bags: nodes(match: { kinds: "Bag" }) {
+        ...Bag
+    }
+}
+
+fragment TilesState on State {
+    tiles: nodes(match: { kinds: "Tile" }) {
+        ...WorldTile
+    }
+}
+
+fragment WorldStateWithTiles on State {
+    ...WorldState
+    ...TilesState
+}
+
+query GetTiles($gameID: ID!) {
+    game(id: $gameID) {
+        id
+        state(simulated: true) {
+            id
+            ...TilesState
+        }
     }
 }
 

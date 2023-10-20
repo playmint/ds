@@ -1,8 +1,5 @@
 fragment SelectedPlayer on Node {
     ...WorldPlayer
-    mobileUnits: nodes(match: { kinds: "MobileUnit", via: { rel: "Owner", dir: IN } }) {
-        ...SelectedMobileUnit
-    }
 
     quests: edges(match: { via: { rel: "HasQuest", dir: OUT } }) {
         key

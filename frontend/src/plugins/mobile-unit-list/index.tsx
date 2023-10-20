@@ -4,7 +4,7 @@ import otherUnitIcon from '@app/../public/mobile-unit-theirs.png';
 import playerUnitIcon from '@app/../public/mobile-unit-yours.png';
 import { formatNameOrId } from '@app/helpers';
 import { ComponentProps } from '@app/types/component-props';
-import { ConnectedPlayer, ItemSlotFragment, MobileUnit, SelectedTileFragment } from '@downstream/core';
+import { ConnectedPlayer, ItemSlotFragment, MobileUnit, WorldTileFragment } from '@downstream/core';
 import Image from 'next/image';
 import { FunctionComponent, useCallback } from 'react';
 import styled from 'styled-components';
@@ -27,7 +27,7 @@ const MobileUnitListItem = ({ unit, icon, isInteractable }) => {
 export interface MobileUnitListProps extends ComponentProps {
     player?: ConnectedPlayer;
     mobileUnits: MobileUnit[];
-    tile?: SelectedTileFragment;
+    tile?: WorldTileFragment;
 }
 
 const StyledMobileUnitList = styled.div`

@@ -1,5 +1,5 @@
 import { concat, debounce, fromValue, lazy, map, pipe, share, Source, switchMap, tap } from 'wonka';
-import { SelectedTileFragment, WorldStateFragment } from './gql/graphql';
+import { WorldTileFragment } from './gql/graphql';
 import { CogServices } from './types';
 
 /**
@@ -9,23 +9,23 @@ import { CogServices } from './types';
  * only data for scouted tiles is requested, but unscouted tiles remain in the
  * selection
  */
-export function makeTiles(
+export function makeSelectedTiles(
     _client: Source<CogServices>, // remove
-    world: Source<WorldStateFragment>,
+    tiles: Source<WorldTileFragment[]>,
     ids: Source<string[] | undefined>,
 ) {
-    let prev: SelectedTileFragment[];
+    let prev: WorldTileFragment[];
     const source = pipe(
-        world,
-        switchMap((world) =>
+        tiles,
+        switchMap((tiles) =>
             pipe(
                 ids,
                 map((selectedIDs) =>
                     selectedIDs
                         ? selectedIDs
-                              .map((id) => world.tiles.find((t) => t.id === id))
-                              .filter((t): t is SelectedTileFragment => !!t)
-                        : ([] as SelectedTileFragment[]),
+                              .map((id) => tiles.find((t) => t.id === id))
+                              .filter((t): t is WorldTileFragment => !!t)
+                        : ([] as WorldTileFragment[]),
                 ),
             ),
         ),

@@ -1,6 +1,7 @@
-import { getCoords, WorldTileFragment } from '@app/../../core/src';
+import { getCoords, WorldBuildingFragment, WorldTileFragment } from '@app/../../core/src';
 import { MinQueue } from 'heapify';
 import { BuildingCategory, getBuildingCategory } from './building';
+import { getBuildingAtTile } from '@downstream/core/src/utils';
 
 interface PassableTile {
     idx: number;
@@ -12,12 +13,14 @@ interface PassableTile {
 
 export function getPath(
     tiles: WorldTileFragment[],
+    buildings: WorldBuildingFragment[],
     fromWorldTile: WorldTileFragment,
     toWorldTile: WorldTileFragment
 ): WorldTileFragment[] {
     // put the tiles into a structure we can lookup by coords quickly
     const tileMap = new Map<string, PassableTile>();
     const tileList: PassableTile[] = [];
+    const blockerMap = new Map<string, boolean>();
     let fromTile: PassableTile | null = null;
     let toTile: PassableTile | null = null;
     for (let idx = 0; idx < tiles.length; idx++) {
@@ -29,7 +32,13 @@ export function getPath(
             s,
             tile: tiles[idx],
         };
-        tileMap.set(`${q}:${r}:${s}`, t);
+        // ignore tiles with blockers on them
+        const building = getBuildingAtTile(buildings, t.tile);
+        const key = `${q}:${r}:${s}`;
+        if (building && getBuildingCategory(building?.kind) === BuildingCategory.BLOCKER) {
+            blockerMap.set(key, true);
+        }
+        tileMap.set(key, t);
         tileList.push(t);
         if (fromWorldTile.id === tiles[idx].id) {
             fromTile = t;
@@ -46,7 +55,7 @@ export function getPath(
     if (fromTile === toTile) {
         return [];
     }
-    return findPathAStar(tileMap, tileList, fromTile, toTile).map((idx) => tiles[idx]);
+    return findPathAStar(tileMap, blockerMap, tileList, fromTile, toTile).map((idx) => tiles[idx]);
 }
 
 interface Neighbour extends PassableTile {
@@ -59,6 +68,7 @@ interface Neighbour extends PassableTile {
 // possibly not being the actual shortest path
 function getNeighboursWithDistanceFromDestination(
     tileMap: Map<string, PassableTile>,
+    blockerMap: Map<string, boolean>,
     current: PassableTile,
     destination: PassableTile
 ): Neighbour[] {
@@ -81,8 +91,8 @@ function getNeighboursWithDistanceFromDestination(
             if (t.tile.id === destination.tile.id) {
                 return true;
             }
-            // avoid tiles with blockers
-            if (getBuildingCategory(t.tile.building?.kind) == BuildingCategory.BLOCKER) {
+            // check blocking
+            if (blockerMap.get(`${q}:${r}:${s}`)) {
                 return false;
             }
             return true;
@@ -100,6 +110,7 @@ function getNeighboursWithDistanceFromDestination(
 // basic A* implementation
 function findPathAStar(
     tileMap: Map<string, PassableTile>,
+    blockerMap: Map<string, boolean>,
     tileList: PassableTile[],
     fromTile: PassableTile,
     toTile: PassableTile
@@ -126,7 +137,7 @@ function findPathAStar(
         if (typeof currentTile === 'undefined') {
             throw new Error('invalid index in queue');
         }
-        getNeighboursWithDistanceFromDestination(tileMap, currentTile, toTile).forEach(
+        getNeighboursWithDistanceFromDestination(tileMap, blockerMap, currentTile, toTile).forEach(
             ({ idx, distance }: Neighbour) => {
                 const newCost = (cost.get(current) || 0) + distance * 10;
                 if (!cost.has(idx) || newCost < (cost.get(idx) || 0)) {

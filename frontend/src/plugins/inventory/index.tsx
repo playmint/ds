@@ -4,11 +4,11 @@ import { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { ComponentProps } from '@app/types/component-props';
 import { Bag } from '@app/plugins/inventory/bag';
-import { EquipmentSlotFragment } from '@downstream/core';
+import { BagFragment } from '@downstream/core';
 
 export interface InventoryProps extends ComponentProps {
     ownerId: string;
-    bags: EquipmentSlotFragment[];
+    bags: BagFragment[];
     isInteractable: boolean;
     showIcon?: boolean;
 }
@@ -27,11 +27,11 @@ export const Inventory: FunctionComponent<InventoryProps> = (props: InventoryPro
     return (
         <StyledInventory>
             <ul className="bags">
-                {bags.map((equipSlot) => (
+                {bags.map((bag) => (
                     <Bag
-                        key={equipSlot.key}
-                        bag={equipSlot.bag}
-                        equipIndex={equipSlot.key}
+                        key={bag.equipee?.key || 0}
+                        bag={bag}
+                        equipIndex={bag.equipee?.key || 0}
                         ownerId={ownerId}
                         isInteractable={isInteractable}
                         showIcon={showIcon}

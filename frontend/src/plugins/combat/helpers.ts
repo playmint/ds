@@ -4,14 +4,18 @@ import { CombatParticipantProps } from '@app/plugins/combat/combat-participant';
 import {
     BuildingKindFragment,
     ConnectedPlayer,
-    EquipmentSlotFragment,
     ItemSlotFragment,
-    SelectedMobileUnitFragment,
-    SelectedTileFragment,
     WorldMobileUnitFragment,
     WorldStateFragment,
     WorldTileFragment,
 } from '@downstream/core';
+import { BagFragment, WorldCombatSessionFragment } from '@downstream/core/src/gql/graphql';
+import {
+    getBagsAtEquipee,
+    getBuildingAtTile,
+    getMobileUnitsAtTile,
+    getSessionsAtTile,
+} from '@downstream/core/src/utils';
 import { AbiCoder, BigNumberish, BytesLike, hexlify } from 'ethers';
 
 export const NUM_STAT_KINDS = 3; // LIFE, DEFENCE, ATTACK
@@ -25,7 +29,7 @@ export const buildingIdStart = '0x34cf8a7e';
 export const nodeKindMask = BigInt('0xffffffff');
 export const buildingNodeKind = BigInt('0x34cf8a7e');
 
-export type CombatSession = WorldTileFragment['sessions'][number];
+export type CombatSession = WorldCombatSessionFragment;
 
 // NOTE: I wasn't able to import this from core as the namespace wasn't exported. Not sure how to fix
 export type CombatActionStruct = {
@@ -146,13 +150,13 @@ export const getEntityName = (entityID: BytesLike, world: WorldStateFragment) =>
         const building = world.buildings.find((b) => b.id === id);
         return building?.kind?.name?.value ?? 'Building';
     }
-    const unit = world.tiles.flatMap((t) => t.mobileUnits).find((s) => s.id === entityID);
+    const unit = (world?.mobileUnits || []).find((s) => s.id === entityID);
     return formatNameOrId(unit, 'Unit ');
 };
 
-export const getEquipmentStats = (equipmentSlots: EquipmentSlotFragment[]) => {
-    return equipmentSlots.reduce(
-        (stats, { bag }) => {
+export const getEquipmentStats = (bags: BagFragment[]) => {
+    return bags.reduce(
+        (stats, bag) => {
             bag.slots.forEach((slot) => {
                 if (slot.balance > 0) {
                     const [stackable, life, defense, attack] = getItemStructure(slot.item.id);
@@ -185,15 +189,17 @@ export const getMaterialStats = (materials: ItemSlotFragment[]) => {
 };
 
 export const unitToCombatParticipantProps = (
-    unit: SelectedMobileUnitFragment,
+    unit: WorldMobileUnitFragment,
     world: WorldStateFragment,
     player: ConnectedPlayer
 ) => {
     const entityID = unit.id;
-    const stats = getEquipmentStats(unit.bags);
+    const unitBags = getBagsAtEquipee(world?.bags || [], unit);
+    const playerMobileUnits = (world?.mobileUnits || []).filter((mu) => mu.owner?.id == player.id);
+    const stats = getEquipmentStats(unitBags);
     return {
         name: getEntityName(entityID, world),
-        icon: getIcon(entityID, player.mobileUnits),
+        icon: getIcon(entityID, playerMobileUnits),
         maxHealth: stats[ATOM_LIFE] + UNIT_BASE_LIFE * LIFE_MUL,
         currentHealth: stats[ATOM_LIFE] + UNIT_BASE_LIFE * LIFE_MUL,
         attack: stats[ATOM_ATTACK] + UNIT_BASE_ATTACK,
@@ -221,16 +227,19 @@ export const entityStateToCombatParticipantProps = (
     { entityID, damage, stats, isDead, isPresent }: EntityState,
     world: WorldStateFragment,
     player: ConnectedPlayer
-) => ({
-    name: getEntityName(entityID, world),
-    icon: getIcon(entityID, player.mobileUnits),
-    maxHealth: stats[ATOM_LIFE],
-    currentHealth: Math.max(stats[ATOM_LIFE] - damage, 0),
-    attack: stats[ATOM_ATTACK],
-    defence: stats[ATOM_DEFENSE],
-    isDead,
-    isPresent,
-});
+) => {
+    const playerMobileUnits = (world?.mobileUnits || []).filter((mu) => mu.owner?.id == player.id);
+    return {
+        name: getEntityName(entityID, world),
+        icon: getIcon(entityID, playerMobileUnits),
+        maxHealth: stats[ATOM_LIFE],
+        currentHealth: Math.max(stats[ATOM_LIFE] - damage, 0),
+        attack: stats[ATOM_ATTACK],
+        defence: stats[ATOM_DEFENSE],
+        isDead,
+        isPresent,
+    };
+};
 
 export const sumParticipants = (
     [participantsMaxHealth, participantsCurrentHealth]: number[],
@@ -242,7 +251,7 @@ export const sumParticipants = (
 };
 
 export const getTileEntities = (
-    tile: SelectedTileFragment,
+    tile: WorldTileFragment,
     world: WorldStateFragment,
     player: ConnectedPlayer
 ): CombatParticipantProps[] => {
@@ -250,16 +259,19 @@ export const getTileEntities = (
         return [];
     }
     const entities: CombatParticipantProps[] = [];
-    if (tile.building && tile.building.kind) {
-        entities.push(buildingToCombatParticipantProps(tile.building.kind));
+    const building = getBuildingAtTile(world?.buildings || [], tile);
+    if (building && building.kind) {
+        entities.push(buildingToCombatParticipantProps(building.kind));
     }
-    entities.push(...tile.mobileUnits.map((unit) => unitToCombatParticipantProps(unit, world, player)));
+    const mobileUnits = getMobileUnitsAtTile(world?.mobileUnits || [], tile);
+    entities.push(...mobileUnits.map((unit) => unitToCombatParticipantProps(unit, world, player)));
     return entities;
 };
 
-export const getLatestCombatSession = (tile: SelectedTileFragment) => {
-    return tile.sessions.length > 0
-        ? tile.sessions.sort((a, b) => {
+export const getLatestCombatSession = (sessions: WorldCombatSessionFragment[], tile: WorldTileFragment) => {
+    const tileSessions = getSessionsAtTile(sessions, tile);
+    return tileSessions.length > 0
+        ? tileSessions.sort((a, b) => {
               return a.attackTile && b.attackTile ? b.attackTile.startBlock - a.attackTile.startBlock : 0;
           })[0]
         : undefined;

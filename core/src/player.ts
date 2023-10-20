@@ -32,7 +32,7 @@ export function makeConnectedPlayer(
             if (!next) {
                 return true;
             }
-            return next.id != prev.id || next.dispatch != prev.dispatch || next.mobileUnits != prev.mobileUnits;
+            return next.id != prev.id || next.dispatch != prev.dispatch;
         }),
         tap((next) => (prev = next)),
         share,
@@ -72,7 +72,6 @@ function toFakeSelectedPlayer(wallet: Wallet): SelectedPlayerFragment {
     return {
         id: wallet.id,
         addr: wallet.address,
-        mobileUnits: [],
         quests: [],
     };
 }
