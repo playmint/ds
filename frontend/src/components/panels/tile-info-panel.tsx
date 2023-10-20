@@ -1,5 +1,6 @@
 import {
     BiomeKind,
+    BuildingKindFragment,
     ConnectedPlayer,
     PluginType,
     World,
@@ -8,7 +9,7 @@ import {
 } from '@app/../../core/src';
 import { PluginContent } from '@app/components/organisms/tile-action';
 import { GOO_BLUE, GOO_GREEN, GOO_RED, getCoords, getGooRates, getTileDistance } from '@app/helpers/tile';
-import { useBuildingKinds, usePlayer, usePluginState, useSelection, useWorld } from '@app/hooks/use-game-state';
+import { usePlayer, usePluginState, useSelection, useWorld } from '@app/hooks/use-game-state';
 import { Bag } from '@app/plugins/inventory/bag';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { TileInventory } from '@app/plugins/inventory/tile-inventory';
@@ -104,13 +105,13 @@ interface TileBuildingProps {
     canUse: boolean;
     building: WorldBuildingFragment;
     world?: World;
+    kinds: BuildingKindFragment[];
     mobileUnit?: WorldMobileUnitFragment;
 }
-const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, world, mobileUnit, canUse }) => {
+const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, world, mobileUnit, canUse }) => {
     const { tiles: selectedTiles } = useSelection();
     const selectedTile = selectedTiles?.[0];
     const ui = usePluginState();
-    const kinds = useBuildingKinds();
     const component = (ui || [])
         .filter((p) => p.config.type === PluginType.BUILDING && p.config.kindID === building.kind?.id)
         .flatMap((p) => p.state.components)
@@ -295,7 +296,7 @@ const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUn
     );
 };
 
-export const TileInfoPanel = () => {
+export const TileInfoPanel = ({ kinds }: { kinds: BuildingKindFragment[] }) => {
     const { tiles, mobileUnit } = useSelection();
     const player = usePlayer();
 
@@ -316,7 +317,15 @@ export const TileInfoPanel = () => {
                 mobileUnit &&
                 mobileUnit.nextLocation &&
                 getTileDistance(mobileUnit.nextLocation.tile, selectedTile) < 2;
-            return <TileBuilding canUse={!!canUse} building={building} world={world} mobileUnit={mobileUnit} />;
+            return (
+                <TileBuilding
+                    kinds={kinds}
+                    canUse={!!canUse}
+                    building={building}
+                    world={world}
+                    mobileUnit={mobileUnit}
+                />
+            );
         } else {
             return null; // fallback, don't expect this state
         }

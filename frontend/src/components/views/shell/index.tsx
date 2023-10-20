@@ -13,7 +13,7 @@ import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
 import { NavPanel } from '@app/components/panels/nav-panel';
 import { TileInfoPanel } from '@app/components/panels/tile-info-panel';
 import { getTileDistance } from '@app/helpers/tile';
-import { useBlock, useGameState, usePlayer } from '@app/hooks/use-game-state';
+import { useBlock, useBuildingKinds, useGameState, usePlayer } from '@app/hooks/use-game-state';
 import { useSession } from '@app/hooks/use-session';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { useWalletProvider } from '@app/hooks/use-wallet-provider';
@@ -64,6 +64,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const [selectedBags, setSelectedBags] = useState<SelectedBag[]>();
     const selectedTileBags = selectedBags?.filter((sb) => !sb.isCombatReward);
     const selectedRewardBags = selectedBags?.filter((sb) => sb.isCombatReward);
+    const kinds = useBuildingKinds();
 
     // collect client dispatch analytics
     // TODO: move to analytics provider
@@ -265,7 +266,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     {(!player || (player && playerUnits.length === 0)) && mapReady && connect && !loadingSession && (
                         <Onboarding player={player} playerUnits={playerUnits} onClickConnect={connect} />
                     )}
-                    {player && playerUnits.length > 0 && <TileInfoPanel />}
+                    {player && playerUnits.length > 0 && <TileInfoPanel kinds={kinds || []} />}
                     {selectedTiles &&
                         selectedTiles.length > 0 &&
                         blockNumber &&
