@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Unity, useUnityContext } from 'react-unity-webgl';
 import { UnityContextHook } from 'react-unity-webgl/distribution/types/unity-context-hook';
 import { concat, fromValue, lazy, makeSubject, pipe, Subject, subscribe, tap } from 'wonka';
+import { useLocalStorage } from './use-localstorage';
 //
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // !!
@@ -28,6 +29,8 @@ export interface UnityMessage {
 export interface GlobalUnityContext {
     ready: Subject<boolean>;
     unity: Subject<Partial<UnityContextHook>>;
+    setCanvasHeight?: (height: number) => void;
+    getCanvasHeight?: () => number;
 }
 
 const g = globalThis as unknown as { __globalUnityContext: GlobalUnityContext };
@@ -36,8 +39,6 @@ const host = typeof window !== 'undefined' ? `${window.location.protocol}//${win
 
 const UnityInstance = () => {
     const canvasRef = useRef(null);
-    const [devicePixelRatio, setDevicePixelRatio] = useState(window.devicePixelRatio);
-    console.log('host', host);
     const unity = useUnityContext({
         loaderUrl: `${host}/ds-unity/Build/ds-unity.loader.js`,
         dataUrl: `${host}/ds-unity/Build/ds-unity.data`,
@@ -50,6 +51,15 @@ const UnityInstance = () => {
     });
     const { unityProvider, loadingProgression, addEventListener, removeEventListener, sendMessage } = unity;
 
+    const canvas = canvasRef.current ? (canvasRef.current as HTMLCanvasElement) : null;
+    const [canvasHeight, setCanvasHeight] = useLocalStorage<number>(`ds/canvasHeight`, -1);
+    const getCanvasHeight = useCallback(() => canvasHeight, [canvasHeight]);
+
+    if (g.__globalUnityContext) {
+        g.__globalUnityContext.setCanvasHeight = setCanvasHeight;
+        g.__globalUnityContext.getCanvasHeight = getCanvasHeight;
+    }
+
     useEffect(() => {
         if (!g.__globalUnityContext) {
             return;
@@ -61,33 +71,6 @@ const UnityInstance = () => {
             sendMessage,
         });
     }, [sendMessage, loadingProgression, addEventListener, removeEventListener]);
-
-    useEffect(() => {
-        // A function which will update the device pixel ratio of the Unity
-        // Application to match the device pixel ratio of the browser.
-        const updateDevicePixelRatio = function () {
-            setDevicePixelRatio(window.devicePixelRatio);
-        };
-        // A media matcher which watches for changes in the device pixel ratio.
-        const mediaMatcher = window.matchMedia(`screen and (resolution: ${devicePixelRatio}dppx)`);
-        if (!mediaMatcher) {
-            return;
-        }
-        // Adding an event listener to the media matcher which will update the
-        // device pixel ratio of the Unity Application when the device pixel
-        // ratio changes.
-        if (!mediaMatcher.addEventListener) {
-            return;
-        }
-        mediaMatcher.addEventListener('change', updateDevicePixelRatio);
-        return function () {
-            if (!mediaMatcher.addEventListener) {
-                return;
-            }
-            // Removing the event listener when the component unmounts.
-            mediaMatcher.removeEventListener('change', updateDevicePixelRatio);
-        };
-    }, [devicePixelRatio]);
 
     useEffect(() => {
         const onKeyDown = (e: KeyboardEvent) => {
@@ -148,12 +131,64 @@ const UnityInstance = () => {
         };
     }, [addEventListener, removeEventListener]);
 
+    useEffect(() => {
+        if (!canvas) {
+            return;
+        }
+        const onResize = () => {
+            if (canvasHeight && canvasHeight > 0) {
+                const ratio = window.innerWidth / window.innerHeight;
+                const height = Math.min(window.innerHeight, canvasHeight);
+                canvas.height = height;
+                canvas.width = height * ratio;
+            } else if (canvasHeight === -2) {
+                // "native" ... exactly match the browser/screen pixel density
+                // this will be the highest possible quality, but your GPU
+                // might struggle
+                canvas.height = window.innerHeight * window.devicePixelRatio;
+                canvas.width = window.innerWidth * window.devicePixelRatio;
+            } else {
+                // "auto" ... use the native browser pixel height for
+                // resolution, but never pack more pixels into the canvas than
+                // the actual screen pixels (ie if zoomed out or hiDPI)
+                // quirk: zooming IN will lower the res, which is weird, if you
+                // need to zoom in for some reason probably use "native"
+                canvas.height = Math.min(window.innerHeight * window.devicePixelRatio, window.innerHeight);
+                canvas.width = Math.min(window.innerWidth * window.devicePixelRatio, window.innerWidth);
+            }
+            console.info(`canvas size updated to ${canvas.width}x${canvas.height}`);
+        };
+        window.addEventListener('resize', onResize);
+
+        const mediaMatcher = window.matchMedia(`screen and (resolution: ${devicePixelRatio}dppx)`);
+        if (!mediaMatcher) {
+            return;
+        }
+        // Adding an event listener to the media matcher which will update the
+        // device pixel ratio of the Unity Application when the device pixel
+        // ratio changes.
+        if (!mediaMatcher.addEventListener) {
+            return;
+        }
+        mediaMatcher.addEventListener('change', onResize);
+
+        // update now
+        onResize();
+
+        return () => {
+            window.removeEventListener('resize', onResize);
+            if (mediaMatcher && mediaMatcher.removeEventListener) {
+                mediaMatcher.removeEventListener('change', onResize);
+            }
+        };
+    }, [canvas, canvasHeight]);
+
     return (
         <Unity
             ref={canvasRef}
             style={{ width: '100vw', height: '100vh', position: 'absolute' }}
             unityProvider={unityProvider}
-            devicePixelRatio={devicePixelRatio}
+            matchWebGLToCanvasSize={false}
             tabIndex={0}
         />
     );
