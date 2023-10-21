@@ -27,6 +27,8 @@ export interface Sandbox {
     init: () => Promise<void>;
     newContext: (dispatch: DispatchFunc, config: PluginConfig) => Promise<number>;
     evalCode: (context: number, code: string) => Promise<any>;
+    setState: (state: GameStatePlugin) => Promise<void>;
+    setBlock: (block: number) => Promise<void>;
 }
 
 export enum LogLevel {
@@ -251,7 +253,7 @@ export interface InactivePlugin {
 
 export interface ActivePlugin extends InactivePlugin {
     context: number;
-    update: (state: GameState, block: number) => Promise<PluginUpdateResponse>;
+    update: () => Promise<PluginUpdateResponse>;
 }
 
 export type PluginActionCallProxy = () => Promise<void>;
@@ -340,17 +342,20 @@ export type MobileUnit = WorldMobileUnitFragment & Partial<WorldMobileUnitFragme
 export type Tile = WorldTileFragment & Partial<WorldTileFragment>;
 
 export interface GameStatePlugin {
+    player?: SelectedPlayerFragment;
+    world: World;
+    selected: Selection;
+}
+
+export interface GameState {
     player?: ConnectedPlayer;
     world: World;
+    tiles: WorldTileFragment[];
     selected: Selection;
     selectTiles: Selector<string[] | undefined>;
     selectMobileUnit: Selector<string | undefined>;
     selectIntent: Selector<string | undefined>;
     selectMapElement: Selector<SelectedMapElement | undefined>;
-}
-
-export interface GameState extends GameStatePlugin {
-    tiles: WorldTileFragment[];
 }
 
 export interface ConnectedPlayer extends SelectedPlayerFragment {

@@ -13,7 +13,7 @@ import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
 import { NavPanel } from '@app/components/panels/nav-panel';
 import { TileInfoPanel } from '@app/components/panels/tile-info-panel';
 import { getTileDistance } from '@app/helpers/tile';
-import { useBlock, useBuildingKinds, useGameState, usePlayer } from '@app/hooks/use-game-state';
+import { useBlock, useBuildingKinds, useGameState, usePlayer, usePluginState } from '@app/hooks/use-game-state';
 import { useSession } from '@app/hooks/use-session';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { useWalletProvider } from '@app/hooks/use-wallet-provider';
@@ -65,6 +65,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const selectedTileBags = selectedBags?.filter((sb) => !sb.isCombatReward);
     const selectedRewardBags = selectedBags?.filter((sb) => sb.isCombatReward);
     const kinds = useBuildingKinds();
+    const ui = usePluginState();
 
     // collect client dispatch analytics
     // TODO: move to analytics provider
@@ -254,7 +255,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     {/* <Logs className="logs" /> */}
                 </div>
                 <div className="bottom-left">
-                    <ItemPluginPanel />
+                    <ItemPluginPanel ui={ui || []} />
                     <MobileUnitPanel />
                 </div>
                 <div className="top-middle"></div>
@@ -266,7 +267,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     {(!player || (player && playerUnits.length === 0)) && mapReady && connect && !loadingSession && (
                         <Onboarding player={player} playerUnits={playerUnits} onClickConnect={connect} />
                     )}
-                    {player && playerUnits.length > 0 && <TileInfoPanel kinds={kinds || []} />}
+                    {player && playerUnits.length > 0 && <TileInfoPanel kinds={kinds || []} ui={ui || []} />}
                     {selectedTiles &&
                         selectedTiles.length > 0 &&
                         blockNumber &&

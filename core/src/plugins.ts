@@ -22,7 +22,6 @@ import {
     CogServices,
     DispatchFunc,
     GameState,
-    GameStatePlugin,
     PluginConfig,
     PluginSubmitCallValues,
     PluginTrust,
@@ -85,45 +84,53 @@ export function makePluginUI(
 ) {
     return pipe(
         zip<any>({ plugins, state, block }),
-        debounce(() => 1000),
-        map<any, Promise<PluginUpdateResponse>[]>(
-            ({ state, plugins, block }: { state: GameState; plugins: PluginConfig[]; block: number }) => {
-                const statePromises = plugins
-                    .map(async (p) => {
-                        try {
-                            const { player } = state;
-                            const dispatch = player ? player.dispatch : noopDispatcher;
-                            if (!p.id) {
-                                console.warn(`plugin has no id, skipping`);
+        debounce(() => 250),
+        map<any, Promise<PluginUpdateResponse[]>>(
+            async ({ state, plugins, block }: { state: GameState; plugins: PluginConfig[]; block: number }) => {
+                await sandbox.setBlock(block);
+                await sandbox.setState({
+                    player: state.player
+                        ? {
+                              id: state.player.id,
+                              addr: state.player.addr,
+                              quests: state.player.quests,
+                          }
+                        : undefined,
+                    world: {
+                        ...(state.world || {}),
+                        sessions: [],
+                    },
+                    selected: state.selected,
+                });
+                return Promise.all(
+                    plugins
+                        .map(async (p) => {
+                            try {
+                                const { player } = state;
+                                const dispatch = player ? player.dispatch : noopDispatcher;
+                                if (!p.id) {
+                                    console.warn(`plugin has no id, skipping`);
+                                    return null;
+                                }
+                                const plugin = active.has(p.id)
+                                    ? active.get(p.id)
+                                    : await loadPlugin(sandbox, dispatch, p);
+                                if (!plugin) {
+                                    console.warn(`failed to get or load plugin ${p.id}`);
+                                    return null;
+                                }
+                                active.set(p.id, plugin);
+                                return plugin.update();
+                            } catch (err) {
+                                console.error(`plugin ${p.id}:`, err);
                                 return null;
                             }
-                            const plugin = active.has(p.id) ? active.get(p.id) : await loadPlugin(sandbox, dispatch, p);
-                            if (!plugin) {
-                                console.warn(`failed to get or load plugin ${p.id}`);
-                                return null;
-                            }
-                            active.set(p.id, plugin);
-                            return plugin.update(
-                                {
-                                    ...state,
-                                    tiles: [], // strip out tiles to remove size of state
-                                    world: {
-                                        ...(state.world || {}),
-                                        sessions: [], // strip out session to reduce size of state
-                                    },
-                                },
-                                block,
-                            );
-                        } catch (err) {
-                            console.error(`plugin ${p.id}:`, err);
-                            return null;
-                        }
-                    })
-                    .filter((res): res is Promise<PluginUpdateResponse> => !!res);
-                return statePromises;
+                        })
+                        .filter((res): res is Promise<PluginUpdateResponse> => !!res),
+                );
             },
         ),
-        mergeMap((statePromises) => fromPromise(Promise.all(statePromises))),
+        mergeMap((pluginResponses) => fromPromise(pluginResponses)),
     );
 }
 
@@ -258,44 +265,32 @@ export async function loadPlugin(sandbox: Comlink.Remote<Sandbox>, dispatch: Dis
     // this prevents a class of undesirable activities such as
     // plugins triggering dispatch calls on load or responding
     // to state changes in update
-    const api = { enabled: false };
 
     const context = await sandbox.newContext(Comlink.proxy(dispatch), config);
 
     // setup the submit func
     const submitProxy = async (ref: string, values: PluginSubmitCallValues): Promise<void> => {
-        if (api.enabled) {
-            console.error('plugin unable to handle event: already handling an event for this plugin');
-            return;
-        }
         console.log('submit', ref, values);
-        try {
-            api.enabled = true;
-            // TODO: THIS MUST HAVE A TIMEOUT OR THE WHOLE THING WILL BE DEADLOCKED LOCKED!!!!
-            const res = await sandbox.evalCode(
-                context,
-                `(async function({ref, values}){
+        const res = await sandbox.evalCode(
+            context,
+            `(async function({ref, values}){
                     const fn = globalThis.__refs[ref];
                     fn && fn(values);
                     return JSON.stringify({ok: true});
                 })(${JSON.stringify({ ref, values })})`,
-            );
-            console.log('submitted', ref, res);
-        } finally {
-            api.enabled = false;
-        }
+        );
+        console.log('submitted', ref, res);
     };
 
     // setup the update func
-    const updateProxy = async (state: GameStatePlugin, block: number): Promise<PluginUpdateResponse> => {
-        console.log('updating');
+    const updateProxy = async (): Promise<PluginUpdateResponse> => {
         const pluginResponse = await sandbox.evalCode(
             context,
             `(async () => {
-                return globalThis.__update(${JSON.stringify(state)}, ${block})
+                return globalThis.__update();
             })()`,
         );
-        console.log('updating-done', pluginResponse);
+        // console.log('updating-done', config.name, pluginResponse);
 
         try {
             return {
