@@ -8,6 +8,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from './use-localstorage';
 import { ActionButton } from '@app/styles/button.styles';
+import { colors } from '@app/styles/colors';
 
 export interface WalletProvider {
     method: string;
@@ -110,12 +111,12 @@ export const WalletProviderProvider = ({ children }: { children: ReactNode }) =>
     return (
         <WalletProviderContext.Provider value={value}>
             {walletConnectURI && (
-                <Dialog onClose={closeWalletConnector} width="304px" height="">
+                <Dialog onClose={closeWalletConnector} width="350px" height="">
                     <div style={{ padding: 5 }}>
                         <QRCodeSVG
                             value={walletConnectURI}
                             size={256}
-                            bgColor={'#143063'}
+                            bgColor={colors.grey_4}
                             fgColor={'#ffffff'}
                             imageSettings={{
                                 src: '/qrunit.png',

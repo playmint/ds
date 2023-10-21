@@ -3,6 +3,7 @@
 import { css } from 'styled-components';
 import { DialogProps } from './index';
 import { BasePanelStyles } from '@app/styles/base-panel.styles';
+import { colorMap, colors } from '@app/styles/colors';
 
 /**
  * Base styles for the modal component
@@ -40,17 +41,18 @@ const baseStyles = ({ width, height }: Partial<DialogProps>) => css`
     }
     .close-modal-button {
         position: absolute;
-        top: 30px;
+        background: ${colorMap.primaryButtonBackground1};
+        color: ${colors.orange_0};
+        border: solid 1px ${colors.grey_4};
+        top: 4px;
         right: 4px;
-        width: 3.2rem;
-        height: 3.2rem;
-        border-radius: 20px;
-        border: 0;
-        border: none;
-        border-bottom: 3px solid #b7c5e0;
+        width: 2.8rem;
+        height: 2.8rem;
+        border-radius: 1rem;
         padding: 0;
         font-size: 2rem;
         font-weight: 600;
+        line-height: 0;
     }
 `;
 

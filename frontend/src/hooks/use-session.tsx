@@ -140,14 +140,9 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     return (
         <SessionContext.Provider value={value}>
             {authorizing && (
-                <Dialog onClose={closeAuthroizer} width="350px" height="">
+                <Dialog onClose={closeAuthroizer} width="390px" height="">
                     <div style={{ padding: 10, lineHeight: '0px' }}>
-                        <Image
-                            src={spinner}
-                            width={24}
-                            alt="loading"
-                            style={{ display: 'inline-block', filter: 'invert(1)' }}
-                        />
+                        <Image src={spinner} width={24} alt="loading" style={{ display: 'inline-block' }} />
                         <span
                             className="notice"
                             style={{

@@ -40,14 +40,17 @@ const getGooPerSec = (atomVal) => {
 export default function update({ selected, world }, block) {
     const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
-    const selectedBuilding = (world?.buildings || []).find(b => selectedTile && b.location?.tile?.id === selectedTile.id);
+    const selectedBuilding = (world?.buildings || []).find(
+        (b) => selectedTile && b.location?.tile?.id === selectedTile.id,
+    );
     const tileAtoms = (selectedTile?.atoms || [])
         .sort((a, b) => a.key - b.key)
         .map((elm) => elm.weight);
     const lastExtraction = selectedBuilding?.timestamp?.blockNum || 0;
-    const elapsedSecs = selectedBuilding && lastExtraction
-        ? (block - lastExtraction) * BLOCK_TIME_SECS
-        : 0;
+    const elapsedSecs =
+        selectedBuilding && lastExtraction
+            ? (block - lastExtraction) * BLOCK_TIME_SECS
+            : 0;
 
     // Calculate extracted goo and sum with previously extracted goo
     let extractedGoo = tileAtoms
@@ -83,14 +86,22 @@ export default function update({ selected, world }, block) {
 
     const gooIndex = outItemAtomVals.findIndex((gooVal) => gooVal > 0n);
     // const gooCost = Number(BigInt(out0.balance) * outItemAtomVals[gooIndex]);
-    const numberOfItems = (typeof gooIndex !== 'undefined') ? Math.floor(
-        extractedGoo[gooIndex] / Number(outItemAtomVals[gooIndex])
-    ) : 0;
+    const numberOfItems =
+        typeof gooIndex !== "undefined"
+            ? Math.floor(
+                  extractedGoo[gooIndex] / Number(outItemAtomVals[gooIndex]),
+              )
+            : 0;
     const secondsTilNextItem = getSecsPerGoo(tileAtoms[gooIndex]);
 
-
-    const selectedBuildingBags = selectedBuilding ? (world?.bags || []).filter(bag => bag.equipee?.node.id === selectedBuilding.id) : [];
-    const outputBag = selectedBuilding ? selectedBuildingBags.find(bag => bag.equipee.key === 1) : undefined;
+    const selectedBuildingBags = selectedBuilding
+        ? (world?.bags || []).filter(
+              (bag) => bag.equipee?.node.id === selectedBuilding.id,
+          )
+        : [];
+    const outputBag = selectedBuilding
+        ? selectedBuildingBags.find((bag) => bag.equipee.key === 1)
+        : undefined;
     const canExtract =
         numberOfItems >= 1 &&
         (!outputBag?.owner || outputBag?.owner.id == mobileUnit?.owner.id);
@@ -111,7 +122,9 @@ export default function update({ selected, world }, block) {
             args: [selectedBuilding.id, mobileUnit.id, []],
         });
     };
-    const reservoirPercent = Math.floor( (extractedGoo[gooIndex] / GOO_RESERVOIR_MAX) * 100);
+    const reservoirPercent = Math.floor(
+        (extractedGoo[gooIndex] / GOO_RESERVOIR_MAX) * 100,
+    );
     const extractableNow = Math.min(numberOfItems, 100);
     const css = `
         @keyframes extractorttni {
@@ -122,7 +135,7 @@ export default function update({ selected, world }, block) {
         .extractor-progress-bar {
             width: 26rem;
             height: 28px;
-            background: black;
+            background: #E4E1EB;
             position: relative;
         }
 
@@ -140,7 +153,7 @@ export default function update({ selected, world }, block) {
             top: 0;
             left: 0;
             height:100%;
-            background: #007ff7;
+            background: #FB7001;
         }
 
         .extractor-progress-tick {
@@ -152,9 +165,10 @@ export default function update({ selected, world }, block) {
         }
     `;
 
-    const liveExtractionTicker = reservoirPercent < 100 && secondsTilNextItem > 0
-        ? `<div class="extractor-progress-bar" style="height: 3px;"> <div class="extractor-progress-percent extractor-progress-tick" style="animation-duration: ${secondsTilNextItem}s;"></div></div>`
-        : ``;
+    const liveExtractionTicker =
+        reservoirPercent < 100 && secondsTilNextItem > 0
+            ? `<div class="extractor-progress-bar" style="height: 3px;"> <div class="extractor-progress-percent extractor-progress-tick" style="animation-duration: ${secondsTilNextItem}s;"></div></div>`
+            : ``;
 
     const status = `
         <br />
@@ -168,13 +182,15 @@ export default function update({ selected, world }, block) {
         </style>
     `;
 
-    const neverExtractWarning = secondsTilNextItem === 0
-        ? `<br/><p>This extractor is not functioning as the goo extraction rate for this tile is too low to be effective</p>`
-        : ``;
+    const neverExtractWarning =
+        secondsTilNextItem === 0
+            ? `<br/><p>This extractor is not functioning as the goo extraction rate for this tile is too low to be effective</p>`
+            : ``;
 
-    const notOwnerWarning = outputBag.owner && outputBag.owner.id != mobileUnit?.owner.id
-        ? `</br><p>You are not the owner of this extractor, only the owner can extract goo from here</p>`
-        : ``;
+    const notOwnerWarning =
+        outputBag.owner && outputBag.owner.id != mobileUnit?.owner.id
+            ? `</br><p>You are not the owner of this extractor, only the owner can extract goo from here</p>`
+            : ``;
 
     return {
         version: 1,
@@ -188,7 +204,9 @@ export default function update({ selected, world }, block) {
                         type: "inline",
                         buttons: [
                             {
-                                text: `EXTRACT ${extractableNow} ${getGooColor(gooIndex).toUpperCase()} GOO`,
+                                text: `EXTRACT ${extractableNow} ${getGooColor(
+                                    gooIndex,
+                                ).toUpperCase()} GOO`,
                                 type: "action",
                                 action: extract,
                                 disabled: !canExtract,

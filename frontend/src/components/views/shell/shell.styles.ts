@@ -83,23 +83,6 @@ const baseStyles = (_: Partial<ShellProps>) => css`
             justify-content: flex-start;
         }
     }
-
-    .onboarding {
-        background: #143063;
-        padding: 2rem 2rem;
-        width: 50rem;
-        color: #fff;
-        user-select: none;
-        opacity: 0.95;
-        a {
-            color: #fff;
-        }
-
-        > p {
-            margin: 2rem 0;
-            font-size: 1.6rem;
-        }
-    }
 `;
 
 /**

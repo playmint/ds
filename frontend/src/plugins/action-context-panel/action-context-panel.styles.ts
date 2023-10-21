@@ -1,6 +1,7 @@
 import { css } from 'styled-components';
 import { ActionContextPanelProps } from './index';
 import { BasePanelStyles } from '@app/styles/base-panel.styles';
+import { colorMap, colors } from '@app/styles/colors';
 
 /**
  * Base styles for the action context panel component
@@ -34,13 +35,13 @@ const baseStyles = (_: Partial<ActionContextPanelProps>) => css`
         width: 3.2rem;
         height: 3.2rem;
         border-radius: 20px;
-        border: 0;
-        border: none;
-        border-bottom: 3px solid #b7c5e0;
         padding: 0;
         font-size: 2.2rem;
         font-weight: 800;
-        opacity: 0.9;
+        color: ${colorMap.primaryButtonText};
+        background: ${colorMap.primaryBackground};
+        border-color: ${colors.grey_4};
+        line-height: 0;
     }
 
     .sub-title {
