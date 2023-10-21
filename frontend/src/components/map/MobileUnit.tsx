@@ -53,10 +53,6 @@ export const MobileUnit = memo(
 
         const onPositionUpdate = useCallback(
             (id?: string, _type?: string, x?: number, y?: number, z?: number, isVisible?: boolean) => {
-                // if (x !== undefined && y !== undefined && z !== undefined) {
-                //     const scale = 1 / (1 + z);
-                //     setPosition({ x, y, z: scale });
-                // }
                 if (isVisible !== undefined) {
                     setVisible(isVisible);
                 }
@@ -68,14 +64,15 @@ export const MobileUnit = memo(
                     isVisible !== undefined
                 ) {
                     const scale = 1 / (1 + z);
-                    const precision = 1;
-                    setPosition({
+                    const precision = 5;
+                    const newPosition = {
                         x: Number(x.toFixed(precision)),
                         y: Number(y.toFixed(precision)),
-                        z: Number(scale.toFixed(precision)),
-                    });
+                        z: Number(scale.toFixed(4)),
+                    };
+                    setPosition(newPosition);
                     if (onUpdatePosition) {
-                        onUpdatePosition(id, x, y, scale, isVisible); // Call the callback here
+                        onUpdatePosition(id, newPosition.x, newPosition.y, newPosition.z, isVisible); // Call the callback here
                     }
                 }
             },
