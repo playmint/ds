@@ -1,4 +1,5 @@
 import {
+    BagFragment,
     BiomeKind,
     BuildingKindFragment,
     ConnectedPlayer,
@@ -237,8 +238,9 @@ const TileUndiscovered: FunctionComponent<unknown> = (_props) => {
 interface TileAvailableProps {
     player?: ConnectedPlayer;
     mobileUnits: WorldMobileUnitFragment[];
+    bags: BagFragment[];
 }
-const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUnits }) => {
+const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUnits, bags }) => {
     const { tiles: selectedTiles, mobileUnit: selectedMobileUnit } = useSelection();
     const selectedTile = selectedTiles?.[0];
     const tileMobileUnits = selectedTile ? getMobileUnitsAtTile(mobileUnits, selectedTile) : [];
@@ -281,7 +283,7 @@ const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUn
             <h3 style={{ marginBottom: '2rem' }}>{tileName}</h3>
             <div className="description">{tileDescription}</div>
             {tileMobileUnits.length > 0 && (
-                <MobileUnitList mobileUnits={visibleUnits} player={player} tile={selectedTile} />
+                <MobileUnitList mobileUnits={visibleUnits} player={player} tile={selectedTile} bags={bags} />
             )}
             <span className="label" style={{ width: '100%' }}>
                 <strong>COORDINATES:</strong> {`${q}, ${r}, ${s}`}
@@ -311,7 +313,7 @@ export const TileInfoPanel = ({ kinds }: { kinds: BuildingKindFragment[] }) => {
         if (selectedTile.biome == BiomeKind.UNDISCOVERED) {
             return <TileUndiscovered />;
         } else if (!building) {
-            return <TileAvailable player={player} mobileUnits={world?.mobileUnits || []} />;
+            return <TileAvailable player={player} mobileUnits={world?.mobileUnits || []} bags={world?.bags || []} />;
         } else if (building) {
             const canUse =
                 mobileUnit &&
