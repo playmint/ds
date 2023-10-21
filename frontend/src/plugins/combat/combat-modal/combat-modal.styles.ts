@@ -2,7 +2,7 @@
 
 import { css } from 'styled-components';
 import { CombatModalProps } from './index';
-import { colorMap } from '@app/styles/colors';
+import { colorMap, colors } from '@app/styles/colors';
 
 /**
  * Base styles for the combat modal component
@@ -16,6 +16,8 @@ const baseStyles = (_: Partial<CombatModalProps>) => css`
     position: relative;
     width: 100%;
     height: 55rem;
+
+    /* overflow: hidden; */
 
     > .win-state {
         .winner {
@@ -65,10 +67,11 @@ const baseStyles = (_: Partial<CombatModalProps>) => css`
         position: relative;
         display: flex;
         flex-grow: 1;
+        flex-shrink: 1;
         background: ${colorMap.secondaryBackground};
         border-radius: 1rem;
         margin-bottom: 1rem;
-        // max-height: 36rem;
+        min-height: 0;
 
         .attackers,
         .defenders {
@@ -77,7 +80,7 @@ const baseStyles = (_: Partial<CombatModalProps>) => css`
             max-width: 50%;
             max-height: 100%;
             overflow: auto;
-            scrollbar-color: #007ff7 #000000;
+            scrollbar-color: ${colors.orange_0} ${colors.grey_1};
             scrollbar-width: thin;
 
             &::-webkit-scrollbar {
@@ -85,16 +88,16 @@ const baseStyles = (_: Partial<CombatModalProps>) => css`
             }
 
             &::-webkit-scrollbar-track {
-                background-color: #000000;
+                background-color: ${colors.orange_1};
             }
 
             &::-webkit-scrollbar-thumb {
-                background-color: #007ff7;
+                background-color: ${colors.orange_0};
                 outline: transparent;
             }
 
             .participant {
-                margin-bottom: 1.8rem;
+                margin-bottom: 0.5rem;
             }
         }
 
@@ -108,6 +111,7 @@ const baseStyles = (_: Partial<CombatModalProps>) => css`
     }
 
     > .footer {
+        flex-shrink: 0;
         display: flex;
         flex-direction: column;
         justify-content: flex-end;

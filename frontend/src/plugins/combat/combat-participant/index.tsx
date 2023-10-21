@@ -22,10 +22,10 @@ const StyledCombatParticipant = styled.div`
 `;
 
 export const CombatParticipant: FunctionComponent<CombatParticipantProps> = (props: CombatParticipantProps) => {
-    const { name, icon, maxHealth, currentHealth, attack, defence, isDead } = props;
+    const { name, icon, maxHealth, currentHealth, attack, defence, isDead, className } = props;
 
     return (
-        <StyledCombatParticipant isDead={isDead}>
+        <StyledCombatParticipant isDead={isDead} className={className}>
             <div className="icon">
                 <img src={icon} alt="" />
             </div>
