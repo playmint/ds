@@ -2,7 +2,7 @@
 
 import { css } from 'styled-components';
 import { ActionBarProps } from './index';
-import { colorMap, colors } from '@app/styles/colors';
+import { colors } from '@app/styles/colors';
 
 /**
  * Base styles for the action bar component

@@ -1,28 +1,5 @@
 /** @format */
 
-export const oldColors = {
-    // Blues (light to dark)
-    color0: '#b7c5e0',
-    color1: '#6c98d4',
-    color2: '#143063',
-    color3: '#030f25',
-    color4: '#335c90',
-
-    // Grey ramp
-    color5: '#FFFFFF',
-
-    // Orange
-    color6: '#FB7001',
-
-    // Green
-    color7: '#63b204',
-
-    // Goo
-    gooGreen: '#63B204',
-    gooBlue: '#0665F5',
-    gooRed: '#CA002B',
-};
-
 export const colors = {
     // Orange (light to dark)
     orange_0: '#FB7001',
