@@ -44,39 +44,43 @@ export const MobileUnit = memo(
         onPointerEnter,
         onPointerExit,
         onPointerClick,
-        screenPosition,
         onUpdatePosition,
     }: UnityComponentProps & MobileUnitData) => {
         const [hovered, setHovered] = useState(false);
         const [position, setPosition] = useState({ x: 0, y: 0, z: 0 });
-        const [isVisible, setVisible] = useState({ isVisible: false });
+        const [isVisible, setVisible] = useState(false);
+        const { x, y, z } = position;
 
-        const screenPositionHandler = (
-            id?: string,
-            type?: string,
-            x?: number,
-            y?: number,
-            z?: number,
-            isVisible?: boolean
-        ) => {
-            if (screenPosition && id && type && x && y && z && isVisible !== undefined) {
-                screenPosition(id, type, x, y, z, isVisible);
-            }
-            if (x !== undefined && y !== undefined && z !== undefined) {
-                const scale = 1 / (1 + z);
-                setPosition({ x, y, z: scale });
-            }
-            if (isVisible !== undefined) {
-                setVisible({ isVisible });
-            }
-            if (x !== undefined && y !== undefined && z !== undefined && id !== undefined && isVisible !== undefined) {
-                const scale = 1 / (1 + z);
-                setPosition({ x, y, z: scale });
-                if (onUpdatePosition) {
-                    onUpdatePosition(id, x, y, scale, isVisible); // Call the callback here
+        const onPositionUpdate = useCallback(
+            (id?: string, _type?: string, x?: number, y?: number, z?: number, isVisible?: boolean) => {
+                // if (x !== undefined && y !== undefined && z !== undefined) {
+                //     const scale = 1 / (1 + z);
+                //     setPosition({ x, y, z: scale });
+                // }
+                if (isVisible !== undefined) {
+                    setVisible(isVisible);
                 }
-            }
-        };
+                if (
+                    x !== undefined &&
+                    y !== undefined &&
+                    z !== undefined &&
+                    id !== undefined &&
+                    isVisible !== undefined
+                ) {
+                    const scale = 1 / (1 + z);
+                    const precision = 1;
+                    setPosition({
+                        x: Number(x.toFixed(precision)),
+                        y: Number(y.toFixed(precision)),
+                        z: Number(scale.toFixed(precision)),
+                    });
+                    if (onUpdatePosition) {
+                        onUpdatePosition(id, x, y, scale, isVisible); // Call the callback here
+                    }
+                }
+            },
+            [onUpdatePosition]
+        );
 
         onPointerEnter = useCallback(() => setHovered(true), []);
         onPointerExit = useCallback(() => setHovered(false), []);
@@ -98,7 +102,7 @@ export const MobileUnit = memo(
                     selected: selected || 'none',
                     shared,
                     visible,
-                    position,
+                    position: { x, y, z },
                     isVisible,
                 }),
                 [
@@ -112,14 +116,16 @@ export const MobileUnit = memo(
                     visible,
                     sendScreenPosition,
                     screenPositionHeightOffset,
-                    position,
+                    x,
+                    y,
+                    z,
                     isVisible,
                 ]
             ),
             onPointerEnter,
             onPointerExit,
             onPointerClick,
-            screenPosition: screenPositionHandler,
+            onPositionUpdate,
         });
 
         return null;

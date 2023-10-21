@@ -35,7 +35,7 @@ export interface ComponentEventHandlers {
     onPointerEnter?: (id: string, type: string) => void;
     onPointerExit?: (id: string, type: string) => void;
     onPointerClick?: (id: string, type: string) => void;
-    screenPosition?: (id: string, type: string, x: number, y: number, z: number, isVisible: boolean) => void;
+    onPositionUpdate?: (id: string, type: string, x: number, y: number, z: number, isVisible: boolean) => void;
 }
 
 export interface ComponentConfig<T> extends ComponentEventHandlers {
@@ -52,7 +52,7 @@ export interface UnityComponentProps extends ComponentEventHandlers {
 }
 
 export const useUnityComponentManager = <T,>(cfg: ComponentConfig<T>) => {
-    const { type, id, data, onPointerEnter, onPointerExit, onPointerClick, screenPosition } = cfg;
+    const { type, id, data, onPointerEnter, onPointerExit, onPointerClick, onPositionUpdate } = cfg;
     const ref = useMemo(() => id ?? Math.floor(Math.random() * 10000).toString(), [id]); // TODO: pick a better ref unique id
     const { sendMessage } = useUnityMap();
 
@@ -100,8 +100,9 @@ export const useUnityComponentManager = <T,>(cfg: ComponentConfig<T>) => {
     useUnityComponentEvent(
         `${type}_screen_position_${ref}`,
         useMemo(
-            () => (screenPosition ? (x, y, z, isVisible) => screenPosition(ref, type, x, y, z, isVisible) : undefined),
-            [screenPosition, ref, type]
+            () =>
+                onPositionUpdate ? (x, y, z, isVisible) => onPositionUpdate(ref, type, x, y, z, isVisible) : undefined,
+            [onPositionUpdate, ref, type]
         )
     );
 };
