@@ -1,8 +1,10 @@
-import { DispatchFunc, PluginConfig, Sandbox } from '@downstream/core';
+import { DispatchFunc, GameStatePlugin, PluginConfig, Sandbox } from '@downstream/core';
 import * as Comlink from 'comlink';
 import { QuickJSContext, QuickJSRuntime, getQuickJS } from 'quickjs-emscripten';
 
 let runtime: QuickJSRuntime;
+let state: GameStatePlugin;
+let block: number = 0;
 
 const contexts: QuickJSContext[] = [];
 
@@ -41,7 +43,6 @@ export default {
 
 function pollPendingJobs() {
     if (runtime && runtime.hasPendingJob()) {
-        console.log('executing pending job');
         runtime.executePendingJobs(1);
     }
     const ms = runtime.hasPendingJob() ? 0 : 100;
@@ -62,7 +63,14 @@ export async function init() {
     //     console.log('int');
     //     return ++interruptCycles > 1024;
     // });
-    console.log('OKOKOK');
+}
+
+export async function setState(newState: GameStatePlugin) {
+    state = newState;
+}
+
+export async function setBlock(newBlock: number) {
+    block = newBlock;
 }
 
 export async function evalCode(contextID: number, code: string) {
@@ -333,7 +341,9 @@ export async function newContext(dispatch: DispatchFunc, config: PluginConfig): 
     const ok = context.evalCode(
         `
             import update from '__plugin__';
-            globalThis.__update = async (nextState, block) => {
+            globalThis.__update = async () => {
+                const nextState = ${JSON.stringify(state)};
+                const block = ${block};
                 const res = await Promise.resolve(update(nextState, block));
 
                 // replace funcs with refs
@@ -387,6 +397,6 @@ export async function newContext(dispatch: DispatchFunc, config: PluginConfig): 
     return contextID;
 }
 
-const sandbox: Sandbox = { init, newContext, evalCode };
+const sandbox: Sandbox = { init, newContext, evalCode, setState, setBlock };
 
 Comlink.expose(sandbox);

@@ -1,7 +1,6 @@
-import { PluginType } from '@app/../../core/src';
-import { usePluginState } from '@app/hooks/use-game-state';
-import { PluginContent } from '../organisms/tile-action';
+import { PluginType, PluginUpdateResponse } from '@app/../../core/src';
 import styled from 'styled-components';
+import { PluginContent } from '../organisms/tile-action';
 
 const Panel = styled.div`
     background: #143063;
@@ -10,9 +9,8 @@ const Panel = styled.div`
     margin-bottom: 1.2rem;
 `;
 
-export const ItemPluginPanel = () => {
-    const ui = usePluginState();
-    const itemPluginStates = (ui || [])
+export const ItemPluginPanel = ({ ui }: { ui: PluginUpdateResponse[] }) => {
+    const itemPluginStates = ui
         .filter((p) => p.config.type === PluginType.ITEM)
         .flatMap((p) => p.state.components.flatMap((c) => c.content));
 
