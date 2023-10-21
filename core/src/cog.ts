@@ -233,11 +233,7 @@ export function configureClient({
 
     const externalEvents = pipe(
         events,
-        filter((data) => {
-            const isExternalUpdate = !data.simulated || data.sigs.some((sig) => !waiting.has(sig));
-            return isExternalUpdate;
-        }), // ignore the update if they are all waiting as we force the same update in dispatch
-        debounce(() => 2000),
+        debounce(() => 1000),
         map(() => ''),
         share,
     );
