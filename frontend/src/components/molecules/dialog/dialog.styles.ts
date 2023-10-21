@@ -2,6 +2,7 @@
 
 import { css } from 'styled-components';
 import { DialogProps } from './index';
+import { BasePanelStyles } from '@app/styles/base-panel.styles';
 
 /**
  * Base styles for the modal component
@@ -20,11 +21,9 @@ const baseStyles = ({ width, height }: Partial<DialogProps>) => css`
         pointer-events: none;
     }
     > .content {
+        ${BasePanelStyles}
         z-index: 1;
         margin-top: 30px;
-        background: #143063;
-        color: #fff;
-        border: 2px solid #fff;
         width: 100%;
         height: ${height || 'auto'};
         overflow: auto;

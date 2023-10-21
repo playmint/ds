@@ -2,6 +2,7 @@
 
 import { css } from 'styled-components';
 import { CombatModalProps } from './index';
+import { colorMap } from '@app/styles/colors';
 
 /**
  * Base styles for the combat modal component
@@ -15,8 +16,6 @@ const baseStyles = (_: Partial<CombatModalProps>) => css`
     position: relative;
     width: 100%;
     height: 55rem;
-    background: #143063;
-    color: white;
 
     > .win-state {
         .winner {
@@ -66,13 +65,15 @@ const baseStyles = (_: Partial<CombatModalProps>) => css`
         position: relative;
         display: flex;
         flex-grow: 1;
-        background: #061e3d;
+        background: ${colorMap.secondaryBackground};
+        border-radius: 1rem;
+        margin-bottom: 1rem;
         // max-height: 36rem;
 
         .attackers,
         .defenders {
             flex-grow: 1;
-            padding: 2.4rem 3.2rem;
+            padding: var(--panel-padding);
             max-width: 50%;
             max-height: 100%;
             overflow: auto;
@@ -98,11 +99,11 @@ const baseStyles = (_: Partial<CombatModalProps>) => css`
         }
 
         .attackers {
-            border-right: 2px solid #143063;
+            border-right: 2px solid ${colorMap.primaryBackground};
         }
 
         .defenders {
-            border-left: 2px solid #143063;
+            border-left: 2px solid ${colorMap.primaryBackground};
         }
     }
 

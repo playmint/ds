@@ -11,6 +11,7 @@ import { FunctionComponent, useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { CombatModal } from '../combat-modal';
 import { styles } from './combat-summary.styles';
+import { ActionButton } from '@app/styles/button.styles';
 
 export interface CombatSummaryProps extends ComponentProps {
     selectedTiles: WorldTileFragment[];
@@ -93,9 +94,7 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
                         <span className="heading">Defenders</span>
                         <ProgressBar maxValue={defendersMaxHealth} currentValue={defendersCurrentHealth} />
                     </div>
-                    <button onClick={showModal} className="action-button">
-                        View Combat
-                    </button>
+                    <ActionButton onClick={showModal}>View Combat</ActionButton>
                 </div>
             )}
         </StyledCombatSummary>
