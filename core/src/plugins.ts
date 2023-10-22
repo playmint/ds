@@ -290,7 +290,6 @@ export async function loadPlugin(sandbox: Comlink.Remote<Sandbox>, dispatch: Dis
                 return globalThis.__update();
             })()`,
         );
-        // console.log('updating-done', config.name, pluginResponse);
 
         try {
             return {
