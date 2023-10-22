@@ -86,7 +86,6 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
         workerSandbox
             .init()
             .then(() => {
-                console.log(`sandbox init ok`, workerSandbox);
                 setSandbox({ sandbox: workerSandbox });
             })
             .catch(() => console.error(`sandbox init fail`));
