@@ -27,8 +27,7 @@ export interface Sandbox {
     init: () => Promise<void>;
     newContext: (dispatch: DispatchFunc, config: PluginConfig) => Promise<number>;
     evalCode: (context: number, code: string) => Promise<any>;
-    setState: (state: GameStatePlugin) => Promise<void>;
-    setBlock: (block: number) => Promise<void>;
+    setState: (state: GameStatePlugin, blk: number) => Promise<void>;
 }
 
 export enum LogLevel {

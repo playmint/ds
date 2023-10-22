@@ -3,8 +3,6 @@ import * as Comlink from 'comlink';
 import { QuickJSContext, QuickJSRuntime, getQuickJS } from 'quickjs-emscripten';
 
 let runtime: QuickJSRuntime;
-let state: GameStatePlugin;
-let block: number = 0;
 
 const contexts: QuickJSContext[] = [];
 
@@ -65,12 +63,13 @@ export async function init() {
     // });
 }
 
-export async function setState(newState: GameStatePlugin) {
-    state = newState;
-}
-
-export async function setBlock(newBlock: number) {
-    block = newBlock;
+export async function setState(newState: GameStatePlugin, newBlock: number) {
+    contexts.forEach((context) => {
+        context.evalCode(`
+            globalThis.__state = ${JSON.stringify(newState)};
+            globalThis.__block = ${newBlock};
+        `);
+    });
 }
 
 export async function evalCode(contextID: number, code: string) {
@@ -341,10 +340,10 @@ export async function newContext(dispatch: DispatchFunc, config: PluginConfig): 
     const ok = context.evalCode(
         `
             import update from '__plugin__';
+            globalThis.__state = {};
+            globalThis.__block = 0;
             globalThis.__update = async () => {
-                const nextState = ${JSON.stringify(state)};
-                const block = ${block};
-                const res = await Promise.resolve(update(nextState, block));
+                const res = await Promise.resolve(update(globalThis.__state, globalThis.__block));
 
                 // replace funcs with refs
                 const refs = {};
@@ -397,6 +396,6 @@ export async function newContext(dispatch: DispatchFunc, config: PluginConfig): 
     return contextID;
 }
 
-const sandbox: Sandbox = { init, newContext, evalCode, setState, setBlock };
+const sandbox: Sandbox = { init, newContext, evalCode, setState };
 
 Comlink.expose(sandbox);
