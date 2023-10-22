@@ -87,21 +87,23 @@ export function makePluginUI(
         debounce(() => 250),
         map<any, Promise<PluginUpdateResponse[]>>(
             async ({ state, plugins, block }: { state: GameState; plugins: PluginConfig[]; block: number }) => {
-                await sandbox.setBlock(block);
-                await sandbox.setState({
-                    player: state.player
-                        ? {
-                              id: state.player.id,
-                              addr: state.player.addr,
-                              quests: state.player.quests,
-                          }
-                        : undefined,
-                    world: {
-                        ...(state.world || {}),
-                        sessions: [],
+                await sandbox.setState(
+                    {
+                        player: state.player
+                            ? {
+                                  id: state.player.id,
+                                  addr: state.player.addr,
+                                  quests: state.player.quests,
+                              }
+                            : undefined,
+                        world: {
+                            ...(state.world || {}),
+                            sessions: [],
+                        },
+                        selected: state.selected,
                     },
-                    selected: state.selected,
-                });
+                    block,
+                );
                 return Promise.all(
                     plugins
                         .map(async (p) => {
