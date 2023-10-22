@@ -110,26 +110,32 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         }
 
         // Visibility
-        if (_runningVisibilityCR != null)
-        {
-            StopCoroutine(_runningVisibilityCR);
-            _runningVisibilityCR = null;
-        }
-
         if (_prevData == null)
         {
+            if (_runningVisibilityCR != null)
+            {
+                StopCoroutine(_runningVisibilityCR);
+            }
             _runningVisibilityCR = StartCoroutine(
                 VisibilityCR(new Vector3(1, 1, 1), _nextData.visible ? 1 : 0)
             );
         }
         else if (_prevData.visible && !_nextData.visible)
         {
+            if (_runningVisibilityCR != null)
+            {
+                StopCoroutine(_runningVisibilityCR);
+            }
             _runningVisibilityCR = StartCoroutine(
                 VisibilityCR(new Vector3(1, 1, 1), 0, 0.35f, 3.5f)
             );
         }
         else if (!_prevData.visible && _nextData.visible)
         {
+            if (_runningVisibilityCR != null)
+            {
+                StopCoroutine(_runningVisibilityCR);
+            }
             _runningVisibilityCR = StartCoroutine(VisibilityCR(new Vector3(1, 1, 1), 1));
         }
 
@@ -215,6 +221,11 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
 
         // Turning off mesh after fadeout to disable both events and to fix problem with overlapping unit's outine not displaying
         _meshesTrans.gameObject.SetActive(endFade > 0);
+
+        foreach (Renderer rend in renderers)
+        {
+            rend.material.SetFloat("_Fade", endFade);
+        }
 
         _runningVisibilityCR = null;
     }
