@@ -407,7 +407,7 @@ type OpSet = Op[];
 
 type OpResult = {
     ok: boolean;
-    err?: Error;
+    err?: unknown;
     op: Op;
 };
 
@@ -578,24 +578,35 @@ const deploy = {
             // connections at once
             const batches = batched(opsets[i], ctx.maxConnections);
             for (let j = 0; j < batches.length; j++) {
-                const pending = batches[j].map((op) => {
-                    return player
-                        .dispatchAndWait(...op.actions)
-                        .then(() => {
+                const pending = batches[j].map(async (op) => {
+                    let retries = 0;
+                    while (retries < 5) {
+                        try {
+                            await player.dispatchAndWait(...op.actions);
                             console.log(`✅ ${op.note}\n`);
                             return {
                                 ok: true,
                                 op,
                             };
-                        })
-                        .catch((err) => {
-                            console.log(`❌ ${op.note}\n`);
-                            return {
-                                ok: false,
-                                err,
-                                op,
-                            };
-                        });
+                        } catch (err) {
+                            if (retries >= 5) {
+                                console.log(`❌ ${op.note}\n`);
+                                return {
+                                    ok: false,
+                                    err,
+                                    op,
+                                };
+                            } else {
+                                console.log(`🕒 retrying: ${op.note}\n`);
+                            }
+                        }
+                        retries++;
+                    }
+                    return {
+                        ok: false,
+                        err: `retries exceeded`,
+                        op,
+                    };
                 });
                 const res = await Promise.all(pending);
                 results = [...results, ...res];
