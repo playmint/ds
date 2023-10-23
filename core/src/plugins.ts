@@ -23,6 +23,7 @@ import {
     DispatchFunc,
     GameState,
     PluginConfig,
+    PluginDispatchFunc,
     PluginSubmitCallValues,
     PluginTrust,
     PluginType,
@@ -119,7 +120,13 @@ export function makePluginUI(
                                 }
                                 const plugin = active.has(p.id)
                                     ? active.get(p.id)
-                                    : await loadPlugin(sandbox, dispatch, logMessage, questMessage, p);
+                                    : await loadPlugin(
+                                          sandbox,
+                                          dispatch,
+                                          logMessage,
+                                          questMessage.with({ name: p.kindID }),
+                                          p,
+                                      );
                                 if (!plugin) {
                                     console.warn(`failed to get or load plugin ${p.id}`);
                                     return null;
@@ -277,8 +284,13 @@ export async function loadPlugin(
     // plugins triggering dispatch calls on load or responding
     // to state changes in update
 
+    const pluginDispatch: PluginDispatchFunc = (...actions: CogAction[]) =>
+        dispatch(...actions)
+            .then(() => true)
+            .catch(() => false);
+
     const context = await sandbox.newContext(
-        Comlink.proxy(dispatch),
+        Comlink.proxy(pluginDispatch),
         Comlink.proxy(logMessage),
         Comlink.proxy(questMessage),
         config,

@@ -27,7 +27,7 @@ export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<T>;
 export interface Sandbox {
     init: () => Promise<void>;
     newContext: (
-        dispatch: DispatchFunc,
+        dispatch: PluginDispatchFunc,
         logMessage: Logger,
         questMessage: Logger,
         config: PluginConfig,
@@ -321,6 +321,8 @@ export interface PluginUpdateResponse {
 export type PluginSubmitProxy = (ref: string, values: PluginSubmitCallValues) => Promise<void>;
 
 export type DispatchFunc = (...actions: CogAction[]) => Promise<QueuedSequencerAction>;
+
+export type PluginDispatchFunc = (...actions: CogAction[]) => Promise<boolean>;
 
 export type AvailablePlugin = AvailablePluginFragment;
 export type AvailableBuildingKind = BuildingKindFragment;
