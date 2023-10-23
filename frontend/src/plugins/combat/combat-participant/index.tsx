@@ -34,11 +34,11 @@ export const CombatParticipant: FunctionComponent<CombatParticipantProps> = (pro
                 <ProgressBar maxValue={maxHealth} currentValue={currentHealth} />
             </div>
             <div className="attack">
-                <img className="icon" src="/icons/attack.png" alt="" />
+                <div className="icon" />
                 <span className="value">{attack}</span>
             </div>
             <div className="defence">
-                <img className="icon" src="/icons/defence.png" alt="" />
+                <div className="icon" />
                 <span className="value">{defence}</span>
             </div>
         </StyledCombatParticipant>

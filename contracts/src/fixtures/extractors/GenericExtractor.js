@@ -153,7 +153,7 @@ export default function update({ selected, world }, block) {
             top: 0;
             left: 0;
             height:100%;
-            background: #FB7001;
+            background: #B25001;
         }
 
         .extractor-progress-tick {
@@ -173,7 +173,7 @@ export default function update({ selected, world }, block) {
     const status = `
         <br />
         <div class="extractor-progress-bar">
-            <div class="extractor-progress-percent" style="width: ${reservoirPercent}%; background: #007ff7;"></div>
+            <div class="extractor-progress-percent" style="width: ${reservoirPercent}%; background: #FB7001;"></div>
             <div class="extractor-progress-text">${numberOfItems} / ${GOO_RESERVOIR_MAX}</div>
         </div>
         ${liveExtractionTicker}
