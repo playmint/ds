@@ -72,7 +72,7 @@ export default function update({ selected, world, player }) {
     const want1 = requiredInputs.find(inp => inp.key == 1);
 
     // fetch what is currently in the input slots
-    const inputSlots = selectedBuildingBags.find(b => b.key == 0)?.slots || [];
+    const inputSlots = selectedBuildingBags.find(b => b.equipee.key == 0)?.slots || [];
     const got0 = inputSlots?.find(slot => slot.key == 0);
     const got1 = inputSlots?.find(slot => slot.key == 1);
 

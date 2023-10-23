@@ -1,4 +1,4 @@
-import { DispatchFunc, GameStatePlugin, Logger, PluginConfig, Sandbox } from '@downstream/core';
+import { GameStatePlugin, Logger, PluginConfig, PluginDispatchFunc, Sandbox } from '@downstream/core';
 import * as Comlink from 'comlink';
 import { QuickJSContext, QuickJSRuntime, getQuickJS } from 'quickjs-emscripten';
 
@@ -93,7 +93,7 @@ export async function evalCode(contextID: number, code: string) {
 }
 
 export async function newContext(
-    dispatch: DispatchFunc,
+    dispatch: PluginDispatchFunc,
     logMessage: Logger,
     questMessage: Logger,
     config: PluginConfig

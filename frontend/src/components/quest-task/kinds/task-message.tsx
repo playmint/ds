@@ -11,8 +11,6 @@ export const TaskMessage = memo(
     }: {
         questMessages?: Log[];
     } & Pick<TaskItemProps, 'task' | 'setTaskCompletion'>) => {
-        // console.log(`evaluating TaskMessage`);
-
         const pluginMessages =
             (task.node.buildingKind &&
                 questMessages &&
