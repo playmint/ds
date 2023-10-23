@@ -31,7 +31,7 @@ const StyledTaskView = styled.div`
         > svg {
             width: 1.7rem;
             height: 1.7rem;
-            fill: ${colors.grey_4};
+            fill: ${colors.grey_5};
         }
 
         > p {

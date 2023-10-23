@@ -24,12 +24,12 @@ const StyledQuestPanel = styled.div`
 
 const CompleteQuestButton = styled(ActionButton)`
     color: ${colors.green_0};
-    background: ${colors.grey_4};
+    background: ${colors.grey_5};
 
     &:hover,
     &.active {
         background: ${colors.green_0};
-        color: ${colors.grey_4};
+        color: ${colors.grey_5};
         opacity: 1;
     }
 `;

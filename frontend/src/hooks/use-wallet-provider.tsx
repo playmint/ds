@@ -116,7 +116,7 @@ export const WalletProviderProvider = ({ children }: { children: ReactNode }) =>
                         <QRCodeSVG
                             value={walletConnectURI}
                             size={256}
-                            bgColor={colors.grey_4}
+                            bgColor={colors.grey_5}
                             fgColor={'#ffffff'}
                             imageSettings={{
                                 src: '/qrunit.png',

@@ -20,7 +20,7 @@ const baseStyles = (_: Partial<ActionBarProps>) => css`
     .actions {
         border-radius: 0.8rem;
         border: 3px solid;
-        background: ${colors.grey_4};
+        background: ${colors.grey_5};
         display: flex;
         gap: 3px;
         justify-content: center;

@@ -7,7 +7,7 @@ export const BasePanelStyles = css`
     position: relative;
     background: ${colorMap.primaryBackground};
     color: ${colorMap.primaryText};
-    border-radius: 1rem;
+    border-radius: 1.2rem;
     padding: var(--panel-padding);
     border: ${colorMap.primaryBorderColor} 3px solid;
 `;

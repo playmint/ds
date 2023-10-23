@@ -40,7 +40,7 @@ const baseStyles = (_: Partial<ActionContextPanelProps>) => css`
         font-weight: 800;
         color: ${colorMap.primaryButtonText};
         background: ${colorMap.primaryBackground};
-        border-color: ${colors.grey_4};
+        border-color: ${colors.grey_5};
         line-height: 0;
     }
 

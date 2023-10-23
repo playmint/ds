@@ -43,7 +43,7 @@ const baseStyles = ({ width, height }: Partial<DialogProps>) => css`
         position: absolute;
         background: ${colorMap.primaryButtonBackground1};
         color: ${colors.orange_0};
-        border: solid 1px ${colors.grey_4};
+        border: solid 1px ${colors.grey_5};
         top: 4px;
         right: 4px;
         width: 2.8rem;

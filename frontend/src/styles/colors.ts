@@ -12,7 +12,9 @@ export const colors = {
     grey_1: '#E4E1EB',
     grey_2: '#CDC9D5',
     grey_3: '#90879E',
-    grey_4: '#0D090F',
+    grey_4: '#706782',
+    grey_5: '#0D090F',
+
     // Goo
     gooGreen: '#63B204',
     gooBlue: '#0665F5',
@@ -20,8 +22,8 @@ export const colors = {
 };
 
 export const colorMap = {
-    documentBackground: colors.grey_4,
-    primaryText: colors.grey_4,
+    documentBackground: colors.grey_5,
+    primaryText: colors.grey_5,
     primaryBackground: colors.grey_0,
     secondaryBackground: colors.grey_1,
 
@@ -31,5 +33,5 @@ export const colorMap = {
     primaryButtonActiveBackground: colors.orange_0,
     primaryButtonActiveText: colors.grey_0,
 
-    primaryBorderColor: colors.grey_4,
+    primaryBorderColor: colors.grey_5,
 };
