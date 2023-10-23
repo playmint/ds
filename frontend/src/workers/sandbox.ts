@@ -1,4 +1,4 @@
-import { DispatchFunc, GameStatePlugin, PluginConfig, Sandbox } from '@downstream/core';
+import { DispatchFunc, GameStatePlugin, Logger, PluginConfig, Sandbox } from '@downstream/core';
 import * as Comlink from 'comlink';
 import { QuickJSContext, QuickJSRuntime, getQuickJS } from 'quickjs-emscripten';
 
@@ -92,7 +92,12 @@ export async function evalCode(contextID: number, code: string) {
     }
 }
 
-export async function newContext(dispatch: DispatchFunc, config: PluginConfig): Promise<number> {
+export async function newContext(
+    dispatch: DispatchFunc,
+    logMessage: Logger,
+    questMessage: Logger,
+    config: PluginConfig
+): Promise<number> {
     const api = { enabled: true }; // TODO: do we need to restrict this again?
 
     const context = runtime.newContext();
@@ -161,8 +166,7 @@ export async function newContext(dispatch: DispatchFunc, config: PluginConfig): 
                     return context.undefined;
                 }
                 const args = JSON.parse(context.getString(reqHandle));
-                // logger.log(...args);
-                console.log(...args);
+                logMessage.log(...args);
             } catch (err) {
                 console.error(`plugin-${config.id}: error while attempting to deliver log message: ${err}`);
             }
@@ -172,18 +176,17 @@ export async function newContext(dispatch: DispatchFunc, config: PluginConfig): 
 
     // setup quest message
     context
-        .newFunction('sendQuestMessage', (_reqHandle) => {
-            // try {
-            //     if (!api.enabled) {
-            //         console.warn(`plugin-${config.id}: ds api is unavilable outside of event handlers`);
-            //         return context.undefined;
-            //     }
-            //     const [message] = JSON.parse(context.getString(reqHandle));
-            //     // console.log(`Send quest message: ${message} from buildingKind: ${config.kindID}`);
-            //     sendQuestMessage.log(message);
-            // } catch (err) {
-            //     console.error(`plugin-${config.id}: error while attempting to send quest message: ${err}`);
-            // }
+        .newFunction('sendQuestMessage', (reqHandle) => {
+            try {
+                if (!api.enabled) {
+                    console.warn(`plugin-${config.id}: ds api is unavilable outside of event handlers`);
+                    return context.undefined;
+                }
+                const [message] = JSON.parse(context.getString(reqHandle));
+                questMessage.log(message);
+            } catch (err) {
+                console.error(`plugin-${config.id}: error while attempting to send quest message: ${err}`);
+            }
             return context.undefined;
         })
         .consume((fn: any) => context.setProp(dsHandle, 'sendQuestMessage', fn));

@@ -14,6 +14,7 @@ import {
     WorldStateFragment,
     WorldTileFragment,
 } from './gql/graphql';
+import { Logger } from './logger';
 
 export interface EthereumProvider extends Eip1193Provider {
     isMetaMask?: boolean;
@@ -25,7 +26,12 @@ export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<T>;
 
 export interface Sandbox {
     init: () => Promise<void>;
-    newContext: (dispatch: DispatchFunc, config: PluginConfig) => Promise<number>;
+    newContext: (
+        dispatch: DispatchFunc,
+        logMessage: Logger,
+        questMessage: Logger,
+        config: PluginConfig,
+    ) => Promise<number>;
     evalCode: (context: number, code: string) => Promise<any>;
     setState: (state: GameStatePlugin, blk: number) => Promise<void>;
 }
