@@ -121,6 +121,10 @@ const baseStyles = (_: Partial<CombatModalProps>) => css`
         > .action-button {
             margin: 1rem auto 1.2rem;
         }
+
+        > .in-progress {
+            margin-bottom: 0.5rem;
+        }
     }
 `;
 
