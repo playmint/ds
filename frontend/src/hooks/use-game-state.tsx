@@ -31,7 +31,7 @@ import {
 } from '@app/../../core/src';
 import * as Comlink from 'comlink';
 import { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
-import { mergeMap, tap, pipe, scan, Source, subscribe } from 'wonka';
+import { mergeMap, pipe, scan, Source, subscribe } from 'wonka';
 import { useWalletProvider } from './use-wallet-provider';
 
 // hack to force hot module reloading to give up
