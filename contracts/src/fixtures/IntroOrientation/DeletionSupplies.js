@@ -4,8 +4,9 @@ export default function update({ selected, world }) {
 
     const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
-    const selectedBuilding = selectedTile?.building;
-    const selectedEngineer = mobileUnit;
+    const selectedBuilding = (world?.buildings || []).find(b => selectedTile && b.location?.tile?.id === selectedTile.id);
+    const selectedBuildingBags = selectedBuilding ? (world?.bags || []).filter(bag => bag.equipee?.node.id === selectedBuilding.id) : [];
+    const selectedUnit = mobileUnit;
 
     // fetch the expected inputs item kinds
     const requiredInputs = selectedBuilding?.kind?.inputs || [];
@@ -13,7 +14,7 @@ export default function update({ selected, world }) {
     const want1 = requiredInputs.find(inp => inp.key == 1);
 
     // fetch what is currently in the input slots
-    const inputSlots = selectedBuilding?.bags.find(b => b.key == 0).bag?.slots || [];
+    const inputSlots = selectedBuildingBags.find(b => b.equipee.key == 0)?.slots || [];
     const got0 = inputSlots?.find(slot => slot.key == 0);
     const got1 = inputSlots?.find(slot => slot.key == 1);
 
@@ -23,12 +24,12 @@ export default function update({ selected, world }) {
     const out1 = expectedOutputs?.find(slot => slot.key == 1);
 
     // try to detect if the input slots contain enough stuff to craft
-    const canCraft = selectedEngineer
+    const canCraft = selectedUnit
         && want0 && got0 && want0.balance == got0.balance
         && want1 && got1 && want1.balance == got1.balance;
 
     const craft = () => {
-        if (!selectedEngineer) {
+        if (!selectedUnit) {
             ds.log('no selected engineer');
             return;
         }
@@ -40,7 +41,7 @@ export default function update({ selected, world }) {
         ds.dispatch(
             {
                 name: 'BUILDING_USE',
-                args: [selectedBuilding.id, selectedEngineer.id, []]
+                args: [selectedBuilding.id, selectedUnit.id, []]
             },
         );
 
