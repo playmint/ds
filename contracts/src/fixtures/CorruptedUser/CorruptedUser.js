@@ -1,14 +1,26 @@
-import ds from 'downstream';
+import ds from "downstream";
 
 export default function update({ selected, world }) {
-
-
-    const { tiles, mobileUnit } = selected || {};
+    const { tiles, selectedUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
-    const selectedBuilding = selectedTile?.building;
-    const selectedUnit = mobileUnit;
+    const selectedBuilding = (world?.buildings || []).find(
+        (b) => selectedTile && b.location.tile.id === selectedTile.id,
+    );
+    const selectedBuildingBags = selectedBuilding
+        ? (world?.bags || []).filter(
+              (bag) => bag.equipee?.node.id === selectedBuilding.id,
+          )
+        : [];
+    const inputBag =
+        selectedBuilding &&
+        selectedBuildingBags.find((bag) => bag.equipee.key === 0);
+    const inputSlots = inputBag && inputBag.slots.sort((a, b) => a.key - b.key);
 
-
+    const selectedUnitBags = selectedUnit
+        ? (world?.bags || []).filter(
+              (bag) => bag.equipee?.node.id === selectedUnit.id,
+          )
+        : [];
 
     //Show this if there is no selected engineer OR the engineer is not adjacent to the building's tile
     if (!selectedUnit) {
@@ -16,74 +28,62 @@ export default function update({ selected, world }) {
             version: 1,
             components: [
                 {
-                    type: 'building',
-                    id: 'corrupted-user',
+                    type: "building",
+                    id: "corrupted-user",
                     content: [
                         {
-                            id: 'default',
-                            type: 'inline',
-                            html: `Units are not welcome here. Maybe a cunning disguise would gain access?`
-                        }
-                    ]
+                            id: "default",
+                            type: "inline",
+                            html: `Units are not welcome here. Maybe a cunning disguise would gain access?`,
+                        },
+                    ],
                 },
             ],
         };
     }
 
-
     //Look for a rubber duck in their bags
-    var hasBoringDisguise = false
-    for (var j = 0; j < selectedUnit.bags.length; j++) {
-        for (var i = 0; i < 4; i++) {
-            if (selectedUnit.bags[j].bag.slots[i]) {
-                var slot = selectedUnit.bags[j].bag.slots[i];
-
-                if (slot.item && slot.item.id === 'Boring Disguise' && slot.balance >= 1) {
-                    hasBoringDisguise = true;
-                }
-            }
-        }
-    }
-
+    const hasBoringDisguise = selectedUnitBags.some((b) =>
+        b.slots.some(
+            (s) =>
+                s.item &&
+                s.item.name.value === "Boring Disguise" &&
+                s.balance >= 1,
+        ),
+    );
 
     // fetch the expected inputs item kinds
-    const requiredInputs = selectedBuilding?.kind?.inputs || [];
-    const want0 = requiredInputs.find(inp => inp.key == 0);
-    const want1 = requiredInputs.find(inp => inp.key == 1);
-    const want2 = requiredInputs.find(inp => inp.key == 2);
+    const requiredInputs =
+        selectedBuilding?.kind?.inputs?.sort((a, b) => a.key - b.key) || [];
 
-    // fetch what is currently in the input slots
-    const inputSlots = selectedBuilding?.bags.find(b => b.key == 0).bag?.slots || [];
-    const got0 = inputSlots?.find(slot => slot.key == 0);
-    const got1 = inputSlots?.find(slot => slot.key == 1);
-    const got2 = inputSlots?.find(slot => slot.key == 2);
+    const canCraft =
+        selectedUnit &&
+        inputSlots &&
+        inputSlots.length >= requiredInputs.length &&
+        requiredInputs.every(
+            (requiredSlot) =>
+                inputSlots[requiredSlot.key].item.id == requiredSlot.item.id &&
+                inputSlots[requiredSlot.key].balance == requiredSlot.balance,
+        );
 
     // fetch our output item details
     const expectedOutputs = selectedBuilding?.kind?.outputs || [];
-    const out0 = expectedOutputs?.find(slot => slot.key == 0);
-
-    // try to detect if the input slots contain enough stuff to craft
-    const canCraft = selectedUnit
-        && want0 && got0 && want0.balance == got0.balance
-        && want1 && got1 && want1.balance == got1.balance
-        && want2 && got2 && want2.balance == got2.balance;
+    const out0 = expectedOutputs?.find((slot) => slot.key == 0);
 
     const craft = () => {
         if (!selectedUnit) {
-            ds.log('no selected engineer');
+            ds.log("no selected engineer");
             return;
         }
         if (!selectedBuilding) {
-            ds.log('no selected building');
+            ds.log("no selected building");
             return;
         }
 
-        ds.dispatch(
-            {
-                name: 'BUILDING_USE',
-                args: [selectedBuilding.id, selectedUnit.id, []]
-            },
-        );
+        ds.dispatch({
+            name: "BUILDING_USE",
+            args: [selectedBuilding.id, selectedUnit.id, []],
+        });
     };
 
     //Show this if there's a rubber duck
@@ -92,14 +92,21 @@ export default function update({ selected, world }) {
             version: 1,
             components: [
                 {
-                    type: 'building',
-                    id: 'corrupted-user',
+                    type: "building",
+                    id: "corrupted-user",
                     content: [
                         {
-                            id: 'default',
-                            type: 'inline',
-                            html: 'With your disguise equipped the Corrupted User listens to your request. But they are unwilling to relinquish the Microchip for free',
-                            buttons: [{ text: 'It\'s a deal!', type: 'action', action: craft, disabled: !canCraft }],
+                            id: "default",
+                            type: "inline",
+                            html: "With your disguise equipped the Corrupted User listens to your request. But they are unwilling to relinquish the Microchip for free",
+                            buttons: [
+                                {
+                                    text: "It's a deal!",
+                                    type: "action",
+                                    action: craft,
+                                    disabled: !canCraft,
+                                },
+                            ],
                         },
                     ],
                 },
@@ -107,4 +114,3 @@ export default function update({ selected, world }) {
         };
     }
 }
-

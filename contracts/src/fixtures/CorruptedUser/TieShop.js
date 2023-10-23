@@ -1,64 +1,76 @@
-import ds from 'downstream';
+import ds from "downstream";
 
 export default function update({ selected, world }) {
-
-    const { tiles, mobileUnit } = selected || {};
+    const { tiles, selectedUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
-    const selectedBuilding = selectedTile?.building;
-    const selectedEngineer = mobileUnit;
+    const selectedBuilding = (world?.buildings || []).find(
+        (b) => selectedTile && b.location.tile.id === selectedTile.id,
+    );
+    const selectedBuildingBags = selectedBuilding
+        ? (world?.bags || []).filter(
+              (bag) => bag.equipee?.node.id === selectedBuilding.id,
+          )
+        : [];
+    const inputBag =
+        selectedBuilding &&
+        selectedBuildingBags.find((bag) => bag.equipee.key === 0);
+    const inputSlots = inputBag && inputBag.slots.sort((a, b) => a.key - b.key);
 
     // fetch the expected inputs item kinds
     const requiredInputs = selectedBuilding?.kind?.inputs || [];
-    const want0 = requiredInputs.find(inp => inp.key == 0);
-    const want1 = requiredInputs.find(inp => inp.key == 1);
-
-    // fetch what is currently in the input slots
-    const inputSlots = selectedBuilding?.bags.find(b => b.key == 0).bag?.slots || [];
-    const got0 = inputSlots?.find(slot => slot.key == 0);
-    const got1 = inputSlots?.find(slot => slot.key == 1);
 
     // fetch our output item details
     const expectedOutputs = selectedBuilding?.kind?.outputs || [];
-    const out0 = expectedOutputs?.find(slot => slot.key == 0);
+    const out0 = expectedOutputs?.find((slot) => slot.key == 0);
 
     // try to detect if the input slots contain enough stuff to craft
-    const canCraft = selectedEngineer
-        && want0 && got0 && want0.balance == got0.balance
-        && want1 && got1 && want1.balance == got1.balance;
+    const canCraft =
+        selectedUnit &&
+        inputSlots &&
+        inputSlots.length >= requiredInputs.length &&
+        requiredInputs.every(
+            (requiredSlot) =>
+                inputSlots[requiredSlot.key].item.id == requiredSlot.item.id &&
+                inputSlots[requiredSlot.key].balance == requiredSlot.balance,
+        );
 
     const craft = () => {
-        if (!selectedEngineer) {
-            ds.log('no selected engineer');
+        if (!selectedUnit) {
+            ds.log("no selected engineer");
             return;
         }
         if (!selectedBuilding) {
-            ds.log('no selected building');
+            ds.log("no selected building");
             return;
         }
 
-        ds.dispatch(
-            {
-                name: 'BUILDING_USE',
-                args: [selectedBuilding.id, selectedEngineer.id, []]
-            },
-        );
+        ds.dispatch({
+            name: "BUILDING_USE",
+            args: [selectedBuilding.id, selectedUnit.id, []],
+        });
     };
 
     return {
         version: 1,
         components: [
             {
-                type: 'building',
-                id: 'tie-shop',
+                type: "building",
+                id: "tie-shop",
                 content: [
                     {
-                        id: 'default',
-                        type: 'inline',
-                        buttons: [{ text: 'Manufacture Tie', type: 'action', action: craft, disabled: !canCraft }],
+                        id: "default",
+                        type: "inline",
+                        buttons: [
+                            {
+                                text: "Manufacture Tie",
+                                type: "action",
+                                action: craft,
+                                disabled: !canCraft,
+                            },
+                        ],
                     },
                 ],
             },
         ],
     };
 }
-
