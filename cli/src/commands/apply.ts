@@ -589,7 +589,7 @@ const deploy = {
                                 op,
                             };
                         } catch (err) {
-                            if (retries >= 5) {
+                            if (retries === 4) {
                                 console.log(`❌ ${op.note}\n`);
                                 return {
                                     ok: false,
