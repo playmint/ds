@@ -25,15 +25,6 @@ export function makeConnectedPlayer(
         switchMap<any, ConnectedPlayer | UnconnectedPlayer>(({ client, wallet }: ClientWallet) =>
             wallet ? makeConnectedPlayerQuery(client, wallet, logger) : makeUnconnectedPlayerQuery(),
         ),
-        filter((next) => {
-            if (!prev) {
-                return true;
-            }
-            if (!next) {
-                return true;
-            }
-            return next.id != prev.id || next.dispatch != prev.dispatch;
-        }),
         tap((next) => (prev = next)),
         share,
     );
