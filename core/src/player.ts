@@ -1,4 +1,4 @@
-import { concat, debounce, filter, fromValue, lazy, map, pipe, share, Source, switchMap, tap, zip } from 'wonka';
+import { concat, debounce, fromValue, lazy, map, pipe, share, Source, switchMap, tap, zip } from 'wonka';
 import { makeDispatcher } from './dispatcher';
 import { GetSelectedPlayerDocument, SelectedPlayerFragment } from './gql/graphql';
 import { Logger } from './logger';
