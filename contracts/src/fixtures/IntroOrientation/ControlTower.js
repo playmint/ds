@@ -17,9 +17,8 @@ const QUEST_6 = "Corrupted User";
 export default async function update({ selected, player }) {
     const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
-    const selectedBuilding = selectedTile?.building;
     const selectedUnit = mobileUnit;
-    const quests = player.quests;
+    const quests = player?.quests || [];
 
     // Have to use encode function call
     // const encodeQuestID = ({ name }) => {
@@ -270,7 +269,7 @@ export default async function update({ selected, player }) {
                 },
             ],
         };
-    
+
     } else {
         return {
             version: 1,

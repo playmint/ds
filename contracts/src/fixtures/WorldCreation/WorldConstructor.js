@@ -7,7 +7,7 @@ export default function update({ selected, world }) {
 
     const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
-    const selectedBuilding = selectedTile?.building;
+    const selectedBuilding = (world?.buildings || []).find(b => selectedTile && b.location?.tile?.id === selectedTile.id);
     const selectedUnit = mobileUnit;
 
 
@@ -17,7 +17,8 @@ export default function update({ selected, world }) {
     const want1 = requiredInputs.find(inp => inp.key == 1);
 
     // fetch what is currently in the input slots
-    const inputSlots = selectedBuilding?.bags.find(b => b.key == 0).bag?.slots || [];
+    const selectedBuildingBags = selectedBuilding ? (world?.bags || []).filter(bag => bag.equipee?.node.id === selectedBuilding.id) : [];
+    const inputSlots = selectedBuildingBags.find(b => b.equipee?.key == 0)?.slots || [];
     const got0 = inputSlots?.find(slot => slot.key == 0);
     const got1 = inputSlots?.find(slot => slot.key == 1);
 
