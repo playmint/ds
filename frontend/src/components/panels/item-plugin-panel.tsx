@@ -1,5 +1,11 @@
 import { PluginType, PluginUpdateResponse } from '@app/../../core/src';
 import { PluginContent } from '../organisms/tile-action';
+import styled from 'styled-components';
+import { BasePanelStyles } from '@app/styles/base-panel.styles';
+
+const StyledItemPluginPanel = styled.div`
+    ${BasePanelStyles}
+`;
 
 export const ItemPluginPanel = ({ ui }: { ui: PluginUpdateResponse[] }) => {
     const itemPluginStates = ui
@@ -9,11 +15,11 @@ export const ItemPluginPanel = ({ ui }: { ui: PluginUpdateResponse[] }) => {
     return (
         <>
             {itemPluginStates.length > 0 && (
-                <div>
+                <StyledItemPluginPanel>
                     {itemPluginStates.map((content, idx) =>
                         content ? <PluginContent key={idx} content={content} canUse={true} /> : undefined
                     )}
-                </div>
+                </StyledItemPluginPanel>
             )}
         </>
     );

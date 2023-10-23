@@ -10,6 +10,7 @@ import styled from 'styled-components';
 
 const StyledMobileUnitPanel = styled.div`
     ${BasePanelStyles}
+    margin-top: 3.5rem;
 `;
 
 const MobileUnitContainer = styled.div`
