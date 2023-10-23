@@ -33,6 +33,7 @@ import {
     World,
 } from './types';
 import { getBagsAtEquipee, getBuildingAtTile } from './utils';
+import { Logger } from './logger';
 
 const active = new Map<string, ActivePlugin>();
 
@@ -79,6 +80,8 @@ async function noopDispatcher(..._actions: CogAction[]): Promise<QueuedSequencer
 export function makePluginUI(
     plugins: Source<PluginConfig[]>,
     sandbox: Comlink.Remote<Sandbox>,
+    logMessage: Logger,
+    questMessage: Logger,
     state: Source<GameState>,
     block: Source<number>,
 ) {
@@ -116,7 +119,7 @@ export function makePluginUI(
                                 }
                                 const plugin = active.has(p.id)
                                     ? active.get(p.id)
-                                    : await loadPlugin(sandbox, dispatch, p);
+                                    : await loadPlugin(sandbox, dispatch, logMessage, questMessage, p);
                                 if (!plugin) {
                                     console.warn(`failed to get or load plugin ${p.id}`);
                                     return null;
@@ -248,7 +251,13 @@ export function makeAutoloadPlugins(
  * ```
  *
  */
-export async function loadPlugin(sandbox: Comlink.Remote<Sandbox>, dispatch: DispatchFunc, config: PluginConfig) {
+export async function loadPlugin(
+    sandbox: Comlink.Remote<Sandbox>,
+    dispatch: DispatchFunc,
+    logMessage: Logger,
+    questMessage: Logger,
+    config: PluginConfig,
+) {
     if (!config || !config.id) {
         throw new Error(`unabled to load plugin: no id provided`);
     }
@@ -268,7 +277,12 @@ export async function loadPlugin(sandbox: Comlink.Remote<Sandbox>, dispatch: Dis
     // plugins triggering dispatch calls on load or responding
     // to state changes in update
 
-    const context = await sandbox.newContext(Comlink.proxy(dispatch), config);
+    const context = await sandbox.newContext(
+        Comlink.proxy(dispatch),
+        Comlink.proxy(logMessage),
+        Comlink.proxy(questMessage),
+        config,
+    );
 
     // setup the submit func
     const submitProxy = async (ref: string, values: PluginSubmitCallValues): Promise<void> => {

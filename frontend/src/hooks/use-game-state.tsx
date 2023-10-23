@@ -31,7 +31,7 @@ import {
 } from '@app/../../core/src';
 import * as Comlink from 'comlink';
 import { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
-import { mergeMap, pipe, scan, Source, subscribe } from 'wonka';
+import { mergeMap, tap, pipe, scan, Source, subscribe } from 'wonka';
 import { useWalletProvider } from './use-wallet-provider';
 
 // hack to force hot module reloading to give up
@@ -129,7 +129,7 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
             client,
             mergeMap((client) => client.block)
         );
-        const ui = makePluginUI(activePlugins, sb.sandbox, state, block);
+        const ui = makePluginUI(activePlugins, sb.sandbox, logger, questMsgSender, state, block);
 
         setSources({
             block,
