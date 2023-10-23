@@ -81,19 +81,19 @@ function getNeighboursWithDistanceFromDestination(
         { q: q - 1, r: r + 1, s: s },
         { q: q, r: r + 1, s: s - 1 },
     ]
-        .filter(({ q, r, s }) => !blockerMap.get(`${q}:${r}:${s}`))
-        .map(({ q, r, s }) => tileMap.get(`${q}:${r}:${s}`))
-        .filter((t): t is PassableTile => {
+        .reduce((neighbours, { q, r, s }) => {
+            const t = tileMap.get(`${q}:${r}:${s}`);
             if (!t) {
-                return false;
+                return neighbours;
             }
             // always allow the dest tile, even if it's a blocker this allows
             // us to show the path, but indicate that it is invalid
-            if (t.tile.id === destination.tile.id) {
-                return true;
+            if (t.tile.id !== destination.tile.id && blockerMap.has(`${q}:${r}:${s}`)) {
+                return neighbours;
             }
-            return true;
-        })
+            neighbours.push(t);
+            return neighbours;
+        }, [] as PassableTile[])
         .map((neighbour) => ({
             distance:
                 (Math.abs(destination.q - neighbour.q) +
