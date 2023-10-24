@@ -72,6 +72,9 @@ export default async function update({ selected, player }) {
     };
 
     const getQuestStage = () => {
+        //Debug to jump to this stage
+        if (findQuestByName(QUEST_5)) return 4;
+
         if (!quests) return 0;
 
         const questRegError = findQuestByName(QUEST_1);
@@ -323,7 +326,7 @@ export default async function update({ selected, player }) {
         }
 
         if (!corruptedUserQuest) buttonList.push(corruptedUserButton);
-        if (!paperclipButton) buttonList.push(paperclipButton);
+        if (!paperclipQuest) buttonList.push(paperclipButton);
         if (!creationQuest) buttonList.push(creationQuestButton);
 
         return {
