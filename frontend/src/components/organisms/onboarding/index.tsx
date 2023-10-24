@@ -1,5 +1,5 @@
 import { CompoundKeyEncoder, ConnectedPlayer, NodeSelectors, WorldMobileUnitFragment } from '@app/../../core/src';
-import { BasePanelStyles } from '@app/styles/base-panel.styles';
+import { BasePanelStyles, StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { ActionButton } from '@app/styles/button.styles';
 import { useCallback, useState } from 'react';
 import styled from 'styled-components';
@@ -10,9 +10,10 @@ export interface OnboardingProps {
     onClickConnect: () => void;
 }
 
-const StyledOnboarding = styled.div`
-    ${BasePanelStyles}
-
+const StyledOnboarding = styled(StyledHeaderPanel)`
+    h3 {
+        margin: 0;
+    }
     button {
         margin-top: 0.5rem;
     }
@@ -40,19 +41,23 @@ export const Onboarding = ({ player, playerUnits, onClickConnect }: OnboardingPr
 
     return (
         <StyledOnboarding>
-            <h3>👁️‍🗨️ Welcome to Downstream</h3>
-            <p>✅ If you’re an approved playtester, simply connect your wallet and click ‘Spawn Unit’ to begin. </p>
-            <p>
-                If you want to join the community, check out our{' '}
-                <a href="https://discord.gg/VdXWWNaqGN">communications server!</a>
-            </p>
-            {player && playerUnits.length === 0 ? (
-                <ActionButton onClick={spawnMobileUnit} disabled={isSpawningMobileUnit}>
-                    Spawn Unit
-                </ActionButton>
-            ) : (
-                <ActionButton onClick={onClickConnect}>Connect Wallet</ActionButton>
-            )}
+            <div className="header">
+                <h3>👁️‍🗨️ Welcome to Downstream</h3>
+            </div>
+            <div className="content">
+                <p>✅ If you’re an approved playtester, simply connect your wallet and click ‘Spawn Unit’ to begin. </p>
+                <p>
+                    If you want to join the community, check out our{' '}
+                    <a href="https://discord.gg/VdXWWNaqGN">communications server!</a>
+                </p>
+                {player && playerUnits.length === 0 ? (
+                    <ActionButton onClick={spawnMobileUnit} disabled={isSpawningMobileUnit}>
+                        Spawn Unit
+                    </ActionButton>
+                ) : (
+                    <ActionButton onClick={onClickConnect}>Connect Wallet</ActionButton>
+                )}
+            </div>
         </StyledOnboarding>
     );
 };
