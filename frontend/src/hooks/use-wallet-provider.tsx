@@ -7,6 +7,8 @@ import { EthereumProvider as WalletConnectProvider } from '@walletconnect/ethere
 import { QRCodeSVG } from 'qrcode.react';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from './use-localstorage';
+import { ActionButton } from '@app/styles/button.styles';
+import { colors } from '@app/styles/colors';
 
 export interface WalletProvider {
     method: string;
@@ -109,12 +111,12 @@ export const WalletProviderProvider = ({ children }: { children: ReactNode }) =>
     return (
         <WalletProviderContext.Provider value={value}>
             {walletConnectURI && (
-                <Dialog onClose={closeWalletConnector} width="304px" height="">
+                <Dialog onClose={closeWalletConnector} width="350px" height="">
                     <div style={{ padding: 5 }}>
                         <QRCodeSVG
                             value={walletConnectURI}
                             size={256}
-                            bgColor={'#143063'}
+                            bgColor={colors.grey_5}
                             fgColor={'#ffffff'}
                             imageSettings={{
                                 src: '/qrunit.png',
@@ -132,14 +134,10 @@ export const WalletProviderProvider = ({ children }: { children: ReactNode }) =>
                     <div style={{ padding: 10 }}>
                         <h3>CONNECT USING...</h3>
                         <div>
-                            <button className="action-button" onClick={connectMetamask}>
-                                Metamask
-                            </button>
+                            <ActionButton onClick={connectMetamask}>Metamask</ActionButton>
                         </div>
                         <div style={{ paddingTop: 10 }}>
-                            <button className="action-button" onClick={connectWalletConnect}>
-                                WalletConnect
-                            </button>
+                            <ActionButton onClick={connectWalletConnect}>WalletConnect</ActionButton>
                         </div>
                     </div>
                 </Dialog>

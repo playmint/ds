@@ -49,7 +49,7 @@ const { tiles, mobileUnit } = selected || {};
 
     var unitDistance = 0;
     if (selectedUnit) {
-        unitDistance = distance(selectedUnit.nextLocation.tile, selectedTile);
+        unitDistance = distance(selectedUnit.nextLocation?.tile, selectedTile);
     }
 ```
 

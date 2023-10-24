@@ -1,5 +1,7 @@
 import { css } from 'styled-components';
 import { ActionContextPanelProps } from './index';
+import { BasePanelStyles } from '@app/styles/base-panel.styles';
+import { colorMap, colors } from '@app/styles/colors';
 
 /**
  * Base styles for the action context panel component
@@ -8,14 +10,12 @@ import { ActionContextPanelProps } from './index';
  * @return Base styles for the action context panel component
  */
 const baseStyles = (_: Partial<ActionContextPanelProps>) => css`
-    color: #fff;
+    ${BasePanelStyles}
 
     position: relative;
-    background: rgba(20, 48, 99, 0.85);
-    margin: 2.2rem;
-    padding: 2rem;
     display: flex;
     align-items: center;
+    margin-bottom: 1.5rem;
     width: 33vw;
 
     .guide {
@@ -35,13 +35,13 @@ const baseStyles = (_: Partial<ActionContextPanelProps>) => css`
         width: 3.2rem;
         height: 3.2rem;
         border-radius: 20px;
-        border: 0;
-        border: none;
-        border-bottom: 3px solid #b7c5e0;
         padding: 0;
         font-size: 2.2rem;
         font-weight: 800;
-        opacity: 0.9;
+        color: ${colorMap.primaryButtonText};
+        background: ${colorMap.primaryBackground};
+        border-color: ${colors.grey_5};
+        line-height: 0;
     }
 
     .sub-title {

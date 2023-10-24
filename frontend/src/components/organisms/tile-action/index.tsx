@@ -1,13 +1,22 @@
 /** @format */
 
+import { ActionButton } from '@app/styles/button.styles';
 import { PluginStateButtonAction, PluginStateComponentContent, PluginSubmitCallValues } from '@downstream/core';
 import DOMPurify from 'dompurify';
 import styled, { css } from 'styled-components';
 
-const StylePluginContent = styled('div')`
+const StylePluginContent = styled.div`
     ${({ canUse }: { canUse: boolean }) => css`
         opacity: ${canUse ? 1 : 0.5};
     `}
+
+    .buttonContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        width: 100%;
+    }
 `;
 
 export const PluginContent = ({
@@ -43,25 +52,24 @@ export const PluginContent = ({
             <form onSubmit={submit}>
                 <div dangerouslySetInnerHTML={saferHTML} />
                 {children}
-                <div style={{ marginTop: '1rem', width: '100%' }}>
+                <div className="buttonContainer">
                     {content.buttons?.map((btn) => {
                         switch (btn.type) {
                             case 'action':
                                 return (
-                                    <button
+                                    <ActionButton
                                         disabled={!canUse || btn.disabled}
-                                        className="action-button"
                                         key={btn.text}
                                         onClick={() => clickActionButton(btn)}
                                     >
                                         {btn.text}
-                                    </button>
+                                    </ActionButton>
                                 );
                             case 'toggle':
                                 return (
-                                    <button disabled={!canUse || btn.disabled} className="action-button" key={btn.text}>
+                                    <ActionButton disabled={!canUse || btn.disabled} key={btn.text}>
                                         {btn.text}
-                                    </button>
+                                    </ActionButton>
                                 );
                             default:
                                 return 'undefined';

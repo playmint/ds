@@ -2,6 +2,7 @@
 
 import { css } from 'styled-components';
 import { ActionBarProps } from './index';
+import { colors } from '@app/styles/colors';
 
 /**
  * Base styles for the action bar component
@@ -10,7 +11,6 @@ import { ActionBarProps } from './index';
  * @return Base styles for the action bar component
  */
 const baseStyles = (_: Partial<ActionBarProps>) => css`
-    width: 33vw;
     margin-bottom: 1.5rem;
 
     h3 {
@@ -18,15 +18,17 @@ const baseStyles = (_: Partial<ActionBarProps>) => css`
     }
 
     .actions {
-        width: 100%;
+        border-radius: 0.8rem;
+        border: 3px solid;
+        background: ${colors.grey_5};
         display: flex;
-        gap: 0.6rem;
+        gap: 3px;
         justify-content: center;
         align-items: stretch;
         flex-wrap: nowrap;
 
-        .action-icon-button {
-            width: 10rem;
+        button {
+            width: 11.5rem;
             flex-grow: 1;
         }
     }

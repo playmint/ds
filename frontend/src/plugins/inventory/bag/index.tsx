@@ -24,7 +24,7 @@ const StyledBag = styled.div`
 `;
 
 export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
-    const { bag, bagId, ownerId, equipIndex, isInteractable, recipe, numBagSlots = 4, showIcon = true } = props;
+    const { bag, bagId, ownerId, equipIndex, isInteractable, recipe, numBagSlots = 4 } = props;
     const { addBagRef, removeBagRef } = useInventory();
     const slotsRef = useRef<HTMLUListElement>(null);
     const slotKeys = recipe ? recipe.map((r) => r.key) : Array.from(Array(numBagSlots).keys());
@@ -56,7 +56,6 @@ export const Bag: FunctionComponent<BagProps> = (props: BagProps) => {
 
     return (
         <StyledBag>
-            {showIcon && <img src="/icons/bag.png" alt="" className="icon" />}
             <ul className="slots" ref={slotsRef}>
                 {slots.map((slot: BagSlotProps) => (
                     <BagSlot key={slot.slotKey} {...slot} />

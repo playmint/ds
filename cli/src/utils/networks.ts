@@ -30,6 +30,12 @@ export const networks: Network[] = [
         httpEndpoint: 'https://services-ds-main.dev.playmint.com/query',
     },
     {
+        name: 'playnet',
+        description: 'ephemeral private invite only test network',
+        wsEndpoint: 'wss://services.playtest.downstream.game/query',
+        httpEndpoint: 'https://services.playtest.downstream.game/query',
+    },
+    {
         name: 'expnet',
         description: 'ephemeral private invite only experimental network',
         wsEndpoint: 'wss://services-ds-exp.dev.playmint.com/query',

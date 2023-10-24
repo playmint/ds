@@ -2,6 +2,7 @@
 
 import { css } from 'styled-components';
 import { CombatModalProps } from './index';
+import { colorMap, colors } from '@app/styles/colors';
 
 /**
  * Base styles for the combat modal component
@@ -15,8 +16,8 @@ const baseStyles = (_: Partial<CombatModalProps>) => css`
     position: relative;
     width: 100%;
     height: 55rem;
-    background: #143063;
-    color: white;
+
+    /* overflow: hidden; */
 
     > .win-state {
         .winner {
@@ -66,17 +67,20 @@ const baseStyles = (_: Partial<CombatModalProps>) => css`
         position: relative;
         display: flex;
         flex-grow: 1;
-        background: #061e3d;
-        // max-height: 36rem;
+        flex-shrink: 1;
+        background: ${colorMap.secondaryBackground};
+        border-radius: 1rem;
+        margin-bottom: 1rem;
+        min-height: 0;
 
         .attackers,
         .defenders {
             flex-grow: 1;
-            padding: 2.4rem 3.2rem;
+            padding: var(--panel-padding);
             max-width: 50%;
             max-height: 100%;
             overflow: auto;
-            scrollbar-color: #007ff7 #000000;
+            scrollbar-color: ${colors.orange_0} ${colors.grey_1};
             scrollbar-width: thin;
 
             &::-webkit-scrollbar {
@@ -84,29 +88,30 @@ const baseStyles = (_: Partial<CombatModalProps>) => css`
             }
 
             &::-webkit-scrollbar-track {
-                background-color: #000000;
+                background-color: ${colors.orange_1};
             }
 
             &::-webkit-scrollbar-thumb {
-                background-color: #007ff7;
+                background-color: ${colors.orange_0};
                 outline: transparent;
             }
 
             .participant {
-                margin-bottom: 1.8rem;
+                margin-bottom: 0.5rem;
             }
         }
 
         .attackers {
-            border-right: 2px solid #143063;
+            border-right: 2px solid ${colorMap.primaryBackground};
         }
 
         .defenders {
-            border-left: 2px solid #143063;
+            border-left: 2px solid ${colorMap.primaryBackground};
         }
     }
 
     > .footer {
+        flex-shrink: 0;
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
@@ -115,6 +120,10 @@ const baseStyles = (_: Partial<CombatModalProps>) => css`
 
         > .action-button {
             margin: 1rem auto 1.2rem;
+        }
+
+        > .in-progress {
+            margin-bottom: 0.5rem;
         }
     }
 `;

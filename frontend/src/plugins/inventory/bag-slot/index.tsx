@@ -9,6 +9,7 @@ import { ItemSlotFragment } from '@downstream/core';
 import { FunctionComponent, useMemo } from 'react';
 import styled from 'styled-components';
 import { styles } from './bag-slot.styles';
+import { colors } from '@app/styles/colors';
 
 export interface BagSlotProps extends ComponentProps {
     itemSlot?: ItemSlotFragment;
@@ -118,6 +119,7 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
             isDisabled={isPending || isDisabled}
             isInteractable={isInteractable}
             isInvalid={isInvalid}
+            hasItem={!!item}
         >
             {item
                 ? itemSlot && (
@@ -138,10 +140,12 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
                               style={{
                                   maskImage: `url(${placeholderItem.icon})`,
                                   WebkitMaskImage: `url(${placeholderItem.icon})`,
-                                  backgroundColor: 'white',
+                                  backgroundColor: colors.grey_3,
                               }}
                           ></div>
-                          <span className="amount">{placeholderItem.quantity}</span>
+                          <span className="amount" style={{ color: colors.grey_3 }}>
+                              {placeholderItem.quantity}
+                          </span>
                       </div>
                   )}
         </StyledBagSlot>
