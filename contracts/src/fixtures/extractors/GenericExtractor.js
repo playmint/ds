@@ -83,7 +83,7 @@ export default function update({ selected, world }, block) {
 
     const gooIndex = outItemAtomVals.findIndex((gooVal) => gooVal > 0n);
     // const gooCost = Number(BigInt(out0.balance) * outItemAtomVals[gooIndex]);
-    const numberOfItems = gooIndex ? Math.floor(
+    const numberOfItems = (typeof gooIndex !== 'undefined') ? Math.floor(
         extractedGoo[gooIndex] / Number(outItemAtomVals[gooIndex])
     ) : 0;
     const secondsTilNextItem = getSecsPerGoo(tileAtoms[gooIndex]);
