@@ -25,6 +25,7 @@ const baseStyles = (_: Partial<ShellProps>) => css`
 
     > .hud-container {
         position: relative;
+        max-height: calc(100vh - 5rem);
         z-index: 10;
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
