@@ -4,7 +4,7 @@ import { useGameState } from '@app/hooks/use-game-state';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { MobileUnitInventory } from '@app/plugins/inventory/mobile-unit-inventory';
 import { useCallback, useMemo } from 'react';
-import { BasePanelStyles, StyledHeaderPanel } from '@app/styles/base-panel.styles';
+import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { TextButton } from '@app/styles/button.styles';
 import styled from 'styled-components';
 import { colorMap, colors } from '@app/styles/colors';
