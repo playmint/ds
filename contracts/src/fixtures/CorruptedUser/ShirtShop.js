@@ -1,9 +1,10 @@
 import ds from "downstream";
 
 export default function update({ selected, world }) {
-    const { tiles, selectedUnit } = selected || {};
+    const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
     const selectedBuilding = (world?.buildings || []).find(b => selectedTile && b.location?.tile?.id === selectedTile.id);
+    const selectedUnit = mobileUnit;
     const selectedBuildingBags = selectedBuilding
         ? (world?.bags || []).filter(
               (bag) => bag.equipee?.node.id === selectedBuilding.id,
@@ -32,6 +33,8 @@ export default function update({ selected, world }) {
                 inputSlots[requiredSlot.key].balance == requiredSlot.balance,
         );
 
+
+
     const craft = () => {
         if (!selectedUnit) {
             ds.log("no selected engineer");
@@ -47,6 +50,7 @@ export default function update({ selected, world }) {
             args: [selectedBuilding.id, selectedUnit.id, []],
         });
     };
+
 
     return {
         version: 1,
@@ -65,6 +69,7 @@ export default function update({ selected, world }) {
                                 type: "action",
                                 action: craft,
                                 disabled: !canCraft,
+                                //disabled: false,
                             },
                         ],
                     },
