@@ -28,7 +28,7 @@ import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
 import { QuestPanel } from '@app/components/panels/quest-panel';
 import { getBagsAtEquipee, getBuildingAtTile, getSessionsAtTile } from '@downstream/core/src/utils';
-import { StyledBasePanel } from '@app/styles/base-panel.styles';
+import { StyledBasePanel, StyledHeaderPanel } from '@app/styles/base-panel.styles';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -300,30 +300,34 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         </StyledBasePanel>
                     )}
                     {selectedRewardBags && selectedRewardBags.length > 0 && (
-                        <StyledBasePanel>
-                            <h3>Combat rewards</h3>
-                            {selectedRewardBags.map((selectedBag) => {
-                                return (
-                                    <BagInventory
-                                        key={selectedBag.equipIndex}
-                                        bag={selectedBag.bag}
-                                        equipIndex={selectedBag.equipIndex}
-                                        ownerId={selectedBag.ownerId}
-                                        isInteractable={
-                                            !!(
-                                                selectedMobileUnit &&
-                                                selectedMobileUnit.nextLocation &&
-                                                getTileDistance(
-                                                    selectedMobileUnit.nextLocation.tile,
-                                                    selectedBag.parentTile
-                                                ) < 2
-                                            )
-                                        }
-                                        showIcon={true}
-                                    />
-                                );
-                            })}
-                        </StyledBasePanel>
+                        <StyledHeaderPanel>
+                            <div className="header">
+                                <h3>Combat rewards</h3>
+                            </div>
+                            <div className="content">
+                                {selectedRewardBags.map((selectedBag) => {
+                                    return (
+                                        <BagInventory
+                                            key={selectedBag.equipIndex}
+                                            bag={selectedBag.bag}
+                                            equipIndex={selectedBag.equipIndex}
+                                            ownerId={selectedBag.ownerId}
+                                            isInteractable={
+                                                !!(
+                                                    selectedMobileUnit &&
+                                                    selectedMobileUnit.nextLocation &&
+                                                    getTileDistance(
+                                                        selectedMobileUnit.nextLocation.tile,
+                                                        selectedBag.parentTile
+                                                    ) < 2
+                                                )
+                                            }
+                                            showIcon={true}
+                                        />
+                                    );
+                                })}
+                            </div>
+                        </StyledHeaderPanel>
                     )}
                 </div>
             </div>

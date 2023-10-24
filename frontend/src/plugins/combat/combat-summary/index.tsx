@@ -12,6 +12,7 @@ import styled from 'styled-components';
 import { CombatModal } from '../combat-modal';
 import { styles } from './combat-summary.styles';
 import { ActionButton } from '@app/styles/button.styles';
+import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
 
 export interface CombatSummaryProps extends ComponentProps {
     selectedTiles: WorldTileFragment[];
@@ -21,7 +22,7 @@ export interface CombatSummaryProps extends ComponentProps {
     selectedMobileUnit?: WorldMobileUnitFragment;
 }
 
-const StyledCombatSummary = styled('div')`
+const StyledCombatSummary = styled(StyledHeaderPanel)`
     ${styles}
 `;
 
@@ -81,8 +82,8 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
                 </Dialog>
             )}
             <div className="header">
-                <img src="/combat-header.png" alt="" className="icon" />
                 <h3 className="title">Tile in combat</h3>
+                <img src="/combat-header.png" alt="" className="icon" />
             </div>
             {actions && (
                 <div className="content">

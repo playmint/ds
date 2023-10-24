@@ -4,10 +4,10 @@ import { useGameState } from '@app/hooks/use-game-state';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { MobileUnitInventory } from '@app/plugins/inventory/mobile-unit-inventory';
 import { useCallback, useMemo } from 'react';
-import { BasePanelStyles } from '@app/styles/base-panel.styles';
+import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { TextButton } from '@app/styles/button.styles';
 import styled from 'styled-components';
-import { colors } from '@app/styles/colors';
+import { colorMap, colors } from '@app/styles/colors';
 
 const StyledMobileUnitIcon = styled.div`
     --width: 6.4rem;
@@ -59,8 +59,7 @@ const MobileUnitIcon = ({ className, onClick }) => {
     );
 };
 
-const StyledMobileUnitPanel = styled.div`
-    ${BasePanelStyles}
+const StyledMobileUnitPanel = styled(StyledHeaderPanel)`
     margin-top: 3.5rem;
 
     .bags > div:last-child .slots {
@@ -85,6 +84,7 @@ const MobileUnitContainer = styled.div`
     }
 
     > .label {
+        color: ${colorMap.primaryText};
         font-size: 2.8rem;
         display: block;
         width: 100%;
@@ -98,7 +98,6 @@ const MobileUnitContainer = styled.div`
     }
 
     > .location {
-        margin-bottom: 0.5rem;
         color: ${colors.grey_3};
     }
 `;
@@ -195,7 +194,7 @@ export const MobileUnitPanel = () => {
                 playerUnits.length > 0 &&
                 (selectedMobileUnit ? (
                     <StyledMobileUnitPanel>
-                        <div className="mobile-unit-actions">
+                        <div className="header">
                             <MobileUnitContainer>
                                 <MobileUnitIcon className="unitIcon" onClick={selectAndFocusMobileUnit} />
                                 <span className="label" onDoubleClick={() => nameEntity(selectedMobileUnit?.id)}>
@@ -208,6 +207,8 @@ export const MobileUnitPanel = () => {
                                     </div>
                                 )}
                             </MobileUnitContainer>
+                        </div>
+                        <div className="content">
                             <MobileUnitInventory mobileUnit={selectedMobileUnit} bags={world?.bags || []} />
                         </div>
                     </StyledMobileUnitPanel>
