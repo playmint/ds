@@ -48,7 +48,7 @@ export default function update({ selected, world, player }) {
             if (selectedUnitBags[j].slots[i]) {
                 var slot = selectedUnitBags[j].slots[i];
 
-                if (slot.item && slot.item.id === 'Registration Receipt' && slot.balance >= 1) {
+                if (slot.item && slot.item.name.value === 'Registration Receipt' && slot.balance >= 1) {
                     hasReceipt = true;
                 }
             }

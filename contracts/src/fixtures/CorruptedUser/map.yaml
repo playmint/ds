@@ -21,3 +21,15 @@ kind: Building
 spec:
   name: Corrupted User
   location: [28, -12, -16]
+
+---
+kind: Building
+spec:
+  name: Green Goo Fission
+  location: [21, -32, 11]
+
+---
+kind: Building
+spec:
+  name: Green Goo Fusion
+  location: [33, -22, -11]
