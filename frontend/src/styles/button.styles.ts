@@ -2,14 +2,14 @@ import styled, { css } from 'styled-components';
 import { colorMap } from './colors';
 
 const BaseButtonStyle = css`
-    background: ${colorMap.primaryButtonBackground1};
+    background: linear-gradient(${colorMap.primaryButtonBackground2}, ${colorMap.primaryButtonBackground1} 35%);
     border: ${colorMap.primaryBorderColor} 3px solid;
     padding: 1.2rem 2rem 0.8rem;
-
     border-radius: 0.8rem;
-
+    position: relative;
     display: block;
     box-sizing: border-box;
+
     &:disabled {
         opacity: 0.5;
         pointer-events: none;
