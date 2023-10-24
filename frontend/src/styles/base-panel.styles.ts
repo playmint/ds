@@ -17,6 +17,7 @@ export const StyledBasePanel = styled.div`
 `;
 export const StyledHeaderPanel = styled(StyledBasePanel)`
     overflow: hidden;
+    flex-shrink: 0;
     padding: 0;
     > .header {
         padding: var(--panel-padding);
@@ -28,6 +29,10 @@ export const StyledHeaderPanel = styled(StyledBasePanel)`
         h3,
         h4 {
             color: ${colorMap.primaryText};
+        }
+
+        > *:last-child {
+            margin-bottom: 0;
         }
     }
 

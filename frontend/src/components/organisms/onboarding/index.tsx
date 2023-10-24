@@ -1,5 +1,5 @@
 import { CompoundKeyEncoder, ConnectedPlayer, NodeSelectors, WorldMobileUnitFragment } from '@app/../../core/src';
-import { BasePanelStyles, StyledHeaderPanel } from '@app/styles/base-panel.styles';
+import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { ActionButton } from '@app/styles/button.styles';
 import { useCallback, useState } from 'react';
 import styled from 'styled-components';
