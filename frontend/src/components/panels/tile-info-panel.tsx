@@ -17,8 +17,10 @@ import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { TileInventory } from '@app/plugins/inventory/tile-inventory';
 import { MobileUnitList } from '@app/plugins/mobile-unit-list';
 import { getBagsAtEquipee, getBuildingAtTile, getMobileUnitsAtTile } from '@downstream/core/src/utils';
+import { BasePanelStyles } from '@app/styles/base-panel.styles';
 import { FunctionComponent, useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { colors } from '@app/styles/colors';
 
 interface KeyedThing {
     key: number;
@@ -29,9 +31,8 @@ const byKey = (a: KeyedThing, b: KeyedThing) => {
 };
 
 const Panel = styled.div`
-    background: #143063;
-    color: #fff;
-    padding: 2rem 2rem;
+    ${BasePanelStyles}
+
     margin-bottom: 1.2rem;
     width: 30rem;
 
@@ -72,13 +73,22 @@ const Panel = styled.div`
     .process {
         text-align: center;
         width: 100%;
-        height: 32px;
+        height: 3.2rem;
         text-overflow: hidden;
+
+        > .arrow {
+            display: inline-block;
+            width: 3.2rem;
+            height: 3.2rem;
+            mask-image: url('/icons/downarrow.png');
+            mask-size: 100%;
+            background-color: ${colors.orange_0};
+        }
     }
-    img.arrow {
+    /* img.arrow {
         display: inline-block;
         width: 32px;
-    }
+    } */
 
     form {
         display: flex;
@@ -182,7 +192,8 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
                             )}
                             {outputs.length > 0 && outputBag && (
                                 <div className="process">
-                                    <img src="/icons/downarrow.png" alt="output" className="arrow" />
+                                    {/* <img src="/icons/downarrow.png" alt="output" className="arrow" /> */}
+                                    <div className="arrow" />
                                 </div>
                             )}
                             {outputs.length > 0 && outputBag && (

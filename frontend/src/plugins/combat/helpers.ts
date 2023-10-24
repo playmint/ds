@@ -141,7 +141,7 @@ export const getIcon = (entityID: BytesLike, mobileUnits: WorldMobileUnitFragmen
         return '/building-tower.png';
     }
     const mobileUnit = mobileUnits.find((s) => s.id === id);
-    return mobileUnit ? '/mobile-unit-yours.png' : '/mobile-unit-theirs.png';
+    return mobileUnit ? '/icons/mobile-unit-yours.svg' : '/icons/mobile-unit-theirs.svg';
 };
 
 export const getEntityName = (entityID: BytesLike, world: WorldStateFragment) => {

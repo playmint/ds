@@ -1,7 +1,7 @@
 /** @format */
 
-import otherUnitIcon from '@app/../public/mobile-unit-theirs.png';
-import playerUnitIcon from '@app/../public/mobile-unit-yours.png';
+import otherUnitIcon from '@app/../public/icons/mobile-unit-theirs.svg';
+import playerUnitIcon from '@app/../public/icons/mobile-unit-yours.svg';
 import { formatNameOrId } from '@app/helpers';
 import { ComponentProps } from '@app/types/component-props';
 import { BagFragment, ConnectedPlayer, ItemSlotFragment, MobileUnit, WorldTileFragment } from '@downstream/core';

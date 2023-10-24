@@ -2,6 +2,8 @@
 
 import { css } from 'styled-components';
 import { CombatParticipantProps } from './index';
+import { BasePanelStyles } from '@app/styles/base-panel.styles';
+import { colors } from '@app/styles/colors';
 
 /**
  * Base styles for the combat participant component
@@ -10,6 +12,8 @@ import { CombatParticipantProps } from './index';
  * @return Base styles for the combat participant component
  */
 const baseStyles = ({ isDead }: Pick<CombatParticipantProps, 'isDead'>) => css`
+    ${BasePanelStyles}
+
     display: grid;
     grid-template-columns: max-content 1fr max-content;
     grid-template-rows: auto auto;
@@ -18,9 +22,6 @@ const baseStyles = ({ isDead }: Pick<CombatParticipantProps, 'isDead'>) => css`
     grid-template-areas:
         'icon name attack'
         'icon health defence';
-    background: #143063;
-    border: 2px solid #487bb3;
-    padding: 0.8rem 1.8rem 0.8rem 1.2rem;
     opacity: ${isDead ? 0.5 : 1};
 
     .icon {
@@ -44,10 +45,18 @@ const baseStyles = ({ isDead }: Pick<CombatParticipantProps, 'isDead'>) => css`
 
     .attack {
         grid-area: attack;
+
+        .icon {
+            mask-image: url('icons/attack.png');
+        }
     }
 
     .defence {
         grid-area: defence;
+
+        .icon {
+            mask-image: url('icons/defence.png');
+        }
     }
 
     .attack,
@@ -56,6 +65,15 @@ const baseStyles = ({ isDead }: Pick<CombatParticipantProps, 'isDead'>) => css`
         gap: 0.5rem;
         align-items: center;
         padding-left: 0.5rem;
+
+        .icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            background-color: ${colors.orange_0};
+            mask-size: 100%;
+            mask-position: center;
+            mask-repeat: no-repeat;
+        }
     }
 `;
 

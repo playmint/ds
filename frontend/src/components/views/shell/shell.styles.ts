@@ -25,6 +25,7 @@ const baseStyles = (_: Partial<ShellProps>) => css`
 
     > .hud-container {
         position: relative;
+        max-height: calc(100vh - 5rem);
         z-index: 10;
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
@@ -36,7 +37,6 @@ const baseStyles = (_: Partial<ShellProps>) => css`
             'bottom-left bottom-middle right';
         flex-grow: 1;
         pointer-events: none;
-        zoom: 90%;
 
         .top-left,
         .bottom-left,
@@ -82,39 +82,6 @@ const baseStyles = (_: Partial<ShellProps>) => css`
             grid-area: right;
             align-items: flex-end;
             justify-content: flex-start;
-        }
-    }
-
-    .onboarding {
-        background: #143063;
-        padding: 2rem 2rem;
-        width: 50rem;
-        color: #fff;
-        user-select: none;
-        opacity: 0.95;
-        a {
-            color: #fff;
-        }
-
-        > button {
-            border-radius: 30px;
-            border: none;
-            border-bottom: 4px solid #b7c5e0;
-            display: block;
-            width: 100%;
-            box-sizing: border-box;
-            background: #fff;
-            color: #143063;
-            padding: 1.2rem 2rem 0.8rem;
-            font-weight: 600;
-
-            &:disabled {
-                opacity: 0.5;
-            }
-        }
-        > p {
-            margin: 2rem 0;
-            font-size: 1.6rem;
         }
     }
 `;

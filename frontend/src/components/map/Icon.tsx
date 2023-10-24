@@ -1,3 +1,4 @@
+import { colors } from '@app/styles/colors';
 import React from 'react';
 
 const Icon = ({ position, isSelected, count, iconMask }) => {
@@ -19,7 +20,7 @@ const Icon = ({ position, isSelected, count, iconMask }) => {
 
     const selectedStyles: React.CSSProperties = {
         ...commonStyles,
-        backgroundColor: '#fa6501',
+        backgroundColor: colors.orange_0,
         position: `relative`,
         left: `0px`,
         bottom: `0px`,

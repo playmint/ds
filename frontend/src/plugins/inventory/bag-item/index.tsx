@@ -25,6 +25,7 @@ const StyledBagItem = styled.div`
 export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) => {
     const { name, icon, quantity, ownerId, equipIndex, slotKey, itemId, isPending, isInteractable, isInvalid } = props;
     const { pickUpItem, isPickedUpItemVisible } = useInventory();
+    const numPaddingZeros = Math.max(3 - quantity.toString().length, 0);
 
     const handleClick = () => {
         if (!isInteractable || isPickedUpItemVisible || isPending) {
@@ -62,7 +63,12 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
                     backgroundColor: getItemColorCSS(itemId),
                 }}
             ></div>
-            {isStackable && <span className="amount">{quantity}</span>}
+            {isStackable && (
+                <span className="amount">
+                    <span className="padding">{new Array(numPaddingZeros).fill(0).join('')}</span>
+                    {quantity}
+                </span>
+            )}
         </StyledBagItem>
     );
 };

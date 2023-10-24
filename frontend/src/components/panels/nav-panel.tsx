@@ -8,6 +8,7 @@ import { Dialog } from '../molecules/dialog';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { GlobalUnityContext } from '@app/hooks/use-unity-instance';
+import { ActionButton } from '@app/styles/button.styles';
 
 const g = globalThis as unknown as { __globalUnityContext: GlobalUnityContext };
 
@@ -114,9 +115,7 @@ export const NavPanel = () => {
                         </fieldset>
                         <br />
 
-                        <button className="action-button" onClick={disconnect}>
-                            Disconnect
-                        </button>
+                        <ActionButton onClick={disconnect}>Disconnect</ActionButton>
                     </div>
                 </Dialog>
             )}

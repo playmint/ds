@@ -28,17 +28,9 @@ import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
 import { QuestPanel } from '@app/components/panels/quest-panel';
 import { getBagsAtEquipee, getBuildingAtTile, getSessionsAtTile } from '@downstream/core/src/utils';
+import { StyledBasePanel } from '@app/styles/base-panel.styles';
 
 export interface ShellProps extends ComponentProps {}
-
-const Panel = styled.div`
-    background: #143063;
-    color: #fff;
-    padding: 2rem 2rem;
-    margin-bottom: 1.2rem;
-    width: 30rem;
-    position: relative;
-`;
 
 const StyledShell = styled('div')`
     ${styles}
@@ -273,19 +265,17 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         blockNumber &&
                         getSessionsAtTile(world?.sessions || [], selectedTiles[0]).filter((s) => !s.isFinalised)
                             .length > 0 && (
-                            <Panel>
-                                <CombatSummary
-                                    className="action"
-                                    selectedTiles={selectedTiles}
-                                    world={world}
-                                    player={player}
-                                    selectedMobileUnit={selectedMobileUnit}
-                                    blockNumber={blockNumber}
-                                />
-                            </Panel>
+                            <CombatSummary
+                                className="action"
+                                selectedTiles={selectedTiles}
+                                world={world}
+                                player={player}
+                                selectedMobileUnit={selectedMobileUnit}
+                                blockNumber={blockNumber}
+                            />
                         )}
                     {selectedTileBags && selectedTileBags.length > 0 && (
-                        <Panel>
+                        <StyledBasePanel>
                             {selectedTileBags.map((selectedBag) => {
                                 return (
                                     <BagInventory
@@ -307,10 +297,10 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                                     />
                                 );
                             })}
-                        </Panel>
+                        </StyledBasePanel>
                     )}
                     {selectedRewardBags && selectedRewardBags.length > 0 && (
-                        <Panel>
+                        <StyledBasePanel>
                             <h3>Combat rewards</h3>
                             {selectedRewardBags.map((selectedBag) => {
                                 return (
@@ -333,7 +323,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                                     />
                                 );
                             })}
-                        </Panel>
+                        </StyledBasePanel>
                     )}
                 </div>
             </div>

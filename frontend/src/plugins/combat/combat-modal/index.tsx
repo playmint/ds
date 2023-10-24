@@ -17,6 +17,7 @@ import { WorldCombatSessionFragment } from '@downstream/core/src/gql/graphql';
 import { Fragment, FunctionComponent, useMemo } from 'react';
 import styled from 'styled-components';
 import { styles } from './combat-modal.styles';
+import { ActionButton } from '@app/styles/button.styles';
 
 export type CombatModalProps = ComponentProps & {
     world: WorldStateFragment;
@@ -166,13 +167,9 @@ const PostCombatFooter: FunctionComponent<{
     finaliseCombat: () => void;
 }> = ({ isFinalised, closeModal, finaliseCombat }) => {
     return isFinalised ? (
-        <button onClick={closeModal} className="action-button">
-            Close Combat
-        </button>
+        <ActionButton onClick={closeModal}>Close Combat</ActionButton>
     ) : (
-        <button onClick={finaliseCombat} className="action-button">
-            End Combat
-        </button>
+        <ActionButton onClick={finaliseCombat}>End Combat</ActionButton>
     );
 };
 

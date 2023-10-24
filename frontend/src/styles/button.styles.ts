@@ -1,0 +1,42 @@
+import styled, { css } from 'styled-components';
+import { colorMap } from './colors';
+
+const BaseButtonStyle = css`
+    background: linear-gradient(${colorMap.primaryButtonBackground2}, ${colorMap.primaryButtonBackground1} 35%);
+    border: ${colorMap.primaryBorderColor} 3px solid;
+    padding: 1.2rem 2rem 0.8rem;
+    border-radius: 0.8rem;
+    position: relative;
+    display: block;
+    box-sizing: border-box;
+
+    &:disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+    &:hover,
+    &.active {
+        background: ${colorMap.primaryButtonActiveBackground};
+        color: ${colorMap.primaryButtonActiveText};
+        opacity: 1;
+    }
+`;
+
+export const TextButton = styled.button`
+    ${BaseButtonStyle}
+
+    color: ${colorMap.primaryButtonText};
+    font-size: 1.6rem;
+    font-weight: 800;
+`;
+
+export const ActionButton = styled(TextButton)`
+    width: 100%;
+`;
+
+export const UnitActionButton = styled(TextButton)`
+    border: none;
+    width: 5rem;
+    height: 5.6rem;
+    padding: 1.2rem 0rem 0.8rem;
+`;

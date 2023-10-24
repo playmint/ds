@@ -2,10 +2,12 @@
 
 import { css } from 'styled-components';
 import { BagSlotProps } from './index';
+import { colorMap, colors } from '@app/styles/colors';
 
 type BagSlotStyleProps = Partial<BagSlotProps> & {
     isDroppable: boolean;
     isInvalid: boolean;
+    hasItem: boolean;
 };
 
 /**
@@ -14,13 +16,23 @@ type BagSlotStyleProps = Partial<BagSlotProps> & {
  * @param _ The bag slot properties object
  * @return Base styles for the bag slot component
  */
-const baseStyles = ({ isDroppable, isDisabled, isInteractable, isInvalid }: BagSlotStyleProps) => css`
+const baseStyles = ({ isDroppable, isDisabled, isInteractable, isInvalid, hasItem }: BagSlotStyleProps) => css`
     box-sizing: content-box;
     width: 4.8rem;
     height: 4.8rem;
-    background: ${isDisabled || !isInteractable ? '#03122d' : '#030f25'};
-    border: 1px solid
-        ${isDisabled || !isInteractable ? '#656585' : isInvalid ? 'red' : isDroppable ? 'white' : '#6c98d4'};
+    border-radius: 0.8rem;
+    overflow: hidden;
+    background: ${isDisabled || !isInteractable ? colorMap.secondaryBackground : colors.grey_0};
+    border: 2px solid
+        ${isDisabled || !isInteractable
+            ? colorMap.secondaryBackground
+            : isInvalid
+            ? 'red'
+            : isDroppable
+            ? colors.orange_0
+            : hasItem
+            ? colors.grey_5
+            : colorMap.secondaryBackground};
 
     .placeholder {
         position: relative;
@@ -44,7 +56,7 @@ const baseStyles = ({ isDroppable, isDisabled, isInteractable, isInvalid }: BagS
             position: absolute;
             bottom: 0;
             right: 2px;
-            font-size: 1.2rem;
+            font-size: 1rem;
             color: white;
         }
     }

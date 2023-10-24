@@ -14,6 +14,7 @@ const StyledTickTimerProgressBar = styled('div')`
 
 export const TickTimerProgressBar: FunctionComponent<TickTimerProgressBarProps> = ({
     every,
+    className,
 }: TickTimerProgressBarProps) => {
     const [remainingTime, setRemainingTime] = useState<number>(every);
     const progressRef = useRef<HTMLDivElement>(null);
@@ -48,7 +49,7 @@ export const TickTimerProgressBar: FunctionComponent<TickTimerProgressBarProps> 
     }, [remainingTime, every]);
 
     return (
-        <StyledTickTimerProgressBar>
+        <StyledTickTimerProgressBar className={className}>
             <div className="progress-bar" ref={progressRef}></div>
         </StyledTickTimerProgressBar>
     );

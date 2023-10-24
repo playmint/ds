@@ -1,12 +1,10 @@
 import { PluginType, PluginUpdateResponse } from '@app/../../core/src';
-import styled from 'styled-components';
 import { PluginContent } from '../organisms/tile-action';
+import styled from 'styled-components';
+import { BasePanelStyles } from '@app/styles/base-panel.styles';
 
-const Panel = styled.div`
-    background: #143063;
-    color: #fff;
-    padding: 2rem 2rem;
-    margin-bottom: 1.2rem;
+const StyledItemPluginPanel = styled.div`
+    ${BasePanelStyles}
 `;
 
 export const ItemPluginPanel = ({ ui }: { ui: PluginUpdateResponse[] }) => {
@@ -17,11 +15,11 @@ export const ItemPluginPanel = ({ ui }: { ui: PluginUpdateResponse[] }) => {
     return (
         <>
             {itemPluginStates.length > 0 && (
-                <Panel>
+                <StyledItemPluginPanel>
                     {itemPluginStates.map((content, idx) =>
                         content ? <PluginContent key={idx} content={content} canUse={true} /> : undefined
                     )}
-                </Panel>
+                </StyledItemPluginPanel>
             )}
         </>
     );

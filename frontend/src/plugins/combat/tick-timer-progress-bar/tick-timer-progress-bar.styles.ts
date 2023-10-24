@@ -2,6 +2,7 @@
 
 import { css } from 'styled-components';
 import { TickTimerProgressBarProps } from './index';
+import { colors } from '@app/styles/colors';
 
 type TickTimerProgressBarStyleProps = Partial<TickTimerProgressBarProps>;
 
@@ -28,7 +29,7 @@ const baseStyles = (_: TickTimerProgressBarStyleProps) => {
             left: 0;
             width: 100%;
             transform-origin: center left;
-            background: #007ff7;
+            background: ${colors.orange_0};
         }
 
         .label {

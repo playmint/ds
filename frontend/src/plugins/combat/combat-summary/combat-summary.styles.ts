@@ -2,6 +2,7 @@
 
 import { css } from 'styled-components';
 import { CombatSummaryProps } from './index';
+import { BasePanelStyles } from '@app/styles/base-panel.styles';
 
 /**
  * Base styles for the mobileUnit list component
@@ -10,6 +11,10 @@ import { CombatSummaryProps } from './index';
  * @return Base styles for the mobileUnit list component
  */
 const baseStyles = (_: Partial<CombatSummaryProps>) => css`
+    ${BasePanelStyles}
+
+    width: 30rem;
+
     > .header {
         display: flex;
         align-items: center;

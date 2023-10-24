@@ -22,7 +22,7 @@ const baseStyles = (_: Partial<BagProps>) => css`
     > .slots {
         display: flex;
         flex-direction: row;
-        margin: 0.5rem;
+        margin: 0.5rem 0;
 
         li:not(:first-child) {
             margin-left: 0.6rem;
