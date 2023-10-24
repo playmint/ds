@@ -1,4 +1,4 @@
-import { SelectedTileFragment, WorldTileFragment } from '@downstream/core';
+import { WorldTileFragment } from '@downstream/core';
 import { ethers } from 'ethers';
 import { makeNoise2D } from './noise';
 
@@ -159,7 +159,7 @@ export const getGooColor = (goo: { key: number; weight: number }) => {
     return gooColor == 'Unknown' ? undefined : gooColor;
 };
 
-export const getGooRates = (tile: SelectedTileFragment) => {
+export const getGooRates = (tile: WorldTileFragment) => {
     return tile.atoms && tile.atoms.length > 0
         ? tile.atoms
               .sort((a, b) => b.weight - a.weight)

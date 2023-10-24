@@ -1,12 +1,12 @@
 /** @format */
 
+import { useWorld } from '@app/hooks/use-game-state';
+import { Bag } from '@app/plugins/inventory/bag';
+import { getBagId, getBuildingBag } from '@app/plugins/inventory/helpers';
 import { ComponentProps } from '@app/types/component-props';
 import { ItemSlotFragment } from '@downstream/core';
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
-import { Bag } from '@app/plugins/inventory/bag';
-import { getBagId, getBuildingEquipSlot } from '@app/plugins/inventory/helpers';
-import { useWorld } from '@app/hooks/use-game-state';
 
 export interface BuildingInventoryProps extends ComponentProps {
     buildingId: string;
@@ -18,19 +18,15 @@ const StyledBuildingInventory = styled.div``;
 export const BuildingInventory: FunctionComponent<BuildingInventoryProps> = (props: BuildingInventoryProps) => {
     const { buildingId, recipe } = props;
     const bagId = getBagId(buildingId);
-    const equipSlot = getBuildingEquipSlot(useWorld(), buildingId, 0) ?? {
-        id: '',
-        key: 0,
-        bag: { id: bagId, slots: [] },
-    };
+    const bag = getBuildingBag(useWorld(), buildingId, 0) ?? { id: bagId, slots: [] };
 
     return (
         <StyledBuildingInventory>
             <Bag
-                key={equipSlot.key}
-                bag={equipSlot.bag}
+                key={bag.equipee?.key || 0}
+                bag={bag}
                 bagId={bagId}
-                equipIndex={equipSlot.key}
+                equipIndex={bag.equipee?.key || 0}
                 ownerId={buildingId}
                 isInteractable={true}
                 recipe={recipe}

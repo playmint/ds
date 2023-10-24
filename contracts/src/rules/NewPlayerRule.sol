@@ -12,9 +12,13 @@ import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 using Schema for State;
 
 contract NewPlayerRule is Rule {
+    bool allowListEnabled;
     mapping(address => uint256) spawnable;
 
     constructor(address[] memory allowlist) {
+        if (allowlist.length > 0) {
+            allowListEnabled = true;
+        }
         for (uint256 i = 0; i < allowlist.length; i++) {
             spawnable[allowlist[i]] = 1;
         }
@@ -28,11 +32,13 @@ contract NewPlayerRule is Rule {
         // spawn a mobileUnit for any player at any location
         if (bytes4(action) == Actions.SPAWN_MOBILE_UNIT.selector) {
             // check if player allowed to spawn another mobileUnit
-            uint256 spawnableCount = spawnable[ctx.sender];
-            if (spawnableCount < 1) {
-                revert("NotAllowListed");
+            if (allowListEnabled) {
+                uint256 spawnableCount = spawnable[ctx.sender];
+                if (spawnableCount < 1) {
+                    revert("NotAllowListed");
+                }
+                spawnable[ctx.sender] = spawnable[ctx.sender] - 1;
             }
-            spawnable[ctx.sender] = spawnable[ctx.sender] - 1;
             // decode action
             (bytes24 mobileUnit) = abi.decode(action[4:], (bytes24));
             // check mobileUnit isn't already owned

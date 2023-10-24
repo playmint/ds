@@ -17,9 +17,11 @@ import {
     makeLogger,
     makePluginUI,
     makeSelection,
+    makeTiles,
     makeWallet,
     makeWorld,
     PluginUpdateResponse,
+    Sandbox,
     SelectedMapElement,
     Selection,
     Selector,
@@ -27,13 +29,14 @@ import {
     WalletProvider,
     World,
 } from '@app/../../core/src';
-import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import * as Comlink from 'comlink';
+import { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
 import { mergeMap, pipe, scan, Source, subscribe } from 'wonka';
 import { useWalletProvider } from './use-wallet-provider';
 
 // hack to force hot module reloading to give up
-export { disableFastRefresh } from './use-unity-map';
 export { disableSessionRefresh } from './use-session';
+export { disableFastRefresh } from './use-unity-map';
 
 export interface DSContextProviderProps {
     config?: Partial<GameConfig>;
@@ -74,9 +77,28 @@ export const useSources = () => useContext(DSContext);
 export const GameStateProvider = ({ config, children }: DSContextProviderProps) => {
     const { provider } = useWalletProvider();
     const [sources, setSources] = useState<DSContextStore>({});
+    const [sb, setSandbox] = useState<{ sandbox: Comlink.Remote<Sandbox> }>();
+    const workerRef = useRef<Worker>();
+
+    useEffect(() => {
+        workerRef.current = new Worker(new URL('../workers/sandbox.ts', import.meta.url));
+        const workerSandbox: Comlink.Remote<Sandbox> = Comlink.wrap(workerRef.current);
+        workerSandbox
+            .init()
+            .then(() => {
+                setSandbox({ sandbox: workerSandbox });
+            })
+            .catch(() => console.error(`sandbox init fail`));
+        return () => {
+            workerRef.current?.terminate();
+        };
+    }, []);
 
     useEffect(() => {
         if (!config) {
+            return;
+        }
+        if (!sb) {
             return;
         }
         const { wallet, selectProvider } = makeWallet();
@@ -85,16 +107,18 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
         const { logger: questMsgSender, logs: questMsgs } = makeLogger({ name: 'questMessages' });
         const player = makeConnectedPlayer(client, wallet, logger);
         const world = makeWorld(client);
-        const { selection, ...selectors } = makeSelection(client, world, player);
+        const tiles = makeTiles(client);
+        const { selection, ...selectors } = makeSelection(client, world, tiles, player);
 
         const { plugins: availablePlugins } = makeAvailablePlugins(client);
-        const { plugins: activePlugins } = makeAutoloadPlugins(client, availablePlugins, selection);
+        const { plugins: activePlugins } = makeAutoloadPlugins(availablePlugins, selection, world);
 
         const { kinds: buildingKinds } = makeAvailableBuildingKinds(client);
 
         const state = makeGameState(
             player,
             world,
+            tiles,
             selection,
             selectors.selectTiles,
             selectors.selectMobileUnit,
@@ -105,7 +129,7 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
             client,
             mergeMap((client) => client.block)
         );
-        const ui = makePluginUI(logger, questMsgSender, activePlugins, state, block);
+        const ui = makePluginUI(activePlugins, sb.sandbox, logger, questMsgSender, state, block);
 
         setSources({
             block,
@@ -124,7 +148,7 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
             questMsgSender,
             questMsgs,
         });
-    }, [config]);
+    }, [config, sb]);
 
     const { selectProvider } = sources;
 

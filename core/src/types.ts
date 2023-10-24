@@ -1,6 +1,6 @@
 import { Eip1193Provider, ethers } from 'ethers';
-import { QuickJSContext } from 'quickjs-emscripten';
 import { Source } from 'wonka';
+import { ActionsInterface } from './abi/Actions';
 import { configureClient } from './cog';
 import {
     AvailablePluginFragment,
@@ -9,14 +9,12 @@ import {
     GetWorldQuery,
     OnEventSubscription,
     SelectedPlayerFragment,
-    SelectedMobileUnitFragment,
-    SelectedTileFragment,
-    WorldPlayerFragment,
     WorldMobileUnitFragment,
+    WorldPlayerFragment,
     WorldStateFragment,
     WorldTileFragment,
 } from './gql/graphql';
-import { ActionsInterface } from './abi/Actions';
+import { Logger } from './logger';
 
 export interface EthereumProvider extends Eip1193Provider {
     isMetaMask?: boolean;
@@ -25,6 +23,18 @@ export interface EthereumProvider extends Eip1193Provider {
 }
 
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<T>;
+
+export interface Sandbox {
+    init: () => Promise<void>;
+    newContext: (
+        dispatch: PluginDispatchFunc,
+        logMessage: Logger,
+        questMessage: Logger,
+        config: PluginConfig,
+    ) => Promise<number>;
+    evalCode: (context: number, code: string) => Promise<any>;
+    setState: (state: GameStatePlugin, blk: number) => Promise<void>;
+}
 
 export enum LogLevel {
     DEBUG,
@@ -247,8 +257,8 @@ export interface InactivePlugin {
 }
 
 export interface ActivePlugin extends InactivePlugin {
-    context: QuickJSContext;
-    update: (state: GameState, block: number) => Promise<PluginUpdateResponse>;
+    context: number;
+    update: () => Promise<PluginUpdateResponse>;
 }
 
 export type PluginActionCallProxy = () => Promise<void>;
@@ -312,6 +322,8 @@ export type PluginSubmitProxy = (ref: string, values: PluginSubmitCallValues) =>
 
 export type DispatchFunc = (...actions: CogAction[]) => Promise<QueuedSequencerAction>;
 
+export type PluginDispatchFunc = (...actions: CogAction[]) => Promise<boolean>;
+
 export type AvailablePlugin = AvailablePluginFragment;
 export type AvailableBuildingKind = BuildingKindFragment;
 
@@ -321,8 +333,8 @@ export interface PluginSelection {
 }
 
 export interface Selection {
-    mobileUnit?: SelectedMobileUnitFragment;
-    tiles?: SelectedTileFragment[];
+    mobileUnit?: WorldMobileUnitFragment;
+    tiles?: WorldTileFragment[];
     intent?: string;
     mapElement?: SelectedMapElement;
 }
@@ -333,12 +345,19 @@ export type World = WorldStateFragment;
 
 // shortcuts useful when you don't know if you have to full data or not
 export type Player = WorldPlayerFragment & Partial<SelectedPlayerFragment>;
-export type MobileUnit = WorldMobileUnitFragment & Partial<SelectedMobileUnitFragment>;
-export type Tile = WorldTileFragment & Partial<SelectedTileFragment>;
+export type MobileUnit = WorldMobileUnitFragment & Partial<WorldMobileUnitFragment>;
+export type Tile = WorldTileFragment & Partial<WorldTileFragment>;
+
+export interface GameStatePlugin {
+    player?: SelectedPlayerFragment;
+    world: World;
+    selected: Selection;
+}
 
 export interface GameState {
     player?: ConnectedPlayer;
     world: World;
+    tiles: WorldTileFragment[];
     selected: Selection;
     selectTiles: Selector<string[] | undefined>;
     selectMobileUnit: Selector<string | undefined>;

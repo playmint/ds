@@ -1,27 +1,23 @@
 /** @format */
 
+import { ConnectedPlayer, WorldMobileUnitFragment, WorldStateFragment, WorldTileFragment } from '@app/../../core/src';
 import { Dialog } from '@app/components/molecules/dialog';
 import { ATOM_LIFE, Combat, EntityState } from '@app/plugins/combat/combat';
 import { convertCombatActions, getActions } from '@app/plugins/combat/helpers';
 import { ProgressBar } from '@app/plugins/combat/progress-bar';
 import { ComponentProps } from '@app/types/component-props';
-import {
-    ConnectedPlayer,
-    SelectedMobileUnitFragment,
-    SelectedTileFragment,
-    WorldStateFragment,
-} from '@app/../../core/src';
+import { getSessionsAtTile } from '@downstream/core/src/utils';
 import { FunctionComponent, useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { CombatModal } from '../combat-modal';
 import { styles } from './combat-summary.styles';
 
 export interface CombatSummaryProps extends ComponentProps {
-    selectedTiles: SelectedTileFragment[];
+    selectedTiles: WorldTileFragment[];
     player?: ConnectedPlayer;
     world?: WorldStateFragment;
     blockNumber: number;
-    selectedMobileUnit?: SelectedMobileUnitFragment;
+    selectedMobileUnit?: WorldMobileUnitFragment;
 }
 
 const StyledCombatSummary = styled('div')`
@@ -30,6 +26,7 @@ const StyledCombatSummary = styled('div')`
 
 export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: CombatSummaryProps) => {
     const { selectedTiles, world, blockNumber, player } = props;
+    const sessions = world?.sessions || [];
     const [modal, setModal] = useState<boolean>(false);
 
     const showModal = useCallback(() => {
@@ -40,10 +37,12 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
         setModal(false);
     }, []);
 
-    if (selectedTiles.length === 0 || selectedTiles[0].sessions.length === 0) return null;
+    const selectedTileSessions = selectedTiles.length > 0 ? getSessionsAtTile(sessions, selectedTiles[0]) : [];
+    if (selectedTiles.length === 0 || selectedTileSessions.length === 0) {
+        return null;
+    }
 
-    const sessions = selectedTiles[0].sessions;
-    const latestSession = sessions.sort((a, b) => {
+    const latestSession = selectedTileSessions.sort((a, b) => {
         return a.attackTile && b.attackTile ? b.attackTile.startBlock - a.attackTile.startBlock : 0;
     })[0];
 

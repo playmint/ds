@@ -1,12 +1,14 @@
 import ds from 'downstream';
 
-export default function update({ selected, player }) {
+export default function update({ selected, world, player }) {
 
     const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
-    const selectedBuilding = selectedTile?.building;
+    const selectedBuilding = (world?.buildings || []).find(b => selectedTile && b.location?.tile?.id === selectedTile.id);
+    const selectedBuildingBags = selectedBuilding ? (world?.bags || []).filter(bag => bag.equipee?.node.id === selectedBuilding.id) : [];
     const selectedUnit = mobileUnit;
-    const quests = player.quests;
+    const selectedUnitBags = selectedUnit ? (world?.bags || []).filter(bag => bag.equipee?.node?.id === selectedUnit.id) : [];
+    const quests = player?.quests || [];
 
 
     //Show this if there is no selected unit
@@ -41,10 +43,10 @@ export default function update({ selected, player }) {
 
     //Look for a Registration Receipt in their bags
     var hasReceipt = false
-    for (var j = 0; j < selectedUnit.bags.length; j++) {
+    for (var j = 0; j < selectedUnitBags.length; j++) {
         for (var i = 0; i < 4; i++) {
-            if (selectedUnit.bags[j].bag.slots[i]) {
-                var slot = selectedUnit.bags[j].bag.slots[i];
+            if (selectedUnitBags[j].slots[i]) {
+                var slot = selectedUnitBags[j].slots[i];
 
                 if (slot.item && slot.item.id === 'Registration Receipt' && slot.balance >= 1) {
                     hasReceipt = true;
@@ -70,7 +72,7 @@ export default function update({ selected, player }) {
     const want1 = requiredInputs.find(inp => inp.key == 1);
 
     // fetch what is currently in the input slots
-    const inputSlots = selectedBuilding?.bags.find(b => b.key == 0).bag?.slots || [];
+    const inputSlots = selectedBuildingBags.find(b => b.equipee.key == 0)?.slots || [];
     const got0 = inputSlots?.find(slot => slot.key == 0);
     const got1 = inputSlots?.find(slot => slot.key == 1);
 

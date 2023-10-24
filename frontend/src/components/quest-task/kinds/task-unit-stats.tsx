@@ -1,4 +1,4 @@
-import { MobileUnit } from '@downstream/core';
+import { BagFragment, MobileUnit } from '@downstream/core';
 import { memo } from 'react';
 import { TaskView } from '../task-view';
 import { TaskItemProps } from '../task-item';
@@ -11,14 +11,17 @@ import {
     getEquipmentStats,
 } from '@app/plugins/combat/helpers';
 import { ATOM_LIFE, ATOM_ATTACK, ATOM_DEFENSE } from '@app/plugins/combat/combat';
+import { getBagsAtEquipee } from '@downstream/core/src/utils';
 
 export const TaskUnitStats = memo(
     ({
         task,
         mobileUnits,
+        bags,
         setTaskCompletion,
     }: {
         mobileUnits?: MobileUnit[];
+        bags: BagFragment[];
     } & Pick<TaskItemProps, 'task' | 'setTaskCompletion'>) => {
         // console.log(`evaluating TaskUnitStats`);
 
@@ -26,9 +29,8 @@ export const TaskUnitStats = memo(
             !!mobileUnits &&
             task.node.unitStats.length === NUM_STAT_KINDS &&
             mobileUnits.some((m) => {
-                if (!m.bags) return false;
-
-                const stats = getEquipmentStats(m.bags);
+                const unitBags = getBagsAtEquipee(bags, m);
+                const stats = getEquipmentStats(unitBags);
                 stats[ATOM_LIFE] += UNIT_BASE_LIFE * LIFE_MUL;
                 stats[ATOM_DEFENSE] += UNIT_BASE_DEFENCE;
                 stats[ATOM_ATTACK] += UNIT_BASE_ATTACK;

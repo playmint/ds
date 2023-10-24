@@ -1,4 +1,12 @@
-import { QuestTask, Player, Log, TaskKinds, WorldStateFragment, BuildingKindFragment } from '@downstream/core';
+import {
+    QuestTask,
+    Player,
+    Log,
+    TaskKinds,
+    WorldStateFragment,
+    BuildingKindFragment,
+    WorldTileFragment,
+} from '@downstream/core';
 import { FunctionComponent, Dispatch, SetStateAction } from 'react';
 import { TaskCoord } from './kinds/task-coord';
 import { TaskInventory } from './kinds/task-inventory';
@@ -26,6 +34,7 @@ const taskUnitStats = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.u
 export interface TaskItemProps {
     task: QuestTask;
     world: WorldStateFragment;
+    tiles: WorldTileFragment[];
     buildingKinds: BuildingKindFragment[];
     player: Player;
     questMessages?: Log[];
@@ -39,22 +48,23 @@ export interface TaskItemProps {
 export const TaskItem: FunctionComponent<TaskItemProps> = ({
     task,
     world,
+    tiles,
     buildingKinds,
     player,
     questMessages,
     setTaskCompletion,
 }) => {
     const taskKind = task.node.keys[0];
+    const playerUnits = world?.mobileUnits.filter((mu) => mu.owner && player && mu.owner.id === player.id) || [];
     switch (taskKind) {
         case taskCoord:
-            return (
-                <TaskCoord task={task} mobileUnits={player.mobileUnits || []} setTaskCompletion={setTaskCompletion} />
-            );
+            return <TaskCoord task={task} mobileUnits={playerUnits || []} setTaskCompletion={setTaskCompletion} />;
         case taskInventory:
             return (
                 <TaskInventory
+                    bags={world?.bags || []}
                     task={task}
-                    mobileUnits={player.mobileUnits || []}
+                    mobileUnits={playerUnits || []}
                     setTaskCompletion={setTaskCompletion}
                 />
             );
@@ -67,8 +77,9 @@ export const TaskItem: FunctionComponent<TaskItemProps> = ({
         case taskConstruct:
             return (
                 <TaskConstruct
+                    buildings={world?.buildings || []}
                     task={task}
-                    tiles={world.tiles}
+                    tiles={tiles}
                     playerID={player.id}
                     setTaskCompletion={setTaskCompletion}
                 />
@@ -76,9 +87,10 @@ export const TaskItem: FunctionComponent<TaskItemProps> = ({
         case taskCombat:
             return (
                 <TaskCombat
+                    sessions={world?.sessions || []}
                     task={task}
-                    tiles={world.tiles}
-                    mobileUnits={player.mobileUnits}
+                    tiles={tiles}
+                    mobileUnits={playerUnits}
                     setTaskCompletion={setTaskCompletion}
                 />
             );
@@ -92,7 +104,14 @@ export const TaskItem: FunctionComponent<TaskItemProps> = ({
                 />
             );
         case taskUnitStats:
-            return <TaskUnitStats task={task} mobileUnits={player.mobileUnits} setTaskCompletion={setTaskCompletion} />;
+            return (
+                <TaskUnitStats
+                    bags={world?.bags || []}
+                    task={task}
+                    mobileUnits={playerUnits}
+                    setTaskCompletion={setTaskCompletion}
+                />
+            );
         default:
             return <TaskView task={task} isCompleted={false} setTaskCompletion={setTaskCompletion} />;
     }

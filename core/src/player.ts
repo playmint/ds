@@ -1,4 +1,4 @@
-import { concat, debounce, filter, fromValue, lazy, map, pipe, share, Source, switchMap, tap, zip } from 'wonka';
+import { concat, debounce, fromValue, lazy, map, pipe, share, Source, switchMap, tap, zip } from 'wonka';
 import { makeDispatcher } from './dispatcher';
 import { GetSelectedPlayerDocument, SelectedPlayerFragment } from './gql/graphql';
 import { Logger } from './logger';
@@ -25,15 +25,6 @@ export function makeConnectedPlayer(
         switchMap<any, ConnectedPlayer | UnconnectedPlayer>(({ client, wallet }: ClientWallet) =>
             wallet ? makeConnectedPlayerQuery(client, wallet, logger) : makeUnconnectedPlayerQuery(),
         ),
-        filter((next) => {
-            if (!prev) {
-                return true;
-            }
-            if (!next) {
-                return true;
-            }
-            return next.id != prev.id || next.dispatch != prev.dispatch || next.mobileUnits != prev.mobileUnits;
-        }),
         tap((next) => (prev = next)),
         share,
     );
@@ -72,7 +63,6 @@ function toFakeSelectedPlayer(wallet: Wallet): SelectedPlayerFragment {
     return {
         id: wallet.id,
         addr: wallet.address,
-        mobileUnits: [],
         quests: [],
     };
 }

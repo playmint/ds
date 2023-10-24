@@ -1,12 +1,12 @@
 import {
+    BagFragment,
     BiomeKind,
     BuildingKindFragment,
     CogAction,
     ConnectedPlayer,
     ItemSlotFragment,
-    SelectedMobileUnitFragment,
-    SelectedTileFragment,
     Selector,
+    WorldBuildingFragment,
     WorldMobileUnitFragment,
     WorldTileFragment,
 } from '@app/../../core/src';
@@ -15,9 +15,11 @@ import { TileHighlight } from '@app/components/map/TileHighlight';
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
 import { getPath } from '@app/helpers/pathfinding';
 import { getCoords, getTileDistance, getTileHeight } from '@app/helpers/tile';
-import { useBuildingKinds, usePlayer, useSelection, useWorld } from '@app/hooks/use-game-state';
+import { useBuildingKinds, useGameState, usePlayer, useSelection } from '@app/hooks/use-game-state';
 import { getBagId, getBuildingId } from '@app/plugins/inventory/helpers';
 import { ComponentProps } from '@app/types/component-props';
+import { WorldCombatSessionFragment } from '@downstream/core/src/gql/graphql';
+import { getBagsAtEquipee, getBuildingAtTile, getSessionsAtTile } from '@downstream/core/src/utils';
 import React, { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { styles } from './action-context-panel.styles';
@@ -52,12 +54,14 @@ const byKey = (a: KeyedThing, b: KeyedThing) => {
 };
 
 interface ConstructProps {
-    selectedTiles: SelectedTileFragment[];
+    selectedTiles: WorldTileFragment[];
     selectIntent?: Selector<string | undefined>;
     selectTiles?: Selector<string[] | undefined>;
     player?: ConnectedPlayer;
-    tiles: WorldTileFragment[] | undefined;
-    mobileUnit?: SelectedMobileUnitFragment;
+    tiles: WorldTileFragment[];
+    bags: BagFragment[];
+    buildings: WorldBuildingFragment[];
+    mobileUnit?: WorldMobileUnitFragment;
     setActionQueue: (path: CogAction[][]) => void;
 }
 
@@ -78,6 +82,8 @@ const Construct: FunctionComponent<ConstructProps> = ({
     mobileUnit,
     player,
     tiles,
+    bags,
+    buildings,
     selectIntent,
     setActionQueue,
 }) => {
@@ -96,26 +102,30 @@ const Construct: FunctionComponent<ConstructProps> = ({
         if (!tiles) {
             return { path: [], valid: false };
         }
-        const path = getPath(tiles, fromTile, toTile);
+        const path = getPath(tiles, buildings, fromTile, toTile);
         const isImposible = path.length === 1 && getTileDistance(fromTile, toTile) > 1;
+        const targetTile = path.slice(-1).find(() => true);
+        const targetHasBuilding = targetTile ? getBuildingAtTile(buildings, targetTile) : false;
         return {
             path: path.length > 0 ? [fromTile, ...path] : [],
-            valid: path.length > 0 && !isImposible && !path.slice(-1).find(() => true)?.building,
+            valid: path.length > 0 && !isImposible && !targetHasBuilding,
         };
-    }, [mobileUnit, selectedTiles, tiles]);
+    }, [mobileUnit, selectedTiles, tiles, buildings]);
 
     const selectedTile = selectedTiles.find(() => true);
+    const selectedTileBuilding = selectedTile ? getBuildingAtTile(buildings, selectedTile) : null;
     const constructableTile =
-        selectedTile && !selectedTile.building && selectedTile.biome === BiomeKind.DISCOVERED && valid
+        selectedTile && !selectedTileBuilding && selectedTile.biome === BiomeKind.DISCOVERED && valid
             ? selectedTile
             : undefined;
     const constructionCoords = constructableTile ? getCoords(constructableTile) : undefined;
     const kinds = useBuildingKinds();
 
     // build a map of itemid => {slotKey => balance} for player's inventories
-    const slotMap = mobileUnit?.bags
-        .flatMap((equip) => equip.bag.slots.map((slot) => ({ slot, equip })))
-        .reduce((slotMap, { equip, slot }) => {
+    const mobileUnitBags = mobileUnit ? getBagsAtEquipee(bags, mobileUnit) : [];
+    const slotMap = mobileUnitBags
+        .flatMap((bag) => bag.slots.map((slot) => ({ slot, bag })))
+        .reduce((slotMap, { slot, bag }) => {
             if (!slot.item) {
                 return slotMap;
             }
@@ -123,9 +133,12 @@ const Construct: FunctionComponent<ConstructProps> = ({
             if (!slotSources) {
                 return slotMap;
             }
+            if (!bag.equipee) {
+                return slotMap;
+            }
             slotSources.push({
-                bagId: equip.bag.id,
-                equipKey: equip.key,
+                bagId: bag.id,
+                equipKey: bag.equipee.key,
                 slotKey: slot.key,
                 balance: slot.balance,
             });
@@ -290,7 +303,8 @@ const Construct: FunctionComponent<ConstructProps> = ({
         [mobileUnitId, mobileUnitKey, selectedKind, constructableTile, clearIntent, setActionQueue, path]
     );
     const costs = selectedKind?.materials.map((slot) => `${slot.balance} ${slot.item?.name?.value || ''}`) || [];
-    const help = selectedTile?.building
+    const building = selectedTile ? getBuildingAtTile(buildings, selectedTile) : null;
+    const help = building
         ? `Can't build on a tile that already has a building on it`
         : constructableTile
         ? selectedKind
@@ -439,12 +453,13 @@ const Construct: FunctionComponent<ConstructProps> = ({
 };
 
 interface MoveProps {
-    selectedTiles: SelectedTileFragment[];
+    selectedTiles: WorldTileFragment[];
     selectIntent?: Selector<string | undefined>;
     selectTiles?: Selector<string[] | undefined>;
     player?: ConnectedPlayer;
-    tiles: WorldTileFragment[] | undefined;
-    mobileUnit?: SelectedMobileUnitFragment;
+    tiles: WorldTileFragment[];
+    buildings: WorldBuildingFragment[];
+    mobileUnit?: WorldMobileUnitFragment;
     setActionQueue: (path: CogAction[][]) => void;
 }
 const Move: FunctionComponent<MoveProps> = ({
@@ -452,6 +467,7 @@ const Move: FunctionComponent<MoveProps> = ({
     selectIntent,
     selectedTiles,
     tiles,
+    buildings,
     player,
     mobileUnit,
     setActionQueue,
@@ -470,16 +486,18 @@ const Move: FunctionComponent<MoveProps> = ({
         if (!tiles) {
             return { path: [], valid: false };
         }
-        const path = getPath(tiles, fromTile, toTile);
+        const path = getPath(tiles, buildings, fromTile, toTile);
         const isImposible = path.length === 1 && getTileDistance(fromTile, toTile) > 1;
+        const targetTile = path.slice(-1).find(() => true);
+        const targetBuilding = targetTile ? getBuildingAtTile(buildings, targetTile) : undefined;
         return {
             path: path.length > 0 ? [fromTile, ...path] : [],
             valid:
                 path.length > 0 &&
                 !isImposible &&
-                getBuildingCategory(path.slice(-1).find(() => true)?.building?.kind) != BuildingCategory.BLOCKER,
+                getBuildingCategory(targetBuilding?.kind) != BuildingCategory.BLOCKER,
         };
-    }, [mobileUnit, selectedTiles, tiles]);
+    }, [mobileUnit, selectedTiles, tiles, buildings]);
 
     const move = useCallback(() => {
         if (path.length < 2) {
@@ -572,13 +590,15 @@ const Move: FunctionComponent<MoveProps> = ({
 };
 
 interface CombatProps {
-    selectedTiles: SelectedTileFragment[];
+    selectedTiles: WorldTileFragment[];
     selectIntent?: Selector<string | undefined>;
     selectTiles?: Selector<string[] | undefined>;
     player?: ConnectedPlayer;
     tiles?: WorldTileFragment[];
+    sessions: WorldCombatSessionFragment[];
+    buildings: WorldBuildingFragment[];
     mobileUnits?: WorldMobileUnitFragment[];
-    mobileUnit?: SelectedMobileUnitFragment;
+    mobileUnit?: WorldMobileUnitFragment;
     setActionQueue: (path: CogAction[][]) => void;
 }
 const Combat: FunctionComponent<CombatProps> = ({
@@ -586,6 +606,8 @@ const Combat: FunctionComponent<CombatProps> = ({
     selectIntent,
     selectedTiles,
     mobileUnits,
+    sessions,
+    buildings,
     player,
     tiles,
     mobileUnit,
@@ -608,7 +630,7 @@ const Combat: FunctionComponent<CombatProps> = ({
         [selectIntent, selectTiles]
     );
 
-    const { path, attackers, defenders, defenceTile, valid, reason } = useMemo(() => {
+    const { path, attackers, defenders, defenceTile, defenceTileBuilding, valid, reason } = useMemo(() => {
         if (!tiles) {
             return { path: [], valid: false, reason: 'no tiles' };
         }
@@ -619,8 +641,9 @@ const Combat: FunctionComponent<CombatProps> = ({
         if (!selectedTile) {
             return { path: [], valid: false, reason: 'no selected tile' };
         }
-        const activeSession = selectedTile.sessions.find((s) => !s.isFinalised);
-        if (!activeSession && !selectedTile.building) {
+        const selectedTileBuilding = getBuildingAtTile(buildings, selectedTile);
+        const activeSession = getSessionsAtTile(sessions, selectedTile).find((s) => !s.isFinalised);
+        if (!activeSession && !selectedTileBuilding) {
             return { path: [], valid: false, reason: 'no building to attack or session to join' };
         }
         const activeSessionAttackTile =
@@ -639,12 +662,13 @@ const Combat: FunctionComponent<CombatProps> = ({
         if (!fromTile) {
             return { path: [], valid: false };
         }
-        const pathToEitherBuildingOrAttackTile = getPath(tiles, fromTile, toTile);
+        const pathToEitherBuildingOrAttackTile = getPath(tiles, buildings, fromTile, toTile);
         const path = activeSessionAttackTile
             ? pathToEitherBuildingOrAttackTile
             : pathToEitherBuildingOrAttackTile.slice(0, -1);
         const defenceTile: WorldTileFragment = activeSessionDefenceTile || selectedTile;
-        if (!defenceTile.building) {
+        const defenceTileBuilding = getBuildingAtTile(buildings, defenceTile);
+        if (!defenceTileBuilding) {
             return { path: [], valid: false, reason: 'no target building found' };
         }
         const destTile =
@@ -655,7 +679,7 @@ const Combat: FunctionComponent<CombatProps> = ({
             return { path: [], valid: false, reason: 'no route to destination' };
         }
         const destTileHasDifferentActiveSession =
-            activeSession && destTile.sessions.find((s) => !s.isFinalised)?.id !== activeSession.id;
+            activeSession && getSessionsAtTile(sessions, destTile).find((s) => !s.isFinalised)?.id !== activeSession.id;
         const isImposible = path.length === 1 && getTileDistance(fromTile, destTile) > 1;
         if (isImposible) {
             return { path: [], valid: false, reason: 'no route to destination' };
@@ -665,20 +689,20 @@ const Combat: FunctionComponent<CombatProps> = ({
         }
         const attackMobileUnits = (mobileUnits || []).filter((u) => u.nextLocation?.tile.id === destTile.id);
         const defenceMobileUnits = (mobileUnits || []).filter((u) => u.nextLocation?.tile.id === defenceTile.id);
+        const destTileBuilding = getBuildingAtTile(buildings, destTile);
         return {
             path: [fromTile, ...path],
             valid: true,
             attackers: attackMobileUnits
                 .filter((s) => s.id != mobileUnit.id)
                 .map((s) => s.id)
-                .concat(destTile.building ? [destTile.building.id] : [])
+                .concat(destTileBuilding ? [destTileBuilding.id] : [])
                 .concat(mobileUnit.id),
-            defenders: defenceMobileUnits
-                .map((s) => s.id)
-                .concat(defenceTile.building ? [defenceTile.building.id] : []),
+            defenders: defenceMobileUnits.map((s) => s.id).concat(defenceTileBuilding ? [defenceTileBuilding.id] : []),
             defenceTile,
+            defenceTileBuilding,
         };
-    }, [mobileUnit, tiles, mobileUnits, selectedTiles]);
+    }, [mobileUnit, tiles, mobileUnits, selectedTiles, buildings, sessions]);
 
     const attackTile = path.slice(-1).find(() => true);
 
@@ -709,7 +733,7 @@ const Combat: FunctionComponent<CombatProps> = ({
                 },
             ];
         });
-        const hasActiveSession = defenceTile.sessions.some((s) => !s.isFinalised);
+        const hasActiveSession = getSessionsAtTile(sessions, defenceTile).some((s) => !s.isFinalised);
         if (!hasActiveSession) {
             actions.push([
                 {
@@ -722,12 +746,12 @@ const Combat: FunctionComponent<CombatProps> = ({
         if (clearIntent) {
             clearIntent();
         }
-    }, [setActionQueue, clearIntent, path, mobileUnitId, mobileUnitKey, attackers, defenders, defenceTile]);
+    }, [setActionQueue, clearIntent, path, mobileUnitId, mobileUnitKey, attackers, defenders, defenceTile, sessions]);
 
     const highlights: WorldTileFragment[] = [defenceTile, attackTile].filter((t): t is WorldTileFragment => !!t);
-    const joining = attackTile && attackTile.sessions.some((s) => !s.isFinalised);
+    const joining = attackTile && getSessionsAtTile(sessions, attackTile).some((s) => !s.isFinalised);
     const help = valid
-        ? `Attack ${defenceTile?.building?.kind?.name?.value}`
+        ? `Attack ${defenceTileBuilding?.kind?.name?.value}`
         : `Select a tile with a building to attack. ${reason}`;
 
     return (
@@ -783,11 +807,11 @@ const Combat: FunctionComponent<CombatProps> = ({
 
 export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = () => {
     const [actionQueue, setActionQueue] = useState<CogAction[][]>();
-    const { selectIntent, intent, tiles, mobileUnit, selectTiles } = useSelection();
+    const { world, tiles } = useGameState();
+    const { selectIntent, intent, tiles: sTiles, mobileUnit, selectTiles } = useSelection();
     const player = usePlayer();
-    const world = useWorld();
 
-    const selectedTiles = tiles || [];
+    const selectedTiles = sTiles || [];
     const mobileUnitKey = mobileUnit?.key;
     const dispatch = player?.dispatch;
 
@@ -832,7 +856,9 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
                 selectTiles={selectTiles}
                 mobileUnit={mobileUnit}
                 player={player}
-                tiles={world?.tiles}
+                tiles={tiles || []}
+                bags={world?.bags || []}
+                buildings={world?.buildings || []}
                 setActionQueue={setActionQueue}
             />
         );
@@ -844,7 +870,8 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
                 selectTiles={selectTiles}
                 mobileUnit={mobileUnit}
                 player={player}
-                tiles={world?.tiles}
+                tiles={tiles || []}
+                buildings={world?.buildings || []}
                 setActionQueue={setActionQueue}
             />
         );
@@ -856,7 +883,9 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
                 selectTiles={selectTiles}
                 mobileUnit={mobileUnit}
                 player={player}
-                tiles={world?.tiles}
+                tiles={tiles || []}
+                buildings={world?.buildings || []}
+                sessions={world?.sessions || []}
                 setActionQueue={setActionQueue}
             />
         );

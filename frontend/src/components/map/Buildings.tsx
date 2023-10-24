@@ -1,6 +1,6 @@
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
 import { GOO_BLUE, GOO_GREEN, GOO_RED, getTileHeightFromCoords, getUnscaledNoiseFromCoords } from '@app/helpers/tile';
-import { BuildingKindFragment, WorldBuildingFragment, getCoords } from '@downstream/core';
+import { BuildingKindFragment, WorldBuildingFragment, WorldTileFragment, getCoords } from '@downstream/core';
 import { memo, useMemo } from 'react';
 import { BlockerBuilding } from './BlockerBuilding';
 import { ExtractorBuilding } from './ExtractorBuilding';
@@ -42,11 +42,13 @@ const lerp = (x, y, a) => x * (1 - a) + y * a;
 
 export const Buildings = memo(
     ({
+        tiles,
         buildings,
         selectedElementID,
         onClickBuilding,
     }: {
-        buildings?: WorldBuildingFragment[];
+        tiles: WorldTileFragment[];
+        buildings: WorldBuildingFragment[];
         selectedElementID?: string;
         onClickBuilding: (id: string) => void;
     }) => {
@@ -63,14 +65,13 @@ export const Buildings = memo(
                     const height = getTileHeightFromCoords(coords);
                     const selected = selectedElementID === b.id ? 'outline' : 'none';
                     const rotation = lerp(-20, 20, 0.5 - getUnscaledNoiseFromCoords(coords));
+                    const tile = tiles.find(({ id }) => id === b.location?.tile.id);
                     if (getBuildingCategory(b.kind) == BuildingCategory.EXTRACTOR) {
                         return (
                             <ExtractorBuilding
                                 key={b.id}
                                 id={b.id}
-                                atoms={(b.location.tile?.atoms || [])
-                                    .sort((a, b) => a.key - b.key)
-                                    .map((elm) => elm.weight)}
+                                atoms={(tile?.atoms || []).sort((a, b) => a.key - b.key).map((elm) => elm.weight)}
                                 lastExtraction={b.timestamp?.blockNum || 0}
                                 gooReservoir={b.gooReservoir}
                                 gooIndex={getGooIndexFromBuildingOutput(b?.kind)}
@@ -110,7 +111,7 @@ export const Buildings = memo(
                         );
                     }
                 }),
-            [buildings, selectedElementID, onClickBuilding]
+            [buildings, selectedElementID, onClickBuilding, tiles]
         );
 
         return <>{buildingComponents}</>;

@@ -207,7 +207,7 @@ export default function Page({ doc, tree }: InferGetStaticPropsType<typeof getSt
                             <DocsSidebar doc={tree} />
                         </div>
                     </div>
-                    <div style={{ float: 'left', width: '50%' }}>
+                    <div style={{ float: 'left', width: 'calc(100vw - 30rem)', height: '100vh', overflow: 'auto' }}>
                         <DocBody content={doc.html} />
                     </div>
                 </SessionProvider>

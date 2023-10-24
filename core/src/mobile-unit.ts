@@ -1,5 +1,5 @@
 import { map, pipe, Source, switchMap } from 'wonka';
-import { SelectedPlayerFragment } from './gql/graphql';
+import { SelectedPlayerFragment, WorldStateFragment } from './gql/graphql';
 
 /**
  * makePlayerMobileUnit checks if the provided mobileUnit id exists on the current player
@@ -9,17 +9,23 @@ import { SelectedPlayerFragment } from './gql/graphql';
  */
 export function makePlayerMobileUnit(
     player: Source<SelectedPlayerFragment | undefined>,
+    world: Source<WorldStateFragment | undefined>,
     id: Source<string | undefined>,
 ) {
     return pipe(
-        player,
-        switchMap((player) =>
+        world,
+        switchMap((world) =>
             pipe(
-                id,
-                map((id) => {
-                    const mobileUnit = player ? player.mobileUnits.find((s) => s.id === id) : undefined;
-                    return mobileUnit;
-                }),
+                player,
+                switchMap((player) =>
+                    pipe(
+                        id,
+                        map((id) => {
+                            const mobileUnit = player && world ? world.mobileUnits.find((s) => s.id === id) : undefined;
+                            return mobileUnit;
+                        }),
+                    ),
+                ),
             ),
         ),
     );

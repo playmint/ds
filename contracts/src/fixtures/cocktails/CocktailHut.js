@@ -26,18 +26,18 @@ async function getCocktailOfTheMoment() {
     return `${drink.strDrink}: ${ingriedients.join(', ')}`;
 }
 
-export default async function update({ selected }) {
+export default async function update({ selected, world }) {
     const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
-    const selectedBuilding = selectedTile && selectedTile.building ? selectedTile.building : undefined;
-    const selectedEngineer = mobileUnit;
-    const inputBag = selectedBuilding && selectedBuilding.bags.find(b => b.key == 0).bag;
-    const canPourDrink = inputBag && inputBag.slots.length == 2 && inputBag.slots.every(slot => slot.balance > 0) && selectedEngineer;
+    const selectedBuilding = (world?.buildings || []).find(b => selectedTile && b.location?.tile?.id === selectedTile.id);
+    const selectedBuildingBags = selectedBuilding ? (world?.bags || []).filter(bag => bag.equipee?.node.id === selectedBuilding.id) : [];
+    const inputBag = selectedBuilding && selectedBuildingBags.find(bag => bag.equipee.key === 0);
+    const canPourDrink = inputBag && inputBag.slots.length == 2 && inputBag.slots.every(slot => slot.balance > 0) && mobileUnit;
 
     const cocktail = await getCocktailOfTheMoment();
 
     const craft = () => {
-        if (!selectedEngineer) {
+        if (!mobileUnit) {
             ds.log('no selected engineer');
             return;
         }
@@ -49,7 +49,7 @@ export default async function update({ selected }) {
         ds.dispatch(
             {
                 name: 'BUILDING_USE',
-                args: [selectedBuilding.id, selectedEngineer.id, []]
+                args: [selectedBuilding.id, mobileUnit.id, []]
             },
         );
 

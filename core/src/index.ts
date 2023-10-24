@@ -14,9 +14,7 @@ export * from './wallet';
 export * from './world';
 
 export type {
-    SelectedMobileUnitFragment,
     SelectedPlayerFragment,
-    SelectedTileFragment,
     WorldMobileUnitFragment,
     WorldPlayerFragment,
     WorldTileFragment,
@@ -24,7 +22,6 @@ export type {
     WorldBuildingFragment,
     BuildingKindFragment,
     ItemSlotFragment,
-    EquipmentSlotFragment,
     BagFragment,
     LocationFragment,
 } from './gql/graphql';

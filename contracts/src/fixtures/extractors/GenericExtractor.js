@@ -40,11 +40,8 @@ const getGooPerSec = (atomVal) => {
 export default function update({ selected, world }, block) {
     const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
-    const selectedBuilding =
-        selectedTile && selectedTile.building
-            ? selectedTile.building
-            : undefined;
-    const tileAtoms = selectedTile.atoms
+    const selectedBuilding = (world?.buildings || []).find(b => selectedTile && b.location?.tile?.id === selectedTile.id);
+    const tileAtoms = (selectedTile?.atoms || [])
         .sort((a, b) => a.key - b.key)
         .map((elm) => elm.weight);
     const lastExtraction = selectedBuilding?.timestamp?.blockNum || 0;
@@ -86,16 +83,17 @@ export default function update({ selected, world }, block) {
 
     const gooIndex = outItemAtomVals.findIndex((gooVal) => gooVal > 0n);
     // const gooCost = Number(BigInt(out0.balance) * outItemAtomVals[gooIndex]);
-    const numberOfItems = Math.floor(
+    const numberOfItems = gooIndex ? Math.floor(
         extractedGoo[gooIndex] / Number(outItemAtomVals[gooIndex])
-    );
+    ) : 0;
     const secondsTilNextItem = getSecsPerGoo(tileAtoms[gooIndex]);
 
 
+    const selectedBuildingBags = selectedBuilding ? (world?.bags || []).filter(bag => bag.equipee?.node.id === selectedBuilding.id) : [];
+    const outputBag = selectedBuilding ? selectedBuildingBags.find(bag => bag.equipee.key === 1) : undefined;
     const canExtract =
         numberOfItems >= 1 &&
-        (!selectedBuilding?.bags[1].bag?.owner ||
-            selectedBuilding?.bags[1].bag?.owner.id == mobileUnit?.owner.id);
+        (!outputBag?.owner || outputBag?.owner.id == mobileUnit?.owner.id);
 
     const extract = () => {
         if (!mobileUnit) {
@@ -174,7 +172,7 @@ export default function update({ selected, world }, block) {
         ? `<br/><p>This extractor is not functioning as the goo extraction rate for this tile is too low to be effective</p>`
         : ``;
 
-    const notOwnerWarning = selectedBuilding.bags[1].bag.owner && selectedBuilding.bags[1].bag.owner.id != mobileUnit?.owner.id
+    const notOwnerWarning = outputBag.owner && outputBag.owner.id != mobileUnit?.owner.id
         ? `</br><p>You are not the owner of this extractor, only the owner can extract goo from here</p>`
         : ``;
 

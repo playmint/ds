@@ -1,8 +1,9 @@
 import { getTileHeightFromCoords } from '@app/helpers/tile';
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
-import { WorldMobileUnitFragment, getCoords } from '@downstream/core';
+import { WorldBuildingFragment, WorldMobileUnitFragment, getCoords } from '@downstream/core';
 import { memo, useCallback, useMemo, useState } from 'react';
 import Icon from './Icon';
+import { getBuildingAtTile } from '@downstream/core/src/utils';
 
 // public int q;
 // public int r;
@@ -43,39 +44,40 @@ export const MobileUnit = memo(
         onPointerEnter,
         onPointerExit,
         onPointerClick,
-        screenPosition,
         onUpdatePosition,
     }: UnityComponentProps & MobileUnitData) => {
         const [hovered, setHovered] = useState(false);
         const [position, setPosition] = useState({ x: 0, y: 0, z: 0 });
-        const [isVisible, setVisible] = useState({ isVisible: false });
+        const [isVisible, setVisible] = useState(false);
+        const { x, y, z } = position;
 
-        const screenPositionHandler = (
-            id?: string,
-            type?: string,
-            x?: number,
-            y?: number,
-            z?: number,
-            isVisible?: boolean
-        ) => {
-            if (screenPosition && id && type && x && y && z && isVisible !== undefined) {
-                screenPosition(id, type, x, y, z, isVisible);
-            }
-            if (x !== undefined && y !== undefined && z !== undefined) {
-                const scale = 1 / (1 + z);
-                setPosition({ x, y, z: scale });
-            }
-            if (isVisible !== undefined) {
-                setVisible({ isVisible });
-            }
-            if (x !== undefined && y !== undefined && z !== undefined && id !== undefined && isVisible !== undefined) {
-                const scale = 1 / (1 + z);
-                setPosition({ x, y, z: scale });
-                if (onUpdatePosition) {
-                    onUpdatePosition(id, x, y, scale, isVisible); // Call the callback here
+        const onPositionUpdate = useCallback(
+            (id?: string, _type?: string, x?: number, y?: number, z?: number, isVisible?: boolean) => {
+                if (isVisible !== undefined) {
+                    setVisible(isVisible);
                 }
-            }
-        };
+                if (
+                    x !== undefined &&
+                    y !== undefined &&
+                    z !== undefined &&
+                    id !== undefined &&
+                    isVisible !== undefined
+                ) {
+                    const scale = 1 / (1 + z);
+                    const precision = 5;
+                    const newPosition = {
+                        x: Number(x.toFixed(precision)),
+                        y: Number(y.toFixed(precision)),
+                        z: Number(scale.toFixed(4)),
+                    };
+                    setPosition(newPosition);
+                    if (onUpdatePosition) {
+                        onUpdatePosition(id, newPosition.x, newPosition.y, newPosition.z, isVisible); // Call the callback here
+                    }
+                }
+            },
+            [onUpdatePosition]
+        );
 
         onPointerEnter = useCallback(() => setHovered(true), []);
         onPointerExit = useCallback(() => setHovered(false), []);
@@ -97,7 +99,7 @@ export const MobileUnit = memo(
                     selected: selected || 'none',
                     shared,
                     visible,
-                    position,
+                    position: { x, y, z },
                     isVisible,
                 }),
                 [
@@ -111,14 +113,16 @@ export const MobileUnit = memo(
                     visible,
                     sendScreenPosition,
                     screenPositionHeightOffset,
-                    position,
+                    x,
+                    y,
+                    z,
                     isVisible,
                 ]
             ),
             onPointerEnter,
             onPointerExit,
             onPointerClick,
-            screenPosition: screenPositionHandler,
+            onPositionUpdate,
         });
 
         return null;
@@ -128,11 +132,13 @@ export const MobileUnit = memo(
 export const MobileUnits = memo(
     ({
         mobileUnits,
+        buildings,
         selectedMobileUnitID,
         onClickMobileUnit,
         playerID,
     }: {
         mobileUnits?: WorldMobileUnitFragment[];
+        buildings: WorldBuildingFragment[];
         selectedMobileUnitID?: string;
         playerID?: string;
         onClickMobileUnit: (id: string) => void;
@@ -159,10 +165,11 @@ export const MobileUnits = memo(
                     const coords = getCoords(tile);
                     const height = getTileHeightFromCoords(coords);
                     const isPlayer = u.owner?.id == playerID;
-                    const atBuilding = !!tile.building;
+                    const building = getBuildingAtTile(buildings, tile);
+                    const atBuilding = !!building;
                     return { ...u, visible, isPlayer, coords, counter, height, atBuilding };
                 });
-        }, [mobileUnits, playerID]);
+        }, [mobileUnits, playerID, buildings]);
 
         const unitComponents = useMemo(
             () =>

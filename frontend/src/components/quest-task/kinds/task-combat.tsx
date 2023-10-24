@@ -4,6 +4,8 @@ import { TaskView } from '../task-view';
 import { TaskItemProps } from '../task-item';
 import { convertCombatActions, getActions } from '@app/plugins/combat/helpers';
 import { Combat, CombatWinState, EntityState } from '@app/plugins/combat/combat';
+import { WorldCombatSessionFragment } from '@downstream/core/src/gql/graphql';
+import { getSessionsAtTile } from '@downstream/core/src/utils';
 
 const ATTACK_WIN = 0;
 // const DEFENCE_WIN = 1;
@@ -12,9 +14,11 @@ export const TaskCombat = memo(
     ({
         task,
         tiles,
+        sessions,
         mobileUnits,
         setTaskCompletion,
     }: {
+        sessions: WorldCombatSessionFragment[];
         mobileUnits?: WorldMobileUnitFragment[];
         tiles: WorldTileFragment[];
     } & Pick<TaskItemProps, 'task' | 'setTaskCompletion'>) => {
@@ -22,7 +26,7 @@ export const TaskCombat = memo(
         const isCompleted =
             !!mobileUnits &&
             !!tiles.some((t) => {
-                return t.sessions.some((s) => {
+                return getSessionsAtTile(sessions, t).some((s) => {
                     if (!s.isFinalised) return false;
 
                     // TODO: WARN: This will not scale as it's searching through every combat that has ever happened looking for the player's unit.

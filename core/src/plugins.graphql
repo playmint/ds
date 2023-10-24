@@ -4,22 +4,6 @@ fragment AvailablePlugin on Node {
         id
         value
     }
-    supports: node(match: { via: { rel: "Supports" } }) {
-        id
-        kind
-        metadata: annotation(name: "name") {
-            id
-            value
-        }
-    }
-}
-
-fragment SelectedPlugin on Node {
-    id
-    name: annotation(name: "name") {
-        id
-        value
-    }
     src: annotation(name: "src") {
         id
         hash: ref
@@ -31,18 +15,6 @@ fragment SelectedPlugin on Node {
         metadata: annotation(name: "name") {
             id
             value
-        }
-    }
-}
-
-query GetSelectedPlugins($gameID: ID!, $pluginIDs: [String!]!) {
-    game(id: $gameID) {
-        id
-        state {
-            id
-            plugins: nodes(match: { ids: $pluginIDs, kinds: "ClientPlugin" }) {
-                ...SelectedPlugin
-            }
         }
     }
 }

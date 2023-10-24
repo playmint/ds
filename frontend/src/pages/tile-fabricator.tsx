@@ -409,7 +409,6 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                     inputs: [],
                     outputs: [],
                 },
-                bags: [],
                 timestamp: null,
                 gooReservoir: [],
             };

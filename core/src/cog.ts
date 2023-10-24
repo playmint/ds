@@ -25,6 +25,7 @@ import {
     switchMap,
     take,
     tap,
+    throttle,
     toPromise,
 } from 'wonka';
 import { Actions__factory } from './abi';
@@ -137,14 +138,18 @@ export function configureClient({
         );
         const auth = await signer.signMessage(actionDigest);
 
-        waiting.set(auth, true);
-        const waiter: Promise<boolean> = pipe(
-            events,
-            filter((evt) => evt.simulated === false && evt.sigs.some((sig) => sig === auth)),
-            map(() => true),
-            take(1),
-            toPromise,
-        );
+        if (optimistic) {
+            waiting.set(auth, true);
+        }
+        const waiter: Promise<boolean> = optimistic
+            ? pipe(
+                  events,
+                  filter((evt) => evt.simulated === false && evt.sigs.some((sig) => sig === auth)),
+                  map(() => true),
+                  take(1),
+                  toPromise,
+              )
+            : Promise.resolve(true);
 
         return gql
             .mutation(DispatchDocument, { gameID, auth, actions, nonce, optimistic }, { requestPolicy: 'network-only' })
@@ -233,10 +238,7 @@ export function configureClient({
 
     const externalEvents = pipe(
         events,
-        filter((data) => {
-            const isExternalUpdate = !data.simulated || data.sigs.some((sig) => !waiting.has(sig));
-            return isExternalUpdate;
-        }), // ignore the update if they are all waiting as we force the same update in dispatch
+        throttle(() => 250),
         debounce(() => 250),
         map(() => ''),
         share,
@@ -353,7 +355,3 @@ export function actionArgFromUnknown(wanted: ethers.ParamType, given: unknown): 
     // else hope for the best
     return given;
 }
-
-// function sleep(ms: number): Promise<void> {
-//     return new Promise((resolve) => setTimeout(resolve, ms));
-// }
