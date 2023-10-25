@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class FactoryBuildingController : BaseComponentController<FactoryBuildingData>
 {
@@ -25,8 +23,9 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
     public Material redOutlineMat,
         greenOutlineMat;
 
-    private List<Renderer>? outlineObjs = new();
-    private List<Renderer>? renderers = new();
+    /* private List<Renderer>? outlineObjs = new(); */
+    /* private List<Renderer>? renderers = new(); */
+    List<FactoryBuildingBlockController> _blocks = new();
 
     private Color _defaultColor;
 
@@ -57,48 +56,61 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
             shadowColor = shadowColors[0];
         }
 
-        if (_prevData == null)
+        if (_nextData.model != null)
         {
-            if (_nextData.model != null)
+            if (_prevData == null || _nextData.model != _prevData.model)
+            {
+                foreach (FactoryBuildingBlockController block in _blocks)
+                {
+                    Destroy(block.gameObject);
+                    _blocks = new();
+                }
                 ShowTotems(_nextData.model, dynamicColor, shadowColor);
-            else
-                Debug.LogError("Building stack codes are null");
-        }
-
-        // selected
-        if (outlineObjs == null || renderers == null)
-            return;
-        if (_nextData.selected == "outline")
-        {
-            foreach (Renderer outlineObj in outlineObjs)
-            {
-                outlineObj.material = redOutlineMat;
-            }
-            foreach (Renderer rend in renderers)
-            {
-                rend.material.SetColor("_EmissionColor", _defaultColor);
-            }
-        }
-        else if (_nextData.selected == "highlight")
-        {
-            foreach (Renderer outlineObj in outlineObjs)
-            {
-                outlineObj.material = greenOutlineMat;
-            }
-            foreach (Renderer rend in renderers)
-            {
-                rend.material.SetColor("_EmissionColor", highlightColor);
             }
         }
         else
         {
-            foreach (Renderer outlineObj in outlineObjs)
-            {
-                outlineObj.material = greenOutlineMat;
+                Debug.LogError("Building stack codes are null");
+        }
+
+        // selected
+        if (_nextData?.selected == "outline")
+        {
+            foreach (FactoryBuildingBlockController block in _blocks) {
+                foreach (Renderer outlineObj in block.outlineRenderers)
+                {
+                    outlineObj.material = redOutlineMat;
+                }
+                foreach (Renderer rend in block.renderers)
+                {
+                    rend.material.SetColor("_EmissionColor", _defaultColor);
+                }
             }
-            foreach (Renderer rend in renderers)
-            {
-                rend.material.SetColor("_EmissionColor", _defaultColor);
+        }
+        else if (_nextData?.selected == "highlight")
+        {
+            foreach (FactoryBuildingBlockController block in _blocks) {
+                foreach (Renderer outlineObj in block.outlineRenderers)
+                {
+                    outlineObj.material = greenOutlineMat;
+                }
+                foreach (Renderer rend in block.renderers)
+                {
+                    rend.material.SetColor("_EmissionColor", highlightColor);
+                }
+            }
+        }
+        else
+        {
+            foreach (FactoryBuildingBlockController block in _blocks) {
+                foreach (Renderer outlineObj in block.outlineRenderers)
+                {
+                    outlineObj.material = greenOutlineMat;
+                }
+                foreach (Renderer rend in block.renderers)
+                {
+                    rend.material.SetColor("_EmissionColor", _defaultColor);
+                }
             }
         }
 
@@ -127,28 +139,29 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
     {
         string[] totemNames = GetTotemNamesFromStackCode(stackCode);
 
-        renderers = new();
-        outlineObjs = new();
-        GetRenderers("Base_" + totemNames[0], stackPositions[0], "Base_01");
-        GetRenderers("Roof_" + totemNames[1], stackPositions[1], "Roof_01");
-        _defaultColor = renderers[0].material.GetColor("_EmissionColor");
+        FactoryBuildingBlockController bottomBlock = CreateBlock("Base_" + totemNames[0], stackPositions[0], "Base_01", dynamicColor, shadowColor);
+        FactoryBuildingBlockController topBlock = CreateBlock("Roof_" + totemNames[1], stackPositions[1], "Roof_01", dynamicColor, shadowColor);
 
-        foreach (Renderer rend in renderers)
+        foreach (Renderer rend in bottomBlock.renderers)
         {
-            rend.material.SetColor("_DynamicColor", dynamicColor);
-            rend.material.SetColor("_DynamicShadowColor", shadowColor);
+            _defaultColor = rend.material.GetColor("_EmissionColor");
         }
+
+        _blocks.Add(bottomBlock);
+        _blocks.Add(topBlock);
     }
 
-    private void GetRenderers(string prefabName, Transform stackPos, string defaultBuilding = "")
+    private FactoryBuildingBlockController CreateBlock(string prefabName, Transform stackPos, string defaultBuilding, Color dynamicColor, Color shadowColor)
     {
         GameObject prefab = totemPrefabs.FirstOrDefault(n => n.name == prefabName);
         if (prefab == null)
             prefab = totemPrefabs.FirstOrDefault(n => n.name == defaultBuilding);
         FactoryBuildingBlockController controller = Instantiate(prefab, stackPos)
             .GetComponent<FactoryBuildingBlockController>();
-
-        renderers.AddRange(controller.renderers);
-        outlineObjs.AddRange(controller.outlineRenderers);
+        foreach (Renderer rend in controller.renderers) {
+            rend.material.SetColor("_DynamicColor", dynamicColor);
+            rend.material.SetColor("_DynamicShadowColor", shadowColor);
+        }
+        return controller;
     }
 }
