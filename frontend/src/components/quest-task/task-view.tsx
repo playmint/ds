@@ -1,5 +1,4 @@
 import { FunctionComponent, useEffect } from 'react';
-import { TaskItemProps } from './task-item';
 import styled, { css } from 'styled-components';
 import { colors } from '@app/styles/colors';
 import { Task } from '@app/hooks/use-quest-state';
