@@ -10,7 +10,7 @@ export interface TileData {
     s: number;
     height: number;
     color: string;
-    sendScreenPosition: boolean;
+    sendScreenPosition?: boolean;
 }
 
 export const Tile = memo(
@@ -30,7 +30,7 @@ export const Tile = memo(
             type: 'TileData',
             id,
             data: useMemo(
-                () => ({ q, r, s, height, color, sendScreenPosition }),
+                () => ({ q, r, s, height, color, sendScreenPosition: !!sendScreenPosition }),
                 [q, r, s, height, color, sendScreenPosition]
             ),
             onPointerEnter,
