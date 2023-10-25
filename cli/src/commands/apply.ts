@@ -178,6 +178,9 @@ const buildingKindDeploymentActions = async (
     let outputItems: string[] = [null24bytes];
     let outputQtys: number[] = [0];
 
+
+    let model = spec.model;
+
     if (spec.category == 'factory') {
         if (!Array.isArray(spec.outputs) || spec.outputs.length !== 1) {
             throw new Error('crafting recipe must specify exactly 1 output');
@@ -185,6 +188,8 @@ const buildingKindDeploymentActions = async (
         if (!Array.isArray(spec.inputs) || spec.inputs.length === 0) {
             throw new Error('crafting recipe must specify at least 1 input');
         }
+        
+        model = `${model}-${spec.color || 0}`;
 
         const input = encodeSlotConfig(spec.inputs || []);
         inputItems = input.items;
@@ -213,7 +218,7 @@ const buildingKindDeploymentActions = async (
             id,
             spec.name,
             buildingCategoryEnum,
-            spec.model,
+            model,
             materialItems,
             materialQtys,
             inputItems,

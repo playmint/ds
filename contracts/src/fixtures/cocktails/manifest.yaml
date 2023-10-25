@@ -18,7 +18,7 @@ spec:
   description: "Come relax, and have a drink!"
   category: factory
   model: 12-15
-  color: '4'
+  color: 4
   contract:
     file: ./CocktailHut.sol
   plugin:

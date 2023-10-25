@@ -73,6 +73,7 @@ export const BuildingKindFactorySpec = z.object({
     name: Name,
     description: OneLiner.optional(),
     model: TotemModel,
+    color: z.number().min(0).max(5).optional(),
     contract: ContractSource.optional(),
     plugin: PluginSource.optional(),
     materials: Slot.array().nonempty().max(4),
