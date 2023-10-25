@@ -2,6 +2,7 @@ import { FunctionComponent, useEffect } from 'react';
 import { TaskItemProps } from './task-item';
 import styled, { css } from 'styled-components';
 import { colors } from '@app/styles/colors';
+import { Task } from '@app/hooks/use-quest-state';
 
 const tickSvg = (
     <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
@@ -45,24 +46,13 @@ const StyledTaskView = styled.div`
     `}
 `;
 
-export const TaskView: FunctionComponent<
-    {
-        isCompleted: boolean;
-    } & Pick<TaskItemProps, 'task' | 'setTaskCompletion'>
-> = ({ isCompleted, task, setTaskCompletion }) => {
-    const taskId = task.node.id;
-    useEffect(() => {
-        setTaskCompletion((oldObj) => {
-            const newObj = oldObj ? { ...oldObj } : {};
-            newObj[taskId] = isCompleted;
-            return newObj;
-        });
-    }, [taskId, isCompleted, setTaskCompletion]);
-
+export const TaskView: FunctionComponent<{
+    task: Task;
+}> = ({ task }) => {
     return (
-        <StyledTaskView isCompleted={isCompleted}>
-            <div className="tickBox">{isCompleted && tickSvg}</div>
-            <p>{task.node.name?.value}</p>
+        <StyledTaskView isCompleted={task.isCompleted}>
+            <div className="tickBox">{task.isCompleted && tickSvg}</div>
+            <p>{task.name}</p>
         </StyledTaskView>
     );
 };
