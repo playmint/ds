@@ -229,6 +229,8 @@ export const MobileUnits = memo(
                                     isSelected={false}
                                 />
                             );
+                        } else {
+                            return null;
                         }
                     } else {
                         return null;
