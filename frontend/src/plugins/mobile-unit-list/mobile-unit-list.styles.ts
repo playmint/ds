@@ -2,6 +2,7 @@
 
 import { css } from 'styled-components';
 import { MobileUnitListProps } from './index';
+import { colors } from '@app/styles/colors';
 
 /**
  * Base styles for the mobileUnit list component
@@ -14,19 +15,22 @@ const baseStyles = (_: Partial<MobileUnitListProps>) => css`
         margin-bottom: 2rem;
     }
     .mobileUnit {
+        font-weight: 800;
         position: relative;
-        background: #030f25;
         margin-left: 1rem;
-        text-transform: uppercase;
-        padding: 0.7rem 0 0.7rem 6rem;
+        padding: 0.7rem 0 0.7rem 4rem;
         margin-bottom: 2.4rem;
 
         > img {
             position: absolute;
-            left: -2rem;
+            left: -1rem;
             top: 50%;
             transform: translateY(-50%);
-            width: 6.5rem;
+            width: 4rem;
+        }
+
+        > .hashTag {
+            color: ${colors.orange_0};
         }
     }
 `;
