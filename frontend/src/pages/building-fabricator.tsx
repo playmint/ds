@@ -14,6 +14,21 @@ import { ItemFragment } from '@downstream/core/src/gql/graphql';
 import { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { z } from 'zod';
+import YAML from 'yaml';
+
+const toStringDefaults = { indentSeq: false };
+
+const toYAML = (o: any): string => {
+    const doc = new YAML.Document(o, { toStringDefaults });
+    const specField: any = doc.get('spec');
+    if (specField) {
+        const locField: any = specField.get('location');
+        if (locField) {
+            locField.flow = true; // always inline coords
+        }
+    }
+    return doc.toString();
+};
 
 const Content = ({ children }: { name: string; children: any }) => {
     return children;
@@ -23,9 +38,14 @@ const GroupedContent = ({ children, initial }) => {
     const [active, setActive] = useState<string>(initial);
     return (
         <div>
-            <div>
+            <div style={{ display: 'flex', flexDirection: 'row' }}>
                 {children.map((child) => (
-                    <div key={child.props.name} className="tab" onClick={() => setActive(child.props.name)}>
+                    <div
+                        style={{ margin: 5 }}
+                        key={child.props.name}
+                        className="tab"
+                        onClick={() => setActive(child.props.name)}
+                    >
                         {child.props.name}
                     </div>
                 ))}
@@ -75,10 +95,14 @@ const InputItem = ({
 
     return (
         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap' }}>
-            <select style={{ display: 'block' }} onChange={_onChangeItemName} value={selectedItem?.id || 'none'}>
-                <option value="none">None</option>
+            <select
+                style={{ display: 'block' }}
+                onChange={_onChangeItemName}
+                value={selectedItem?.name?.value || '__none__'}
+            >
+                <option value="__none__">None</option>
                 {items.map((item) => (
-                    <option key={item.id} value={item.id}>
+                    <option key={item.id} value={item.name?.value || '__none__'}>
                         {item.name?.value || ''}
                     </option>
                 ))}
@@ -98,9 +122,8 @@ const InputItem = ({
     );
 };
 
-const FACTORY_TOPS = ['01', '02', '03', '04', '05', '06'];
-
-const FACTORY_BOTTOMS = ['01', '02', '03', '04', '05', '06'];
+const FACTORY_TOPS = Array.from({ length: 17 }, (_, i) => i + 1).map((n) => (n < 10 ? `0${n}` : `${n}`));
+const FACTORY_BOTTOMS = Array.from({ length: 14 }, (_, i) => i + 1).map((n) => (n < 10 ? `0${n}` : `${n}`));
 
 const StyledBuildingFabricator = styled.div`
     display: flex;
@@ -111,6 +134,7 @@ const StyledBuildingFabricator = styled.div`
     align-content: stretch;
     position: relative;
     z-index: 99;
+    color: white;
 `;
 
 const BuildingFabricator = () => {
@@ -139,6 +163,7 @@ const BuildingFabricator = () => {
     const availableItems = world?.items || [];
     const coords = useMemo(() => ({ q: 0, r: 0, s: 0 }), []);
     const model = spec.model;
+    const height = 0.05;
 
     const onChangeBuildingName = useCallback(
         (e) =>
@@ -152,6 +177,14 @@ const BuildingFabricator = () => {
         (e) =>
             setSpec((spec) => {
                 spec.description = e.target.value;
+                return { ...spec };
+            }),
+        []
+    );
+    const onChangeBuildingColor = useCallback(
+        (_c: number) =>
+            setSpec((spec) => {
+                // spec.color = c;
                 return { ...spec };
             }),
         []
@@ -195,43 +228,57 @@ const BuildingFabricator = () => {
         []
     );
     const nextTop = useCallback(() => {
-        const [modelTop, modelBottom] = model.split('-');
+        const [modelBottom, modelTop] = model.split('-');
         const idx = FACTORY_TOPS.findIndex((part) => part === modelTop) || 0;
         const newTop = FACTORY_TOPS[idx + 1 === FACTORY_TOPS.length ? 0 : idx + 1];
         setSpec((spec) => {
-            spec.model = `${newTop}-${modelBottom}`;
+            spec.model = `${modelBottom}-${newTop}`;
             return { ...spec };
         });
     }, [model]);
     const prevTop = useCallback(() => {
-        const [modelTop, modelBottom] = model.split('-');
+        const [modelBottom, modelTop] = model.split('-');
         const idx = FACTORY_TOPS.findIndex((part) => part === modelTop) || 0;
         const newTop = FACTORY_TOPS[idx === 0 ? FACTORY_TOPS.length - 1 : idx - 1];
         setSpec((spec) => {
-            spec.model = `${newTop}-${modelBottom}`;
+            spec.model = `${modelBottom}-${newTop}`;
             return { ...spec };
         });
     }, [model]);
     const nextBottom = useCallback(() => {
-        const [modelTop, modelBottom] = model.split('-');
+        const [modelBottom, modelTop] = model.split('-');
         const idx = FACTORY_BOTTOMS.findIndex((part) => part === modelBottom) || 0;
         const newBottom = FACTORY_BOTTOMS[idx + 1 === FACTORY_BOTTOMS.length ? 0 : idx + 1];
         setSpec((spec) => {
-            spec.model = `${modelTop}-${newBottom}`;
+            spec.model = `${newBottom}-${modelTop}`;
             return { ...spec };
         });
     }, [model]);
     const prevBottom = useCallback(() => {
-        const [modelTop, modelBottom] = model.split('-');
+        const [modelBottom, modelTop] = model.split('-');
         const idx = FACTORY_BOTTOMS.findIndex((part) => part === modelBottom) || 0;
         const newBottom = FACTORY_BOTTOMS[idx === 0 ? FACTORY_BOTTOMS.length - 1 : idx - 1];
         setSpec((spec) => {
-            spec.model = `${modelTop}-${newBottom}`;
+            spec.model = `${newBottom}-${modelTop}`;
             return { ...spec };
         });
     }, [model]);
 
-    console.log('model', spec.model);
+    const getExportURL = () => {
+        const exportable = [
+            {
+                kind: 'BuildingKind',
+                spec,
+            },
+        ];
+        const data = `${exportable.length > 0 ? '\n---\n' : ''}${exportable.map(toYAML).join('\n---\n')}`;
+        const blob = new Blob([data], { type: 'application/x-yaml' });
+        return URL.createObjectURL(blob);
+    };
+
+    const downloadFiles = () => {
+        window.location.replace(getExportURL());
+    };
 
     return (
         <StyledBuildingFabricator>
@@ -287,19 +334,33 @@ const BuildingFabricator = () => {
                         </div>
                         <div>
                             <GroundPlane height={-0.1} />
-                            <Tile id={'plinth'} height={1} color="#7288A6" {...coords} />
+                            <Tile id={'plinth'} height={height} color="#7288A6" {...coords} />
                             <FactoryBuilding
                                 id={'new-build'}
-                                height={1}
+                                height={height}
                                 model={spec.model}
                                 rotation={-30}
                                 selected={'none'}
                                 {...coords}
                             />
                         </div>
+                        <div style={{ display: 'flex', flexDirection: 'row' }}>
+                            <button onClick={() => onChangeBuildingColor(0)}>
+                                <div style={{ width: 30, height: 30, backgroundColor: 'red' }}> </div>
+                            </button>
+                            <button onClick={() => onChangeBuildingColor(1)}>
+                                <div style={{ width: 30, height: 30, backgroundColor: 'pink' }}> </div>
+                            </button>
+                            <button onClick={() => onChangeBuildingColor(2)}>
+                                <div style={{ width: 30, height: 30, backgroundColor: 'yellow' }}> </div>
+                            </button>
+                        </div>
                         <div>
                             <button onClick={prevBottom}>prev bottom</button>
                             <button onClick={nextBottom}>next bottom</button>
+                        </div>
+                        <div>
+                            <button onClick={downloadFiles}>Export</button>
                         </div>
                     </>
                 )}
