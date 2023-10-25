@@ -165,6 +165,9 @@ fragment WorldState on State {
     bags: nodes(match: { kinds: "Bag" }) {
         ...Bag
     }
+    items: nodes(match: { kinds: "Item" }) {
+        ...Item
+    }
 }
 
 fragment TilesState on State {
