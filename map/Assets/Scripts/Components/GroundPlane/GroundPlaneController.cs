@@ -26,6 +26,10 @@ public class GroundPlaneController : BaseComponentController<GroundPlaneData>
         }
         if (_camTrans == null)
         {
+            if (mainCam == null)
+                mainCam = GameObject.Find("Main Camera")?.GetComponent<Camera>();
+            if (mainCam == null)
+                return;
             _camTrans = mainCam.transform;
             transform.localEulerAngles = Vector3.zero;
             _offset.y = _nextData.height;
