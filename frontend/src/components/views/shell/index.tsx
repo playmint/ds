@@ -186,22 +186,24 @@ export const Shell: FunctionComponent<ShellProps> = () => {
 
     const mobileUnitClick = useCallback(
         (id) => {
-            if (!selectMobileUnit || !selectTiles || !selectMapElement) {
+            if (!selectMobileUnit || !selectTiles || !selectMapElement || !player) {
                 return;
             }
-
-            selectMobileUnit(id);
-
-            selectTiles(undefined);
+            if (world?.mobileUnits.find((u) => u.id === id)?.owner?.id === player.id) {
+                selectMobileUnit(id);
+                selectTiles(undefined);
+            } else {
+                const tileId = world?.mobileUnits.find((u) => u.id === id)?.nextLocation?.tile.id;
+                if (tileId) selectTiles([tileId]);
+            }
             selectMapElement(undefined);
         },
-        [selectMapElement, selectMobileUnit, selectTiles]
+        [world, player, selectMapElement, selectMobileUnit, selectTiles]
     );
 
     const deselectAll = useCallback(() => {
         mapElementClick();
-        mobileUnitClick(null);
-    }, [mobileUnitClick, mapElementClick]);
+    }, [mapElementClick]);
 
     const noop = useCallback(() => {}, []);
 
