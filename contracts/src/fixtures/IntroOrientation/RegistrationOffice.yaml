@@ -5,6 +5,7 @@ spec:
   description: All new users are requested to register here. 
   category: factory
   model: 09-09
+  color: 2
   contract:
     file: ./RegistrationOffice.sol
   plugin:

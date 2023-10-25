@@ -5,6 +5,7 @@ spec:
   description: "MORTON is currently investigating how users can become corrupted"
   category: factory
   model: 06-04
+  color: 4
   contract:
     file: ./CorruptedUser.sol
   plugin:

@@ -5,6 +5,7 @@ spec:
   description: You supply the ingredients. We'll cook you up the most fantastic spying gear.
   category: factory
   model: 05-12
+  color: 1
   contract:
     file: ./IndustrialEspionage.sol
   plugin:

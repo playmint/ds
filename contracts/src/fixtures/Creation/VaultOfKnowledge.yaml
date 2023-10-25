@@ -5,6 +5,7 @@ spec:
   description: Contains all technical schematics relating to the world 
   category: custom
   model: 13-03
+  color: 2
   contract:
     file: ./VaultOfKnowledge.sol
   plugin:

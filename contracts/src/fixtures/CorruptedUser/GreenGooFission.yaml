@@ -5,6 +5,7 @@ spec:
   description: "A reactor that fuses Green Goo into Vibrant Green Goo."
   category: factory
   model: 03-11
+  color: 5
   contract:
     file: ./GreenGooFission.sol
   plugin:

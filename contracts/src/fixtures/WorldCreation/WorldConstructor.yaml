@@ -5,6 +5,7 @@ spec:
   description: MORTON's numerous attempts to create the perfect world have been constructed here
   category: factory
   model: 05-10
+  color: 2
   contract:
     file: ./WorldConstructor.sol
   plugin:

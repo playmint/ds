@@ -5,6 +5,7 @@ spec:
   description: "Artisan tailors of absoutely fabulous shirts"
   category: factory
   model: 02-02
+  color: 1
   contract:
     file: ./ShirtShop.sol
   plugin:

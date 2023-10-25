@@ -5,6 +5,7 @@ spec:
   description: "Expert suppliers of top-quality ties."
   category: factory
   model: 04-16
+  color: 1
   contract:
     file: ./TieShop.sol
   plugin:
