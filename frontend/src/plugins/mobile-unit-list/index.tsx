@@ -18,7 +18,8 @@ const MobileUnitListItem = ({ unit, unitBags, icon, isInteractable }) => {
         <div className="mobileUnitListItem">
             <div className="mobileUnit">
                 <Image src={icon} alt="" width={65} />
-                {formatNameOrId(unit, 'Unit ')}
+                <span className="hashTag">#</span>
+                {formatNameOrId(unit, 'unit')}
             </div>
             <Inventory showIcon={false} bags={unitBags} ownerId={unit.id} isInteractable={isInteractable} />
         </div>
