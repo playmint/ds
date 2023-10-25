@@ -104,7 +104,7 @@ MonoBehaviour:
   m_ScaleMode: 0
   m_Offset: {x: 0, y: 0, z: 0.12}
   m_Size: {x: 0.5, y: 0.5, z: 0.24}
-  m_FadeFactor: 1
+  m_FadeFactor: 0.234
 --- !u!1001 &4705066148818142991
 PrefabInstance:
   m_ObjectHideFlags: 0

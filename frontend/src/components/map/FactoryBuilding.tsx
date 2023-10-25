@@ -9,7 +9,6 @@ export interface FactoryBuildingData {
     rotation: number;
     model?: string;
     color?: string;
-    shadowColor?: string;
     selected?: '' | 'none' | 'highlight' | 'outline';
     sendScreenPosition?: boolean;
 }
@@ -26,7 +25,6 @@ export const FactoryBuilding = memo(
         rotation,
         sendScreenPosition,
         color,
-        shadowColor,
         onPointerEnter,
         onPointerExit,
         onPointerClick,
@@ -42,8 +40,8 @@ export const FactoryBuilding = memo(
             type: 'FactoryBuildingData',
             id,
             data: useMemo(
-                () => ({ q, r, s, height, model, selected, rotation, sendScreenPosition, color, shadowColor }),
-                [q, r, s, height, model, selected, rotation, sendScreenPosition, color, shadowColor]
+                () => ({ q, r, s, height, model, selected, rotation, sendScreenPosition, color }),
+                [q, r, s, height, model, selected, rotation, sendScreenPosition, color]
             ),
             onPointerEnter,
             onPointerExit,
