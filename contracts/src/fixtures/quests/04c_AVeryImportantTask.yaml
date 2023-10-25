@@ -5,8 +5,9 @@ spec:
   description: "That Squircle is the key to some Very Important Stuff. You can craft it at the Very Important Factory"
   location: [-23, 2, 21]
   tasks:
-    - kind: message
+    - kind: inventory
       name: "Put some Very Important Stuff in your bag"
-      message: createABuildingPage
-      buildingKind: Vault of Knowledge
+      item:
+        name: Very Important Stuff
+        quantity: 1
   next: ["Creating a New Item"]

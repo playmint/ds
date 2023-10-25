@@ -4,7 +4,8 @@ spec:
   name: Deletion Supplies
   description: Supplying starter hardware to all new users
   category: factory
-  model: 07-08
+  model: 05-11
+  color: 2
   contract:
     file: ./DeletionSupplies.sol
   plugin:

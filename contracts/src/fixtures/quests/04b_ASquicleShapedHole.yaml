@@ -9,12 +9,11 @@ spec:
       name: "Open the Create a Building page"
       message: createABuildingPage
       buildingKind: Vault of Knowledge
-    - kind: message
+    - kind: deployBuilding
       name: "Deploy a factory that crafts Squircles"
-      message: createABuildingPage
-      buildingKind: Vault of Knowledge
-    - kind: message
+    - kind: inventory
       name: Put a Squircle in your bag
-      message: createABuildingPage
-      buildingKind: Vault of Knowledge
+      item:
+        name: Squircle
+        quantity: 1
   next: ["A Very Important Task"]

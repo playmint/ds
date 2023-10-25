@@ -69,10 +69,10 @@ contract ScoutRule is Rule {
     //These values work well for the original large map
     int16 private constant GOO_GREEN_OFFSET_X = 80;
     int16 private constant GOO_GREEN_OFFSET_Y = 66;
-    int16 private constant GOO_BLUE_OFFSET_X = 28;
-    int16 private constant GOO_BLUE_OFFSET_Y = 2;
-    int16 private constant GOO_RED_OFFSET_X = 32;
-    int16 private constant GOO_RED_OFFSET_Y = 12;
+    int16 private constant GOO_BLUE_OFFSET_X = 32;
+    int16 private constant GOO_BLUE_OFFSET_Y = 12;
+    int16 private constant GOO_RED_OFFSET_X = 28;
+    int16 private constant GOO_RED_OFFSET_Y = 2;
     int16 private constant GOO_SCALE = 18;
 
     //These values work for the small map

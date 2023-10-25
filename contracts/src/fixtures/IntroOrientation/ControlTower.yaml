@@ -4,7 +4,8 @@ spec:
   name: Control Tower
   description: "The Control Tower towers above the world it controls"
   category: custom
-  model: 04-03
+  model: 13-06
+  color: 2
   contract:
     file: ./ControlTower.sol
   plugin:
