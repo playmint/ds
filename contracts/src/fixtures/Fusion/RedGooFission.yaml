@@ -1,0 +1,21 @@
+---
+kind: BuildingKind
+spec:
+  name: Red Goo Fission
+  description: "A reactor that fuses Red Goo into Vibrant Red Goo."
+  category: factory
+  model: 03-11
+  color: 4
+  contract:
+    file: ./RedGooFission.sol
+  plugin:
+    file: ./RedGooFission.js
+  materials:
+    - name: L33t Bricks
+      quantity: 100
+  inputs:
+    - name: Red Goo
+      quantity: 100
+  outputs:
+    - name: Vibrant Red Goo
+      quantity: 5
