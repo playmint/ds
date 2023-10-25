@@ -7,6 +7,5 @@ public class FactoryBuildingData : BaseComponentData
     public string? model; // 00-08
     public string? selected; //none/highlight/outline
     public float rotation; // 0 - 360
-    public string? color;
-    public string? shadowColor;
+    public string? color; // 0 - 5
 }

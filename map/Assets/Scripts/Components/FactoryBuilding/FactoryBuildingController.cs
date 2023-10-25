@@ -11,6 +11,12 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
     private Color highlightColor;
 
     [SerializeField]
+    private Color[] diffuseColors;
+
+    [SerializeField]
+    private Color[] shadowColors;
+
+    [SerializeField]
     private Transform[] stackPositions;
 
     [SerializeField]
@@ -37,15 +43,18 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
 
         Color dynamicColor;
         Color shadowColor;
-        if (!string.IsNullOrEmpty(_nextData.color) && !string.IsNullOrEmpty(_nextData.shadowColor))
+
+        int colorID;
+
+        if (int.TryParse(_nextData.color, out colorID))
         {
-            ColorUtility.TryParseHtmlString(_nextData.color, out dynamicColor);
-            ColorUtility.TryParseHtmlString(_nextData.shadowColor, out shadowColor);
+            dynamicColor = diffuseColors[colorID % 6];
+            shadowColor = shadowColors[colorID % 6];
         }
         else
         {
-            ColorUtility.TryParseHtmlString("#2DAEE0", out dynamicColor);
-            ColorUtility.TryParseHtmlString("#135198", out shadowColor);
+            dynamicColor = diffuseColors[0];
+            shadowColor = shadowColors[0];
         }
 
         if (_prevData == null)

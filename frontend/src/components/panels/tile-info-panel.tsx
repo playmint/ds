@@ -17,7 +17,7 @@ import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { TileInventory } from '@app/plugins/inventory/tile-inventory';
 import { MobileUnitList } from '@app/plugins/mobile-unit-list';
 import { getBagsAtEquipee, getBuildingAtTile, getMobileUnitsAtTile } from '@downstream/core/src/utils';
-import { BasePanelStyles } from '@app/styles/base-panel.styles';
+import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { FunctionComponent, useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { colors } from '@app/styles/colors';
@@ -30,9 +30,7 @@ const byKey = (a: KeyedThing, b: KeyedThing) => {
     return a.key > b.key ? 1 : -1;
 };
 
-const Panel = styled.div`
-    ${BasePanelStyles}
-
+const StyledTileInfoPanel = styled(StyledHeaderPanel)`
     margin-bottom: 1.2rem;
     width: 30rem;
 
@@ -101,7 +99,7 @@ const Panel = styled.div`
         }
     }
 
-    > .label {
+    > .content > .label {
         width: 12rem;
         height: 1.7rem;
         white-space: nowrap;
@@ -169,81 +167,89 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
     });
 
     return (
-        <Panel>
-            <h3>{name}</h3>
-            {description && <span className="sub-title">{description}</span>}
-            {content && (
-                <PluginContent canUse={canUse} content={content}>
-                    {mobileUnit && (
-                        <>
-                            {inputs.length > 0 && inputBag && (
-                                <div ref={inputsRef} className="ingredients">
-                                    <Bag
-                                        bag={inputBag}
-                                        bagId={inputBag.id}
-                                        equipIndex={0}
-                                        ownerId={building.id}
-                                        isInteractable={canUse}
-                                        recipe={inputs}
-                                        numBagSlots={inputs.length}
-                                        showIcon={false}
-                                    />
-                                </div>
-                            )}
-                            {outputs.length > 0 && outputBag && (
-                                <div className="process">
-                                    {/* <img src="/icons/downarrow.png" alt="output" className="arrow" /> */}
-                                    <div className="arrow" />
-                                </div>
-                            )}
-                            {outputs.length > 0 && outputBag && (
-                                <div ref={outputsRef} className="ingredients">
-                                    <Bag
-                                        bag={outputBag}
-                                        bagId={outputBag.id}
-                                        equipIndex={1}
-                                        ownerId={building.id}
-                                        isInteractable={canUse}
-                                        recipe={outputs}
-                                        numBagSlots={outputs.length}
-                                        showIcon={false}
-                                    />
-                                </div>
-                            )}
-                        </>
-                    )}
-                </PluginContent>
-            )}
-            {selectedTile && <TileInventory tile={selectedTile} bags={world?.bags || []} />}
-            <span className="label" style={{ width: '100%', marginTop: '2rem' }}>
-                <strong>COORDINATES:</strong> {`${q}, ${r}, ${s}`}
-            </span>
-            {gooRatesInNameOrder.map((goo) => (
-                <span key={goo?.name} className="label" style={{ width: '30%' }}>
-                    <strong>{goo?.name.toUpperCase().slice(0, 1)}:</strong>{' '}
-                    {`${Math.floor((goo?.gooPerSec || 0) * 3600)}/h`}
+        <StyledTileInfoPanel>
+            <div className="header">
+                <h3>{name}</h3>
+                {description && <span className="sub-title">{description}</span>}
+            </div>
+            <div className="content">
+                {content && (
+                    <PluginContent canUse={canUse} content={content}>
+                        {mobileUnit && (
+                            <>
+                                {inputs.length > 0 && inputBag && (
+                                    <div ref={inputsRef} className="ingredients">
+                                        <Bag
+                                            bag={inputBag}
+                                            bagId={inputBag.id}
+                                            equipIndex={0}
+                                            ownerId={building.id}
+                                            isInteractable={canUse}
+                                            recipe={inputs}
+                                            numBagSlots={inputs.length}
+                                            showIcon={false}
+                                        />
+                                    </div>
+                                )}
+                                {outputs.length > 0 && outputBag && (
+                                    <div className="process">
+                                        {/* <img src="/icons/downarrow.png" alt="output" className="arrow" /> */}
+                                        <div className="arrow" />
+                                    </div>
+                                )}
+                                {outputs.length > 0 && outputBag && (
+                                    <div ref={outputsRef} className="ingredients">
+                                        <Bag
+                                            bag={outputBag}
+                                            bagId={outputBag.id}
+                                            equipIndex={1}
+                                            ownerId={building.id}
+                                            isInteractable={canUse}
+                                            recipe={outputs}
+                                            numBagSlots={outputs.length}
+                                            showIcon={false}
+                                        />
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </PluginContent>
+                )}
+                {selectedTile && <TileInventory tile={selectedTile} bags={world?.bags || []} />}
+                <span className="label" style={{ width: '100%', marginTop: '2rem' }}>
+                    <strong>COORDINATES:</strong> {`${q}, ${r}, ${s}`}
                 </span>
-            ))}
-            {author && (
-                <span className="label">
-                    <strong>AUTHOR:</strong> {author.addr}
-                </span>
-            )}
-            {owner && (
-                <span className="label">
-                    <strong>OWNER:</strong> {owner.addr}
-                </span>
-            )}
-        </Panel>
+                {gooRatesInNameOrder.map((goo) => (
+                    <span key={goo?.name} className="label" style={{ width: '30%' }}>
+                        <strong>{goo?.name.toUpperCase().slice(0, 1)}:</strong>{' '}
+                        {`${Math.floor((goo?.gooPerSec || 0) * 3600)}/h`}
+                    </span>
+                ))}
+                {author && (
+                    <span className="label">
+                        <strong>AUTHOR:</strong> {author.addr}
+                    </span>
+                )}
+                {owner && (
+                    <span className="label">
+                        <strong>OWNER:</strong> {owner.addr}
+                    </span>
+                )}
+            </div>
+        </StyledTileInfoPanel>
     );
 };
 
 const TileUndiscovered: FunctionComponent<unknown> = (_props) => {
     return (
-        <Panel>
-            <h3>Undiscovered Tile</h3>
-            <span className="sub-title">You can&apos;t make out this tile. Scouting should help!</span>
-        </Panel>
+        <StyledTileInfoPanel>
+            <div className="header">
+                <h3>Undiscovered Tile</h3>
+            </div>
+            <div className="content">
+                <span className="sub-title">You can&apos;t make out this tile. Scouting should help!</span>
+            </div>
+        </StyledTileInfoPanel>
     );
 };
 
@@ -291,22 +297,26 @@ const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUn
         : undefined;
 
     return (
-        <Panel>
-            <h3 style={{ marginBottom: '2rem' }}>{tileName}</h3>
-            <div className="description">{tileDescription}</div>
-            {tileMobileUnits.length > 0 && (
-                <MobileUnitList mobileUnits={visibleUnits} player={player} tile={selectedTile} bags={bags} />
-            )}
-            <span className="label" style={{ width: '100%' }}>
-                <strong>COORDINATES:</strong> {`${q}, ${r}, ${s}`}
-            </span>
-            {gooRatesInNameOrder.map((goo) => (
-                <span key={goo?.name} className="label" style={{ width: '30%' }}>
-                    <strong>{goo?.name.toUpperCase().slice(0, 1)}:</strong>{' '}
-                    {`${Math.floor((goo?.gooPerSec || 0) * 3600)}/h`}
+        <StyledTileInfoPanel>
+            <div className="header">
+                <h3>{tileName}</h3>
+                <div className="description">{tileDescription}</div>
+            </div>
+            <div className="content">
+                {tileMobileUnits.length > 0 && (
+                    <MobileUnitList mobileUnits={visibleUnits} player={player} tile={selectedTile} bags={bags} />
+                )}
+                <span className="label" style={{ width: '100%' }}>
+                    <strong>COORDINATES:</strong> {`${q}, ${r}, ${s}`}
                 </span>
-            ))}
-        </Panel>
+                {gooRatesInNameOrder.map((goo) => (
+                    <span key={goo?.name} className="label" style={{ width: '30%' }}>
+                        <strong>{goo?.name.toUpperCase().slice(0, 1)}:</strong>{' '}
+                        {`${Math.floor((goo?.gooPerSec || 0) * 3600)}/h`}
+                    </span>
+                ))}
+            </div>
+        </StyledTileInfoPanel>
     );
 };
 
