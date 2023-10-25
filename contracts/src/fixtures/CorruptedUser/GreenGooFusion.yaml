@@ -4,7 +4,7 @@ spec:
   name: Green Goo Fusion
   description: "A reactor that will fuse Vibrant Green Goo into Really Green Goo."
   category: factory
-  model: 06-05
+  model: 05-11
   contract:
     file: ./GreenGooFusion.sol
   plugin:

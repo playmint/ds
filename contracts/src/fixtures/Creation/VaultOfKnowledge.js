@@ -13,6 +13,7 @@ export default async function update({ selected, world }) {
 
     const openDocs = () => {
         ds.sendQuestMessage("readTheDoc");
+        window.open("https://www.playmint.com"); 
     }
 
     const openBuildingCreator = () => {

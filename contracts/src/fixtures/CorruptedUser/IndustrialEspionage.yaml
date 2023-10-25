@@ -4,7 +4,7 @@ spec:
   name: Industrial Espionage
   description: You supply the ingredients. We'll cook you up the most fantastic spying gear.
   category: factory
-  model: 07-08
+  model: 05-12
   contract:
     file: ./IndustrialEspionage.sol
   plugin:

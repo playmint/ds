@@ -4,7 +4,7 @@ spec:
   name: Vault of Knowledge
   description: Contains all technical schematics relating to the world 
   category: custom
-  model: 04-03
+  model: 13-03
   contract:
     file: ./VaultOfKnowledge.sol
   plugin:

@@ -4,7 +4,7 @@ spec:
   name: Shirt Shop
   description: "Artisan tailors of absoutely fabulous shirts"
   category: factory
-  model: 03-04
+  model: 02-02
   contract:
     file: ./ShirtShop.sol
   plugin:

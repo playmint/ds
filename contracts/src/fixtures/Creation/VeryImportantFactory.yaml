@@ -4,7 +4,7 @@ spec:
   name: Very Important Factory
   description: A factory that makes Very Important Stuff
   category: factory
-  model: 07-08
+  model: 05-05
   contract:
     file: ./VeryImportantFactory.sol
   plugin:
