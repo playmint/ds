@@ -14,12 +14,12 @@ spec:
     - name: L33t Bricks
       quantity: 100
   inputs:
-    - name: Really Green Goo
-      quantity: 1
+    - name: Vibrant Red Goo
+      quantity: 3
+    - name: Vibrant Blue Goo
+      quantity: 3
     - name: Vibrant Green Goo
-      quantity: 1
-    - name: Green Goo
-      quantity: 1
+      quantity: 3
   outputs:
     - name: Microchip
       quantity: 1

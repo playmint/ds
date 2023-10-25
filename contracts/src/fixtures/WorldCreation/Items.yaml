@@ -4,7 +4,7 @@ spec:
   name: Broken Component
   icon: 15-265
   goo:
-    red: 0
-    green: 25
-    blue: 0
+    red: 5
+    green: 5
+    blue: 5
   stackable: false
