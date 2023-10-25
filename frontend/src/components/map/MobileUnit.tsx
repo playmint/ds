@@ -197,17 +197,39 @@ export const MobileUnits = memo(
         const unitIcons = useMemo(
             () =>
                 units.map((u) => {
-                    if (u.isPlayer && unitPositions[u.id]?.isVisible) {
-                        const isSelected = selectedMobileUnitID === u.id;
-                        return (
-                            <Icon
-                                key={u.id}
-                                count={u.counter.count}
-                                iconMask={`url('/icons/UnitIcon.svg')`}
-                                position={unitPositions[u.id]}
-                                isSelected={isSelected}
-                            />
-                        );
+                    if (unitPositions[u.id]?.isVisible) {
+                        if (u.isPlayer) {
+                            const isSelected = selectedMobileUnitID === u.id;
+                            return (
+                                <Icon
+                                    key={u.id}
+                                    count={u.counter.count}
+                                    iconMask={`url('/icons/UnitIcon.svg')`}
+                                    position={unitPositions[u.id]}
+                                    isSelected={isSelected}
+                                />
+                            );
+                        } else if (
+                            u.counter.count > 1 &&
+                            !units.some(
+                                (unit) =>
+                                    unit.id !== u.id &&
+                                    unit.isPlayer &&
+                                    unit.coords.q === u.coords.q &&
+                                    unit.coords.r === u.coords.r &&
+                                    unit.coords.s === u.coords.s
+                            )
+                        ) {
+                            return (
+                                <Icon
+                                    key={u.id}
+                                    count={u.counter.count}
+                                    iconMask={`url('/icons/UnitIcon.svg')`}
+                                    position={unitPositions[u.id]}
+                                    isSelected={false}
+                                />
+                            );
+                        }
                     } else {
                         return null;
                     }
