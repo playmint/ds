@@ -58,13 +58,13 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
 
         if (_nextData.model != null)
         {
-            if (_prevData == null || _nextData.model != _prevData.model)
+            if (_prevData == null || _nextData.model != _prevData.model || _nextData.color != _prevData.color)
             {
                 foreach (FactoryBuildingBlockController block in _blocks)
                 {
                     Destroy(block.gameObject);
-                    _blocks = new();
                 }
+                _blocks = new();
                 ShowTotems(_nextData.model, dynamicColor, shadowColor);
             }
         }

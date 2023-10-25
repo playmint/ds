@@ -124,6 +124,7 @@ const InputItem = ({
 
 const FACTORY_TOPS = Array.from({ length: 17 }, (_, i) => i + 1).map((n) => (n < 10 ? `0${n}` : `${n}`));
 const FACTORY_BOTTOMS = Array.from({ length: 14 }, (_, i) => i + 1).map((n) => (n < 10 ? `0${n}` : `${n}`));
+const PALLETE = ['blue', 'pink', 'yellow', 'green', 'red', 'purple'];
 
 const StyledBuildingFabricator = styled.div`
     display: flex;
@@ -144,6 +145,7 @@ const BuildingFabricator = () => {
         name: 'x',
         description: 'x',
         model: '01-01',
+        color: 0,
         contract: { file: './basic-factory.sol' },
         plugin: { file: './basic-factory.js' },
         materials: [
@@ -182,9 +184,9 @@ const BuildingFabricator = () => {
         []
     );
     const onChangeBuildingColor = useCallback(
-        (_c: number) =>
+        (c: number) =>
             setSpec((spec) => {
-                // spec.color = c;
+                spec.color = c;
                 return { ...spec };
             }),
         []
@@ -280,6 +282,7 @@ const BuildingFabricator = () => {
         window.location.replace(getExportURL());
     };
 
+    console.log(spec.model, spec.color);
     return (
         <StyledBuildingFabricator>
             <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', flexWrap: 'nowrap' }}>
@@ -336,24 +339,20 @@ const BuildingFabricator = () => {
                             <GroundPlane height={-0.1} />
                             <Tile id={'plinth'} height={height} color="#7288A6" {...coords} />
                             <FactoryBuilding
-                                id={'new-build'}
+                                id={`new-build`}
                                 height={height}
-                                model={spec.model}
+                                model={`${spec.model}-${spec.color}`}
                                 rotation={-30}
                                 selected={'none'}
                                 {...coords}
                             />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'row' }}>
-                            <button onClick={() => onChangeBuildingColor(0)}>
-                                <div style={{ width: 30, height: 30, backgroundColor: 'red' }}> </div>
-                            </button>
-                            <button onClick={() => onChangeBuildingColor(1)}>
-                                <div style={{ width: 30, height: 30, backgroundColor: 'pink' }}> </div>
-                            </button>
-                            <button onClick={() => onChangeBuildingColor(2)}>
-                                <div style={{ width: 30, height: 30, backgroundColor: 'yellow' }}> </div>
-                            </button>
+                            {[0, 1, 2, 3, 4, 5, 6].map((c) => (
+                                <button key={c} onClick={() => onChangeBuildingColor(c)}>
+                                    <div style={{ width: 30, height: 30, backgroundColor: PALLETE[c] }}> </div>
+                                </button>
+                            ))}
                         </div>
                         <div>
                             <button onClick={prevBottom}>prev bottom</button>
