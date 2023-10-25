@@ -11,8 +11,9 @@ const QUEST_1 = "Verification Error";
 const QUEST_2 = "Report to Control (again!)";
 const QUEST_3 = "Orientation";
 const QUEST_4 = "The Vault of Knowledge";
-const QUEST_5 = "Paperclip Maximiser";
+const QUEST_5 = "Calling All Users"
 const QUEST_6 = "Corrupted User";
+const QUEST_7 = "Paperclip Maximizer";
 
 export default async function update({ selected, player }) {
     const { tiles, mobileUnit } = selected || {};
@@ -70,6 +71,9 @@ export default async function update({ selected, player }) {
     };
 
     const getQuestStage = () => {
+        //Debug to jump to this stage
+        if (findQuestByName(QUEST_5)) return 4;
+
         if (!quests) return 0;
 
         const questRegError = findQuestByName(QUEST_1);
@@ -79,11 +83,9 @@ export default async function update({ selected, player }) {
         if (!questReturn) return 1;
         if (questReturn.status === QUEST_ACCEPTED && towerState < 2) return 2;
 
-        // show newb quests if not complete
-        if (!areAllQuestsCompleted([QUEST_3, QUEST_4])) return 3;
-
-        // show advanced quests if not complete
-        if (!areAllQuestsCompleted([QUEST_5, QUEST_6])) return 4;
+        // show orientation quests if not complete
+        if (!areAllQuestsCompleted([QUEST_3])) return 3;
+        if (!areAllQuestsCompleted([QUEST_5])) return 4;
 
         // out of quests
         return -1;
@@ -269,8 +271,83 @@ export default async function update({ selected, player }) {
                 },
             ],
         };
+    }
 
-    } else {
+     else if (questStage === 4) {
+
+        const corruptedUserQuest = findQuestByName(QUEST_6);
+        const paperclipQuest = findQuestByName(QUEST_7);
+        const creationQuest = findQuestByName(QUEST_4);
+
+        var paperclipButton = {
+            text: "Paperclip Maximizer Quest",
+            type: "action",
+            action: () => {
+                acceptQuest(
+                    "0xadbb33ce00000000000000000000000001a36800d83d56b4",
+                );
+            },
+            disabled: false
+        };
+        
+        var corruptedUserButton = {
+            text: "Corrupted User Quest",
+            type: "action",
+            action: () => {
+                acceptQuest(
+                    "0xadbb33ce000000000000000000000000866b8ef618cdb4be",
+                );
+            },
+            disabled: false
+        };
+
+
+        var creationQuestButton = {
+            text: "Creation Quest",
+            type: "action",
+            action: () => {
+                acceptQuest(
+                    "0xadbb33ce000000000000000000000000a217b97e1de447f5", //Vault of Knowledge
+                );
+            },
+            disabled: false
+        };
+
+
+        var htmlString2 = "";
+        var buttonList = [];
+        if (!corruptedUserQuest || !paperclipQuest || !creationQuest) {
+            htmlString2 = "MORTON has urgent requests that require immediate attention";
+        }
+        else {
+            htmlString2 = "There are no quests available at this time";
+        }
+
+        if (!corruptedUserQuest) buttonList.push(corruptedUserButton);
+        if (!paperclipQuest) buttonList.push(paperclipButton);
+        if (!creationQuest) buttonList.push(creationQuestButton);
+
+        return {
+            version: 1,
+            components: [
+                {
+                    type: "building",
+                    id: "control-tower",
+                    content: [
+                        {
+                            id: "default",
+                            type: "inline",
+                            html: htmlString2,
+                            buttons: buttonList,
+                        },
+                    ],
+                },
+            ],
+        };
+    
+    }
+
+    else {
         return {
             version: 1,
             components: [

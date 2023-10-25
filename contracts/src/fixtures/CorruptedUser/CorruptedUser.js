@@ -1,11 +1,9 @@
 import ds from "downstream";
 
 export default function update({ selected, world }) {
-    const { tiles, selectedUnit } = selected || {};
+    const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
-    const selectedBuilding = (world?.buildings || []).find(
-        (b) => selectedTile && b.location?.tile.id === selectedTile.id,
-    );
+    const selectedBuilding = (world?.buildings || []).find(b => selectedTile && b.location?.tile.id === selectedTile.id);
     const selectedBuildingBags = selectedBuilding
         ? (world?.bags || []).filter(
               (bag) => bag.equipee?.node.id === selectedBuilding.id,
@@ -16,6 +14,7 @@ export default function update({ selected, world }) {
         selectedBuildingBags.find((bag) => bag.equipee.key === 0);
     const inputSlots = inputBag && inputBag.slots.sort((a, b) => a.key - b.key);
 
+    const selectedUnit = mobileUnit;
     const selectedUnitBags = selectedUnit
         ? (world?.bags || []).filter(
               (bag) => bag.equipee?.node.id === selectedUnit.id,
@@ -32,17 +31,17 @@ export default function update({ selected, world }) {
                     id: "corrupted-user",
                     content: [
                         {
-                            id: "default",
-                            type: "inline",
-                            html: `Units are not welcome here. Maybe a cunning disguise would gain access?`,
-                        },
-                    ],
+                            id: 'default',
+                            type: 'inline',
+                            html: 'You have a feeling that now is not the right time to alert the Corrupted User to your presence'
+                        }
+                    ]
                 },
             ],
         };
     }
 
-    //Look for a rubber duck in their bags
+    //Look for a boring disguise in their bags
     const hasBoringDisguise = selectedUnitBags.some((b) =>
         b.slots.some(
             (s) =>
@@ -86,7 +85,7 @@ export default function update({ selected, world }) {
         });
     };
 
-    //Show this if there's a rubber duck
+    //Show this if there's a boring disguise
     if (hasBoringDisguise) {
         return {
             version: 1,
@@ -98,7 +97,7 @@ export default function update({ selected, world }) {
                         {
                             id: "default",
                             type: "inline",
-                            html: "With your disguise equipped the Corrupted User listens to your request. But they are unwilling to relinquish the Microchip for free",
+                            html: "With your disguise equipped the Corrupted User listens to your request.<br>But they are unwilling to relinquish the Microchip for free",
                             buttons: [
                                 {
                                     text: "It's a deal!",
@@ -107,6 +106,24 @@ export default function update({ selected, world }) {
                                     disabled: !canCraft,
                                 },
                             ],
+                        },
+                    ],
+                },
+            ],
+        };
+    }
+    else {
+        return {
+            version: 1,
+            components: [
+                {
+                    type: 'building',
+                    id: 'corrupted-user',
+                    content: [
+                        {
+                            id: 'default',
+                            type: 'inline',
+                            html: 'You have a feeling that now is not the right time to alert the Corrupted User to your presence',
                         },
                     ],
                 },

@@ -1,0 +1,13 @@
+---
+kind: Quest
+spec:
+  name: Retrieving The Hardware
+  description: "It's not much of a disguise but it'll have to do. Try to reclaim the hardware from the Corrupted User" 
+  location: [28, -12, -16]
+  tasks:
+    - kind: inventory
+      name: Do whatever it takes to get the hardware back!
+      item:
+        name: Microchip
+        quantity: 1
+  next: ["Fixing The World Constructor"]
