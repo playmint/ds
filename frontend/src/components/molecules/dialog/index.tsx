@@ -17,7 +17,7 @@ const StyledDialog = styled.dialog`
     ${styles}
 `;
 
-export const Dialog: FunctionComponent<DialogProps> = ({ icon, width, height, onClose, children }) => {
+export const Dialog: FunctionComponent<DialogProps> = ({ icon, width, height, onClose, children, className }) => {
     const ref = useRef<HTMLDialogElement>(null);
 
     useEffect(() => {
@@ -27,7 +27,7 @@ export const Dialog: FunctionComponent<DialogProps> = ({ icon, width, height, on
     }, []);
 
     return (
-        <StyledDialog ref={ref} onCancel={onClose} width={width} height={height}>
+        <StyledDialog ref={ref} onCancel={onClose} width={width} height={height} className={className}>
             {icon && (
                 <div className="icon">
                     <img src={icon} alt="icon" />

@@ -9,6 +9,7 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, 
 import { useLocalStorage } from './use-localstorage';
 import { ActionButton } from '@app/styles/button.styles';
 import { colors } from '@app/styles/colors';
+import styled from 'styled-components';
 
 export interface WalletProvider {
     method: string;
@@ -20,6 +21,23 @@ export interface WalletContextValue {
     provider?: WalletProvider;
     connect?: () => void;
 }
+
+const StyledWCDialog = styled(Dialog)`
+    .content {
+        background: ${colors.grey_2};
+        padding: 4.5rem;
+
+        > div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            svg {
+                margin-bottom: 4.5rem;
+            }
+        }
+    }
+`;
 
 export const WalletProviderContext = createContext<WalletContextValue>({});
 export const useWalletProvider = () => useContext(WalletProviderContext);
@@ -111,8 +129,8 @@ export const WalletProviderProvider = ({ children }: { children: ReactNode }) =>
     return (
         <WalletProviderContext.Provider value={value}>
             {walletConnectURI && (
-                <Dialog onClose={closeWalletConnector} width="350px" height="">
-                    <div style={{ padding: 5 }}>
+                <StyledWCDialog onClose={closeWalletConnector} width="47rem" height="">
+                    <div>
                         <QRCodeSVG
                             value={walletConnectURI}
                             size={256}
@@ -125,9 +143,9 @@ export const WalletProviderProvider = ({ children }: { children: ReactNode }) =>
                                 excavate: true,
                             }}
                         />
-                        Scan the QR code with a WalletConnect compatible phone app to connect
+                        <p>Scan the QR code with a WalletConnect compatible phone app to connect</p>
                     </div>
-                </Dialog>
+                </StyledWCDialog>
             )}
             {connecting && (
                 <Dialog onClose={closeConnector} width="304px" height="">
