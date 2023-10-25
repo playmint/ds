@@ -189,7 +189,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             if (!selectMobileUnit || !selectTiles || !selectMapElement || !player) {
                 return;
             }
-            if (player.mobileUnits.find((u) => u.id === id) != null) {
+            if (world?.mobileUnits.find((u) => u.id === id)?.owner?.id === player.id) {
                 selectMobileUnit(id);
                 selectTiles(undefined);
             } else {
