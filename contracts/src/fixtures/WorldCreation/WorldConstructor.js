@@ -1,6 +1,6 @@
 import ds from "downstream";
 
-export default function update({ selected, world }) {
+export default function update({ selected, world, player }) {
     const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
     const selectedBuilding = (world?.buildings || []).find(
