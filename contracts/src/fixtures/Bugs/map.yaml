@@ -140,7 +140,7 @@ spec:
 kind: Building
 spec:
   name: Buffer Overflow
-  location: [ 34, -18, -16 ]
+  location: [ 27, -26, -1 ]
 
 ---
 kind: Building

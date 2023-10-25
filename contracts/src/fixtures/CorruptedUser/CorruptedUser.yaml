@@ -15,11 +15,11 @@ spec:
       quantity: 100
   inputs:
     - name: Vibrant Red Goo
-      quantity: 3
+      quantity: 5
     - name: Vibrant Blue Goo
-      quantity: 3
+      quantity: 5
     - name: Vibrant Green Goo
-      quantity: 3
+      quantity: 5
   outputs:
     - name: Microchip
       quantity: 1

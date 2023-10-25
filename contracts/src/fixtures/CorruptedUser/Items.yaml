@@ -37,7 +37,7 @@ spec:
   name: Microchip
   icon: 15-171
   goo:
-    red: 15
-    green: 15
-    blue: 15
+    red: 25
+    green: 25
+    blue: 25
   stackable: false
