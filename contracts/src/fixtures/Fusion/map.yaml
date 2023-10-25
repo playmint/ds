@@ -1,0 +1,35 @@
+---
+kind: Building
+spec:
+  name: Green Goo Fission
+  location: [21, -32, 11]
+
+---
+kind: Building
+spec:
+  name: Green Goo Fusion
+  location: [33, -22, -11]
+
+---
+kind: Building
+spec:
+  name: Red Goo Fission
+  location: [19, -30, 11]
+
+---
+kind: Building
+spec:
+  name: Red Goo Fusion
+  location: [31, -20, -11]
+
+---
+kind: Building
+spec:
+  name: Blue Goo Fission
+  location: [17, -30, 13]
+
+---
+kind: Building
+spec:
+  name: Blue Goo Fusion
+  location: [29, -21, -8]

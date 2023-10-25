@@ -1,0 +1,66 @@
+---
+kind: Item
+spec:
+  name: Vibrant Green Goo
+  icon: 22-197
+  goo:
+    red: 0
+    green: 10
+    blue: 0
+  stackable: true
+
+---
+kind: Item
+spec:
+  name: Really Green Goo
+  icon: 22-192
+  goo:
+    red: 0
+    green: 100
+    blue: 0
+  stackable: true
+
+---
+kind: Item
+spec:
+  name: Vibrant Red Goo
+  icon: 22-197
+  goo:
+    red: 10
+    green: 0
+    blue: 0
+  stackable: true
+  
+---
+kind: Item
+spec:
+  name: Really Red Goo
+  icon: 22-192
+  goo:
+    red: 100
+    green: 0
+    blue: 0
+  stackable: true
+
+---
+kind: Item
+spec:
+  name: Vibrant Blue Goo
+  icon: 22-197
+  goo:
+    red: 0
+    green: 0
+    blue: 10
+  stackable: true
+
+---
+kind: Item
+spec:
+  name: Really Blue Goo
+  icon: 22-192
+  goo:
+    red: 0
+    green: 0
+    blue: 100
+  stackable: true
+

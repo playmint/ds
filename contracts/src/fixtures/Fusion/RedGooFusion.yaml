@@ -1,0 +1,22 @@
+---
+kind: BuildingKind
+spec:
+  name: Red Goo Fusion
+  description: "A reactor that will fuse Vibrant Red Goo into Really Red Goo."
+  category: factory
+  model: 05-11
+  color: 4
+  contract:
+    file: ./RedGooFusion.sol
+  plugin:
+    file: ./RedGooFusion.js
+  materials:
+  - name: L33t Bricks
+    quantity: 100
+  inputs:
+  - name: Vibrant Red Goo
+    quantity: 100
+  outputs:
+  - name: Really Red Goo
+    quantity: 5
+
