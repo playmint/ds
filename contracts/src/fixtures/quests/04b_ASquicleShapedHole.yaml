@@ -11,6 +11,7 @@ spec:
       buildingKind: Vault of Knowledge
     - kind: deployBuilding
       name: "Deploy a factory that crafts Squircles"
+      craftOutput: "Squircle"
     - kind: inventory
       name: Put a Squircle in your bag
       item:

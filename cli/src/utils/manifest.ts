@@ -241,6 +241,8 @@ export const TaskConstruct = z.object({
 export const TaskDeployBuilding = z.object({
     kind: z.literal('deployBuilding'),
     name: z.string(),
+    craftInput: z.string().optional(),
+    craftOutput: z.string().optional(),
 });
 
 export const TaskUnitStats = z.object({

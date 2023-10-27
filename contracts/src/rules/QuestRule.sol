@@ -72,6 +72,12 @@ contract QuestRule is Rule {
                 state.set(Rel.Balance.selector, LIFE, task, Node.Atom(LIFE), life);
                 state.set(Rel.Balance.selector, DEFENCE, task, Node.Atom(DEFENCE), defence);
                 state.set(Rel.Balance.selector, ATTACK, task, Node.Atom(ATTACK), attack);
+            } else if (uint32(uint256(keccak256(abi.encodePacked("deployBuilding")))) == taskKind) {
+                (bytes24 craftInput, bytes24 craftOutput) = abi.decode(taskData, (bytes24, bytes24));
+                if (craftInput != bytes24(0))
+                    state.set(Rel.Balance.selector, 0, task, craftInput, 0);
+                if (craftOutput != bytes24(0))
+                    state.set(Rel.Balance.selector, 1, task, craftOutput, 0);
             }
 
             _setName(state, Node.Player(ctx.sender), task, name);

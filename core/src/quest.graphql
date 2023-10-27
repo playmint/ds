@@ -53,4 +53,10 @@ fragment QuestTask on Node {
         key
         weight
     }
+    craftItems: edges(match: { kinds: "item" }) {
+        key
+        item: node {
+            id
+        }
+    }
 }
