@@ -11,11 +11,11 @@ spec:
     file: ./GenericExtractor.js
   materials:
     - name: Green Goo
-      quantity: 25
+      quantity: 10
     - name: Blue Goo
-      quantity: 25
+      quantity: 10
     - name: Red Goo
-      quantity: 25
+      quantity: 10
   outputs:
     - name: Blue Goo
       quantity: 1
