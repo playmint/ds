@@ -169,8 +169,8 @@ contract ExtractionRule is Rule {
         else return baseSecsPerGoo;
         */
         ///speeding up 10x
-        baseSecsPerGoo = Math.div(baseSecsPerGoo, Math.fromUInt(10));
-        if (baseSecsPerGoo < 2) return 2;
+        baseSecsPerGoo = Math.div(baseSecsPerGoo, Math.fromUInt(5));
+        if (baseSecsPerGoo < 4) return 4;
         else return baseSecsPerGoo;
     }
 

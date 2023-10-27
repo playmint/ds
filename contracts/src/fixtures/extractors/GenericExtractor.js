@@ -32,9 +32,9 @@ const getSecsPerGoo = (atomVal) => {
     else return baseSecsPerGoo;
     */
     ///speeding up 10x
-    if (atomVal >= 165) return Math.max(baseSecsPerGoo * 0.75 * 0.1, 2);
-    else if (atomVal >= 155) return baseSecsPerGoo * 0.85 * 0.1;
-    else return baseSecsPerGoo * 0.1;
+    if (atomVal >= 165) return Math.max(baseSecsPerGoo * 0.75 * 0.2, 4);
+    else if (atomVal >= 155) return Math.max(baseSecsPerGoo * 0.85 * 0.2, 4);
+    else return Math.max(baseSecsPerGoo * 0.2, 4);
 };
 
 const getGooPerSec = (atomVal) => {
