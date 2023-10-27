@@ -207,7 +207,7 @@ export default async function update({ selected, player }) {
     else if (questStage === 3) {
 
         const orientationQuest = findQuestByName(QUEST_3);
-        const creationQuest = findQuestByName(QUEST_4);
+        //const creationQuest = findQuestByName(QUEST_4);
 
         const acceptOrientation = () => {
             acceptMultipleQuests([
@@ -223,6 +223,7 @@ export default async function update({ selected, player }) {
             disabled: false
         };
 
+        /*
         var creationButton = {
             text: "Accept Creation Quest",
             type: "action",
@@ -233,22 +234,28 @@ export default async function update({ selected, player }) {
             },
             disabled: false
         };
+        */
 
 
         var htmlString = "";
         var buttons;
+
+        /*
         if (!orientationQuest && !creationQuest) {
             htmlString = "Two quests are available for users of your minimal skill level.<br>Please accept one to improve your simulation competency";
             buttons = [orientationButton, creationButton];
         }
-        else if (!orientationQuest) {
+        */
+        if (!orientationQuest) {
             htmlString = "The Orientation quest is recommended for your skill level.<br>Acceptance and completion will improve user ability within the simulation";
             buttons = [orientationButton];
         }
+        /*
         else if (!creationQuest) {
             htmlString = "The Creation quest is recommended for your skill level.<br>Acceptance and completion will show user's ability to compose improvements to the simulation";
             buttons = [creationButton];
         }
+        */
         else {
             htmlString = "No quests are available at this time";
         }
@@ -277,7 +284,7 @@ export default async function update({ selected, player }) {
 
         const corruptedUserQuest = findQuestByName(QUEST_6);
         const paperclipQuest = findQuestByName(QUEST_7);
-        const creationQuest = findQuestByName(QUEST_4);
+        //const creationQuest = findQuestByName(QUEST_4);
 
         var paperclipButton = {
             text: "Paperclip Maximizer Quest",
@@ -301,7 +308,7 @@ export default async function update({ selected, player }) {
             disabled: false
         };
 
-
+        /*
         var creationQuestButton = {
             text: "Creation Quest",
             type: "action",
@@ -312,11 +319,12 @@ export default async function update({ selected, player }) {
             },
             disabled: false
         };
+        */
 
 
         var htmlString2 = "";
         var buttonList = [];
-        if (!corruptedUserQuest || !paperclipQuest || !creationQuest) {
+        if (!corruptedUserQuest || !paperclipQuest) {
             htmlString2 = "MORTON has urgent requests that require immediate attention";
         }
         else {
@@ -325,7 +333,7 @@ export default async function update({ selected, player }) {
 
         if (!corruptedUserQuest) buttonList.push(corruptedUserButton);
         if (!paperclipQuest) buttonList.push(paperclipButton);
-        if (!creationQuest) buttonList.push(creationQuestButton);
+       // if (!creationQuest) buttonList.push(creationQuestButton);
 
         return {
             version: 1,
