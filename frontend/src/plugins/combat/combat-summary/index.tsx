@@ -1,8 +1,14 @@
 /** @format */
 
-import { ConnectedPlayer, WorldMobileUnitFragment, WorldStateFragment, WorldTileFragment } from '@app/../../core/src';
+import {
+    CogAction,
+    ConnectedPlayer,
+    WorldMobileUnitFragment,
+    WorldStateFragment,
+    WorldTileFragment,
+} from '@app/../../core/src';
 import { Dialog } from '@app/components/molecules/dialog';
-import { ATOM_LIFE, Combat, EntityState } from '@app/plugins/combat/combat';
+import { ATOM_LIFE, Combat, CombatWinState, EntityState } from '@app/plugins/combat/combat';
 import { convertCombatActions, getActions } from '@app/plugins/combat/helpers';
 import { ProgressBar } from '@app/plugins/combat/progress-bar';
 import { ComponentProps } from '@app/types/component-props';
@@ -38,6 +44,20 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
     const closeModal = useCallback(() => {
         setModal(false);
     }, []);
+
+    const handleFinaliseCombat = () => {
+        if (!latestSession) {
+            return;
+        }
+        if (!player) {
+            return;
+        }
+        const action: CogAction = {
+            name: 'FINALISE_COMBAT',
+            args: [latestSession.id, actions, orderedListIndexes],
+        };
+        player.dispatchAndWait(action).catch((err) => console.error(err));
+    };
 
     const selectedTileSessions = selectedTiles.length > 0 ? getSessionsAtTile(sessions, selectedTiles[0]) : [];
     if (selectedTiles.length === 0 || selectedTileSessions.length === 0) {
@@ -96,6 +116,9 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
                         <ProgressBar maxValue={defendersMaxHealth} currentValue={defendersCurrentHealth} />
                     </div>
                     <ActionButton onClick={showModal}>View Combat</ActionButton>
+                    {combatState.winState !== CombatWinState.NONE && (
+                        <ActionButton onClick={handleFinaliseCombat}>End Combat</ActionButton>
+                    )}
                 </div>
             )}
         </StyledCombatSummary>
