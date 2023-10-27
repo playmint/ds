@@ -3,6 +3,8 @@ kind: Item
 spec:
   name: Squircle
   icon: 31-286
+  contract:
+    file: ./Squircle.sol
   goo:
     red: 10
     green: 10
