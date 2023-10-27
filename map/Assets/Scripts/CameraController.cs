@@ -37,6 +37,7 @@ public class CameraController : MonoBehaviour
     private Vector3 mouseDownPos;
     private Vector3 camMouseDownPos;
     private float _dragThreshold = 0.1f;
+    private float buttonScrollSpeed = 10;
 
     void Start()
     {
@@ -57,7 +58,12 @@ public class CameraController : MonoBehaviour
         {
             return;
         }
-        float scrollInput = Input.GetAxis("Mouse ScrollWheel");
+        float buttonScroll = 0;
+        if (Input.GetKey(KeyCode.Q))
+            buttonScroll += 1 * Time.deltaTime * buttonScrollSpeed;
+        if (Input.GetKey(KeyCode.E))
+            buttonScroll -= 1 * Time.deltaTime * buttonScrollSpeed;
+        float scrollInput = Input.GetAxis("Mouse ScrollWheel") + buttonScroll;
 
         if (Mathf.Abs(scrollInput) > Mathf.Epsilon)
         {
