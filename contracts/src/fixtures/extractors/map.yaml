@@ -19,6 +19,12 @@ spec:
 ---
 kind: Building
 spec:
+  name: Green Goo Extractor
+  location: [-20, 1, 19]
+
+---
+kind: Building
+spec:
   name: Red Goo Extractor
   location: [20, 17, -37]
 
@@ -37,6 +43,12 @@ spec:
 ---
 kind: Building
 spec:
+  name: Red Goo Extractor
+  location: [-25, 7, 18]
+
+---
+kind: Building
+spec:
   name: Blue Goo Extractor
   location: [24, 11, -35]
 
@@ -51,3 +63,9 @@ kind: Building
 spec:
   name: Blue Goo Extractor
   location: [-16, 24, -8]
+
+---
+kind: Building
+spec:
+  name: Blue Goo Extractor
+  location: [-21, 7, 14]
