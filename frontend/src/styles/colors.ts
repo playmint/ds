@@ -30,8 +30,9 @@ export const colorMap = {
     primaryButtonText: colors.orange_0,
     primaryButtonBackground1: colors.grey_0,
     primaryButtonBackground2: colors.grey_1,
-    primaryButtonActiveBackground: colors.orange_0,
-    primaryButtonActiveText: colors.grey_0,
+    primaryButtonHoverBackground: colors.orange_0,
+    primaryButtonActiveBackground: colors.orange_1,
+    primaryButtonHoverText: colors.grey_0,
 
     primaryBorderColor: colors.grey_5,
 };

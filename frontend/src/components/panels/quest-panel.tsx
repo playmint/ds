@@ -26,11 +26,15 @@ const CompleteQuestButton = styled(ActionButton)`
     color: ${colors.green_0};
     background: ${colors.grey_5};
 
-    &:hover,
-    &.active {
+    &:hover {
         background: ${colors.green_0};
         color: ${colors.grey_5};
         opacity: 1;
+    }
+
+    &:active {
+        background: ${colors.green_1};
+        color: ${colors.grey_5};
     }
 `;
 

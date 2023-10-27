@@ -42,19 +42,19 @@ export const ActionBar: FunctionComponent<ActionBarProps> = ({}: ActionBarProps)
         <StyledActionBar>
             <div className="actions">
                 <UnitActionButton
-                    className={`${intent === MOVE_INTENT ? 'active' : ''}`}
+                    className={`${intent === MOVE_INTENT ? 'toggleOn' : ''}`}
                     onClick={() => handleSelectIntent(MOVE_INTENT)}
                 >
                     Move
                 </UnitActionButton>
                 <UnitActionButton
-                    className={`${intent === CONSTRUCT_INTENT ? 'active' : ''}`}
+                    className={`${intent === CONSTRUCT_INTENT ? 'toggleOn' : ''}`}
                     onClick={() => handleSelectIntent(CONSTRUCT_INTENT)}
                 >
                     Build
                 </UnitActionButton>
                 <UnitActionButton
-                    className={`${intent === COMBAT_INTENT ? 'active' : ''}`}
+                    className={`${intent === COMBAT_INTENT ? 'toggleOn' : ''}`}
                     onClick={() => handleSelectIntent(COMBAT_INTENT)}
                 >
                     Attack
