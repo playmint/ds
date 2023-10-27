@@ -1,0 +1,35 @@
+---
+kind: Item
+spec:
+  name: Very Important Thing
+  icon: 32-57
+  goo:
+    red: 2
+    green: 2
+    blue: 2
+  stackable: false
+---
+
+kind: BuildingKind
+spec:
+  name: Very Important Thing Factory
+  description: "Use Very Importnant Stuff to make a Very Important Thing"
+  category: factory
+  model: 09-09
+  contract:
+    file: ./VeryImportantThingFactory.sol
+  plugin:
+    file: ./VeryImportantThingFactory.js
+  materials:
+    - name: Green Goo
+      quantity: 25
+    - name: Blue Goo
+      quantity: 25
+    - name: Red Goo
+      quantity: 25
+  inputs:
+    - name: Very Important Stuff
+      quantity: 1
+  outputs:
+    - name: Very Important Thing
+      quantity: 1
