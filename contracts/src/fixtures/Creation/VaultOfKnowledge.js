@@ -10,11 +10,20 @@ export default async function update({ selected, world, player }) {
     //const selectedUnit = mobileUnit;
     const quests = player?.quests || [];
 
-    const squircleQuest = findQuestByName("A Squircle-Shaped Hole");
-
-
-    const findQuestByName = (questName) => {
-        return quests.find((q) => q.node.name.value == questName);
+    const getNextQuestNum = () => {
+        const questNum = quests.reduce(
+            (qNum, q) => (q.key > qNum ? q.key : qNum),
+            -1,
+        );
+        return questNum + 1;
+    };
+    
+    const acceptQuest = (questId) => {
+        const questNum = getNextQuestNum();
+        ds.dispatch({
+            name: "ACCEPT_QUEST",
+            args: [questId, questNum],
+        });
     };
 
     const openDocs = () => {
@@ -45,19 +54,24 @@ export default async function update({ selected, world, player }) {
         type: "action",
         action: () => {
             acceptQuest(
-                "0xadbb33ce000000000000000000000000a217b97e1de447f5", //A Squircle-Shaped Hole
+                "0xadbb33ce000000000000000000000000e5a40d8f48aab41b", //A Squircle-Shaped Hole
             );
         },
         disabled: false
     };
 
-    var buttonList;
+    var buttonList =[];
 
-    if (!squircleQuest)
-    {
-        buttonList.push(creationQuestButton);
-    }
 
+    const findQuestByName = (questName) => {
+        return quests.find((q) => q.node.name.value == questName);
+    };
+    
+    const QUEST_NAME = "A Squircle-Shaped Hole"
+    const squircleQuest = findQuestByName(QUEST_NAME);
+
+
+    if (!squircleQuest) buttonList.push(creationQuestButton);
     buttonList.push(docButton);
     buttonList.push(builderPageButton);
 
