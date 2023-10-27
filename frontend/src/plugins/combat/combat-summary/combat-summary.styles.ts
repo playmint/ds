@@ -44,6 +44,14 @@ const baseStyles = (_: Partial<CombatSummaryProps>) => css`
         .defenders {
             margin-bottom: 2rem;
         }
+
+        > button {
+            margin-bottom: 1rem;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
     }
 `;
 

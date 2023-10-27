@@ -15,10 +15,14 @@ const BaseButtonStyle = css`
         pointer-events: none;
     }
     &:hover,
-    &.active {
-        background: ${colorMap.primaryButtonActiveBackground};
-        color: ${colorMap.primaryButtonActiveText};
+    &.toggleOn {
+        background: ${colorMap.primaryButtonHoverBackground};
+        color: ${colorMap.primaryButtonHoverText};
         opacity: 1;
+    }
+
+    &:active {
+        background: ${colorMap.primaryButtonActiveBackground};
     }
 `;
 
