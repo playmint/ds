@@ -21,7 +21,7 @@ const baseStyles = ({ isDroppable, isDisabled, isInteractable, isInvalid, hasIte
     width: 4.8rem;
     height: 4.8rem;
     border-radius: 0.8rem;
-    overflow: hidden;
+    overflow: visible;
     background: ${isDisabled || !isInteractable ? colorMap.secondaryBackground : colors.grey_0};
     border: 2px solid
         ${isDisabled || !isInteractable
