@@ -145,38 +145,34 @@ contract ExtractionRule is Rule {
         int128 elapsedSecs = Math.fromUInt((ctx.clock - state.getBlockNum(buildingInstance, 0)) * BLOCK_TIME_SECS);
 
         for (uint256 i = 0; i < 3; i++) {
-            extractedAtoms[i] = _getGooPerSec(atoms[i]).mul(elapsedSecs).toUInt();
+            extractedAtoms[i] = _getGooPerSec64x64(atoms[i]).mul(elapsedSecs).toUInt();
             if (extractedAtoms[i] > GOO_RESERVOIR_MAX) extractedAtoms[i] = GOO_RESERVOIR_MAX;
         }
     }
 
     // https://www.notion.so/playmint/Extraction-6b36dcb3f95e4ab8a57cb6b99d24bb8f#cb8cc764f9ef436e9847e631ef12b157
 
-    function _getSecsPerGoo(uint64 atomVal) private pure returns (int128) {
+    function _getSecsPerGoo64x64(uint64 atomVal) private pure returns (int128) {
         if (atomVal < 70) return Math.fromUInt(0);
 
         uint256 x = atomVal >= 70 ? atomVal - 70 : 0;
-        int128 baseSecsPerGoo = Math.fromUInt(120).mul(Math.fromUInt(9850).div(Math.fromUInt(10000)).pow(x));
+        int128 baseSecsPerGoo64x64 = Math.fromUInt(120).mul(Math.fromUInt(9850).div(Math.fromUInt(10000)).pow(x));
 
         if (atomVal >= 165) {
-            baseSecsPerGoo = Math.mul(baseSecsPerGoo, Math.fromUInt(75).div(Math.fromUInt(100)));
+            baseSecsPerGoo64x64 = Math.mul(baseSecsPerGoo64x64, Math.fromUInt(75).div(Math.fromUInt(100)));
         } else if (atomVal >= 155) {
-            baseSecsPerGoo = Math.mul(baseSecsPerGoo, Math.fromUInt(85).div(Math.fromUInt(100)));
+            baseSecsPerGoo64x64 = Math.mul(baseSecsPerGoo64x64, Math.fromUInt(85).div(Math.fromUInt(100)));
         }
 
-        /*
-        if (baseSecsPerGoo < 20) return 20;
-        else return baseSecsPerGoo;
-        */
         ///speeding up 10x
-        baseSecsPerGoo = Math.div(baseSecsPerGoo, Math.fromUInt(5));
-        if (baseSecsPerGoo < 4) return 4;
-        else return baseSecsPerGoo;
+        baseSecsPerGoo64x64 = Math.div(baseSecsPerGoo64x64, Math.fromUInt(5));
+        if (baseSecsPerGoo64x64 < Math.fromUInt(4)) return Math.fromUInt(4);
+        else return baseSecsPerGoo64x64;
     }
 
-    function _getGooPerSec(uint64 atomVal) private pure returns (int128) {
-        int128 secsPerGoo = _getSecsPerGoo(atomVal);
-        return secsPerGoo > 0 ? Math.fromUInt(1).div(secsPerGoo) : Math.fromUInt(0);
+    function _getGooPerSec64x64(uint64 atomVal) private pure returns (int128) {
+        int128 secsPerGoo64x64 = _getSecsPerGoo64x64(atomVal);
+        return secsPerGoo64x64 > 0 ? Math.fromUInt(1).div(secsPerGoo64x64) : Math.fromUInt(0);
     }
 
     function _requireIsBag(bytes24 item) private pure {
