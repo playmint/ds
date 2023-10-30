@@ -10,6 +10,7 @@ import { FunctionComponent, useMemo } from 'react';
 import styled from 'styled-components';
 import { styles } from './bag-slot.styles';
 import { colors } from '@app/styles/colors';
+import Tooltip from '@app/plugins/tooltip/tooltip';
 
 export interface BagSlotProps extends ComponentProps {
     itemSlot?: ItemSlotFragment;
@@ -134,19 +135,25 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
                       />
                   )
                 : placeholderItem && (
-                      <div className="placeholder" title={`${placeholderItem.quantity} ${placeholderItem.name}`}>
-                          <div
-                              className="icon"
-                              style={{
-                                  maskImage: `url(${placeholderItem.icon})`,
-                                  WebkitMaskImage: `url(${placeholderItem.icon})`,
-                                  backgroundColor: colors.grey_3,
-                              }}
-                          ></div>
-                          <span className="amount" style={{ color: colors.grey_3 }}>
-                              {placeholderItem.quantity}
-                          </span>
-                      </div>
+                      <Tooltip
+                          content={`${placeholderItem.quantity} ${placeholderItem.name}`}
+                          direction="top"
+                          delay={0}
+                      >
+                          <div className="placeholder">
+                              <div
+                                  className="icon"
+                                  style={{
+                                      maskImage: `url(${placeholderItem.icon})`,
+                                      WebkitMaskImage: `url(${placeholderItem.icon})`,
+                                      backgroundColor: colors.grey_3,
+                                  }}
+                              ></div>
+                              <span className="amount" style={{ color: colors.grey_3 }}>
+                                  {placeholderItem.quantity}
+                              </span>
+                          </div>
+                      </Tooltip>
                   )}
         </StyledBagSlot>
     );

@@ -14,7 +14,8 @@ export const TooltipTip = styled.div<{ direction?: 'top' | 'right' | 'bottom' | 
     position: absolute;
     border-radius: 4px;
     left: 50%;
-    transform: translateX(-50%);
+    top: 0; /* Position the tooltip at the top of its container */
+    transform: translate(-50%, calc(-100% + 20px));
     padding: 6px;
     color: ${tooltipTextColor};
     background: ${tooltipBackgroundColor};
@@ -23,12 +24,13 @@ export const TooltipTip = styled.div<{ direction?: 'top' | 'right' | 'bottom' | 
     line-height: 1;
     z-index: 100;
     width: max-content;
+    max-width: 125px;
     white-space: pre-line;
-    margin-top: -125%;
 
     &::before {
         content: ' ';
         left: 50%;
+        top: 100%; /* This will make the arrow point upwards from the top of the tooltip */
         border: solid transparent;
         height: 0;
         width: 0;
