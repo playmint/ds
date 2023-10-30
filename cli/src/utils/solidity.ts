@@ -12,9 +12,13 @@ interface CompileOpts {
     verbose?: boolean;
 }
 
-export async function compile(filepath: string, opts: CompileOpts) {
-    const filename = path.basename(filepath);
+export async function compilePath(filepath: string, opts: CompileOpts) {
     const content = fs.readFileSync(filepath, 'utf8');
+    return compileString(content, filepath, opts);
+}
+
+export async function compileString(content:string, filepath: string, opts: CompileOpts) {
+    const filename = path.basename(filepath);
 
     const findImports = (importpath: string) => {
         for (const [from, to] of remappings) {

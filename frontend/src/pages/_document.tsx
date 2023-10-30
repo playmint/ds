@@ -11,7 +11,13 @@ export default function Document() {
                     rel="stylesheet"
                 />
             </Head>
-            <body style={{ overflow: 'hidden' }}>
+            <body
+                style={{
+                    overflow: 'hidden',
+                    background:
+                        'linear-gradient(0deg, rgba(247, 245, 250, 0.5) 0%, rgba(247, 245, 250, 0.5) 100%), #e4e1eb',
+                }}
+            >
                 <Main />
                 <NextScript />
             </body>

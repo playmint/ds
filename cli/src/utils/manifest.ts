@@ -7,12 +7,14 @@ export const BuildingCategoryEnum = z.enum(BuildingCategoryEnumVals);
 export type BuildingCategoryEnum = z.infer<typeof BuildingCategoryEnum>;
 
 export const ContractSource = z.object({
-    file: z.string(),
+    file: z.string().optional(),
+    bytecode: z.string().optional(), // precopmiled bytecode hex string (not 0x prefixed)
     includes: z.string().array().optional(), // list of library search paths
 });
 
 export const PluginSource = z.object({
-    file: z.string(),
+    file: z.string().optional(),
+    inline: z.string().optional(),
 });
 
 export const Name = z.string().min(3).max(32);
@@ -276,6 +278,10 @@ export const QuestSpec = z.object({
 export const Quest = z.object({
     kind: z.literal('Quest'),
     spec: QuestSpec,
+    status: z
+        .object({
+        })
+        .optional(),
 });
 
 // -- //

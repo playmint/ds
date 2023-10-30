@@ -9,13 +9,15 @@ export interface UnityMapContextValue {
     sendMessage?: SendMessageFunc;
     addUnityEventListener?: (eventName: string, callback: (...parameters: any[]) => any) => void;
     removeUnityEventListener?: (eventName: string, callback: (...parameters: any[]) => any) => void;
+    containerStyle?: any; // FIXME: find the CSS style type
+    setContainerStyle?: (styles: any) => void;
 }
 
 export const UnityMapContext = createContext<UnityMapContextValue>({});
 export const useUnityMap = () => useContext(UnityMapContext);
 
 export const UnityMapProvider = ({ children, disabled }: { children: ReactNode; disabled?: boolean }) => {
-    const { unity, ready } = useGlobalUnityInstance({ disabled });
+    const { unity, ready, containerStyle, setContainerStyle } = useGlobalUnityInstance({ disabled });
     const { sendMessage, loadingProgression, addEventListener, removeEventListener } = unity;
 
     const loadingPercentage = loadingProgression ? Math.round(loadingProgression * 100) : 0;
@@ -29,8 +31,10 @@ export const UnityMapProvider = ({ children, disabled }: { children: ReactNode; 
             removeUnityEventListener: removeEventListener,
             sendMessage,
             ready,
+            containerStyle,
+            setContainerStyle,
         };
-    }, [ready, sendMessage, addEventListener, removeEventListener]);
+    }, [ready, sendMessage, containerStyle, setContainerStyle, addEventListener, removeEventListener]);
 
     return (
         <UnityMapContext.Provider value={value}>

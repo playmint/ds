@@ -31,6 +31,7 @@ export interface GlobalUnityContext {
     unity: Subject<Partial<UnityContextHook>>;
     setCanvasHeight?: (height: number) => void;
     getCanvasHeight?: () => number;
+    updateAspectRatio?: () => void;
 }
 
 const g = globalThis as unknown as { __globalUnityContext: GlobalUnityContext };
@@ -55,9 +56,42 @@ const UnityInstance = () => {
     const [canvasHeight, setCanvasHeight] = useLocalStorage<number>(`ds/canvasHeight`, -1);
     const getCanvasHeight = useCallback(() => canvasHeight, [canvasHeight]);
 
+    const onResize = useCallback(() => {
+        if (!canvas) {
+            return;
+        }
+        const mapContainer = typeof document !== 'undefined' ? document.getElementById('map-container') : undefined;
+        if (!mapContainer) {
+            return;
+        }
+        const mapContainerBounds = mapContainer.getBoundingClientRect();
+        if (canvasHeight && canvasHeight > 0) {
+            const ratio = mapContainerBounds.width / mapContainerBounds.height;
+            const height = Math.min(mapContainerBounds.height, canvasHeight);
+            canvas.height = height;
+            canvas.width = height * ratio;
+        } else if (canvasHeight === -2) {
+            // "native" ... exactly match the browser/screen pixel density
+            // this will be the highest possible quality, but your GPU
+            // might struggle
+            canvas.height = mapContainerBounds.height * window.devicePixelRatio;
+            canvas.width = mapContainerBounds.width * window.devicePixelRatio;
+        } else {
+            // "auto" ... use the native browser pixel height for
+            // resolution, but never pack more pixels into the canvas than
+            // the actual screen pixels (ie if zoomed out or hiDPI)
+            // quirk: zooming IN will lower the res, which is weird, if you
+            // need to zoom in for some reason probably use "native"
+            canvas.height = Math.min(mapContainerBounds.height * window.devicePixelRatio, mapContainerBounds.height);
+            canvas.width = Math.min(mapContainerBounds.width * window.devicePixelRatio, mapContainerBounds.width);
+        }
+        console.info(`canvas size updated to ${canvas.width}x${canvas.height}`);
+    }, [canvas, canvasHeight]);
+
     if (g.__globalUnityContext) {
         g.__globalUnityContext.setCanvasHeight = setCanvasHeight;
         g.__globalUnityContext.getCanvasHeight = getCanvasHeight;
+        g.__globalUnityContext.updateAspectRatio = onResize;
     }
 
     useEffect(() => {
@@ -132,32 +166,9 @@ const UnityInstance = () => {
     }, [addEventListener, removeEventListener]);
 
     useEffect(() => {
-        if (!canvas) {
+        if (!onResize) {
             return;
         }
-        const onResize = () => {
-            if (canvasHeight && canvasHeight > 0) {
-                const ratio = window.innerWidth / window.innerHeight;
-                const height = Math.min(window.innerHeight, canvasHeight);
-                canvas.height = height;
-                canvas.width = height * ratio;
-            } else if (canvasHeight === -2) {
-                // "native" ... exactly match the browser/screen pixel density
-                // this will be the highest possible quality, but your GPU
-                // might struggle
-                canvas.height = window.innerHeight * window.devicePixelRatio;
-                canvas.width = window.innerWidth * window.devicePixelRatio;
-            } else {
-                // "auto" ... use the native browser pixel height for
-                // resolution, but never pack more pixels into the canvas than
-                // the actual screen pixels (ie if zoomed out or hiDPI)
-                // quirk: zooming IN will lower the res, which is weird, if you
-                // need to zoom in for some reason probably use "native"
-                canvas.height = Math.min(window.innerHeight * window.devicePixelRatio, window.innerHeight);
-                canvas.width = Math.min(window.innerWidth * window.devicePixelRatio, window.innerWidth);
-            }
-            console.info(`canvas size updated to ${canvas.width}x${canvas.height}`);
-        };
         window.addEventListener('resize', onResize);
 
         const mediaMatcher = window.matchMedia(`screen and (resolution: ${devicePixelRatio}dppx)`);
@@ -181,12 +192,12 @@ const UnityInstance = () => {
                 mediaMatcher.removeEventListener('change', onResize);
             }
         };
-    }, [canvas, canvasHeight]);
+    }, [onResize]);
 
     return (
         <Unity
             ref={canvasRef}
-            style={{ width: '100vw', height: '100vh', position: 'absolute' }}
+            style={{ width: '100%', height: '100%' }}
             unityProvider={unityProvider}
             matchWebGLToCanvasSize={false}
             tabIndex={0}
@@ -223,6 +234,12 @@ const makeUnityReadySubject = () => {
 export const useGlobalUnityInstance = ({ disabled }: { disabled?: boolean }) => {
     const [unity, setUnity] = useState<Partial<UnityContextHook>>({});
     const [ready, setReady] = useState<boolean>(false);
+    const [containerStyle, setContainerStyleValues] = useState<any>({
+        position: 'fixed',
+        width: '100vw',
+        height: '100vh',
+        top: 0,
+    });
 
     const ctx = g.__globalUnityContext
         ? g.__globalUnityContext
@@ -234,23 +251,40 @@ export const useGlobalUnityInstance = ({ disabled }: { disabled?: boolean }) => 
           })();
     g.__globalUnityContext = ctx;
 
+    const setContainerStyle = (styles: any) => {
+        setContainerStyleValues(styles);
+        setTimeout(() => {
+            if (ctx.updateAspectRatio) {
+                ctx.updateAspectRatio();
+            }
+        }, 5);
+    };
+
     if (!disabled) {
         if (typeof document !== 'undefined') {
             const mapContainer = document.getElementById('map-container');
             if (!mapContainer) {
                 const mapContainer = document.createElement('div');
+                mapContainer.style.display = 'none';
                 mapContainer.id = 'map-container';
                 document.body.appendChild(mapContainer);
-                mapContainer.style.position = 'fixed';
-                mapContainer.style.top = '0px';
-                mapContainer.style.left = '0px';
-                mapContainer.style.bottom = '0px';
-                mapContainer.style.right = '0px';
                 const root = createRoot(mapContainer);
                 setTimeout(() => root.render(<UnityInstance />), 0); // do this async or react cries about nested renders
             }
         }
     }
+
+    const mapContainer = typeof document !== 'undefined' ? document.getElementById('map-container') : undefined;
+
+    useEffect(() => {
+        if (!mapContainer) {
+            return;
+        }
+        mapContainer.style.display = 'block';
+        for (const k in containerStyle) {
+            mapContainer.style[k] = containerStyle[k];
+        }
+    }, [containerStyle, mapContainer]);
 
     useEffect(() => {
         const { unsubscribe } = pipe(
@@ -282,5 +316,5 @@ export const useGlobalUnityInstance = ({ disabled }: { disabled?: boolean }) => 
         };
     }, []);
 
-    return { unity, ready };
+    return { unity, ready, containerStyle, setContainerStyle };
 };
