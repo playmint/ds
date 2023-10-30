@@ -1504,7 +1504,7 @@ export default function ShellPage() {
     const config = useConfig();
 
     return (
-        <UnityMapProvider>
+        <UnityMapProvider showLoading={false}>
             <WalletProviderProvider>
                 <GameStateProvider config={config}>
                     <SessionProvider>
