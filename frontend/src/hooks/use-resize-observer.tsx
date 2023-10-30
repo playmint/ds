@@ -10,16 +10,21 @@ const useResizeObserver = ({ callback, element }: { element: any; callback: () =
         if (observer && observer.current && current) {
             observer.current.unobserve(current);
         }
-        observer.current = new ResizeObserver(callback);
+        const resizer = new ResizeObserver(callback);
+        observer.current = resizer;
         if (element && element.current && observer.current) {
             observer.current.observe(element.current);
         }
+        if (typeof window !== 'undefined') {
+            window.addEventListener('resize', callback);
+        }
 
-        const el = element;
-        console.log('updating');
         return () => {
-            if (observer && observer.current && el && el.current) {
-                observer.current.unobserve(el.current);
+            if (resizer && current) {
+                resizer.unobserve(current);
+            }
+            if (typeof window !== 'undefined') {
+                window.removeEventListener('resize', callback);
             }
         };
     }, [current, callback, element]);
