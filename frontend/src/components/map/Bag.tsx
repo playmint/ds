@@ -75,6 +75,9 @@ export const Bags = memo(
                         (selectedMobileUnitID &&
                             tileSessions.flatMap((cs) => {
                                 return getBagsAtEquipee(world?.bags || [], cs).filter((bag) => {
+                                    if (bag.slots.every((slot) => !slot.balance)) {
+                                        return false;
+                                    }
                                     // TODO: We make the assumption that the defender was defeated as there are no rewards when attackers are defeated
                                     if (!cs.defenceTile || cs.defenceTile.tile.id !== t.id) {
                                         return false;
