@@ -993,7 +993,7 @@ const BuildingFabricator = () => {
     }, [containerStyle, wantedContainerStyle, setContainerStyle]);
 
     const previewContainer = useRef<HTMLDivElement>(null);
-    const onPreviewResize = () => {
+    const onPreviewResize = useCallback(() => {
         const rect = previewContainer.current ? previewContainer.current.getBoundingClientRect() : undefined;
         if (!rect) {
             return;
@@ -1010,7 +1010,7 @@ const BuildingFabricator = () => {
             pointerEvents: 'none',
             clipPath: 'inset(0% 0% 0% 0% round 1rem)',
         });
-    };
+    }, []);
     useResizeObserver({ element: previewContainer, callback: onPreviewResize });
 
     const outputItemName = (buildingSpec.outputs || []).find(() => true)?.name || '';
