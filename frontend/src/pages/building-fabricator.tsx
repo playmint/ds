@@ -950,19 +950,16 @@ const BuildingFabricator = () => {
     const applyFiles = useCallback(async () => {
         setErrors([]);
         setStatus('');
-        if (!player) {
-            console.error('cannot apply: no player connected');
-            return;
-        }
-        if (!world) {
-            console.error('cannot apply: no world data loaded');
-            return;
-        }
-        if (!buildingKinds) {
-            console.error('cannot apply: no building kinds data loaded');
-            return;
-        }
         try {
+            if (!player) {
+                throw new Error('no player connected');
+            }
+            if (!world) {
+                throw new Error('no world data loaded');
+            }
+            if (!buildingKinds) {
+                throw new Error('no building kinds data loaded');
+            }
             const yaml = getManifestsYAML({
                 contract: { bytecode: BASIC_FACTORY_BYTECODE }, // FIXME: hack until we can compile in browser
                 plugin: { inline: BASIC_FACTORY_JS },
