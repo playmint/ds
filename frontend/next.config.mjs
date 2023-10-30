@@ -5,7 +5,7 @@ const nextConfig = {
     },
     output: 'standalone',
 
-    transpilePackages: ['@downstream/cli', '@downstream/core'],
+    transpilePackages: ['@downstream/cli', '@downstream/core', 'solc'],
 
     webpack: (config, options) => {
         // stub out the fs module, as we have some escripten
@@ -14,6 +14,8 @@ const nextConfig = {
         config.resolve.fallback = {
             ...config.resolve.fallback,
             fs: false,
+            solc: false,
+            glob: false,
         };
         return config;
     },

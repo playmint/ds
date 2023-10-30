@@ -1,7 +1,8 @@
 import { z } from 'zod';
-import { getCoords } from '@downstream/core';
+import { WorldStateFragment, getCoords } from '@downstream/core';
 import { pipe, take, toPromise } from 'wonka';
 import { BiomeTypes, Manifest, Slot } from '../utils/manifest';
+import { BuildingKindFragment, GetAvailableBuildingKindsDocument, GetWorldDocument } from '@downstream/core/src/gql/graphql';
 
 const SLOT_FRAGMENT = `
     key
@@ -183,6 +184,18 @@ export const getManifestsByKind = async (ctx, kinds: string[]): Promise<z.infer<
     return res.game.state.nodes.map(nodeToManifest);
 };
 
+export const getWorld = async (ctx): Promise<WorldStateFragment> => {
+    const client = await ctx.client();
+    const res: any = await pipe(client.query(GetWorldDocument, { gameID: ctx.game }), take(1), toPromise);
+    return res.game.state;
+};
+
+export const getAvailableBuildingKinds = async (ctx): Promise<BuildingKindFragment[]> => {
+    const client = await ctx.client();
+    const res: any = await pipe(client.query(GetAvailableBuildingKindsDocument, { gameID: ctx.game }), take(1), toPromise);
+    return res.game.state.kinds;
+};
+
 const kindNames = {
     Item: ['items', 'item'],
     Player: ['players', 'player'],
@@ -233,7 +246,7 @@ const command = {
         // filter by id or name
         if (ctx.id) {
             if (ctx.id.startsWith('0x')) {
-                manifests = manifests.filter(({ status }) => status && status.id === ctx.id);
+                manifests = manifests.filter(({ status, kind }) => status && kind !== 'Quest' && status.id === ctx.id);
             } else {
                 const re = new RegExp(ctx.id, 'i');
                 manifests = manifests.filter((manifest: any) => manifest.spec?.name && re.test(manifest.spec?.name));
