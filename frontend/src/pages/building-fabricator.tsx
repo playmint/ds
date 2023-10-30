@@ -741,7 +741,7 @@ const BuildingFabricator = () => {
 
     const onChangeBuildingName = useCallback((e) => {
         const name = (e.target.value || '').slice(0, 35);
-        if (!/^[a-zA-Z0-9]*$/.test(name)) {
+        if (!/^[a-zA-Z0-9 ]*$/.test(name)) {
             return;
         }
         setBuildingSpec((buildingSpec) => {
@@ -766,7 +766,7 @@ const BuildingFabricator = () => {
         []
     );
     const onChangeOutputName = useCallback((name: string) => {
-        if (!/^[a-zA-Z0-9]*$/.test(name)) {
+        if (!/^[a-zA-Z0-9 ]*$/.test(name)) {
             return;
         }
         name = name.slice(0, 35);
