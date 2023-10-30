@@ -268,7 +268,6 @@ export default function update({ selected, world }) {
         selectedBuildingBags.find((bag) => bag.equipee.key === 0);
     const inputSlots = inputBag && inputBag.slots.sort((a, b) => a.key - b.key);
     const requiredInputs = selectedBuilding?.kind?.inputs || [];
-    console.log('plug', inputSlots, selectedUnit, requiredInputs);
 
     const canCraft =
         selectedUnit &&
@@ -466,8 +465,18 @@ const ConstructMaterial = ({
     quantity: number;
     onChangeQuantity: (v: number) => void;
 }) => {
+    const label = name.slice(0, 1).toUpperCase();
+    const color = label === 'R' ? '#FF274E' : label === 'G' ? '#21E63F' : '#00C2FF';
     return (
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', margin: '1rem 0' }}>
+        <div
+            style={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                margin: '1rem 0',
+                height: '2.5rem',
+            }}
+        >
             <div
                 style={{
                     display: 'flex',
@@ -475,13 +484,38 @@ const ConstructMaterial = ({
                     justifyContent: 'center',
                     alignItems: 'center',
                     width: '3.5rem',
-                    height: '3.5rem',
+                    height: '2.5rem',
                     borderRadius: '0.5rem',
                     background: '#E4E1EB',
                     boxShadow: '0px 2px 0px 0px #FFF, 0px 2px 0px 0px rgba(0, 0, 0, 0.06) inset',
                 }}
             >
                 <span>{name.slice(0, 1)}</span>
+            </div>
+            <div
+                style={{
+                    position: 'relative',
+                    width: '100%',
+                    borderRadius: '0.5rem',
+                    background: '#E4E1EB',
+                    boxShadow: '0px 2px 0px 0px #FFF, 0px 2px 0px 0px rgba(0, 0, 0, 0.06) inset',
+                    margin: '0 0.5rem',
+                    border: '2px solid #24202b',
+                    overflow: 'hidden',
+                }}
+            >
+                <div
+                    style={{
+                        borderRadius: '0.5rem',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        bottom: 0,
+                        width: `${quantity}%`,
+                        backgroundColor: color,
+                        boxShadow: '0px 1px 0px 1px rgba(0,0,0,0.3)',
+                    }}
+                ></div>
             </div>
             <NumberInput min={10} max={100} value={quantity} onChange={onChangeQuantity} style={{ margin: 0 }} />
         </div>
@@ -622,8 +656,8 @@ const BuildingFabricator = () => {
     const { ready: mapReady, containerStyle, setContainerStyle } = useUnityMap();
     const [buildingSpec, setBuildingSpec] = useState<z.infer<typeof BuildingKindFactorySpec>>({
         category: 'factory',
-        name: 'MyFactory',
-        description: 'A Factory',
+        name: '',
+        description: '',
         model: '01-01',
         color: 0,
         contract: { file: './basic-factory.sol' },
@@ -650,16 +684,17 @@ const BuildingFabricator = () => {
     const availableItems = world?.items || [];
     const coords = useMemo(() => ({ q: 0, r: 0, s: 0 }), []);
     const model = buildingSpec.model;
+    const [errors, setErrors] = useState<string[]>([]);
+    const [status, setStatus] = useState<string>('');
 
     // TODO: if output item already exists, then outputGoo is already known and we must validate the inputs are enough
     const outputGoo = (buildingSpec.inputs || [])
         .reduce(
-            ([r, g, b], input, idx) => {
+            ([r, g, b], input) => {
                 const item = availableItems.find((item) => item.name?.value === input.name);
                 if (!item) {
                     return [r, g, b];
                 }
-                console.log('input', idx, input);
                 const [_stackable, greenGoo, blueGoo, redGoo] =
                     item?.id && input.quantity > 0 ? getItemStructure(item.id) : [false, 0, 0, 0];
 
@@ -672,14 +707,16 @@ const BuildingFabricator = () => {
         )
         .map((v) => Math.floor(v / 2.0));
 
-    const onChangeBuildingName = useCallback(
-        (e) =>
-            setBuildingSpec((buildingSpec) => {
-                buildingSpec.name = e.target.value;
-                return { ...buildingSpec };
-            }),
-        []
-    );
+    const onChangeBuildingName = useCallback((e) => {
+        const name = (e.target.value || '').slice(0, 35);
+        if (!/^[a-zA-Z0-9]*$/.test(name)) {
+            return;
+        }
+        setBuildingSpec((buildingSpec) => {
+            buildingSpec.name = name;
+            return { ...buildingSpec };
+        });
+    }, []);
     const onChangeBuildingDescription = useCallback(
         (e) =>
             setBuildingSpec((buildingSpec) => {
@@ -696,22 +733,26 @@ const BuildingFabricator = () => {
             }),
         []
     );
-    const onChangeOutputName = useCallback(
-        (name: string) =>
-            setBuildingSpec((buildingSpec) => {
-                buildingSpec.outputs = [{ name, quantity: 1 }];
-                return { ...buildingSpec };
-            }),
-        []
-    );
+    const onChangeOutputName = useCallback((name: string) => {
+        if (!/^[a-zA-Z0-9]*$/.test(name)) {
+            return;
+        }
+        name = name.slice(0, 35);
+        setBuildingSpec((buildingSpec) => {
+            buildingSpec.outputs = [{ name, quantity: 1 }];
+            return { ...buildingSpec };
+        });
+    }, []);
     const onChangeOutputType = useCallback(
         (value: string) => {
             switch (value) {
                 case 'customStackable':
+                    onChangeOutputName('');
                     setOutputStackable(true);
                     setOutputExisting(false);
                     break;
                 case 'customNonStackable':
+                    onChangeOutputName('');
                     setOutputStackable(false);
                     setOutputExisting(false);
                     break;
@@ -794,6 +835,10 @@ const BuildingFabricator = () => {
         setOutputIcon(outputIcon + 1 === ITEM_ICONS.length ? 0 : outputIcon + 1);
     }, [outputIcon]);
 
+    const prevIcon = useCallback(() => {
+        setOutputIcon(outputIcon - 1 === -1 ? ITEM_ICONS.length - 1 : outputIcon - 1);
+    }, [outputIcon]);
+
     const randomizeModel = useCallback(() => {
         const randomTop = FACTORY_TOPS[Math.floor(Math.random() * FACTORY_TOPS.length)];
         const randomBottom = FACTORY_TOPS[Math.floor(Math.random() * FACTORY_TOPS.length)];
@@ -814,7 +859,7 @@ const BuildingFabricator = () => {
         return [];
     }, []);
     if (validationErrors.length > 0) {
-        console.log('invalid', validationErrors);
+        console.warn('invalid', validationErrors);
     }
 
     const getManifestsYAML = useCallback(
@@ -871,6 +916,8 @@ const BuildingFabricator = () => {
     };
 
     const applyFiles = useCallback(async () => {
+        setErrors([]);
+        setStatus('');
         if (!player) {
             console.error('cannot apply: no player connected');
             return;
@@ -897,8 +944,11 @@ const BuildingFabricator = () => {
             console.log('applying', actions);
             await player.dispatchAndWait(...actions);
             console.info('APPLIED');
+            setStatus('Deployed!');
         } catch (err) {
-            console.error(`cannot apply: ${err}`);
+            const messages = `${err}`.replace(/Error:/i, '').split('invalid manifest basic-factory.yaml:');
+            console.error(`cannot apply: ${messages.join(' AND ')}`);
+            setErrors(messages);
             return;
         }
     }, [world, buildingKinds, getManifestsYAML, player]);
@@ -939,7 +989,6 @@ const BuildingFabricator = () => {
         if (!setContainerStyle) {
             return;
         }
-        console.log('setting containerStyle', wantedContainerStyle);
         setContainerStyle(wantedContainerStyle);
     }, [containerStyle, wantedContainerStyle, setContainerStyle]);
 
@@ -986,7 +1035,9 @@ const BuildingFabricator = () => {
                   blue: outputGoo[2] || 0,
               },
           });
-    const finalOutputGoo = outputItemId ? getItemStructure(outputItemId) : [false, 0, 0, 0];
+    const [_finalStackable, finalOutputGreen, finalOutputBlue, finalOutputRed] = outputItemId
+        ? getItemStructure(outputItemId)
+        : [false, 0, 0, 0];
     const finalOutputIcon = iconURL(
         outputExisting ? availableItems.find((item) => item.id === outputItemId)?.icon?.value : ITEM_ICONS[outputIcon]
     );
@@ -1012,7 +1063,7 @@ const BuildingFabricator = () => {
                     flexWrap: 'nowrap',
                     justifyContent: 'space-between',
                     width: '100rem',
-                    margin: '0, auto',
+                    margin: '0 auto',
                 }}
             >
                 <div
@@ -1198,7 +1249,7 @@ const BuildingFabricator = () => {
                                                 opacity: outputExisting ? 0.5 : 1,
                                                 borderRadius: '0.5rem 0 0 0.5rem',
                                             }}
-                                            onClick={nextIcon}
+                                            onClick={prevIcon}
                                         >
                                             <ArrowLeftIcon width="1rem" height="1rem" />
                                         </button>
@@ -1256,9 +1307,9 @@ const BuildingFabricator = () => {
                             >
                                 <div style={{ fontWeight: 800, padding: '0.5rem' }}>Output item goo:</div>
                                 <div></div>
-                                <GooBadge color="red" value={finalOutputGoo[1]} />
-                                <GooBadge color="green" value={finalOutputGoo[2]} />
-                                <GooBadge color="blue" value={finalOutputGoo[3]} />
+                                <GooBadge color="red" value={finalOutputRed} />
+                                <GooBadge color="green" value={finalOutputGreen} />
+                                <GooBadge color="blue" value={finalOutputBlue} />
                             </div>
                         </Content>
                     </GroupedContent>
@@ -1275,10 +1326,10 @@ const BuildingFabricator = () => {
                                     marginBottom: '1rem',
                                 }}
                             >
-                                <button onClick={prevTop} style={{ flex: '0 0 0', width: '5rem' }}>
+                                <button onClick={prevTop} style={{}}>
                                     <ArrowLeftIcon width={24} height={24} />
                                 </button>
-                                <button onClick={nextTop} style={{ flex: '0 0 0 ', width: '5rem' }}>
+                                <button onClick={nextTop} style={{}}>
                                     <ArrowRightIcon width={24} height={24} />
                                 </button>
                             </div>
@@ -1297,6 +1348,30 @@ const BuildingFabricator = () => {
                             </div>
                             <div ref={previewContainer} style={{ height: '38rem', position: 'relative' }}>
                                 <ViewportFrame />
+                                <button
+                                    onClick={randomizeModel}
+                                    style={{
+                                        opacity: 0.5,
+                                        position: 'absolute',
+                                        bottom: '1rem',
+                                        left: '1rem',
+                                        background: 'none',
+                                        border: 0,
+                                    }}
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="25"
+                                        height="23"
+                                        viewBox="0 0 25 23"
+                                        fill="none"
+                                    >
+                                        <path
+                                            d="M3.78665 0.971088C3.98525 0.442006 4.08455 0.177466 4.13406 0.135441C4.24321 0.0427899 4.34736 0.0425417 4.45696 0.134672C4.50667 0.17646 4.60674 0.439253 4.80689 0.964839C5.3187 2.30889 6.10803 3.22109 7.43621 3.85716C7.94264 4.09968 8.19585 4.22095 8.23267 4.27016C8.3182 4.38446 8.31626 4.46873 8.22559 4.57898C8.18654 4.62645 7.92008 4.73934 7.38714 4.96513C6.02685 5.54143 5.25571 6.63128 4.75926 8.54547C4.58489 9.21776 4.49771 9.5539 4.44677 9.60293C4.34017 9.70552 4.20958 9.70626 4.10183 9.60487C4.05034 9.55643 3.9593 9.22105 3.77724 8.55029C3.23983 6.57044 2.43238 5.51462 1.05749 4.9509C0.561055 4.74736 0.312837 4.64559 0.272981 4.59758C0.182637 4.48876 0.180996 4.39691 0.267395 4.28493C0.305511 4.23553 0.543733 4.12776 1.02018 3.91222C2.42876 3.27501 3.26871 2.35096 3.78665 0.971088ZM4.55168 18.5909C3.98926 18.3126 3.70805 18.1735 3.67238 18.1263C3.58535 18.0111 3.58499 17.943 3.6708 17.8268C3.70596 17.7792 3.98243 17.6388 4.53535 17.358C5.53918 16.8481 6.16668 16.0993 6.58056 15.0241C6.7854 14.4919 6.88782 14.2258 6.93711 14.1843C7.04699 14.0919 7.14737 14.0915 7.2579 14.1832C7.30748 14.2243 7.41133 14.4886 7.61902 15.0171C8.04289 16.0956 8.66262 16.8359 9.65329 17.3456C10.2031 17.6285 10.4781 17.7699 10.5129 17.8174C10.5983 17.9338 10.5978 18.0007 10.511 18.1159C10.4755 18.163 10.1943 18.3032 9.63179 18.5835C8.57543 19.1099 7.95784 19.9553 7.53458 21.2042C7.37732 21.6682 7.29868 21.9002 7.24838 21.9444C7.14227 22.0377 7.02346 22.0375 6.91758 21.944C6.8674 21.8997 6.78948 21.6679 6.63364 21.2043C6.20734 19.9361 5.60027 19.1096 4.55168 18.5909ZM10.2214 11.2229C9.29529 10.9272 8.83225 10.7793 8.78688 10.7288C8.68583 10.6162 8.68589 10.5068 8.78707 10.3943C8.83249 10.3438 9.2949 10.1967 10.2197 9.90258C13.9687 8.7101 15.679 6.21391 16.3943 2.34763C16.5396 1.56245 16.6123 1.16987 16.662 1.11652C16.764 1.00709 16.905 1.00183 17.0148 1.10336C17.0684 1.15286 17.1694 1.53666 17.3716 2.30424C18.3758 6.11775 20.0112 8.57541 23.23 9.81955C24.0727 10.1453 24.4941 10.3081 24.5359 10.3591C24.631 10.4752 24.6285 10.5747 24.5277 10.6858C24.4835 10.7346 24.0539 10.8765 23.1948 11.1603C19.7525 12.2972 18.031 14.9376 16.9893 19.4531C16.8668 19.9839 16.8056 20.2493 16.753 20.3006C16.6496 20.4016 16.4985 20.3993 16.3982 20.2952C16.3472 20.2423 16.2943 19.9761 16.1884 19.4437C15.2959 14.9561 13.9179 12.4033 10.2214 11.2229Z"
+                                            fill="#fff"
+                                        />
+                                    </svg>
+                                </button>
                                 <div
                                     style={{
                                         position: 'absolute',
@@ -1340,13 +1415,10 @@ const BuildingFabricator = () => {
                                     marginTop: '1rem',
                                 }}
                             >
-                                <button onClick={prevBottom} style={{ flex: '0 0 0 ', width: '5rem' }}>
+                                <button onClick={prevBottom}>
                                     <ArrowLeftIcon width={24} height={24} />
                                 </button>
-                                <button onClick={randomizeModel} style={{ flex: '0 0 0' }}>
-                                    Randomize
-                                </button>
-                                <button onClick={nextBottom} style={{ flex: '0 0 0 ', width: '5rem' }}>
+                                <button onClick={nextBottom}>
                                     <ArrowRightIcon width={24} height={24} />
                                 </button>
                             </div>
@@ -1354,11 +1426,31 @@ const BuildingFabricator = () => {
                     )}
                 </div>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'row', width: '100rem', justifyContent: 'flex-end' }}>
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    flexWrap: 'nowrap',
+                    justifyContent: 'space-between',
+                    width: '100rem',
+                    margin: '2rem auto',
+                }}
+            >
+                {errors.length > 0 ? (
+                    <div style={{ color: 'red', width: '50rem', padding: '0 1rem' }}>
+                        {errors.map((err, idx) => (
+                            <strong key={idx}>{err}</strong>
+                        ))}
+                    </div>
+                ) : (
+                    <div style={{ width: '50rem' }}>{status}</div>
+                )}
                 <div
                     style={{
+                        width: '50rem',
                         background: '#24202b',
                         display: 'flex',
+                        height: '5rem',
                         flexDirection: 'row',
                         borderRadius: '0.5rem',
                         border: '2px solid #000',
