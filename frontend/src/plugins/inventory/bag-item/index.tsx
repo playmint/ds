@@ -4,6 +4,7 @@ import { ComponentProps } from '@app/types/component-props';
 import { styles } from './bag-item.styles';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { getItemColorCSS, getItemStructure } from '@app/helpers';
+import Tooltip from '@app/plugins/tooltip/tooltip';
 
 export interface BagItemProps extends ComponentProps {
     name: string;
@@ -53,22 +54,24 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
         : `${quantity} ${name}\n\nGreen Goo: ${greenGoo}\nBlue Goo: ${blueGoo}\nRed Goo: ${redGoo}`;
 
     return (
-        <StyledBagItem onClick={handleClick} isPickable={isPickable} isInteractable={isInteractable} title={tooltip}>
-            {isPending && <span className="spinner" />}
-            <div
-                className="icon"
-                style={{
-                    maskImage: `url(${icon})`,
-                    WebkitMaskImage: `url(${icon})`,
-                    backgroundColor: getItemColorCSS(itemId),
-                }}
-            ></div>
-            {isStackable && (
-                <span className="amount">
-                    <span className="padding">{new Array(numPaddingZeros).fill(0).join('')}</span>
-                    {quantity}
-                </span>
-            )}
-        </StyledBagItem>
+        <Tooltip content={tooltip} direction="top" delay={0}>
+            <StyledBagItem onClick={handleClick} isPickable={isPickable} isInteractable={isInteractable}>
+                {isPending && <span className="spinner" />}
+                <div
+                    className="icon"
+                    style={{
+                        maskImage: `url(${icon})`,
+                        WebkitMaskImage: `url(${icon})`,
+                        backgroundColor: getItemColorCSS(itemId),
+                    }}
+                ></div>
+                {isStackable && (
+                    <span className="amount">
+                        <span className="padding">{new Array(numPaddingZeros).fill(0).join('')}</span>
+                        {quantity}
+                    </span>
+                )}
+            </StyledBagItem>
+        </Tooltip>
     );
 };
