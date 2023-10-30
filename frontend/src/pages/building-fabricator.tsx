@@ -26,7 +26,7 @@ import { z } from 'zod';
 
 const StripeySpacer = ({ height }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="250" height="88" viewBox="0 0 250 88" fill="none" style={{ height }}>
-        <g clip-path="url(#clip0_531_354)">
+        <g clipPath="url(#clip0_531_354)">
             <rect
                 x="22.1807"
                 y="-37.9473"
@@ -149,17 +149,17 @@ const ViewportFrame = () => {
                     <path
                         d="M0 24C0 10.7452 10.7452 0 24 0H830C843.255 0 854 10.7452 854 24V623C854 636.255 843.255 647 830 647H24C10.7452 647 0 636.255 0 623V24Z"
                         fill="#3F5EA3"
-                        fill-opacity="0.01"
+                        fillOpacity="0.01"
                     />
                     <path
                         d="M0 24C0 10.7452 10.7452 0 24 0H830C843.255 0 854 10.7452 854 24V623C854 636.255 843.255 647 830 647H24C10.7452 647 0 636.255 0 623V24Z"
                         fill="url(#paint0_linear_531_538)"
-                        fill-opacity="0.3"
+                        fillOpacity="0.3"
                     />
                     <path
                         d="M1.5 24C1.5 11.5736 11.5736 1.5 24 1.5H830C842.426 1.5 852.5 11.5736 852.5 24V623C852.5 635.426 842.426 645.5 830 645.5H24C11.5736 645.5 1.5 635.426 1.5 623V24Z"
                         stroke="#24202B"
-                        stroke-width="3"
+                        strokeWidth="3"
                     />
                 </g>
                 <defs>
@@ -170,9 +170,9 @@ const ViewportFrame = () => {
                         width="854"
                         height="655"
                         filterUnits="userSpaceOnUse"
-                        color-interpolation-filters="sRGB"
+                        colorInterpolationFilters="sRGB"
                     >
-                        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                        <feFlood floodOpacity="0" result="BackgroundImageFix" />
                         <feColorMatrix
                             in="SourceAlpha"
                             type="matrix"
@@ -226,8 +226,8 @@ const ViewportFrame = () => {
                         y2="647"
                         gradientUnits="userSpaceOnUse"
                     >
-                        <stop offset="0.0718424" stop-color="#08003C" />
-                        <stop offset="0.780997" stop-opacity="0" />
+                        <stop offset="0.0718424" stopColor="#08003C" />
+                        <stop offset="0.780997" stopOpacity="0" />
                     </linearGradient>
                 </defs>
             </svg>
