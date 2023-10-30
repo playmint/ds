@@ -20,12 +20,14 @@ export const UnityMapProvider = ({
     children,
     disabled,
     showLoading,
+    display,
 }: {
     children: ReactNode;
     disabled?: boolean;
     showLoading?: boolean;
+    display?: string;
 }) => {
-    const { unity, ready, containerStyle, setContainerStyle } = useGlobalUnityInstance({ disabled });
+    const { unity, ready, containerStyle, setContainerStyle } = useGlobalUnityInstance({ disabled, display });
     const { sendMessage, loadingProgression, addEventListener, removeEventListener } = unity;
 
     const loadingPercentage = loadingProgression ? Math.round(loadingProgression * 100) : 0;
