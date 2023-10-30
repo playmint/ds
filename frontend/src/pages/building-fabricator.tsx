@@ -1036,7 +1036,6 @@ const BuildingFabricator = () => {
             left: `${rect.left}px`,
             width: `${rect.width}px`,
             height: `${rect.height}px`,
-            pointerEvents: 'none',
             clipPath: 'inset(0% 0% 0% 0% round 1rem)',
         });
     }, []);

@@ -45,7 +45,7 @@ export type SelectedBag = {
 };
 
 export const Shell: FunctionComponent<ShellProps> = () => {
-    const { ready: mapReady } = useUnityMap();
+    const { ready: mapReady, setContainerStyle } = useUnityMap();
     const { world, selected, tiles, selectTiles, selectMobileUnit, selectMapElement } = useGameState();
     const { loadingSession } = useSession();
     const player = usePlayer();
@@ -58,6 +58,23 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const selectedRewardBags = selectedBags?.filter((sb) => sb.isCombatReward);
     const kinds = useBuildingKinds();
     const ui = usePluginState();
+
+    // setup the unity frame
+    useEffect(() => {
+        if (!setContainerStyle) {
+            return;
+        }
+        setContainerStyle({
+            position: 'fixed',
+            display: 'block',
+            width: '100vw',
+            height: '100vh',
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0,
+        });
+    }, [setContainerStyle]);
 
     // collect client dispatch analytics
     // TODO: move to analytics provider
