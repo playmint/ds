@@ -6,3 +6,4 @@ spec:
   tasks:
     - kind: deployBuilding
       name: "Deploy a factory that uses Very Important Stuff as an ingredient for a new item"
+      craftInput: "Very Important Stuff"

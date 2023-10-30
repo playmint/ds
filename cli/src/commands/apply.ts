@@ -316,6 +316,13 @@ const questDeploymentActions = async (
             case 'unitStats': {
                 return coder.encode(['uint64', 'uint64', 'uint64'], [task.life, task.defence, task.attack]);
             }
+            case 'deployBuilding': {
+                const craftOutputID = task.craftOutput ?
+                    getItemIdByName(files, existingItems, task.craftOutput) : null24bytes; 
+                const craftInputID = task.craftInput ?
+                    getItemIdByName(files, existingItems, task.craftInput) : null24bytes; 
+                return coder.encode(['bytes24', 'bytes24'], [craftInputID, craftOutputID ]);
+            }
         }
 
         return solidityPacked(['uint8'], [0]);
