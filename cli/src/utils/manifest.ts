@@ -308,7 +308,7 @@ export const parseManifestDocuments = (filedata: string, filename?: string): z.i
                 throw new Error(
                     result.error.issues
                         .map(
-                            (iss) => `invalid manifest ${filename}: ${iss.path.join('.')} field invalid: ${iss.message}`
+                            (iss) => `invalid manifest ${filename}: ${content.kind || ''} ${iss.path.join('.')} field invalid: ${iss.message}`
                         )
                         .join('\n\n')
                 );
