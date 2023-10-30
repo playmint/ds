@@ -46,8 +46,8 @@ contract CraftingRuleTest is Test, GameTest {
 
     function testGetAtoms() public {
         uint32[3] memory thingAtoms = [uint32(2), uint32(4), uint32(6)];
-        bytes24 thingItem = Node.Item("thing", thingAtoms, ITEM_STACKABLE);
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (thingItem, "thing", "icon")));
+        bytes24 thingItem = Node.Item("thing1", thingAtoms, ITEM_STACKABLE);
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (thingItem, "thing1", "icon")));
         uint32[3] memory gotAtoms = state.getAtoms(thingItem);
 
         assertEq(gotAtoms[0], thingAtoms[0], "expected getAtoms()[0] to return same atoms we put in");
@@ -66,7 +66,7 @@ contract CraftingRuleTest is Test, GameTest {
             /*uint64 outputQty*/
         ) = _getCraftRecipe();
 
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (outputItem, "thing", "icon")));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (outputItem, "thing2", "icon")));
         vm.stopPrank();
 
         bytes24 registeredItem;
@@ -273,7 +273,7 @@ contract CraftingRuleTest is Test, GameTest {
             uint64 outputQty
         ) = _getCraftRecipe();
 
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (outputItem, "thing", "icon")));
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (outputItem, "thing3", "icon")));
 
         dispatcher.dispatch(
             abi.encodeCall(
