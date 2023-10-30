@@ -11,20 +11,18 @@ const useResizeObserver = ({ callback, element }: { element: any; callback: () =
             observer.current.unobserve(current);
         }
         observer.current = new ResizeObserver(callback);
-        observe();
-
-        return () => {
-            if (observer && observer.current && element && element.current) {
-                observer.current.unobserve(element.current);
-            }
-        };
-    }, [current]);
-
-    const observe = () => {
         if (element && element.current && observer.current) {
             observer.current.observe(element.current);
         }
-    };
+
+        const el = element;
+        console.log('updating');
+        return () => {
+            if (observer && observer.current && el && el.current) {
+                observer.current.unobserve(el.current);
+            }
+        };
+    }, [current, callback, element]);
 };
 
 export default useResizeObserver;
