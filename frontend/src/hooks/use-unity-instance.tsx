@@ -231,11 +231,12 @@ const makeUnityReadySubject = () => {
     };
 };
 
-export const useGlobalUnityInstance = ({ disabled }: { disabled?: boolean }) => {
+export const useGlobalUnityInstance = ({ disabled, display }: { disabled?: boolean; display?: string }) => {
     const [unity, setUnity] = useState<Partial<UnityContextHook>>({});
     const [ready, setReady] = useState<boolean>(false);
     const [containerStyle, setContainerStyleValues] = useState<any>({
         position: 'fixed',
+        display: display ? display : 'block',
         width: '100vw',
         height: '100vh',
         top: 0,
@@ -251,14 +252,14 @@ export const useGlobalUnityInstance = ({ disabled }: { disabled?: boolean }) => 
           })();
     g.__globalUnityContext = ctx;
 
-    const setContainerStyle = (styles: any) => {
+    const setContainerStyle = useCallback((styles: any) => {
         setContainerStyleValues(styles);
         setTimeout(() => {
-            if (ctx.updateAspectRatio) {
-                ctx.updateAspectRatio();
+            if (g.__globalUnityContext.updateAspectRatio) {
+                g.__globalUnityContext.updateAspectRatio();
             }
-        }, 5);
-    };
+        }, 10);
+    }, []);
 
     if (!disabled) {
         if (typeof document !== 'undefined') {
@@ -280,7 +281,6 @@ export const useGlobalUnityInstance = ({ disabled }: { disabled?: boolean }) => 
         if (!mapContainer) {
             return;
         }
-        mapContainer.style.display = 'block';
         for (const k in containerStyle) {
             mapContainer.style[k] = containerStyle[k];
         }
@@ -303,10 +303,11 @@ export const useGlobalUnityInstance = ({ disabled }: { disabled?: boolean }) => 
     }, [ctx.ready.source]);
 
     // hide show on mount/unmount
+    const defaultDisplay = containerStyle.display;
     useEffect(() => {
         const mapContainer = document.getElementById('map-container');
         if (mapContainer) {
-            mapContainer.style.display = 'block';
+            mapContainer.style.display = defaultDisplay;
         }
         return () => {
             const mapContainer = document.getElementById('map-container');
@@ -314,7 +315,7 @@ export const useGlobalUnityInstance = ({ disabled }: { disabled?: boolean }) => 
                 mapContainer.style.display = 'none';
             }
         };
-    }, []);
+    }, [defaultDisplay]);
 
     return { unity, ready, containerStyle, setContainerStyle };
 };
