@@ -26,6 +26,7 @@ const commands = [
             && ./lib/cog/services/bin/wait-for -it localhost:8080 -t 300 \
             && sleep 2 \
             && ds -k ${DEPLOYER_PRIVATE_KEY} -n local apply -R -f ./src/fixtures/ --max-connections 500 \
+            && ds -k ${DEPLOYER_PRIVATE_KEY} -n local apply -R -f ./src/example-plugins/ --max-connections 500 \
             && sleep 9999999`,
         prefixColor: 'black',
         env: {
