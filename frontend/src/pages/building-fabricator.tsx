@@ -766,7 +766,7 @@ const BuildingFabricator = () => {
         []
     );
     const onChangeOutputName = useCallback((name: string) => {
-        if (!/^[a-zA-Z0-9 ]*$/.test(name)) {
+        if (!/^[a-zA-Z0-9 _]*$/.test(name)) {
             return;
         }
         name = name.slice(0, 35);
