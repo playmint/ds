@@ -16,7 +16,15 @@ export interface UnityMapContextValue {
 export const UnityMapContext = createContext<UnityMapContextValue>({});
 export const useUnityMap = () => useContext(UnityMapContext);
 
-export const UnityMapProvider = ({ children, disabled }: { children: ReactNode; disabled?: boolean }) => {
+export const UnityMapProvider = ({
+    children,
+    disabled,
+    showLoading,
+}: {
+    children: ReactNode;
+    disabled?: boolean;
+    showLoading?: boolean;
+}) => {
     const { unity, ready, containerStyle, setContainerStyle } = useGlobalUnityInstance({ disabled });
     const { sendMessage, loadingProgression, addEventListener, removeEventListener } = unity;
 
@@ -38,7 +46,7 @@ export const UnityMapProvider = ({ children, disabled }: { children: ReactNode; 
 
     return (
         <UnityMapContext.Provider value={value}>
-            {!disabled && loadingPercentage < 100 && (
+            {!disabled && showLoading !== false && loadingPercentage < 100 && (
                 <div
                     style={{
                         position: 'absolute',
