@@ -72,8 +72,10 @@ export default async function update({ selected, world, player }) {
 
 
     if (!squircleQuest) buttonList.push(creationQuestButton);
+    /*
     buttonList.push(docButton);
     buttonList.push(builderPageButton);
+    */
 
     return {
         version: 1,
@@ -85,7 +87,9 @@ export default async function update({ selected, world, player }) {
                     {
                         id: 'default',
                         type: 'inline',
-                        html: 'A wealth of information pertaining to the Details of Object Creation is accessible here',
+                        html: 'A wealth of information pertaining to the Details of Object Creation is accessible here.' + 
+                        '<br><a href="/docs/code-docs/extending-downstream" target="_blank" rel="noopener noreferrer">Docs</a>' + 
+                        '<br><a href="/docs/code-docs/extending-downstream" target="_blank" rel="noopener noreferrer">Building Creator</a>',
                         buttons: buttonList
                     }
                 ],
