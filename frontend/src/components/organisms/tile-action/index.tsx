@@ -18,6 +18,10 @@ const StylePluginContent = styled.div`
         margin-top: 1rem;
         width: 100%;
     }
+    a {
+        color: rgb(251, 112, 1);
+        font-weight: 800;
+    }
 `;
 
 // initialize DOMPurify only once
