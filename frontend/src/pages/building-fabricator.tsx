@@ -1501,7 +1501,7 @@ export default function ShellPage() {
 
     return (
         <UnityMapProvider showLoading={false} display="none">
-            <WalletProviderProvider>
+            <WalletProviderProvider wallets={config?.wallets || {}}>
                 <GameStateProvider config={config}>
                     <SessionProvider>
                         <InventoryProvider>

@@ -1,10 +1,17 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
+export interface WalletConfig {
+    burner?: boolean;
+    walletconnect?: boolean;
+    metamask?: boolean;
+}
+
 export interface ConfigFile {
     gameID: string;
     build: string;
     wsEndpoint: string;
     httpEndpoint: string;
+    wallets?: WalletConfig;
 }
 
 export interface ConfigContextValue extends ConfigFile {

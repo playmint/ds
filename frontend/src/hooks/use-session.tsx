@@ -42,20 +42,22 @@ const decodeSessionData = (o: Partial<SessionData>): SessionData | undefined => 
     return o as SessionData;
 };
 
+const SESSION_LOCALSTORAGE_KEY = 'ds/sessions';
+
 export const SessionProvider = ({ children }: { children: ReactNode }) => {
     const { provider } = useWalletProvider();
     const [authorizing, setAuthorizing] = useState<boolean>(false);
     const player = usePlayer();
     const closeAuthroizer = useCallback(() => setAuthorizing(false), []);
-    const [sessionData, setSessionData] = useLocalStorage<SessionData | null>(`ds/sessions`, null);
+    const [sessionData, setSessionData] = useLocalStorage<SessionData | null>(SESSION_LOCALSTORAGE_KEY, null);
     const [loadingSession, setLoading] = useState<boolean>(!!sessionData);
     const session = useMemo(() => (sessionData ? decodeSessionData(sessionData) : undefined), [sessionData]);
+    const [sessionLoaded, setSessionLoaded] = useState<boolean>(false);
 
     const newSession = useCallback(() => {
         if (!provider) {
             return;
         }
-
         if (!player) {
             return;
         }
@@ -100,38 +102,38 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     }, [session, player]);
 
     const clearSession = useCallback(() => {
-        localStorage.clear();
+        localStorage.removeItem(SESSION_LOCALSTORAGE_KEY);
         if (setSessionData) {
             setSessionData(null);
         }
     }, [setSessionData]);
 
     useEffect(() => {
-        if (!loadSession) {
-            return;
-        }
-        if (!newSession) {
+        if (sessionLoaded) {
             return;
         }
         if (!player) {
             return;
         }
         if (player.active()) {
+            setSessionLoaded(true);
             return;
         }
-        if (!setSessionData) {
+        if (!newSession || !clearSession || !loadSession) {
             return;
         }
         if (session) {
             if (session.owner === player.addr && session.expires > Date.now()) {
                 loadSession();
+                setSessionLoaded(true);
                 return;
             } else {
                 clearSession();
             }
         }
+        setSessionLoaded(true);
         newSession(); // TODO: auto login without prompt is bit weird
-    }, [newSession, session, loadSession, player, setSessionData, clearSession]);
+    }, [newSession, loadSession, clearSession, session, sessionLoaded, player]);
 
     const value: SessionContextValue = useMemo(() => {
         return { newSession, clearSession, loadingSession };

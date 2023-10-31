@@ -1,52 +1,32 @@
 // @refresh reset
 import { Dialog } from '@app/components/molecules/dialog';
 import { sleep } from '@app/helpers/sleep';
-import { EthereumProvider } from '@downstream/core';
+import { ActionButton } from '@app/styles/button.styles';
+import { EthereumProvider, WalletProvider } from '@downstream/core';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { EthereumProvider as WalletConnectProvider } from '@walletconnect/ethereum-provider';
+import { ethers } from 'ethers';
 import { QRCodeSVG } from 'qrcode.react';
-import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { WalletConfig } from './use-config';
 import { useLocalStorage } from './use-localstorage';
-import { ActionButton } from '@app/styles/button.styles';
-import { colors } from '@app/styles/colors';
-import styled from 'styled-components';
-
-export interface WalletProvider {
-    method: string;
-    provider: EthereumProvider;
-}
 
 export interface WalletContextValue {
     connecting?: boolean;
     provider?: WalletProvider;
     connect?: () => void;
+    disconnect?: () => void;
 }
-
-const StyledWCDialog = styled(Dialog)`
-    .content {
-        background: ${colors.grey_2};
-        padding: 4.5rem;
-
-        > div {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-
-            svg {
-                margin-bottom: 4.5rem;
-            }
-        }
-    }
-`;
 
 export const WalletProviderContext = createContext<WalletContextValue>({});
 export const useWalletProvider = () => useContext(WalletProviderContext);
 
-export const WalletProviderProvider = ({ children }: { children: ReactNode }) => {
+export const WalletProviderProvider = ({ children, wallets }: { children: ReactNode; wallets: WalletConfig }) => {
     const [provider, setProvider] = useState<WalletProvider>();
     const [connecting, setConnecting] = useState<boolean>(false);
     const [walletConnectURI, setWalletConnectURI] = useState<string | null>(null);
-    const [autoconnectMetamask, setAutoconnectMetamask] = useLocalStorage<boolean>(`ds/autoconnect`, false);
+    const [autoconnectProvider, setAutoconnectProvider] = useLocalStorage(`ds/autoconnectprovider`, '');
+    const [burnerPhrase, setBurnerPhrase] = useLocalStorage(`ds/burnerphrase`, '');
 
     const connectMetamask = useCallback(async () => {
         try {
@@ -57,14 +37,14 @@ export const WalletProviderProvider = ({ children }: { children: ReactNode }) =>
             }
             setProvider({ method: 'metamask', provider: metamask });
             await metamask.request({ method: 'eth_requestAccounts' });
-            setAutoconnectMetamask(true); // TODO: make this opt-in
+            setAutoconnectProvider('metamask'); // TODO: make this opt-in
         } catch (err) {
             console.error(`connect: ${err}`);
             setProvider(undefined);
         } finally {
             setConnecting(false);
         }
-    }, [setAutoconnectMetamask]);
+    }, [setAutoconnectProvider]);
 
     const connectWalletConnect = useCallback(async (): Promise<unknown> => {
         try {
@@ -94,9 +74,38 @@ export const WalletProviderProvider = ({ children }: { children: ReactNode }) =>
             return null;
         } finally {
             setConnecting(false);
-            setAutoconnectMetamask(false);
+            setAutoconnectProvider('walletconnect');
         }
-    }, [setAutoconnectMetamask]);
+    }, [setAutoconnectProvider]);
+
+    const connectBurner = useCallback(async () => {
+        try {
+            const burner = ethers.Wallet.createRandom();
+            setProvider({ method: 'burner', provider: burner });
+            setBurnerPhrase(burner.mnemonic?.phrase || '');
+            setAutoconnectProvider('burner');
+        } catch (err) {
+            console.error(`burnerconnect: ${err}`);
+            setProvider(undefined);
+        } finally {
+            setConnecting(false);
+        }
+    }, [setBurnerPhrase, setAutoconnectProvider]);
+
+    useEffect(() => {
+        if (autoconnectProvider !== 'burner') {
+            return;
+        }
+        if (!burnerPhrase) {
+            return;
+        }
+        if (provider) {
+            return;
+        }
+        const burner = ethers.Wallet.fromPhrase(burnerPhrase);
+        setProvider({ method: 'burner', provider: burner });
+        setConnecting(false);
+    }, [burnerPhrase, provider, autoconnectProvider]);
 
     const closeWalletConnector = useCallback(() => setWalletConnectURI(''), []);
     const closeConnector = useCallback(() => setConnecting(false), []);
@@ -109,7 +118,7 @@ export const WalletProviderProvider = ({ children }: { children: ReactNode }) =>
         if (provider) {
             return;
         }
-        if (!autoconnectMetamask) {
+        if (autoconnectProvider !== 'metamask') {
             return;
         }
         if (!connectMetamask) {
@@ -120,43 +129,50 @@ export const WalletProviderProvider = ({ children }: { children: ReactNode }) =>
             return;
         }
         connectMetamask().catch((err) => console.error(err));
-    }, [autoconnectMetamask, connectMetamask, connecting, provider]);
+    }, [autoconnectProvider, connectMetamask, connecting, provider]);
+
+    const disconnect = useCallback(() => {
+        localStorage.removeItem('ds/autoconnectprovider');
+        localStorage.removeItem('ds/burnerphrase');
+        setProvider(undefined);
+    }, []);
 
     const value = useMemo(() => {
-        return { connect, connecting, provider };
-    }, [connect, provider, connecting]);
+        return { connect, connecting, provider, disconnect };
+    }, [connect, provider, connecting, disconnect]);
 
     return (
         <WalletProviderContext.Provider value={value}>
             {walletConnectURI && (
-                <StyledWCDialog onClose={closeWalletConnector} width="47rem" height="">
-                    <div>
-                        <QRCodeSVG
-                            value={walletConnectURI}
-                            size={256}
-                            bgColor={colors.grey_5}
-                            fgColor={'#ffffff'}
-                            imageSettings={{
-                                src: '/qrunit.png',
-                                width: 48,
-                                height: 41,
-                                excavate: true,
-                            }}
-                        />
-                        <p>Scan the QR code with a WalletConnect compatible phone app to connect</p>
-                    </div>
-                </StyledWCDialog>
+                <Dialog onClose={closeWalletConnector} width="45rem" height="">
+                    <QRCodeSVG
+                        value={walletConnectURI}
+                        size={320}
+                        style={{ width: '100%', height: '100%' }}
+                        includeMargin={true}
+                    />
+                    <p>Scan the QR code with a WalletConnect compatible phone app to connect</p>
+                </Dialog>
             )}
             {connecting && (
                 <Dialog onClose={closeConnector} width="304px" height="">
                     <div style={{ padding: 10 }}>
                         <h3>CONNECT USING...</h3>
-                        <div>
-                            <ActionButton onClick={connectMetamask}>Metamask</ActionButton>
-                        </div>
-                        <div style={{ paddingTop: 10 }}>
-                            <ActionButton onClick={connectWalletConnect}>WalletConnect</ActionButton>
-                        </div>
+                        {wallets.metamask !== false && (
+                            <div>
+                                <ActionButton onClick={connectMetamask}>Metamask</ActionButton>
+                            </div>
+                        )}
+                        {wallets.walletconnect !== false && (
+                            <div style={{ paddingTop: 10 }}>
+                                <ActionButton onClick={connectWalletConnect}>WalletConnect</ActionButton>
+                            </div>
+                        )}
+                        {wallets.burner !== false && (
+                            <div style={{ paddingTop: 10 }}>
+                                <ActionButton onClick={connectBurner}>Burner</ActionButton>
+                            </div>
+                        )}
                     </div>
                 </Dialog>
             )}

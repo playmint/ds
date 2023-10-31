@@ -3,10 +3,22 @@ import { concat, filter, fromPromise, fromValue, lazy, makeSubject, map, onEnd, 
 import { CompoundKeyEncoder, NodeSelectors } from './helpers';
 import { EthereumProvider, Selector, Wallet } from './types';
 
-export type WalletProvider = {
-    method: string;
-    provider: EthereumProvider;
-};
+export type WalletProvider =
+    | {
+          method: 'walletconnect';
+          provider: EthereumProvider;
+          address?: string;
+      }
+    | {
+          method: 'metamask';
+          provider: EthereumProvider;
+          address?: string;
+      }
+    | {
+          method: 'burner';
+          provider: ethers.Wallet | ethers.HDNodeWallet;
+          address?: string;
+      };
 
 export function makeWallet(): {
     wallet: Source<Wallet | undefined>;
@@ -17,12 +29,13 @@ export function makeWallet(): {
         provider,
         filter((provider): provider is WalletProvider => provider !== null),
         switchMap(newBrowserAccountSource),
-        map(({ provider, address, method }) =>
+        map(({ provider, address, method }: WalletProvider) =>
             address
                 ? ({
                       id: CompoundKeyEncoder.encodeAddress(NodeSelectors.Player, address),
                       address,
-                      signer: async () => new ethers.BrowserProvider(provider).getSigner(address),
+                      signer: async () =>
+                          method === 'burner' ? provider : new ethers.BrowserProvider(provider).getSigner(address),
                       method,
                   } satisfies Wallet)
                 : undefined,
@@ -44,8 +57,13 @@ export function makeKeyWallet(keyHexString: string): Source<Wallet> {
     );
 }
 
-function newBrowserAccountSource({ provider, method }: WalletProvider) {
+function newBrowserAccountSource({ provider, method }: WalletProvider): Source<WalletProvider> {
     const { source, next } = makeSubject<string | undefined>();
+
+    if (method === 'burner') {
+        return lazy(() => fromValue({ provider, method, address: provider.address }));
+    }
+
     const handleAccountsChanged = (accounts: string[]) => {
         const addr = getAddress(accounts);
         next(addr);

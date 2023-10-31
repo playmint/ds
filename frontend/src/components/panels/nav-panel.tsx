@@ -55,7 +55,7 @@ const NavLink = styled.div`
 `;
 
 export const NavPanel = () => {
-    const { connect } = useWalletProvider();
+    const { connect, disconnect: forgetProvider } = useWalletProvider();
     const { clearSession } = useSession();
     const { wallet } = useWallet();
     const player = usePlayer();
@@ -71,12 +71,14 @@ export const NavPanel = () => {
     }, []);
 
     const disconnect = useCallback(() => {
-        if (!clearSession) {
-            return;
+        if (clearSession) {
+            clearSession();
         }
-        clearSession();
+        if (forgetProvider) {
+            forgetProvider();
+        }
         window.location.reload();
-    }, [clearSession]);
+    }, [clearSession, forgetProvider]);
 
     const canvasHeight = g.__globalUnityContext?.getCanvasHeight ? g.__globalUnityContext.getCanvasHeight() : -1;
     const onChangeQuality = useCallback((e) => {
