@@ -196,7 +196,7 @@ export default function Page({ doc, tree }: InferGetStaticPropsType<typeof getSt
         return <ErrorPage statusCode={404} />;
     }
     return (
-        <WalletProviderProvider>
+        <WalletProviderProvider wallets={config?.wallets || {}}>
             <GameStateProvider config={config}>
                 <SessionProvider>
                     <div className="nav-container">

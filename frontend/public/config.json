@@ -2,5 +2,10 @@
     "gameID": "DOWNSTREAM",
     "build": "dev",
     "wsEndpoint": "ws://localhost:8080/query",
-    "httpEndpoint": "http://localhost:8080/query"
+    "httpEndpoint": "http://localhost:8080/query",
+    "wallets": {
+        "metamask": true,
+        "walletconnect": true,
+        "burner": true
+    }
 }
