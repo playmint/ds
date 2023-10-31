@@ -110,6 +110,9 @@ const CombatState: FunctionComponent<CombatStateProps> = (props) => {
         tickCount,
     } = props;
 
+    const secondsRemaining = (MAX_TICKS - tickCount) * 2;
+    const timeRemaining = new Date(secondsRemaining * 1000).toISOString().slice(11, 19);
+
     return (
         <StyledCombatModal>
             <div className="header">
@@ -125,7 +128,11 @@ const CombatState: FunctionComponent<CombatStateProps> = (props) => {
             </div>
             <div className="footer">
                 <TickTimerProgressBar className="in-progress" every={2000} />
-                <ProgressBar maxValue={MAX_TICKS} currentValue={MAX_TICKS - tickCount} />
+                <ProgressBar
+                    maxValue={MAX_TICKS}
+                    currentValue={MAX_TICKS - tickCount}
+                    label={`TIME REMAINING ${timeRemaining}`}
+                />
             </div>
         </StyledCombatModal>
     );
