@@ -18,6 +18,7 @@ import { WalletProviderProvider } from '@app/hooks/use-wallet-provider';
 import { useConfig } from '@app/hooks/use-config';
 import { GameStateProvider } from '@app/hooks/use-game-state';
 import { SessionProvider } from '@app/hooks/use-session';
+import { useRouter } from 'next/router';
 
 const DOCS_CONTENT_DIR = '../docs';
 
@@ -51,12 +52,16 @@ interface DocTree {
 }
 
 const Markdown = styled.div`
-    padding: 5rem;
-    color: white;
+    max-width: 90rem;
+    min-width: 50rem;
+    padding: 1rem 1rem 5rem 1rem;
+    margin-bottom: 5rem;
+    color: #24202b;
     h1,
     h2,
     h3,
     h4 {
+        text-shadow: 0px 2.237093687057495px 0px #fff;
         margin-top: 2rem;
         margin-bottom: 1rem;
     }
@@ -65,7 +70,11 @@ const Markdown = styled.div`
         margin-left: 3rem;
     }
     a {
-        color: white;
+        color: #24202b;
+        font-weight: 800;
+    }
+    pre code {
+        border-radius: 0.5rem;
     }
 `;
 
@@ -80,16 +89,30 @@ export const DocBody = ({ content }: { content: string }) => {
 const SidebarList = styled.ul`
     padding: 0.5rem 0;
     a {
+        color: #24202b;
+        font-weight: 800;
+        padding: 0.5rem;
+    }
+    a.active {
+        background: linear-gradient(0deg, #fb7001 0%, #fb7001 100%), #f7f5fa;
+        border-radius: 0.5rem;
+        text-decoration: none;
         color: white;
     }
 `;
 
 const DocsSidebar = ({ doc }: { doc: DocTree }) => {
+    const router = useRouter();
+    const currentPath = router?.asPath || '';
+    const url = `/docs/${doc.slug.join('/')}`;
+    console.log(currentPath, url);
     return (
         <SidebarList>
             {doc.slug.length > 0 && (
                 <li>
-                    <Link href={`/docs/${doc.slug.join('/')}`}>{doc.title || doc.slug.slice(-1).find(() => true)}</Link>
+                    <Link href={url} className={currentPath === url ? 'active' : ''}>
+                        {doc.title || doc.slug.slice(-1).find(() => true)}
+                    </Link>
                 </li>
             )}
             {doc.children.length > 0 && (
@@ -191,7 +214,6 @@ export const getStaticProps = (async ({ params }) => {
 
 export default function Page({ doc, tree }: InferGetStaticPropsType<typeof getStaticProps>) {
     const config = useConfig();
-    // const router = useRouter();
     if (!doc) {
         return <ErrorPage statusCode={404} />;
     }
@@ -202,13 +224,25 @@ export default function Page({ doc, tree }: InferGetStaticPropsType<typeof getSt
                     <div className="nav-container">
                         <NavPanel />
                     </div>
-                    <div style={{ float: 'left', width: '30rem' }}>
-                        <div style={{ padding: '5rem 0' }}>
-                            <DocsSidebar doc={tree} />
+                    <div style={{ display: 'flex', flexDirection: 'row' }}>
+                        <div style={{}}>
+                            <div
+                                style={{
+                                    padding: '1rem 1rem 1rem 0',
+                                    margin: '3rem 2rem',
+                                    maxHeight: '100%',
+                                    border: '2px solid #333',
+                                    borderRadius: '1rem',
+                                    background: '#fff',
+                                    minWidth: '28rem',
+                                }}
+                            >
+                                <DocsSidebar doc={tree} />
+                            </div>
                         </div>
-                    </div>
-                    <div style={{ float: 'left', width: 'calc(100vw - 30rem)', height: '100vh', overflow: 'auto' }}>
-                        <DocBody content={doc.html} />
+                        <div style={{ flexGrow: 1, height: '100vh', paddingRight: '1rem', overflow: 'auto' }}>
+                            <DocBody content={doc.html} />
+                        </div>
                     </div>
                 </SessionProvider>
             </GameStateProvider>
