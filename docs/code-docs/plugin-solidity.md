@@ -1,6 +1,6 @@
-> ℹ️ These code docs reference the Downstream API as viewed from a forge project with playmint/ds installed as a dependecy, like the ds-hammer-factory repository. You could also work with the ds repository directly.
+# Solidity Contracts
 
-## Solidity Contracts
+> ℹ️ These code docs reference the Downstream API as viewed from a forge project with playmint/ds installed as a dependecy, like the ds-hammer-factory repository. You could also work with the ds repository directly.
 
 Found in `contracts/libs/ds/src`, this folder is mapped to import as “@ds” and contact code files in these docs are referenced relative to @ds.
 

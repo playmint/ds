@@ -1,6 +1,6 @@
-> ℹ️ These code docs reference the Downstream API as viewed from a forge project with playmint/ds installed as a dependecy, like the ds-hammer-factory repository. You could also work with the ds repository directly.
-
 # Javascript Plugin
+
+> ℹ️ These code docs reference the Downstream API as viewed from a forge project with playmint/ds installed as a dependecy, like the ds-hammer-factory repository. You could also work with the ds repository directly.
 
 Javascript code must be attached to a BuildingKind in order to control what is displayed when selecting the building, and provide controls to trigger the actions that are available when using the building.
 
