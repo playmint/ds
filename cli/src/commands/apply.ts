@@ -86,7 +86,6 @@ const deploy = {
                 ? compilePath(relativeFilename, opts)
                 : {bytecode: source.bytecode}
             );
-            console.log('bytecode\n', `${bytecode}`);
             return bytecode;
         };
 
