@@ -3,6 +3,7 @@
 import { ActionButton } from '@app/styles/button.styles';
 import { PluginStateButtonAction, PluginStateComponentContent, PluginSubmitCallValues } from '@downstream/core';
 import DOMPurify from 'dompurify';
+import { useEffect } from 'react';
 import styled, { css } from 'styled-components';
 
 const StylePluginContent = styled.div`
@@ -19,6 +20,22 @@ const StylePluginContent = styled.div`
     }
 `;
 
+// initialize DOMPurify only once
+export const initDOMPurify = () => {
+    const DP: any = DOMPurify;
+    if (DP.inited) {
+        return;
+    }
+    // force all links to open in new window with "noopener"
+    DOMPurify.addHook('afterSanitizeAttributes', function (node) {
+        if ('target' in node) {
+            node.setAttribute('target', '_blank');
+            node.setAttribute('rel', 'noopener');
+        }
+    });
+    DP.inited = true;
+};
+
 export const PluginContent = ({
     content,
     canUse,
@@ -28,6 +45,10 @@ export const PluginContent = ({
     canUse: boolean;
     children?: any;
 }) => {
+    useEffect(() => {
+        initDOMPurify();
+    }, []);
+
     const saferHTML = { __html: content.html ? DOMPurify.sanitize(content.html) : '' };
 
     const submit = (e: React.FormEvent<HTMLFormElement>) => {
