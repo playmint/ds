@@ -17,7 +17,7 @@ export default async function update({ selected, world, player }) {
         );
         return questNum + 1;
     };
-    
+
     const acceptQuest = (questId) => {
         const questNum = getNextQuestNum();
         ds.dispatch({
@@ -26,28 +26,9 @@ export default async function update({ selected, world, player }) {
         });
     };
 
-    const openDocs = () => {
-        ds.sendQuestMessage("readTheDoc");
-        window.open("https://www.playmint.com"); 
-    }
-
     const openBuildingCreator = () => {
         ds.sendQuestMessage("createABuildingPage");
     }
-
-    var docButton = {
-        text: "Read the D.O.C.s",
-        type: "action",
-        action: openDocs,
-        disabled: false
-    };
-
-    var builderPageButton = { 
-        text: 'Create a Building', 
-        type: 'action', 
-        action: openBuildingCreator, 
-        disabled: false 
-    }; 
 
     var creationQuestButton = {
         text: "Accept Creation Quest",
@@ -66,14 +47,14 @@ export default async function update({ selected, world, player }) {
     const findQuestByName = (questName) => {
         return quests.find((q) => q.node.name.value == questName);
     };
-    
+
     const QUEST_NAME = "A Squircle-Shaped Hole"
     const squircleQuest = findQuestByName(QUEST_NAME);
 
 
-    if (!squircleQuest) buttonList.push(creationQuestButton);
-    buttonList.push(docButton);
-    buttonList.push(builderPageButton);
+    if (!squircleQuest) {
+        buttonList.push(creationQuestButton);
+    }
 
     return {
         version: 1,
@@ -85,7 +66,12 @@ export default async function update({ selected, world, player }) {
                     {
                         id: 'default',
                         type: 'inline',
-                        html: 'A wealth of information pertaining to the Details of Object Creation is accessible here',
+                        html: `
+                            A wealth of information pertaining
+                            to the Details of Object Creation is accessible in the
+                            <a href="/docs/how-to-create-docs">D.O.C.S</a>
+                            and tools like the <a href="/building-fabricator">Building Configurator</a>
+                        `,
                         buttons: buttonList
                     }
                 ],
