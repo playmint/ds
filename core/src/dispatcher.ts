@@ -170,6 +170,7 @@ async function dispatch(
                 window.location.reload();
             }
         }
+        console.error(`dispatch fail:`, reason);
         throw new Error(reason);
     }
     if (!data) {
