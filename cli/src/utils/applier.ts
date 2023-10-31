@@ -179,8 +179,6 @@ const buildingKindDeploymentActions = async (
             throw new Error('crafting recipe must specify at least 1 input');
         }
 
-        model = `${model}-${spec.color || 0}`;
-
         const input = encodeSlotConfig(spec.inputs || []);
         inputItems = input.items;
         inputQtys = input.quantities;
@@ -188,6 +186,11 @@ const buildingKindDeploymentActions = async (
         const output = encodeSlotConfig(spec.outputs || []);
         outputItems = output.items.slice(0, 1);
         outputQtys = output.quantities.slice(0, 1);
+    }
+
+    if(spec.category == 'factory' || spec.category == 'custom')
+    {
+        model = `${model}-${spec.color || 0}`;
     }
 
     if (spec.category == 'extractor') {
