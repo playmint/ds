@@ -5,9 +5,9 @@ spec:
   category: factory
   model: 11-19
   contract:
-    file: ./SquircleFactory.sol
+    file: ../BasicFactory/BasicFactory.sol
   plugin:
-    file: ./SquircleFactory.js
+    file: ../BasicFactory/BasicFactory.js
   materials:
     - name: Green Goo
       quantity: 25

@@ -17,9 +17,9 @@ spec:
   category: factory
   model: 09-09
   contract:
-    file: ./VeryImportantThingFactory.sol
+    file: ../BasicFactory/BasicFactory.sol
   plugin:
-    file: ./VeryImportantThingFactory.js
+    file: ../BasicFactory/BasicFactory.js
   materials:
     - name: Green Goo
       quantity: 25

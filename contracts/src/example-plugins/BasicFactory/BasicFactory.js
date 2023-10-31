@@ -28,14 +28,14 @@ export default async function update(state) {
         version: 1,
         components: [
             {
-                id: 'squircle-factory',
+                id: 'basic-factory',
                 type: 'building',
                 content: [
                     {
                         id: 'default',
                         type: 'inline',
                         html: `
-                            <p>Add 2 of each base goo item to craft a squircle</p>
+                            <p>Fill the input slots to enable crafing</p>
                             `,
                        buttons: [ 
                             { 
