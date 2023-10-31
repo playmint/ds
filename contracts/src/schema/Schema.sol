@@ -21,6 +21,7 @@ interface Rel {
     function IsFinalised() external;
     function HasTask() external;
     function HasQuest() external;
+    function ID() external;
 }
 
 interface Kind {
@@ -39,6 +40,7 @@ interface Kind {
     function BlockNum() external;
     function Quest() external;
     function Task() external;
+    function ID() external;
 }
 
 uint64 constant BLOCK_TIME_SECS = 2;
@@ -140,6 +142,10 @@ library Node {
 
     function Hash(bytes20 hash) internal pure returns (bytes24) {
         return CompoundKeyEncoder.BYTES(Kind.Hash.selector, hash);
+    }
+
+    function ID(bytes20 id) internal pure returns (bytes24) {
+        return CompoundKeyEncoder.BYTES(Kind.Hash.selector, id);
     }
 
     function RewardBag(bytes24 sessionID, bytes24 entityID) internal pure returns (bytes24) {
@@ -369,6 +375,15 @@ library Schema {
 
     function setHash(State state, bytes20 hash, bytes24 node, uint8 edgeIndex) internal {
         state.set(Rel.Has.selector, edgeIndex, node, Node.Hash(hash), 0);
+    }
+
+    function getID(State state, bytes24 node) internal view returns (bytes24 id) {
+        (id,) = state.get(Rel.ID.selector, 0, node);
+    }
+
+    function setID(State state, bytes24 node, bytes24 idNode) internal {
+        state.set(Rel.ID.selector, 0, node, idNode, 0);
+        state.setOwner(idNode, node);
     }
 
     function setInput(State state, bytes24 kind, uint8 slot, bytes24 item, uint64 qty) internal {

@@ -45,6 +45,14 @@ contract CraftingRule is Rule {
             revert("already registered");
         }
         state.setOwner(itemKind, player);
+
+        // Check the name is unique
+        bytes24 idNode = Node.ID(bytes20(keccak256(abi.encodePacked(name))));
+        if (state.getOwner(idNode) != 0x0) {
+            revert("item name already registered");
+        }
+        state.setID(itemKind, idNode);
+
         state.annotate(itemKind, "name", name);
         state.annotate(itemKind, "icon", icon);
     }
