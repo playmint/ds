@@ -5,12 +5,8 @@ spec:
   description: "MORTON requests your craft a 'Squircle'. Use the Vault's knowledge to create a factory to craft one "
   location: [-18, 2, 16]
   tasks:
-    - kind: message
-      name: "Open the Create a Building page"
-      message: createABuildingPage
-      buildingKind: Vault of Knowledge
     - kind: deployBuilding
-      name: "Deploy a factory that crafts Squircles"
+      name: "Visit the Building Fabricator and 'Deploy' a factory that OUTPUTS a Squircle"
       craftOutput: "Squircle"
     - kind: inventory
       name: Put a Squircle in your bag
