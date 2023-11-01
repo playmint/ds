@@ -20,6 +20,9 @@ import { colorMap, colors } from '@app/styles/colors';
 const StyledQuestPanel = styled.div`
     width: 43.5rem;
     position: relative;
+    overflow-y: auto;
+    max-height: calc(100vh - 35rem);
+    pointer-events: all;
 `;
 
 const CompleteQuestButton = styled(ActionButton)`
@@ -261,7 +264,7 @@ export const QuestPanel: FunctionComponent<QuestPanelProps> = ({ world, tiles, p
     return (
         <>
             {acceptedQuests.length > 0 && (
-                <StyledQuestPanel>
+                <StyledQuestPanel className="no-scrollbars">
                     {acceptedQuests.map((quest, questIdx) => (
                         <QuestItem
                             tiles={tiles}

@@ -36,6 +36,14 @@ export const GlobalStyles = createGlobalStyle`
         font-size: 1.3rem;
     }
 
+    .no-scrollbars {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .no-scrollbars::-webkit-scrollbar {
+        display: none;
+    }
+
     code {
         font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
         monospace;
