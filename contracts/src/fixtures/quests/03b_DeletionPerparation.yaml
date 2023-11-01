@@ -2,7 +2,7 @@
 kind: Quest
 spec:
   name: Deletion Preparation
-  description: "Not all simulation entities are desirable. All users are expected to be prepared for Deletion duty."
+  description: "Not all simulation entities are desirable, and users will be required to perform Deletion duties."
   location: [-12, 16, -4]
   tasks:
     - kind: inventory
