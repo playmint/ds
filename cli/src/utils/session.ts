@@ -105,7 +105,13 @@ export const session = async (ctx) => {
                 take(1),
                 toPromise
             );
-            const provider = await newWalletConnectProvider();
+            const provider = await Promise.race([
+                newWalletConnectProvider(),
+                sleep(60 * 1000).then(() => null),
+            ]);
+            if (provider === null) {
+                throw new Error('Timed out waiting for walletconnect connection or approval, please try again');
+            }
             selectProvider({ method: 'walletconnect', provider });
             await sleep(1000); // seems to be a bit of an eventual consistency race outside our control on the walletconnect api side
             // await provider.request({ method: 'eth_accounts' }); // check connection or explode
