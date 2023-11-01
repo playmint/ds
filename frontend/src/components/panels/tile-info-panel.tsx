@@ -21,6 +21,7 @@ import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { FunctionComponent, useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { colors } from '@app/styles/colors';
+import { getMaterialStats } from '@app/plugins/combat/helpers';
 
 interface KeyedThing {
     key: number;
@@ -166,6 +167,8 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
         return c.id === 'view';
     });
 
+    const [life, def, atk] = getMaterialStats(buildingKind?.materials || []);
+
     return (
         <StyledTileInfoPanel>
             <div className="header">
@@ -235,6 +238,15 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
                         <strong>OWNER:</strong> {owner.addr}
                     </span>
                 )}
+                <span className="label" style={{ width: '30%' }}>
+                    <strong>ATK:</strong> {atk}
+                </span>
+                <span className="label" style={{ width: '30%' }}>
+                    <strong>DEF:</strong> {def}
+                </span>
+                <span className="label" style={{ width: '30%' }}>
+                    <strong>LIFE:</strong> {life}
+                </span>
             </div>
         </StyledTileInfoPanel>
     );
