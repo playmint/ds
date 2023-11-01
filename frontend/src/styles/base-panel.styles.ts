@@ -11,6 +11,7 @@ export const BasePanelStyles = css`
     border-radius: var(--panel-border-radius);
     padding: var(--panel-padding);
     border: ${colorMap.primaryBorderColor} 3px solid;
+    pointer-events: all;
 `;
 
 export const StyledBasePanel = styled.div`

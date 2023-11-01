@@ -25,6 +25,7 @@ export const GlobalStyles = createGlobalStyle`
         -moz-osx-font-smoothing: grayscale;
         background: ${colorMap.documentBackground};
         font-size: 1.478rem;
+        user-select: none;
     }
 
     .build-version {
@@ -85,8 +86,8 @@ export const GlobalStyles = createGlobalStyle`
             select {
                 appearance: none;
                 box-sizing: border-box;
-                background-color: #143063;
-                border: 1px solid white;
+                background-color: #eee;
+                border: 1px solid #ccc;
                 border-radius: 0.5rem;
                 padding: 1rem;
                 margin: 0;
@@ -95,7 +96,7 @@ export const GlobalStyles = createGlobalStyle`
                 font-size: inherit;
                 cursor: inherit;
                 line-height: inherit;
-                color: white;
+                color: #333;
             }
 
             &:after {
@@ -107,7 +108,7 @@ export const GlobalStyles = createGlobalStyle`
                 content: "";
                 width: 0.8em;
                 height: 0.5em;
-                background-color: white;
+                background-color: #333;
                 clip-path: polygon(100% 0%, 0 0%, 50% 100%);
             }
         }

@@ -10,7 +10,10 @@ import { ShellProps } from './index';
  * @return Base styles for the shell component
  */
 const baseStyles = (_: Partial<ShellProps>) => css`
-    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
     margin: 0;
     display: flex;
     flex-direction: column;
@@ -24,64 +27,85 @@ const baseStyles = (_: Partial<ShellProps>) => css`
     }
 
     > .hud-container {
+        display: flex;
+        flex-direction: row;
         position: relative;
-        max-height: calc(100vh - 5rem);
+        max-height: 100vh;
         z-index: 10;
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        grid-template-rows: 1fr 1fr;
         gap: 0 0;
-        grid-auto-flow: row;
-        grid-template-areas:
-            'top-left top-middle right'
-            'bottom-left bottom-middle right';
         flex-grow: 1;
         pointer-events: none;
+        justify-content: space-between;
 
-        .top-left,
-        .bottom-left,
-        .top-middle,
-        .bottom-middle,
+        .flex-spacer {
+            flex-grow: 1;
+        }
+
+        .left {
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 0 2rem 2rem;
+            min-width: 40rem;
+            justify-content: space-between;
+            flex-grow: 1;
+
+            .top-left {
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+            }
+
+            .bottom-left {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                height: 24rem;
+                align-items: end;
+                gap: 1rem;
+
+                .bottom-middle {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: flex-end;
+                    flex-grow: 1;
+                    max-width: 50rem;
+                }
+            }
+        }
+
         .right {
             display: flex;
             flex-direction: column;
-            padding: 2.4rem;
-
-            > * {
-                pointer-events: all;
-            }
-        }
-
-        .top-left {
-            grid-area: top-left;
-
-            .logs {
-                pointer-events: none;
-            }
-        }
-
-        .bottom-left {
-            grid-area: bottom-left;
-            align-items: flex-start;
-            justify-content: flex-end;
-        }
-
-        .top-middle {
-            grid-area: top-middle;
-            align-items: center;
+            padding: 2rem 2rem 2rem 0;
+            min-width: 32rem;
             justify-content: flex-start;
-        }
 
-        .bottom-middle {
-            grid-area: bottom-middle;
-            align-items: center;
-            justify-content: flex-end;
-        }
-
-        .right {
-            grid-area: right;
             align-items: flex-end;
-            justify-content: flex-start;
+            overflow-y: auto;
+            position: relative;
+
+            /* START HACK TO GRACEFULLY OVERFLOW SIDEBAR */
+            --scrollbar-width: 8px;
+            --mask-height: 3rem;
+            overflow-y: auto;
+            height: 100%;
+            padding-bottom: var(--mask-height);
+            padding-right: 20px;
+            --mask-image-content: linear-gradient(
+                to bottom,
+                transparent,
+                black var(--mask-height),
+                black calc(100% - var(--mask-height)),
+                transparent
+            );
+            --mask-size-content: calc(100% - var(--scrollbar-width)) 100%;
+            --mask-image-scrollbar: linear-gradient(black, black);
+            --mask-size-scrollbar: var(--scrollbar-width) 100%;
+            mask-image: var(--mask-image-content), var(--mask-image-scrollbar);
+            mask-size: var(--mask-size-content), var(--mask-size-scrollbar);
+            mask-position: 0 0, 100% 0;
+            mask-repeat: no-repeat, no-repeat;
+            /* END HACK TO GRACEFULLY OVERFLOW SIDEBAR */
         }
     }
 `;

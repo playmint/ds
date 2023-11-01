@@ -19,7 +19,7 @@ import { colorMap, colors } from '@app/styles/colors';
 // NOTE: QuestPanel is a misnomer as it is no longer a panel but just a container. Each of the quest items are panels in their own right
 const StyledQuestPanel = styled.div`
     width: 43.5rem;
-    position: absolute;
+    position: relative;
 `;
 
 const CompleteQuestButton = styled(ActionButton)`
@@ -84,7 +84,7 @@ const FocusButton: FunctionComponent<{
 
 const QuestItemStyles = ({ expanded }: { expanded: boolean }) => css`
     position: relative;
-    padding: ${expanded ? 0 : `var(--panel-padding)`};
+    padding: ${expanded ? 0 : `1rem`};
     overflow: hidden;
     margin-bottom: 0.5rem;
 
@@ -104,11 +104,13 @@ const QuestItemStyles = ({ expanded }: { expanded: boolean }) => css`
         padding: var(--panel-padding);
 
         p {
+            font-size: 1.3rem;
             color: ${colors.grey_3};
         }
     }
 
     .taskContainer {
+        font-size: 1.4rem;
         padding: var(--panel-padding) var(--panel-padding) 0 var(--panel-padding);
     }
 
@@ -170,7 +172,7 @@ export const QuestItem: FunctionComponent<{
             {expanded ? (
                 <>
                     <div className="header">
-                        <h2>{quest.node.name?.value}</h2>
+                        <h3>{quest.node.name?.value}</h3>
                         {quest.node.location && (
                             <FocusButton location={quest.node.location} setFocusLocation={setFocusLocation} />
                         )}
@@ -202,7 +204,7 @@ export const QuestItem: FunctionComponent<{
                     )}
                 </>
             ) : (
-                <h3>{quest.node.name?.value}</h3>
+                <h4>{quest.node.name?.value}</h4>
             )}
         </StyledQuestItem>
     );

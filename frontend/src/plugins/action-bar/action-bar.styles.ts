@@ -11,8 +11,7 @@ import { colors } from '@app/styles/colors';
  * @return Base styles for the action bar component
  */
 const baseStyles = (_: Partial<ActionBarProps>) => css`
-    margin-bottom: 1.5rem;
-
+    pointer-events: all;
     h3 {
         margin-bottom: 0;
     }

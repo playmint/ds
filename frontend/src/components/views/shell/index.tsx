@@ -67,8 +67,8 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         setContainerStyle({
             position: 'fixed',
             display: 'block',
-            width: '100vw',
-            height: '100vh',
+            width: '100%',
+            height: '100%',
             top: 0,
             left: 0,
             bottom: 0,
@@ -258,20 +258,23 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     <CombatSessions tiles={tiles || []} sessions={world?.sessions || []} />
                 </>
             )}
-            <NavPanel />
             <div className="hud-container">
-                <div className="top-left">
-                    {world && player && <QuestPanel world={world} tiles={tiles || []} player={player} />}
-                    {/* <Logs className="logs" /> */}
-                </div>
-                <div className="bottom-left">
+                <div className="left">
+                    <div className="top-left">
+                        <NavPanel />
+                        {world && player && <QuestPanel world={world} tiles={tiles || []} player={player} />}
+                        {/* <Logs className="logs" /> */}
+                    </div>
                     <ItemPluginPanel ui={ui || []} />
-                    <MobileUnitPanel />
-                </div>
-                <div className="top-middle"></div>
-                <div className="bottom-middle">
-                    <ActionContextPanel />
-                    <ActionBar />
+                    <div className="bottom-left">
+                        <MobileUnitPanel />
+                        <div className="flex-spacer"></div>
+                        <div className="bottom-middle">
+                            <ActionContextPanel />
+                            <ActionBar />
+                        </div>
+                        <div className="flex-spacer"></div>
+                    </div>
                 </div>
                 <div className="right">
                     {(!player || (player && playerUnits.length === 0)) && mapReady && connect && !loadingSession && (

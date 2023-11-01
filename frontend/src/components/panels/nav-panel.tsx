@@ -5,8 +5,6 @@ import { useWalletProvider } from '@app/hooks/use-wallet-provider';
 import { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Dialog } from '../molecules/dialog';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
 import { GlobalUnityContext } from '@app/hooks/use-unity-instance';
 import { ActionButton } from '@app/styles/button.styles';
 
@@ -17,10 +15,11 @@ const AccountButton = styled.button`
     justify-content: flex-end;
     align-items: center;
     border: 0;
-    border-left: 1px solid #314a7b;
     background: #050f25;
     color: #fff;
-    padding: 0 2rem 0 1rem;
+    padding: 0 1rem;
+    margin: 0;
+    border-radius: 1rem;
 
     > img {
         margin-right: 0.3rem;
@@ -38,20 +37,9 @@ const NavContainer = styled.div`
     display: flex;
     justify-content: flex-start;
     height: 5rem;
-    background: #030f25;
     user-select: none;
-    zoom: 90%;
-`;
-
-const NavLink = styled.div`
-    padding: 1.4rem;
-    &.active {
-        background: #335c90;
-    }
-    a {
-        color: white;
-        text-decoration: none;
-    }
+    margin-bottom: 1.5rem;
+    pointer-events: all;
 `;
 
 export const NavPanel = () => {
@@ -60,7 +48,9 @@ export const NavPanel = () => {
     const { wallet } = useWallet();
     const player = usePlayer();
     const [showAccountDialog, setShowAccountDialog] = useState(false);
-    const router = useRouter();
+
+    const hasConnection = player || wallet;
+    const address = player?.addr || wallet?.address || '';
 
     const closeAccountDialog = useCallback(() => {
         setShowAccountDialog(false);
@@ -93,12 +83,12 @@ export const NavPanel = () => {
 
     return (
         <NavContainer>
-            {showAccountDialog && wallet && (
+            {showAccountDialog && hasConnection && (
                 <Dialog onClose={closeAccountDialog} width="304px" height="">
                     <div style={{ padding: 15 }}>
                         <h3>PLAYER ACCOUNT</h3>
                         <p>
-                            0x{wallet.address.slice(0, 9)}...{wallet.address.slice(-9)}
+                            0x{address.slice(0, 9)}...{address.slice(-9)}
                         </p>
                         <br />
                         <fieldset>
@@ -121,19 +111,10 @@ export const NavPanel = () => {
                     </div>
                 </Dialog>
             )}
-            <AccountButton onClick={wallet ? openAccountDialog : connect}>
+            <AccountButton onClick={player ? openAccountDialog : connect}>
                 <img src="/icons/player.png" alt="" />
-                <span className="text">
-                    {!wallet ? 'connect' : !player ? 'connecting' : formatNameOrId(player, 'Player 0x..')}
-                </span>
+                <span className="text">{player ? formatNameOrId(player, 'Player 0x..') : 'connect'}</span>
             </AccountButton>
-            <div style={{ flexGrow: 1 }}></div>
-            <NavLink className={router.pathname == '/' ? 'active' : ''}>
-                <Link href={`/`}>Map</Link>
-            </NavLink>
-            <NavLink className={router.pathname.startsWith('/docs') ? 'active' : ''}>
-                <Link href={`/docs/code-docs/extending-downstream`}>Docs</Link>
-            </NavLink>
         </NavContainer>
     );
 };

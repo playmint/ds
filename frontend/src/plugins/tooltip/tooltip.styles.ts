@@ -16,16 +16,17 @@ export const TooltipTip = styled.div<{ direction?: 'top' | 'right' | 'bottom' | 
     left: 50%;
     top: 0; /* Position the tooltip at the top of its container */
     transform: translate(-50%, calc(-100% + 20px));
-    padding: 6px;
+    padding: 1rem;
     color: ${tooltipTextColor};
     background: ${tooltipBackgroundColor};
-    font-size: 14px;
-    font-family: 'Recursive', monospace;
     line-height: 1;
     z-index: 100;
     width: max-content;
-    max-width: 125px;
+    white-space: nowrap;
+    max-width: 30rem;
     white-space: pre-line;
+    opacity: 0.9;
+    font-size: 1.2rem;
 
     &::before {
         content: ' ';

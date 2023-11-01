@@ -16,7 +16,7 @@ const baseStyles = (_: Partial<ActionContextPanelProps>) => css`
     display: flex;
     align-items: center;
     margin-bottom: 1.5rem;
-    width: 33vw;
+    max-width: 50rem;
 
     .guide {
         width: 50%;

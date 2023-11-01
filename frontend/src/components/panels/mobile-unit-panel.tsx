@@ -60,7 +60,10 @@ const MobileUnitIcon = ({ className, onClick }) => {
 };
 
 const StyledMobileUnitPanel = styled(StyledHeaderPanel)`
-    margin-top: 3.5rem;
+    margin-top: 1rem;
+    .header {
+        padding: 1rem 1.5rem 1rem 1rem;
+    }
 
     .bags > div:last-child .slots {
         margin-bottom: 0;
@@ -69,8 +72,7 @@ const StyledMobileUnitPanel = styled(StyledHeaderPanel)`
 
 const MobileUnitContainer = styled.div`
     overflow: visible;
-    min-height: 5rem;
-    margin-top: 3rem;
+    margin-top: 0rem;
 
     position: relative;
 
@@ -79,25 +81,37 @@ const MobileUnitContainer = styled.div`
     > .unitIcon {
         position: absolute;
         cursor: pointer;
-        left: 0rem;
-        top: -8.2rem;
+        left: 1rem;
+        top: -3.75rem;
     }
 
     > .label {
+        text-align: right;
         color: ${colorMap.primaryText};
-        font-size: 2.8rem;
+        font-size: 2.3rem;
         display: block;
         width: 100%;
-
-        overflow: hidden;
         font-weight: 800;
+        position: relative;
 
-        > .hashTag {
+        > .name {
+            position: relative;
+            display: block;
+            width: 15rem;
+            left: 8rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .hashTag {
             color: ${colors.orange_0};
         }
     }
 
     > .location {
+        font-size: 1.25rem;
+        text-align: right;
         color: ${colors.grey_3};
     }
 `;
@@ -198,8 +212,10 @@ export const MobileUnitPanel = () => {
                             <MobileUnitContainer>
                                 <MobileUnitIcon className="unitIcon" onClick={selectAndFocusMobileUnit} />
                                 <span className="label" onDoubleClick={() => nameEntity(selectedMobileUnit?.id)}>
-                                    <span className="hashTag">#</span>
-                                    {formatNameOrId(selectedMobileUnit, 'unit')}
+                                    <span className="name">
+                                        <span className="hashTag">#</span>
+                                        {formatNameOrId(selectedMobileUnit, 'unit')}
+                                    </span>
                                 </span>
                                 {selectedMobileUnit.nextLocation?.tile && (
                                     <div className="location">

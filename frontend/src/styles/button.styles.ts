@@ -9,6 +9,8 @@ const BaseButtonStyle = css`
     position: relative;
     display: block;
     box-sizing: border-box;
+    pointer-events: all;
+    height: 5rem;
 
     &:disabled {
         opacity: 0.5;
@@ -41,6 +43,5 @@ export const ActionButton = styled(TextButton)`
 export const UnitActionButton = styled(TextButton)`
     border: none;
     width: 5rem;
-    height: 5.6rem;
     padding: 1.2rem 0rem 0.8rem;
 `;

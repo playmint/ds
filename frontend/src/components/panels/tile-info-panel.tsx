@@ -92,7 +92,7 @@ const StyledTileInfoPanel = styled(StyledHeaderPanel)`
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-        gap: 1.2rem;
+        gap: 0.5rem;
 
         .ingredients {
             margin: 0 auto;
@@ -101,9 +101,9 @@ const StyledTileInfoPanel = styled(StyledHeaderPanel)`
 
     > .content > .label {
         width: 12rem;
-        height: 1.7rem;
+        line-height: 1rem;
         white-space: nowrap;
-        font-size: 1.4rem;
+        font-size: 1.2rem;
         overflow: hidden;
         text-overflow: ellipsis;
         display: inline-block;
