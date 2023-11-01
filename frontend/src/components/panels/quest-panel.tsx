@@ -1,20 +1,19 @@
 import {
     BuildingKindFragment,
     ConnectedPlayer,
-    QUEST_STATUS_ACCEPTED,
     QuestFragment,
     WorldStateFragment,
     WorldTileFragment,
 } from '@app/../../core/src';
-import styled, { css } from 'styled-components';
-import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { Locatable, getCoords } from '@app/helpers/tile';
 import { useBuildingKinds, useQuestMessages } from '@app/hooks/use-game-state';
 import { useUnityMap } from '@app/hooks/use-unity-map';
-import { TaskItem } from '../quest-task/task-item';
 import { BasePanelStyles } from '@app/styles/base-panel.styles';
 import { ActionButton } from '@app/styles/button.styles';
 import { colorMap, colors } from '@app/styles/colors';
+import { FunctionComponent, useCallback, useEffect, useState } from 'react';
+import styled, { css } from 'styled-components';
+import { TaskItem } from '../quest-task/task-item';
 
 // NOTE: QuestPanel is a misnomer as it is no longer a panel but just a container. Each of the quest items are panels in their own right
 const StyledQuestPanel = styled.div`
@@ -312,16 +311,18 @@ export interface QuestPanelProps {
     player: ConnectedPlayer;
     world: WorldStateFragment;
     tiles: WorldTileFragment[];
+    acceptedQuests: QuestFragment[];
 }
 
-export const QuestPanel: FunctionComponent<QuestPanelProps> = ({ world, tiles, player }: QuestPanelProps) => {
+export const QuestPanel: FunctionComponent<QuestPanelProps> = ({
+    world,
+    tiles,
+    player,
+    acceptedQuests,
+}: QuestPanelProps) => {
     const { ready: mapReady, sendMessage } = useUnityMap();
     const buildingKinds = useBuildingKinds();
     const [expandedQuest, setExpandedQuest] = useState<string>();
-
-    const acceptedQuests = useMemo(() => {
-        return player.quests?.filter((q) => q.status == QUEST_STATUS_ACCEPTED).sort((a, b) => a.key - b.key) || [];
-    }, [player.quests]);
 
     useEffect(() => {
         if (!acceptedQuests) return;
@@ -357,24 +358,20 @@ export const QuestPanel: FunctionComponent<QuestPanelProps> = ({ world, tiles, p
     );
 
     return (
-        <>
-            {acceptedQuests.length > 0 && (
-                <StyledQuestPanel className="no-scrollbars">
-                    {acceptedQuests.map((quest, questIdx) => (
-                        <QuestItem
-                            tiles={tiles}
-                            expanded={(!expandedQuest && questIdx == 0) || expandedQuest == quest.node.id}
-                            key={questIdx}
-                            quest={quest}
-                            player={player}
-                            world={world}
-                            buildingKinds={buildingKinds || []}
-                            setFocusLocation={setFocusLocation}
-                            onExpandClick={onExpandClick}
-                        />
-                    ))}
-                </StyledQuestPanel>
-            )}
-        </>
+        <StyledQuestPanel className="no-scrollbars">
+            {acceptedQuests.map((quest, questIdx) => (
+                <QuestItem
+                    tiles={tiles}
+                    expanded={(!expandedQuest && questIdx == 0) || expandedQuest == quest.node.id}
+                    key={questIdx}
+                    quest={quest}
+                    player={player}
+                    world={world}
+                    buildingKinds={buildingKinds || []}
+                    setFocusLocation={setFocusLocation}
+                    onExpandClick={onExpandClick}
+                />
+            ))}
+        </StyledQuestPanel>
     );
 };
