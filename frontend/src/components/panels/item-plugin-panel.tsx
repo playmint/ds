@@ -5,6 +5,7 @@ import { BasePanelStyles } from '@app/styles/base-panel.styles';
 
 const StyledItemPluginPanel = styled.div`
     ${BasePanelStyles}
+    width: 26rem;
 `;
 
 export const ItemPluginPanel = ({ ui }: { ui: PluginUpdateResponse[] }) => {
