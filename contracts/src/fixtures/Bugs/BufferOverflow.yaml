@@ -2,7 +2,7 @@
 kind: BuildingKind
 spec:
   name: Buffer Overflow
-  description: An dangerous bug caused by an external attack
+  description: An dangerous Bug caused by an external attack
   category: blocker
   model: enemy
   materials:
