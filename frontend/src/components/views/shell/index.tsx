@@ -13,7 +13,14 @@ import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
 import { NavPanel } from '@app/components/panels/nav-panel';
 import { TileInfoPanel } from '@app/components/panels/tile-info-panel';
 import { getTileDistance } from '@app/helpers/tile';
-import { useBlock, useBuildingKinds, useGameState, usePlayer, usePluginState } from '@app/hooks/use-game-state';
+import {
+    useBlock,
+    useBuildingKinds,
+    useGameState,
+    usePlayer,
+    usePluginState,
+    useQuestMessages,
+} from '@app/hooks/use-game-state';
 import { useSession } from '@app/hooks/use-session';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { useWalletProvider } from '@app/hooks/use-wallet-provider';
@@ -60,7 +67,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const ui = usePluginState();
     const [questsActive, setQuestsActive] = useState<boolean>(true);
     const toggleQuestsActive = useCallback(() => setQuestsActive((prev) => !prev), []);
-
+    const questMessages = useQuestMessages(10);
     const acceptedQuests = useMemo(() => {
         return (
             (player?.quests || []).filter((q) => q.status == QUEST_STATUS_ACCEPTED).sort((a, b) => a.key - b.key) || []
@@ -280,6 +287,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                                 tiles={tiles || []}
                                 player={player}
                                 acceptedQuests={acceptedQuests}
+                                questMessages={questMessages}
                             />
                         )}
                         {/* <Logs className="logs" /> */}
