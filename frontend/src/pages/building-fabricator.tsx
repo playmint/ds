@@ -1130,7 +1130,7 @@ const BuildingFabricator = () => {
                                         textTransform: 'uppercase',
                                     }}
                                 >
-                                    Building Configurator
+                                    Building Fabricator
                                 </span>
                             </div>
                         </div>
@@ -1505,7 +1505,9 @@ export default function ShellPage() {
                 <GameStateProvider config={config}>
                     <SessionProvider>
                         <InventoryProvider>
-                            <NavPanel />
+                            <div style={{ margin: '1rem' }}>
+                                <NavPanel />
+                            </div>
                             <BuildingFabricator />
                             {config && <div className="build-version">build v0.1-{config.commit}</div>}
                         </InventoryProvider>
