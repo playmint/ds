@@ -92,9 +92,11 @@ const QuestItemStyles = ({ expanded }: { expanded: boolean }) => css`
     margin-bottom: 0.5rem;
 
     ${!expanded &&
-    `&:hover {
-        background: ${colorMap.secondaryBackground};
-    }`}
+    css`
+        &:hover {
+            background: ${colorMap.secondaryBackground};
+        }
+    `}
 
     cursor: ${expanded ? `default` : `pointer`};
 
@@ -112,6 +114,50 @@ const QuestItemStyles = ({ expanded }: { expanded: boolean }) => css`
         }
     }
 
+    /* Progress bar */
+
+    .progress {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        margin-top: 0.5rem;
+
+        .progressText {
+            margin-left: 1.5rem;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .progressBar {
+            flex-grow: 1;
+        }
+    }
+
+    ${!expanded &&
+    css`
+        .progressBar {
+            background-color: ${colors.grey_1};
+
+            .inner {
+                background: ${colors.grey_0};
+                border-color: ${colors.grey_2};
+            }
+        }
+
+        &:hover {
+            .progressBar {
+                background-color: ${colors.grey_2};
+
+                .inner {
+                    background: ${colors.grey_0};
+                    border-color: ${colors.grey_2};
+                }
+            }
+        }
+    `}
+
+    /* Tasks */
+
     .taskContainer {
         font-size: 1.4rem;
         padding: var(--panel-padding) var(--panel-padding) 0 var(--panel-padding);
@@ -127,6 +173,37 @@ const QuestItemStyles = ({ expanded }: { expanded: boolean }) => css`
         width: 30rem;
     }
 `;
+
+const StyledProgressBar = styled.div`
+    ${({ p }: { p: number }) => css`
+        position: relative;
+        background-color: white;
+        border-radius: 1rem;
+        background-color: ${colors.grey_2};
+
+        > .inner {
+            position: absolute;
+            height: 100%;
+            width: ${p * 100}%;
+            border-radius: 1rem;
+            border-width: 0.2rem;
+            border-style: ${p > 0 ? `solid` : `none`};
+
+            background-color: ${p >= 0.99 ? colors.green_0 : colors.orange_0};
+            border-color: ${p >= 0.99 ? colors.green_1 : colors.orange_1};
+
+            transition: width 0.5s;
+        }
+    `}
+`;
+
+const ProgressBar: FunctionComponent<{ p: number; className: string }> = ({ p, className }) => {
+    return (
+        <StyledProgressBar className={className} p={p}>
+            <div className="inner"></div>
+        </StyledProgressBar>
+    );
+};
 
 const StyledQuestItem = styled.div`
     ${BasePanelStyles}
@@ -146,17 +223,21 @@ export const QuestItem: FunctionComponent<{
     const questMessages = useQuestMessages(5);
     const [taskCompletion, setTaskCompletion] = useState<{ [key: string]: boolean }>({});
     const [allCompleted, setAllCompleted] = useState<boolean>(false);
+    const [completionCount, setCompletionCount] = useState<number>(0);
+    const [completionPerc, setCompletionPerc] = useState<number>(0);
 
     useEffect(() => {
         if (!taskCompletion) return;
         if (!setAllCompleted) return;
 
-        const allCompleted = quest.node.tasks.reduce(
-            (isCompleted, t) => !!(isCompleted && taskCompletion && taskCompletion[t.node.id]),
-            true
+        const completionCount = quest.node.tasks.reduce(
+            (count, t) => (taskCompletion && taskCompletion[t.node.id] ? count + 1 : count),
+            0
         );
+        setCompletionCount(completionCount);
 
-        setAllCompleted(allCompleted);
+        setAllCompleted(completionCount === quest.node.tasks.length);
+        setCompletionPerc(quest.node.tasks.length > 0 ? completionCount / quest.node.tasks.length : 0);
     }, [quest, taskCompletion, setAllCompleted]);
 
     const onCompleteClick = (quest: QuestFragment) => {
@@ -180,6 +261,12 @@ export const QuestItem: FunctionComponent<{
                             <FocusButton location={quest.node.location} setFocusLocation={setFocusLocation} />
                         )}
                         <p>{quest.node.description?.value}</p>
+                        <div className="progress">
+                            <ProgressBar p={completionPerc} className="progressBar" />
+                            <div className="progressText">
+                                {completionCount}/{quest.node.tasks.length}
+                            </div>
+                        </div>
                     </div>
 
                     <div className="taskContainer">
@@ -207,7 +294,15 @@ export const QuestItem: FunctionComponent<{
                     )}
                 </>
             ) : (
-                <h4>{quest.node.name?.value}</h4>
+                <>
+                    <h4>{quest.node.name?.value}</h4>
+                    <div className="progress">
+                        <ProgressBar p={completionPerc} className="progressBar" />
+                        <div className="progressText">
+                            {completionCount}/{quest.node.tasks.length}
+                        </div>
+                    </div>
+                </>
             )}
         </StyledQuestItem>
     );
