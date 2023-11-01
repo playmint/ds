@@ -12,7 +12,6 @@ import remarkRehype from 'remark-rehype';
 //import rehypeMermaid from 'rehype-mermaidjs';
 
 import type { InferGetStaticPropsType, GetStaticProps, GetStaticPaths } from 'next';
-import { NavPanel } from '@app/components/panels/nav-panel';
 import styled from 'styled-components';
 import { WalletProviderProvider } from '@app/hooks/use-wallet-provider';
 import { useConfig } from '@app/hooks/use-config';
@@ -221,9 +220,6 @@ export default function Page({ doc, tree }: InferGetStaticPropsType<typeof getSt
         <WalletProviderProvider wallets={config?.wallets || {}}>
             <GameStateProvider config={config}>
                 <SessionProvider>
-                    <div className="nav-container">
-                        <NavPanel />
-                    </div>
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                         <div style={{}}>
                             <div
