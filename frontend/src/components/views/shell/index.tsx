@@ -276,7 +276,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         <div className="flex-spacer"></div>
                     </div>
                 </div>
-                <div className="right">
+                <div className="right no-scrollbars">
                     {(!player || (player && playerUnits.length === 0)) && mapReady && connect && !loadingSession && (
                         <Onboarding player={player} playerUnits={playerUnits} onClickConnect={connect} />
                     )}
