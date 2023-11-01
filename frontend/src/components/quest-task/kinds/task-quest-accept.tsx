@@ -1,6 +1,5 @@
 import { QuestFragment } from '@downstream/core';
-import { memo } from 'react';
-import { TaskView } from '../task-view';
+import { memo, useEffect } from 'react';
 import { TaskItemProps } from '../task-item';
 
 export const TaskQuestAccept = memo(
@@ -14,6 +13,15 @@ export const TaskQuestAccept = memo(
         // console.log(`evaluating TaskQuestAccept`);
         const isCompleted = !!quests?.some((q) => q.node.id == task.node.quest?.id);
 
-        return <TaskView isCompleted={isCompleted} task={task} setTaskCompletion={setTaskCompletion} />;
+        const taskId = task.node.id;
+        useEffect(() => {
+            setTaskCompletion((oldObj) => {
+                const newObj = oldObj ? { ...oldObj } : {};
+                newObj[taskId] = isCompleted;
+                return newObj;
+            });
+        }, [taskId, isCompleted, setTaskCompletion]);
+
+        return <></>;
     }
 );

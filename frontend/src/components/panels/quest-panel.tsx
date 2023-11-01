@@ -15,6 +15,7 @@ import { colorMap, colors } from '@app/styles/colors';
 import { FunctionComponent, useCallback, useEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { TaskItem } from '../quest-task/task-item';
+import { TaskView } from '../quest-task/task-view';
 
 // NOTE: QuestPanel is a misnomer as it is no longer a panel but just a container. Each of the quest items are panels in their own right
 const StyledQuestPanel = styled.div`
@@ -253,6 +254,22 @@ export const QuestItem: FunctionComponent<{
 
     return (
         <StyledQuestItem expanded={expanded} onClick={expanded ? undefined : () => onExpandClick(quest.node.id)}>
+            {/* TaskItems are memos that eval the completion. */}
+            {quest.node.tasks
+                .sort((a, b) => a.key - b.key)
+                .map((task, idx) => (
+                    <TaskItem
+                        key={idx}
+                        tiles={tiles}
+                        task={task}
+                        world={world}
+                        buildingKinds={buildingKinds}
+                        player={player}
+                        questMessages={questMessages}
+                        setTaskCompletion={setTaskCompletion}
+                    />
+                ))}
+
             {expanded ? (
                 <>
                     <div className="header">
@@ -273,16 +290,7 @@ export const QuestItem: FunctionComponent<{
                         {quest.node.tasks
                             .sort((a, b) => a.key - b.key)
                             .map((task, idx) => (
-                                <TaskItem
-                                    tiles={tiles}
-                                    key={idx}
-                                    task={task}
-                                    world={world}
-                                    buildingKinds={buildingKinds}
-                                    player={player}
-                                    questMessages={questMessages}
-                                    setTaskCompletion={setTaskCompletion}
-                                />
+                                <TaskView key={idx} task={task.node} isCompleted={taskCompletion[task.node.id]} />
                             ))}
                     </div>
                     {allCompleted && (

@@ -1,6 +1,5 @@
 import { WorldMobileUnitFragment, WorldTileFragment } from '@downstream/core';
-import { memo } from 'react';
-import { TaskView } from '../task-view';
+import { memo, useEffect } from 'react';
 import { TaskItemProps } from '../task-item';
 import { convertCombatActions, getActions } from '@app/plugins/combat/helpers';
 import { Combat, CombatWinState, EntityState } from '@app/plugins/combat/combat';
@@ -22,7 +21,7 @@ export const TaskCombat = memo(
         mobileUnits?: WorldMobileUnitFragment[];
         tiles: WorldTileFragment[];
     } & Pick<TaskItemProps, 'task' | 'setTaskCompletion'>) => {
-        // console.log(`evaluating TaskCombat`);
+        console.log(`evaluating TaskCombat`);
         const isCompleted =
             !!mobileUnits &&
             !!tiles.some((t) => {
@@ -60,6 +59,15 @@ export const TaskCombat = memo(
                 });
             });
 
-        return <TaskView isCompleted={isCompleted} task={task} setTaskCompletion={setTaskCompletion} />;
+        const taskId = task.node.id;
+        useEffect(() => {
+            setTaskCompletion((oldObj) => {
+                const newObj = oldObj ? { ...oldObj } : {};
+                newObj[taskId] = isCompleted;
+                return newObj;
+            });
+        }, [taskId, isCompleted, setTaskCompletion]);
+
+        return null;
     }
 );

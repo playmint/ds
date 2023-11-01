@@ -13,7 +13,6 @@ import { TaskInventory } from './kinds/task-inventory';
 import { TaskMessage } from './kinds/task-message';
 import { TaskQuestAccept } from './kinds/task-quest-accept';
 import { TaskQuestComplete } from './kinds/task-quest-complete';
-import { TaskView } from './task-view';
 import { id as keccak256UTF8 } from 'ethers';
 import { TaskConstruct } from './kinds/task-construct';
 import { TaskCombat } from './kinds/task-combat';
@@ -112,7 +111,7 @@ export const TaskItem: FunctionComponent<TaskItemProps> = ({
                     setTaskCompletion={setTaskCompletion}
                 />
             );
-        default:
-            return <TaskView task={task} isCompleted={false} setTaskCompletion={setTaskCompletion} />;
     }
+
+    return null;
 };
