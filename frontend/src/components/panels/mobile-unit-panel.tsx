@@ -2,12 +2,14 @@ import { formatNameOrId } from '@app/helpers';
 import { getTileCoordsFromId } from '@app/helpers/tile';
 import { useGameState } from '@app/hooks/use-game-state';
 import { useUnityMap } from '@app/hooks/use-unity-map';
+import { getEquipmentStats } from '@app/plugins/combat/helpers';
 import { MobileUnitInventory } from '@app/plugins/inventory/mobile-unit-inventory';
-import { useCallback, useMemo } from 'react';
 import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { TextButton } from '@app/styles/button.styles';
-import styled from 'styled-components';
 import { colorMap, colors } from '@app/styles/colors';
+import { getBagsAtEquipee } from '@downstream/core/src/utils';
+import { useCallback, useMemo } from 'react';
+import styled from 'styled-components';
 
 const StyledMobileUnitIcon = styled.div`
     --width: 6.4rem;
@@ -109,7 +111,7 @@ const MobileUnitContainer = styled.div`
         }
     }
 
-    > .location {
+    > .stats {
         font-size: 1.25rem;
         text-align: right;
         color: ${colors.grey_3};
@@ -200,6 +202,9 @@ export const MobileUnitPanel = () => {
         [player]
     );
 
+    const mobileUnitBags = selectedMobileUnit ? getBagsAtEquipee(world?.bags || [], selectedMobileUnit) : [];
+    const [life, def, atk] = getEquipmentStats(mobileUnitBags);
+
     return (
         <>
             {mapReady &&
@@ -217,15 +222,16 @@ export const MobileUnitPanel = () => {
                                         {formatNameOrId(selectedMobileUnit, 'unit')}
                                     </span>
                                 </span>
-                                {selectedMobileUnit.nextLocation?.tile && (
-                                    <div className="location">
-                                        {getTileCoordsFromId(selectedMobileUnit.nextLocation.tile.id).join(' ')}
-                                    </div>
-                                )}
+                                <div className="stats">
+                                    <strong>ATK:</strong>
+                                    {atk} <strong>DEF:</strong>
+                                    {def} <strong>LIFE:</strong>
+                                    {life}
+                                </div>
                             </MobileUnitContainer>
                         </div>
                         <div className="content">
-                            <MobileUnitInventory mobileUnit={selectedMobileUnit} bags={world?.bags || []} />
+                            <MobileUnitInventory mobileUnit={selectedMobileUnit} bags={mobileUnitBags} />
                         </div>
                     </StyledMobileUnitPanel>
                 ) : (
