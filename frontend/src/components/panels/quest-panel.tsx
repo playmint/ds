@@ -7,7 +7,7 @@ import {
     WorldTileFragment,
 } from '@app/../../core/src';
 import { Locatable, getCoords } from '@app/helpers/tile';
-import { useBuildingKinds, useQuestMessages } from '@app/hooks/use-game-state';
+import { useBuildingKinds } from '@app/hooks/use-game-state';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { BasePanelStyles } from '@app/styles/base-panel.styles';
 import { ActionButton } from '@app/styles/button.styles';
