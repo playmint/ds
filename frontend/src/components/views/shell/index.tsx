@@ -1,4 +1,4 @@
-import { BagFragment, WorldTileFragment } from '@app/../../core/src';
+import { BagFragment, QUEST_STATUS_ACCEPTED, WorldTileFragment } from '@app/../../core/src';
 import { Bags } from '@app/components/map/Bag';
 import { Buildings } from '@app/components/map/Buildings';
 import { CombatSessions } from '@app/components/map/CombatSession';
@@ -22,7 +22,7 @@ import { ActionContextPanel } from '@app/plugins/action-context-panel';
 import { CombatSummary } from '@app/plugins/combat/combat-summary';
 import { Bag as BagInventory } from '@app/plugins/inventory/bag';
 import { ComponentProps } from '@app/types/component-props';
-import { FunctionComponent, useCallback, useEffect, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
@@ -58,6 +58,14 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const selectedRewardBags = selectedBags?.filter((sb) => sb.isCombatReward);
     const kinds = useBuildingKinds();
     const ui = usePluginState();
+    const [questsActive, setQuestsActive] = useState<boolean>(true);
+    const toggleQuestsActive = useCallback(() => setQuestsActive((prev) => !prev), []);
+
+    const acceptedQuests = useMemo(() => {
+        return (
+            (player?.quests || []).filter((q) => q.status == QUEST_STATUS_ACCEPTED).sort((a, b) => a.key - b.key) || []
+        );
+    }, [player?.quests]);
 
     // setup the unity frame
     useEffect(() => {
@@ -261,8 +269,19 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             <div className="hud-container">
                 <div className="left">
                     <div className="top-left">
-                        <NavPanel />
-                        {world && player && <QuestPanel world={world} tiles={tiles || []} player={player} />}
+                        <NavPanel
+                            questsActive={player && world && questsActive && acceptedQuests.length > 0}
+                            toggleQuestsActive={toggleQuestsActive}
+                            questsCount={acceptedQuests.length}
+                        />
+                        {world && player && questsActive && acceptedQuests.length > 0 && (
+                            <QuestPanel
+                                world={world}
+                                tiles={tiles || []}
+                                player={player}
+                                acceptedQuests={acceptedQuests}
+                            />
+                        )}
                         {/* <Logs className="logs" /> */}
                     </div>
                     <ItemPluginPanel ui={ui || []} />
