@@ -393,7 +393,7 @@ export enum TaskKinds {
     unitStats = 'unitStats',
 }
 
-export type QuestTask = QuestFragment['node']['tasks'][0];
+export type QuestTaskEdge = QuestFragment['node']['tasks'][0];
 
 export const QUEST_STATUS_ACCEPTED = 1;
 export const QUEST_STATUS_COMPLETED = 2;
