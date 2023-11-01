@@ -6,11 +6,11 @@ fragment Quest on Node {
     description: annotation(name: "description") {
         value
     }
-    location: node(match: { kinds: "tile" }) {
+    location: node(match: { kinds: "Tile" }) {
         id
         coords: keys
     }
-    tasks: edges(match: { kinds: "task", via: { rel: "HasTask", dir: OUT } }) {
+    tasks: edges(match: { kinds: "Task", via: { rel: "HasTask", dir: OUT } }) {
         key
         node {
             ...QuestTask
@@ -19,6 +19,7 @@ fragment Quest on Node {
 }
 
 # TODO: Break QuestTasks into the kinds. Can I do a discriminated union using the keys?
+# HACK: combatstate is set on a 'Has' edge pointing from a task to itself
 # https://spin.atomicobject.com/2019/04/15/discriminated-unions/
 
 fragment QuestTask on Node {
@@ -27,11 +28,11 @@ fragment QuestTask on Node {
     name: annotation(name: "name") {
         value
     }
-    location: node(match: { kinds: "tile" }) {
+    location: node(match: { kinds: "Tile" }) {
         id
         coords: keys
     }
-    itemSlot: edge(match: { kinds: "item" }) {
+    itemSlot: edge(match: { kinds: "Item" }) {
         balance: weight
         item: node {
             id
@@ -40,20 +41,20 @@ fragment QuestTask on Node {
     message: annotation(name: "message") {
         value
     }
-    buildingKind: node(match: { kinds: "buildingKind" }) {
+    buildingKind: node(match: { kinds: "BuildingKind" }) {
         id
     }
-    quest: node(match: { kinds: "quest", via: { rel: "HasQuest", dir: OUT } }) {
+    quest: node(match: { kinds: "Quest", via: { rel: "HasQuest", dir: OUT } }) {
         id
     }
-    combatState: edge(match: { kinds: "task", via: { rel: "Has", dir: OUT } }) {
+    combatState: edge(match: { kinds: "Task", via: { rel: "Has", dir: OUT } }) {
         value: weight
     }
-    unitStats: edges(match: { kinds: "atom", via: { rel: "Balance", dir: OUT } }) {
+    unitStats: edges(match: { kinds: "Atom", via: { rel: "Balance", dir: OUT } }) {
         key
         weight
     }
-    craftItems: edges(match: { kinds: "item" }) {
+    craftItems: edges(match: { kinds: "Item" }) {
         key
         item: node {
             id
