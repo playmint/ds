@@ -17,12 +17,12 @@ const baseStyles = ({ maxValue = 1, currentValue = 0 }: Pick<ProgressBarProps, '
         width: 100%;
         background: ${colors.grey_1};
         padding: 0 0.4rem;
-        border-radius: 1rem;
+        border-radius: 0.8rem;
         overflow: hidden;
 
         .progress-bar {
             position: absolute;
-            border-radius: 1rem;
+            border-radius: 0.8rem;
             top: 0;
             bottom: 0;
             left: 0;
@@ -31,12 +31,13 @@ const baseStyles = ({ maxValue = 1, currentValue = 0 }: Pick<ProgressBarProps, '
             transform: scaleX(${progress}%);
             transition: transform 200ms linear;
             background: ${colors.orange_0};
-            border: 3px solid ${colors.orange_1};
+            border: 2px solid ${colors.orange_1};
         }
 
         .label {
             margin-left: 0.5rem;
-            font-size: 1.1rem;
+            font-size: 1rem;
+            padding: 0.1rem;
             position: relative;
             z-index: 10;
         }

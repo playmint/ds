@@ -436,14 +436,14 @@ const Construct: FunctionComponent<ConstructProps> = ({
                                     onChange={() => setShowOnlyConstructable((prev) => !prev)}
                                 />
                                 <abbr title="Only show building kinds that can be constructed from materials in this unit's inventory">
-                                    Hide unconstructable
+                                    Constructable
                                 </abbr>
                             </label>
                         </div>
                     </>
                 )}
                 <ActionButton type="submit" disabled={!canConstruct}>
-                    Confirm Construction
+                    Confirm
                 </ActionButton>
                 <button onClick={clearIntent} className="cancel">
                     <i className="bi bi-x" />
@@ -574,7 +574,7 @@ const Move: FunctionComponent<MoveProps> = ({
             </div>
             <form>
                 <ActionButton type="button" onClick={move} disabled={!canMove} style={{ opacity: canMove ? 1 : 0.1 }}>
-                    Confirm Move
+                    Confirm
                 </ActionButton>
                 <button onClick={clearIntent} className="cancel">
                     <i className="bi bi-x" />
@@ -790,7 +790,7 @@ const Combat: FunctionComponent<CombatProps> = ({
             </div>
             <form>
                 <ActionButton type="button" onClick={handleJoinCombat} disabled={!canAttack}>
-                    {joining ? 'Join' : 'Confirm'} Attack
+                    {joining ? 'Join' : 'Confirm'}
                 </ActionButton>
                 <ActionButton onClick={clearIntent} className="cancel">
                     <i className="bi bi-x" />

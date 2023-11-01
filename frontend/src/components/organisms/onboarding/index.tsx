@@ -11,6 +11,7 @@ export interface OnboardingProps {
 }
 
 const StyledOnboarding = styled(StyledHeaderPanel)`
+    width: 40rem;
     h3 {
         margin: 0;
     }
