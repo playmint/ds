@@ -190,8 +190,8 @@ const StyledProgressBar = styled.div`
             border-width: 0.2rem;
             border-style: ${p > 0 ? `solid` : `none`};
 
-            background-color: ${p >= 0.99 ? colors.green_0 : colors.orange_0};
-            border-color: ${p >= 0.99 ? colors.green_1 : colors.orange_1};
+            background-color: ${p >= 0.99 ? colors.green_0 + `!important` : colors.orange_0};
+            border-color: ${p >= 0.99 ? colors.green_1 + `!important` : colors.orange_1};
 
             transition: width 0.5s;
         }
