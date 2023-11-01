@@ -131,14 +131,14 @@ export const NavPanel = ({
                         fill="#F7F5FA"
                     />
                 </svg>
-                {!player && <span className="text">connect</span>}
+                {!player && <span className="text">CONNECT</span>}
             </AccountButton>
 
             {typeof questsActive !== 'undefined' ? (
                 <TextButton onClick={toggleQuestsActive} className={`${questsActive ? 'toggleOn' : ''}`}>
-                    Quests{' '}
+                    QUESTS
                     {questsCount && questsCount > 0 ? (
-                        <span style={{ opacity: 0.4, color: '#333' }}>({questsCount})</span>
+                        <span style={{ opacity: 0.4, color: '#333' }}> ({questsCount})</span>
                     ) : undefined}
                 </TextButton>
             ) : undefined}
