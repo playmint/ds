@@ -16,6 +16,8 @@ import { FunctionComponent, useCallback, useEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { TaskItem } from '../quest-task/task-item';
 import { TaskView } from '../quest-task/task-view';
+import targetSvg from '@app/../public/icons/target.svg';
+import Image from 'next/image';
 
 // NOTE: QuestPanel is a misnomer as it is no longer a panel but just a container. Each of the quest items are panels in their own right
 const StyledQuestPanel = styled.div`
@@ -42,12 +44,6 @@ const CompleteQuestButton = styled(ActionButton)`
     }
 `;
 
-const targetSvg = (
-    <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
-        <path d="M448 256A192 192 0 1 0 64 256a192 192 0 1 0 384 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm256 80a80 80 0 1 0 0-160 80 80 0 1 0 0 160zm0-224a144 144 0 1 1 0 288 144 144 0 1 1 0-288zM224 256a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z" />
-    </svg>
-);
-
 type Location = ReturnType<typeof getCoords>;
 
 const StyledFocusButton = styled.div`
@@ -57,8 +53,6 @@ const StyledFocusButton = styled.div`
     right: 1rem;
     width: 3rem;
     height: 3rem;
-    background-color: ${colorMap.primaryBackground};
-    border-radius: 1rem;
     padding: 0.3rem;
     display: flex;
     align-items: center;
@@ -81,7 +75,7 @@ const FocusButton: FunctionComponent<{
                 setFocusLocation(getCoords(location));
             }}
         >
-            {targetSvg}
+            <Image src={targetSvg} alt="" draggable="false" />
         </StyledFocusButton>
     );
 };

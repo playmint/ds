@@ -1,0 +1,20 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Target">
+<g id="Group 1390">
+<g id="Beaver Icon">
+<g id="Polygon 2" filter="url(#filter0_b_438_2828)">
+<path d="M12 2.3094C13.9521 1.18234 14.9282 0.618802 16 0.618802C17.0718 0.618802 18.0479 1.18234 20 2.3094L25.8564 5.6906C27.8085 6.81767 28.7846 7.3812 29.3205 8.3094C29.8564 9.2376 29.8564 10.3647 29.8564 12.6188V19.3812C29.8564 21.6353 29.8564 22.7624 29.3205 23.6906C28.7846 24.6188 27.8085 25.1823 25.8564 26.3094L20 29.6906C18.0479 30.8177 17.0718 31.3812 16 31.3812C14.9282 31.3812 13.9521 30.8177 12 29.6906L6.14359 26.3094C4.19146 25.1823 3.21539 24.6188 2.67949 23.6906C2.14359 22.7624 2.14359 21.6353 2.14359 19.3812V12.6188C2.14359 10.3647 2.14359 9.2376 2.67949 8.3094C3.21539 7.3812 4.19146 6.81767 6.14359 5.6906L12 2.3094Z" fill="#F7F5FA"/>
+</g>
+</g>
+</g>
+<path id="Vector" d="M16.0002 13.8184V8.00018M16.0002 24.0002V18.182M13.8184 16.0002H8.00024M24.0002 16.0002H18.1821M21.0912 16.0002C21.0912 18.8118 18.8119 21.0911 16.0002 21.0911C13.1886 21.0911 10.9093 18.8118 10.9093 16.0002C10.9093 13.1886 13.1886 10.9093 16.0002 10.9093C18.8119 10.9093 21.0912 13.1886 21.0912 16.0002Z" stroke="#0D090F" stroke-width="2"/>
+</g>
+<defs>
+<filter id="filter0_b_438_2828" x="-13.8564" y="-15.3812" width="59.7129" height="62.7625" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feGaussianBlur in="BackgroundImageFix" stdDeviation="8"/>
+<feComposite in2="SourceAlpha" operator="in" result="effect1_backgroundBlur_438_2828"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_backgroundBlur_438_2828" result="shape"/>
+</filter>
+</defs>
+</svg>
