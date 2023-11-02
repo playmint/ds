@@ -12,12 +12,15 @@ import "forge-std/console.sol";
 
 using Schema for State;
 
-// interface TaskKind {
-//     function coord(int16 q, int16 r, int16 s) external;
-//     function inventory(bytes24 item, uint64 quantity) external;
-// }
-
 uint8 constant MAX_NEXT_QUESTS = 5;
+
+/**
+ * Known problems:
+ * - It's possible to accept a quest twice by manually accepting a quest at a high questNum (edge) and
+ *     then accepting it again at a lower number. This is because we only check up to the supplied quest
+ *     number instead of checking all 256 slots
+ * - The player can only ever complete 256 quests. We don't have any mechanism of tidying up completed quests
+ */
 
 contract QuestRule is Rule {
     constructor() {}
@@ -125,6 +128,14 @@ contract QuestRule is Rule {
 
         if (bytes4(action) == Actions.ACCEPT_QUEST.selector) {
             (bytes24 quest, uint8 questNum) = abi.decode(action[4:], (bytes24, uint8));
+
+            // Check that we haven't already accepted / completed the quest in the past
+            // NOTE: We are making the assuption that supplied questNums are supplied from the frontend in sequence.
+            //       To make this more secure (at a cost of gas) we could check all 256 slots
+            for (uint8 i = 0; i < questNum; i++) {
+                (bytes24 existingQuest, /*QuestStatus questStatus*/ ) = state.getPlayerQuest(Node.Player(ctx.sender), i);
+                require(existingQuest != quest, "Quest already accepted/completed");
+            }
 
             ( /*bytes24 currentQuest*/ , QuestStatus questStatus) =
                 state.getPlayerQuest(Node.Player(ctx.sender), questNum);
