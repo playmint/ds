@@ -99,7 +99,18 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         }
         const { unsubscribe } = pipe(
             player.dispatched,
-            subscribe((event) => event.actions.map((action) => trackEvent('dispatch', { action: action.name })))
+            subscribe((event) => {
+                event.actions.map((action) => {
+                    const params: any = { action: action.name };
+                    if (action.args.length > 0) {
+                        if (action.name === 'COMPLETE_QUEST' || action.name === 'ACCEPT_QUEST') {
+                            params.quest_id = `q${action.args[0]}`;
+                        }
+                    }
+                    console.log('tracking', params);
+                    trackEvent('dispatch', params);
+                });
+            })
         );
         return unsubscribe;
     }, [player]);
