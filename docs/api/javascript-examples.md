@@ -1,3 +1,8 @@
+---
+sidebar_position: 5
+title: Javascript Examples
+---
+
 # Example Javascript Functionality
 
 ## Checking if the Unit has a specific item

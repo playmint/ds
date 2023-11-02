@@ -1,3 +1,8 @@
+---
+sidebar_position: 3
+title: Create New Items
+---
+
 # Creating New Items
 
 ## Goo
