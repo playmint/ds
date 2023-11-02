@@ -1,7 +1,7 @@
-import { FunctionComponent, useEffect } from 'react';
-import { TaskItemProps } from './task-item';
+import { FunctionComponent } from 'react';
 import styled, { css } from 'styled-components';
 import { colors } from '@app/styles/colors';
+import { QuestTaskFragment } from '@downstream/core/src/gql/graphql';
 
 const tickSvg = (
     <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
@@ -45,24 +45,14 @@ const StyledTaskView = styled.div`
     `}
 `;
 
-export const TaskView: FunctionComponent<
-    {
-        isCompleted: boolean;
-    } & Pick<TaskItemProps, 'task' | 'setTaskCompletion'>
-> = ({ isCompleted, task, setTaskCompletion }) => {
-    const taskId = task.node.id;
-    useEffect(() => {
-        setTaskCompletion((oldObj) => {
-            const newObj = oldObj ? { ...oldObj } : {};
-            newObj[taskId] = isCompleted;
-            return newObj;
-        });
-    }, [taskId, isCompleted, setTaskCompletion]);
-
+export const TaskView: FunctionComponent<{
+    task: QuestTaskFragment;
+    isCompleted: boolean;
+}> = ({ isCompleted, task }) => {
     return (
         <StyledTaskView isCompleted={isCompleted}>
             <div className="tickBox">{isCompleted && tickSvg}</div>
-            <p>{task.node.name?.value}</p>
+            <p>{task.name?.value}</p>
         </StyledTaskView>
     );
 };
