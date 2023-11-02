@@ -142,7 +142,6 @@ export async function getDocBySlug(slug: string[], processMarkdown?: boolean): P
     const sidebar_position = data.sidebar_position || 0;
     const title = data.title ?? slug.slice(-1).find(() => true) ?? '';
     const sidebar_hidden = data.sidebar_hidden || false;
-    console.log('title', title);
     const html = processMarkdown ? await markdownToHtml(markdown) : '';
 
     return {
