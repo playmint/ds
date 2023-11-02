@@ -69,10 +69,10 @@ export default async function update({ selected, world, player }) {
                         html: `
                             A wealth of information pertaining
                             to the Details of Object Creation is accessible here.
-                            <ul style="padding-left: 30px;">    
-                            <li><a href="/docs/how-to-create-docs">Docs</a></li>
+                            <ul style="padding-left: 30px;">
+                            <li><a href="/docs/how-to">Docs</a></li>
                             <li><a href="/building-fabricator">Building Fabricator</a></li>
-                            </ul>                       
+                            </ul>
                         `,
                         buttons: buttonList
                     }
