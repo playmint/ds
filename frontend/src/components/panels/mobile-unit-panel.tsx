@@ -21,6 +21,7 @@ const StyledMobileUnitIcon = styled.div`
     mask-size: 100%;
     mask-position: center;
     mask-repeat: no-repeat;
+    z-index: 10;
 
     > .inner {
         position: absolute;
@@ -53,8 +54,8 @@ const StyledMobileUnitIcon = styled.div`
 
 const MobileUnitIcon = ({ className, onClick }) => {
     return (
-        <StyledMobileUnitIcon className={className} onClick={onClick}>
-            <div className="inner">
+        <StyledMobileUnitIcon className={className}>
+            <div className="inner" onClick={onClick}>
                 <div className="icon" />
             </div>
         </StyledMobileUnitIcon>
