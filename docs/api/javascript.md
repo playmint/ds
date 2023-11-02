@@ -1,4 +1,9 @@
-# Javascript Plugin
+---
+title: Javascript Reference
+sidebar_position: 4
+---
+
+# Javascript Plugin Reference
 
 > ℹ️ These code docs reference the Downstream API as viewed from a forge project with playmint/ds installed as a dependecy, like the ds-hammer-factory repository. You could also work with the ds repository directly.
 

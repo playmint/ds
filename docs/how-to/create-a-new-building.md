@@ -1,3 +1,8 @@
+---
+sidebar_position: 2
+title: Create new Buildings
+---
+
 # Developing a New Building
 
 **Windows users will need to enable WSL for this process** (_[https://learn.microsoft.com/en-us/windows/wsl/install](https://learn.microsoft.com/en-us/windows/wsl/install)_)

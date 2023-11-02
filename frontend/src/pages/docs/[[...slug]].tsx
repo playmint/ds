@@ -9,7 +9,6 @@ import rehypeHighlight from 'rehype-highlight';
 import remarkParse from 'remark-parse';
 import rehypeStringify from 'rehype-stringify';
 import remarkRehype from 'remark-rehype';
-//import rehypeMermaid from 'rehype-mermaidjs';
 
 import type { InferGetStaticPropsType, GetStaticProps, GetStaticPaths } from 'next';
 import styled from 'styled-components';
@@ -25,7 +24,6 @@ async function markdownToHtml(markdown: string) {
     const result = await unified()
         .use(remarkParse)
         .use(remarkRehype)
-        //.use(rehypeMermaid, { strategy: 'inline-svg' })
         .use(rehypeHighlight)
         .use(rehypeStringify)
         .process(markdown);
@@ -36,6 +34,7 @@ interface DocMeta {
     slug: string[];
     title: string;
     sidebar_position?: number;
+    sidebar_hidden?: boolean;
 }
 
 interface Doc extends DocMeta {
@@ -46,6 +45,7 @@ interface Doc extends DocMeta {
 interface DocTree {
     title: string;
     sidebar_position: number;
+    sidebar_hidden: boolean;
     slug: string[];
     children: DocTree[];
 }
@@ -104,10 +104,9 @@ const DocsSidebar = ({ doc }: { doc: DocTree }) => {
     const router = useRouter();
     const currentPath = router?.asPath || '';
     const url = `/docs/${doc.slug.join('/')}`;
-    console.log(currentPath, url);
     return (
         <SidebarList>
-            {doc.slug.length > 0 && (
+            {doc.slug.length > 0 && !doc.sidebar_hidden && (
                 <li>
                     <Link href={url} className={currentPath === url ? 'active' : ''}>
                         {doc.title || doc.slug.slice(-1).find(() => true)}
@@ -142,12 +141,15 @@ export async function getDocBySlug(slug: string[], processMarkdown?: boolean): P
     const { data, content: markdown } = matter(fileContents);
     const sidebar_position = data.sidebar_position || 0;
     const title = data.title ?? slug.slice(-1).find(() => true) ?? '';
+    const sidebar_hidden = data.sidebar_hidden || false;
+    console.log('title', title);
     const html = processMarkdown ? await markdownToHtml(markdown) : '';
 
     return {
         slug,
         title,
         sidebar_position,
+        sidebar_hidden,
         markdown,
         html,
     };
@@ -179,8 +181,9 @@ function getChildDocs(docs: Doc[], prefix: string[]): DocTree[] {
             const slugSuffix = slugs.slice(prefix.length);
             return slugSuffix.length === 1;
         })
-        .map(({ sidebar_position, title, slug }) => ({
+        .map(({ sidebar_position, sidebar_hidden, title, slug }) => ({
             sidebar_position: sidebar_position ?? 0,
+            sidebar_hidden: !!sidebar_hidden,
             title,
             slug,
             children: getChildDocs(docs, slug).sort(bySidebarPosition),
@@ -196,15 +199,16 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 export const getStaticProps = (async ({ params }) => {
-    const slug = params && Array.isArray(params.slug) ? params.slug : [];
+    const slug = params && Array.isArray(params.slug) ? params.slug : null;
     const docs = await getAllDocs();
     const tree = {
         title: 'root',
         sidebar_position: 0,
+        sidebar_hidden: true,
         slug: [],
-        children: getChildDocs(docs, []),
+        children: getChildDocs(docs, []).sort(bySidebarPosition),
     };
-    const doc = await getDocBySlug(slug, true);
+    const doc = await getDocBySlug(slug || ['index'], true);
     return { props: { doc, tree } };
 }) satisfies GetStaticProps<{
     doc: Doc;

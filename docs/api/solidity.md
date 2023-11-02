@@ -1,4 +1,9 @@
-# Solidity Contracts
+---
+title: Solidity Reference
+sidebar_position: 10
+---
+
+# Solidity Contract Reference
 
 > ℹ️ These code docs reference the Downstream API as viewed from a forge project with playmint/ds installed as a dependecy, like the ds-hammer-factory repository. You could also work with the ds repository directly.
 

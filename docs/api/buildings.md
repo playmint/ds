@@ -1,3 +1,7 @@
+---
+title: Buildings
+---
+
 # Extending Downstream with Buildings
 
 A `BuildingKind` defines a type of building that players can build on the Downstream map. The core game only defines one BuildingKind: the Welcome Hut, which is not enough for anyone to really do anything.
@@ -49,42 +53,4 @@ Once an instance of the building exists on the map, any player can select it, wh
 If a player has a MobileUnit next to the building, any buttons that trigger the **smart contract** will become active.
 
 Pressing those buttons will result in the **Use** smart contract function being called.
-
-```mermaid
-flowchart 
-	subgraph Blockchain
-		S1[BuildingKind]
-		S2[Building Instance]
-		S3[building.sol]
-		S4[building.js]
-		S1-."has a".->S3
-		S1-."has a".->S4
-		S2-."is a".->S1
-	end
-
-	subgraph Creator
-		subgraph CS [building.sol]
-			CS1["Use()"]
-		end
-		subgraph CJ [building.js]
-			CJ1["Update()"]
-			CJ2["action()"]
-		end
-		C1[Deploy Script]
-		CS-..-C1
-		CJ-..-C1
-	end
-
-	subgraph Game
-        G5[Tile Info]
-        G1[Player] --> G2{Build}--"Dispatch(CONSTRUCT)"-->S2		
-        G1 -->G3{Select}-->CJ1
-        G1 -->G4{Use}-->CJ2--"Dispatch(USE_BUILDING)"-->CS1		
-        G5 -.-G4
-    end
-	
-	CJ1-->G5
-	C1--"BuildingUtils.register"-->S1
-	CS1--"Dispatch Actions"----->BS
-```
 
