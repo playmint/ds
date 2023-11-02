@@ -181,14 +181,14 @@ const StyledProgressBar = styled.div`
         background-color: white;
         border-radius: 1rem;
         background-color: ${colors.grey_2};
+        overflow: hidden;
 
         > .inner {
             position: absolute;
             height: 100%;
-            width: ${p * 100}%;
+            width: ${Math.max(p, 0.01) * 100}%;
             border-radius: 1rem;
-            border-width: 0.2rem;
-            border-style: ${p > 0 ? `solid` : `none`};
+            border: 0.2rem solid;
 
             background-color: ${p >= 0.99 ? colors.green_0 + `!important` : colors.orange_0};
             border-color: ${p >= 0.99 ? colors.green_1 + `!important` : colors.orange_1};
