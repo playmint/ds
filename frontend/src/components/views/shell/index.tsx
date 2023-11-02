@@ -53,7 +53,7 @@ export type SelectedBag = {
 
 export const Shell: FunctionComponent<ShellProps> = () => {
     const { ready: mapReady, setContainerStyle } = useUnityMap();
-    const { world, selected, tiles, selectTiles, selectMobileUnit, selectMapElement } = useGameState();
+    const { world, selected, tiles, selectTiles, selectMobileUnit, selectMapElement, selectIntent } = useGameState();
     const { loadingSession } = useSession();
     const player = usePlayer();
     const playerUnits = world?.mobileUnits.filter((mu) => mu.owner && player && mu.owner.id === player.id) || [];
@@ -90,6 +90,23 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             right: 0,
         });
     }, [setContainerStyle]);
+
+    useEffect(() => {
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key !== 'Escape') {
+                return true;
+            }
+            if (selectIntent) {
+                selectIntent(undefined);
+            }
+            return true;
+        };
+        document.addEventListener('keydown', onKeyDown);
+
+        return () => {
+            document.removeEventListener('keydown', onKeyDown);
+        };
+    }, [selectIntent]);
 
     // collect client dispatch analytics
     // TODO: move to analytics provider
