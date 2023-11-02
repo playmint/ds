@@ -134,7 +134,7 @@ export const NavPanel = ({
                 {!player && <span className="text">CONNECT</span>}
             </AccountButton>
 
-            {typeof questsActive !== 'undefined' ? (
+            {typeof questsActive !== 'undefined' && questsCount && questsCount > 0 ? (
                 <TextButton onClick={toggleQuestsActive} className={`${questsActive ? 'toggleOn' : ''}`}>
                     QUESTS
                     {questsCount && questsCount > 0 ? (
