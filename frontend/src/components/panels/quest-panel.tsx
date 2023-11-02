@@ -43,8 +43,34 @@ const CompleteQuestButton = styled(ActionButton)`
 `;
 
 const targetSvg = (
-    <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
-        <path d="M448 256A192 192 0 1 0 64 256a192 192 0 1 0 384 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm256 80a80 80 0 1 0 0-160 80 80 0 1 0 0 160zm0-224a144 144 0 1 1 0 288 144 144 0 1 1 0-288zM224 256a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z" />
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <g filter="url(#filter0_b_438_3013)">
+            <path
+                d="M12 2.3094C13.9521 1.18234 14.9282 0.618802 16 0.618802C17.0718 0.618802 18.0479 1.18234 20 2.3094L25.8564 5.6906C27.8085 6.81767 28.7846 7.3812 29.3205 8.3094C29.8564 9.2376 29.8564 10.3647 29.8564 12.6188V19.3812C29.8564 21.6353 29.8564 22.7624 29.3205 23.6906C28.7846 24.6188 27.8085 25.1823 25.8564 26.3094L20 29.6906C18.0479 30.8177 17.0718 31.3812 16 31.3812C14.9282 31.3812 13.9521 30.8177 12 29.6906L6.14359 26.3094C4.19146 25.1823 3.21539 24.6188 2.67949 23.6906C2.14359 22.7624 2.14359 21.6353 2.14359 19.3812V12.6188C2.14359 10.3647 2.14359 9.2376 2.67949 8.3094C3.21539 7.3812 4.19146 6.81767 6.14359 5.6906L12 2.3094Z"
+                fill="#F7F5FA"
+            />
+        </g>
+        <path
+            d="M16 13.8184V8.00018M16 24.0002V18.182M13.8182 16.0002H8M24 16.0002H18.1818M21.0909 16.0002C21.0909 18.8118 18.8116 21.0911 16 21.0911C13.1884 21.0911 10.9091 18.8118 10.9091 16.0002C10.9091 13.1886 13.1884 10.9093 16 10.9093C18.8116 10.9093 21.0909 13.1886 21.0909 16.0002Z"
+            stroke="#0D090F"
+            strokeWidth="1"
+        />
+        <defs>
+            <filter
+                id="filter0_b_438_3013"
+                x="-13.8564"
+                y="-15.3812"
+                width="59.7129"
+                height="62.7625"
+                filterUnits="userSpaceOnUse"
+                colorInterpolationFilters="sRGB"
+            >
+                <feFlood floodOpacity="0" result="BackgroundImageFix" />
+                <feGaussianBlur in="BackgroundImageFix" stdDeviation="8" />
+                <feComposite in2="SourceAlpha" operator="in" result="effect1_backgroundBlur_438_3013" />
+                <feBlend mode="normal" in="SourceGraphic" in2="effect1_backgroundBlur_438_3013" result="shape" />
+            </filter>
+        </defs>
     </svg>
 );
 
@@ -57,17 +83,13 @@ const StyledFocusButton = styled.div`
     right: 1rem;
     width: 3rem;
     height: 3rem;
-    background-color: ${colorMap.primaryBackground};
-    border-radius: 1rem;
-    padding: 0.3rem;
     display: flex;
     align-items: center;
     justify-content: center;
 
     > svg {
-        fill: ${colorMap.primaryText};
-        width: 80%;
-        height: 80%;
+        width: 3rem;
+        height: 3rem;
     }
 `;
 
