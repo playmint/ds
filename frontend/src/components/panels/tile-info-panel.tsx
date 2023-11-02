@@ -239,13 +239,13 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
                     </span>
                 )}
                 <span className="label" style={{ width: '30%' }}>
-                    <strong>ATK:</strong> {atk}
+                    <strong>ATK:</strong> {atk > 99999 ? 'MAX' : atk}
                 </span>
                 <span className="label" style={{ width: '30%' }}>
-                    <strong>DEF:</strong> {def}
+                    <strong>DEF:</strong> {def > 99999 ? 'MAX' : def}
                 </span>
                 <span className="label" style={{ width: '30%' }}>
-                    <strong>LIFE:</strong> {life}
+                    <strong>LIFE:</strong> {life > 99999 ? 'MAX' : life}
                 </span>
             </div>
         </StyledTileInfoPanel>
