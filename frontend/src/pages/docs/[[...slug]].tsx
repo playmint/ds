@@ -57,6 +57,7 @@ const Markdown = styled.div`
     padding: 1rem 1rem 5rem 1rem;
     margin-bottom: 5rem;
     color: #24202b;
+
     h1,
     h2,
     h3,
@@ -75,6 +76,9 @@ const Markdown = styled.div`
     }
     pre code {
         border-radius: 0.5rem;
+    }
+    * {
+        user-select: text;
     }
 `;
 
