@@ -25,7 +25,9 @@ const getManifestFilenames = (filename: string, isRecursive: boolean): string[] 
         if (!isRecursive) {
             throw new Error(`${filename} is a directory. use --recursive to apply all manifests in a directory`);
         }
-        return globSync(path.join(filename, '**/*.yaml'));
+        // must be posix path, even on windows
+        const globPath = path.join(filename, '**/*.yaml').replace(/\\/g, '/');
+        return globSync(globPath);
     } else if (isRecursive) {
         throw new Error(`--filename must be a directory when used with --recursive`);
     } else {

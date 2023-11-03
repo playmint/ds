@@ -31,7 +31,6 @@ const newWalletConnectProvider = async (): Promise<EthereumProvider> => {
     return new Promise((resolve, reject) => {
         const onDisplayURI = (uri: string) => {
             qrcode.generate(uri, { small: true }, (qr) => {
-                console.clear();
                 console.log(`\n`);
                 console.log(qr);
                 console.log(`
@@ -50,7 +49,6 @@ const newWalletConnectProvider = async (): Promise<EthereumProvider> => {
             });
         };
         const onConnect = (_info) => {
-            console.clear();
             resolve(wc);
         };
         wc.on('display_uri', onDisplayURI);
