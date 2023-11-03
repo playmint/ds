@@ -8,7 +8,6 @@ import { ProgressBar } from '@app/plugins/combat/progress-bar';
 
 export interface CombatParticipantProps extends ComponentProps {
     name: string;
-    icon: string;
     maxHealth: number;
     currentHealth: number;
     attack: number;
@@ -22,13 +21,10 @@ const StyledCombatParticipant = styled.div`
 `;
 
 export const CombatParticipant: FunctionComponent<CombatParticipantProps> = (props: CombatParticipantProps) => {
-    const { name, icon, maxHealth, currentHealth, attack, defence, isDead, className } = props;
+    const { name, maxHealth, currentHealth, attack, defence, isDead, className } = props;
 
     return (
         <StyledCombatParticipant isDead={isDead} className={className}>
-            <div className="icon">
-                <img src={icon} alt="" />
-            </div>
             <div className="name">{name}</div>
             <div className="health">
                 <ProgressBar maxValue={maxHealth} currentValue={currentHealth} />
