@@ -65,7 +65,7 @@ const MobileUnitIcon = ({ className, onClick }) => {
 const StyledMobileUnitPanel = styled(StyledHeaderPanel)`
     margin-top: 1rem;
     .header {
-        padding: 1rem 1.5rem 1rem 1rem;
+        padding: 1rem 1.5rem 1rem 1.5rem;
     }
 
     .bags > div:last-child .slots {
@@ -84,7 +84,6 @@ const MobileUnitContainer = styled.div`
     > .unitIcon {
         position: absolute;
         cursor: pointer;
-        left: 1rem;
         top: -3.75rem;
     }
 
@@ -99,9 +98,9 @@ const MobileUnitContainer = styled.div`
 
         > .name {
             position: relative;
-            display: block;
+            display: inline-block;
             width: 15rem;
-            left: 8rem;
+            right: 0;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
