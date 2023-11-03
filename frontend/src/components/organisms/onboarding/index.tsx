@@ -49,7 +49,9 @@ export const Onboarding = ({ player, playerUnits, onClickConnect }: OnboardingPr
                 <p>✅ If you’re an approved playtester, simply connect your wallet and click ‘Spawn Unit’ to begin. </p>
                 <p>
                     If you want to join the community, check out our{' '}
-                    <a href="https://discord.gg/VdXWWNaqGN">communications server!</a>
+                    <a href="https://discord.gg/VdXWWNaqGN" target="_blank" rel="noopener noreferrer">
+                        communications server!
+                    </a>
                 </p>
                 {player && playerUnits.length === 0 ? (
                     <ActionButton onClick={spawnMobileUnit} disabled={isSpawningMobileUnit}>
