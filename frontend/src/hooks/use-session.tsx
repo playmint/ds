@@ -110,6 +110,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         if (sessionLoaded) {
+            setLoading(false);
             return;
         }
         if (!player) {
@@ -117,6 +118,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
         }
         if (player.active()) {
             setSessionLoaded(true);
+            setLoading(false);
             return;
         }
         if (!newSession || !clearSession || !loadSession) {
@@ -126,9 +128,11 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
             if (session.owner === player.addr && session.expires > Date.now()) {
                 loadSession();
                 setSessionLoaded(true);
+                setLoading(false);
                 return;
             } else {
                 clearSession();
+                setLoading(false);
             }
         }
         setSessionLoaded(true);
