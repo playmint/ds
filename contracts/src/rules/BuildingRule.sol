@@ -370,10 +370,18 @@ contract BuildingRule is Rule {
                 } else {
                     require(inputQty[i] == 1, "equipable input item must have qty=1");
                 }
-                availableInputAtoms[0] = availableInputAtoms[0] + (inputAtoms[0] * uint32(inputQty[i])) / 2;
-                availableInputAtoms[1] = availableInputAtoms[1] + (inputAtoms[1] * uint32(inputQty[i])) / 2;
-                availableInputAtoms[2] = availableInputAtoms[2] + (inputAtoms[2] * uint32(inputQty[i])) / 2;
+                availableInputAtoms[0] += inputAtoms[0] * uint32(inputQty[i]);
+                availableInputAtoms[1] += inputAtoms[1] * uint32(inputQty[i]);
+                availableInputAtoms[2] += inputAtoms[2] * uint32(inputQty[i]);
             }
+
+            // Halve the available goo.
+            // NOTE: At a cost of some extra gas we halve the sum of atoms instead of summing the halves. Because we
+            //       are dealing with integers (5/2) + (5/2) would equal 4 instead of 5.
+            //       If we REALLY needed to gas golf perhaps bit shifting once right would be cheaper than dividing by 2?
+            availableInputAtoms[0] /= 2;
+            availableInputAtoms[1] /= 2;
+            availableInputAtoms[2] /= 2;
 
             // require that the total number of each atom in the total number of
             // output items is less than half of the total input of each atom
