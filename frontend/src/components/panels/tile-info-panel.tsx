@@ -10,7 +10,16 @@ import {
     WorldMobileUnitFragment,
 } from '@app/../../core/src';
 import { PluginContent } from '@app/components/organisms/tile-action';
-import { GOO_BLUE, GOO_GREEN, GOO_RED, getCoords, getGooRates, getTileDistance } from '@app/helpers/tile';
+import {
+    GOO_BIG_THRESH,
+    GOO_BLUE,
+    GOO_GREEN,
+    GOO_RED,
+    GOO_SMALL_THRESH,
+    getCoords,
+    getGooRates,
+    getTileDistance,
+} from '@app/helpers/tile';
 import { usePlayer, useSelection, useWorld } from '@app/hooks/use-game-state';
 import { Bag } from '@app/plugins/inventory/bag';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
@@ -293,10 +302,11 @@ const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUn
     }
     const { q, r, s } = getCoords(lastTile);
     const gooRates = getGooRates(lastTile);
-    const topGooRate = gooRates.length > 0 ? Math.floor(gooRates[0].gooPerSec * 100) / 100 : 0;
+    // const topGooRate = gooRates.length > 0 ? Math.floor(gooRates[0].gooPerSec * 100) / 100 : 0;
+    const topGooWeight = gooRates.length > 0 ? gooRates[0].weight : 0;
     const topGooName = gooRates.length > 0 ? gooRates[0].name : '';
-    const hasSomeGoo = topGooRate >= 0.1;
-    const hasLotsGoo = topGooRate >= 0.3;
+    const hasSomeGoo = topGooWeight >= GOO_SMALL_THRESH;
+    const hasLotsGoo = topGooWeight >= GOO_BIG_THRESH;
     const gooRatesInNameOrder = [GOO_RED, GOO_GREEN, GOO_BLUE]
         .map((idx) => gooRates.find((goo) => goo.index === idx))
         .filter((goo) => !!goo);
