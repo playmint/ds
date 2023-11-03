@@ -19,6 +19,7 @@ import { Manifest, BuildingKindFactorySpec, parseManifestDocuments } from '@down
 import { ItemFragment } from '@downstream/core/src/gql/graphql';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
+import Head from 'next/head';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import YAML from 'yaml';
@@ -1539,6 +1540,9 @@ export default function ShellPage() {
                 <GameStateProvider config={config}>
                     <SessionProvider>
                         <InventoryProvider>
+                            <Head>
+                                <title>Downstream: Building Fabricator</title>
+                            </Head>
                             <div style={{ margin: '1rem' }}>
                                 <NavPanel />
                             </div>

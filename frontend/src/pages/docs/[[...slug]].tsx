@@ -17,6 +17,7 @@ import { useConfig } from '@app/hooks/use-config';
 import { GameStateProvider } from '@app/hooks/use-game-state';
 import { SessionProvider } from '@app/hooks/use-session';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
 
 const DOCS_CONTENT_DIR = '../docs';
 
@@ -219,10 +220,14 @@ export default function Page({ doc, tree }: InferGetStaticPropsType<typeof getSt
     if (!doc) {
         return <ErrorPage statusCode={404} />;
     }
+    const title = doc.title || doc.slug.slice(-1).find(() => true) || '';
     return (
         <WalletProviderProvider wallets={config?.wallets || {}}>
             <GameStateProvider config={config}>
                 <SessionProvider>
+                    <Head>
+                        <title>Downstream: {title}</title>
+                    </Head>
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                         <div style={{}}>
                             <div
