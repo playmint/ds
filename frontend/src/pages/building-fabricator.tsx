@@ -15,7 +15,7 @@ import { BagItem } from '@app/plugins/inventory/bag-item';
 import { iconURL } from '@app/plugins/inventory/helpers';
 import { InventoryProvider } from '@app/plugins/inventory/inventory-provider';
 import { encodeItemID, getOpsForManifests } from '@downstream/cli/utils/applier';
-import { Manifest, BuildingKindFactorySpec, parseManifestDocuments } from '@downstream/cli/utils/manifest';
+import { BuildingKindFactorySpec, Manifest, parseManifestDocuments } from '@downstream/cli/utils/manifest';
 import { ItemFragment } from '@downstream/core/src/gql/graphql';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
@@ -254,14 +254,14 @@ const BASIC_FACTORY_BYTECODE = `608060405234801561001057600080fd5b5061097d806100
 const BASIC_FACTORY_JS = `import ds from 'downstream';
 
 export default async function update(state) {
-    
-    const selectedTile = getSelectedTile(state); 
+
+    const selectedTile = getSelectedTile(state);
     const selectedBuilding = selectedTile && getBuildingOnTile(state, selectedTile);
     const canCraft = selectedBuilding && inputsAreCorrect(state, selectedBuilding);
-    
+
     const craft = () => {
         const mobileUnit = getMobileUnit(state);
-    
+
         if (!mobileUnit) {
             ds.log('no selected unit');
             return;
@@ -290,13 +290,13 @@ export default async function update(state) {
                         html: \`
                             <p>Fill the input slots to enable crafing</p>
                             \`,
-                       buttons: [ 
-                            { 
-                                text: 'Craft', 
-                                type: 'action', 
-                                action: craft, 
+                       buttons: [
+                            {
+                                text: 'Craft',
+                                type: 'action',
+                                action: craft,
                                 disabled: !canCraft
-                            } 
+                            }
                         ],
                     },
                 ],
@@ -345,14 +345,14 @@ function getInputSlots(state, building) {
 function inputsAreCorrect(state, building) {
     const requiredInputItems = getRequiredInputItems(building);
     const inputSlots = getInputSlots(state, building);
-    
+
     return inputSlots &&
         inputSlots.length >= requiredInputItems.length &&
         requiredInputItems.every(
             (requiredItem) =>
                 inputSlots[requiredItem.key].item.id == requiredItem.item.id &&
                 inputSlots[requiredItem.key].balance == requiredItem.balance,
-        );  
+        );
 }
 `;
 
@@ -963,8 +963,21 @@ const BuildingFabricator = () => {
         [buildingSpec, outputGoo, outputStackable, outputIcon, outputExisting]
     );
 
+    const validate = () => {
+        const result = BuildingKindFactorySpec.safeParse(buildingSpec);
+        if (!result.success) {
+            const firstError = result.error.issues
+                .map((iss) => `${iss.path.join('.')} invalid: ${iss.message}`)
+                .find(() => true);
+            throw new Error(firstError || 'invalid');
+        }
+    };
+
     const exportFiles = async () => {
+        setErrors([]);
+        setStatus('');
         try {
+            validate();
             const name = 'basic-factory';
             const zip = new JSZip();
             const folder = zip.folder(name);
@@ -977,12 +990,13 @@ const BuildingFabricator = () => {
             folder.file(`${name}.sol`, BASIC_FACTORY_SOL);
             const blob = await zip.generateAsync({ type: 'blob' });
             saveAs(blob, `${name}.zip`);
-        } catch (err) {
+        } catch (err: any) {
             console.error(`export of ${name}.zip failed:`, err);
+            setErrors([`${err && err.message ? err.message : err}`]);
         }
     };
 
-    const applyFiles = useCallback(async () => {
+    const applyFiles = async () => {
         setErrors([]);
         setStatus('');
         try {
@@ -995,6 +1009,7 @@ const BuildingFabricator = () => {
             if (!buildingKinds) {
                 throw new Error('no building kinds data loaded');
             }
+            validate();
             const yaml = getManifestsYAML({
                 contract: { bytecode: BASIC_FACTORY_BYTECODE }, // FIXME: hack until we can compile in browser
                 plugin: { inline: BASIC_FACTORY_JS },
@@ -1015,7 +1030,7 @@ const BuildingFabricator = () => {
             setErrors(messages);
             return;
         }
-    }, [world, buildingKinds, getManifestsYAML, player]);
+    };
 
     const onChangeMaterialPreset = useCallback(
         (preset: number) => {
