@@ -98,9 +98,9 @@ const MobileUnitContainer = styled.div`
 
         > .name {
             position: relative;
-            display: inline-block;
+            display: block;
+            margin-left: auto;
             width: 15rem;
-            right: 0;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
