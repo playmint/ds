@@ -154,7 +154,7 @@ export const getEntityName = (entityID: BytesLike, world: WorldStateFragment) =>
     return formatNameOrId(unit, 'Unit ');
 };
 
-export const getEquipmentStats = (bags: BagFragment[]) => {
+export const getEquipmentStats = (bags: BagFragment[]): number[] => {
     return bags.reduce(
         (stats, bag) => {
             bag.slots.forEach((slot) => {
@@ -171,6 +171,19 @@ export const getEquipmentStats = (bags: BagFragment[]) => {
         },
         [0, 0, 0]
     );
+};
+
+export const getMobileUnitStats = (mobileUnit?: WorldMobileUnitFragment, worldBags?: BagFragment[]): number[] => {
+    if (mobileUnit === undefined || worldBags === undefined) return [0, 0, 0];
+
+    const mobileUnitBags = getBagsAtEquipee(worldBags, mobileUnit);
+    const stats = getEquipmentStats(mobileUnitBags);
+
+    stats[ATOM_LIFE] += UNIT_BASE_LIFE * LIFE_MUL;
+    stats[ATOM_DEFENSE] += UNIT_BASE_DEFENCE;
+    stats[ATOM_ATTACK] += UNIT_BASE_ATTACK;
+
+    return stats;
 };
 
 export const getMaterialStats = (materials: ItemSlotFragment[]) => {
