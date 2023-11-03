@@ -48,7 +48,8 @@ contract CraftingRule is Rule {
 
         // Check the name is unique
         bytes24 idNode = Node.ID(bytes20(keccak256(abi.encodePacked(name))));
-        if (state.getOwner(idNode) != 0x0) {
+        bytes24 idOwner = state.getOwner(idNode);
+        if (idOwner != 0x0 && idOwner != itemKind) {
             revert("item name already registered");
         }
         state.setID(itemKind, idNode);
