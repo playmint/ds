@@ -131,7 +131,7 @@ export const TaskItem: FunctionComponent<TaskItemProps> = ({
         case taskUnitStats:
             return (
                 <TaskUnitStats
-                    bags={world?.bags || []}
+                    worldBags={world?.bags || []}
                     task={taskMemo}
                     mobileUnits={playerUnits}
                     setTaskCompletion={setTaskCompletion}
