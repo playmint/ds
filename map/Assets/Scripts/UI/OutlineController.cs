@@ -24,6 +24,8 @@ public class OutlineController : MonoBehaviour
 
     [SerializeField]
     UniversalRendererData? renderData;
+    [SerializeField]
+    UniversalRenderPipelineAsset renderAsset;
 
     [SerializeField]
     Material? outlineMat;
@@ -39,12 +41,18 @@ public class OutlineController : MonoBehaviour
     int farWidth,
         nearWidth;
 
+    private static bool manualUpdate = false;
+    private static float _renderScale = 1;
+    public static float renderScale { get { return _renderScale; } set { _renderScale = value; manualUpdate = true; } }
+
     int sWidth,
         sHeight;
     int currentZoom = 0;
 
     float updateTimer = 0;
+    #if !UNITY_EDITOR || CHECK_RESOLUTION_SCALE
     private RenderTexture _screenTexture;
+#endif
     private RenderTexture _outlineTexture;
 
     private CinemachineFramingTransposer? framingTransposer;
@@ -76,7 +84,7 @@ public class OutlineController : MonoBehaviour
             camController.virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
         Resize(_outlineTexture, outlineCam, sWidth, sHeight);
 
-#if !UNITY_EDITOR
+#if !UNITY_EDITOR || CHECK_RESOLUTION_SCALE
         if (_screenTexture == null)
         {
             _screenTexture = new RenderTexture(Screen.width, Screen.height, 0);
@@ -89,7 +97,7 @@ public class OutlineController : MonoBehaviour
 #endif
     }
 
-#if !UNITY_EDITOR
+#if !UNITY_EDITOR || CHECK_RESOLUTION_SCALE
     protected void Start()
     {
         mainCamera.enabled = false;
@@ -102,7 +110,7 @@ public class OutlineController : MonoBehaviour
         _outlineTexture.Release();
     }
 
-#if !UNITY_EDITOR
+#if !UNITY_EDITOR || CHECK_RESOLUTION_SCALE
     private void LateUpdate()
     {
         outlineCam.Render();
@@ -141,16 +149,21 @@ public class OutlineController : MonoBehaviour
             updateTimer += Time.deltaTime;
         if (updateTimer < 0.1f)
             return;
-        if (Screen.width != sWidth || Screen.height != sHeight)
+        if (Screen.width != sWidth || Screen.height != sHeight || manualUpdate)
         {
+#if !UNITY_EDITOR || CHECK_RESOLUTION_SCALE
+            sWidth = Mathf.CeilToInt(Screen.width * renderScale);
+            sHeight = Mathf.CeilToInt(Screen.height * renderScale);
+            Resize(_screenTexture, mainCamera, sWidth, sHeight);
+#endif
+
             sWidth = Screen.width;
             sHeight = Screen.height;
             Resize(_outlineTexture, outlineCam, sWidth, sHeight);
-#if !UNITY_EDITOR
-            Resize(_screenTexture, mainCamera, sWidth, sHeight);
-#endif
+
             outlineMat.SetFloat("_OutlinePower", falloffMultiplier);
             outlineMat.SetFloat("_OutlinePower2", strokeCutoff);
+            manualUpdate = false;
         }
 
         int zoom = Mathf.RoundToInt(

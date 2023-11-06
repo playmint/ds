@@ -97,7 +97,7 @@ export const NavPanel = ({
         if (!e) {
             return;
         }
-        const newHeight = parseInt(e.target.value, 10);
+        const newHeight = parseFloat(e.target.value);
         if (g.__globalUnityContext?.setCanvasHeight) {
             g.__globalUnityContext.setCanvasHeight(newHeight);
         }
@@ -195,13 +195,27 @@ export const NavPanel = ({
                         <fieldset>
                             <legend>Quality:</legend>
                             <select onChange={onChangeQuality} value={canvasHeight}>
-                                <option value="480">Low (480p)</option>
-                                <option value="720">Medium (720p)</option>
-                                <option value="1080">High (1080p)</option>
-                                <option value="-1">
+                                <option value={480 / Math.floor(window.innerHeight * window.devicePixelRatio)}>
+                                    Low (480p)
+                                </option>
+                                <option value={720 / Math.floor(window.innerHeight * window.devicePixelRatio)}>
+                                    Medium (720p)
+                                </option>
+                                <option value={1080 / Math.floor(window.innerHeight * window.devicePixelRatio)}>
+                                    High (1080p)
+                                </option>
+                                <option value={1440 / Math.floor(window.innerHeight * window.devicePixelRatio)}>
+                                    Ultra (1440p)
+                                </option>
+                                <option
+                                    value={
+                                        Math.min(window.innerHeight, window.innerHeight * window.devicePixelRatio) /
+                                        Math.floor(window.innerHeight * window.devicePixelRatio)
+                                    }
+                                >
                                     Auto ({Math.min(window.innerHeight, window.innerHeight * window.devicePixelRatio)}p)
                                 </option>
-                                <option value="-2">
+                                <option value="1">
                                     Native ({Math.floor(window.innerHeight * window.devicePixelRatio)}p)
                                 </option>
                             </select>

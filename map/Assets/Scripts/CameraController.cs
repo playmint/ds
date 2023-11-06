@@ -68,12 +68,11 @@ public class CameraController : MonoBehaviour
         if (Mathf.Abs(scrollInput) > Mathf.Epsilon)
         {
             // Get the world position of the mouse cursor
-            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-            //RaycastHit hit;
+            Ray ray = ScreenToWorld.instance.ScreenToRay(Input.mousePosition);
             float enter = 0;
-            if (m_Plane.Raycast(ray, out enter)) //  Physics.Raycast(ray, out hit))
+            if (m_Plane.Raycast(ray, out enter)) 
             {
-                Vector3 mouseWorldPos = ray.origin + (ray.direction * enter); // hit.point;
+                Vector3 mouseWorldPos = ray.origin + (ray.direction * enter);
 
                 // Calculate the new camera distance based on the scroll input
                 float currentCameraDistance = virtualCamera
@@ -169,8 +168,8 @@ public class CameraController : MonoBehaviour
         }
         if (Input.GetMouseButton(0))
         {
-            Ray mouseDownRay = mainCamera.ScreenPointToRay(mouseDownPos);
-            Ray currentMouseRay = mainCamera.ScreenPointToRay(Input.mousePosition);
+            Ray mouseDownRay = ScreenToWorld.instance.ScreenToRay(mouseDownPos);
+            Ray currentMouseRay = ScreenToWorld.instance.ScreenToRay(Input.mousePosition);
             float mouseDownDist = 0.0f;
             float currentMouseDist = 0.0f;
             m_Plane.Raycast(mouseDownRay, out mouseDownDist);
@@ -179,7 +178,7 @@ public class CameraController : MonoBehaviour
             Vector3 offset = (
                 mouseDownRay.GetPoint(mouseDownDist) - currentMouseRay.GetPoint(currentMouseDist)
             );
-            transform.position = camMouseDownPos + offset;
+            transform.position = (camMouseDownPos + offset);
             if (Vector3.Distance(camMouseDownPos, camMouseDownPos + offset) > _dragThreshold)
             {
                 hasDragged = true;

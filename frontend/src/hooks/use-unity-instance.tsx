@@ -4,6 +4,7 @@ import { Unity, useUnityContext } from 'react-unity-webgl';
 import { UnityContextHook } from 'react-unity-webgl/distribution/types/unity-context-hook';
 import { concat, fromValue, lazy, makeSubject, pipe, Subject, subscribe, tap } from 'wonka';
 import { useLocalStorage } from './use-localstorage';
+import { useUnityMap } from './use-unity-map';
 //
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // !!
@@ -65,28 +66,16 @@ const UnityInstance = () => {
             return;
         }
         const mapContainerBounds = mapContainer.getBoundingClientRect();
-        if (canvasHeight && canvasHeight > 0) {
-            const ratio = mapContainerBounds.width / mapContainerBounds.height;
-            const height = Math.min(mapContainerBounds.height, canvasHeight);
-            canvas.height = height;
-            canvas.width = height * ratio;
-        } else if (canvasHeight === -2) {
-            // "native" ... exactly match the browser/screen pixel density
-            // this will be the highest possible quality, but your GPU
-            // might struggle
-            canvas.height = mapContainerBounds.height * window.devicePixelRatio;
-            canvas.width = mapContainerBounds.width * window.devicePixelRatio;
-        } else {
-            // "auto" ... use the native browser pixel height for
-            // resolution, but never pack more pixels into the canvas than
-            // the actual screen pixels (ie if zoomed out or hiDPI)
-            // quirk: zooming IN will lower the res, which is weird, if you
-            // need to zoom in for some reason probably use "native"
-            canvas.height = Math.min(mapContainerBounds.height * window.devicePixelRatio, mapContainerBounds.height);
-            canvas.width = Math.min(mapContainerBounds.width * window.devicePixelRatio, mapContainerBounds.width);
-        }
+        canvas.height = mapContainerBounds.height * window.devicePixelRatio;
+        canvas.width = mapContainerBounds.width * window.devicePixelRatio;
+        if (unity.sendMessage && g.__globalUnityContext.getCanvasHeight)
+            unity.sendMessage(
+                'ResolutionManager',
+                'SetResoltion',
+                JSON.stringify(g.__globalUnityContext.getCanvasHeight())
+            );
         console.info(`canvas size updated to ${canvas.width}x${canvas.height}`);
-    }, [canvas, canvasHeight]);
+    }, [canvas, unity]);
 
     if (g.__globalUnityContext) {
         g.__globalUnityContext.setCanvasHeight = setCanvasHeight;
