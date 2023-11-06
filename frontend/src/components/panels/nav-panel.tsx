@@ -39,8 +39,11 @@ const NavContainer = styled.div`
     height: 5rem;
     user-select: none;
     margin-bottom: 1.5rem;
-    pointer-events: all;
+    pointer-events: none;
     gap: 1rem;
+    > * {
+        pointer-events: all;
+    }
 `;
 
 export const NavPanel = ({
