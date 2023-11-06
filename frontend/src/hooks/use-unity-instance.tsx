@@ -4,7 +4,6 @@ import { Unity, useUnityContext } from 'react-unity-webgl';
 import { UnityContextHook } from 'react-unity-webgl/distribution/types/unity-context-hook';
 import { concat, fromValue, lazy, makeSubject, pipe, Subject, subscribe, tap } from 'wonka';
 import { useLocalStorage } from './use-localstorage';
-import { useUnityMap } from './use-unity-map';
 //
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // !!
