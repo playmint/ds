@@ -1,10 +1,16 @@
 import ds from 'downstream';
 
 export default async function update(state) {
+    // uncomment this to browse the state object in browser console
+    // this will be logged when slecting a unit and then selecting an instance of this building
     //logState(state);
+    
     const selectedTile = getSelectedTile(state); 
     const selectedBuilding = selectedTile && getBuildingOnTile(state, selectedTile);
     const canCraft = selectedBuilding && inputsAreCorrect(state, selectedBuilding) 
+        // uncomment this to be restrictve about which units can craft
+        // this is a client only check - to enforce it in contracts make
+        // similar changes in basic-factory.sol
         /*&& unitIsFriendly(state, selectedBuilding)*/;
     
     const craft = () => {

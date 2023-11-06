@@ -11,9 +11,11 @@ using Schema for State;
 
 contract SquircleFactory is BuildingKind {
     function use(Game ds, bytes24 buildingInstance, bytes24, /*actor*/ bytes memory /*payload*/ ) public {
-        //State state = GetState(ds);
-
         // uncomment to restrict building use to certain Units
+        // you will need to also uncomment the actor param
+        // these restrictions will not be reflected in the UI unless you make
+        // similar changes in basic-factory.js
+        //State state = GetState(ds);
         //CheckIsFriendlyUnit(state, actor, buildingInstance);
 
         // uncomment to require carrying an idCard
