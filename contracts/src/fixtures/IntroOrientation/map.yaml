@@ -15,3 +15,13 @@ kind: Building
 spec:
   name: Deletion Supplies
   location: [-12, 16, -4]
+
+---
+kind: Bag
+spec:
+  location: [6, -2, -4]
+  items:
+    - name: Acceptance Letter
+      quantity: 100
+    - name: ID Card
+      quantity: 100

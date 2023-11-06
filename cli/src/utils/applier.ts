@@ -9,12 +9,31 @@ import {
     BuildingCategoryEnumVals,
     ContractSource,
     ManifestDocument,
-    Slot
+    Slot,
 } from '../utils/manifest';
 
 const null24bytes = '0x000000000000000000000000000000000000000000000000';
 
-export const encodeItemID = ({ name, stackable, goo }: {name: string, stackable: boolean, goo: {red: number, green: number, blue: number}}) => {
+export const encodeTileID = ({ q, r, s }: { q: number; r: number; s: number }) => {
+    return solidityPacked(
+        ['bytes4', 'uint96', 'int16', 'int16', 'int16', 'int16'],
+        [NodeSelectors.Tile, 0, 0, q, r, s]
+    );
+};
+
+export const encodeBagID = ({ q, r, s }: { q: number; r: number; s: number }) => {
+    return solidityPacked(['bytes4', 'uint96', 'int16', 'int16', 'int16', 'int16'], [NodeSelectors.Bag, 0, 0, q, r, s]);
+};
+
+export const encodeItemID = ({
+    name,
+    stackable,
+    goo,
+}: {
+    name: string;
+    stackable: boolean;
+    goo: { red: number; green: number; blue: number };
+}) => {
     const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`item/${name}`))));
     return solidityPacked(
         ['bytes4', 'uint32', 'uint32', 'uint32', 'uint32', 'uint32'],
@@ -58,7 +77,7 @@ const getBuildingCategoryEnum = (category: BuildingCategoryEnum): number => {
 
 const itemKindDeploymentActions = async (
     file: ReturnType<typeof ManifestDocument.parse>,
-    compiler: (source: z.infer<typeof ContractSource>, manifestDir: string) => Promise<string>,
+    compiler: (source: z.infer<typeof ContractSource>, manifestDir: string) => Promise<string>
 ): Promise<CogAction[]> => {
     const ops: CogAction[] = [];
     if (file.manifest.kind != 'Item') {
@@ -87,9 +106,7 @@ const itemKindDeploymentActions = async (
     }
 
     if (spec.contract && (spec.contract.file || spec.contract.bytecode)) {
-        const bytecode = spec.contract.bytecode
-            ? spec.contract.bytecode
-            : await compiler(spec.contract, manifestDir);
+        const bytecode = spec.contract.bytecode ? spec.contract.bytecode : await compiler(spec.contract, manifestDir);
         ops.push({
             name: 'DEPLOY_KIND_IMPLEMENTATION',
             args: [id, `0x${bytecode}`],
@@ -133,7 +150,7 @@ const buildingKindDeploymentActions = async (
     file: ReturnType<typeof ManifestDocument.parse>,
     files: ReturnType<typeof ManifestDocument.parse>[],
     existingItems: ItemFragment[],
-    compiler: (source: z.infer<typeof ContractSource>, manifestDir: string) => Promise<string>,
+    compiler: (source: z.infer<typeof ContractSource>, manifestDir: string) => Promise<string>
 ): Promise<CogAction[]> => {
     const ops: CogAction[] = [];
     const manifestDir = path.dirname(file.filename);
@@ -168,7 +185,6 @@ const buildingKindDeploymentActions = async (
     let outputItems: string[] = [null24bytes];
     let outputQtys: number[] = [0];
 
-
     let model = spec.model;
 
     if (spec.category == 'factory') {
@@ -188,8 +204,7 @@ const buildingKindDeploymentActions = async (
         outputQtys = output.quantities.slice(0, 1);
     }
 
-    if(spec.category == 'factory' || spec.category == 'custom')
-    {
+    if (spec.category == 'factory' || spec.category == 'custom') {
         model = `${model}-${spec.color || 0}`;
     }
 
@@ -223,9 +238,7 @@ const buildingKindDeploymentActions = async (
 
     // compile and deploy an implementation if given
     if (spec.category != 'blocker' && spec.contract && (spec.contract.file || spec.contract.bytecode)) {
-        const bytecode = spec.contract.bytecode
-            ? spec.contract.bytecode
-            : await compiler(spec.contract, manifestDir);
+        const bytecode = spec.contract.bytecode ? spec.contract.bytecode : await compiler(spec.contract, manifestDir);
         ops.push({
             name: 'DEPLOY_KIND_IMPLEMENTATION',
             args: [id, `0x${bytecode}`],
@@ -237,13 +250,13 @@ const buildingKindDeploymentActions = async (
         const pluginID = encodePluginID(spec); // use building name for plugin id
         const js = spec.plugin.file
             ? (() => {
-                const relativeFilename = path.join(manifestDir, spec.plugin.file);
-                if (!fs.existsSync(relativeFilename)) {
-                    throw new Error(`plugin source not found: ${spec.plugin.file}`);
-                }
-                return fs.readFileSync(relativeFilename, 'utf8').toString();
-            })()
-            : spec.plugin.inline
+                  const relativeFilename = path.join(manifestDir, spec.plugin.file);
+                  if (!fs.existsSync(relativeFilename)) {
+                      throw new Error(`plugin source not found: ${spec.plugin.file}`);
+                  }
+                  return fs.readFileSync(relativeFilename, 'utf8').toString();
+              })()
+            : spec.plugin.inline;
         ops.push({
             name: 'REGISTER_KIND_PLUGIN',
             args: [pluginID, id, spec.name, js],
@@ -264,7 +277,7 @@ const questDeploymentActions = async (
     file: ReturnType<typeof ManifestDocument.parse>,
     files: ReturnType<typeof ManifestDocument.parse>[],
     existingItemKinds: ItemFragment[],
-    existingBuildingKinds: BuildingKindFragment[],
+    existingBuildingKinds: BuildingKindFragment[]
 ): Promise<CogAction[]> => {
     const ops: CogAction[] = [];
 
@@ -312,11 +325,13 @@ const questDeploymentActions = async (
                 return coder.encode(['uint64', 'uint64', 'uint64'], [task.life, task.defence, task.attack]);
             }
             case 'deployBuilding': {
-                const craftOutputID = task.craftOutput ?
-                    getItemIdByName(files, existingItemKinds, task.craftOutput) : null24bytes;
-                const craftInputID = task.craftInput ?
-                    getItemIdByName(files, existingItemKinds, task.craftInput) : null24bytes;
-                return coder.encode(['bytes24', 'bytes24'], [craftInputID, craftOutputID ]);
+                const craftOutputID = task.craftOutput
+                    ? getItemIdByName(files, existingItemKinds, task.craftOutput)
+                    : null24bytes;
+                const craftInputID = task.craftInput
+                    ? getItemIdByName(files, existingItemKinds, task.craftInput)
+                    : null24bytes;
+                return coder.encode(['bytes24', 'bytes24'], [craftInputID, craftOutputID]);
             }
         }
 
@@ -391,105 +406,148 @@ export const getOpsForManifests = async (
     docs,
     world: WorldStateFragment,
     existingBuildingKinds: BuildingKindFragment[],
-    compiler: (source: z.infer<typeof ContractSource>, manifestDir: string) => Promise<string>,
+    compiler: (source: z.infer<typeof ContractSource>, manifestDir: string) => Promise<string>
 ): Promise<OpSet[]> => {
-        const pendingBuildingKinds = docs.map((doc) => doc.manifest).filter(({ kind }) => kind === 'BuildingKind');
+    const pendingBuildingKinds = docs.map((doc) => doc.manifest).filter(({ kind }) => kind === 'BuildingKind');
 
-        // build list of operations
-        const opsets: OpSet[] = [];
-        let opn = -1;
+    // build list of operations
+    const opsets: OpSet[] = [];
+    let opn = -1;
 
-        // process item kinds first
-        opn++;
-        opsets[opn] = [];
-        for (const doc of docs) {
-            if (doc.manifest.kind != 'Item') {
-                continue;
-            }
-            const actions = await itemKindDeploymentActions(doc, compiler);
-            opsets[opn].push({
-                doc,
-                actions,
-                note: `registered item ${doc.manifest.spec.name}`,
-            });
+    // process item kinds first
+    opn++;
+    opsets[opn] = [];
+    for (const doc of docs) {
+        if (doc.manifest.kind != 'Item') {
+            continue;
+        }
+        const actions = await itemKindDeploymentActions(doc, compiler);
+        opsets[opn].push({
+            doc,
+            actions,
+            note: `registered item ${doc.manifest.spec.name}`,
+        });
+    }
+
+    // process building kinds
+    opn++;
+    opsets[opn] = [];
+    for (const doc of docs) {
+        if (doc.manifest.kind != 'BuildingKind') {
+            continue;
+        }
+        const actions = await buildingKindDeploymentActions(doc, docs, world.items, compiler);
+        opsets[opn].push({
+            doc,
+            actions,
+            note: `registered building ${doc.manifest.spec.name}`,
+        });
+    }
+
+    // spawn building instances
+    opn++;
+    opsets[opn] = [];
+    for (const doc of docs) {
+        if (doc.manifest.kind != 'Building') {
+            continue;
+        }
+        const spec = doc.manifest.spec;
+        opsets[opn].push({
+            doc,
+            actions: [
+                {
+                    name: 'DEV_SPAWN_BUILDING',
+                    args: [
+                        getBuildingKindIDByName(existingBuildingKinds, pendingBuildingKinds, spec.name),
+                        ...spec.location,
+                    ],
+                },
+            ],
+            note: `spawned building instance of ${spec.name} at ${spec.location.join(',')}`,
+        });
+    }
+
+    // process quests
+    opn++;
+    opsets[opn] = [];
+    for (const doc of docs) {
+        if (doc.manifest.kind != 'Quest') {
+            continue;
         }
 
-        // process building kinds
-        opn++;
-        opsets[opn] = [];
-        for (const doc of docs) {
-            if (doc.manifest.kind != 'BuildingKind') {
-                continue;
-            }
-            const actions = await buildingKindDeploymentActions(doc, docs, world.items, compiler);
-            opsets[opn].push({
-                doc,
-                actions,
-                note: `registered building ${doc.manifest.spec.name}`,
-            });
+        const actions = await questDeploymentActions(doc, docs, world.items, existingBuildingKinds);
+        opsets[opn].push({
+            doc,
+            actions,
+            note: `registered quest ${doc.manifest.spec.name}`,
+        });
+    }
+
+    // spawn tile manifests (this is only valid while cheats are enabled)
+    opn++;
+    opsets[opn] = [];
+    for (const doc of docs) {
+        if (doc.manifest.kind != 'Tile') {
+            continue;
+        }
+        const spec = doc.manifest.spec;
+        opsets[opn].push({
+            doc,
+            actions: [
+                {
+                    name: 'DEV_SPAWN_TILE',
+                    args: spec.location,
+                },
+            ],
+            note: `spawned tile ${spec.location.join(',')}`,
+        });
+    }
+
+    // spawn bag manifests (this is only valid while cheats are enabled)
+    opn++;
+    opsets[opn] = [];
+    for (const doc of docs) {
+        if (doc.manifest.kind != 'Bag') {
+            continue;
         }
 
-        // spawn building instances
-        opn++;
-        opsets[opn] = [];
-        for (const doc of docs) {
-            if (doc.manifest.kind != 'Building') {
-                continue;
-            }
-            const spec = doc.manifest.spec;
-            opsets[opn].push({
-                doc,
-                actions: [
-                    {
-                        name: 'DEV_SPAWN_BUILDING',
-                        args: [
-                            getBuildingKindIDByName(existingBuildingKinds, pendingBuildingKinds, spec.name),
-                            ...spec.location,
-                        ],
-                    },
-                ],
-                note: `spawned building instance of ${spec.name} at ${spec.location.join(',')}`,
-            });
-        }
+        const encodeSlotConfig = (slots: ReturnType<typeof Slot.parse>[]) => {
+            const items = [0, 0, 0, 0].map((_, idx) =>
+                slots[idx]
+                    ? getItemIdByName(docs, world.items, slots[idx].name)
+                    : '0x000000000000000000000000000000000000000000000000'
+            );
+            const quantities = [0, 0, 0, 0].map((_, idx) => (slots[idx] ? slots[idx].quantity : 0));
+            return { items, quantities };
+        };
 
-        // process quests
-        opn++;
-        opsets[opn] = [];
-        for (const doc of docs) {
-            if (doc.manifest.kind != 'Quest') {
-                continue;
-            }
+        const spec = doc.manifest.spec;
+        const [q, r, s] = spec.location;
 
-            const actions = await questDeploymentActions(doc, docs, world.items, existingBuildingKinds);
-            opsets[opn].push({
-                doc,
-                actions,
-                note: `registered quest ${doc.manifest.spec.name}`,
-            });
-        }
+        const bagID = encodeBagID({ q, r, s });
+        const ownerAddress = solidityPacked(['uint160'], [0]); // public
+        console.log('ownerAddress: ', ownerAddress);
+        const equipee = encodeTileID({ q, r, s });
+        const equipSlot = 0;
 
-        // spawn tile manifests (this is only valid while cheats are enabled)
-        opn++;
-        opsets[opn] = [];
-        for (const doc of docs) {
-            if (doc.manifest.kind != 'Tile') {
-                continue;
-            }
-            const spec = doc.manifest.spec;
-            opsets[opn].push({
-                doc,
-                actions: [
-                    {
-                        name: 'DEV_SPAWN_TILE',
-                        args: spec.location,
-                    },
-                ],
-                note: `spawned tile ${spec.location.join(',')}`,
-            });
-        }
+        const bagContents = encodeSlotConfig(spec.items || []);
+        const slotContents = bagContents.items;
+        const slotBalances = bagContents.quantities;
+
+        opsets[opn].push({
+            doc,
+            actions: [
+                {
+                    name: 'DEV_SPAWN_BAG',
+                    args: [bagID, ownerAddress, equipee, equipSlot, slotContents, slotBalances],
+                },
+            ],
+            note: `spawned bag ${spec.location.join(',')}`,
+        });
+    }
 
     return opsets;
-}
+};
 
 export type Op = {
     doc: z.infer<typeof ManifestDocument>;
@@ -498,4 +556,3 @@ export type Op = {
 };
 
 export type OpSet = Op[];
-

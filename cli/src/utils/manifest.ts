@@ -23,17 +23,19 @@ export const OneLiner = z.string().min(3).max(180);
 
 export const Atom = z.number().gte(0).lt(4294967295);
 
-export const Slot = z.object({
-    name: z.string(),
-    quantity: z.number().gte(0).lte(100),
-}).superRefine(({ name, quantity }, ctx) => {
-    if (quantity && quantity > 0 && !name) {
-        ctx.addIssue({
-            code: "custom",
-            message: "Name required for item"
-        });
-    }
-});
+export const Slot = z
+    .object({
+        name: z.string(),
+        quantity: z.number().gte(0).lte(100),
+    })
+    .superRefine(({ name, quantity }, ctx) => {
+        if (quantity && quantity > 0 && !name) {
+            ctx.addIssue({
+                code: 'custom',
+                message: 'Name required for item',
+            });
+        }
+    });
 
 export const Coords = z.tuple([z.number(), z.number(), z.number()]);
 
@@ -171,6 +173,17 @@ export const Tile = z.object({
         .optional(),
 });
 
+export const BagSpec = z.object({
+    location: Coords,
+    items: Slot.array().max(4).optional(),
+});
+
+export const Bag = z.object({
+    kind: z.literal('Bag'),
+    spec: BagSpec,
+    status: z.object({}).optional(),
+});
+
 export const MobileUnitSpec = z.object({
     name: Name,
 });
@@ -286,15 +299,21 @@ export const QuestSpec = z.object({
 export const Quest = z.object({
     kind: z.literal('Quest'),
     spec: QuestSpec,
-    status: z
-        .object({
-        })
-        .optional(),
+    status: z.object({}).optional(),
 });
 
 // -- //
 
-export const Manifest = z.discriminatedUnion('kind', [BuildingKind, Item, Building, Tile, MobileUnit, Player, Quest]);
+export const Manifest = z.discriminatedUnion('kind', [
+    BuildingKind,
+    Item,
+    Building,
+    Tile,
+    MobileUnit,
+    Player,
+    Quest,
+    Bag,
+]);
 
 export const ManifestDocument = z.object({
     filename: z.string(),
@@ -316,7 +335,10 @@ export const parseManifestDocuments = (filedata: string, filename?: string): z.i
                 throw new Error(
                     result.error.issues
                         .map(
-                            (iss) => `invalid manifest ${filename}: ${content.kind || ''} ${iss.path.join('.')} field invalid: ${iss.message}`
+                            (iss) =>
+                                `invalid manifest ${filename}: ${content.kind || ''} ${iss.path.join(
+                                    '.'
+                                )} field invalid: ${iss.message}`
                         )
                         .join('\n\n')
                 );
