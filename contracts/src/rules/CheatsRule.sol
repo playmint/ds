@@ -72,7 +72,9 @@ contract CheatsRule is Rule {
         for (uint8 i = 0; i < slotContents.length; i++) {
             state.setItemSlot(bag, i, slotContents[i], slotBalances[i]);
         }
-        state.setOwner(bag, Node.Player(owner));
+        if (owner != address(0)) {
+            state.setOwner(bag, Node.Player(owner));
+        }
         state.setEquipSlot(equipee, equipSlot, bag);
     }
 
