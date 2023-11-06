@@ -136,6 +136,49 @@ contract CraftingRuleTest is Test, GameTest {
         assertEq(gotBalance, 2, "expected 2 item left in input[2]");
     }
 
+    // Tests that we can output an item of atomic val 5 red from two sets of 5 red atoms. This used to fail when
+    // we were summing up the halves of item's atoms (we'd have 4 available atoms instead of 5) instead of halving the sum.
+    function testCraftingRedFiver() public {
+        vm.startPrank(players[0].addr);
+
+        // Deploy building that crafts an item made from two sets of 5 goo which has a total atom count of 5 goo
+        // setup a mock building instance owned by alice
+        MockCraftBuildingContract buildingContract = new MockCraftBuildingContract();
+        bytes24 redFiverBuildingKind = _registerRedFiverBuildingKind(1002, address(buildingContract));
+        bytes24 redFiverBuildingInstance = _constructBuildingInstance(redFiverBuildingKind, aliceMobileUnit, -1, 1, 0);
+
+        // alice puts the input items (two sets of 5 x red) into the building's bag
+        transferItem(
+            aliceMobileUnit,
+            [aliceMobileUnit, redFiverBuildingInstance],
+            [0, 0], // from/to equip
+            [2, 0], // from/to slot
+            0x0, // unused
+            5
+        );
+        transferItem(
+            aliceMobileUnit,
+            [aliceMobileUnit, redFiverBuildingInstance],
+            [0, 0],
+            [2, 1],
+            0x0, // unused
+            5
+        );
+        vm.stopPrank();
+
+        // craft
+        vm.startPrank(address(buildingContract));
+        dispatcher.dispatch(abi.encodeCall(Actions.CRAFT, (redFiverBuildingInstance)));
+        vm.stopPrank();
+
+        // check that output item now exists in outputBag slot 0
+        bytes24 outputBag = state.getEquipSlot(redFiverBuildingInstance, 1);
+        (bytes24 expItem, uint64 expBalance) = state.getOutput(redFiverBuildingKind, 0);
+        (bytes24 gotItem, uint64 gotBalance) = state.getItemSlot(outputBag, 0);
+        assertEq(gotItem, expItem, "expected output slot to contain expected output item");
+        assertEq(gotBalance, expBalance, "expected output balance match");
+    }
+
     function testBadSender() public {
         // alice puts the input items into the building's bag
         vm.startPrank(players[0].addr);
@@ -253,6 +296,28 @@ contract CraftingRuleTest is Test, GameTest {
         outputQty = 1;
     }
 
+    function _getRedFiverRecipe()
+        private
+        pure
+        returns (
+            bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItemIDs,
+            uint64[MAX_CRAFT_INPUT_ITEMS] memory inputQtys,
+            bytes24 outputItem,
+            uint64 outputQty
+        )
+    {
+        // Input
+        inputItemIDs[0] = ItemUtils.RedGoo();
+        inputItemIDs[1] = ItemUtils.RedGoo();
+        inputQtys[0] = 5;
+        inputQtys[1] = 5;
+
+        // Output (G,B,R)
+        uint32[3] memory outputItemAtoms = [uint32(0), uint32(0), uint32(5)];
+        outputItem = Node.Item("Red Fiver", outputItemAtoms, ITEM_STACKABLE);
+        outputQty = 1;
+    }
+
     function _registerBuildingKind(uint32 uid, address buildingContract) private returns (bytes24) {
         bytes24[4] memory defaultMaterialItem;
         defaultMaterialItem[0] = ItemUtils.GreenGoo();
@@ -274,6 +339,49 @@ contract CraftingRuleTest is Test, GameTest {
         ) = _getCraftRecipe();
 
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (outputItem, "thing3", "icon")));
+
+        dispatcher.dispatch(
+            abi.encodeCall(
+                Actions.REGISTER_BUILDING_KIND,
+                (
+                    buildingKind,
+                    buildingName,
+                    BuildingCategory.ITEM_FACTORY,
+                    "",
+                    defaultMaterialItem,
+                    defaultMaterialQty,
+                    inputItemIDs,
+                    inputQtys,
+                    [outputItem],
+                    [outputQty]
+                )
+            )
+        );
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (buildingKind, buildingContract)));
+        return buildingKind;
+    }
+
+    function _registerRedFiverBuildingKind(uint32 uid, address buildingContract) private returns (bytes24) {
+        bytes24[4] memory defaultMaterialItem;
+        defaultMaterialItem[0] = ItemUtils.GreenGoo();
+        defaultMaterialItem[1] = ItemUtils.BlueGoo();
+        defaultMaterialItem[2] = ItemUtils.RedGoo();
+        uint64[4] memory defaultMaterialQty;
+        defaultMaterialQty[0] = 25;
+        defaultMaterialQty[1] = 25;
+        defaultMaterialQty[2] = 25;
+        bytes24 buildingKind = Node.BuildingKind(uid, BuildingCategory.ITEM_FACTORY);
+        string memory buildingName = "RedFiverBuilding";
+
+        // Craft Recipe
+        (
+            bytes24[MAX_CRAFT_INPUT_ITEMS] memory inputItemIDs,
+            uint64[MAX_CRAFT_INPUT_ITEMS] memory inputQtys,
+            bytes24 outputItem,
+            uint64 outputQty
+        ) = _getRedFiverRecipe();
+
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (outputItem, "Red Fiver", "icon")));
 
         dispatcher.dispatch(
             abi.encodeCall(

@@ -126,9 +126,9 @@ contract CraftingRule is Rule {
 
             // check min input qty
             require(gotQty[0] >= wantQty[0], "input 0 qty does not match recipe");
-            require(gotQty[1] >= wantQty[1], "input 0 qty does not match recipe");
-            require(gotQty[2] >= wantQty[2], "input 0 qty does not match recipe");
-            require(gotQty[3] >= wantQty[3], "input 0 qty does not match recipe");
+            require(gotQty[1] >= wantQty[1], "input 1 qty does not match recipe");
+            require(gotQty[2] >= wantQty[2], "input 2 qty does not match recipe");
+            require(gotQty[3] >= wantQty[3], "input 3 qty does not match recipe");
 
             // burn that many inputs
             state.setItemSlot(inBag, 0, gotItem[0], gotQty[0] - wantQty[0]);
