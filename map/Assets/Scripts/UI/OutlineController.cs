@@ -24,6 +24,7 @@ public class OutlineController : MonoBehaviour
 
     [SerializeField]
     UniversalRendererData? renderData;
+
     [SerializeField]
     UniversalRenderPipelineAsset renderAsset;
 
@@ -43,14 +44,22 @@ public class OutlineController : MonoBehaviour
 
     private static bool manualUpdate = false;
     private static float _renderScale = 1;
-    public static float renderScale { get { return _renderScale; } set { _renderScale = value; manualUpdate = true; } }
+    public static float renderScale
+    {
+        get { return _renderScale; }
+        set
+        {
+            _renderScale = value;
+            manualUpdate = true;
+        }
+    }
 
     int sWidth,
         sHeight;
     int currentZoom = 0;
 
     float updateTimer = 0;
-    #if !UNITY_EDITOR || CHECK_RESOLUTION_SCALE
+#if !UNITY_EDITOR || CHECK_RESOLUTION_SCALE
     private RenderTexture _screenTexture;
 #endif
     private RenderTexture _outlineTexture;

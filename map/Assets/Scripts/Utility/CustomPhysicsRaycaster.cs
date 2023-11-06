@@ -19,7 +19,7 @@ public class CustomPhysicsRaycaster : MonoBehaviour
     void Update()
     {
         // Prepare the raycast
-        Ray ray = ScreenToWorld.instance.ScreenToRay(Input.mousePosition);// cam.ScreenPointToRay(Input.mousePosition);
+        Ray ray = ScreenToWorld.instance.ScreenToRay(Input.mousePosition); // cam.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
         // Perform the raycast
@@ -64,7 +64,8 @@ public class CustomPhysicsRaycaster : MonoBehaviour
         }
     }
 
-    private GameObject GetParentWithHandler<T>(GameObject child) where T : IEventSystemHandler
+    private GameObject GetParentWithHandler<T>(GameObject child)
+        where T : IEventSystemHandler
     {
         // Check if the current hit object's parent has the event handler
         // If so, return the parent object instead
@@ -74,7 +75,8 @@ public class CustomPhysicsRaycaster : MonoBehaviour
 
     private void ProcessPointerEnter(GameObject hitObject)
     {
-        if (hitObject == null) return;
+        if (hitObject == null)
+            return;
 
         // Execute the pointer enter event
         ExecuteEvents.Execute<IPointerEnterHandler>(
@@ -86,7 +88,8 @@ public class CustomPhysicsRaycaster : MonoBehaviour
 
     private void ProcessPointerExit(GameObject lastObject)
     {
-        if (lastObject == null) return;
+        if (lastObject == null)
+            return;
 
         // Execute the pointer exit event
         ExecuteEvents.Execute<IPointerExitHandler>(
@@ -98,7 +101,8 @@ public class CustomPhysicsRaycaster : MonoBehaviour
 
     private void ProcessPointerClick(GameObject clickedObject)
     {
-        if (clickedObject == null) return;
+        if (clickedObject == null)
+            return;
 
         // Execute the pointer click event
         ExecuteEvents.Execute<IPointerClickHandler>(

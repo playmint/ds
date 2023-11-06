@@ -7,6 +7,7 @@ public class ResolutionManager : MonoBehaviour
 {
     [SerializeField]
     UniversalRenderPipelineAsset renderAsset;
+
     [ContextMenu("Set Resolution Low")]
     public void SetLowResolution()
     {

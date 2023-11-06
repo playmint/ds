@@ -70,7 +70,7 @@ public class CameraController : MonoBehaviour
             // Get the world position of the mouse cursor
             Ray ray = ScreenToWorld.instance.ScreenToRay(Input.mousePosition);
             float enter = 0;
-            if (m_Plane.Raycast(ray, out enter)) 
+            if (m_Plane.Raycast(ray, out enter))
             {
                 Vector3 mouseWorldPos = ray.origin + (ray.direction * enter);
 
