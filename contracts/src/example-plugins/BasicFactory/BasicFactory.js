@@ -119,12 +119,12 @@ function unitIsFriendly(state, selectedBuilding) {
 }
 
 function unitIsBuildingOwner(mobileUnit, selectedBuilding) {
-    // console.log('unit owner id:',  mobileUnit?.owner?.id, `\nbuilding owner id`, selectedBuilding?.owner?.id);
+    // console.log('unit owner id:',  mobileUnit?.owner?.id, `building owner id`, selectedBuilding?.owner?.id);
     return mobileUnit?.owner?.id && mobileUnit?.owner?.id === selectedBuilding?.owner?.id;
 }
 
 function unitIsBuildingAuthor(mobileUnit, selectedBuilding) {
-    //console.log('unit owner id:',  mobileUnit?.owner?.id, `\nbuilding owner id`, selectedBuilding?.kind?.owner?.id);
+    //console.log('unit owner id:',  mobileUnit?.owner?.id, `building owner id`, selectedBuilding?.kind?.owner?.id);
     return mobileUnit?.owner?.id && mobileUnit?.owner?.id === selectedBuilding?.kind?.owner?.id;
 }
 
