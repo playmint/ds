@@ -70,11 +70,11 @@ const UnityInstance = () => {
         if (unity.sendMessage && g.__globalUnityContext.getCanvasHeight)
             unity.sendMessage(
                 'ResolutionManager',
-                'SetResoltion',
+                'SetResolution',
                 JSON.stringify(g.__globalUnityContext.getCanvasHeight())
             );
         console.info(`canvas size updated to ${canvas.width}x${canvas.height}`);
-    }, [canvas, unity]);
+    }, [canvas, sendMessage]);
 
     if (g.__globalUnityContext) {
         g.__globalUnityContext.setCanvasHeight = setCanvasHeight;

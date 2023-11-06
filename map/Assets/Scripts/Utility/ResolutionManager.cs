@@ -11,10 +11,10 @@ public class ResolutionManager : MonoBehaviour
     [ContextMenu("Set Resolution Low")]
     public void SetLowResolution()
     {
-        SetResoltion("0.1");
+        SetResolution("0.1");
     }
 
-    public void SetResoltion(string resolution)
+    public void SetResolution(string resolution)
     {
         Debug.Log($"ResolutionManager - SetResolution: {resolution}");
         OutlineController.renderScale = Mathf.Clamp01(float.Parse(resolution));
