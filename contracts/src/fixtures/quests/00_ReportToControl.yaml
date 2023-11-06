@@ -2,7 +2,7 @@
 kind: Quest
 spec:
   name: Report to Control
-  description: "Welcome new user. Please report to the control tower for further instructions"
+  description: "Welcome new user. Please report to the control tower for further instructions. The target button above will show you where it is."
   location: [-6, 5, 1]
   tasks:
     - kind: coord
