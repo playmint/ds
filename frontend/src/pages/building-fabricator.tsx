@@ -240,12 +240,92 @@ const BASIC_FACTORY_SOL = `// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
 import {Game} from "cog/IGame.sol";
+import {State} from "cog/IState.sol";
+import {Schema} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 
-contract BasicFactory is BuildingKind {
-    function use(Game ds, bytes24 buildingInstance, bytes24, /*actor*/ bytes memory /*payload*/ ) public {
+using Schema for State;
+
+contract SquircleFactory is BuildingKind {
+    function use(Game ds, bytes24 buildingInstance, bytes24 /*actor*/, bytes memory /*payload*/ ) public {
+        
+        //State state = GetState(ds);
+        
+        // uncomment to restrict building use to certain Units
+        //CheckIsFriendlyUnit(state, actor, buildingInstance);
+
+        // uncomment to require carrying an idCard
+        // you can change idCardItemId to another item id
+        //CheckIsCarryingItem(state, actor, idCardItemId);
+
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.CRAFT, (buildingInstance)));
+    }
+
+    function GetState(Game ds) internal returns (State) {
+        return ds.getState();
+    }
+    
+    function GetBuildingOwner(State state, bytes24 buildingInstance) internal view returns (bytes24) {
+        return state.getOwner(buildingInstance);
+    }
+
+    function GetBuildingAuthor(State state, bytes24 buildingInstance)  internal view returns (bytes24) {
+        bytes24 buildingKind = state.getBuildingKind(buildingInstance);
+        return state.getOwner(buildingKind);
+    }
+
+    function CheckIsFriendlyUnit(State state, bytes24 actor, bytes24 buildingInstance) internal view {
+        require(
+            UnitOwnsBuilding(state, actor, buildingInstance) ||
+            UnitAuthoredBuilding(state, actor, buildingInstance) ||
+            UnitOwnedByFriendlyPlayer(state, actor),
+            "Unit does not have permission to use this building");
+    }
+
+    function UnitOwnsBuilding(State state, bytes24 actor, bytes24 buildingInstance) internal view returns (bool) {
+        return state.getOwner(actor) == GetBuildingOwner(state, buildingInstance);
+    }
+
+    function UnitAuthoredBuilding(State state, bytes24 actor, bytes24 buildingInstance) internal view returns (bool) {
+        return state.getOwner(actor) == GetBuildingAuthor(state, buildingInstance);
+    }
+
+    address[] private friendlyPlayerAddresses = [
+        0x402462EefC217bf2cf4E6814395E1b61EA4c43F7
+    ];
+
+    function UnitOwnedByFriendlyPlayer(State state, bytes24 actor) internal view returns (bool) {
+        address ownerAddress = state.getOwnerAddress(actor);
+        for (uint i = 0; i < friendlyPlayerAddresses.length; i++) {
+            if (friendlyPlayerAddresses[i] == ownerAddress) {
+                return true;
+            } 
+        }
+        return false;
+    }
+
+    // use cli command 'ds get items' for all current possible ids.
+    bytes24 idCardItemId = 0x6a7a67f0b29554460000000100000064000000640000004c;
+
+    function CheckIsCarryingItem(State state, bytes24 actor, bytes24 item) view internal {
+        require((UnitIsCarryingItem(state, actor, item)),
+            "Unit must be carrying specified item");
+    }
+
+    function UnitIsCarryingItem(State state, bytes24 actor, bytes24 item) view internal returns (bool){
+        for (uint8 bagIndex = 0; bagIndex < 2; bagIndex ++) {
+            bytes24 bag = state.getEquipSlot(actor, bagIndex);
+            if (bag != 0) {
+                for (uint8 slot = 0; slot < 4; slot++) {
+                    (bytes24 resource, /*uint64 balance*/) = state.getItemSlot(bag, slot);
+                    if (resource == item) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }
 `;
@@ -254,16 +334,17 @@ const BASIC_FACTORY_BYTECODE = `608060405234801561001057600080fd5b5061097d806100
 const BASIC_FACTORY_JS = `import ds from 'downstream';
 
 export default async function update(state) {
-
-    const selectedTile = getSelectedTile(state);
+    //logState(state);
+    const selectedTile = getSelectedTile(state); 
     const selectedBuilding = selectedTile && getBuildingOnTile(state, selectedTile);
-    const canCraft = selectedBuilding && inputsAreCorrect(state, selectedBuilding);
-
+    const canCraft = selectedBuilding && inputsAreCorrect(state, selectedBuilding) 
+        /*&& unitIsFriendly(state, selectedBuilding)*/;
+    
     const craft = () => {
         const mobileUnit = getMobileUnit(state);
-
+    
         if (!mobileUnit) {
-            ds.log('no selected unit');
+            console.log('no selected unit');
             return;
         }
 
@@ -290,13 +371,13 @@ export default async function update(state) {
                         html: \`
                             <p>Fill the input slots to enable crafing</p>
                             \`,
-                       buttons: [
-                            {
-                                text: 'Craft',
-                                type: 'action',
-                                action: craft,
+                       buttons: [ 
+                            { 
+                                text: 'Craft', 
+                                type: 'action', 
+                                action: craft, 
                                 disabled: !canCraft
-                            }
+                            } 
                         ],
                     },
                 ],
@@ -345,15 +426,49 @@ function getInputSlots(state, building) {
 function inputsAreCorrect(state, building) {
     const requiredInputItems = getRequiredInputItems(building);
     const inputSlots = getInputSlots(state, building);
-
+    
     return inputSlots &&
         inputSlots.length >= requiredInputItems.length &&
         requiredInputItems.every(
             (requiredItem) =>
                 inputSlots[requiredItem.key].item.id == requiredItem.item.id &&
                 inputSlots[requiredItem.key].balance == requiredItem.balance,
-        );
+        );  
 }
+
+function logState(state) {
+    console.log('State sent to pluging:', state);
+}
+
+const friendlyPlayerAddresses = [
+    // 0x402462EefC217bf2cf4E6814395E1b61EA4c43F7
+]
+
+function unitIsFriendly(state, selectedBuilding) {
+    const mobileUnit = getMobileUnit(state);
+    return unitIsBuildingOwner(mobileUnit, selectedBuilding) ||
+        unitIsBuildingAuthor(mobileUnit, selectedBuilding) ||
+        friendlyPlayerAddresses.some(addr => unitOwnerConnectedToWallet(state, mobileUnit, addr));
+}
+
+function unitIsBuildingOwner(mobileUnit, selectedBuilding) {
+    // console.log('unit owner id:',  mobileUnit?.owner?.id, \`\nbuilding owner id\`, selectedBuilding?.owner?.id);
+    return mobileUnit?.owner?.id && mobileUnit?.owner?.id === selectedBuilding?.owner?.id;
+}
+
+function unitIsBuildingAuthor(mobileUnit, selectedBuilding) {
+    //console.log('unit owner id:',  mobileUnit?.owner?.id, \`\nbuilding owner id\`, selectedBuilding?.kind?.owner?.id);
+    return mobileUnit?.owner?.id && mobileUnit?.owner?.id === selectedBuilding?.kind?.owner?.id;
+}
+
+function unitOwnerConnectedToWallet(state, mobileUnit, walletAddress) {
+    //console.log('Checking player:',  state?.player, \`vontrols unit\`, mobileUnit, 'and has address:', walletAddress);
+    return mobileUnit?.owner?.id == state?.player?.id && 
+        state?.player?.addr == walletAddress;
+}
+
+// the source for this code is on githib where you can find other example buildings:
+// https://github.com/playmint/ds/tree/main/contracts/src/example-plugins
 `;
 
 const toStringDefaults = { indentSeq: false };
