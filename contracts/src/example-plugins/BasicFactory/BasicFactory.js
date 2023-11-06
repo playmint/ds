@@ -134,6 +134,6 @@ function unitOwnerConnectedToWallet(state, mobileUnit, walletAddress) {
         state?.player?.addr == walletAddress;
 }
 
-// the source for this code is on githib where you can find other example buildings:
+// the source for this code is on github where you can find other example buildings:
 // https://github.com/playmint/ds/tree/main/contracts/src/example-plugins
 
