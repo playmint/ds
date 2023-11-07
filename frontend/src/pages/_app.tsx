@@ -8,6 +8,18 @@ import Head from 'next/head';
 import { Fragment, useEffect, useMemo } from 'react';
 
 export const App = ({ Component, pageProps }: AppProps) => {
+    const host = typeof window != 'undefined' ? window.location.host : null;
+
+    // use canonical url
+    useEffect(() => {
+        if (!host) {
+            return;
+        }
+        if (/frontend-ds-main.dev.playmint.com/.test(host)) {
+            window.location.href = 'https://hexwood0.downstream.game/';
+        }
+    }, [host]);
+
     useEffect(() => {
         const handleContextMenu = (e: MouseEvent) => {
             e.preventDefault();
