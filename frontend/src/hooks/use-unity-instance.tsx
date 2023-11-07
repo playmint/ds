@@ -57,7 +57,7 @@ const UnityInstance = () => {
     const getCanvasHeight = useCallback(() => canvasHeight, [canvasHeight]);
 
     const onResize = useCallback(() => {
-        if (!canvas || !sendMessage) {
+        if (!canvas || !sendMessage || !canvasHeight) {
             return;
         }
         const mapContainer = typeof document !== 'undefined' ? document.getElementById('map-container') : undefined;
@@ -67,11 +67,9 @@ const UnityInstance = () => {
         const mapContainerBounds = mapContainer.getBoundingClientRect();
         canvas.height = mapContainerBounds.height * window.devicePixelRatio;
         canvas.width = mapContainerBounds.width * window.devicePixelRatio;
-        if (g.__globalUnityContext.getCanvasHeight) {
-            sendMessage('ResolutionManager', 'SetResolution', JSON.stringify(g.__globalUnityContext.getCanvasHeight()));
-        }
+        sendMessage('ResolutionManager', 'SetResolution', JSON.stringify(canvasHeight));
         console.info(`canvas size updated to ${canvas.width}x${canvas.height}`);
-    }, [canvas, sendMessage]);
+    }, [canvas, sendMessage, canvasHeight]);
 
     if (g.__globalUnityContext) {
         g.__globalUnityContext.setCanvasHeight = setCanvasHeight;
