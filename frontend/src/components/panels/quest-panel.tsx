@@ -208,7 +208,7 @@ const StyledProgressBar = styled.div`
         > .inner {
             position: absolute;
             height: 100%;
-            width: ${Math.max(p, 0.01) * 100}%;
+            width: ${Math.max(p, 0.05) * 100}%;
             border-radius: 1rem;
             border: 0.2rem solid;
 
