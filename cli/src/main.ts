@@ -40,7 +40,7 @@ yargs
     .option('network', {
         alias: 'n',
         demandOption: true,
-        default: 'mainnet',
+        default: 'local',
         describe: 'select network (see networks list)',
         choices: networks.map((n) => n.name),
         type: 'string',
