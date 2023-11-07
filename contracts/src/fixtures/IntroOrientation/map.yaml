@@ -22,6 +22,52 @@ spec:
   location: [6, -2, -4]
   items:
     - name: Acceptance Letter
-      quantity: 100
+      quantity: 1
     - name: ID Card
-      quantity: 100
+      quantity: 1
+    - name: Acceptance Letter
+      quantity: 1
+    - name: ID Card
+      quantity: 1
+
+---
+kind: Bag
+spec:
+  location: [5, -2, -3]
+  items:
+    - name: Acceptance Letter
+      quantity: 1
+    - name: ID Card
+      quantity: 1
+    - name: Acceptance Letter
+      quantity: 1
+    - name: ID Card
+      quantity: 1
+
+---
+kind: Bag
+spec:
+  location: [7, -2, -5]
+  items:
+    - name: Acceptance Letter
+      quantity: 1
+    - name: ID Card
+      quantity: 1
+    - name: Acceptance Letter
+      quantity: 1
+    - name: ID Card
+      quantity: 1
+
+---
+kind: Bag
+spec:
+  location: [4, -1, -3]
+  items:
+    - name: Acceptance Letter
+      quantity: 1
+    - name: ID Card
+      quantity: 1
+    - name: Acceptance Letter
+      quantity: 1
+    - name: ID Card
+      quantity: 1

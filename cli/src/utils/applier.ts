@@ -526,7 +526,6 @@ export const getOpsForManifests = async (
 
         const bagID = encodeBagID({ q, r, s });
         const ownerAddress = solidityPacked(['uint160'], [0]); // public
-        console.log('ownerAddress: ', ownerAddress);
         const equipee = encodeTileID({ q, r, s });
         const equipSlot = 0;
 
