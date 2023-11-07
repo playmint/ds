@@ -795,9 +795,9 @@ const BuildingFabricator = () => {
         contract: { file: './basic-factory.sol' },
         plugin: { file: './basic-factory.js' },
         materials: [
-            { name: 'Red Goo', quantity: 50 },
-            { name: 'Green Goo', quantity: 50 },
-            { name: 'Blue Goo', quantity: 50 },
+            { name: 'Red Goo', quantity: 10 },
+            { name: 'Green Goo', quantity: 10 },
+            { name: 'Blue Goo', quantity: 10 },
         ],
         inputs: [
             { name: 'Red Goo', quantity: 25 },
