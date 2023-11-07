@@ -28,7 +28,7 @@ async function main({
     maxConnections,
     version,
 }) {
-    // abort if attempt to overrite ds-main or ds-exp
+    // abort if attempt to overrite main or exp
     if (deploymentName === 'main') {
         fatal(`do not use this script to deploy ${deploymentName}, that deployment is managed by Github Actions`);
     }

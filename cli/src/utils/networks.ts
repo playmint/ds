@@ -7,39 +7,65 @@ export type Network = {
 };
 
 export const networks: Network[] = [
-    // [!] there is no "mainnet" deployment yet, so right now this version
-    //     points to the ds-test deployment same as "testnet"
-    //     it is here now as it will be the default in the future
     {
-        name: 'mainnet',
-        description: 'public mainnet network',
-        wsEndpoint: 'wss://services-ds-test.dev.playmint.com/query',
-        httpEndpoint: 'https://services-ds-test.dev.playmint.com/query',
-        default: true,
-    },
-    {
-        name: 'testnet',
-        description: 'public test network',
-        wsEndpoint: 'wss://services-ds-test.dev.playmint.com/query',
-        httpEndpoint: 'https://services-ds-test.dev.playmint.com/query',
-    },
-    {
-        name: 'devnet',
+        name: 'hexwood0',
         description: 'ephemeral private invite only test network',
-        wsEndpoint: 'wss://services-ds-main.dev.playmint.com/query',
-        httpEndpoint: 'https://services-ds-main.dev.playmint.com/query',
+        wsEndpoint: 'wss://services0.downstream.game/query',
+        httpEndpoint: 'https://services0.downstream.game/query',
     },
     {
-        name: 'playnet',
+        name: 'hexwood1',
         description: 'ephemeral private invite only test network',
-        wsEndpoint: 'wss://services.playtest.downstream.game/query',
-        httpEndpoint: 'https://services.playtest.downstream.game/query',
+        wsEndpoint: 'wss://services1.downstream.game/query',
+        httpEndpoint: 'https://services1.downstream.game/query',
     },
     {
-        name: 'expnet',
-        description: 'ephemeral private invite only experimental network',
-        wsEndpoint: 'wss://services-ds-exp.dev.playmint.com/query',
-        httpEndpoint: 'https://services-ds-exp.dev.playmint.com/query',
+        name: 'hexwood2',
+        description: 'ephemeral private invite only test network',
+        wsEndpoint: 'wss://services2.downstream.game/query',
+        httpEndpoint: 'https://services2.downstream.game/query',
+    },
+    {
+        name: 'hexwood3',
+        description: 'ephemeral private invite only test network',
+        wsEndpoint: 'wss://services3.downstream.game/query',
+        httpEndpoint: 'https://services3.downstream.game/query',
+    },
+    {
+        name: 'hexwood4',
+        description: 'ephemeral private invite only test network',
+        wsEndpoint: 'wss://services4.downstream.game/query',
+        httpEndpoint: 'https://services4.downstream.game/query',
+    },
+    {
+        name: 'hexwood5',
+        description: 'ephemeral private invite only test network',
+        wsEndpoint: 'wss://services5.downstream.game/query',
+        httpEndpoint: 'https://services5.downstream.game/query',
+    },
+    {
+        name: 'hexwood6',
+        description: 'ephemeral private invite only test network',
+        wsEndpoint: 'wss://services6.downstream.game/query',
+        httpEndpoint: 'https://services6.downstream.game/query',
+    },
+    {
+        name: 'hexwood7',
+        description: 'ephemeral private invite only test network',
+        wsEndpoint: 'wss://services7.downstream.game/query',
+        httpEndpoint: 'https://services7.downstream.game/query',
+    },
+    {
+        name: 'hexwood8',
+        description: 'ephemeral private invite only test network',
+        wsEndpoint: 'wss://services8.downstream.game/query',
+        httpEndpoint: 'https://services8.downstream.game/query',
+    },
+    {
+        name: 'hexwood9',
+        description: 'ephemeral private invite only test network',
+        wsEndpoint: 'wss://services9.downstream.game/query',
+        httpEndpoint: 'https://services9.downstream.game/query',
     },
     {
         name: 'local',
