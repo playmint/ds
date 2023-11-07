@@ -92,7 +92,7 @@ export const NavPanel = ({
         window.location.reload();
     }, [clearSession, forgetProvider]);
 
-    const canvasHeight = g.__globalUnityContext?.getCanvasHeight ? g.__globalUnityContext.getCanvasHeight() : -1;
+    const canvasHeight = g.__globalUnityContext?.getCanvasHeight ? g.__globalUnityContext.getCanvasHeight() : 0.5;
     const onChangeQuality = useCallback((e) => {
         if (!e) {
             return;
