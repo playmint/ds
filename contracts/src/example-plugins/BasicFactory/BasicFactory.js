@@ -10,7 +10,7 @@ export default async function update(state) {
     const canCraft = selectedBuilding && inputsAreCorrect(state, selectedBuilding) 
         // uncomment this to be restrictve about which units can craft
         // this is a client only check - to enforce it in contracts make
-        // similar changes in basic-factory.sol
+        // similar changes in BasicFactory.sol
         /*&& unitIsFriendly(state, selectedBuilding)*/;
     
     const craft = () => {

@@ -252,7 +252,7 @@ contract SquircleFactory is BuildingKind {
         // uncomment to restrict building use to certain Units
         // you will need to also uncomment the actor param
         // these restrictions will not be reflected in the UI unless you make
-        // similar changes in basic-factory.js
+        // similar changes in BasicFactory.js
         //State state = GetState(ds);
         //CheckIsFriendlyUnit(state, actor, buildingInstance);
 
@@ -345,7 +345,7 @@ contract SquircleFactory is BuildingKind {
         // uncomment to restrict building use to certain Units
         // you will need to also uncomment the actor param
         // these restrictions will not be reflected in the UI unless you make
-        // similar changes in basic-factory.js
+        // similar changes in BasicFactory.js
         //State state = GetState(ds);
         //CheckIsFriendlyUnit(state, actor, buildingInstance);
 
@@ -792,8 +792,8 @@ const BuildingFabricator = () => {
         description: '',
         model: '01-01',
         color: 0,
-        contract: { file: './basic-factory.sol' },
-        plugin: { file: './basic-factory.js' },
+        contract: { file: './BasicFactory.sol' },
+        plugin: { file: './BasicFactory.js' },
         materials: [
             { name: 'Red Goo', quantity: 10 },
             { name: 'Green Goo', quantity: 10 },
@@ -1043,7 +1043,7 @@ const BuildingFabricator = () => {
         setStatus('');
         try {
             validate();
-            const name = 'basic-factory';
+            const name = 'BasicFactory';
             const zip = new JSZip();
             const folder = zip.folder(name);
             if (!folder) {
@@ -1080,7 +1080,7 @@ const BuildingFabricator = () => {
                 plugin: { inline: BASIC_FACTORY_JS },
             });
             console.log('parseManifests', yaml);
-            const docs = parseManifestDocuments(yaml, 'basic-factory.yaml');
+            const docs = parseManifestDocuments(yaml, 'BasicFactory.yaml');
             console.log('getOpsForManifests..');
             const compiler: any = () => {}; // FIXME: hack until we can compile in browser
             const opsets = await getOpsForManifests(docs, world, buildingKinds, compiler);
@@ -1090,7 +1090,7 @@ const BuildingFabricator = () => {
             console.info('APPLIED');
             setStatus('Deployed!');
         } catch (err) {
-            const messages = `${err}`.replace(/Error:/i, '').split('invalid manifest basic-factory.yaml:');
+            const messages = `${err}`.replace(/Error:/i, '').split('invalid manifest BasicFactory.yaml:');
             console.error(`cannot apply: ${messages.join(' AND ')}`);
             setErrors(messages);
             return;
