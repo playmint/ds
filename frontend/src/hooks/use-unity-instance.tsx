@@ -53,7 +53,7 @@ const UnityInstance = () => {
     const { unityProvider, loadingProgression, addEventListener, removeEventListener, sendMessage } = unity;
 
     const canvas = canvasRef.current ? (canvasRef.current as HTMLCanvasElement) : null;
-    const [canvasHeight, setCanvasHeight] = useLocalStorage<number>(`ds/canvasHeight`, -1);
+    const [canvasHeight, setCanvasHeight] = useLocalStorage<number>(`ds/canvasHeight`, 0.5);
     const getCanvasHeight = useCallback(() => canvasHeight, [canvasHeight]);
 
     const onResize = useCallback(() => {
@@ -67,7 +67,7 @@ const UnityInstance = () => {
         const mapContainerBounds = mapContainer.getBoundingClientRect();
         canvas.height = mapContainerBounds.height * window.devicePixelRatio;
         canvas.width = mapContainerBounds.width * window.devicePixelRatio;
-        sendMessage('ResolutionManager', 'SetResolution', JSON.stringify(canvasHeight));
+        sendMessage('ResolutionManager', 'SetResolution', JSON.stringify(canvasHeight != -1 ? canvasHeight : 0.5));
         console.info(`canvas size updated to ${canvas.width}x${canvas.height}`);
     }, [canvas, sendMessage, canvasHeight]);
 
