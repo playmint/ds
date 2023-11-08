@@ -186,11 +186,9 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 }
 
                 // Tile bags
-                const selectedBags: SelectedBag[] = getBagsAtEquipee(world?.bags || [], t).map(
-                    (bag, equipIndex): SelectedBag => {
-                        return { equipIndex, bag, ownerId: t.id, parentTile: t };
-                    }
-                );
+                const selectedBags: SelectedBag[] = getBagsAtEquipee(world?.bags || [], t).map((bag): SelectedBag => {
+                    return { equipIndex: bag.equipee?.key || 0, bag, ownerId: t.id, parentTile: t };
+                });
 
                 // Combat rewards
                 if (selectedMobileUnit) {
@@ -207,9 +205,9 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                                 const truncatedMobileUnitID = BigInt(selectedMobileUnit.id) & mobileUnitIdMask;
                                 return bagMobileUnitID === truncatedMobileUnitID;
                             })
-                            ?.map((bag, equipIndex): SelectedBag => {
+                            ?.map((bag): SelectedBag => {
                                 return {
-                                    equipIndex,
+                                    equipIndex: bag.equipee?.key || 0,
                                     bag,
                                     ownerId: cs.id, // Very confusing because I expected the `ownerId` to be the unit's ID
                                     parentTile: t,
