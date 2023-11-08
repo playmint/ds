@@ -195,7 +195,7 @@ const UnityInstance = () => {
                 mediaMatcher.removeEventListener('change', onResize);
             }
         };
-    }, [onResize]);
+    }, [devicePixelRatio, onResize]);
 
     return (
         <Unity
