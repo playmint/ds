@@ -3,118 +3,75 @@ sidebar_position: 1
 title: Play the Game
 ---
 
-# Aim of the Game
 
-Although access to this early version of *****Downstream***** is primarily to see what creators can (or can’t) do with our game, we have created a simple quest to get the party started
+## Starting the Game
 
-## *The Great Cleanup* Building
+Greetings new user! All new users are requested to visit the Control Tower when they arrive in the world. A handy quest at the top-left of the screen will remind you of this fact.
 
-Just north of the spawn point is a building that requires two items. It will reward a medal to whomever can bring it those items.
+*****Note: You can rename your Unit by double-clicking your name at the bottom-left. You will need to move your Unit before your will see your new name*****
 
-![The Great Cleanup Building](/images/the-great-cleanup.png)
+## Q.U.E.S.T.S.
 
+The quests at the top-left will guide you through the first 30-minutes of play. Each quest consists of a number of tasks. When a task is completed it will get a tick. When all tasks are completed you can press the button to "Complete" the quest.
 
-## Starting the Quest
-
-There are some other buildings near the spawn point. We suggest you craft the items you can get here. Not only are they required for a later part of the quest, but will improve your stats enough to start defeating the easiest enemies.
-
-## Go Explore!
-
-Go visit the buildings on the map, fight enemies and construct your own buildings. By exploring the world, crafting items, and winning at combat you should be able to construct the items needed to “win” the game.
-
-*****Note: You can rename your Unit by double-clicking your name at the top-right. You will need to move your Unit before your will see your new name*****
-
-![Entering a name](/images/enter-name.png)
+*****Note: Tasks that are complete can become uncompleted if you no longer meet the requirements*****
 
 # Game Controls
 
 ## Getting Into the Game
 
 1. Click the “Connect” button at the top-left of the screen
-2. Login to Metamask
+2. Choose "Metamask" or "Wallet Connect" to login with your own wallet. Burner will give you a temporary wallet which won't persist between sessions.
 3. Click the “Spawn Unit” button
 4. Click the “Sign" button when prompted
-5. You unit will appear in the middle of the map - they will have a red shield above their head
+5. You unit will appear in the middle of the map - they will have an orange icon above their head
 
-![Spawning In](/images/spawn-in.png)
+## Selecting Your Unit
 
-## Selecting and Deselecting Your Unit
-
+When the game loads you'll need to select your unit. Simply click the "Select Unit" button in the bottom-left.
 When your Unit is selected, you can interact with the tiles adjacent to it.
-
-- To select your Unit, hover your cursor over that it so that it’s highlighted, and left-click
-- The unit’s details and action bar will appear in the UI.
-
-When you deselect your unit you can view the details of tiles anywhere on the map
-
-- To deselect your unit, click on any tile that is not adjacent to it.
-
-![Selecting Yout Unit](/images/selected-unit.png)
 
 ## Moving Your Unit
 
-With your Unit selected, you can give it a destination to travel to. This is done by clicking a route of one or more tiles from its current position.
+Your unit can move to any tile on the map, and will travel via the shortest path.
 
-1. Select the “Move” action. This will highlight all the tiles the Unit can move to
-2. Left-click one off these tiles
-3. You can either press the “Confirm Move” button to move to this tile, or queue up additional moves by continuing to click on the highlighted tiles
-
-![Moving](/images/move-unit.png)
-
-## Scouting
-
-When your unit is next to an unexplored tile it will have the ability to scout it. This will generate it on the blockchain and add it to the world.
-
-1. With your unit selected, click the “Scout” button
-2. Click on all adjacent tiles that you want to scout
-3. Click the “Confirm Scout” button
-
-![Scouting](/images/scout.png)
+1. Select the “Move” action at the bottom
+2. Left-click on any tile
+3. Press the “Confirm Move” button to start moving to this tile
 
 ## Constructing a Building
 
-Your Unit can construct a building on any empty adjacent tiles
+Your Unit can construct a building on any empty tile. Your Unit will move next to the tile if necessary.
 
 1. With the Unit selected, click the “Build” button
-2. Click on one of the highlighted tiles
+2. Click on any empty tile
 3. Select the building you want to construct from the drop-down menu. 
-    - This contains all buildings that have been deployed to the game, by all creators.
-4. Drag-and-drop all required resources from your Unit’s bags, to the building panel.
-    - These costs are set by the creator of the building’s contract
-    - Multiple players can contribute their resources to this cost
-6. When all resources have been added, click the “Confirm Construction” button.
+    - This contains all buildings that have been deployed to the game, which you can afford to construct.
+    - You can choose to also see buildings that you can't afford
+6. If you can afford the building, click the “Confirm Construction” button to construct it on the tile.
 
-![Constructing a Building](/images/constructing-a-building.png)
 
 ## Using a Building
 
-If a building has functionality (e.g. crafting an item) your Unit will need to be adjacent to perform it
-
-1. With your unit selected, click the “Use” button
-2. Click on the adjacent building
-3. The building’s UI panel will show it’s functionality
+Clicking on any building will show you its details. If a building has functionality (e.g. crafting an item) your Unit will need to be moved adjacent to the building to perform it.
 
 ## Moving Items to-and-from Bags
 
-You unit is able to interact with any bags on the tile it is on, and any adjacent tiles.
+Your unit is able to interact with any bags on the tile it is on, and any adjacent tiles.
 
 1. With your unit selected, click the tile with the bag
-2. The bags contents will be displayed.
+2. The bag's contents will be displayed.
 3. You can drag-and-drop items between your bags and the tile’s bag
-
-![Moving Items Between Bags](/images/moving-between-bags.png)
 
 ## Starting a Combat Session
 
-Any buildings and monsters (which are technically buildings!) can be attacked.
+Any buildings and bugs (which are technically buildings!) can be attacked.
 
-1. With your unit on an adjacent tile, click the “Attack” button
-2. Potential targets are highlighted. Click on the one you want to attack.
-3. Click the “Start Combat” button button
-4. The combat info window will appear, this shows the strength of the attackers and defenders.
-5. Click “Start Combat” if you want to being the attack, or close the window if you want to chicken out
-
-![Combat Screen](/images/combat-screen.png)
+1. Click the “Attack” button
+2. Click on the building you want to attack.
+3. Your unit will move next to the building and enter combat
+4. Clicking on the tile will show you the overview of the combat. You can get more info by clicking "View Combat"
+5. When combat is over, press the "End Combat" button to collect any rewards
 
 ## Joining a Combat Session
 
@@ -134,13 +91,13 @@ When a Unit attacks a Building it begins a combat session. This will continue un
 - The number of goo they have in equipable items will increase these values
     - Equipable items are non-stackable (i.e. you can only have one per slot)
     - 1x Green Goo = +10 Life
-    - 1x Blue Goo = +1 Defense
+    - 1x Blue Goo = +1 Defence
     - 1x Red Goo = +1 Attack
 
 ### Buildings
 
-- The construction costs of a Building will dictate its stats. The goo structure of the building materials will define its life/defense/attack.
-- When a Building is deployed it will require a minimum number of each color goo. This is so it can’t be destroyed by an aggressive fly.
+- The construction costs of a Building will dictate its stats. The goo composition of the building materials will define its life/defence/attack.
+- When a Building is deployed it will require a minimum number of each colour goo. This is so it can’t be destroyed by an aggressive fly.
 
 ## Combat Session Flow
 
@@ -158,7 +115,7 @@ Defender's Life -= 1 + (All Attacker's ATK - Defender's DEF)
 
 ## Leaving Combat
 
-If a participant moves off the combat tile, they are removed from the battle (their life is treated as 0). If they return before the end of combat, their life is restored to its value before they left.
+If a participant moves off the combat tile, they are removed from the battle (their life is treated as 0). If they return before the end of combat, their life is restored to its value before they left the session.
 
 Note: A transaction needs to be sent to "End" the combat session. We're working on tidying this up and improving the UX, but at the moment a user will need to view the combat session and click the "End Combat" button
 
