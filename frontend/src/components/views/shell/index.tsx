@@ -124,7 +124,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             params.quest_id = `q${action.args[0]}`;
                         }
                     }
-                    console.log('tracking', params);
                     trackEvent('dispatch', params);
                 });
             })
