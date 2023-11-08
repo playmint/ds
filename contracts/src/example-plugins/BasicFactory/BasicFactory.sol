@@ -9,8 +9,8 @@ import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 
 using Schema for State;
 
-contract SquircleFactory is BuildingKind {
-    function use(Game ds, bytes24 buildingInstance, bytes24, /*actor*/ bytes memory /*payload*/ ) public {
+contract BasicFactory is BuildingKind {
+    function use(Game ds, bytes24 buildingInstance, bytes24 /*actor*/, bytes memory /*payload*/ ) public {
         // uncomment to restrict building use to certain Units
         // you will need to also uncomment the actor param
         // these restrictions will not be reflected in the UI unless you make

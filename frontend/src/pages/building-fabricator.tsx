@@ -247,8 +247,8 @@ import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 
 using Schema for State;
 
-contract SquircleFactory is BuildingKind {
-    function use(Game ds, bytes24 buildingInstance, bytes24, /*actor*/ bytes memory /*payload*/ ) public {
+contract BasicFactory is BuildingKind {
+    function use(Game ds, bytes24 buildingInstance, bytes24 /*actor*/, bytes memory /*payload*/ ) public {
         // uncomment to restrict building use to certain Units
         // you will need to also uncomment the actor param
         // these restrictions will not be reflected in the UI unless you make
@@ -338,11 +338,14 @@ export default async function update(state) {
 
     const selectedTile = getSelectedTile(state);
     const selectedBuilding = selectedTile && getBuildingOnTile(state, selectedTile);
-    const canCraft = selectedBuilding && inputsAreCorrect(state, selectedBuilding);
+    const canCraft = selectedBuilding && inputsAreCorrect(state, selectedBuilding)
     // uncomment this to be restrictve about which units can craft
     // this is a client only check - to enforce it in contracts make
     // similar changes in BasicFactory.sol
-    /*&& unitIsFriendly(state, selectedBuilding)*/ const craft = () => {
+    //    && unitIsFriendly(state, selectedBuilding)
+        ;
+
+    const craft = () => {
         const mobileUnit = getMobileUnit(state);
 
         if (!mobileUnit) {
@@ -368,9 +371,7 @@ export default async function update(state) {
                     {
                         id: 'default',
                         type: 'inline',
-                        html: \`
-                            <p>Fill the input slots to enable crafing</p>
-                            \`,
+                        html: '<p>Fill the input slots to enable crafing</p>',
                         buttons: [
                             {
                                 text: 'Craft',
@@ -453,17 +454,17 @@ function unitIsFriendly(state, selectedBuilding) {
 }
 
 function unitIsBuildingOwner(mobileUnit, selectedBuilding) {
-    // console.log('unit owner id:',  mobileUnit?.owner?.id, \`building owner id\`, selectedBuilding?.owner?.id);
+    //console.log('unit owner id:',  mobileUnit?.owner?.id, 'building owner id:', selectedBuilding?.owner?.id);
     return mobileUnit?.owner?.id && mobileUnit?.owner?.id === selectedBuilding?.owner?.id;
 }
 
 function unitIsBuildingAuthor(mobileUnit, selectedBuilding) {
-    //console.log('unit owner id:',  mobileUnit?.owner?.id, \`building owner id\`, selectedBuilding?.kind?.owner?.id);
+    //console.log('unit owner id:',  mobileUnit?.owner?.id, 'building author id:', selectedBuilding?.kind?.owner?.id);
     return mobileUnit?.owner?.id && mobileUnit?.owner?.id === selectedBuilding?.kind?.owner?.id;
 }
 
 function unitOwnerConnectedToWallet(state, mobileUnit, walletAddress) {
-    //console.log('Checking player:',  state?.player, \`vontrols unit\`, mobileUnit, 'and has address:', walletAddress);
+    //console.log('Checking player:',  state?.player, 'controls unit', mobileUnit, walletAddress);
     return mobileUnit?.owner?.id == state?.player?.id && state?.player?.addr == walletAddress;
 }
 
