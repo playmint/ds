@@ -6,7 +6,7 @@ spec:
   location: [34, -32, -2]
   tasks:
     - kind: unitStats
-      name: Have both your ATK and DEF than 500
+      name: Have both your ATK and DEF greater than 500
       life: 0
       defence: 500
       attack: 500
