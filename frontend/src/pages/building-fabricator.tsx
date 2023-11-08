@@ -329,96 +329,146 @@ contract SquircleFactory is BuildingKind {
 `;
 
 const BASIC_FACTORY_BYTECODE = `608060405234801561001057600080fd5b5061097d806100206000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c806367cace0714610030575b600080fd5b61004a600480360381019061004591906103bb565b61004c565b005b8373ffffffffffffffffffffffffffffffffffffffff1663ebb3d5896040518163ffffffff1660e01b81526004016020604051808303816000875af1158015610099573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906100bd919061047c565b73ffffffffffffffffffffffffffffffffffffffff1663ab7fff18846040516024016100e991906104b8565b604051602081830303815290604052638cb22ef860e01b6020820180517bffffffffffffffffffffffffffffffffffffffffffffffffffffffff83818316178352505050506040518263ffffffff1660e01b815260040161014a9190610552565b6000604051808303816000875af1158015610169573d6000803e3d6000fd5b505050506040513d6000823e3d601f19601f8201168201806040525081019061019291906108fe565b5050505050565b6000604051905090565b600080fd5b600080fd5b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b60006101d8826101ad565b9050919050565b60006101ea826101cd565b9050919050565b6101fa816101df565b811461020557600080fd5b50565b600081359050610217816101f1565b92915050565b60007fffffffffffffffffffffffffffffffffffffffffffffffff000000000000000082169050919050565b6102528161021d565b811461025d57600080fd5b50565b60008135905061026f81610249565b92915050565b600080fd5b600080fd5b6000601f19601f8301169050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b6102c88261027f565b810181811067ffffffffffffffff821117156102e7576102e6610290565b5b80604052505050565b60006102fa610199565b905061030682826102bf565b919050565b600067ffffffffffffffff82111561032657610325610290565b5b61032f8261027f565b9050602081019050919050565b82818337600083830152505050565b600061035e6103598461030b565b6102f0565b90508281526020810184848401111561037a5761037961027a565b5b61038584828561033c565b509392505050565b600082601f8301126103a2576103a1610275565b5b81356103b284826020860161034b565b91505092915050565b600080600080608085870312156103d5576103d46101a3565b5b60006103e387828801610208565b94505060206103f487828801610260565b935050604061040587828801610260565b925050606085013567ffffffffffffffff811115610426576104256101a8565b5b6104328782880161038d565b91505092959194509250565b6000610449826101cd565b9050919050565b6104598161043e565b811461046457600080fd5b50565b60008151905061047681610450565b92915050565b600060208284031215610492576104916101a3565b5b60006104a084828501610467565b91505092915050565b6104b28161021d565b82525050565b60006020820190506104cd60008301846104a9565b92915050565b600081519050919050565b600082825260208201905092915050565b60005b8381101561050d5780820151818401526020810190506104f2565b60008484015250505050565b6000610524826104d3565b61052e81856104de565b935061053e8185602086016104ef565b6105478161027f565b840191505092915050565b6000602082019050818103600083015261056c8184610519565b905092915050565b600067ffffffffffffffff82111561058f5761058e610290565b5b602082029050602081019050919050565b600080fd5b600080fd5b600080fd5b600381106105bc57600080fd5b50565b6000815190506105ce816105af565b92915050565b60007fffffffff0000000000000000000000000000000000000000000000000000000082169050919050565b610609816105d4565b811461061457600080fd5b50565b60008151905061062681610600565b92915050565b600060ff82169050919050565b6106428161062c565b811461064d57600080fd5b50565b60008151905061065f81610639565b92915050565b60008151905061067481610249565b92915050565b610683816101ad565b811461068e57600080fd5b50565b6000815190506106a08161067a565b92915050565b600067ffffffffffffffff8211156106c1576106c0610290565b5b6106ca8261027f565b9050602081019050919050565b60006106ea6106e5846106a6565b6102f0565b9050828152602081018484840111156107065761070561027a565b5b6107118482856104ef565b509392505050565b600082601f83011261072e5761072d610275565b5b815161073e8482602086016106d7565b91505092915050565b6000610100828403121561075e5761075d6105a5565b5b6107696101006102f0565b90506000610779848285016105bf565b600083015250602061078d84828501610617565b60208301525060406107a184828501610650565b60408301525060606107b584828501610665565b60608301525060806107c984828501610665565b60808301525060a06107dd84828501610691565b60a08301525060c082015167ffffffffffffffff811115610801576108006105aa565b5b61080d84828501610719565b60c08301525060e082015167ffffffffffffffff811115610831576108306105aa565b5b61083d84828501610719565b60e08301525092915050565b600061085c61085784610574565b6102f0565b9050808382526020820190506020840283018581111561087f5761087e6105a0565b5b835b818110156108c657805167ffffffffffffffff8111156108a4576108a3610275565b5b8086016108b18982610747565b85526020850194505050602081019050610881565b5050509392505050565b600082601f8301126108e5576108e4610275565b5b81516108f5848260208601610849565b91505092915050565b600060208284031215610914576109136101a3565b5b600082015167ffffffffffffffff811115610932576109316101a8565b5b61093e848285016108d0565b9150509291505056fea264697066735822122063e18c9190b6d83908ebc6b9c3941756eb3c71339c05ba83f7a1489ce968553864736f6c63430008130033`;
-const BASIC_FACTORY_JS = `// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+const BASIC_FACTORY_JS = `import ds from 'downstream';
 
-import {Game} from "cog/IGame.sol";
-import {State} from "cog/IState.sol";
-import {Schema} from "@ds/schema/Schema.sol";
-import {Actions} from "@ds/actions/Actions.sol";
-import {BuildingKind} from "@ds/ext/BuildingKind.sol";
+export default async function update(state) {
+    // uncomment this to browse the state object in browser console
+    // this will be logged when slecting a unit and then selecting an instance of this building
+    //logState(state);
 
-using Schema for State;
+    const selectedTile = getSelectedTile(state);
+    const selectedBuilding = selectedTile && getBuildingOnTile(state, selectedTile);
+    const canCraft = selectedBuilding && inputsAreCorrect(state, selectedBuilding);
+    // uncomment this to be restrictve about which units can craft
+    // this is a client only check - to enforce it in contracts make
+    // similar changes in BasicFactory.sol
+    /*&& unitIsFriendly(state, selectedBuilding)*/ const craft = () => {
+        const mobileUnit = getMobileUnit(state);
 
-contract SquircleFactory is BuildingKind {
-    function use(Game ds, bytes24 buildingInstance, bytes24, /*actor*/ bytes memory /*payload*/ ) public {
-        // uncomment to restrict building use to certain Units
-        // you will need to also uncomment the actor param
-        // these restrictions will not be reflected in the UI unless you make
-        // similar changes in BasicFactory.js
-        //State state = GetState(ds);
-        //CheckIsFriendlyUnit(state, actor, buildingInstance);
-
-        // uncomment to require carrying an idCard
-        // you can change idCardItemId to another item id
-        //CheckIsCarryingItem(state, actor, idCardItemId);
-
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.CRAFT, (buildingInstance)));
-    }
-
-    function GetState(Game ds) internal returns (State) {
-        return ds.getState();
-    }
-
-    function GetBuildingOwner(State state, bytes24 buildingInstance) internal view returns (bytes24) {
-        return state.getOwner(buildingInstance);
-    }
-
-    function GetBuildingAuthor(State state, bytes24 buildingInstance) internal view returns (bytes24) {
-        bytes24 buildingKind = state.getBuildingKind(buildingInstance);
-        return state.getOwner(buildingKind);
-    }
-
-    function CheckIsFriendlyUnit(State state, bytes24 actor, bytes24 buildingInstance) internal view {
-        require(
-            UnitOwnsBuilding(state, actor, buildingInstance) || UnitAuthoredBuilding(state, actor, buildingInstance)
-                || UnitOwnedByFriendlyPlayer(state, actor),
-            "Unit does not have permission to use this building"
-        );
-    }
-
-    function UnitOwnsBuilding(State state, bytes24 actor, bytes24 buildingInstance) internal view returns (bool) {
-        return state.getOwner(actor) == GetBuildingOwner(state, buildingInstance);
-    }
-
-    function UnitAuthoredBuilding(State state, bytes24 actor, bytes24 buildingInstance) internal view returns (bool) {
-        return state.getOwner(actor) == GetBuildingAuthor(state, buildingInstance);
-    }
-
-    address[] private friendlyPlayerAddresses = [0x402462EefC217bf2cf4E6814395E1b61EA4c43F7];
-
-    function UnitOwnedByFriendlyPlayer(State state, bytes24 actor) internal view returns (bool) {
-        address ownerAddress = state.getOwnerAddress(actor);
-        for (uint256 i = 0; i < friendlyPlayerAddresses.length; i++) {
-            if (friendlyPlayerAddresses[i] == ownerAddress) {
-                return true;
-            }
+        if (!mobileUnit) {
+            console.log('no selected unit');
+            return;
         }
-        return false;
-    }
 
-    // use cli command 'ds get items' for all current possible ids.
-    bytes24 idCardItemId = 0x6a7a67f0b29554460000000100000064000000640000004c;
+        ds.dispatch({
+            name: 'BUILDING_USE',
+            args: [selectedBuilding.id, mobileUnit.id, []],
+        });
 
-    function CheckIsCarryingItem(State state, bytes24 actor, bytes24 item) internal view {
-        require((UnitIsCarryingItem(state, actor, item)), "Unit must be carrying specified item");
-    }
+        console.log('Craft dispatched');
+    };
 
-    function UnitIsCarryingItem(State state, bytes24 actor, bytes24 item) internal view returns (bool) {
-        for (uint8 bagIndex = 0; bagIndex < 2; bagIndex++) {
-            bytes24 bag = state.getEquipSlot(actor, bagIndex);
-            if (bag != 0) {
-                for (uint8 slot = 0; slot < 4; slot++) {
-                    (bytes24 resource, /*uint64 balance*/ ) = state.getItemSlot(bag, slot);
-                    if (resource == item) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
+    return {
+        version: 1,
+        components: [
+            {
+                id: 'basic-factory',
+                type: 'building',
+                content: [
+                    {
+                        id: 'default',
+                        type: 'inline',
+                        html: \`
+                            <p>Fill the input slots to enable crafing</p>
+                            \`,
+                        buttons: [
+                            {
+                                text: 'Craft',
+                                type: 'action',
+                                action: craft,
+                                disabled: !canCraft,
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
+    };
 }
+
+function getMobileUnit(state) {
+    return state?.selected?.mobileUnit;
+}
+
+function getSelectedTile(state) {
+    const tiles = state?.selected?.tiles || {};
+    return tiles && tiles.length === 1 ? tiles[0] : undefined;
+}
+
+function getBuildingOnTile(state, tile) {
+    return (state?.world?.buildings || []).find((b) => tile && b.location?.tile?.id === tile.id);
+}
+
+// returns an array of items the building expects as input
+function getRequiredInputItems(building) {
+    return building?.kind?.inputs || [];
+}
+
+// search through all the bags in the world to find those belonging to this building
+function getBuildingBags(state, building) {
+    return building ? (state?.world?.bags || []).filter((bag) => bag.equipee?.node.id === building.id) : [];
+}
+
+// get building input slots
+function getInputSlots(state, building) {
+    // inputs are the bag with key 0 owned by the building
+    const buildingBags = getBuildingBags(state, building);
+    const inputBag = buildingBags.find((bag) => bag.equipee.key === 0);
+
+    // slots used for crafting have sequential keys startng with 0
+    return inputBag && inputBag.slots.sort((a, b) => a.key - b.key);
+}
+
+// are the required craft input items in the input slots?
+function inputsAreCorrect(state, building) {
+    const requiredInputItems = getRequiredInputItems(building);
+    const inputSlots = getInputSlots(state, building);
+
+    return (
+        inputSlots &&
+        inputSlots.length >= requiredInputItems.length &&
+        requiredInputItems.every(
+            (requiredItem) =>
+                inputSlots[requiredItem.key].item.id == requiredItem.item.id &&
+                inputSlots[requiredItem.key].balance == requiredItem.balance
+        )
+    );
+}
+
+function logState(state) {
+    console.log('State sent to pluging:', state);
+}
+
+const friendlyPlayerAddresses = [
+    // 0x402462EefC217bf2cf4E6814395E1b61EA4c43F7
+];
+
+function unitIsFriendly(state, selectedBuilding) {
+    const mobileUnit = getMobileUnit(state);
+    return (
+        unitIsBuildingOwner(mobileUnit, selectedBuilding) ||
+        unitIsBuildingAuthor(mobileUnit, selectedBuilding) ||
+        friendlyPlayerAddresses.some((addr) => unitOwnerConnectedToWallet(state, mobileUnit, addr))
+    );
+}
+
+function unitIsBuildingOwner(mobileUnit, selectedBuilding) {
+    // console.log('unit owner id:',  mobileUnit?.owner?.id, \`building owner id\`, selectedBuilding?.owner?.id);
+    return mobileUnit?.owner?.id && mobileUnit?.owner?.id === selectedBuilding?.owner?.id;
+}
+
+function unitIsBuildingAuthor(mobileUnit, selectedBuilding) {
+    //console.log('unit owner id:',  mobileUnit?.owner?.id, \`building owner id\`, selectedBuilding?.kind?.owner?.id);
+    return mobileUnit?.owner?.id && mobileUnit?.owner?.id === selectedBuilding?.kind?.owner?.id;
+}
+
+function unitOwnerConnectedToWallet(state, mobileUnit, walletAddress) {
+    //console.log('Checking player:',  state?.player, \`vontrols unit\`, mobileUnit, 'and has address:', walletAddress);
+    return mobileUnit?.owner?.id == state?.player?.id && state?.player?.addr == walletAddress;
+}
+
+// the source for this code is on github where you can find other example buildings:
+// https://github.com/playmint/ds/tree/main/contracts/src/example-plugins
 `;
 
 const toStringDefaults = { indentSeq: false };
