@@ -21,7 +21,8 @@ export function getBagsAtEquipee(bags: BagFragment[], equipee: { id: string }) {
     if (!cache) {
         cache = new Map<string, BagFragment[]>();
         bagsCache.set(bags, cache);
-        for (const bag of bags) {
+        const bagsByKey = bags.sort((a, b) => (b.equipee?.key || 0) - (a.equipee?.key || 0));
+        for (const bag of bagsByKey) {
             if (bag.equipee?.node) {
                 const equipeeBags = cache.get(bag.equipee.node.id) || [];
                 equipeeBags.push(bag);
