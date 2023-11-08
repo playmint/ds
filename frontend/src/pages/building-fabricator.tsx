@@ -1079,15 +1079,11 @@ const BuildingFabricator = () => {
                 contract: { bytecode: BASIC_FACTORY_BYTECODE }, // FIXME: hack until we can compile in browser
                 plugin: { inline: BASIC_FACTORY_JS },
             });
-            console.log('parseManifests', yaml);
             const docs = parseManifestDocuments(yaml, 'BasicFactory.yaml');
-            console.log('getOpsForManifests..');
             const compiler: any = () => {}; // FIXME: hack until we can compile in browser
             const opsets = await getOpsForManifests(docs, world, buildingKinds, compiler);
             const actions = opsets.flatMap((opset) => opset.flatMap((op) => op.actions));
-            console.log('applying', actions);
             await player.dispatchAndWait(...actions);
-            console.info('APPLIED');
             setStatus('Deployed!');
         } catch (err) {
             const messages = `${err}`.replace(/Error:/i, '').split('invalid manifest BasicFactory.yaml:');
