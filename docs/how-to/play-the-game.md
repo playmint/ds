@@ -28,7 +28,7 @@ The quests at the top-left will guide you through the first 30-minutes of play. 
 
 ## Selecting Your Unit
 
-When the game loads you'll need to select you unit. Simply click the "Select Unit" button in the bottom-left.
+When the game loads you'll need to select your unit. Simply click the "Select Unit" button in the bottom-left.
 When your Unit is selected, you can interact with the tiles adjacent to it.
 
 ## Moving Your Unit
@@ -57,10 +57,10 @@ Clicking on any building will show you its details. If a building has functional
 
 ## Moving Items to-and-from Bags
 
-You unit is able to interact with any bags on the tile it is on, and any adjacent tiles.
+Your unit is able to interact with any bags on the tile it is on, and any adjacent tiles.
 
 1. With your unit selected, click the tile with the bag
-2. The bags contents will be displayed.
+2. The bag's contents will be displayed.
 3. You can drag-and-drop items between your bags and the tile’s bag
 
 ## Starting a Combat Session
@@ -91,13 +91,13 @@ When a Unit attacks a Building it begins a combat session. This will continue un
 - The number of goo they have in equipable items will increase these values
     - Equipable items are non-stackable (i.e. you can only have one per slot)
     - 1x Green Goo = +10 Life
-    - 1x Blue Goo = +1 Defense
+    - 1x Blue Goo = +1 Defence
     - 1x Red Goo = +1 Attack
 
 ### Buildings
 
-- The construction costs of a Building will dictate its stats. The goo structure of the building materials will define its life/defense/attack.
-- When a Building is deployed it will require a minimum number of each color goo. This is so it can’t be destroyed by an aggressive fly.
+- The construction costs of a Building will dictate its stats. The goo composition of the building materials will define its life/defence/attack.
+- When a Building is deployed it will require a minimum number of each colour goo. This is so it can’t be destroyed by an aggressive fly.
 
 ## Combat Session Flow
 
@@ -115,7 +115,7 @@ Defender's Life -= 1 + (All Attacker's ATK - Defender's DEF)
 
 ## Leaving Combat
 
-If a participant moves off the combat tile, they are removed from the battle (their life is treated as 0). If they return before the end of combat, their life is restored to its value before they left.
+If a participant moves off the combat tile, they are removed from the battle (their life is treated as 0). If they return before the end of combat, their life is restored to its value before they left the session.
 
 Note: A transaction needs to be sent to "End" the combat session. We're working on tidying this up and improving the UX, but at the moment a user will need to view the combat session and click the "End Combat" button
 
