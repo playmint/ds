@@ -243,6 +243,7 @@ contract CombatRule is Rule {
                 // Create bag using a combination of sessionID and entityID
                 // TODO: Don't give buildings rewards? (leaving in as a sink for now)
                 state.set(Rel.Equip.selector, i, sessionID, Node.RewardBag(sessionID, winnerStates[i].entityID), 0); // Session -> Bag
+                _setBagOwner(state, Node.RewardBag(sessionID, winnerStates[i].entityID), winnerStates[i].entityID);
 
                 uint256 damagePercent = (winnerStates[i].damageInflicted * 100) / _getTotalDamageInflicted(winnerStates);
 
@@ -757,6 +758,16 @@ contract CombatRule is Rule {
     function _requirePlayerOwnedMobileUnit(State state, bytes24 mobileUnit, bytes24 player) private view {
         if (state.getOwner(mobileUnit) != player) {
             revert("MobileUnitNotOwnedByPlayer");
+        }
+    }
+
+    function _setBagOwner(State state, bytes24 bag, bytes24 entityID) private {
+        require(bytes4(bag) == Kind.Bag.selector, "Owner set fail - not a bag node");
+
+        if (bytes4(entityID) == Kind.MobileUnit.selector) {
+            state.setOwner(bag, state.getOwner(entityID));
+        } else {
+            state.setOwner(bag, entityID);
         }
     }
 
