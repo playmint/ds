@@ -51,25 +51,17 @@ const UnityInstance = () => {
         productVersion: `blueprint`,
     });
     const { unityProvider, loadingProgression, addEventListener, removeEventListener, sendMessage } = unity;
-
-    const canvas = canvasRef.current ? (canvasRef.current as HTMLCanvasElement) : null;
     const [canvasHeight, setCanvasHeight] = useLocalStorage<number>(`ds/canvasHeight`, 0.5);
     const getCanvasHeight = useCallback(() => canvasHeight, [canvasHeight]);
+    const [devicePixelRatio, setDevicePixelRatio] = useState(window.devicePixelRatio);
+    const [ready, setReady] = useState(false);
 
     const onResize = useCallback(() => {
-        if (!canvas || !sendMessage || !canvasHeight) {
+        if (!sendMessage || !canvasHeight || !ready) {
             return;
         }
-        const mapContainer = typeof document !== 'undefined' ? document.getElementById('map-container') : undefined;
-        if (!mapContainer) {
-            return;
-        }
-        const mapContainerBounds = mapContainer.getBoundingClientRect();
-        canvas.height = mapContainerBounds.height * window.devicePixelRatio;
-        canvas.width = mapContainerBounds.width * window.devicePixelRatio;
-        sendMessage('ResolutionManager', 'SetResolution', JSON.stringify(canvasHeight != -1 ? canvasHeight : 0.5));
-        console.info(`canvas size updated to ${canvas.width}x${canvas.height}`);
-    }, [canvas, sendMessage, canvasHeight]);
+        sendMessage('ComponentManager', 'SetResolution', canvasHeight != -1 ? canvasHeight : 0.5);
+    }, [sendMessage, canvasHeight, ready]);
 
     if (g.__globalUnityContext) {
         g.__globalUnityContext.setCanvasHeight = setCanvasHeight;
@@ -133,11 +125,39 @@ const UnityInstance = () => {
     }, []);
 
     useEffect(() => {
+        // A function which will update the device pixel ratio of the Unity
+        // Application to match the device pixel ratio of the browser.
+        const updateDevicePixelRatio = function () {
+            setDevicePixelRatio(window.devicePixelRatio);
+        };
+        // A media matcher which watches for changes in the device pixel ratio.
+        const mediaMatcher = window.matchMedia(`screen and (resolution: ${devicePixelRatio}dppx)`);
+        if (!mediaMatcher) {
+            return;
+        }
+        // Adding an event listener to the media matcher which will update the
+        // device pixel ratio of the Unity Application when the device pixel
+        // ratio changes.
+        if (!mediaMatcher.addEventListener) {
+            return;
+        }
+        mediaMatcher.addEventListener('change', updateDevicePixelRatio);
+        return function () {
+            if (!mediaMatcher.addEventListener) {
+                return;
+            }
+            // Removing the event listener when the component unmounts.
+            mediaMatcher.removeEventListener('change', updateDevicePixelRatio);
+        };
+    }, [devicePixelRatio]);
+
+    useEffect(() => {
         if (!addEventListener || !removeEventListener) {
             return;
         }
 
         const onReady = () => {
+            setReady(true);
             g.__globalUnityContext.ready.next(true);
         };
 
@@ -181,8 +201,8 @@ const UnityInstance = () => {
         <Unity
             ref={canvasRef}
             style={{ width: '100%', height: '100%' }}
+            devicePixelRatio={devicePixelRatio}
             unityProvider={unityProvider}
-            matchWebGLToCanvasSize={false}
             tabIndex={0}
         />
     );

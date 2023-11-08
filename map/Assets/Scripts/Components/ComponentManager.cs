@@ -68,6 +68,12 @@ public class ComponentManager : MonoBehaviour
         }
     }
 
+    public void SetResolution(float resolution)
+    {
+        Debug.Log($"ResolutionManager - SetResolution: {resolution}");
+        OutlineController.renderScale = Mathf.Clamp01(resolution);
+    }
+
     private IComponentManager GetManagerFor(ComponentMessage msg)
     {
         IComponentManager? manager =
