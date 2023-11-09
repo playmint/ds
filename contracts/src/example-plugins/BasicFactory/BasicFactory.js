@@ -2,7 +2,7 @@ import ds from 'downstream';
 
 export default async function update(state) {
     // uncomment this to browse the state object in browser console
-    // this will be logged when slecting a unit and then selecting an instance of this building
+    // this will be logged when selecting a unit and then selecting an instance of this building
     //logState(state);
 
     const selectedTile = getSelectedTile(state);
