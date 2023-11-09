@@ -2,7 +2,7 @@
 kind: Quest
 spec:
   name: A Squircle-Shaped Hole
-  description: "MORTON requests your craft a 'Squircle'. Use the Vault's knowledge to create a factory to craft one "
+  description: "MORTON requests you craft a 'Squircle'. Use the Vault's knowledge, and create a factory to craft one "
   location: [-18, 2, 16]
   tasks:
     - kind: deployBuilding
