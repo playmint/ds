@@ -3,7 +3,7 @@ import { useSession } from '@app/hooks/use-session';
 import { GlobalUnityContext } from '@app/hooks/use-unity-instance';
 import { useWalletProvider } from '@app/hooks/use-wallet-provider';
 import { ActionButton, TextButton } from '@app/styles/button.styles';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Dialog } from '../molecules/dialog';
 
@@ -55,7 +55,7 @@ export const NavPanel = ({
     questsActive?: boolean;
     toggleQuestsActive?: () => void;
 }) => {
-    const { connect, disconnect: forgetProvider } = useWalletProvider();
+    const { connect, disconnect: forgetProvider, provider } = useWalletProvider();
     const { clearSession } = useSession();
     const { wallet } = useWallet();
     const player = usePlayer();
@@ -93,6 +93,22 @@ export const NavPanel = ({
         }
     }, []);
 
+    // TEMP: allow revealing the burner private key, this is a workaround for
+    // helping demo ds-cli bits for people without walletconnect
+    const [burnerKey, setBurnerKey] = useState<string | null>(null);
+    const [showBurnerKey, setShowBurnerKey] = useState<boolean>(false);
+    useEffect(() => {
+        if (!provider) {
+            setBurnerKey(null);
+            return;
+        }
+        if (provider.method !== 'burner') {
+            setBurnerKey(null);
+            return;
+        }
+        setBurnerKey(provider.provider.privateKey);
+    }, [provider]);
+
     return (
         <NavContainer>
             {showAccountDialog && hasConnection && (
@@ -118,6 +134,21 @@ export const NavPanel = ({
                             </select>
                         </fieldset>
                         <br />
+                        {burnerKey ? (
+                            <>
+                                <fieldset>
+                                    <legend>Private Key</legend>
+                                    {showBurnerKey ? (
+                                        <input type="text" disabled={true} value={burnerKey} />
+                                    ) : (
+                                        <button style={{ width: '100%' }} onClick={() => setShowBurnerKey(true)}>
+                                            show
+                                        </button>
+                                    )}
+                                </fieldset>
+                                <br />
+                            </>
+                        ) : undefined}
 
                         <ActionButton onClick={disconnect}>Disconnect</ActionButton>
                     </div>
