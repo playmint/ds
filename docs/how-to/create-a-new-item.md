@@ -40,27 +40,4 @@ As a general rule, stackable items are “resources” whilst equipable items ar
 
 ## Item IDs
 
-When you set the crafting items you need to reference their IDs. The easiest way to find these is to go to [https://services-ds-test.dev.playmint.com/](https://services-ds-test.dev.playmint.com/) and run this query:
-
-```jsx
-{
-  game(id: "DOWNSTREAM"){
-    state {
-      items: nodes(match: {kinds: "Item"}) {
-        id
-        name: annotation(name: "name") {
-          value
-        }
-      }
-    }
-  }
-}
-```
-
-This will show all registered items by ID and name. Note - multiple items can have the same name,
-
-## Icon
-
-You can choose your item’s icon from a large collection. These are displayed here: [https://assets.downstream.game/icons/sheet.html](https://playmintglobal.z16.web.core.windows.net/icons/sheet.html)
-
-Just put the the “xx-xx” number as the \***\*icon\*\*** variable.
+When you set the crafting items you need to reference their IDs. The easiest way to find these is use the `ds` CLI tool with `get items` command. 
