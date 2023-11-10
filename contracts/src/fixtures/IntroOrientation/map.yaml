@@ -19,7 +19,7 @@ spec:
 ---
 kind: Bag
 spec:
-  location: [6, -2, -4]
+  location: [4, 0, -4]
   items:
     - name: Acceptance Letter
       quantity: 1
@@ -33,7 +33,7 @@ spec:
 ---
 kind: Bag
 spec:
-  location: [5, -2, -3]
+  location: [5, 0, -5]
   items:
     - name: Acceptance Letter
       quantity: 1
@@ -47,7 +47,7 @@ spec:
 ---
 kind: Bag
 spec:
-  location: [7, -2, -5]
+  location: [6, -1, -5]
   items:
     - name: Acceptance Letter
       quantity: 1
@@ -61,7 +61,7 @@ spec:
 ---
 kind: Bag
 spec:
-  location: [4, -1, -3]
+  location: [6, 0, -6]
   items:
     - name: Acceptance Letter
       quantity: 1
