@@ -92,14 +92,14 @@ export const NavPanel = ({
         window.location.reload();
     }, [clearSession, forgetProvider]);
 
-    const canvasHeight = g.__globalUnityContext?.getCanvasHeight ? g.__globalUnityContext.getCanvasHeight() : 0.5;
+    const canvasHeight = g.__globalUnityContext?.getCanvasScale ? g.__globalUnityContext.getCanvasScale() : 0.5;
     const onChangeQuality = useCallback((e) => {
         if (!e) {
             return;
         }
         const newHeight = parseFloat(e.target.value);
-        if (g.__globalUnityContext?.setCanvasHeight) {
-            g.__globalUnityContext.setCanvasHeight(newHeight);
+        if (g.__globalUnityContext?.setCanvasScale) {
+            g.__globalUnityContext.setCanvasScale(newHeight);
         }
     }, []);
 
@@ -195,26 +195,9 @@ export const NavPanel = ({
                         <fieldset>
                             <legend>Quality:</legend>
                             <select onChange={onChangeQuality} value={canvasHeight}>
-                                <option value={480 / Math.floor(window.innerHeight * window.devicePixelRatio)}>
-                                    Low (480p)
-                                </option>
-                                <option value={720 / Math.floor(window.innerHeight * window.devicePixelRatio)}>
-                                    Medium (720p)
-                                </option>
-                                <option value={1080 / Math.floor(window.innerHeight * window.devicePixelRatio)}>
-                                    High (1080p)
-                                </option>
-                                <option value={1440 / Math.floor(window.innerHeight * window.devicePixelRatio)}>
-                                    Ultra (1440p)
-                                </option>
-                                <option
-                                    value={
-                                        Math.min(window.innerHeight, window.innerHeight * window.devicePixelRatio) /
-                                        Math.floor(window.innerHeight * window.devicePixelRatio)
-                                    }
-                                >
-                                    Auto ({Math.min(window.innerHeight, window.innerHeight * window.devicePixelRatio)}p)
-                                </option>
+                                <option value={0.25}>Low</option>
+                                <option value={0.5}>Medium</option>
+                                <option value={0.75}>High</option>
                                 <option value="1">
                                     Native ({Math.floor(window.innerHeight * window.devicePixelRatio)}p)
                                 </option>

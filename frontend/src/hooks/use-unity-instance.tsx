@@ -29,8 +29,8 @@ export interface UnityMessage {
 export interface GlobalUnityContext {
     ready: Subject<boolean>;
     unity: Subject<Partial<UnityContextHook>>;
-    setCanvasHeight?: (height: number) => void;
-    getCanvasHeight?: () => number;
+    setCanvasScale?: (height: number) => void;
+    getCanvasScale?: () => number;
     updateAspectRatio?: () => void;
 }
 
@@ -51,21 +51,21 @@ const UnityInstance = () => {
         productVersion: `blueprint`,
     });
     const { unityProvider, loadingProgression, addEventListener, removeEventListener, sendMessage } = unity;
-    const [canvasHeight, setCanvasHeight] = useLocalStorage<number>(`ds/canvasHeight`, 0.5);
-    const getCanvasHeight = useCallback(() => canvasHeight, [canvasHeight]);
+    const [canvasScale, setCanvasScale] = useLocalStorage<number>(`ds/canvasHeight`, 0.75);
+    const getCanvasHeight = useCallback(() => canvasScale, [canvasScale]);
     const [devicePixelRatio, setDevicePixelRatio] = useState(window.devicePixelRatio);
     const [ready, setReady] = useState(false);
 
     const onResize = useCallback(() => {
-        if (!sendMessage || !canvasHeight || !ready) {
+        if (!sendMessage || !canvasScale || !ready) {
             return;
         }
-        sendMessage('ComponentManager', 'SetResolution', canvasHeight != -1 ? canvasHeight : 0.5);
-    }, [sendMessage, canvasHeight, ready]);
+        sendMessage('ComponentManager', 'SetResolution', canvasScale < 0 || canvasScale > 1 ? 0.75 : canvasScale);
+    }, [sendMessage, canvasScale, ready]);
 
     if (g.__globalUnityContext) {
-        g.__globalUnityContext.setCanvasHeight = setCanvasHeight;
-        g.__globalUnityContext.getCanvasHeight = getCanvasHeight;
+        g.__globalUnityContext.setCanvasScale = setCanvasScale;
+        g.__globalUnityContext.getCanvasScale = getCanvasHeight;
         g.__globalUnityContext.updateAspectRatio = onResize;
     }
 
