@@ -41,14 +41,9 @@ export const App = ({ Component, pageProps }: AppProps) => {
             <Head>
                 <title>Downstream</title>
                 <meta name="description" content="Downstream" />
-                <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
-                <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
-                <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
-                <link rel="manifest" href="/favicon/site.webmanifest" />
-                <link rel="mask-icon" href="/favicon/safari-pinned-tab.svg" color="#0d131f" />
-                <link rel="shortcut icon" href="/favicon/favicon.ico" />
+                <link href="/favicon-28978_favicon-32.png" rel="icon" type="image/png" sizes="32x32" />
+                <link href="/favicon-28978_favicon-192.png" rel="icon" type="image/png" sizes="192x192" />
                 <meta name="msapplication-TileColor" content="#0d131f" />
-                <meta name="msapplication-config" content="/favicon/browserconfig.xml" />
                 <meta name="theme-color" content="#ffffff" />
             </Head>
             {enableAnalytics && <Analytics id="G-19E8TP90ZV" />}
