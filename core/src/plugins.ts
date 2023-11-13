@@ -143,6 +143,7 @@ export function makePluginUI(
             },
         ),
         mergeMap((pluginResponses) => fromPromise(pluginResponses)),
+        map((pluginResponses) => pluginResponses.filter((res): res is PluginUpdateResponse => !!res)),
     );
 }
 
