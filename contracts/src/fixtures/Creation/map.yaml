@@ -9,3 +9,116 @@ kind: Building
 spec:
   name: Very Important Factory
   location: [-23, 2, 21]
+
+---
+kind: Bag
+spec:
+  location: [-26, 6, 20]
+  items:
+    - name: Very Important Stuff
+      quantity: 100
+    - name: Squircle
+      quantity: 100
+    - name: Very Important Stuff
+      quantity: 100
+    - name: Squircle
+      quantity: 100
+
+---
+kind: Bag
+spec:
+  location: [-26, 5, 21]
+  items:
+    - name: Very Important Stuff
+      quantity: 100
+    - name: Squircle
+      quantity: 100
+    - name: Very Important Stuff
+      quantity: 100
+    - name: Squircle
+      quantity: 100
+
+---
+kind: Bag
+spec:
+  location: [-26, 4, 22]
+  items:
+    - name: Very Important Stuff
+      quantity: 100
+    - name: Squircle
+      quantity: 100
+    - name: Very Important Stuff
+      quantity: 100
+    - name: Squircle
+      quantity: 100
+
+---
+kind: Bag
+spec:
+  location: [-26, 3, 23]
+  items:
+    - name: Very Important Stuff
+      quantity: 100
+    - name: Squircle
+      quantity: 100
+    - name: Very Important Stuff
+      quantity: 100
+    - name: Squircle
+      quantity: 100
+
+---
+kind: Bag
+spec:
+  location: [-27, 6, 20]
+  items:
+    - name: Very Important Stuff
+      quantity: 100
+    - name: Squircle
+      quantity: 100
+    - name: Very Important Stuff
+      quantity: 100
+    - name: Squircle
+      quantity: 100
+
+---
+kind: Bag
+spec:
+  location: [-27, 5, 21]
+  items:
+    - name: Very Important Stuff
+      quantity: 100
+    - name: Squircle
+      quantity: 100
+    - name: Very Important Stuff
+      quantity: 100
+    - name: Squircle
+      quantity: 100
+
+---
+kind: Bag
+spec:
+  location: [-27, 4, 22]
+  items:
+    - name: Very Important Stuff
+      quantity: 100
+    - name: Squircle
+      quantity: 100
+    - name: Very Important Stuff
+      quantity: 100
+    - name: Squircle
+      quantity: 100
+
+---
+kind: Bag
+spec:
+  location: [-27, 3, 23]
+  items:
+    - name: Very Important Stuff
+      quantity: 100
+    - name: Squircle
+      quantity: 100
+    - name: Very Important Stuff
+      quantity: 100
+    - name: Squircle
+      quantity: 100
+
