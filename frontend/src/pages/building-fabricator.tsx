@@ -1658,7 +1658,7 @@ const BuildingFabricator = () => {
                         Export
                     </button>
                     <button onClick={applyFiles} style={{ width: '20rem' }}>
-                        Apply
+                        Deploy
                     </button>
                 </div>
             </div>
