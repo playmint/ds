@@ -1,6 +1,6 @@
 import ds from 'downstream';
 
-export default function update({ selected, world }) {
+export default function update({ selected, world }, block) {
 
     const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
@@ -19,6 +19,13 @@ export default function update({ selected, world }) {
     // try to detect if the input slots contain enough stuff to craft
     const canBurn = selectedUnit && want0 && got0 && want0.balance > 0;
 
+    // calc available power units
+    const lastBurn = selectedBuilding?.timestamp?.blockNum || 0;
+    const blocksSinceBurn = block - lastBurn;
+    const goldReservoir = selectedBuilding?.gooReservoir.find(res => res.key === 3);
+    const numConnectedBuildings = 1; // TODO: get this from the Powers edge
+    const availablePowerUnits = gooReservoir ? Math.max(goldReservoir.weight - (blocksSinceBurn * numConnectedBuildings), 0) : 0;
+
     const action = () => {
         if (!selectedUnit) {
             ds.log('no selected unit');
@@ -36,6 +43,10 @@ export default function update({ selected, world }) {
         );
     };
 
+    const html = `
+        <p>Burn fuel to keep the lights on</p>
+        <h1 style="font-size: 3rem;">${availablePowerUnits}PU</h1>
+    `;
 
     return {
         version: 1,
@@ -47,7 +58,7 @@ export default function update({ selected, world }) {
                     {
                         id: 'default',
                         type: 'inline',
-                        html: 'Burn fuel to keep the lights on',
+                        html,
                         buttons: [{ text: 'Burn', type: 'action', action, disabled: !canBurn }]
                     },
                 ],
