@@ -86,7 +86,7 @@ contract GameDeployer is Script {
             address[] memory none = new address[](0);
             return none;
         }
-        address[] memory allowlist = new address[](addresses.length+1);
+        address[] memory allowlist = new address[](addresses.length + 1);
         for (uint256 i = 0; i < addresses.length; i++) {
             allowlist[i] = addresses[i];
         }
