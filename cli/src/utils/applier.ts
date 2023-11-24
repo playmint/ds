@@ -218,6 +218,16 @@ const buildingKindDeploymentActions = async (
         outputQtys = output.quantities.slice(0, 1);
     }
 
+    if (spec.category == 'generator') {
+        if (!Array.isArray(spec.inputs) || spec.inputs.length !== 1) {
+            throw new Error('generator must specify exactly 1 input');
+        }
+
+        const input = encodeSlotConfig(spec.inputs || []);
+        inputItems = input.items.slice(0, 1);
+        inputQtys = input.quantities.slice(0, 1);
+    }
+
     // register kind + construction materials
     const { items: materialItems, quantities: materialQtys } = encodeSlotConfig(spec.materials);
     ops.push({

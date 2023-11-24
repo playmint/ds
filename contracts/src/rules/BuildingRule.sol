@@ -189,6 +189,10 @@ contract BuildingRule is Rule {
         if (cfg.category == BuildingCategory.EXTRACTOR) {
             _setExtractionProperties(state, cfg.buildingKind, cfg.outputItemIDs[0], cfg.outputItemQtys[0]);
         }
+
+        if (cfg.category == BuildingCategory.GENERATOR) {
+            _setGeneratorProperties(state, cfg.buildingKind, cfg.inputItemIDs[0], cfg.inputItemQtys[0]);
+        }
     }
 
     function _setExtractionProperties(State state, bytes24 buildingKind, bytes24 outputItemID, uint64 outputItemQty)
@@ -213,6 +217,20 @@ contract BuildingRule is Rule {
         // Check that the number we want to produce can be possible with MAX_GOO_RESERVOIR (?) Maybe we don't enforce this.
 
         state.setOutput(buildingKind, 0, outputItemID, outputItemQty);
+    }
+
+    function _setGeneratorProperties(State state, bytes24 buildingKind, bytes24 inputItemID, uint64 inputItemQty)
+        private
+    {
+        // check that the input (fuel) item has been registerd
+        bytes24 inputOwner = state.getOwner(inputItemID);
+        require(inputOwner != 0x0, "input item must be a registered item");
+
+        // check that the item is stackable
+        (/*uint32[4] memory atoms*/, bool isStackable) = state.getItemStructure(inputItemID);
+        require(isStackable, "input item must be stackable");
+
+        state.setInput(buildingKind, 0, inputItemID, inputItemQty);
     }
 
     function _constructBuilding(

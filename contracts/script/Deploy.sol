@@ -24,6 +24,7 @@ import {CombatRule} from "@ds/rules/CombatRule.sol";
 import {NamingRule} from "@ds/rules/NamingRule.sol";
 import {BagRule} from "@ds/rules/BagRule.sol";
 import {ExtractionRule} from "@ds/rules/ExtractionRule.sol";
+import {GenerationRule} from "@ds/rules/GenerationRule.sol";
 import {QuestRule} from "@ds/rules/QuestRule.sol";
 
 using Schema for State;
@@ -61,6 +62,7 @@ contract GameDeployer is Script {
         dispatcher.registerRule(new NamingRule());
         dispatcher.registerRule(new BagRule());
         dispatcher.registerRule(new ExtractionRule(ds));
+        dispatcher.registerRule(new GenerationRule(ds));
         dispatcher.registerRule(new QuestRule());
 
         // register base goos

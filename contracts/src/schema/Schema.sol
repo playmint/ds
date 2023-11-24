@@ -9,6 +9,8 @@ interface Rel {
     function Location() external;
     function Biome() external;
     function Balance() external;
+    function PoweredBy() external;
+    function Powers() external;
     function Equip() external;
     function Is() external;
     function Supports() external;
@@ -69,7 +71,8 @@ enum BuildingCategory {
     BLOCKER,
     EXTRACTOR,
     ITEM_FACTORY,
-    CUSTOM
+    CUSTOM,
+    GENERATOR
 }
 
 enum QuestStatus {
@@ -500,5 +503,35 @@ library Schema {
     function getPlayerQuest(State state, bytes24 player, uint8 questNum) internal view returns (bytes24, QuestStatus) {
         (bytes24 quest, uint64 status) = state.get(Rel.HasQuest.selector, questNum, player);
         return (quest, QuestStatus(status));
+    }
+
+    function getPoweredCount(State state, bytes24 generatorBuildingInstance) internal view returns (uint64) {
+        uint64 total = 0;
+        uint64 weight;
+        for (uint8 i=0; i< 255; i++) {
+            ( /*bytes24*/ , weight) = state.get(Rel.Powers.selector, i, generatorBuildingInstance);
+            total += weight;
+        }
+        return total;
+    }
+
+    function getPowerReservoir(State state, uint64 blockNum, bytes24 buildingInstance)
+        internal
+        view
+        returns (uint64[4] memory reservoirAtoms)
+    {
+        // get number of connected buildings
+        uint64 numConnectedBuildings = state.getPoweredCount(buildingInstance);
+
+        // get the current reservoir level
+        reservoirAtoms = state.getBuildingReservoirAtoms(buildingInstance);
+        uint64 elapsedBlocks = blockNum - getBlockNum(state, buildingInstance, 0);
+
+        uint64 delta = elapsedBlocks * numConnectedBuildings; // consumes at 1 atom per block per building
+        if (delta > reservoirAtoms[GOO_GOLD]) {
+            reservoirAtoms[GOO_GOLD] = 0;
+        } else {
+            reservoirAtoms[GOO_GOLD] = reservoirAtoms[GOO_GOLD] - delta;
+        }
     }
 }

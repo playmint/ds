@@ -2,7 +2,7 @@ import fs from 'fs';
 import { z } from 'zod';
 import YAML from 'yaml';
 
-export const BuildingCategoryEnumVals = ['none', 'blocker', 'extractor', 'factory', 'custom'] as const;
+export const BuildingCategoryEnumVals = ['none', 'blocker', 'extractor', 'factory', 'custom', 'generator'] as const;
 export const BuildingCategoryEnum = z.enum(BuildingCategoryEnumVals);
 export type BuildingCategoryEnum = z.infer<typeof BuildingCategoryEnum>;
 
@@ -79,6 +79,7 @@ const DecorativeModel = z.enum([
     'rocksSmall',
 ]);
 const ExtractorModel = z.enum(['red', 'green', 'blue', 'gold']);
+const GeneratorModel = z.enum(['pylon']);
 
 export const BuildingKindFactorySpec = z.object({
     category: z.literal('factory'),
@@ -112,6 +113,17 @@ export const BuildingKindExtractorSpec = z.object({
     outputs: Slot.array().max(1).optional(),
 });
 
+export const BuildingKindGeneratorSpec = z.object({
+    category: z.literal('generator'),
+    name: Name,
+    description: OneLiner.optional(),
+    model: GeneratorModel,
+    contract: ContractSource.optional(),
+    plugin: PluginSource.optional(),
+    materials: Slot.array().nonempty().max(4),
+    inputs: Slot.array().max(1).optional(),
+});
+
 export const BuildingKindCustomSpec = z.object({
     category: z.literal('custom'),
     name: Name,
@@ -127,6 +139,7 @@ export const BuildingKindSpec = z.discriminatedUnion('category', [
     BuildingKindFactorySpec,
     BuildingKindBlockerSpec,
     BuildingKindExtractorSpec,
+    BuildingKindGeneratorSpec,
     BuildingKindCustomSpec,
 ]);
 
