@@ -135,7 +135,7 @@ contract BuildingRuleTest is Test, GameTest {
         uint64[4] memory qtys;
         qtys[0] = 1;
         bytes24[4] memory materials;
-        materials[0] = Node.Item("non-stackable-ball", [uint32(20), uint32(20), uint32(20)], false);
+        materials[0] = Node.Item("non-stackable-ball", [uint32(20), uint32(20), uint32(20), uint32(20)], false);
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (materials[0], "non-stackable-ball", "00-00")));
         // register a building kind
         bytes24 buildingKind = Node.BuildingKind(25);

@@ -1,5 +1,5 @@
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
-import { GOO_BLUE, GOO_GREEN, GOO_RED, getTileHeightFromCoords, getUnscaledNoiseFromCoords } from '@app/helpers/tile';
+import { GOO_BLUE, GOO_GREEN, GOO_RED, GOO_GOLD, getTileHeightFromCoords, getUnscaledNoiseFromCoords } from '@app/helpers/tile';
 import { BuildingKindFragment, WorldBuildingFragment, WorldTileFragment, getCoords } from '@downstream/core';
 import { memo, useMemo } from 'react';
 import { BlockerBuilding } from './BlockerBuilding';
@@ -32,6 +32,8 @@ const getGooIndexFromBuildingOutput = (buildingKind?: BuildingKindFragment) => {
                 return GOO_RED;
             case 'Blue Goo':
                 return GOO_BLUE;
+            case 'Gold Goo':
+                return GOO_GOLD;
         }
     }
 

@@ -7,7 +7,7 @@ import "cog/IState.sol";
 import "cog/IRule.sol";
 import "cog/IDispatcher.sol";
 
-import {Schema, Node, BiomeKind, DEFAULT_ZONE, GOO_GREEN, GOO_BLUE, GOO_RED} from "@ds/schema/Schema.sol";
+import {Schema, Node, BiomeKind, DEFAULT_ZONE, GOO_GREEN, GOO_BLUE, GOO_RED, GOO_GOLD} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {Perlin} from "@ds/utils/Perlin.sol";
@@ -85,7 +85,7 @@ contract ScoutRule is Rule {
     //int16 private constant GOO_SCALE = 28;
 
     function _generateAtomValues(State state, bytes24 targetTile, int16[3] memory coords) private {
-        uint64[3] memory atoms;
+        uint64[4] memory atoms;
 
         // -- Using 2d Coords
         int16[2] memory coords2d = _cubeToGrid(coords);
@@ -125,6 +125,11 @@ contract ScoutRule is Rule {
         );
         atoms[GOO_BLUE] = uint64(uint128(Math.mul(bluePerlin, Math.fromUInt(255)) >> (64)));
         atoms[GOO_RED] = uint64(uint128(Math.mul(redPerlin, Math.fromUInt(255)) >> (64)));
+
+        // FIXME: hardcode gold goo at specific locations
+        if (coords[0] == 0 && coords[1] == 0 && coords[2] == 0) {
+            atoms[GOO_GOLD] = 200;
+        }
 
         state.setTileAtomValues(targetTile, atoms);
     }

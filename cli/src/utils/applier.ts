@@ -32,12 +32,12 @@ export const encodeItemID = ({
 }: {
     name: string;
     stackable: boolean;
-    goo: { red: number; green: number; blue: number };
+    goo: { red: number; green: number; blue: number, gold?: number };
 }) => {
-    const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`item/${name}`))));
+    const id = Number(BigInt.asUintN(16, BigInt(keccak256UTF8(`item/${name}`))));
     return solidityPacked(
-        ['bytes4', 'uint32', 'uint32', 'uint32', 'uint32', 'uint32'],
-        [NodeSelectors.Item, id, stackable ? 1 : 0, goo.green, goo.blue, goo.red]
+        ['bytes4', 'uint16', 'uint16', 'uint32', 'uint32', 'uint32', 'uint32'],
+        [NodeSelectors.Item, id, stackable ? 1 : 0, goo.green, goo.blue, goo.red, goo.gold || 0]
     );
 };
 

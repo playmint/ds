@@ -141,7 +141,7 @@ contract BuildingRule is Rule {
 
         // min construction cost
         {
-            uint32[3] memory availableInputAtoms;
+            uint32[4] memory availableInputAtoms;
             for (uint8 i = 0; i < 4; i++) {
                 if (cfg.materialItem[i] == 0x0) {
                     continue;
@@ -151,12 +151,13 @@ contract BuildingRule is Rule {
                     state.getOwner(cfg.materialItem[i]) != 0x0, "input item must be registered before use in recipe"
                 );
                 // get atomic structure
-                (uint32[3] memory inputAtoms, bool inputStackable) = state.getItemStructure(cfg.materialItem[i]);
+                (uint32[4] memory inputAtoms, bool inputStackable) = state.getItemStructure(cfg.materialItem[i]);
                 require(inputStackable, "non-stackable items not allowed as construction materials");
                 require(cfg.materialQty[i] > 0 && cfg.materialQty[i] <= 100, "stackable input item must be qty 0-100");
                 availableInputAtoms[0] = availableInputAtoms[0] + (inputAtoms[0] * uint32(cfg.materialQty[i]));
                 availableInputAtoms[1] = availableInputAtoms[1] + (inputAtoms[1] * uint32(cfg.materialQty[i]));
                 availableInputAtoms[2] = availableInputAtoms[2] + (inputAtoms[2] * uint32(cfg.materialQty[i]));
+                availableInputAtoms[3] = availableInputAtoms[3] + (inputAtoms[3] * uint32(cfg.materialQty[i]));
             }
 
             require(availableInputAtoms[0] >= 10, "construction cost should require at least 10 LIFE atoms");
@@ -198,12 +199,12 @@ contract BuildingRule is Rule {
         require(outputOwner != 0x0, "output item must be a registered item");
 
         // check that the item is stackable
-        (uint32[3] memory atoms, bool isStackable) = state.getItemStructure(outputItemID);
+        (uint32[4] memory atoms, bool isStackable) = state.getItemStructure(outputItemID);
         require(isStackable, "output item must be stackable");
 
         // must be of one atom type
         uint8 atomTypes;
-        for (uint256 i = 0; i < 3; i++) {
+        for (uint256 i = 0; i < 4; i++) {
             if (atoms[i] > 0) atomTypes++;
         }
 
@@ -318,7 +319,7 @@ contract BuildingRule is Rule {
         bytes24 outputItem,
         uint64 outputQty
     ) internal {
-        (uint32[3] memory outputAtoms, bool outputStackable) = state.getItemStructure(outputItem);
+        (uint32[4] memory outputAtoms, bool outputStackable) = state.getItemStructure(outputItem);
         {
             bytes24 owner = state.getOwner(buildingKind);
             require(owner == player, "only building kind owner can configure building crafting");
@@ -349,14 +350,15 @@ contract BuildingRule is Rule {
         }
 
         // calc total output atoms
-        uint32[3] memory totalOutputAtoms;
+        uint32[4] memory totalOutputAtoms;
         totalOutputAtoms[0] = outputAtoms[0] * uint32(outputQty);
         totalOutputAtoms[1] = outputAtoms[1] * uint32(outputQty);
         totalOutputAtoms[2] = outputAtoms[2] * uint32(outputQty);
+        totalOutputAtoms[3] = outputAtoms[3] * uint32(outputQty);
 
         // calc total input atoms available to use
         {
-            uint32[3] memory availableInputAtoms;
+            uint32[4] memory availableInputAtoms;
             for (uint8 i = 0; i < 4; i++) {
                 if (inputItem[i] == 0x0) {
                     continue;
@@ -364,7 +366,7 @@ contract BuildingRule is Rule {
                 // check input item is registered
                 require(state.getOwner(inputItem[i]) != 0x0, "input item must be registered before use in recipe");
                 // get atomic structure
-                (uint32[3] memory inputAtoms, bool inputStackable) = state.getItemStructure(inputItem[i]);
+                (uint32[4] memory inputAtoms, bool inputStackable) = state.getItemStructure(inputItem[i]);
                 if (inputStackable) {
                     require(inputQty[i] > 0 && inputQty[i] <= 100, "stackable input item must be qty 0-100");
                 } else {
@@ -373,6 +375,7 @@ contract BuildingRule is Rule {
                 availableInputAtoms[0] += inputAtoms[0] * uint32(inputQty[i]);
                 availableInputAtoms[1] += inputAtoms[1] * uint32(inputQty[i]);
                 availableInputAtoms[2] += inputAtoms[2] * uint32(inputQty[i]);
+                availableInputAtoms[3] += inputAtoms[3] * uint32(inputQty[i]);
             }
 
             // Halve the available goo.
@@ -382,6 +385,7 @@ contract BuildingRule is Rule {
             availableInputAtoms[0] /= 2;
             availableInputAtoms[1] /= 2;
             availableInputAtoms[2] /= 2;
+            availableInputAtoms[3] /= 2;
 
             // require that the total number of each atom in the total number of
             // output items is less than half of the total input of each atom
@@ -396,6 +400,10 @@ contract BuildingRule is Rule {
             require(
                 availableInputAtoms[2] >= totalOutputAtoms[2],
                 "cannot craft an item that outputs more 2-atoms than it inputs"
+            );
+            require(
+                availableInputAtoms[3] >= totalOutputAtoms[3],
+                "cannot craft an item that outputs more 3-atoms than it inputs"
             );
         }
 

@@ -45,13 +45,13 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
 
     const isPickable = !isPickedUpItemVisible;
 
-    const [stackable, greenGoo, blueGoo, redGoo] = getItemStructure(itemId);
+    const [stackable, greenGoo, blueGoo, redGoo, goldGoo] = getItemStructure(itemId);
 
     const isStackable = !!stackable;
 
     const tooltip = isInvalid
         ? `Slot contains invalid ${name} item\n\nRemove item from slot to continue`
-        : `${quantity} ${name}\n\nGreen Goo: ${greenGoo}\nBlue Goo: ${blueGoo}\nRed Goo: ${redGoo}`;
+        : `${quantity} ${name}\n\nGreen Goo: ${greenGoo}\nBlue Goo: ${blueGoo}\nRed Goo: ${redGoo}\nGold Goo: ${goldGoo}`;
 
     return (
         <Tooltip content={tooltip} direction="top" delay={0}>

@@ -47,6 +47,7 @@ export const ItemSpec = z.object({
         red: Atom,
         green: Atom,
         blue: Atom,
+        gold: Atom.optional(),
     }),
     stackable: z.boolean().default(true),
     icon: z
@@ -77,7 +78,7 @@ const DecorativeModel = z.enum([
     'rocksLarge',
     'rocksSmall',
 ]);
-const ExtractorModel = z.enum(['red', 'green', 'blue']);
+const ExtractorModel = z.enum(['red', 'green', 'blue', 'gold']);
 
 export const BuildingKindFactorySpec = z.object({
     category: z.literal('factory'),

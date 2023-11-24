@@ -17,7 +17,8 @@ import {
     BLOCK_TIME_SECS,
     GOO_GREEN,
     GOO_BLUE,
-    GOO_RED
+    GOO_RED,
+    GOO_GOLD
 } from "@ds/schema/Schema.sol";
 import {BagUtils} from "@ds/utils/BagUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
@@ -85,14 +86,14 @@ contract ExtractionRule is Rule {
 
         // Calculate extracted atoms (goo) and check if we have sufficient to create a batch of output items
         {
-            uint64[3] memory reservoirAtoms = state.getBuildingReservoirAtoms(buildingInstance);
-            uint64[3] memory extractedAtoms = _calcExtractedGoo(state, ctx, buildingInstance);
+            uint64[4] memory reservoirAtoms = state.getBuildingReservoirAtoms(buildingInstance);
+            uint64[4] memory extractedAtoms = _calcExtractedGoo(state, ctx, buildingInstance);
 
-            for (uint256 i = 0; i < 3; i++) {
+            for (uint256 i = 0; i < 4; i++) {
                 reservoirAtoms[i] = uint64(min(reservoirAtoms[i] + extractedAtoms[i], GOO_RESERVOIR_MAX));
             }
 
-            (uint32[3] memory outputItemAtoms, /*bool isStackable*/ ) = state.getItemStructure(outputItemID);
+            (uint32[4] memory outputItemAtoms, /*bool isStackable*/ ) = state.getItemStructure(outputItemID);
 
             // Check we have enough atoms (goo) in the reservoir to make
             require(
@@ -100,9 +101,10 @@ contract ExtractionRule is Rule {
             );
             require(outputItemAtoms[GOO_BLUE] <= reservoirAtoms[GOO_BLUE], "not enough blue goo extracted to make item");
             require(outputItemAtoms[GOO_RED] <= reservoirAtoms[GOO_RED], "not enough red goo extracted to make item");
+            require(outputItemAtoms[GOO_GOLD] <= reservoirAtoms[GOO_GOLD], "not enough gold goo extracted to make item");
 
             // How many items can I make with the extracted goo (We pick the lowest mulitple above zero)
-            for (uint256 i = 0; i < 3; i++) {
+            for (uint256 i = 0; i < 4; i++) {
                 if (outputItemAtoms[i] > 0) {
                     uint64 numItems = reservoirAtoms[i] / outputItemAtoms[i];
                     if (qty == 0 || numItems < qty) {
@@ -117,7 +119,7 @@ contract ExtractionRule is Rule {
             }
 
             // Spend the extracted atoms
-            for (uint256 i = 0; i < 3; i++) {
+            for (uint256 i = 0; i < 4; i++) {
                 reservoirAtoms[i] -= outputItemAtoms[i] * qty;
             }
 
@@ -135,16 +137,16 @@ contract ExtractionRule is Rule {
     function _calcExtractedGoo(State state, Context calldata ctx, bytes24 buildingInstance)
         private
         view
-        returns (uint64[3] memory extractedAtoms)
+        returns (uint64[4] memory extractedAtoms)
     {
         // Get the goo atoms for the tile
         bytes24 tile = state.getFixedLocation(buildingInstance);
-        uint64[3] memory atoms = state.getTileAtomValues(tile);
+        uint64[4] memory atoms = state.getTileAtomValues(tile);
 
         // Get time passed. TODO: Cog to expose a global clock in the state so we have some source of constant time
         int128 elapsedSecs = Math.fromUInt((ctx.clock - state.getBlockNum(buildingInstance, 0)) * BLOCK_TIME_SECS);
 
-        for (uint256 i = 0; i < 3; i++) {
+        for (uint256 i = 0; i < 4; i++) {
             extractedAtoms[i] = _getGooPerSec64x64(atoms[i]).mul(elapsedSecs).toUInt();
             if (extractedAtoms[i] > GOO_RESERVOIR_MAX) extractedAtoms[i] = GOO_RESERVOIR_MAX;
         }

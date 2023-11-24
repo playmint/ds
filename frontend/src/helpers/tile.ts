@@ -121,6 +121,7 @@ export function getUnscaledNoise(t: WorldTileFragment): number {
 export const GOO_GREEN = 0;
 export const GOO_BLUE = 1;
 export const GOO_RED = 2;
+export const GOO_GOLD = 3;
 
 export const GOO_SMALL_THRESH = 150;
 export const GOO_BIG_THRESH = 200;
@@ -154,6 +155,8 @@ export const getGooName = (index: number) => {
             return 'blue';
         case GOO_RED:
             return 'red';
+        case GOO_GOLD:
+            return 'gold';
     }
 
     return 'Unknown';

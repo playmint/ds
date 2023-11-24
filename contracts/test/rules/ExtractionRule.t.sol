@@ -80,7 +80,7 @@ contract ExtractionRuleTest is Test, GameTest {
 
         // forcibly set goo values onto the tile
         bytes24 tile = Node.Tile(0, -1, 1, 0);
-        state.setTileAtomValues(tile, [uint64(0), uint64(0), uint64(0)]);
+        state.setTileAtomValues(tile, [uint64(0), uint64(0), uint64(0), uint64(0)]);
 
         // -- Move time forward
         vm.roll(block.number + 200);
@@ -99,7 +99,7 @@ contract ExtractionRuleTest is Test, GameTest {
 
         // forcibly set goo values onto the tile
         bytes24 tile = Node.Tile(0, -1, 1, 0);
-        state.setTileAtomValues(tile, [uint64(255), uint64(0), uint64(0)]);
+        state.setTileAtomValues(tile, [uint64(255), uint64(0), uint64(0), uint64(0)]);
 
         // -- Move time forward to completely fill reservoir
         vm.roll(block.number + 2000);
@@ -117,8 +117,8 @@ contract ExtractionRuleTest is Test, GameTest {
         assertEq(gotBalance, 100, "expected output balance to be a full stack of 100");
 
         // expect reservoir to be minus the cost of the item batch
-        uint64[3] memory reservoirAtoms = state.getBuildingReservoirAtoms(buildingInstance);
-        (uint32[3] memory outputItemAtoms, /*bool isStackable*/ ) = state.getItemStructure(expItem);
+        uint64[4] memory reservoirAtoms = state.getBuildingReservoirAtoms(buildingInstance);
+        (uint32[4] memory outputItemAtoms, /*bool isStackable*/ ) = state.getItemStructure(expItem);
 
         assertEq(
             reservoirAtoms[GOO_GREEN],

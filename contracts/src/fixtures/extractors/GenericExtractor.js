@@ -3,6 +3,7 @@ import ds from "downstream";
 const GOO_GREEN = 0;
 const GOO_BLUE = 1;
 const GOO_RED = 2;
+const GOO_GOLD = 3;
 
 const GOO_RESERVOIR_MAX = 500;
 // const TILE_ATOM_MAX = 255;
@@ -16,6 +17,8 @@ function getGooColor(gooIndex) {
             return "Blue";
         case GOO_RED:
             return "Red";
+        case GOO_GOLD:
+            return "Gold";
     }
 }
 
@@ -87,7 +90,7 @@ export default function update({ selected, world }, block) {
             return bs;
         }, [])
         .map((n) => BigInt(n))
-        .slice(-3);
+        .slice(-4);
 
     const gooIndex = outItemAtomVals.findIndex((gooVal) => gooVal > 0n);
     // const gooCost = Number(BigInt(out0.balance) * outItemAtomVals[gooIndex]);

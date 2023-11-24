@@ -29,7 +29,7 @@ export const getItemStructure = (itemId: string) => {
             return bs;
         }, [] as string[])
         .map((n: string) => Number(BigInt(n)))
-        .slice(-4);
+        .slice(-5);
 };
 
 // these hues map each goo color to a starting point on the hue wheel
@@ -49,7 +49,10 @@ export const hashCode = (str: string): number => {
 };
 
 export const getItemColorCSS = (itemId: string): string => {
-    const [_stackable, greenGoo, blueGoo, redGoo] = getItemStructure(itemId);
+    const [_stackable, greenGoo, blueGoo, redGoo, goldGoo] = getItemStructure(itemId);
+    if (goldGoo > 0) {
+        return '#ebf8ff';
+    }
     const goo = [
         { hue: HUE_RED, value: redGoo, hash: hashCode(`${itemId}-red`) },
         { hue: HUE_GREEN, value: greenGoo, hash: hashCode(`${itemId}-green`) },

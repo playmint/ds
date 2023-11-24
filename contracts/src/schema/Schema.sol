@@ -48,6 +48,7 @@ uint64 constant BLOCK_TIME_SECS = 2;
 uint8 constant GOO_GREEN = 0;
 uint8 constant GOO_BLUE = 1;
 uint8 constant GOO_RED = 2;
+uint8 constant GOO_GOLD = 3;
 uint8 constant LIFE = GOO_GREEN;
 uint8 constant DEFENCE = GOO_BLUE;
 uint8 constant ATTACK = GOO_RED;
@@ -97,18 +98,18 @@ library Node {
         return CompoundKeyEncoder.INT16_ARRAY(Kind.Tile.selector, [zone, q, r, s]);
     }
 
-    function Item(string memory name, uint32[3] memory atoms, bool isStackable) internal pure returns (bytes24) {
-        uint32 uniqueID = uint32(uint256(keccak256(abi.encode(name, atoms, isStackable))));
+    function Item(string memory name, uint32[4] memory atoms, bool isStackable) internal pure returns (bytes24) {
+        uint16 uniqueID = uint16(uint256(keccak256(abi.encode(name, atoms, isStackable))));
         return Item(uniqueID, atoms, isStackable);
     }
 
-    function Item(uint32 uniqueID, uint32[3] memory atoms, bool isStackable) internal pure returns (bytes24) {
-        uint32 stackable = 0;
+    function Item(uint16 uniqueID, uint32[4] memory atoms, bool isStackable) internal pure returns (bytes24) {
+        uint16 stackable = 0;
         if (isStackable) {
             stackable = 1;
         }
         return bytes24(
-            abi.encodePacked(Kind.Item.selector, uniqueID, stackable, atoms[GOO_GREEN], atoms[GOO_BLUE], atoms[GOO_RED])
+            abi.encodePacked(Kind.Item.selector, uniqueID, stackable, atoms[GOO_GREEN], atoms[GOO_BLUE], atoms[GOO_RED], atoms[GOO_GOLD])
         );
     }
 
@@ -345,16 +346,17 @@ library Schema {
     function getItemStructure(State, /*state*/ bytes24 item)
         internal
         pure
-        returns (uint32[3] memory atoms, bool isStackable)
+        returns (uint32[4] memory atoms, bool isStackable)
     {
-        isStackable = uint32(uint192(item) >> 96) == 1;
-        atoms[GOO_GREEN] = uint32(uint192(item) >> 64);
-        atoms[GOO_BLUE] = uint32(uint192(item) >> 32);
-        atoms[GOO_RED] = uint32(uint192(item));
+        isStackable = uint16(uint192(item) >> 128) == 1;
+        atoms[GOO_GREEN] = uint32(uint192(item) >> 96);
+        atoms[GOO_BLUE] = uint32(uint192(item) >> 64);
+        atoms[GOO_RED] = uint32(uint192(item) >> 32);
+        atoms[GOO_GOLD] = uint32(uint192(item));
         return (atoms, isStackable);
     }
 
-    function getAtoms(State state, bytes24 item) internal pure returns (uint32[3] memory atoms) {
+    function getAtoms(State state, bytes24 item) internal pure returns (uint32[4] memory atoms) {
         (atoms,) = getItemStructure(state, item);
         return atoms;
     }
@@ -424,13 +426,14 @@ library Schema {
         return uint32(CompoundKeyDecoder.UINT64(mobileUnitID));
     }
 
-    function setTileAtomValues(State state, bytes24 tile, uint64[3] memory atoms) internal {
+    function setTileAtomValues(State state, bytes24 tile, uint64[4] memory atoms) internal {
         state.set(Rel.Balance.selector, GOO_GREEN, tile, Node.Atom(GOO_GREEN), atoms[GOO_GREEN]);
         state.set(Rel.Balance.selector, GOO_BLUE, tile, Node.Atom(GOO_BLUE), atoms[GOO_BLUE]);
         state.set(Rel.Balance.selector, GOO_RED, tile, Node.Atom(GOO_RED), atoms[GOO_RED]);
+        state.set(Rel.Balance.selector, GOO_GOLD, tile, Node.Atom(GOO_GOLD), atoms[GOO_GOLD]);
     }
 
-    function getTileAtomValues(State state, bytes24 tile) internal view returns (uint64[3] memory atoms) {
+    function getTileAtomValues(State state, bytes24 tile) internal view returns (uint64[4] memory atoms) {
         uint64 atomVal;
 
         ( /*bytes24*/ , atomVal) = state.get(Rel.Balance.selector, GOO_GREEN, tile);
@@ -441,18 +444,22 @@ library Schema {
 
         ( /*bytes24*/ , atomVal) = state.get(Rel.Balance.selector, GOO_RED, tile);
         atoms[GOO_RED] = atomVal;
+
+        ( /*bytes24*/ , atomVal) = state.get(Rel.Balance.selector, GOO_GOLD, tile);
+        atoms[GOO_GOLD] = atomVal;
     }
 
-    function setBuildingReservoirAtoms(State state, bytes24 buildingInstance, uint64[3] memory atoms) internal {
+    function setBuildingReservoirAtoms(State state, bytes24 buildingInstance, uint64[4] memory atoms) internal {
         state.set(Rel.Balance.selector, GOO_GREEN, buildingInstance, Node.Atom(GOO_GREEN), atoms[GOO_GREEN]);
         state.set(Rel.Balance.selector, GOO_BLUE, buildingInstance, Node.Atom(GOO_BLUE), atoms[GOO_BLUE]);
         state.set(Rel.Balance.selector, GOO_RED, buildingInstance, Node.Atom(GOO_RED), atoms[GOO_RED]);
+        state.set(Rel.Balance.selector, GOO_GOLD, buildingInstance, Node.Atom(GOO_GOLD), atoms[GOO_GOLD]);
     }
 
     function getBuildingReservoirAtoms(State state, bytes24 buildingInstance)
         internal
         view
-        returns (uint64[3] memory atoms)
+        returns (uint64[4] memory atoms)
     {
         uint64 atomVal;
 
@@ -464,6 +471,9 @@ library Schema {
 
         ( /*bytes24*/ , atomVal) = state.get(Rel.Balance.selector, GOO_RED, buildingInstance);
         atoms[GOO_RED] = atomVal;
+
+        ( /*bytes24*/ , atomVal) = state.get(Rel.Balance.selector, GOO_GOLD, buildingInstance);
+        atoms[GOO_GOLD] = atomVal;
     }
 
     function setBlockNum(State state, bytes24 kind, uint8 slot, uint64 blockNum) internal {

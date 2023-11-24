@@ -679,7 +679,7 @@ contract CombatRule is Rule {
                     // 4 items slots per bag
                     for (uint8 j = 0; j < 4; j++) {
                         (bytes24 item, uint64 balance) = state.getItemSlot(bag, j);
-                        (uint32[3] memory inputAtoms, bool isStackable) = state.getItemStructure(item);
+                        (uint32[4] memory inputAtoms, bool isStackable) = state.getItemStructure(item);
                         if (!isStackable && balance > 0) {
                             for (uint8 k = 0; k < 3; k++) {
                                 stats[k] += inputAtoms[k] * (k == GOO_GREEN ? LIFE_MUL : 1);
@@ -691,7 +691,7 @@ contract CombatRule is Rule {
         } else {
             for (uint8 i = 0; i < 4; i++) {
                 (bytes24 item, uint64 qty) = state.getMaterial(state.getBuildingKind(entityID), i);
-                (uint32[3] memory inputAtoms, /*bool isStackable*/ ) = state.getItemStructure(item);
+                (uint32[4] memory inputAtoms, /*bool isStackable*/ ) = state.getItemStructure(item);
                 for (uint8 j = 0; j < 3; j++) {
                     stats[j] += inputAtoms[j] * uint32(qty) * (j == GOO_GREEN ? LIFE_MUL : 1);
                 }

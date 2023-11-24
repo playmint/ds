@@ -45,14 +45,15 @@ contract CraftingRuleTest is Test, GameTest {
     }
 
     function testGetAtoms() public {
-        uint32[3] memory thingAtoms = [uint32(2), uint32(4), uint32(6)];
+        uint32[4] memory thingAtoms = [uint32(2), uint32(4), uint32(6), uint32(8)];
         bytes24 thingItem = Node.Item("thing1", thingAtoms, ITEM_STACKABLE);
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (thingItem, "thing1", "icon")));
-        uint32[3] memory gotAtoms = state.getAtoms(thingItem);
+        uint32[4] memory gotAtoms = state.getAtoms(thingItem);
 
         assertEq(gotAtoms[0], thingAtoms[0], "expected getAtoms()[0] to return same atoms we put in");
         assertEq(gotAtoms[1], thingAtoms[1], "expected getAtoms()[1] to return same atoms we put in");
         assertEq(gotAtoms[2], thingAtoms[2], "expected getAtoms()[2] to return same atoms we put in");
+        assertEq(gotAtoms[3], thingAtoms[3], "expected getAtoms()[3] to return same atoms we put in");
     }
 
     function testRegisteringCraftRecipe() public {
@@ -291,7 +292,7 @@ contract CraftingRuleTest is Test, GameTest {
         inputQtys[2] = 2;
 
         // Output
-        uint32[3] memory outputItemAtoms = [uint32(1), uint32(1), uint32(1)];
+        uint32[4] memory outputItemAtoms = [uint32(1), uint32(1), uint32(1), uint32(0)];
         outputItem = Node.Item("thing", outputItemAtoms, ITEM_STACKABLE);
         outputQty = 1;
     }
@@ -313,7 +314,7 @@ contract CraftingRuleTest is Test, GameTest {
         inputQtys[1] = 5;
 
         // Output (G,B,R)
-        uint32[3] memory outputItemAtoms = [uint32(0), uint32(0), uint32(5)];
+        uint32[4] memory outputItemAtoms = [uint32(0), uint32(0), uint32(5), uint32(0)];
         outputItem = Node.Item("Red Fiver", outputItemAtoms, ITEM_STACKABLE);
         outputQty = 1;
     }

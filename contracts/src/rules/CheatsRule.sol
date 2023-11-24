@@ -105,7 +105,7 @@ contract CheatsRule is Rule {
             state.setBlockNum(buildingInstance, 0, ctx.clock);
 
             // set inital reservoir to full
-            state.setBuildingReservoirAtoms(buildingInstance, [uint64(499), uint64(499), uint64(499)]);
+            state.setBuildingReservoirAtoms(buildingInstance, [uint64(499), uint64(499), uint64(499), uint32(499)]);
         }
     }
 }
