@@ -17,6 +17,11 @@ on:
         required: true
         default: linux/arm64/v8,linux/amd64
         type: string
+      RUN_DEPLOY:
+        description: Flag to control whether to run the deploy job or not
+        required: false
+        default: true
+        type: boolean
 
     secrets:
       AZURE_REGISTRY_URL:
@@ -250,6 +255,7 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
+    if: ${{ inputs.RUN_DEPLOY }}
     needs:
     - frontend
     - contracts
