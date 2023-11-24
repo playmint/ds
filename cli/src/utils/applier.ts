@@ -224,8 +224,8 @@ const buildingKindDeploymentActions = async (
         }
 
         const input = encodeSlotConfig(spec.inputs || []);
-        inputItems = input.items.slice(0, 1);
-        inputQtys = input.quantities.slice(0, 1);
+        inputItems = input.items;
+        inputQtys = input.quantities;
     }
 
     // register kind + construction materials
