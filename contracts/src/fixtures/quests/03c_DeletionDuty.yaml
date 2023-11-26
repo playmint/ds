@@ -1,9 +1,0 @@
----
-kind: Quest
-spec:
-  name: Deletion Duty
-  description: "Test out your Deletion skills. Find an entity you have the power to delete, and remove it."
-  tasks:
-    - kind: combat
-      name: Delete any Building or Bug. Extractors should pose no problem.
-      combatState: winAttack

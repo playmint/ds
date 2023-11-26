@@ -1,5 +1,7 @@
 import ds from 'downstream';
 
+const PU_MULTIPLIER = 100;
+
 export default function update({ selected, world }, block) {
 
     const { tiles, mobileUnit } = selected || {};
@@ -23,8 +25,9 @@ export default function update({ selected, world }, block) {
     const lastBurn = selectedBuilding?.timestamp?.blockNum || 0;
     const blocksSinceBurn = block - lastBurn;
     const goldReservoir = selectedBuilding?.gooReservoir.find(res => res.key === 3);
-    const numConnectedBuildings = 1; // TODO: get this from the Powers edge
-    const availablePowerUnits = gooReservoir ? Math.max(goldReservoir.weight - (blocksSinceBurn * numConnectedBuildings), 0) : 0;
+    const lastPUAmount = (goldReservoir?.weight || 0) * PU_MULTIPLIER;
+    const numConnectedBuildings = (selectedBuilding?.powersCount || 0) + 1;
+    const availablePowerUnits = Math.max(lastPUAmount - (blocksSinceBurn * numConnectedBuildings), 0);
 
     const action = () => {
         if (!selectedUnit) {
@@ -46,6 +49,7 @@ export default function update({ selected, world }, block) {
     const html = `
         <p>Burn fuel to keep the lights on</p>
         <h1 style="font-size: 3rem;">${availablePowerUnits}PU</h1>
+        <p>Connected: ${numConnectedBuildings}</p>
     `;
 
     return {
