@@ -26,7 +26,9 @@ import { styles } from './action-context-panel.styles';
 import { ActionButton } from '@app/styles/button.styles';
 import { getPowerSources, isPowered } from '@app/helpers/power';
 
-export interface ActionContextPanelProps extends ComponentProps {}
+export interface ActionContextPanelProps extends ComponentProps {
+    unitPowerLevel: number;
+}
 
 const CONSTRUCT_INTENT = 'construct';
 const MOVE_INTENT = 'move';
@@ -830,7 +832,7 @@ const Combat: FunctionComponent<CombatProps> = ({
     );
 };
 
-export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = () => {
+export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({ unitPowerLevel }) => {
     const [actionQueue, setActionQueue] = useState<CogAction[][]>();
     const { world, tiles } = useGameState();
     const { selectIntent, intent, tiles: sTiles, mobileUnit, selectTiles } = useSelection();
@@ -840,6 +842,13 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
     const selectedTiles = sTiles || [];
     const mobileUnitKey = mobileUnit?.key;
     const dispatch = player?.dispatch;
+    const isDead = unitPowerLevel < 1;
+
+    useEffect(() => {
+        if (isDead) {
+            setActionQueue(undefined);
+        }
+    }, [isDead]);
 
     useEffect(() => {
         if (!actionQueue || actionQueue.length === 0) {

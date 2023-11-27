@@ -19,7 +19,7 @@ export const formatNameOrId = (node?: MaybeNamed, idPrefix: string = ''): string
 };
 
 export const getItemStructure = (itemId: string) => {
-    return [...itemId]
+    const [r, g, b, x] = [...itemId]
         .slice(2)
         .reduce((bs, b, idx) => {
             if (idx % 8 === 0) {
@@ -29,7 +29,9 @@ export const getItemStructure = (itemId: string) => {
             return bs;
         }, [] as string[])
         .map((n: string) => Number(BigInt(n)))
-        .slice(-5);
+        .slice(-4);
+    const stackable = parseInt([...itemId][17], 10);
+    return [stackable, r, g, b, x];
 };
 
 // these hues map each goo color to a starting point on the hue wheel

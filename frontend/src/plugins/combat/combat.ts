@@ -9,6 +9,7 @@ export const MAX_TICKS = 300;
 export const ATOM_LIFE = 0;
 export const ATOM_DEFENSE = 1;
 export const ATOM_ATTACK = 2;
+export const ATOM_POWER = 3;
 
 enum CombatSideKey {
     ATTACK,

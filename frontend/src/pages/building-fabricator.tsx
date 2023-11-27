@@ -267,7 +267,7 @@ contract BasicFactory is BuildingKind {
         // require carrying an idCard
         // you can change idCardItemId to another item id
         CheckIsCarryingItem(state, actor, idCardItemId);
-    
+
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.CRAFT, (buildingInstance)));
     }*/
 
@@ -750,7 +750,9 @@ const InputItem = ({
     onChangeQuantity: (n: number) => void;
 }) => {
     const selectedItem = items.find((item) => item.name?.value === name);
-    const [_stackable, greenGoo, blueGoo, redGoo] = selectedItem ? getItemStructure(selectedItem.id) : [false, 0, 0, 0];
+    const [_stackable, greenGoo, blueGoo, redGoo, goldGoo] = selectedItem
+        ? getItemStructure(selectedItem.id)
+        : [false, 0, 0, 0, 0];
     const qty = selectedItem ? quantity : 0;
 
     return (
@@ -760,6 +762,7 @@ const InputItem = ({
             <GooBadge color="red" value={redGoo * qty} />
             <GooBadge color="green" value={greenGoo * qty} />
             <GooBadge color="blue" value={blueGoo * qty} />
+            <GooBadge color="gold" value={goldGoo * qty} />
         </div>
     );
 };
@@ -859,10 +862,10 @@ const BuildingFabricator = () => {
             { name: 'Blue Goo', quantity: 10 },
         ],
         inputs: [
-            { name: 'Red Goo', quantity: 25 },
-            { name: 'Green Goo', quantity: 25 },
-            { name: 'Blue Goo', quantity: 25 },
-            { name: '', quantity: 0 },
+            { name: 'Red Goo', quantity: 10 },
+            { name: 'Green Goo', quantity: 10 },
+            { name: 'Blue Goo', quantity: 10 },
+            { name: 'Gold Goo', quantity: 10 },
         ],
         outputs: [{ name: '', quantity: 1 }],
     });
@@ -881,20 +884,21 @@ const BuildingFabricator = () => {
     // TODO: if output item already exists, then outputGoo is already known and we must validate the inputs are enough
     const outputGoo = (buildingSpec.inputs || [])
         .reduce(
-            ([r, g, b], input) => {
+            ([r, g, b, x], input) => {
                 const item = availableItems.find((item) => item.name?.value === input.name);
                 if (!item) {
-                    return [r, g, b];
+                    return [r, g, b, x];
                 }
-                const [_stackable, greenGoo, blueGoo, redGoo] =
-                    item?.id && input.quantity > 0 ? getItemStructure(item.id) : [false, 0, 0, 0];
+                const [_stackable, greenGoo, blueGoo, redGoo, goldGoo] =
+                    item?.id && input.quantity > 0 ? getItemStructure(item.id) : [false, 0, 0, 0, 0];
 
                 r += redGoo * input.quantity;
                 g += greenGoo * input.quantity;
                 b += blueGoo * input.quantity;
-                return [r, g, b];
+                x += goldGoo * input.quantity;
+                return [r, g, b, x];
             },
-            [0, 0, 0]
+            [0, 0, 0, 0]
         )
         .map((v) => Math.floor(v / 2.0));
 
@@ -1077,6 +1081,7 @@ const BuildingFabricator = () => {
                             red: outputGoo[0],
                             green: outputGoo[1],
                             blue: outputGoo[2],
+                            gold: outputGoo[3],
                         },
                         stackable: outputStackable,
                     },
@@ -1217,9 +1222,11 @@ const BuildingFabricator = () => {
         if (!item) {
             return false;
         }
-        const [availableRed, availableGreen, availableBlue] = outputGoo;
-        const [_stackable, greenGoo, blueGoo, redGoo] = getItemStructure(item.id);
-        return availableGreen >= greenGoo && availableBlue >= blueGoo && availableRed >= redGoo;
+        const [availableRed, availableGreen, availableBlue, availableGold] = outputGoo;
+        const [_stackable, greenGoo, blueGoo, redGoo, goldGoo] = getItemStructure(item.id);
+        return (
+            availableGreen >= greenGoo && availableBlue >= blueGoo && availableRed >= redGoo && availableGold >= goldGoo
+        );
     };
 
     const outputItemId = outputExisting
@@ -1231,11 +1238,12 @@ const BuildingFabricator = () => {
                   red: outputGoo[0] || 0,
                   green: outputGoo[1] || 0,
                   blue: outputGoo[2] || 0,
+                  gold: outputGoo[3] || 0,
               },
           });
-    const [_finalStackable, finalOutputGreen, finalOutputBlue, finalOutputRed] = outputItemId
+    const [_finalStackable, finalOutputGreen, finalOutputBlue, finalOutputRed, finalOutputGold] = outputItemId
         ? getItemStructure(outputItemId)
-        : [false, 0, 0, 0];
+        : [false, 0, 0, 0, 0];
     const finalOutputIcon = iconURL(
         outputExisting ? availableItems.find((item) => item.id === outputItemId)?.icon?.value : ITEM_ICONS[outputIcon]
     );
@@ -1396,6 +1404,7 @@ const BuildingFabricator = () => {
                                 <GooBadge color="red" value={outputGoo[0]} />
                                 <GooBadge color="green" value={outputGoo[1]} />
                                 <GooBadge color="blue" value={outputGoo[2]} />
+                                <GooBadge color="gold" value={outputGoo[3]} />
                             </div>
                         </Content>
                         <Content name="Output">
@@ -1508,6 +1517,7 @@ const BuildingFabricator = () => {
                                 <GooBadge color="red" value={finalOutputRed} />
                                 <GooBadge color="green" value={finalOutputGreen} />
                                 <GooBadge color="blue" value={finalOutputBlue} />
+                                <GooBadge color="gold" value={finalOutputGold} />
                             </div>
                         </Content>
                     </GroupedContent>

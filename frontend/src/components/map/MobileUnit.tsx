@@ -134,12 +134,14 @@ export const MobileUnits = memo(
         mobileUnits,
         buildings,
         selectedMobileUnitID,
+        selectedMobileUnitPowerLevel,
         onClickMobileUnit,
         playerID,
     }: {
         mobileUnits?: WorldMobileUnitFragment[];
         buildings: WorldBuildingFragment[];
         selectedMobileUnitID?: string;
+        selectedMobileUnitPowerLevel: number;
         playerID?: string;
         onClickMobileUnit: (id: string) => void;
     }) => {
@@ -167,9 +169,10 @@ export const MobileUnits = memo(
                     const isPlayer = u.owner?.id == playerID;
                     const building = getBuildingAtTile(buildings, tile);
                     const atBuilding = !!building;
-                    return { ...u, visible, isPlayer, coords, counter, height, atBuilding };
+                    const isDead = isPlayer && selectedMobileUnitPowerLevel < 1;
+                    return { ...u, visible, isPlayer, coords, counter, height, atBuilding, isDead };
                 });
-        }, [mobileUnits, playerID, buildings]);
+        }, [mobileUnits, playerID, buildings, selectedMobileUnitPowerLevel]);
 
         const unitComponents = useMemo(
             () =>
@@ -184,7 +187,7 @@ export const MobileUnits = memo(
                             progress={1}
                             selected={selectedMobileUnitID === u.id ? 'outline' : 'none'}
                             shared={u.atBuilding}
-                            visible={u.visible}
+                            visible={!u.isDead && u.visible}
                             onPointerClick={onClickMobileUnit}
                             onUpdatePosition={updatePosition}
                             {...u.coords}
@@ -198,7 +201,7 @@ export const MobileUnits = memo(
             () =>
                 units.map((u) => {
                     if (unitPositions[u.id]?.isVisible) {
-                        if (u.isPlayer) {
+                        if (u.isPlayer && !u.isDead) {
                             const isSelected = selectedMobileUnitID === u.id;
                             return (
                                 <Icon

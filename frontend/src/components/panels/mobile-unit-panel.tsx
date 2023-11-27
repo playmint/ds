@@ -3,9 +3,10 @@ import { getTileCoordsFromId } from '@app/helpers/tile';
 import { useGameState } from '@app/hooks/use-game-state';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { getMobileUnitStats } from '@app/plugins/combat/helpers';
+import { ProgressBar } from '@app/plugins/combat/progress-bar';
 import { MobileUnitInventory } from '@app/plugins/inventory/mobile-unit-inventory';
 import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
-import { TextButton } from '@app/styles/button.styles';
+import { ActionButton, TextButton } from '@app/styles/button.styles';
 import { colorMap, colors } from '@app/styles/colors';
 import { getBagsAtEquipee } from '@downstream/core/src/utils';
 import { useCallback, useMemo } from 'react';
@@ -119,7 +120,7 @@ const MobileUnitContainer = styled.div`
     }
 `;
 
-export const MobileUnitPanel = () => {
+export const MobileUnitPanel = ({ level }: { level: number }) => {
     const { ready: mapReady, sendMessage } = useUnityMap();
     const { world, player, selectMobileUnit, selected } = useGameState();
     const { mobileUnit: selectedMobileUnit } = selected || {};
@@ -203,8 +204,22 @@ export const MobileUnitPanel = () => {
         [player]
     );
 
+    const selectedMobileUnitID = selectedMobileUnit?.id;
+    const respawn = useCallback(() => {
+        if (!player) {
+            return;
+        }
+        if (!selectedMobileUnitID) {
+            return;
+        }
+        player.dispatch({ name: 'RESPAWN_MOBILE_UNIT', args: [selectedMobileUnitID] }).catch((e) => {
+            console.error('failed to respawn:', e);
+        });
+    }, [player, selectedMobileUnitID]);
+
     const mobileUnitBags = selectedMobileUnit ? getBagsAtEquipee(world?.bags || [], selectedMobileUnit) : [];
-    const [life, def, atk] = getMobileUnitStats(selectedMobileUnit, world?.bags);
+    const [life, def, atk, power] = getMobileUnitStats(selectedMobileUnit, world?.bags);
+    const isDead = level < 1;
 
     return (
         <>
@@ -227,13 +242,21 @@ export const MobileUnitPanel = () => {
                                     <strong>ATK:</strong>
                                     {atk} <strong>DEF:</strong>
                                     {def} <strong>LIFE:</strong>
-                                    {life}
+                                    {life} <strong>POW:</strong>
+                                    {power}
                                 </div>
+                                <ProgressBar maxValue={power} currentValue={level} />
                             </MobileUnitContainer>
                         </div>
-                        <div className="content">
-                            <MobileUnitInventory mobileUnit={selectedMobileUnit} bags={mobileUnitBags} />
-                        </div>
+                        {isDead ? (
+                            <div className="content" style={{ width: '26rem' }}>
+                                <ActionButton onClick={respawn}>Respawn Unit</ActionButton>
+                            </div>
+                        ) : (
+                            <div className="content">
+                                <MobileUnitInventory mobileUnit={selectedMobileUnit} bags={mobileUnitBags} />
+                            </div>
+                        )}
                     </StyledMobileUnitPanel>
                 ) : (
                     <TextButton onClick={selectAndFocusMobileUnit}>Select Unit</TextButton>
