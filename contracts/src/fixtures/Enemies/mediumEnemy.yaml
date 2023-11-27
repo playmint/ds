@@ -1,15 +1,15 @@
 ---
 kind: BuildingKind
 spec:
-  name: Strong Enemy
-  description: Exclusively eats Stroganoff because that's exactly what it is
+  name: Sturdy Enemy
+  description: Bit of a bruser, goes by Barry.
   category: blocker
   model: enemy
   materials:
   - name: Red Goo
-    quantity: 50
+    quantity: 100
   - name: Blue Goo
-    quantity: 50
+    quantity: 100
   - name: Green Goo
-    quantity: 50
+    quantity: 100
 
