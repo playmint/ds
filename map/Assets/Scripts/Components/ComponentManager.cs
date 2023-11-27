@@ -17,6 +17,7 @@ public class ComponentDataMessage : ComponentMessage
     public string? data; // json encoded
 }
 
+[RequireComponent(typeof(LightManager))]
 [RequireComponent(typeof(TileManager))]
 [RequireComponent(typeof(TileHighlightManager))]
 [RequireComponent(typeof(TileIconManager))]
