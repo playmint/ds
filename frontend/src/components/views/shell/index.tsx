@@ -11,6 +11,7 @@ import { Onboarding } from '@app/components/organisms/onboarding';
 import { ItemPluginPanel } from '@app/components/panels/item-plugin-panel';
 import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
 import { NavPanel } from '@app/components/panels/nav-panel';
+import { QuestPanel } from '@app/components/panels/quest-panel';
 import { TileInfoPanel } from '@app/components/panels/tile-info-panel';
 import { getTileDistance } from '@app/helpers/tile';
 import {
@@ -28,15 +29,13 @@ import { ActionBar } from '@app/plugins/action-bar';
 import { ActionContextPanel } from '@app/plugins/action-context-panel';
 import { CombatSummary } from '@app/plugins/combat/combat-summary';
 import { Bag as BagInventory } from '@app/plugins/inventory/bag';
+import { StyledBasePanel, StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { ComponentProps } from '@app/types/component-props';
+import { getBagsAtEquipee, getBuildingAtTile, getSessionsAtTile } from '@downstream/core/src/utils';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
-import { QuestPanel } from '@app/components/panels/quest-panel';
-import { getBagsAtEquipee, getBuildingAtTile, getSessionsAtTile } from '@downstream/core/src/utils';
-import { StyledBasePanel, StyledHeaderPanel } from '@app/styles/base-panel.styles';
-import { Light } from '@app/components/map/Light';
 
 export interface ShellProps extends ComponentProps {}
 
