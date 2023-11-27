@@ -323,7 +323,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         <div className="flex-spacer"></div>
                         <div className="bottom-middle">
                             <ActionContextPanel />
-                            <ActionBar />
+                            <ActionBar blockNumber={blockNumber ? blockNumber : 0} />
                         </div>
                         <div className="flex-spacer"></div>
                     </div>

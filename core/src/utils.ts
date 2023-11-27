@@ -37,3 +37,7 @@ export function getBagsAtEquipee(bags: BagFragment[], equipee: { id: string }) {
 export function getSessionsAtTile(sessions: WorldCombatSessionFragment[], tile: WorldTileFragment) {
     return sessions.filter((s) => s.attackTile?.tile?.id === tile.id || s.defenceTile?.tile?.id === tile.id);
 }
+
+export function getSessionsAtTileID(sessions: WorldCombatSessionFragment[], tileID: string) {
+    return sessions.filter((s) => s.attackTile?.tile?.id === tileID || s.defenceTile?.tile?.id === tileID);
+}
