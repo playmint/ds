@@ -7,8 +7,9 @@ import { MobileUnitInventory } from '@app/plugins/inventory/mobile-unit-inventor
 import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { TextButton } from '@app/styles/button.styles';
 import { colorMap, colors } from '@app/styles/colors';
+import { CompoundKeyEncoder, NodeSelectors } from '@downstream/core';
 import { getBagsAtEquipee } from '@downstream/core/src/utils';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 const StyledMobileUnitIcon = styled.div`
@@ -127,6 +128,7 @@ export const MobileUnitPanel = () => {
         () => world?.mobileUnits.filter((mu) => mu.owner && player && mu.owner.id === player.id) || [],
         [world, player]
     );
+    const [isSpawningMobileUnit, setIsSpawningMobileUnit] = useState(false);
 
     const selectAndFocusMobileUnit = useCallback(() => {
         if (playerUnits.length === 0) {
@@ -154,31 +156,59 @@ export const MobileUnitPanel = () => {
         sendMessage('MapCamera', 'FocusTile', JSON.stringify({ q, r, s }));
     }, [selectMobileUnit, playerUnits, sendMessage, mapReady]);
 
-    // const selectNextMobileUnit = useCallback(
-    //     (n: number) => {
-    //         if (playerUnits.length === 0) {
-    //             return;
-    //         }
-    //         if (!selectMobileUnit) {
-    //             return;
-    //         }
-    //         if (!selectedMobileUnit) {
-    //             return;
-    //         }
-    //         if (playerUnits.length === 0) {
-    //             return;
-    //         }
-    //         const mobileUnitIndex = playerUnits.map((s) => s.id).indexOf(selectedMobileUnit.id);
-    //         const nextIndex =
-    //             mobileUnitIndex + n > playerUnits.length - 1
-    //                 ? 0
-    //                 : mobileUnitIndex + n < 0
-    //                 ? playerUnits.length - 1
-    //                 : mobileUnitIndex + n;
-    //         selectMobileUnit(playerUnits[nextIndex].id);
-    //     },
-    //     [playerUnits, selectMobileUnit, selectedMobileUnit]
-    // );
+    const selectNextMobileUnit = useCallback(
+        (n: number) => {
+            if (playerUnits.length === 0) {
+                return;
+            }
+            if (!selectMobileUnit) {
+                return;
+            }
+            if (!selectedMobileUnit) {
+                return;
+            }
+            if (playerUnits.length === 0) {
+                return;
+            }
+            if (!sendMessage) {
+                return;
+            }
+            const mobileUnitIndex = playerUnits.map((s) => s.id).indexOf(selectedMobileUnit.id);
+            const nextIndex =
+                mobileUnitIndex + n > playerUnits.length - 1
+                    ? 0
+                    : mobileUnitIndex + n < 0
+                    ? playerUnits.length - 1
+                    : mobileUnitIndex + n;
+            selectMobileUnit(playerUnits[nextIndex].id);
+
+            // Focus camera
+            const tileId = playerUnits[nextIndex].nextLocation?.tile.id;
+            if (!tileId) {
+                return;
+            }
+            const [q, r, s] = getTileCoordsFromId(tileId);
+            sendMessage('MapCamera', 'FocusTile', JSON.stringify({ q, r, s }));
+        },
+        [playerUnits, selectMobileUnit, selectedMobileUnit, sendMessage]
+    );
+
+    const spawnMobileUnit = useCallback(() => {
+        if (!player) {
+            return;
+        }
+        const id = CompoundKeyEncoder.encodeUint160(
+            NodeSelectors.MobileUnit,
+            BigInt(Math.floor(Math.random() * 10000))
+        );
+        setIsSpawningMobileUnit(true);
+        player
+            .dispatch({ name: 'SPAWN_MOBILE_UNIT', args: [id] })
+            .catch((e) => {
+                console.error('failed to spawn mobileUnit:', e);
+            })
+            .finally(() => setIsSpawningMobileUnit(false));
+    }, [player, setIsSpawningMobileUnit]);
 
     const nameEntity = useCallback(
         (entityId: string | undefined) => {
@@ -229,6 +259,10 @@ export const MobileUnitPanel = () => {
                                     {def} <strong>LIFE:</strong>
                                     {life}
                                 </div>
+                                <div className="unitSelector">
+                                    <button onClick={() => selectNextMobileUnit(-1)}>prev</button>
+                                    <button onClick={() => selectNextMobileUnit(1)}>next</button>
+                                </div>
                             </MobileUnitContainer>
                         </div>
                         <div className="content">
@@ -238,6 +272,9 @@ export const MobileUnitPanel = () => {
                 ) : (
                     <TextButton onClick={selectAndFocusMobileUnit}>Select Unit</TextButton>
                 ))}
+            <TextButton onClick={spawnMobileUnit} disabled={isSpawningMobileUnit}>
+                Spawn Unit
+            </TextButton>
         </>
     );
 };
