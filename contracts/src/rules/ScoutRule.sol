@@ -129,7 +129,7 @@ contract ScoutRule is Rule {
         // FIXME: hardcode gold goo at specific locations
         if (coords[0] == -25 && coords[1] == 0 && coords[2] == 25) {
             atoms[GOO_GOLD] = 200;
-        } else if (coords[0] == 30 && coords[1] == 0 && coords[2] == -27) {
+        } else if (coords[0] == 30 && coords[1] == 0 && coords[2] == -30) {
             atoms[GOO_GOLD] = 200;
         } 
 

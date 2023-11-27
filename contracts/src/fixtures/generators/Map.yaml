@@ -8,4 +8,4 @@ spec:
 kind: Building
 spec:
   name: Generator
-  location: [ 29, 1, -28 ]
+  location: [ 29, 1, -30 ]

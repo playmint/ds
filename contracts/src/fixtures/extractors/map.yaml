@@ -1,0 +1,11 @@
+---
+kind: Building
+spec:
+  name: Gold Goo Extractor
+  location: [ -25, 0, 25 ]
+
+---
+kind: Building
+spec:
+  name: Gold Goo Extractor
+  location: [ 30, 0, -30 ]
