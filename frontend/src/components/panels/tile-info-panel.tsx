@@ -127,11 +127,22 @@ interface TileBuildingProps {
     canUse: boolean;
     building: WorldBuildingFragment;
     world?: World;
+    tiles: WorldTileFragment[];
+    currentBlock: number;
     kinds: BuildingKindFragment[];
     mobileUnit?: WorldMobileUnitFragment;
     ui: PluginUpdateResponse[];
 }
-const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, world, mobileUnit, ui, canUse }) => {
+const TileBuilding: FunctionComponent<TileBuildingProps> = ({
+    building,
+    kinds,
+    world,
+    mobileUnit,
+    ui,
+    canUse,
+    tiles,
+    currentBlock,
+}) => {
     const { tiles: selectedTiles } = useSelection();
     const selectedTile = selectedTiles?.[0];
     const component = (ui || [])
@@ -180,14 +191,18 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
 
     const [life, def, atk] = getMaterialStats(buildingKind?.materials || []);
 
+    const buildings = world?.buildings || [];
+    const hasPower = selectedTile && isPowered(selectedTile, tiles, buildings, currentBlock);
+
     return (
         <StyledTileInfoPanel>
             <div className="header">
                 <h3>{name}</h3>
                 {description && <span className="sub-title">{description}</span>}
+                {!hasPower && <h2>NO POWER</h2>}
             </div>
             <div className="content">
-                {content && (
+                {content && hasPower && (
                     <PluginContent canUse={canUse} content={content}>
                         {mobileUnit && (
                             <>
@@ -232,6 +247,9 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
                 {selectedTile && <TileInventory tile={selectedTile} bags={world?.bags || []} />}
                 <span className="label" style={{ width: '100%', marginTop: '2rem' }}>
                     <strong>COORDINATES:</strong> {`${q}, ${r}, ${s}`}
+                </span>
+                <span className="label" style={{ width: '100%' }}>
+                    <strong>POWERED:</strong> {hasPower ? 'yes' : 'no'}
                 </span>
                 {gooRatesInNameOrder.map((goo) => (
                     <span key={goo?.name} className="label" style={{ width: '30%' }}>
@@ -394,6 +412,8 @@ export const TileInfoPanel = ({ kinds, ui }: { kinds: BuildingKindFragment[]; ui
                     kinds={kinds}
                     canUse={!!canUse}
                     building={building}
+                    tiles={allTiles || []}
+                    currentBlock={blockNumber || 0}
                     world={world}
                     mobileUnit={mobileUnit}
                     ui={ui}
