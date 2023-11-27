@@ -10,7 +10,18 @@ export interface FactoryBuildingData {
     model?: string;
     color?: string;
     selected?: '' | 'none' | 'highlight' | 'outline';
-    sendScreenPosition?: boolean;
+}
+
+export interface LabelProps {
+    label?: string;
+}
+
+interface ScreenSpacePosition {
+    id: string;
+    x: number;
+    y: number;
+    z: number;
+    isVisible: boolean;
 }
 
 export const FactoryBuilding = memo(
@@ -22,13 +33,19 @@ export const FactoryBuilding = memo(
         height,
         model,
         selected,
+        label,
         rotation,
-        sendScreenPosition,
         onPointerEnter,
         onPointerExit,
         onPointerClick,
-    }: UnityComponentProps & FactoryBuildingData) => {
+    }: UnityComponentProps & FactoryBuildingData & LabelProps) => {
         const [hovered, setHovered] = useState(false);
+
+        const [position, setPosition] = useState<ScreenSpacePosition>();
+
+        const onPositionUpdate = useCallback((id, _type, x, y, z, isVisible) => {
+            setPosition({ id, x, y, z, isVisible });
+        }, []);
 
         const [bottom, top, color] = model?.split('-') || [];
         const combinedModel = `${bottom || '00'}-${top || '00'}`;
@@ -50,16 +67,36 @@ export const FactoryBuilding = memo(
                     model: combinedModel,
                     selected,
                     rotation,
-                    sendScreenPosition,
+                    sendScreenPosition: true,
+                    screenPositionHeightOffset: 1,
                     color: color || '0',
                 }),
-                [q, r, s, height, combinedModel, selected, rotation, sendScreenPosition, color]
+                [q, r, s, height, combinedModel, selected, rotation, color]
             ),
             onPointerEnter,
             onPointerExit,
             onPointerClick,
+            onPositionUpdate,
         });
 
-        return null;
+        return (
+            <label
+                style={{
+                    display: label && position?.isVisible ? 'block' : 'none',
+                    background: 'black',
+                    border: '2px solid white',
+                    borderRadius: '16px',
+                    color: 'white',
+                    fontWeight: 800,
+                    padding: '0 1rem',
+                    position: 'fixed',
+                    left: `calc(${(position?.x || 0) * 100}vw - 4rem)`,
+                    bottom: `${(position?.y || 0) * 100}vh`,
+                    zIndex: 2,
+                }}
+            >
+                {label}
+            </label>
+        );
     }
 );

@@ -1,10 +1,19 @@
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
-import { GOO_BLUE, GOO_GREEN, GOO_RED, GOO_GOLD, getTileHeightFromCoords, getUnscaledNoiseFromCoords } from '@app/helpers/tile';
+import {
+    GOO_BLUE,
+    GOO_GOLD,
+    GOO_GREEN,
+    GOO_RED,
+    getTileHeightFromCoords,
+    getUnscaledNoiseFromCoords,
+} from '@app/helpers/tile';
 import { BuildingKindFragment, WorldBuildingFragment, WorldTileFragment, getCoords } from '@downstream/core';
-import { memo, useMemo } from 'react';
+import { Fragment, memo, useMemo } from 'react';
 import { BlockerBuilding } from './BlockerBuilding';
 import { ExtractorBuilding } from './ExtractorBuilding';
 import { FactoryBuilding } from './FactoryBuilding';
+import { availablePower } from '@app/helpers/power';
+import { Light } from './Light';
 
 function getColorFromGoo(kind) {
     const outputName = kind?.outputs?.find((e) => ['Green Goo', 'Blue Goo', 'Red Goo'].includes(e.item.name?.value))
@@ -46,11 +55,13 @@ export const Buildings = memo(
     ({
         tiles,
         buildings,
+        currentBlock,
         selectedElementID,
         onClickBuilding,
     }: {
         tiles: WorldTileFragment[];
         buildings: WorldBuildingFragment[];
+        currentBlock: number;
         selectedElementID?: string;
         onClickBuilding: (id: string) => void;
     }) => {
@@ -68,24 +79,35 @@ export const Buildings = memo(
                     const selected = selectedElementID === b.id ? 'outline' : 'none';
                     const rotation = lerp(-20, 20, 0.5 - getUnscaledNoiseFromCoords(coords));
                     const tile = tiles.find(({ id }) => id === b.location?.tile.id);
-                    if (getBuildingCategory(b.kind) == BuildingCategory.EXTRACTOR) {
+                    const category = getBuildingCategory(b.kind);
+                    const pu =
+                        category !== BuildingCategory.BLOCKER ? availablePower(b, tiles, buildings, currentBlock) : 0;
+                    const light =
+                        pu > 0 || category === BuildingCategory.GENERATOR ? (
+                            <Light id={b.id} key={`l${b.id}`} height={height} {...coords} />
+                        ) : undefined;
+
+                    if (category == BuildingCategory.EXTRACTOR) {
                         return (
-                            <ExtractorBuilding
-                                key={b.id}
-                                id={b.id}
-                                atoms={(tile?.atoms || []).sort((a, b) => a.key - b.key).map((elm) => elm.weight)}
-                                lastExtraction={b.timestamp?.blockNum || 0}
-                                gooReservoir={b.gooReservoir}
-                                gooIndex={getGooIndexFromBuildingOutput(b?.kind)}
-                                height={height}
-                                rotation={rotation}
-                                color={getColorFromGoo(b.kind)}
-                                selected={selected}
-                                onPointerClick={onClickBuilding}
-                                {...coords}
-                            />
+                            <Fragment key={b.id}>
+                                <ExtractorBuilding
+                                    key={b.id}
+                                    id={b.id}
+                                    atoms={(tile?.atoms || []).sort((a, b) => a.key - b.key).map((elm) => elm.weight)}
+                                    lastExtraction={b.timestamp?.blockNum || 0}
+                                    gooReservoir={b.gooReservoir}
+                                    gooIndex={getGooIndexFromBuildingOutput(b?.kind)}
+                                    height={height}
+                                    rotation={rotation}
+                                    color={getColorFromGoo(b.kind)}
+                                    selected={selected}
+                                    onPointerClick={onClickBuilding}
+                                    {...coords}
+                                />
+                                {light}
+                            </Fragment>
                         );
-                    } else if (getBuildingCategory(b.kind) == BuildingCategory.BLOCKER) {
+                    } else if (category == BuildingCategory.BLOCKER) {
                         return (
                             <BlockerBuilding
                                 key={b.id}
@@ -100,20 +122,24 @@ export const Buildings = memo(
                         );
                     } else {
                         return (
-                            <FactoryBuilding
-                                key={b.id}
-                                id={b.id}
-                                height={height}
-                                model={b.kind?.model?.value}
-                                rotation={-30}
-                                selected={selected}
-                                onPointerClick={onClickBuilding}
-                                {...coords}
-                            />
+                            <Fragment key={b.id}>
+                                <FactoryBuilding
+                                    key={b.id}
+                                    id={b.id}
+                                    label={typeof pu != 'undefined' ? `${pu}PU` : undefined}
+                                    height={height}
+                                    model={b.kind?.model?.value}
+                                    rotation={-30}
+                                    selected={selected}
+                                    onPointerClick={onClickBuilding}
+                                    {...coords}
+                                />
+                                {light}
+                            </Fragment>
                         );
                     }
                 }),
-            [buildings, selectedElementID, onClickBuilding, tiles]
+            [buildings, selectedElementID, onClickBuilding, tiles, currentBlock]
         );
 
         return <>{buildingComponents}</>;

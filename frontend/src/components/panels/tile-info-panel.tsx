@@ -8,8 +8,10 @@ import {
     World,
     WorldBuildingFragment,
     WorldMobileUnitFragment,
+    WorldTileFragment,
 } from '@app/../../core/src';
 import { PluginContent } from '@app/components/organisms/tile-action';
+import { isPowered } from '@app/helpers/power';
 import {
     GOO_BIG_THRESH,
     GOO_BLUE,
@@ -20,17 +22,17 @@ import {
     getGooRates,
     getTileDistance,
 } from '@app/helpers/tile';
-import { usePlayer, useSelection, useWorld } from '@app/hooks/use-game-state';
+import { useBlock, useGameState, usePlayer, useSelection } from '@app/hooks/use-game-state';
+import { getMaterialStats } from '@app/plugins/combat/helpers';
 import { Bag } from '@app/plugins/inventory/bag';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { TileInventory } from '@app/plugins/inventory/tile-inventory';
 import { MobileUnitList } from '@app/plugins/mobile-unit-list';
-import { getBagsAtEquipee, getBuildingAtTile, getMobileUnitsAtTile } from '@downstream/core/src/utils';
 import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
+import { colors } from '@app/styles/colors';
+import { getBagsAtEquipee, getBuildingAtTile, getMobileUnitsAtTile } from '@downstream/core/src/utils';
 import { FunctionComponent, useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { colors } from '@app/styles/colors';
-import { getMaterialStats } from '@app/plugins/combat/helpers';
 
 interface KeyedThing {
     key: number;
@@ -278,8 +280,18 @@ interface TileAvailableProps {
     player?: ConnectedPlayer;
     mobileUnits: WorldMobileUnitFragment[];
     bags: BagFragment[];
+    tiles: WorldTileFragment[];
+    buildings: WorldBuildingFragment[];
+    currentBlock: number;
 }
-const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUnits, bags }) => {
+const TileAvailable: FunctionComponent<TileAvailableProps> = ({
+    player,
+    mobileUnits,
+    bags,
+    tiles,
+    buildings,
+    currentBlock,
+}) => {
     const { tiles: selectedTiles, mobileUnit: selectedMobileUnit } = useSelection();
     const selectedTile = selectedTiles?.[0];
     const tileMobileUnits = selectedTile ? getMobileUnitsAtTile(mobileUnits, selectedTile) : [];
@@ -318,6 +330,8 @@ const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUn
         ? `The tile has some ${topGooName} goo, extractors that need ${topGooName} goo will work well here`
         : undefined;
 
+    const hasPower = selectedTile && isPowered(selectedTile, tiles, buildings, currentBlock);
+
     return (
         <StyledTileInfoPanel>
             <div className="header">
@@ -331,6 +345,9 @@ const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUn
                 <span className="label" style={{ width: '100%' }}>
                     <strong>COORDINATES:</strong> {`${q}, ${r}, ${s}`}
                 </span>
+                <span className="label" style={{ width: '100%' }}>
+                    <strong>POWERED:</strong> {hasPower ? 'yes' : 'no'}
+                </span>
                 {gooRatesInNameOrder.map((goo) => (
                     <span key={goo?.name} className="label" style={{ width: '30%' }}>
                         <strong>{goo?.name.toUpperCase().slice(0, 1)}:</strong>{' '}
@@ -343,12 +360,12 @@ const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUn
 };
 
 export const TileInfoPanel = ({ kinds, ui }: { kinds: BuildingKindFragment[]; ui: PluginUpdateResponse[] }) => {
-    const { tiles, mobileUnit } = useSelection();
+    const { world, selected, tiles: allTiles } = useGameState();
+    const { tiles, mobileUnit } = selected || {};
     const player = usePlayer();
+    const blockNumber = useBlock();
 
     const selectedTiles = tiles || [];
-
-    const world = useWorld();
 
     const selectedTile = selectedTiles?.slice(-1).find(() => true);
 
@@ -357,7 +374,16 @@ export const TileInfoPanel = ({ kinds, ui }: { kinds: BuildingKindFragment[]; ui
         if (selectedTile.biome == BiomeKind.UNDISCOVERED) {
             return <TileUndiscovered />;
         } else if (!building) {
-            return <TileAvailable player={player} mobileUnits={world?.mobileUnits || []} bags={world?.bags || []} />;
+            return (
+                <TileAvailable
+                    tiles={allTiles || []}
+                    buildings={world?.buildings || []}
+                    currentBlock={blockNumber || 0}
+                    player={player}
+                    mobileUnits={world?.mobileUnits || []}
+                    bags={world?.bags || []}
+                />
+            );
         } else if (building) {
             const canUse =
                 mobileUnit &&

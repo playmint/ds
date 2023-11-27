@@ -23,17 +23,30 @@ const StyledOnboarding = styled(StyledHeaderPanel)`
 export const Onboarding = ({ player, playerUnits, onClickConnect }: OnboardingProps) => {
     const [isSpawningMobileUnit, setIsSpawningMobileUnit] = useState<boolean>(false);
 
-    const spawnMobileUnit = useCallback(() => {
+    const spawnMobileUnit1 = useCallback(() => {
         if (!player) {
             return;
         }
-        const id = CompoundKeyEncoder.encodeUint160(
-            NodeSelectors.MobileUnit,
-            BigInt(Math.floor(Math.random() * 10000))
-        );
+        const key = Math.floor(Math.random() * 10000);
+        const id = CompoundKeyEncoder.encodeUint160(NodeSelectors.MobileUnit, BigInt(key));
         setIsSpawningMobileUnit(true);
         player
-            .dispatch({ name: 'SPAWN_MOBILE_UNIT', args: [id] })
+            .dispatch({ name: 'SPAWN_MOBILE_UNIT', args: [id] }, { name: 'MOVE_MOBILE_UNIT', args: [key, 0, 31, -31] })
+            .catch((e) => {
+                console.error('failed to spawn mobileUnit:', e);
+            })
+            .finally(() => setIsSpawningMobileUnit(false));
+    }, [player, setIsSpawningMobileUnit]);
+
+    const spawnMobileUnit2 = useCallback(() => {
+        if (!player) {
+            return;
+        }
+        const key = Math.floor(Math.random() * 10000);
+        const id = CompoundKeyEncoder.encodeUint160(NodeSelectors.MobileUnit, BigInt(key));
+        setIsSpawningMobileUnit(true);
+        player
+            .dispatch({ name: 'SPAWN_MOBILE_UNIT', args: [id] }, { name: 'MOVE_MOBILE_UNIT', args: [key, -29, 7, 22] })
             .catch((e) => {
                 console.error('failed to spawn mobileUnit:', e);
             })
@@ -54,9 +67,14 @@ export const Onboarding = ({ player, playerUnits, onClickConnect }: OnboardingPr
                     </a>
                 </p>
                 {player && playerUnits.length === 0 ? (
-                    <ActionButton onClick={spawnMobileUnit} disabled={isSpawningMobileUnit}>
-                        Spawn Unit
-                    </ActionButton>
+                    <>
+                        <ActionButton onClick={spawnMobileUnit1} disabled={isSpawningMobileUnit}>
+                            Spawn North
+                        </ActionButton>
+                        <ActionButton onClick={spawnMobileUnit2} disabled={isSpawningMobileUnit}>
+                            Spawn South
+                        </ActionButton>
+                    </>
                 ) : (
                     <ActionButton onClick={onClickConnect}>Connect Wallet</ActionButton>
                 )}

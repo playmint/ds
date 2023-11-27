@@ -1,8 +1,9 @@
 import { getTileHeight } from '@app/helpers/tile';
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
-import { WorldTileFragment, getCoords } from '@downstream/core';
+import { WorldBuildingFragment, WorldTileFragment, getCoords } from '@downstream/core';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { TileHighlight } from './TileHighlight';
+import { isPowered } from '@app/helpers/power';
 
 export interface TileData {
     q: number;
@@ -45,10 +46,14 @@ export const Tile = memo(
 export const Tiles = memo(
     ({
         tiles,
+        buildings,
+        currentBlock,
         selectedTiles,
         onClickTile,
     }: {
-        tiles?: WorldTileFragment[];
+        tiles: WorldTileFragment[];
+        buildings: WorldBuildingFragment[];
+        currentBlock: number;
         selectedTiles?: WorldTileFragment[];
         onClickTile: (id: string) => void;
     }) => {
@@ -63,26 +68,27 @@ export const Tiles = memo(
             setHovered((prev) => (prev == id ? undefined : prev));
         }, []);
 
-        const tileComponents = useMemo(
-            () =>
-                (tiles || []).map((t) => {
+        const tileComponents = useMemo(() => {
+            return (tiles || [])
+                .filter((t) => !!t.biome)
+                .map((t) => {
                     const coords = getCoords(t);
+                    const hasPower = isPowered(t, tiles, buildings, currentBlock);
                     return (
                         <Tile
                             sendScreenPosition={false}
                             key={t.id}
                             id={t.id}
                             height={getTileHeight(t)}
-                            color="#7288A6"
+                            color={hasPower ? '#ffe193' : '#7288A6'}
                             onPointerEnter={enter}
                             onPointerExit={exit}
                             onPointerClick={onClickTile}
                             {...coords}
                         />
                     );
-                }),
-            [tiles, enter, exit, onClickTile]
-        );
+                });
+        }, [tiles, enter, exit, onClickTile, buildings, currentBlock]);
 
         return (
             <>

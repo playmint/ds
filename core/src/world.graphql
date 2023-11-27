@@ -80,6 +80,15 @@ fragment WorldMobileUnit on Node {
     }
 }
 
+fragment PoweredBy on Node {
+    poweredBy: edges(match: { via: { rel: "PoweredBy" } }) {
+        source: node {
+            id
+            kind
+        }
+    }
+}
+
 fragment WorldBuilding on Node {
     id
     kind: node(match: { kinds: "BuildingKind", via: { rel: "Is" } }) {
@@ -98,6 +107,8 @@ fragment WorldBuilding on Node {
     location: edge(match: { kinds: "Tile", via: { rel: "Location", key: 2 } }) {
         ...Location
     }
+    powersCount: count(match: { via: { rel: "Powers" } })
+    ...PoweredBy
 }
 
 fragment WorldCombatSession on Node {
@@ -141,6 +152,7 @@ fragment WorldTile on Node {
         key
         weight
     }
+    ...PoweredBy
 }
 
 fragment WorldPlayer on Node {

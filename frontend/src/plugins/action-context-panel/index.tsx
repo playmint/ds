@@ -24,6 +24,7 @@ import React, { FunctionComponent, useCallback, useEffect, useMemo, useState } f
 import styled from 'styled-components';
 import { styles } from './action-context-panel.styles';
 import { ActionButton } from '@app/styles/button.styles';
+import { getPowerSources } from '@app/helpers/power';
 
 export interface ActionContextPanelProps extends ComponentProps {}
 
@@ -208,6 +209,9 @@ const Construct: FunctionComponent<ConstructProps> = ({
     const otherKinds = constructableKinds
         .filter((kind) => kind.owner?.id !== player?.id)
         .filter((kind) => getBuildingCategory(kind) == BuildingCategory.NONE);
+    const generatorKinds = constructableKinds
+        .filter((kind) => kind.owner?.id !== player?.id)
+        .filter((kind) => getBuildingCategory(kind) == BuildingCategory.GENERATOR);
     const extractorKinds = constructableKinds
         .filter((kind) => kind.owner?.id !== player?.id)
         .filter((kind) => getBuildingCategory(kind) == BuildingCategory.EXTRACTOR);
@@ -256,6 +260,10 @@ const Construct: FunctionComponent<ConstructProps> = ({
     const mobileUnitKey = mobileUnit?.key;
     const mobileUnitId = mobileUnit?.id;
 
+    const powerSource = constructableTile
+        ? getPowerSources(constructableTile, tiles, buildings).find(() => true)
+        : undefined;
+
     const handleConstruct = useCallback(
         (e: React.FormEvent<HTMLFormElement>) => {
             e.preventDefault();
@@ -273,6 +281,11 @@ const Construct: FunctionComponent<ConstructProps> = ({
             if (path.length < 2) {
                 return;
             }
+            if (!powerSource) {
+                console.debug('no power source to construct here');
+                return;
+            }
+
             const actions: CogAction[][] = [
                 ...path.slice(1, -1).map((t) => {
                     const [_zone, q, r, s] = t.coords;
@@ -290,6 +303,7 @@ const Construct: FunctionComponent<ConstructProps> = ({
                         args: [
                             mobileUnitId,
                             data.kind,
+                            powerSource.id,
                             constructableTile.coords[1],
                             constructableTile.coords[2],
                             constructableTile.coords[3],
@@ -301,7 +315,7 @@ const Construct: FunctionComponent<ConstructProps> = ({
             setActionQueue(actions);
             clearIntent();
         },
-        [mobileUnitId, mobileUnitKey, selectedKind, constructableTile, clearIntent, setActionQueue, path]
+        [mobileUnitId, mobileUnitKey, selectedKind, constructableTile, clearIntent, setActionQueue, path, powerSource]
     );
     const costs = selectedKind?.materials.map((slot) => `${slot.balance} ${slot.item?.name?.value || ''}`) || [];
     const building = selectedTile ? getBuildingAtTile(buildings, selectedTile) : null;
@@ -384,6 +398,15 @@ const Construct: FunctionComponent<ConstructProps> = ({
                                 {extractorKinds.length > 0 && (
                                     <optgroup label="Extractors">
                                         {extractorKinds.map((k) => (
+                                            <option key={k.id} value={k.id}>
+                                                {k.name?.value || k.id}
+                                            </option>
+                                        ))}
+                                    </optgroup>
+                                )}
+                                {generatorKinds.length > 0 && (
+                                    <optgroup label="Generators">
+                                        {generatorKinds.map((k) => (
                                             <option key={k.id} value={k.id}>
                                                 {k.name?.value || k.id}
                                             </option>

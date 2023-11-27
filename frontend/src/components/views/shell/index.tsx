@@ -36,6 +36,7 @@ import { styles } from './shell.styles';
 import { QuestPanel } from '@app/components/panels/quest-panel';
 import { getBagsAtEquipee, getBuildingAtTile, getSessionsAtTile } from '@downstream/core/src/utils';
 import { StyledBasePanel, StyledHeaderPanel } from '@app/styles/base-panel.styles';
+import { Light } from '@app/components/map/Light';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -273,7 +274,13 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         onPointerEnter={noop}
                         onPointerExit={noop}
                     />
-                    <Tiles tiles={tiles} onClickTile={tileClick} selectedTiles={selectedTiles} />
+                    <Tiles
+                        tiles={tiles || []}
+                        buildings={world?.buildings || []}
+                        currentBlock={blockNumber || 0}
+                        onClickTile={tileClick}
+                        selectedTiles={selectedTiles}
+                    />
                     <MobileUnits
                         mobileUnits={world?.mobileUnits}
                         buildings={world?.buildings || []}
@@ -292,6 +299,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     <Buildings
                         tiles={tiles || []}
                         buildings={world?.buildings || []}
+                        currentBlock={blockNumber || 0}
                         onClickBuilding={mapElementClick}
                         selectedElementID={selectedMapElement?.id}
                     />

@@ -37,6 +37,8 @@ export function getPath(
         const key = `${q}:${r}:${s}`;
         if (building && getBuildingCategory(building?.kind) === BuildingCategory.BLOCKER) {
             blockerMap.set(key, true);
+        } else if (!tiles[idx].biome) {
+            blockerMap.set(key, true);
         }
         tileMap.set(key, t);
         tileList.push(t);
