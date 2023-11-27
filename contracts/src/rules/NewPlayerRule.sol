@@ -47,12 +47,12 @@ contract NewPlayerRule is Rule {
         bytes24 locationTile = spawnlocation[mobileUnit];
         state.setPrevLocation(mobileUnit, locationTile, 0);
         state.setNextLocation(mobileUnit, locationTile, ctx.clock);
-        for (uint8 b=0; b<2; b++) {
+        for (uint8 b = 0; b < 2; b++) {
             bytes24 bag = state.getEquipSlot(mobileUnit, b);
             if (bag == 0x0) {
                 continue;
             }
-            for (uint8 s=0; s<4; s++) {
+            for (uint8 s = 0; s < 4; s++) {
                 state.clearItemSlot(bag, s);
             }
         }
