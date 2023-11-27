@@ -155,22 +155,22 @@ export const getEntityName = (entityID: BytesLike, world: WorldStateFragment) =>
 };
 
 export const getEquipmentStats = (bags: BagFragment[]): number[] => {
-    return bags.reduce(
-        (stats, bag) => {
-            bag.slots.forEach((slot) => {
-                if (slot.balance > 0) {
-                    const [stackable, life, defense, attack] = getItemStructure(slot.item.id);
-                    if (!stackable) {
-                        stats[ATOM_LIFE] += life * LIFE_MUL;
-                        stats[ATOM_DEFENSE] += defense;
-                        stats[ATOM_ATTACK] += attack;
+    return bags
+        .filter((b) => b.equipee && b.equipee.key != 2)
+        .reduce(
+            (stats, bag) => {
+                bag.slots.forEach((slot) => {
+                    if (slot.balance > 0) {
+                        const [_, life, defense, attack] = getItemStructure(slot.item.id);
+                        stats[ATOM_LIFE] += life * LIFE_MUL * slot.balance;
+                        stats[ATOM_DEFENSE] += defense * slot.balance;
+                        stats[ATOM_ATTACK] += attack * slot.balance;
                     }
-                }
-            });
-            return stats;
-        },
-        [0, 0, 0]
-    );
+                });
+                return stats;
+            },
+            [0, 0, 0]
+        );
 };
 
 export const getMobileUnitStats = (mobileUnit?: WorldMobileUnitFragment, worldBags?: BagFragment[]): number[] => {

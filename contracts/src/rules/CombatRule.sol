@@ -679,10 +679,10 @@ contract CombatRule is Rule {
                     // 4 items slots per bag
                     for (uint8 j = 0; j < 4; j++) {
                         (bytes24 item, uint64 balance) = state.getItemSlot(bag, j);
-                        (uint32[3] memory inputAtoms, bool isStackable) = state.getItemStructure(item);
-                        if (!isStackable && balance > 0) {
+                        (uint32[3] memory inputAtoms, /*bool isStackable*/ ) = state.getItemStructure(item);
+                        if (balance > 0) {
                             for (uint8 k = 0; k < 3; k++) {
-                                stats[k] += inputAtoms[k] * (k == GOO_GREEN ? LIFE_MUL : 1);
+                                stats[k] += inputAtoms[k] * uint32(balance) * (k == GOO_GREEN ? LIFE_MUL : 1);
                             }
                         }
                     }
