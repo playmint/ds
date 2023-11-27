@@ -279,7 +279,7 @@ contract CombatRule is Rule {
         }
         state.removePowerSource(buildingInstance, targetTile);
         bytes24[99] memory poweredTiles = TileUtils.range2(targetTile);
-        for (uint i=0; i<poweredTiles.length; i++) {
+        for (uint256 i = 0; i < poweredTiles.length; i++) {
             if (poweredTiles[i] == 0x0) {
                 continue;
             }

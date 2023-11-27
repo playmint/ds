@@ -179,7 +179,9 @@ contract ExtractionRuleTest is Test, GameTest {
         state.setItemSlot(inputBag, 1, ItemUtils.BlueGoo(), 25);
         state.setItemSlot(inputBag, 2, ItemUtils.RedGoo(), 25);
         // construct our building
-        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, 0x0, q, r, s)));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, 0x0, q, r, s))
+        );
         return buildingInstance;
     }
 }

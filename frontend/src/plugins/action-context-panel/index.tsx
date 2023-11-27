@@ -15,7 +15,7 @@ import { TileHighlight } from '@app/components/map/TileHighlight';
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
 import { getPath } from '@app/helpers/pathfinding';
 import { getCoords, getTileDistance, getTileHeight } from '@app/helpers/tile';
-import { useBuildingKinds, useGameState, usePlayer, useSelection } from '@app/hooks/use-game-state';
+import { useBlock, useBuildingKinds, useGameState, usePlayer, useSelection } from '@app/hooks/use-game-state';
 import { getBagId, getBuildingId } from '@app/plugins/inventory/helpers';
 import { ComponentProps } from '@app/types/component-props';
 import { WorldCombatSessionFragment } from '@downstream/core/src/gql/graphql';
@@ -24,7 +24,7 @@ import React, { FunctionComponent, useCallback, useEffect, useMemo, useState } f
 import styled from 'styled-components';
 import { styles } from './action-context-panel.styles';
 import { ActionButton } from '@app/styles/button.styles';
-import { getPowerSources } from '@app/helpers/power';
+import { getPowerSources, isPowered } from '@app/helpers/power';
 
 export interface ActionContextPanelProps extends ComponentProps {}
 
@@ -65,6 +65,7 @@ interface ConstructProps {
     buildings: WorldBuildingFragment[];
     mobileUnit?: WorldMobileUnitFragment;
     setActionQueue: (path: CogAction[][]) => void;
+    currentBlock: number;
 }
 
 type SlotSource = {
@@ -88,6 +89,7 @@ const Construct: FunctionComponent<ConstructProps> = ({
     buildings,
     selectIntent,
     setActionQueue,
+    currentBlock,
 }) => {
     const [selectedKindRaw, selectKind] = useState<undefined | BuildingKindWithOps>();
     const [showOnlyConstructable, setShowOnlyConstructable] = useState<boolean>(true);
@@ -255,7 +257,12 @@ const Construct: FunctionComponent<ConstructProps> = ({
         [selectIntent]
     );
 
-    const canConstruct = selectedKind && selectedKind.ops && selectedKind.ops.length > 0 && constructableTile;
+    const canConstruct =
+        selectedKind &&
+        selectedKind.ops &&
+        selectedKind.ops.length > 0 &&
+        constructableTile &&
+        isPowered(constructableTile, tiles, buildings, currentBlock);
 
     const mobileUnitKey = mobileUnit?.key;
     const mobileUnitId = mobileUnit?.id;
@@ -828,6 +835,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
     const { world, tiles } = useGameState();
     const { selectIntent, intent, tiles: sTiles, mobileUnit, selectTiles } = useSelection();
     const player = usePlayer();
+    const blockNumber = useBlock();
 
     const selectedTiles = sTiles || [];
     const mobileUnitKey = mobileUnit?.key;
@@ -873,6 +881,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
                 selectedTiles={selectedTiles}
                 selectTiles={selectTiles}
                 mobileUnit={mobileUnit}
+                currentBlock={blockNumber || 0}
                 player={player}
                 tiles={tiles || []}
                 bags={world?.bags || []}

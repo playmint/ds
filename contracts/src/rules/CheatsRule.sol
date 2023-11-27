@@ -117,7 +117,7 @@ contract CheatsRule is Rule {
         // powerup tiles from building
         bytes24[99] memory poweredTiles = TileUtils.range2(targetTile);
         uint64 sourceKind = category == BuildingCategory.GENERATOR ? 1 : 0;
-        for (uint i=0; i<poweredTiles.length; i++) {
+        for (uint256 i = 0; i < poweredTiles.length; i++) {
             if (poweredTiles[i] == 0x0 && poweredTiles[i] != targetTile) {
                 continue;
             }

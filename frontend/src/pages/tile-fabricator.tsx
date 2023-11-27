@@ -411,6 +411,8 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                 },
                 timestamp: null,
                 gooReservoir: [],
+                powersCount: 0,
+                poweredBy: [],
             };
         };
 
@@ -430,6 +432,8 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                 sessions: [],
                 bags: [],
                 atoms: [],
+                powersCount: 0,
+                poweredBy: [],
                 building: worldBuildingForTile(t),
             };
         });

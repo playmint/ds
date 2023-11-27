@@ -228,7 +228,7 @@ contract BuildingRule is Rule {
         require(inputOwner != 0x0, "input item must be a registered item");
 
         // check that the item is stackable
-        (/*uint32[4] memory atoms*/, bool isStackable) = state.getItemStructure(inputItemID);
+        ( /*uint32[4] memory atoms*/ , bool isStackable) = state.getItemStructure(inputItemID);
         require(isStackable, "input item must be stackable");
 
         state.setInput(buildingKind, 0, inputItemID, inputItemQty);
@@ -267,7 +267,6 @@ contract BuildingRule is Rule {
             state.setEquipSlot(buildingInstance, 0, inputBag);
             state.setEquipSlot(buildingInstance, 1, outputBag);
 
-
             if (category == BuildingCategory.EXTRACTOR) {
                 // set initial extraction timestamp
                 state.setBlockNum(buildingInstance, 0, ctx.clock);
@@ -276,8 +275,7 @@ contract BuildingRule is Rule {
             }
         }
 
-
-        if (powerSource != 0x0) { 
+        if (powerSource != 0x0) {
             // power up building from generator
             state.setPowerSource(buildingInstance, targetTile);
             state.setPowerSink(powerSource, buildingInstance);
@@ -286,11 +284,13 @@ contract BuildingRule is Rule {
         _powerTiles(state, targetTile, buildingInstance, category);
     }
 
-    function _powerTiles(State state, bytes24 targetTile, bytes24 buildingInstance, BuildingCategory category) private {
+    function _powerTiles(State state, bytes24 targetTile, bytes24 buildingInstance, BuildingCategory category)
+        private
+    {
         // powerup tiles from building
         bytes24[99] memory poweredTiles = TileUtils.range2(targetTile);
         uint64 sourceKind = category == BuildingCategory.GENERATOR ? 1 : 0;
-        for (uint i=0; i<poweredTiles.length; i++) {
+        for (uint256 i = 0; i < poweredTiles.length; i++) {
             if (poweredTiles[i] == 0x0 && poweredTiles[i] != targetTile) {
                 continue;
             }
