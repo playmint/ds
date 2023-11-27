@@ -1,0 +1,25 @@
+---
+kind: BuildingKind
+spec:
+  name: GooHub
+  description: "Deposit Goo here"
+  category: custom
+  model: 05-08
+  color: 0
+  contract:
+    file: ./GooHub.sol
+  plugin:
+    file: ./GooHub.js
+  materials:
+    - name: Red Goo
+      quantity: 10
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+
+---
+kind: Building
+spec:
+  name: GooHub
+  location: [0, 0, 0]
