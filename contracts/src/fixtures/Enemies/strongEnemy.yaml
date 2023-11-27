@@ -1,0 +1,15 @@
+---
+kind: BuildingKind
+spec:
+  name: Sturdy Enemy
+  description: Bit of a bruser, goes by Barry.
+  category: blocker
+  model: enemy
+  materials:
+  - name: Red Goo
+    quantity: 100
+  - name: Blue Goo
+    quantity: 100
+  - name: Green Goo
+    quantity: 100
+
