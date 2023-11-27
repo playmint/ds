@@ -6,6 +6,7 @@ import "cog/IRule.sol";
 
 import {Schema, Node, BiomeKind, BuildingCategory, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
+import {TileUtils} from "@ds/utils/TileUtils.sol";
 
 using Schema for State;
 
@@ -91,10 +92,12 @@ contract CheatsRule is Rule {
         state.setOwner(buildingInstance, Node.Player(msg.sender));
         state.setFixedLocation(buildingInstance, targetTile);
         // attach the inputs/output bags
-        bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "input")))));
-        bytes24 outputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "output")))));
-        state.setEquipSlot(buildingInstance, 0, inputBag);
-        state.setEquipSlot(buildingInstance, 1, outputBag);
+        {
+            bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "input")))));
+            bytes24 outputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "output")))));
+            state.setEquipSlot(buildingInstance, 0, inputBag);
+            state.setEquipSlot(buildingInstance, 1, outputBag);
+        }
 
         // -- Category specific calls
 
@@ -109,6 +112,16 @@ contract CheatsRule is Rule {
         } else if (category == BuildingCategory.GENERATOR) {
             state.setBlockNum(buildingInstance, 0, ctx.clock);
             state.setBuildingReservoirAtoms(buildingInstance, [uint64(0), uint64(0), uint64(0), uint32(0)]);
+        }
+
+        // powerup tiles from building
+        bytes24[99] memory poweredTiles = TileUtils.range2(targetTile);
+        uint64 sourceKind = category == BuildingCategory.GENERATOR ? 1 : 0;
+        for (uint i=0; i<poweredTiles.length; i++) {
+            if (poweredTiles[i] == 0x0 && poweredTiles[i] != targetTile) {
+                continue;
+            }
+            state.setPowerSource(poweredTiles[i], buildingInstance, sourceKind);
         }
     }
 }

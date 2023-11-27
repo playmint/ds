@@ -82,6 +82,7 @@ interface Actions {
     function CONSTRUCT_BUILDING_MOBILE_UNIT(
         bytes24 mobileUnit, // which mobileUnit is performing the construction
         bytes24 buildingKind, // what kind of building
+        bytes24 powerSource, // connect to generator
         int16 q,
         int16 r,
         int16 s // which tile to create on (can be adjacent)

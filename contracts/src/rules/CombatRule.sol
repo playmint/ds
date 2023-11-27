@@ -271,6 +271,21 @@ contract CombatRule is Rule {
     }
 
     function _destroyBuilding(State state, bytes24 buildingInstance) private {
+        // disconnect power lines
+        bytes24 targetTile = state.getFixedLocation(buildingInstance);
+        bytes24 powerSource = state.getPowerSource(targetTile);
+        if (powerSource != 0x0) {
+            state.removePowerSink(powerSource, buildingInstance);
+        }
+        state.removePowerSource(buildingInstance, targetTile);
+        bytes24[99] memory poweredTiles = TileUtils.range2(targetTile);
+        for (uint i=0; i<poweredTiles.length; i++) {
+            if (poweredTiles[i] == 0x0) {
+                continue;
+            }
+            state.removePowerSource(poweredTiles[i], buildingInstance);
+        }
+
         // set type of building
         state.setBuildingKind(buildingInstance, bytes24(0));
         // set building owner to player who created it

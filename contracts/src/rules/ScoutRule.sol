@@ -129,6 +129,10 @@ contract ScoutRule is Rule {
         // FIXME: hardcode gold goo at specific locations
         if (coords[0] == 0 && coords[1] == 0 && coords[2] == 0) {
             atoms[GOO_GOLD] = 200;
+        } else if (coords[0] == 0 && coords[1] == 31 && coords[2] == -31) {
+            atoms[GOO_GOLD] = 200;
+        } else if (coords[0] == -29 && coords[1] == 7 && coords[2] == 22) {
+            atoms[GOO_GOLD] = 200;
         }
 
         state.setTileAtomValues(targetTile, atoms);

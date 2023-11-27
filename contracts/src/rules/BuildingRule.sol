@@ -83,13 +83,14 @@ contract BuildingRule is Rule {
             (
                 bytes24 mobileUnit, // which mobileUnit is performing the construction
                 bytes24 buildingKind, // what kind of building
+                bytes24 powerSource, // generator building instance
                 int16[3] memory coords
-            ) = abi.decode(action[4:], (bytes24, bytes24, int16[3]));
+            ) = abi.decode(action[4:], (bytes24, bytes24, bytes24, int16[3]));
             // player must own mobileUnit
             if (state.getOwner(mobileUnit) != Node.Player(ctx.sender)) {
                 revert("MobileUnitNotOwnedByPlayer");
             }
-            _constructBuilding(state, ctx, mobileUnit, buildingKind, coords);
+            _constructBuilding(state, ctx, mobileUnit, buildingKind, powerSource, coords);
         } else if (bytes4(action) == Actions.BUILDING_USE.selector) {
             (bytes24 buildingInstance, bytes24 mobileUnitID, bytes memory payload) =
                 abi.decode(action[4:], (bytes24, bytes24, bytes));
@@ -238,6 +239,7 @@ contract BuildingRule is Rule {
         Context calldata ctx,
         bytes24 mobileUnit,
         bytes24 buildingKind,
+        bytes24 powerSource,
         int16[3] memory coords
     ) private {
         // get mobileUnit location
@@ -258,20 +260,41 @@ contract BuildingRule is Rule {
         state.setFixedLocation(buildingInstance, targetTile);
 
         // attach the inputs/output bags
-        bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "input")))));
-        bytes24 outputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "output")))));
-        state.setEquipSlot(buildingInstance, 0, inputBag);
-        state.setEquipSlot(buildingInstance, 1, outputBag);
-
-        // -- Category specific calls
-
         ( /*uint64 id*/ , BuildingCategory category) = state.getBuildingKindInfo(buildingKind);
+        {
+            bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "input")))));
+            bytes24 outputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "output")))));
+            state.setEquipSlot(buildingInstance, 0, inputBag);
+            state.setEquipSlot(buildingInstance, 1, outputBag);
 
-        if (category == BuildingCategory.EXTRACTOR) {
-            // set initial extraction timestamp
-            state.setBlockNum(buildingInstance, 0, ctx.clock);
-            // Set output bag owner to player so that only they can take the extracted items
-            state.setOwner(outputBag, Node.Player(ctx.sender));
+
+            if (category == BuildingCategory.EXTRACTOR) {
+                // set initial extraction timestamp
+                state.setBlockNum(buildingInstance, 0, ctx.clock);
+                // Set output bag owner to player so that only they can take the extracted items
+                state.setOwner(outputBag, Node.Player(ctx.sender));
+            }
+        }
+
+
+        if (powerSource != 0x0) { 
+            // power up building from generator
+            state.setPowerSource(buildingInstance, targetTile);
+            state.setPowerSink(powerSource, buildingInstance);
+        }
+
+        _powerTiles(state, targetTile, buildingInstance, category);
+    }
+
+    function _powerTiles(State state, bytes24 targetTile, bytes24 buildingInstance, BuildingCategory category) private {
+        // powerup tiles from building
+        bytes24[99] memory poweredTiles = TileUtils.range2(targetTile);
+        uint64 sourceKind = category == BuildingCategory.GENERATOR ? 1 : 0;
+        for (uint i=0; i<poweredTiles.length; i++) {
+            if (poweredTiles[i] == 0x0 && poweredTiles[i] != targetTile) {
+                continue;
+            }
+            state.setPowerSource(poweredTiles[i], buildingInstance, sourceKind);
         }
     }
 

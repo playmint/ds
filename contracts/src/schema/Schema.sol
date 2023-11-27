@@ -60,6 +60,8 @@ uint32 constant UNIT_BASE_DEFENCE = 23;
 uint32 constant UNIT_BASE_ATTACK = 30;
 uint32 constant LIFE_MUL = 10;
 
+uint64 constant PU_MULTIPLIER = 10;
+
 enum LocationKey {
     PREV,
     NEXT,
@@ -505,11 +507,11 @@ library Schema {
         return (quest, QuestStatus(status));
     }
 
-    function getPoweredCount(State state, bytes24 generatorBuildingInstance) internal view returns (uint64) {
-        uint64 total = 0;
+    function getPoweredCount(State state, bytes24 powerSource) internal view returns (uint64) {
+        uint64 total = 1;
         uint64 weight;
         for (uint8 i=0; i< 255; i++) {
-            ( /*bytes24*/ , weight) = state.get(Rel.Powers.selector, i, generatorBuildingInstance);
+            ( /*bytes24*/ , weight) = state.get(Rel.Powers.selector, i, powerSource);
             total += weight;
         }
         return total;
@@ -526,12 +528,82 @@ library Schema {
         // get the current reservoir level
         reservoirAtoms = state.getBuildingReservoirAtoms(buildingInstance);
         uint64 elapsedBlocks = blockNum - getBlockNum(state, buildingInstance, 0);
+        uint64 lastPUAmount = reservoirAtoms[GOO_GOLD] * PU_MULTIPLIER;
 
         uint64 delta = elapsedBlocks * numConnectedBuildings; // consumes at 1 atom per block per building
-        if (delta > reservoirAtoms[GOO_GOLD]) {
+        if (delta > lastPUAmount) {
             reservoirAtoms[GOO_GOLD] = 0;
         } else {
-            reservoirAtoms[GOO_GOLD] = reservoirAtoms[GOO_GOLD] - delta;
+            reservoirAtoms[GOO_GOLD] = (lastPUAmount - delta) / PU_MULTIPLIER;
+        }
+    }
+
+    function getPowerSource(State state, bytes24 powerSink) internal view returns (bytes24) {
+        return getPowerSource(state, powerSink, 0);
+    }
+
+    // BAD RECURSIVE FUNCTION IS BAD
+    // to prevent infinite loop, this func is crippled to only search the first few edges and bail after a small number of rescursions
+    // this means it won't always find the power source, it will give up too easily
+    function getPowerSource(State state, bytes24 powerSink, uint8 depth) internal view returns (bytes24) {
+        for (uint8 i=0; i< 20; i++) {
+            (bytes24 source, uint64 weight) = state.get(Rel.PoweredBy.selector, i, powerSink);
+            if (source == 0x0) {
+                continue;
+            }
+            if (weight == 1) {
+                return source;
+            } else if (depth < 5) {
+                source = getPowerSource(state, source, depth+1);
+                if (source != 0x0) {
+                    return source;
+                }
+            }
+        }
+        return 0x0;
+    }
+
+    function setPowerSource(State state, bytes24 powerSink, bytes24 powerSource, uint64 sourceKind) internal {
+        for (uint8 i=0; i< 255; i++) {
+            (bytes24 source,) = state.get(Rel.PoweredBy.selector, i, powerSink);
+            if (source == 0x0) {
+                state.set(Rel.PoweredBy.selector, i, powerSink, powerSource, sourceKind);
+                return;
+            }
+        }
+    }
+
+    function setPowerSource(State state, bytes24 powerSink, bytes24 powerSource) internal {
+        setPowerSource(state, powerSink, powerSource, 0);
+    }
+
+    function removePowerSource(State state, bytes24 powerSink, bytes24 powerSource) internal {
+        for (uint8 i=0; i< 255; i++) {
+            (bytes24 source,) = state.get(Rel.PoweredBy.selector, i, powerSink);
+            if (source == powerSource) {
+                state.remove(Rel.PoweredBy.selector, i, powerSink);
+                return;
+            }
+        }
+    }
+
+    function setPowerSink(State state, bytes24 powerSource, bytes24 powerSink) internal {
+        for (uint8 i=0; i< 255; i++) {
+            (bytes24 sink,) = state.get(Rel.Powers.selector, i, powerSource);
+            if (sink == 0x0) {
+                state.set(Rel.Powers.selector, i, powerSource, powerSink, 1);
+                return;
+            }
+        }
+    }
+
+    function removePowerSink(State state, bytes24 powerSource, bytes24 powerSink) internal {
+        for (uint8 i=0; i< 255; i++) {
+            (bytes24 sink,) = state.get(Rel.Powers.selector, i, powerSource);
+            if (sink == powerSink) {
+                state.remove(Rel.Powers.selector, i, powerSource);
+                return;
+            }
         }
     }
 }

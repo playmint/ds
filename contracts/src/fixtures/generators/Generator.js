@@ -1,6 +1,6 @@
 import ds from 'downstream';
 
-const PU_MULTIPLIER = 100;
+const PU_MULTIPLIER = 10;
 
 export default function update({ selected, world }, block) {
 

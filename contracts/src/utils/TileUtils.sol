@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {State, CompoundKeyEncoder, CompoundKeyDecoder} from "cog/IState.sol";
+import {State, CompoundKeyDecoder} from "cog/IState.sol";
 import {Schema, Node, Kind, Q, R, S} from "@ds/schema/Schema.sol";
 
 using Schema for State;
@@ -27,5 +27,22 @@ library TileUtils {
 
     function abs(int256 n) internal pure returns (int256) {
         return n >= 0 ? n : -n;
+    }
+
+    function range2(bytes24 tile) internal pure returns (bytes24[99] memory results) {
+        int16 range = 2;
+        int16[4] memory tileCoords = coords(tile);
+        uint i = 0;
+        for (int16 q=tileCoords[1]-range; q <= tileCoords[1]+range; q++) {
+            for (int16 r=tileCoords[2]-range; r <= tileCoords[2]+range; r++) {
+                int16 s = -q-r;
+                bytes24 nextTile = Node.Tile(0, q, r, s);
+                if (distance(tile, nextTile) <= uint256(uint16(range))) {
+                    results[i] = nextTile;
+                    i++;
+                }
+            }
+        }
+        return results;
     }
 }
