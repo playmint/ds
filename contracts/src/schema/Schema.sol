@@ -114,7 +114,15 @@ library Node {
             stackable = 1;
         }
         return bytes24(
-            abi.encodePacked(Kind.Item.selector, uniqueID, stackable, atoms[GOO_GREEN], atoms[GOO_BLUE], atoms[GOO_RED], atoms[GOO_GOLD])
+            abi.encodePacked(
+                Kind.Item.selector,
+                uniqueID,
+                stackable,
+                atoms[GOO_GREEN],
+                atoms[GOO_BLUE],
+                atoms[GOO_RED],
+                atoms[GOO_GOLD]
+            )
         );
     }
 
@@ -510,7 +518,7 @@ library Schema {
     function getPoweredCount(State state, bytes24 powerSource) internal view returns (uint64) {
         uint64 total = 1;
         uint64 weight;
-        for (uint8 i=0; i< 255; i++) {
+        for (uint8 i = 0; i < 255; i++) {
             ( /*bytes24*/ , weight) = state.get(Rel.Powers.selector, i, powerSource);
             total += weight;
         }
@@ -546,7 +554,7 @@ library Schema {
     // to prevent infinite loop, this func is crippled to only search the first few edges and bail after a small number of rescursions
     // this means it won't always find the power source, it will give up too easily
     function getPowerSource(State state, bytes24 powerSink, uint8 depth) internal view returns (bytes24) {
-        for (uint8 i=0; i< 20; i++) {
+        for (uint8 i = 0; i < 20; i++) {
             (bytes24 source, uint64 weight) = state.get(Rel.PoweredBy.selector, i, powerSink);
             if (source == 0x0) {
                 continue;
@@ -554,7 +562,7 @@ library Schema {
             if (weight == 1) {
                 return source;
             } else if (depth < 5) {
-                source = getPowerSource(state, source, depth+1);
+                source = getPowerSource(state, source, depth + 1);
                 if (source != 0x0) {
                     return source;
                 }
@@ -564,7 +572,7 @@ library Schema {
     }
 
     function setPowerSource(State state, bytes24 powerSink, bytes24 powerSource, uint64 sourceKind) internal {
-        for (uint8 i=0; i< 255; i++) {
+        for (uint8 i = 0; i < 255; i++) {
             (bytes24 source,) = state.get(Rel.PoweredBy.selector, i, powerSink);
             if (source == 0x0) {
                 state.set(Rel.PoweredBy.selector, i, powerSink, powerSource, sourceKind);
@@ -578,7 +586,7 @@ library Schema {
     }
 
     function removePowerSource(State state, bytes24 powerSink, bytes24 powerSource) internal {
-        for (uint8 i=0; i< 255; i++) {
+        for (uint8 i = 0; i < 255; i++) {
             (bytes24 source,) = state.get(Rel.PoweredBy.selector, i, powerSink);
             if (source == powerSource) {
                 state.remove(Rel.PoweredBy.selector, i, powerSink);
@@ -588,7 +596,7 @@ library Schema {
     }
 
     function setPowerSink(State state, bytes24 powerSource, bytes24 powerSink) internal {
-        for (uint8 i=0; i< 255; i++) {
+        for (uint8 i = 0; i < 255; i++) {
             (bytes24 sink,) = state.get(Rel.Powers.selector, i, powerSource);
             if (sink == 0x0) {
                 state.set(Rel.Powers.selector, i, powerSource, powerSink, 1);
@@ -598,7 +606,7 @@ library Schema {
     }
 
     function removePowerSink(State state, bytes24 powerSource, bytes24 powerSink) internal {
-        for (uint8 i=0; i< 255; i++) {
+        for (uint8 i = 0; i < 255; i++) {
             (bytes24 sink,) = state.get(Rel.Powers.selector, i, powerSource);
             if (sink == powerSink) {
                 state.remove(Rel.Powers.selector, i, powerSource);

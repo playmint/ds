@@ -52,7 +52,8 @@ library ItemUtils {
     // register is a helper to declare a new kind of item
     function register(Game ds, ItemConfig memory cfg) internal returns (bytes24) {
         Dispatcher dispatcher = ds.getDispatcher();
-        uint32[4] memory outputItemAtoms = [uint32(cfg.greenGoo), uint32(cfg.blueGoo), uint32(cfg.redGoo), uint32(cfg.goldGoo)];
+        uint32[4] memory outputItemAtoms =
+            [uint32(cfg.greenGoo), uint32(cfg.blueGoo), uint32(cfg.redGoo), uint32(cfg.goldGoo)];
         bytes24 itemKind = Node.Item(uint16(cfg.id), outputItemAtoms, cfg.stackable);
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (itemKind, cfg.name, cfg.icon)));
         if (address(cfg.implementation) != address(0)) {

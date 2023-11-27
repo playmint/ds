@@ -32,10 +32,10 @@ library TileUtils {
     function range2(bytes24 tile) internal pure returns (bytes24[99] memory results) {
         int16 range = 2;
         int16[4] memory tileCoords = coords(tile);
-        uint i = 0;
-        for (int16 q=tileCoords[1]-range; q <= tileCoords[1]+range; q++) {
-            for (int16 r=tileCoords[2]-range; r <= tileCoords[2]+range; r++) {
-                int16 s = -q-r;
+        uint256 i = 0;
+        for (int16 q = tileCoords[1] - range; q <= tileCoords[1] + range; q++) {
+            for (int16 r = tileCoords[2] - range; r <= tileCoords[2] + range; r++) {
+                int16 s = -q - r;
                 bytes24 nextTile = Node.Tile(0, q, r, s);
                 if (distance(tile, nextTile) <= uint256(uint16(range))) {
                     results[i] = nextTile;

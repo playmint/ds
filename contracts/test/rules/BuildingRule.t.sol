@@ -70,7 +70,9 @@ contract BuildingRuleTest is Test, GameTest {
         _transferFromMobileUnit(mobileUnit, 0, 25, buildingInstance);
         _transferFromMobileUnit(mobileUnit, 1, 25, buildingInstance);
         _transferFromMobileUnit(mobileUnit, 2, 25, buildingInstance);
-        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, 0x0, q, r, s)));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, 0x0, q, r, s))
+        );
         vm.stopPrank();
         // check the building has a location at q/r/s
         assertEq(
@@ -125,7 +127,9 @@ contract BuildingRuleTest is Test, GameTest {
         _transferFromMobileUnit(mobileUnit, 2, 1, buildingInstance); // ...
         // construct our building
         vm.expectRevert("input 0 qty does not match construction recipe");
-        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, 0x0, q, r, s)));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, 0x0, q, r, s))
+        );
         vm.stopPrank();
     }
 
@@ -244,7 +248,9 @@ contract BuildingRuleTest is Test, GameTest {
         _transferFromMobileUnit(mobileUnit, 1, 25, buildingInstance);
         _transferFromMobileUnit(mobileUnit, 2, 25, buildingInstance);
         // construct our building
-        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, 0x0, q, r, s)));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, 0x0, q, r, s))
+        );
         // use the building
         bytes memory payload = bytes("CUSTOM_PAYLOAD");
         dispatcher.dispatch(abi.encodeCall(Actions.BUILDING_USE, (buildingInstance, mobileUnit, payload)));
@@ -296,7 +302,9 @@ contract BuildingRuleTest is Test, GameTest {
         state.setItemSlot(buildingBag, 2, ItemUtils.RedGoo(), 100);
         // construct our building
         vm.expectRevert("BuildingMustBeAdjacentToMobileUnit"); // expect fail as q/r/s not adjacent
-        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, 0x0, q, r, s)));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, 0x0, q, r, s))
+        );
         vm.stopPrank();
     }
 

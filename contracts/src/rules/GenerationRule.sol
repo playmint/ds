@@ -93,13 +93,11 @@ contract GenerationRule is Rule {
             state.setBlockNum(buildingInstance, 0, ctx.clock);
             state.setItemSlot(inBag, 0, inputItemID, 0);
         }
-
     }
 
     function min(uint256 a, uint256 b) public pure returns (uint256) {
         return a < b ? a : b;
     }
-
 
     function _requireIsBag(bytes24 item) private pure {
         if (bytes4(item) != Kind.Bag.selector) {
