@@ -1,0 +1,11 @@
+---
+kind: Building
+spec:
+  name: Generator
+  location: [ -25, 1, 24 ]
+
+---
+kind: Building
+spec:
+  name: Generator
+  location: [ 29, 1, -28 ]

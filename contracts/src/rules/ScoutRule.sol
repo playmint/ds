@@ -127,13 +127,11 @@ contract ScoutRule is Rule {
         atoms[GOO_RED] = uint64(uint128(Math.mul(redPerlin, Math.fromUInt(255)) >> (64)));
 
         // FIXME: hardcode gold goo at specific locations
-        if (coords[0] == 0 && coords[1] == 0 && coords[2] == 0) {
+        if (coords[0] == -25 && coords[1] == 0 && coords[2] == 25) {
             atoms[GOO_GOLD] = 200;
-        } else if (coords[0] == 0 && coords[1] == 31 && coords[2] == -31) {
+        } else if (coords[0] == 30 && coords[1] == 0 && coords[2] == -27) {
             atoms[GOO_GOLD] = 200;
-        } else if (coords[0] == -29 && coords[1] == 7 && coords[2] == 22) {
-            atoms[GOO_GOLD] = 200;
-        }
+        } 
 
         state.setTileAtomValues(targetTile, atoms);
     }
