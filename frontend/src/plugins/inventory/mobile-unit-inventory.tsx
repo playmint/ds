@@ -19,7 +19,14 @@ export const MobileUnitInventory: FunctionComponent<MobileUnitInventoryProps> = 
     return (
         <StyledMobileUnitInventory>
             {bags.length > 0 ? (
-                <Inventory bags={bags} ownerId={mobileUnit.id} isInteractable={true} />
+                <Inventory
+                    bags={bags.sort((a, b) => {
+                        if (!a.equipee || !b.equipee) return 0;
+                        return a.equipee.key - b.equipee.key;
+                    })}
+                    ownerId={mobileUnit.id}
+                    isInteractable={true}
+                />
             ) : (
                 <span>The selected unit has no bags</span>
             )}

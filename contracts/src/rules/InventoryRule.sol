@@ -5,10 +5,11 @@ import "cog/IState.sol";
 import "cog/IRule.sol";
 import "cog/IDispatcher.sol";
 
-import {Schema, Node, Kind, TRAVEL_SPEED, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Schema, Node, Kind, TRAVEL_SPEED, DEFAULT_ZONE, Rel} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BagUtils} from "@ds/utils/BagUtils.sol";
+import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 
 using Schema for State;
 
@@ -56,26 +57,78 @@ contract InventoryRule is Rule {
         BagUtils.requireEquipeeLocation(state, equipee[0], mobileUnit, location, atTime);
         BagUtils.requireEquipeeLocation(state, equipee[1], mobileUnit, location, atTime);
 
-        // get the things from equipSlots
-        bytes24[2] memory bags =
-            [state.getEquipSlot(equipee[0], equipSlot[0]), state.getEquipSlot(equipee[1], equipSlot[1])];
+        {
+            // get the things from equipSlots
+            bytes24[2] memory bags =
+                [state.getEquipSlot(equipee[0], equipSlot[0]), state.getEquipSlot(equipee[1], equipSlot[1])];
 
-        // check the things are bags
-        _requireIsBag(bags[0]);
+            // check the things are bags
+            _requireIsBag(bags[0]);
 
-        // create our bag if we need to or check our bag is valid
-        if (bags[1] == 0) {
-            bags[1] = toBagId;
-            state.setEquipSlot(equipee[1], equipSlot[1], bags[1]);
-        } else if (bytes4(bags[1]) != Kind.Bag.selector) {
-            revert("NoTransferEquipItemIsNotBag");
+            // create our bag if we need to or check our bag is valid
+            if (bags[1] == 0) {
+                bags[1] = toBagId;
+                state.setEquipSlot(equipee[1], equipSlot[1], bags[1]);
+            } else if (bytes4(bags[1]) != Kind.Bag.selector) {
+                revert("NoTransferEquipItemIsNotBag");
+            }
+
+            // check that the source bag is either owned by the player or nobody
+            _requireCanUseBag(state, bags[0], player);
+
+            // perform transfer between item slots
+            _transferBalance(state, bags[0], itemSlot[0], bags[1], itemSlot[1], qty);
         }
 
-        // check that the source bag is either owned by the player or nobody
-        _requireCanUseBag(state, bags[0], player);
+        // Kill unit if they have no fuel in tank
+        _checkFuel(state, mobileUnit, location);
+    }
 
-        // perform transfer between item slots
-        _transferBalance(state, bags[0], itemSlot[0], bags[1], itemSlot[1], qty);
+    function _checkFuel(State state, bytes24 mobileUnit, bytes24 location) private {
+        // Check if any goo left
+        (bytes24 bag) = state.getEquipSlot(mobileUnit, 2);
+        uint256 total;
+        for (uint8 i = 0; i < 4; i++) {
+            (bytes24 item, uint64 balance) = state.getItemSlot(bag, i);
+            if (
+                balance > 0
+                    && (item == ItemUtils.GreenGoo() || item == ItemUtils.BlueGoo() || item == ItemUtils.RedGoo())
+            ) {
+                total++;
+            }
+        }
+
+        // If zero then drop bags if they contain any items
+        uint8 tileEquipSlot = 0;
+        if (total == 0) {
+            for (uint8 i = 0; i < 2; i++) {
+                (bag) = state.getEquipSlot(mobileUnit, i);
+                for (uint8 j = 0; j < 4; j++) {
+                    ( /*bytes24 item*/ , uint64 balance) = state.getItemSlot(bag, j);
+                    if (balance > 0) {
+                        for (; tileEquipSlot < 10; tileEquipSlot++) {
+                            (bytes24 tileBag) = state.getEquipSlot(location, tileEquipSlot);
+                            if (tileBag == bytes24(0)) {
+                                // Unequip bag from unit
+                                state.setEquipSlot(mobileUnit, i, bytes24(0));
+
+                                // Equip to tile
+                                state.setEquipSlot(location, tileEquipSlot, bag);
+                                state.setOwner(bag, bytes24(0));
+                            }
+                        }
+
+                        // We found something in at least one of the slots so we can move onto the next bag
+                        break;
+                    }
+                }
+            }
+
+            // Destroy Mobile Unit
+            state.setOwner(mobileUnit, Node.Player(address(0)));
+            state.set(Rel.Location.selector, uint8(0), mobileUnit, bytes24(0), 0);
+            state.set(Rel.Location.selector, uint8(1), mobileUnit, bytes24(0), 0);
+        }
     }
 
     function _requireCanUseBag(State state, bytes24 bag, bytes24 player) private view {

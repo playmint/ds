@@ -52,17 +52,18 @@ contract NewPlayerRule is Rule {
             state.setPrevLocation(mobileUnit, locationTile, 0);
             state.setNextLocation(mobileUnit, locationTile, ctx.clock);
             // give the mobileUnit a couple of bags
-            bytes24 bag0 = _spawnBag(state, mobileUnit, ctx.sender, 0);
-            bytes24 bag1 = _spawnBag(state, mobileUnit, ctx.sender, 1);
+            _spawnBag(state, mobileUnit, ctx.sender, 0);
+            _spawnBag(state, mobileUnit, ctx.sender, 1);
+            bytes24 bag2 = _spawnBag(state, mobileUnit, ctx.sender, 2);
 
             //give the mobileUnit the two starter items
-            state.setItemSlot(bag0, 0, ItemUtils.AcceptanceLetter(), 1);
-            state.setItemSlot(bag0, 1, ItemUtils.IDCard(), 1);
+            // state.setItemSlot(bag0, 0, ItemUtils.AcceptanceLetter(), 1);
+            // state.setItemSlot(bag0, 1, ItemUtils.IDCard(), 1);
 
             //give the mobileUnit 100 of each of the base materials
-            state.setItemSlot(bag1, 0, ItemUtils.GreenGoo(), 100);
-            state.setItemSlot(bag1, 1, ItemUtils.BlueGoo(), 100);
-            state.setItemSlot(bag1, 2, ItemUtils.RedGoo(), 100);
+            state.setItemSlot(bag2, 0, ItemUtils.GreenGoo(), 5);
+            state.setItemSlot(bag2, 1, ItemUtils.BlueGoo(), 5);
+            state.setItemSlot(bag2, 2, ItemUtils.RedGoo(), 5);
 
             // Accept the first quest in the chain
             state.setQuestAccepted(Node.Quest("Report to Control"), Node.Player(ctx.sender), 0);
