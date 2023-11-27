@@ -65,7 +65,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const selectedRewardBags = selectedBags?.filter((sb) => sb.isCombatReward);
     const kinds = useBuildingKinds();
     const ui = usePluginState();
-    const [questsActive, setQuestsActive] = useState<boolean>(true);
+    const [questsActive, setQuestsActive] = useState<boolean>(false);
     const toggleQuestsActive = useCallback(() => setQuestsActive((prev) => !prev), []);
     const questMessages = useQuestMessages(10);
     const acceptedQuests = useMemo(() => {
