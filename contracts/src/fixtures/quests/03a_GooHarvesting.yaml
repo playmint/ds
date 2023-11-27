@@ -1,9 +1,0 @@
----
-kind: Quest
-spec:
-  name: Goo Harvesting
-  description: "This world was created from the gooey remains of the last. You need to learn how to extract this goo."
-  tasks:
-    - kind: construct
-      name: Construct a Red Goo Extractor. It works better on a tile with a high red goo-per-hour value.
-      buildingKind: Red Goo Extractor

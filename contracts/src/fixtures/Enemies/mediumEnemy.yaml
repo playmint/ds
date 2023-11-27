@@ -1,0 +1,15 @@
+---
+kind: BuildingKind
+spec:
+  name: Strong Enemy
+  description: Exclusively eats Stroganoff because that's exactly what it is
+  category: blocker
+  model: enemy
+  materials:
+  - name: Red Goo
+    quantity: 50
+  - name: Blue Goo
+    quantity: 50
+  - name: Green Goo
+    quantity: 50
+
