@@ -8,7 +8,7 @@ export interface TileGooData {
     r: number;
     s: number;
     height: number;
-    color?: 'red' | 'green' | 'blue';
+    color?: 'red' | 'green' | 'blue' | 'gold';
     size?: 'small' | 'big';
 }
 
