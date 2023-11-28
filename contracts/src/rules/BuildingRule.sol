@@ -271,7 +271,7 @@ contract BuildingRule is Rule {
                 // set initial extraction timestamp
                 state.setBlockNum(buildingInstance, 0, ctx.clock);
                 // Set output bag owner to player so that only they can take the extracted items
-                state.setOwner(outputBag, Node.Player(ctx.sender));
+                // state.setOwner(outputBag, Node.Player(ctx.sender));
             }
         }
 

@@ -108,6 +108,8 @@ interface Actions {
 
     // spawn a mobileUnit for the sender
     function SPAWN_MOBILE_UNIT(bytes24 mobileUnit) external;
+    function SPAWN_MOBILE_UNIT2(bytes24 mobileUnit, int16 q, int16 r, int16 s) external;
+    function RESPAWN_MOBILE_UNIT(bytes24 mobileUnit) external;
 
     function START_COMBAT(
         bytes24 mobileUnitID,

@@ -1,5 +1,12 @@
 import { formatNameOrId, getItemStructure } from '@app/helpers';
-import { ATOM_ATTACK, ATOM_DEFENSE, ATOM_LIFE, CombatAction, EntityState } from '@app/plugins/combat/combat';
+import {
+    ATOM_ATTACK,
+    ATOM_DEFENSE,
+    ATOM_LIFE,
+    ATOM_POWER,
+    CombatAction,
+    EntityState,
+} from '@app/plugins/combat/combat';
 import { CombatParticipantProps } from '@app/plugins/combat/combat-participant';
 import {
     BuildingKindFragment,
@@ -22,6 +29,7 @@ export const NUM_STAT_KINDS = 3; // LIFE, DEFENCE, ATTACK
 export const UNIT_BASE_LIFE = 50;
 export const UNIT_BASE_DEFENCE = 23;
 export const UNIT_BASE_ATTACK = 30;
+export const UNIT_BASE_POWER = 3;
 export const LIFE_MUL = 10;
 
 export const buildingIdStart = '0x34cf8a7e';
@@ -154,23 +162,26 @@ export const getEntityName = (entityID: BytesLike, world: WorldStateFragment) =>
     return formatNameOrId(unit, 'Unit ');
 };
 
-export const getEquipmentStats = (bags: BagFragment[]): number[] => {
-    return bags.reduce(
+export const getEquipmentStats = (bags: BagFragment[]): [number, number, number, number] => {
+    const stats = bags.reduce(
         (stats, bag) => {
             bag.slots.forEach((slot) => {
                 if (slot.balance > 0) {
-                    const [stackable, life, defense, attack] = getItemStructure(slot.item.id);
+                    const [stackable, life, defense, attack, power] = getItemStructure(slot.item.id);
                     if (!stackable) {
                         stats[ATOM_LIFE] += life * LIFE_MUL;
                         stats[ATOM_DEFENSE] += defense;
                         stats[ATOM_ATTACK] += attack;
+                        stats[ATOM_POWER] += power;
                     }
                 }
             });
             return stats;
         },
-        [0, 0, 0]
+        [0, 0, 0, 0] as [number, number, number, number]
     );
+    stats[ATOM_POWER] = stats[ATOM_POWER] / 10;
+    return stats;
 };
 
 export const getMobileUnitStats = (mobileUnit?: WorldMobileUnitFragment, worldBags?: BagFragment[]): number[] => {
@@ -182,6 +193,7 @@ export const getMobileUnitStats = (mobileUnit?: WorldMobileUnitFragment, worldBa
     stats[ATOM_LIFE] += UNIT_BASE_LIFE * LIFE_MUL;
     stats[ATOM_DEFENSE] += UNIT_BASE_DEFENCE;
     stats[ATOM_ATTACK] += UNIT_BASE_ATTACK;
+    stats[ATOM_POWER] += UNIT_BASE_POWER;
 
     return stats;
 };

@@ -1,4 +1,4 @@
-import { BagFragment, QUEST_STATUS_ACCEPTED, WorldTileFragment } from '@app/../../core/src';
+import { BagFragment, QUEST_STATUS_ACCEPTED, WorldTileFragment, getCoords } from '@app/../../core/src';
 import { Bags } from '@app/components/map/Bag';
 import { Buildings } from '@app/components/map/Buildings';
 import { CombatSessions } from '@app/components/map/CombatSession';
@@ -36,6 +36,8 @@ import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 're
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
+import { getMobileUnitStats } from '@app/plugins/combat/helpers';
+import { isPowered } from '@app/helpers/power';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -73,6 +75,29 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             (player?.quests || []).filter((q) => q.status == QUEST_STATUS_ACCEPTED).sort((a, b) => a.key - b.key) || []
         );
     }, [player?.quests]);
+
+    // ---------------------------------
+    // HACK: track the selected unit's power in client
+    const [_life, _def, _atk, unitPowerCapacity] = selectedMobileUnit
+        ? getMobileUnitStats(selectedMobileUnit, world?.bags)
+        : [0, 0, 0, 0];
+    const [unitDarkSteps, setUnitDarkSteps] = useState<number>(0);
+    const unitPowerLevel = useMemo(
+        () => Math.max(unitPowerCapacity - unitDarkSteps, 0),
+        [unitDarkSteps, unitPowerCapacity]
+    );
+    const unitTileId = selectedMobileUnit?.nextLocation?.tile;
+    const unitTile = unitTileId ? (tiles || []).find((t) => unitTileId.id === t.id) : undefined;
+    const hasPower = unitTile ? isPowered(unitTile, tiles || [], world?.buildings || [], blockNumber || 0) : false;
+    const unitCoords = unitTile ? getCoords(unitTile) : undefined;
+    const unitCoordsKey = unitCoords ? `${unitCoords.q}:${unitCoords.r}:${unitCoords.s}` : undefined;
+    useEffect(() => {
+        if (!unitCoordsKey) {
+            return;
+        }
+        setUnitDarkSteps((prev) => (hasPower ? 0 : prev + 1));
+    }, [unitCoordsKey, hasPower]);
+    // ---------------------------------
 
     // setup the unity frame
     useEffect(() => {
@@ -285,6 +310,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         buildings={world?.buildings || []}
                         onClickMobileUnit={mobileUnitClick}
                         selectedMobileUnitID={selectedMobileUnit?.id}
+                        selectedMobileUnitPowerLevel={unitPowerLevel}
                         playerID={player?.id}
                     />
                     <Bags
@@ -326,12 +352,14 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     </div>
                     <ItemPluginPanel ui={ui || []} />
                     <div className="bottom-left">
-                        <MobileUnitPanel />
+                        <MobileUnitPanel level={unitPowerLevel} />
                         <div className="flex-spacer"></div>
-                        <div className="bottom-middle">
-                            <ActionContextPanel />
-                            <ActionBar />
-                        </div>
+                        {unitPowerLevel > 0 && (
+                            <div className="bottom-middle">
+                                <ActionContextPanel unitPowerLevel={unitPowerLevel} />
+                                <ActionBar />
+                            </div>
+                        )}
                         <div className="flex-spacer"></div>
                     </div>
                 </div>
