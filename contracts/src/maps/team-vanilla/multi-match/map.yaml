@@ -3062,74 +3062,74 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -11, 13, -2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -11, 14, -3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -11, 15, -4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 9, 0, -9 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 10, 0, -10 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 11, 0, -11 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, 0, -12 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, 1, -13 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, 2, -14 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, 3, -15 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, 4, -16 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, 5, -17 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -3146,32 +3146,32 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 13, 0, -13 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 14, 0, -14 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 15, 0, -15 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 16, 0, -16 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 17, 0, -17 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -3188,62 +3188,62 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 19, 0, -19 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 20, 0, -20 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 21, 0, -21 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 22, 0, -22 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 23, 0, -23 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 24, 0, -24 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 23, 1, -24 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 22, 2, -24 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 21, 3, -24 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 20, 4, -24 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -3260,362 +3260,362 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 18, 6, -24 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 17, 7, -24 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 16, 8, -24 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 15, 9, -24 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 14, 10, -24 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 13, 11, -24 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, 12, -24 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, 11, -23 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, 10, -22 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, 9, -21 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, 8, -20 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, 7, -19 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 13, 10, -23 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 14, 9, -23 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 14, 7, -21 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 14, 6, -20 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 14, 5, -19 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 14, 4, -18 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 14, 3, -17 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 13, 3, -16 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 13, 2, -15 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 13, 1, -14 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 14, 1, -15 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 14, 2, -16 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 15, 2, -17 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 15, 3, -18 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 13, 6, -19 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 13, 5, -18 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 13, 4, -17 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 13, 7, -20 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 13, 8, -21 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 13, 9, -22 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 14, 8, -22 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 15, 8, -23 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 15, 7, -22 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 16, 7, -23 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 17, 6, -23 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 18, 5, -23 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 19, 4, -23 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 20, 3, -23 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 21, 2, -23 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 22, 1, -23 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 21, 1, -22 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 20, 1, -21 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 19, 1, -20 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 17, 2, -19 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 17, 1, -18 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 16, 2, -18 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 16, 1, -17 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 15, 4, -19 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 16, 3, -19 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 18, 1, -19 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 15, 1, -16 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 15, 5, -20 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 15, 6, -21 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 16, 6, -22 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 17, 5, -22 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 17, 4, -21 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 17, 3, -20 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 16, 4, -20 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -3632,44 +3632,44 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 18, 3, -21 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 18, 2, -20 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 19, 2, -21 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 20, 2, -22 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 19, 3, -22 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 18, 4, -22 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 25, 0, -25 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -3710,8 +3710,8 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 11, 13, -24 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -3752,8 +3752,8 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, -1, -11 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -3794,38 +3794,38 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 9, -9, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 10, -10, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 11, -11, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, -12, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 13, -13, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 14, -14, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -3842,44 +3842,44 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 16, -16, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 17, -17, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 18, -18, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 19, -19, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 20, -20, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 21, -21, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 22, -22, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -3896,26 +3896,26 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 24, -24, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 11, -12, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 11, -13, 2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 11, -14, 3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -3932,38 +3932,38 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 11, -16, 5 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 11, -17, 6 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 11, -18, 7 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, -18, 6 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 13, -18, 5 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 14, -18, 4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -3980,20 +3980,20 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 16, -18, 2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 17, -18, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 23, -24, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -4010,14 +4010,14 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 21, -24, 3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 20, -24, 4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -4034,31 +4034,37 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 20, -22, 2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 20, -21, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 18, -17, -1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 18, -16, -2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
   biome: DISCOVERED
+  location: [ 17, -15, -2 ]
+
+---
+kind: Building
+spec:
+  name: Red Goo Extractor 2000
   location: [ 17, -15, -2 ]
 
 ---
@@ -4088,14 +4094,14 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, -19, 7 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 13, -20, 7 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -4128,16 +4134,22 @@ spec:
   location: [ 14, -20, 6 ]
 
 ---
-kind: Tile
+kind: Building
 spec:
-  biome: DISCOVERED
-  location: [ 10, -12, 2 ]
+  name: Red Goo Extractor 2000
+  location: [ 14, -20, 6 ]
 
 ---
 kind: Tile
 spec:
+  location: [ 10, -12, 2 ]
   biome: DISCOVERED
+
+---
+kind: Tile
+spec:
   location: [ 9, -12, 3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -4170,16 +4182,22 @@ spec:
   location: [ 9, -13, 4 ]
 
 ---
+kind: Building
+spec:
+  name: Red Goo Extractor 2000
+  location: [ 9, -13, 4 ]
+
+---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 19, -21, 2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 18, -21, 3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -4220,14 +4238,14 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 21, -25, 4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 22, -26, 4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -4268,14 +4286,14 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 24, -23, -1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 24, -22, -2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -4328,86 +4346,86 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 21, -23, 2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 22, -23, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, -13, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, -14, 2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, -15, 3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, -16, 4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, -17, 5 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 13, -17, 4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 14, -17, 3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 15, -17, 2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 16, -17, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 15, -16, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 14, -15, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 13, -14, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -4424,476 +4442,476 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 13, -16, 3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 14, -16, 2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -9, 9, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -10, 10, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -11, 11, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -12, 12, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -13, 13, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -14, 14, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -15, 15, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -16, 16, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -17, 17, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -18, 18, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -19, 19, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -20, 20, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -21, 21, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -22, 22, 0 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -11, 12, -1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -10, 12, -2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -9, 12, -3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -8, 12, -4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -9, 13, -4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -10, 14, -4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -12, 16, -4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -13, 17, -4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -14, 18, -4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -15, 19, -4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -16, 20, -4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -17, 21, -4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -18, 22, -4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -19, 22, -3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -20, 22, -2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -21, 22, -1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -23, 22, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -24, 22, 2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -25, 22, 3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -26, 22, 4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -27, 22, 5 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -13, 12, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -14, 12, 2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -15, 12, 3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -16, 12, 4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -17, 12, 5 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -18, 12, 6 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -19, 12, 7 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -20, 13, 7 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -21, 14, 7 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -22, 15, 7 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -23, 16, 7 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -24, 17, 7 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -25, 18, 7 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -26, 19, 7 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -26, 20, 6 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -27, 20, 7 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -28, 21, 7 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -29, 22, 7 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -28, 22, 6 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -27, 21, 6 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -26, 21, 5 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -25, 21, 4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -24, 21, 3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -24, 20, 4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -23, 19, 4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -24, 19, 5 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -25, 20, 5 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -25, 19, 6 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -24, 18, 6 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -23, 18, 5 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -22, 18, 4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -23, 20, 3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -22, 20, 2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -22, 21, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -23, 21, 2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -22, 19, 3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -21, 18, 3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -21, 19, 2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -21, 20, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -20, 19, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -20, 18, 2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -19, 18, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -4910,338 +4928,338 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -19, 20, -1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -20, 21, -1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -19, 21, -2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -18, 21, -3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -18, 20, -2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -18, 19, -1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -17, 19, -2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -17, 18, -1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -16, 18, -2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -16, 19, -3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -17, 20, -3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -15, 18, -3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -15, 17, -2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -16, 17, -1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -17, 16, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -18, 17, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -18, 16, 2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -19, 16, 3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -20, 17, 3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -21, 16, 5 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -20, 15, 5 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -20, 16, 4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -21, 17, 4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -22, 17, 5 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -22, 16, 6 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -23, 17, 6 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -21, 15, 6 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -20, 14, 6 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -19, 13, 6 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -18, 13, 5 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -18, 14, 4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -18, 15, 3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -17, 15, 2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -19, 15, 4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -19, 14, 5 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -17, 13, 4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -16, 13, 3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -16, 14, 2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -17, 14, 3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -15, 13, 2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -15, 14, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -16, 15, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -14, 13, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -12, 13, -1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -10, 13, -3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -12, 15, -3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -13, 16, -3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -14, 17, -3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -14, 16, -2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -15, 16, -1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -14, 15, -1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -13, 14, -1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -13, 15, -2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -12, 14, -2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -25, 17, 8 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -26, 17, 9 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -5282,14 +5300,14 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -12, 17, -5 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -11, 17, -6 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -5330,26 +5348,26 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -9, 0, 9 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -10, 0, 10 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -11, 0, 11 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -12, 0, 12 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -5366,68 +5384,68 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -14, 0, 14 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -15, 0, 15 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -16, 0, 16 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -17, 0, 17 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -18, 0, 18 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -19, 0, 19 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -20, 0, 20 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -21, 0, 21 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -22, 0, 22 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -23, 0, 23 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -24, 0, 24 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -5444,278 +5462,278 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -26, 1, 25 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -26, 0, 26 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -8, -2, 10 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -9, -1, 10 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -11, 1, 10 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -12, 1, 11 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -12, 2, 10 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -13, 2, 11 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -13, 3, 10 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -14, 3, 11 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -15, 3, 12 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -16, 3, 13 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -17, 3, 14 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -18, 3, 15 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -17, 2, 15 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -16, 2, 14 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -16, 1, 15 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -15, 1, 14 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -14, -1, 15 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -13, -2, 15 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -12, -3, 15 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -12, -2, 14 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -11, -2, 13 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -10, -2, 12 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -9, -2, 11 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -10, -1, 11 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -11, -1, 12 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -12, -1, 13 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -13, -1, 14 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -13, 1, 12 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -14, 2, 12 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -15, 2, 13 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -14, 1, 13 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -11, -3, 14 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -10, -3, 13 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -9, -3, 12 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -8, -3, 11 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -7, -3, 10 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -13, -3, 16 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -14, -2, 16 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -15, -1, 16 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -17, 1, 16 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -18, 2, 16 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -19, 3, 16 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -16, 4, 12 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -17, 5, 12 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -5756,14 +5774,14 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -10, -4, 14 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -9, -5, 14 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -5804,56 +5822,56 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -27, 1, 26 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -25, -1, 26 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -24, -2, 26 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -24, -1, 25 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -23, -1, 24 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -25, 1, 24 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -22, -1, 23 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -24, 1, 23 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -25, 2, 23 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -5870,8 +5888,8 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -23, -3, 26 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -5888,8 +5906,8 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -26, 3, 23 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
