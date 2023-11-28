@@ -127,14 +127,32 @@ contract ScoutRule is Rule {
         atoms[GOO_RED] = uint64(uint128(Math.mul(redPerlin, Math.fromUInt(255)) >> (64)));
 
         // FIXME: hardcode gold goo at specific locations
-        if (coords[0] == 0 && coords[1] == 0 && coords[2] == 0) {
+        if (coords[0] == -39 && coords[1] == 1 && coords[2] == 38) {
             atoms[GOO_GOLD] = 200;
-        } else if (coords[0] == 0 && coords[1] == 31 && coords[2] == -31) {
+        } else if (coords[0] == -35 && coords[1] == 1 && coords[2] == 34) {
             atoms[GOO_GOLD] = 200;
-        } else if (coords[0] == -29 && coords[1] == 7 && coords[2] == 22) {
+        } else if (coords[0] == -27 && coords[1] == -3 && coords[2] == 30) {
             atoms[GOO_GOLD] = 200;
-        }
-
+        } else if (coords[0] == -6 && coords[1] == -13 && coords[2] == 19) {
+            atoms[GOO_GOLD] = 200;
+        } else if (coords[0] == 13 && coords[1] == -26 && coords[2] == 13) {
+            atoms[GOO_GOLD] = 200;
+        } else if (coords[0] == 33 && coords[1] == -16 && coords[2] == -17) {
+            atoms[GOO_GOLD] = 200;
+        } else if (coords[0] == 34 && coords[1] == -1 && coords[2] == -33) {
+            atoms[GOO_GOLD] = 200;
+        } else if (coords[0] == -38 && coords[1] == -1 && coords[2] == -37) {
+            atoms[GOO_GOLD] = 200;
+        } else if (coords[0] == 25 && coords[1] == 8 && coords[2] == -33) {
+            atoms[GOO_GOLD] = 200;
+        } else if (coords[0] == 5 && coords[1] == 13 && coords[2] == -18) {
+            atoms[GOO_GOLD] = 200;
+        } else if (coords[0] == -13 && coords[1] == 26 && coords[2] == -18) {
+            atoms[GOO_GOLD] = 200;
+        } else if (coords[0] == -32 && coords[1] == 16 && coords[2] == 16) {
+            atoms[GOO_GOLD] = 200;
+        } 
+        
         state.setTileAtomValues(targetTile, atoms);
     }
 
