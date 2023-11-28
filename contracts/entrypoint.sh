@@ -54,7 +54,7 @@ done
 echo "waiting for services to settle..."
 sleep 5
 echo "ds apply..."
-ds -k "${DEPLOYER_PRIVATE_KEY}" -n local --ws-endpoint="${SERVICES_WS}" --http-endpoint="${SERVICES_HTTP}" apply -R -f ./src/maps/team-vanilla/multi-arena
+ds -k "${DEPLOYER_PRIVATE_KEY}" -n local --ws-endpoint="${SERVICES_WS}" --http-endpoint="${SERVICES_HTTP}" apply -R -f ./src/maps/team-vanilla/multi-match
 
 echo "+-------+"
 echo "| ready |"
