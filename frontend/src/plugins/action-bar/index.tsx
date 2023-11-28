@@ -85,6 +85,7 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
                 clearTimeout(timeout);
             };
         }
+        return () => {};
     }, [combatState]);
 
     if (!mobileUnit || !showActions) {
