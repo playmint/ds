@@ -92,35 +92,8 @@ contract MovementRule is Rule {
         }
 
         // If zero then drop bags if they contain any items
-        uint8 tileEquipSlot = 0;
         if (total == 0) {
-            for (uint8 i = 0; i < 2; i++) {
-                (bag) = state.getEquipSlot(mobileUnit, i);
-                for (uint8 j = 0; j < 4; j++) {
-                    ( /*bytes24 item*/ , uint64 balance) = state.getItemSlot(bag, j);
-                    if (balance > 0) {
-                        for (; tileEquipSlot < 10; tileEquipSlot++) {
-                            (bytes24 tileBag) = state.getEquipSlot(destTile, tileEquipSlot);
-                            if (tileBag == bytes24(0)) {
-                                // Unequip bag from unit
-                                state.setEquipSlot(mobileUnit, i, bytes24(0));
-
-                                // Equip to tile
-                                state.setEquipSlot(destTile, tileEquipSlot, bag);
-                                state.setOwner(bag, bytes24(0));
-                            }
-                        }
-
-                        // We found something in at least one of the slots so we can move onto the next bag
-                        break;
-                    }
-                }
-            }
-
-            // Destroy Mobile Unit
-            state.setOwner(mobileUnit, Node.Player(address(0)));
-            state.set(Rel.Location.selector, uint8(0), mobileUnit, bytes24(0), 0);
-            state.set(Rel.Location.selector, uint8(1), mobileUnit, bytes24(0), 0);
+            state.killMobileUnit(mobileUnit);
         }
     }
 }

@@ -99,7 +99,6 @@ contract InventoryRule is Rule {
         }
 
         // If zero then drop bags if they contain any items
-        uint8 tileEquipSlot = 0;
         if (total == 0) {
             state.killMobileUnit(mobileUnit);
         }
