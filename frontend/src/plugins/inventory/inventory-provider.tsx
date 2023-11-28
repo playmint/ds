@@ -138,7 +138,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
 
         // don't attempt to drop more than a slot can hold
         transferQuantity =
-            targetCurrentBalance + transferQuantity >= 100 ? 100 - targetCurrentBalance : transferQuantity;
+            targetCurrentBalance + transferQuantity >= 1000 ? 1000 - targetCurrentBalance : transferQuantity;
 
         const source = pickedUpItemRef.current.transferInfo;
         if (source.id == target.id && source.equipIndex == target.equipIndex && source.slotKey == target.slotKey) {
