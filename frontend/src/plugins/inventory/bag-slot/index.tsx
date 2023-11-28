@@ -103,7 +103,7 @@ export const BagSlot: FunctionComponent<BagSlotProps> = (props: BagSlotProps) =>
         pickedUpItem &&
         item &&
         pickedUpItem.transferInfo.itemId == item.itemId &&
-        (isStackableItem ? itemSlotBalance < 100 : itemSlotBalance == 0);
+        (isStackableItem ? itemSlotBalance < 1000 : itemSlotBalance == 0);
 
     // if we have a picked up item in hand and the slot is compatible/stackable
     const isDroppable = pickedUpItem && ((!item && isCompatiblePlaceholder) || (item && isStackableSlot));

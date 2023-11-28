@@ -43,6 +43,11 @@ export default async function update(state) {
                             <p>Blue: ${blueBal}</p>
                             <p>Red: ${redBal}</p>
                             <p>Total: ${totalGoo}</p>
+                            <br/>
+                            <p>Leaderboard</p>
+                            <p>1. Jimmy</p>
+                            <p>2. Jammy</p>
+                            <p>3. Jommy</p>
                             `,
                         buttons: [
                             {
