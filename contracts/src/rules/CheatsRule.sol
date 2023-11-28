@@ -77,5 +77,4 @@ contract CheatsRule is Rule {
     function _spawnTile(State state, int16 q, int16 r, int16 s) private {
         state.setBiome(Node.Tile(DEFAULT_ZONE, q, r, s), BiomeKind.DISCOVERED);
     }
-
 }

@@ -16,7 +16,7 @@ contract Generator is BuildingKind {
 
         {
             State state = ds.getState();
-            // reward the actor who fueled this generator with a gold battery 
+            // reward the actor who fueled this generator with a gold battery
             // but only if they don't already have a gold battery from
             // this generator
             //

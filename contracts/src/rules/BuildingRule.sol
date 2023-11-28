@@ -240,7 +240,9 @@ contract BuildingRule is Rule {
     }
 
     // allow constructing a building without any materials
-    function _constructBuildingDev(State state, Context calldata ctx, bytes24 buildingKind, int16 q, int16 r, int16 s) internal {
+    function _constructBuildingDev(State state, Context calldata ctx, bytes24 buildingKind, int16 q, int16 r, int16 s)
+        internal
+    {
         state.setBiome(Node.Tile(DEFAULT_ZONE, q, r, s), BiomeKind.DISCOVERED);
         bytes24 targetTile = Node.Tile(0, q, r, s);
         bytes24 buildingInstance = Node.Building(0, q, r, s);
