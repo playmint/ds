@@ -69,10 +69,10 @@ export const Onboarding = ({ player, playerUnits, onClickConnect }: OnboardingPr
                 {player && playerUnits.length === 0 ? (
                     <>
                         <ActionButton onClick={spawnMobileUnit1} disabled={isSpawningMobileUnit}>
-                            Spawn North
+                            Spawn East
                         </ActionButton>
                         <ActionButton onClick={spawnMobileUnit2} disabled={isSpawningMobileUnit}>
-                            Spawn South
+                            Spawn West
                         </ActionButton>
                     </>
                 ) : (
