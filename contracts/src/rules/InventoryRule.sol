@@ -78,10 +78,27 @@ contract InventoryRule is Rule {
 
             // perform transfer between item slots
             _transferBalance(state, bags[0], itemSlot[0], bags[1], itemSlot[1], qty);
+
+            if (bytes4(equipee[0]) == Kind.Tile.selector) {
+                _destroyBagIfEmpty(state, bags[0], equipee[0], equipSlot[0]);
+            }
         }
 
         // Kill unit if they have no fuel in tank
         _checkFuel(state, mobileUnit);
+    }
+
+    function _destroyBagIfEmpty(State state, bytes24 bag, bytes24 equipee, uint8 equipSlot) private {
+        for (uint8 i = 0; i < 4; i++) {
+            ( /*bytes24 item*/ , uint64 balance) = state.getItemSlot(bag, i);
+            if (balance > 0) {
+                return;
+            }
+        }
+
+        // destroy
+        state.setOwner(bag, Node.Player(address(0)));
+        state.setEquipSlot(equipee, equipSlot, bytes24(0));
     }
 
     function _checkFuel(State state, bytes24 mobileUnit) private {
