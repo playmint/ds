@@ -272,9 +272,9 @@ export const MobileUnitPanel = () => {
                 ) : (
                     <TextButton onClick={selectAndFocusMobileUnit}>Select Unit</TextButton>
                 ))}
-            <TextButton onClick={spawnMobileUnit} disabled={isSpawningMobileUnit}>
+            {/* <TextButton onClick={spawnMobileUnit} disabled={isSpawningMobileUnit}>
                 Spawn Unit
-            </TextButton>
+            </TextButton> */}
         </>
     );
 };

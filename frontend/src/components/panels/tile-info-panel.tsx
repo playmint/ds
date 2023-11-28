@@ -173,7 +173,7 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
         if (mobileUnit) {
             return c.id === 'use' || c.id === 'default';
         }
-        return c.id === 'view';
+        return c.id === 'default'; //view';
     });
 
     const [life, def, atk] = getMaterialStats(buildingKind?.materials || []);
@@ -359,10 +359,10 @@ export const TileInfoPanel = ({ kinds, ui }: { kinds: BuildingKindFragment[]; ui
         } else if (!building) {
             return <TileAvailable player={player} mobileUnits={world?.mobileUnits || []} bags={world?.bags || []} />;
         } else if (building) {
-            const canUse =
-                mobileUnit &&
-                mobileUnit.nextLocation &&
-                getTileDistance(mobileUnit.nextLocation.tile, selectedTile) < 2;
+            const canUse = true;
+            // mobileUnit &&
+            // mobileUnit.nextLocation &&
+            // getTileDistance(mobileUnit.nextLocation.tile, selectedTile) < 2;
             return (
                 <TileBuilding
                     kinds={kinds}

@@ -105,7 +105,7 @@ export default async function update(state) {
                                 text: "Deposit Goo",
                                 type: "action",
                                 action: deposit,
-                                disabled: false,
+                                disabled: !getMobileUnit(state),
                             },
                         ],
                     },

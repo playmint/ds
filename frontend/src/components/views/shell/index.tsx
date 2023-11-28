@@ -330,10 +330,10 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     </div>
                 </div>
                 <div className="right no-scrollbars">
-                    {(!player || (player && playerUnits.length === 0)) && mapReady && connect && !loadingSession && (
+                    {!player && mapReady && connect && !loadingSession && (
                         <Onboarding player={player} playerUnits={playerUnits} onClickConnect={connect} />
                     )}
-                    {player && playerUnits.length > 0 && <TileInfoPanel kinds={kinds || []} ui={ui || []} />}
+                    {player && <TileInfoPanel kinds={kinds || []} ui={ui || []} />}
                     {selectedTiles &&
                         selectedTiles.length > 0 &&
                         blockNumber &&
