@@ -2,7 +2,7 @@
 
 import { useGameState, useSelection } from '@app/hooks/use-game-state';
 import { ComponentProps } from '@app/types/component-props';
-import { FunctionComponent, useCallback, useEffect, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { styles } from './action-bar.styles';
 import { UnitActionButton } from '@app/styles/button.styles';
@@ -28,7 +28,7 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
     const { world } = useGameState();
     const sessions = world?.sessions || [];
     // New state variable to control the visibility of buttons
-    const [showActions, setShowActions] = useState(true);
+    //const [showActions, setShowActions] = useState(true);
 
     const handleSelectIntent = useCallback(
         (newIntent: string | undefined) => {
@@ -73,11 +73,11 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
         console.log('useEffect triggered: ', combatState);
         if (combatState && combatState === CombatWinState.DEFENDERS) {
             console.log('Defenders won, hiding actions');
-            setShowActions(false);
+            //setShowActions(false);
 
             const timeout = setTimeout(() => {
                 console.log('Timeout completed, showing actions');
-                setShowActions(true);
+                //setShowActions(true);
             }, 10000);
 
             return () => {
@@ -88,9 +88,9 @@ export const ActionBar: FunctionComponent<ActionBarProps> = (props: ActionBarPro
         return () => {};
     }, [combatState]);
 
-    if (!mobileUnit || !showActions) {
-        return null;
-    }
+    // if (!mobileUnit || !showActions) {
+    //     return null;
+    // }
 
     //if (!combatState || combatState.winState != CombatWinState.DEFENDERS) {
     return (
