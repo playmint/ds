@@ -1,0 +1,119 @@
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 0, 0, 0 ]
+
+---
+kind: Building
+spec:
+  name: Generator
+  location: [ 0, 0, 0 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -11, 22, -11 ]
+
+---
+kind: Building
+spec:
+  name: Generator
+  location: [ -11, 22, -11 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 11, -22, 11 ]
+
+---
+kind: Building
+spec:
+  name: Generator
+  location: [ 11, -22, 11 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 22, 0, -22 ]
+
+---
+kind: Building
+spec:
+  name: Generator
+  location: [ 22, 0, -22 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -22, 0, 22 ]
+
+---
+kind: Building
+spec:
+  name: Generator
+  location: [ -22, 0, 22 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -6, -16, 22 ]
+
+---
+kind: Building
+spec:
+  name: Generator
+  location: [ -6, -16, 22 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 21, -16, -5 ]
+
+---
+kind: Building
+spec:
+  name: Generator
+  location: [ 21, -16, -5 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 5, 16, -21 ]
+
+---
+kind: Building
+spec:
+  name: Generator
+  location: [ 5, 16, -21 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -22, 16, 6 ]
+
+---
+kind: Building
+spec:
+  name: Generator
+  location: [ -22, 16, 6 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -19, -13, 32 ]
+
+---
+kind: Building
+spec:
+  name: Generator
+  location: [ -19, -13, 32 ]
