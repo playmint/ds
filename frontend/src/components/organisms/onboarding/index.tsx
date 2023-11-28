@@ -31,7 +31,7 @@ export const Onboarding = ({ player, playerUnits, onClickConnect }: OnboardingPr
         const id = CompoundKeyEncoder.encodeUint160(NodeSelectors.MobileUnit, BigInt(key));
         setIsSpawningMobileUnit(true);
         player
-            .dispatch({ name: 'SPAWN_MOBILE_UNIT2', args: [id, 0, 31, -31] })
+            .dispatch({ name: 'SPAWN_MOBILE_UNIT2', args: [id, 37, -1, -36] })
             .catch((e) => {
                 console.error('failed to spawn mobileUnit:', e);
             })
@@ -46,7 +46,7 @@ export const Onboarding = ({ player, playerUnits, onClickConnect }: OnboardingPr
         const id = CompoundKeyEncoder.encodeUint160(NodeSelectors.MobileUnit, BigInt(key));
         setIsSpawningMobileUnit(true);
         player
-            .dispatch({ name: 'SPAWN_MOBILE_UNIT2', args: [id, -29, 7, 22] })
+            .dispatch({ name: 'SPAWN_MOBILE_UNIT2', args: [id, -37, -1, 38] })
             .catch((e) => {
                 console.error('failed to spawn mobileUnit:', e);
             })
