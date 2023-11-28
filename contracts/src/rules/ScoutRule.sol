@@ -151,8 +151,8 @@ contract ScoutRule is Rule {
             atoms[GOO_GOLD] = 200;
         } else if (coords[0] == -32 && coords[1] == 16 && coords[2] == 16) {
             atoms[GOO_GOLD] = 200;
-        } 
-        
+        }
+
         state.setTileAtomValues(targetTile, atoms);
     }
 

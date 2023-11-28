@@ -334,19 +334,26 @@ contract BuildingRule is Rule {
             // power up building from generator
             state.setPowerSource(buildingInstance, targetTile);
             state.setPowerSink(powerSource, buildingInstance);
+            _powerTiles(state, targetTile, buildingInstance, category, powerSource);
         }
-
-        _powerTiles(state, targetTile, buildingInstance, category);
     }
 
-    function _powerTiles(State state, bytes24 targetTile, bytes24 buildingInstance, BuildingCategory category)
-        private
-    {
+    function _powerTiles(
+        State state,
+        bytes24 targetTile,
+        bytes24 buildingInstance,
+        BuildingCategory category,
+        bytes24 powerSource
+    ) private {
         // powerup tiles from building
+        bytes24 powerSourceTile = state.getFixedLocation(powerSource);
         bytes24[99] memory poweredTiles = TileUtils.range2(targetTile);
         uint64 sourceKind = category == BuildingCategory.GENERATOR ? 1 : 0;
         for (uint256 i = 0; i < poweredTiles.length; i++) {
             if (poweredTiles[i] == 0x0 && poweredTiles[i] != targetTile) {
+                continue;
+            }
+            if (TileUtils.distance(poweredTiles[i], powerSourceTile) > 4) {
                 continue;
             }
             state.setPowerSource(poweredTiles[i], buildingInstance, sourceKind);

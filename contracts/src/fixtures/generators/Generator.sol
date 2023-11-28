@@ -27,7 +27,6 @@ contract Generator is BuildingKind {
             // give actor a battery
             bytes24 batteryBag = state.getEquipSlot(actor, 2);
             if (batteryBag != 0x0) {
-                (bytes24 item, uint64 balance) = state.getItemSlot(batteryBag, generatorKey);
                 state.setItemSlot(batteryBag, generatorKey, battery, 1);
             }
         }
