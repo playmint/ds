@@ -1,6 +1,9 @@
 import ds from "downstream";
 
 export default async function update(state) {
+    const MED_GOO_THRESH = 20;
+    const STRONG_GOO_THRESH = 40;
+
     const selectedTile = getSelectedTile(state);
     const selectedBuilding =
         selectedTile && getBuildingOnTile(state, selectedTile);
@@ -27,6 +30,36 @@ export default async function update(state) {
         });
     };
 
+    const spawnWeak = () => {
+        ds.dispatch({
+            name: "SPAWN_MOBILE_UNIT_CUSTOM",
+            args: [
+                [1, 1, 1],
+                [10, 10, 10],
+            ],
+        });
+    };
+
+    const spawnMed = () => {
+        ds.dispatch({
+            name: "SPAWN_MOBILE_UNIT_CUSTOM",
+            args: [
+                [20, 20, 20],
+                [40, 40, 40],
+            ],
+        });
+    };
+
+    const spawnStrong = () => {
+        ds.dispatch({
+            name: "SPAWN_MOBILE_UNIT_CUSTOM",
+            args: [
+                [40, 40, 40],
+                [80, 80, 80],
+            ],
+        });
+    };
+
     return {
         version: 1,
         components: [
@@ -46,7 +79,25 @@ export default async function update(state) {
                             `,
                         buttons: [
                             {
-                                text: "Deposit",
+                                text: "Spawn Weak Unit",
+                                type: "action",
+                                action: spawnWeak,
+                                disabled: false,
+                            },
+                            {
+                                text: "Spawn Medium Unit",
+                                type: "action",
+                                action: spawnMed,
+                                disabled: totalGoo < MED_GOO_THRESH,
+                            },
+                            {
+                                text: "Spawn Strong Unit",
+                                type: "action",
+                                action: spawnStrong,
+                                disabled: totalGoo < STRONG_GOO_THRESH,
+                            },
+                            {
+                                text: "Deposit Goo",
                                 type: "action",
                                 action: deposit,
                                 disabled: false,

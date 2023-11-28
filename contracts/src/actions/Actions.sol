@@ -103,6 +103,7 @@ interface Actions {
 
     // spawn a mobileUnit for the sender
     function SPAWN_MOBILE_UNIT(bytes24 mobileUnit) external;
+    function SPAWN_MOBILE_UNIT_CUSTOM(uint64[3] calldata stats, uint64[3] calldata fuel) external;
 
     function START_COMBAT(
         bytes24 mobileUnitID,

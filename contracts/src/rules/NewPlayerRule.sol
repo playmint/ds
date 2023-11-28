@@ -66,7 +66,38 @@ contract NewPlayerRule is Rule {
             state.setItemSlot(bag2, 2, ItemUtils.RedGoo(), 5);
 
             // Accept the first quest in the chain
-            state.setQuestAccepted(Node.Quest("Report to Control"), Node.Player(ctx.sender), 0);
+            // state.setQuestAccepted(Node.Quest("Report to Control"), Node.Player(ctx.sender), 0);
+        }
+
+        if (bytes4(action) == Actions.SPAWN_MOBILE_UNIT_CUSTOM.selector) {
+            bytes24 mobileUnit = Node.MobileUnit(uint32(bytes4(keccak256(abi.encodePacked(ctx.clock)))));
+            // decode action
+            (uint64[3] memory stats, uint64[3] memory fuel) = abi.decode(action[4:], (uint64[3], uint64[3]));
+            // check mobileUnit isn't already owned
+            if (mobileUnit == 0 || state.getOwner(mobileUnit) != 0) {
+                revert("MobileUnitIdAlreadyClaimed");
+            }
+            // set the mobileUnit's owner
+            state.setOwner(mobileUnit, Node.Player(ctx.sender));
+            // set location
+            bytes24 locationTile = Node.Tile(DEFAULT_ZONE, 0, 0, 0);
+            state.setPrevLocation(mobileUnit, locationTile, 0);
+            state.setNextLocation(mobileUnit, locationTile, ctx.clock);
+
+            // give the mobileUnit a couple of bags inc 1 for fuel
+            bytes24 bag0 = _spawnBag(state, mobileUnit, ctx.sender, 0);
+            _spawnBag(state, mobileUnit, ctx.sender, 1);
+            bytes24 bag2 = _spawnBag(state, mobileUnit, ctx.sender, 2);
+
+            // stats
+            state.setItemSlot(bag0, 0, ItemUtils.GreenGoo(), stats[0]);
+            state.setItemSlot(bag0, 1, ItemUtils.BlueGoo(), stats[1]);
+            state.setItemSlot(bag0, 2, ItemUtils.RedGoo(), stats[2]);
+
+            // fuel
+            state.setItemSlot(bag2, 0, ItemUtils.GreenGoo(), fuel[0]);
+            state.setItemSlot(bag2, 1, ItemUtils.BlueGoo(), fuel[1]);
+            state.setItemSlot(bag2, 2, ItemUtils.RedGoo(), fuel[2]);
         }
 
         return state;
