@@ -79,7 +79,7 @@ contract InventoryRule is Rule {
             // perform transfer between item slots
             _transferBalance(state, bags[0], itemSlot[0], bags[1], itemSlot[1], qty);
 
-            if (bytes4(equipee[0]) == Kind.Tile.selector) {
+            if (bytes4(equipee[0]) == Kind.Tile.selector || bytes4(equipee[0]) == Kind.CombatSession.selector) {
                 _destroyBagIfEmpty(state, bags[0], equipee[0], equipSlot[0]);
             }
         }
