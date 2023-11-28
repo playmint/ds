@@ -232,6 +232,8 @@ contract CombatRule is Rule {
         for (uint256 i = 0; i < loserStates.length; i++) {
             if (bytes4(loserStates[i].entityID) == Kind.Building.selector) {
                 buildingState = loserStates[i];
+            } else {
+                state.killMobileUnit(loserStates[i].entityID);
             }
         }
 

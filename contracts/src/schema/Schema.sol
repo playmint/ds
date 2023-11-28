@@ -491,4 +491,39 @@ library Schema {
         (bytes24 quest, uint64 status) = state.get(Rel.HasQuest.selector, questNum, player);
         return (quest, QuestStatus(status));
     }
+
+    function killMobileUnit(State state, bytes24 mobileUnit) internal {
+        bytes24 location = getCurrentLocation(state, mobileUnit, 0);
+        uint8 tileEquipSlot;
+        // bags
+        for (uint8 i = 0; i < 2; i++) {
+            (bytes24 bag) = state.getEquipSlot(mobileUnit, i);
+            // slots
+            for (uint8 j = 0; j < 4; j++) {
+                ( /*bytes24 item*/ , uint64 balance) = state.getItemSlot(bag, j);
+                if (balance > 0) {
+                    for (; tileEquipSlot < 100; tileEquipSlot++) {
+                        (bytes24 tileBag) = state.getEquipSlot(location, tileEquipSlot);
+                        if (tileBag == bytes24(0)) {
+                            // Unequip bag from unit
+                            setEquipSlot(state, mobileUnit, i, bytes24(0));
+
+                            // Equip to tile
+                            setEquipSlot(state, location, tileEquipSlot, bag);
+                            setOwner(state, bag, bytes24(0));
+                            break;
+                        }
+                    }
+
+                    // No need to iterate over the rest of slots as bag has been transferred to tile
+                    break;
+                }
+            }
+        }
+
+        // Destroy Mobile Unit
+        state.setOwner(mobileUnit, Node.Player(address(0)));
+        state.set(Rel.Location.selector, uint8(0), mobileUnit, bytes24(0), 0);
+        state.set(Rel.Location.selector, uint8(1), mobileUnit, bytes24(0), 0);
+    }
 }
