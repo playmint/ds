@@ -93,6 +93,7 @@ contract GenerationRule is Rule {
             state.setBlockNum(buildingInstance, 0, ctx.clock);
             state.setItemSlot(inBag, 0, inputItemID, 0);
         }
+
     }
 
     function min(uint256 a, uint256 b) public pure returns (uint256) {

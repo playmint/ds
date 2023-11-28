@@ -71,6 +71,9 @@ contract GameDeployer is Script {
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.RedGoo(), "Red Goo", "22-256")));
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.GoldGoo(), "Gold Goo", "32-23")));
 
+        // reward for using plyons
+        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.GoldBattery(), "Gold Battery", "32-23")));
+
         //register starter items
         dispatcher.dispatch(
             abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.AcceptanceLetter(), "Acceptance Letter", "31-311"))

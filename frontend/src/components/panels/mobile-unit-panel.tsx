@@ -217,7 +217,8 @@ export const MobileUnitPanel = ({ level }: { level: number }) => {
         });
     }, [player, selectedMobileUnitID]);
 
-    const mobileUnitBags = selectedMobileUnit ? getBagsAtEquipee(world?.bags || [], selectedMobileUnit) : [];
+    const allMobileUnitBags = selectedMobileUnit ? getBagsAtEquipee(world?.bags || [], selectedMobileUnit) : [];
+    const mobileUnitBags = allMobileUnitBags.filter((b) => b.equipee?.key != 2);
     const [life, def, atk, power] = getMobileUnitStats(selectedMobileUnit, world?.bags);
     const isDead = level < 1;
 

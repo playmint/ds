@@ -73,6 +73,7 @@ contract DownstreamGame is BaseGame {
         state.registerEdgeType(Rel.Owner.selector, "Owner", WeightKind.UINT64);
         state.registerEdgeType(Rel.Location.selector, "Location", WeightKind.UINT64);
         state.registerEdgeType(Rel.Balance.selector, "Balance", WeightKind.UINT64);
+        state.registerEdgeType(Rel.Counter.selector, "Counter", WeightKind.UINT64);
         state.registerEdgeType(Rel.PoweredBy.selector, "PoweredBy", WeightKind.UINT64);
         state.registerEdgeType(Rel.Powers.selector, "Powers", WeightKind.UINT64);
         state.registerEdgeType(Rel.Input.selector, "Input", WeightKind.UINT64);

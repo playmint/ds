@@ -5,7 +5,7 @@ import "cog/IGame.sol";
 import "cog/IState.sol";
 import "cog/IRule.sol";
 
-import {Schema, Node, Kind, DEFAULT_ZONE, BuildingCategory} from "@ds/schema/Schema.sol";
+import {Schema, Node, BiomeKind, Kind, DEFAULT_ZONE, BuildingCategory} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
@@ -30,6 +30,8 @@ struct BuildingKindCfg {
 
 contract BuildingRule is Rule {
     Game game;
+
+    mapping(bytes24 => uint64) buildingIndexMax;
 
     constructor(Game g) {
         game = g;
@@ -95,6 +97,9 @@ contract BuildingRule is Rule {
             (bytes24 buildingInstance, bytes24 mobileUnitID, bytes memory payload) =
                 abi.decode(action[4:], (bytes24, bytes24, bytes));
             _useBuilding(state, buildingInstance, mobileUnitID, payload, ctx);
+        } else if (bytes4(action) == Actions.DEV_SPAWN_BUILDING.selector) {
+            (bytes24 buildingKind, int16 q, int16 r, int16 s) = abi.decode(action[4:], (bytes24, int16, int16, int16));
+            _constructBuildingDev(state, ctx, buildingKind, q, r, s);
         }
 
         return state;
@@ -234,6 +239,51 @@ contract BuildingRule is Rule {
         state.setInput(buildingKind, 0, inputItemID, inputItemQty);
     }
 
+    // allow constructing a building without any materials
+    function _constructBuildingDev(State state, Context calldata ctx, bytes24 buildingKind, int16 q, int16 r, int16 s) internal {
+        state.setBiome(Node.Tile(DEFAULT_ZONE, q, r, s), BiomeKind.DISCOVERED);
+        bytes24 targetTile = Node.Tile(0, q, r, s);
+        bytes24 buildingInstance = Node.Building(0, q, r, s);
+        state.setBuildingKind(buildingInstance, buildingKind);
+        state.setOwner(buildingInstance, Node.Player(msg.sender));
+        state.setFixedLocation(buildingInstance, targetTile);
+        // attach the inputs/output bags
+        {
+            bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "input")))));
+            bytes24 outputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "output")))));
+            state.setEquipSlot(buildingInstance, 0, inputBag);
+            state.setEquipSlot(buildingInstance, 1, outputBag);
+        }
+
+        // -- Category specific calls
+
+        ( /*uint64 id*/ , BuildingCategory category) = state.getBuildingKindInfo(buildingKind);
+
+        if (category == BuildingCategory.EXTRACTOR) {
+            // set initial extraction timestamp
+            state.setBlockNum(buildingInstance, 0, ctx.clock);
+
+            // set inital reservoir to full
+            state.setBuildingReservoirAtoms(buildingInstance, [uint64(499), uint64(499), uint64(499), uint32(499)]);
+        } else if (category == BuildingCategory.GENERATOR) {
+            state.setBlockNum(buildingInstance, 0, ctx.clock);
+            state.setBuildingReservoirAtoms(buildingInstance, [uint64(0), uint64(0), uint64(0), uint32(0)]);
+        }
+
+        // powerup tiles from building
+        bytes24[99] memory poweredTiles = TileUtils.range2(targetTile);
+        uint64 sourceKind = category == BuildingCategory.GENERATOR ? 1 : 0;
+        for (uint256 i = 0; i < poweredTiles.length; i++) {
+            if (poweredTiles[i] == 0x0 && poweredTiles[i] != targetTile) {
+                continue;
+            }
+            state.setPowerSource(poweredTiles[i], buildingInstance, sourceKind);
+        }
+        // inc counters
+        buildingIndexMax[buildingKind] = buildingIndexMax[buildingKind] + 1;
+        state.setCounter(buildingInstance, buildingIndexMax[buildingKind]);
+    }
+
     function _constructBuilding(
         State state,
         Context calldata ctx,
@@ -250,6 +300,9 @@ contract BuildingRule is Rule {
             revert("BuildingMustBeAdjacentToMobileUnit");
         }
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, coords[0], coords[1], coords[2]);
+        // inc counters
+        buildingIndexMax[buildingKind] = buildingIndexMax[buildingKind] + 1;
+        state.setCounter(buildingInstance, buildingIndexMax[buildingKind]);
         // burn resources from given towards construction
         _payConstructionFee(state, buildingKind, buildingInstance);
         // set type of building

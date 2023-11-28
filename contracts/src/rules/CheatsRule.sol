@@ -47,11 +47,6 @@ contract CheatsRule is Rule {
                 uint64[] memory slotBalances
             ) = abi.decode(action[4:], (bytes24, address, bytes24, uint8, bytes24[], uint64[]));
             _spawnBag(state, bagID, owner, equipee, equipSlot, slotContents, slotBalances);
-        } else if (bytes4(action) == Actions.DEV_SPAWN_BUILDING.selector) {
-            require(isCheatAllowed(ctx.sender), "DEV_SPAWN_BUILDING not allowed");
-
-            (bytes24 buildingKind, int16 q, int16 r, int16 s) = abi.decode(action[4:], (bytes24, int16, int16, int16));
-            _construct(state, ctx, buildingKind, q, r, s);
         } else if (bytes4(action) == Actions.DEV_DISABLE_CHEATS.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_DISABLE_CHEATS not allowed");
 
@@ -83,45 +78,4 @@ contract CheatsRule is Rule {
         state.setBiome(Node.Tile(DEFAULT_ZONE, q, r, s), BiomeKind.DISCOVERED);
     }
 
-    // allow constructing a building without any materials
-    function _construct(State state, Context calldata ctx, bytes24 buildingKind, int16 q, int16 r, int16 s) internal {
-        _spawnTile(state, q, r, s);
-        bytes24 targetTile = Node.Tile(0, q, r, s);
-        bytes24 buildingInstance = Node.Building(0, q, r, s);
-        state.setBuildingKind(buildingInstance, buildingKind);
-        state.setOwner(buildingInstance, Node.Player(msg.sender));
-        state.setFixedLocation(buildingInstance, targetTile);
-        // attach the inputs/output bags
-        {
-            bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "input")))));
-            bytes24 outputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "output")))));
-            state.setEquipSlot(buildingInstance, 0, inputBag);
-            state.setEquipSlot(buildingInstance, 1, outputBag);
-        }
-
-        // -- Category specific calls
-
-        ( /*uint64 id*/ , BuildingCategory category) = state.getBuildingKindInfo(buildingKind);
-
-        if (category == BuildingCategory.EXTRACTOR) {
-            // set initial extraction timestamp
-            state.setBlockNum(buildingInstance, 0, ctx.clock);
-
-            // set inital reservoir to full
-            state.setBuildingReservoirAtoms(buildingInstance, [uint64(499), uint64(499), uint64(499), uint32(499)]);
-        } else if (category == BuildingCategory.GENERATOR) {
-            state.setBlockNum(buildingInstance, 0, ctx.clock);
-            state.setBuildingReservoirAtoms(buildingInstance, [uint64(0), uint64(0), uint64(0), uint32(0)]);
-        }
-
-        // powerup tiles from building
-        bytes24[99] memory poweredTiles = TileUtils.range2(targetTile);
-        uint64 sourceKind = category == BuildingCategory.GENERATOR ? 1 : 0;
-        for (uint256 i = 0; i < poweredTiles.length; i++) {
-            if (poweredTiles[i] == 0x0 && poweredTiles[i] != targetTile) {
-                continue;
-            }
-            state.setPowerSource(poweredTiles[i], buildingInstance, sourceKind);
-        }
-    }
 }

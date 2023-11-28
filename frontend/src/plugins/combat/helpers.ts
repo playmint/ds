@@ -180,7 +180,6 @@ export const getEquipmentStats = (bags: BagFragment[]): [number, number, number,
         },
         [0, 0, 0, 0] as [number, number, number, number]
     );
-    stats[ATOM_POWER] = stats[ATOM_POWER] / 10;
     return stats;
 };
 

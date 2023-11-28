@@ -47,12 +47,12 @@ contract NewPlayerRule is Rule {
         bytes24 locationTile = spawnlocation[mobileUnit];
         state.setPrevLocation(mobileUnit, locationTile, 0);
         state.setNextLocation(mobileUnit, locationTile, ctx.clock);
-        for (uint8 b = 0; b < 2; b++) {
+        for (uint8 b = 0; b < 3; b++) {
             bytes24 bag = state.getEquipSlot(mobileUnit, b);
             if (bag == 0x0) {
                 continue;
             }
-            for (uint8 s = 0; s < 4; s++) {
+            for (uint8 s = 0; s < 25; s++) {
                 state.clearItemSlot(bag, s);
             }
         }
@@ -119,12 +119,15 @@ contract NewPlayerRule is Rule {
         state.setPrevLocation(mobileUnit, locationTile, 0);
         state.setNextLocation(mobileUnit, locationTile, ctx.clock);
         // give the mobileUnit a couple of bags
-        bytes24 bag0 = _spawnBag(state, mobileUnit, ctx.sender, 0);
+        _spawnBag(state, mobileUnit, ctx.sender, 0);
         bytes24 bag1 = _spawnBag(state, mobileUnit, ctx.sender, 1);
 
+        // the battery bag for generator rewards
+        _spawnBag(state, mobileUnit, ctx.sender, 2);
+
         //give the mobileUnit the two starter items
-        state.setItemSlot(bag0, 0, ItemUtils.AcceptanceLetter(), 1);
-        state.setItemSlot(bag0, 1, ItemUtils.IDCard(), 1);
+        // state.setItemSlot(bag0, 0, ItemUtils.AcceptanceLetter(), 1);
+        // state.setItemSlot(bag0, 1, ItemUtils.IDCard(), 1);
 
         //give the mobileUnit 100 of each of the base materials
         state.setItemSlot(bag1, 0, ItemUtils.GreenGoo(), 100);

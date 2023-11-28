@@ -40,6 +40,10 @@ library ItemUtils {
         return Node.Item("Gold Goo", [uint32(0), uint32(0), uint32(0), uint32(1)], true);
     }
 
+    function GoldBattery() internal pure returns (bytes24) {
+        return Node.Item("Gold Battery", [uint32(0), uint32(0), uint32(0), uint32(1)], false);
+    }
+
     //items that need to spawned with the player
     function AcceptanceLetter() internal pure returns (bytes24) {
         return Node.Item("Acceptance Letter", [uint32(100), uint32(100), uint32(76), uint32(0)], true);

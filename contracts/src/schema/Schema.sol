@@ -11,6 +11,7 @@ interface Rel {
     function Balance() external;
     function PoweredBy() external;
     function Powers() external;
+    function Counter() external;
     function Equip() external;
     function Is() external;
     function Supports() external;
@@ -613,5 +614,13 @@ library Schema {
                 return;
             }
         }
+    }
+
+    function setCounter(State state, bytes24 thing, uint64 value) internal {
+        state.set(Rel.Counter.selector, 0, thing, 0x0, value);
+    }
+
+    function getCounter(State state, bytes24 thing) internal view returns (uint64 value) {
+        (, value) = state.get(Rel.Counter.selector, 0, thing);
     }
 }
