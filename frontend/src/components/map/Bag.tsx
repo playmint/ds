@@ -55,7 +55,6 @@ export const Bags = memo(
     ({
         tiles,
         world,
-        selectedMobileUnitID,
         selectedElementID,
         onClickBag,
     }: {
@@ -72,25 +71,24 @@ export const Bags = memo(
                     const tileSessions = getSessionsAtTile(world?.sessions || [], t);
                     const coords = getCoords(t);
                     const rewardBags =
-                        (selectedMobileUnitID &&
-                            tileSessions.flatMap((cs) => {
-                                return getBagsAtEquipee(world?.bags || [], cs).filter((bag) => {
-                                    if (bag.slots.every((slot) => !slot.balance)) {
-                                        return false;
-                                    }
-                                    // TODO: We make the assumption that the defender was defeated as there are no rewards when attackers are defeated
-                                    if (!cs.defenceTile || cs.defenceTile.tile.id !== t.id) {
-                                        return false;
-                                    }
-                                    // reward containing bags have an ID that is made up of 16bits of sessionID and 48bits of MobileUnitID
-                                    // bagIDs are 64bits
-                                    const mobileUnitIdMask = BigInt('0xFFFFFFFFFFFF'); // 48bit mask (6 bytes)
-                                    const bagMobileUnitID = (BigInt(bag.id) >> BigInt(16)) & mobileUnitIdMask;
-                                    const truncatedMobileUnitID = BigInt(selectedMobileUnitID) & mobileUnitIdMask;
-                                    return bagMobileUnitID === truncatedMobileUnitID;
-                                });
-                            })) ||
-                        [];
+                        tileSessions.flatMap((cs) => {
+                            return getBagsAtEquipee(world?.bags || [], cs).filter((bag) => {
+                                if (bag.slots.every((slot) => !slot.balance)) {
+                                    return false;
+                                }
+                                // TODO: We make the assumption that the defender was defeated as there are no rewards when attackers are defeated
+                                if (!cs.defenceTile || cs.defenceTile.tile.id !== t.id) {
+                                    return false;
+                                }
+                                // reward containing bags have an ID that is made up of 16bits of sessionID and 48bits of MobileUnitID
+                                // bagIDs are 64bits
+                                // const mobileUnitIdMask = BigInt('0xFFFFFFFFFFFF'); // 48bit mask (6 bytes)
+                                // const bagMobileUnitID = (BigInt(bag.id) >> BigInt(16)) & mobileUnitIdMask;
+                                // const truncatedMobileUnitID = BigInt(selectedMobileUnitID) & mobileUnitIdMask;
+                                // return bagMobileUnitID === truncatedMobileUnitID;
+                                return true; // Bags are now public
+                            });
+                        }) || [];
 
                     return tileBags.length > 0 || rewardBags.length > 0 ? (
                         <Bag
@@ -105,7 +103,7 @@ export const Bags = memo(
                         />
                     ) : null;
                 }),
-            [tiles, selectedMobileUnitID, selectedElementID, onClickBag, world]
+            [tiles, selectedElementID, onClickBag, world]
         );
 
         return <>{bagComponents}</>;

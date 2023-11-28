@@ -231,7 +231,7 @@ contract CombatRule is Rule {
         EntityState memory buildingState;
         for (uint256 i = 0; i < loserStates.length; i++) {
             if (bytes4(loserStates[i].entityID) == Kind.Building.selector) {
-                buildingState = loserStates[i];
+                buildingState = loserStates[i]; // TODO: We only count the last building in the for the losers
             } else {
                 state.killMobileUnit(loserStates[i].entityID);
             }
@@ -245,7 +245,7 @@ contract CombatRule is Rule {
                 // Create bag using a combination of sessionID and entityID
                 // TODO: Don't give buildings rewards? (leaving in as a sink for now)
                 state.set(Rel.Equip.selector, i, sessionID, Node.RewardBag(sessionID, winnerStates[i].entityID), 0); // Session -> Bag
-                _setBagOwner(state, Node.RewardBag(sessionID, winnerStates[i].entityID), winnerStates[i].entityID);
+                // _setBagOwner(state, Node.RewardBag(sessionID, winnerStates[i].entityID), winnerStates[i].entityID);
 
                 uint256 damagePercent = (winnerStates[i].damageInflicted * 100) / _getTotalDamageInflicted(winnerStates);
 

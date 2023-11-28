@@ -37,10 +37,11 @@ export const CombatRewards: FunctionComponent<CombatRewardsProps> = (props: Comb
             ? getBagsAtEquipee(bags, latestSession).filter((bag) => {
                   // reward containing bags have an ID that is made up of 16bits of sessionID and 48bits of MobileUnitID
                   // bagIDs are 64bits
-                  const mobileUnitIdMask = BigInt('0xFFFFFFFFFFFF'); // 48bit mask (6 bytes)
-                  const bagMobileUnitID = (BigInt(bag.id) >> BigInt(16)) & mobileUnitIdMask;
-                  const truncatedMobileUnitID = BigInt(selectedMobileUnit.id) & mobileUnitIdMask;
-                  return bagMobileUnitID === truncatedMobileUnitID;
+                  //   const mobileUnitIdMask = BigInt('0xFFFFFFFFFFFF'); // 48bit mask (6 bytes)
+                  //   const bagMobileUnitID = (BigInt(bag.id) >> BigInt(16)) & mobileUnitIdMask;
+                  //   const truncatedMobileUnitID = BigInt(selectedMobileUnit.id) & mobileUnitIdMask;
+                  //   return bagMobileUnitID === truncatedMobileUnitID;
+                  return true; // combat rewards are public
               })
             : [];
 
