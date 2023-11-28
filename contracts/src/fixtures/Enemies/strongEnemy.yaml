@@ -7,9 +7,9 @@ spec:
   model: enemy
   materials:
   - name: Red Goo
-    quantity: 200
+    quantity: 100
   - name: Blue Goo
-    quantity: 200
+    quantity: 100
   - name: Green Goo
-    quantity: 200
+    quantity: 100
 
