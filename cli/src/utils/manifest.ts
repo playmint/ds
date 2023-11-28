@@ -26,7 +26,7 @@ export const Atom = z.number().gte(0).lt(4294967295);
 export const Slot = z
     .object({
         name: z.string(),
-        quantity: z.number().gte(0).lte(100),
+        quantity: z.number().gte(0).lte(1000),
     })
     .superRefine(({ name, quantity }, ctx) => {
         if (quantity && quantity > 0 && !name) {

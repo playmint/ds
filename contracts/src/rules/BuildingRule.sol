@@ -153,7 +153,7 @@ contract BuildingRule is Rule {
                 // get atomic structure
                 (uint32[3] memory inputAtoms, bool inputStackable) = state.getItemStructure(cfg.materialItem[i]);
                 require(inputStackable, "non-stackable items not allowed as construction materials");
-                require(cfg.materialQty[i] > 0 && cfg.materialQty[i] <= 100, "stackable input item must be qty 0-100");
+                require(cfg.materialQty[i] > 0 && cfg.materialQty[i] <= 1000, "stackable input item must be qty 0-1000");
                 availableInputAtoms[0] = availableInputAtoms[0] + (inputAtoms[0] * uint32(cfg.materialQty[i]));
                 availableInputAtoms[1] = availableInputAtoms[1] + (inputAtoms[1] * uint32(cfg.materialQty[i]));
                 availableInputAtoms[2] = availableInputAtoms[2] + (inputAtoms[2] * uint32(cfg.materialQty[i]));
@@ -323,7 +323,7 @@ contract BuildingRule is Rule {
             bytes24 owner = state.getOwner(buildingKind);
             require(owner == player, "only building kind owner can configure building crafting");
             if (outputStackable) {
-                require(outputQty > 0 && outputQty <= 100, "stackable output qty must be between 0-100");
+                require(outputQty > 0 && outputQty <= 1000, "stackable output qty must be between 0-1000");
             } else {
                 require(outputQty == 1, "equipable item crafting cannot output multiple items");
             }
@@ -366,7 +366,7 @@ contract BuildingRule is Rule {
                 // get atomic structure
                 (uint32[3] memory inputAtoms, bool inputStackable) = state.getItemStructure(inputItem[i]);
                 if (inputStackable) {
-                    require(inputQty[i] > 0 && inputQty[i] <= 100, "stackable input item must be qty 0-100");
+                    require(inputQty[i] > 0 && inputQty[i] <= 1000, "stackable input item must be qty 0-1000");
                 } else {
                     require(inputQty[i] == 1, "equipable input item must have qty=1");
                 }
