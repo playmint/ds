@@ -59,12 +59,24 @@ export const Onboarding = ({ player, playerUnits, onClickConnect }: OnboardingPr
                 <h3>👁️‍🗨️ Welcome to Downstream</h3>
             </div>
             <div className="content">
-                <p>✅ If you’re an approved playtester, simply connect your wallet and click ‘Spawn Unit’ to begin. </p>
+                <h1>Stay in The Light</h1>
                 <p>
-                    If you want to join the community, check out our{' '}
-                    <a href="https://discord.gg/VdXWWNaqGN" target="_blank" rel="noopener noreferrer">
-                        communications server!
-                    </a>
+                    <ul style={{ marginLeft: '2rem' }}>
+                        <li>Try to get to the middle</li>
+                        <li>Construct buildings on powered tiles to extend the light</li>
+                        <li>Contribute to fueling each generator to earn POW</li>
+                        <li>More POW {'=>'} More life in The Dark</li>
+                        <li>Watch unit power level go down in The Dark</li>
+                        <li>Respawn will lose your POW</li>
+                        <li>Buildings need to be lit to work</li>
+                    </ul>
+                </p>
+                <p>Gentlemans agreement</p>
+                <p>
+                    <ul style={{ marginLeft: '2rem' }}>
+                        <li>You will not build Generators</li>
+                        <li>You will not refresh the page to reset your power level</li>
+                    </ul>
                 </p>
                 {player && playerUnits.length === 0 ? (
                     <>
