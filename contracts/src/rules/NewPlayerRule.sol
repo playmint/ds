@@ -85,19 +85,22 @@ contract NewPlayerRule is Rule {
             state.setNextLocation(mobileUnit, locationTile, ctx.clock);
 
             // give the mobileUnit a couple of bags inc 1 for fuel
-            bytes24 bag0 = _spawnBag(state, mobileUnit, ctx.sender, 0);
-            _spawnBag(state, mobileUnit, ctx.sender, 1);
+            _spawnBag(state, mobileUnit, ctx.sender, 0);
+            bytes24 bag1 = _spawnBag(state, mobileUnit, ctx.sender, 1);
             bytes24 bag2 = _spawnBag(state, mobileUnit, ctx.sender, 2);
 
             // stats
-            state.setItemSlot(bag0, 0, ItemUtils.GreenGoo(), stats[0]);
-            state.setItemSlot(bag0, 1, ItemUtils.BlueGoo(), stats[1]);
-            state.setItemSlot(bag0, 2, ItemUtils.RedGoo(), stats[2]);
+            state.setItemSlot(bag1, 0, ItemUtils.GreenGoo(), stats[0]);
+            state.setItemSlot(bag1, 1, ItemUtils.BlueGoo(), stats[1]);
+            state.setItemSlot(bag1, 2, ItemUtils.RedGoo(), stats[2]);
 
             // fuel
             state.setItemSlot(bag2, 0, ItemUtils.GreenGoo(), fuel[0]);
             state.setItemSlot(bag2, 1, ItemUtils.BlueGoo(), fuel[1]);
             state.setItemSlot(bag2, 2, ItemUtils.RedGoo(), fuel[2]);
+
+            // Make fuel bag input only
+            state.setOwner(bag2, Node.Player(address(1)));
         }
 
         return state;

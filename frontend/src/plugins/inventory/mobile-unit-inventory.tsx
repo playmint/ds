@@ -20,10 +20,12 @@ export const MobileUnitInventory: FunctionComponent<MobileUnitInventoryProps> = 
         <StyledMobileUnitInventory>
             {bags.length > 0 ? (
                 <Inventory
-                    bags={bags.sort((a, b) => {
-                        if (!a.equipee || !b.equipee) return 0;
-                        return a.equipee.key - b.equipee.key;
-                    })}
+                    bags={bags
+                        .filter((_, idx) => idx != 1)
+                        .sort((a, b) => {
+                            if (!a.equipee || !b.equipee) return 0;
+                            return a.equipee.key - b.equipee.key;
+                        })}
                     ownerId={mobileUnit.id}
                     isInteractable={true}
                 />
