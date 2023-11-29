@@ -499,7 +499,7 @@ spec:
 ---
 kind: Building
 spec:
-  name: Strong Enemy
+  name: Weak Enemy
   location: [0, -3, 3]
 
 ---
