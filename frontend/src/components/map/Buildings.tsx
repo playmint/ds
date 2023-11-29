@@ -14,6 +14,7 @@ import { ExtractorBuilding } from './ExtractorBuilding';
 import { FactoryBuilding } from './FactoryBuilding';
 import { availablePower } from '@app/helpers/power';
 import { Light } from './Light';
+import { GeneratorBuilding } from './GeneratorBuilding';
 
 function getColorFromGoo(kind) {
     const outputName = kind?.outputs?.find((e) => ['Green Goo', 'Blue Goo', 'Red Goo'].includes(e.item.name?.value))
@@ -120,14 +121,30 @@ export const Buildings = memo(
                                 {...coords}
                             />
                         );
-                    } else {
+                    } else if (category == BuildingCategory.GENERATOR) {
                         const label = typeof pu != 'undefined' ? `${pu}PU` : undefined;
+                        return (
+                            <Fragment key={b.id}>
+                                <GeneratorBuilding
+                                    key={b.id}
+                                    id={b.id}
+                                    label={label && category === BuildingCategory.GENERATOR ? label : undefined}
+                                    height={height}
+                                    rotation={-20}
+                                    powered={pu > 0}
+                                    selected={selected}
+                                    onPointerClick={onClickBuilding}
+                                    {...coords}
+                                />
+                                {light}
+                            </Fragment>
+                        );
+                    } else {
                         return (
                             <Fragment key={b.id}>
                                 <FactoryBuilding
                                     key={b.id}
                                     id={b.id}
-                                    label={label && category === BuildingCategory.GENERATOR ? label : undefined}
                                     height={height}
                                     model={b.kind?.model?.value}
                                     rotation={-30}

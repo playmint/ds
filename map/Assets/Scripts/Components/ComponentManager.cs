@@ -27,6 +27,7 @@ public class ComponentDataMessage : ComponentMessage
 [RequireComponent(typeof(PathManager))]
 [RequireComponent(typeof(FactoryBuildingManager))]
 [RequireComponent(typeof(ExtractorBuildingManager))]
+[RequireComponent(typeof(GeneratorBuildingManager))]
 [RequireComponent(typeof(BlockerBuildingManager))]
 [RequireComponent(typeof(LabelManager))]
 [RequireComponent(typeof(IconManager))]

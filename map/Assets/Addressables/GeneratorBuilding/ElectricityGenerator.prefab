@@ -4822,6 +4822,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4602754830197188711}
+  - component: {fileID: 376334256786148279}
   m_Layer: 0
   m_Name: ElectricityGenerator
   m_TagString: Untagged
@@ -4846,6 +4847,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &376334256786148279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3741261150041444434}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6180dcc49f7440abefffa00024c386, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  zap: {fileID: 1147361009325029356}
 --- !u!1 &4962549161896181141
 GameObject:
   m_ObjectHideFlags: 0
@@ -9684,8 +9698,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4973879197987801241}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.41, y: 0.26, z: -0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -0.40999997, y: 0.26000005, z: 0.000000035765073}
+  m_LocalScale: {x: 1, y: 1.0000001, z: 1.0000001}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6519219575657183405}
