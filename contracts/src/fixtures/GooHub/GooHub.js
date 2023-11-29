@@ -81,8 +81,9 @@ export default async function update(state) {
                             <p>1. Jimmy</p>
                             <p>2. Jammy</p>
                             <p>3. Jommy</p>
-                            <p>Spawn medium strength units at ${MED_GOO_THRESH} goo</p>
-                            <p>Spawn strong units at ${STRONG_GOO_THRESH} goo</p>
+                            <br/>
+                            <p>Unlock medium units at ${MED_GOO_THRESH} goo</p>
+                            <p>Unlock strong units at ${STRONG_GOO_THRESH} goo</p>
                             `,
                         buttons: [
                             {
