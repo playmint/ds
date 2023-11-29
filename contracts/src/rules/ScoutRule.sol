@@ -141,7 +141,7 @@ contract ScoutRule is Rule {
             atoms[GOO_GOLD] = 200;
         } else if (coords[0] == 34 && coords[1] == -1 && coords[2] == -33) {
             atoms[GOO_GOLD] = 200;
-        } else if (coords[0] == -38 && coords[1] == -1 && coords[2] == -37) {
+        } else if (coords[0] == 38 && coords[1] == -1 && coords[2] == -37) {
             atoms[GOO_GOLD] = 200;
         } else if (coords[0] == 25 && coords[1] == 8 && coords[2] == -33) {
             atoms[GOO_GOLD] = 200;
