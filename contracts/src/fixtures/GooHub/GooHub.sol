@@ -17,7 +17,7 @@ contract Locker is BuildingKind {
         bytes24 buildingBag = state.getEquipSlot(buildingInstance, 0);
 
         // Iterate over all bags and slots depositing the goo
-        for (uint8 i = 0; i < 3; i++) {
+        for (uint8 i = 0; i < 1; i++) {
             (bytes24 bag) = state.getEquipSlot(mobileUnit, i);
             for (uint8 j = 0; j < 4; j++) {
                 (bytes24 item, uint64 balance) = state.getItemSlot(bag, j);
