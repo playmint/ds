@@ -121,12 +121,13 @@ export const Buildings = memo(
                             />
                         );
                     } else {
+                        const label = typeof pu != 'undefined' ? `${pu}PU` : undefined;
                         return (
                             <Fragment key={b.id}>
                                 <FactoryBuilding
                                     key={b.id}
                                     id={b.id}
-                                    label={typeof pu != 'undefined' ? `${pu}PU` : undefined}
+                                    label={label && category === BuildingCategory.GENERATOR ? label : undefined}
                                     height={height}
                                     model={b.kind?.model?.value}
                                     rotation={-30}

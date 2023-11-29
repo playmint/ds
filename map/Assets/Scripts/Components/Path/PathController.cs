@@ -36,6 +36,8 @@ public class PathController : BaseComponentController<PathData>
         _linePositions = new Vector3[_resolution + 1];
         line = lineMarker.GetComponent<LineRenderer>();
         line.positionCount = _resolution + 1;
+        line.startWidth = 0.1f;
+        line.endWidth = 0.1f;
     }
 
     protected void Update()
@@ -44,6 +46,9 @@ public class PathController : BaseComponentController<PathData>
         {
             return;
         }
+
+        line.startWidth = _nextData.width;
+        line.endWidth = _nextData.width;
 
         // set line color
         ColorUtility.TryParseHtmlString(

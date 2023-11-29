@@ -1,9 +1,10 @@
-import { getTileHeight } from '@app/helpers/tile';
+import { getTileCoordsFromId, getTileHeight } from '@app/helpers/tile';
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
 import { WorldBuildingFragment, WorldTileFragment, getCoords } from '@downstream/core';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { TileHighlight } from './TileHighlight';
 import { isPowered } from '@app/helpers/power';
+import { Path } from './Path';
 
 export interface TileData {
     q: number;
@@ -89,6 +90,33 @@ export const Tiles = memo(
                     );
                 });
         }, [tiles, enter, exit, onClickTile, buildings, currentBlock]);
+
+        // const powerlines = useMemo(() => {
+        //     return (tiles || [])
+        //         .filter((t) => !!t.biome)
+        //         .flatMap((t) => {
+        //             const fromCoords = getCoords(t);
+        //             return t.poweredBy.map((powerSource) => {
+        //                 const toCoords = getTileCoordsFromId(powerSource.source.id);
+        //                 return (
+        //                     <Path
+        //                         key={`pow-${t.id}-${powerSource.source.id}`}
+        //                         id={`pow-${t.id}-${powerSource.source.id}`}
+        //                         qFrom={fromCoords.q}
+        //                         rFrom={fromCoords.r}
+        //                         sFrom={fromCoords.s}
+        //                         heightFrom={getTileHeight(t)}
+        //                         qTo={toCoords[0]}
+        //                         rTo={toCoords[1]}
+        //                         sTo={toCoords[2]}
+        //                         heightTo={getTileHeight(t)}
+        //                         color={'yellow'}
+        //                         width={0.2}
+        //                     />
+        //                 );
+        //             });
+        //         });
+        // }, [tiles]);
 
         return (
             <>

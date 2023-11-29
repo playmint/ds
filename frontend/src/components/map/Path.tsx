@@ -11,6 +11,7 @@ export interface PathData {
     sTo: number;
     heightTo: number;
     color?: string;
+    width?: number;
 }
 
 export const Path = memo(
@@ -25,6 +26,7 @@ export const Path = memo(
         sTo,
         heightTo,
         color,
+        width,
         onPointerEnter,
         onPointerExit,
         onPointerClick,
@@ -43,8 +45,9 @@ export const Path = memo(
                     sTo,
                     heightTo,
                     color: color || '#47E4FF',
+                    width: width || 0.01,
                 }),
-                [qFrom, rFrom, sFrom, heightFrom, qTo, rTo, sTo, heightTo, color]
+                [qFrom, rFrom, sFrom, heightFrom, qTo, rTo, sTo, heightTo, color, width]
             ),
             onPointerEnter,
             onPointerExit,

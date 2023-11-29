@@ -9,4 +9,5 @@ public class PathData : BaseComponentData
     public int sTo;
     public float heightTo;
     public string? color; // hex
+    public float width;
 }
