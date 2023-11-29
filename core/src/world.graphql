@@ -98,6 +98,12 @@ fragment WorldBuilding on Node {
     location: edge(match: { kinds: "Tile", via: { rel: "Location", key: 2 } }) {
         ...Location
     }
+    leaderboard: edges(match: { kinds: "Player", via: { rel: "Balance", dir: IN } }) {
+        player: node {
+            id
+        }
+        weight
+    }
 }
 
 fragment WorldCombatSession on Node {

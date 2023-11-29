@@ -9,12 +9,15 @@ export default async function update(state) {
         selectedTile && getBuildingOnTile(state, selectedTile);
 
     const inputSlots = getInputSlots(state, selectedBuilding);
-    console.log("inputSlots: ", inputSlots);
 
     const greenBal = inputSlots.length > 0 ? inputSlots[0].balance : 0;
     const blueBal = inputSlots.length > 1 ? inputSlots[1].balance : 0;
     const redBal = inputSlots.length > 2 ? inputSlots[2].balance : 0;
     const totalGoo = inputSlots.reduce((acc, s) => acc + s.balance, 0);
+
+    const leaderboard = selectedBuilding.leaderboard
+        ? selectedBuilding.leaderboard.sort((a, b) => b.weight - a.weight)
+        : [];
 
     const deposit = () => {
         const mobileUnit = getMobileUnit(state);
@@ -78,9 +81,16 @@ export default async function update(state) {
                             <p>Total: ${totalGoo}</p>
                             <br/>
                             <p>Leaderboard</p>
-                            <p>1. Jimmy</p>
-                            <p>2. Jammy</p>
-                            <p>3. Jommy</p>
+                            ${leaderboard
+                                .slice(0, Math.min(leaderboard.length, 3))
+                                .map((entry, idx) => {
+                                    return `<p>${
+                                        idx + 1
+                                    }. ${entry.player.id.slice(-5)}: ${
+                                        entry.weight
+                                    }</p>`;
+                                })
+                                .join("")}
                             <br/>
                             <p>Unlock medium units at ${MED_GOO_THRESH} goo</p>
                             <p>Unlock strong units at ${STRONG_GOO_THRESH} goo</p>

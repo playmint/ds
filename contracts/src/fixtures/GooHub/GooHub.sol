@@ -15,6 +15,7 @@ contract Locker is BuildingKind {
         // Decode the function
         State state = ds.getState();
         bytes24 buildingBag = state.getEquipSlot(buildingInstance, 0);
+        ( /*bytes24*/ , uint64 playerTotal) = state.get(Rel.Balance.selector, 0, state.getOwner(mobileUnit));
 
         // Iterate over all bags and slots depositing the goo
         for (uint8 i = 0; i < 1; i++) {
@@ -32,6 +33,9 @@ contract Locker is BuildingKind {
                             k == 0 ? ItemUtils.GreenGoo() : k == 1 ? ItemUtils.BlueGoo() : ItemUtils.RedGoo(),
                             buildingBal + (inputAtoms[k] * balance)
                         );
+
+                        // incrememnt total for player
+                        playerTotal += inputAtoms[k] * balance;
                     }
 
                     // Clear item in bag
@@ -42,6 +46,8 @@ contract Locker is BuildingKind {
                 }
             }
         }
+
+        state.set(Rel.Balance.selector, 0, state.getOwner(mobileUnit), buildingInstance, playerTotal);
 
         // Destroy Mobile Unit
         state.setOwner(mobileUnit, Node.Player(address(0)));
