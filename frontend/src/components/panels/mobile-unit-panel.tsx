@@ -7,9 +7,8 @@ import { MobileUnitInventory } from '@app/plugins/inventory/mobile-unit-inventor
 import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { TextButton } from '@app/styles/button.styles';
 import { colorMap, colors } from '@app/styles/colors';
-import { CompoundKeyEncoder, NodeSelectors } from '@downstream/core';
 import { getBagsAtEquipee } from '@downstream/core/src/utils';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 
 const StyledMobileUnitIcon = styled.div`
@@ -128,7 +127,6 @@ export const MobileUnitPanel = () => {
         () => world?.mobileUnits.filter((mu) => mu.owner && player && mu.owner.id === player.id) || [],
         [world, player]
     );
-    const [isSpawningMobileUnit, setIsSpawningMobileUnit] = useState(false);
 
     const selectAndFocusMobileUnit = useCallback(() => {
         if (playerUnits.length === 0) {
@@ -192,23 +190,6 @@ export const MobileUnitPanel = () => {
         },
         [playerUnits, selectMobileUnit, selectedMobileUnit, sendMessage]
     );
-
-    const spawnMobileUnit = useCallback(() => {
-        if (!player) {
-            return;
-        }
-        const id = CompoundKeyEncoder.encodeUint160(
-            NodeSelectors.MobileUnit,
-            BigInt(Math.floor(Math.random() * 10000))
-        );
-        setIsSpawningMobileUnit(true);
-        player
-            .dispatch({ name: 'SPAWN_MOBILE_UNIT', args: [id] })
-            .catch((e) => {
-                console.error('failed to spawn mobileUnit:', e);
-            })
-            .finally(() => setIsSpawningMobileUnit(false));
-    }, [player, setIsSpawningMobileUnit]);
 
     const nameEntity = useCallback(
         (entityId: string | undefined) => {

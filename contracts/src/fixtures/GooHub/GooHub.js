@@ -1,8 +1,8 @@
 import ds from "downstream";
 
 export default async function update(state) {
-    const MED_GOO_THRESH = 20;
-    const STRONG_GOO_THRESH = 40;
+    const MED_GOO_THRESH = 300;
+    const STRONG_GOO_THRESH = 3000;
 
     const selectedTile = getSelectedTile(state);
     const selectedBuilding =
@@ -34,8 +34,8 @@ export default async function update(state) {
         ds.dispatch({
             name: "SPAWN_MOBILE_UNIT_CUSTOM",
             args: [
-                [1, 1, 1],
-                [10, 10, 10],
+                [0, 0, 0],
+                [20, 0, 0],
             ],
         });
     };
@@ -44,8 +44,8 @@ export default async function update(state) {
         ds.dispatch({
             name: "SPAWN_MOBILE_UNIT_CUSTOM",
             args: [
-                [20, 20, 20],
-                [40, 40, 40],
+                [55, 55, 55],
+                [40, 0, 0],
             ],
         });
     };
@@ -54,8 +54,8 @@ export default async function update(state) {
         ds.dispatch({
             name: "SPAWN_MOBILE_UNIT_CUSTOM",
             args: [
-                [40, 40, 40],
-                [80, 80, 80],
+                [110, 110, 110],
+                [80, 0, 0],
             ],
         });
     };
@@ -71,7 +71,7 @@ export default async function update(state) {
                         id: "default",
                         type: "inline",
                         html: `
-                            <p>Deposit Goo here</p>
+                            <p>Deposited Goo</p>
                             <p>Green: ${greenBal}</p>
                             <p>Blue: ${blueBal}</p>
                             <p>Red: ${redBal}</p>
@@ -81,6 +81,8 @@ export default async function update(state) {
                             <p>1. Jimmy</p>
                             <p>2. Jammy</p>
                             <p>3. Jommy</p>
+                            <p>Spawn medium strength units at ${MED_GOO_THRESH} goo</p>
+                            <p>Spawn strong units at ${STRONG_GOO_THRESH} goo</p>
                             `,
                         buttons: [
                             {

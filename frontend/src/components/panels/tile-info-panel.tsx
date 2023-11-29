@@ -18,7 +18,6 @@ import {
     GOO_SMALL_THRESH,
     getCoords,
     getGooRates,
-    getTileDistance,
 } from '@app/helpers/tile';
 import { usePlayer, useSelection, useWorld } from '@app/hooks/use-game-state';
 import { Bag } from '@app/plugins/inventory/bag';

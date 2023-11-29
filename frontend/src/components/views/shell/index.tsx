@@ -194,7 +194,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 if (selectedMobileUnit) {
                     const selectedRewardBags = getSessionsAtTile(world?.sessions || [], t).flatMap((cs) => {
                         return getBagsAtEquipee(world?.bags || [], cs)
-                            .filter((bag) => {
+                            .filter(() => {
                                 if (!cs.defenceTile || cs.defenceTile.tile.id !== t.id) {
                                     return false;
                                 }
