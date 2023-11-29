@@ -46,19 +46,27 @@ interface KeyedThing {
     key: number;
 }
 
-const interleaveArray = (arr) => {
-    const flat = Array.from(
-        {
-            length: Math.max(...arr.map((o) => o.length)), // find the maximum length
-        },
-        (_, i) => arr.map((r) => r[i] ?? null) // create a new row from all items in same column or substitute with null
-    )
-        .flat()
-        .filter((elm) => elm != null); // flatten the results
+// const interleaveArray = (arr) => {
+//     const flat = Array.from(
+//         {
+//             length: Math.max(...arr.map((o) => o.length)), // find the maximum length
+//         },
+//         (_, i) => arr.map((r) => r[i] ?? null) // create a new row from all items in same column or substitute with null
+//     )
+//         .flat()
+//         .filter((elm) => elm != null); // flatten the results
 
-    console.log('interleaved array: ', flat);
+//     console.log('interleaved array: ', flat);
 
-    return flat;
+//     return flat;
+// };
+
+// Merge the actions off the smallest array into the largest array
+const mergeActions = (a1: CogAction[][], a2: CogAction[][]) => {
+    const large = a1.length >= a2.length ? a1 : a2;
+    const small = a1.length < a2.length ? a1 : a2;
+
+    return large.map((actions, idx) => (idx < small.length ? [...actions, ...small[idx]] : actions));
 };
 
 const byName = (a: MaybeNamedThing, b: MaybeNamedThing) => {
@@ -530,12 +538,12 @@ const Move: FunctionComponent<MoveProps> = ({
                 {
                     name: 'MOVE_MOBILE_UNIT',
                     args: [mobileUnitKey, q, r, s],
-                },
+                } satisfies CogAction,
             ];
         });
 
         // TODO: To interleave properly I need to filter the existing array into actions grouped by unit and then interleave all the new arrays
-        setActionQueue((prev) => (Array.isArray(prev) ? interleaveArray([actions, prev]) : actions));
+        setActionQueue((prev) => (Array.isArray(prev) ? mergeActions(actions, prev) : actions));
 
         if (selectIntent) {
             selectIntent(undefined);
@@ -755,7 +763,7 @@ const Combat: FunctionComponent<CombatProps> = ({
             ]);
         }
 
-        setActionQueue((prev) => (Array.isArray(prev) ? interleaveArray([actions, prev]) : actions));
+        setActionQueue((prev) => (Array.isArray(prev) ? mergeActions(actions, prev) : actions));
         if (clearIntent) {
             clearIntent();
         }
