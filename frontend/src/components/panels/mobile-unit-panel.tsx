@@ -130,7 +130,10 @@ export const MobileUnitPanel = () => {
     const { world, player, selectMobileUnit, selected } = useGameState();
     const { mobileUnit: selectedMobileUnit } = selected || {};
     const playerUnits = useMemo(
-        () => world?.mobileUnits.filter((mu) => mu.owner && player && mu.owner.id === player.id) || [],
+        () =>
+            world?.mobileUnits
+                .filter((mu) => mu.owner && player && mu.owner.id === player.id)
+                .sort((a, b) => (a.key && b.key ? a.key - b.key : 0)) || [],
         [world, player]
     );
     const selectedUnitIdx = selectedMobileUnit ? playerUnits.findIndex((u) => u.id == selectedMobileUnit.id) : -1;

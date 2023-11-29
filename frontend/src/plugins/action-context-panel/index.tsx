@@ -46,6 +46,21 @@ interface KeyedThing {
     key: number;
 }
 
+const interleaveArray = (arr) => {
+    const flat = Array.from(
+        {
+            length: Math.max(...arr.map((o) => o.length)), // find the maximum length
+        },
+        (_, i) => arr.map((r) => r[i] ?? null) // create a new row from all items in same column or substitute with null
+    )
+        .flat()
+        .filter((elm) => elm != null); // flatten the results
+
+    console.log('interleaved array: ', flat);
+
+    return flat;
+};
+
 const byName = (a: MaybeNamedThing, b: MaybeNamedThing) => {
     return a.name && b.name && a.name.value > b.name.value ? 1 : -1;
 };
@@ -461,7 +476,7 @@ interface MoveProps {
     tiles: WorldTileFragment[];
     buildings: WorldBuildingFragment[];
     mobileUnit?: WorldMobileUnitFragment;
-    setActionQueue: (path: CogAction[][]) => void;
+    setActionQueue: React.Dispatch<React.SetStateAction<CogAction[][] | undefined>>;
 }
 const Move: FunctionComponent<MoveProps> = ({
     selectTiles,
@@ -509,17 +524,19 @@ const Move: FunctionComponent<MoveProps> = ({
             return;
         }
 
-        setActionQueue(
-            path.slice(1).map((t) => {
-                const [_zone, q, r, s] = t.coords;
-                return [
-                    {
-                        name: 'MOVE_MOBILE_UNIT',
-                        args: [mobileUnitKey, q, r, s],
-                    },
-                ];
-            })
-        );
+        const actions = path.slice(1).map((t) => {
+            const [_zone, q, r, s] = t.coords;
+            return [
+                {
+                    name: 'MOVE_MOBILE_UNIT',
+                    args: [mobileUnitKey, q, r, s],
+                },
+            ];
+        });
+
+        // TODO: To interleave properly I need to filter the existing array into actions grouped by unit and then interleave all the new arrays
+        setActionQueue((prev) => (Array.isArray(prev) ? interleaveArray([actions, prev]) : actions));
+
         if (selectIntent) {
             selectIntent(undefined);
         }
@@ -594,7 +611,7 @@ interface CombatProps {
     buildings: WorldBuildingFragment[];
     mobileUnits?: WorldMobileUnitFragment[];
     mobileUnit?: WorldMobileUnitFragment;
-    setActionQueue: (path: CogAction[][]) => void;
+    setActionQueue: React.Dispatch<React.SetStateAction<CogAction[][] | undefined>>;
 }
 const Combat: FunctionComponent<CombatProps> = ({
     selectTiles,
@@ -737,7 +754,8 @@ const Combat: FunctionComponent<CombatProps> = ({
                 },
             ]);
         }
-        setActionQueue(actions);
+
+        setActionQueue((prev) => (Array.isArray(prev) ? interleaveArray([actions, prev]) : actions));
         if (clearIntent) {
             clearIntent();
         }
@@ -824,7 +842,8 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
         }
         dispatch(...actions)
             .then((res) => res.wait())
-            .then(() => {
+            .catch((err) => console.error(`move aborted ${err}`))
+            .finally(() => {
                 // remove this action from the top of the queue
                 // ...but ONLY if the item is still at the top, since it
                 // is possible that something else changed the queue while
@@ -835,8 +854,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
                     }
                     return prev;
                 });
-            })
-            .catch((err) => console.error(`move aborted ${err}`));
+            });
     }, [actionQueue, dispatch, mobileUnitKey]);
 
     if (!mobileUnit) {
