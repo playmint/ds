@@ -8,7 +8,7 @@ import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { TextButton } from '@app/styles/button.styles';
 import { colorMap, colors } from '@app/styles/colors';
 import { getBagsAtEquipee } from '@downstream/core/src/utils';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 
 const StyledMobileUnitIcon = styled.div`
@@ -117,6 +117,12 @@ const MobileUnitContainer = styled.div`
         text-align: right;
         color: ${colors.grey_3};
     }
+
+    > .unitSelector {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
 `;
 
 export const MobileUnitPanel = () => {
@@ -127,6 +133,7 @@ export const MobileUnitPanel = () => {
         () => world?.mobileUnits.filter((mu) => mu.owner && player && mu.owner.id === player.id) || [],
         [world, player]
     );
+    const selectedUnitIdx = selectedMobileUnit ? playerUnits.findIndex((u) => u.id == selectedMobileUnit.id) : -1;
 
     const selectAndFocusMobileUnit = useCallback(() => {
         if (playerUnits.length === 0) {
@@ -214,6 +221,18 @@ export const MobileUnitPanel = () => {
         [player]
     );
 
+    useEffect(() => {
+        if (selectedMobileUnit && selectedUnitIdx == -1) {
+            selectAndFocusMobileUnit();
+        }
+    }, [selectAndFocusMobileUnit, selectedMobileUnit, selectedUnitIdx]);
+
+    useEffect(() => {
+        if (!selectedMobileUnit && playerUnits.length > 0) {
+            selectAndFocusMobileUnit();
+        }
+    }, [playerUnits.length, selectAndFocusMobileUnit, selectedMobileUnit]);
+
     const mobileUnitBags = selectedMobileUnit ? getBagsAtEquipee(world?.bags || [], selectedMobileUnit) : [];
     const [life, def, atk] = getMobileUnitStats(selectedMobileUnit, world?.bags);
 
@@ -242,6 +261,9 @@ export const MobileUnitPanel = () => {
                                 </div>
                                 <div className="unitSelector">
                                     <button onClick={() => selectNextMobileUnit(-1)}>prev</button>
+                                    <span>
+                                        {selectedUnitIdx + 1}/{playerUnits.length}
+                                    </span>
                                     <button onClick={() => selectNextMobileUnit(1)}>next</button>
                                 </div>
                             </MobileUnitContainer>
