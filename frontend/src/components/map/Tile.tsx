@@ -1,10 +1,9 @@
-import { getTileCoordsFromId, getTileHeight } from '@app/helpers/tile';
+import { isPowered } from '@app/helpers/power';
+import { getTileHeight } from '@app/helpers/tile';
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
 import { WorldBuildingFragment, WorldTileFragment, getCoords } from '@downstream/core';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { TileHighlight } from './TileHighlight';
-import { isPowered } from '@app/helpers/power';
-import { Path } from './Path';
 
 export interface TileData {
     q: number;
