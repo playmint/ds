@@ -35,7 +35,7 @@ export default async function update(state) {
             name: "SPAWN_MOBILE_UNIT_CUSTOM",
             args: [
                 [0, 0, 0],
-                [20, 0, 0],
+                [100, 0, 0],
             ],
         });
     };
@@ -45,7 +45,7 @@ export default async function update(state) {
             name: "SPAWN_MOBILE_UNIT_CUSTOM",
             args: [
                 [55, 55, 55],
-                [40, 0, 0],
+                [30, 0, 0],
             ],
         });
     };
@@ -55,7 +55,7 @@ export default async function update(state) {
             name: "SPAWN_MOBILE_UNIT_CUSTOM",
             args: [
                 [110, 110, 110],
-                [80, 0, 0],
+                [50, 0, 0],
             ],
         });
     };
