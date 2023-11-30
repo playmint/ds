@@ -2,6 +2,18 @@
 ---
 kind: Tile
 spec:
+  biome: DISCOVERED
+  location: [ -12, 16, -4 ]
+
+---
+kind: Building
+spec:
+  name: Rainbow Golem
+  location: [ -12, 16, -4 ]
+
+---
+kind: Tile
+spec:
   location: [ -3, 6, -3 ]
   biome: DISCOVERED
 
@@ -104,8 +116,14 @@ spec:
 ---
 kind: Tile
 spec:
-  location: [ -8, 4, 4 ]
   biome: DISCOVERED
+  location: [ -8, 4, 4 ]
+
+---
+kind: Building
+spec:
+  name: Rainbow Golem
+  location: [ -8, 4, 4 ]
 
 ---
 kind: Tile
@@ -411,12 +429,6 @@ spec:
 kind: Tile
 spec:
   biome: DISCOVERED
-  location: [ -1, 0, 1 ]
-
----
-kind: Building
-spec:
-  name: Rainbow Golem
   location: [ -1, 0, 1 ]
 
 ---
@@ -1136,8 +1148,14 @@ spec:
 ---
 kind: Tile
 spec:
-  location: [ 8, -4, -4 ]
   biome: DISCOVERED
+  location: [ 8, -4, -4 ]
+
+---
+kind: Building
+spec:
+  name: Rainbow Golem
+  location: [ 8, -4, -4 ]
 
 ---
 kind: Tile
@@ -1394,8 +1412,14 @@ spec:
 ---
 kind: Tile
 spec:
-  location: [ -4, 15, -11 ]
   biome: DISCOVERED
+  location: [ -4, 15, -11 ]
+
+---
+kind: Building
+spec:
+  name: Rainbow Golem
+  location: [ -4, 15, -11 ]
 
 ---
 kind: Tile
@@ -1466,8 +1490,14 @@ spec:
 ---
 kind: Tile
 spec:
-  location: [ 4, 11, -15 ]
   biome: DISCOVERED
+  location: [ 4, 11, -15 ]
+
+---
+kind: Building
+spec:
+  name: Rainbow Golem
+  location: [ 4, 11, -15 ]
 
 ---
 kind: Tile
@@ -1629,12 +1659,6 @@ spec:
 kind: Tile
 spec:
   biome: DISCOVERED
-  location: [ 0, 13, -13 ]
-
----
-kind: Building
-spec:
-  name: Rainbow Golem
   location: [ 0, 13, -13 ]
 
 ---
@@ -1934,8 +1958,14 @@ spec:
 ---
 kind: Tile
 spec:
-  location: [ -5, -12, 17 ]
   biome: DISCOVERED
+  location: [ -5, -12, 17 ]
+
+---
+kind: Building
+spec:
+  name: Rainbow Golem
+  location: [ -5, -12, 17 ]
 
 ---
 kind: Tile
@@ -1994,8 +2024,14 @@ spec:
 ---
 kind: Tile
 spec:
-  location: [ 5, -16, 11 ]
   biome: DISCOVERED
+  location: [ 5, -16, 11 ]
+
+---
+kind: Building
+spec:
+  name: Rainbow Golem
+  location: [ 5, -16, 11 ]
 
 ---
 kind: Tile
@@ -2346,12 +2382,6 @@ spec:
   location: [ 0, -14, 14 ]
 
 ---
-kind: Building
-spec:
-  name: Rainbow Golem
-  location: [ 0, -14, 14 ]
-
----
 kind: Tile
 spec:
   location: [ 1, -13, 12 ]
@@ -2504,8 +2534,14 @@ spec:
 ---
 kind: Tile
 spec:
-  location: [ 3, -25, 22 ]
   biome: DISCOVERED
+  location: [ 3, -25, 22 ]
+
+---
+kind: Building
+spec:
+  name: Rainbow Golem
+  location: [ 3, -25, 22 ]
 
 ---
 kind: Tile
@@ -2558,8 +2594,14 @@ spec:
 ---
 kind: Tile
 spec:
-  location: [ -3, -21, 24 ]
   biome: DISCOVERED
+  location: [ -3, -21, 24 ]
+
+---
+kind: Building
+spec:
+  name: Rainbow Golem
+  location: [ -3, -21, 24 ]
 
 ---
 kind: Tile
@@ -2679,12 +2721,6 @@ spec:
 kind: Tile
 spec:
   biome: DISCOVERED
-  location: [ 0, -23, 23 ]
-
----
-kind: Building
-spec:
-  name: Rainbow Golem
   location: [ 0, -23, 23 ]
 
 ---
@@ -2816,8 +2852,14 @@ spec:
 ---
 kind: Tile
 spec:
-  location: [ -2, 21, -19 ]
   biome: DISCOVERED
+  location: [ -2, 21, -19 ]
+
+---
+kind: Building
+spec:
+  name: Rainbow Golem
+  location: [ -2, 21, -19 ]
 
 ---
 kind: Tile
@@ -2852,8 +2894,14 @@ spec:
 ---
 kind: Tile
 spec:
-  location: [ 2, 19, -21 ]
   biome: DISCOVERED
+  location: [ 2, 19, -21 ]
+
+---
+kind: Building
+spec:
+  name: Rainbow Golem
+  location: [ 2, 19, -21 ]
 
 ---
 kind: Tile
@@ -2907,12 +2955,6 @@ spec:
 kind: Tile
 spec:
   biome: DISCOVERED
-  location: [ 0, 20, -20 ]
-
----
-kind: Building
-spec:
-  name: Rainbow Golem
   location: [ 0, 20, -20 ]
 
 ---
@@ -3602,8 +3644,14 @@ spec:
 ---
 kind: Tile
 spec:
-  location: [ 17, 4, -21 ]
   biome: DISCOVERED
+  location: [ 17, 4, -21 ]
+
+---
+kind: Building
+spec:
+  name: Rainbow Golem
+  location: [ 17, 4, -21 ]
 
 ---
 kind: Tile
@@ -3614,8 +3662,14 @@ spec:
 ---
 kind: Tile
 spec:
-  location: [ 16, 4, -20 ]
   biome: DISCOVERED
+  location: [ 16, 4, -20 ]
+
+---
+kind: Building
+spec:
+  name: Rainbow Golem
+  location: [ 16, 4, -20 ]
 
 ---
 kind: Tile
@@ -4338,12 +4392,6 @@ spec:
   location: [ 21, -22, 1 ]
 
 ---
-kind: Building
-spec:
-  name: Rainbow Golem
-  location: [ 21, -22, 1 ]
-
----
 kind: Tile
 spec:
   location: [ 21, -23, 2 ]
@@ -4442,14 +4490,26 @@ spec:
 ---
 kind: Tile
 spec:
-  location: [ 13, -16, 3 ]
   biome: DISCOVERED
+  location: [ 13, -16, 3 ]
+
+---
+kind: Building
+spec:
+  name: Rainbow Golem
+  location: [ 13, -16, 3 ]
 
 ---
 kind: Tile
 spec:
-  location: [ 14, -16, 2 ]
   biome: DISCOVERED
+  location: [ 14, -16, 2 ]
+
+---
+kind: Building
+spec:
+  name: Rainbow Golem
+  location: [ 14, -16, 2 ]
 
 ---
 kind: Tile
@@ -4569,12 +4629,6 @@ spec:
 kind: Tile
 spec:
   location: [ -10, 14, -4 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -12, 16, -4 ]
   biome: DISCOVERED
 
 ---
@@ -4838,8 +4892,14 @@ spec:
 ---
 kind: Tile
 spec:
-  location: [ -23, 18, 5 ]
   biome: DISCOVERED
+  location: [ -23, 18, 5 ]
+
+---
+kind: Building
+spec:
+  name: Rainbow Golem
+  location: [ -23, 18, 5 ]
 
 ---
 kind: Tile
@@ -4917,12 +4977,6 @@ spec:
 kind: Tile
 spec:
   biome: DISCOVERED
-  location: [ -19, 17, 2 ]
-
----
-kind: Building
-spec:
-  name: Rainbow Golem
   location: [ -19, 17, 2 ]
 
 ---
@@ -5216,8 +5270,14 @@ spec:
 ---
 kind: Tile
 spec:
-  location: [ -14, 16, -2 ]
   biome: DISCOVERED
+  location: [ -14, 16, -2 ]
+
+---
+kind: Building
+spec:
+  name: Rainbow Golem
+  location: [ -14, 16, -2 ]
 
 ---
 kind: Tile
@@ -5376,12 +5436,6 @@ spec:
   location: [ -13, 0, 13 ]
 
 ---
-kind: Building
-spec:
-  name: Rainbow Golem
-  location: [ -13, 0, 13 ]
-
----
 kind: Tile
 spec:
   location: [ -14, 0, 14 ]
@@ -5462,8 +5516,14 @@ spec:
 ---
 kind: Tile
 spec:
-  location: [ -26, 1, 25 ]
   biome: DISCOVERED
+  location: [ -26, 1, 25 ]
+
+---
+kind: Building
+spec:
+  name: Rainbow Golem
+  location: [ -26, 1, 25 ]
 
 ---
 kind: Tile
@@ -5534,8 +5594,14 @@ spec:
 ---
 kind: Tile
 spec:
-  location: [ -17, 3, 14 ]
   biome: DISCOVERED
+  location: [ -17, 3, 14 ]
+
+---
+kind: Building
+spec:
+  name: Rainbow Golem
+  location: [ -17, 3, 14 ]
 
 ---
 kind: Tile
@@ -5672,8 +5738,14 @@ spec:
 ---
 kind: Tile
 spec:
-  location: [ -9, -3, 12 ]
   biome: DISCOVERED
+  location: [ -9, -3, 12 ]
+
+---
+kind: Building
+spec:
+  name: Rainbow Golem
+  location: [ -9, -3, 12 ]
 
 ---
 kind: Tile
@@ -5846,8 +5918,14 @@ spec:
 ---
 kind: Tile
 spec:
-  location: [ -23, -1, 24 ]
   biome: DISCOVERED
+  location: [ -23, -1, 24 ]
+
+---
+kind: Building
+spec:
+  name: Rainbow Golem
+  location: [ -23, -1, 24 ]
 
 ---
 kind: Tile
