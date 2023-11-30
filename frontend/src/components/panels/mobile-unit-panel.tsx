@@ -217,9 +217,8 @@ export const MobileUnitPanel = () => {
                 alert('rejected: max 20 characters');
                 return;
             }
-            player
-                .dispatch({ name: 'NAME_OWNED_ENTITY', args: [entityId, name] })
-                .catch((err) => console.error('naming failed', err));
+            alert('Units do not get names');
+                return;
         },
         [player]
     );
