@@ -265,20 +265,25 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const noop = useCallback(() => {}, []);
 
     const [tick, setTick] = useState<number>(0);
-    const critCoords: [number, number, number] = [-tick, 0, tick];
+    const [dir, setDir] = useState<number>(1);
+    const critCoords: [number, number, number] = [-tick, tick, 0];
 
     useEffect(() => {
-        const i = setInterval(
-            () =>
-                setTick((prev) => {
-                    return prev + 1;
-                }),
-            1000
-        );
+        if (tick % 5 === 0) {
+            setDir((prev) => (prev === 1 ? -1 : 1));
+        }
+    }, [tick]);
+
+    useEffect(() => {
+        const i = setInterval(() => {
+            setTick((prev) => {
+                return prev + dir;
+            });
+        }, 1000);
         return () => {
             clearInterval(i);
         };
-    }, []);
+    }, [dir]);
 
     return (
         <StyledShell>
@@ -319,7 +324,15 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         s={critCoords[2]}
                         height={getTileHeightFromCoords({ q: critCoords[0], r: critCoords[1], s: critCoords[2] }) + 0.4}
                         radius={1.2}
-                        rotation={0}
+                        rotation={dir > 0 ? 60 : 240}
+                    />
+                    <Critter
+                        q={critCoords[2] * 2}
+                        r={critCoords[1] * 2}
+                        s={critCoords[0] * 2}
+                        height={getTileHeightFromCoords({ q: critCoords[0], r: critCoords[1], s: critCoords[2] }) + 0.8}
+                        radius={1.6}
+                        rotation={dir > 0 ? 120 : 300}
                     />
                 </>
             )}

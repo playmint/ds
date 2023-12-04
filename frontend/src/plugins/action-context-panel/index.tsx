@@ -30,7 +30,7 @@ export interface ActionContextPanelProps extends ComponentProps {}
 const CONSTRUCT_INTENT = 'construct';
 const MOVE_INTENT = 'move';
 // const SCOUT_INTENT = 'scout';
-const COMBAT_INTENT = 'combat';
+// const COMBAT_INTENT = 'combat';
 
 const StyledActionContextPanel = styled('div')`
     ${styles}
@@ -274,7 +274,7 @@ const Construct: FunctionComponent<ConstructProps> = ({
                 return;
             }
             const actions: CogAction[][] = [
-                ...path.slice(1, -1).map((t) => {
+                ...path.slice(-2, 1).map((t) => {
                     const [_zone, q, r, s] = t.coords;
                     return [
                         {
@@ -510,7 +510,7 @@ const Move: FunctionComponent<MoveProps> = ({
         }
 
         setActionQueue(
-            path.slice(1).map((t) => {
+            path.slice(-1).map((t) => {
                 const [_zone, q, r, s] = t.coords;
                 return [
                     {
@@ -870,20 +870,20 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
                 setActionQueue={setActionQueue}
             />
         );
-    } else if (intent === COMBAT_INTENT) {
-        return (
-            <Combat
-                selectIntent={selectIntent}
-                selectedTiles={selectedTiles}
-                selectTiles={selectTiles}
-                mobileUnit={mobileUnit}
-                player={player}
-                tiles={tiles || []}
-                buildings={world?.buildings || []}
-                sessions={world?.sessions || []}
-                setActionQueue={setActionQueue}
-            />
-        );
+        // } else if (intent === COMBAT_INTENT) {
+        //     return (
+        //         <Combat
+        //             selectIntent={selectIntent}
+        //             selectedTiles={selectedTiles}
+        //             selectTiles={selectTiles}
+        //             mobileUnit={mobileUnit}
+        //             player={player}
+        //             tiles={tiles || []}
+        //             buildings={world?.buildings || []}
+        //             sessions={world?.sessions || []}
+        //             setActionQueue={setActionQueue}
+        //         />
+        //     );
     } else {
         return null;
     }
