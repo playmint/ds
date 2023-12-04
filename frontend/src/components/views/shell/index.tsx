@@ -12,7 +12,7 @@ import { ItemPluginPanel } from '@app/components/panels/item-plugin-panel';
 import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
 import { NavPanel } from '@app/components/panels/nav-panel';
 import { TileInfoPanel } from '@app/components/panels/tile-info-panel';
-import { getTileDistance } from '@app/helpers/tile';
+import { getTileDistance, getTileHeightFromCoords } from '@app/helpers/tile';
 import {
     useBlock,
     useBuildingKinds,
@@ -36,6 +36,7 @@ import { styles } from './shell.styles';
 import { QuestPanel } from '@app/components/panels/quest-panel';
 import { getBagsAtEquipee, getBuildingAtTile, getSessionsAtTile } from '@downstream/core/src/utils';
 import { StyledBasePanel, StyledHeaderPanel } from '@app/styles/base-panel.styles';
+import { Critter } from '@app/components/map/Critter';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -263,6 +264,22 @@ export const Shell: FunctionComponent<ShellProps> = () => {
 
     const noop = useCallback(() => {}, []);
 
+    const [tick, setTick] = useState<number>(0);
+    const critCoords: [number, number, number] = [-tick, 0, tick];
+
+    useEffect(() => {
+        const i = setInterval(
+            () =>
+                setTick((prev) => {
+                    return prev + 1;
+                }),
+            1000
+        );
+        return () => {
+            clearInterval(i);
+        };
+    }, []);
+
     return (
         <StyledShell>
             {mapReady && (
@@ -296,6 +313,14 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         selectedElementID={selectedMapElement?.id}
                     />
                     <CombatSessions tiles={tiles || []} sessions={world?.sessions || []} />
+                    <Critter
+                        q={critCoords[0]}
+                        r={critCoords[1]}
+                        s={critCoords[2]}
+                        height={getTileHeightFromCoords({ q: critCoords[0], r: critCoords[1], s: critCoords[2] }) + 0.4}
+                        radius={1.2}
+                        rotation={0}
+                    />
                 </>
             )}
             <div className="hud-container">

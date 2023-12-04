@@ -23,6 +23,7 @@ public class ComponentDataMessage : ComponentMessage
 [RequireComponent(typeof(TileGooManager))]
 [RequireComponent(typeof(BagManager))]
 [RequireComponent(typeof(MobileUnitManager))]
+[RequireComponent(typeof(CritterManager))]
 [RequireComponent(typeof(PathManager))]
 [RequireComponent(typeof(FactoryBuildingManager))]
 [RequireComponent(typeof(ExtractorBuildingManager))]
