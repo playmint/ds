@@ -73,7 +73,7 @@ class CritterDiorama : IDiorama
                     r = 0,
                     s = 1,
                     height = 0.6f,
-                    radius = 5.2f,
+                    radius = 1.2f,
                     rotation = 0,
                     visible = true
                 } },
