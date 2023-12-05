@@ -3,12 +3,12 @@ import { CompoundKeyEncoder, NodeSelectors, getCoords } from "@downstream/core";
 import { GetTilesDocument, GetWorldDocument, WorldBuildingFragment, WorldStateFragment, WorldTileFragment } from '@downstream/core/src/gql/graphql';
 import { getPath } from '../utils/pathfinding';
 
-const CRITTER_SPAWN_LOCATIONS = {
-    a: [-18, 0, 18],
-    b: [-2, 25, -23],
-    c: [25, 4, -29],
-    d: [33, -31, -2],
-};
+const CRITTER_SPAWN_LOCATIONS = [
+    [-18, 0, 18],
+    [-2, 25, -23],
+    [25, 4, -29],
+    [33, -31, -2],
+];
 
 const spawn = {
     command: 'spawn',
@@ -16,9 +16,8 @@ const spawn = {
     builder: (yargs) => {
         yargs.option('spawn-point', {
             describe: 'which spawn point',
-            type: 'string',
-            choices: Object.keys(CRITTER_SPAWN_LOCATIONS),
-            default: 'a',
+            type: 'number',
+            default: 1,
         })
         yargs.option('radius', {
             describe: 'size of thingy',
@@ -28,15 +27,11 @@ const spawn = {
     },
     handler: async (ctx) => {
         const player = await ctx.player();
-
         const [q, r, s] = CRITTER_SPAWN_LOCATIONS[ctx.spawnPoint];
-        // spawn a unit
         const unitKey = BigInt(Math.floor(Math.random() * 100000))
         const unitId = CompoundKeyEncoder.encodeUint160( NodeSelectors.Critter, unitKey);
         const randomSize = [10,15,20,25][Math.floor(Math.random() * 4)];
         await player.dispatchAndWait({ name: 'SPAWN_CRITTER', args: [unitId, randomSize || 10] }, {name: 'MOVE_CRITTER', args: [unitId, q, r, s]});
-
-
     },
 };
 
@@ -55,14 +50,6 @@ interface CritterState {
 const ticker = {
     command: 'ticker',
     describe: 'drive the critter ai and ticks',
-    builder: (yargs) => {
-        yargs.option('spawn-point', {
-            describe: 'which spawn point',
-            type: 'string',
-            choices: Object.keys(CRITTER_SPAWN_LOCATIONS),
-            default: 'a',
-        })
-    },
     handler: async (ctx) => {
         const player = await ctx.player();
 
@@ -74,11 +61,22 @@ const ticker = {
 
         // state
         const critters: Map<string, CritterState> = new Map<string, CritterState>;
+        let spawnCount = 0;
+
+        const spawnCritter = () => {
+            const [q, r, s] = CRITTER_SPAWN_LOCATIONS[spawnCount % CRITTER_SPAWN_LOCATIONS.length];
+            spawnCount++;
+            const unitKey = BigInt(Math.floor(Math.random() * 100000))
+            const unitId = CompoundKeyEncoder.encodeUint160( NodeSelectors.Critter, unitKey);
+            const randomSize = [10,15,20,25][Math.floor(Math.random() * 4)];
+            return player.dispatch({ name: 'SPAWN_CRITTER', args: [unitId, randomSize || 10] }, {name: 'MOVE_CRITTER', args: [unitId, q, r, s]});
+        }
 
         // move unit around randomly
         while (true) {
             console.log('\n\n\n');
             console.log('------------------TICK---------------');
+            const tx: Array<Promise<any>> = [sleep(800)];
 
             // fetch the world
             let world;
@@ -96,10 +94,14 @@ const ticker = {
                 continue;
             }
 
+            // auto spawn critter if none
+            if (world.critters.length === 0) {
+                tx.push(spawnCritter());
+            }
+
             // debug - chase me
             const unit = world.mobileUnits.find(() => true);
             const unitTile = tiles.find(t => t.id === unit?.nextLocation?.tile?.id);
-            console.log(unitTile);
 
             // update critter state
             world.critters.forEach((critter) => {
@@ -130,8 +132,6 @@ const ticker = {
                 c.target = unitTile ? getCoords(unitTile) : c.target,
                 critters.set(critter.id, c);
             });
-
-            const tx: Array<Promise<any>> = [sleep(Math.floor(Math.random() * 500))];
 
             // movement
             for (let [_id, critter] of critters) {
@@ -195,7 +195,7 @@ const ticker = {
             };
 
             // damage
-            world.buildings.forEach((building) => {
+            world.buildings.filter(b => !!b.location?.tile).forEach((building) => {
                 for (let [_id, critter] of critters) {
                     const critterTile = tiles.find(t => t.id === critter.nextTile);
                     if (!critterTile) {
@@ -211,12 +211,12 @@ const ticker = {
                     const bag = (world?.bags || []).find(b => b.equipee?.node?.id === critter.id && b.equipee?.key === 100);
                     const size = (bag?.slots || []).find((slot) => slot.key === 1)?.balance || 0;
                     const radius = size / 10.0;
-                    const strength = Math.max(5 - distance, 1);
+                    const hp = Math.max(25 - (distance * 8), 1);
                     if (distance <= radius) {
-                        console.log(building.id, 'IS HIT BY', critter.id);
+                        console.log(building.id, `TOOK ${hp} DAMAGE FROM`, critter.id);
                         tx.push(
                             player.dispatch(
-                                { name: 'ATTACK', args: [critter.id, building.id, strength] }
+                                { name: 'ATTACK', args: [critter.id, building.id, hp] }
                             ).then(res => res.wait()).catch((err) => console.error(err))
                         );
                     }

@@ -6,6 +6,7 @@ import "cog/IRule.sol";
 
 import {Schema, Node, BiomeKind, BuildingCategory, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
+import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 
 using Schema for State;
 
@@ -95,6 +96,10 @@ contract CheatsRule is Rule {
         bytes24 outputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "output")))));
         state.setEquipSlot(buildingInstance, 0, inputBag);
         state.setEquipSlot(buildingInstance, 1, outputBag);
+
+        bytes24 healthBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "health")))));
+        state.setEquipSlot(buildingInstance, 100, healthBag);
+        state.setItemSlot(healthBag, 0, ItemUtils.GreenGoo(), 100);
 
         // -- Category specific calls
 

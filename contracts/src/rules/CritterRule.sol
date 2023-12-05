@@ -36,11 +36,11 @@ contract CritterRule is Rule {
         state.setNextLocation(id, locationTile, ctx.clock);
 
         // give the critter a bag with green goo to represent health
-        bytes24 bag100 = _equipBag(state, id, ctx.sender, 100);
-        state.setItemSlot(bag100, 0, ItemUtils.GreenGoo(), 100);
+        bytes24 healthBag = _equipBag(state, id, ctx.sender, 100);
+        state.setItemSlot(healthBag, 0, ItemUtils.GreenGoo(), 100);
 
         // give critter some red goo to represent radius
-        state.setItemSlot(bag100, 1, ItemUtils.RedGoo(), radius);
+        state.setItemSlot(healthBag, 1, ItemUtils.RedGoo(), radius);
     }
 
     function _move(State state, Context calldata ctx, bytes24 id, int16 q, int16 r, int16 s) internal {
@@ -58,14 +58,14 @@ contract CritterRule is Rule {
     }
 
     function _attack(State state, Context calldata ctx, bytes24 attacker, bytes24 attacked, uint64 weight) internal {
-        bytes24 bag100 = state.getEquipSlot(attacked, 100);
-        (bytes24 item, uint64 health) = state.getItemSlot(bag100, 0);
+        bytes24 healthBag = state.getEquipSlot(attacked, 100);
+        (bytes24 item, uint64 health) = state.getItemSlot(healthBag, 0);
         if (weight >= health) {
             health = 0;
         } else {
             health = health - weight;
         }
-        state.setItemSlot(bag100, 0, item, health);
+        state.setItemSlot(healthBag, 0, item, health);
         if (health == 0) {
             // TODO: atacked could be a critter too
             _destroyBuilding(state, attacked);
