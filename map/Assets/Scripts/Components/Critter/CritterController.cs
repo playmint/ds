@@ -38,7 +38,7 @@ public class CritterController : BaseComponentController<CritterData>
             return;
         }
 
-        transform.localScale = new Vector3(_nextData.radius, 0.01f, _nextData.radius);
+        transform.localScale = new Vector3(_nextData.radius, _nextData.radius, _nextData.radius);
         transform.GetChild(0).localEulerAngles = new Vector3(0, _nextData.rotation, 0);
 
         // movement
