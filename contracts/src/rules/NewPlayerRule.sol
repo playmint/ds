@@ -52,8 +52,8 @@ contract NewPlayerRule is Rule {
             state.setPrevLocation(mobileUnit, locationTile, 0);
             state.setNextLocation(mobileUnit, locationTile, ctx.clock);
             // give the mobileUnit a couple of bags
-            //bytes24 bag0 = _spawnBag(state, mobileUnit, ctx.sender, 0);
-            //bytes24 bag1 = _spawnBag(state, mobileUnit, ctx.sender, 1);
+            /*bytes24 bag0 =*/ _spawnBag(state, mobileUnit, ctx.sender, 0);
+            /*bytes24 bag1 =*/ _spawnBag(state, mobileUnit, ctx.sender, 1);
 
             //give the mobileUnit the two starter items
             //state.setItemSlot(bag0, 0, ItemUtils.AcceptanceLetter(), 1);
