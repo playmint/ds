@@ -241,8 +241,12 @@ contract BuildingRule is Rule {
         // attach the inputs/output bags
         bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "input")))));
         bytes24 outputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "output")))));
+        bytes24 healthBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "health")))));
         state.setEquipSlot(buildingInstance, 0, inputBag);
         state.setEquipSlot(buildingInstance, 1, outputBag);
+        state.setEquipSlot(buildingInstance, 100, healthBag);
+
+        state.setItemSlot(healthBag, 0, ItemUtils.GreenGoo(), 100);
 
         // -- Category specific calls
 
@@ -252,7 +256,7 @@ contract BuildingRule is Rule {
             // set initial extraction timestamp
             state.setBlockNum(buildingInstance, 0, ctx.clock);
             // Set output bag owner to player so that only they can take the extracted items
-            state.setOwner(outputBag, Node.Player(ctx.sender));
+            // state.setOwner(outputBag, Node.Player(ctx.sender));
         }
     }
 

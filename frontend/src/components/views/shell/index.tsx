@@ -319,7 +319,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         selectedElementID={selectedMapElement?.id}
                     />
                     <CombatSessions tiles={tiles || []} sessions={world?.sessions || []} />
-                    {critters.map((critter, idx) => {
+                    {critters.map((critter) => {
                         const tile = critter.nextLocation?.tile;
                         if (!tile) {
                             throw new Error('missing location');
@@ -327,11 +327,16 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         const coords = getCoords(tile);
                         const height =
                             getTileHeightFromCoords({ q: critCoords[0], r: critCoords[1], s: critCoords[2] }) + 0.4;
+                        const bag = getBagsAtEquipee(world?.bags || [], critter).find((b) => b.equipee?.key === 100);
+                        const size = (bag?.slots || []).find((slot) => slot.key === 1)?.balance || 0;
+                        const radius = size / 10.0;
+                        // const health = (bag?.slots || []).find((slot) => slot.key === 0)?.balance || 0;
+                        // console.log(critter.id, `health=${health}`);
                         return (
                             <Critter
                                 key={critter.id}
                                 height={height}
-                                radius={0.5 * idx}
+                                radius={radius}
                                 rotation={dir > 0 ? 60 : 240}
                                 {...coords}
                             />

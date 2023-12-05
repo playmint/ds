@@ -17,13 +17,12 @@ import { getPath } from '@app/helpers/pathfinding';
 import { getCoords, getTileDistance, getTileHeight } from '@app/helpers/tile';
 import { useBuildingKinds, useGameState, usePlayer, useSelection } from '@app/hooks/use-game-state';
 import { getBagId, getBuildingId } from '@app/plugins/inventory/helpers';
+import { ActionButton } from '@app/styles/button.styles';
 import { ComponentProps } from '@app/types/component-props';
-import { WorldCombatSessionFragment } from '@downstream/core/src/gql/graphql';
-import { getBagsAtEquipee, getBuildingAtTile, getSessionsAtTile } from '@downstream/core/src/utils';
+import { getBagsAtEquipee, getBuildingAtTile } from '@downstream/core/src/utils';
 import React, { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { styles } from './action-context-panel.styles';
-import { ActionButton } from '@app/styles/button.styles';
 
 export interface ActionContextPanelProps extends ComponentProps {}
 
@@ -274,7 +273,7 @@ const Construct: FunctionComponent<ConstructProps> = ({
                 return;
             }
             const actions: CogAction[][] = [
-                ...path.slice(-2, 1).map((t) => {
+                ...(path.length > 1 ? path.slice(-2, -1) : path).map((t) => {
                     const [_zone, q, r, s] = t.coords;
                     return [
                         {
@@ -584,221 +583,221 @@ const Move: FunctionComponent<MoveProps> = ({
     );
 };
 
-interface CombatProps {
-    selectedTiles: WorldTileFragment[];
-    selectIntent?: Selector<string | undefined>;
-    selectTiles?: Selector<string[] | undefined>;
-    player?: ConnectedPlayer;
-    tiles?: WorldTileFragment[];
-    sessions: WorldCombatSessionFragment[];
-    buildings: WorldBuildingFragment[];
-    mobileUnits?: WorldMobileUnitFragment[];
-    mobileUnit?: WorldMobileUnitFragment;
-    setActionQueue: (path: CogAction[][]) => void;
-}
-const Combat: FunctionComponent<CombatProps> = ({
-    selectTiles,
-    selectIntent,
-    selectedTiles,
-    mobileUnits,
-    sessions,
-    buildings,
-    player,
-    tiles,
-    mobileUnit,
-    setActionQueue,
-}) => {
-    const clearIntent = useCallback(
-        (e?: React.MouseEvent) => {
-            if (e) {
-                e.preventDefault();
-            }
-            if (!selectIntent) {
-                return;
-            }
-            if (!selectTiles) {
-                return;
-            }
-            selectIntent(undefined);
-            selectTiles([]);
-        },
-        [selectIntent, selectTiles]
-    );
+// interface CombatProps {
+//     selectedTiles: WorldTileFragment[];
+//     selectIntent?: Selector<string | undefined>;
+//     selectTiles?: Selector<string[] | undefined>;
+//     player?: ConnectedPlayer;
+//     tiles?: WorldTileFragment[];
+//     sessions: WorldCombatSessionFragment[];
+//     buildings: WorldBuildingFragment[];
+//     mobileUnits?: WorldMobileUnitFragment[];
+//     mobileUnit?: WorldMobileUnitFragment;
+//     setActionQueue: (path: CogAction[][]) => void;
+// }
+// const Combat: FunctionComponent<CombatProps> = ({
+//     selectTiles,
+//     selectIntent,
+//     selectedTiles,
+//     mobileUnits,
+//     sessions,
+//     buildings,
+//     player,
+//     tiles,
+//     mobileUnit,
+//     setActionQueue,
+// }) => {
+//     const clearIntent = useCallback(
+//         (e?: React.MouseEvent) => {
+//             if (e) {
+//                 e.preventDefault();
+//             }
+//             if (!selectIntent) {
+//                 return;
+//             }
+//             if (!selectTiles) {
+//                 return;
+//             }
+//             selectIntent(undefined);
+//             selectTiles([]);
+//         },
+//         [selectIntent, selectTiles]
+//     );
 
-    const { path, attackers, defenders, defenceTile, defenceTileBuilding, valid, reason } = useMemo(() => {
-        if (!tiles) {
-            return { path: [], valid: false, reason: 'no tiles' };
-        }
-        if (!mobileUnit) {
-            return { path: [], valid: false, reason: 'no mobile unit selected' };
-        }
-        const selectedTile = selectedTiles.filter((t) => t.biome === BiomeKind.DISCOVERED).find(() => true);
-        if (!selectedTile) {
-            return { path: [], valid: false, reason: 'no selected tile' };
-        }
-        const selectedTileBuilding = getBuildingAtTile(buildings, selectedTile);
-        const activeSession = getSessionsAtTile(sessions, selectedTile).find((s) => !s.isFinalised);
-        if (!activeSession && !selectedTileBuilding) {
-            return { path: [], valid: false, reason: 'no building to attack or session to join' };
-        }
-        const activeSessionAttackTile =
-            activeSession && activeSession.attackTile?.tile
-                ? tiles.find((t) => t.id === activeSession.attackTile?.tile.id)
-                : undefined;
-        const activeSessionDefenceTile =
-            activeSession && activeSession.defenceTile?.tile
-                ? tiles.find((t) => t.id === activeSession.defenceTile?.tile.id)
-                : undefined;
-        const toTile = activeSessionAttackTile || selectedTile;
-        if (!toTile) {
-            return { path: [], valid: false, reason: 'target tile not found' };
-        }
-        const fromTile = mobileUnit && tiles && tiles.find((t) => t.id === mobileUnit.nextLocation?.tile.id);
-        if (!fromTile) {
-            return { path: [], valid: false };
-        }
-        const pathToEitherBuildingOrAttackTile = getPath(tiles, buildings, fromTile, toTile);
-        const path = activeSessionAttackTile
-            ? pathToEitherBuildingOrAttackTile
-            : pathToEitherBuildingOrAttackTile.slice(0, -1);
-        const defenceTile: WorldTileFragment = activeSessionDefenceTile || selectedTile;
-        const defenceTileBuilding = getBuildingAtTile(buildings, defenceTile);
-        if (!defenceTileBuilding) {
-            return { path: [], valid: false, reason: 'no target building found' };
-        }
-        const destTile =
-            getTileDistance(fromTile, defenceTile) <= 1 && !activeSessionAttackTile
-                ? fromTile
-                : path.slice(-1).find(() => true);
-        if (!destTile) {
-            return { path: [], valid: false, reason: 'no route to destination' };
-        }
-        const destTileHasDifferentActiveSession =
-            activeSession && getSessionsAtTile(sessions, destTile).find((s) => !s.isFinalised)?.id !== activeSession.id;
-        const isImposible = path.length === 1 && getTileDistance(fromTile, destTile) > 1;
-        if (isImposible) {
-            return { path: [], valid: false, reason: 'no route to destination' };
-        }
-        if (destTileHasDifferentActiveSession) {
-            return { path: [], valid: false, reason: 'another combat already active, move to join the fight' };
-        }
-        const attackMobileUnits = (mobileUnits || []).filter((u) => u.nextLocation?.tile.id === destTile.id);
-        const defenceMobileUnits = (mobileUnits || []).filter((u) => u.nextLocation?.tile.id === defenceTile.id);
-        const destTileBuilding = getBuildingAtTile(buildings, destTile);
-        return {
-            path: [fromTile, ...path],
-            valid: true,
-            attackers: attackMobileUnits
-                .filter((s) => s.id != mobileUnit.id)
-                .map((s) => s.id)
-                .concat(destTileBuilding ? [destTileBuilding.id] : [])
-                .concat(mobileUnit.id),
-            defenders: defenceMobileUnits.map((s) => s.id).concat(defenceTileBuilding ? [defenceTileBuilding.id] : []),
-            defenceTile,
-            defenceTileBuilding,
-        };
-    }, [mobileUnit, tiles, mobileUnits, selectedTiles, buildings, sessions]);
+//     const { path, attackers, defenders, defenceTile, defenceTileBuilding, valid, reason } = useMemo(() => {
+//         if (!tiles) {
+//             return { path: [], valid: false, reason: 'no tiles' };
+//         }
+//         if (!mobileUnit) {
+//             return { path: [], valid: false, reason: 'no mobile unit selected' };
+//         }
+//         const selectedTile = selectedTiles.filter((t) => t.biome === BiomeKind.DISCOVERED).find(() => true);
+//         if (!selectedTile) {
+//             return { path: [], valid: false, reason: 'no selected tile' };
+//         }
+//         const selectedTileBuilding = getBuildingAtTile(buildings, selectedTile);
+//         const activeSession = getSessionsAtTile(sessions, selectedTile).find((s) => !s.isFinalised);
+//         if (!activeSession && !selectedTileBuilding) {
+//             return { path: [], valid: false, reason: 'no building to attack or session to join' };
+//         }
+//         const activeSessionAttackTile =
+//             activeSession && activeSession.attackTile?.tile
+//                 ? tiles.find((t) => t.id === activeSession.attackTile?.tile.id)
+//                 : undefined;
+//         const activeSessionDefenceTile =
+//             activeSession && activeSession.defenceTile?.tile
+//                 ? tiles.find((t) => t.id === activeSession.defenceTile?.tile.id)
+//                 : undefined;
+//         const toTile = activeSessionAttackTile || selectedTile;
+//         if (!toTile) {
+//             return { path: [], valid: false, reason: 'target tile not found' };
+//         }
+//         const fromTile = mobileUnit && tiles && tiles.find((t) => t.id === mobileUnit.nextLocation?.tile.id);
+//         if (!fromTile) {
+//             return { path: [], valid: false };
+//         }
+//         const pathToEitherBuildingOrAttackTile = getPath(tiles, buildings, fromTile, toTile);
+//         const path = activeSessionAttackTile
+//             ? pathToEitherBuildingOrAttackTile
+//             : pathToEitherBuildingOrAttackTile.slice(0, -1);
+//         const defenceTile: WorldTileFragment = activeSessionDefenceTile || selectedTile;
+//         const defenceTileBuilding = getBuildingAtTile(buildings, defenceTile);
+//         if (!defenceTileBuilding) {
+//             return { path: [], valid: false, reason: 'no target building found' };
+//         }
+//         const destTile =
+//             getTileDistance(fromTile, defenceTile) <= 1 && !activeSessionAttackTile
+//                 ? fromTile
+//                 : path.slice(-1).find(() => true);
+//         if (!destTile) {
+//             return { path: [], valid: false, reason: 'no route to destination' };
+//         }
+//         const destTileHasDifferentActiveSession =
+//             activeSession && getSessionsAtTile(sessions, destTile).find((s) => !s.isFinalised)?.id !== activeSession.id;
+//         const isImposible = path.length === 1 && getTileDistance(fromTile, destTile) > 1;
+//         if (isImposible) {
+//             return { path: [], valid: false, reason: 'no route to destination' };
+//         }
+//         if (destTileHasDifferentActiveSession) {
+//             return { path: [], valid: false, reason: 'another combat already active, move to join the fight' };
+//         }
+//         const attackMobileUnits = (mobileUnits || []).filter((u) => u.nextLocation?.tile.id === destTile.id);
+//         const defenceMobileUnits = (mobileUnits || []).filter((u) => u.nextLocation?.tile.id === defenceTile.id);
+//         const destTileBuilding = getBuildingAtTile(buildings, destTile);
+//         return {
+//             path: [fromTile, ...path],
+//             valid: true,
+//             attackers: attackMobileUnits
+//                 .filter((s) => s.id != mobileUnit.id)
+//                 .map((s) => s.id)
+//                 .concat(destTileBuilding ? [destTileBuilding.id] : [])
+//                 .concat(mobileUnit.id),
+//             defenders: defenceMobileUnits.map((s) => s.id).concat(defenceTileBuilding ? [defenceTileBuilding.id] : []),
+//             defenceTile,
+//             defenceTileBuilding,
+//         };
+//     }, [mobileUnit, tiles, mobileUnits, selectedTiles, buildings, sessions]);
 
-    const attackTile = path.slice(-1).find(() => true);
+//     const attackTile = path.slice(-1).find(() => true);
 
-    const canAttack = mobileUnit && player && valid && attackTile;
-    if (!valid) {
-        console.log('not valid cos', reason);
-    }
+//     const canAttack = mobileUnit && player && valid && attackTile;
+//     if (!valid) {
+//         console.log('not valid cos', reason);
+//     }
 
-    const mobileUnitKey = mobileUnit?.key;
-    const mobileUnitId = mobileUnit?.id;
+//     const mobileUnitKey = mobileUnit?.key;
+//     const mobileUnitId = mobileUnit?.id;
 
-    const handleJoinCombat = useCallback(() => {
-        if (!mobileUnitKey || !mobileUnitId) {
-            return;
-        }
-        if (path.length == 0) {
-            return;
-        }
-        if (!attackers || attackers.length === 0) {
-            return;
-        }
-        const actions: CogAction[][] = path.slice(1).map((t) => {
-            const [_zone, q, r, s] = t.coords;
-            return [
-                {
-                    name: 'MOVE_MOBILE_UNIT',
-                    args: [mobileUnitKey, q, r, s],
-                },
-            ];
-        });
-        const hasActiveSession = getSessionsAtTile(sessions, defenceTile).some((s) => !s.isFinalised);
-        if (!hasActiveSession) {
-            actions.push([
-                {
-                    name: 'START_COMBAT',
-                    args: [mobileUnitId, defenceTile.id, attackers, defenders],
-                },
-            ]);
-        }
-        setActionQueue(actions);
-        if (clearIntent) {
-            clearIntent();
-        }
-    }, [setActionQueue, clearIntent, path, mobileUnitId, mobileUnitKey, attackers, defenders, defenceTile, sessions]);
+//     const handleJoinCombat = useCallback(() => {
+//         if (!mobileUnitKey || !mobileUnitId) {
+//             return;
+//         }
+//         if (path.length == 0) {
+//             return;
+//         }
+//         if (!attackers || attackers.length === 0) {
+//             return;
+//         }
+//         const actions: CogAction[][] = path.slice(1).map((t) => {
+//             const [_zone, q, r, s] = t.coords;
+//             return [
+//                 {
+//                     name: 'MOVE_MOBILE_UNIT',
+//                     args: [mobileUnitKey, q, r, s],
+//                 },
+//             ];
+//         });
+//         const hasActiveSession = getSessionsAtTile(sessions, defenceTile).some((s) => !s.isFinalised);
+//         if (!hasActiveSession) {
+//             actions.push([
+//                 {
+//                     name: 'START_COMBAT',
+//                     args: [mobileUnitId, defenceTile.id, attackers, defenders],
+//                 },
+//             ]);
+//         }
+//         setActionQueue(actions);
+//         if (clearIntent) {
+//             clearIntent();
+//         }
+//     }, [setActionQueue, clearIntent, path, mobileUnitId, mobileUnitKey, attackers, defenders, defenceTile, sessions]);
 
-    const highlights: WorldTileFragment[] = [defenceTile, attackTile].filter((t): t is WorldTileFragment => !!t);
-    const joining = attackTile && getSessionsAtTile(sessions, attackTile).some((s) => !s.isFinalised);
-    const help = valid
-        ? `Attack ${defenceTileBuilding?.kind?.name?.value}`
-        : `Select a tile with a building to attack. ${reason}`;
+//     const highlights: WorldTileFragment[] = [defenceTile, attackTile].filter((t): t is WorldTileFragment => !!t);
+//     const joining = attackTile && getSessionsAtTile(sessions, attackTile).some((s) => !s.isFinalised);
+//     const help = valid
+//         ? `Attack ${defenceTileBuilding?.kind?.name?.value}`
+//         : `Select a tile with a building to attack. ${reason}`;
 
-    return (
-        <StyledActionContextPanel>
-            {path.map((t, idx) => {
-                const fromCoords = getCoords(t);
-                const toCoords = idx + 1 < path.length ? getCoords(path[idx + 1]) : undefined;
-                if (!toCoords) {
-                    return null;
-                }
-                return (
-                    <Path
-                        key={`com-${t.id}`}
-                        id={`com-${t.id}`}
-                        qFrom={fromCoords.q}
-                        rFrom={fromCoords.r}
-                        sFrom={fromCoords.s}
-                        heightFrom={getTileHeight(t)}
-                        qTo={toCoords.q}
-                        rTo={toCoords.r}
-                        sTo={toCoords.s}
-                        heightTo={getTileHeight(path[idx + 1])}
-                        color={valid ? 'green' : 'red'}
-                    />
-                );
-            })}
-            {highlights.map((t) => (
-                <TileHighlight
-                    key={`att-${t.id}`}
-                    id={`att-${t.id}`}
-                    height={getTileHeight(t) + 0.01}
-                    color="red"
-                    style="gradient_outline"
-                    animation="none"
-                    {...getCoords(t)}
-                />
-            ))}
-            <div className="guide">
-                <h3>Combat</h3>
-                <span className="sub-title">{help}</span>
-            </div>
-            <form>
-                <ActionButton type="button" onClick={handleJoinCombat} disabled={!canAttack}>
-                    {joining ? 'Join' : 'Confirm'}
-                </ActionButton>
-                <ActionButton onClick={clearIntent} className="cancel">
-                    <i className="bi bi-x" />
-                </ActionButton>
-            </form>
-        </StyledActionContextPanel>
-    );
-};
+//     return (
+//         <StyledActionContextPanel>
+//             {path.map((t, idx) => {
+//                 const fromCoords = getCoords(t);
+//                 const toCoords = idx + 1 < path.length ? getCoords(path[idx + 1]) : undefined;
+//                 if (!toCoords) {
+//                     return null;
+//                 }
+//                 return (
+//                     <Path
+//                         key={`com-${t.id}`}
+//                         id={`com-${t.id}`}
+//                         qFrom={fromCoords.q}
+//                         rFrom={fromCoords.r}
+//                         sFrom={fromCoords.s}
+//                         heightFrom={getTileHeight(t)}
+//                         qTo={toCoords.q}
+//                         rTo={toCoords.r}
+//                         sTo={toCoords.s}
+//                         heightTo={getTileHeight(path[idx + 1])}
+//                         color={valid ? 'green' : 'red'}
+//                     />
+//                 );
+//             })}
+//             {highlights.map((t) => (
+//                 <TileHighlight
+//                     key={`att-${t.id}`}
+//                     id={`att-${t.id}`}
+//                     height={getTileHeight(t) + 0.01}
+//                     color="red"
+//                     style="gradient_outline"
+//                     animation="none"
+//                     {...getCoords(t)}
+//                 />
+//             ))}
+//             <div className="guide">
+//                 <h3>Combat</h3>
+//                 <span className="sub-title">{help}</span>
+//             </div>
+//             <form>
+//                 <ActionButton type="button" onClick={handleJoinCombat} disabled={!canAttack}>
+//                     {joining ? 'Join' : 'Confirm'}
+//                 </ActionButton>
+//                 <ActionButton onClick={clearIntent} className="cancel">
+//                     <i className="bi bi-x" />
+//                 </ActionButton>
+//             </form>
+//         </StyledActionContextPanel>
+//     );
+// };
 
 export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = () => {
     const [actionQueue, setActionQueue] = useState<CogAction[][]>();
