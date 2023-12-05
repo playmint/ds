@@ -319,7 +319,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         selectedElementID={selectedMapElement?.id}
                     />
                     <CombatSessions tiles={tiles || []} sessions={world?.sessions || []} />
-                    {critters.map((critter) => {
+                    {critters.map((critter, idx) => {
                         const tile = critter.nextLocation?.tile;
                         if (!tile) {
                             throw new Error('missing location');
@@ -331,7 +331,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             <Critter
                                 key={critter.id}
                                 height={height}
-                                radius={1.2}
+                                radius={0.5 * idx}
                                 rotation={dir > 0 ? 60 : 240}
                                 {...coords}
                             />

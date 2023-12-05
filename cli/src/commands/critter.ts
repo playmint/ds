@@ -77,10 +77,11 @@ const ticker = {
                 let c: CritterState | undefined = critters.get(critter.id);
                 // const prevCoords = getCoords(critter.prevLocation.tile);
                 const nextCoords = getCoords(critter.nextLocation.tile);
+                const prevCoords = getCoords(critter.prevLocation.tile);
                 if (!c) {
                     c = {
                         id: critter.id,
-                        prevCoords: nextCoords,
+                        prevCoords,
                         nextCoords,
                         health: 100,
                         target: {q:0,r:0,s:0},
@@ -89,11 +90,12 @@ const ticker = {
                     }
                 }
                 // c.prevCoords = prevCoords;
+                c.prevCoords = prevCoords;
                 c.nextCoords = nextCoords;
                 critters.set(critter.id, c);
             });
 
-            const tx: Array<Promise<any>> = [sleep(Math.floor(Math.random() * 1000))];
+            const tx: Array<Promise<any>> = [sleep(Math.floor(Math.random() * 500))];
 
             for (let [_id, critter] of critters) {
                 let {q,r,s} = critter.nextCoords;
@@ -109,9 +111,6 @@ const ticker = {
                         [q,r,s] = validNeighbours[Math.floor(Math.random() * validNeighbours.length)] || [0,0,0];
                         backtrackAvoids++;
                     }
-                    critter.prevCoords = critter.nextCoords;
-                    critter.nextCoords = {q,r,s};
-
                     console.log('moving critter randomly', critter.id, q, r, s);
                     tx.push(
                         player.dispatch(
