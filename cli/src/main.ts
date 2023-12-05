@@ -12,6 +12,7 @@ import config from './commands/config';
 import getter from './commands/get';
 import apply from './commands/apply';
 import { test } from './commands/test';
+import { critter } from './commands/critter';
 import chalk from 'chalk';
 
 const yargs = _yargs(hideBin(process.argv));
@@ -80,6 +81,7 @@ yargs
     .command(getter)
     .command(apply)
     .command(test)
+    .command(critter)
     .command({
         command: 'version',
         describe: 'show the current version and exit',

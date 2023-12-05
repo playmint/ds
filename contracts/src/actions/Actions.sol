@@ -104,6 +104,10 @@ interface Actions {
     // spawn a mobileUnit for the sender
     function SPAWN_MOBILE_UNIT(bytes24 mobileUnit) external;
 
+    function SPAWN_CRITTER(bytes24 critter) external;
+
+    function MOVE_CRITTER(bytes24 critter, int16 q, int16 r, int16 s) external;
+
     function START_COMBAT(
         bytes24 mobileUnitID,
         bytes24 tileID,

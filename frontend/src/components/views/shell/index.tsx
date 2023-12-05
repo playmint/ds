@@ -1,4 +1,4 @@
-import { BagFragment, QUEST_STATUS_ACCEPTED, WorldTileFragment } from '@app/../../core/src';
+import { BagFragment, QUEST_STATUS_ACCEPTED, WorldTileFragment, getCoords } from '@app/../../core/src';
 import { Bags } from '@app/components/map/Bag';
 import { Buildings } from '@app/components/map/Buildings';
 import { CombatSessions } from '@app/components/map/CombatSession';
@@ -74,6 +74,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             (player?.quests || []).filter((q) => q.status == QUEST_STATUS_ACCEPTED).sort((a, b) => a.key - b.key) || []
         );
     }, [player?.quests]);
+    const critters = world?.critters || [];
 
     // setup the unity frame
     useEffect(() => {
@@ -279,7 +280,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             setTick((prev) => {
                 return prev + dir;
             });
-        }, 1000);
+        }, 500);
         return () => {
             clearInterval(i);
         };
@@ -318,22 +319,24 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         selectedElementID={selectedMapElement?.id}
                     />
                     <CombatSessions tiles={tiles || []} sessions={world?.sessions || []} />
-                    <Critter
-                        q={critCoords[0]}
-                        r={critCoords[1]}
-                        s={critCoords[2]}
-                        height={getTileHeightFromCoords({ q: critCoords[0], r: critCoords[1], s: critCoords[2] }) + 0.4}
-                        radius={1.2}
-                        rotation={dir > 0 ? 60 : 240}
-                    />
-                    <Critter
-                        q={critCoords[2] * 2}
-                        r={critCoords[1] * 2}
-                        s={critCoords[0] * 2}
-                        height={getTileHeightFromCoords({ q: critCoords[0], r: critCoords[1], s: critCoords[2] }) + 0.8}
-                        radius={1.6}
-                        rotation={dir > 0 ? 120 : 300}
-                    />
+                    {critters.map((critter) => {
+                        const tile = critter.nextLocation?.tile;
+                        if (!tile) {
+                            throw new Error('missing location');
+                        }
+                        const coords = getCoords(tile);
+                        const height =
+                            getTileHeightFromCoords({ q: critCoords[0], r: critCoords[1], s: critCoords[2] }) + 0.4;
+                        return (
+                            <Critter
+                                key={critter.id}
+                                height={height}
+                                radius={1.2}
+                                rotation={dir > 0 ? 60 : 240}
+                                {...coords}
+                            />
+                        );
+                    })}
                 </>
             )}
             <div className="hud-container">

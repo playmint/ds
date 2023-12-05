@@ -29,6 +29,7 @@ interface Kind {
     function Extension() external;
     function Player() external;
     function MobileUnit() external;
+    function Critter() external;
     function Bag() external;
     function Tile() external;
     function BuildingKind() external;
@@ -86,6 +87,10 @@ library Node {
 
     function MobileUnit(uint64 id) internal pure returns (bytes24) {
         return CompoundKeyEncoder.UINT64(Kind.MobileUnit.selector, id);
+    }
+
+    function Critter(uint64 id) internal pure returns (bytes24) {
+        return CompoundKeyEncoder.UINT64(Kind.Critter.selector, id);
     }
 
     function Bag(uint64 id) internal pure returns (bytes24) {

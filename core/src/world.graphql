@@ -80,6 +80,16 @@ fragment WorldMobileUnit on Node {
     }
 }
 
+fragment WorldCritter on Node {
+    id
+    prevLocation: edge(match: { kinds: "Tile", via: { rel: "Location", key: 0 } }) {
+        ...Location
+    }
+    nextLocation: edge(match: { kinds: "Tile", via: { rel: "Location", key: 1 } }) {
+        ...Location
+    }
+}
+
 fragment WorldBuilding on Node {
     id
     kind: node(match: { kinds: "BuildingKind", via: { rel: "Is" } }) {
@@ -158,6 +168,9 @@ fragment WorldState on State {
     }
     mobileUnits: nodes(match: { kinds: "MobileUnit" }) {
         ...WorldMobileUnit
+    }
+    critters: nodes(match: { kinds: "Critter" }) {
+        ...WorldCritter
     }
     sessions: nodes(match: { kinds: "CombatSession" }) {
         ...WorldCombatSession

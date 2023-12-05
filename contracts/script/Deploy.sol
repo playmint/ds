@@ -20,6 +20,7 @@ import {BuildingRule} from "@ds/rules/BuildingRule.sol";
 import {CraftingRule} from "@ds/rules/CraftingRule.sol";
 import {PluginRule} from "@ds/rules/PluginRule.sol";
 import {NewPlayerRule} from "@ds/rules/NewPlayerRule.sol";
+import {CritterRule} from "@ds/rules/CritterRule.sol";
 import {CombatRule} from "@ds/rules/CombatRule.sol";
 import {NamingRule} from "@ds/rules/NamingRule.sol";
 import {BagRule} from "@ds/rules/BagRule.sol";
@@ -57,6 +58,7 @@ contract GameDeployer is Script {
         dispatcher.registerRule(new CraftingRule(ds));
         dispatcher.registerRule(new PluginRule());
         dispatcher.registerRule(new NewPlayerRule(allowlist));
+        dispatcher.registerRule(new CritterRule());
         dispatcher.registerRule(new CombatRule());
         dispatcher.registerRule(new NamingRule());
         dispatcher.registerRule(new BagRule());

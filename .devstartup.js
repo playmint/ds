@@ -15,7 +15,7 @@ const DEPLOYER_PRIVATE_KEY = "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff
 const commands = [
     {
         name: 'networks',
-        command: "anvil -m 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --block-time 2 --block-base-fee-per-gas 1 --transaction-block-keeper 25 --prune-history",
+        command: "anvil -m 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --disable-block-gas-limit --block-time 1 --block-base-fee-per-gas 1 --transaction-block-keeper 25 --prune-history",
         prefixColor: 'black',
     },
 

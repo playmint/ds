@@ -25,7 +25,8 @@ echo "| starting evm node |"
 echo "+-------------------+"
 anvil \
     --block-base-fee-per-gas 1 \
-    --block-time 2 \
+    --disable-block-gas-limit \
+    --block-time 1 \
     --transaction-block-keeper 25 \
     --prune-history \
 	--host 0.0.0.0 \

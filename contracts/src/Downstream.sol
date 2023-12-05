@@ -54,6 +54,7 @@ contract DownstreamGame is BaseGame {
         // register the kind ids we are using
         state.registerNodeType(Kind.Player.selector, "Player", CompoundKeyKind.ADDRESS);
         state.registerNodeType(Kind.MobileUnit.selector, "MobileUnit", CompoundKeyKind.UINT160);
+        state.registerNodeType(Kind.Critter.selector, "Critter", CompoundKeyKind.UINT160);
         state.registerNodeType(Kind.Bag.selector, "Bag", CompoundKeyKind.UINT160);
         state.registerNodeType(Kind.Tile.selector, "Tile", CompoundKeyKind.INT16_ARRAY);
         state.registerNodeType(Kind.Item.selector, "Item", CompoundKeyKind.STRING);

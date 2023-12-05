@@ -15,6 +15,7 @@ export const NodeSelectors = {
     Tile: getSelector('Tile'),
     Item: getSelector('Item'),
     MobileUnit: getSelector('MobileUnit'),
+    Critter: getSelector('Critter'),
     Player: getSelector('Player'),
     Building: getSelector('Building'),
     BuildingKind: getSelector('BuildingKind'),
