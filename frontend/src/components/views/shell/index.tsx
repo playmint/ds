@@ -1,7 +1,9 @@
 import { BagFragment, QUEST_STATUS_ACCEPTED, WorldTileFragment, getCoords } from '@app/../../core/src';
+import { AttackBeam } from '@app/components/map/AttackBeam';
 import { Bags } from '@app/components/map/Bag';
 import { Buildings } from '@app/components/map/Buildings';
 import { CombatSessions } from '@app/components/map/CombatSession';
+import { Critter } from '@app/components/map/Critter';
 import { GroundPlane } from '@app/components/map/GroundPlane';
 import { MobileUnits } from '@app/components/map/MobileUnit';
 import { Tiles } from '@app/components/map/Tile';
@@ -11,6 +13,7 @@ import { Onboarding } from '@app/components/organisms/onboarding';
 import { ItemPluginPanel } from '@app/components/panels/item-plugin-panel';
 import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
 import { NavPanel } from '@app/components/panels/nav-panel';
+import { QuestPanel } from '@app/components/panels/quest-panel';
 import { TileInfoPanel } from '@app/components/panels/tile-info-panel';
 import { getTileDirection, getTileDistance, getTileHeightFromCoords } from '@app/helpers/tile';
 import {
@@ -28,17 +31,13 @@ import { ActionBar } from '@app/plugins/action-bar';
 import { ActionContextPanel } from '@app/plugins/action-context-panel';
 import { CombatSummary } from '@app/plugins/combat/combat-summary';
 import { Bag as BagInventory } from '@app/plugins/inventory/bag';
+import { StyledBasePanel, StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { ComponentProps } from '@app/types/component-props';
+import { getBagsAtEquipee, getBuildingAtTile, getSessionsAtTile } from '@downstream/core/src/utils';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
-import { QuestPanel } from '@app/components/panels/quest-panel';
-import { getBagsAtEquipee, getBuildingAtTile, getSessionsAtTile } from '@downstream/core/src/utils';
-import { StyledBasePanel, StyledHeaderPanel } from '@app/styles/base-panel.styles';
-import { Critter } from '@app/components/map/Critter';
-import { AttackBeam } from '@app/components/map/AttackBeam';
-import { GeneratorBuilding } from '@app/components/map/GeneratorBuilding';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -362,7 +361,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             />
                         );
                     })}
-                    <GeneratorBuilding key={`gen1`} id={`gen1`} q={1} r={0} s={-1} height={-0.1} rotation={15} />
                     {critters.map((critter) => {
                         const tile = critter.nextLocation?.tile;
                         if (!tile) {
