@@ -112,7 +112,7 @@ const ticker = {
         while (true) {
             console.log('\n\n\n');
             console.log(`------------------TICK ${aggro ? 'AGGRO' : 'RANDO'}---------------`);
-            const tx: Array<Promise<any>> = [sleep(800)];
+            const tx: Array<Promise<any>> = [sleep(1200)];
             const critters: Map<string, CritterState> = new Map<string, CritterState>;
 
             // fetch the world
@@ -222,7 +222,9 @@ const ticker = {
 
             // movement
             for (let [_id, critter] of critters) {
-                const feelingRandom = Math.floor(Math.random() * 100) > 65;
+
+                const feelingRandom = Math.floor(Math.random() * 100) > 75;
+
                 if (feelingRandom || critter.mode === 'random') {
                     let {q,r,s} = critter.nextCoords;
                     const validNeighbours = getNeighbourCoords(q,r,s)
