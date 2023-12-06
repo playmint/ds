@@ -12,7 +12,7 @@ import { ItemPluginPanel } from '@app/components/panels/item-plugin-panel';
 import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
 import { NavPanel } from '@app/components/panels/nav-panel';
 import { TileInfoPanel } from '@app/components/panels/tile-info-panel';
-import { getTileDistance, getTileHeightFromCoords } from '@app/helpers/tile';
+import { getTileDirection, getTileDistance, getTileHeightFromCoords } from '@app/helpers/tile';
 import {
     useBlock,
     useBuildingKinds,
@@ -324,6 +324,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         if (!tile) {
                             throw new Error('missing location');
                         }
+                        const prevTile = critter.prevLocation?.tile;
                         const coords = getCoords(tile);
                         const height =
                             getTileHeightFromCoords({ q: critCoords[0], r: critCoords[1], s: critCoords[2] }) + 0.4;
@@ -337,7 +338,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                                 key={critter.id}
                                 height={height}
                                 radius={radius}
-                                rotation={dir > 0 ? 60 : 240}
+                                rotation={(prevTile ? getTileDirection(prevTile, tile) : 0) - 8}
                                 {...coords}
                             />
                         );

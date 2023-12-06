@@ -135,7 +135,8 @@ const ticker = {
 
             // movement
             for (let [_id, critter] of critters) {
-                if (critter.mode === 'random') {
+                const feelingRandom = Math.floor(Math.random() * 100) > 65;
+                if (feelingRandom || critter.mode === 'random') {
                     let {q,r,s} = critter.nextCoords;
                     const validNeighbours = getNeighbourCoords(q,r,s)
                         .filter((nc) => validCoords.some((vc) => `${nc.q}:${nc.r}:${nc.s}` === `${vc.q}:${vc.r}:${vc.s}`))
@@ -182,9 +183,14 @@ const ticker = {
                     const targetHasBuilding = targetTile ? getBuildingAtTile(world?.buildings || [], targetTile) : false;
                     if (targetHasBuilding) {
                         console.log(critter.id, '- MOVE_CRITTER (blocked/attacking)');
+                    } else if (Array.from(critters.values()).some(c => c.nextTile === targetTile.id)) {
+                        console.log(critter.id, '- MOVE_CRITTER (occupied)');
                     } else {
-                        const {q,r,s} = getCoords(targetTile);
+                        const nextCoords = getCoords(targetTile);
+                        const {q,r,s} = nextCoords;
                         console.log(critter.id, `- MOVE_CRITTER (target)`, q, r, s);
+                        critter.nextTile = targetTile.id;
+                        critter.nextCoords = nextCoords;
                         tx.push(
                             player.dispatch(
                                 { name: 'MOVE_CRITTER', args: [critter.id, q, r, s] }
@@ -225,7 +231,7 @@ const ticker = {
 
             console.log('-------------------------------------');
 
-            await Promise.all(tx);
+            await Promise.race([Promise.all(tx), sleep(5000)]);
         }
     },
 };

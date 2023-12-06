@@ -7,6 +7,12 @@ export interface Locatable {
     coords: Coords;
 }
 
+interface QRS {
+    q: number;
+    r: number;
+    s: number;
+}
+
 const heightCache = new Map<string, number>();
 
 export function getTileDistance(t1: Locatable, t2: Locatable): number {
@@ -15,10 +21,14 @@ export function getTileDistance(t1: Locatable, t2: Locatable): number {
     }
     const a = getCoords(t1);
     const b = getCoords(t2);
+    return getCoordDistance(a, b);
+}
+
+export function getCoordDistance(a: QRS, b: QRS): number {
     return (Math.abs(a.q - b.q) + Math.abs(a.r - b.r) + Math.abs(a.s - b.s)) / 2;
 }
 
-export function getCoords(t: Locatable) {
+export function getCoords(t: Locatable): QRS {
     return {
         q: Number(ethers.fromTwos(t.coords[1], 16)),
         r: Number(ethers.fromTwos(t.coords[2], 16)),
@@ -181,4 +191,22 @@ export const getGooRates = (tile: WorldTileFragment) => {
 
 export const getGooSize = (goo: { key: number; weight: number }) => {
     return goo.weight > GOO_BIG_THRESH ? 'big' : 'small';
+};
+
+export const getTileDirection = (fromLoc: Locatable, toLoc: Locatable): number => {
+    const from = getCoords(fromLoc);
+    const to = getCoords(toLoc);
+    return getCoordDirection(from, to);
+};
+
+const toRad = (d) => d * Math.PI * 180 ** -1;
+const toDeg = (r) => r * 180 * Math.PI ** -1;
+
+export const getCoordDirection = (center: QRS, hex: QRS): number => {
+    const vec = { q: hex.q - center.q, r: hex.r - center.r, s: hex.s - center.s };
+    return (
+        (toDeg(Math.asin((Math.sin(toRad(60)) * vec.q + Math.sin(toRad(60)) * vec.r) / getCoordDistance(center, hex))) +
+            120) %
+        360
+    );
 };
