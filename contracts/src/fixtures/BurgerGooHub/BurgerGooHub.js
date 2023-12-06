@@ -37,7 +37,7 @@ export default async function update(state) {
         version: 1,
         components: [
             {
-                id: "gooHub",
+                id: "burgerGooHub",
                 type: "building",
                 content: [
                     {

@@ -41,8 +41,6 @@ contract Locker is BuildingKind {
                     // Clear item in bag
                     state.setItemSlot(bag, j, bytes24(0), uint64(0));
 
-                    // Unequip bag from unit
-                    state.setEquipSlot(mobileUnit, i, bytes24(0));
                 }
             }
         }
