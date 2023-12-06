@@ -21,7 +21,7 @@ class AttackBeamDiorama : IDiorama
                 { "Tile/5", new TileData() { q = 1, r = -1, s = 0, height = 0f, color = "#506A95" } },
                 { "Tile/6", new TileData() { q = 0, r = -1, s = 1, height = 0f, color = "#506A95" } },
                 { "Tile/7", new TileData() { q = -1, r = 0, s = 1, height = 0f, color = "#1980E0" } },
-                { "Factory/1", new FactoryBuildingData() { q = 0, r = 0, s = 0, height = 0.01f, model = "05-03", rotation = -30, selected = "highlight", color = "0" } },
+                { "Factory/1", new GeneratorBuildingData() { q = 0, r = 0, s = 0, height = 0.01f, rotation = -30, selected = "highlight", color = "0" } },
             },
             new()
             {
@@ -33,7 +33,7 @@ class AttackBeamDiorama : IDiorama
                 { "Tile/5", new TileData() { q = 1, r = -1, s = 0, height = 0f, color = "#506A95" } },
                 { "Tile/6", new TileData() { q = 0, r = -1, s = 1, height = 0f, color = "#506A95" } },
                 { "Tile/7", new TileData() { q = -1, r = 0, s = 1, height = 0f, color = "#1980E0" } },
-                { "Factory/1", new FactoryBuildingData() { q = 0, r = 0, s = 0, height = 0.01f, model = "05-03", rotation = -30, selected = "highlight", color = "0" } },
+                { "Factory/1", new GeneratorBuildingData() { q = 0, r = 0, s = 0, height = 0.01f, rotation = -30, selected = "highlight", color = "0" } },
                 { "Path/1", new AttackBeamData() { qFrom = 0, rFrom = 0, sFrom = 0, heightFrom = 0, qTo = -1, rTo = 1, sTo = 0, heightTo = 0.01f } },
             },
             new()
@@ -46,7 +46,7 @@ class AttackBeamDiorama : IDiorama
                 { "Tile/5", new TileData() { q = 1, r = -1, s = 0, height = 0f, color = "#506A95" } },
                 { "Tile/6", new TileData() { q = 0, r = -1, s = 1, height = 0f, color = "#506A95" } },
                 { "Tile/7", new TileData() { q = -1, r = 0, s = 1, height = 0f, color = "#1980E0" } },
-                { "Factory/1", new FactoryBuildingData() { q = 0, r = 0, s = 0, height = 0.01f, model = "05-03", rotation = -30, selected = "highlight", color = "0" } },
+                { "Factory/1", new GeneratorBuildingData() { q = 0, r = 0, s = 0, height = 0.01f, rotation = -30, selected = "highlight", color = "0" } },
                 { "Path/2", new AttackBeamData() { qFrom = 0, rFrom = 0, sFrom = 0, heightFrom = 0, qTo = 0, rTo = 1, sTo = -1, heightTo = 0.01f } },
             },
             new()
@@ -59,7 +59,7 @@ class AttackBeamDiorama : IDiorama
                 { "Tile/5", new TileData() { q = 1, r = -1, s = 0, height = 0f, color = "#506A95" } },
                 { "Tile/6", new TileData() { q = 0, r = -1, s = 1, height = 0f, color = "#506A95" } },
                 { "Tile/7", new TileData() { q = -1, r = 0, s = 1, height = 0f, color = "#1980E0" } },
-                { "Factory/1", new FactoryBuildingData() { q = 0, r = 0, s = 0, height = 0.01f, model = "05-03", rotation = -30, selected = "highlight", color = "0" } },
+                { "Factory/1", new GeneratorBuildingData() { q = 0, r = 0, s = 0, height = 0.01f, rotation = -30, selected = "highlight", color = "0" } },
                 { "Path/3", new AttackBeamData() { qFrom = 0, rFrom = 0, sFrom = 0, heightFrom = 0, qTo = 1, rTo = 0, sTo = -1, heightTo = 0.01f, color = "#5555FF" } },
             },
             new()
@@ -72,7 +72,7 @@ class AttackBeamDiorama : IDiorama
                 { "Tile/5", new TileData() { q = 1, r = -1, s = 0, height = 0f, color = "#506A95" } },
                 { "Tile/6", new TileData() { q = 0, r = -1, s = 1, height = 0f, color = "#506A95" } },
                 { "Tile/7", new TileData() { q = -1, r = 0, s = 1, height = 0f, color = "#1980E0" } },
-                { "Factory/1", new FactoryBuildingData() { q = 0, r = 0, s = 0, height = 0.01f, model = "05-03", rotation = -30, selected = "highlight", color = "0" } },
+                { "Factory/1", new GeneratorBuildingData() { q = 0, r = 0, s = 0, height = 0.01f, rotation = -30, selected = "highlight", color = "0" } },
                 { "Path/4", new AttackBeamData() { qFrom = 0, rFrom = 0, sFrom = 0, heightFrom = 0, qTo = 1, rTo = -1, sTo = 0, heightTo = 0.01f, color = "#55FF55" } },
             },
             new()
@@ -85,7 +85,7 @@ class AttackBeamDiorama : IDiorama
                 { "Tile/5", new TileData() { q = 1, r = -1, s = 0, height = 0f, color = "#506A95" } },
                 { "Tile/6", new TileData() { q = 0, r = -1, s = 1, height = 0f, color = "#506A95" } },
                 { "Tile/7", new TileData() { q = -1, r = 0, s = 1, height = 0f, color = "#1980E0" } },
-                { "Factory/1", new FactoryBuildingData() { q = 0, r = 0, s = 0, height = 0.01f, model = "05-03", rotation = -30, selected = "highlight", color = "0" } },
+                { "Factory/1", new GeneratorBuildingData() { q = 0, r = 0, s = 0, height = 0.01f, rotation = -30, selected = "highlight", color = "0" } },
                 { "Path/4", new AttackBeamData() { qFrom = 0, rFrom = 0, sFrom = 0, heightFrom = 0, qTo = 0, rTo = -1, sTo = 1, heightTo = 0.01f, color = "#FF5555" } },
             },
         };
