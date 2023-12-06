@@ -35,9 +35,11 @@ export function getPath(
         const building = getBuildingAtTile(buildings, t.tile);
         const key = `${q}:${r}:${s}`;
         if (building && building.kind && parseInt('0x'+building.kind.id.slice(-2)) === 1) {
-            t.cost = 100;
+            t.cost = 500;
+        } else if (building && building.kind && parseInt('0x'+building.kind.id.slice(-2)) === 5) {
+            t.cost = 1000;
         } else if (building) {
-            t.cost = 300;
+            t.cost = 400;
         } else {
             t.cost = 10;
         }

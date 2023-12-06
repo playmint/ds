@@ -335,7 +335,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                                 rTo={toCoords.r}
                                 sTo={toCoords.s}
                                 heightTo={-0.5}
-                                color={'#ffd4df'}
+                                color={'red'}
                             />
                         );
                     })}

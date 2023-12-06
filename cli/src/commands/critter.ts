@@ -10,6 +10,12 @@ const CRITTER_SPAWN_LOCATIONS = [
     [33, -31, -2],
 ];
 
+const CRITTER_TARGET_LOCATIONS = [
+    [0,0,0],
+    [-6,5,1],
+    [5,-1,-4],
+];
+
 const spawn = {
     command: 'spawn',
     describe: 'spawn a critter',
@@ -47,9 +53,38 @@ interface CritterState {
     radius: number;
 }
 
+let spawnCount = 0;
+const randomSpawnQRS = () => {
+    spawnCount++;
+    return CRITTER_SPAWN_LOCATIONS[spawnCount % CRITTER_SPAWN_LOCATIONS.length];
+}
+
+let targetCount = 0;
+const randomTargetQRS = () => {
+    targetCount++;
+    return CRITTER_TARGET_LOCATIONS[targetCount % CRITTER_TARGET_LOCATIONS.length];
+}
+
 const ticker = {
     command: 'ticker',
     describe: 'drive the critter ai and ticks',
+    builder: (yargs) => {
+        yargs.option('reset', {
+            describe: 'send any live critters home on start',
+            type: 'boolean',
+            default: false,
+        })
+        yargs.option('critters', {
+            describe: 'initial number of critters',
+            type: 'number',
+            default: 2,
+        })
+        yargs.option('interval', {
+            describe: 'interval between waves',
+            type: 'number',
+            default: 100,
+        })
+    },
     handler: async (ctx) => {
         const player = await ctx.player();
 
@@ -60,11 +95,13 @@ const ticker = {
         const validCoords = tiles.map(getCoords);
 
         // state
-        let spawnCount = 0;
+        let aggro = false;
+        let startBlock:number = 0;
+        let critterCount = ctx.critters;
+        let sendHome = !!ctx.reset;
 
         const spawnCritter = () => {
-            const [q, r, s] = CRITTER_SPAWN_LOCATIONS[spawnCount % CRITTER_SPAWN_LOCATIONS.length];
-            spawnCount++;
+            const [q, r, s] = randomSpawnQRS();
             const unitKey = BigInt(Math.floor(Math.random() * 100000))
             const unitId = CompoundKeyEncoder.encodeUint160( NodeSelectors.Critter, unitKey);
             const randomSize = [10,15,20,25][Math.floor(Math.random() * 4)];
@@ -74,7 +111,7 @@ const ticker = {
         // move unit around randomly
         while (true) {
             console.log('\n\n\n');
-            console.log('------------------TICK---------------');
+            console.log(`------------------TICK ${aggro ? 'AGGRO' : 'RANDO'}---------------`);
             const tx: Array<Promise<any>> = [sleep(800)];
             const critters: Map<string, CritterState> = new Map<string, CritterState>;
 
@@ -94,28 +131,63 @@ const ticker = {
                 continue;
             }
 
+            // note a start time for this ai run
+            if (!startBlock) {
+                startBlock = world.block;
+            }
+
             // auto spawn critter if none
             if (world.critters.filter(c => !!c.nextLocation).length === 0) {
-                tx.push(spawnCritter());
-                tx.push(spawnCritter());
-                tx.push(spawnCritter());
+                // reset wave
+                startBlock = world.block;
+                aggro = false;
+                // spawns
+                for (let i=0; i<critterCount; i++) {
+                    tx.push(spawnCritter());
+                }
+                critterCount++; // there will be more next time
+            } else if (sendHome) {
+                sendHome = false;
+                const actions = world.critters.filter(c => !!c.nextLocation).map((c) => {
+                    const [q,r,s] = randomSpawnQRS();
+                    return {
+                        name: 'MOVE_CRITTER',
+                        args: [c.id, q, r, s],
+                    }
+                })
+                console.log('sending the critters home');
+                await player.dispatch(...actions)
+                        .then(res => res.wait())
+                        .catch((err) => console.error(err));
+                continue;
             }
 
             // debug - chase me
+            const chaseMe = false;
             const unit = world.mobileUnits.find(() => true);
             const unitTile = tiles.find(t => t.id === unit?.nextLocation?.tile?.id);
 
+            // trigger wave start (if it isn't already)
+            // triggers every ctx.interval blocks
+            const tick = world.block - startBlock;
+            if (!aggro) {
+                console.log(`critters get aggro in ${ctx.interval - (tick % ctx.interval)} blocks`);
+            }
+            if (tick > 0 && tick % ctx.interval === 0) {
+                aggro = true;
+            }
+
             // update critter state
             world.critters.forEach((critter) => {
-                if (!critter.nextLocation) {
+                if (!critter.nextLocation || !critter.prevLocation) {
                     return;
                 }
                 let c: CritterState | undefined = critters.get(critter.id);
-                // const prevCoords = getCoords(critter.prevLocation.tile);
-                const nextTile = critter.nextLocation.tile.id;
-                const prevTile = critter.prevLocation.tile.id;
-                const nextCoords = getCoords(critter.nextLocation.tile);
-                const prevCoords = getCoords(critter.prevLocation.tile);
+                const nextTile = critter.nextLocation?.tile.id;
+                const prevTile = critter.prevLocation?.tile.id;
+                const nextCoords = getCoords(critter.nextLocation?.tile);
+                const prevCoords = getCoords(critter.prevLocation?.tile);
+                const spawner = randomSpawnQRS();
                 if (!c) {
                     c = {
                         id: critter.id,
@@ -124,8 +196,8 @@ const ticker = {
                         prevCoords,
                         nextCoords,
                         health: 100,
-                        target: {q:20,r:0,s:-20},
-                        mode: 'target',
+                        target: {q:spawner[0], r:spawner[1], s:spawner[2]},
+                        mode: 'random',
                         radius: 1,
                     }
                 }
@@ -134,7 +206,17 @@ const ticker = {
                 c.nextCoords = nextCoords;
                 c.prevTile = prevTile;
                 c.nextTile = nextTile;
-                c.target = unitTile ? getCoords(unitTile) : c.target,
+                c.mode = aggro ? 'target' : 'random';
+                if (chaseMe) {
+                    c.mode = 'target';
+                    c.target = unitTile ? getCoords(unitTile) : {q:spawner[0], r:spawner[1], s:spawner[2]};
+                } else if (aggro) {
+                    const hq = randomTargetQRS();
+                    c.mode = 'target';
+                    c.target = {q: hq[0], r:hq[1], s:hq[2]};
+                } else {
+                    c.mode = 'random';
+                }
                 critters.set(critter.id, c);
             });
 
@@ -290,7 +372,7 @@ function getTileDistance(t1: Locatable, t2: Locatable): number {
 }
 
 function getBuildingAtTile(buildings: WorldBuildingFragment[], tile: { id: string }) {
-    return buildings.find((b) => b.location && b.location.tile.id === tile.id);
+    return buildings.find((b) => b.location && b.location?.tile.id === tile.id);
 }
 
 

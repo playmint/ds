@@ -40,9 +40,15 @@ contract CritterRule is Rule {
 
         // give critter some red goo to represent radius
         state.setItemSlot(healthBag, 1, ItemUtils.RedGoo(), radius);
+
+        // using this as a marker for existance
+        state.setOwner(id, Node.Player(ctx.sender));
     }
 
     function _move(State state, Context calldata ctx, bytes24 id, int16 q, int16 r, int16 s) internal {
+        if (state.getOwner(id) == bytes24(0)) {
+            return;
+        }
         bytes24 destTile = Node.Tile(DEFAULT_ZONE, q, r, s);
         (bytes24 currentTile) = state.getCurrentLocation(id, ctx.clock);
         state.setNextLocation(id, destTile, ctx.clock);
@@ -57,6 +63,14 @@ contract CritterRule is Rule {
     }
 
     function _attack(State state, Context calldata ctx, bytes24 attacker, bytes24 attacked, uint64 weight) internal {
+        if (state.getOwner(attacker) == bytes24(0)) {
+            // using owner to check if dead
+            return;
+        }
+        if (state.getOwner(attacked) == bytes24(0)) {
+            // using owner to check if dead
+            return;
+        }
         bytes24 healthBag = state.getEquipSlot(attacked, 100);
         require(healthBag != 0x0, "attempt to attack something without health");
 
@@ -87,6 +101,7 @@ contract CritterRule is Rule {
     function _destroyCritter(State state, bytes24 critter) private {
         state.setNextLocation(critter, bytes24(0), 0);
         state.setPrevLocation(critter, bytes24(0), 0);
+        state.setOwner(critter, bytes24(0));
     }
 
     function _destroyBuilding(State state, bytes24 buildingInstance) private {
