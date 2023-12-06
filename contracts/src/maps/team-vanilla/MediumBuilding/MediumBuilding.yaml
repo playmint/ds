@@ -1,0 +1,41 @@
+
+---
+kind: BuildingKind
+spec:
+  category: factory
+  name: zMediumBuilding
+  description: A very medium building
+  model: 07-16
+  color: 1
+  contract:
+    file: ./MediumBuilding.sol
+  plugin:
+    file: ./MediumBuilding.js
+  materials:
+  - name: Red Goo
+    quantity: 50
+  - name: Green Goo
+    quantity: 50
+  - name: Blue Goo
+    quantity: 50
+  inputs:
+  - name: Red Goo
+    quantity: 2
+  - name: Green Goo
+    quantity: 2
+  - name: Blue Goo
+    quantity: 2
+  outputs:
+  - name: Rubbish
+    quantity: 1
+
+---
+kind: Item
+spec:
+  name: Rubbish
+  icon: 18-82
+  goo:
+    red: 1
+    green: 1
+    blue: 1
+  stackable: true
