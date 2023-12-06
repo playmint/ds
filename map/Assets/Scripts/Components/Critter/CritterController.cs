@@ -106,7 +106,7 @@ public class CritterController : BaseComponentController<CritterData>
         Vector3 startPos = transform.position;
         while (t < 1)
         {
-            t += Time.deltaTime * 1.5f;
+            t += Time.deltaTime * 0.5f;
             transform.position = Vector3.Lerp(startPos, endPos, _moveCurve.Evaluate(t));
             transform.position = Vector3.Lerp(
                 new Vector3(transform.position.x, transform.position.y, transform.position.z),

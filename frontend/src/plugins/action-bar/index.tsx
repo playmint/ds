@@ -9,7 +9,7 @@ import { UnitActionButton } from '@app/styles/button.styles';
 
 const CONSTRUCT_INTENT = 'construct';
 const MOVE_INTENT = 'move';
-const COMBAT_INTENT = 'combat';
+// const COMBAT_INTENT = 'combat';
 
 export interface ActionBarProps extends ComponentProps {}
 
@@ -56,12 +56,12 @@ export const ActionBar: FunctionComponent<ActionBarProps> = ({}: ActionBarProps)
                 >
                     Build
                 </UnitActionButton>
-                <UnitActionButton
-                    className={`${intent === COMBAT_INTENT ? 'toggleOn' : ''}`}
-                    onClick={() => handleSelectIntent(COMBAT_INTENT)}
-                >
-                    Attack
-                </UnitActionButton>
+                {/* <UnitActionButton */}
+                {/*     className={`${intent === COMBAT_INTENT ? 'toggleOn' : ''}`} */}
+                {/*     onClick={() => handleSelectIntent(COMBAT_INTENT)} */}
+                {/* > */}
+                {/*     Attack */}
+                {/* </UnitActionButton> */}
             </div>
         </StyledActionBar>
     );

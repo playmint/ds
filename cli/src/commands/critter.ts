@@ -97,6 +97,8 @@ const ticker = {
             // auto spawn critter if none
             if (world.critters.filter(c => !!c.nextLocation).length === 0) {
                 tx.push(spawnCritter());
+                tx.push(spawnCritter());
+                tx.push(spawnCritter());
             }
 
             // debug - chase me

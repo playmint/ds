@@ -325,8 +325,8 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         const toCoords = getCoords(c.attackLocation.tile);
                         return (
                             <AttackBeam
-                                key={`${c.id}-${tick}`}
-                                id={`${c.id}-${tick}`}
+                                key={`${c.id}-${c.attackLocation.time}`}
+                                id={`${c.id}-${c.attackLocation.time}`}
                                 qFrom={fromCoords.q}
                                 rFrom={fromCoords.r}
                                 sFrom={fromCoords.s}
@@ -347,8 +347,8 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         const toCoords = getCoords(b.attackLocation.tile);
                         return (
                             <AttackBeam
-                                key={`${b.id}-${tick}`}
-                                id={`${b.id}-${tick}`}
+                                key={`${b.id}-${b.attackLocation.time}`}
+                                id={`${b.id}-${b.attackLocation.time}`}
                                 qFrom={fromCoords.q}
                                 rFrom={fromCoords.r}
                                 sFrom={fromCoords.s}
