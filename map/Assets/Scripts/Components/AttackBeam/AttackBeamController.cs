@@ -4,7 +4,6 @@ using System.Linq;
 
 public class AttackBeamController : BaseComponentController<AttackBeamData>
 {
-
     [SerializeField]
     GameObject lineMarker;
 
@@ -96,11 +95,10 @@ public class AttackBeamController : BaseComponentController<AttackBeamData>
         if (_prevData == null || _prevData.color != _nextData.color)
         {
             StartCoroutine(RevealLineCR());
-            
+
             sparks.transform.position = new(fromWorld.x, _nextData.heightFrom + 1f, fromWorld.z);
             sparks.transform.LookAt(toWorld);
             sparks.Play();
-            
         }
         // else only update pos
         else
@@ -137,9 +135,8 @@ public class AttackBeamController : BaseComponentController<AttackBeamData>
         while (t < 1)
         {
             t += Time.deltaTime / lineRevealSpeedMultiplier;
-            line.startColor = new Color(startCol.r, startCol.g, startCol.b, 1-t);
+            line.startColor = new Color(startCol.r, startCol.g, startCol.b, 1 - t);
             line.endColor = new Color(endCol.r, endCol.g, endCol.b, 1 - t);
         }
-
     }
 }

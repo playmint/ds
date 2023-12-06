@@ -1,1 +1,3 @@
-public class AttackBeamManager : BaseComponentManager<AttackBeamData, AttackBeamController>, IComponentManager { }
+public class AttackBeamManager
+    : BaseComponentManager<AttackBeamData, AttackBeamController>,
+        IComponentManager { }

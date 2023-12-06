@@ -46,8 +46,7 @@ public class CritterController : BaseComponentController<CritterData>
         {
             Vector3Int cubeCoords = new Vector3Int(_nextData.q, _nextData.r, _nextData.s);
             Vector3 worldPos = CoordsHelper.CubeToWorld(cubeCoords);
-            transform.position =
-                new Vector3(worldPos.x, _nextData.height, worldPos.z);
+            transform.position = new Vector3(worldPos.x, _nextData.height, worldPos.z);
         }
         else if (
             _prevData.q != _nextData.q || _prevData.r != _nextData.r || _prevData.s != _nextData.s
