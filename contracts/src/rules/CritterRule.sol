@@ -12,7 +12,6 @@ import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 using Schema for State;
 
 contract CritterRule is Rule {
-
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         // spawn a critter for any player at any location
         if (bytes4(action) == Actions.SPAWN_CRITTER.selector) {
@@ -76,7 +75,6 @@ contract CritterRule is Rule {
             if (health == 0) {
                 _destroyBuilding(state, attacked);
             }
-
         } else if (bytes4(attacked) == Kind.Critter.selector) {
             bytes24 attackedLocation = state.getNextLocation(attacked);
             state.setAttackLocation(attacker, attackedLocation, ctx.clock);
@@ -103,5 +101,4 @@ contract CritterRule is Rule {
         state.setEquipSlot(buildingInstance, 0, bytes24(0));
         state.setEquipSlot(buildingInstance, 1, bytes24(0));
     }
-
 }
