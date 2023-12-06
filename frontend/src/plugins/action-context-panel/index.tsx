@@ -213,6 +213,9 @@ const Construct: FunctionComponent<ConstructProps> = ({
     const factoryKinds = constructableKinds
         .filter((kind) => kind.owner?.id !== player?.id)
         .filter((kind) => getBuildingCategory(kind) == BuildingCategory.ITEM_FACTORY);
+    const towerKinds = constructableKinds
+        .filter((kind) => kind.owner?.id !== player?.id)
+        .filter((kind) => getBuildingCategory(kind) == BuildingCategory.TOWER);
     const blockerKinds = constructableKinds
         .filter((kind) => kind.owner?.id !== player?.id)
         .filter((kind) => getBuildingCategory(kind) == BuildingCategory.BLOCKER && kind.model?.value !== 'enemy');
@@ -401,6 +404,15 @@ const Construct: FunctionComponent<ConstructProps> = ({
                                 {factoryKinds.length > 0 && (
                                     <optgroup label="Factories">
                                         {factoryKinds.map((k) => (
+                                            <option key={k.id} value={k.id}>
+                                                {k.name?.value || k.id}
+                                            </option>
+                                        ))}
+                                    </optgroup>
+                                )}
+                                {towerKinds.length > 0 && (
+                                    <optgroup label="Towers">
+                                        {towerKinds.map((k) => (
                                             <option key={k.id} value={k.id}>
                                                 {k.name?.value || k.id}
                                             </option>

@@ -5,7 +5,7 @@ import "cog/IState.sol";
 import "cog/IRule.sol";
 import "cog/IDispatcher.sol";
 
-import {Schema, Node, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Schema, Node, Kind, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 
@@ -59,17 +59,36 @@ contract CritterRule is Rule {
 
     function _attack(State state, Context calldata ctx, bytes24 attacker, bytes24 attacked, uint64 weight) internal {
         bytes24 healthBag = state.getEquipSlot(attacked, 100);
+        require(healthBag != 0x0, "attempt to attack something without health");
+
         (bytes24 item, uint64 health) = state.getItemSlot(healthBag, 0);
         if (weight >= health) {
             health = 0;
         } else {
             health = health - weight;
         }
+
         state.setItemSlot(healthBag, 0, item, health);
-        if (health == 0) {
-            // TODO: atacked could be a critter too
-            _destroyBuilding(state, attacked);
+
+        if (bytes4(attacked) == Kind.Building.selector) {
+            bytes24 attackedLocation = state.getFixedLocation(attacked);
+            state.setAttackLocation(attacker, attackedLocation, ctx.clock);
+            if (health == 0) {
+                _destroyBuilding(state, attacked);
+            }
+
+        } else if (bytes4(attacked) == Kind.Critter.selector) {
+            bytes24 attackedLocation = state.getNextLocation(attacked);
+            state.setAttackLocation(attacker, attackedLocation, ctx.clock);
+            if (health == 0) {
+                _destroyCritter(state, attacked);
+            }
         }
+    }
+
+    function _destroyCritter(State state, bytes24 critter) private {
+        state.setNextLocation(critter, bytes24(0), 0);
+        state.setPrevLocation(critter, bytes24(0), 0);
     }
 
     function _destroyBuilding(State state, bytes24 buildingInstance) private {

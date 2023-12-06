@@ -1,0 +1,6 @@
+---
+kind: Building
+spec:
+  name: TeslaCoil
+  location: [0, -6, 6]
+

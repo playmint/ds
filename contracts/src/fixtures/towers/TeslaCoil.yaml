@@ -1,0 +1,18 @@
+---
+kind: BuildingKind
+spec:
+  name: TeslaCoil
+  description: Zaps stuff
+  category: tower
+  model: teslacoil
+  contract:
+    file: ./TeslaCoil.sol
+  plugin:
+    file: ./TeslaCoil.js
+  materials:
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+    - name: Red Goo
+      quantity: 10

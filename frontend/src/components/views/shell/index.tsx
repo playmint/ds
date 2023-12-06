@@ -76,7 +76,11 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             (player?.quests || []).filter((q) => q.status == QUEST_STATUS_ACCEPTED).sort((a, b) => a.key - b.key) || []
         );
     }, [player?.quests]);
-    const critters = world?.critters || [];
+    const critters = (world?.critters || []).filter((c) => !!c.nextLocation?.tile?.id);
+    const critterAttacks = blockNumber ? critters.filter((c) => blockNumber - (c.attackLocation?.time || 0) < 2) : [];
+    const buildingAttacks = blockNumber
+        ? (world?.buildings || []).filter((c) => blockNumber - (c.attackLocation?.time || 0) < 2)
+        : [];
 
     // setup the unity frame
     useEffect(() => {
@@ -268,30 +272,18 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const noop = useCallback(() => {}, []);
 
     const [tick, setTick] = useState<number>(0);
-    const [dir, setDir] = useState<number>(1);
     const critCoords: [number, number, number] = [-tick, tick, 0];
-
-    useEffect(() => {
-        if (tick % 5 === 0) {
-            setDir((prev) => (prev === 1 ? -1 : 1));
-        }
-    }, [tick]);
 
     useEffect(() => {
         const i = setInterval(() => {
             setTick((prev) => {
-                return prev + dir;
+                return prev + 1;
             });
-        }, 500);
+        }, 1000);
         return () => {
             clearInterval(i);
         };
-    }, [dir]);
-
-    const mobileUnitTile = selectedMobileUnit
-        ? (tiles || []).find((t) => t.id === selectedMobileUnit?.nextLocation?.tile.id)
-        : undefined;
-    const mobileUnitCoords = mobileUnitTile ? getCoords(mobileUnitTile) : undefined;
+    }, []);
 
     return (
         <StyledShell>
@@ -326,21 +318,50 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         selectedElementID={selectedMapElement?.id}
                     />
                     <CombatSessions tiles={tiles || []} sessions={world?.sessions || []} />
-                    {mobileUnitCoords && (
-                        <AttackBeam
-                            key={`atk-${tick}`}
-                            id={`atk1-${tick}`}
-                            qFrom={1}
-                            rFrom={0}
-                            sFrom={-1}
-                            heightFrom={-0.25}
-                            qTo={mobileUnitCoords.q}
-                            rTo={mobileUnitCoords.r}
-                            sTo={mobileUnitCoords.s}
-                            heightTo={-0.5}
-                            color={'#ffffff'}
-                        />
-                    )}
+                    {critterAttacks.map((c) => {
+                        if (!c.attackLocation || !c.nextLocation) {
+                            return null;
+                        }
+                        const fromCoords = getCoords(c.nextLocation.tile);
+                        const toCoords = getCoords(c.attackLocation.tile);
+                        return (
+                            <AttackBeam
+                                key={`${c.id}-${tick}`}
+                                id={`${c.id}-${tick}`}
+                                qFrom={fromCoords.q}
+                                rFrom={fromCoords.r}
+                                sFrom={fromCoords.s}
+                                heightFrom={-0.25}
+                                qTo={toCoords.q}
+                                rTo={toCoords.r}
+                                sTo={toCoords.s}
+                                heightTo={-0.5}
+                                color={'#ffd4df'}
+                            />
+                        );
+                    })}
+                    {buildingAttacks.map((b) => {
+                        if (!b.attackLocation || !b.location) {
+                            return null;
+                        }
+                        const fromCoords = getCoords(b.location.tile);
+                        const toCoords = getCoords(b.attackLocation.tile);
+                        return (
+                            <AttackBeam
+                                key={`${b.id}-${tick}`}
+                                id={`${b.id}-${tick}`}
+                                qFrom={fromCoords.q}
+                                rFrom={fromCoords.r}
+                                sFrom={fromCoords.s}
+                                heightFrom={-0.25}
+                                qTo={toCoords.q}
+                                rTo={toCoords.r}
+                                sTo={toCoords.s}
+                                heightTo={-0.5}
+                                color={'#ffffff'}
+                            />
+                        );
+                    })}
                     <GeneratorBuilding key={`gen1`} id={`gen1`} q={1} r={0} s={-1} height={-0.1} rotation={15} />
                     {critters.map((critter) => {
                         const tile = critter.nextLocation?.tile;

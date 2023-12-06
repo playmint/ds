@@ -61,7 +61,8 @@ uint32 constant LIFE_MUL = 10;
 enum LocationKey {
     PREV,
     NEXT,
-    FIXED
+    FIXED,
+    ATTACK
 }
 
 enum BuildingCategory {
@@ -69,7 +70,8 @@ enum BuildingCategory {
     BLOCKER,
     EXTRACTOR,
     ITEM_FACTORY,
-    CUSTOM
+    CUSTOM,
+    TOWER
 }
 
 enum QuestStatus {
@@ -196,6 +198,10 @@ library Schema {
 
     function setPrevLocation(State state, bytes24 node, bytes24 tile, uint64 departureTime) internal {
         return state.set(Rel.Location.selector, uint8(LocationKey.PREV), node, tile, departureTime);
+    }
+
+    function setAttackLocation(State state, bytes24 node, bytes24 tile, uint64 arrivalTime) internal {
+        return state.set(Rel.Location.selector, uint8(LocationKey.ATTACK), node, tile, arrivalTime);
     }
 
     function getFixedLocation(State state, bytes24 node) internal view returns (bytes24) {

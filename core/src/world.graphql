@@ -88,6 +88,9 @@ fragment WorldCritter on Node {
     nextLocation: edge(match: { kinds: "Tile", via: { rel: "Location", key: 1 } }) {
         ...Location
     }
+    attackLocation: edge(match: { kinds: "Tile", via: { rel: "Location", key: 3 } }) {
+        ...Location
+    }
 }
 
 fragment WorldBuilding on Node {
@@ -106,6 +109,9 @@ fragment WorldBuilding on Node {
         weight
     }
     location: edge(match: { kinds: "Tile", via: { rel: "Location", key: 2 } }) {
+        ...Location
+    }
+    attackLocation: edge(match: { kinds: "Tile", via: { rel: "Location", key: 3 } }) {
         ...Location
     }
 }

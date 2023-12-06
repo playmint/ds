@@ -1,6 +1,6 @@
 import { pipe, take, toPromise } from 'wonka';
 import { CompoundKeyEncoder, NodeSelectors, getCoords } from "@downstream/core";
-import { GetTilesDocument, GetWorldDocument, WorldBuildingFragment, WorldStateFragment, WorldTileFragment } from '@downstream/core/src/gql/graphql';
+import { BuildingKindFragment, GetTilesDocument, GetWorldDocument, WorldBuildingFragment, WorldStateFragment, WorldTileFragment } from '@downstream/core/src/gql/graphql';
 import { getPath } from '../utils/pathfinding';
 
 const CRITTER_SPAWN_LOCATIONS = [
@@ -60,7 +60,6 @@ const ticker = {
         const validCoords = tiles.map(getCoords);
 
         // state
-        const critters: Map<string, CritterState> = new Map<string, CritterState>;
         let spawnCount = 0;
 
         const spawnCritter = () => {
@@ -77,6 +76,7 @@ const ticker = {
             console.log('\n\n\n');
             console.log('------------------TICK---------------');
             const tx: Array<Promise<any>> = [sleep(800)];
+            const critters: Map<string, CritterState> = new Map<string, CritterState>;
 
             // fetch the world
             let world;
@@ -95,7 +95,7 @@ const ticker = {
             }
 
             // auto spawn critter if none
-            if (world.critters.length === 0) {
+            if (world.critters.filter(c => !!c.nextLocation).length === 0) {
                 tx.push(spawnCritter());
             }
 
@@ -105,6 +105,9 @@ const ticker = {
 
             // update critter state
             world.critters.forEach((critter) => {
+                if (!critter.nextLocation) {
+                    return;
+                }
                 let c: CritterState | undefined = critters.get(critter.id);
                 // const prevCoords = getCoords(critter.prevLocation.tile);
                 const nextTile = critter.nextLocation.tile.id;
@@ -219,12 +222,23 @@ const ticker = {
                     const radius = size / 10.0;
                     const hp = Math.max(25 - (distance * 8), 1);
                     if (distance <= radius) {
+                        // critter attack building
                         console.log(building.id, `TOOK ${hp} DAMAGE FROM`, critter.id);
                         tx.push(
                             player.dispatch(
-                                { name: 'ATTACK', args: [critter.id, building.id, hp] }
+                                { name: 'ATTACK', args: [critter.id, building.id, Math.max(hp-4, 1)] }
                             ).then(res => res.wait()).catch((err) => console.error(err))
                         );
+
+                        // tower attack critter
+                        if (getBuildingCategory(building.kind) == BuildingCategory.TOWER) {
+                            console.log(critter.id, `TOOK ${hp} DAMAGE FROM`, building.id);
+                            tx.push(
+                                player.dispatch(
+                                    { name: 'ATTACK', args: [building.id, critter.id, hp+1] }
+                                ).then(res => res.wait()).catch((err) => console.error(err))
+                            );
+                        }
                     }
                 }
             });
@@ -278,3 +292,31 @@ function getBuildingAtTile(buildings: WorldBuildingFragment[], tile: { id: strin
 }
 
 
+
+export enum BuildingCategory {
+    NONE,
+    BLOCKER,
+    EXTRACTOR,
+    ITEM_FACTORY,
+    CUSTOM,
+    TOWER,
+}
+export function getBuildingCategory(kind?: BuildingKindFragment | null) {
+    if (!kind) {
+        return BuildingCategory.NONE;
+    }
+
+    const buildingCategory = parseInt('0x' + kind.id.slice(-2));
+    switch (buildingCategory) {
+        case BuildingCategory.BLOCKER:
+            return BuildingCategory.BLOCKER;
+        case BuildingCategory.EXTRACTOR:
+            return BuildingCategory.EXTRACTOR;
+        case BuildingCategory.ITEM_FACTORY:
+            return BuildingCategory.ITEM_FACTORY;
+        case BuildingCategory.TOWER:
+            return BuildingCategory.TOWER;
+        default:
+            return BuildingCategory.NONE;
+    }
+}

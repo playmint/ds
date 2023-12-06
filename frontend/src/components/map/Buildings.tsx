@@ -5,6 +5,7 @@ import { memo, useMemo } from 'react';
 import { BlockerBuilding } from './BlockerBuilding';
 import { ExtractorBuilding } from './ExtractorBuilding';
 import { FactoryBuilding } from './FactoryBuilding';
+import { GeneratorBuilding } from './GeneratorBuilding';
 
 function getColorFromGoo(kind) {
     const outputName = kind?.outputs?.find((e) => ['Green Goo', 'Blue Goo', 'Red Goo'].includes(e.item.name?.value))
@@ -91,6 +92,18 @@ export const Buildings = memo(
                                 height={height}
                                 model={b.kind?.model?.value}
                                 rotation={rotation}
+                                selected={selected}
+                                onPointerClick={onClickBuilding}
+                                {...coords}
+                            />
+                        );
+                    } else if (getBuildingCategory(b.kind) == BuildingCategory.TOWER) {
+                        return (
+                            <GeneratorBuilding
+                                key={b.id}
+                                id={b.id}
+                                height={height}
+                                rotation={-30}
                                 selected={selected}
                                 onPointerClick={onClickBuilding}
                                 {...coords}
