@@ -37,6 +37,8 @@ import { QuestPanel } from '@app/components/panels/quest-panel';
 import { getBagsAtEquipee, getBuildingAtTile, getSessionsAtTile } from '@downstream/core/src/utils';
 import { StyledBasePanel, StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { Critter } from '@app/components/map/Critter';
+import { AttackBeam } from '@app/components/map/AttackBeam';
+import { GeneratorBuilding } from '@app/components/map/GeneratorBuilding';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -286,6 +288,11 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         };
     }, [dir]);
 
+    const mobileUnitTile = selectedMobileUnit
+        ? (tiles || []).find((t) => t.id === selectedMobileUnit?.nextLocation?.tile.id)
+        : undefined;
+    const mobileUnitCoords = mobileUnitTile ? getCoords(mobileUnitTile) : undefined;
+
     return (
         <StyledShell>
             {mapReady && (
@@ -319,6 +326,22 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         selectedElementID={selectedMapElement?.id}
                     />
                     <CombatSessions tiles={tiles || []} sessions={world?.sessions || []} />
+                    {mobileUnitCoords && (
+                        <AttackBeam
+                            key={`atk-${tick}`}
+                            id={`atk1-${tick}`}
+                            qFrom={1}
+                            rFrom={0}
+                            sFrom={-1}
+                            heightFrom={-0.25}
+                            qTo={mobileUnitCoords.q}
+                            rTo={mobileUnitCoords.r}
+                            sTo={mobileUnitCoords.s}
+                            heightTo={-0.5}
+                            color={'#ffffff'}
+                        />
+                    )}
+                    <GeneratorBuilding key={`gen1`} id={`gen1`} q={1} r={0} s={-1} height={-0.1} rotation={15} />
                     {critters.map((critter) => {
                         const tile = critter.nextLocation?.tile;
                         if (!tile) {

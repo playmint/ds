@@ -97,7 +97,7 @@ public class AttackBeamController : BaseComponentController<AttackBeamData>
         {
             StartCoroutine(RevealLineCR());
             
-            sparks.transform.position = fromWorld + (Vector3.up);
+            sparks.transform.position = new(fromWorld.x, _nextData.heightFrom + 1f, fromWorld.z);
             sparks.transform.LookAt(toWorld);
             sparks.Play();
             
