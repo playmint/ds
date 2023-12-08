@@ -1,5 +1,5 @@
 import { pipe, take, toPromise } from 'wonka';
-import { CompoundKeyEncoder, NodeSelectors, getCoords } from "@downstream/core";
+import { CogAction, CompoundKeyEncoder, NodeSelectors, getCoords } from "@downstream/core";
 import { BuildingKindFragment, GetTilesDocument, GetWorldDocument, WorldBuildingFragment, WorldStateFragment, WorldTileFragment } from '@downstream/core/src/gql/graphql';
 import { getPath } from '../utils/pathfinding';
 
@@ -100,19 +100,19 @@ const ticker = {
         let critterCount = ctx.critters;
         let sendHome = !!ctx.reset;
 
-        const spawnCritter = () => {
+        const spawnCritter = (): Array<CogAction> => {
             const [q, r, s] = randomSpawnQRS();
             const unitKey = BigInt(Math.floor(Math.random() * 100000))
             const unitId = CompoundKeyEncoder.encodeUint160( NodeSelectors.Critter, unitKey);
             const randomSize = [10,15,20,25][Math.floor(Math.random() * 4)];
-            return player.dispatch({ name: 'SPAWN_CRITTER', args: [unitId, randomSize || 10] }, {name: 'MOVE_CRITTER', args: [unitId, q, r, s]});
+            return [{ name: 'SPAWN_CRITTER', args: [unitId, randomSize || 10] }, {name: 'MOVE_CRITTER', args: [unitId, q, r, s]}];
         }
 
         // move unit around randomly
         while (true) {
             console.log('\n\n\n');
             console.log(`------------------TICK ${aggro ? 'AGGRO' : 'RANDO'}---------------`);
-            const tx: Array<Promise<any>> = [sleep(1200)];
+            let tx: Array<CogAction> = [];
             const critters: Map<string, CritterState> = new Map<string, CritterState>;
 
             // fetch the world
@@ -143,7 +143,7 @@ const ticker = {
                 aggro = false;
                 // spawns
                 for (let i=0; i<critterCount; i++) {
-                    tx.push(spawnCritter());
+                    tx = [...tx, ...spawnCritter()];
                 }
                 critterCount++; // there will be more next time
             } else if (sendHome) {
@@ -238,11 +238,7 @@ const ticker = {
                         backtrackAvoids++;
                     }
                     console.log(critter.id, '- MOVE (random)', q, r, s);
-                    tx.push(
-                        player.dispatch(
-                            { name: 'MOVE_CRITTER', args: [critter.id, q, r, s] }
-                        ).then(res => res.wait()).catch((err) => console.error(err))
-                    );
+                    tx = [...tx, { name: 'MOVE_CRITTER', args: [critter.id, q, r, s] }];
                 } else if (critter.mode === 'target') {
                     const fromTile = tiles.find((t) => t.id === critter.nextTile);
                     if (!fromTile) {
@@ -280,11 +276,7 @@ const ticker = {
                         console.log(critter.id, `- MOVE_CRITTER (target)`, q, r, s);
                         critter.nextTile = targetTile.id;
                         critter.nextCoords = nextCoords;
-                        tx.push(
-                            player.dispatch(
-                                { name: 'MOVE_CRITTER', args: [critter.id, q, r, s] }
-                            ).then(res => res.wait()).catch((err) => console.error(err))
-                        );
+                        tx = [...tx, { name: 'MOVE_CRITTER', args: [critter.id, q, r, s] }];
                     }
                 }
             };
@@ -310,28 +302,23 @@ const ticker = {
                     if (distance <= radius) {
                         // critter attack building
                         console.log(building.id, `TOOK ${hp} DAMAGE FROM`, critter.id);
-                        tx.push(
-                            player.dispatch(
-                                { name: 'ATTACK', args: [critter.id, building.id, Math.max(hp-4, 1)] }
-                            ).then(res => res.wait()).catch((err) => console.error(err))
-                        );
+                        tx = [...tx, { name: 'ATTACK', args: [critter.id, building.id, Math.max(hp-4, 1)] }];
 
                         // tower attack critter
                         if (getBuildingCategory(building.kind) == BuildingCategory.TOWER) {
                             console.log(critter.id, `TOOK ${hp} DAMAGE FROM`, building.id);
-                            tx.push(
-                                player.dispatch(
-                                    { name: 'ATTACK', args: [building.id, critter.id, hp+1] }
-                                ).then(res => res.wait()).catch((err) => console.error(err))
-                            );
+                            tx = [...tx, { name: 'ATTACK', args: [building.id, critter.id, hp+1] }];
                         }
                     }
                 }
             });
 
+            console.log('dispatching', tx.length, 'actions');
+            await player.dispatchAndWait(...tx)
+                .then(() => console.log('OK'))
+                .catch((err) => console.error(err));
+            await sleep(1200);
             console.log('-------------------------------------');
-
-            await Promise.race([Promise.all(tx), sleep(5000)]);
         }
     },
 };

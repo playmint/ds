@@ -30,6 +30,7 @@ const concurrency = {
         const procs: ReturnType<typeof spawnAsync>[] = [];
         for (let wallet of wallets) {
             console.log(`starting chaos-unit for ${wallet.privateKey}`);
+            await sleep(1000);
             procs.push(spawnAsync('ds', [
                 '-n', `${ctx.network || 'local'}`,
                 `-k`, `${wallet.privateKey}`,
