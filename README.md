@@ -34,6 +34,39 @@ Client will be available at locahost:3000
 
 <details>
 
+<summary>Building from Source (For Development) - macOS/Linux</summary>
+
+
+If you are working on the client, then you will need to build everything
+yourself.
+
+You will need the following tools installed:
+
+- Javascript toolchain (node lts/gallium)
+- Go toolchain (go v1.19)
+- Solidity toolchain (foundry)
+- Ethereum binaries (abigen)
+- Unity Editor (2021.3.13f1)
+  - Unity WebGL submodule
+
+clone this repository:
+
+```
+git clone --recurse-submodules https://github.com/playmint/ds.git
+```
+
+build and start the client and supporting services in development mode run:
+
+```
+make dev
+```
+
+Client will be available at localhost:3000
+
+</details>
+
+<details>
+
 <summary>Building from Source (For Development) - Windows</summary>
 
 This guide provides a detailed, step-by-step process for Windows users who are setting up a development environment for the client.
