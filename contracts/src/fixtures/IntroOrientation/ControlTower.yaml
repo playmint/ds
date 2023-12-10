@@ -4,6 +4,7 @@ spec:
   name: Control Tower
   description: "The Control Tower towers above the world it controls"
   category: custom
+  logicCellKind: start
   model: 13-06
   color: 2
   contract:

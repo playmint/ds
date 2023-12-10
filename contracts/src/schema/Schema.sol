@@ -71,6 +71,19 @@ enum BuildingCategory {
     CUSTOM
 }
 
+enum LogicCellKind {
+    NONE,
+    START,
+    LIQUIFY,
+    SOLIDIFY,
+    ADD,
+    SUBTRACT,
+    DIVIDE,
+    REFINE,
+    RESERVE,
+    BUFFER
+}
+
 enum QuestStatus {
     NONE,
     ACCEPTED,
@@ -116,15 +129,27 @@ library Node {
         return CompoundKeyEncoder.ADDRESS(Kind.Player.selector, addr);
     }
 
+    function BuildingKind(uint64 id, BuildingCategory category, LogicCellKind logicCellKind)
+        internal
+        pure
+        returns (bytes24)
+    {
+        return CompoundKeyEncoder.BYTES(
+            Kind.BuildingKind.selector,
+            bytes20(abi.encodePacked(uint32(0), id, uint32(logicCellKind), uint32(category)))
+        );
+    }
+
     function BuildingKind(uint64 id, BuildingCategory category) internal pure returns (bytes24) {
         return CompoundKeyEncoder.BYTES(
-            Kind.BuildingKind.selector, bytes20(abi.encodePacked(uint32(0), id, uint64(category)))
+            Kind.BuildingKind.selector, bytes20(abi.encodePacked(uint32(0), id, uint32(0), uint32(category)))
         );
     }
 
     function BuildingKind(uint64 id) internal pure returns (bytes24) {
         return CompoundKeyEncoder.BYTES(
-            Kind.BuildingKind.selector, bytes20(abi.encodePacked(uint32(0), id, uint64(BuildingCategory.NONE)))
+            Kind.BuildingKind.selector,
+            bytes20(abi.encodePacked(uint32(0), id, uint32(0), uint32(BuildingCategory.NONE)))
         );
     }
 

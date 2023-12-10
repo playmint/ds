@@ -8,6 +8,8 @@ import {
     BuildingCategoryEnum,
     BuildingCategoryEnumVals,
     ContractSource,
+    LogicCellEnum,
+    LogicCellKindEnumVals,
     ManifestDocument,
     Slot,
 } from '../utils/manifest';
@@ -41,10 +43,15 @@ export const encodeItemID = ({
     );
 };
 
-const encodeBuildingKindID = ({ name, category }) => {
+const encodeBuildingKindID = (spec) => {
+    const { name, category, logicCellKind } = spec;
     const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`building/${name}`))));
     const categoryEnum = getBuildingCategoryEnum(category);
-    return solidityPacked(['bytes4', 'uint32', 'uint64', 'uint64'], [NodeSelectors.BuildingKind, 0, id, categoryEnum]);
+    const logicCellKindEnum = category == 'custom' ? getLogicCellKindEnum(logicCellKind) : getLogicCellKindEnum('none');
+    return solidityPacked(
+        ['bytes4', 'uint32', 'uint64', 'uint32', 'uint32'],
+        [NodeSelectors.BuildingKind, 0, id, logicCellKindEnum, categoryEnum]
+    );
 };
 
 const encodePluginID = ({ name }) => {
@@ -73,6 +80,10 @@ const encodeQuestID = ({ name }) => {
 // TODO: Is there a way of referencing the Solidity enum?
 const getBuildingCategoryEnum = (category: BuildingCategoryEnum): number => {
     return BuildingCategoryEnumVals.indexOf(category);
+};
+
+const getLogicCellKindEnum = (logicCellKind: LogicCellEnum): number => {
+    return LogicCellKindEnumVals.indexOf(logicCellKind);
 };
 
 const itemKindDeploymentActions = async (

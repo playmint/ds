@@ -6,6 +6,21 @@ export const BuildingCategoryEnumVals = ['none', 'blocker', 'extractor', 'factor
 export const BuildingCategoryEnum = z.enum(BuildingCategoryEnumVals);
 export type BuildingCategoryEnum = z.infer<typeof BuildingCategoryEnum>;
 
+export const LogicCellKindEnumVals = [
+    'none',
+    'start',
+    'liquify',
+    'solidify',
+    'add',
+    'subtract',
+    'divide',
+    'refine',
+    'reserve',
+    'buffer',
+] as const;
+export const LogicCellEnum = z.enum(LogicCellKindEnumVals);
+export type LogicCellEnum = z.infer<typeof LogicCellEnum>;
+
 export const ContractSource = z.object({
     file: z.string().optional(),
     bytecode: z.string().optional(), // precopmiled bytecode hex string (not 0x prefixed)
@@ -113,6 +128,7 @@ export const BuildingKindExtractorSpec = z.object({
 
 export const BuildingKindCustomSpec = z.object({
     category: z.literal('custom'),
+    logicCellKind: LogicCellEnum.optional().default('none'),
     name: Name,
     description: OneLiner.optional(),
     model: TotemModel,
