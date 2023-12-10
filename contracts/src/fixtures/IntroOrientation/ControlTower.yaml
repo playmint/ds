@@ -12,5 +12,9 @@ spec:
   plugin:
     file: ./ControlTower.js
   materials:
-    - name: L33t Bricks
-      quantity: 100
+    - name: Red Goo
+      quantity: 10
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10

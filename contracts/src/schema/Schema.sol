@@ -364,7 +364,7 @@ library Schema {
         returns (uint64 id, BuildingCategory category)
     {
         id = uint64(uint192(buildingKind) >> 64 & type(uint64).max);
-        category = BuildingCategory(uint64(uint192(buildingKind) & type(uint64).max));
+        category = BuildingCategory(uint32(uint192(buildingKind) & type(uint32).max));
     }
 
     function getItemStructure(State, /*state*/ bytes24 item)
