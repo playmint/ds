@@ -6,6 +6,7 @@ import {State} from "cog/IState.sol";
 import {Schema, Rel, Kind, GooVal, LogicCellState} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
+import {ILogicCell} from "@ds/ext/ILogicCell.sol";
 
 using Schema for State;
 
@@ -34,7 +35,15 @@ contract Start is BuildingKind {
         LogicCellState memory cellState,
         LogicCellState[] memory cellStates
     ) private {
-        GooVal[] memory output = new GooVal[](5); //logicCell.execute(state, cellState.input);
+        // get building kind implementation
+        bytes24 buildingKind = state.getBuildingKind(logicCell);
+        ILogicCell logicCellImpl = ILogicCell(state.getImplementation(buildingKind));
+        // if no implementation set, then this is a no-op
+        if (address(logicCellImpl) == address(0)) {
+            return;
+        }
+
+        GooVal[] memory output = logicCellImpl.execute(state, logicCell, cellState.input);
 
         for (uint8 i = 0; i <= 255; i++) {
             (bytes24 nextLogicCell, uint64 inputIndex) = state.get(Rel.GooPipe.selector, i, logicCell);
