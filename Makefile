@@ -1,16 +1,20 @@
 
-
 # configure path to unity
 UNITY_EDITOR_VERSION := 2021.3.13f1
 ifeq ($(OS),Windows_NT)
 	UNITY_EDITOR := C:\Program Files\Unity\Hub\Editor\$(UNITY_EDITOR_VERSION)\Editor\Unity.exe
 else
-UNAME_S := $(shell uname -s)
-ifeq ($(UNAME_S),Darwin)
-	UNITY_EDITOR := /Applications/Unity/Hub/Editor/$(UNITY_EDITOR_VERSION)/Unity.app/Contents/MacOS/Unity
-else
-	UNITY_EDITOR := /Applications/Unity/Hub/Editor/$(UNITY_EDITOR_VERSION)/Unity.app/Contents/Linux/Unity
-endif
+	UNAME_S := $(shell uname -s)
+	ifeq ($(UNAME_S),Darwin)
+		UNITY_EDITOR := /Applications/Unity/Hub/Editor/$(UNITY_EDITOR_VERSION)/Unity.app/Contents/MacOS/Unity
+	else
+		# Check if running under WSL
+		ifneq ($(shell grep -i microsoft /proc/version),)
+			UNITY_EDITOR := /mnt/c/Program\ Files/Unity/Hub/Editor/$(UNITY_EDITOR_VERSION)/Editor/Unity.exe
+		else
+			UNITY_EDITOR := /Applications/Unity/Hub/Editor/$(UNITY_EDITOR_VERSION)/Unity.app/Contents/Linux/Unity
+		endif
+	endif
 endif
 
 # srcs
