@@ -115,6 +115,8 @@ contract ScoutRule is Rule {
         bluePerlin = Math.mul(bluePerlin, bluePerlin);
         redPerlin = Math.mul(redPerlin, redPerlin);
 
+        // FIXME: Hardcoding the goo values
+        /*
         atoms[GOO_GREEN] = uint64(
             uint128(
                 Math.mul(
@@ -125,6 +127,63 @@ contract ScoutRule is Rule {
         );
         atoms[GOO_BLUE] = uint64(uint128(Math.mul(bluePerlin, Math.fromUInt(255)) >> (64)));
         atoms[GOO_RED] = uint64(uint128(Math.mul(redPerlin, Math.fromUInt(255)) >> (64)));
+        */
+
+        if (coords[0] == -2 && coords[1] == 1 && coords[2] == -1) {
+            atoms[GOO_GREEN] = 200;
+        } else if (coords[0] == -1 && coords[1] == 2 && coords[2] == -1) {
+            atoms[GOO_BLUE] = 200;
+        } else if (coords[0] == 1 && coords[1] == 1 && coords[2] == -2) {
+            atoms[GOO_RED] = 200;
+        } else if (coords[0] == -17 && coords[1] == 9 && coords[2] == 8) {
+            atoms[GOO_GREEN] = 200;
+        } else if (coords[0] == -16 && coords[1] == 9 && coords[2] == 7) {
+            atoms[GOO_BLUE] = 200;
+        } else if (coords[0] == -15 && coords[1] == 9 && coords[2] == 6) {
+            atoms[GOO_RED] = 200;
+        } else if (coords[0] == 30 && coords[1] == -6 && coords[2] == -24) {
+            atoms[GOO_GREEN] = 200;
+        } else if (coords[0] == 31 && coords[1] == -5 && coords[2] == -26) {
+            atoms[GOO_BLUE] = 200;
+        } else if (coords[0] == 32 && coords[1] == -4 && coords[2] == -28) {
+            atoms[GOO_RED] = 200;
+        } else if (coords[0] == -3 && coords[1] == -28 && coords[2] == -31) {
+            atoms[GOO_GREEN] = 200;
+        } else if (coords[0] == -2 && coords[1] == -30 && coords[2] == 32) {
+            atoms[GOO_BLUE] = 200;
+        } else if (coords[0] == 0 && coords[1] == -31 && coords[2] == 31) {
+            atoms[GOO_RED] = 200;
+        } else if (coords[0] == -22 && coords[1] == 30 && coords[2] == -8) {
+            atoms[GOO_GREEN] = 200;
+        } else if (coords[0] == -22 && coords[1] == 31 && coords[2] == -9) {
+            atoms[GOO_BLUE] = 200;
+        } else if (coords[0] == -21 && coords[1] == 30 && coords[2] == -9) {
+            atoms[GOO_RED] = 200;
+        } else if (coords[0] == 23 && coords[1] == 13 && coords[2] == -36) {
+            atoms[GOO_GREEN] = 200;
+        } else if (coords[0] == 22 && coords[1] == 14 && coords[2] == -36) {
+            atoms[GOO_BLUE] = 200;
+        } else if (coords[0] == 23 && coords[1] == 12 && coords[2] == -35) {
+            atoms[GOO_RED] = 200;
+        } else if (coords[0] == 11 && coords[1] == -18 && coords[2] == 7) {
+            atoms[GOO_GREEN] = 200;
+        } else if (coords[0] == 29 && coords[1] == -13 && coords[2] == -16) {
+            atoms[GOO_BLUE] = 200;
+        } else if (coords[0] == 34 && coords[1] == -19 && coords[2] == 15) {
+            atoms[GOO_RED] = 200;
+        } else if (coords[0] == 22 && coords[1] == -33 && coords[2] == 11) {
+            atoms[GOO_GREEN] = 200;
+        } else if (coords[0] == 33 && coords[1] == -33 && coords[2] == 0) {
+            atoms[GOO_BLUE] = 200;
+        } else if (coords[0] == 35 && coords[1] == -33 && coords[2] == -2) {
+            atoms[GOO_RED] = 200;
+        } else if (coords[0] == 10 && coords[1] == 11 && coords[2] == -21) {
+            atoms[GOO_GREEN] = 200;
+        } else if (coords[0] == 12 && coords[1] == 11 && coords[2] == -23) {
+            atoms[GOO_BLUE] = 200;
+        } else if (coords[0] == 14 && coords[1] == 10 && coords[2] == -24) {
+            atoms[GOO_RED] = 200;
+        }
 
         state.setTileAtomValues(targetTile, atoms);
     }
