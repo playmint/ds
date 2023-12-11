@@ -11,8 +11,8 @@ spec:
     file: ./TeslaCoil.js
   materials:
     - name: Green Goo
-      quantity: 10
+      quantity: 50
     - name: Blue Goo
-      quantity: 10
+      quantity: 50
     - name: Red Goo
-      quantity: 10
+      quantity: 50
