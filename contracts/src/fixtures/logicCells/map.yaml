@@ -1,0 +1,67 @@
+---
+kind: Building
+spec:
+  name: start
+  location: [-1, -1, 2]
+
+---
+kind: Building
+spec:
+  name: liquify
+  location: [-1, 0, 1]
+
+---
+kind: Building
+spec:
+  name: liquify
+  location: [0, -1, 1]
+
+---
+kind: Building
+spec:
+  name: add
+  location: [0, 0, 0]
+
+---
+kind: Building
+spec:
+  name: solidify
+  location: [1, 0, -1]
+
+---
+kind: LogicCellTrigger
+spec:
+  from: [-1, -1, 2]
+  to: [-1, 0, 1]
+  index: 0
+
+---
+kind: LogicCellTrigger
+spec:
+  from: [-1, -1, 2]
+  to: [0, -1, 1]
+  index: 1
+
+---
+kind: GooConnection
+spec:
+  from: [-1, 0, 1]
+  to: [0, 0, 0]
+  outIndex: 0
+  inIndex: 0
+
+---
+kind: GooConnection
+spec:
+  from: [-1, -1, 2]
+  to: [0, 0, 0]
+  outIndex: 0
+  inIndex: 1
+
+---
+kind: GooConnection
+spec:
+  from: [0, 0, 0]
+  to: [1, 0, -1]
+  outIndex: 0
+  inIndex: 0

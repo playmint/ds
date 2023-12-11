@@ -1,0 +1,20 @@
+---
+kind: BuildingKind
+spec:
+  category: custom
+  name: solidify
+  logicCellKind: solidify
+  description: solidify
+  model: 05-17
+  color: 5
+  contract:
+    file: ./solidify.sol
+  plugin:
+    file: ./solidify.js
+  materials:
+    - name: Red Goo
+      quantity: 10
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10

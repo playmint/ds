@@ -5,7 +5,7 @@ import "cog/IGame.sol";
 import "cog/IState.sol";
 import "cog/IRule.sol";
 
-import {Schema, Node, Kind, DEFAULT_ZONE, BuildingCategory} from "@ds/schema/Schema.sol";
+import {Schema, Node, Kind, DEFAULT_ZONE, BuildingCategory, Rel} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
@@ -94,6 +94,17 @@ contract BuildingRule is Rule {
             (bytes24 buildingInstance, bytes24 mobileUnitID, bytes memory payload) =
                 abi.decode(action[4:], (bytes24, bytes24, bytes));
             _useBuilding(state, buildingInstance, mobileUnitID, payload, ctx);
+        } else if (bytes4(action) == Actions.CONNECT_TRIGGER.selector) {
+            (bytes24 from, bytes24 to, uint8 triggerIndex) = abi.decode(action[4:], (bytes24, bytes24, uint8));
+            state.set(Rel.LogicCellTrigger.selector, triggerIndex, from, to, 0);
+        } else if (bytes4(action) == Actions.CONNECT_GOO_PIPE.selector) {
+            (bytes24 from, bytes24 to, uint8 outIndex, uint8 inIndex) =
+                abi.decode(action[4:], (bytes24, bytes24, uint8, uint8));
+
+            state.set(Rel.LogicCellTrigger.selector, outIndex, from, to, inIndex);
+            bytes24 connectionCountNode = (to & bytes4(0)) | bytes4(Kind.ConnectionCount.selector);
+            ( /*bytes24*/ , uint64 connectionCount) = state.get(Rel.Balance.selector, 0, to);
+            state.set(Rel.Balance.selector, 0, to, connectionCountNode, connectionCount + 1);
         }
 
         return state;

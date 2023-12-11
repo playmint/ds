@@ -43,6 +43,13 @@ export const encodeItemID = ({
     );
 };
 
+export const encodeBuildingID = ({ q, r, s }: { q: number; r: number; s: number }) => {
+    return solidityPacked(
+        ['bytes4', 'uint96', 'int16', 'int16', 'int16', 'int16'],
+        [NodeSelectors.Building, 0, 0, q, r, s]
+    );
+};
+
 const encodeBuildingKindID = (spec) => {
     const { name, category, logicCellKind } = spec;
     const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`building/${name}`))));
@@ -553,6 +560,65 @@ export const getOpsForManifests = async (
                 },
             ],
             note: `spawned bag ${spec.location.join(',')}`,
+        });
+    }
+
+    // make trigger connections
+    opn++;
+    opsets[opn] = [];
+    for (const doc of docs) {
+        if (doc.manifest.kind != 'LogicCellTrigger') {
+            continue;
+        }
+        const spec = doc.manifest.spec;
+
+        const [fromQ, fromR, fromS] = spec.from;
+        const [toQ, toR, toS] = spec.to;
+
+        opsets[opn].push({
+            doc,
+            actions: [
+                {
+                    name: 'CONNECT_TRIGGER',
+                    args: [
+                        encodeBuildingID({ q: fromQ, r: fromR, s: fromS }),
+                        encodeBuildingID({ q: toQ, r: toR, s: toS }),
+                        spec.index,
+                    ],
+                },
+            ],
+            note: `Connected trigger from: ${spec.from.join(',')} to: ${spec.to.join(',')} index: ${spec.index}`,
+        });
+    }
+
+    // make goo connections
+    opn++;
+    opsets[opn] = [];
+    for (const doc of docs) {
+        if (doc.manifest.kind != 'GooConnection') {
+            continue;
+        }
+        const spec = doc.manifest.spec;
+
+        const [fromQ, fromR, fromS] = spec.from;
+        const [toQ, toR, toS] = spec.to;
+
+        opsets[opn].push({
+            doc,
+            actions: [
+                {
+                    name: 'CONNECT_GOO_PIPE',
+                    args: [
+                        encodeBuildingID({ q: fromQ, r: fromR, s: fromS }),
+                        encodeBuildingID({ q: toQ, r: toR, s: toS }),
+                        spec.outIndex,
+                        spec.inIndex,
+                    ],
+                },
+            ],
+            note: `Connected goo pipe from: ${spec.from.join(',')} to: ${spec.to.join(',')} outIndex: ${
+                spec.outIndex
+            } inIndex: ${spec.inIndex}`,
         });
     }
 

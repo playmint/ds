@@ -318,6 +318,31 @@ export const Quest = z.object({
     status: z.object({}).optional(),
 });
 
+// Logic Cells
+
+export const LogicCellTriggerSpec = z.object({
+    from: Coords,
+    to: Coords,
+    index: z.number().max(255),
+});
+
+export const LogicCellTrigger = z.object({
+    kind: z.literal('LogicCellTrigger'),
+    spec: LogicCellTriggerSpec,
+});
+
+export const GooConnectionSpec = z.object({
+    from: Coords,
+    to: Coords,
+    outIndex: z.number().max(255),
+    inIndex: z.number().max(255),
+});
+
+export const GooConnection = z.object({
+    kind: z.literal('GooConnection'),
+    spec: GooConnectionSpec,
+});
+
 // -- //
 
 export const Manifest = z.discriminatedUnion('kind', [
@@ -329,6 +354,8 @@ export const Manifest = z.discriminatedUnion('kind', [
     Player,
     Quest,
     Bag,
+    LogicCellTrigger,
+    GooConnection,
 ]);
 
 export const ManifestDocument = z.object({

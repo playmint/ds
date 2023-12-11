@@ -22,6 +22,8 @@ interface Rel {
     function HasTask() external;
     function HasQuest() external;
     function ID() external;
+    function GooPipe() external;
+    function LogicCellTrigger() external;
 }
 
 interface Kind {
@@ -41,6 +43,7 @@ interface Kind {
     function Quest() external;
     function Task() external;
     function ID() external;
+    function ConnectionCount() external;
 }
 
 uint64 constant BLOCK_TIME_SECS = 2;

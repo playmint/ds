@@ -1,16 +1,16 @@
 ---
 kind: BuildingKind
 spec:
-  name: Control Tower
-  description: "The Control Tower towers above the world it controls"
   category: custom
-  logicCellKind: start
-  model: 13-06
-  color: 2
+  logicCellKind: add
+  name: add
+  description: solidify
+  model: 05-15
+  color: 5
   contract:
-    file: ./ControlTower.sol
+    file: ./add.sol
   plugin:
-    file: ./ControlTower.js
+    file: ./add.js
   materials:
     - name: Red Goo
       quantity: 10

@@ -146,6 +146,10 @@ interface Actions {
 
     function COMPLETE_QUEST(bytes24 quest, uint8 questNum) external;
 
+    function CONNECT_TRIGGER(bytes24 from, bytes24 to, uint8 triggerIndex) external;
+
+    function CONNECT_GOO_PIPE(bytes24 from, bytes24 to, uint8 outIndex, uint8 inIndex) external;
+
     // ---------------------
     // the DEV_ actions below this point are not for public use they are
     // only available by a single authorized account and only for a short

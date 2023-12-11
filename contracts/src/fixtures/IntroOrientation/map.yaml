@@ -1,5 +1,0 @@
----
-kind: Building
-spec:
-  name: Control Tower
-  location: [-1, 1, 0]

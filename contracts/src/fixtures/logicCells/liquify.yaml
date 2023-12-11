@@ -1,0 +1,20 @@
+---
+kind: BuildingKind
+spec:
+  category: custom
+  logicCellKind: liquify
+  name: liquify
+  description: liquify
+  model: 05-15
+  color: 5
+  contract:
+    file: ./liquify.sol
+  plugin:
+    file: ./liquify.js
+  materials:
+    - name: Red Goo
+      quantity: 10
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
