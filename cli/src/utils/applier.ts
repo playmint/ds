@@ -28,7 +28,6 @@ export const encodeBagID = ({ q, r, s }: { q: number; r: number; s: number }) =>
 };
 
 export const encodeItemID = ({
-    name,
     stackable,
     goo,
 }: {
@@ -36,7 +35,8 @@ export const encodeItemID = ({
     stackable: boolean;
     goo: { red: number; green: number; blue: number };
 }) => {
-    const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`item/${name}`))));
+    // const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`item/${name}`))));
+    const id = 0;
     return solidityPacked(
         ['bytes4', 'uint32', 'uint32', 'uint32', 'uint32', 'uint32'],
         [NodeSelectors.Item, id, stackable ? 1 : 0, goo.green, goo.blue, goo.red]

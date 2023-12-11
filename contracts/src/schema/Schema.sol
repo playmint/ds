@@ -93,6 +93,19 @@ enum QuestStatus {
     COMPLETED
 }
 
+struct GooVal {
+    uint64 r;
+    uint64 g;
+    uint64 b;
+}
+
+struct LogicCellState {
+    bytes24 logicCell;
+    uint8 inputCount;
+    uint8 filledInputCount;
+    GooVal[] input;
+}
+
 int16 constant DEFAULT_ZONE = 0;
 
 library Node {
@@ -113,8 +126,8 @@ library Node {
         return CompoundKeyEncoder.INT16_ARRAY(Kind.Tile.selector, [zone, q, r, s]);
     }
 
-    function Item(string memory name, uint32[3] memory atoms, bool isStackable) internal pure returns (bytes24) {
-        uint32 uniqueID = uint32(uint256(keccak256(abi.encode(name, atoms, isStackable))));
+    function Item(uint32[3] memory atoms, bool isStackable) internal pure returns (bytes24) {
+        uint32 uniqueID = uint32(uint256(keccak256(abi.encode(atoms, isStackable))));
         return Item(uniqueID, atoms, isStackable);
     }
 
