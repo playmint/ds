@@ -189,7 +189,7 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
                     <PluginContent canUse={canUse} content={content}>
                         {mobileUnit && (
                             <>
-                                {inputs.length > 0 && inputBag && (
+                                {inputBag && (
                                     <div ref={inputsRef} className="ingredients">
                                         <Bag
                                             bag={inputBag}
@@ -197,9 +197,8 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
                                             equipIndex={0}
                                             ownerId={building.id}
                                             isInteractable={canUse}
-                                            recipe={inputs}
-                                            numBagSlots={inputs.length}
                                             showIcon={false}
+                                            numBagSlots={1}
                                         />
                                     </div>
                                 )}
@@ -209,7 +208,7 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
                                         <div className="arrow" />
                                     </div>
                                 )}
-                                {outputs.length > 0 && outputBag && (
+                                {outputBag && (
                                     <div ref={outputsRef} className="ingredients">
                                         <Bag
                                             bag={outputBag}
@@ -217,8 +216,7 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
                                             equipIndex={1}
                                             ownerId={building.id}
                                             isInteractable={canUse}
-                                            recipe={outputs}
-                                            numBagSlots={outputs.length}
+                                            numBagSlots={1}
                                             showIcon={false}
                                         />
                                     </div>
