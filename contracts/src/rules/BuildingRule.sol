@@ -101,8 +101,11 @@ contract BuildingRule is Rule {
             (bytes24 from, bytes24 to, uint8 outIndex, uint8 inIndex) =
                 abi.decode(action[4:], (bytes24, bytes24, uint8, uint8));
 
-            state.set(Rel.LogicCellTrigger.selector, outIndex, from, to, inIndex);
-            bytes24 connectionCountNode = (to & bytes4(0)) | bytes4(Kind.ConnectionCount.selector);
+            state.set(Rel.GooPipe.selector, outIndex, from, to, inIndex);
+
+            // Increment the connection count
+            bytes24 connectionCountNode = (to & bytes24(0x00000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF))
+                | bytes4(Kind.ConnectionCount.selector);
             ( /*bytes24*/ , uint64 connectionCount) = state.get(Rel.Balance.selector, 0, to);
             state.set(Rel.Balance.selector, 0, to, connectionCountNode, connectionCount + 1);
         }
