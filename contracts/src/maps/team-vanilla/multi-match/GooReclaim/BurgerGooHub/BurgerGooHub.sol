@@ -40,12 +40,10 @@ contract Locker is BuildingKind {
 
                     // Clear item in bag
                     state.setItemSlot(bag, j, bytes24(0), uint64(0));
-
                 }
             }
         }
 
         state.set(Rel.Balance.selector, 0, state.getOwner(mobileUnit), buildingInstance, playerTotal);
-
     }
 }
