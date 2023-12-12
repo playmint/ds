@@ -5,8 +5,15 @@ public class GeneratorBuildingController : BaseComponentController<GeneratorBuil
     [SerializeField]
     protected GameObject zap;
 
+    [SerializeField]
+    private GameObject explosionFX;
+
+    float spawnTimer = 0;
+
     protected void Update()
     {
+        if (spawnTimer < 1)
+            spawnTimer += Time.deltaTime;
         if (_prevData == _nextData)
         {
             return;
@@ -19,5 +26,11 @@ public class GeneratorBuildingController : BaseComponentController<GeneratorBuil
         zap.SetActive(_nextData.powered);
 
         _prevData = _nextData;
+    }
+
+    private void OnDestroy()
+    {
+        if (spawnTimer >= 1)
+            Instantiate(explosionFX, transform.position, Quaternion.identity);
     }
 }
