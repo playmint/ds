@@ -108,6 +108,26 @@ contract BuildingRule is Rule {
             (bytes24 from, bytes24 to, uint8 outIndex, uint8 inIndex) =
                 abi.decode(action[4:], (bytes24, bytes24, uint8, uint8));
 
+            // If already connected to something then decrement the input count on the existing
+            (bytes24 currentToCell, /*uint64*/ ) = state.get(Rel.GooPipe.selector, outIndex, from);
+            if (currentToCell != bytes24(0)) {
+                // Decrement the connection count
+                ( /*bytes24*/ , uint64 currentToCellConnectionCount) = state.get(Rel.Balance.selector, 0, currentToCell);
+                if (currentToCellConnectionCount > 0) {
+                    bytes24 currentToCellConnectionCountNode = (
+                        currentToCell & bytes24(0x00000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
+                    ) | bytes4(Kind.ConnectionCount.selector);
+
+                    state.set(
+                        Rel.Balance.selector,
+                        0,
+                        currentToCell,
+                        currentToCellConnectionCountNode,
+                        currentToCellConnectionCount - 1
+                    );
+                }
+            }
+
             state.set(Rel.GooPipe.selector, outIndex, from, to, inIndex);
 
             // Increment the connection count
@@ -124,10 +144,11 @@ contract BuildingRule is Rule {
             state.set(Rel.GooPipe.selector, outIndex, from, bytes24(0), 0);
 
             // Decrement the connection count
-            bytes24 connectionCountNode = (to & bytes24(0x00000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF))
-                | bytes4(Kind.ConnectionCount.selector);
             ( /*bytes24*/ , uint64 connectionCount) = state.get(Rel.Balance.selector, 0, to);
             if (connectionCount > 0) {
+                bytes24 connectionCountNode = (to & bytes24(0x00000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF))
+                    | bytes4(Kind.ConnectionCount.selector);
+
                 state.set(Rel.Balance.selector, 0, to, connectionCountNode, connectionCount - 1);
             }
         }
