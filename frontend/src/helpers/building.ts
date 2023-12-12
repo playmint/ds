@@ -1,4 +1,5 @@
-import { BuildingKindFragment } from '@downstream/core';
+import { BuildingKindFragment, WorldBuildingFragment } from '@downstream/core';
+import { AbiCoder, ethers } from 'ethers';
 
 export enum BuildingCategory {
     NONE,
@@ -33,4 +34,10 @@ export function getLogicCellKind(kind?: BuildingKindFragment | null) {
 }
 export function isExtractor(kind: BuildingKindFragment) {
     return getBuildingCategory(kind) == BuildingCategory.EXTRACTOR;
+}
+export function getBuildingName(building: WorldBuildingFragment) {
+    const keccak256Hash = ethers.keccak256(AbiCoder.defaultAbiCoder().encode(['bytes24'], [building.id]));
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const letterIdx = parseInt('0x' + keccak256Hash.slice(-8)) % letters.length;
+    return building.kind?.name?.value + ' ' + letters[letterIdx];
 }

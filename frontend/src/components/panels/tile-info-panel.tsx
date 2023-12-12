@@ -33,7 +33,7 @@ import { FunctionComponent, useCallback, useEffect, useRef, useState } from 'rea
 import styled from 'styled-components';
 import { colors } from '@app/styles/colors';
 import { getMaterialStats } from '@app/plugins/combat/helpers';
-import { getLogicCellKind } from '@app/helpers/building';
+import { getBuildingName, getLogicCellKind } from '@app/helpers/building';
 
 enum LogicCellKind {
     NONE,
@@ -573,7 +573,7 @@ export const LogicCellPanel = ({ logicCell, world }: LogicCellPanelProps) => {
                                                             key={`${cellIdx}/${inputIdx}`}
                                                             value={`${logicCell.id}/${outputIdx}/${lc.id}/${inputIdx}`}
                                                         >
-                                                            {lc.kind?.name?.value} : {inputIdx + 1}
+                                                            {getBuildingName(lc)} : {inputIdx + 1}
                                                         </option>
                                                     );
                                                 }
@@ -602,29 +602,31 @@ export const LogicCellPanel = ({ logicCell, world }: LogicCellPanelProps) => {
                                         >
                                             Disconnected
                                         </option>
-                                        {neighbourLogicCells.map((lc, cellIdx) => {
-                                            // don't show the option if the input is connected to another cell
-                                            const isConnected = isTriggerConnected(logicCell, lc, outputIdx);
+                                        {neighbourLogicCells
+                                            .filter((lc) => getLogicCellKind(lc.kind) == LogicCellKind.LIQUIFY)
+                                            .map((lc, cellIdx) => {
+                                                // don't show the option if the input is connected to another cell
+                                                const isConnected = isTriggerConnected(logicCell, lc, outputIdx);
 
-                                            if (
-                                                lc.inputTriggers.some(
-                                                    (inputTrigger) => inputTrigger.node.id == logicCell.id
-                                                ) &&
-                                                !isConnected
-                                            ) {
-                                                return null;
-                                            }
+                                                if (
+                                                    lc.inputTriggers.some(
+                                                        (inputTrigger) => inputTrigger.node.id == logicCell.id
+                                                    ) &&
+                                                    !isConnected
+                                                ) {
+                                                    return null;
+                                                }
 
-                                            return (
-                                                <option
-                                                    value={`${logicCell.id}/${outputIdx}/${lc.id}`}
-                                                    selected={isConnected}
-                                                    key={`trigger/${outputIdx}/${cellIdx}`}
-                                                >
-                                                    {lc.kind?.name?.value}
-                                                </option>
-                                            );
-                                        })}
+                                                return (
+                                                    <option
+                                                        value={`${logicCell.id}/${outputIdx}/${lc.id}`}
+                                                        selected={isConnected}
+                                                        key={`trigger/${outputIdx}/${cellIdx}`}
+                                                    >
+                                                        {getBuildingName(lc)}
+                                                    </option>
+                                                );
+                                            })}
                                     </select>
                                 </div>
                             )

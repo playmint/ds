@@ -1,4 +1,4 @@
-import { BuildingCategory, getBuildingCategory, getLogicCellKind } from '@app/helpers/building';
+import { BuildingCategory, getBuildingCategory, getBuildingName, getLogicCellKind } from '@app/helpers/building';
 import { GOO_BLUE, GOO_GREEN, GOO_RED, getTileHeightFromCoords, getUnscaledNoiseFromCoords } from '@app/helpers/tile';
 import { BuildingKindFragment, WorldBuildingFragment, WorldTileFragment, getCoords } from '@downstream/core';
 import { memo, useMemo } from 'react';
@@ -108,7 +108,7 @@ export const Buildings = memo(
                                 selected={selected}
                                 onPointerClick={onClickBuilding}
                                 sendScreenPosition={true}
-                                label={b.kind?.name?.value}
+                                label={getBuildingName(b)}
                                 {...coords}
                             />
                         );
