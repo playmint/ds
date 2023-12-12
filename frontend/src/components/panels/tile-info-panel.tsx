@@ -2,6 +2,7 @@ import {
     BagFragment,
     BiomeKind,
     BuildingKindFragment,
+    CogAction,
     ConnectedPlayer,
     PluginType,
     PluginUpdateResponse,
@@ -28,7 +29,7 @@ import { TileInventory } from '@app/plugins/inventory/tile-inventory';
 import { MobileUnitList } from '@app/plugins/mobile-unit-list';
 import { getBagsAtEquipee, getBuildingAtTile, getMobileUnitsAtTile } from '@downstream/core/src/utils';
 import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
-import { FunctionComponent, useCallback, useEffect, useRef } from 'react';
+import { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { colors } from '@app/styles/colors';
 import { getMaterialStats } from '@app/plugins/combat/helpers';
@@ -402,8 +403,21 @@ export interface LogicCellPanelProps {
     world?: World;
 }
 
+export interface GooPipeConnection {
+    fromLogicCell: string;
+    outputIdx: number;
+    toLogicCell: string;
+    inputIdx: number;
+}
+
 export const LogicCellPanel = ({ logicCell, world }: LogicCellPanelProps) => {
     const { tiles } = useGameState();
+    const [gooConnections, setGooConnections] = useState<Record<string, GooPipeConnection>>({});
+    const player = usePlayer();
+
+    if (!player) {
+        return null;
+    }
 
     if (!world) {
         return null;
@@ -448,33 +462,90 @@ export const LogicCellPanel = ({ logicCell, world }: LogicCellPanelProps) => {
         );
     }
 
+    const handleGooOutputChange = (evt) => {
+        evt.preventDefault();
+        const [fromLogicCell, outputIdx, toLogicCell, inputIdx] = evt.target.value.split('/');
+        const newConnections = { ...gooConnections };
+        newConnections[`${fromLogicCell}/${outputIdx}`] = { fromLogicCell, outputIdx, toLogicCell, inputIdx };
+
+        setGooConnections(newConnections);
+    };
+
+    const handleSubmit = (evt) => {
+        evt.preventDefault();
+
+        // function CONNECT_GOO_PIPE(bytes24 from, bytes24 to, uint8 outIndex, uint8 inIndex) external;
+        const actions = Object.keys(gooConnections).map((key) => {
+            const { fromLogicCell, outputIdx, toLogicCell, inputIdx } = gooConnections[key];
+
+            return {
+                name: 'CONNECT_GOO_PIPE',
+                args: [fromLogicCell, toLogicCell, outputIdx, inputIdx],
+            } as CogAction;
+        });
+
+        player
+            .dispatch(...actions)
+            .then(() => setGooConnections({}))
+            .catch((err) => {
+                console.error('Goo pipe connection failed', err);
+            });
+    };
+
     return (
         <>
             {getCellOutputCount(getLogicCellKind(logicCell.kind)) > 0 && (
                 <>
                     <h3>Goo Outputs</h3>
-                    {Array.from({ length: getCellOutputCount(getLogicCellKind(logicCell.kind)) }).map(
-                        (_, outputIdx) => (
-                            <div key={`output/${outputIdx}`}>
-                                <label>Output {outputIdx + 1} </label>
-                                <select>
-                                    <option>Disconnected</option>
-                                    {neighbourLogicCells.map((lc, cellIdx) =>
-                                        Array.from({ length: getCellInputCount(getLogicCellKind(lc.kind)) }).map(
-                                            (_, inputIdx) => (
-                                                <option
-                                                    selected={isGooPipeConnected(logicCell, lc, outputIdx, inputIdx)}
-                                                    key={`${cellIdx}/${inputIdx}`}
-                                                >
-                                                    {lc.kind?.name?.value} : {inputIdx + 1}
-                                                </option>
+                    <form onSubmit={handleSubmit}>
+                        {Array.from({ length: getCellOutputCount(getLogicCellKind(logicCell.kind)) }).map(
+                            (_, outputIdx) => (
+                                <div key={`output/${outputIdx}`}>
+                                    <label>Output {outputIdx + 1} </label>
+                                    <select id={`output/${outputIdx}`} onChange={handleGooOutputChange}>
+                                        <option
+                                            value={`${logicCell.id}/${outputIdx}/0x000000000000000000000000000000000000000000000000/0`}
+                                        >
+                                            Disconnected
+                                        </option>
+                                        {neighbourLogicCells.map((lc, cellIdx) =>
+                                            Array.from({ length: getCellInputCount(getLogicCellKind(lc.kind)) }).map(
+                                                (_, inputIdx) => {
+                                                    // don't show the option if the input is connected to another cell
+                                                    const isConnected = isGooPipeConnected(
+                                                        logicCell,
+                                                        lc,
+                                                        outputIdx,
+                                                        inputIdx
+                                                    );
+
+                                                    if (
+                                                        lc.inputGooPipes.some(
+                                                            (inputGooPipe) => inputGooPipe.inputIndex == inputIdx
+                                                        ) &&
+                                                        !isConnected
+                                                    ) {
+                                                        return null;
+                                                    }
+
+                                                    return (
+                                                        <option
+                                                            selected={isConnected}
+                                                            key={`${cellIdx}/${inputIdx}`}
+                                                            value={`${logicCell.id}/${outputIdx}/${lc.id}/${inputIdx}`}
+                                                        >
+                                                            {lc.kind?.name?.value} : {inputIdx + 1}
+                                                        </option>
+                                                    );
+                                                }
                                             )
-                                        )
-                                    )}
-                                </select>
-                            </div>
-                        )
-                    )}
+                                        )}
+                                    </select>
+                                </div>
+                            )
+                        )}
+                        <input type="submit" value="Apply" />
+                    </form>
                 </>
             )}
 
