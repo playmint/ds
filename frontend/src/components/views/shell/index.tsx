@@ -315,6 +315,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         buildings={world?.buildings || []}
                         onClickBuilding={mapElementClick}
                         selectedElementID={selectedMapElement?.id}
+                        world={world}
                     />
                     <CombatSessions tiles={tiles || []} sessions={world?.sessions || []} />
                     {critterAttacks.map((c) => {
@@ -373,7 +374,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         const bag = getBagsAtEquipee(world?.bags || [], critter).find((b) => b.equipee?.key === 100);
                         const size = (bag?.slots || []).find((slot) => slot.key === 1)?.balance || 0;
                         const radius = size / 10.0;
-                        // const health = (bag?.slots || []).find((slot) => slot.key === 0)?.balance || 0;
+                        const health = (bag?.slots || []).find((slot) => slot.key === 0)?.balance || 0;
                         // console.log(critter.id, `health=${health}`);
                         return (
                             <Critter
@@ -381,6 +382,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                                 height={height}
                                 radius={radius}
                                 rotation={(prevTile ? getTileDirection(prevTile, tile) : 0) - 8}
+                                health={health}
                                 {...coords}
                             />
                         );

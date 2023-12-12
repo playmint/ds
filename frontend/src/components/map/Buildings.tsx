@@ -1,11 +1,18 @@
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
 import { GOO_BLUE, GOO_GREEN, GOO_RED, getTileHeightFromCoords, getUnscaledNoiseFromCoords } from '@app/helpers/tile';
-import { BuildingKindFragment, WorldBuildingFragment, WorldTileFragment, getCoords } from '@downstream/core';
+import {
+    BuildingKindFragment,
+    WorldBuildingFragment,
+    WorldStateFragment,
+    WorldTileFragment,
+    getCoords,
+} from '@downstream/core';
 import { memo, useMemo } from 'react';
 import { BlockerBuilding } from './BlockerBuilding';
 import { ExtractorBuilding } from './ExtractorBuilding';
 import { FactoryBuilding } from './FactoryBuilding';
 import { GeneratorBuilding } from './GeneratorBuilding';
+import { getBagsAtEquipee } from '@downstream/core/src/utils';
 
 function getColorFromGoo(kind) {
     const outputName = kind?.outputs?.find((e) => ['Green Goo', 'Blue Goo', 'Red Goo'].includes(e.item.name?.value))
@@ -46,11 +53,13 @@ export const Buildings = memo(
         tiles,
         buildings,
         selectedElementID,
+        world,
         onClickBuilding,
     }: {
         tiles: WorldTileFragment[];
         buildings: WorldBuildingFragment[];
         selectedElementID?: string;
+        world?: WorldStateFragment;
         onClickBuilding: (id: string) => void;
     }) => {
         const buildingComponents = useMemo(
@@ -67,6 +76,11 @@ export const Buildings = memo(
                     const selected = selectedElementID === b.id ? 'outline' : 'none';
                     const rotation = lerp(-20, 20, 0.5 - getUnscaledNoiseFromCoords(coords));
                     const tile = tiles.find(({ id }) => id === b.location?.tile.id);
+
+                    const bag = getBagsAtEquipee(world?.bags || [], b).find((b) => b.equipee?.key === 100);
+                    const health = (bag?.slots || []).find((slot) => slot.key === 0)?.balance || 0;
+                    console.log(b.id, `health=${health}`);
+
                     if (getBuildingCategory(b.kind) == BuildingCategory.EXTRACTOR) {
                         return (
                             <ExtractorBuilding
@@ -106,6 +120,7 @@ export const Buildings = memo(
                                 rotation={-30}
                                 selected={selected}
                                 onPointerClick={onClickBuilding}
+                                health={health}
                                 {...coords}
                             />
                         );

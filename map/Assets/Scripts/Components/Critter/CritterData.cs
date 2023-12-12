@@ -7,4 +7,5 @@ public class CritterData : BaseComponentData
     public float radius;
     public bool visible;
     public float rotation; // 0 - 360
+    public float health;
 }

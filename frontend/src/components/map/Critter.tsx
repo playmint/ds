@@ -1,5 +1,6 @@
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
 import { memo, useCallback, useMemo, useState } from 'react';
+import HealthBar from './HealthBar';
 
 export interface CritterData {
     q: number;
@@ -11,6 +12,7 @@ export interface CritterData {
     rotation: number;
     sendScreenPosition?: boolean;
     screenPositionHeightOffset?: number;
+    health: number;
     onUpdatePosition?: (id: string, x: number, y: number, z: number, isVisible: boolean) => void;
 }
 
@@ -24,8 +26,8 @@ export const Critter = memo(
         radius,
         rotation,
         visible,
-        sendScreenPosition,
         screenPositionHeightOffset,
+        health,
         onPointerClick,
         onUpdatePosition,
     }: UnityComponentProps & CritterData) => {
@@ -72,32 +74,21 @@ export const Critter = memo(
                     height: typeof height != 'undefined' ? height : 0.6,
                     rotation,
                     radius,
-                    sendScreenPosition: !!sendScreenPosition,
+                    sendScreenPosition: true,
                     screenPositionHeightOffset: screenPositionHeightOffset || 0,
                     visible: typeof visible != 'undefined' ? visible : true,
                     position: { x, y, z },
                     isVisible,
+                    health,
                 }),
-                [
-                    q,
-                    r,
-                    s,
-                    height,
-                    radius,
-                    rotation,
-                    visible,
-                    sendScreenPosition,
-                    screenPositionHeightOffset,
-                    x,
-                    y,
-                    z,
-                    isVisible,
-                ]
+                [q, r, s, height, radius, rotation, visible, screenPositionHeightOffset, x, y, z, isVisible, health]
             ),
             onPointerClick,
             onPositionUpdate,
         });
 
-        return null;
+        //const combinedPosition = { x, y, z, isVisible };
+
+        return null;// <HealthBar position={combinedPosition} health={health} />;
     }
 );

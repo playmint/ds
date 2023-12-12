@@ -10,6 +10,10 @@ public class CritterController : BaseComponentController<CritterData>
     protected Renderer[] renderers;
 
     [SerializeField]
+    private ParticleSystem swarmParticles,
+        damageParticles;
+
+    [SerializeField]
     private AnimationCurve _moveCurve,
         _jumpCurve,
         _visibilityCurve;
@@ -20,6 +24,8 @@ public class CritterController : BaseComponentController<CritterData>
 
     private Coroutine? _runningMovementCR;
     private Coroutine? _runningVisibilityCR;
+
+    private float prevHealth = 100;
 
     protected void Start()
     {
@@ -37,6 +43,15 @@ public class CritterController : BaseComponentController<CritterData>
         {
             return;
         }
+
+        if (prevHealth != _nextData.health)
+        {
+            damageParticles.Play();
+            prevHealth = _nextData.health;
+        }
+
+        var emission = swarmParticles.emission;
+        emission.rateOverTime = 40 * (_nextData.health / 100);
 
         transform.localScale = new Vector3(_nextData.radius, _nextData.radius, _nextData.radius);
         transform.GetChild(0).localEulerAngles = new Vector3(0, _nextData.rotation, 0);

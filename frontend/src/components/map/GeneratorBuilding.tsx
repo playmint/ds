@@ -1,5 +1,6 @@
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
 import { memo, useCallback, useMemo, useState } from 'react';
+import HealthBar from './HealthBar';
 
 interface ScreenSpacePosition {
     id: string;
@@ -33,6 +34,7 @@ export interface GeneratorBuildingProps {
     color?: string;
     selected?: '' | 'none' | 'highlight' | 'outline';
     powered?: boolean;
+    health: number;
 }
 
 export const GeneratorBuilding = memo(
@@ -47,6 +49,7 @@ export const GeneratorBuilding = memo(
         label,
         rotation,
         powered,
+        health,
         onPointerEnter,
         onPointerExit,
         onPointerClick,
@@ -89,23 +92,26 @@ export const GeneratorBuilding = memo(
         });
 
         return (
-            <label
-                style={{
-                    display: label && position?.isVisible ? 'block' : 'none',
-                    background: 'black',
-                    border: '2px solid white',
-                    borderRadius: '16px',
-                    color: 'white',
-                    fontWeight: 800,
-                    padding: '0 1rem',
-                    position: 'fixed',
-                    left: `calc(${(position?.x || 0) * 100}vw - 4rem)`,
-                    bottom: `${(position?.y || 0) * 100}vh`,
-                    zIndex: 2,
-                }}
-            >
-                {label}
-            </label>
+            <>
+                <label
+                    style={{
+                        display: label && position?.isVisible ? 'block' : 'none',
+                        background: 'black',
+                        border: '2px solid white',
+                        borderRadius: '16px',
+                        color: 'white',
+                        fontWeight: 800,
+                        padding: '0 1rem',
+                        position: 'fixed',
+                        left: `calc(${(position?.x || 0) * 100}vw - 4rem)`,
+                        bottom: `${(position?.y || 0) * 100}vh`,
+                        zIndex: 2,
+                    }}
+                >
+                    {label}
+                </label>
+                <HealthBar position={position} health={health} />
+            </>
         );
     }
 );
