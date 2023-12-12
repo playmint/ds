@@ -41,14 +41,6 @@ export default async function update(state) {
                         id: "default",
                         type: "inline",
                         html: "<p>Add</p>",
-                        buttons: [
-                            {
-                                text: "Craft",
-                                type: "action",
-                                action: craft,
-                                disabled: !canCraft,
-                            },
-                        ],
                     },
                 ],
             },

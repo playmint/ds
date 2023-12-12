@@ -18,7 +18,7 @@ export function getFullSlotID(slot: TransferSlot): string {
 export function getItemDetails(itemSlot: ItemSlotFragment) {
     const itemId = itemSlot.item.id;
     const name = itemSlot.item.name?.value || '';
-    const icon = iconURL(itemSlot.item.icon?.value);
+    const icon = itemSlot.item.icon ? iconURL(itemSlot.item.icon.value) : iconURL(getUnknownItemIcon(itemSlot.item));
     const quantity = itemSlot.balance;
 
     return {
@@ -28,6 +28,40 @@ export function getItemDetails(itemSlot: ItemSlotFragment) {
         quantity,
     };
 }
+
+const ITEM_ICONS = [
+    'xx-01',
+    '31-19',
+    '32-69',
+    '32-23',
+    '31-92',
+    '31-5',
+    '31-270',
+    '18-161',
+    '31-16',
+    '30-82',
+    '11-248',
+    '21-206',
+    '17-111',
+    '30-182',
+    '19-35',
+    '30-115',
+    '18-82',
+    '28-111',
+    '28-101',
+    '26-66',
+    '19-178',
+    '26-189',
+    '17-72',
+    '24-209',
+    '24-129',
+    '22-204',
+    '22-170',
+    '22-136',
+    '22-115',
+    '14-183',
+    '09-213',
+];
 
 export function getBuildingId(q: number, r: number, s: number) {
     return CompoundKeyEncoder.encodeInt16(NodeSelectors.Building, 0, q, r, s);
@@ -43,4 +77,14 @@ export function getBuildingBag(world: WorldStateFragment | undefined, buildingId
     const building = world?.buildings?.find((b) => b.id === buildingId);
     const bags = building ? getBagsAtEquipee(world?.bags || [], building) : [];
     return bags.find((b) => b.key == equipIndex);
+}
+function getUnknownItemIcon(item: {
+    __typename?: 'Node' | undefined;
+    id: string;
+    name?: { __typename?: 'Annotation' | undefined; id: string; value: string } | null | undefined;
+    icon?: { __typename?: 'Annotation' | undefined; id: string; value: string } | null | undefined;
+}): string | undefined {
+    const keccak256Hash = ethers.keccak256(AbiCoder.defaultAbiCoder().encode(['bytes24'], [item.id]));
+    const iconIndex = BigInt(keccak256Hash) % BigInt(ITEM_ICONS.length);
+    return ITEM_ICONS[Number(iconIndex)];
 }

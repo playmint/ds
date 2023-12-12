@@ -51,7 +51,7 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
 
     const tooltip = isInvalid
         ? `Slot contains invalid ${name} item\n\nRemove item from slot to continue`
-        : `${quantity} ${name}\n\nGreen Goo: ${greenGoo}\nBlue Goo: ${blueGoo}\nRed Goo: ${redGoo}`;
+        : `${quantity} ${name ? name : 'Unknown'}\n\nGreen Goo: ${greenGoo}\nBlue Goo: ${blueGoo}\nRed Goo: ${redGoo}`;
 
     return (
         <Tooltip content={tooltip} direction="top" delay={0}>
