@@ -34,7 +34,7 @@ public class TileGooController : BaseComponentController<TileGooData>
             Destroy(_gooInstance);
         }
 
-        // disabled 
+        // disabled
         /*
 
 
