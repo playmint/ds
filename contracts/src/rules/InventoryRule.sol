@@ -45,7 +45,8 @@ contract InventoryRule is Rule {
         uint64 qty
     ) private {
         // check that mobileUnit performing action is owned by player
-        _requirePlayerOwnedMobileUnit(state, mobileUnit, player);
+        // removed to allow items to be taken out of bags by other players
+        // _requirePlayerOwnedMobileUnit(state, mobileUnit, player);
 
         // get acting mobileUnit location
         bytes24 location = state.getCurrentLocation(mobileUnit, atTime);
@@ -72,7 +73,8 @@ contract InventoryRule is Rule {
         }
 
         // check that the source bag is either owned by the player or nobody
-        _requireCanUseBag(state, bags[0], player);
+        // removed to allow items to be taken out of bags by other players
+        // _requireCanUseBag(state, bags[0], player);
 
         // perform transfer between item slots
         _transferBalance(state, bags[0], itemSlot[0], bags[1], itemSlot[1], qty);
