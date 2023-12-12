@@ -410,9 +410,16 @@ export interface GooPipeConnection {
     inputIdx: number;
 }
 
+export interface TriggerConnection {
+    fromLogicCell: string;
+    outputIdx: number;
+    toLogicCell: string;
+}
+
 export const LogicCellPanel = ({ logicCell, world }: LogicCellPanelProps) => {
     const { tiles } = useGameState();
     const [gooConnections, setGooConnections] = useState<Record<string, GooPipeConnection>>({});
+    const [triggerConnections, setTriggerConnections] = useState<Record<string, TriggerConnection>>({});
     const player = usePlayer();
 
     if (!player) {
@@ -440,7 +447,7 @@ export const LogicCellPanel = ({ logicCell, world }: LogicCellPanelProps) => {
             b.location &&
             logicCell.location &&
             getLogicCellKind(b.kind) > 0 &&
-            getTileDistance(logicCell.location.tile, b.location.tile) == 1
+            getTileDistance(logicCell.location.tile, b.location.tile) < 6
     );
 
     function isTriggerConnected(
@@ -471,7 +478,18 @@ export const LogicCellPanel = ({ logicCell, world }: LogicCellPanelProps) => {
         setGooConnections(newConnections);
     };
 
-    const handleSubmit = (evt) => {
+    const handleTriggerOutputChange = (evt) => {
+        evt.preventDefault();
+        const [fromLogicCell, outputIdx, toLogicCell] = evt.target.value.split('/');
+        const newConnections = { ...triggerConnections };
+        newConnections[`${fromLogicCell}/${outputIdx}`] = { fromLogicCell, outputIdx, toLogicCell };
+
+        console.log(`newConnections:`, newConnections);
+
+        setTriggerConnections(newConnections);
+    };
+
+    const handleGooConnectionSubmit = (evt) => {
         evt.preventDefault();
 
         // function CONNECT_GOO_PIPE(bytes24 from, bytes24 to, uint8 outIndex, uint8 inIndex) external;
@@ -492,12 +510,33 @@ export const LogicCellPanel = ({ logicCell, world }: LogicCellPanelProps) => {
             });
     };
 
+    const handleTriggerConnectionSubmit = (evt) => {
+        evt.preventDefault();
+
+        // function CONNECT_TRIGGER(bytes24 from, bytes24 to, uint8 triggerIndex) external;
+        const actions = Object.keys(triggerConnections).map((key) => {
+            const { fromLogicCell, outputIdx, toLogicCell } = triggerConnections[key];
+
+            return {
+                name: 'CONNECT_TRIGGER',
+                args: [fromLogicCell, toLogicCell, outputIdx],
+            } as CogAction;
+        });
+
+        player
+            .dispatch(...actions)
+            .then(() => setGooConnections({}))
+            .catch((err) => {
+                console.error('Trigger connection failed', err);
+            });
+    };
+
     return (
         <>
             {getCellOutputCount(getLogicCellKind(logicCell.kind)) > 0 && (
                 <>
                     <h3>Goo Outputs</h3>
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleGooConnectionSubmit}>
                         {Array.from({ length: getCellOutputCount(getLogicCellKind(logicCell.kind)) }).map(
                             (_, outputIdx) => (
                                 <div key={`output/${outputIdx}`}>
@@ -552,24 +591,46 @@ export const LogicCellPanel = ({ logicCell, world }: LogicCellPanelProps) => {
             {getCellTriggerCount(getLogicCellKind(logicCell.kind)) > 0 && (
                 <>
                     <h3>Trigger Outputs</h3>
-                    {Array.from({ length: getCellTriggerCount(getLogicCellKind(logicCell.kind)) }).map(
-                        (_, outputIdx) => (
-                            <div key={`trigger/${outputIdx}`}>
-                                <label>Trigger {outputIdx + 1} </label>
-                                <select>
-                                    <option>Disconnected</option>
-                                    {neighbourLogicCells.map((lc, cellIdx) => (
+                    <form onSubmit={handleTriggerConnectionSubmit}>
+                        {Array.from({ length: getCellTriggerCount(getLogicCellKind(logicCell.kind)) }).map(
+                            (_, outputIdx) => (
+                                <div key={`trigger/${outputIdx}`}>
+                                    <label>Trigger {outputIdx + 1} </label>
+                                    <select onChange={handleTriggerOutputChange}>
                                         <option
-                                            selected={isTriggerConnected(logicCell, lc, outputIdx)}
-                                            key={`trigger/${outputIdx}/${cellIdx}`}
+                                            value={`${logicCell.id}/${outputIdx}/0x000000000000000000000000000000000000000000000000`}
                                         >
-                                            {lc.kind?.name?.value}
+                                            Disconnected
                                         </option>
-                                    ))}
-                                </select>
-                            </div>
-                        )
-                    )}
+                                        {neighbourLogicCells.map((lc, cellIdx) => {
+                                            // don't show the option if the input is connected to another cell
+                                            const isConnected = isTriggerConnected(logicCell, lc, outputIdx);
+
+                                            if (
+                                                lc.inputTriggers.some(
+                                                    (inputTrigger) => inputTrigger.node.id == logicCell.id
+                                                ) &&
+                                                !isConnected
+                                            ) {
+                                                return null;
+                                            }
+
+                                            return (
+                                                <option
+                                                    value={`${logicCell.id}/${outputIdx}/${lc.id}`}
+                                                    selected={isConnected}
+                                                    key={`trigger/${outputIdx}/${cellIdx}`}
+                                                >
+                                                    {lc.kind?.name?.value}
+                                                </option>
+                                            );
+                                        })}
+                                    </select>
+                                </div>
+                            )
+                        )}
+                        <input type="submit" value="Apply" />
+                    </form>
                 </>
             )}
         </>
