@@ -1,0 +1,20 @@
+---
+kind: BuildingKind
+spec:
+  category: custom
+  logicCellKind: refine
+  name: refine
+  description: solidify
+  model: 05-01
+  color: 5
+  contract:
+    file: ./refine.sol
+  plugin:
+    file: ./refine.js
+  materials:
+    - name: Red Goo
+      quantity: 10
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
