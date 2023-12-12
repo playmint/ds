@@ -10,6 +10,10 @@ interface ScreenSpacePosition {
     isVisible: boolean;
 }
 
+export interface LabelProps {
+    label?: string;
+}
+
 export interface LogicCellBuildingData {
     q: number;
     r: number;
@@ -30,13 +34,14 @@ export const LogicCellBuilding = memo(
         s,
         height,
         model,
+        label,
         selected,
         rotation,
         sendScreenPosition,
         onPointerEnter,
         onPointerExit,
         onPointerClick,
-    }: UnityComponentProps & LogicCellBuildingData) => {
+    }: UnityComponentProps & LogicCellBuildingData & LabelProps) => {
         const [hovered, setHovered] = useState(false);
         const [position, setPosition] = useState<ScreenSpacePosition>();
 
@@ -86,12 +91,13 @@ export const LogicCellBuilding = memo(
                     fontWeight: 800,
                     padding: '0 1rem',
                     position: 'fixed',
-                    left: `calc(${(position?.x || 0) * 100}vw - 4rem)`,
+                    left: `calc(${(position?.x || 0) * 100}vw)`,
+                    transform: `translateX(-50%)`,
                     bottom: `${(position?.y || 0) * 100}vh`,
                     zIndex: 2,
                 }}
             >
-                {'label'}
+                {label}
             </label>
         );
     }

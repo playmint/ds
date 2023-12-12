@@ -5,7 +5,7 @@ import { memo, useMemo } from 'react';
 import { BlockerBuilding } from './BlockerBuilding';
 import { ExtractorBuilding } from './ExtractorBuilding';
 import { FactoryBuilding } from './FactoryBuilding';
-import { LogicCellBuilding } from './LogicCEll';
+import { LogicCellBuilding } from './LogicCell';
 
 function getColorFromGoo(kind) {
     const outputName = kind?.outputs?.find((e) => ['Green Goo', 'Blue Goo', 'Red Goo'].includes(e.item.name?.value))
@@ -108,6 +108,7 @@ export const Buildings = memo(
                                 selected={selected}
                                 onPointerClick={onClickBuilding}
                                 sendScreenPosition={true}
+                                label={b.kind?.name?.value}
                                 {...coords}
                             />
                         );
