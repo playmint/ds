@@ -36,6 +36,7 @@ import { styles } from './shell.styles';
 import { QuestPanel } from '@app/components/panels/quest-panel';
 import { getBagsAtEquipee, getBuildingAtTile, getSessionsAtTile } from '@downstream/core/src/utils';
 import { StyledBasePanel, StyledHeaderPanel } from '@app/styles/base-panel.styles';
+import { Connections } from '@app/components/map/Connections';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -296,6 +297,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         selectedElementID={selectedMapElement?.id}
                     />
                     <CombatSessions tiles={tiles || []} sessions={world?.sessions || []} />
+                    <Connections tiles={tiles || []} buildings={world?.buildings || []} />
                 </>
             )}
             <div className="hud-container">

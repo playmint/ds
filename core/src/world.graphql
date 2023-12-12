@@ -98,6 +98,28 @@ fragment WorldBuilding on Node {
     location: edge(match: { kinds: "Tile", via: { rel: "Location", key: 2 } }) {
         ...Location
     }
+    triggers: edges(match: { via: { rel: "LogicCellTrigger" } }) {
+        key
+        node {
+            id
+            location: edge(match: { kinds: "Tile", via: { rel: "Location", key: 2 } }) {
+                ...Location
+            }
+        }
+    }
+    gooPipes: edges(match: { via: { rel: "GooPipe" } }) {
+        key
+        inputIndex: weight
+        node {
+            id
+            location: edge(match: { kinds: "Tile", via: { rel: "Location", key: 2 } }) {
+                ...Location
+            }
+        }
+    }
+    inputCount: edge(match: { via: { rel: "Balance" } }) {
+        value: weight
+    }
 }
 
 fragment WorldCombatSession on Node {
