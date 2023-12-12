@@ -70,7 +70,9 @@ contract InventoryRuleTest is Test, GameTest {
         vm.stopPrank();
     }
 
-    function testTransferItemFailNotOwner() public {
+    // disabled this test to enable taking items from other player's inventory
+    // function testTransferItemFailNotOwner() public {
+    function TransferItemFailNotOwner() public {
         vm.startPrank(players[0].addr);
         bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
         vm.stopPrank();
@@ -116,7 +118,9 @@ contract InventoryRuleTest is Test, GameTest {
         vm.stopPrank();
     }
 
-    function testTransferItemFailNotYourBag() public {
+    // Removed this test to enable hack to let players steal other player's items from their inventory
+    // function testTransferItemFailNotYourBag() public {
+    function TransferItemFailNotYourBag() public {
         vm.startPrank(players[1].addr);
         bytes24 mobileUnitStranger = _spawnMobileUnit(2, 0, 0, 0);
         vm.stopPrank();
