@@ -240,7 +240,9 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
                         )}
                     </PluginContent>
                 )}
-                {getLogicCellKind(building.kind) > 0 && <LogicCellPanel logicCell={building} world={world} />}
+                {getLogicCellKind(building.kind) > 0 && (
+                    <LogicCellPanel key={building.id} logicCell={building} world={world} />
+                )}
                 {selectedTile && <TileInventory tile={selectedTile} bags={world?.bags || []} />}
                 <span className="label" style={{ width: '100%', marginTop: '2rem' }}>
                     <strong>COORDINATES:</strong> {`${q}, ${r}, ${s}`}
@@ -427,6 +429,25 @@ export const LogicCellPanel = ({ logicCell, world }: LogicCellPanelProps) => {
             getTileDistance(logicCell.location.tile, b.location.tile) == 1
     );
 
+    function isTriggerConnected(
+        logicCellFrom: WorldBuildingFragment,
+        logicCellTo: WorldBuildingFragment,
+        outputIdx: number
+    ): boolean {
+        return !!logicCellFrom.outputTriggers.find((t) => t.key == outputIdx && t.node.id == logicCellTo.id);
+    }
+
+    function isGooPipeConnected(
+        logicCellFrom: WorldBuildingFragment,
+        logicCellTo: WorldBuildingFragment,
+        outputIdx: number,
+        inputIdx: number
+    ): boolean {
+        return !!logicCellFrom.outputGooPipes.find(
+            (gp) => gp.key == outputIdx && gp.node.id == logicCellTo.id && gp.inputIndex == inputIdx
+        );
+    }
+
     return (
         <>
             {getCellOutputCount(getLogicCellKind(logicCell.kind)) > 0 && (
@@ -441,7 +462,10 @@ export const LogicCellPanel = ({ logicCell, world }: LogicCellPanelProps) => {
                                     {neighbourLogicCells.map((lc, cellIdx) =>
                                         Array.from({ length: getCellInputCount(getLogicCellKind(lc.kind)) }).map(
                                             (_, inputIdx) => (
-                                                <option key={`${cellIdx}/${inputIdx}`}>
+                                                <option
+                                                    selected={isGooPipeConnected(logicCell, lc, outputIdx, inputIdx)}
+                                                    key={`${cellIdx}/${inputIdx}`}
+                                                >
                                                     {lc.kind?.name?.value} : {inputIdx + 1}
                                                 </option>
                                             )
@@ -464,7 +488,12 @@ export const LogicCellPanel = ({ logicCell, world }: LogicCellPanelProps) => {
                                 <select>
                                     <option>Disconnected</option>
                                     {neighbourLogicCells.map((lc, cellIdx) => (
-                                        <option key={`trigger/${outputIdx}/${cellIdx}`}>{lc.kind?.name?.value}</option>
+                                        <option
+                                            selected={isTriggerConnected(logicCell, lc, outputIdx)}
+                                            key={`trigger/${outputIdx}/${cellIdx}`}
+                                        >
+                                            {lc.kind?.name?.value}
+                                        </option>
                                     ))}
                                 </select>
                             </div>
