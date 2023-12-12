@@ -1,10 +1,11 @@
-import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
+import { BuildingCategory, getBuildingCategory, getLogicCellKind } from '@app/helpers/building';
 import { GOO_BLUE, GOO_GREEN, GOO_RED, getTileHeightFromCoords, getUnscaledNoiseFromCoords } from '@app/helpers/tile';
 import { BuildingKindFragment, WorldBuildingFragment, WorldTileFragment, getCoords } from '@downstream/core';
 import { memo, useMemo } from 'react';
 import { BlockerBuilding } from './BlockerBuilding';
 import { ExtractorBuilding } from './ExtractorBuilding';
 import { FactoryBuilding } from './FactoryBuilding';
+import { LogicCellBuilding } from './LogicCEll';
 
 function getColorFromGoo(kind) {
     const outputName = kind?.outputs?.find((e) => ['Green Goo', 'Blue Goo', 'Red Goo'].includes(e.item.name?.value))
@@ -93,6 +94,20 @@ export const Buildings = memo(
                                 rotation={rotation}
                                 selected={selected}
                                 onPointerClick={onClickBuilding}
+                                {...coords}
+                            />
+                        );
+                    } else if (getLogicCellKind(b.kind) > 0) {
+                        return (
+                            <LogicCellBuilding
+                                key={b.id}
+                                id={b.id}
+                                height={height}
+                                model={b.kind?.model?.value}
+                                rotation={-30}
+                                selected={selected}
+                                onPointerClick={onClickBuilding}
+                                sendScreenPosition={true}
                                 {...coords}
                             />
                         );

@@ -23,6 +23,14 @@ export function getBuildingCategory(kind?: BuildingKindFragment | null) {
             return BuildingCategory.NONE;
     }
 }
+export function getLogicCellKind(kind?: BuildingKindFragment | null) {
+    if (!kind) {
+        return 0;
+    }
+
+    const logicCellKind = parseInt('0x' + kind.id.slice(-16, -8));
+    return logicCellKind;
+}
 export function isExtractor(kind: BuildingKindFragment) {
     return getBuildingCategory(kind) == BuildingCategory.EXTRACTOR;
 }
