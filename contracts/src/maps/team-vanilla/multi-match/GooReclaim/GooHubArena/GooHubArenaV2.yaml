@@ -2,49 +2,55 @@
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 20, -1, -19 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 21, -2, -19 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 22, -3, -19 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 22, -4, -18 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 22, -5, -17 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 22, -6, -16 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 21, -6, -15 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
   biome: DISCOVERED
+  location: [ 20, -6, -14 ]
+
+---
+kind: Building
+spec:
+  name: Medium Blocker
   location: [ 20, -6, -14 ]
 
 ---
@@ -54,27 +60,15 @@ spec:
   location: [ 19, -6, -13 ]
 
 ---
-kind: Building
-spec:
-  name: zMediumBuilding
-  location: [ 19, -6, -13 ]
-
----
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 18, -6, -12 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
   biome: DISCOVERED
-  location: [ 18, -7, -11 ]
-
----
-kind: Building
-spec:
-  name: zWeakBuilding
   location: [ 18, -7, -11 ]
 
 ---
@@ -84,16 +78,22 @@ spec:
   location: [ 18, -8, -10 ]
 
 ---
-kind: Tile
+kind: Building
 spec:
-  biome: DISCOVERED
-  location: [ 17, -8, -9 ]
+  name: Weak Blocker
+  location: [ 18, -8, -10 ]
 
 ---
 kind: Tile
 spec:
+  location: [ 17, -8, -9 ]
   biome: DISCOVERED
+
+---
+kind: Tile
+spec:
   location: [ 18, -9, -9 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -110,8 +110,8 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 18, -10, -8 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -120,21 +120,21 @@ spec:
   location: [ 19, -10, -9 ]
 
 ---
-kind: Tile
-spec:
-  biome: DISCOVERED
-  location: [ 19, -11, -8 ]
-
----
-kind: Tile
-spec:
-  biome: DISCOVERED
-  location: [ 20, -11, -9 ]
-
----
 kind: Building
 spec:
-  name: zWeakBuilding
+  name: Weak Blocker
+  location: [ 19, -10, -9 ]
+
+---
+kind: Tile
+spec:
+  location: [ 19, -11, -8 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
   location: [ 20, -11, -9 ]
 
 ---
@@ -144,75 +144,69 @@ spec:
   location: [ 20, -12, -8 ]
 
 ---
-kind: Tile
-spec:
-  biome: DISCOVERED
-  location: [ 21, -13, -8 ]
-
----
 kind: Building
 spec:
-  name: zWeakBuilding
-  location: [ 21, -13, -8 ]
+  name: Weak Blocker
+  location: [ 20, -12, -8 ]
 
 ---
 kind: Tile
 spec:
   biome: DISCOVERED
+  location: [ 21, -13, -8 ]
+
+---
+kind: Tile
+spec:
   location: [ 22, -13, -9 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 23, -13, -10 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 24, -13, -11 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 25, -13, -12 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 26, -13, -13 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 27, -13, -14 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 28, -13, -15 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 28, -12, -16 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
   biome: DISCOVERED
-  location: [ 28, -11, -17 ]
-
----
-kind: Building
-spec:
-  name: zWeakBuilding
   location: [ 28, -11, -17 ]
 
 ---
@@ -222,22 +216,22 @@ spec:
   location: [ 28, -10, -18 ]
 
 ---
-kind: Tile
-spec:
-  biome: DISCOVERED
-  location: [ 27, -9, -18 ]
-
----
 kind: Building
 spec:
-  name: zWeakBuilding
-  location: [ 27, -9, -18 ]
+  name: Weak Blocker
+  location: [ 28, -10, -18 ]
 
 ---
 kind: Tile
 spec:
   biome: DISCOVERED
+  location: [ 27, -9, -18 ]
+
+---
+kind: Tile
+spec:
   location: [ 26, -8, -18 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -246,15 +240,27 @@ spec:
   location: [ 25, -7, -18 ]
 
 ---
+kind: Building
+spec:
+  name: Weak Blocker
+  location: [ 25, -7, -18 ]
+
+---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 24, -7, -17 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
   biome: DISCOVERED
+  location: [ 23, -6, -17 ]
+
+---
+kind: Building
+spec:
+  name: Medium Blocker
   location: [ 23, -6, -17 ]
 
 ---
@@ -264,21 +270,9 @@ spec:
   location: [ 24, -6, -18 ]
 
 ---
-kind: Building
-spec:
-  name: zMediumBuilding
-  location: [ 24, -6, -18 ]
-
----
 kind: Tile
 spec:
   biome: DISCOVERED
-  location: [ 26, -7, -19 ]
-
----
-kind: Building
-spec:
-  name: zWeakBuilding
   location: [ 26, -7, -19 ]
 
 ---
@@ -288,10 +282,16 @@ spec:
   location: [ 27, -8, -19 ]
 
 ---
+kind: Building
+spec:
+  name: Weak Blocker
+  location: [ 27, -8, -19 ]
+
+---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 29, -11, -18 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -300,21 +300,33 @@ spec:
   location: [ 29, -12, -17 ]
 
 ---
+kind: Building
+spec:
+  name: Weak Blocker
+  location: [ 29, -12, -17 ]
+
+---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 21, -12, -9 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 17, -7, -10 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
   biome: DISCOVERED
+  location: [ 17, -6, -11 ]
+
+---
+kind: Building
+spec:
+  name: Weak Blocker
   location: [ 17, -6, -11 ]
 
 ---
@@ -324,21 +336,21 @@ spec:
   location: [ 19, -7, -12 ]
 
 ---
+kind: Building
+spec:
+  name: Weak Blocker
+  location: [ 19, -7, -12 ]
+
+---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 19, -8, -11 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
   biome: DISCOVERED
-  location: [ 19, -9, -10 ]
-
----
-kind: Building
-spec:
-  name: zWeakBuilding
   location: [ 19, -9, -10 ]
 
 ---
@@ -348,21 +360,21 @@ spec:
   location: [ 20, -8, -12 ]
 
 ---
-kind: Building
-spec:
-  name: zMediumBuilding
-  location: [ 20, -8, -12 ]
-
----
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 21, -7, -14 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
   biome: DISCOVERED
+  location: [ 21, -8, -13 ]
+
+---
+kind: Building
+spec:
+  name: Medium Blocker
   location: [ 21, -8, -13 ]
 
 ---
@@ -372,22 +384,28 @@ spec:
   location: [ 20, -9, -11 ]
 
 ---
+kind: Building
+spec:
+  name: Medium Blocker
+  location: [ 20, -9, -11 ]
+
+---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 21, -9, -12 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 22, -9, -13 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 23, -8, -15 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -396,10 +414,16 @@ spec:
   location: [ 24, -8, -16 ]
 
 ---
+kind: Building
+spec:
+  name: Medium Blocker
+  location: [ 24, -8, -16 ]
+
+---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 25, -9, -16 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -408,15 +432,27 @@ spec:
   location: [ 25, -10, -15 ]
 
 ---
+kind: Building
+spec:
+  name: Medium Blocker
+  location: [ 25, -10, -15 ]
+
+---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 25, -11, -14 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
   biome: DISCOVERED
+  location: [ 23, -12, -11 ]
+
+---
+kind: Building
+spec:
+  name: Medium Blocker
   location: [ 23, -12, -11 ]
 
 ---
@@ -426,28 +462,22 @@ spec:
   location: [ 22, -12, -10 ]
 
 ---
-kind: Building
-spec:
-  name: zMediumBuilding
-  location: [ 22, -12, -10 ]
-
----
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 22, -8, -14 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 23, -10, -13 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 23, -11, -12 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -456,21 +486,21 @@ spec:
   location: [ 21, -11, -10 ]
 
 ---
-kind: Tile
-spec:
-  biome: DISCOVERED
-  location: [ 20, -10, -10 ]
-
----
-kind: Tile
-spec:
-  biome: DISCOVERED
-  location: [ 21, -10, -11 ]
-
----
 kind: Building
 spec:
-  name: zMediumBuilding
+  name: Weak Blocker
+  location: [ 21, -11, -10 ]
+
+---
+kind: Tile
+spec:
+  location: [ 20, -10, -10 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
   location: [ 21, -10, -11 ]
 
 ---
@@ -480,33 +510,33 @@ spec:
   location: [ 22, -10, -12 ]
 
 ---
-kind: Tile
-spec:
-  biome: DISCOVERED
-  location: [ 22, -11, -11 ]
-
----
-kind: Tile
-spec:
-  biome: DISCOVERED
-  location: [ 20, -7, -13 ]
-
----
-kind: Tile
-spec:
-  biome: DISCOVERED
-  location: [ 22, -7, -15 ]
-
----
-kind: Tile
-spec:
-  biome: DISCOVERED
-  location: [ 25, -8, -17 ]
-
----
 kind: Building
 spec:
-  name: zMediumBuilding
+  name: Medium Blocker
+  location: [ 22, -10, -12 ]
+
+---
+kind: Tile
+spec:
+  location: [ 22, -11, -11 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 20, -7, -13 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 22, -7, -15 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
   location: [ 25, -8, -17 ]
 
 ---
@@ -516,15 +546,27 @@ spec:
   location: [ 26, -9, -17 ]
 
 ---
+kind: Building
+spec:
+  name: Medium Blocker
+  location: [ 26, -9, -17 ]
+
+---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 27, -10, -17 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
   biome: DISCOVERED
+  location: [ 27, -11, -16 ]
+
+---
+kind: Building
+spec:
+  name: Weak Blocker
   location: [ 27, -11, -16 ]
 
 ---
@@ -534,46 +576,46 @@ spec:
   location: [ 27, -12, -15 ]
 
 ---
-kind: Building
-spec:
-  name: zMediumBuilding
-  location: [ 27, -12, -15 ]
-
----
 kind: Tile
 spec:
   biome: DISCOVERED
   location: [ 26, -12, -14 ]
 
 ---
+kind: Building
+spec:
+  name: Medium Blocker
+  location: [ 26, -12, -14 ]
+
+---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 25, -12, -13 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 24, -12, -12 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 24, -11, -13 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 24, -10, -14 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 24, -9, -15 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -584,14 +626,14 @@ spec:
 ---
 kind: Building
 spec:
-  name: zStrongBuilding
+  name: Strong Blocker
   location: [ 23, -9, -14 ]
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 23, -7, -16 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
@@ -600,39 +642,27 @@ spec:
   location: [ 26, -10, -16 ]
 
 ---
-kind: Building
-spec:
-  name: zMediumBuilding
-  location: [ 26, -10, -16 ]
-
----
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 26, -11, -15 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 28, -9, -19 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 29, -10, -19 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
   biome: DISCOVERED
-  location: [ 29, -13, -16 ]
-
----
-kind: Building
-spec:
-  name: zWeakBuilding
   location: [ 29, -13, -16 ]
 
 ---
@@ -650,25 +680,31 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 28, -8, -20 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 27, -7, -20 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 25, -6, -19 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
   biome: DISCOVERED
+  location: [ 26, -6, -20 ]
+
+---
+kind: Building
+spec:
+  name: Weak Blocker
   location: [ 26, -6, -20 ]
 
 ---
@@ -678,57 +714,45 @@ spec:
   location: [ 17, -5, -12 ]
 
 ---
-kind: Building
-spec:
-  name: zWeakBuilding
-  location: [ 17, -5, -12 ]
-
----
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 18, -5, -13 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 20, -5, -15 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 19, -5, -14 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 21, -5, -16 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 23, -5, -18 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 24, -5, -19 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
   biome: DISCOVERED
-  location: [ 25, -5, -20 ]
-
----
-kind: Building
-spec:
-  name: zWeakBuilding
   location: [ 25, -5, -20 ]
 
 ---
