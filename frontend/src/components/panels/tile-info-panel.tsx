@@ -18,9 +18,10 @@ import {
     GOO_SMALL_THRESH,
     getCoords,
     getGooRates,
+    getNeighbours,
     getTileDistance,
 } from '@app/helpers/tile';
-import { usePlayer, useSelection, useWorld } from '@app/hooks/use-game-state';
+import { useGameState, usePlayer, useSelection, useWorld } from '@app/hooks/use-game-state';
 import { Bag } from '@app/plugins/inventory/bag';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { TileInventory } from '@app/plugins/inventory/tile-inventory';
@@ -31,6 +32,20 @@ import { FunctionComponent, useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { colors } from '@app/styles/colors';
 import { getMaterialStats } from '@app/plugins/combat/helpers';
+import { getLogicCellKind } from '@app/helpers/building';
+
+enum LogicCellKind {
+    NONE,
+    START,
+    LIQUIFY,
+    SOLIDIFY,
+    ADD,
+    SUBTRACT,
+    DIVIDE,
+    REFINE,
+    RESERVE,
+    BUFFER,
+}
 
 interface KeyedThing {
     key: number;
@@ -225,6 +240,7 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
                         )}
                     </PluginContent>
                 )}
+                {getLogicCellKind(building.kind) > 0 && <LogicCellPanel logicCell={building} world={world} />}
                 {selectedTile && <TileInventory tile={selectedTile} bags={world?.bags || []} />}
                 <span className="label" style={{ width: '100%', marginTop: '2rem' }}>
                     <strong>COORDINATES:</strong> {`${q}, ${r}, ${s}`}
@@ -376,5 +392,150 @@ export const TileInfoPanel = ({ kinds, ui }: { kinds: BuildingKindFragment[]; ui
         }
     } else {
         return null;
+    }
+};
+
+export interface LogicCellPanelProps {
+    logicCell: WorldBuildingFragment;
+    world?: World;
+}
+
+export const LogicCellPanel = ({ logicCell, world }: LogicCellPanelProps) => {
+    const { tiles } = useGameState();
+
+    if (!world) {
+        return null;
+    }
+
+    if (!tiles) {
+        return null;
+    }
+
+    if (!logicCell.location) {
+        return null;
+    }
+
+    const { buildings } = world;
+
+    // Get adjacent logic cells
+    // const neighbourTiles = getNeighbours(tiles, logicCell.location.tile);
+    const neighbourLogicCells = buildings.filter(
+        (b: WorldBuildingFragment) =>
+            b.location &&
+            logicCell.location &&
+            getLogicCellKind(b.kind) > 0 &&
+            getTileDistance(logicCell.location.tile, b.location.tile) == 1
+    );
+
+    return (
+        <>
+            {getCellOutputCount(getLogicCellKind(logicCell.kind)) > 0 && (
+                <>
+                    <h3>Goo Outputs</h3>
+                    {Array.from({ length: getCellOutputCount(getLogicCellKind(logicCell.kind)) }).map(
+                        (_, outputIdx) => (
+                            <div key={`output/${outputIdx}`}>
+                                <label>Output {outputIdx + 1} </label>
+                                <select>
+                                    <option>Disconnected</option>
+                                    {neighbourLogicCells.map((lc, cellIdx) =>
+                                        Array.from({ length: getCellInputCount(getLogicCellKind(lc.kind)) }).map(
+                                            (_, inputIdx) => (
+                                                <option key={`${cellIdx}/${inputIdx}`}>
+                                                    {lc.kind?.name?.value} : {inputIdx + 1}
+                                                </option>
+                                            )
+                                        )
+                                    )}
+                                </select>
+                            </div>
+                        )
+                    )}
+                </>
+            )}
+
+            {getCellTriggerCount(getLogicCellKind(logicCell.kind)) > 0 && (
+                <>
+                    <h3>Trigger Outputs</h3>
+                    {Array.from({ length: getCellTriggerCount(getLogicCellKind(logicCell.kind)) }).map(
+                        (_, outputIdx) => (
+                            <div key={`trigger/${outputIdx}`}>
+                                <label>Trigger {outputIdx + 1} </label>
+                                <select>
+                                    <option>Disconnected</option>
+                                    {neighbourLogicCells.map((lc, cellIdx) => (
+                                        <option key={`trigger/${outputIdx}/${cellIdx}`}>{lc.kind?.name?.value}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )
+                    )}
+                </>
+            )}
+        </>
+    );
+};
+
+// HACK: Obviously this should be defined somewhere. Could even go into the logicCell's ID
+
+export const getCellInputCount = (kind: LogicCellKind) => {
+    switch (kind) {
+        case LogicCellKind.START:
+            return 0;
+        case LogicCellKind.LIQUIFY:
+            return 0;
+        case LogicCellKind.SOLIDIFY:
+            return 1;
+        case LogicCellKind.ADD:
+            return 2;
+        case LogicCellKind.SUBTRACT:
+            return 2;
+        case LogicCellKind.DIVIDE:
+            return 1;
+        case LogicCellKind.REFINE:
+            return 1;
+        case LogicCellKind.RESERVE:
+            return 1;
+        case LogicCellKind.BUFFER:
+            return 1;
+
+        default:
+            return 0;
+    }
+};
+
+export const getCellOutputCount = (kind: LogicCellKind) => {
+    switch (kind) {
+        case LogicCellKind.START:
+            return 0;
+        case LogicCellKind.LIQUIFY:
+            return 1;
+        case LogicCellKind.SOLIDIFY:
+            return 0;
+        case LogicCellKind.ADD:
+            return 1;
+        case LogicCellKind.SUBTRACT:
+            return 1;
+        case LogicCellKind.DIVIDE:
+            return 2;
+        case LogicCellKind.REFINE:
+            return 3;
+        case LogicCellKind.RESERVE:
+            return 0;
+        case LogicCellKind.BUFFER:
+            return 1;
+
+        default:
+            return 0;
+    }
+};
+
+export const getCellTriggerCount = (kind: LogicCellKind) => {
+    switch (kind) {
+        case LogicCellKind.START:
+            return 6;
+
+        default:
+            return 0;
     }
 };

@@ -5,7 +5,7 @@ spec:
   logicCellKind: add
   name: add
   description: solidify
-  model: 05-15
+  model: 05-11
   color: 5
   contract:
     file: ./add.sol
