@@ -29,7 +29,7 @@ export const BagItem: FunctionComponent<BagItemProps> = (props: BagItemProps) =>
     const numPaddingZeros = Math.max(3 - quantity.toString().length, 0);
 
     const handleClick = () => {
-        if (!isInteractable || isPickedUpItemVisible || isPending) {
+        if (isPickedUpItemVisible || isPending) {
             return;
         }
         const transferInfo = {
