@@ -43,7 +43,7 @@ export const Connections = memo(
                     // const selected = selectedElementID === b.id ? 'outline' : 'none';
                     const tileFrom = tiles.find(({ id }) => id === b.location?.tile.id);
 
-                    const gooPipePaths = b.gooPipes.map((gooPipe) => {
+                    const gooPipePaths = b.outputGooPipes.map((gooPipe) => {
                         if (!gooPipe.node.location?.tile) {
                             return null;
                         }
@@ -68,7 +68,7 @@ export const Connections = memo(
                         );
                     });
 
-                    const triggerPaths = b.triggers.map((trigger) => {
+                    const triggerPaths = b.outputTriggers.map((trigger) => {
                         if (!trigger.node.location?.tile) {
                             return null;
                         }

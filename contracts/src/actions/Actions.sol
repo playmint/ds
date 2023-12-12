@@ -90,6 +90,8 @@ interface Actions {
     // use a building
     // this action mostly just proxies through to the building kind implementation (if set)
     function BUILDING_USE(bytes24 buildingID, bytes24 mobileUnitID, bytes calldata payload) external;
+    function DESTROY_BUILDING_AT_COORD(int16 q, int16 r, int16 s) external;
+    function DESTROY_BUILDING(bytes24 buildingID) external;
 
     function REGISTER_ITEM_KIND(bytes24 itemKind, string calldata name, string calldata icon) external;
 
@@ -149,6 +151,10 @@ interface Actions {
     function CONNECT_TRIGGER(bytes24 from, bytes24 to, uint8 triggerIndex) external;
 
     function CONNECT_GOO_PIPE(bytes24 from, bytes24 to, uint8 outIndex, uint8 inIndex) external;
+
+    function DISCONNECT_TRIGGER(bytes24 from, uint8 triggerIndex) external;
+
+    function DISCONNECT_GOO_PIPE(bytes24 from, bytes24 to, uint8 outIndex) external;
 
     // ---------------------
     // the DEV_ actions below this point are not for public use they are

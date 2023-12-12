@@ -60,7 +60,7 @@ export const ActionBar: FunctionComponent<ActionBarProps> = ({}: ActionBarProps)
                     className={`${intent === COMBAT_INTENT ? 'toggleOn' : ''}`}
                     onClick={() => handleSelectIntent(COMBAT_INTENT)}
                 >
-                    Attack
+                    Delete
                 </UnitActionButton>
             </div>
         </StyledActionBar>

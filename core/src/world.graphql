@@ -98,7 +98,7 @@ fragment WorldBuilding on Node {
     location: edge(match: { kinds: "Tile", via: { rel: "Location", key: 2 } }) {
         ...Location
     }
-    triggers: edges(match: { via: { rel: "LogicCellTrigger" } }) {
+    outputTriggers: edges(match: { via: { rel: "LogicCellTrigger" } }) {
         key
         node {
             id
@@ -107,7 +107,7 @@ fragment WorldBuilding on Node {
             }
         }
     }
-    gooPipes: edges(match: { via: { rel: "GooPipe" } }) {
+    outputGooPipes: edges(match: { via: { rel: "GooPipe" } }) {
         key
         inputIndex: weight
         node {
@@ -117,8 +117,27 @@ fragment WorldBuilding on Node {
             }
         }
     }
-    inputCount: edge(match: { via: { rel: "Balance" } }) {
+    inputGooPipeCount: edge(match: { via: { rel: "Balance" } }) {
         value: weight
+    }
+    inputTriggers: edges(match: { via: { rel: "LogicCellTrigger", dir: IN } }) {
+        key
+        node {
+            id
+            location: edge(match: { kinds: "Tile", via: { rel: "Location", key: 2 } }) {
+                ...Location
+            }
+        }
+    }
+    inputGooPipes: edges(match: { via: { rel: "GooPipe", dir: IN } }) {
+        key
+        inputIndex: weight
+        node {
+            id
+            location: edge(match: { kinds: "Tile", via: { rel: "Location", key: 2 } }) {
+                ...Location
+            }
+        }
     }
 }
 

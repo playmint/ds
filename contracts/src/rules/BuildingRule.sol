@@ -90,6 +90,13 @@ contract BuildingRule is Rule {
                 revert("MobileUnitNotOwnedByPlayer");
             }
             _constructBuilding(state, ctx, mobileUnit, buildingKind, coords);
+        } else if (bytes4(action) == Actions.DESTROY_BUILDING.selector) {
+            (bytes24 buildingInstance) = abi.decode(action[4:], (bytes24));
+            _destroyBuilding(state, buildingInstance);
+        } else if (bytes4(action) == Actions.DESTROY_BUILDING_AT_COORD.selector) {
+            (int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16));
+            bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
+            _destroyBuilding(state, buildingInstance);
         } else if (bytes4(action) == Actions.BUILDING_USE.selector) {
             (bytes24 buildingInstance, bytes24 mobileUnitID, bytes memory payload) =
                 abi.decode(action[4:], (bytes24, bytes24, bytes));
@@ -108,6 +115,21 @@ contract BuildingRule is Rule {
                 | bytes4(Kind.ConnectionCount.selector);
             ( /*bytes24*/ , uint64 connectionCount) = state.get(Rel.Balance.selector, 0, to);
             state.set(Rel.Balance.selector, 0, to, connectionCountNode, connectionCount + 1);
+        } else if (bytes4(action) == Actions.DISCONNECT_TRIGGER.selector) {
+            (bytes24 from, uint8 triggerIndex) = abi.decode(action[4:], (bytes24, uint8));
+            state.set(Rel.LogicCellTrigger.selector, triggerIndex, from, bytes24(0), 0);
+        } else if (bytes4(action) == Actions.DISCONNECT_GOO_PIPE.selector) {
+            (bytes24 from, bytes24 to, uint8 outIndex) = abi.decode(action[4:], (bytes24, bytes24, uint8));
+
+            state.set(Rel.GooPipe.selector, outIndex, from, bytes24(0), 0);
+
+            // Decrement the connection count
+            bytes24 connectionCountNode = (to & bytes24(0x00000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF))
+                | bytes4(Kind.ConnectionCount.selector);
+            ( /*bytes24*/ , uint64 connectionCount) = state.get(Rel.Balance.selector, 0, to);
+            if (connectionCount > 0) {
+                state.set(Rel.Balance.selector, 0, to, connectionCountNode, connectionCount - 1);
+            }
         }
 
         return state;
@@ -419,5 +441,28 @@ contract BuildingRule is Rule {
         state.setInput(buildingKind, 2, inputItem[2], inputQty[2]);
         state.setInput(buildingKind, 3, inputItem[3], inputQty[3]);
         state.setOutput(buildingKind, 0, outputItem, outputQty);
+    }
+
+    function _destroyBuilding(State state, bytes24 buildingInstance) private {
+        // set type of building
+        state.setBuildingKind(buildingInstance, bytes24(0));
+        // set building owner to player who created it
+        state.setOwner(buildingInstance, bytes24(0));
+        // set building location
+        state.setFixedLocation(buildingInstance, bytes24(0));
+
+        // TODO: Orphaned bags
+        state.setEquipSlot(buildingInstance, 0, bytes24(0));
+        state.setEquipSlot(buildingInstance, 1, bytes24(0));
+
+        for (uint8 i = 0; i <= 200; i++) {
+            state.set(Rel.LogicCellTrigger.selector, i, buildingInstance, bytes24(0), 0);
+            state.set(Rel.GooPipe.selector, i, buildingInstance, bytes24(0), 0);
+        }
+
+        // zero the connection count
+        bytes24 connectionCountNode = (buildingInstance & bytes24(0x00000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF))
+            | bytes4(Kind.ConnectionCount.selector);
+        state.set(Rel.Balance.selector, 0, buildingInstance, connectionCountNode, 0);
     }
 }

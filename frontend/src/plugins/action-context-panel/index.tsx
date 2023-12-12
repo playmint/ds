@@ -625,7 +625,7 @@ const Combat: FunctionComponent<CombatProps> = ({
         [selectIntent, selectTiles]
     );
 
-    const { path, attackers, defenders, defenceTile, defenceTileBuilding, valid, reason } = useMemo(() => {
+    const { path, attackers, defenceTile, defenceTileBuilding, valid, reason } = useMemo(() => {
         if (!tiles) {
             return { path: [], valid: false, reason: 'no tiles' };
         }
@@ -719,29 +719,59 @@ const Combat: FunctionComponent<CombatProps> = ({
         if (!attackers || attackers.length === 0) {
             return;
         }
-        const actions: CogAction[][] = path.slice(1).map((t) => {
-            const [_zone, q, r, s] = t.coords;
-            return [
-                {
-                    name: 'MOVE_MOBILE_UNIT',
-                    args: [mobileUnitKey, q, r, s],
-                },
-            ];
-        });
-        const hasActiveSession = getSessionsAtTile(sessions, defenceTile).some((s) => !s.isFinalised);
-        if (!hasActiveSession) {
-            actions.push([
-                {
-                    name: 'START_COMBAT',
-                    args: [mobileUnitId, defenceTile.id, attackers, defenders],
-                },
-            ]);
+        // const actions: CogAction[][] = path.slice(1).map((t) => {
+        //     const [_zone, q, r, s] = t.coords;
+        //     return [
+        //         {
+        //             name: 'MOVE_MOBILE_UNIT',
+        //             args: [mobileUnitKey, q, r, s],
+        //         },
+        //     ];
+        // });
+
+        const targetBuilding = getBuildingAtTile(buildings, defenceTile);
+        if (!targetBuilding) {
+            return;
         }
+
+        const actions: CogAction[][] = [
+            [
+                {
+                    name: 'DESTROY_BUILDING',
+                    args: [targetBuilding.id],
+                },
+            ],
+        ];
+
+        // Disconnect inputs
+
+        if (targetBuilding.inputGooPipes && targetBuilding.inputGooPipes.length > 0) {
+            actions.push(
+                targetBuilding.inputGooPipes.map((inGooPipe) => {
+                    return {
+                        name: 'DISCONNECT_GOO_PIPE',
+                        args: [inGooPipe.node.id, targetBuilding.id, inGooPipe.key],
+                    };
+                })
+            );
+        }
+
+        if (targetBuilding.inputTriggers && targetBuilding.inputTriggers.length > 0) {
+            actions.push(
+                targetBuilding.inputTriggers.map((inTrigger) => {
+                    return {
+                        name: 'DISCONNECT_TRIGGER',
+                        args: [inTrigger.node.id, inTrigger.key],
+                    };
+                })
+            );
+        }
+
         setActionQueue(actions);
         if (clearIntent) {
             clearIntent();
         }
-    }, [setActionQueue, clearIntent, path, mobileUnitId, mobileUnitKey, attackers, defenders, defenceTile, sessions]);
+    }, [mobileUnitKey, mobileUnitId, path.length, attackers, buildings, defenceTile, setActionQueue, clearIntent]);
 
     const highlights: WorldTileFragment[] = [defenceTile, attackTile].filter((t): t is WorldTileFragment => !!t);
     const joining = attackTile && getSessionsAtTile(sessions, attackTile).some((s) => !s.isFinalised);
@@ -785,12 +815,12 @@ const Combat: FunctionComponent<CombatProps> = ({
                 />
             ))}
             <div className="guide">
-                <h3>Combat</h3>
+                <h3>Delete</h3>
                 <span className="sub-title">{help}</span>
             </div>
             <form>
                 <ActionButton type="button" onClick={handleJoinCombat} disabled={!canAttack}>
-                    {joining ? 'Join' : 'Confirm'}
+                    {joining ? 'Delete' : 'Delete'}
                 </ActionButton>
                 <ActionButton onClick={clearIntent} className="cancel">
                     <i className="bi bi-x" />
