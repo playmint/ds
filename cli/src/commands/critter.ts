@@ -125,6 +125,8 @@ const ticker = {
             ];
         };
 
+        const targets = new Map<string, WorldBuildingFragment>();
+
         // move unit around randomly
         while (true) {
             console.log('\n\n\n');
@@ -186,6 +188,34 @@ const ticker = {
                 continue;
             }
 
+            const extractors = world.buildings
+                .filter((b) => getBuildingCategory(b.kind) == BuildingCategory.EXTRACTOR)
+                .sort((a, b) => (a.id < b.id ? 1 : -1));
+            world.critters.forEach((c) => {
+                const critterTile = tiles.find((t) => t.id === c.nextLocation.tile.id);
+                if (!critterTile) {
+                    return;
+                }
+                const closestExtractor = extractors
+                    .sort((a, b) => {
+                        const aTile = tiles.find((t) => t.id === a.location?.tile?.id);
+                        const bTile = tiles.find((t) => t.id === b.location?.tile?.id);
+                        const aDist = aTile ? getTileDistance(aTile, critterTile) : 99999;
+                        const bDist = bTile ? getTileDistance(bTile, critterTile) : 99999;
+                        return aDist - bDist;
+                    })
+                    .find(() => true);
+                const target = targets.get(c.id);
+                if (!target && closestExtractor) {
+                    targets.set(c.id, closestExtractor); // initial target
+                } else if (target && !extractors.some((b) => b.id === target.id) && closestExtractor) {
+                    targets.set(c.id, closestExtractor); // old target gone...retarget
+                } else {
+                    // no target
+                    targets.delete(c.id);
+                }
+            });
+
             // debug - chase me
             const chaseMe = false;
             const unit = world.mobileUnits.find(() => true);
@@ -235,9 +265,16 @@ const ticker = {
                     c.mode = 'target';
                     c.target = unitTile ? getCoords(unitTile) : { q: spawner[0], r: spawner[1], s: spawner[2] };
                 } else if (aggro) {
-                    const hq = randomTargetQRS();
-                    c.mode = 'target';
-                    c.target = { q: hq[0], r: hq[1], s: hq[2] };
+                    const target = targets.get(critter.id);
+                    if (target) {
+                        const targetTile = tiles.find((t) => t.id === target.location?.tile?.id);
+                        if (targetTile) {
+                            c.mode = 'target';
+                            c.target = getCoords(targetTile);
+                        }
+                    } else {
+                        c.mode = 'random';
+                    }
                 } else {
                     c.mode = 'random';
                 }
@@ -246,7 +283,7 @@ const ticker = {
 
             // movement
             for (let [_id, critter] of critters) {
-                const feelingRandom = Math.floor(Math.random() * 100) > 75;
+                const feelingRandom = Math.floor(Math.random() * 100) > 80;
 
                 if (feelingRandom || critter.mode === 'random') {
                     let { q, r, s } = critter.nextCoords;
@@ -293,20 +330,30 @@ const ticker = {
                         console.log(critter.id, `- targeting - isImposible`);
                         continue;
                     }
+
+                    // size
+                    const bag = (world?.bags || []).find(
+                        (b) => b.equipee?.node?.id === critter.id && b.equipee?.key === 100
+                    );
+                    const size = (bag?.slots || []).find((slot) => slot.key === 1)?.balance || 0;
+                    const radius = size / 10.0;
                     // console.log(path.map(p => p.id));
-                    const targetTile = path.shift();
+                    let targetTile = path.shift();
+                    let targetHasBuilding = targetTile ? getBuildingAtTile(world?.buildings || [], targetTile) : false;
+                    if (!targetHasBuilding && path.length > 0 && radius < 2) {
+                        // small critters can move 2 spaces
+                        targetTile = path.shift();
+                    }
                     if (!targetTile) {
                         console.log(critter.id, `- targeting - no first step in path`);
                         continue;
                     }
                     // if there is a building on the target tile, then do nothing
                     // we have to wait til the building is destroyed to progress
-                    const targetHasBuilding = targetTile
-                        ? getBuildingAtTile(world?.buildings || [], targetTile)
-                        : false;
+                    targetHasBuilding = targetTile ? getBuildingAtTile(world?.buildings || [], targetTile) : false;
                     if (targetHasBuilding) {
                         console.log(critter.id, '- MOVE_CRITTER (blocked/attacking)');
-                    } else if (Array.from(critters.values()).some((c) => c.nextTile === targetTile.id)) {
+                    } else if (Array.from(critters.values()).some((c) => c.nextTile === targetTile?.id)) {
                         console.log(critter.id, '- MOVE_CRITTER (occupied)');
                     } else {
                         const nextCoords = getCoords(targetTile);
@@ -417,7 +464,7 @@ const ticker = {
                     }
                 });
 
-            console.log('dispatching', tx, 'actions');
+            console.log('dispatching', tx.length, 'actions');
             await player
                 .dispatchAndWait(...tx)
                 .then(() => console.log('OK'))
