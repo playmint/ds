@@ -129,9 +129,7 @@ contract ScoutRule is Rule {
         atoms[GOO_RED] = uint64(uint128(Math.mul(redPerlin, Math.fromUInt(255)) >> (64)));
         */
 
-        if (coords[0] == -2 && coords[1] == 1 && coords[2] == -1) {
-            atoms[GOO_GREEN] = 200;
-        } else if (coords[0] == -1 && coords[1] == 1 && coords[2] == 0) {
+        if (coords[0] == -2 && coords[1] == 1 && coords[2] == 1) {
             atoms[GOO_GREEN] = 200;
         } else if (coords[0] == -1 && coords[1] == 2 && coords[2] == -1) {
             atoms[GOO_BLUE] = 200;
