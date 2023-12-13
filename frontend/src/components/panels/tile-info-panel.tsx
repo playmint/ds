@@ -19,7 +19,6 @@ import {
     GOO_SMALL_THRESH,
     getCoords,
     getGooRates,
-    getNeighbours,
     getTileDistance,
 } from '@app/helpers/tile';
 import { useGameState, usePlayer, useSelection, useWorld } from '@app/hooks/use-game-state';
@@ -154,7 +153,7 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
         .find(() => true);
 
     const buildingKind = (kinds || []).find((k) => k.id == building.kind?.id);
-    const inputs = buildingKind?.inputs.sort(byKey) || [];
+    // const inputs = buildingKind?.inputs.sort(byKey) || [];
     const outputs = buildingKind?.outputs.sort(byKey) || [];
 
     const inputsRef = useRef<HTMLDivElement>(null);

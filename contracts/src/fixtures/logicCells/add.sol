@@ -12,7 +12,11 @@ using Schema for State;
 contract Add is BuildingKind, ILogicCell {
     function use(Game ds, bytes24 buildingInstance, bytes24, /*actor*/ bytes memory /*payload*/ ) public {}
 
-    function execute(State state, bytes24 logicCell, GooVal[] memory input) public returns (GooVal[] memory output) {
+    function execute(State, /*state*/ bytes24, /*logicCell*/ GooVal[] memory input)
+        public
+        pure
+        returns (GooVal[] memory output)
+    {
         require(input.length == 2, "add: Requires 2 inputs");
 
         output = new GooVal[](1);

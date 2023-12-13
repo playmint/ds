@@ -12,7 +12,10 @@ using Schema for State;
 contract Liquify is BuildingKind, ILogicCell {
     function use(Game ds, bytes24 buildingInstance, bytes24, /*actor*/ bytes memory /*payload*/ ) public {}
 
-    function execute(State state, bytes24 logicCell, GooVal[] memory input) public returns (GooVal[] memory output) {
+    function execute(State state, bytes24 logicCell, GooVal[] memory /*input*/ )
+        public
+        returns (GooVal[] memory output)
+    {
         output = new GooVal[](1);
 
         bytes24 inBag = state.getEquipSlot(logicCell, 0);
