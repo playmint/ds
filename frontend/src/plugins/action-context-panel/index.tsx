@@ -237,10 +237,10 @@ const Repair: FunctionComponent<RepairProps> = ({
                             name: 'MOVE_MOBILE_UNIT',
                             args: [mobileUnitKey, q, r, s],
                         },
-                        ...transfers,
                     ] satisfies CogAction[];
                 }),
             ];
+            actions.push(transfers);
 
             setActionQueue(actions);
             clearIntent();
@@ -502,32 +502,26 @@ const Construct: FunctionComponent<ConstructProps> = ({
             if (path.length < 2) {
                 return;
             }
-            const actions: CogAction[][] = [
-                ...(path.length > 1 ? path.slice(-2, -1) : path).map((t) => {
-                    const [_zone, q, r, s] = t.coords;
-                    return [
-                        {
-                            name: 'MOVE_MOBILE_UNIT',
-                            args: [mobileUnitKey, q, r, s],
-                        },
-                    ] satisfies CogAction[];
-                }),
-                [
-                    ...selectedKind.ops,
-                    {
-                        name: 'CONSTRUCT_BUILDING_MOBILE_UNIT',
-                        args: [
-                            mobileUnitId,
-                            data.kind,
-                            constructableTile.coords[1],
-                            constructableTile.coords[2],
-                            constructableTile.coords[3],
-                        ],
-                    },
+            let actions: CogAction[] = (path.length > 1 ? path.slice(-2, -1) : path).map((t) => {
+                const [_zone, q, r, s] = t.coords;
+                return {
+                    name: 'MOVE_MOBILE_UNIT',
+                    args: [mobileUnitKey, q, r, s],
+                };
+            });
+            actions = [...actions, ...selectedKind.ops];
+            actions.push({
+                name: 'CONSTRUCT_BUILDING_MOBILE_UNIT',
+                args: [
+                    mobileUnitId,
+                    data.kind,
+                    constructableTile.coords[1],
+                    constructableTile.coords[2],
+                    constructableTile.coords[3],
                 ],
-            ];
+            });
 
-            setActionQueue(actions);
+            setActionQueue([actions]);
             clearIntent();
         },
         [mobileUnitId, mobileUnitKey, selectedKind, constructableTile, clearIntent, setActionQueue, path]

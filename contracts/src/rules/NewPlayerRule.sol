@@ -67,6 +67,22 @@ contract NewPlayerRule is Rule {
 
             // Accept the first quest in the chain
             // state.setQuestAccepted(Node.Quest("Report to Control"), Node.Player(ctx.sender), 0);
+        } else if (bytes4(action) == Actions.RESPAWN_MOBILE_UNIT.selector) {
+            (bytes24 mobileUnit) = abi.decode(action[4:], (bytes24));
+            // set location
+            bytes24 locationTile = Node.Tile(DEFAULT_ZONE, 0, 0, 0);
+            state.setPrevLocation(mobileUnit, locationTile, 0);
+            state.setNextLocation(mobileUnit, locationTile, ctx.clock);
+            // empty bags
+            for (uint8 b = 0; b < 4; b++) {
+                bytes24 bag = state.getEquipSlot(mobileUnit, b);
+                if (bag == 0x0) {
+                    continue;
+                }
+                for (uint8 s = 0; s < 25; s++) {
+                    state.clearItemSlot(bag, s);
+                }
+            }
         }
 
         return state;

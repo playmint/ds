@@ -103,6 +103,7 @@ interface Actions {
 
     // spawn a mobileUnit for the sender
     function SPAWN_MOBILE_UNIT(bytes24 mobileUnit) external;
+    function RESPAWN_MOBILE_UNIT(bytes24 mobileUnit) external;
 
     function SPAWN_CRITTER(bytes24 critter, uint64 radius) external;
 

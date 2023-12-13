@@ -87,7 +87,7 @@ const ticker = {
         yargs.option('critters', {
             describe: 'initial number of critters',
             type: 'number',
-            default: 2,
+            default: 1,
         });
         yargs.option('interval', {
             describe: 'interval between waves',
@@ -345,12 +345,35 @@ const ticker = {
                             // critter attack building
                             console.log(building.id, `TOOK ${hp} DAMAGE FROM`, critter.id);
                             tx = [...tx, { name: 'ATTACK', args: [critter.id, building.id, Math.max(hp - 4, 1)] }];
+                        }
+                    }
+                });
 
-                            // tower attack critter
-                            if (getBuildingCategory(building.kind) == BuildingCategory.TOWER) {
-                                console.log(critter.id, `TOOK ${hp} DAMAGE FROM`, building.id);
-                                tx = [...tx, { name: 'ATTACK', args: [building.id, critter.id, hp + 1] }];
-                            }
+            // critters attack buildings
+            world.mobileUnits
+                .filter((b) => !!b.nextLocation?.tile)
+                .forEach((mobileUnit) => {
+                    for (let [_id, critter] of critters) {
+                        const critterTile = tiles.find((t) => t.id === critter.nextTile);
+                        if (!critterTile) {
+                            console.log('no critterTile');
+                            continue;
+                        }
+                        const unitTile = tiles.find((t) => t.id === mobileUnit.nextLocation?.tile?.id);
+                        if (!unitTile) {
+                            console.log('no buildingTile');
+                            continue;
+                        }
+                        const distance = getTileDistance(critterTile, unitTile);
+                        const bag = (world?.bags || []).find(
+                            (b) => b.equipee?.node?.id === critter.id && b.equipee?.key === 100
+                        );
+                        const size = (bag?.slots || []).find((slot) => slot.key === 1)?.balance || 0;
+                        const radius = size / 10.0;
+                        if (distance <= radius) {
+                            // critter instakill unit if in range
+                            console.log(mobileUnit.id, `UNIT TOOK 100 DAMAGE FROM`, critter.id);
+                            tx = [...tx, { name: 'RESPAWN_MOBILE_UNIT', args: [mobileUnit.id] }];
                         }
                     }
                 });
@@ -394,7 +417,7 @@ const ticker = {
                     }
                 });
 
-            console.log('dispatching', tx.length, 'actions');
+            console.log('dispatching', tx, 'actions');
             await player
                 .dispatchAndWait(...tx)
                 .then(() => console.log('OK'))
