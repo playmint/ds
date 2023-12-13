@@ -47,6 +47,7 @@ const getGooIndexFromBuildingOutput = (buildingKind?: BuildingKindFragment) => {
 };
 
 const lerp = (x, y, a) => x * (1 - a) + y * a;
+const empty = [];
 
 export const Buildings = memo(
     ({
@@ -62,6 +63,7 @@ export const Buildings = memo(
         world?: WorldStateFragment;
         onClickBuilding: (id: string) => void;
     }) => {
+        const bags = world?.bags || empty;
         const buildingComponents = useMemo(
             () =>
                 (buildings || []).map((b) => {
@@ -77,7 +79,7 @@ export const Buildings = memo(
                     const rotation = lerp(-20, 20, 0.5 - getUnscaledNoiseFromCoords(coords));
                     const tile = tiles.find(({ id }) => id === b.location?.tile.id);
 
-                    const bag = getBagsAtEquipee(world?.bags || [], b).find((b) => b.equipee?.key === 100);
+                    const bag = getBagsAtEquipee(bags, b).find((b) => b.equipee?.key === 100);
                     const health = (bag?.slots || []).find((slot) => slot.key === 0)?.balance || 0;
                     // console.log(b.id, `health=${health}`);
 
@@ -139,7 +141,7 @@ export const Buildings = memo(
                         );
                     }
                 }),
-            [buildings, selectedElementID, onClickBuilding, tiles]
+            [buildings, selectedElementID, onClickBuilding, tiles, bags]
         );
 
         return <>{buildingComponents}</>;

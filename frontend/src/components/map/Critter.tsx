@@ -1,6 +1,5 @@
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
 import { memo, useCallback, useMemo, useState } from 'react';
-import HealthBar from './HealthBar';
 
 export interface CritterData {
     q: number;
@@ -89,6 +88,6 @@ export const Critter = memo(
 
         //const combinedPosition = { x, y, z, isVisible };
 
-        return null;// <HealthBar position={combinedPosition} health={health} />;
+        return null; // <HealthBar position={combinedPosition} health={health} />;
     }
 );
