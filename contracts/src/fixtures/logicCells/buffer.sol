@@ -10,7 +10,8 @@ import {ILogicCell} from "@ds/ext/ILogicCell.sol";
 using Schema for State;
 
 contract Buffer is BuildingKind, ILogicCell {
-    uint8 constant TARGET_GOO_OFFSET = 3;
+    uint8 constant BUFFER_GOO_OFFSET = 1;
+    uint8 constant TARGET_GOO_OFFSET = BUFFER_GOO_OFFSET + 3;
 
     function use(Game ds, bytes24 buildingInstance, bytes24, /*actor*/ bytes memory /*payload*/ ) public {}
 
@@ -30,9 +31,9 @@ contract Buffer is BuildingKind, ILogicCell {
         // TODO: require that buffer is set to output more than zero on one colour?
 
         // Get buffer
-        ( /*bytes24*/ , uint64 g) = state.get(Rel.Balance.selector, GOO_GREEN, logicCell);
-        ( /*bytes24*/ , uint64 b) = state.get(Rel.Balance.selector, GOO_BLUE, logicCell);
-        ( /*bytes24*/ , uint64 r) = state.get(Rel.Balance.selector, GOO_RED, logicCell);
+        ( /*bytes24*/ , uint64 g) = state.get(Rel.Balance.selector, GOO_GREEN + BUFFER_GOO_OFFSET, logicCell);
+        ( /*bytes24*/ , uint64 b) = state.get(Rel.Balance.selector, GOO_BLUE + BUFFER_GOO_OFFSET, logicCell);
+        ( /*bytes24*/ , uint64 r) = state.get(Rel.Balance.selector, GOO_RED + BUFFER_GOO_OFFSET, logicCell);
 
         g += input[0].g;
         b += input[0].b;
@@ -42,9 +43,9 @@ contract Buffer is BuildingKind, ILogicCell {
 
         if (g >= targetG && b >= targetB && r >= targetR) {
             // Clear buffer
-            state.set(Rel.Balance.selector, GOO_GREEN, logicCell, Node.Atom(GOO_GREEN), 0);
-            state.set(Rel.Balance.selector, GOO_BLUE, logicCell, Node.Atom(GOO_BLUE), 0);
-            state.set(Rel.Balance.selector, GOO_RED, logicCell, Node.Atom(GOO_RED), 0);
+            state.set(Rel.Balance.selector, GOO_GREEN + BUFFER_GOO_OFFSET, logicCell, Node.Atom(GOO_GREEN), 0);
+            state.set(Rel.Balance.selector, GOO_BLUE + BUFFER_GOO_OFFSET, logicCell, Node.Atom(GOO_BLUE), 0);
+            state.set(Rel.Balance.selector, GOO_RED + BUFFER_GOO_OFFSET, logicCell, Node.Atom(GOO_RED), 0);
 
             output[0] = GooVal({r: targetR, g: targetG, b: targetB});
             return output;
@@ -52,9 +53,23 @@ contract Buffer is BuildingKind, ILogicCell {
 
         // Store the buffer on chain
         // TODO: Don't re-write value if particular colour is already at target
-        state.set(Rel.Balance.selector, GOO_GREEN, logicCell, Node.Atom(GOO_GREEN), g > targetG ? targetG : g);
-        state.set(Rel.Balance.selector, GOO_BLUE, logicCell, Node.Atom(GOO_BLUE), b > targetB ? targetB : b);
-        state.set(Rel.Balance.selector, GOO_RED, logicCell, Node.Atom(GOO_RED), r > targetR ? targetR : r);
+        state.set(
+            Rel.Balance.selector,
+            GOO_GREEN + BUFFER_GOO_OFFSET,
+            logicCell,
+            Node.Atom(GOO_GREEN),
+            g > targetG ? targetG : g
+        );
+        state.set(
+            Rel.Balance.selector,
+            GOO_BLUE + BUFFER_GOO_OFFSET,
+            logicCell,
+            Node.Atom(GOO_BLUE),
+            b > targetB ? targetB : b
+        );
+        state.set(
+            Rel.Balance.selector, GOO_RED + BUFFER_GOO_OFFSET, logicCell, Node.Atom(GOO_RED), r > targetR ? targetR : r
+        );
 
         // Output will be zero
         return output;
