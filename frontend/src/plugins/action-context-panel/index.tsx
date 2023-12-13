@@ -27,6 +27,7 @@ import { styles } from './action-context-panel.styles';
 export interface ActionContextPanelProps extends ComponentProps {}
 
 const CONSTRUCT_INTENT = 'construct';
+const REPAIR_INTENT = 'repair';
 const MOVE_INTENT = 'move';
 // const SCOUT_INTENT = 'scout';
 // const COMBAT_INTENT = 'combat';
@@ -53,7 +54,19 @@ const byKey = (a: KeyedThing, b: KeyedThing) => {
     return a.key > b.key ? 1 : -1;
 };
 
-interface ConstructProps {
+type SlotSource = {
+    bagId: string;
+    equipKey: number;
+    slotKey: number;
+    balance: number;
+};
+type SlotMap = Map<string, SlotSource[]>;
+
+interface BuildingKindWithOps extends BuildingKindFragment {
+    ops: CogAction[] | undefined;
+}
+
+interface RepairProps {
     selectedTiles: WorldTileFragment[];
     selectIntent?: Selector<string | undefined>;
     selectTiles?: Selector<string[] | undefined>;
@@ -65,16 +78,230 @@ interface ConstructProps {
     setActionQueue: (path: CogAction[][]) => void;
 }
 
-type SlotSource = {
-    bagId: string;
-    equipKey: number;
-    slotKey: number;
-    balance: number;
-};
-type SlotMap = Map<string, SlotSource[]>;
+const Repair: FunctionComponent<RepairProps> = ({
+    selectedTiles,
+    mobileUnit,
+    tiles,
+    bags,
+    buildings,
+    selectIntent,
+    setActionQueue,
+}) => {
+    const { path, valid } = useMemo(() => {
+        const fromTile = mobileUnit && tiles && tiles.find((t) => t.id === mobileUnit.nextLocation?.tile.id);
+        if (!fromTile) {
+            return { path: [], valid: false };
+        }
+        const toTile = selectedTiles.find(() => true);
+        if (!toTile) {
+            return { path: [], valid: false };
+        }
+        if (!tiles) {
+            return { path: [], valid: false };
+        }
+        const path = getPath(tiles, buildings, fromTile, toTile);
+        const isImposible = path.length === 1 && getTileDistance(fromTile, toTile) > 1;
+        const targetTile = path.slice(-1).find(() => true);
+        const targetHasBuilding = targetTile ? getBuildingAtTile(buildings, targetTile) : false;
+        return {
+            path: path.length > 0 ? [fromTile, ...path] : [],
+            valid: path.length > 0 && !isImposible && targetHasBuilding,
+        };
+    }, [mobileUnit, selectedTiles, tiles, buildings]);
 
-interface BuildingKindWithOps extends BuildingKindFragment {
-    ops: CogAction[] | undefined;
+    const selectedTile = selectedTiles.find(() => true);
+    const selectedTileBuilding = selectedTile ? getBuildingAtTile(buildings, selectedTile) : null;
+    // build a map of itemid => {slotKey => balance} for player's inventories
+    const mobileUnitBags = mobileUnit ? getBagsAtEquipee(bags, mobileUnit) : [];
+    const slotMap = mobileUnitBags
+        .flatMap((bag) => bag.slots.map((slot) => ({ slot, bag })))
+        .reduce((slotMap, { slot, bag }) => {
+            if (!slot.item) {
+                return slotMap;
+            }
+            const slotSources = slotMap.has(slot.item.id) ? slotMap.get(slot.item.id) : [];
+            if (!slotSources) {
+                return slotMap;
+            }
+            if (!bag.equipee) {
+                return slotMap;
+            }
+            slotSources.push({
+                bagId: bag.id,
+                equipKey: bag.equipee.key,
+                slotKey: slot.key,
+                balance: slot.balance,
+            });
+            slotMap.set(slot.item.id, slotSources);
+            return slotMap;
+        }, new Map() as SlotMap);
+
+    const targetBuildingId = selectedTileBuilding?.id;
+    const targetBagId = targetBuildingId ? getBagId(selectedTileBuilding.id) : undefined;
+    const targetEquipKey = 100;
+    const targetSlotKey = 0;
+    const targetBag = selectedTileBuilding
+        ? getBagsAtEquipee(bags, selectedTileBuilding).find((b) => b.equipee?.key === 100)
+        : null;
+    const targetHealth = (targetBag?.slots || []).find((slot) => slot.key === 0)?.balance || 0;
+
+    const getTransfersForRepair = useCallback((): CogAction[] => {
+        if (!slotMap) {
+            return [];
+        }
+        if (!mobileUnit) {
+            return [];
+        }
+        if (!targetBagId) {
+            return [];
+        }
+        if (!targetBuildingId) {
+            return [];
+        }
+        if (targetHealth === 100) {
+            return [];
+        }
+        const damage = 100 - targetHealth;
+        const recipe: ItemSlotFragment[] = [
+            {
+                key: 0,
+                item: { id: '0x6a7a67f063976de500000001000000010000000000000000' },
+                balance: damage,
+            },
+        ];
+        const got = recipe.map((slot) => slot.balance);
+        const ops: CogAction[] = [];
+        for (let i = 0; i < recipe.length; i++) {
+            const available = slotMap.get(recipe[i].item.id);
+            if (!available) {
+                return [];
+            }
+            for (let j = 0; j < available.length; j++) {
+                const take = Math.min(available[j].balance, got[i]);
+                got[i] -= take;
+                ops.push({
+                    name: 'TRANSFER_ITEM_MOBILE_UNIT',
+                    args: [
+                        mobileUnit.id,
+                        [mobileUnit.id, targetBuildingId],
+                        [available[j].equipKey, targetEquipKey],
+                        [available[j].slotKey, targetSlotKey],
+                        targetBagId,
+                        take,
+                    ],
+                });
+            }
+        }
+        const missing = got.reduce((sum, n) => (sum += n), 0);
+        if (missing > 0) {
+            return [];
+        }
+        return ops;
+    }, [slotMap, mobileUnit, targetBagId, targetBuildingId, targetSlotKey, targetHealth]);
+
+    const clearIntent = useCallback(
+        (e?: React.MouseEvent) => {
+            if (e) {
+                e.preventDefault();
+            }
+            if (!selectIntent) {
+                return;
+            }
+            selectIntent(undefined);
+        },
+        [selectIntent]
+    );
+
+    const mobileUnitKey = mobileUnit?.key;
+    const mobileUnitId = mobileUnit?.id;
+    const transfers = getTransfersForRepair();
+    const canRepair = !!targetBuildingId && transfers.length > 0;
+
+    const handleRepair = useCallback(
+        (e: React.FormEvent<HTMLFormElement>) => {
+            e.preventDefault();
+            if (!mobileUnitKey || !mobileUnitId) {
+                return;
+            }
+            if (!targetBuildingId) {
+                return;
+            }
+            if (path.length < 2) {
+                return;
+            }
+            const actions: CogAction[][] = [
+                ...(path.length > 1 ? path.slice(-2, -1) : path).map((t) => {
+                    const [_zone, q, r, s] = t.coords;
+                    return [
+                        {
+                            name: 'MOVE_MOBILE_UNIT',
+                            args: [mobileUnitKey, q, r, s],
+                        },
+                        ...transfers,
+                    ] satisfies CogAction[];
+                }),
+            ];
+
+            setActionQueue(actions);
+            clearIntent();
+        },
+        [mobileUnitId, mobileUnitKey, targetBuildingId, clearIntent, setActionQueue, path, transfers]
+    );
+
+    return (
+        <StyledActionContextPanel>
+            {path.map((t, idx) => {
+                const fromCoords = getCoords(t);
+                const toCoords = idx + 1 < path.length ? getCoords(path[idx + 1]) : undefined;
+                if (!toCoords) {
+                    return null;
+                }
+                return (
+                    <Path
+                        key={`con-${t.id}`}
+                        id={`con-${t.id}`}
+                        qFrom={fromCoords.q}
+                        rFrom={fromCoords.r}
+                        sFrom={fromCoords.s}
+                        heightFrom={getTileHeight(t)}
+                        qTo={toCoords.q}
+                        rTo={toCoords.r}
+                        sTo={toCoords.s}
+                        heightTo={getTileHeight(path[idx + 1])}
+                        color={valid ? '#ff7315' : 'red'}
+                    />
+                );
+            })}
+            <div className="guide">
+                <h3>Repair</h3>
+                <div>
+                    {targetHealth === 100
+                        ? 'Building is already repaired'
+                        : `Repair will cost ${100 - targetHealth} Green Goo`}
+                </div>
+            </div>
+            <form onSubmit={handleRepair}>
+                <ActionButton type="submit" disabled={!canRepair}>
+                    Confirm
+                </ActionButton>
+                <button onClick={clearIntent} className="cancel">
+                    <i className="bi bi-x" />
+                </button>
+            </form>
+        </StyledActionContextPanel>
+    );
+};
+
+interface ConstructProps {
+    selectedTiles: WorldTileFragment[];
+    selectIntent?: Selector<string | undefined>;
+    selectTiles?: Selector<string[] | undefined>;
+    player?: ConnectedPlayer;
+    tiles: WorldTileFragment[];
+    bags: BagFragment[];
+    buildings: WorldBuildingFragment[];
+    mobileUnit?: WorldMobileUnitFragment;
+    setActionQueue: (path: CogAction[][]) => void;
 }
 
 const Construct: FunctionComponent<ConstructProps> = ({
@@ -857,6 +1084,20 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
     if (intent === CONSTRUCT_INTENT) {
         return (
             <Construct
+                selectIntent={selectIntent}
+                selectedTiles={selectedTiles}
+                selectTiles={selectTiles}
+                mobileUnit={mobileUnit}
+                player={player}
+                tiles={tiles || []}
+                bags={world?.bags || []}
+                buildings={world?.buildings || []}
+                setActionQueue={setActionQueue}
+            />
+        );
+    } else if (intent == REPAIR_INTENT) {
+        return (
+            <Repair
                 selectIntent={selectIntent}
                 selectedTiles={selectedTiles}
                 selectTiles={selectTiles}

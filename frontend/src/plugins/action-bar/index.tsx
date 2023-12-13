@@ -8,6 +8,7 @@ import { styles } from './action-bar.styles';
 import { UnitActionButton } from '@app/styles/button.styles';
 
 const CONSTRUCT_INTENT = 'construct';
+const REPAIR_INTENT = 'repair';
 const MOVE_INTENT = 'move';
 // const COMBAT_INTENT = 'combat';
 
@@ -55,6 +56,12 @@ export const ActionBar: FunctionComponent<ActionBarProps> = ({}: ActionBarProps)
                     onClick={() => handleSelectIntent(CONSTRUCT_INTENT)}
                 >
                     Build
+                </UnitActionButton>
+                <UnitActionButton
+                    className={`${intent === REPAIR_INTENT ? 'toggleOn' : ''}`}
+                    onClick={() => handleSelectIntent(REPAIR_INTENT)}
+                >
+                    Repair
                 </UnitActionButton>
                 {/* <UnitActionButton */}
                 {/*     className={`${intent === COMBAT_INTENT ? 'toggleOn' : ''}`} */}

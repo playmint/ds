@@ -2,7 +2,7 @@ import { colors } from '@app/styles/colors';
 import React from 'react';
 
 const HealthBar = ({ position, health }) => {
-    if (position) console.log(position.z - 6 / 10);
+    // if (position) console.log(position.z - 6 / 10);
     return (
         <>
             <div

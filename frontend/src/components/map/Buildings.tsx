@@ -79,7 +79,7 @@ export const Buildings = memo(
 
                     const bag = getBagsAtEquipee(world?.bags || [], b).find((b) => b.equipee?.key === 100);
                     const health = (bag?.slots || []).find((slot) => slot.key === 0)?.balance || 0;
-                    console.log(b.id, `health=${health}`);
+                    // console.log(b.id, `health=${health}`);
 
                     if (getBuildingCategory(b.kind) == BuildingCategory.EXTRACTOR) {
                         return (
