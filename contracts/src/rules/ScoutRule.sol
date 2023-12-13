@@ -131,6 +131,8 @@ contract ScoutRule is Rule {
 
         if (coords[0] == -2 && coords[1] == 1 && coords[2] == -1) {
             atoms[GOO_GREEN] = 200;
+        } else if (coords[0] == -1 && coords[1] == 1 && coords[2] == 0) {
+            atoms[GOO_GREEN] = 200;
         } else if (coords[0] == -1 && coords[1] == 2 && coords[2] == -1) {
             atoms[GOO_BLUE] = 200;
         } else if (coords[0] == 1 && coords[1] == 1 && coords[2] == -2) {
