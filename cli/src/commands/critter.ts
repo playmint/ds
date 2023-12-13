@@ -192,7 +192,7 @@ const ticker = {
                 .filter((b) => getBuildingCategory(b.kind) == BuildingCategory.EXTRACTOR)
                 .sort((a, b) => (a.id < b.id ? 1 : -1));
             world.critters.forEach((c) => {
-                const critterTile = tiles.find((t) => t.id === c.nextLocation.tile.id);
+                const critterTile = tiles.find((t) => t.id === c.nextLocation?.tile?.id);
                 if (!critterTile) {
                     return;
                 }
@@ -237,8 +237,8 @@ const ticker = {
                     return;
                 }
                 let c: CritterState | undefined = critters.get(critter.id);
-                const nextTile = critter.nextLocation?.tile.id;
-                const prevTile = critter.prevLocation?.tile.id;
+                const nextTile = critter.nextLocation?.tile?.id;
+                const prevTile = critter.prevLocation?.tile?.id;
                 const nextCoords = getCoords(critter.nextLocation?.tile);
                 const prevCoords = getCoords(critter.prevLocation?.tile);
                 const spawner = randomSpawnQRS();
@@ -510,7 +510,7 @@ function getTileDistance(t1: Locatable, t2: Locatable): number {
 }
 
 function getBuildingAtTile(buildings: WorldBuildingFragment[], tile: { id: string }) {
-    return buildings.find((b) => b.location && b.location?.tile.id === tile.id);
+    return buildings.find((b) => b.location && b.location?.tile?.id === tile.id);
 }
 
 export enum BuildingCategory {
