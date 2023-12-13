@@ -1,0 +1,20 @@
+---
+kind: BuildingKind
+spec:
+  category: custom
+  logicCellKind: buffer
+  name: buffer
+  description: solidify
+  model: 05-02
+  color: 5
+  contract:
+    file: ./buffer.sol
+  plugin:
+    file: ./buffer.js
+  materials:
+    - name: Red Goo
+      quantity: 10
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10

@@ -15,6 +15,18 @@ contract Solidify is BuildingKind, ILogicCell {
     function execute(State state, bytes24 logicCell, GooVal[] memory input) public returns (GooVal[] memory output) {
         require(input.length == 1, "solidify: Requires 1 input");
 
+        output = new GooVal[](0);
+
+        if (input.length == 0) {
+            return output;
+        }
+
+        // don't solidify zero value items
+        if (uint32(input[0].g) == 0 && uint32(input[0].b) == 0 && uint32(input[0].r) == 0) {
+            return output;
+        }
+
+        // NOTE: Always stackable
         bytes24 outputItem = Node.Item([uint32(input[0].g), uint32(input[0].b), uint32(input[0].r)], true);
 
         bytes24 outBag = state.getEquipSlot(logicCell, 1);
@@ -35,7 +47,6 @@ contract Solidify is BuildingKind, ILogicCell {
             state.set(Rel.Balance.selector, outItemSlot, outBag, outputItem, existingOutputBalance + 1);
         }
 
-        output = new GooVal[](0);
         return output;
     }
 }
