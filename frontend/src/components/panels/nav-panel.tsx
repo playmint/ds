@@ -1,3 +1,4 @@
+import { formatNameOrId } from '@app/helpers';
 import { usePlayer, useWallet } from '@app/hooks/use-game-state';
 import { useSession } from '@app/hooks/use-session';
 import { GlobalUnityContext } from '@app/hooks/use-unity-instance';
@@ -65,6 +66,13 @@ export const NavPanel = ({
     const hasConnection = player || wallet;
     const address = player?.addr || wallet?.address || '';
 
+    // set player name in input field when account dialog is opened
+    useEffect(() => {
+        if (showAccountDialog) {
+            setPlayerName(formatNameOrId(player, 'player'));
+        }
+    }, [showAccountDialog, player]);
+    
     const closeAccountDialog = useCallback(() => {
         setShowAccountDialog(false);
     }, []);
@@ -99,9 +107,6 @@ export const NavPanel = ({
             console.warn("naming failed: no player");
             return;
         }
-
-        console.log(player);
-
         if (!playerName || playerName.length < 3) {
             console.warn("naming failed: no name or length less than 3 characters");
             return;
@@ -114,8 +119,6 @@ export const NavPanel = ({
         player
             .dispatch({ name: 'NAME_OWNED_ENTITY', args: [player.id, playerName] })
             .catch((err) => console.error('naming failed', err));
-
-        console.log(playerName);
     }, [player]);
     
 

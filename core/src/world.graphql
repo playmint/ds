@@ -146,6 +146,10 @@ fragment WorldTile on Node {
 fragment WorldPlayer on Node {
     id
     addr: key
+    # player name
+    name: annotation(name: "name") {
+        value
+    }
 }
 
 fragment WorldState on State {
