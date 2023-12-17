@@ -60,6 +60,7 @@ export const NavPanel = ({
     const { wallet } = useWallet();
     const player = usePlayer();
     const [showAccountDialog, setShowAccountDialog] = useState(false);
+    const [playerName, setPlayerName] = useState('');
 
     const hasConnection = player || wallet;
     const address = player?.addr || wallet?.address || '';
@@ -93,6 +94,31 @@ export const NavPanel = ({
         }
     }, []);
 
+    const onSubmitPlayerName = useCallback((playerName) => {
+        if (!player) {
+            console.warn("naming failed: no player");
+            return;
+        }
+
+        console.log(player);
+
+        if (!playerName || playerName.length < 3) {
+            console.warn("naming failed: no name or length less than 3 characters");
+            return;
+        }
+        if (playerName.length > 20) {
+            console.warn("naming failed: max 20 characters");
+            alert('rejected: max 20 characters');
+            return;
+        }
+        player
+            .dispatch({ name: 'NAME_OWNED_ENTITY', args: [player.id, playerName] })
+            .catch((err) => console.error('naming failed', err));
+
+        console.log(playerName);
+    }, [player]);
+    
+
     // TEMP: allow revealing the burner private key, this is a workaround for
     // helping demo ds-cli bits for people without walletconnect
     const [burnerKey, setBurnerKey] = useState<string | null>(null);
@@ -119,6 +145,27 @@ export const NavPanel = ({
                             0x{address.slice(0, 9)}...{address.slice(-9)}
                         </p>
                         <br />
+
+                        <fieldset>
+                            <legend>Player Name:</legend>
+                            <input
+                                type="text"
+                                placeholder="Enter your name"
+                                value={playerName}
+                                onChange={(e) => setPlayerName(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        onSubmitPlayerName(playerName);
+                                    }
+                                }}
+                                style={{ width: '100%', marginBottom: '10px' }}
+                            />
+                            <button 
+                                onClick={() => onSubmitPlayerName(playerName)}
+                                style={{ width: '100%' }}>submit</button>
+                        </fieldset>
+                        <br />
+
                         <fieldset>
                             <legend>Quality:</legend>
                             <select onChange={onChangeQuality} value={canvasHeight}>
