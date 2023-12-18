@@ -1,11 +1,36 @@
 import ds from 'downstream';
 
+var endTime = 0;
+
+function formatTime(timeInMs) {
+    let seconds = Math.floor(timeInMs / 1000);
+    let minutes = Math.floor(seconds / 60);
+    let hours = Math.floor(minutes / 60);
+
+    seconds %= 60;
+    minutes %= 60;
+
+    // Pad each component to ensure two digits
+    let formattedHours = String(hours).padStart(2, '0');
+    let formattedMinutes = String(minutes).padStart(2, '0');
+    let formattedSeconds = String(seconds).padStart(2, '0');
+
+    return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+}
+
 export default async function update(state) {
     // uncomment this to browse the state object in browser console
     // this will be logged when selecting a unit and then selecting an instance of this building
     logState(state);
 
-    let time = Date.now();
+    let timeNow = Date.now();
+    let sessionTimeLeft = 0;
+    if (timeNow < endTime)
+        sessionTimeLeft = endTime - timeNow;
+    
+    const startSession = () =>  {
+        endTime = timeNow + 1000 * 60 * 10;
+    }
 
     return {
         version: 1,
@@ -17,8 +42,14 @@ export default async function update(state) {
                     {
                         id: 'default',
                         type: 'inline',
-                        html: `The time is ${time}`,
+                        html: `Time remaining ${formatTime(sessionTimeLeft)}`,
                         buttons: [
+                            {
+                                text: 'Start',
+                                type: 'action',
+                                action: startSession,
+                                disabled: false,
+                            },
                         ],
                     },
                 ],
