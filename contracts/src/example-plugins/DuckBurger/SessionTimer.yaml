@@ -1,0 +1,18 @@
+kind: BuildingKind
+spec:
+  name: Session Timer
+  description: "Start timed sessions"
+  category: custom
+  model: 05-03
+  color: 5
+  contract:
+    file: ../BasicFactory/BasicFactory.sol
+  plugin:
+    file: ./SessionTimer.js
+  materials:
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+    - name: Red Goo
+      quantity: 10
