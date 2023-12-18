@@ -239,7 +239,7 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
                 ))}
                 {author && (
                     <span className="label">
-                        <strong>AUTHOR:</strong> {author.addr}
+                        <strong>AUTHOR:</strong> {author.name?.value ? author.name?.value : author.addr}
                     </span>
                 )}
                 {owner && (
