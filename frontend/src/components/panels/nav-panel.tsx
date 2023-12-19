@@ -72,7 +72,7 @@ export const NavPanel = ({
             setPlayerName(formatNameOrId(player, 'player'));
         }
     }, [showAccountDialog, player]);
-    
+
     const closeAccountDialog = useCallback(() => {
         setShowAccountDialog(false);
     }, []);
@@ -102,25 +102,27 @@ export const NavPanel = ({
         }
     }, []);
 
-    const onSubmitPlayerName = useCallback((playerName) => {
-        if (!player) {
-            console.warn("naming failed: no player");
-            return;
-        }
-        if (!playerName || playerName.length < 3) {
-            console.warn("naming failed: no name or length less than 3 characters");
-            return;
-        }
-        if (playerName.length > 20) {
-            console.warn("naming failed: max 20 characters");
-            alert('rejected: max 20 characters');
-            return;
-        }
-        player
-            .dispatch({ name: 'NAME_OWNED_ENTITY', args: [player.id, playerName] })
-            .catch((err) => console.error('naming failed', err));
-    }, [player]);
-    
+    const onSubmitPlayerName = useCallback(
+        (playerName) => {
+            if (!player) {
+                console.warn('naming failed: no player');
+                return;
+            }
+            if (!playerName || playerName.length < 3) {
+                console.warn('naming failed: no name or length less than 3 characters');
+                return;
+            }
+            if (playerName.length > 20) {
+                console.warn('naming failed: max 20 characters');
+                alert('rejected: max 20 characters');
+                return;
+            }
+            player
+                .dispatch({ name: 'NAME_OWNED_ENTITY', args: [player.id, playerName] })
+                .catch((err) => console.error('naming failed', err));
+        },
+        [player]
+    );
 
     // TEMP: allow revealing the burner private key, this is a workaround for
     // helping demo ds-cli bits for people without walletconnect
@@ -163,9 +165,9 @@ export const NavPanel = ({
                                 }}
                                 style={{ width: '100%', marginBottom: '10px' }}
                             />
-                            <button 
-                                onClick={() => onSubmitPlayerName(playerName)}
-                                style={{ width: '100%' }}>submit</button>
+                            <button onClick={() => onSubmitPlayerName(playerName)} style={{ width: '100%' }}>
+                                submit
+                            </button>
                         </fieldset>
                         <br />
 
