@@ -1,4 +1,3 @@
-import { formatNameOrId } from '@app/helpers';
 import { usePlayer, useWallet } from '@app/hooks/use-game-state';
 import { useSession } from '@app/hooks/use-session';
 import { GlobalUnityContext } from '@app/hooks/use-unity-instance';
@@ -47,6 +46,8 @@ const NavContainer = styled.div`
     }
 `;
 
+let playerNameWarning = '';
+
 export const NavPanel = ({
     toggleQuestsActive,
     questsActive,
@@ -69,7 +70,7 @@ export const NavPanel = ({
     // set player name in input field when account dialog is opened
     useEffect(() => {
         if (showAccountDialog) {
-            setPlayerName(formatNameOrId(player, 'player'));
+            setPlayerName(player?.name?.value ? player?.name?.value : '');
         }
     }, [showAccountDialog, player]);
 
@@ -109,17 +110,22 @@ export const NavPanel = ({
                 return;
             }
             if (!playerName || playerName.length < 3) {
-                console.warn('naming failed: no name or length less than 3 characters');
+                playerNameWarning = 'Must be at least 3 characters';
                 return;
             }
             if (playerName.length > 20) {
-                console.warn('naming failed: max 20 characters');
-                alert('rejected: max 20 characters');
+                playerNameWarning = 'Must be under 20 characters';
+                return;
+            }
+            if (playerName === player.name?.value) {
+                playerNameWarning = 'You already have this name';
                 return;
             }
             player
                 .dispatch({ name: 'NAME_OWNED_ENTITY', args: [player.id, playerName] })
                 .catch((err) => console.error('naming failed', err));
+
+            playerNameWarning = '';
         },
         [player]
     );
@@ -161,13 +167,27 @@ export const NavPanel = ({
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
                                         onSubmitPlayerName(playerName);
+                                        playerNameWarning = '';
                                     }
                                 }}
                                 style={{ width: '100%', marginBottom: '10px' }}
                             />
-                            <button onClick={() => onSubmitPlayerName(playerName)} style={{ width: '100%' }}>
+                            <button
+                                onClick={() => {
+                                    playerNameWarning = '';
+                                    onSubmitPlayerName(playerName);
+                                }}
+                                style={{ width: '100%' }}
+                            >
                                 submit
                             </button>
+
+                            {playerNameWarning.length > 0 && (
+                                <>
+                                    <br />
+                                    <p>{playerNameWarning}</p>
+                                </>
+                            )}
                         </fieldset>
                         <br />
 
