@@ -185,7 +185,8 @@ export const NavPanel = ({
                             {playerNameWarning.length > 0 && (
                                 <>
                                     <br />
-                                    <p>{playerNameWarning}</p>
+                                    <br />
+                                    <p style={{ fontSize: '12px' }}>{playerNameWarning}</p>
                                 </>
                             )}
                         </fieldset>
