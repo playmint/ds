@@ -13,41 +13,48 @@ export default async function update(state) {
     // this will be logged when selecting a unit and then selecting an instance of this building
     //logState(state);
 
-    const setStartingCounts = () =>  {
-
+    const countBuildings = (buildingsArray, type) => {
+        return buildingsArray.filter(building =>
+            building.kind?.name?.value.toLowerCase().includes(type)
+        ).length;
+    }
+    
+    const startGame = () => {
         const buildingsArray = state.world?.buildings || [];
-
-        numDuckStart = buildingsArray.filter(building => 
-            building.kind?.name?.value.toLowerCase().includes("duck")
-        ).length;
-
-        numBurgerStart = buildingsArray.filter(building => 
-            building.kind?.name?.value.toLowerCase().includes("burger")
-        ).length;
-
+    
+        numDuckStart = countBuildings(buildingsArray, "duck");
+        numBurgerStart = countBuildings(buildingsArray, "burger");
+    
         numDuck = 0;
         numBurger = 0;
         gameActive = true;
     }
 
-    const countDuckBurger = () =>  {
-        //console.log("buildings: ", state.world?.buildings);
-
+    const endGame = () => {
         const buildingsArray = state.world?.buildings || [];
-
-        const totalDuck = buildingsArray.filter(building => 
-            building.kind?.name?.value.toLowerCase().includes("duck")
-        ).length;
-
-        const totalBurger = buildingsArray.filter(building => 
-            building.kind?.name?.value.toLowerCase().includes("burger")
-        ).length;
-
+    
+        const totalDuck = countBuildings(buildingsArray, "duck");
+        const totalBurger = countBuildings(buildingsArray, "burger");
+    
         numDuck = totalDuck - numDuckStart;
         numBurger = totalBurger - numBurgerStart;
         gameActive = false;
     }
 
+    const updateNumDuckBurger = () => {
+        const buildingsArray = state.world?.buildings || [];
+    
+        const totalDuck = countBuildings(buildingsArray, "duck");
+        const totalBurger = countBuildings(buildingsArray, "burger");
+    
+        numDuck = totalDuck - numDuckStart;
+        numBurger = totalBurger - numBurgerStart;
+    }
+
+    if (gameActive){
+        updateNumDuckBurger();
+    }
+    
     return {
         version: 1,
         components: [
@@ -58,18 +65,28 @@ export default async function update(state) {
                     {
                         id: 'default',
                         type: 'inline',
-                        html: `Ducks: ${numDuck}</br>Burgers: ${numBurger}</br></br>${gameActive ? "duck burger is live!</br>click \"End & Count Score\" to see who won" : "click \"Start Game\" to play"}`,
+                        html: `
+                            🦆: ${numDuck}</br>
+                            🍔: ${numBurger}</br></br>
+                            ${
+                                gameActive 
+                                    ? `duck burger is live!</br></br>
+                                    click "End & Count Score" to see who won`
+                                    : `click "Start Game" to play`
+                            }
+                        `,
+
                         buttons: [
                             {
                                 text: 'Start Game',
                                 type: 'action',
-                                action: setStartingCounts,
+                                action: startGame,
                                 disabled: gameActive,
                             },
                             {
-                                text: 'End & Count Score',
+                                text: 'End Game',
                                 type: 'action',
-                                action: countDuckBurger,
+                                action: endGame,
                                 disabled: !gameActive,
                             },
                         ],
