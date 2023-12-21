@@ -1,12 +1,12 @@
 kind: BuildingKind
 spec:
   name: Session Timer
-  description: "Start timed sessions"
+  description: "Press start to get an onchain timer. This description will turn to data."
   category: custom
-  model: 05-03
+  model: 04-05
   color: 5
   contract:
-    file: ../BasicFactory/BasicFactory.sol
+    file: ./SessionTimer.sol
   plugin:
     file: ./SessionTimer.js
   materials:

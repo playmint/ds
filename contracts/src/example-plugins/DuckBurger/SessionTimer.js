@@ -1,6 +1,8 @@
 import ds from 'downstream';
 
-var endTime = 0;
+const secondsPerBlock = 2;
+const secondsPerSession = 10 * 60;
+const blocksPerSession = secondsPerSession / secondsPerBlock;
 
 function formatTime(timeInMs) {
     let seconds = Math.floor(timeInMs / 1000);
@@ -18,18 +20,40 @@ function formatTime(timeInMs) {
     return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
 }
 
+function nymberToBytes32(number) {
+    let hexStr = number.toString(16);
+    if (hexStr.length > 8) {
+        hexStr = hexStr.substring(hexStr.length - 8);
+    }
+    while (hexStr.length < 8) {
+        hexStr = '0' + hexStr;
+    }
+    return '0x' + hexStr;
+}
+
 export default async function update(state) {
     // uncomment this to browse the state object in browser console
     // this will be logged when selecting a unit and then selecting an instance of this building
-    logState(state);
+    //logState(state);
 
-    let timeNow = Date.now();
-    let sessionTimeLeft = 0;
-    if (timeNow < endTime)
-        sessionTimeLeft = endTime - timeNow;
+    const selectedTile = getSelectedTile(state);
+    const selectedBuilding = selectedTile && getBuildingOnTile(state, selectedTile);
+    
+    const endBlock = selectedBuilding?.kind?.description?.value || "0";
+    const nowBlock = state?.world?.block;
+    const blocksLeft = endBlock > nowBlock ? endBlock - nowBlock : 0;
+    const timeLeftMs = blocksLeft * secondsPerBlock * 1000;
     
     const startSession = () =>  {
-        endTime = timeNow + 1000 * 60 * 10;
+        const mobileUnit = getMobileUnit(state);
+        payload = nymberToBytes32(blocksPerSession);
+
+        console.log(`Starting session for ${blocksPerSession} blocks (${payload})`);
+
+        ds.dispatch({
+            name: 'BUILDING_USE',
+            args: [selectedBuilding.id, mobileUnit.id, payload],
+        });
     }
 
     return {
@@ -42,7 +66,7 @@ export default async function update(state) {
                     {
                         id: 'default',
                         type: 'inline',
-                        html: `Time remaining ${formatTime(sessionTimeLeft)}`,
+                        html: `${formatTime(timeLeftMs)}`,
                         buttons: [
                             {
                                 text: 'Start',
@@ -138,6 +162,41 @@ function unitOwnerConnectedToWallet(state, mobileUnit, walletAddress) {
     //console.log('Checking player:',  state?.player, 'controls unit', mobileUnit, walletAddress);
     return mobileUnit?.owner?.id == state?.player?.id && state?.player?.addr == walletAddress;
 }
+
+// No atob function in quickJS.
+function base64_decode(s) {
+    var base64chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    // remove/ignore any characters not in the base64 characters list
+    //  or the pad character -- particularly newlines
+    s = s.replace(new RegExp("[^" + base64chars.split("") + "=]", "g"), "");
+  
+    // replace any incoming padding with a zero pad (the 'A' character is zero)
+    var p =
+      s.charAt(s.length - 1) == "="
+        ? s.charAt(s.length - 2) == "="
+          ? "AA"
+          : "A"
+        : "";
+    var r = "";
+    s = s.substr(0, s.length - p.length) + p;
+  
+    // increment over the length of this encoded string, four characters at a time
+    for (var c = 0; c < s.length; c += 4) {
+      // each of these four characters represents a 6-bit index in the base64 characters list
+      //  which, when concatenated, will give the 24-bit number for the original 3 characters
+      var n =
+        (base64chars.indexOf(s.charAt(c)) << 18) +
+        (base64chars.indexOf(s.charAt(c + 1)) << 12) +
+        (base64chars.indexOf(s.charAt(c + 2)) << 6) +
+        base64chars.indexOf(s.charAt(c + 3));
+  
+      // split the 24-bit number into the original three 8-bit (ASCII) characters
+      r += String.fromCharCode((n >>> 16) & 255, (n >>> 8) & 255, n & 255);
+    }
+    // remove any zero pad that was added to make this a multiple of 24 bits
+    return r.substring(0, r.length - p.length);
+  }
 
 // the source for this code is on github where you can find other example buildings:
 // https://github.com/playmint/ds/tree/main/contracts/src/example-plugins
