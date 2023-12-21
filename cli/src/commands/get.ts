@@ -26,6 +26,7 @@ const NODE_FRAGMENT = `
                 key
                 keys
                 name: annotation(name: "name") { value }
+                description: annotation(name: "description") { value }
                 owner: node(match: { kinds: "Player", via: { rel: "Owner" } }) {
                     id
                     kind
@@ -96,6 +97,7 @@ const getItemDetails = (itemId) => {
 
 const nodeToManifest = (node): z.infer<typeof Manifest> => {
     const name = node.name?.value || '';
+    const description = node.description?.value || '';
     const owner = node.owner?.addr;
     if (node.kind == 'Item') {
         const { stackable, red, green, blue } = getItemDetails(node.id);
@@ -134,6 +136,7 @@ const nodeToManifest = (node): z.infer<typeof Manifest> => {
             if (category === 'factory') {
                 return {
                     name,
+                    description,
                     category,
                     model,
                     materials: materials.map(getSlotConfig),
@@ -143,6 +146,7 @@ const nodeToManifest = (node): z.infer<typeof Manifest> => {
             } else if (category === 'custom') {
                 return {
                     name,
+                    description,
                     category,
                     model,
                     materials: materials.map(getSlotConfig),
@@ -150,6 +154,7 @@ const nodeToManifest = (node): z.infer<typeof Manifest> => {
             } else if (category === 'blocker') {
                 return {
                     name,
+                    description,
                     category,
                     model,
                     materials: materials.map(getSlotConfig),
