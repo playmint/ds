@@ -67,33 +67,40 @@ export default async function update({ selected, world }) {
         ds.log("Enjoy your drink!");
     };
 
+    // find all the cocktail huts on the map
+    const cocktailHuts = (world?.buildings || [])
+        .filter(b => b.kind?.id === '0xbe92755c0000000000000000d286b4ae0000000000000003');
+    // get tile ids surrounding each cocktail hut
+    const cocktailHutNeighbours = cocktailHuts.map(b => {
+        const [q,r,s] = getTileCoordsFromId(b.location?.tile?.id);
+        const neighbourCoords = [
+            { q: q + 1, r: r, s: s - 1 },
+            { q: q + 1, r: r - 1, s: s },
+            { q: q, r: r - 1, s: s + 1 },
+            { q: q - 1, r: r, s: s + 1 },
+            { q: q - 1, r: r + 1, s: s },
+            { q: q, r: r + 1, s: s - 1 },
+        ];
+        const neighbourTileIds = neighbourCoords.map(({q,r,s}) => {
+            const prefix = "0xe5a62ffc";
+            // 000000000000000000000000 0000 0000 0000 0000",
+            return `${prefix}0000000000000000000000000000${toInt16Hex(q)}${toInt16Hex(r)}${toInt16Hex(s)}`;
+        });
+        return neighbourTileIds;
+    });
+    // build a list of map properties to set for each neighbour
+    const mapProps = cocktailHutNeighbours.flatMap(neighbours => neighbours.map(id => ({
+        type: "tile",
+        key: "color",
+        id,
+        value: "red",
+    })));
+
+
     return {
         version: 1,
         map: [
-            {
-                type: "building",
-                key: "label",
-                id: "0x32750923750",
-                value: "hello",
-            },
-            {
-                type: "tile",
-                key: "color",
-                id: "0xe5a62ffc0000000000000000000000000000000000000000",
-                value: "red",
-            },
-            {
-                type: "building",
-                id: "0x123",
-                key: "countdown-starts",
-                value: 100,
-            },
-            {
-                type: "building",
-                id: "0x123",
-                key: "countdown-ends",
-                value: 120,
-            },
+            ...mapProps,
         ],
         components: [
             {
@@ -125,4 +132,50 @@ export default async function update({ selected, world }) {
             },
         ],
     };
+}
+
+function getTileCoordsFromId(tileId) {
+    const coords = [...tileId]
+        .slice(2)
+        .reduce((bs, b, idx) => {
+            if (idx % 4 === 0) {
+                bs.push('0x');
+            }
+            bs[bs.length - 1] += b;
+            return bs;
+        }, [])
+        .map((n) => Number(fromTwos(n, 16)))
+        .slice(-3);
+    if (coords.length !== 3) {
+        throw new Error(`failed to get q,r,s from tile id ${tileId}`);
+    }
+    return coords;
+};
+
+const BN_0 = BigInt(0);
+const BN_1 = BigInt(1);
+function fromTwos(n, w) {
+    let value = BigInt(n);
+    let width = BigInt(w);
+    if (value >> (width - BN_1)) {
+        const mask = (BN_1 << width) - BN_1;
+        return -(((~value) & mask) + BN_1);
+    }
+    return value;
+}
+
+function toTwos(_value, _width) {
+    let value = BigInt(_value);
+    let width = BigInt(_width);
+    const limit = (BN_1 << (width - BN_1));
+    if (value < BN_0) {
+        value = -value;
+        const mask = (BN_1 << width) - BN_1;
+        return ((~value) & mask) + BN_1;
+    }
+    return value;
+}
+
+function toInt16Hex(value) {
+    return ('0000'+toTwos(value, 16).toString(16)).slice(-4)
 }
