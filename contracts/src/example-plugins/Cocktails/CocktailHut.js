@@ -3,6 +3,7 @@ import ds from "downstream";
 let UPDATE_COCKTAIL_MS = 100000;
 let lastUpdated = Date.now();
 let cocktail;
+let ticker = 0;
 
 async function getCocktailOfTheMoment() {
     const now = Date.now();
@@ -28,6 +29,7 @@ async function getCocktailOfTheMoment() {
 }
 
 export default async function update({ selected, world }) {
+    ticker++;
     const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
     const selectedBuilding = (world?.buildings || []).find(
@@ -89,12 +91,15 @@ export default async function update({ selected, world }) {
         return neighbourTileIds;
     });
     // build a list of map properties to set for each neighbour
-    const mapProps = cocktailHutNeighbours.flatMap(neighbours => neighbours.map(id => ({
-        type: "tile",
-        key: "color",
-        id,
-        value: "red",
-    })));
+    const mapProps = cocktailHutNeighbours.flatMap(neighbours => neighbours.map((id, idx) => {
+        const lit = ticker % 6 >= idx;
+        return {
+            type: "tile",
+            key: "color",
+            id,
+            value: lit ? "red" : "green",
+        };
+    }));
 
 
     return {
