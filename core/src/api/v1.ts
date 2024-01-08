@@ -39,9 +39,17 @@ export interface PluginV1Component {
     content?: PluginV1ComponentContent[];
 }
 
+export interface PluginV1MapProperty {
+    type?: 'building' | 'tile';
+    id?: string;
+    key?: string;
+    value?: string | number;
+}
+
 export interface PluginV1Response {
     version?: 1;
     components?: PluginV1Component[];
+    map?: PluginV1MapProperty[];
 }
 
 export type PluginResponse = PluginV1Response;
@@ -117,6 +125,14 @@ export function normalizePluginState(res: PluginResponse, submitProxy: PluginSub
             ? res.components
                   .map((c) => normalizePluginV1Component(c, submitProxy))
                   .filter((c): c is PluginStateComponent => c !== null)
+            : [],
+        map: res.map
+            ? res.map.map((kv) => ({
+                  type: kv.type || 'building',
+                  id: kv.id || '',
+                  key: kv.key || '',
+                  value: kv.value || '',
+              }))
             : [],
     };
 }

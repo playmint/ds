@@ -23,6 +23,7 @@ spec:
     file: ./CocktailHut.sol
   plugin:
     file: ./CocktailHut.js
+    alwaysActive: true
   materials:
     - name: Green Goo
       quantity: 25

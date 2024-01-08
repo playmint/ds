@@ -22,7 +22,7 @@ contract PluginRuleTest is Test, GameTest {
         //       have some broader concepts like Zone for plugins to reference without reserorting to "everything"
         bytes24 pluginTarget = 0x0; // NULL node, yuk
         dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_KIND_PLUGIN, (pluginID, pluginTarget, pluginName, pluginSrc))
+            abi.encodeCall(Actions.REGISTER_KIND_PLUGIN, (pluginID, pluginTarget, pluginName, pluginSrc, false))
         );
         assertEq(state.getPlugin(pluginID), pluginTarget, "expected plugin to reference the target node");
     }
@@ -71,7 +71,7 @@ contract PluginRuleTest is Test, GameTest {
         emit AnnotationSet(pluginID, AnnotationKind.CALLDATA, "name", keccak256(bytes(pluginName)), pluginName);
         emit AnnotationSet(pluginID, AnnotationKind.CALLDATA, "src", keccak256(bytes(pluginSrc)), pluginSrc);
         dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_KIND_PLUGIN, (pluginID, buildingKind, pluginName, pluginSrc))
+            abi.encodeCall(Actions.REGISTER_KIND_PLUGIN, (pluginID, buildingKind, pluginName, pluginSrc, false))
         );
         vm.stopPrank();
         // check building kind assigned to plugin
@@ -81,7 +81,7 @@ contract PluginRuleTest is Test, GameTest {
         vm.startPrank(players[1].addr);
         vm.expectRevert("PluginNotPluginOwner"); // expect fail as one wood short
         dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_KIND_PLUGIN, (pluginID, buildingKind, pluginName, "BAD_CODE"))
+            abi.encodeCall(Actions.REGISTER_KIND_PLUGIN, (pluginID, buildingKind, pluginName, "BAD_CODE", false))
         );
         vm.stopPrank();
     }
@@ -128,7 +128,7 @@ contract PluginRuleTest is Test, GameTest {
         vm.startPrank(players[1].addr);
         vm.expectRevert("PluginNotTargetOwner"); // expect fail as one wood short
         dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_KIND_PLUGIN, (pluginID, buildingKind, pluginName, pluginSrc))
+            abi.encodeCall(Actions.REGISTER_KIND_PLUGIN, (pluginID, buildingKind, pluginName, pluginSrc, false))
         );
         vm.stopPrank();
     }

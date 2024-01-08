@@ -9,6 +9,10 @@ fragment AvailablePlugin on Node {
         hash: ref
         value
     }
+    alwaysActive: annotation(name: "alwaysActive") {
+        id
+        value
+    }
     supports: node(match: { via: { rel: "Supports" } }) {
         id
         kind
