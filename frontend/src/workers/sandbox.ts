@@ -1,6 +1,14 @@
-import { GameStatePlugin, Logger, PluginConfig, PluginDispatchFunc, Sandbox } from '@downstream/core';
+import {
+    actionArgFromUnknown,
+    GameStatePlugin,
+    Logger,
+    PluginConfig,
+    PluginDispatchFunc,
+    Sandbox,
+} from '@downstream/core';
 import * as Comlink from 'comlink';
 import { QuickJSContext, QuickJSRuntime, getQuickJS } from 'quickjs-emscripten';
+import ethers from 'ethers';
 
 let runtime: QuickJSRuntime;
 
@@ -134,28 +142,28 @@ export async function newContext(
 
     // expose a way for plugins to do some calldata encoding
     // TODO: we basically want an "ethers lite" for plugins and other utils, binding just this func is not gonna be enough
-    // context
-    //     .newFunction('encodeCall', (reqHandle) => {
-    //         try {
-    //             if (!api.enabled) {
-    //                 console.warn(`plugin-${config.id}: api disabled outside of event handlers`);
-    //                 return context.undefined;
-    //             }
-    //             const [funcsig, args] = JSON.parse(context.getString(reqHandle));
-    //             const callInterface = new ethers.Interface([funcsig]);
-    //             const callFunc = callInterface.getFunction(funcsig);
-    //             if (!callFunc) {
-    //                 throw new Error(`no func found for signature ${funcsig}`);
-    //             }
-    //             const callArgs = callFunc.inputs.map((wanted, idx) => actionArgFromUnknown(wanted, args[idx]));
-    //             const callData = callInterface.encodeFunctionData(callFunc.name, callArgs);
-    //             return context.newString(JSON.stringify(callData));
-    //         } catch (err) {
-    //             console.error(`plugin-${config.id}: failure attempting to encodeCall: ${err}`);
-    //             return context.undefined;
-    //         }
-    //     })
-    //     .consume((fn: any) => context.setProp(dsHandle, 'encodeCall', fn));
+    context
+        .newFunction('encodeCall', (reqHandle) => {
+            try {
+                if (!api.enabled) {
+                    console.warn(`plugin-${config.id}: api disabled outside of event handlers`);
+                    return context.undefined;
+                }
+                const [funcsig, args] = JSON.parse(context.getString(reqHandle));
+                const callInterface = new ethers.Interface([funcsig]);
+                const callFunc = callInterface.getFunction(funcsig);
+                if (!callFunc) {
+                    throw new Error(`no func found for signature ${funcsig}`);
+                }
+                const callArgs = callFunc.inputs.map((wanted, idx) => actionArgFromUnknown(wanted, args[idx]));
+                const callData = callInterface.encodeFunctionData(callFunc.name, callArgs);
+                return context.newString(JSON.stringify(callData));
+            } catch (err) {
+                console.error(`plugin-${config.id}: failure attempting to encodeCall: ${err}`);
+                return context.undefined;
+            }
+        })
+        .consume((fn: any) => context.setProp(dsHandle, 'encodeCall', fn));
 
     // setup the log binding
     context
