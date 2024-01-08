@@ -7,28 +7,58 @@ export default async function update(state) {
 
     const selectedTile = getSelectedTile(state);
     const selectedBuilding = selectedTile && getBuildingOnTile(state, selectedTile);
-    const canCraft = selectedBuilding && inputsAreCorrect(state, selectedBuilding)
-    // uncomment this to be restrictve about which units can craft
-    // this is a client only check - to enforce it in contracts make
-    // similar changes in BasicFactory.sol
-    //    && unitIsFriendly(state, selectedBuilding)
-        ;
+    
+    // get contract data
+    // - initially from description
+    // - then converted to use the new data
 
-    const craft = () => {
+    // check current game state:
+    // - NotStarted : GameActive == false
+    // - Running : GameActive == true && endBlock < currentBlock
+    // - GameOver : GameActive == true && endBlock >= currentBlock
+
+    let buttonList = [];
+    let htmlBlock = '';
+
+    // switch (state)
+    // case NotStared:
+    //  enable join
+    //  check unit has entrance fee
+    const canJoin = false; // hasEntranceFee();
+    buttonList.push({ text: 'Join Game', type: 'action', action: join, disabled: !canJoin });
+    //  check for enough joiners and enable start
+    //
+    // case Running:
+    //  show count
+    //
+    // case GameOver:
+    // enable claim (if on winning team)
+    // enable reset
+
+    const join = () => {
+        if (canJoin)
+            return; 
+
         const mobileUnit = getMobileUnit(state);
 
-        if (!mobileUnit) {
-            console.log('no selected unit');
-            return;
-        }
-
+        const payload = ds.encodeCall(
+            "function join(bytes24 unit)",
+            [mobileUnit.id]
+          );
         ds.dispatch({
             name: 'BUILDING_USE',
-            args: [selectedBuilding.id, mobileUnit.id, []],
+            args: [selectedBuilding.id, mobileUnit.id, payload],
         });
+    }
 
-        console.log('Craft dispatched');
-    };
+    const start = () => { }
+
+    const claim = () => { }
+
+    const reset = () => { }
+
+    
+    
 
     return {
         version: 1,
@@ -41,14 +71,7 @@ export default async function update(state) {
                         id: 'default',
                         type: 'inline',
                         html: '<p>Fill the input slots to enable crafing</p>',
-                        buttons: [
-                            {
-                                text: 'Craft',
-                                type: 'action',
-                                action: craft,
-                                disabled: !canCraft,
-                            },
-                        ],
+                        buttons: buttonList,
                     },
                 ],
             },
