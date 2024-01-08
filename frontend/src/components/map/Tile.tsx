@@ -1,6 +1,6 @@
 import { getTileHeight } from '@app/helpers/tile';
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
-import { WorldTileFragment, getCoords } from '@downstream/core';
+import { WorldTileFragment, getCoords, PluginMapProperty } from '@downstream/core';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { TileHighlight } from './TileHighlight';
 
@@ -47,10 +47,12 @@ export const Tiles = memo(
         tiles,
         selectedTiles,
         onClickTile,
+        randomTileProperties,
     }: {
         tiles?: WorldTileFragment[];
         selectedTiles?: WorldTileFragment[];
         onClickTile: (id: string) => void;
+        randomTileProperties: PluginMapProperty[];
     }) => {
         const [hovered, setHovered] = useState<string | undefined>();
         const hoveredTile = hovered && tiles ? tiles.find((t) => t.id === hovered) : undefined;
@@ -66,6 +68,10 @@ export const Tiles = memo(
         const tileComponents = useMemo(
             () =>
                 (tiles || []).map((t) => {
+                    const color = randomTileProperties.find((prop) => prop.id == t.id)?.value.toString();
+                    if (color) {
+                        console.log(color);
+                    }
                     const coords = getCoords(t);
                     return (
                         <Tile
@@ -73,7 +79,7 @@ export const Tiles = memo(
                             key={t.id}
                             id={t.id}
                             height={getTileHeight(t)}
-                            color="#7288A6"
+                            color={color || '#7288A6'}
                             onPointerEnter={enter}
                             onPointerExit={exit}
                             onPointerClick={onClickTile}
@@ -81,7 +87,7 @@ export const Tiles = memo(
                         />
                     );
                 }),
-            [tiles, enter, exit, onClickTile]
+            [tiles, enter, exit, onClickTile, randomTileProperties]
         );
 
         return (

@@ -74,6 +74,11 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         );
     }, [player?.quests]);
 
+    // console.log(ui);
+    const tileColorsModifiedByPlugins =
+        ui?.flatMap((res) => res.state.map.filter((prop) => prop.type === 'tile')) || [];
+    // console.log(tileColorsModifiedByPlugins);
+
     // setup the unity frame
     useEffect(() => {
         if (!setContainerStyle) {
@@ -273,7 +278,12 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         onPointerEnter={noop}
                         onPointerExit={noop}
                     />
-                    <Tiles tiles={tiles} onClickTile={tileClick} selectedTiles={selectedTiles} />
+                    <Tiles
+                        tiles={tiles}
+                        onClickTile={tileClick}
+                        selectedTiles={selectedTiles}
+                        randomTileProperties={tileColorsModifiedByPlugins}
+                    />
                     <MobileUnits
                         mobileUnits={world?.mobileUnits}
                         buildings={world?.buildings || []}

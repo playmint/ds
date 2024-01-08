@@ -309,8 +309,16 @@ export interface PluginStateComponent {
     content?: PluginStateComponentContent[];
 }
 
+export interface PluginMapProperty {
+    type: 'building' | 'tile';
+    id: string;
+    key: string;
+    value: string | number;
+}
+
 export interface PluginState {
     components: PluginStateComponent[];
+    map: PluginMapProperty[];
 }
 
 export interface PluginUpdateResponse {
