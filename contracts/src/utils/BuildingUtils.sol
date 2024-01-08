@@ -92,7 +92,7 @@ library BuildingUtils {
         if (abi.encodePacked(cfg.plugin).length != 0) {
             dispatcher.dispatch(
                 abi.encodeCall(
-                    Actions.REGISTER_KIND_PLUGIN, (Node.ClientPlugin(id), cfg.buildingKind, cfg.name, cfg.plugin)
+                    Actions.REGISTER_KIND_PLUGIN, (Node.ClientPlugin(id), cfg.buildingKind, cfg.name, cfg.plugin, false)
                 )
             );
         }

@@ -15,6 +15,7 @@ export const ContractSource = z.object({
 export const PluginSource = z.object({
     file: z.string().optional(),
     inline: z.string().optional(),
+    alwaysActive: z.boolean().optional(),
 });
 
 export const Name = z.string().min(3).max(32);
