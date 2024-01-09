@@ -5,6 +5,9 @@ export default async function update(state) {
     // this will be logged when selecting a unit and then selecting an instance of this building
     //logState(state);
 
+    // find all HQs
+    // run this update for each of them:
+
     const selectedTile = getSelectedTile(state);
     const selectedBuilding = selectedTile && getBuildingOnTile(state, selectedTile);
     
@@ -19,6 +22,7 @@ export default async function update(state) {
 
     let buttonList = [];
     let htmlBlock = '';
+    // map data
 
     // switch (state)
     // case NotStared:
@@ -62,6 +66,7 @@ export default async function update(state) {
 
     return {
         version: 1,
+        // map: []
         components: [
             {
                 id: 'basic-factory',

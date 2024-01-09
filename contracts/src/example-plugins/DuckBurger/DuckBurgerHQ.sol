@@ -36,8 +36,7 @@ contract BasicFactory is BuildingKind {
         
         // check game not in progress
 
-        // take payment
-        // _transferFromMobileUnit ()
+        // verify payment has been made
         // todo - how do we determine which slot the payment is in
         // todo - decide which bag IDs and slots the fees/prize money is stored in
 
@@ -57,6 +56,8 @@ contract BasicFactory is BuildingKind {
         // or
         //uint256 endBlock = block.number + 10 * 60 * 30;
         //state.setData(buildingId, "endBlock", endblock);
+
+        // gameActive
 
         // set team buildings
     }
