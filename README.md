@@ -46,14 +46,18 @@ You will need the following tools installed:
 - Go toolchain (go v1.19)
 - Solidity toolchain (foundry)
 - Ethereum binaries (abigen)
+- Git (The in-house frontend is Fork)
+- Git-LFS
 - Unity Editor (2021.3.13f1)
   - Unity WebGL submodule
 
-clone this repository:
+Make sure LFS is initialised and then clone this repository:
 
 ```
+git lfs version
 git clone --recurse-submodules https://github.com/playmint/ds.git
 ```
+
 
 build and start the client and supporting services in development mode run:
 
