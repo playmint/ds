@@ -8,7 +8,7 @@ import {
 } from '@downstream/core';
 import * as Comlink from 'comlink';
 import { QuickJSContext, QuickJSRuntime, getQuickJS } from 'quickjs-emscripten';
-import ethers from 'ethers';
+import { ethers } from 'ethers';
 
 let runtime: QuickJSRuntime;
 
