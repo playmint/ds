@@ -98,6 +98,10 @@ fragment WorldBuilding on Node {
     location: edge(match: { kinds: "Tile", via: { rel: "Location", key: 2 } }) {
         ...Location
     }
+    allData {
+        name
+        value
+    }
 }
 
 fragment WorldCombatSession on Node {
