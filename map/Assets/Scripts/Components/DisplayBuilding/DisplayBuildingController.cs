@@ -18,8 +18,20 @@ public class DisplayBuildingController : BaseComponentController<DisplayBuilding
     [SerializeField]
     Animator countDownAnim;
 
+    [SerializeField]
+    private Renderer[] outlineObjs;
+    [SerializeField]
+    private Renderer[] renderers;
+
     public Material redOutlineMat,
         greenOutlineMat;
+
+    private Color _defaultColor;
+
+    private void Awake()
+    {
+        _defaultColor = renderers[0].material.GetColor("_EmissionColor");
+    }
 
     protected void Update()
     {
@@ -70,6 +82,41 @@ public class DisplayBuildingController : BaseComponentController<DisplayBuilding
         Vector3 worldPos = CoordsHelper.CubeToWorld(cubeCoords);
         transform.position = new Vector3(worldPos.x, _nextData.height, worldPos.z);
         transform.GetChild(0).localEulerAngles = new Vector3(0, _nextData.rotation, 0);
+
+
+        if (_nextData.selected == "outline")
+        {
+            foreach (Renderer outlineObj in outlineObjs)
+            {
+                outlineObj.material = redOutlineMat;
+            }
+            foreach (Renderer rend in renderers)
+            {
+                rend.material.SetColor("_EmissionColor", _defaultColor);
+            }
+        }
+        else if (_nextData.selected == "highlight")
+        {
+            foreach (Renderer outlineObj in outlineObjs)
+            {
+                outlineObj.material = greenOutlineMat;
+            }
+            foreach (Renderer rend in renderers)
+            {
+                rend.material.SetColor("_EmissionColor", highlightColor);
+            }
+        }
+        else
+        {
+            foreach (Renderer outlineObj in outlineObjs)
+            {
+                outlineObj.material = greenOutlineMat;
+            }
+            foreach (Renderer rend in renderers)
+            {
+                rend.material.SetColor("_EmissionColor", _defaultColor);
+            }
+        }
 
         _prevData = _nextData;
     }
