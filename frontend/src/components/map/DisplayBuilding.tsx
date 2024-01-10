@@ -80,6 +80,7 @@ export const DisplayBuilding = memo(
 
         const calculateTimeLeft = () => {
             const now = new Date();
+            if (!startTime) return 600;
             if (now < startTime) {
                 return Math.floor((endTime - startTime) / 1000);
             } else if (now > endTime) {

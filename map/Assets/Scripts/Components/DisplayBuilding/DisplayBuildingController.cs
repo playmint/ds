@@ -46,7 +46,7 @@ public class DisplayBuildingController : BaseComponentController<DisplayBuilding
                 if (_nextData.model == "countdown")
                 {
                     countdownText.text = _nextData.labelText;
-                    if (_nextData.startTime >= 0.9f)
+                    if (countdownText.text=="00:00")
                     {
                         countDownAnim.speed = 1f;
                         countDownAnim.Play("Timer_Complete");

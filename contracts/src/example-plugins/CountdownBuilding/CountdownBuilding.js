@@ -7,7 +7,7 @@ async function getRemainingTime() {
     if(!startTime || !endTime || now>endTime)
     {
         startTime = now+5000;
-        endTime = now + 15000;
+        endTime = now + 65000;
     }
     return [startTime, endTime];
 }
