@@ -1,10 +1,17 @@
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
 import { GOO_BLUE, GOO_GREEN, GOO_RED, getTileHeightFromCoords, getUnscaledNoiseFromCoords } from '@app/helpers/tile';
-import { BuildingKindFragment, WorldBuildingFragment, WorldTileFragment, getCoords } from '@downstream/core';
+import {
+    BuildingKindFragment,
+    PluginMapProperty,
+    WorldBuildingFragment,
+    WorldTileFragment,
+    getCoords,
+} from '@downstream/core';
 import { memo, useMemo } from 'react';
 import { BlockerBuilding } from './BlockerBuilding';
 import { ExtractorBuilding } from './ExtractorBuilding';
 import { FactoryBuilding } from './FactoryBuilding';
+import { DisplayBuilding } from './DisplayBuilding';
 
 function getColorFromGoo(kind) {
     const outputName = kind?.outputs?.find((e) => ['Green Goo', 'Blue Goo', 'Red Goo'].includes(e.item.name?.value))
@@ -46,11 +53,13 @@ export const Buildings = memo(
         buildings,
         selectedElementID,
         onClickBuilding,
+        randomTileProperties,
     }: {
         tiles: WorldTileFragment[];
         buildings: WorldBuildingFragment[];
         selectedElementID?: string;
         onClickBuilding: (id: string) => void;
+        randomTileProperties: PluginMapProperty[];
     }) => {
         const buildingComponents = useMemo(
             () =>
@@ -96,6 +105,33 @@ export const Buildings = memo(
                                 {...coords}
                             />
                         );
+                    } else if (getBuildingCategory(b.kind) == BuildingCategory.DISPLAY) {
+                        const labelText = randomTileProperties
+                            .find((prop) => prop.id == b.id && prop.key == 'labelText')
+                            ?.value.toString();
+                        const startTimeObject = randomTileProperties.find(
+                            (prop) => prop.id == b.id && prop.key == 'countdown-start'
+                        )?.value as unknown as { start: number };
+
+                        const endTimeObject = randomTileProperties.find(
+                            (prop) => prop.id == b.id && prop.key == 'countdown-end'
+                        )?.value as unknown as { end: number };
+                        return (
+                            <DisplayBuilding
+                                startTime={startTimeObject?.start}
+                                endTime={endTimeObject?.end}
+                                labelText={labelText}
+                                sendScreenPosition={true}
+                                screenPositionHeightOffset={0.55}
+                                key={b.id}
+                                id={b.id}
+                                height={height}
+                                rotation={rotation}
+                                selected={selected}
+                                onPointerClick={onClickBuilding}
+                                {...coords}
+                            />
+                        );
                     } else {
                         return (
                             <FactoryBuilding
@@ -111,7 +147,7 @@ export const Buildings = memo(
                         );
                     }
                 }),
-            [buildings, selectedElementID, onClickBuilding, tiles]
+            [buildings, selectedElementID, tiles, onClickBuilding, randomTileProperties]
         );
 
         return <>{buildingComponents}</>;

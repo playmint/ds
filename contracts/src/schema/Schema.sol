@@ -68,7 +68,8 @@ enum BuildingCategory {
     BLOCKER,
     EXTRACTOR,
     ITEM_FACTORY,
-    CUSTOM
+    CUSTOM,
+    DISPLAY
 }
 
 enum QuestStatus {

@@ -1,24 +1,44 @@
-import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
-import { memo, useMemo } from 'react';
+import React from 'react';
 
-export interface LabelData {
-    q: number;
-    r: number;
-    s: number;
-    height: number;
-    text: string;
-    sendScreenPosition?: boolean;
-}
+const Label = ({ text, position }) => {
+    const commonStyles: React.CSSProperties = {
+        position: `absolute`,
+        width: `calc(550 * ${position?.z || 0}px)`,
+        height: `calc(600 * ${position?.z || 0}px)`,
+        left: `calc(${position?.x || 0} * 100vw)`,
+        bottom: `calc(${position?.y || 0} * 100vh)`,
+        zIndex: '2',
+        marginLeft: `calc(-275 * ${position?.z || 0}px)`,
+        marginTop: `calc(-275 * ${position?.z || 0}px)`,
+        display: 'block',
+    };
+    const unselectedStyles: React.CSSProperties = {
+        ...commonStyles,
+        backgroundColor: '#000',
+    };
 
-export const Label = memo(({ id, q, r, s, height, text, sendScreenPosition }: UnityComponentProps & LabelData) => {
-    useUnityComponentManager<LabelData>({
-        type: 'LabelData',
-        id,
-        data: useMemo(
-            () => ({ q, r, s, height, text, sendScreenPosition }),
-            [q, r, s, height, text, sendScreenPosition]
-        ),
-    });
+    const renderUnitContent = (text, position) => {
+        return (
+            <div
+                style={{
+                    width: `100%`,
+                    height: `100%`,
+                    position: 'absolute',
+                    display: 'block',
+                    backgroundColor: '#FFF',
+                    fontSize: `calc(100 * ${position?.z || 0}px)`,
+                }}
+            >
+                {text}
+            </div>
+        );
+    };
 
-    return null;
-});
+    return (
+        <>
+            <div style={unselectedStyles}>{renderUnitContent(text, position)}</div>
+        </>
+    );
+};
+
+export default Label;
