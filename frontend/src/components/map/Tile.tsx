@@ -69,9 +69,6 @@ export const Tiles = memo(
             () =>
                 (tiles || []).map((t) => {
                     const color = randomTileProperties.find((prop) => prop.id == t.id)?.value.toString();
-                    if (color) {
-                        console.log(color);
-                    }
                     const coords = getCoords(t);
                     return (
                         <Tile

@@ -77,7 +77,9 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     // console.log(ui);
     const tileColorsModifiedByPlugins =
         ui?.flatMap((res) => res.state.map.filter((prop) => prop.type === 'tile')) || [];
-    // console.log(tileColorsModifiedByPlugins);
+
+    const displayBuildingDataModifiedByPlugins =
+        ui?.flatMap((res) => res.state.map.filter((prop) => prop.type === 'building')) || [];
 
     // setup the unity frame
     useEffect(() => {
@@ -171,6 +173,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         switch (selectedMapElement.type) {
             case 'FactoryBuildingData':
             case 'BlockerBuildingData':
+            case 'DisplayBuildingData':
             case 'ExtractorBuildingData':
                 {
                     const t = tiles.find(
@@ -304,6 +307,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         buildings={world?.buildings || []}
                         onClickBuilding={mapElementClick}
                         selectedElementID={selectedMapElement?.id}
+                        randomTileProperties={displayBuildingDataModifiedByPlugins}
                     />
                     <CombatSessions tiles={tiles || []} sessions={world?.sessions || []} />
                 </>
