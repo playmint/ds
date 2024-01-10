@@ -15,6 +15,7 @@ export interface DisplayBuildingData {
     labelText;
     startTime;
     endTime;
+    model?: string;
     onUpdatePosition?: (id: string, x: number, y: number, z: number, isVisible: boolean) => void;
 }
 
@@ -33,6 +34,7 @@ export const DisplayBuilding = memo(
         labelText,
         startTime,
         endTime,
+        model,
         onUpdatePosition,
         onPointerEnter,
         onPointerExit,
@@ -76,7 +78,6 @@ export const DisplayBuilding = memo(
 
         selected = selected != 'outline' && hovered ? 'highlight' : selected;
 
-
         const calculateTimeLeft = () => {
             const now = new Date();
             if (now < startTime) {
@@ -104,6 +105,9 @@ export const DisplayBuilding = memo(
             return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         };
 
+        const modifiedStartTime = (Date.now() - startTime) / (endTime - startTime);
+        const modifiedLabelText = startTime ? formatTime(timeLeft) : labelText;
+
         useUnityComponentManager<DisplayBuildingData>({
             type: 'DisplayBuildingData',
             id,
@@ -120,9 +124,10 @@ export const DisplayBuilding = memo(
                     screenPositionHeightOffset,
                     position: { x, y, z },
                     isVisible,
-                    labelText,
-                    startTime,
+                    labelText: modifiedLabelText,
+                    startTime: modifiedStartTime,
                     endTime,
+                    model,
                 }),
                 [
                     q,
@@ -138,9 +143,10 @@ export const DisplayBuilding = memo(
                     y,
                     z,
                     isVisible,
-                    labelText,
-                    startTime,
+                    modifiedLabelText,
+                    modifiedStartTime,
                     endTime,
+                    model,
                 ]
             ),
             onPointerEnter,
@@ -148,8 +154,6 @@ export const DisplayBuilding = memo(
             onPointerClick,
             onPositionUpdate,
         });
-        if (labelText) return <Label key={id} text={labelText} position={position} />;
-        else if (startTime) return <Label key={id} text={formatTime(timeLeft)} position={position} />;
-        else return null;
+        return null;
     }
 );

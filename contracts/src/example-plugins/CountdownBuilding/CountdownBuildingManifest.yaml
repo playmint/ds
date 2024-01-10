@@ -4,7 +4,7 @@ spec:
   name: Countdown Building
   description: "Countdown something!"
   category: display
-  model: default
+  model: countdown
   color: 4
   contract:
     file: ./CountdownBuilding.sol

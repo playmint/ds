@@ -118,6 +118,7 @@ export const Buildings = memo(
                         )?.value as unknown as { end: number };
                         return (
                             <DisplayBuilding
+                                model={b.kind?.model?.value}
                                 startTime={startTimeObject?.start}
                                 endTime={endTimeObject?.end}
                                 labelText={labelText}

@@ -79,6 +79,7 @@ const DecorativeModel = z.enum([
     'rocksSmall',
 ]);
 const ExtractorModel = z.enum(['red', 'green', 'blue']);
+const DisplayModel = z.enum(['default', 'countdown']);
 
 export const BuildingKindFactorySpec = z.object({
     category: z.literal('factory'),
@@ -97,7 +98,7 @@ export const BuildingKindDisplaySpec = z.object({
     category: z.literal('display'),
     name: Name,
     description: OneLiner.optional(),
-    model: z.literal('default'),
+    model: DisplayModel,
     color: z.number().min(0).max(5).optional(),
     contract: ContractSource.optional(),
     plugin: PluginSource.optional(),
