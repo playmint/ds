@@ -2,21 +2,18 @@ let UPDATE_MS = 1000;
 let lastUpdated = Date.now();
 let textToDisplay;
 
+function getRandomTwoDigit() {
+    return Math.floor(Math.random() * 90 + 10);
+}
+
 async function getCocktailOfTheMoment() {
     console.log("UPDATING DISPLAY BUILDING");
     const now = Date.now();
     const recentlyUpdate = now - lastUpdated < UPDATE_MS;
     if (!textToDisplay || !recentlyUpdate) {
-        lastUpdated = now;
-        textToDisplay = await fetch(
-            `https://www.thecocktaildb.com/api/json/v1/1/random.php`,
-        ).then((res) => res.json());
+        textToDisplay = getRandomTwoDigit().toString();
     }
-    if (!textToDisplay) {
-        return "A Mystery";
-    }
-    const drink = textToDisplay.drinks.find(() => true);
-    return `${drink.strDrink}`;
+    return textToDisplay.toString();
 }
 
 export default async function update() {
