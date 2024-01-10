@@ -16,11 +16,14 @@ export default async function update(state) {
     //    && unitIsFriendly(state, selectedBuilding)
 
     console.log(selectedBuilding);
+
     const incrementHex = getData(selectedBuilding, "increment");
     const increment =
         typeof incrementHex === "string" && parseInt(incrementHex, 16);
 
     const unitId = getData(selectedBuilding, "actor");
+
+    const boolVal = getDataBool(selectedBuilding, "boolVal");
 
     const updateData = () => {
         const mobileUnit = getMobileUnit(state);
@@ -52,6 +55,8 @@ export default async function update(state) {
                             ${unitId ? unitId.slice(-4) : "0x0"}
                             <h3>Increment</h3>
                             ${increment}
+                            <h3>Bool val</h3>
+                            ${boolVal}
                         `,
                         buttons: [
                             {
@@ -125,6 +130,11 @@ function inputsAreCorrect(state, building) {
 
 function getData(buildingInstance, key) {
     return getKVPs(buildingInstance)[key];
+}
+
+function getDataBool(buildingInstance, key) {
+    var hexVal = getData(buildingInstance, key);
+    return typeof hexVal === "string" ? parseInt(hexVal, 16) == 1 : false;
 }
 
 function getKVPs(buildingInstance) {

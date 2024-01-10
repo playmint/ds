@@ -17,27 +17,13 @@ contract BasicFactory is BuildingKind {
 
         uint256 increment = uint256(state.getData(buildingInstance, "increment"));
         state.setData(buildingInstance, "increment", bytes32(increment + 1));
-        // state.annotate(buildingInstance, "testAnn", "Test annotation");
+
+        // TODO: Why doesn't getDataBool work? I'm having trouble deploying the contract
+        // bool b = state.getDataBool(buildingInstance, "boolVal");
+
+        bool b = uint256(state.getData(buildingInstance, "boolVal")) == 1;
+        state.setData(buildingInstance, "boolVal", !b);
     }
-
-    // version of use that restricts crafting to building owner, author or allow list
-    // these restrictions will not be reflected in the UI unless you make
-    // similar changes in BasicFactory.js
-    /*function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes memory ) public {
-        State state = GetState(ds);
-        CheckIsFriendlyUnit(state, actor, buildingInstance);
-
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.CRAFT, (buildingInstance)));
-    }*/
-
-    // version of use that restricts crafting to units carrying a certain item
-    /*function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes memory ) public {
-        // require carrying an idCard
-        // you can change idCardItemId to another item id
-        CheckIsCarryingItem(state, actor, idCardItemId);
-    
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.CRAFT, (buildingInstance)));
-    }*/
 
     function GetState(Game ds) internal returns (State) {
         return ds.getState();
