@@ -21,7 +21,6 @@ uint8 constant MAX_NEXT_QUESTS = 5;
  *     number instead of checking all 256 slots
  * - The player can only ever complete 256 quests. We don't have any mechanism of tidying up completed quests
  */
-
 contract QuestRule is Rule {
     constructor() {}
 
