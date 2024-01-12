@@ -5,7 +5,7 @@ import "cog/IGame.sol";
 import "cog/IState.sol";
 import "cog/IRule.sol";
 
-import {Schema, Node, Kind, DEFAULT_ZONE, BuildingCategory} from "@ds/schema/Schema.sol";
+import {Schema, Node, Kind, DEFAULT_ZONE, BuildingCategory, BuildingBlockNumKey} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
@@ -94,6 +94,9 @@ contract BuildingRule is Rule {
             (bytes24 buildingInstance, bytes24 mobileUnitID, bytes memory payload) =
                 abi.decode(action[4:], (bytes24, bytes24, bytes));
             _useBuilding(state, buildingInstance, mobileUnitID, payload, ctx);
+        } else if (bytes4(action) == Actions.SET_DATA_ON_BUILDING.selector) {
+            (bytes24 buildingID, string memory key, bytes32 data) = abi.decode(action[4:], (bytes24, string, bytes32));
+            _setDataOnBuilding(state, ctx, buildingID, key, data);
         }
 
         return state;
@@ -237,6 +240,8 @@ contract BuildingRule is Rule {
         state.setOwner(buildingInstance, Node.Player(ctx.sender));
         // set building location
         state.setFixedLocation(buildingInstance, targetTile);
+        // set construction block num
+        state.setBlockNum(buildingInstance, uint8(BuildingBlockNumKey.CONSTRUCTION), ctx.clock);
 
         // attach the inputs/output bags
         bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "input")))));
@@ -250,7 +255,7 @@ contract BuildingRule is Rule {
 
         if (category == BuildingCategory.EXTRACTOR) {
             // set initial extraction timestamp
-            state.setBlockNum(buildingInstance, 0, ctx.clock);
+            state.setBlockNum(buildingInstance, uint8(BuildingBlockNumKey.EXTRACTION), ctx.clock);
             // Set output bag owner to player so that only they can take the extracted items
             state.setOwner(outputBag, Node.Player(ctx.sender));
         }
@@ -405,5 +410,23 @@ contract BuildingRule is Rule {
         state.setInput(buildingKind, 2, inputItem[2], inputQty[2]);
         state.setInput(buildingKind, 3, inputItem[3], inputQty[3]);
         state.setOutput(buildingKind, 0, outputItem, outputQty);
+    }
+
+    function _setDataOnBuilding(State state, Context calldata ctx, bytes24 buildingID, string memory key, bytes32 data)
+        private
+    {
+        require(
+            bytes4(buildingID) == Kind.Building.selector, "cannot set data on building. Supplied ID not building ID"
+        );
+
+        // get building kind implementation
+        bytes24 buildingKind = state.getBuildingKind(buildingID);
+        address buildingImplementation = state.getImplementation(buildingKind);
+
+        require(
+            ctx.sender == buildingImplementation, "cannot set data on building. Caller must be building implemenation"
+        );
+
+        state.setData(buildingID, key, data);
     }
 }

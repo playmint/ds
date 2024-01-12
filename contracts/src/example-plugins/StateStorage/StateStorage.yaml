@@ -1,0 +1,29 @@
+---
+kind: BuildingKind
+spec:
+  category: custom
+  name: state storage
+  description: Building used to test storage of data on buildings
+  model: 05-11
+  color: 5
+  contract:
+    file: ./StateStorage.sol
+  plugin:
+    file: ./StateStorage.js
+  materials:
+    - name: Red Goo
+      quantity: 10
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+  inputs:
+    - name: Red Goo
+      quantity: 25
+    - name: Green Goo
+      quantity: 25
+    - name: Blue Goo
+      quantity: 25
+  outputs:
+    - name: Red Goo
+      quantity: 1

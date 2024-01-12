@@ -87,6 +87,7 @@ contract DownstreamGame is BaseGame {
         state.registerEdgeType(Rel.HasQuest.selector, "HasQuest", WeightKind.UINT64);
         state.registerEdgeType(Rel.HasTask.selector, "HasTask", WeightKind.UINT64);
         state.registerEdgeType(Rel.ID.selector, "ID", WeightKind.UINT64);
+        state.registerEdgeType(Rel.HasBlockNum.selector, "HasBlockNum", WeightKind.UINT64);
 
         // create a session router
         BaseRouter router = new DownstreamRouter();
