@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 import "cog/IState.sol";
 import "cog/IRule.sol";
 
-import {Schema, Node, BiomeKind, BuildingCategory, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Schema, Node, BiomeKind, BuildingCategory, BuildingBlockNumKey, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
 using Schema for State;
@@ -102,7 +102,7 @@ contract CheatsRule is Rule {
 
         if (category == BuildingCategory.EXTRACTOR) {
             // set initial extraction timestamp
-            state.setBlockNum(buildingInstance, 0, ctx.clock);
+            state.setBlockNum(buildingInstance, uint8(BuildingBlockNumKey.EXTRACTION), ctx.clock);
 
             // set inital reservoir to full
             state.setBuildingReservoirAtoms(buildingInstance, [uint64(499), uint64(499), uint64(499)]);

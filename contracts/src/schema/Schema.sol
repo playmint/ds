@@ -22,6 +22,7 @@ interface Rel {
     function HasTask() external;
     function HasQuest() external;
     function ID() external;
+    function HasBlockNum() external;
 }
 
 interface Kind {
@@ -75,6 +76,11 @@ enum QuestStatus {
     NONE,
     ACCEPTED,
     COMPLETED
+}
+
+enum BuildingBlockNumKey {
+    CONSTRUCTION,
+    EXTRACTION
 }
 
 int16 constant DEFAULT_ZONE = 0;
@@ -467,12 +473,11 @@ library Schema {
     }
 
     function setBlockNum(State state, bytes24 kind, uint8 slot, uint64 blockNum) internal {
-        // TODO: don't use generic `Has` selector as it could conflict with something else
-        return state.set(Rel.Has.selector, slot, kind, Node.BlockNum(), blockNum);
+        return state.set(Rel.HasBlockNum.selector, slot, kind, Node.BlockNum(), blockNum);
     }
 
     function getBlockNum(State state, bytes24 kind, uint8 slot) internal view returns (uint64 blockNum) {
-        ( /*bytes24 item*/ , blockNum) = state.get(Rel.Has.selector, slot, kind);
+        ( /*bytes24 item*/ , blockNum) = state.get(Rel.HasBlockNum.selector, slot, kind);
     }
 
     function getTaskKind(State, /*state*/ bytes24 task) internal pure returns (uint32) {
