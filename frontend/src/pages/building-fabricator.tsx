@@ -799,6 +799,7 @@ const ITEM_ICONS = [
     '22-115',
     '14-183',
     '09-213',
+    '27-101',
 ];
 
 const StyledBuildingFabricator = styled.div`
