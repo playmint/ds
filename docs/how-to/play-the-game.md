@@ -101,7 +101,7 @@ When a Unit attacks a Building it begins a combat session. This will continue un
 
 ## Combat Session Flow
 
-- The combat will session will “tick” every few blocks
+- The combat session will “tick” every few blocks
 - Each tick, the combatants on each side will attack a random participant on the other side
 - Damage is worked out with the calculation:
 
@@ -109,7 +109,7 @@ When a Unit attacks a Building it begins a combat session. This will continue un
 Defender's Life -= 1 + (All Attacker's ATK - Defender's DEF)
 ```
 
-- When a combatant has lost all of their life they are no longer affect the session
+- When a combatant has lost all of their life they no longer affect the session
     - They do not do any damage
     - They are not chosen as a target to attack
 
