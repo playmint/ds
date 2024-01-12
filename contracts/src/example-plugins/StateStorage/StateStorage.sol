@@ -11,18 +11,23 @@ using Schema for State;
 
 contract BasicFactory is BuildingKind {
     function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes memory /*payload*/ ) public {
-        // ds.getDispatcher().dispatch(abi.encodeCall(Actions.CRAFT, (buildingInstance)));
         State state = GetState(ds);
-        state.setData(buildingInstance, "actor", bytes32(abi.encodePacked(uint64(0), actor))); // Added 64 bits (8 bytes) of padding to the 24 byte ID
+        // NOTE: Added 64 bits (8 bytes) of padding to the 24 byte ID
+        ds.getDispatcher().dispatch(
+            abi.encodeCall(
+                Actions.SET_DATA_ON_BUILDING, (buildingInstance, "actor", bytes32(abi.encodePacked(uint64(0), actor)))
+            )
+        );
 
         uint256 increment = uint256(state.getData(buildingInstance, "increment"));
-        state.setData(buildingInstance, "increment", bytes32(increment + 1));
-
-        // TODO: Why doesn't getDataBool work? I'm having trouble deploying the contract
-        // bool b = state.getDataBool(buildingInstance, "boolVal");
+        ds.getDispatcher().dispatch(
+            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingInstance, "increment", bytes32(increment + 1)))
+        );
 
         bool b = uint256(state.getData(buildingInstance, "boolVal")) == 1;
-        state.setData(buildingInstance, "boolVal", !b);
+        ds.getDispatcher().dispatch(
+            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingInstance, "boolVal", bytes32(uint256(!b ? 1 : 0))))
+        );
     }
 
     function GetState(Game ds) internal returns (State) {

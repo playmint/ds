@@ -94,6 +94,9 @@ contract BuildingRule is Rule {
             (bytes24 buildingInstance, bytes24 mobileUnitID, bytes memory payload) =
                 abi.decode(action[4:], (bytes24, bytes24, bytes));
             _useBuilding(state, buildingInstance, mobileUnitID, payload, ctx);
+        } else if (bytes4(action) == Actions.SET_DATA_ON_BUILDING.selector) {
+            (bytes24 buildingID, string memory key, bytes32 data) = abi.decode(action[4:], (bytes24, string, bytes32));
+            _setDataOnBuilding(state, ctx, buildingID, key, data);
         }
 
         return state;
@@ -407,5 +410,23 @@ contract BuildingRule is Rule {
         state.setInput(buildingKind, 2, inputItem[2], inputQty[2]);
         state.setInput(buildingKind, 3, inputItem[3], inputQty[3]);
         state.setOutput(buildingKind, 0, outputItem, outputQty);
+    }
+
+    function _setDataOnBuilding(State state, Context calldata ctx, bytes24 buildingID, string memory key, bytes32 data)
+        private
+    {
+        require(
+            bytes4(buildingID) == Kind.Building.selector, "cannot set data on building. Supplied ID not building ID"
+        );
+
+        // get building kind implementation
+        bytes24 buildingKind = state.getBuildingKind(buildingID);
+        address buildingImplementation = state.getImplementation(buildingKind);
+
+        require(
+            ctx.sender == buildingImplementation, "cannot set data on building. Caller must be building implemenation"
+        );
+
+        state.setData(buildingID, key, data);
     }
 }
