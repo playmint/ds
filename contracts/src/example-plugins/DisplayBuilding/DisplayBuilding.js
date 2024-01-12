@@ -6,7 +6,7 @@ function getRandomTwoDigit() {
     return Math.floor(Math.random() * 90 + 10);
 }
 
-async function getCocktailOfTheMoment() {
+async function getRandomNumber() {
     console.log("UPDATING DISPLAY BUILDING");
     const now = Date.now();
     const recentlyUpdate = now - lastUpdated < UPDATE_MS;
@@ -17,15 +17,22 @@ async function getCocktailOfTheMoment() {
 }
 
 export default async function update() {
-    const text = await getCocktailOfTheMoment();
+    const text = await getRandomNumber();
+    const text2 = await getRandomNumber();
     return {
         version: 1,
         map: [
             {
                 type: "building",
-                id: "0x34cf8a7e000000000000000000000000000000010000ffff",
+                id: "0x34cf8a7e000000000000000000000000000000020000fffe",
                 key: "labelText",
                 value: `${text}`,
+            },
+            {
+                type: "building",
+                id: "0x34cf8a7e000000000000000000000000000000030000fffd",
+                key: "labelText",
+                value: `${text2}`,
             },
         ],
         components: [

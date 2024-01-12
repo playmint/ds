@@ -19,6 +19,9 @@ public class DisplayBuildingController : BaseComponentController<DisplayBuilding
     Animator countDownAnim;
 
     [SerializeField]
+    Transform rooves;
+
+    [SerializeField]
     private Renderer[] outlineObjs;
     [SerializeField]
     private Renderer[] renderers;
@@ -47,7 +50,7 @@ public class DisplayBuildingController : BaseComponentController<DisplayBuilding
                 || _nextData.model != _prevData.model
             )
             {
-                if (_nextData.model == "countdown")
+                if (_nextData.model.Contains("countdown"))
                     countdownObj.SetActive(true);
                 else
                     displayObj.SetActive(true);
@@ -55,7 +58,7 @@ public class DisplayBuildingController : BaseComponentController<DisplayBuilding
 
             if (_nextData.labelText != _prevData?.labelText)
             {
-                if (_nextData.model == "countdown")
+                if (_nextData.model.Contains("countdown"))
                 {
                     countdownText.text = _nextData.labelText;
                     if (countdownText.text=="00:00")
@@ -82,6 +85,17 @@ public class DisplayBuildingController : BaseComponentController<DisplayBuilding
         Vector3 worldPos = CoordsHelper.CubeToWorld(cubeCoords);
         transform.position = new Vector3(worldPos.x, _nextData.height, worldPos.z);
         transform.GetChild(0).localEulerAngles = new Vector3(0, _nextData.rotation, 0);
+        int colorID;
+
+        if (int.TryParse(_nextData.color, out colorID))
+        {
+            Debug.Log("PARSED COLOR ID: " + colorID);
+            if (colorID < rooves.childCount)
+            {
+                Debug.Log("COLOR ID IS VALID: " + colorID);
+                rooves.GetChild(colorID).gameObject.SetActive(true);
+            }
+        }
 
 
         if (_nextData.selected == "outline")

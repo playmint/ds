@@ -20,13 +20,13 @@ export default async function update() {
         map: [
             {
                 type: "building",
-                id: "0x34cf8a7e000000000000000000000000000000020000fffe",
+                id: "0x34cf8a7e000000000000000000000000000000010000ffff",
                 key: "countdown-start",
                 value: {start},
             },
             {
                 type: "building",
-                id: "0x34cf8a7e000000000000000000000000000000020000fffe",
+                id: "0x34cf8a7e000000000000000000000000000000010000ffff",
                 key: "countdown-end",
                 value: {end},
             },

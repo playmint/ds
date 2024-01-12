@@ -106,6 +106,7 @@ export const Buildings = memo(
                             />
                         );
                     } else if (getBuildingCategory(b.kind) == BuildingCategory.DISPLAY) {
+                        console.log(b.id);
                         const labelText = randomTileProperties
                             .find((prop) => prop.id == b.id && prop.key == 'labelText')
                             ?.value.toString();

@@ -1,11 +1,11 @@
 ---
 kind: BuildingKind
 spec:
-  name: Display Building
-  description: "Display something!"
+  name: Burger Display Building
+  description: "Displays the Burger score!"
   category: display
   model: default
-  color: 2
+  color: 1
   contract:
     file: ./DisplayBuilding.sol
   plugin:

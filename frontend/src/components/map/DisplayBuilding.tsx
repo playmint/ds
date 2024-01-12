@@ -26,7 +26,6 @@ export const DisplayBuilding = memo(
         r,
         s,
         height,
-        color,
         selected,
         rotation,
         sendScreenPosition,
@@ -44,7 +43,8 @@ export const DisplayBuilding = memo(
         const [position, setPosition] = useState({ x: 0, y: 0, z: 0 });
         const [isVisible, setVisible] = useState(false);
         const { x, y, z } = position;
-
+        const [bottom, color] = model?.split('-') || [];
+        const combinedModel = `${bottom || 'default'}`;
         onPointerEnter = useCallback(() => setHovered(true), []);
         onPointerExit = useCallback(() => setHovered(false), []);
 
@@ -118,7 +118,7 @@ export const DisplayBuilding = memo(
                     r,
                     s,
                     height,
-                    color,
+                    color: color || '0',
                     selected,
                     rotation,
                     sendScreenPosition,
@@ -128,7 +128,7 @@ export const DisplayBuilding = memo(
                     labelText: modifiedLabelText,
                     startTime: modifiedStartTime,
                     endTime,
-                    model,
+                    model: combinedModel || 'default',
                 }),
                 [
                     q,
@@ -147,7 +147,7 @@ export const DisplayBuilding = memo(
                     modifiedLabelText,
                     modifiedStartTime,
                     endTime,
-                    model,
+                    combinedModel,
                 ]
             ),
             onPointerEnter,
