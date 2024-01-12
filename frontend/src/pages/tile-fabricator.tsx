@@ -411,6 +411,7 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                 },
                 timestamp: null,
                 gooReservoir: [],
+                allData: [],
             };
         };
 

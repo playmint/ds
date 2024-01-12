@@ -491,4 +491,20 @@ library Schema {
         (bytes24 quest, uint64 status) = state.get(Rel.HasQuest.selector, questNum, player);
         return (quest, QuestStatus(status));
     }
+
+    function setData(State state, bytes24 nodeID, string memory key, bool data) internal {
+        state.setData(nodeID, key, bytes32(uint256(data ? 1 : 0)));
+    }
+
+    function setData(State state, bytes24 nodeID, string memory key, uint256 data) internal {
+        state.setData(nodeID, key, bytes32(uint256(data)));
+    }
+
+    function getDataBool(State state, bytes24 nodeID, string memory key) external view returns (bool) {
+        return uint256(state.getData(nodeID, key)) == 1;
+    }
+
+    function getDataUint256(State state, bytes24 nodeID, string memory key) external view returns (uint256) {
+        return uint256(state.getData(nodeID, key));
+    }
 }

@@ -237,6 +237,8 @@ contract BuildingRule is Rule {
         state.setOwner(buildingInstance, Node.Player(ctx.sender));
         // set building location
         state.setFixedLocation(buildingInstance, targetTile);
+        // set construction block num
+        state.setData(buildingInstance, "constructionBlockNum", ctx.clock);
 
         // attach the inputs/output bags
         bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "input")))));
