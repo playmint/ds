@@ -49,7 +49,7 @@ This contains the parameters set by you in the Building Fabricator and is the en
 ![](images/docs/basic-factory-yaml.png)
         
 ## BasicFatcory.js
-This is the javascript that controls UI behaviour and is deployed to chain as call data and attached linked to your building contract. It implementes an `update` function, with access to state to make decisions and Action Dispatch to make onchain actions on behalf of ***Units***, e.g. BUILDING_USE. The returns block of `update` configures the buidling UI for display and hookes up any buttons to functions declared in this file.
+This is the javascript that controls UI behaviour and is deployed to chain as call data and attached linked to your building contract. It implementes an `update` function, with access to state to make decisions and Action Dispatch to make onchain actions on behalf of ***Units***, e.g. BUILDING_USE. The returns block of `update` configures the buidling UI for display and hooks up any buttons to functions declared in this file.
 ![](images/docs/basic-factory-js.png)
 
 The exported BasicFatcory.js contains commented out code with examples of how to log the available state and how to restrict which Units can use the building.
@@ -58,13 +58,13 @@ The exported BasicFatcory.js contains commented out code with examples of how to
 This defines the building contract deployed to chain and must implement `BuildingKind` interface. The entry point is the `BuildingKind.use` Function, which can dispatch actions on behalf the ***Building***, e.g. CRAFT. the `use` function takes an optional payload param to be used for variable behaviour.
 ![](images/docs/basic-factory-sol.png)
 
-The exported BasicFatcory.js contains commented out code of how to restrict which Units can use the building.
+The exported BasicFatcory.sol contains commented out code of how to restrict which Units can use the building.
         
 ## Examples beyond craft buildings
 See more buildings at [https://github.com/playmint/ds/tree/main/contracts/src/example-plugins](https://github.com/playmint/ds/tree/main/contracts/src/example-plugins)
 
 # Workshop 
-A step by steo guide used to accompany an in person workshop might be useful:
+A step by step guide used to accompany an in person workshop might be useful:
 [*http://playmint.com/build-your-own-house*](https://www.notion.so/Build-Your-Own-House-ac9391ce8de94b498d09095d7732b7c4?pvs=21)
 
     
