@@ -171,4 +171,6 @@ interface Actions {
     // calling DEV_DISABLE_CHEATS will disable cheats this action cannot
     // be undone, DEV_ cheat actions will be disabled and ignored forever
     function DEV_DISABLE_CHEATS() external;
+
+    function SET_DATA_ON_BUILDING(bytes24 buildingID, string memory key, bytes32 data) external;
 }
