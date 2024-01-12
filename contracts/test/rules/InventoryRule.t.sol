@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 import "../helpers/GameTest.sol";
 import "@ds/rules/InventoryRule.sol";
+import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 
 using Schema for State;
 
@@ -12,12 +13,30 @@ uint8 constant EQUIP_SLOT_1 = 1;
 uint8 constant ITEM_SLOT_0 = 0;
 uint8 constant ITEM_SLOT_1 = 1;
 
+uint64 constant BUILDING_KIND_ID_1 = 20;
+uint64 constant BUILDING_KIND_ID_2 = 21;
+
+contract MockBuildingKind is BuildingKind {
+    function use(Game game, bytes24 building, bytes24 mobileUnit, bytes memory payload) public {}
+}
+
 contract InventoryRuleTest is Test, GameTest {
+    bytes24[4] defaultMaterialItem;
+    uint64[4] defaultMaterialQty;
+
     function setUp() public {
         dev.spawnTile(0, 0, 0);
         dev.spawnTile(1, 0, -1);
         dev.spawnTile(2, 0, -2);
         dev.spawnTile(3, 0, -3);
+
+        // setup default material construction costs
+        defaultMaterialItem[0] = ItemUtils.GreenGoo();
+        defaultMaterialItem[1] = ItemUtils.BlueGoo();
+        defaultMaterialItem[2] = ItemUtils.RedGoo();
+        defaultMaterialQty[0] = 25;
+        defaultMaterialQty[1] = 25;
+        defaultMaterialQty[2] = 25;
     }
 
     function testTransferItemMobileUnitBagToMobileUnitBag() public {
@@ -31,6 +50,22 @@ contract InventoryRuleTest is Test, GameTest {
         vm.stopPrank();
     }
 
+    function testTransferItemBuildingBagToMobileUnitBag() public {
+        vm.startPrank(players[0].addr);
+        bytes24 mobileUnit = _spawnMobileUnitWithResources(1);
+        (bytes24 buildingInstance, address buildingImplementation) =
+            _constructBuilding(players[0].addr, BUILDING_KIND_ID_1, mobileUnit, 1, -1, 0);
+        vm.stopPrank();
+
+        vm.startPrank(buildingImplementation);
+        _testTransferItemBetweenEquipees(
+            buildingInstance, // building perfoming the action
+            buildingInstance, // building owner of from-bag
+            mobileUnit // location to to-bag
+        );
+        vm.stopPrank();
+    }
+
     function testTransferItemMobileUnitBagToTileBag() public {
         vm.startPrank(players[0].addr);
         bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
@@ -38,6 +73,23 @@ contract InventoryRuleTest is Test, GameTest {
         _testTransferItemBetweenEquipees(
             mobileUnit, // mobileUnit perfoming the action
             mobileUnit, // location of from-bag
+            tile // location to to-bag
+        );
+        vm.stopPrank();
+    }
+
+    function testTransferItemBuildingBagToTileBag() public {
+        vm.startPrank(players[0].addr);
+        bytes24 mobileUnit = _spawnMobileUnitWithResources(1);
+        (bytes24 buildingInstance, address buildingImplementation) =
+            _constructBuilding(players[0].addr, BUILDING_KIND_ID_1, mobileUnit, 1, -1, 0);
+        bytes24 tile = Node.Tile(DEFAULT_ZONE, 0, 0, 0);
+        vm.stopPrank();
+
+        vm.startPrank(buildingImplementation);
+        _testTransferItemBetweenEquipees(
+            buildingInstance, // mobileUnit perfoming the action
+            buildingInstance, // location of from-bag
             tile // location to to-bag
         );
         vm.stopPrank();
@@ -81,6 +133,22 @@ contract InventoryRuleTest is Test, GameTest {
             mobileUnit, // location of from-bag
             mobileUnit, // location to to-bag
             "NoTransferPlayerNotOwner" // expect this error cos sender is not mobileUnit owner
+        );
+        vm.stopPrank();
+    }
+
+    function testTransferItemFailNotBuildingImplementer() public {
+        vm.startPrank(players[0].addr);
+        bytes24 mobileUnit = _spawnMobileUnitWithResources(1);
+        (bytes24 buildingInstance,) = _constructBuilding(players[0].addr, BUILDING_KIND_ID_1, mobileUnit, 1, -1, 0);
+
+        // pranked sender is still the player
+
+        _testTransferItemFailBetweenEquipees(
+            buildingInstance, // mobile unitperfoming the action
+            buildingInstance, // building owner of from-bag
+            mobileUnit, // location to to-bag
+            "NoTransferSenderNotBuildingContract" // expect this error cos sender is not mobileUnit owner
         );
         vm.stopPrank();
     }
@@ -141,6 +209,23 @@ contract InventoryRuleTest is Test, GameTest {
             itemSlots, // item slots
             0,
             50 // amount to xfer
+        );
+        vm.stopPrank();
+    }
+
+    function testTransferItemFailNotBuildingBag() public {
+        vm.startPrank(players[0].addr);
+        bytes24 mobileUnit = _spawnMobileUnitWithResources(1);
+        (bytes24 buildingInstance, address buildingImplementation) =
+            _constructBuilding(players[0].addr, BUILDING_KIND_ID_1, mobileUnit, 1, -1, 0);
+        vm.stopPrank();
+
+        vm.startPrank(buildingImplementation);
+        _testTransferItemFailBetweenEquipees(
+            buildingInstance, // building perfoming the action
+            mobileUnit, // building owner of from-bag
+            mobileUnit, // location to to-bag
+            "NoTransferNotYourBag"
         );
         vm.stopPrank();
     }
@@ -215,7 +300,12 @@ contract InventoryRuleTest is Test, GameTest {
         string memory expectedError
     ) private {
         // equip two bags to mobileUnit
-        bytes24 fromBag = _spawnBagWithWood(players[0].addr, fromEquipee, EQUIP_SLOT_0);
+        bytes24 fromBag;
+        if (bytes4(fromEquipee) == Kind.Building.selector) {
+            fromBag = state.getEquipSlot(fromEquipee, 0);
+        } else {
+            fromBag = _spawnBagWithWood(players[0].addr, fromEquipee, EQUIP_SLOT_0);
+        }
         bytes24 toBag = _spawnBagEmpty(players[0].addr, toEquipee, EQUIP_SLOT_1);
         // confirm bag1 has 100 wood
         (bytes24 fromResourceBefore, uint64 fromBalanceBefore) = state.getItemSlot(fromBag, ITEM_SLOT_0);
@@ -255,7 +345,12 @@ contract InventoryRuleTest is Test, GameTest {
         bytes24 bag
     ) private {
         // equip two bags to mobileUnit
-        bytes24 fromBag = _spawnBagWithWood(players[0].addr, fromEquipee, EQUIP_SLOT_0);
+        bytes24 fromBag;
+        if (bytes4(fromEquipee) == Kind.Building.selector) {
+            fromBag = state.getEquipSlot(fromEquipee, 0);
+        } else {
+            fromBag = _spawnBagWithWood(players[0].addr, fromEquipee, EQUIP_SLOT_0);
+        }
         bytes24 toBag = _spawnBagEmpty(players[0].addr, toEquipee, EQUIP_SLOT_1);
         // confirm bag1 has 100 wood
         (bytes24 fromResourceBefore, uint64 fromBalanceBefore) = state.getItemSlot(fromBag, ITEM_SLOT_0);
@@ -381,5 +476,123 @@ contract InventoryRuleTest is Test, GameTest {
         moveMobileUnit(sid, q, r, s);
         vm.roll(block.number + 100);
         return Node.MobileUnit(sid);
+    }
+
+    function _transferFromMobileUnitToBuilding(
+        bytes24 mobileUnit,
+        uint8 bag,
+        uint8 slot,
+        uint64 qty,
+        bytes24 toBuilding
+    ) private {
+        bytes24 buildingBag = Node.Bag(uint64(uint256(keccak256(abi.encode(toBuilding)))));
+        dispatcher.dispatch(
+            abi.encodeCall(
+                Actions.TRANSFER_ITEM_MOBILE_UNIT,
+                (mobileUnit, [mobileUnit, toBuilding], [bag, 0], [slot, slot], buildingBag, qty)
+            )
+        );
+    }
+
+    // _spawnMobileUnitWithResources spawns a mobileUnit for the current sender at
+    // 0,0,0 with 100 of each resource in an equiped bag
+    function _spawnMobileUnitWithResources(uint64 id) private returns (bytes24) {
+        dev.spawnTile(0, 0, 0);
+        bytes24 mobileUnit = spawnMobileUnit(id);
+        dev.spawnFullBag(state.getOwnerAddress(mobileUnit), mobileUnit, 0);
+        dev.spawnFullBag(state.getOwnerAddress(mobileUnit), mobileUnit, 1);
+
+        return mobileUnit;
+    }
+
+    function _registerBuildingKind(uint64 kindId) private returns (bytes24, address) {
+        // register a building kind
+        bytes24 buildingKind = Node.BuildingKind(kindId);
+        string memory buildingName = "inventory test building";
+        bytes24[4] memory inputItemIDs;
+        uint64[4] memory inputQtys;
+
+        dispatcher.dispatch(
+            abi.encodeCall(
+                Actions.REGISTER_BUILDING_KIND,
+                (
+                    buildingKind,
+                    buildingName,
+                    BuildingCategory.NONE,
+                    "",
+                    defaultMaterialItem,
+                    defaultMaterialQty,
+                    inputItemIDs,
+                    inputQtys,
+                    [bytes24(0)],
+                    [uint64(0)]
+                )
+            )
+        );
+
+        // register a mock implementation for the building
+        MockBuildingKind buildingImplementation = new MockBuildingKind();
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (buildingKind, address(buildingImplementation)))
+        );
+        return (buildingKind, address(buildingImplementation));
+    }
+
+    function _constructWithBuildingKind(
+        address builderAccount,
+        bytes24 buildingKind,
+        bytes24 mobileUnit,
+        int16 q,
+        int16 r,
+        int16 s
+    ) private returns (bytes24) {
+        // spawn a mobileUnit
+        vm.startPrank(builderAccount);
+        // get our building and give it the resources to construct
+        bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
+        // construct our building
+        _transferFromMobileUnitToBuilding(mobileUnit, 0, 0, 25, buildingInstance);
+        _transferFromMobileUnitToBuilding(mobileUnit, 0, 1, 25, buildingInstance);
+        _transferFromMobileUnitToBuilding(mobileUnit, 0, 2, 25, buildingInstance);
+        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, q, r, s)));
+
+        // put some extra goo in bag 0 for transfer testing
+        _transferFromMobileUnitToBuilding(mobileUnit, 1, 0, 100, buildingInstance);
+
+        vm.stopPrank();
+        // check the building has a location at q/r/s
+        assertEq(
+            state.getFixedLocation(buildingInstance),
+            Node.Tile(DEFAULT_ZONE, q, r, s),
+            "expected building to have location"
+        );
+        // check building has owner
+        assertEq(
+            state.getOwner(buildingInstance),
+            Node.Player(builderAccount),
+            "expected building to be owned by builder acccount"
+        );
+
+        // check building has kind
+        assertEq(state.getBuildingKind(buildingInstance), buildingKind, "expected building to have kind");
+        // check building has a bag equip
+        bytes24 bag0 = state.getEquipSlot(buildingInstance, 0);
+        assertTrue(bag0 != 0x0, "expected building to have a bag equip");
+        // check it has some goo
+        (, uint64 balance) = state.getItemSlot(bag0, 0);
+        assertTrue(balance == 100, "expected building to have some goo");
+
+        return buildingInstance;
+    }
+
+    function _constructBuilding(address builderAccount, uint64 kindId, bytes24 mobileUnit, int16 q, int16 r, int16 s)
+        private
+        returns (bytes24, address)
+    {
+        // register a building kind
+        (bytes24 buildingKind, address buildingImplementation) = _registerBuildingKind(kindId);
+        bytes24 buildingInstance = _constructWithBuildingKind(builderAccount, buildingKind, mobileUnit, q, r, s);
+
+        return (buildingInstance, address(buildingImplementation));
     }
 }
