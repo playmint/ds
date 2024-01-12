@@ -5,7 +5,7 @@ import "cog/IGame.sol";
 import "cog/IState.sol";
 import "cog/IRule.sol";
 
-import {Schema, Node, Kind, DEFAULT_ZONE, BuildingCategory} from "@ds/schema/Schema.sol";
+import {Schema, Node, Kind, DEFAULT_ZONE, BuildingCategory, BuildingBlockNumKey} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
@@ -238,7 +238,7 @@ contract BuildingRule is Rule {
         // set building location
         state.setFixedLocation(buildingInstance, targetTile);
         // set construction block num
-        state.setData(buildingInstance, "constructionBlockNum", ctx.clock);
+        state.setBlockNum(buildingInstance, uint8(BuildingBlockNumKey.CONSTRUCTION), ctx.clock);
 
         // attach the inputs/output bags
         bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "input")))));
@@ -252,7 +252,7 @@ contract BuildingRule is Rule {
 
         if (category == BuildingCategory.EXTRACTOR) {
             // set initial extraction timestamp
-            state.setBlockNum(buildingInstance, 0, ctx.clock);
+            state.setBlockNum(buildingInstance, uint8(BuildingBlockNumKey.EXTRACTION), ctx.clock);
             // Set output bag owner to player so that only they can take the extracted items
             state.setOwner(outputBag, Node.Player(ctx.sender));
         }

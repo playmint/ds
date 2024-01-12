@@ -10,12 +10,12 @@ export default async function update(state) {
         selectedTile && getBuildingOnTile(state, selectedTile);
     const canCraft =
         selectedBuilding && inputsAreCorrect(state, selectedBuilding);
-    // uncomment this to be restrictve about which units can craft
-    // this is a client only check - to enforce it in contracts make
-    // similar changes in BasicFactory.sol
-    //    && unitIsFriendly(state, selectedBuilding)
 
     console.log(selectedBuilding);
+
+    const constructionBlockNum = selectedBuilding
+        ? selectedBuilding.contructionBlockNum.value
+        : 0;
 
     const incrementHex = getData(selectedBuilding, "increment");
     const increment =
@@ -51,6 +51,8 @@ export default async function update(state) {
                         type: "inline",
                         html: `
                             <p>Pressing the 'Update Data' button will set the variable 'actor' to the selected MobileUnit and will increment the variable 'increment'</p>
+                            <h3>Construction block num</h3>
+                            ${constructionBlockNum}
                             <h3>Last called by mobile unit:</h3>
                             ${unitId ? unitId.slice(-4) : "0x0"}
                             <h3>Increment</h3>

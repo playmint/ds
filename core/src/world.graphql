@@ -88,7 +88,7 @@ fragment WorldBuilding on Node {
     owner: node(match: { kinds: "Player", via: { rel: "Owner" } }) {
         id
     }
-    timestamp: edge(match: { kinds: ["BlockNum"], via: { rel: "Has" } }) {
+    timestamp: edge(match: { kinds: ["BlockNum"], via: { rel: "HasBlockNum", key: 1 } }) {
         blockNum: weight
     }
     gooReservoir: edges(match: { kinds: ["Atom"], via: { rel: "Balance" } }) {
@@ -98,8 +98,8 @@ fragment WorldBuilding on Node {
     location: edge(match: { kinds: "Tile", via: { rel: "Location", key: 2 } }) {
         ...Location
     }
-    constructionBlockNum: data(name: "constructionBlockNum") {
-        value
+    contructionBlockNum: edge(match: { via: { rel: "HasBlockNum", key: 0 } }) {
+        value: weight
     }
     allData {
         name

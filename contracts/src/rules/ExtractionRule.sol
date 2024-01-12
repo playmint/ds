@@ -17,7 +17,8 @@ import {
     BLOCK_TIME_SECS,
     GOO_GREEN,
     GOO_BLUE,
-    GOO_RED
+    GOO_RED,
+    BuildingBlockNumKey
 } from "@ds/schema/Schema.sol";
 import {BagUtils} from "@ds/utils/BagUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
@@ -122,7 +123,7 @@ contract ExtractionRule is Rule {
             }
 
             state.setBuildingReservoirAtoms(buildingInstance, reservoirAtoms);
-            state.setBlockNum(buildingInstance, 0, ctx.clock);
+            state.setBlockNum(buildingInstance, uint8(BuildingBlockNumKey.EXTRACTION), ctx.clock);
         }
 
         state.setItemSlot(outBag, 0, outputItemID, bagBal + qty);
@@ -142,7 +143,9 @@ contract ExtractionRule is Rule {
         uint64[3] memory atoms = state.getTileAtomValues(tile);
 
         // Get time passed. TODO: Cog to expose a global clock in the state so we have some source of constant time
-        int128 elapsedSecs = Math.fromUInt((ctx.clock - state.getBlockNum(buildingInstance, 0)) * BLOCK_TIME_SECS);
+        int128 elapsedSecs = Math.fromUInt(
+            (ctx.clock - state.getBlockNum(buildingInstance, uint8(BuildingBlockNumKey.EXTRACTION))) * BLOCK_TIME_SECS
+        );
 
         for (uint256 i = 0; i < 3; i++) {
             extractedAtoms[i] = _getGooPerSec64x64(atoms[i]).mul(elapsedSecs).toUInt();

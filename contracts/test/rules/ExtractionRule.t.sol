@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 import "../helpers/GameTest.sol";
 
 import {GOO_PER_SEC, GOO_RESERVOIR_MAX} from "@ds/rules/ExtractionRule.sol";
+import {BuildingBlockNumKey} from "@ds/schema/Schema.sol";
 
 using Schema for State;
 
@@ -57,7 +58,7 @@ contract ExtractionRuleTest is Test, GameTest {
         bytes24 buildingInstance = _constructBuildingInstance(mockBuildingKind, aliceMobileUnit, -1, 1, 0);
         vm.stopPrank();
 
-        uint64 blockNum = state.getBlockNum(buildingInstance, 0);
+        uint64 blockNum = state.getBlockNum(buildingInstance, uint8(BuildingBlockNumKey.EXTRACTION));
         assertEq(uint64(block.number), blockNum, "Block number expected to be set on building instance");
     }
 
