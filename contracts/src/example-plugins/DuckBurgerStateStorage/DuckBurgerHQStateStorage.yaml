@@ -1,6 +1,6 @@
 kind: BuildingKind
 spec:
-  name: Duck Burger HQ
+  name: Duck Burger HQ (State Storage)
   description: "Play Ducks vs Burgers"
   category: custom
   model: 11-19
