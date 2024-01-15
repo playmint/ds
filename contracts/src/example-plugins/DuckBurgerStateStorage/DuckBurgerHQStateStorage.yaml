@@ -5,9 +5,9 @@ spec:
   category: custom
   model: 11-19
   contract:
-    file: ./DuckBurgerStateStorageHQ.sol
+    file: ./DuckBurgerHQStateStorage.sol
   plugin:
-    file: ./DuckBurgerStateStorageHQ.js
+    file: ./DuckBurgerHQStateStorage.js
   materials:
     - name: Green Goo
       quantity: 10
