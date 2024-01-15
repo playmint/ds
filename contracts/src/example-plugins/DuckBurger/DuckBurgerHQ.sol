@@ -16,8 +16,8 @@ contract BasicFactory is BuildingKind {
     //              - become building data when that's supported
     // list or map of units in each team and whether or not they've claimed
     // e.g. map of ids that are playing and have not claimed
-    bytes24 private teamDuckUnits;
-    bytes24 private teamBurgerUnits;
+    bytes24[] private teamDuckUnits;
+    bytes24[] private teamBurgerUnits;
 
     bool gameActive = false;
     uint256 endBlock = 0;
@@ -75,26 +75,27 @@ contract BasicFactory is BuildingKind {
         // assign a team
         // todo - decide how to allocate teams - flip flop ? or count and assign ?
         // set contract vars and write to description
-        if (teamDuckUnits == unitId || teamBurgerUnits == unitId) {
-            revert("aleady joined");
+        // Check if unit is already in a team
+        for(uint i = 0; i < teamDuckUnits.length; i++) {
+            if(teamDuckUnits[i] == unitId) revert("Already joined");
+        }
+        for(uint i = 0; i < teamBurgerUnits.length; i++) {
+            if(teamBurgerUnits[i] == unitId) revert("Already joined");
         }
 
-        if (teamDuckUnits != 0 && teamBurgerUnits != 0) {
-            revert("game full");
-        }
-
-        if (teamDuckUnits == 0){
-            teamDuckUnits = unitId;
-        } else if (teamBurgerUnits == 0){
-            teamBurgerUnits = unitId;
+        // Assign a team
+        if(teamDuckUnits.length <= teamBurgerUnits.length) {
+            teamDuckUnits.push(unitId);
+        } else {
+            teamBurgerUnits.push(unitId);
         }
     }
 
     function _start(uint24 duckBuildingID, uint24 burgerBuildingID) private {
 
         // check teams have at least one each
-        if (teamDuckUnits == 0 || teamBurgerUnits == 0){
-            revert("Can't start, both teams must have at least 1 player");
+        if (teamDuckUnits.length == 0 || teamBurgerUnits.length == 0) {
+        revert("Can't start, both teams must have at least 1 player");
         }
 
         // probably set global bytes24 vars that are used in the counting 
@@ -127,7 +128,21 @@ contract BasicFactory is BuildingKind {
 
         // check unit in a team
         // check unit not already claimed
-        require(teamDuckUnits == unitId || teamBurgerUnits == unitId, "Unit did not play or has already claimed");
+        bool isDuckTeamMember = false;
+        bool isBurgerTeamMember = false;
+        for(uint i = 0; i < teamDuckUnits.length; i++) {
+            if(teamDuckUnits[i] == unitId) {
+                isDuckTeamMember = true;
+                break;
+            }
+        }
+        for(uint i = 0; i < teamBurgerUnits.length; i++) {
+            if(teamBurgerUnits[i] == unitId) {
+                isBurgerTeamMember = true;
+                break;
+            }
+        }
+        require(isDuckTeamMember || isBurgerTeamMember, "Unit did not play or has already claimed");
 
         // count buildings for each team
 
@@ -135,10 +150,10 @@ contract BasicFactory is BuildingKind {
 
         // check unit is in winning team
 
-        if (unitId == teamDuckUnits && duckBuildings < burgerBuildings){
+        if (isDuckTeamMember && duckBuildings < burgerBuildings){
             revert("You, duck, are not on the winning team: burgers");
         } 
-        else if (unitId == teamBurgerUnits && burgerBuildings < duckBuildings){
+        else if (isBurgerTeamMember && burgerBuildings < duckBuildings){
             revert("You, burger, are not on the winning team: ducks");
         }
 
@@ -156,12 +171,22 @@ contract BasicFactory is BuildingKind {
                 (unitId, [buildingId, unitId], [prizeBagSlot, 0], [prizeItemSlot, 0], bagId, isDraw ? joinFee : _calculatePrizeAmount())));
         lastKnownPrizeBalance = _getPrizeBalance(state, buildingId);
         
-        // mark unit as claimed - remove unit from team so they can't claim prize again
-        if (unitId == teamDuckUnits){
-            teamDuckUnits = 0;
-        }else if (unitId == teamBurgerUnits){
-            teamBurgerUnits = 0;
-        }        
+        // Remove unit from team
+        if (isDuckTeamMember){
+            removeUnitFromArray(teamDuckUnits, unitId);
+        } else if (isBurgerTeamMember){
+            removeUnitFromArray(teamBurgerUnits, unitId);
+        }
+    }
+
+    function removeUnitFromArray(bytes24[] storage array, bytes24 unitId) private {
+        for (uint i = 0; i < array.length; i++) {
+            if (array[i] == unitId) {
+                array[i] = array[array.length - 1];
+                array.pop();
+                break;
+            }
+        }
     }
 
     function _reset(State state, bytes24 buildingInstance) private {
@@ -170,15 +195,15 @@ contract BasicFactory is BuildingKind {
         // set state to joining (gameActive ?)
         endBlock = block.number;
         gameActive = false;
-        teamBurgerUnits = 0;
-        teamDuckUnits = 0;
+        delete teamDuckUnits;
+        delete teamBurgerUnits;
 
         refreshAccessibleData(state, buildingInstance);
     }
 
     function refreshAccessibleData(State state, bytes24 buildingInstance) private{
         string memory annotation = string(abi.encodePacked(
-                LibString.toString(_calculatePrizeAmount()),
+                LibString.toString(_calculatePool()),
                 ", ",
                 LibString.toString(gameActive ? 1 : 0),
                 ", ",
@@ -197,37 +222,14 @@ contract BasicFactory is BuildingKind {
         return balance;
     }
 
-    function _calculatePrizeAmount() internal view returns (uint64) {
-        // all enemies * joinFee + joinFee
-        // (+ joinFee is to give back your own joinFee)
-        uint64 totalPlayers = 0;
-        if (teamDuckUnits != 0){
-            totalPlayers++;
-        }
-        if (teamBurgerUnits != 0){
-            totalPlayers++;
-        }
-        return totalPlayers * joinFee;
+    function _calculatePrizeAmount() internal pure returns (uint64) {
+        return joinFee * 2;
     }
 
-    // version of use that restricts crafting to building owner, author or allow list
-    // these restrictions will not be reflected in the UI unless you make
-    // similar changes in BasicFactory.js
-    /*function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes memory ) public {
-        State state = GetState(ds);
-        CheckIsFriendlyUnit(state, actor, buildingInstance);
+    function _calculatePool() internal view returns (uint64) {
+        return uint64(teamDuckUnits.length + teamBurgerUnits.length) * joinFee;
+    }
 
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.CRAFT, (buildingInstance)));
-    }*/
-
-    // version of use that restricts crafting to units carrying a certain item
-    /*function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes memory ) public {
-        // require carrying an idCard
-        // you can change idCardItemId to another item id
-        CheckIsCarryingItem(state, actor, idCardItemId);
-    
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.CRAFT, (buildingInstance)));
-    }*/
 
     function getBuildingCounts(State state, bytes24 buildingInstance) public view returns (uint24, uint24) {
         // If these don't come from js, maybe make a duck and burger building in example plugins and use those ids
