@@ -147,13 +147,13 @@ export default async function update(state) {
 
     if (canJoin){
         htmlBlock += `<p>player's joined: ${prizePool > 0 ? prizePool / prizeFee : 0}</p>`;
+        buttonList.push({ text: `Join Game (${prizeFee} Green Goo)`, type: 'action', action: join, disabled: !canJoin });
+
+        const canStart = !gameActive && prizePool >= prizeFee * 2;
+        buttonList.push({ text: 'Start', type: 'action', action: start, disabled: !canStart });
     }
 
-    buttonList.push({ text: `Join Game (${prizeFee} Green Goo)`, type: 'action', action: join, disabled: !canJoin });
-
-    const canStart = !gameActive && prizePool >= prizeFee * 2;
-
-    buttonList.push({ text: 'Start', type: 'action', action: start, disabled: !canStart });
+    
     //htmlBlock += `<p>Joined Unit is ${team1Units}</p>`
     //  check for enough joiners and enable start
     //
@@ -173,7 +173,9 @@ export default async function update(state) {
     // enable claim (if on winning team)
     // enable reset
     const canClaim = gameActive && blocksLeft == 0;
-    buttonList.push({ text: prizePool > 0 ? `Claim Reward` : 'Nothing to Claim', type: 'action', action: claim, disabled: !canClaim });
+    if (canClaim){
+        buttonList.push({ text: prizePool > 0 ? `Claim Reward` : 'Nothing to Claim', type: 'action', action: claim, disabled: !canClaim });
+    }
     buttonList.push({ text: 'Reset', type: 'action', action: reset, disabled: false });
 
     return {
