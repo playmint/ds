@@ -45,7 +45,10 @@ contract InventoryRule is Rule {
         uint64 qty
     ) private {
         // check that mobileUnit performing action is owned by player
-        _requirePlayerOwnedMobileUnit(state, mobileUnit, player);
+        
+        // TEMPORARY - Relaxed this rule for DvB work in progress branch
+        
+        //_requirePlayerOwnedMobileUnit(state, mobileUnit, player);
 
         // get acting mobileUnit location
         bytes24 location = state.getCurrentLocation(mobileUnit, atTime);
