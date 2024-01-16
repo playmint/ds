@@ -235,44 +235,29 @@ export default async function update(state) {
     const duckCounterKindId = "Duck Display Building";
 
     // These fellas will need to be provided by drop down:
-    const burgerBuildingKindId =
-        "0xbe92755c00000000000000002bbd60790000000000000003";
-    const duckBuildingKindId =
-        "0xbe92755c0000000000000000d87342e30000000000000003";
+    // const burgerBuildingKindId =
+    //     "0xbe92755c00000000000000002bbd60790000000000000003";
+    // const duckBuildingKindId =
+    //     "0xbe92755c0000000000000000d87342e30000000000000003";
 
     let duckCount = 0;
     let burgerCount = 0;
 
-    if (selectedBuilding) {
-        const localBuildings = range5(state, selectedBuilding);
-        if (!burgerCounter) {
-            burgerCounter = localBuildings.find((element) =>
-                getBuildingKindsByTileLocation(
-                    state,
-                    element,
-                    burgerCounterKindId,
-                ),
-            );
-        }
-        if (!duckCounter) {
-            duckCounter = localBuildings.find((element) =>
-                getBuildingKindsByTileLocation(
-                    state,
-                    element,
-                    duckCounterKindId,
-                ),
-            );
-        }
-    } else {
-        console.log("NO SELECTED TILE");
+    const localBuildings = range5(state, selectedBuilding);
+    if (!burgerCounter) {
+        burgerCounter = localBuildings.find((element) =>
+            getBuildingKindsByTileLocation(state, element, burgerCounterKindId),
+        );
+    }
+    if (!duckCounter) {
+        duckCounter = localBuildings.find((element) =>
+            getBuildingKindsByTileLocation(state, element, duckCounterKindId),
+        );
     }
 
     if (state && state.world && state.world.buildings) {
-        burgerCount = countBuildings(
-            state.world?.buildings,
-            burgerBuildingKindId,
-        );
-        duckCount = countBuildings(state.world?.buildings, duckBuildingKindId);
+        burgerCount = countBuildings(state.world?.buildings, buildingKindIdA);
+        duckCount = countBuildings(state.world?.buildings, buildingKindIdB);
     }
 
     // get contract data
