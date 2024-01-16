@@ -288,8 +288,8 @@ contract DuckBurgerState is BuildingKind {
     }
 
     function getBuildingCounts(State state, bytes24 buildingInstance) public view returns (uint24, uint24) {
-        bytes24 duckBuildingKind = bytes24(state.getData(buildingId, "buildingKindIdA"));
-        bytes24 burgerBuildingKind = bytes24(state.getData(buildingId, "buildingKindIdB"));
+        bytes24 duckBuildingKind = bytes24(state.getData(buildingInstance, "buildingKindIdA"));
+        bytes24 burgerBuildingKind = bytes24(state.getData(buildingInstance, "buildingKindIdB"));
 
         uint24 ducks = 0;
         uint24 burgers = 0;
