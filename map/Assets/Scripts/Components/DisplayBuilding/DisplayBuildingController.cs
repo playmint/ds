@@ -9,11 +9,14 @@ public class DisplayBuildingController : BaseComponentController<DisplayBuilding
 {
     [SerializeField]
     private Color highlightColor;
-    [SerializeField]
-    GameObject displayObj, countdownObj;
 
     [SerializeField]
-    TextMeshPro displayText, countdownText;
+    GameObject displayObj,
+        countdownObj;
+
+    [SerializeField]
+    TextMeshPro displayText,
+        countdownText;
 
     [SerializeField]
     Animator countDownAnim;
@@ -23,6 +26,7 @@ public class DisplayBuildingController : BaseComponentController<DisplayBuilding
 
     [SerializeField]
     private Renderer[] outlineObjs;
+
     [SerializeField]
     private Renderer[] renderers;
 
@@ -45,10 +49,7 @@ public class DisplayBuildingController : BaseComponentController<DisplayBuilding
 
         if (_nextData.model != null)
         {
-            if (
-                _prevData == null
-                || _nextData.model != _prevData.model
-            )
+            if (_prevData == null || _nextData.model != _prevData.model)
             {
                 if (_nextData.model.Contains("countdown"))
                     countdownObj.SetActive(true);
@@ -61,7 +62,7 @@ public class DisplayBuildingController : BaseComponentController<DisplayBuilding
                 if (_nextData.model.Contains("countdown"))
                 {
                     countdownText.text = _nextData.labelText;
-                    if (countdownText.text=="00:00")
+                    if (countdownText.text == "00:00")
                     {
                         countDownAnim.speed = 1f;
                         countDownAnim.Play("Timer_Complete");
@@ -72,14 +73,11 @@ public class DisplayBuildingController : BaseComponentController<DisplayBuilding
                         countDownAnim.speed = 0f;
                         countDownAnim.Play("Timer_Clock", 0, _nextData.startTime);
                     }
-                    
                 }
                 else
                     displayText.text = _nextData.labelText;
             }
         }
-
-        
 
         Vector3Int cubeCoords = new Vector3Int(_nextData.q, _nextData.r, _nextData.s);
         Vector3 worldPos = CoordsHelper.CubeToWorld(cubeCoords);
@@ -96,7 +94,6 @@ public class DisplayBuildingController : BaseComponentController<DisplayBuilding
                 rooves.GetChild(colorID).gameObject.SetActive(true);
             }
         }
-
 
         if (_nextData.selected == "outline")
         {
