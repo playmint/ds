@@ -1,10 +1,9 @@
 import ds from "downstream";
 
 const prizeFee = 2;
+const prizeItemId = "0x6a7a67f063976de500000001000000010000000000000000"
 const buildingPrizeBagSlot = 0;
 const buildingPrizeItemSlot = 0;
-const unitPrizeBagSlot = 0;
-const unitPrizeItemSlot = 0;
 const nullBytes24 = `0x${"00".repeat(24)}`;
 
 function getHQData(selectedBuilding) {
@@ -49,6 +48,9 @@ function range5(state, building) {
             let nextTile = [q, r, s];
             if (distance(tileCoords, nextTile) <= range) {
                 state?.world?.buildings.forEach((b) => {
+                    if (!b?.location?.tile?.coords)
+                        return;
+                        
                     const buildingCoords = getTileCoords(
                         b.location.tile.coords,
                     );
@@ -104,6 +106,18 @@ const countBuildings = (buildingsArray, kindID) => {
     return buildingsArray.filter((b) => b.kind?.id == kindID).length;
 };
 
+function getMobileUnitFeeSlot(state) {
+    const mobileUnit = getMobileUnit(state);
+    const mobileUnitBags = mobileUnit ? getEquipeeBags(state, mobileUnit) : [];
+    const { bag, slotKey } = findBagAndSlot(mobileUnitBags, prizeItemId, prizeFee);
+    const unitFeeBagSlot = bag ? bag.equipee.key : -1;
+    const unitFeeItemSlot = bag ? slotKey : -1;
+    return {
+        unitFeeBagSlot,
+        unitFeeItemSlot
+    }
+}
+
 let burgerCounter;
 let duckCounter;
 
@@ -112,6 +126,9 @@ export default async function update(state) {
     let handleFormSubmit;
 
     const join = () => {
+        if (unitFeeBagSlot < 0) {
+            console.log("fee not found in bags - button should have been disabled")
+        }
         const mobileUnit = getMobileUnit(state);
 
         const payload = ds.encodeCall("function join()", []);
@@ -124,8 +141,8 @@ export default async function update(state) {
                 args: [
                     mobileUnit.id,
                     [mobileUnit.id, selectedBuilding.id],
-                    [unitPrizeBagSlot, buildingPrizeBagSlot],
-                    [unitPrizeItemSlot, buildingPrizeItemSlot],
+                    [unitFeeBagSlot, buildingPrizeBagSlot],
+                    [unitFeeItemSlot, buildingPrizeItemSlot],
                     dummyBagIdIncaseToBagDoesNotExist,
                     prizeFee,
                 ],
@@ -230,6 +247,9 @@ export default async function update(state) {
         buildingKindIdB,
     } = getHQData(selectedBuilding);
 
+    const {unitFeeBagSlot, unitFeeItemSlot} = getMobileUnitFeeSlot(state);
+    const hasFee = unitFeeBagSlot >= 0; 
+
     //We control what these buildings are called, so we can grab 'em by name:
     const burgerCounterKindId = "Burger Display Building";
     const duckCounterKindId = "Duck Display Building";
@@ -280,7 +300,7 @@ export default async function update(state) {
     // case NotStared:
     //  enable join
     //  check unit has entrance fee
-    const canJoin = !gameActive; // hasEntranceFee();
+    const canJoin = !gameActive && hasFee;
 
     if (canJoin) {
         htmlBlock += `<p>player's joined: ${
@@ -425,19 +445,37 @@ function getRequiredInputItems(building) {
     return building?.kind?.inputs || [];
 }
 
-// search through all the bags in the world to find those belonging to this building
-function getBuildingBags(state, building) {
-    return building
+// search through all the bags in the world to find those belonging to this eqipee
+// eqipee maybe a building, a mobileUnit or a tile
+function getEquipeeBags(state, equipee) {
+    return equipee
         ? (state?.world?.bags || []).filter(
-              (bag) => bag.equipee?.node.id === building.id,
+              (bag) => bag.equipee?.node.id === equipee.id,
           )
         : [];
+}
+
+// get first slot in bags that matches item requirements
+function findBagAndSlot(bags, requiredItemId, requiredBalance) {
+    for (const bag of bags) {
+        for (const slotKey in bag.slots) {
+            const slot = bag.slots[slotKey];
+            if ((!requiredItemId || slot.item.id == requiredItemId) &&
+                requiredBalance <= slot.balance) {
+                return {
+                    bag: bag,
+                    slotKey: slot.key // assuming each slot has a 'key' property
+                };
+            }
+        }
+    }
+    return { bag: null, slotKey: -1 };
 }
 
 // get building input slots
 function getInputSlots(state, building) {
     // inputs are the bag with key 0 owned by the building
-    const buildingBags = getBuildingBags(state, building);
+    const buildingBags = getEquipeeBags(state, building);
     const inputBag = buildingBags.find((bag) => bag.equipee.key === 0);
 
     // slots used for crafting have sequential keys startng with 0
