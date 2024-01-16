@@ -17,7 +17,7 @@ contract InventoryRule is Rule {
         if (bytes4(action) == Actions.TRANSFER_ITEM_MOBILE_UNIT.selector) {
             // decode the action
             (
-                bytes24 mobileUnit,
+                bytes24 actor,
                 bytes24[2] memory equipees,
                 uint8[2] memory equipSlots,
                 uint8[2] memory itemSlots,
@@ -25,9 +25,7 @@ contract InventoryRule is Rule {
                 uint64 qty
             ) = abi.decode(action[4:], (bytes24, bytes24[2], uint8[2], uint8[2], bytes24, uint64));
 
-            _transferItem(
-                state, ctx.clock, Node.Player(ctx.sender), mobileUnit, equipees, equipSlots, itemSlots, toBagId, qty
-            );
+            _transferItem(state, ctx.clock, ctx.sender, actor, equipees, equipSlots, itemSlots, toBagId, qty);
         }
 
         return state;
@@ -36,25 +34,30 @@ contract InventoryRule is Rule {
     function _transferItem(
         State state,
         uint64 atTime,
-        bytes24 player,
-        bytes24 mobileUnit,
+        address sender,
+        bytes24 actor,
         bytes24[2] memory equipee,
         uint8[2] memory equipSlot,
         uint8[2] memory itemSlot,
         bytes24 toBagId,
         uint64 qty
     ) private {
-        // check that mobileUnit performing action is owned by player
-        _requirePlayerOwnedMobileUnit(state, mobileUnit, player);
+        if (bytes4(actor) == Kind.Building.selector) {
+            _requireSenderOwnedBuilding(state, actor, sender);
+        } else if (bytes4(actor) == Kind.MobileUnit.selector) {
+            _requirePlayerOwnedMobileUnit(state, actor, sender);
+        } else {
+            revert("NoTransferActorMustBeMobileUnitOrBuilding");
+        }
 
         // get acting mobileUnit location
-        bytes24 location = state.getCurrentLocation(mobileUnit, atTime);
+        bytes24 location = state.getCurrentLocation(actor, atTime);
 
         // check equipees are either the acting mobileUnit
         // at the same location as the acting mobileUnit
         // or adjacent to the acting mobileUnit
-        BagUtils.requireEquipeeLocation(state, equipee[0], mobileUnit, location, atTime);
-        BagUtils.requireEquipeeLocation(state, equipee[1], mobileUnit, location, atTime);
+        BagUtils.requireEquipeeLocation(state, equipee[0], actor, location, atTime);
+        BagUtils.requireEquipeeLocation(state, equipee[1], actor, location, atTime);
 
         // get the things from equipSlots
         bytes24[2] memory bags =
@@ -71,14 +74,22 @@ contract InventoryRule is Rule {
             revert("NoTransferEquipItemIsNotBag");
         }
 
-        // check that the source bag is either owned by the player or nobody
-        _requireCanUseBag(state, bags[0], player);
+        // check that the source bag is either owned by the sender or nobody
+        // note that when the sender is a building implementation
+        // it will never be the owner of a bag because building bags
+        // do not have owners
+        _requireCanUseBag(state, bags[0], sender);
 
         // perform transfer between item slots
         _transferBalance(state, bags[0], itemSlot[0], bags[1], itemSlot[1], qty);
     }
 
-    function _requireCanUseBag(State state, bytes24 bag, bytes24 player) private view {
+    function _requireCanUseBag(State state, bytes24 bag, address sender) private view {
+        // note that currently building implementations do
+        // not own bags. If they did then we would need to match
+        // sender to the implementation contract rather than
+        // a player object
+        bytes24 player = Node.Player(sender);
         bytes24 owner = state.getOwner(bag);
         if (owner != 0 && owner != player) {
             revert("NoTransferNotYourBag");
@@ -91,9 +102,20 @@ contract InventoryRule is Rule {
         }
     }
 
-    function _requirePlayerOwnedMobileUnit(State state, bytes24 mobileUnit, bytes24 player) private view {
+    function _requirePlayerOwnedMobileUnit(State state, bytes24 mobileUnit, address sender) private view {
+        bytes24 player = Node.Player(sender);
         if (state.getOwner(mobileUnit) != player) {
             revert("NoTransferPlayerNotOwner");
+        }
+    }
+
+    function _requireSenderOwnedBuilding(State state, bytes24 building, address sender) private view {
+        bytes24 buildingKind = state.getBuildingKind(building);
+        require(buildingKind != 0x0, "no building kind building actor");
+        address implementation = state.getImplementation(buildingKind);
+        require(implementation != address(0), "no implementation for building actor");
+        if (sender != implementation) {
+            revert("NoTransferSenderNotBuildingContract");
         }
     }
 
