@@ -94,9 +94,7 @@ const countBuildings = (buildingsArray, kindID) => {
 let burgerCounter;
 let duckCounter;
 
-
 export default async function update(state) {
-
     const join = () => {
         const mobileUnit = getMobileUnit(state);
 
@@ -163,10 +161,31 @@ export default async function update(state) {
 
     // find all HQs
     // run this update for each of them:
+   const dvbBuildingName = 'Duck Burger HQ';
+   const selectedBuilding = state.world?.buildings.find((b) => b.kind?.name?.value == dvbBuildingName)
+   if(!selectedBuilding)
+   {
+       console.log('NO DVB BUILDING FOUND');
+       return {
+        version: 1,
+         map: [],
+        components: [
+            {
+                id: "dbhq",
+                type: "building",
+                content: [
+                    {
+                        id: "default",
+                        type: "inline",
+                        html: '',
+                        buttons: [],
+                    },
+                ],
+            },
+        ],
+    };
+   }
 
-    const selectedTile = getSelectedTile(state);
-    const selectedBuilding = selectedTile && getBuildingOnTile(state, selectedTile);
-    
     const {prizePool, gameActive, endBlock} = getHQData(selectedBuilding);
 
     //We control what these buildings are called, so we can grab 'em by name:
@@ -183,7 +202,6 @@ export default async function update(state) {
     if(selectedBuilding)
     {
         const localBuildings = range5(state, selectedBuilding);
-        console.log(localBuildings);
         if(!burgerCounter)
         {
             burgerCounter = localBuildings.find((element) => getBuildingKindsByTileLocation(state, element, burgerCounterKindId));
@@ -276,23 +294,22 @@ export default async function update(state) {
         action: reset,
         disabled: false,
     });
-
-    return {
-        version: 1,
-         map: [
-            {
-                type: "building",
-                id: `${burgerCounter? burgerCounter.id : ''}`,
-                key: "labelText",
-                value: `${burgerCount}`,
-            },
-            {
-                type: "building",
+    const mapObj = [{
+        type: "building",
+        id: `${burgerCounter? burgerCounter.id : ''}`,
+        key: "labelText",
+        value: `${burgerCount}`,
+    },
+    {
+        type: "building",
                 id: `${duckCounter? duckCounter.id : ''}`,
                 key: "labelText",
                 value: `${duckCount}`,
-            },
-         ],
+    }];
+
+    return {
+        version: 1,
+         map: mapObj,
         components: [
             {
                 id: "dbhq",
@@ -323,6 +340,8 @@ function getBuildingOnTile(state, tile) {
     return (state?.world?.buildings || []).find(
         (b) => tile && b.location?.tile?.id === tile.id,
     );
+}
+
 function getBuildingKindsByTileLocation(state, building, kindID) {
     return (state?.world?.buildings || []).find((b) => b.id === building.id && b.kind?.name?.value == kindID);
 }
