@@ -1,0 +1,20 @@
+---
+kind: BuildingKind
+spec:
+  name: DuckGooHub
+  description: "Ducks, deposit Goo here"
+  category: custom
+  model: 05-08
+  color: 0
+  contract:
+    file: ./DuckGooHub.sol
+  plugin:
+    file: ./DuckGooHub.js
+  materials:
+    - name: Red Goo
+      quantity: 10
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+

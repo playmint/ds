@@ -1,6 +1,5 @@
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import Label from './Label';
 
 export interface DisplayBuildingData {
     q: number;
