@@ -77,7 +77,7 @@ export const DisplayBuilding = memo(
 
         selected = selected != 'outline' && hovered ? 'highlight' : selected;
 
-        const calculateTimeLeft = () => {
+        const calculateTimeLeft = useCallback(() => {
             const now = new Date();
             if (!startTime) return 600;
             if (now < startTime) {
@@ -87,7 +87,7 @@ export const DisplayBuilding = memo(
             } else {
                 return Math.floor((endTime - Date.now()) / 1000);
             }
-        };
+        }, [startTime, endTime]);
 
         const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
 
@@ -97,7 +97,7 @@ export const DisplayBuilding = memo(
             }, 1000);
 
             return () => clearInterval(timer);
-        }, [startTime, endTime]);
+        }, [calculateTimeLeft]);
 
         const formatTime = (seconds) => {
             const minutes = Math.floor(seconds / 60);
