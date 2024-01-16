@@ -69,7 +69,6 @@ public class DisplayBuildingController : BaseComponentController<DisplayBuilding
                     }
                     else
                     {
-                        Debug.Log(_nextData.startTime);
                         countDownAnim.speed = 0f;
                         countDownAnim.Play("Timer_Clock", 0, _nextData.startTime);
                     }
