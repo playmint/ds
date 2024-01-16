@@ -1,4 +1,4 @@
-import ds from 'downstream';
+import ds from "downstream";
 
 const prizeFee = 2;
 const buildingPrizeBagSlot = 0;
@@ -6,13 +6,14 @@ const buildingPrizeItemSlot = 0;
 const unitPrizeBagSlot = 0;
 const unitPrizeItemSlot = 0;
 
-function getHQData(buildingId) {
-    const description = buildingId?.kind?.description?.value || "";
-    let values = description.split(', ').map(Number);
+function getHQData(selectedBuilding) {
+    const prizePool = getDataInt(selectedBuilding, "prizePool");
+    const gameActive = getDataBool(selectedBuilding, "gameActive");
+    const endBlock = getDataInt(selectedBuilding, "endBlock");
     return {
-        prizePool: values[0],
-        gameActive: values[1] === 1,
-        endBlock: values[2]
+        prizePool,
+        gameActive,
+        endBlock,
     };
 }
 
@@ -25,89 +26,73 @@ function formatTime(timeInMs) {
     minutes %= 60;
 
     // Pad each component to ensure two digits
-    let formattedHours = String(hours).padStart(2, '0');
-    let formattedMinutes = String(minutes).padStart(2, '0');
-    let formattedSeconds = String(seconds).padStart(2, '0');
+    let formattedHours = String(hours).padStart(2, "0");
+    let formattedMinutes = String(minutes).padStart(2, "0");
+    let formattedSeconds = String(seconds).padStart(2, "0");
 
     return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
 }
 
 export default async function update(state) {
-
     const join = () => {
         const mobileUnit = getMobileUnit(state);
 
-        const payload = ds.encodeCall(
-            "function join()",
-            []
-        );
-        
-        const dummyBagIdIncaseToBagDoesNotExist = `0x${'00'.repeat(24)}`;
+        const payload = ds.encodeCall("function join()", []);
+
+        const dummyBagIdIncaseToBagDoesNotExist = `0x${"00".repeat(24)}`;
 
         ds.dispatch(
             {
-                name: 'TRANSFER_ITEM_MOBILE_UNIT',
+                name: "TRANSFER_ITEM_MOBILE_UNIT",
                 args: [
                     mobileUnit.id,
                     [mobileUnit.id, selectedBuilding.id],
-                    [unitPrizeBagSlot, buildingPrizeBagSlot ],
+                    [unitPrizeBagSlot, buildingPrizeBagSlot],
                     [unitPrizeItemSlot, buildingPrizeItemSlot],
                     dummyBagIdIncaseToBagDoesNotExist,
                     prizeFee,
-                    ],
+                ],
             },
             {
-                name: 'BUILDING_USE',
+                name: "BUILDING_USE",
                 args: [selectedBuilding.id, mobileUnit.id, payload],
-            }
+            },
         );
-    }
+    };
 
     const start = () => {
         const mobileUnit = getMobileUnit(state);
         const payload = ds.encodeCall(
             "function start(uint24 duckBuildingID, uint24 burgerBuildingID)",
-            [0, 0]
+            [0, 0],
         );
-        
-        ds.dispatch(
-            {
-                name: 'BUILDING_USE',
-                args: [selectedBuilding.id, mobileUnit.id, payload],
-            }
-        );
-     }
+
+        ds.dispatch({
+            name: "BUILDING_USE",
+            args: [selectedBuilding.id, mobileUnit.id, payload],
+        });
+    };
 
     const claim = () => {
         const mobileUnit = getMobileUnit(state);
 
-        const payload = ds.encodeCall(
-            "function claim()",
-            []
-        );
-        
-        ds.dispatch(
-            {
-                name: 'BUILDING_USE',
-                args: [selectedBuilding.id, mobileUnit.id, payload],
-            }
-        );
-     }
+        const payload = ds.encodeCall("function claim()", []);
+
+        ds.dispatch({
+            name: "BUILDING_USE",
+            args: [selectedBuilding.id, mobileUnit.id, payload],
+        });
+    };
 
     const reset = () => {
         const mobileUnit = getMobileUnit(state);
-        const payload = ds.encodeCall(
-            "function reset()",
-            []
-        );
-        
-        ds.dispatch(
-            {
-                name: 'BUILDING_USE',
-                args: [selectedBuilding.id, mobileUnit.id, payload],
-            }
-        );
-     }
+        const payload = ds.encodeCall("function reset()", []);
+
+        ds.dispatch({
+            name: "BUILDING_USE",
+            args: [selectedBuilding.id, mobileUnit.id, payload],
+        });
+    };
 
     // uncomment this to browse the state object in browser console
     // this will be logged when selecting a unit and then selecting an instance of this building
@@ -117,11 +102,11 @@ export default async function update(state) {
     // run this update for each of them:
 
     const selectedTile = getSelectedTile(state);
-    const selectedBuilding = selectedTile && getBuildingOnTile(state, selectedTile);
-    
-    const {prizePool, gameActive, endBlock} = getHQData(selectedBuilding);
+    const selectedBuilding =
+        selectedTile && getBuildingOnTile(state, selectedTile);
+    console.log(selectedBuilding);
 
-
+    const { prizePool, gameActive, endBlock } = getHQData(selectedBuilding);
 
     // get contract data
     // - initially from description
@@ -133,7 +118,7 @@ export default async function update(state) {
     // - GameOver : GameActive == true && endBlock >= currentBlock
 
     let buttonList = [];
-    let htmlBlock = '<p>Ducks vs Burgers HQ</p></br>';
+    let htmlBlock = "<p>Ducks vs Burgers HQ</p></br>";
 
     htmlBlock += `<p>payout for win: ${prizeFee * 2}</p>`;
     htmlBlock += `<p>payout for draw: ${prizeFee}</p></br>`;
@@ -145,15 +130,27 @@ export default async function update(state) {
     //  check unit has entrance fee
     const canJoin = !gameActive; // hasEntranceFee();
 
-    if (canJoin){
-        htmlBlock += `<p>player's joined: ${prizePool > 0 ? prizePool / prizeFee : 0}</p>`;
+    if (canJoin) {
+        htmlBlock += `<p>player's joined: ${
+            prizePool > 0 ? prizePool / prizeFee : 0
+        }</p>`;
     }
 
-    buttonList.push({ text: `Join Game (${prizeFee} Green Goo)`, type: 'action', action: join, disabled: !canJoin });
+    buttonList.push({
+        text: `Join Game (${prizeFee} Green Goo)`,
+        type: "action",
+        action: join,
+        disabled: !canJoin,
+    });
 
     const canStart = !gameActive && prizePool >= prizeFee * 2;
 
-    buttonList.push({ text: 'Start', type: 'action', action: start, disabled: !canStart });
+    buttonList.push({
+        text: "Start",
+        type: "action",
+        action: start,
+        disabled: !canStart,
+    });
     //htmlBlock += `<p>Joined Unit is ${team1Units}</p>`
     //  check for enough joiners and enable start
     //
@@ -164,8 +161,7 @@ export default async function update(state) {
     const blocksLeft = endBlock > nowBlock ? endBlock - nowBlock : 0;
     const timeLeftMs = blocksLeft * 2 * 1000;
 
-    if (gameActive && blocksLeft > 0){
-        
+    if (gameActive && blocksLeft > 0) {
         htmlBlock += `<p>time remaining: ${formatTime(timeLeftMs)}</p>`;
     }
     //
@@ -173,20 +169,30 @@ export default async function update(state) {
     // enable claim (if on winning team)
     // enable reset
     const canClaim = gameActive && blocksLeft == 0;
-    buttonList.push({ text: prizePool > 0 ? `Claim Reward` : 'Nothing to Claim', type: 'action', action: claim, disabled: !canClaim });
-    buttonList.push({ text: 'Reset', type: 'action', action: reset, disabled: false });
+    buttonList.push({
+        text: prizePool > 0 ? `Claim Reward` : "Nothing to Claim",
+        type: "action",
+        action: claim,
+        disabled: !canClaim,
+    });
+    buttonList.push({
+        text: "Reset",
+        type: "action",
+        action: reset,
+        disabled: false,
+    });
 
     return {
         version: 1,
         // map: []
         components: [
             {
-                id: 'dbhq',
-                type: 'building',
+                id: "dbhq",
+                type: "building",
                 content: [
                     {
-                        id: 'default',
-                        type: 'inline',
+                        id: "default",
+                        type: "inline",
                         html: htmlBlock,
                         buttons: buttonList,
                     },
@@ -206,7 +212,9 @@ function getSelectedTile(state) {
 }
 
 function getBuildingOnTile(state, tile) {
-    return (state?.world?.buildings || []).find((b) => tile && b.location?.tile?.id === tile.id);
+    return (state?.world?.buildings || []).find(
+        (b) => tile && b.location?.tile?.id === tile.id,
+    );
 }
 
 // returns an array of items the building expects as input
@@ -216,7 +224,11 @@ function getRequiredInputItems(building) {
 
 // search through all the bags in the world to find those belonging to this building
 function getBuildingBags(state, building) {
-    return building ? (state?.world?.bags || []).filter((bag) => bag.equipee?.node.id === building.id) : [];
+    return building
+        ? (state?.world?.bags || []).filter(
+              (bag) => bag.equipee?.node.id === building.id,
+          )
+        : [];
 }
 
 // get building input slots
@@ -240,13 +252,13 @@ function inputsAreCorrect(state, building) {
         requiredInputItems.every(
             (requiredItem) =>
                 inputSlots[requiredItem.key].item.id == requiredItem.item.id &&
-                inputSlots[requiredItem.key].balance == requiredItem.balance
+                inputSlots[requiredItem.key].balance == requiredItem.balance,
         )
     );
 }
 
 function logState(state) {
-    console.log('State sent to pluging:', state);
+    console.log("State sent to pluging:", state);
 }
 
 const friendlyPlayerAddresses = [
@@ -258,23 +270,55 @@ function unitIsFriendly(state, selectedBuilding) {
     return (
         unitIsBuildingOwner(mobileUnit, selectedBuilding) ||
         unitIsBuildingAuthor(mobileUnit, selectedBuilding) ||
-        friendlyPlayerAddresses.some((addr) => unitOwnerConnectedToWallet(state, mobileUnit, addr))
+        friendlyPlayerAddresses.some((addr) =>
+            unitOwnerConnectedToWallet(state, mobileUnit, addr),
+        )
     );
 }
 
 function unitIsBuildingOwner(mobileUnit, selectedBuilding) {
     //console.log('unit owner id:',  mobileUnit?.owner?.id, 'building owner id:', selectedBuilding?.owner?.id);
-    return mobileUnit?.owner?.id && mobileUnit?.owner?.id === selectedBuilding?.owner?.id;
+    return (
+        mobileUnit?.owner?.id &&
+        mobileUnit?.owner?.id === selectedBuilding?.owner?.id
+    );
 }
 
 function unitIsBuildingAuthor(mobileUnit, selectedBuilding) {
     //console.log('unit owner id:',  mobileUnit?.owner?.id, 'building author id:', selectedBuilding?.kind?.owner?.id);
-    return mobileUnit?.owner?.id && mobileUnit?.owner?.id === selectedBuilding?.kind?.owner?.id;
+    return (
+        mobileUnit?.owner?.id &&
+        mobileUnit?.owner?.id === selectedBuilding?.kind?.owner?.id
+    );
 }
 
 function unitOwnerConnectedToWallet(state, mobileUnit, walletAddress) {
     //console.log('Checking player:',  state?.player, 'controls unit', mobileUnit, walletAddress);
-    return mobileUnit?.owner?.id == state?.player?.id && state?.player?.addr == walletAddress;
+    return (
+        mobileUnit?.owner?.id == state?.player?.id &&
+        state?.player?.addr == walletAddress
+    );
+}
+
+function getData(buildingInstance, key) {
+    return getKVPs(buildingInstance)[key];
+}
+
+function getDataBool(buildingInstance, key) {
+    var hexVal = getData(buildingInstance, key);
+    return typeof hexVal === "string" ? parseInt(hexVal, 16) == 1 : false;
+}
+
+function getDataInt(buildingInstance, key) {
+    var hexVal = getData(buildingInstance, key);
+    return typeof hexVal === "string" ? parseInt(hexVal, 16) : 0;
+}
+
+function getKVPs(buildingInstance) {
+    return buildingInstance.allData.reduce((kvps, data) => {
+        kvps[data.name] = data.value;
+        return kvps;
+    }, {});
 }
 
 // the source for this code is on github where you can find other example buildings:
