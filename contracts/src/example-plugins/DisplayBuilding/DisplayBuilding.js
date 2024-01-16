@@ -30,7 +30,7 @@ export default async function update() {
                         id: "default",
                         type: "inline",
                         html: `
-                            <p>We supply the best drinks in Hexwood!</p>
+                            <p>Are ya winnin'?</p>
                         `,
                     },
                 ],
