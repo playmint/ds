@@ -186,7 +186,7 @@ contract DuckBurgerState is BuildingKind {
             abi.encodeCall(
                 Actions.TRANSFER_ITEM_MOBILE_UNIT,
                 (
-                    unitId,
+                    buildingId,
                     [buildingId, unitId],
                     [prizeBagSlot, 0],
                     [prizeItemSlot, 0],

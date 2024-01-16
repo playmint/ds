@@ -42,11 +42,13 @@ contract InventoryRule is Rule {
         bytes24 toBagId,
         uint64 qty
     ) private {
-        // check that mobileUnit performing action is owned by player
-        
-        // TEMPORARY - Relaxed this rule for DvB work in progress branch
-        
-        //_requirePlayerOwnedMobileUnit(state, mobileUnit, player);
+        if (bytes4(actor) == Kind.Building.selector) {
+            _requireSenderOwnedBuilding(state, actor, sender);
+        } else if (bytes4(actor) == Kind.MobileUnit.selector) {
+            _requirePlayerOwnedMobileUnit(state, actor, sender);
+        } else {
+            revert("NoTransferActorMustBeMobileUnitOrBuilding");
+        }
 
         // get acting mobileUnit location
         bytes24 location = state.getCurrentLocation(actor, atTime);

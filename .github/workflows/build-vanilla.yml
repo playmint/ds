@@ -12,7 +12,6 @@ jobs:
       DEPLOYMENT_ENVIRONMENT: vanilla
       DEPLOYMENT_PRIORITY: default
       PLATFORMS: linux/amd64
-      RUN_DEPLOY: false
     secrets:
       AZURE_REGISTRY_URL: ${{ secrets.AZURE_REGISTRY_URL }}
       AZURE_REGISTRY_USERNAME: ${{ secrets.AZURE_REGISTRY_USERNAME }}
