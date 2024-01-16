@@ -7,7 +7,6 @@ function getRandomTwoDigit() {
 }
 
 async function getRandomNumber() {
-    console.log("UPDATING DISPLAY BUILDING");
     const now = Date.now();
     const recentlyUpdate = now - lastUpdated < UPDATE_MS;
     if (!textToDisplay || !recentlyUpdate) {
@@ -21,20 +20,7 @@ export default async function update() {
     const text2 = await getRandomNumber();
     return {
         version: 1,
-        map: [
-            {
-                type: "building",
-                id: "0x34cf8a7e000000000000000000000000000000020000fffe",
-                key: "labelText",
-                value: `${text}`,
-            },
-            {
-                type: "building",
-                id: "0x34cf8a7e000000000000000000000000000000030000fffd",
-                key: "labelText",
-                value: `${text2}`,
-            },
-        ],
+        /*map: [],*/
         components: [
             {
                 id: "display-building",

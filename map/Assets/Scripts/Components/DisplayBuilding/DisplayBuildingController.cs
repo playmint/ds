@@ -89,10 +89,8 @@ public class DisplayBuildingController : BaseComponentController<DisplayBuilding
 
         if (int.TryParse(_nextData.color, out colorID))
         {
-            Debug.Log("PARSED COLOR ID: " + colorID);
             if (colorID < rooves.childCount)
             {
-                Debug.Log("COLOR ID IS VALID: " + colorID);
                 rooves.GetChild(colorID).gameObject.SetActive(true);
             }
         }
