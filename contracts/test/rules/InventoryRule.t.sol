@@ -122,6 +122,24 @@ contract InventoryRuleTest is Test, GameTest {
         vm.stopPrank();
     }
 
+    function testTransferItemBuildingBagNotAtOriginToMobileUnit() public {
+        vm.startPrank(players[0].addr);
+        bytes24 mobileUnit = _spawnMobileUnitWithResources(1);
+        moveMobileUnit(1, 2, 0, -2);
+        (int16 q, int16 r, int16 s) = (3, 0, -3);
+        (bytes24 buildingInstance, address buildingImplementation) =
+            _constructBuilding(players[0].addr, BUILDING_KIND_ID_1, mobileUnit, q, r, s);
+        vm.stopPrank();
+
+        vm.startPrank(buildingImplementation);
+        _testTransferItemBetweenEquipees(
+            buildingInstance, // mobileUnit perfoming the action
+            buildingInstance, // location of from-bag
+            mobileUnit // location to to-bag
+        );
+        vm.stopPrank();
+    }
+
     function testTransferItemFailNotOwner() public {
         vm.startPrank(players[0].addr);
         bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
