@@ -1,8 +1,8 @@
 ---
 kind: BuildingKind
 spec:
-  name: Display Building
-  description: "Display something!"
+  name: Duck Display Building
+  description: "Displays the Duck score!"
   category: display
   model: default
   color: 2

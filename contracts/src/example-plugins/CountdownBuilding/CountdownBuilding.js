@@ -2,7 +2,6 @@ let startTime;
 let endTime;
 
 async function getRemainingTime() {
-    console.log("UPDATING Countdown BUILDING");
     const now = Date.now();
     if(!startTime || !endTime || now>endTime)
     {

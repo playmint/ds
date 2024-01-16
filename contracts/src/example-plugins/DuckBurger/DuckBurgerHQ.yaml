@@ -9,6 +9,7 @@ spec:
     file: ./DuckBurgerHQ.sol
   plugin:
     file: ./DuckBurgerHQ.js
+    alwaysActive: true
   materials:
     - name: Green Goo
       quantity: 10

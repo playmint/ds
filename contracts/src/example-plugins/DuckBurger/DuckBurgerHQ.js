@@ -33,6 +33,67 @@ function formatTime(timeInMs) {
     return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
 }
 
+function range5(state, building){
+    const range = 5;
+    const tileCoords = getTileCoords(building?.location?.tile?.coords);
+    let i = 0;
+    const foundBuildings =[];
+    for (let q = tileCoords[0] - range; q <= tileCoords[0] + range; q++) {
+        for (let r = tileCoords[1] - range; r <= tileCoords[1] + range; r++) {
+            let s = -q - r;
+            let nextTile = [q, r, s];
+            if (distance(tileCoords, nextTile) <= range) {
+                state?.world?.buildings.forEach(b => { 
+                    const buildingCoords = getTileCoords(b.location.tile.coords);
+                    if(buildingCoords[0] == nextTile[0] && buildingCoords[1] == nextTile[1] && buildingCoords[2] == nextTile[2])
+                    {
+                        foundBuildings[i] = b;
+                        i++;
+                    }
+                });
+                
+                
+            }
+        }
+    }
+    return foundBuildings;
+}
+
+function hexToSignedDecimal(hex) {
+    if (hex.startsWith('0x')) {
+        hex = hex.substr(2);
+    }
+
+    let num = parseInt(hex, 16);
+    let bits = hex.length * 4;
+    let maxVal = Math.pow(2, bits);
+
+    // Check if the highest bit is set (negative number)
+    if (num >= maxVal / 2) {
+        num -= maxVal;
+    }
+
+    return num;
+}
+
+function getTileCoords(coords)
+{
+    return [hexToSignedDecimal(coords[1]),hexToSignedDecimal(coords[2]),hexToSignedDecimal(coords[3] )];
+}
+
+function distance(tileCoords, nextTile) {
+    return Math.max(Math.abs(tileCoords[0] - nextTile[0]), Math.abs(tileCoords[1] - nextTile[1]), Math.abs(tileCoords[2] - nextTile[2]));
+}
+
+const countBuildings = (buildingsArray, kindID) => {
+    return buildingsArray.filter((b) =>
+        b.kind?.id == kindID
+    ).length;
+}
+
+let burgerCounter;
+let duckCounter;
+
 export default async function update(state) {
     const join = () => {
         const mobileUnit = getMobileUnit(state);
@@ -100,13 +161,65 @@ export default async function update(state) {
 
     // find all HQs
     // run this update for each of them:
+   const dvbBuildingName = 'Duck Burger HQ';
+   const selectedBuilding = state.world?.buildings.find((b) => b.kind?.name?.value == dvbBuildingName)
+   if(!selectedBuilding)
+   {
+       console.log('NO DVB BUILDING FOUND');
+       return {
+        version: 1,
+         map: [],
+        components: [
+            {
+                id: "dbhq",
+                type: "building",
+                content: [
+                    {
+                        id: "default",
+                        type: "inline",
+                        html: '',
+                        buttons: [],
+                    },
+                ],
+            },
+        ],
+    };
+   }
 
-    const selectedTile = getSelectedTile(state);
-    const selectedBuilding =
-        selectedTile && getBuildingOnTile(state, selectedTile);
-    console.log(selectedBuilding);
+    const {prizePool, gameActive, endBlock} = getHQData(selectedBuilding);
 
-    const { prizePool, gameActive, endBlock } = getHQData(selectedBuilding);
+    //We control what these buildings are called, so we can grab 'em by name:
+    const burgerCounterKindId = 'Burger Display Building';
+    const duckCounterKindId = 'Duck Display Building';
+
+    // These fellas will need to be provided by drop down:
+    const burgerBuildingKindId = '0xbe92755c00000000000000002bbd60790000000000000003';
+    const duckBuildingKindId = '0xbe92755c0000000000000000d87342e30000000000000003';
+
+    let duckCount = 0;
+    let burgerCount = 0;
+
+    if(selectedBuilding)
+    {
+        const localBuildings = range5(state, selectedBuilding);
+        if(!burgerCounter)
+        {
+            burgerCounter = localBuildings.find((element) => getBuildingKindsByTileLocation(state, element, burgerCounterKindId));
+        }
+        if(!duckCounter)
+        {
+            duckCounter = localBuildings.find((element) => getBuildingKindsByTileLocation(state, element, duckCounterKindId));
+        }
+    }
+    else{
+        console.log("NO SELECTED TILE");
+    }
+
+    if(state && state.world && state.world.buildings)
+    {
+        burgerCount = countBuildings(state.world?.buildings,burgerBuildingKindId);
+        duckCount = countBuildings(state.world?.buildings,duckBuildingKindId);
+    }
 
     // get contract data
     // - initially from description
@@ -181,10 +294,22 @@ export default async function update(state) {
         action: reset,
         disabled: false,
     });
+    const mapObj = [{
+        type: "building",
+        id: `${burgerCounter? burgerCounter.id : ''}`,
+        key: "labelText",
+        value: `${burgerCount}`,
+    },
+    {
+        type: "building",
+                id: `${duckCounter? duckCounter.id : ''}`,
+                key: "labelText",
+                value: `${duckCount}`,
+    }];
 
     return {
         version: 1,
-        // map: []
+         map: mapObj,
         components: [
             {
                 id: "dbhq",
@@ -215,6 +340,10 @@ function getBuildingOnTile(state, tile) {
     return (state?.world?.buildings || []).find(
         (b) => tile && b.location?.tile?.id === tile.id,
     );
+}
+
+function getBuildingKindsByTileLocation(state, building, kindID) {
+    return (state?.world?.buildings || []).find((b) => b.id === building.id && b.kind?.name?.value == kindID);
 }
 
 // returns an array of items the building expects as input
