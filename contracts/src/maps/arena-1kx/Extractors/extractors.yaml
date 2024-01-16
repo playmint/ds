@@ -1,0 +1,156 @@
+---
+kind: Item
+spec:
+  name: Very Red
+  icon: 10-32
+  goo:
+    red: 400
+    green: 0
+    blue: 0
+  stackable: true
+---
+kind: Item
+spec:
+  name: Very Green
+  icon: 10-33
+  goo:
+    green: 400
+    red: 0
+    blue: 0
+  stackable: true
+---
+kind: Item
+spec:
+  name: Very Blue
+  icon: 10-34
+  goo:
+    blue: 400
+    green: 0
+    red: 0
+  stackable: true
+---
+kind: BuildingKind
+spec:
+  name: Red Goo Extractor
+  description: Extracts Red Goo
+  category: extractor
+  model: red
+  contract:
+    file: ./RedExtractor.sol
+  plugin:
+    file: ./GenericExtractor.js
+  materials:
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+    - name: Red Goo
+      quantity: 10
+  outputs:
+    - name: Red Goo
+      quantity: 1
+---
+kind: BuildingKind
+spec:
+  name: Blue Goo Extractor
+  description: Extracts Blue Goo
+  category: extractor
+  model: blue
+  contract:
+    file: ./BlueExtractor.sol
+  plugin:
+    file: ./GenericExtractor.js
+  materials:
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+    - name: Red Goo
+      quantity: 10
+  outputs:
+    - name: Blue Goo
+      quantity: 1
+---
+kind: BuildingKind
+spec:
+  name: Green Goo Extractor
+  description: Extracts Green Goo
+  category: extractor
+  model: green
+  contract:
+    file: ./GreenExtractor.sol
+  plugin:
+    file: ./GenericExtractor.js
+  materials:
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+    - name: Red Goo
+      quantity: 10
+  outputs:
+    - name: Green Goo
+      quantity: 1
+---
+kind: BuildingKind
+spec:
+  name: Red Goo Extractor 2000
+  description: Extracts Red Goo
+  category: extractor
+  model: red
+  contract:
+    file: ./RedExtractor.sol
+  plugin:
+    file: ./GenericExtractor.js
+  materials:
+    - name: Very Green
+      quantity: 10
+    - name: Very Blue
+      quantity: 10
+    - name: Very Red
+      quantity: 10
+  outputs:
+    - name: Red Goo
+      quantity: 1
+---
+kind: BuildingKind
+spec:
+  name: Blue Goo Extractor 2000
+  description: Extracts Blue Goo
+  category: extractor
+  model: blue
+  contract:
+    file: ./BlueExtractor.sol
+  plugin:
+    file: ./GenericExtractor.js
+  materials:
+    - name: Very Green
+      quantity: 10
+    - name: Very Blue
+      quantity: 10
+    - name: Very Red
+      quantity: 10
+  outputs:
+    - name: Blue Goo
+      quantity: 1
+---
+kind: BuildingKind
+spec:
+  name: Green Goo Extractor 2000
+  description: Extracts Green Goo
+  category: extractor
+  model: green
+  contract:
+    file: ./GreenExtractor.sol
+  plugin:
+    file: ./GenericExtractor.js
+  materials:
+    - name: Very Green
+      quantity: 10
+    - name: Very Blue
+      quantity: 10
+    - name: Very Red
+      quantity: 10
+  outputs:
+    - name: Green Goo
+      quantity: 1

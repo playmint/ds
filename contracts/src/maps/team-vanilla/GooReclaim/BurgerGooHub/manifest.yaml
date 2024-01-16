@@ -1,0 +1,20 @@
+---
+kind: BuildingKind
+spec:
+  name: BurgerGooHub
+  description: "Burgers, deposit Goo here"
+  category: custom
+  model: 05-08
+  color: 0
+  contract:
+    file: ./BurgerGooHub.sol
+  plugin:
+    file: ./BurgerGooHub.js
+  materials:
+    - name: Red Goo
+      quantity: 10
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+
