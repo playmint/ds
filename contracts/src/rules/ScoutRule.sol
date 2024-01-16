@@ -84,7 +84,7 @@ contract ScoutRule is Rule {
     //int16 private constant GOO_RED_OFFSET_Y = 13;
     //int16 private constant GOO_SCALE = 28;
 
-    function _generateAtomValues(State state, bytes24 targetTile, int16[3] memory /*coords*/) private {
+    function _generateAtomValues(State state, bytes24 targetTile, int16[3] memory /*coords*/ ) private {
         uint64[3] memory atoms;
 
         // -- Using 2d Coords
