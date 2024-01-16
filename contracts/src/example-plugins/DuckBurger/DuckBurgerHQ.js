@@ -108,6 +108,9 @@ let burgerCounter;
 let duckCounter;
 
 export default async function update(state) {
+    // An action can set a form submit handler which will be called after the action along with the form values
+    let handleFormSubmit;
+
     const join = () => {
         const mobileUnit = getMobileUnit(state);
 
@@ -134,11 +137,16 @@ export default async function update(state) {
         );
     };
 
-    const start = (values) => {
+    // NOTE: Because the 'action' doesn't get passed the form values we are setting a global value to a function that will
+    const start = () => {
+        handleFormSubmit = startSubmit;
+    };
+
+    const startSubmit = (values) => {
         const selectedBuildingIdA = values["buildingKindIdA"];
         const selectedBuildingIdB = values["buildingKindIdB"];
 
-        console.log("values:", values);
+        console.log("start(): form.currentValues", values);
 
         // Verify selected buildings are different from each other
         if (selectedBuildingIdA == selectedBuildingIdB) {
@@ -393,6 +401,11 @@ export default async function update(state) {
                         id: "default",
                         type: "inline",
                         html: htmlBlock,
+                        submit: (values) => {
+                            if (typeof handleFormSubmit == "function") {
+                                handleFormSubmit(values);
+                            }
+                        },
                         buttons: buttonList,
                     },
                 ],
