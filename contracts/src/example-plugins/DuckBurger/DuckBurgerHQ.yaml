@@ -4,7 +4,8 @@ spec:
   name: Duck Burger HQ
   description: "Play Ducks vs Burgers"
   category: custom
-  model: 11-19
+  model: 11-03
+  color: 1
   contract:
     file: ./DuckBurgerHQ.sol
   plugin:
