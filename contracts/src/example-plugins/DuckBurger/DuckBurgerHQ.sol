@@ -12,17 +12,6 @@ import "@ds/utils/LibString.sol";
 using Schema for State;
 
 contract DuckBurgerState is BuildingKind {
-    // storage data - contract variables for now (need also writing to description)
-    //              - become building data when that's supported
-    // list or map of units in each team and whether or not they've claimed
-    // e.g. map of ids that are playing and have not claimed
-    // bytes24 private teamDuckUnits;
-    // bytes24 private teamBurgerUnits;
-
-    // bool gameActive = false;
-    // uint256 endBlock = 0;
-    // uint64 lastKnownPrizeBalance = 0;
-
     bytes24[] private teamDuckUnits;
     bytes24[] private teamBurgerUnits;
 
@@ -51,9 +40,6 @@ contract DuckBurgerState is BuildingKind {
             _reset(ds, buildingInstance);
         }
         // decode payload and call one of _join, _start, _claim or _reset§
-
-        // write state to description for now
-        // refreshAccessibleData(state, buildingInstance);
 
         ds.getDispatcher().dispatch(
             abi.encodeCall(
@@ -285,23 +271,7 @@ contract DuckBurgerState is BuildingKind {
         dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "prizePool", bytes32(0))));
         dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingKindIdA", bytes32(0))));
         dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingKindIdB", bytes32(0))));
-
-        // refreshAccessibleData(state, buildingInstance);
     }
-
-    // function refreshAccessibleData(State state, bytes24 buildingInstance) private {
-    //     string memory annotation = string(
-    //         abi.encodePacked(
-    //             LibString.toString(_calculatePrizeAmount()),
-    //             ", ",
-    //             LibString.toString(gameActive ? 1 : 0),
-    //             ", ",
-    //             LibString.toString(endBlock)
-    //         )
-    //     );
-    //     bytes24 buildingkind = state.getBuildingKind(buildingInstance);
-    //     state.annotate(buildingkind, "description", annotation);
-    // }
 
     function _getPrizeBalance(State state, bytes24 buildingId) internal view returns (uint64) {
         bytes24 prizeBag = state.getEquipSlot(buildingId, prizeBagSlot);
@@ -317,29 +287,9 @@ contract DuckBurgerState is BuildingKind {
         return uint64(teamDuckUnits.length + teamBurgerUnits.length) * joinFee;
     }
 
-    // version of use that restricts crafting to building owner, author or allow list
-    // these restrictions will not be reflected in the UI unless you make
-    // similar changes in BasicFactory.js
-    /*function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes memory ) public {
-        State state = GetState(ds);
-        CheckIsFriendlyUnit(state, actor, buildingInstance);
-
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.CRAFT, (buildingInstance)));
-    }*/
-
-    // version of use that restricts crafting to units carrying a certain item
-    /*function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes memory ) public {
-        // require carrying an idCard
-        // you can change idCardItemId to another item id
-        CheckIsCarryingItem(state, actor, idCardItemId);
-    
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.CRAFT, (buildingInstance)));
-    }*/
-
     function getBuildingCounts(State state, bytes24 buildingInstance) public view returns (uint24, uint24) {
-        // If these don't come from js, maybe make a duck and burger building in example plugins and use those ids
-        bytes24 DUCK_BUILDING_KIND = 0xbe92755c0000000000000000dd0661c00000000000000003;
-        bytes24 BURGER_BUILDING_KIND = 0xbe92755c000000000000000043d0a0250000000000000003;
+        bytes24 duckBuildingKind = bytes24(state.getData(buildingId, "buildingKindIdA"));
+        bytes24 burgerBuildingKind = bytes24(state.getData(buildingId, "buildingKindIdB"));
 
         uint24 ducks = 0;
         uint24 burgers = 0;
@@ -350,9 +300,9 @@ contract DuckBurgerState is BuildingKind {
             bytes24 arenaBuildingID = Node.Building(
                 DEFAULT_ZONE, coords(arenaTiles[i])[1], coords(arenaTiles[i])[2], coords(arenaTiles[i])[3]
             );
-            if (state.getBuildingKind(arenaBuildingID) == DUCK_BUILDING_KIND) {
+            if (state.getBuildingKind(arenaBuildingID) == duckBuildingKind) {
                 ducks++;
-            } else if (state.getBuildingKind(arenaBuildingID) == BURGER_BUILDING_KIND) {
+            } else if (state.getBuildingKind(arenaBuildingID) == burgerBuildingKind) {
                 burgers++;
             }
         }
