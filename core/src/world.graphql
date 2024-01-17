@@ -98,7 +98,7 @@ fragment WorldBuilding on Node {
     location: edge(match: { kinds: "Tile", via: { rel: "Location", key: 2 } }) {
         ...Location
     }
-    contructionBlockNum: edge(match: { via: { rel: "HasBlockNum", key: 0 } }) {
+    constructionBlockNum: edge(match: { via: { rel: "HasBlockNum", key: 0 } }) {
         value: weight
     }
     allData {
