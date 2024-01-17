@@ -253,7 +253,7 @@ export default async function update(state) {
         buildingKindIdB,
     } = getHQData(selectedBuilding);
 
-    const {prizePool, gameActive, endBlock} = getHQData(selectedBuilding);
+    const {unitFeeBagSlot, unitFeeItemSlot} = getMobileUnitFeeSlot(state);
     const hasFee = unitFeeBagSlot >= 0; 
     //We control what these buildings are called, so we can grab 'em by name:
     const burgerCounterKindId = "Burger Display Building";
@@ -280,9 +280,12 @@ export default async function update(state) {
         duckCounter = localBuildings.find((element) =>
             getBuildingKindsByTileLocation(state, element, duckCounterKindId),
         );
+    }
     if(!countdownBuilding)
     {
-        countdownBuilding = localBuildings.find((element) => getBuildingKindsByTileLocation(state, element, countdownBuildingKindId));
+        countdownBuilding = localBuildings.find((element) => 
+            getBuildingKindsByTileLocation(state, element, countdownBuildingKindId)
+        );
     }
     if (state && state.world && state.world.buildings) {
         burgerCount = countBuildings(state.world?.buildings, buildingKindIdA);
@@ -376,6 +379,7 @@ export default async function update(state) {
         if(!endTime)
             endTime = now + timeLeftMs;
             htmlBlock += `<p>time remaining: ${formatTime(timeLeftMs)}</p>`;
+        }
     }
     else
     {
@@ -411,8 +415,8 @@ export default async function update(state) {
             id: `${duckCounter ? duckCounter.id : ""}`,
                 key: "labelText",
                 value: `${duckCount}`,
-    },
-];
+        },
+    ];
 
     if(gameActive && blocksLeft > 0)
     {
