@@ -12,17 +12,8 @@ import "@ds/utils/LibString.sol";
 using Schema for State;
 
 contract DuckBurgerState is BuildingKind {
-    // storage data - contract variables for now (need also writing to description)
-    //              - become building data when that's supported
-    // list or map of units in each team and whether or not they've claimed
-    // e.g. map of ids that are playing and have not claimed
-    // bytes24 private teamDuckUnits;
-    // bytes24 private teamBurgerUnits;
-
-    // bool gameActive = false;
-    // uint256 endBlock = 0;
-    // uint256 startBlock = 0;
-    // uint64 lastKnownPrizeBalance = 0;
+    bytes24[] private teamDuckUnits;
+    bytes24[] private teamBurgerUnits;
 
     // consts
     // prize bag info
@@ -31,7 +22,7 @@ contract DuckBurgerState is BuildingKind {
     uint64 constant joinFee = 2;
 
     function join() external {}
-    function start(uint24 duckBuildingID, uint24 burgerBuildingID) external {}
+    function start(bytes24 duckBuildingID, bytes24 burgerBuildingID) external {}
     function claim() external {}
     function reset() external {}
 
@@ -41,7 +32,7 @@ contract DuckBurgerState is BuildingKind {
         if ((bytes4)(payload) == this.join.selector) {
             _join(ds, state, actor, buildingInstance);
         } else if ((bytes4)(payload) == this.start.selector) {
-            (uint24 duckBuildingID, uint24 burgerBuildingID) = abi.decode(payload[4:], (uint24, uint24));
+            (bytes24 duckBuildingID, bytes24 burgerBuildingID) = abi.decode(payload[4:], (bytes24, bytes24));
             _start(ds, state, buildingInstance, duckBuildingID, burgerBuildingID);
         } else if ((bytes4)(payload) == this.claim.selector) {
             _claim(ds, state, actor, buildingInstance);
@@ -50,13 +41,9 @@ contract DuckBurgerState is BuildingKind {
         }
         // decode payload and call one of _join, _start, _claim or _reset§
 
-        // write state to description for now
-        // refreshAccessibleData(state, buildingInstance);
-
         ds.getDispatcher().dispatch(
             abi.encodeCall(
-                Actions.SET_DATA_ON_BUILDING,
-                (buildingInstance, "prizePool", bytes32(uint256(_calculatePrizeAmount(state, buildingInstance))))
+                Actions.SET_DATA_ON_BUILDING, (buildingInstance, "prizePool", bytes32(uint256(_calculatePool())))
             )
         );
     }
@@ -90,42 +77,72 @@ contract DuckBurgerState is BuildingKind {
         // todo - decide how to allocate teams - flip flop ? or count and assign ?
         // set contract vars and write to description
 
-        bytes24 teamDuckUnits = bytes24(state.getData(buildingId, "teamDuckUnits"));
-        bytes24 teamBurgerUnits = bytes24(state.getData(buildingId, "teamBurgerUnits"));
-        if (teamDuckUnits == unitId || teamBurgerUnits == unitId) {
-            revert("aleady joined");
+        for (uint256 i = 0; i < teamDuckUnits.length; i++) {
+            if (teamDuckUnits[i] == unitId) revert("Already joined");
+        }
+        for (uint256 i = 0; i < teamBurgerUnits.length; i++) {
+            if (teamBurgerUnits[i] == unitId) revert("Already joined");
         }
 
-        if (teamDuckUnits != 0 && teamBurgerUnits != 0) {
-            revert("game full");
-        }
-
-        // TODO: Check if I need to pad the IDs with 64bits to align the bytes24
-        if (teamDuckUnits == 0) {
-            dispatcher.dispatch(
-                abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "teamDuckUnits", bytes32(unitId)))
-            );
-        } else if (teamBurgerUnits == 0) {
-            dispatcher.dispatch(
-                abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "teamBurgerUnits", bytes32(unitId)))
-            );
+        // Assign a team
+        if (teamDuckUnits.length <= teamBurgerUnits.length) {
+            teamDuckUnits.push(unitId);
+            assignUnitToTeam(ds, "duck", unitId, buildingId);
+        } else {
+            teamBurgerUnits.push(unitId);
+            assignUnitToTeam(ds, "burger", unitId, buildingId);
         }
     }
 
-    function _start(Game ds, State state, bytes24 buildingId, uint24 duckBuildingID, uint24 burgerBuildingID) private {
+    function assignUnitToTeam(Game ds, string memory team, bytes24 unitId, bytes24 buildingId) private {
+        Dispatcher dispatcher = ds.getDispatcher();
+
+        if (keccak256(abi.encodePacked(team)) == keccak256(abi.encodePacked("duck"))) {
+            processTeam(dispatcher, buildingId, "teamDuck", teamDuckUnits, unitId);
+        } else if (keccak256(abi.encodePacked(team)) == keccak256(abi.encodePacked("burger"))) {
+            processTeam(dispatcher, buildingId, "teamBurger", teamBurgerUnits, unitId);
+        }
+    }
+
+    function processTeam(
+        Dispatcher dispatcher,
+        bytes24 buildingId,
+        string memory teamPrefix,
+        bytes24[] storage teamUnits,
+        bytes24 unitId
+    ) private {
+        dispatcher.dispatch(
+            abi.encodeCall(
+                Actions.SET_DATA_ON_BUILDING,
+                (buildingId, string(abi.encodePacked(teamPrefix, "Length")), bytes32(uint256(teamUnits.length)))
+            )
+        );
+
+        string memory teamUnitIndex =
+            string(abi.encodePacked(teamPrefix, "Unit_", LibString.toString(uint256(teamUnits.length) - 1)));
+
+        dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, teamUnitIndex, bytes32(unitId))));
+    }
+
+    function _start(Game ds, State state, bytes24 buildingId, bytes24 duckBuildingID, bytes24 burgerBuildingID)
+        private
+    {
         Dispatcher dispatcher = ds.getDispatcher();
 
         // check teams have at least one each
-        bytes24 teamDuckUnits = bytes24(state.getData(buildingId, "teamDuckUnits"));
-        bytes24 teamBurgerUnits = bytes24(state.getData(buildingId, "teamBurgerUnits"));
-        if (teamDuckUnits == 0 || teamBurgerUnits == 0) {
+        uint256 teamDuckLength = uint256(state.getData(buildingId, "teamDuckLength"));
+        uint256 teamBurgerLength = uint256(state.getData(buildingId, "teamBurgerLength"));
+        if (teamDuckLength == 0 || teamBurgerLength == 0) {
             revert("Can't start, both teams must have at least 1 player");
         }
 
-        // probably set global bytes24 vars that are used in the counting
-        // function instead of needing it in start
-        duckBuildingID = 0;
-        burgerBuildingID = 0;
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingKindIdA", bytes32(duckBuildingID)))
+        );
+
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingKindIdB", bytes32(burgerBuildingID)))
+        );
 
         // set endblock to now plus 10 minutes
         // todo do we take time as a param
@@ -162,9 +179,21 @@ contract DuckBurgerState is BuildingKind {
 
         // check unit in a team
         // check unit not already claimed
-        bytes24 teamDuckUnits = bytes24(state.getData(buildingId, "teamDuckUnits"));
-        bytes24 teamBurgerUnits = bytes24(state.getData(buildingId, "teamBurgerUnits"));
-        require(teamDuckUnits == unitId || teamBurgerUnits == unitId, "Unit did not play or has already claimed");
+        bool isDuckTeamMember = false;
+        bool isBurgerTeamMember = false;
+        for (uint256 i = 0; i < teamDuckUnits.length; i++) {
+            if (teamDuckUnits[i] == unitId) {
+                isDuckTeamMember = true;
+                break;
+            }
+        }
+        for (uint256 i = 0; i < teamBurgerUnits.length; i++) {
+            if (teamBurgerUnits[i] == unitId) {
+                isBurgerTeamMember = true;
+                break;
+            }
+        }
+        require(isDuckTeamMember || isBurgerTeamMember, "Unit did not play or has already claimed");
 
         // count buildings for each team
         // NOTE: Scoped to avoid stack being too deep
@@ -174,9 +203,9 @@ contract DuckBurgerState is BuildingKind {
 
             // check unit is in winning team
 
-            if (unitId == teamDuckUnits && duckBuildings < burgerBuildings) {
+            if (isDuckTeamMember && duckBuildings < burgerBuildings) {
                 revert("You, duck, are not on the winning team: burgers");
-            } else if (unitId == teamBurgerUnits && burgerBuildings < duckBuildings) {
+            } else if (isBurgerTeamMember && burgerBuildings < duckBuildings) {
                 revert("You, burger, are not on the winning team: ducks");
             }
             isDraw = burgerBuildings == duckBuildings;
@@ -198,7 +227,7 @@ contract DuckBurgerState is BuildingKind {
                     [prizeBagSlot, 0],
                     [prizeItemSlot, 0],
                     bagId,
-                    isDraw ? joinFee : _calculatePrizeAmount(state, buildingId)
+                    isDraw ? joinFee : _calculatePrizeAmount()
                 )
             )
         );
@@ -209,13 +238,21 @@ contract DuckBurgerState is BuildingKind {
             )
         );
 
-        // mark unit as claimed - remove unit from team so they can't claim prize again
-        if (unitId == teamDuckUnits) {
-            dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "teamDuckUnits", bytes32(0))));
-        } else if (unitId == teamBurgerUnits) {
-            dispatcher.dispatch(
-                abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "teamBurgerUnits", bytes32(0)))
-            );
+        // Remove unit from team
+        if (isDuckTeamMember) {
+            removeUnitFromArray(teamDuckUnits, unitId);
+        } else if (isBurgerTeamMember) {
+            removeUnitFromArray(teamBurgerUnits, unitId);
+        }
+    }
+
+    function removeUnitFromArray(bytes24[] storage array, bytes24 unitId) private {
+        for (uint256 i = 0; i < array.length; i++) {
+            if (array[i] == unitId) {
+                array[i] = array[array.length - 1];
+                array.pop();
+                break;
+            }
         }
     }
 
@@ -230,28 +267,17 @@ contract DuckBurgerState is BuildingKind {
         dispatcher.dispatch(
             abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "gameActive", bytes32(uint256(0))))
         );
-        dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "teamBurgerUnits", bytes32(0))));
-        dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "teamDuckUnits", bytes32(0))));
+        delete teamDuckUnits;
+        delete teamBurgerUnits;
+        dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "teamBurgerLength", bytes32(0))));
+        dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "teamDuckLength", bytes32(0))));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "lastKnownPrizeBalance", bytes32(0)))
+        );
         dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "prizePool", bytes32(0))));
-
-        // refreshAccessibleData(state, buildingInstance);
+        dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingKindIdA", bytes32(0))));
+        dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingKindIdB", bytes32(0))));
     }
-
-    // function refreshAccessibleData(State state, bytes24 buildingInstance) private {
-    //     string memory annotation = string(
-    //         abi.encodePacked(
-    //             LibString.toString(_calculatePrizeAmount()),
-    //             ", ",
-    //             LibString.toString(gameActive ? 1 : 0),
-    //             ", ",
-    //             LibString.toString(endBlock),
-    //             ", ",
-    //             LibString.toString(startBlock)
-    //         )
-    //     );
-    //     bytes24 buildingkind = state.getBuildingKind(buildingInstance);
-    //     state.annotate(buildingkind, "description", annotation);
-    // }
 
     function _getPrizeBalance(State state, bytes24 buildingId) internal view returns (uint64) {
         bytes24 prizeBag = state.getEquipSlot(buildingId, prizeBagSlot);
@@ -259,44 +285,17 @@ contract DuckBurgerState is BuildingKind {
         return balance;
     }
 
-    function _calculatePrizeAmount(State state, bytes24 buildingId) internal view returns (uint64) {
-        bytes24 teamDuckUnits = bytes24(state.getData(buildingId, "teamDuckUnits"));
-        bytes24 teamBurgerUnits = bytes24(state.getData(buildingId, "teamBurgerUnits"));
-        // all enemies * joinFee + joinFee
-        // (+ joinFee is to give back your own joinFee)
-        uint64 totalPlayers = 0;
-        if (teamDuckUnits != 0) {
-            totalPlayers++;
-        }
-        if (teamBurgerUnits != 0) {
-            totalPlayers++;
-        }
-        return totalPlayers * joinFee;
+    function _calculatePrizeAmount() internal pure returns (uint64) {
+        return joinFee * 2;
     }
 
-    // version of use that restricts crafting to building owner, author or allow list
-    // these restrictions will not be reflected in the UI unless you make
-    // similar changes in BasicFactory.js
-    /*function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes memory ) public {
-        State state = GetState(ds);
-        CheckIsFriendlyUnit(state, actor, buildingInstance);
-
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.CRAFT, (buildingInstance)));
-    }*/
-
-    // version of use that restricts crafting to units carrying a certain item
-    /*function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes memory ) public {
-        // require carrying an idCard
-        // you can change idCardItemId to another item id
-        CheckIsCarryingItem(state, actor, idCardItemId);
-    
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.CRAFT, (buildingInstance)));
-    }*/
+    function _calculatePool() internal view returns (uint64) {
+        return uint64(teamDuckUnits.length + teamBurgerUnits.length) * joinFee;
+    }
 
     function getBuildingCounts(State state, bytes24 buildingInstance) public view returns (uint24, uint24) {
-        // If these don't come from js, maybe make a duck and burger building in example plugins and use those ids
-        bytes24 DUCK_BUILDING_KIND = 0xbe92755c0000000000000000dd0661c00000000000000003;
-        bytes24 BURGER_BUILDING_KIND = 0xbe92755c000000000000000043d0a0250000000000000003;
+        bytes24 duckBuildingKind = bytes24(state.getData(buildingInstance, "buildingKindIdA"));
+        bytes24 burgerBuildingKind = bytes24(state.getData(buildingInstance, "buildingKindIdB"));
 
         uint24 ducks = 0;
         uint24 burgers = 0;
@@ -307,9 +306,9 @@ contract DuckBurgerState is BuildingKind {
             bytes24 arenaBuildingID = Node.Building(
                 DEFAULT_ZONE, coords(arenaTiles[i])[1], coords(arenaTiles[i])[2], coords(arenaTiles[i])[3]
             );
-            if (state.getBuildingKind(arenaBuildingID) == DUCK_BUILDING_KIND) {
+            if (state.getBuildingKind(arenaBuildingID) == duckBuildingKind) {
                 ducks++;
-            } else if (state.getBuildingKind(arenaBuildingID) == BURGER_BUILDING_KIND) {
+            } else if (state.getBuildingKind(arenaBuildingID) == burgerBuildingKind) {
                 burgers++;
             }
         }

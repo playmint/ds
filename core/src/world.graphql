@@ -179,6 +179,12 @@ fragment WorldState on State {
     items: nodes(match: { kinds: "Item" }) {
         ...Item
     }
+    buildingKinds: nodes(match: { kinds: "BuildingKind" }) {
+        id
+        name: annotation(name: "name") {
+            value
+        }
+    }
 }
 
 fragment TilesState on State {
