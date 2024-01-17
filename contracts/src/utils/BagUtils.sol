@@ -8,12 +8,12 @@ import {TileUtils} from "@ds/utils/TileUtils.sol";
 using Schema for State;
 
 library BagUtils {
-    function requireEquipeeLocation(State state, bytes24 equipee, bytes24 mobileUnit, bytes24 location, uint64 atTime)
+    function requireEquipeeLocation(State state, bytes24 equipee, bytes24 actor, bytes24 location, uint64 atTime)
         internal
         view
     {
-        if (equipee == mobileUnit) {
-            return; // all good, it's the acting mobileUnit's bag so locations match
+        if (equipee == actor) {
+            return; // all good, it's the actor's bag so locations match
         } else if (bytes4(equipee) == Kind.Tile.selector) {
             // located on a tile
             if (TileUtils.distance(location, equipee) > 1 || !TileUtils.isDirect(location, equipee)) {
@@ -29,7 +29,7 @@ library BagUtils {
                 revert("NoTransferNotSameLocation");
             }
         } else if (bytes4(equipee) == Kind.MobileUnit.selector) {
-            // location on another mobileUnit, check same loc
+            // location a mobileUnit, check same loc
             bytes24 otherMobileUnitLocation = state.getCurrentLocation(equipee, atTime);
             if (
                 TileUtils.distance(location, otherMobileUnitLocation) > 1
