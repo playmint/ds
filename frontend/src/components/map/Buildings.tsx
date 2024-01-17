@@ -119,8 +119,8 @@ export const Buildings = memo(
                         return (
                             <DisplayBuilding
                                 model={b.kind?.model?.value}
-                                startTime={startTimeObject?.start}
-                                endTime={endTimeObject?.end}
+                                startTime={startTimeObject}
+                                endTime={endTimeObject}
                                 labelText={labelText}
                                 sendScreenPosition={true}
                                 screenPositionHeightOffset={0.55}

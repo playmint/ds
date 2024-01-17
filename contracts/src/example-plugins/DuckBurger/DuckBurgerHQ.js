@@ -12,12 +12,14 @@ function getHQData(selectedBuilding) {
     const prizePool = getDataInt(selectedBuilding, "prizePool");
     const gameActive = getDataBool(selectedBuilding, "gameActive");
     const endBlock = getDataInt(selectedBuilding, "endBlock");
+    const startBlock = getDataInt(selectedBuilding, "startBlock");
     const buildingKindIdDuck = getDataBytes24(selectedBuilding, "buildingKindIdDuck");
     const buildingKindIdBurger = getDataBytes24(selectedBuilding, "buildingKindIdBurger");
     return {
         prizePool,
         gameActive,
         endBlock,
+        startBlock,
         buildingKindIdDuck,
         buildingKindIdBurger,
     };
@@ -122,6 +124,9 @@ function getMobileUnitFeeSlot(state) {
 
 let burgerCounter;
 let duckCounter;
+let countdownBuilding;
+let startTime;
+let endTime;
 
 export default async function update(state) {
     // An action can set a form submit handler which will be called after the action along with the form values
@@ -246,27 +251,23 @@ export default async function update(state) {
         prizePool,
         gameActive,
         endBlock,
+        startBlock,
         buildingKindIdDuck,
         buildingKindIdBurger,
     } = getHQData(selectedBuilding);
 
     const {unitFeeBagSlot, unitFeeItemSlot} = getMobileUnitFeeSlot(state);
     const hasFee = unitFeeBagSlot >= 0; 
-
     //We control what these buildings are called, so we can grab 'em by name:
     const burgerCounterKindId = "Burger Display Building";
     const duckCounterKindId = "Duck Display Building";
-
-    // These fellas will need to be provided by drop down:
-    // const burgerBuildingKindId =
-    //     "0xbe92755c00000000000000002bbd60790000000000000003";
-    // const duckBuildingKindId =
-    //     "0xbe92755c0000000000000000d87342e30000000000000003";
+    const countdownBuildingKindId = 'Countdown Building';
 
     let duckCount = 0;
     let burgerCount = 0;
 
     const localBuildings = range5(state, selectedBuilding);
+    
     if (!burgerCounter) {
         burgerCounter = localBuildings.find((element) =>
             getBuildingKindsByTileLocation(state, element, burgerCounterKindId),
@@ -277,7 +278,12 @@ export default async function update(state) {
             getBuildingKindsByTileLocation(state, element, duckCounterKindId),
         );
     }
-
+    if(!countdownBuilding)
+    {
+        countdownBuilding = localBuildings.find((element) => 
+            getBuildingKindsByTileLocation(state, element, countdownBuildingKindId)
+        );
+    }
     if (state && state.world && state.world.buildings) {
         duckCount = countBuildings(state.world?.buildings, buildingKindIdDuck);
         burgerCount = countBuildings(state.world?.buildings, buildingKindIdBurger);
@@ -344,7 +350,9 @@ export default async function update(state) {
 
     const nowBlock = state?.world?.block;
     const blocksLeft = endBlock > nowBlock ? endBlock - nowBlock : 0;
+    const blocksFromStart = startBlock < nowBlock ? nowBlock - startBlock : 30;
     const timeLeftMs = blocksLeft * 2 * 1000;
+    const timeSinceStartMs = blocksFromStart * 2 * 1000;
 
     if (gameActive) {
         // Display selected team buildings
@@ -362,8 +370,18 @@ export default async function update(state) {
         `;
 
         if (blocksLeft > 0) {
+        const now = Date.now();
+        if(!startTime)
+            startTime = now - timeSinceStartMs;
+        if(!endTime)
+            endTime = now + timeLeftMs;
             htmlBlock += `<p>time remaining: ${formatTime(timeLeftMs)}</p>`;
         }
+    }
+    else
+    {
+        startTime = undefined;
+        endTime = undefined;
     }
     //
     // case GameOver:
@@ -392,10 +410,39 @@ export default async function update(state) {
         {
             type: "building",
             id: `${duckCounter ? duckCounter.id : ""}`,
-            key: "labelText",
-            value: `${duckCount}`,
+                key: "labelText",
+                value: `${duckCount}`,
         },
     ];
+
+    if(gameActive && blocksLeft > 0)
+    {
+        mapObj.push(
+            {
+                type: "building",
+                id: `${countdownBuilding? countdownBuilding.id : ''}`,
+                key: "countdown-start",
+                value: `${startTime}`,
+            },
+            {
+                type: "building",
+                id: `${countdownBuilding? countdownBuilding.id : ''}`,
+                key: "countdown-end",
+                value: `${endTime}`,
+            },
+        );
+    }
+    else
+    {
+        mapObj.push(
+            {
+                type: "building",
+                id: `${countdownBuilding? countdownBuilding.id : ''}`,
+                key: "labelText",
+                value: '',
+            },
+        );
+    }
 
     return {
         version: 1,

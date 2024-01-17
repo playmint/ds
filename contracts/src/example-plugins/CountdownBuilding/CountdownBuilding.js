@@ -16,20 +16,7 @@ export default async function update() {
     
     return {
         version: 1,
-        map: [
-            {
-                type: "building",
-                id: "0x34cf8a7e000000000000000000000000000000010000ffff",
-                key: "countdown-start",
-                value: {start},
-            },
-            {
-                type: "building",
-                id: "0x34cf8a7e000000000000000000000000000000010000ffff",
-                key: "countdown-end",
-                value: {end},
-            },
-        ],
+        /*map: [],*/
         components: [
             {
                 id: "countdown-building",

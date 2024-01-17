@@ -153,6 +153,12 @@ contract DuckBurgerState is BuildingKind {
                 Actions.SET_DATA_ON_BUILDING, (buildingId, "endBlock", bytes32(uint256(block.number + 1 * 30)))
             )
         );
+        // set start to now
+        dispatcher.dispatch(
+            abi.encodeCall(
+                Actions.SET_DATA_ON_BUILDING, (buildingId, "startBlock", bytes32(uint256(block.number)))
+            )
+        );
 
         // gameActive
         dispatcher.dispatch(
