@@ -146,6 +146,11 @@ contract DuckBurgerState is BuildingKind {
             )
         );
 
+        // todo if the game length is a parameter, we could calculate this from the endBlock
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "startBlock", bytes32(uint256(block.number))))
+        );
+
         // set endblock to now plus 10 minutes
         // todo do we take time as a param
         dispatcher.dispatch(
@@ -262,6 +267,9 @@ contract DuckBurgerState is BuildingKind {
 
         // set state to joining (gameActive ?)
         dispatcher.dispatch(
+            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "startBlock", bytes32(uint256(block.number))))
+        );
+        dispatcher.dispatch(
             abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "endBlock", bytes32(uint256(block.number))))
         );
         dispatcher.dispatch(
@@ -297,12 +305,15 @@ contract DuckBurgerState is BuildingKind {
         return uint64(teamDuckUnits.length + teamBurgerUnits.length) * joinFee;
     }
 
-    function getBuildingCounts(State state, bytes24 buildingInstance) public view returns (uint24, uint24) {
+    function getBuildingCounts(State state, bytes24 buildingInstance)
+        public
+        view
+        returns (uint24 ducks, uint24 burgers)
+    {
         bytes24 duckBuildingKind = bytes24(state.getData(buildingInstance, "buildingKindIdDuck"));
         bytes24 burgerBuildingKind = bytes24(state.getData(buildingInstance, "buildingKindIdBurger"));
-
-        uint24 ducks = 0;
-        uint24 burgers = 0;
+        uint256 endBlock = uint256(state.getData(buildingInstance, "endBlock"));
+        uint256 startBlock = uint256(state.getData(buildingInstance, "startBlock"));
 
         bytes24 tile = state.getFixedLocation(buildingInstance);
         bytes24[99] memory arenaTiles = range5(tile);
@@ -311,12 +322,17 @@ contract DuckBurgerState is BuildingKind {
                 DEFAULT_ZONE, coords(arenaTiles[i])[1], coords(arenaTiles[i])[2], coords(arenaTiles[i])[3]
             );
             if (state.getBuildingKind(arenaBuildingID) == duckBuildingKind) {
-                ducks++;
+                uint64 constructionBlockNum = state.getBuildingConstructionBlockNum(arenaBuildingID);
+                if (constructionBlockNum >= startBlock && constructionBlockNum <= endBlock) {
+                    ducks++;
+                }
             } else if (state.getBuildingKind(arenaBuildingID) == burgerBuildingKind) {
-                burgers++;
+                uint64 constructionBlockNum = state.getBuildingConstructionBlockNum(arenaBuildingID);
+                if (constructionBlockNum >= startBlock && constructionBlockNum <= endBlock) {
+                    burgers++;
+                }
             }
         }
-        return (ducks, burgers);
     }
 
     function coords(bytes24 tile) internal pure returns (int16[4] memory keys) {
