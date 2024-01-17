@@ -1,23 +1,25 @@
 import ds from "downstream";
 
 const prizeFee = 2;
-const prizeItemId = "0x6a7a67f063976de500000001000000010000000000000000"
+const prizeItemId = "0x6a7a67f063976de500000001000000010000000000000000" // green goo
 const buildingPrizeBagSlot = 0;
 const buildingPrizeItemSlot = 0;
 const nullBytes24 = `0x${"00".repeat(24)}`;
+const duckBuildingTopId = "04";
+const burgerBuildingTopId = "17";
 
 function getHQData(selectedBuilding) {
     const prizePool = getDataInt(selectedBuilding, "prizePool");
     const gameActive = getDataBool(selectedBuilding, "gameActive");
     const endBlock = getDataInt(selectedBuilding, "endBlock");
-    const buildingKindIdA = getDataBytes24(selectedBuilding, "buildingKindIdA");
-    const buildingKindIdB = getDataBytes24(selectedBuilding, "buildingKindIdB");
+    const buildingKindIdDuck = getDataBytes24(selectedBuilding, "buildingKindIdDuck");
+    const buildingKindIdBurger = getDataBytes24(selectedBuilding, "buildingKindIdBurger");
     return {
         prizePool,
         gameActive,
         endBlock,
-        buildingKindIdA,
-        buildingKindIdB,
+        buildingKindIdDuck,
+        buildingKindIdBurger,
     };
 }
 
@@ -160,16 +162,16 @@ export default async function update(state) {
     };
 
     const startSubmit = (values) => {
-        const selectedBuildingIdA = values["buildingKindIdA"];
-        const selectedBuildingIdB = values["buildingKindIdB"];
+        const selectedBuildingIdDuck = values["buildingKindIdDuck"];
+        const selectedBuildingIdBurger = values["buildingKindIdBurger"];
 
         console.log("start(): form.currentValues", values);
 
         // Verify selected buildings are different from each other
-        if (selectedBuildingIdA == selectedBuildingIdB) {
+        if (selectedBuildingIdDuck == selectedBuildingIdBurger) {
             console.error(
-                "Team A and Team B buildings must be different from each other",
-                { selectedBuildingIdA, selectedBuildingIdB },
+                "Team buildings must be different from each other",
+                { selectedBuildingIdDuck, selectedBuildingIdBurger },
             );
             return;
         }
@@ -177,7 +179,7 @@ export default async function update(state) {
         const mobileUnit = getMobileUnit(state);
         const payload = ds.encodeCall(
             "function start(bytes24 duckBuildingID, bytes24 burgerBuildingID)",
-            [selectedBuildingIdA, selectedBuildingIdB],
+            [selectedBuildingIdDuck, selectedBuildingIdBurger],
         );
 
         ds.dispatch({
@@ -209,7 +211,8 @@ export default async function update(state) {
 
     // uncomment this to browse the state object in browser console
     // this will be logged when selecting a unit and then selecting an instance of this building
-    logState(state);
+    // very spammy for a plugin marked as alwaysActive
+    //logState(state);
 
     // find all HQs
     // run this update for each of them:
@@ -243,8 +246,8 @@ export default async function update(state) {
         prizePool,
         gameActive,
         endBlock,
-        buildingKindIdA,
-        buildingKindIdB,
+        buildingKindIdDuck,
+        buildingKindIdBurger,
     } = getHQData(selectedBuilding);
 
     const {unitFeeBagSlot, unitFeeItemSlot} = getMobileUnitFeeSlot(state);
@@ -276,8 +279,8 @@ export default async function update(state) {
     }
 
     if (state && state.world && state.world.buildings) {
-        burgerCount = countBuildings(state.world?.buildings, buildingKindIdA);
-        duckCount = countBuildings(state.world?.buildings, buildingKindIdB);
+        duckCount = countBuildings(state.world?.buildings, buildingKindIdDuck);
+        burgerCount = countBuildings(state.world?.buildings, buildingKindIdBurger);
     }
 
     // get contract data
@@ -320,10 +323,10 @@ export default async function update(state) {
         // Show options to select team buildings
         htmlBlock += `
             <h3>Select Team Buildings</h3>
-            <p>Team 1</p>
-            ${getBuildingKindSelectHtml(state, "buildingKindIdA")}
-            <p>Team 2</p>
-            ${getBuildingKindSelectHtml(state, "buildingKindIdB")}
+            <p>Team 🐤</p>
+            ${getBuildingKindSelectHtml(state, duckBuildingTopId, "buildingKindIdDuck")}
+            <p>Team 🍔</p>
+            ${getBuildingKindSelectHtml(state, burgerBuildingTopId, "buildingKindIdBurger")}
         `;
     }
 
@@ -345,16 +348,16 @@ export default async function update(state) {
 
     if (gameActive) {
         // Display selected team buildings
-        const buildingKindA =
-            state.world.buildingKinds.find((b) => b.id === buildingKindIdA) ||
+        const buildingKindDuck =
+            state.world.buildingKinds.find((b) => b.id === buildingKindIdDuck) ||
             {};
-        const buildingKindB =
-            state.world.buildingKinds.find((b) => b.id === buildingKindIdB) ||
+        const buildingKindBurger =
+            state.world.buildingKinds.find((b) => b.id === buildingKindIdBurger) ||
             {};
         htmlBlock += `
             <h3>Team Buildings:</h3>
-            <p>Team 1: ${buildingKindA.name?.value}</p>
-            <p>Team 2: ${buildingKindB.name?.value}</p>
+            <p>Team 🐤: ${buildingKindDuck.name?.value}</p>
+            <p>Team 🍔: ${buildingKindBurger.name?.value}</p>
 
         `;
 
@@ -498,11 +501,14 @@ function inputsAreCorrect(state, building) {
     );
 }
 
-function getBuildingKindSelectHtml(state, selectId) {
+function getBuildingKindSelectHtml(state, buildingTopId, selectId) {
     return `
         <select id="${selectId}" name="${selectId}">
-            ${state.world.buildingKinds.map(
+            ${state.world.buildingKinds
+                .filter((b) => b.model && b.model.value.substring(3, 5) === buildingTopId)
+                .map(
                 (b) => `
+                .filter((b) => b.model && b.model.value.substring(3, 5) === buildingTopId)
                     <option value="${b.id}">${b.name.value}</option>
                 `,
             )}
