@@ -1,7 +1,7 @@
 import ds from "downstream";
 
 const prizeFee = 2;
-const prizeItemId = "0x6a7a67f063976de500000001000000010000000000000000" // green goo
+const prizeItemId = "0x6a7a67f063976de500000001000000010000000000000000"; // green goo
 const buildingPrizeBagSlot = 0;
 const buildingPrizeItemSlot = 0;
 const nullBytes24 = `0x${"00".repeat(24)}`;
@@ -11,13 +11,20 @@ const burgerBuildingTopId = "17";
 function getHQData(selectedBuilding) {
     const prizePool = getDataInt(selectedBuilding, "prizePool");
     const gameActive = getDataBool(selectedBuilding, "gameActive");
-    const endBlock = getDataInt(selectedBuilding, "endBlock");
     const startBlock = getDataInt(selectedBuilding, "startBlock");
-    const buildingKindIdDuck = getDataBytes24(selectedBuilding, "buildingKindIdDuck");
-    const buildingKindIdBurger = getDataBytes24(selectedBuilding, "buildingKindIdBurger");
+    const endBlock = getDataInt(selectedBuilding, "endBlock");
+    const buildingKindIdDuck = getDataBytes24(
+        selectedBuilding,
+        "buildingKindIdDuck",
+    );
+    const buildingKindIdBurger = getDataBytes24(
+        selectedBuilding,
+        "buildingKindIdBurger",
+    );
     return {
         prizePool,
         gameActive,
+        startBlock,
         endBlock,
         startBlock,
         buildingKindIdDuck,
@@ -52,9 +59,8 @@ function range5(state, building) {
             let nextTile = [q, r, s];
             if (distance(tileCoords, nextTile) <= range) {
                 state?.world?.buildings.forEach((b) => {
-                    if (!b?.location?.tile?.coords)
-                        return;
-                        
+                    if (!b?.location?.tile?.coords) return;
+
                     const buildingCoords = getTileCoords(
                         b.location.tile.coords,
                     );
@@ -106,20 +112,29 @@ function distance(tileCoords, nextTile) {
     );
 }
 
-const countBuildings = (buildingsArray, kindID) => {
-    return buildingsArray.filter((b) => b.kind?.id == kindID).length;
+const countBuildings = (buildingsArray, kindID, startBlock, endBlock) => {
+    return buildingsArray.filter(
+        (b) =>
+            b.kind?.id == kindID &&
+            b.contructionBlockNum >= startBlock &&
+            b.contructionBlockNum <= endBlock,
+    ).length;
 };
 
 function getMobileUnitFeeSlot(state) {
     const mobileUnit = getMobileUnit(state);
     const mobileUnitBags = mobileUnit ? getEquipeeBags(state, mobileUnit) : [];
-    const { bag, slotKey } = findBagAndSlot(mobileUnitBags, prizeItemId, prizeFee);
+    const { bag, slotKey } = findBagAndSlot(
+        mobileUnitBags,
+        prizeItemId,
+        prizeFee,
+    );
     const unitFeeBagSlot = bag ? bag.equipee.key : -1;
     const unitFeeItemSlot = bag ? slotKey : -1;
     return {
         unitFeeBagSlot,
-        unitFeeItemSlot
-    }
+        unitFeeItemSlot,
+    };
 }
 
 let burgerCounter;
@@ -134,7 +149,9 @@ export default async function update(state) {
 
     const join = () => {
         if (unitFeeBagSlot < 0) {
-            console.log("fee not found in bags - button should have been disabled")
+            console.log(
+                "fee not found in bags - button should have been disabled",
+            );
         }
         const mobileUnit = getMobileUnit(state);
 
@@ -174,10 +191,10 @@ export default async function update(state) {
 
         // Verify selected buildings are different from each other
         if (selectedBuildingIdDuck == selectedBuildingIdBurger) {
-            console.error(
-                "Team buildings must be different from each other",
-                { selectedBuildingIdDuck, selectedBuildingIdBurger },
-            );
+            console.error("Team buildings must be different from each other", {
+                selectedBuildingIdDuck,
+                selectedBuildingIdBurger,
+            });
             return;
         }
 
@@ -250,24 +267,25 @@ export default async function update(state) {
     const {
         prizePool,
         gameActive,
-        endBlock,
         startBlock,
+        endBlock,
         buildingKindIdDuck,
         buildingKindIdBurger,
     } = getHQData(selectedBuilding);
 
-    const {unitFeeBagSlot, unitFeeItemSlot} = getMobileUnitFeeSlot(state);
-    const hasFee = unitFeeBagSlot >= 0; 
+    const { unitFeeBagSlot, unitFeeItemSlot } = getMobileUnitFeeSlot(state);
+    const hasFee = unitFeeBagSlot >= 0;
+
     //We control what these buildings are called, so we can grab 'em by name:
     const burgerCounterKindId = "Burger Display Building";
     const duckCounterKindId = "Duck Display Building";
-    const countdownBuildingKindId = 'Countdown Building';
+    const countdownBuildingKindId = "Countdown Building";
 
     let duckCount = 0;
     let burgerCount = 0;
 
     const localBuildings = range5(state, selectedBuilding);
-    
+
     if (!burgerCounter) {
         burgerCounter = localBuildings.find((element) =>
             getBuildingKindsByTileLocation(state, element, burgerCounterKindId),
@@ -278,15 +296,28 @@ export default async function update(state) {
             getBuildingKindsByTileLocation(state, element, duckCounterKindId),
         );
     }
-    if(!countdownBuilding)
-    {
-        countdownBuilding = localBuildings.find((element) => 
-            getBuildingKindsByTileLocation(state, element, countdownBuildingKindId)
+    if (!countdownBuilding) {
+        countdownBuilding = localBuildings.find((element) =>
+            getBuildingKindsByTileLocation(
+                state,
+                element,
+                countdownBuildingKindId,
+            ),
         );
     }
     if (state && state.world && state.world.buildings) {
-        duckCount = countBuildings(state.world?.buildings, buildingKindIdDuck);
-        burgerCount = countBuildings(state.world?.buildings, buildingKindIdBurger);
+        duckCount = countBuildings(
+            state.world?.buildings,
+            buildingKindIdDuck,
+            startBlock,
+            endBlock,
+        );
+        burgerCount = countBuildings(
+            state.world?.buildings,
+            buildingKindIdBurger,
+            startBlock,
+            endBlock,
+        );
     }
 
     // get contract data
@@ -330,9 +361,17 @@ export default async function update(state) {
         htmlBlock += `
             <h3>Select Team Buildings</h3>
             <p>Team 🐤</p>
-            ${getBuildingKindSelectHtml(state, duckBuildingTopId, "buildingKindIdDuck")}
+            ${getBuildingKindSelectHtml(
+                state,
+                duckBuildingTopId,
+                "buildingKindIdDuck",
+            )}
             <p>Team 🍔</p>
-            ${getBuildingKindSelectHtml(state, burgerBuildingTopId, "buildingKindIdBurger")}
+            ${getBuildingKindSelectHtml(
+                state,
+                burgerBuildingTopId,
+                "buildingKindIdBurger",
+            )}
         `;
     }
 
@@ -357,11 +396,13 @@ export default async function update(state) {
     if (gameActive) {
         // Display selected team buildings
         const buildingKindDuck =
-            state.world.buildingKinds.find((b) => b.id === buildingKindIdDuck) ||
-            {};
+            state.world.buildingKinds.find(
+                (b) => b.id === buildingKindIdDuck,
+            ) || {};
         const buildingKindBurger =
-            state.world.buildingKinds.find((b) => b.id === buildingKindIdBurger) ||
-            {};
+            state.world.buildingKinds.find(
+                (b) => b.id === buildingKindIdBurger,
+            ) || {};
         htmlBlock += `
             <h3>Team Buildings:</h3>
             <p>Team 🐤: ${buildingKindDuck.name?.value}</p>
@@ -370,16 +411,12 @@ export default async function update(state) {
         `;
 
         if (blocksLeft > 0) {
-        const now = Date.now();
-        if(!startTime)
-            startTime = now - timeSinceStartMs;
-        if(!endTime)
-            endTime = now + timeLeftMs;
+            const now = Date.now();
+            if (!startTime) startTime = now - timeSinceStartMs;
+            if (!endTime) endTime = now + timeLeftMs;
             htmlBlock += `<p>time remaining: ${formatTime(timeLeftMs)}</p>`;
         }
-    }
-    else
-    {
+    } else {
         startTime = undefined;
         endTime = undefined;
     }
@@ -410,38 +447,33 @@ export default async function update(state) {
         {
             type: "building",
             id: `${duckCounter ? duckCounter.id : ""}`,
-                key: "labelText",
-                value: `${duckCount}`,
+            key: "labelText",
+            value: `${duckCount}`,
         },
     ];
 
-    if(gameActive && blocksLeft > 0)
-    {
+    if (gameActive && blocksLeft > 0) {
         mapObj.push(
             {
                 type: "building",
-                id: `${countdownBuilding? countdownBuilding.id : ''}`,
+                id: `${countdownBuilding ? countdownBuilding.id : ""}`,
                 key: "countdown-start",
                 value: `${startTime}`,
             },
             {
                 type: "building",
-                id: `${countdownBuilding? countdownBuilding.id : ''}`,
+                id: `${countdownBuilding ? countdownBuilding.id : ""}`,
                 key: "countdown-end",
                 value: `${endTime}`,
             },
         );
-    }
-    else
-    {
-        mapObj.push(
-            {
-                type: "building",
-                id: `${countdownBuilding? countdownBuilding.id : ''}`,
-                key: "labelText",
-                value: '',
-            },
-        );
+    } else {
+        mapObj.push({
+            type: "building",
+            id: `${countdownBuilding ? countdownBuilding.id : ""}`,
+            key: "labelText",
+            value: "",
+        });
     }
 
     return {
@@ -510,11 +542,13 @@ function findBagAndSlot(bags, requiredItemId, requiredBalance) {
     for (const bag of bags) {
         for (const slotKey in bag.slots) {
             const slot = bag.slots[slotKey];
-            if ((!requiredItemId || slot.item.id == requiredItemId) &&
-                requiredBalance <= slot.balance) {
+            if (
+                (!requiredItemId || slot.item.id == requiredItemId) &&
+                requiredBalance <= slot.balance
+            ) {
                 return {
                     bag: bag,
-                    slotKey: slot.key // assuming each slot has a 'key' property
+                    slotKey: slot.key, // assuming each slot has a 'key' property
                 };
             }
         }
@@ -552,13 +586,17 @@ function getBuildingKindSelectHtml(state, buildingTopId, selectId) {
     return `
         <select id="${selectId}" name="${selectId}">
             ${state.world.buildingKinds
-                .filter((b) => b.model && b.model.value.substring(3, 5) === buildingTopId)
+                .filter(
+                    (b) =>
+                        b.model &&
+                        b.model.value.substring(3, 5) === buildingTopId,
+                )
                 .map(
-                (b) => `
+                    (b) => `
                 .filter((b) => b.model && b.model.value.substring(3, 5) === buildingTopId)
                     <option value="${b.id}">${b.name.value}</option>
                 `,
-            )}
+                )}
         </select>
     `;
 }

@@ -146,6 +146,11 @@ contract DuckBurgerState is BuildingKind {
             )
         );
 
+        // todo if the game length is a parameter, we could calculate this from the endBlock
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "startBlock", bytes32(uint256(block.number))))
+        );
+
         // set endblock to now plus 10 minutes
         // todo do we take time as a param
         dispatcher.dispatch(
@@ -261,6 +266,9 @@ contract DuckBurgerState is BuildingKind {
         // todo - do we check if all claims have been made ?
 
         // set state to joining (gameActive ?)
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "startBlock", bytes32(uint256(block.number))))
+        );
         dispatcher.dispatch(
             abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "endBlock", bytes32(uint256(block.number))))
         );
