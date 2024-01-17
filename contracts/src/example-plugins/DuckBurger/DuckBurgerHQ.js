@@ -116,8 +116,8 @@ const countBuildings = (buildingsArray, kindID, startBlock, endBlock) => {
     return buildingsArray.filter(
         (b) =>
             b.kind?.id == kindID &&
-            b.contructionBlockNum >= startBlock &&
-            b.contructionBlockNum <= endBlock,
+            b.contructionBlockNum.value >= startBlock &&
+            b.contructionBlockNum.value <= endBlock,
     ).length;
 };
 
@@ -234,7 +234,7 @@ export default async function update(state) {
     // uncomment this to browse the state object in browser console
     // this will be logged when selecting a unit and then selecting an instance of this building
     // very spammy for a plugin marked as alwaysActive
-    //logState(state);
+    // logState(state);
 
     // find all HQs
     // run this update for each of them:
