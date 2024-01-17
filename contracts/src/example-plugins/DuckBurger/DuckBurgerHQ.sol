@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 import {Game} from "cog/IGame.sol";
 import {Dispatcher} from "cog/IDispatcher.sol";
 import {State, CompoundKeyDecoder} from "cog/IState.sol";
-import {Schema, Node, DEFAULT_ZONE, Q, R, S} from "@ds/schema/Schema.sol";
+import {Schema, Node, DEFAULT_ZONE, Q, R, S, Kind} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 import "@ds/utils/LibString.sol";
@@ -172,8 +172,6 @@ contract DuckBurgerState is BuildingKind {
     }
 
     function _claim(Game ds, State state, bytes24 unitId, bytes24 buildingId) private {
-        Dispatcher dispatcher = ds.getDispatcher();
-
         // check game finished
         {
             uint256 endBlock = uint256(state.getData(buildingId, "endBlock"));
@@ -222,20 +220,10 @@ contract DuckBurgerState is BuildingKind {
         // award prize (total / number of winning team mates)
         // _transferFromMobileUnit (see tests code for something to copy)
 
-        bytes24 bagId = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingId)))));
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.TRANSFER_ITEM_MOBILE_UNIT,
-                (
-                    buildingId,
-                    [buildingId, unitId],
-                    [prizeBagSlot, 0],
-                    [prizeItemSlot, 0],
-                    bagId,
-                    isDraw ? joinFee : _calculatePrizeAmount()
-                )
-            )
-        );
+        Dispatcher dispatcher = ds.getDispatcher();
+
+        _awardPrize(state, dispatcher, buildingId, unitId, isDraw ? joinFee : _calculatePrizeAmount());
+
         dispatcher.dispatch(
             abi.encodeCall(
                 Actions.SET_DATA_ON_BUILDING,
@@ -249,6 +237,52 @@ contract DuckBurgerState is BuildingKind {
         } else if (isBurgerTeamMember) {
             removeUnitFromArray(teamBurgerUnits, unitId);
         }
+    }
+
+    // NOTE: Split away from _claim because stack too deep
+    function _awardPrize(State state, Dispatcher dispatcher, bytes24 buildingId, bytes24 unitId, uint64 prizeAmount)
+        private
+    {
+        bytes24 prizeBagId = state.getEquipSlot(buildingId, prizeBagSlot);
+        (bytes24 prizeItemId, /*uint64 balance*/ ) = state.getItemSlot(prizeBagId, prizeItemSlot);
+
+        (uint8 destBagSlot, uint8 destItemSlot) = _findValidItemSlot(state, unitId, prizeItemId, prizeAmount);
+
+        dispatcher.dispatch(
+            abi.encodeCall(
+                Actions.TRANSFER_ITEM_MOBILE_UNIT,
+                (
+                    buildingId,
+                    [buildingId, unitId],
+                    [prizeBagSlot, destBagSlot],
+                    [prizeItemSlot, destItemSlot],
+                    bytes24(0), // To bag ID not required
+                    prizeAmount
+                )
+            )
+        );
+    }
+
+    function _findValidItemSlot(State state, bytes24 unitId, bytes24 itemId, uint64 transferAmount)
+        private
+        view
+        returns (uint8 destBagSlot, uint8 destItemSlot)
+    {
+        for (destBagSlot = 0; destBagSlot < 2; destBagSlot++) {
+            bytes24 destBagId = state.getEquipSlot(unitId, destBagSlot);
+
+            require(bytes4(destBagId) == Kind.Bag.selector, "findValidItemSlot(): No bag found at equip slot");
+
+            for (destItemSlot = 0; destItemSlot < 4; destItemSlot++) {
+                (bytes24 destItemId, uint64 destBalance) = state.getItemSlot(destBagId, destItemSlot);
+                if ((destItemId == bytes24(0) || destItemId == itemId) && destBalance + transferAmount <= 100) {
+                    // Found valid slot
+                    return (destBagSlot, destItemSlot);
+                }
+            }
+        }
+
+        revert("No valid slot for item found");
     }
 
     function removeUnitFromArray(bytes24[] storage array, bytes24 unitId) private {
