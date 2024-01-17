@@ -318,13 +318,13 @@ export default async function update(state) {
     }
     if (state && state.world && state.world.buildings) {
         duckCount = countBuildings(
-            state.world?.buildings,
+            localBuildings,
             buildingKindIdDuck,
             startBlock,
             endBlock,
         );
         burgerCount = countBuildings(
-            state.world?.buildings,
+            localBuildings,
             buildingKindIdBurger,
             startBlock,
             endBlock,
