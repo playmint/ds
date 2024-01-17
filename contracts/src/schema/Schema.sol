@@ -481,6 +481,14 @@ library Schema {
         ( /*bytes24 item*/ , blockNum) = state.get(Rel.HasBlockNum.selector, slot, kind);
     }
 
+    function setBuildingConstructionBlockNum(State state, bytes24 buildingID, uint64 blockNum) internal {
+        state.setBlockNum(buildingID, uint8(BuildingBlockNumKey.CONSTRUCTION), blockNum);
+    }
+
+    function getBuildingConstructionBlockNum(State state, bytes24 buildingID) internal view returns (uint64) {
+        return state.getBlockNum(buildingID, uint8(BuildingBlockNumKey.CONSTRUCTION));
+    }
+
     function getTaskKind(State, /*state*/ bytes24 task) internal pure returns (uint32) {
         return uint32(uint192(task) >> 32 & type(uint32).max);
     }
