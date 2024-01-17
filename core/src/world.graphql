@@ -184,6 +184,9 @@ fragment WorldState on State {
         name: annotation(name: "name") {
             value
         }
+        model: annotation(name: "model") {
+            value
+        }
     }
 }
 

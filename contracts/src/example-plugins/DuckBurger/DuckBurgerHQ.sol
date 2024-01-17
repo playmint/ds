@@ -137,11 +137,13 @@ contract DuckBurgerState is BuildingKind {
         }
 
         dispatcher.dispatch(
-            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingKindIdA", bytes32(duckBuildingID)))
+            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingKindIdDuck", bytes32(duckBuildingID)))
         );
 
         dispatcher.dispatch(
-            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingKindIdB", bytes32(burgerBuildingID)))
+            abi.encodeCall(
+                Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingKindIdBurger", bytes32(burgerBuildingID))
+            )
         );
 
         // set endblock to now plus 10 minutes
@@ -275,8 +277,12 @@ contract DuckBurgerState is BuildingKind {
             abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "lastKnownPrizeBalance", bytes32(0)))
         );
         dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "prizePool", bytes32(0))));
-        dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingKindIdA", bytes32(0))));
-        dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingKindIdB", bytes32(0))));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingKindIdDuck", bytes32(0)))
+        );
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingKindIdBurger", bytes32(0)))
+        );
     }
 
     function _getPrizeBalance(State state, bytes24 buildingId) internal view returns (uint64) {
@@ -294,8 +300,8 @@ contract DuckBurgerState is BuildingKind {
     }
 
     function getBuildingCounts(State state, bytes24 buildingInstance) public view returns (uint24, uint24) {
-        bytes24 duckBuildingKind = bytes24(state.getData(buildingInstance, "buildingKindIdA"));
-        bytes24 burgerBuildingKind = bytes24(state.getData(buildingInstance, "buildingKindIdB"));
+        bytes24 duckBuildingKind = bytes24(state.getData(buildingInstance, "buildingKindIdDuck"));
+        bytes24 burgerBuildingKind = bytes24(state.getData(buildingInstance, "buildingKindIdBurger"));
 
         uint24 ducks = 0;
         uint24 burgers = 0;

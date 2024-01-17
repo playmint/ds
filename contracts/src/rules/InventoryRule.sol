@@ -51,7 +51,7 @@ contract InventoryRule is Rule {
         }
 
         // get acting mobileUnit location
-        bytes24 location = state.getCurrentLocation(actor, atTime);
+        bytes24 location = BagUtils.getCurrentLocation(state, actor, atTime);
 
         // check equipees are either the acting mobileUnit
         // at the same location as the acting mobileUnit
