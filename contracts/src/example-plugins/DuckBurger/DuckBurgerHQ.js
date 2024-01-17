@@ -116,8 +116,8 @@ const countBuildings = (buildingsArray, kindID, startBlock, endBlock) => {
     return buildingsArray.filter(
         (b) =>
             b.kind?.id == kindID &&
-            b.contructionBlockNum.value >= startBlock &&
-            b.contructionBlockNum.value <= endBlock,
+            b.constructionBlockNum.value >= startBlock &&
+            b.constructionBlockNum.value <= endBlock,
     ).length;
 };
 
