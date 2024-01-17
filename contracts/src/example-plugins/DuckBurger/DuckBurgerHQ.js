@@ -415,6 +415,25 @@ export default async function update(state) {
             if (!startTime) startTime = now - timeSinceStartMs;
             if (!endTime) endTime = now + timeLeftMs;
             htmlBlock += `<p>time remaining: ${formatTime(timeLeftMs)}</p>`;
+        } else {
+            // End of game
+            htmlBlock += `
+                <h3 style="margin-top: 1em;">Game Over:</h3>
+                <p>Final Score: 🐤${duckCount} : 🍔${burgerCount}
+            `;
+            if (duckCount == burgerCount) {
+                htmlBlock += `
+                    <p>The result was a draw</p>
+                `;
+            } else {
+                const winningTeamName =
+                    duckCount > burgerCount ? "duck" : "burger";
+                const winningTeamEmoji = duckCount > burgerCount ? "🐤" : "🍔";
+                htmlBlock += `
+                    <p>Team <b>${winningTeamName}</b> have won the match!</p>
+                    <p style="text-align: center;">${winningTeamEmoji}🏆</p>
+                `;
+            }
         }
     } else {
         startTime = undefined;
