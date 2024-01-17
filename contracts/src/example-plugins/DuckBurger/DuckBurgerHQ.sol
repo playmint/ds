@@ -162,7 +162,9 @@ contract DuckBurgerState is BuildingKind {
 
         // gameActive
         dispatcher.dispatch(
-            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "gameActive", bytes32(uint256(1))))
+            abi.encodeCall(
+                Actions.SET_DATA_ON_BUILDING, (buildingId, "gameActive", bytes32(uint256(1)))
+            )
         );
 
         // set team buildings
