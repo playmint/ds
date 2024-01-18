@@ -414,12 +414,6 @@ spec:
   location: [ -1, 0, 1 ]
 
 ---
-kind: Building
-spec:
-  name: Rainbow Golem
-  location: [ -1, 0, 1 ]
-
----
 kind: Tile
 spec:
   location: [ -2, -3, 5 ]
@@ -1632,12 +1626,6 @@ spec:
   location: [ 0, 13, -13 ]
 
 ---
-kind: Building
-spec:
-  name: Rainbow Golem
-  location: [ 0, 13, -13 ]
-
----
 kind: Tile
 spec:
   location: [ -1, 15, -14 ]
@@ -2346,12 +2334,6 @@ spec:
   location: [ 0, -14, 14 ]
 
 ---
-kind: Building
-spec:
-  name: Rainbow Golem
-  location: [ 0, -14, 14 ]
-
----
 kind: Tile
 spec:
   location: [ 1, -13, 12 ]
@@ -2682,12 +2664,6 @@ spec:
   location: [ 0, -23, 23 ]
 
 ---
-kind: Building
-spec:
-  name: Rainbow Golem
-  location: [ 0, -23, 23 ]
-
----
 kind: Tile
 spec:
   location: [ 1, -23, 22 ]
@@ -2907,12 +2883,6 @@ spec:
 kind: Tile
 spec:
   biome: DISCOVERED
-  location: [ 0, 20, -20 ]
-
----
-kind: Building
-spec:
-  name: Rainbow Golem
   location: [ 0, 20, -20 ]
 
 ---
@@ -3624,12 +3594,6 @@ spec:
   location: [ 16, 5, -21 ]
 
 ---
-kind: Building
-spec:
-  name: Rainbow Golem
-  location: [ 16, 5, -21 ]
-
----
 kind: Tile
 spec:
   location: [ 18, 3, -21 ]
@@ -4338,12 +4302,6 @@ spec:
   location: [ 21, -22, 1 ]
 
 ---
-kind: Building
-spec:
-  name: Rainbow Golem
-  location: [ 21, -22, 1 ]
-
----
 kind: Tile
 spec:
   location: [ 21, -23, 2 ]
@@ -4431,12 +4389,6 @@ spec:
 kind: Tile
 spec:
   biome: DISCOVERED
-  location: [ 13, -15, 2 ]
-
----
-kind: Building
-spec:
-  name: Rainbow Golem
   location: [ 13, -15, 2 ]
 
 ---
@@ -4920,12 +4872,6 @@ spec:
   location: [ -19, 17, 2 ]
 
 ---
-kind: Building
-spec:
-  name: Rainbow Golem
-  location: [ -19, 17, 2 ]
-
----
 kind: Tile
 spec:
   location: [ -19, 20, -1 ]
@@ -5375,11 +5321,6 @@ spec:
   biome: DISCOVERED
   location: [ -13, 0, 13 ]
 
----
-kind: Building
-spec:
-  name: Rainbow Golem
-  location: [ -13, 0, 13 ]
 
 ---
 kind: Tile
@@ -5451,12 +5392,6 @@ spec:
 kind: Tile
 spec:
   biome: DISCOVERED
-  location: [ -25, 0, 25 ]
-
----
-kind: Building
-spec:
-  name: Rainbow Golem
   location: [ -25, 0, 25 ]
 
 ---
