@@ -35,7 +35,6 @@ contract DuckBurgerHQ is BuildingKind {
     function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes calldata payload) public {
         State state = GetState(ds);
 
-
         // decode payload and call one of _join, _start, _claim or _reset
         if ((bytes4)(payload) == this.join.selector) {
             _join(ds, state, actor, buildingInstance);
@@ -79,7 +78,7 @@ contract DuckBurgerHQ is BuildingKind {
                 (buildingId, "lastKnownPrizeBalance", bytes32(uint256(currentPrizeBalance)))
             )
         );
-        
+
         for (uint256 i = 0; i < teamDuckUnits.length; i++) {
             if (teamDuckUnits[i] == unitId) revert("Already joined");
         }
