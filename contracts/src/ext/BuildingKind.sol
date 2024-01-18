@@ -5,4 +5,5 @@ import "cog/IGame.sol";
 
 interface BuildingKind {
     function use(Game ds, bytes24 buildingInstanceID, bytes24 mobileUnitID, bytes memory payload) external;
+    function construct(Game ds, bytes24 buildingInstanceID, bytes24 mobileUnitID, bytes memory payload) external;
 }
