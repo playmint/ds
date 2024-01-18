@@ -1,6 +1,7 @@
 /** @format */
 import { BuilderCamera } from '@app/components/map/BuilderCamera';
 import { FactoryBuilding } from '@app/components/map/FactoryBuilding';
+import { MilitaryBuilding } from '@app/components/map/MilitaryBuilding';
 import { GroundPlane } from '@app/components/map/GroundPlane';
 import { Tile } from '@app/components/map/Tile';
 import { NavPanel } from '@app/components/panels/nav-panel';

@@ -2,7 +2,7 @@ import fs from 'fs';
 import { z } from 'zod';
 import YAML from 'yaml';
 
-export const BuildingCategoryEnumVals = ['none', 'blocker', 'extractor', 'factory', 'custom', 'display'] as const;
+export const BuildingCategoryEnumVals = ['none', 'blocker', 'extractor', 'factory', 'military', 'custom', 'display'] as const;
 export const BuildingCategoryEnum = z.enum(BuildingCategoryEnumVals);
 export type BuildingCategoryEnum = z.infer<typeof BuildingCategoryEnum>;
 
@@ -94,6 +94,17 @@ export const BuildingKindFactorySpec = z.object({
     outputs: Slot.array().max(1).optional(),
 });
 
+export const BuildingKindMilitarySpec = z.object({
+    category: z.literal('military'),
+    name: Name,
+    description: OneLiner.optional(),
+    model: TotemModel,
+    color: z.number().min(0).max(5).optional(),
+    contract: ContractSource.optional(),
+    plugin: PluginSource.optional(),
+    materials: Slot.array().nonempty().max(4),
+});
+
 export const BuildingKindDisplaySpec = z.object({
     category: z.literal('display'),
     name: Name,
@@ -137,6 +148,7 @@ export const BuildingKindCustomSpec = z.object({
 
 export const BuildingKindSpec = z.discriminatedUnion('category', [
     BuildingKindFactorySpec,
+    BuildingKindMilitarySpec,
     BuildingKindBlockerSpec,
     BuildingKindExtractorSpec,
     BuildingKindCustomSpec,

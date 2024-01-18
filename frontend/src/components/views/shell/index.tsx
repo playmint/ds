@@ -172,6 +172,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
 
         switch (selectedMapElement.type) {
             case 'FactoryBuildingData':
+            case 'MilitaryBuildingData':
             case 'BlockerBuildingData':
             case 'DisplayBuildingData':
             case 'ExtractorBuildingData':

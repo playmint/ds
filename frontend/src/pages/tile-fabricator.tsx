@@ -349,6 +349,8 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                         return '/models/extractor.fbx';
                     case 'blocker':
                         return '/models/blocker.fbx';
+                    case 'military':
+                        return '/models/military.fbx';
                     default:
                         return '/models/custom.fbx';
                 }
@@ -392,8 +394,9 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                     blocker: 1,
                     extractor: 2,
                     factory: 3,
-                    custom: 4,
-                    display: 5,
+                    military: 4,
+                    custom: 5,
+                    display: 6,
                 }[kind.spec.category] || 0;
             const kindID = solidityPacked(
                 ['bytes4', 'uint32', 'uint64', 'uint64'],

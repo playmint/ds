@@ -25,6 +25,7 @@ public class ComponentDataMessage : ComponentMessage
 [RequireComponent(typeof(MobileUnitManager))]
 [RequireComponent(typeof(PathManager))]
 [RequireComponent(typeof(FactoryBuildingManager))]
+[RequireComponent(typeof(MilitaryBuildingManager))]
 [RequireComponent(typeof(ExtractorBuildingManager))]
 [RequireComponent(typeof(BlockerBuildingManager))]
 [RequireComponent(typeof(LabelManager))]

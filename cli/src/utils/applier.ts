@@ -204,7 +204,7 @@ const buildingKindDeploymentActions = async (
         outputQtys = output.quantities.slice(0, 1);
     }
 
-    if (spec.category == 'factory' || spec.category == 'custom' || spec.category == 'display') {
+    if (spec.category == 'factory' || spec.category == 'military' || spec.category == 'custom' || spec.category == 'display') {
         model = `${model}-${spec.color || 0}`;
     }
 

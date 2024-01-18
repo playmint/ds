@@ -129,6 +129,7 @@ const nodeToManifest = (node): z.infer<typeof Manifest> => {
         };
         const model = node.model?.value || '';
         // TODO: fixup once category and extractor is a real thing, this is currently a guess
+        // TODO [military] check for military category
         const category = outputs.length > 0 ? 'factory' : implementation ? 'custom' : 'blocker';
         const spec = (() => {
             if (category === 'factory') {

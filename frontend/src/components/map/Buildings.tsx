@@ -11,6 +11,7 @@ import { memo, useMemo } from 'react';
 import { BlockerBuilding } from './BlockerBuilding';
 import { ExtractorBuilding } from './ExtractorBuilding';
 import { FactoryBuilding } from './FactoryBuilding';
+import { MilitaryBuilding } from './MilitaryBuilding';
 import { DisplayBuilding } from './DisplayBuilding';
 
 function getColorFromGoo(kind) {
@@ -128,6 +129,19 @@ export const Buildings = memo(
                                 id={b.id}
                                 height={height}
                                 rotation={rotation}
+                                selected={selected}
+                                onPointerClick={onClickBuilding}
+                                {...coords}
+                            />
+                        );
+                    } else if (getBuildingCategory(b.kind) == BuildingCategory.DISPLAY) {
+                        return (
+                            <MilitaryBuilding
+                                key={b.id}
+                                id={b.id}
+                                height={height}
+                                model={b.kind?.model?.value}
+                                rotation={-30}
                                 selected={selected}
                                 onPointerClick={onClickBuilding}
                                 {...coords}

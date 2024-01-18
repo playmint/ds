@@ -69,6 +69,7 @@ enum BuildingCategory {
     BLOCKER,
     EXTRACTOR,
     ITEM_FACTORY,
+    MILITARY,
     CUSTOM,
     DISPLAY
 }
