@@ -2,7 +2,7 @@ import fs from 'fs';
 import { z } from 'zod';
 import YAML from 'yaml';
 
-export const BuildingCategoryEnumVals = ['none', 'blocker', 'extractor', 'factory', 'custom'] as const;
+export const BuildingCategoryEnumVals = ['none', 'blocker', 'extractor', 'factory', 'custom', 'display'] as const;
 export const BuildingCategoryEnum = z.enum(BuildingCategoryEnumVals);
 export type BuildingCategoryEnum = z.infer<typeof BuildingCategoryEnum>;
 
@@ -15,6 +15,7 @@ export const ContractSource = z.object({
 export const PluginSource = z.object({
     file: z.string().optional(),
     inline: z.string().optional(),
+    alwaysActive: z.boolean().optional(),
 });
 
 export const Name = z.string().min(3).max(32);
@@ -78,6 +79,7 @@ const DecorativeModel = z.enum([
     'rocksSmall',
 ]);
 const ExtractorModel = z.enum(['red', 'green', 'blue']);
+const DisplayModel = z.enum(['default', 'countdown']);
 
 export const BuildingKindFactorySpec = z.object({
     category: z.literal('factory'),
@@ -90,6 +92,17 @@ export const BuildingKindFactorySpec = z.object({
     materials: Slot.array().nonempty().max(4),
     inputs: Slot.array().max(4).optional(),
     outputs: Slot.array().max(1).optional(),
+});
+
+export const BuildingKindDisplaySpec = z.object({
+    category: z.literal('display'),
+    name: Name,
+    description: OneLiner.optional(),
+    model: DisplayModel,
+    color: z.number().min(0).max(5).optional(),
+    contract: ContractSource.optional(),
+    plugin: PluginSource.optional(),
+    materials: Slot.array().nonempty().max(4),
 });
 
 export const BuildingKindBlockerSpec = z.object({
@@ -127,6 +140,7 @@ export const BuildingKindSpec = z.discriminatedUnion('category', [
     BuildingKindBlockerSpec,
     BuildingKindExtractorSpec,
     BuildingKindCustomSpec,
+    BuildingKindDisplaySpec,
 ]);
 
 export const BuildingKind = z.object({

@@ -69,7 +69,8 @@ enum BuildingCategory {
     BLOCKER,
     EXTRACTOR,
     ITEM_FACTORY,
-    CUSTOM
+    CUSTOM,
+    DISPLAY
 }
 
 enum QuestStatus {
@@ -478,6 +479,14 @@ library Schema {
 
     function getBlockNum(State state, bytes24 kind, uint8 slot) internal view returns (uint64 blockNum) {
         ( /*bytes24 item*/ , blockNum) = state.get(Rel.HasBlockNum.selector, slot, kind);
+    }
+
+    function setBuildingConstructionBlockNum(State state, bytes24 buildingID, uint64 blockNum) internal {
+        state.setBlockNum(buildingID, uint8(BuildingBlockNumKey.CONSTRUCTION), blockNum);
+    }
+
+    function getBuildingConstructionBlockNum(State state, bytes24 buildingID) internal view returns (uint64) {
+        return state.getBlockNum(buildingID, uint8(BuildingBlockNumKey.CONSTRUCTION));
     }
 
     function getTaskKind(State, /*state*/ bytes24 task) internal pure returns (uint32) {

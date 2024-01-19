@@ -1,0 +1,39 @@
+---
+kind: BuildingKind
+spec:
+  name: Weak Blocker
+  category: blocker
+  model: PineTreesLarge
+  materials:
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 23
+    - name: Red Goo
+      quantity: 23
+---
+kind: BuildingKind
+spec:
+  name: Medium Blocker
+  category: blocker
+  model: rocksSmall
+  materials:
+    - name: Green Goo
+      quantity: 20
+    - name: Blue Goo
+      quantity: 43
+    - name: Red Goo
+      quantity: 43
+---
+kind: BuildingKind
+spec:
+  name: Strong Blocker
+  category: blocker
+  model: rocksLarge
+  materials:
+    - name: Green Goo
+      quantity: 30
+    - name: Blue Goo
+      quantity: 83
+    - name: Red Goo
+      quantity: 83

@@ -5,6 +5,8 @@ export enum BuildingCategory {
     BLOCKER,
     EXTRACTOR,
     ITEM_FACTORY,
+    CUSTOM,
+    DISPLAY,
 }
 export function getBuildingCategory(kind?: BuildingKindFragment | null) {
     if (!kind) {
@@ -19,6 +21,8 @@ export function getBuildingCategory(kind?: BuildingKindFragment | null) {
             return BuildingCategory.EXTRACTOR;
         case BuildingCategory.ITEM_FACTORY:
             return BuildingCategory.ITEM_FACTORY;
+        case BuildingCategory.DISPLAY:
+            return BuildingCategory.DISPLAY;
         default:
             return BuildingCategory.NONE;
     }

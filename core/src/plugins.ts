@@ -159,6 +159,9 @@ function isAutoloadableBuildingPlugin(
         // FIXME: use src annotation not metadata
         return false;
     }
+    if (p.alwaysActive?.value == 'true') {
+        return true;
+    }
     switch (pluginTypeForNodeKind(p.supports.kind)) {
         case PluginType.BUILDING:
             if (!tiles) {

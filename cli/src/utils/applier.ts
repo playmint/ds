@@ -101,7 +101,7 @@ const itemKindDeploymentActions = async (
         const js = fs.readFileSync(relativeFilename, 'utf8').toString();
         ops.push({
             name: 'REGISTER_KIND_PLUGIN',
-            args: [pluginID, id, spec.name, js],
+            args: [pluginID, id, spec.name, js, false],
         });
     }
 
@@ -204,7 +204,7 @@ const buildingKindDeploymentActions = async (
         outputQtys = output.quantities.slice(0, 1);
     }
 
-    if (spec.category == 'factory' || spec.category == 'custom') {
+    if (spec.category == 'factory' || spec.category == 'custom' || spec.category == 'display') {
         model = `${model}-${spec.color || 0}`;
     }
 
@@ -259,7 +259,7 @@ const buildingKindDeploymentActions = async (
             : spec.plugin.inline;
         ops.push({
             name: 'REGISTER_KIND_PLUGIN',
-            args: [pluginID, id, spec.name, js],
+            args: [pluginID, id, spec.name, js, !!spec.plugin.alwaysActive],
         });
     }
 

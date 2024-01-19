@@ -86,6 +86,7 @@ export const PluginContent = ({
                                         disabled={!canUse || btn.disabled}
                                         key={btn.text}
                                         onClick={() => clickActionButton(btn)}
+                                        type="submit"
                                     >
                                         {btn.text}
                                     </ActionButton>
