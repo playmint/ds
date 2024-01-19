@@ -236,10 +236,9 @@ contract BuildingRule is Rule {
         // or consume inventory while building
         BuildingKind buildingImplementation = BuildingKind(state.getImplementation(buildingKind));
         // if no implementation set, then this is a no-op
-        if (address(buildingImplementation) == address(0)) {
-            return;
+        if (address(buildingImplementation) != address(0)) {
+            buildingImplementation.construct(game, buildingKind, mobileUnit, abi.encode(coords));
         }
-        buildingImplementation.construct(game, buildingKind, mobileUnit, abi.encode(coords));
 
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, coords[0], coords[1], coords[2]);
         // burn resources from given towards construction
