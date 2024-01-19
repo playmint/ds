@@ -11,7 +11,7 @@ import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 using Schema for State;
 
 contract Locker is BuildingKind {
-    function use(Game ds, bytes24 buildingInstance, bytes24 mobileUnit, bytes memory /*payload*/ ) public {
+    function use(Game ds, bytes24 buildingInstance, bytes24 mobileUnit, bytes memory /*payload*/ ) override public {
         // Decode the function
         State state = ds.getState();
         bytes24 buildingBag = state.getEquipSlot(buildingInstance, 0);

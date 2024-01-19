@@ -332,7 +332,7 @@ contract MockBuildingKind is BuildingKind {
 
     UseArgs[] public useCalls;
 
-    function use(Game game, bytes24 building, bytes24 mobileUnit, bytes memory payload) public {
+    function use(Game game, bytes24 building, bytes24 mobileUnit, bytes memory payload) override public {
         UseArgs storage call = useCalls.push();
         call.game = game;
         call.building = building;
