@@ -10,14 +10,14 @@ import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 using Schema for State;
 
 contract BasicFactory is BuildingKind {
-    function use(Game ds, bytes24 buildingInstance, bytes24, /*actor*/ bytes memory /*payload*/ ) public {
+    function use(Game ds, bytes24 buildingInstance, bytes24, /*actor*/ bytes memory /*payload*/ ) override public {
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.CRAFT, (buildingInstance)));
     }
 
     // version of use that restricts crafting to building owner, author or allow list
     // these restrictions will not be reflected in the UI unless you make
     // similar changes in BasicFactory.js
-    /*function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes memory ) public {
+    /*function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes memory ) override public {
         State state = GetState(ds);
         CheckIsFriendlyUnit(state, actor, buildingInstance);
 
@@ -25,7 +25,7 @@ contract BasicFactory is BuildingKind {
     }*/
 
     // version of use that restricts crafting to units carrying a certain item
-    /*function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes memory ) public {
+    /*function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes memory ) override public {
         // require carrying an idCard
         // you can change idCardItemId to another item id
         CheckIsCarryingItem(state, actor, idCardItemId);
