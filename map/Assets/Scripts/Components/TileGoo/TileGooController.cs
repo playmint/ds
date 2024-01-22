@@ -34,10 +34,6 @@ public class TileGooController : BaseComponentController<TileGooData>
             Destroy(_gooInstance);
         }
 
-        // disabled
-        /*
-
-
         switch (_nextData.color)
         {
             case "red":
@@ -68,6 +64,5 @@ public class TileGooController : BaseComponentController<TileGooData>
         {
             bigGoo.gameObject.SetActive(_nextData.size == "big");
         }
-        */
     }
 }

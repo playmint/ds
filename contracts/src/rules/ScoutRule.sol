@@ -84,11 +84,11 @@ contract ScoutRule is Rule {
     //int16 private constant GOO_RED_OFFSET_Y = 13;
     //int16 private constant GOO_SCALE = 28;
 
-    function _generateAtomValues(State state, bytes24 targetTile, int16[3] memory /*coords*/ ) private {
+    function _generateAtomValues(State state, bytes24 targetTile, int16[3] memory coords) private {
         uint64[3] memory atoms;
 
         // -- Using 2d Coords
-        /*int16[2] memory coords2d = _cubeToGrid(coords);
+        int16[2] memory coords2d = _cubeToGrid(coords);
 
         // function noise2d(int256 _x, int256 _y, int256 denomX, int256 denomY, uint8 precision) internal pure returns (int128)
 
@@ -124,9 +124,7 @@ contract ScoutRule is Rule {
             )
         );
         atoms[GOO_BLUE] = uint64(uint128(Math.mul(bluePerlin, Math.fromUInt(255)) >> (64)));
-        atoms[GOO_RED] = uint64(uint128(Math.mul(redPerlin, Math.fromUInt(255)) >> (64)));*/
-
-        atoms[GOO_GREEN] = atoms[GOO_BLUE] = atoms[GOO_RED] = 255;
+        atoms[GOO_RED] = uint64(uint128(Math.mul(redPerlin, Math.fromUInt(255)) >> (64)));
 
         state.setTileAtomValues(targetTile, atoms);
     }
