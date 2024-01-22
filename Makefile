@@ -65,7 +65,7 @@ cli: node_modules core/dist/core.js
 	(cd cli && $(NPM) run build && $(NPM) install -g --force .)
 
 publish: cli
-	(cd cli && $(NPM) version prerelease --preid=1kx && $(NPM) publish)
+	(cd cli && $(NPM) version patch && $(NPM) publish)
 
 release: contracts node_modules cli
 	./scripts/release.mjs -i --max-connections 10
