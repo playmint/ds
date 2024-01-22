@@ -239,12 +239,12 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
                 ))}
                 {author && (
                     <span className="label">
-                        <strong>AUTHOR:</strong> {author.addr}
+                        <strong>AUTHOR:</strong> {author.name?.value ? author.name?.value : author.addr}
                     </span>
                 )}
                 {owner && (
                     <span className="label">
-                        <strong>OWNER:</strong> {owner.addr}
+                        <strong>OWNER:</strong> {owner.name?.value ? owner.name?.value : owner.addr}
                     </span>
                 )}
                 <span className="label" style={{ width: '30%' }}>
