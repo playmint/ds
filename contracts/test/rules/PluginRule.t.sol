@@ -9,6 +9,9 @@ using Schema for State;
 contract PluginRuleTest is Test, GameTest {
     event AnnotationSet(bytes24 id, AnnotationKind kind, string label, bytes32 ref, string data);
 
+    // not testing this flag currently
+    bool constant alwaysActivePlugin = false;
+
     function testRegisterClientPlugin() public {
         bytes24 pluginID = Node.ClientPlugin(10);
         string memory pluginName = "generic-plugin";
@@ -22,7 +25,9 @@ contract PluginRuleTest is Test, GameTest {
         //       have some broader concepts like Zone for plugins to reference without reserorting to "everything"
         bytes24 pluginTarget = 0x0; // NULL node, yuk
         dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_KIND_PLUGIN, (pluginID, pluginTarget, pluginName, pluginSrc, false))
+            abi.encodeCall(
+                Actions.REGISTER_KIND_PLUGIN, (pluginID, pluginTarget, pluginName, pluginSrc, alwaysActivePlugin)
+            )
         );
         assertEq(state.getPlugin(pluginID), pluginTarget, "expected plugin to reference the target node");
     }
@@ -71,7 +76,9 @@ contract PluginRuleTest is Test, GameTest {
         emit AnnotationSet(pluginID, AnnotationKind.CALLDATA, "name", keccak256(bytes(pluginName)), pluginName);
         emit AnnotationSet(pluginID, AnnotationKind.CALLDATA, "src", keccak256(bytes(pluginSrc)), pluginSrc);
         dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_KIND_PLUGIN, (pluginID, buildingKind, pluginName, pluginSrc, false))
+            abi.encodeCall(
+                Actions.REGISTER_KIND_PLUGIN, (pluginID, buildingKind, pluginName, pluginSrc, alwaysActivePlugin)
+            )
         );
         vm.stopPrank();
         // check building kind assigned to plugin
@@ -81,7 +88,9 @@ contract PluginRuleTest is Test, GameTest {
         vm.startPrank(players[1].addr);
         vm.expectRevert("PluginNotPluginOwner"); // expect fail as one wood short
         dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_KIND_PLUGIN, (pluginID, buildingKind, pluginName, "BAD_CODE", false))
+            abi.encodeCall(
+                Actions.REGISTER_KIND_PLUGIN, (pluginID, buildingKind, pluginName, "BAD_CODE", alwaysActivePlugin)
+            )
         );
         vm.stopPrank();
     }
@@ -128,7 +137,9 @@ contract PluginRuleTest is Test, GameTest {
         vm.startPrank(players[1].addr);
         vm.expectRevert("PluginNotTargetOwner"); // expect fail as one wood short
         dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_KIND_PLUGIN, (pluginID, buildingKind, pluginName, pluginSrc, false))
+            abi.encodeCall(
+                Actions.REGISTER_KIND_PLUGIN, (pluginID, buildingKind, pluginName, pluginSrc, alwaysActivePlugin)
+            )
         );
         vm.stopPrank();
     }

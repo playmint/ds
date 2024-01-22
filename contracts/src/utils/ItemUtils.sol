@@ -16,6 +16,7 @@ struct ItemConfig {
     bool stackable;
     address implementation;
     string plugin;
+    bool alwaysActivePlugin;
 }
 
 library ItemUtils {
@@ -57,7 +58,7 @@ library ItemUtils {
             dispatcher.dispatch(
                 abi.encodeCall(
                     Actions.REGISTER_KIND_PLUGIN,
-                    (Node.ClientPlugin(uint64(cfg.id)), itemKind, cfg.name, cfg.plugin, false)
+                    (Node.ClientPlugin(uint64(cfg.id)), itemKind, cfg.name, cfg.plugin, cfg.alwaysActivePlugin)
                 )
             );
         }

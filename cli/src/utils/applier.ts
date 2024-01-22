@@ -99,9 +99,10 @@ const itemKindDeploymentActions = async (
         }
         const pluginID = encodePluginID(spec); // use building name for plugin id
         const js = fs.readFileSync(relativeFilename, 'utf8').toString();
+        const alwaysActive = false;
         ops.push({
             name: 'REGISTER_KIND_PLUGIN',
-            args: [pluginID, id, spec.name, js, false],
+            args: [pluginID, id, spec.name, js, alwaysActive],
         });
     }
 
