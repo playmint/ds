@@ -14,8 +14,8 @@ contract PluginRule is Rule {
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.REGISTER_KIND_PLUGIN.selector) {
             // decode the payload
-            (bytes24 plugin, bytes24 target, string memory name, string memory src) =
-                abi.decode(action[4:], (bytes24, bytes24, string, string));
+            (bytes24 plugin, bytes24 target, string memory name, string memory src, bool alwaysActive) =
+                abi.decode(action[4:], (bytes24, bytes24, string, string, bool));
 
             bytes24 player = Node.Player(ctx.sender);
 
@@ -46,6 +46,7 @@ contract PluginRule is Rule {
             // and a friendly name
             state.annotate(plugin, "name", name);
             state.annotate(plugin, "src", src);
+            state.annotate(plugin, "alwaysActive", alwaysActive ? "true" : "false");
         } else if (bytes4(action) == Actions.REGISTER_KIND_IMPLEMENTATION.selector) {
             (bytes24 kind, address contractAddr) = abi.decode(action[4:], (bytes24, address));
             _registerImplementation(state, Node.Player(ctx.sender), kind, contractAddr);

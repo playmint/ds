@@ -393,6 +393,7 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                     extractor: 2,
                     factory: 3,
                     custom: 4,
+                    display: 5,
                 }[kind.spec.category] || 0;
             const kindID = solidityPacked(
                 ['bytes4', 'uint32', 'uint64', 'uint64'],

@@ -75,8 +75,13 @@ interface Actions {
     //
     //  REGISTER_KIND_PLUGIN(myRandomlyPickedPluginID, myBuildingKindID, "my-plugin", "function(){}")
     //
-    function REGISTER_KIND_PLUGIN(bytes24 pluginID, bytes24 targetKind, string calldata name, string calldata src)
-        external;
+    function REGISTER_KIND_PLUGIN(
+        bytes24 pluginID,
+        bytes24 targetKind,
+        string calldata name,
+        string calldata src,
+        bool alwaysActive
+    ) external;
 
     // construct a building
     function CONSTRUCT_BUILDING_MOBILE_UNIT(

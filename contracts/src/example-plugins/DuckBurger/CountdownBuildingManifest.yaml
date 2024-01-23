@@ -1,0 +1,20 @@
+---
+kind: BuildingKind
+spec:
+  name: Countdown Building
+  description: "Countdown something!"
+  category: display
+  model: countdown
+  color: 4
+  contract:
+    file: ./CountdownBuilding.sol
+  plugin:
+    file: ./CountdownBuilding.js
+    alwaysActive: true
+  materials:
+    - name: Green Goo
+      quantity: 25
+    - name: Blue Goo
+      quantity: 25
+    - name: Red Goo
+      quantity: 25

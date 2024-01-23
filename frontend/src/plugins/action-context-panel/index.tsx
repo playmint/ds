@@ -220,6 +220,9 @@ const Construct: FunctionComponent<ConstructProps> = ({
     const enemyKinds = constructableKinds
         .filter((kind) => kind.owner?.id !== player?.id)
         .filter((kind) => getBuildingCategory(kind) == BuildingCategory.BLOCKER && kind.model?.value === 'enemy');
+    const displayKinds = constructableKinds
+        .filter((kind) => kind.owner?.id !== player?.id)
+        .filter((kind) => getBuildingCategory(kind) == BuildingCategory.DISPLAY);
     const selectedKind = selectedKindRaw;
 
     const onChangeSelectedKind = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -411,6 +414,15 @@ const Construct: FunctionComponent<ConstructProps> = ({
                                 {enemyKinds.length > 0 && (
                                     <optgroup label="Enemies">
                                         {enemyKinds.map((k) => (
+                                            <option key={k.id} value={k.id}>
+                                                {k.name?.value || k.id}
+                                            </option>
+                                        ))}
+                                    </optgroup>
+                                )}
+                                {displayKinds.length > 0 && (
+                                    <optgroup label="Displays">
+                                        {displayKinds.map((k) => (
                                             <option key={k.id} value={k.id}>
                                                 {k.name?.value || k.id}
                                             </option>
