@@ -121,10 +121,11 @@ export default async function update(state) {
     // so we need to find all HQs on the map and update them each in turn
     //
     // for now we just update the first we find
-    const dvbBuildingName = "Duck Burger HQ";
+    const dvbBuildingName = "Duck Burger HQ".toLowerCase();
     const selectedBuilding = state.world?.buildings.find(
-        (b) => b.kind?.name?.value == dvbBuildingName,
+        (b) => b.kind?.name?.value.toLowerCase().includes(dvbBuildingName),
     );
+
 
     // early out if we don't have any buildings or state isn't ready
     if (!selectedBuilding || !state?.world?.buildings ) {

@@ -37,6 +37,11 @@ debugmap:
 dev: all
 	$(NODE) .devstartup.js
 
+test: all
+	@echo "Enter number of Duck Burger HQ buildings to create: "; \
+	read number; \
+	$(NODE) .teststartup.js $$number
+
 compose: frontend/public/ds-unity/Build/ds-unity.wasm
 	docker compose up --build
 
