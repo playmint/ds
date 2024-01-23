@@ -1,0 +1,231 @@
+# PushButton
+# BurgerMaker (unit)
+# DuckMaker (unit)
+# Spawner
+# Counter
+# Timer
+# DuckBurgerHQ (chip)
+
+# all parts have...
+# location
+# name
+# owner
+
+---
+kind: PartKind
+spec:
+    name: PushButton
+    model: clicky-button
+    actions:
+        - name: click # click is special in the sense that the UI triggers it on-click
+          args: 
+            - name: player
+              type: address
+    parts:
+      - name: target
+    state:
+        - name: pressed
+          type: int64
+        - name: last_pressed_by
+          type: address
+    logic:
+        - when:
+              - trigger_kind: action
+                name: click
+          do:
+              - set_state: last_pressed_by
+                value: '{{ trigger.0.args.player }}'
+              - increment_state: pressed # setState(0, getState(0) +1 )
+
+---
+kind: PartKind
+spec:
+    name: Spawner
+    model: spawn-plate-thing
+    actions:
+        - name: spawn
+          args:
+              - name: kind
+                type: bytes24 # PartKind id
+              - name: part-ids
+                type: bytes24[]
+              - name: owner # player
+                type: address
+    logic:
+        - when:
+              - trigger_kind: action
+                name: spawn
+          do:
+              - spawn_part: # special privilage?
+                    kind: '{{ trigger.0.args.0 }}' # yuk
+                    parts: '{{ trigger.0.args.1 }}'
+
+---
+kind: PartKind
+spec:
+    name: Timer
+    model: timer
+    actions:
+      - name: start_timer
+      args:
+        - name: started_at
+          type: uint
+        - name: duration
+          type: uint
+    logic:
+      - when:
+          - trigger_kind: action
+            name: start_timer
+        do:
+          - set_state: started_at
+            value: '{{ trigger.0.args.started_at }}'
+          - set_state: duration
+            value: '{{ trigger.0.args.duration }}'
+
+---
+kind: PartKind
+spec:
+    name: BurgerMaker
+    model: unit
+    actions:
+        - name: move
+          visibility: owner
+          args:
+              - name: location
+                type: Location
+        - name: spawn-burger
+          visibility: owner
+          args:
+              - name: location
+                type: Location # first class Location type??
+    parts:
+        - name: hq
+          kind: DuckBurgerHQ
+    logic:
+        - when:
+              - trigger_kind: action
+                name: spawn-burger
+          do:
+              - call_action: spawn-burger
+                part: hq
+                args:
+                  name: location
+                  value: '{{ trigger.0.args.location }}'
+
+---
+kind: PartKind
+spec:
+    name: DuckBurgerHQ
+    model: chip
+    actions:
+        - name: start
+        - name: spawn-duck
+        - name: spawn-burger
+          args:
+          - name: location
+            kind: Location
+        - name: claim-prize
+    parts:
+        - name: burger-maker-spawn-plate
+          kind: Spawner
+        - name: burger-maker-spawn-btn
+          kind: PushButton
+        - name: tiles
+          kind: Spawner[9]
+        - name: burger-counter
+          kind: Counter
+        - name: timer
+          kind: Timer
+        - name: Burgers
+          kind: Burger[]
+    state:
+      - name: spawned
+        kind: uint8[9]
+      - name: burger-count
+        kind: uint
+      - name: duck-count
+        kind: uint
+      - name: started_at
+        kind: uint
+    logic:
+        - when:
+              - trigger_kind: state
+                part: burger-maker-spawn-btn
+                state_name: pressed
+          do:
+              - call_action: spawn
+                part: burger-maker-spawn-plate
+                args:
+                - name: kind
+                  value: '0x220793560237' # BurgerMaker
+                - name: part-ids
+                  value: ['{{ self.id }}'] # id of the instance of this part
+                - name: owner # player
+                  value: '{{ parts.burger-maker-spawn-btn.state.last_pressed_by }}'
+        - when:
+              - trigger_kind: action
+                name: spawn-burger
+          do:
+              - for_each: parts.tiles
+                do:
+                  - if:
+                      condition: element.value.location == triggers.0.args.location
+                      then:
+                      - if:
+                          condition: 'state.spawned[element.index] == 0'
+                        then:
+                          - call_action: spawn
+                            part: element.value
+                            args:
+                            - name: kind
+                              value: '0xDEADBEEF' # Burger
+                            - name: owner # player
+                              value: '{{ self.id }}'
+                          - set_state:
+                              name: spawned
+                              element: element.index
+                              value: 1 # 1=burger, 2=duck, 0=nothing
+                          - increment_state:
+                              name: burger-count
+                          - call_action: set_value
+                            part: burger-counter
+                            args:
+                            - name: value
+                              value: state.burger-count
+                        else:
+                          - error: 'already something here'
+                    
+
+        - when:
+          - trigger_kind: action
+            name: start
+          do:
+          - set_state:
+              name: started_at
+              value: '{{ global.block_number}}'
+          - call_action:
+              name: start_timer
+              part: timer
+              args:
+              - name: duration
+                value: 5
+              - name: started_at
+                value: self.state.started_at
+
+        - when:
+          - trigger_kind: state
+            part: claim-btn
+            state_name: pressed
+          do:
+          # if time ended AND "claim-btn.last_pressed_by"  have the most spawns, then mint NFT
+          - set_state:
+              name: started_at
+              value: '{{ global.block_number}}'
+          - call_action:
+              name: start_timer
+              part: timer
+              args:
+              - name: duration
+                value: 5
+              - name: started_at
+                value: self.state.started_at
