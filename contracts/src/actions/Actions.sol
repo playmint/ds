@@ -30,13 +30,6 @@ enum ArgType {
     ADDRESS
 }
 
-struct PartActionArg {
-    string name;
-    ArgType argType;
-    bool list;
-    uint256 length;
-}
-
 // ----------------------------------
 // Actions interface
 // ----------------------------------
@@ -173,7 +166,10 @@ interface Actions {
         bytes24 partKindId,
         uint8 actionIndex,
         string calldata name,
-        PartActionArg[] calldata args
+        string[] calldata argNames,
+        uint8[] calldata argTypes,
+        bool[] calldata argLists,
+        uint256[] calldata argLengths
     ) external;
 
     function REGISTER_PART_REF(
@@ -185,7 +181,14 @@ interface Actions {
         uint256 length
     ) external;
 
-    function REGISTER_PART_STATE(bytes24 partKindId, uint8 index, PartActionArg calldata arg) external;
+    function REGISTER_PART_STATE(
+        bytes24 partKindId,
+        uint8 index,
+        string calldata argName,
+        uint8 argType,
+        bool argList,
+        uint256 argLength
+    ) external;
 
     // ---------------------
     // the DEV_ actions below this point are not for public use they are

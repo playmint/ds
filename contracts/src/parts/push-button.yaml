@@ -15,7 +15,7 @@ spec:
       type: address
   logic:
     - when:
-        trigger_kind: action
+        kind: action
         name: click
       do:
         - kind: setstate

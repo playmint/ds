@@ -8,7 +8,7 @@ import "cog/IRule.sol";
 import {Schema, Node, Kind, DEFAULT_ZONE, BuildingCategory, BuildingBlockNumKey} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
-import {Actions, PartActionArg} from "@ds/actions/Actions.sol";
+import {Actions, ArgType} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 import {CraftingRule} from "@ds/rules/CraftingRule.sol";
 import {ItemKind} from "@ds/ext/ItemKind.sol";
@@ -31,10 +31,17 @@ contract PartKindRule is Rule {
         }
 
         if (bytes4(action) == Actions.REGISTER_PART_ACTION.selector) {
-            (bytes24 partKindId, uint8 actionIndex, string memory name, PartActionArg[] memory args) =
-                abi.decode(action[4:], (bytes24, uint8, string, PartActionArg[]));
+            (
+                bytes24 partKindId,
+                uint8 actionIndex,
+                string memory name,
+                string[] memory argNames,
+                uint8[] memory argTypes,
+                bool[] memory argLists,
+                uint256[] memory argLengths
+            ) = abi.decode(action[4:], (bytes24, uint8, string, string[], uint8[], bool[], uint256[]));
 
-            _registerPartAction(state, partKindId, actionIndex, name, args);
+            _registerPartAction(state, partKindId, actionIndex, name, argNames, argTypes, argLists, argLengths);
         }
 
         if (bytes4(action) == Actions.REGISTER_PART_REF.selector) {
@@ -44,9 +51,9 @@ contract PartKindRule is Rule {
         }
 
         if (bytes4(action) == Actions.REGISTER_PART_STATE.selector) {
-            (bytes24 partKindId, uint8 index, PartActionArg memory arg) =
-                abi.decode(action[4:], (bytes24, uint8, PartActionArg));
-            _registerPartState(state, partKindId, index, arg);
+            (bytes24 partKindId, uint8 index, string memory argName, uint8 argType, bool argList, uint256 argLength) =
+                abi.decode(action[4:], (bytes24, uint8, string, uint8, bool, uint256));
+            _registerPartState(state, partKindId, index, argName, argType, argList, argLength);
         }
 
         return state;
@@ -62,17 +69,20 @@ contract PartKindRule is Rule {
         bytes24 partKindId,
         uint8 actionIndex,
         string memory name,
-        PartActionArg[] memory args
+        string[] memory argNames,
+        uint8[] memory argTypes,
+        bool[] memory argLists,
+        uint256[] memory argLengths
     ) private {
         bytes24 actionDefId = Node.PartActionDef(partKindId, actionIndex);
 
         state.annotate(actionDefId, "name", name);
-        for (uint8 i = 0; i < args.length; i++) {
+        for (uint8 i = 0; i < argNames.length; i++) {
             bytes24 partActionArgDef = Node.PartActionArgDef(partKindId, actionIndex, i);
-            state.setActionArgDef(actionDefId, partActionArgDef, i, args[i].argType);
-            state.annotate(partActionArgDef, "name", args[i].name);
-            state.setData(partActionArgDef, "list", bytes32(uint256(args[i].list ? 1 : 0)));
-            state.setData(partActionArgDef, "length", bytes32(uint256(args[i].length)));
+            state.setActionArgDef(actionDefId, partActionArgDef, i, ArgType(argTypes[i]));
+            state.annotate(partActionArgDef, "name", argNames[i]);
+            state.setData(partActionArgDef, "list", bytes32(uint256(argLists[i] ? 1 : 0)));
+            state.setData(partActionArgDef, "length", bytes32(uint256(argLengths[i])));
         }
 
         state.setActionDef(partKindId, actionDefId, actionIndex);
@@ -95,12 +105,20 @@ contract PartKindRule is Rule {
         state.setPartRefDef(partKindId, partRefDefId, index, refPartKindId);
     }
 
-    function _registerPartState(State state, bytes24 partKindId, uint8 index, PartActionArg memory arg) private {
+    function _registerPartState(
+        State state,
+        bytes24 partKindId,
+        uint8 index,
+        string memory argName,
+        uint8 argType,
+        bool argList,
+        uint256 argLength
+    ) private {
         bytes24 partStateDefId = Node.PartStateDef(partKindId, index);
-        state.annotate(partStateDefId, "name", arg.name);
-        state.setData(partStateDefId, "list", bytes32(uint256(arg.list ? 1 : 0)));
-        state.setData(partStateDefId, "length", bytes32(uint256(arg.length)));
+        state.annotate(partStateDefId, "name", argName);
+        state.setData(partStateDefId, "list", bytes32(uint256(argList ? 1 : 0)));
+        state.setData(partStateDefId, "length", bytes32(uint256(argLength)));
 
-        state.setStateDef(partKindId, partStateDefId, index, arg.argType);
+        state.setStateDef(partKindId, partStateDefId, index, ArgType(argType));
     }
 }

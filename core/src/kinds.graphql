@@ -42,11 +42,10 @@ fragment PartKind on Node {
                 value
             }
             args: edges(match: { kinds: "PartActionArgDef" }) {
+                key
+                type: weight
                 node {
-                    name: data(name: "name") {
-                        value
-                    }
-                    type: data(name: "type") {
+                    name: annotation(name: "name") {
                         value
                     }
                     list: data(name: "list") {
@@ -59,25 +58,28 @@ fragment PartKind on Node {
             }
         }
     }
-    # The PartKinds which can be connected to this PartKind
-    parts: edges(match: { kinds: "PartRefDef" }) {
+    parts: edges(match: { kinds: "PartRefDef", via: { rel: "PartRef" } }) {
         key
         node {
             name: annotation(name: "name") {
                 value
             }
-            kind: node(match: { kinds: "PartKind" }) {
+            kind: node(match: { kinds: "PartKind", via: { rel: "Has" } }) {
                 id
             }
         }
     }
     state: edges(match: { kinds: "PartStateDef" }) {
         key
+        type: weight
         node {
             name: annotation(name: "name") {
                 value
             }
-            type: data(name: "type") {
+            list: data(name: "list") {
+                value
+            }
+            length: data(name: "length") {
                 value
             }
         }

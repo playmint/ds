@@ -69,9 +69,10 @@ contract DownstreamGame is BaseGame {
         state.registerNodeType(Kind.Task.selector, "Task", CompoundKeyKind.UINT32_ARRAY);
         state.registerNodeType(Kind.ID.selector, "ID", CompoundKeyKind.BYTES);
         state.registerNodeType(Kind.PartKind.selector, "PartKind", CompoundKeyKind.UINT160);
-        state.registerNodeType(Kind.PartStateDef.selector, "PartStateDef", CompoundKeyKind.UINT160);
         state.registerNodeType(Kind.PartRefDef.selector, "PartRefDef", CompoundKeyKind.UINT160);
+        state.registerNodeType(Kind.PartStateDef.selector, "PartStateDef", CompoundKeyKind.UINT160);
         state.registerNodeType(Kind.PartActionDef.selector, "PartActionDef", CompoundKeyKind.UINT160);
+        state.registerNodeType(Kind.PartActionArgDef.selector, "PartActionArgDef", CompoundKeyKind.UINT160);
 
         // register the relationship ids we are using
         state.registerEdgeType(Rel.Owner.selector, "Owner", WeightKind.UINT64);

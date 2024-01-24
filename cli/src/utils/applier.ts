@@ -10,8 +10,8 @@ import {
     ContractSource,
     ManifestDocument,
     Slot,
+    ActionArgTypeEnumVal,
 } from '../utils/manifest';
-import { PartKindFragment } from '@downstream/core/src/gql/graphql';
 
 const null24bytes = '0x000000000000000000000000000000000000000000000000';
 
@@ -71,12 +71,15 @@ const encodeQuestID = ({ name }) => {
     return solidityPacked(['bytes4', 'uint32', 'uint64', 'uint64'], [NodeSelectors.Quest, 0, 0, getQuestKey(name)]);
 };
 
-const getItemKindKey = (name: string) => {
+const getPartKindKey = (name: string) => {
     return BigInt.asUintN(64, BigInt(keccak256UTF8(`${name}`)));
 };
 
-const encodePartKindID = ({ name }) => {
-    return solidityPacked(['bytes4', 'uint32', 'uint64', 'uint64'], [NodeSelectors.Quest, 0, 0, getItemKindKey(name)]);
+const encodePartKindID = (name: string) => {
+    return solidityPacked(
+        ['bytes4', 'uint32', 'uint64', 'uint64'],
+        [NodeSelectors.PartKind, 0, 0, getPartKindKey(name)]
+    );
 };
 
 // TODO: Is there a way of referencing the Solidity enum?
@@ -285,12 +288,9 @@ const buildingKindDeploymentActions = async (
 
 const partKindDeploymentActions = async (
     file: ReturnType<typeof ManifestDocument.parse>,
-    files: ReturnType<typeof ManifestDocument.parse>[],
-    existingPartKinds: PartKindFragment[],
     compiler: (source: z.infer<typeof ContractSource>, manifestDir: string) => Promise<string>
 ): Promise<CogAction[]> => {
     const ops: CogAction[] = [];
-    const manifestDir = path.dirname(file.filename);
 
     if (file.manifest.kind != 'PartKind') {
         throw new Error(`expected part kind spec`);
@@ -298,15 +298,56 @@ const partKindDeploymentActions = async (
     const spec = file.manifest.spec;
 
     // pick kind id
-    const id = encodePartKindID(spec);
+    const partKindId = encodePartKindID(spec.name);
 
     // register kind
-    // ops.push({
-    //     name: 'REGISTER_PART_KIND',
-    //     args: [
+    ops.push({
+        name: 'REGISTER_PART_KIND',
+        args: [partKindId, spec.name, spec.model],
+    });
 
-    //     ],
-    // });
+    (spec.actions || []).forEach((actionSpec, actionIndex) => {
+        ops.push({
+            name: 'REGISTER_PART_ACTION',
+            args: [
+                partKindId,
+                actionIndex,
+                actionSpec.name,
+                actionSpec.args ? actionSpec.args.map((actionArg) => actionArg.name) : [],
+                actionSpec.args ? actionSpec.args.map((actionArg) => ActionArgTypeEnumVal.indexOf(actionArg.type)) : [],
+                actionSpec.args ? actionSpec.args.map((actionArg) => actionArg.list ?? false) : [],
+                actionSpec.args ? actionSpec.args.map((actionArg) => actionArg.length ?? 0) : [],
+            ],
+        });
+    });
+
+    (spec.parts || []).forEach((partSpec, partIndex) => {
+        ops.push({
+            name: 'REGISTER_PART_REF',
+            args: [
+                partKindId,
+                partIndex,
+                partSpec.name,
+                encodePartKindID(partSpec.kind),
+                partSpec.list ?? false,
+                partSpec.length ?? 0,
+            ],
+        });
+    });
+
+    (spec.state || []).forEach((partState, stateIndex) => {
+        ops.push({
+            name: 'REGISTER_PART_STATE',
+            args: [
+                partKindId,
+                stateIndex,
+                partState.name,
+                ActionArgTypeEnumVal.indexOf(partState.type),
+                partState.list ?? false,
+                partState.length ?? 0,
+            ],
+        });
+    });
 
     // generate, compile and deploy an implementation if given
     // if (generatedByteCode) {
@@ -497,7 +538,7 @@ export const getOpsForManifests = async (
         if (doc.manifest.kind != 'PartKind') {
             continue;
         }
-        const actions = await partKindDeploymentActions(doc, docs, world.partKinds, compiler);
+        const actions = await partKindDeploymentActions(doc, compiler);
         opsets[opn].push({
             doc,
             actions,
