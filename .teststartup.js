@@ -18,17 +18,19 @@ const DEPLOYER_PRIVATE_KEY = "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff
 // write javascript code that duplicates the content of the files in "./contracts/src/example-plugins/DuckBurger/" and puts them in a new 
 // folder (if it doesn't already exist) at "./contracts/src/test-plugins/DuckBurgerTest/". 
 
-const sourceDir = './contracts/src/example-plugins/DuckBurger/';
-const targetDir = './contracts/src/test-plugins/DuckBurgerTest/';
-const targetMapDir = './contracts/src/test-plugins/';
 const dvbBuildings = Math.min(10, process.argv[2]); // Capped to 10
 
 async function duplicateFiles() {
+    const targetMapDir = './contracts/src/test-plugins/';
+    
     // if input is 0, recursively delete test-plugins
     if (dvbBuildings === 0) {
         await deleteDirectory(targetMapDir);
         return;
     }
+
+    const sourceDir = './contracts/src/example-plugins/DuckBurger/';
+    const targetDir = './contracts/src/test-plugins/DuckBurgerTest/';
 
     // first delete DuckBurgerTest - note it wouldn't delete map.yaml if it exists - TODO: make sure it does?
     await deleteAndCreateDir(targetDir);
@@ -77,7 +79,6 @@ async function duplicateFiles() {
         const errorMessage = `Error occurred: ${error.message}\n`;
         await fs.appendFile(errorFilePath, errorMessage, 'utf8');
     }
-    
 }
 
 function generateHexagonalGrid(radius) {
