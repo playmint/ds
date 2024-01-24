@@ -23,12 +23,6 @@ const targetDir = './contracts/src/test-plugins/DuckBurgerTest/';
 const targetMapDir = './contracts/src/test-plugins/';
 const dvbBuildings = Math.min(10, process.argv[2]); // Capped to 10
 
-// template of smallest map size for duck burger buildings to work
-let tiles = [];
-// this list includes the names so it knows where to put what
-const buildings = [{'name': 'Duck Burger HQ', 'x': 0, 'y': 0, 'z': 0}, {'name': 'Burger Display Building', 'x': 5, 'y': 0, 'z': -5}, {'name': 'Duck Display Building', 'x': -5, 'y': 0, 'z': 5}, {'name': 'Countdown Building', 'x': 2, 'y': -4, 'z': 2}];
-
-
 async function duplicateFiles() {
     // if input is 0, recursively delete test-plugins
     if (dvbBuildings === 0) {
@@ -60,12 +54,18 @@ async function duplicateFiles() {
 
     // in try catch to output errors, can be removed because it outputs to a txt file
     try{
-        tiles = generateHexagonalGrid(5);
+        // this list includes the names so it knows where to put what
+        const buildingsDuckBurger = [
+            {'name': 'Duck Burger HQ', 'x': 0, 'y': 0, 'z': 0}, 
+            {'name': 'Burger Display Building', 'x': 5, 'y': 0, 'z': -5}, 
+            {'name': 'Duck Display Building', 'x': -5, 'y': 0, 'z': 5}, 
+            {'name': 'Countdown Building', 'x': 2, 'y': -4, 'z': 2}];
+        const tiles = generateHexagonalGrid(5);
 
         // generate the map.yaml content
         let mapYamlContent = '';
         for (let i = 1; i <= dvbBuildings; i++) {
-            mapYamlContent += generateMapSection(tiles, buildings, i);
+            mapYamlContent += generateMapSection(tiles, buildingsDuckBurger, i);
         }
 
         // write the map.yaml file
@@ -95,7 +95,6 @@ function generateHexagonalGrid(radius) {
     return _tiles;
 }
 
-// doesn't actually need tiles and buildings parameters of course - take out later
 function generateMapSection(tiles, buildings, iteration) {
     const displacement = 11 * (iteration - 1); // maybe 11 can be changed to radius * 2 + 1 ?
     let yamlContent = '';
@@ -136,7 +135,6 @@ spec:
 
     return yamlContent;
 }
-
 
 async function deleteDirectory(dir) {
     try {
