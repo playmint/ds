@@ -24,7 +24,7 @@ const targetMapDir = './contracts/src/test-plugins/';
 const dvbBuildings = Math.min(10, process.argv[2]); // Capped to 10
 
 // template of smallest map size for duck burger buildings to work
-const tiles = [{'x': 0, 'y': 0, 'z': 0}, {'x': 1, 'y': 0, 'z': -1}, {'x': 2, 'y': 0, 'z': -2}, {'x': 3, 'y': 0, 'z': -3}, {'x': 4, 'y': 0, 'z': -4}, {'x': 5, 'y': 0, 'z': -5}, {'x': -1, 'y': 0, 'z': 1}, {'x': -2, 'y': 0, 'z': 2}, {'x': -3, 'y': 0, 'z': 3}, {'x': -4, 'y': 0, 'z': 4}, {'x': -5, 'y': 0, 'z': 5}, {'x': 0, 'y': -1, 'z': 1}, {'x': 1, 'y': -2, 'z': 1}, {'x': 1, 'y': -3, 'z': 2}, {'x': 2, 'y': -4, 'z': 2}, {'x': 2, 'y': -5, 'z': 3}, {'x': -1, 'y': 1, 'z': 0}, {'x': -1, 'y': 2, 'z': -1}, {'x': -2, 'y': 3, 'z': -1}, {'x': -2, 'y': 4, 'z': -2}, {'x': -3, 'y': 5, 'z': -2}, {'x': -2, 'y': 2, 'z': 0}, {'x': -3, 'y': 3, 'z': 0}, {'x': -4, 'y': 4, 'z': 0}, {'x': -5, 'y': 5, 'z': 0}, {'x': -2, 'y': 1, 'z': 1}, {'x': -3, 'y': 2, 'z': 1}, {'x': -4, 'y': 2, 'z': 2}, {'x': -5, 'y': 3, 'z': 2}, {'x': -5, 'y': 4, 'z': 1}, {'x': -4, 'y': 3, 'z': 1}, {'x': -4, 'y': 5, 'z': -1}, {'x': -3, 'y': 4, 'z': -1}, {'x': -2, 'y': 5, 'z': -3}, {'x': -1, 'y': 5, 'z': -4}, {'x': 0, 'y': 5, 'z': -5}, {'x': 1, 'y': 4, 'z': -5}, {'x': 0, 'y': 4, 'z': -4}, {'x': -1, 'y': 3, 'z': -2}, {'x': -1, 'y': 4, 'z': -3}, {'x': 0, 'y': 3, 'z': -3}, {'x': 0, 'y': 2, 'z': -2}, {'x': 0, 'y': 1, 'z': -1}, {'x': 1, 'y': 1, 'z': -2}, {'x': 2, 'y': 1, 'z': -3}, {'x': 1, 'y': 2, 'z': -3}, {'x': 1, 'y': 3, 'z': -4}, {'x': -5, 'y': 2, 'z': 3}, {'x': -5, 'y': 1, 'z': 4}, {'x': -4, 'y': 1, 'z': 3}, {'x': -3, 'y': 1, 'z': 2}, {'x': -4, 'y': -1, 'z': 5}, {'x': -3, 'y': -2, 'z': 5}, {'x': -2, 'y': -3, 'z': 5}, {'x': -1, 'y': -4, 'z': 5}, {'x': 0, 'y': -5, 'z': 5}, {'x': 1, 'y': -5, 'z': 4}, {'x': 1, 'y': -4, 'z': 3}, {'x': 0, 'y': -4, 'z': 4}, {'x': 0, 'y': -3, 'z': 3}, {'x': -1, 'y': -3, 'z': 4}, {'x': -2, 'y': -2, 'z': 4}, {'x': -3, 'y': -1, 'z': 4}, {'x': -2, 'y': -1, 'z': 3}, {'x': -1, 'y': -2, 'z': 3}, {'x': -1, 'y': -1, 'z': 2}, {'x': 0, 'y': -2, 'z': 2}, {'x': 1, 'y': -1, 'z': 0}, {'x': 2, 'y': -2, 'z': 0}, {'x': 2, 'y': -1, 'z': -1}, {'x': 3, 'y': -2, 'z': -1}, {'x': 3, 'y': -1, 'z': -2}, {'x': 4, 'y': -2, 'z': -2}, {'x': 4, 'y': -1, 'z': -3}, {'x': 5, 'y': -2, 'z': -3}, {'x': 5, 'y': -1, 'z': -4}, {'x': 5, 'y': -3, 'z': -2}, {'x': 4, 'y': -3, 'z': -1}, {'x': 5, 'y': -4, 'z': -1}, {'x': 5, 'y': -5, 'z': 0}, {'x': 4, 'y': -4, 'z': 0}, {'x': 4, 'y': -5, 'z': 1}, {'x': 3, 'y': -4, 'z': 1}, {'x': 3, 'y': -5, 'z': 2}, {'x': 2, 'y': -3, 'z': 1}, {'x': 3, 'y': -3, 'z': 0}, {'x': 3, 'y': 1, 'z': -4}, {'x': 2, 'y': 2, 'z': -4}, {'x': 2, 'y': 3, 'z': -5}, {'x': 3, 'y': 2, 'z': -5}, {'x': 4, 'y': 1, 'z': -5}];
+let tiles = [];
 // this list includes the names so it knows where to put what
 const buildings = [{'name': 'Duck Burger HQ', 'x': 0, 'y': 0, 'z': 0}, {'name': 'Burger Display Building', 'x': 5, 'y': 0, 'z': -5}, {'name': 'Duck Display Building', 'x': -5, 'y': 0, 'z': 5}, {'name': 'Countdown Building', 'x': 2, 'y': -4, 'z': 2}];
 
@@ -60,6 +60,8 @@ async function duplicateFiles() {
 
     // in try catch to output errors, can be removed because it outputs to a txt file
     try{
+        tiles = generateHexagonalGrid(5);
+
         // generate the map.yaml content
         let mapYamlContent = '';
         for (let i = 1; i <= dvbBuildings; i++) {
@@ -78,9 +80,24 @@ async function duplicateFiles() {
     
 }
 
+function generateHexagonalGrid(radius) {
+    let _tiles = [];
+
+    for (let x = -radius; x <= radius; x++) {
+        for (let y = Math.max(-radius, -x - radius); y <= Math.min(radius, -x + radius); y++) {
+            let z = -x - y;
+            if (Math.abs(x) + Math.abs(y) + Math.abs(z) <= radius * 2) {
+                _tiles.push({ x: x, y: y, z: z });
+            }
+        }
+    }
+
+    return _tiles;
+}
+
 // doesn't actually need tiles and buildings parameters of course - take out later
 function generateMapSection(tiles, buildings, iteration) {
-    const displacement = 11 * (iteration - 1);
+    const displacement = 11 * (iteration - 1); // maybe 11 can be changed to radius * 2 + 1 ?
     let yamlContent = '';
 
     // process tiles
