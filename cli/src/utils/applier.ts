@@ -11,6 +11,7 @@ import {
     ManifestDocument,
     Slot,
 } from '../utils/manifest';
+import { PartKindFragment } from '@downstream/core/src/gql/graphql';
 
 const null24bytes = '0x000000000000000000000000000000000000000000000000';
 
@@ -68,6 +69,14 @@ const getQuestKey = (name: string) => {
 
 const encodeQuestID = ({ name }) => {
     return solidityPacked(['bytes4', 'uint32', 'uint64', 'uint64'], [NodeSelectors.Quest, 0, 0, getQuestKey(name)]);
+};
+
+const getItemKindKey = (name: string) => {
+    return BigInt.asUintN(64, BigInt(keccak256UTF8(`${name}`)));
+};
+
+const encodePartKindID = ({ name }) => {
+    return solidityPacked(['bytes4', 'uint32', 'uint64', 'uint64'], [NodeSelectors.Quest, 0, 0, getItemKindKey(name)]);
 };
 
 // TODO: Is there a way of referencing the Solidity enum?
@@ -274,6 +283,42 @@ const buildingKindDeploymentActions = async (
     return ops;
 };
 
+const partKindDeploymentActions = async (
+    file: ReturnType<typeof ManifestDocument.parse>,
+    files: ReturnType<typeof ManifestDocument.parse>[],
+    existingPartKinds: PartKindFragment[],
+    compiler: (source: z.infer<typeof ContractSource>, manifestDir: string) => Promise<string>
+): Promise<CogAction[]> => {
+    const ops: CogAction[] = [];
+    const manifestDir = path.dirname(file.filename);
+
+    if (file.manifest.kind != 'PartKind') {
+        throw new Error(`expected part kind spec`);
+    }
+    const spec = file.manifest.spec;
+
+    // pick kind id
+    const id = encodePartKindID(spec);
+
+    // register kind
+    // ops.push({
+    //     name: 'REGISTER_PART_KIND',
+    //     args: [
+
+    //     ],
+    // });
+
+    // generate, compile and deploy an implementation if given
+    // if (generatedByteCode) {
+    //     ops.push({
+    //         name: 'DEPLOY_PART_KIND_IMPLEMENTATION',
+    //         args: [id, `0x${generatedByteCode}`],
+    //     });
+    // }
+
+    return ops;
+};
+
 const questDeploymentActions = async (
     file: ReturnType<typeof ManifestDocument.parse>,
     files: ReturnType<typeof ManifestDocument.parse>[],
@@ -442,6 +487,21 @@ export const getOpsForManifests = async (
             doc,
             actions,
             note: `registered building ${doc.manifest.spec.name}`,
+        });
+    }
+
+    // process part kinds
+    opn++;
+    opsets[opn] = [];
+    for (const doc of docs) {
+        if (doc.manifest.kind != 'PartKind') {
+            continue;
+        }
+        const actions = await partKindDeploymentActions(doc, docs, world.partKinds, compiler);
+        opsets[opn].push({
+            doc,
+            actions,
+            note: `registered part kind ${doc.manifest.spec.name}`,
         });
     }
 

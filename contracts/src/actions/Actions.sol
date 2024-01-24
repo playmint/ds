@@ -23,6 +23,20 @@ enum CombatActionKind {
     EQUIP
 }
 
+enum ArgType {
+    UINT64,
+    INT64,
+    BYTES24,
+    ADDRESS
+}
+
+struct PartActionArg {
+    string name;
+    ArgType argType;
+    bool list;
+    uint256 length;
+}
+
 // ----------------------------------
 // Actions interface
 // ----------------------------------
@@ -150,6 +164,28 @@ interface Actions {
     function ACCEPT_QUEST(bytes24 quest, uint8 questNum) external;
 
     function COMPLETE_QUEST(bytes24 quest, uint8 questNum) external;
+
+    // Parts
+
+    function REGISTER_PART_KIND(bytes24 partKindId, string calldata name, string calldata model) external;
+
+    function REGISTER_PART_ACTION(
+        bytes24 partKindId,
+        uint8 actionIndex,
+        string calldata name,
+        PartActionArg[] calldata args
+    ) external;
+
+    function REGISTER_PART_REF(
+        bytes24 partKindId,
+        uint8 index,
+        string calldata name,
+        bytes24 refPartKindId,
+        bool list,
+        uint256 length
+    ) external;
+
+    function REGISTER_PART_STATE(bytes24 partKindId, uint8 index, PartActionArg calldata arg) external;
 
     // ---------------------
     // the DEV_ actions below this point are not for public use they are

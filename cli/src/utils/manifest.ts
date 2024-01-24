@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { z } from 'zod';
 import YAML from 'yaml';
+import { PartKind } from './parts';
 
 export const BuildingCategoryEnumVals = ['none', 'blocker', 'extractor', 'factory', 'custom', 'display'] as const;
 export const BuildingCategoryEnum = z.enum(BuildingCategoryEnumVals);
@@ -327,6 +328,7 @@ export const Manifest = z.discriminatedUnion('kind', [
     Player,
     Quest,
     Bag,
+    PartKind,
 ]);
 
 export const ManifestDocument = z.object({

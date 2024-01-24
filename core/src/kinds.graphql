@@ -27,6 +27,63 @@ fragment BuildingKind on Node {
     }
 }
 
+fragment PartKind on Node {
+    id
+    name: annotation(name: "name") {
+        value
+    }
+    model: annotation(name: "model") {
+        value
+    }
+    actions: edges(match: { kinds: "PartActionDef" }) {
+        key
+        node {
+            name: annotation(name: "name") {
+                value
+            }
+            args: edges(match: { kinds: "PartActionArgDef" }) {
+                node {
+                    name: data(name: "name") {
+                        value
+                    }
+                    type: data(name: "type") {
+                        value
+                    }
+                    list: data(name: "list") {
+                        value
+                    }
+                    length: data(name: "length") {
+                        value
+                    }
+                }
+            }
+        }
+    }
+    # The PartKinds which can be connected to this PartKind
+    parts: edges(match: { kinds: "PartRefDef" }) {
+        key
+        node {
+            name: annotation(name: "name") {
+                value
+            }
+            kind: node(match: { kinds: "PartKind" }) {
+                id
+            }
+        }
+    }
+    state: edges(match: { kinds: "PartStateDef" }) {
+        key
+        node {
+            name: annotation(name: "name") {
+                value
+            }
+            type: data(name: "type") {
+                value
+            }
+        }
+    }
+}
+
 query GetAvailableBuildingKinds($gameID: ID!) {
     game(id: $gameID) {
         id

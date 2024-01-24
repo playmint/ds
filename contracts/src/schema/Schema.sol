@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import {State, CompoundKeyEncoder, CompoundKeyDecoder} from "cog/IState.sol";
-import {BiomeKind} from "@ds/actions/Actions.sol";
+import {BiomeKind, ArgType} from "@ds/actions/Actions.sol";
 
 interface Rel {
     function Owner() external;
@@ -23,6 +23,10 @@ interface Rel {
     function HasQuest() external;
     function ID() external;
     function HasBlockNum() external;
+    function Arg() external;
+    function PartState() external;
+    function PartRef() external;
+    function PartAction() external;
 }
 
 interface Kind {
@@ -42,6 +46,11 @@ interface Kind {
     function Quest() external;
     function Task() external;
     function ID() external;
+    function PartKind() external;
+    function PartRefDef() external;
+    function PartStateDef() external;
+    function PartActionDef() external;
+    function PartActionArgDef() external;
 }
 
 uint64 constant BLOCK_TIME_SECS = 2;
@@ -177,6 +186,34 @@ library Node {
     function Quest(string memory name) internal pure returns (bytes24) {
         uint64 id = uint64(uint256(keccak256(abi.encodePacked("quest/", name))));
         return CompoundKeyEncoder.BYTES(Kind.Quest.selector, bytes20(abi.encodePacked(uint32(0), uint64(0), id)));
+    }
+
+    function PartKind(string memory name) internal pure returns (bytes24) {
+        uint64 id = uint64(uint256(keccak256(abi.encodePacked(name))));
+        return CompoundKeyEncoder.BYTES(Kind.PartKind.selector, bytes20(abi.encodePacked(uint32(0), uint64(0), id)));
+    }
+
+    function PartRefDef(bytes24 partKindId, uint8 index) internal pure returns (bytes24) {
+        uint64 id = uint64(uint256(keccak256(abi.encodePacked(partKindId, index))));
+        return CompoundKeyEncoder.BYTES(Kind.PartRefDef.selector, bytes20(abi.encodePacked(uint32(0), uint64(0), id)));
+    }
+
+    function PartStateDef(bytes24 partKindId, uint8 index) internal pure returns (bytes24) {
+        uint64 id = uint64(uint256(keccak256(abi.encodePacked(partKindId, index))));
+        return CompoundKeyEncoder.BYTES(Kind.PartStateDef.selector, bytes20(abi.encodePacked(uint32(0), uint64(0), id)));
+    }
+
+    function PartActionDef(bytes24 partKindId, uint8 index) internal pure returns (bytes24) {
+        uint64 id = uint64(uint256(keccak256(abi.encodePacked(partKindId, index))));
+        return
+            CompoundKeyEncoder.BYTES(Kind.PartActionDef.selector, bytes20(abi.encodePacked(uint32(0), uint64(0), id)));
+    }
+
+    function PartActionArgDef(bytes24 partKindId, uint8 actionIndex, uint8 argIndex) internal pure returns (bytes24) {
+        uint64 id = uint64(uint256(keccak256(abi.encodePacked(partKindId, actionIndex, argIndex))));
+        return CompoundKeyEncoder.BYTES(
+            Kind.PartActionArgDef.selector, bytes20(abi.encodePacked(uint32(0), uint64(0), id))
+        );
     }
 }
 
@@ -520,5 +557,36 @@ library Schema {
 
     function getDataUint256(State state, bytes24 nodeID, string memory key) external view returns (uint256) {
         return uint256(state.getData(nodeID, key));
+    }
+
+    function setActionDef(State state, bytes24 partKindId, bytes24 actionDefId, uint8 actionIndex) internal {
+        state.set(Rel.PartAction.selector, actionIndex, partKindId, actionDefId, 0);
+    }
+
+    function setActionArgDef(
+        State state,
+        bytes24 partActionDef,
+        bytes24 partActionArg,
+        uint8 actionArgIndex,
+        ArgType argType
+    ) internal {
+        state.set(Rel.Arg.selector, actionArgIndex, partActionDef, partActionArg, uint64(argType));
+    }
+
+    function setPartRefDef(
+        State state,
+        bytes24 partKindId,
+        bytes24 partRefDefId,
+        uint8 partRefIndex,
+        bytes24 refPartKindId
+    ) internal {
+        state.set(Rel.PartRef.selector, partRefIndex, partKindId, partRefDefId, 0);
+        state.set(Rel.Has.selector, 0, partRefDefId, refPartKindId, 0);
+    }
+
+    function setStateDef(State state, bytes24 partKindId, bytes24 stateDefId, uint8 partStateIndex, ArgType argType)
+        internal
+    {
+        state.set(Rel.PartState.selector, partStateIndex, partKindId, stateDefId, uint64(argType));
     }
 }

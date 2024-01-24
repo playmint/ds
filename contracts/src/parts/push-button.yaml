@@ -1,0 +1,28 @@
+---
+kind: PartKind
+spec:
+  name: PushButton
+  model: clicky-button
+  actions:
+    - name: click # click is special in the sense that the UI triggers it on-click
+      args:
+        - name: player
+          type: address
+  state:
+    - name: pressed
+      type: uint64
+    - name: last_pressed_by
+      type: address
+  logic:
+    - when:
+        trigger_kind: action
+        name: click
+      do:
+        - kind: setstate
+          name: last_pressed_by
+          value:
+            kind: trigger
+            name: player
+        - kind: incstate
+          name: pressed
+          step: 1

@@ -188,6 +188,9 @@ fragment WorldState on State {
             value
         }
     }
+    partKinds: nodes(match: { kinds: "PartKind" }) {
+        ...PartKind
+    }
 }
 
 fragment TilesState on State {

@@ -68,6 +68,10 @@ contract DownstreamGame is BaseGame {
         state.registerNodeType(Kind.Quest.selector, "Quest", CompoundKeyKind.UINT160);
         state.registerNodeType(Kind.Task.selector, "Task", CompoundKeyKind.UINT32_ARRAY);
         state.registerNodeType(Kind.ID.selector, "ID", CompoundKeyKind.BYTES);
+        state.registerNodeType(Kind.PartKind.selector, "PartKind", CompoundKeyKind.UINT160);
+        state.registerNodeType(Kind.PartStateDef.selector, "PartStateDef", CompoundKeyKind.UINT160);
+        state.registerNodeType(Kind.PartRefDef.selector, "PartRefDef", CompoundKeyKind.UINT160);
+        state.registerNodeType(Kind.PartActionDef.selector, "PartActionDef", CompoundKeyKind.UINT160);
 
         // register the relationship ids we are using
         state.registerEdgeType(Rel.Owner.selector, "Owner", WeightKind.UINT64);
@@ -88,6 +92,10 @@ contract DownstreamGame is BaseGame {
         state.registerEdgeType(Rel.HasTask.selector, "HasTask", WeightKind.UINT64);
         state.registerEdgeType(Rel.ID.selector, "ID", WeightKind.UINT64);
         state.registerEdgeType(Rel.HasBlockNum.selector, "HasBlockNum", WeightKind.UINT64);
+        state.registerEdgeType(Rel.Arg.selector, "Arg", WeightKind.UINT64);
+        state.registerEdgeType(Rel.PartState.selector, "PartState", WeightKind.UINT64);
+        state.registerEdgeType(Rel.PartRef.selector, "PartRef", WeightKind.UINT64);
+        state.registerEdgeType(Rel.PartAction.selector, "PartAction", WeightKind.UINT64);
 
         // create a session router
         BaseRouter router = new DownstreamRouter();

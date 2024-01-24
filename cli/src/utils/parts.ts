@@ -34,7 +34,8 @@ export const PartDefSpec = z.object({
     length: z.number().min(0).optional(),
 });
 
-export const StateDefSpec = z.object({ // maybe ActionArg and StateDef are the same thing?
+export const StateDefSpec = z.object({
+    // maybe ActionArg and StateDef are the same thing?
     name: Name,
     type: ActionArgType,
     list: z.boolean().default(false).optional(),
@@ -52,21 +53,18 @@ export const TriggerStateSpec = z.object({
     state: Name,
 });
 
-export const TriggerSpec = z.discriminatedUnion('kind', [
-    TriggerActionSpec,
-    TriggerStateSpec,
-]);
+export const TriggerSpec = z.discriminatedUnion('kind', [TriggerActionSpec, TriggerStateSpec]);
 
 export const ValueFromPart = z.object({
     kind: z.literal('part'),
     part: Name,
-    state: Name,
+    name: Name,
     // parent: ValueFromPart.optional()
 });
 
 export const ValueFromState = z.object({
     kind: z.literal('state'),
-    state: Name,
+    name: Name,
 });
 
 export const ValueFromLoop = z.object({
@@ -79,18 +77,26 @@ export const ValueFromLiteral = z.object({
     kind: z.literal('literal'),
     type: ActionArgType, // probably wrong name but same types
     value: z.string(),
-})
+});
 
 export const ValueFromSelf = z.object({
     kind: z.literal('self'),
     thing: z.enum(['id', 'location', 'name']),
-})
+});
+
+export const ValueFromTrigger = z.object({
+    kind: z.literal('trigger'),
+    name: Name,
+    index: z.number().min(0).optional(),
+});
+
 export const ValueFromSpec = z.discriminatedUnion('kind', [
     ValueFromLiteral,
     ValueFromPart,
     ValueFromState,
     ValueFromLoop,
     ValueFromSelf,
+    ValueFromTrigger,
 ]);
 
 export const EqualCondition = z.object({
@@ -135,18 +141,18 @@ export const DoForEachSpec = z.object({
 export const TargetPartSetSpec = z.object({
     kind: z.literal('set'),
     name: Name,
-})
+});
 
 export const TargetPartInsertSpec = z.object({
     kind: z.literal('insert'),
     name: Name,
     index: z.number().min(0),
-})
+});
 
 export const TargetPartAppendSpec = z.object({
     kind: z.literal('append'),
     name: Name,
-})
+});
 
 export const TargetPartSpec = z.discriminatedUnion('kind', [
     TargetPartSetSpec,
@@ -165,7 +171,19 @@ export const DoSetStateSpec = z.object({
     kind: z.literal('setstate'),
     name: Name,
     value: ValueFromSpec,
-})
+});
+
+export const DoIncStateSpec = z.object({
+    kind: z.literal('incstate'),
+    name: Name,
+    step: z.number().min(1).default(1).optional(),
+});
+
+export const DoDecStateSpec = z.object({
+    kind: z.literal('decstate'),
+    name: Name,
+    step: z.number().min(1).default(1).optional(),
+});
 
 export const DoCallActionSpec = z.object({
     kind: z.literal('callaction'),
@@ -198,17 +216,17 @@ export const DoSpec = z.discriminatedUnion('kind', [
 ]);
 
 export const LogicSpec = z.object({
-    when: TriggerSpec.array(),
+    when: TriggerSpec,
     do: DoSpec.array(),
-})
+});
 
 export const PartKindSpec = z.object({
     name: Name,
-    model: z.enum(["button", "chip", "..."]),
+    model: z.enum(['button', 'chip', '...']),
     actions: ActionSpec.array(),
     parts: PartDefSpec.array(),
     state: StateDefSpec.array(),
-    logic: LogicSpec
+    logic: LogicSpec,
 });
 
 export const PartKind = z.object({
