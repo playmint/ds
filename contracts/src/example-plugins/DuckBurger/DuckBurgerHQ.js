@@ -121,9 +121,9 @@ export default async function update(state) {
     // so we need to find all HQs on the map and update them each in turn
     //
     // for now we just update the first we find
-    const dvbBuildingName = "Duck Burger HQ".toLowerCase();
+    const dvbBuildingName = "Duck Burger HQ";
     const selectedBuilding = state.world?.buildings.find(
-        (b) => b.kind?.name?.value.toLowerCase().includes(dvbBuildingName),
+        (b) => b.kind?.name?.value == dvbBuildingName,
     );
 
 

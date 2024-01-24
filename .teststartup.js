@@ -11,18 +11,14 @@ const { execSync } = require("child_process");
 const SEQUENCER_PRIVATE_KEY = "095a37ef5b5d87db7fe50551725cb64804c8c554868d3d729c0dd17f0e664c87";
 const DEPLOYER_PRIVATE_KEY = "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff9524d487fb5d57a8";
 
-// configure services to run
-
-// get duck burger hq building HERE, dupe it (* number of dvbBuildings) and put it in a new temp test folder, then if dvbBuildings is > 0, do the same as apply example-plugins, but instead test-buildings-temp dir
-
-// write javascript code that duplicates the content of the files in "./contracts/src/example-plugins/DuckBurger/" and puts them in a new 
-// folder (if it doesn't already exist) at "./contracts/src/test-plugins/DuckBurgerTest/". 
-
+// process.argv[2] value is assigned from Make test input
 const dvbBuildings = Math.min(10, process.argv[2]); // Capped to 10
 
+// duplicates the content of the files in "./contracts/src/example-plugins/DuckBurger/"
+// puts them in a new folder (if it doesn't already exist) at "./contracts/src/test-plugins/DuckBurgerTest/"
 async function duplicateFiles() {
     const targetMapDir = './contracts/src/test-plugins/';
-    
+
     // if input is 0, recursively delete test-plugins
     if (dvbBuildings === 0) {
         await deleteDirectory(targetMapDir);
@@ -47,8 +43,17 @@ async function duplicateFiles() {
                 const targetPath = path.join(targetDir, newFilename);
                 await fs.writeFile(targetPath, modifiedContent, 'utf8');
             }
+        }
+        else if (file == 'DuckBurgerHQ.js'){
+            const content = await fs.readFile(sourcePath, 'utf8');
+            for (let i = 1; i <= dvbBuildings; i++) {
+                const modifiedContent = modifyJsContent(content, i);
+                const newFilename = file.replace('.js', `_${i}.js`);
+                const targetPath = path.join(targetDir, newFilename);
+                await fs.writeFile(targetPath, modifiedContent, 'utf8');
+            }
         } else {
-            // if not yaml file, we just need to copy it over, no need for multiple of the same thing
+            // if not yaml file or DuckBurgerHQ.js, we just need to copy it over
             const targetPath = path.join(targetDir, file);
             await fs.copyFile(sourcePath, targetPath);
         }
@@ -155,10 +160,25 @@ async function deleteAndCreateDir(dir) {
 }
 
 function modifyYamlContent(content, index) {
-    return content.replace(/(spec:\s+name: )(.+)/, `$1$2_${index}`);
+    // add _{index} to the end of BuildingKind names
+    content = content.replace(/(spec:\s+name: )(.+)/, `$1$2_${index}`);
+
+    if (content.includes("Duck Burger HQ")){
+        // add _{index} to the end of .js
+        // this is because the DuckBurgerHQ.js code needs to find the specific display buildings and the js needs to know the name of them
+        content = content.replace(/(\.js)/g, `_${index}$1`);
+    }
+    
+    return content;
+}
+
+function modifyJsContent(content, index) {
+    return content.replace(/(Burger Display Building|Duck Display Building|Countdown Building|Duck Burger HQ)/g, `$1_${index}`);
 }
 
 duplicateFiles().catch(console.error);
+
+// configure services to run
 
 const commands = [
     {
