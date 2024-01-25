@@ -10,6 +10,7 @@ const burgerBuildingTopId = "17";
 const burgerCounterKindId = "Burger Display Building";
 const duckCounterKindId = "Duck Display Building";
 const countdownBuildingKindId = "Countdown Building";
+const countdownTotalTime = 60000;
 
 let burgerCounter;
 let duckCounter;
@@ -17,7 +18,7 @@ let countdownBuilding;
 let startTime;
 let endTime;
 
-export default async function update(state) {
+export default async function update(state, block) {
     
     //
     // Action handler functions
@@ -278,11 +279,11 @@ export default async function update(state) {
         `;
     }
 
-    const nowBlock = state?.world?.block;
+    const nowBlock = block;
     const blocksLeft = endBlock > nowBlock ? endBlock - nowBlock : 0;
-    const blocksFromStart = startBlock < nowBlock ? nowBlock - startBlock : 30;
+    const blocksFromStart =  nowBlock - startBlock ;
     const timeLeftMs = blocksLeft * 2 * 1000;
-    const timeSinceStartMs = blocksFromStart * 2 * 1000;
+    const timeSinceStartMs = startBlock <= nowBlock ? blocksFromStart * 2 * 1000 : countdownTotalTime;
 
     if (gameActive) {
         // Display selected team buildings
@@ -301,10 +302,13 @@ export default async function update(state) {
 
         `;
 
+        const now = Date.now();
+        if(!startTime)
+            startTime = now-timeSinceStartMs;
+        if(!endTime)
+            endTime = now+timeLeftMs;
+        
         if (blocksLeft > 0) {
-            const now = Date.now();
-            if (!startTime) startTime = now - timeSinceStartMs;
-            if (!endTime) endTime = now + timeLeftMs;
             htmlBlock += `<p>time remaining: ${formatTime(timeLeftMs)}</p>`;
         } else {
             // End of game
@@ -384,7 +388,7 @@ export default async function update(state) {
             type: "building",
             id: `${countdownBuilding ? countdownBuilding.id : ""}`,
             key: "labelText",
-            value: "",
+            value: `${formatTime(countdownTotalTime)}`,
         });
     }
 
@@ -485,7 +489,7 @@ function formatTime(timeInMs) {
     let formattedMinutes = String(minutes).padStart(2, "0");
     let formattedSeconds = String(seconds).padStart(2, "0");
 
-    return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+    return `${formattedMinutes}:${formattedSeconds}`;
 }
 
 const countBuildings = (buildingsArray, kindID, startBlock, endBlock) => {
