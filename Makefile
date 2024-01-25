@@ -37,10 +37,10 @@ debugmap:
 dev: all
 	$(NODE) .devstartup.js
 
-test: all
+performance_test: all
 	@echo "Enter number of Duck Burger HQ buildings to create: "; \
 	read number; \
-	$(NODE) .teststartup.js $$number
+	$(NODE) .performance_test_startup.js $$number
 
 compose: frontend/public/ds-unity/Build/ds-unity.wasm
 	docker compose up --build
@@ -94,5 +94,5 @@ clean:
 	$(MAKE) -C contracts/lib/cog/services clean
 
 
-.PHONY: all clean dev map compose debugmap cli contracts release
+.PHONY: all clean dev performance_test map compose debugmap cli contracts release
 .SILENT: contracts/lib/cog/services/bin/ds-node frontend/public/ds-unity/Build/ds-unity.wasm
