@@ -126,7 +126,6 @@ export default async function update(state) {
         (b) => b.kind?.name?.value == dvbBuildingName,
     );
 
-
     // early out if we don't have any buildings or state isn't ready
     if (!selectedBuilding || !state?.world?.buildings ) {
         console.log("NO DVB BUILDING FOUND");
