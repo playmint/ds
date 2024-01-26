@@ -190,6 +190,8 @@ interface Actions {
         uint256 argLength
     ) external;
 
+    function CALL_ACTION_ON_PART(bytes24 partId, uint8 actionIndex, bytes calldata payload) external;
+
     // ---------------------
     // the DEV_ actions below this point are not for public use they are
     // only available by a single authorized account and only for a short

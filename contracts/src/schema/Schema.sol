@@ -584,6 +584,11 @@ library Schema {
         state.set(Rel.Has.selector, 0, partRefDefId, refPartKindId, 0);
     }
 
+    function getPartKind(State state, bytes24 partId) internal view returns (bytes24) {
+        (bytes24 kind,) = state.get(Rel.Is.selector, 0x0, partId);
+        return kind;
+    }
+
     function setStateDef(State state, bytes24 partKindId, bytes24 stateDefId, uint8 partStateIndex, ArgType argType)
         internal
     {

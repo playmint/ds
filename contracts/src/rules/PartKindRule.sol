@@ -11,7 +11,7 @@ import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {Actions, ArgType} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 import {CraftingRule} from "@ds/rules/CraftingRule.sol";
-import {ItemKind} from "@ds/ext/ItemKind.sol";
+import {IPartKind} from "@ds/ext/IPartKind.sol";
 
 using Schema for State;
 
@@ -54,6 +54,17 @@ contract PartKindRule is Rule {
             (bytes24 partKindId, uint8 index, string memory argName, uint8 argType, bool argList, uint256 argLength) =
                 abi.decode(action[4:], (bytes24, uint8, string, uint8, bool, uint256));
             _registerPartState(state, partKindId, index, argName, argType, argList, argLength);
+        }
+
+        if (bytes4(action) == Actions.CALL_ACTION_ON_PART.selector) {
+            (bytes24 partId, uint8 actionIndex, bytes memory payload) = abi.decode(action[4:], (bytes24, uint8, bytes));
+
+            bytes24 partKindId = state.getPartKind(partId);
+
+            IPartKind partImplementation = IPartKind(state.getImplementation(partKindId));
+            if (address(partImplementation) != address(0)) {
+                partImplementation.callAction(state, partId, actionIndex, payload);
+            }
         }
 
         return state;
