@@ -35,12 +35,11 @@ debugmap:
 	$(UNITY_EDITOR) -batchmode -quit -projectPath ./map -executeMethod BuildScript.DevBuild -buildTarget WebGL -logFile -
 
 dev: all
+ifeq ($(MAP),)
 	$(NODE) .devstartup.js
-
-performance_test: all
-	@echo "Enter number of Duck Burger HQ buildings to create: "; \
-	read number; \
-	$(NODE) .performance_test_startup.js $$number
+else
+	$(NODE) .devstartup.js $(MAP) $(ARENAS)
+endif
 
 compose: frontend/public/ds-unity/Build/ds-unity.wasm
 	docker compose up --build
@@ -94,5 +93,5 @@ clean:
 	$(MAKE) -C contracts/lib/cog/services clean
 
 
-.PHONY: all clean dev performance_test map compose debugmap cli contracts release
+.PHONY: all clean dev map compose debugmap cli contracts release
 .SILENT: contracts/lib/cog/services/bin/ds-node frontend/public/ds-unity/Build/ds-unity.wasm
