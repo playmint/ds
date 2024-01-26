@@ -94,7 +94,7 @@ export const DisplayBuilding = memo(
         useEffect(() => {
             const timer = setInterval(() => {
                 setTimeLeft(calculateTimeLeft());
-            }, 1000);
+            }, 10);
 
             return () => clearInterval(timer);
         }, [calculateTimeLeft]);
