@@ -115,16 +115,16 @@ contract ScoutRule is Rule {
         bluePerlin = Math.mul(bluePerlin, bluePerlin);
         redPerlin = Math.mul(redPerlin, redPerlin);
 
-        atoms[GOO_GREEN] = uint64(
-            uint128(
-                Math.mul(
-                    greenPerlin,
-                    Math.fromUInt(255) // players are gaurenteed 75% of the potential. Use Math.fromInt(255) to get the full potential
-                ) >> (64)
-            )
-        );
-        atoms[GOO_BLUE] = uint64(uint128(Math.mul(bluePerlin, Math.fromUInt(255)) >> (64)));
-        atoms[GOO_RED] = uint64(uint128(Math.mul(redPerlin, Math.fromUInt(255)) >> (64)));
+        atoms[GOO_GREEN] = 255;//uint64(
+        //    uint128(
+        //        Math.mul(
+        //            greenPerlin,
+        //            Math.fromUInt(255) // players are gaurenteed 75% of the potential. Use Math.fromInt(255) to get the full potential
+        //        ) >> (64)
+        //    )
+        //);
+        atoms[GOO_BLUE] = 255;//uint64(uint128(Math.mul(bluePerlin, Math.fromUInt(255)) >> (64)));
+        atoms[GOO_RED] = 255;//uint64(uint128(Math.mul(redPerlin, Math.fromUInt(255)) >> (64)));
 
         state.setTileAtomValues(targetTile, atoms);
     }

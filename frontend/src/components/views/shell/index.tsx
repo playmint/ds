@@ -301,7 +301,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         selectedMobileUnitID={selectedMobileUnit?.id}
                         selectedElementID={selectedMapElement?.id}
                     />
-                    <TileGoos tiles={tiles} />
                     <Buildings
                         tiles={tiles || []}
                         buildings={world?.buildings || []}
