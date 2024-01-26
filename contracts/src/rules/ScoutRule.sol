@@ -115,7 +115,7 @@ contract ScoutRule is Rule {
         bluePerlin = Math.mul(bluePerlin, bluePerlin);
         redPerlin = Math.mul(redPerlin, redPerlin);
 
-        atoms[GOO_GREEN] = 255;//uint64(
+        atoms[GOO_GREEN] = 255; //uint64(
         //    uint128(
         //        Math.mul(
         //            greenPerlin,
@@ -123,8 +123,8 @@ contract ScoutRule is Rule {
         //        ) >> (64)
         //    )
         //);
-        atoms[GOO_BLUE] = 255;//uint64(uint128(Math.mul(bluePerlin, Math.fromUInt(255)) >> (64)));
-        atoms[GOO_RED] = 255;//uint64(uint128(Math.mul(redPerlin, Math.fromUInt(255)) >> (64)));
+        atoms[GOO_BLUE] = 255; //uint64(uint128(Math.mul(bluePerlin, Math.fromUInt(255)) >> (64)));
+        atoms[GOO_RED] = 255; //uint64(uint128(Math.mul(redPerlin, Math.fromUInt(255)) >> (64)));
 
         state.setTileAtomValues(targetTile, atoms);
     }
