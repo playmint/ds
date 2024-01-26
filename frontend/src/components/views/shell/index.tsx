@@ -5,7 +5,6 @@ import { CombatSessions } from '@app/components/map/CombatSession';
 import { GroundPlane } from '@app/components/map/GroundPlane';
 import { MobileUnits } from '@app/components/map/MobileUnit';
 import { Tiles } from '@app/components/map/Tile';
-import { TileGoos } from '@app/components/map/TileGoo';
 import { trackEvent } from '@app/components/organisms/analytics';
 import { Onboarding } from '@app/components/organisms/onboarding';
 import { ItemPluginPanel } from '@app/components/panels/item-plugin-panel';
@@ -301,7 +300,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         selectedMobileUnitID={selectedMobileUnit?.id}
                         selectedElementID={selectedMapElement?.id}
                     />
-                    <TileGoos tiles={tiles} />
                     <Buildings
                         tiles={tiles || []}
                         buildings={world?.buildings || []}
