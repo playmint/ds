@@ -8,7 +8,6 @@ import { AbiCoder } from 'ethers';
 
 export const Parts = memo(
     ({
-        tiles,
         parts,
         partKinds,
     }: {
@@ -19,41 +18,40 @@ export const Parts = memo(
         const player = usePlayer();
         const partComponents = useMemo(
             () =>
-                (parts || []).map((b) => {
-                    if (!b.kind) {
+                (parts || []).map((part) => {
+                    if (!part.kind) {
                         return null;
                     }
-                    if (!b.location?.tile) {
+                    if (!part.location?.tile) {
                         return null;
                     }
-                    const partKind = partKinds.find((pk) => pk.id === b.kind?.id);
+                    const partKind = partKinds.find((pk) => pk.id === part.kind?.id);
                     if (!partKind) {
                         return null;
                     }
 
                     const clickActionDef = partKind.actions.find((action) => action.node.name?.value == 'click');
 
-                    const coords = getCoords(b.location.tile);
+                    const coords = getCoords(part.location.tile);
                     const height = getTileHeightFromCoords(coords);
                     const onClickPart = () => {
-                        console.log('Part Clicked!', b.allData);
                         const coder = AbiCoder.defaultAbiCoder();
                         player
                             ?.dispatch({
                                 name: 'CALL_ACTION_ON_PART',
-                                args: [b.id, clickActionDef?.node.id, coder.encode(['address'], [player.addr])],
+                                args: [part.id, clickActionDef?.node.id, coder.encode(['address'], [player.addr])],
                             })
                             .catch((e) => {
                                 console.error('Failed to call action on part', e);
                             });
                     };
 
-                    console.log(b.allData);
+                    console.log(part.allData);
 
                     return (
                         <FactoryBuilding
-                            key={b.id}
-                            id={b.id}
+                            key={part.id}
+                            id={part.id}
                             height={height}
                             model={'01-01'}
                             rotation={-30}
@@ -63,7 +61,7 @@ export const Parts = memo(
                         />
                     );
                 }),
-            [parts, tiles, player]
+            [parts, partKinds, player]
         );
 
         return <>{partComponents}</>;
