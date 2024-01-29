@@ -7,6 +7,7 @@ export const BuildingCategoryEnum = z.enum(BuildingCategoryEnumVals);
 export type BuildingCategoryEnum = z.infer<typeof BuildingCategoryEnum>;
 
 export const ContractSource = z.object({
+    source: z.string().optional(),
     file: z.string().optional(),
     bytecode: z.string().optional(), // precopmiled bytecode hex string (not 0x prefixed)
     includes: z.string().array().optional(), // list of library search paths

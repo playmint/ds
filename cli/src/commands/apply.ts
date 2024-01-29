@@ -7,7 +7,7 @@ import {
     ContractSource,
     readManifestsDocumentsSync
 } from '../utils/manifest';
-import { compilePath } from '../utils/solidity';
+import { compilePath, compileString } from '../utils/solidity';
 import { getAvailableBuildingKinds, getWorld } from './get';
 
 type OpResult = {
@@ -84,7 +84,7 @@ const deploy = {
             const relativeFilename = path.join(manifestDir, source.file || 'inline.sol');
             const libs = [path.join(path.dirname(relativeFilename)), ...(source.includes || [])];
             const opts = {libs, verbose: false};
-            const { bytecode } = await (source.file
+            const { bytecode } = await (source.source ? compileString(source.source, relativeFilename, opts) : source.file
                 ? compilePath(relativeFilename, opts)
                 : {bytecode: source.bytecode}
             );

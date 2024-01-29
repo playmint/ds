@@ -12,6 +12,7 @@ import {
     Slot,
     ActionArgTypeEnumVal,
 } from '../utils/manifest';
+import { generateContract } from './contractgen';
 
 const null24bytes = '0x000000000000000000000000000000000000000000000000';
 
@@ -375,12 +376,14 @@ const partKindDeploymentActions = async (
         }
     });
 
-    // generate a tmp.sol
-    // const source = templateOutTheLogicBit(spec);
-    // writeTo(source, 'tmp.sol');
-
+    // generate solidity code from logic
+    const source = generateContract(spec);
     const manifestDir = path.dirname(file.filename);
-    const bytecode = await compiler({file: './tmp.sol'}, manifestDir);
+
+    console.log('DEBUG: dump generated source...');
+    console.log(source);
+
+    const bytecode = await compiler({source}, manifestDir);
     ops.push({
         name: 'DEPLOY_KIND_IMPLEMENTATION',
         args: [partKindId, `0x${bytecode}`],
