@@ -202,11 +202,7 @@ interface Actions {
         bool actionIndex
     ) external;
 
-    function CALL_ACTION_ON_PART(
-        bytes24 partId,
-        uint8 actionDefId,
-        bytes calldata payload
-    ) external;
+    function CALL_ACTION_ON_PART(bytes24 partId, bytes24 actionDefId, bytes calldata payload) external;
 
     function SPAWN_PART(bytes24 partKindId, int16 q, int16 r, int16 s) external;
 

@@ -38,6 +38,7 @@ fragment PartKind on Node {
     actions: edges(match: { kinds: "PartActionDef" }) {
         key
         node {
+            id
             name: annotation(name: "name") {
                 value
             }

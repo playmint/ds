@@ -107,6 +107,20 @@ fragment WorldBuilding on Node {
     }
 }
 
+fragment WorldPart on Node {
+    id
+    kind: node(match: { kinds: "PartKind", via: { rel: "Is" } }) {
+        id
+    }
+    location: edge(match: { kinds: "Tile", via: { rel: "Location", key: 2 } }) {
+        ...Location
+    }
+    allData {
+        name
+        value
+    }
+}
+
 fragment WorldCombatSession on Node {
     id
     attackTile: edge(match: { kinds: "Tile", via: { rel: "Has", key: 0 } }) {
@@ -178,6 +192,9 @@ fragment WorldState on State {
     }
     items: nodes(match: { kinds: "Item" }) {
         ...Item
+    }
+    parts: nodes(match: { kinds: "Part" }) {
+        ...WorldPart
     }
     buildingKinds: nodes(match: { kinds: "BuildingKind" }) {
         id
