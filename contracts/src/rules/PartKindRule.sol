@@ -8,10 +8,10 @@ import "cog/IRule.sol";
 import {Schema, Node, Kind, DEFAULT_ZONE, BuildingCategory, BuildingBlockNumKey} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
-import {Actions, ArgType} from "@ds/actions/Actions.sol";
+import {Actions, ArgType, TriggerType} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 import {CraftingRule} from "@ds/rules/CraftingRule.sol";
-import {IPartKind} from "@ds/ext/IPartKind.sol";
+import {PartKind} from "@ds/ext/PartKind.sol";
 
 using Schema for State;
 
@@ -27,7 +27,7 @@ contract PartKindRule is Rule {
             (bytes24 partKindId, string memory name, string memory model) =
                 abi.decode(action[4:], (bytes24, string, string));
 
-            _registerPartKind(state, partKindId, name, model);
+            _registerPartKind(state, partKindId, Node.Player(ctx.sender), name, model);
         }
 
         if (bytes4(action) == Actions.REGISTER_PART_ACTION.selector) {
@@ -56,23 +56,63 @@ contract PartKindRule is Rule {
             _registerPartState(state, partKindId, index, argName, argType, argList, argLength);
         }
 
-        if (bytes4(action) == Actions.CALL_ACTION_ON_PART.selector) {
-            (bytes24 partId, uint8 actionIndex, bytes memory payload) = abi.decode(action[4:], (bytes24, uint8, bytes));
-
-            bytes24 partKindId = state.getPartKind(partId);
-
-            IPartKind partImplementation = IPartKind(state.getImplementation(partKindId));
-            if (address(partImplementation) != address(0)) {
-                partImplementation.callAction(state, partId, actionIndex, payload);
-            }
+        if (bytes4(action) == Actions.REGISTER_PART_ACTION_TRIGGER.selector) {
+            ( bytes24 partKindId, uint8 triggerIndex, uint8 triggerType, uint8 actionIndex) =
+                abi.decode(action[4:], ( bytes24, uint8, uint8, uint8));
+            _registerPartActionTrigger(state, partKindId, triggerIndex, triggerType, actionIndex);
         }
+
+        if (bytes4(action) == Actions.CALL_ACTION_ON_PART.selector) {
+            (bytes24 partId, bytes24 actionDefId, bytes memory payload) = abi.decode(action[4:], (bytes24, bytes24, bytes));
+            bytes24 player = Node.Player(ctx.sender);
+            _callPartAction(state, player, partId, actionDefId, payload);
+        }
+
+        if (bytes4(action) == Actions.SPAWN_PART.selector) {
+            (bytes24 partKindId, int16 q, int16 r, int16 s) = abi.decode(action[4:], (bytes24, int16, int16, int16));
+            _spawnPart(state, partKindId, q, r, s);
+        }
+
 
         return state;
     }
 
-    function _registerPartKind(State state, bytes24 partKindId, string memory name, string memory model) private {
+    function _callPartAction(State state, bytes24 sender, bytes24 partId, bytes24 actionDefId, bytes memory payload) private {
+        bytes24 partKindId = state.getPartKind(partId);
+        PartKind partImplementation = PartKind(state.getImplementation(partKindId));
+
+        // no-op if no part implmenetation registered
+        if (address(partImplementation) == address(0)) {
+            return;
+        }
+
+        // find all the actionDef that will get triggered by this call
+        // THINK: max number of 10 triggers attached to a part
+        for (uint8 i=0; i<10; i++) {
+            (bytes24 triggerActionDefId, uint8 triggerType) = state.getTrigger(partKindId, i);
+            if (triggerActionDefId == 0x0) {
+                continue;
+            }
+            if (TriggerType(triggerType) != TriggerType.ACTION) {
+                continue;
+            }
+            if (triggerActionDefId == actionDefId) {
+                partImplementation.call(state, sender, partId, i, payload);
+            }
+        }
+            
+    }
+
+
+    function _registerPartActionTrigger(State state, bytes24 partKindId, uint8 triggerIndex, uint8 triggerType, uint8 actionIndex) private {
+        bytes24 actionDefId = Node.PartActionDef(partKindId, actionIndex);
+        state.setTrigger(partKindId, actionDefId, triggerIndex, triggerType);
+    }
+
+    function _registerPartKind(State state, bytes24 partKindId, bytes24 owner, string memory name, string memory model) private {
         state.annotate(partKindId, "name", name);
         state.annotate(partKindId, "model", model);
+        state.setOwner(partKindId, owner);
     }
 
     function _registerPartAction(
@@ -131,5 +171,12 @@ contract PartKindRule is Rule {
         state.setData(partStateDefId, "length", bytes32(uint256(argLength)));
 
         state.setStateDef(partKindId, partStateDefId, index, ArgType(argType));
+    }
+
+    function _spawnPart(State state, bytes24 partKindId, int16 q, int16 r, int16 s) internal {
+        bytes24 targetTile = Node.Tile(0, q, r, s);
+        bytes24 partInstance = Node.Part(0, q, r, s);
+        state.setPartKind(partInstance, partKindId);
+        state.setFixedLocation(partInstance, targetTile);
     }
 }

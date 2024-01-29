@@ -349,13 +349,42 @@ const partKindDeploymentActions = async (
         });
     });
 
-    // generate, compile and deploy an implementation if given
-    // if (generatedByteCode) {
-    //     ops.push({
-    //         name: 'DEPLOY_PART_KIND_IMPLEMENTATION',
-    //         args: [id, `0x${generatedByteCode}`],
-    //     });
-    // }
+    (spec.logic || []).forEach((partLogic, triggerIndex) => {
+        if (partLogic.when.kind == 'action') {
+            const actionIndex = (spec.actions || []).findIndex((action) => {
+                if (partLogic.when.kind !== 'action') {
+                    return false;
+                }
+                return action.name == partLogic.when.name;
+            });
+            if (actionIndex < 0) {
+                throw new Error(`no action declared with name ${partLogic.when.name} for logic/trigger ${triggerIndex}`);
+            }
+            ops.push({
+                name: 'REGISTER_PART_ACTION_TRIGGER',
+                args: [
+                    partKindId,
+                    triggerIndex,
+                    0, // TriggerType.ACTION
+                    actionIndex,
+                ],
+            });
+
+        } else if (partLogic.when.kind == 'state') {
+            // TODO...
+        }
+    });
+
+    // generate a tmp.sol
+    // const source = templateOutTheLogicBit(spec);
+    // writeTo(source, 'tmp.sol');
+
+    const manifestDir = path.dirname(file.filename);
+    const bytecode = await compiler({file: './tmp.sol'}, manifestDir);
+    ops.push({
+        name: 'DEPLOY_KIND_IMPLEMENTATION',
+        args: [partKindId, `0x${bytecode}`],
+    });
 
     return ops;
 };
@@ -538,11 +567,36 @@ export const getOpsForManifests = async (
         if (doc.manifest.kind != 'PartKind') {
             continue;
         }
+
         const actions = await partKindDeploymentActions(doc, compiler);
         opsets[opn].push({
             doc,
             actions,
             note: `registered part kind ${doc.manifest.spec.name}`,
+        });
+    }
+
+    // process part instances
+    opn++;
+    opsets[opn] = [];
+    for (const doc of docs) {
+        if (doc.manifest.kind != 'Part') {
+            continue;
+        }
+        const spec = doc.manifest.spec;
+        const partKindId = encodePartKindID(spec.name);
+        opsets[opn].push({
+            doc,
+            actions: [
+                {
+                    name: 'SPAWN_PART',
+                    args: [
+                        partKindId,
+                        ...spec.location,
+                    ],
+                },
+            ],
+            note: `spawned part instance of ${spec.name} at ${spec.location.join(',')}`,
         });
     }
 

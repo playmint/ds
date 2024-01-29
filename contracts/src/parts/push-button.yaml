@@ -26,3 +26,8 @@ spec:
         - kind: incstate
           name: pressed
           step: 1
+---
+kind: Part
+spec:
+  name: PushButton
+  location: [-2, 2, 0]

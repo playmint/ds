@@ -27,6 +27,7 @@ interface Rel {
     function PartState() external;
     function PartRef() external;
     function PartAction() external;
+    function PartTrigger() external;
 }
 
 interface Kind {
@@ -46,6 +47,7 @@ interface Kind {
     function Quest() external;
     function Task() external;
     function ID() external;
+    function Part() external;
     function PartKind() external;
     function PartRefDef() external;
     function PartStateDef() external;
@@ -150,6 +152,10 @@ library Node {
 
     function Building(int16 zone, int16 q, int16 r, int16 s) internal pure returns (bytes24) {
         return CompoundKeyEncoder.INT16_ARRAY(Kind.Building.selector, [zone, q, r, s]);
+    }
+
+    function Part(int16 zone, int16 q, int16 r, int16 s) internal pure returns (bytes24) {
+        return CompoundKeyEncoder.INT16_ARRAY(Kind.Part.selector, [zone, q, r, s]);
     }
 
     function CombatSession(uint64 id) internal pure returns (bytes24) {
@@ -573,6 +579,26 @@ library Schema {
         state.set(Rel.Arg.selector, actionArgIndex, partActionDef, partActionArg, uint64(argType));
     }
 
+    function setTrigger(
+        State state,
+        bytes24 partKindId,
+        bytes24 partActionDefId,
+        uint8 triggerIndex,
+        uint8 triggerType
+    ) internal {
+        require(triggerIndex < 10, 'nobody needs more that 10 triggers');
+        state.set(Rel.PartTrigger.selector, triggerIndex, partKindId, partActionDefId, triggerType);
+    }
+
+    function getTrigger(
+        State state,
+        bytes24 partKindId,
+        uint8 triggerIndex
+    ) internal view returns (bytes24, uint8) {
+        (bytes24 thing, uint64 triggerType) = state.get(Rel.PartTrigger.selector, triggerIndex, partKindId);
+        return (thing, uint8(triggerType));
+    }
+
     function setPartRefDef(
         State state,
         bytes24 partKindId,
@@ -582,6 +608,10 @@ library Schema {
     ) internal {
         state.set(Rel.PartRef.selector, partRefIndex, partKindId, partRefDefId, 0);
         state.set(Rel.Has.selector, 0, partRefDefId, refPartKindId, 0);
+    }
+
+    function setPartKind(State state, bytes24 partInstance, bytes24 partKind) internal {
+        return state.set(Rel.Is.selector, 0x0, partInstance, partKind, 0);
     }
 
     function getPartKind(State state, bytes24 partId) internal view returns (bytes24) {

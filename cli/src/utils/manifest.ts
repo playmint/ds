@@ -549,6 +549,22 @@ export const PartKind = z.object({
         .optional(),
 });
 
+export const PartSpec = z.object({
+    name: Name, // kind
+    location: Coords,
+});
+
+export const Part = z.object({
+    kind: z.literal('Part'),
+    spec: PartSpec,
+    status: z
+        .object({
+            owner: z.string(),
+            id: z.string(),
+        })
+        .optional(),
+});
+
 // -- //
 
 export const Manifest = z.discriminatedUnion('kind', [
@@ -561,6 +577,7 @@ export const Manifest = z.discriminatedUnion('kind', [
     Quest,
     Bag,
     PartKind,
+    Part,
 ]);
 
 export const ManifestDocument = z.object({

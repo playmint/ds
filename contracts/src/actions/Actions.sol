@@ -30,6 +30,11 @@ enum ArgType {
     ADDRESS
 }
 
+enum TriggerType {
+    ACTION,
+    STATE
+}
+
 // ----------------------------------
 // Actions interface
 // ----------------------------------
@@ -190,7 +195,20 @@ interface Actions {
         uint256 argLength
     ) external;
 
-    function CALL_ACTION_ON_PART(bytes24 partId, uint8 actionIndex, bytes calldata payload) external;
+    function REGISTER_PART_ACTION_TRIGGER(
+        bytes24 partKindId,
+        uint8 triggerIndex,
+        uint8 triggerType, // action | state
+        bool actionIndex
+    ) external;
+
+    function CALL_ACTION_ON_PART(
+        bytes24 partId,
+        uint8 actionDefId,
+        bytes calldata payload
+    ) external;
+
+    function SPAWN_PART(bytes24 partKindId, int16 q, int16 r, int16 s) external;
 
     // ---------------------
     // the DEV_ actions below this point are not for public use they are
