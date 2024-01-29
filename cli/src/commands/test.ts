@@ -67,6 +67,12 @@ const chaosUnit = {
             [q,r,s] = validNeighbours[Math.floor(Math.random() * validNeighbours.length)] || [0,0,0];
 
             await player.dispatch({ name: 'MOVE_MOBILE_UNIT', args: [unitKey, q, r, s] }).then(res => res.wait());
+            // if (Math.random() > 0.75){
+            //     const building = Math.random() > 0.5 ? "0xbe92755c0000000000000000546391e80000000000000003" : "0xbe92755c0000000000000000444749c70000000000000003";
+            //     const args = { name: 'CONSTRUCT_BUILDING_MOBILE_UNIT', args: [unitId, building, q, r, s] };
+            //     await player.dispatchAndWait(args);
+            //     // failed to call: execution reverted: no construction bag found
+            // }
             await sleep(Math.floor(Math.random() * 2000)); // jitter
         }
     },
