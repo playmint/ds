@@ -35,7 +35,12 @@ debugmap:
 	$(UNITY_EDITOR) -batchmode -quit -projectPath ./map -executeMethod BuildScript.DevBuild -buildTarget WebGL -logFile -
 
 dev: all
+ifeq ($(MAP),)
 	$(NODE) .devstartup.js
+else
+	$(NODE) .devstartup.js $(MAP) $(ARENAS)
+endif
+
 
 compose: frontend/public/ds-unity/Build/ds-unity.wasm
 	docker compose up --build
@@ -86,6 +91,7 @@ clean:
 	rm -rf frontend/dist
 	rm -rf frontend/node_modules
 	rm -rf node_modules
+	rm -rf contracts/src/test-plugins
 	$(MAKE) -C contracts/lib/cog/services clean
 
 
