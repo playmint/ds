@@ -35,7 +35,7 @@ async function duplicateFiles(arenas) {
     // loop through files in sourceDir, make a new yaml in targetDir and adjust building name (file and builing kind)
     for (const file of files) {
         const sourcePath = path.join(sourceDir, file);
-        if (file.endsWith('.yaml')) {
+        if (file.endsWith('.yaml') && file != "TeamBuildings.yaml") {
             const content = await fs.readFile(sourcePath, 'utf8');
             for (let i = 1; i <= arenas; i++) {
                 const modifiedContent = modifyYamlContent(content, i);
