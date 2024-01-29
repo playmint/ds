@@ -34,9 +34,7 @@ map:
 debugmap:
 	$(UNITY_EDITOR) -batchmode -quit -projectPath ./map -executeMethod BuildScript.DevBuild -buildTarget WebGL -logFile -
 
-dev:
-	rm -rf contracts/cache
-	$(MAKE) all
+dev: all
 ifeq ($(MAP),)
 	$(NODE) .devstartup.js
 else
@@ -93,6 +91,7 @@ clean:
 	rm -rf frontend/dist
 	rm -rf frontend/node_modules
 	rm -rf node_modules
+	rm -rf contracts/src/test-plugins
 	$(MAKE) -C contracts/lib/cog/services clean
 
 

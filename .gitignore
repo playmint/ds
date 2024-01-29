@@ -75,3 +75,6 @@ Thumbs.db
 
 # dev script
 .livestartup.js
+
+# Performance test files
+contracts/src/test-plugins/
