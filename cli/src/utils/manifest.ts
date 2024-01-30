@@ -326,7 +326,7 @@ export type ActionArgType = z.infer<typeof ActionArgType>;
 export const ActionArg = z.object({
     name: Name,
     type: ActionArgType,
-    list: z.boolean().default(false).optional(),
+    list: z.boolean().default(false),
     length: z.number().min(0).optional(),
 });
 
@@ -338,7 +338,7 @@ export const ActionSpec = z.object({
 export const PartDefSpec = z.object({
     name: Name,
     kind: Name,
-    list: z.boolean().default(false).optional(),
+    list: z.boolean().default(false),
     length: z.number().min(0).optional(),
 });
 
@@ -346,7 +346,7 @@ export const StateDefSpec = z.object({
     // maybe ActionArg and StateDef are the same thing?
     name: Name,
     type: ActionArgType,
-    list: z.boolean().default(false).optional(),
+    list: z.boolean().default(false),
     length: z.number().min(0).optional(),
 });
 
@@ -395,7 +395,7 @@ export const ValueFromSelf = z.object({
 export const ValueFromTrigger = z.object({
     kind: z.literal('trigger'),
     name: Name,
-    index: z.number().min(0).optional(),
+    index: z.number().min(0).default(0),
 });
 
 export const ValueFromSpec = z.discriminatedUnion('kind', [
@@ -478,19 +478,22 @@ export const DoSpawnSpec = z.object({
 export const DoSetStateSpec = z.object({
     kind: z.literal('setstate'),
     name: Name,
+    index: z.number().min(0).default(0),
     value: ValueFromSpec,
 });
 
 export const DoIncStateSpec = z.object({
     kind: z.literal('incstate'),
     name: Name,
-    step: z.number().min(1).default(1).optional(),
+    index: z.number().min(0).default(0),
+    step: z.number().min(1).default(1),
 });
 
 export const DoDecStateSpec = z.object({
     kind: z.literal('decstate'),
     name: Name,
-    step: z.number().min(1).default(1).optional(),
+    index: z.number().min(0).default(0),
+    step: z.number().min(1).default(1),
 });
 
 export const DoCallActionSpec = z.object({

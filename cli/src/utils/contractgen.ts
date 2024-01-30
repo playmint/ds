@@ -1,11 +1,24 @@
 import { z } from 'zod';
-import { DoIncStateSpec, DoSpec, LogicSpec, PartKindSpec, ValueFromSpec } from "./manifest";
+import {
+    ActionArg,
+    DoIncStateSpec,
+    DoSpec,
+    LogicSpec,
+    PartKindSpec,
+    ValueFromLiteral,
+    ValueFromSpec,
+} from './manifest';
+
+// TODO: Should args always be an array?
+export function genArgType(arg: z.infer<typeof ActionArg>, includeStorageType: boolean = false): string {
+    return `${arg.type}${arg.list ? `[${arg.length}] ${includeStorageType ? `memory` : ``}` : ``}`;
+}
 
 export function generateValueFromActionTrigger(
     spec: z.infer<typeof PartKindSpec>,
     logicSpec: z.infer<typeof LogicSpec>,
     _logicIndex: number,
-    valueSpec: z.infer<typeof ValueFromSpec>,
+    valueSpec: z.infer<typeof ValueFromSpec>
 ): string {
     if (logicSpec.when.kind != 'action') {
         throw new Error(`not an action trigger`);
@@ -13,25 +26,38 @@ export function generateValueFromActionTrigger(
     if (valueSpec.kind != 'trigger') {
         throw new Error(`generateValueFromActionTrigger called on a non trigger valueSpec`);
     }
-    const actionOfTrigger = (spec.actions || []).find((action) => logicSpec.when.kind === 'action' && action.name === logicSpec.when.name);
+    const actionOfTrigger = (spec.actions || []).find(
+        (action) => logicSpec.when.kind === 'action' && action.name === logicSpec.when.name
+    );
     if (!actionOfTrigger) {
         throw new Error(`no action found with name ${logicSpec.when.name}`);
     }
-    const triggerArgIndex = (actionOfTrigger.args || []).findIndex((arg) => valueSpec.kind === 'trigger' && arg.name === valueSpec.name);
-    if (triggerArgIndex < 0) {
+    if (!actionOfTrigger.args) {
+        throw new Error(`no args defined for action with name ${logicSpec.when.name}`);
+    }
+    const triggerArg = actionOfTrigger.args.find((arg) => valueSpec.kind === 'trigger' && arg.name === valueSpec.name);
+    if (!triggerArg) {
         throw new Error(`cannot find arg with name ${valueSpec.name} on action ${actionOfTrigger.name}`);
     }
-    return `trigger_arg_${triggerArgIndex}`;
+    const triggerArgIndex = actionOfTrigger.args?.indexOf(triggerArg);
+    return `trigger_arg_${triggerArgIndex}${triggerArg.list ? `[${valueSpec.index}]` : ``}`;
+}
+
+export function generateValueFromLiteral(valueSpec: z.infer<typeof ValueFromLiteral>): string {
+    return `${valueSpec.value}`;
 }
 
 export function generateValueFrom(
     spec: z.infer<typeof PartKindSpec>,
     logicSpec: z.infer<typeof LogicSpec>,
     logicIndex: number,
-    valueSpec: z.infer<typeof ValueFromSpec>,
+    valueSpec: z.infer<typeof ValueFromSpec>
 ): string {
     switch (valueSpec.kind) {
-        case 'trigger': return generateValueFromActionTrigger(spec, logicSpec, logicIndex, valueSpec);
+        case 'trigger':
+            return generateValueFromActionTrigger(spec, logicSpec, logicIndex, valueSpec);
+        case 'literal':
+            return generateValueFromLiteral(valueSpec);
         default:
             throw new Error(`cannot get value from ${valueSpec.kind}: not implemented yet`);
     }
@@ -46,7 +72,12 @@ export function generateSetStateDoBlock(
 ): string {
     // const stateVariableDef = (spec.state || []).find((stateSpec) => stateSpec.name === doSpec.name);
     const stateVariableIndex = (spec.state || []).findIndex((stateSpec) => stateSpec.name === doSpec.name);
-    return `setStateValue(state, partId, ${stateVariableIndex}, ${generateValueFrom(spec, logicSpec, logicIndex, doSpec.value)});`;
+    return `setStateValue(state, partId, ${stateVariableIndex}, ${doSpec.index}, ${generateValueFrom(
+        spec,
+        logicSpec,
+        logicIndex,
+        doSpec.value
+    )});`;
 }
 
 export function generateIncStateDoBlock(
@@ -57,7 +88,7 @@ export function generateIncStateDoBlock(
     _doIndex: number
 ): string {
     const stateVariableIndex = (spec.state || []).findIndex((stateSpec) => stateSpec.name === doSpec.name);
-    return `incStateValue(state, partId, ${stateVariableIndex}, ${doSpec.step ?? 1});`;
+    return `incStateValue(state, partId, ${stateVariableIndex}, ${doSpec.index}, ${doSpec.step ?? 1});`;
 }
 
 export function generateDoBlock(
@@ -68,8 +99,10 @@ export function generateDoBlock(
     doIndex: number
 ): string {
     switch (doSpec.kind) {
-        case 'setstate': return generateSetStateDoBlock(spec, logicSpec, logicIndex, doSpec, doIndex);
-        case 'incstate': return generateIncStateDoBlock(spec, logicSpec, logicIndex, doSpec, doIndex);
+        case 'setstate':
+            return generateSetStateDoBlock(spec, logicSpec, logicIndex, doSpec, doIndex);
+        case 'incstate':
+            return generateIncStateDoBlock(spec, logicSpec, logicIndex, doSpec, doIndex);
         default:
             throw new Error(`${doSpec.kind} not implemented yet`);
     }
@@ -78,38 +111,46 @@ export function generateDoBlock(
 
 export function generateActionTriggerArgs(
     spec: z.infer<typeof PartKindSpec>,
-    logicSpec: z.infer<typeof LogicSpec>,
+    logicSpec: z.infer<typeof LogicSpec>
 ): string {
     if (logicSpec.when.kind != 'action') {
         throw new Error(`not an action trigger`);
     }
-    const action = (spec.actions || []).find((action) => logicSpec.when.kind === 'action' && action.name === logicSpec.when.name);
+    const action = (spec.actions || []).find(
+        (action) => logicSpec.when.kind === 'action' && action.name === logicSpec.when.name
+    );
     if (!action) {
         throw new Error(`no action found with name ${logicSpec.when.name}`);
     }
     const args = action.args || [];
     return `
-        ( ${args.map((arg, idx) => `${arg.type} trigger_arg_${idx}`).join(', ')} ) = abi.decode(payload, (${args.map((arg) => arg.type).join(', ')}));
+        ( ${args
+            .map((arg, idx) => `${genArgType(arg, true)} trigger_arg_${idx}`)
+            .join(', ')} ) = abi.decode(payload, (${args.map((arg) => genArgType(arg)).join(', ')}));
     `;
 }
 
-export function generateTriggerArgs(
-    spec: z.infer<typeof PartKindSpec>,
-    logicSpec: z.infer<typeof LogicSpec>,
-): string {
+export function generateTriggerArgs(spec: z.infer<typeof PartKindSpec>, logicSpec: z.infer<typeof LogicSpec>): string {
     switch (logicSpec.when.kind) {
-        case 'action': return generateActionTriggerArgs(spec, logicSpec);
+        case 'action':
+            return generateActionTriggerArgs(spec, logicSpec);
         default:
             throw new Error(`trigger kind ${logicSpec.when.kind} not implemented`);
     }
 }
 
-export function generateLogicFunc(spec: z.infer<typeof PartKindSpec>, logicSpec: z.infer<typeof LogicSpec>, logicIndex: number): string {
+export function generateLogicFunc(
+    spec: z.infer<typeof PartKindSpec>,
+    logicSpec: z.infer<typeof LogicSpec>,
+    logicIndex: number
+): string {
     return `
         function logicBlock${logicIndex}(State state, bytes24 sender, bytes24 partId, bytes memory payload) override internal {
             ${generateTriggerArgs(spec, logicSpec)}
 
-            ${logicSpec.do.map((doSpec, doIndex) => generateDoBlock(spec, logicSpec, logicIndex, doSpec, doIndex)).join('\n            ')}
+            ${logicSpec.do
+                .map((doSpec, doIndex) => generateDoBlock(spec, logicSpec, logicIndex, doSpec, doIndex))
+                .join('\n            ')}
         }
     `;
 }
