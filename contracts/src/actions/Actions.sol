@@ -36,6 +36,9 @@ interface Actions {
     // to scout location
     function SCOUT_MOBILE_UNIT(uint32 sid, int16 q, int16 r, int16 s) external;
 
+    // action to set the type of quest the player should begin with
+    function AUTO_QUEST(string calldata name, uint8 index) external;
+
     // transfer a qty of items from itemSlot[0] in equipees[0]'s equipSlots[0] bag
     // to itemSlot[1] in equipees[1]'s equipSlots[1] bag
     // bags must be at same location as mobileUnit

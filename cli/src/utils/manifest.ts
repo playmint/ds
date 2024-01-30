@@ -316,6 +316,17 @@ export const Quest = z.object({
     status: z.object({}).optional(),
 });
 
+export const AutoQuestSpec = z.object({
+    name: Name,
+    index: z.number(),
+});
+
+export const AutoQuest = z.object({
+    kind: z.literal('AutoQuest'),
+    spec: AutoQuestSpec,
+    status: z.object({}).optional(),
+});
+
 // -- //
 
 export const Manifest = z.discriminatedUnion('kind', [
@@ -327,6 +338,7 @@ export const Manifest = z.discriminatedUnion('kind', [
     Player,
     Quest,
     Bag,
+    AutoQuest,
 ]);
 
 export const ManifestDocument = z.object({
