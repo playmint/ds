@@ -59,7 +59,8 @@ export async function init() {
     const qjs = await getQuickJS();
 
     runtime = qjs.newRuntime();
-    runtime.setMemoryLimit(1024 * 640 * 10);
+    // runtime.setMemoryLimit(1024 * 640);
+    runtime.setMemoryLimit(86000);
     runtime.setMaxStackSize(1024 * 320);
 
     pollPendingJobs();
@@ -72,12 +73,44 @@ export async function init() {
 }
 
 export async function setState(newState: GameStatePlugin, newBlock: number) {
+    //console.log('JOSH-TEST: compute: ', runtime.computeMemoryUsage());
+    //console.log('JOSH-TEST: contexts key: ', contexts[0].global.value);
+    //console.log('JOSH-TEST: runtime: ', runtime);
+    //console.log('JOSH-TEST: runtime memory usage: ', runtime.dumpMemoryUsage());
+    const totalMemoryUsed = extractMemoryUsedSize(runtime?.dumpMemoryUsage()); // <---- usefull... but figure out what to do with this
+    console.log('Total memory used: ', totalMemoryUsed);
     contexts.forEach((context) => {
+        console.log('content alive: ', context.alive);
+        if (totalMemoryUsed || 0 >= 86000 * contexts.length) {
+            context.dispose(); // <--- this is getting called immediately, then when a context is disposed it breaks
+        }
+        //console.log('context stuff: ', context.global.value);
+        //console.log('getMemory: ', context.getMemory(context.global.value));
+        //console.log('JOSH-TEST: context info: ', context);
+        //console.log('context global: ', context.global);
+        if (!context.alive) {
+            return; // restart if not alive?
+        }
         context.evalCode(`
             globalThis.__state = ${JSON.stringify(newState)};
             globalThis.__block = ${newBlock};
         `);
     });
+}
+
+function extractMemoryUsedSize(memoryDump) {
+    const lines = memoryDump.split('\n');
+
+    for (const line of lines) {
+        if (line.includes('memory used')) {
+            // Extract the size value using regex
+            const match = line.match(/memory used\s+\d+\s+(\d+)/);
+            if (match && match[1]) {
+                return parseInt(match[1], 10);
+            }
+        }
+    }
+    return null;
 }
 
 export async function evalCode(contextID: number, code: string) {
