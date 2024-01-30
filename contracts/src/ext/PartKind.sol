@@ -108,4 +108,20 @@ contract PartKind {
             bytes32(uint256(int256(currentVal + step)))
         );
     }
+
+    function decStateValue(
+        State state,
+        bytes24 thisPartId,
+        uint8 stateVariableIndex,
+        uint256 stateVariableElmIndex,
+        int64 step
+    ) internal {
+        int64 currentVal =
+            int64(int256(uint256(state.getData(thisPartId, getStateKey(stateVariableIndex, stateVariableElmIndex)))));
+        state.setData(
+            thisPartId,
+            getStateKey(stateVariableIndex, stateVariableElmIndex),
+            bytes32(uint256(int256(currentVal - step)))
+        );
+    }
 }

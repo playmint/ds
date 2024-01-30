@@ -44,7 +44,7 @@ export function generateValueFromActionTrigger(
 }
 
 export function generateValueFromLiteral(valueSpec: z.infer<typeof ValueFromLiteral>): string {
-    return `${valueSpec.value}`;
+    return `${valueSpec.type}(${valueSpec.value})`;
 }
 
 export function generateValueFrom(
@@ -91,6 +91,17 @@ export function generateIncStateDoBlock(
     return `incStateValue(state, partId, ${stateVariableIndex}, ${doSpec.index}, ${doSpec.step ?? 1});`;
 }
 
+export function generateDeccStateDoBlock(
+    spec: z.infer<typeof PartKindSpec>,
+    _logicSpec: z.infer<typeof LogicSpec>,
+    _logicIndex: number,
+    doSpec: z.infer<typeof DoIncStateSpec>,
+    _doIndex: number
+): string {
+    const stateVariableIndex = (spec.state || []).findIndex((stateSpec) => stateSpec.name === doSpec.name);
+    return `decStateValue(state, partId, ${stateVariableIndex}, ${doSpec.index}, ${doSpec.step ?? 1});`;
+}
+
 export function generateDoBlock(
     spec: z.infer<typeof PartKindSpec>,
     logicSpec: z.infer<typeof LogicSpec>,
@@ -103,6 +114,8 @@ export function generateDoBlock(
             return generateSetStateDoBlock(spec, logicSpec, logicIndex, doSpec, doIndex);
         case 'incstate':
             return generateIncStateDoBlock(spec, logicSpec, logicIndex, doSpec, doIndex);
+        case 'decstate':
+            return generateDeccStateDoBlock(spec, logicSpec, logicIndex, doSpec, doIndex);
         default:
             throw new Error(`${doSpec.kind} not implemented yet`);
     }
