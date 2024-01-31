@@ -105,6 +105,15 @@ contract PartKind {
         );
     }
 
+    function getStateUint64(Game ds, bytes24 thisPartId, uint8 stateVariableIndex, uint256 stateVariableElmIndex)
+        internal
+        returns (uint64)
+    {
+        return uint64(
+            uint256(ds.getState().getData(thisPartId, getStateKey(0, stateVariableIndex, stateVariableElmIndex)))
+        );
+    }
+
     function incStateValue(
         Game ds,
         bytes24 thisPartId,

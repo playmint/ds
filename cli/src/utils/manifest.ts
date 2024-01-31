@@ -373,6 +373,13 @@ export const ValueFromPart = z.object({
 export const ValueFromState = z.object({
     kind: z.literal('state'),
     name: Name,
+    index: z
+        .lazy(() => ValueFromSpec)
+        .default({
+            kind: 'literal',
+            type: 'uint64',
+            value: '0',
+        }),
 });
 
 export const ValueFromLoop = z.object({
