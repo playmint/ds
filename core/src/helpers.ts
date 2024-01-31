@@ -24,6 +24,7 @@ export const NodeSelectors = {
     Task: getSelector('Task'),
     PartKind: getSelector('PartKind'),
     PartActionDef: getSelector('PartActionDef'),
+    PartStateDef: getSelector('PartStateDef'),
     Part: getSelector('Part'),
 };
 

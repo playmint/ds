@@ -80,6 +80,10 @@ const getPartKindActionDefKey = (partKindId: string, idx: number) => {
     return BigInt.asUintN(64, BigInt(solidityPackedKeccak256(['bytes24', 'uint8'],[`${partKindId}`, idx])));
 };
 
+const getPartKindStateDefKey = (partKindId: string, name: string) => {
+    return BigInt.asUintN(64, BigInt(solidityPackedKeccak256(['bytes24', 'string'],[`${partKindId}`, name])));
+};
+
 export const encodePartKindID = (name: string) => {
     return solidityPacked(
         ['bytes4', 'uint32', 'uint64', 'uint64'],
@@ -91,6 +95,13 @@ export const encodePartKindActionDefID = (partID: string, idx: number) => {
     return solidityPacked(
         ['bytes4', 'uint32', 'uint64', 'uint64'],
         [NodeSelectors.PartActionDef, 0, 0, getPartKindActionDefKey(partID, idx)]
+    );
+};
+
+export const encodePartKindStateDefID = (partID: string, name: string) => {
+    return solidityPacked(
+        ['bytes4', 'uint32', 'uint64', 'uint64'],
+        [NodeSelectors.PartStateDef, 0, 0, getPartKindStateDefKey(partID, name)]
     );
 };
 
@@ -377,13 +388,30 @@ const partKindDeploymentActions = async (
                 args: [
                     partKindId,
                     triggerIndex,
-                    0, // TriggerType.ACTION
                     actionIndex,
                 ],
             });
 
-        } else if (partLogic.when.kind == 'state') {
-            // TODO...
+        } else if (partLogic.when.kind === 'state') {
+            const ref = (spec.parts || []).find((ref) => {
+                if (partLogic.when.kind !== 'state') {
+                    return false;
+                }
+                return ref.name == partLogic.when.part;
+            });
+            if (!ref) {
+                throw new Error(`no part ref with name ${partLogic.when.part} for logic/trigger ${triggerIndex}`)
+            }
+            const refKindId = encodePartKindID(ref.kind);
+            const remoteStateDefId = encodePartKindStateDefID(refKindId, partLogic.when.state);
+            ops.push({
+                name: 'REGISTER_PART_STATE_TRIGGER',
+                args: [
+                    partKindId,
+                    triggerIndex,
+                    remoteStateDefId,
+                ],
+            });
         }
     });
 

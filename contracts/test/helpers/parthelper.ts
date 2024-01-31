@@ -83,6 +83,20 @@ export class PartHelper {
         ) as Hex;
     }
 
+    async setPart(partName: string, remotePartId: string, elementIndex?: number) {
+        const partVarIndex = (this.kind.spec.parts || []).findIndex(p => p.name === partName);
+        if (partVarIndex < 0) {
+            throw new Error(`no part with name ${partName} in spec`);
+        }
+        const partVarElementIndex = elementIndex ?? 0;
+        const action = encodeActionData(
+            DOWNSTREAM_GAME_ACTIONS,
+            'SET_PART_VAR_ON_PART',
+            [this.id(), partVarIndex, partVarElementIndex, remotePartId],
+        );
+        return this.dispatch(action as Hex);
+    }
+
     async getState(stateName: string, elementIndex?: number): Promise<number> {
         const stateVarIndex = (this.kind.spec.state || []).findIndex(
             (s) => s.name === stateName,

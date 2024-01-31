@@ -49,6 +49,7 @@ interface Kind {
     function ID() external;
     function Part() external;
     function PartKind() external;
+    function PartTrigger() external;
     function PartRefDef() external;
     function PartStateDef() external;
     function PartActionDef() external;
@@ -204,8 +205,13 @@ library Node {
         return CompoundKeyEncoder.BYTES(Kind.PartRefDef.selector, bytes20(abi.encodePacked(uint32(0), uint64(0), id)));
     }
 
-    function PartStateDef(bytes24 partKindId, uint8 index) internal pure returns (bytes24) {
+    function PartTrigger(bytes24 partKindId, uint8 index) internal pure returns (bytes24) {
         uint64 id = uint64(uint256(keccak256(abi.encodePacked(partKindId, index))));
+        return CompoundKeyEncoder.BYTES(Kind.PartTrigger.selector, bytes20(abi.encodePacked(uint32(0), uint64(0), id)));
+    }
+
+    function PartStateDef(bytes24 partKindId, string memory name) internal pure returns (bytes24) {
+        uint64 id = uint64(uint256(keccak256(abi.encodePacked(partKindId, name))));
         return CompoundKeyEncoder.BYTES(Kind.PartStateDef.selector, bytes20(abi.encodePacked(uint32(0), uint64(0), id)));
     }
 
@@ -610,8 +616,20 @@ library Schema {
         state.set(Rel.Has.selector, 0, partRefDefId, refPartKindId, 0);
     }
 
+    function getPartRefDefKind(
+        State state,
+        bytes24 partRefDefId
+    ) internal returns (bytes24) {
+        (bytes24 kind,) = state.get(Rel.Has.selector, 0, partRefDefId);
+        return kind;
+    }
+
     function setPartKind(State state, bytes24 partInstance, bytes24 partKind) internal {
         return state.set(Rel.Is.selector, 0x0, partInstance, partKind, 0);
+    }
+
+    function setPartKind(State state, bytes24 partInstance, bytes24 partKind, uint8 idx) internal {
+        return state.set(Rel.Is.selector, 0x0, partInstance, partKind, idx);
     }
 
     function getPartKind(State state, bytes24 partId) internal view returns (bytes24) {

@@ -273,12 +273,24 @@ export function generateActionTriggerArgs(
     `;
 }
 
+export function generateStateTriggerArgs(
+    _spec: z.infer<typeof PartKindSpec>,
+    logicSpec: z.infer<typeof LogicSpec>
+): string {
+    if (logicSpec.when.kind != 'state') {
+        throw new Error(`generateStateTriggerArgs expected a state trigger, got ${logicSpec.when.kind}`);
+    }
+    return ``;
+}
+
 export function generateTriggerArgs(spec: z.infer<typeof PartKindSpec>, logicSpec: z.infer<typeof LogicSpec>): string {
     switch (logicSpec.when.kind) {
         case 'action':
             return generateActionTriggerArgs(spec, logicSpec);
+        case 'state':
+            return generateStateTriggerArgs(spec, logicSpec);
         default:
-            throw new Error(`trigger kind ${logicSpec.when.kind} not implemented`);
+            throw new Error(`generateStateTriggerArgs: unexpected kind`);
     }
 }
 
