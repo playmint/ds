@@ -9,10 +9,6 @@ node_modules/
 # Dotenv file
 .env
 
-# js
-package.json
-package-*.json
-
 node_modules
 .env
 
