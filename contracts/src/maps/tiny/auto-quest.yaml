@@ -1,0 +1,8 @@
+---
+kind: AutoQuest
+spec:
+  name: Example Quest
+---
+kind: AutoQuest
+spec:
+  name: Another Example Quest
