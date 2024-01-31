@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { z } from 'zod';
+import { literal, z } from 'zod';
 import YAML from 'yaml';
 
 export const BuildingCategoryEnumVals = ['none', 'blocker', 'extractor', 'factory', 'custom', 'display'] as const;
@@ -378,7 +378,7 @@ export const ValueFromState = z.object({
 export const ValueFromLoop = z.object({
     kind: z.literal('loop'),
     thing: z.enum(['index', 'value']),
-    loop: Name, // label of the loop you want to get stuff from... something something nested loops
+    label: Name, // label of the loop you want to get stuff from... something something nested loops
 });
 
 export const ValueFromLiteral = z.object({
@@ -395,7 +395,13 @@ export const ValueFromSelf = z.object({
 export const ValueFromTrigger = z.object({
     kind: z.literal('trigger'),
     name: Name,
-    index: z.number().min(0).default(0),
+    index: z
+        .lazy(() => ValueFromSpec)
+        .default({
+            kind: 'literal',
+            type: 'uint64',
+            value: '0',
+        }),
 });
 
 export const ValueFromSpec = z.discriminatedUnion('kind', [
@@ -454,7 +460,7 @@ export const TargetPartSetSpec = z.object({
 export const TargetPartInsertSpec = z.object({
     kind: z.literal('insert'),
     name: Name,
-    index: z.number().min(0),
+    index: ValueFromSpec,
 });
 
 export const TargetPartAppendSpec = z.object({
@@ -478,22 +484,42 @@ export const DoSpawnSpec = z.object({
 export const DoSetStateSpec = z.object({
     kind: z.literal('setstate'),
     name: Name,
-    index: z.number().min(0).default(0),
+    index: ValueFromSpec.default({
+        kind: 'literal',
+        type: 'uint64',
+        value: '0',
+    }),
     value: ValueFromSpec,
 });
 
 export const DoIncStateSpec = z.object({
     kind: z.literal('incstate'),
     name: Name,
-    index: z.number().min(0).default(0),
-    step: z.number().min(1).default(1),
+    index: ValueFromSpec.default({
+        kind: 'literal',
+        type: 'uint64',
+        value: '0',
+    }),
+    step: ValueFromSpec.default({
+        kind: 'literal',
+        type: 'int64',
+        value: '1',
+    }),
 });
 
 export const DoDecStateSpec = z.object({
     kind: z.literal('decstate'),
     name: Name,
-    index: z.number().min(0).default(0),
-    step: z.number().min(1).default(1),
+    index: ValueFromSpec.default({
+        kind: 'literal',
+        type: 'uint64',
+        value: '0',
+    }),
+    step: ValueFromSpec.default({
+        kind: 'literal',
+        type: 'int64',
+        value: '1',
+    }),
 });
 
 export const DoCallActionSpec = z.object({

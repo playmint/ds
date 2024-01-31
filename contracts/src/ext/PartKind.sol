@@ -68,7 +68,7 @@ contract PartKind {
         Game ds,
         bytes24 thisPartId,
         uint8 stateVariableIndex,
-        uint8 stateVariableElmIndex,
+        uint256 stateVariableElmIndex,
         int64 val
     ) internal {
         setStateVariableData(ds, thisPartId, stateVariableIndex, stateVariableElmIndex, bytes32(uint256(int256(val))));
@@ -78,7 +78,7 @@ contract PartKind {
         Game ds,
         bytes24 thisPartId,
         uint8 stateVariableIndex,
-        uint8 stateVariableElmIndex,
+        uint256 stateVariableElmIndex,
         uint64 val
     ) internal {
         setStateVariableData(ds, thisPartId, stateVariableIndex, stateVariableElmIndex, bytes32(uint256(val)));
@@ -88,7 +88,7 @@ contract PartKind {
         Game ds,
         bytes24 thisPartId,
         uint8 stateVariableIndex,
-        uint8 stateVariableElmIndex,
+        uint256 stateVariableElmIndex,
         address val
     ) internal {
         setStateVariableData(ds, thisPartId, stateVariableIndex, stateVariableElmIndex, bytes32(bytes20(val)));
@@ -109,7 +109,7 @@ contract PartKind {
         Game ds,
         bytes24 thisPartId,
         uint8 stateVariableIndex,
-        uint8 stateVariableElmIndex,
+        uint256 stateVariableElmIndex,
         int64 step
     ) internal {
         int64 currentVal = int64(
@@ -126,7 +126,7 @@ contract PartKind {
         Game ds,
         bytes24 thisPartId,
         uint8 stateVariableIndex,
-        uint8 stateVariableElmIndex,
+        uint256 stateVariableElmIndex,
         int64 step
     ) internal {
         int64 currentVal = int64(
@@ -143,11 +143,13 @@ contract PartKind {
         Game ds,
         bytes24 thisPartId,
         uint8 stateVariableIndex,
-        uint8 stateVariableElmIndex,
+        uint256 stateVariableElmIndex,
         bytes32 val
     ) internal {
         ds.getDispatcher().dispatch(
-            abi.encodeCall(Actions.SET_STATE_VAR_ON_PART, (thisPartId, stateVariableIndex, stateVariableElmIndex, val))
+            abi.encodeCall(
+                Actions.SET_STATE_VAR_ON_PART, (thisPartId, stateVariableIndex, uint8(stateVariableElmIndex), val)
+            )
         );
     }
 }

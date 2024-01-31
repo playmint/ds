@@ -203,8 +203,15 @@ interface Actions {
     ) external;
 
     function CALL_ACTION_ON_PART(bytes24 partId, bytes24 actionDefId, bytes calldata payload) external;
-    function SET_STATE_VAR_ON_PART(bytes24 partId, uint8 stateVariableIndex, uint8 stateVariableElmIndex, bytes32 val) external;
-    function SET_PART_VAR_ON_PART(bytes24 partId, uint8 partVariableIndex, uint8 partVariableElmIndex, bytes24 remotePartId) external;
+    // TODO: Make elmIndex more than uint8 for both SET_STATE_VAR_ON_PART and SET_PART_VAR_ON_PART
+    function SET_STATE_VAR_ON_PART(bytes24 partId, uint8 stateVariableIndex, uint8 stateVariableElmIndex, bytes32 val)
+        external;
+    function SET_PART_VAR_ON_PART(
+        bytes24 partId,
+        uint8 partVariableIndex,
+        uint8 partVariableElmIndex,
+        bytes24 remotePartId
+    ) external;
 
     function SPAWN_PART(bytes24 partKindId, int16 q, int16 r, int16 s) external;
 

@@ -64,7 +64,7 @@ export function getValueFromTriggerArgType(
 export function generateValueFromActionTrigger(
     spec: z.infer<typeof PartKindSpec>,
     logicSpec: z.infer<typeof LogicSpec>,
-    _logicIndex: number,
+    logicIndex: number,
     valueSpec: z.infer<typeof ValueFromSpec>,
     suppressAccessor: boolean = false
 ): string {
@@ -88,7 +88,11 @@ export function generateValueFromActionTrigger(
         throw new Error(`cannot find arg with name ${valueSpec.name} on action ${actionOfTrigger.name}`);
     }
     const triggerArgIndex = actionOfTrigger.args?.indexOf(triggerArg);
-    return `trigger_arg_${triggerArgIndex}${triggerArg.list && !suppressAccessor ? `[${valueSpec.index}]` : ``}`;
+    return `trigger_arg_${triggerArgIndex}${
+        triggerArg.list && !suppressAccessor
+            ? `[${generateValueFrom(spec, logicSpec, logicIndex, valueSpec.index)}]`
+            : ``
+    }`;
 }
 
 export function generateValueFromLiteral(valueSpec: z.infer<typeof ValueFromLiteral>): string {
@@ -101,7 +105,7 @@ export function generateValueFromLoop(
     _logicIndex: number,
     valueSpec: z.infer<typeof ValueFromLoop>
 ): string {
-    return generateLoopIndexString(logicSpec.do, valueSpec.loop) + (valueSpec.thing === 'value' ? '_value' : '');
+    return generateLoopIndexString(logicSpec.do, valueSpec.label) + (valueSpec.thing === 'value' ? '_value' : '');
 }
 
 export function generateValueFrom(
@@ -138,31 +142,56 @@ export function generateSetStateDoBlock(
 
     const stateVariableIndex = spec.state.indexOf(stateVariableDef);
 
-    return `setStateValue(ds, partId, ${stateVariableIndex}, ${doSpec.index}, ${
-        stateVariableDef.type
-    }(${generateValueFrom(spec, logicSpec, logicIndex, doSpec.value)}));`;
+    return `setStateValue(ds, partId, ${stateVariableIndex}, ${generateValueFrom(
+        spec,
+        logicSpec,
+        logicIndex,
+        doSpec.index
+    )}, ${stateVariableDef.type}(${generateValueFrom(spec, logicSpec, logicIndex, doSpec.value)}));`;
 }
 
 export function generateIncStateDoBlock(
     spec: z.infer<typeof PartKindSpec>,
-    _logicSpec: z.infer<typeof LogicSpec>,
-    _logicIndex: number,
+    logicSpec: z.infer<typeof LogicSpec>,
+    logicIndex: number,
     doSpec: z.infer<typeof DoIncStateSpec>,
     _doIndex: number
 ): string {
-    const stateVariableIndex = (spec.state || []).findIndex((stateSpec) => stateSpec.name === doSpec.name);
-    return `incStateValue(ds, partId, ${stateVariableIndex}, ${doSpec.index}, ${doSpec.step ?? 1});`;
+    if (!spec.state) throw new Error(`cannot generate incstate block: no state defined for part ${spec.name}`);
+
+    const stateVariableDef = spec.state.find((stateSpec) => stateSpec.name === doSpec.name);
+    if (!stateVariableDef)
+        throw new Error(`cannot generate incstate block: no state variable found with name: ${doSpec.name}`);
+
+    const stateVariableIndex = spec.state.indexOf(stateVariableDef);
+    return `incStateValue(ds, partId, ${stateVariableIndex}, ${generateValueFrom(
+        spec,
+        logicSpec,
+        logicIndex,
+        doSpec.index
+    )}, ${stateVariableDef.type}(${generateValueFrom(spec, logicSpec, logicIndex, doSpec.step)}));`;
 }
 
 export function generateDeccStateDoBlock(
     spec: z.infer<typeof PartKindSpec>,
-    _logicSpec: z.infer<typeof LogicSpec>,
-    _logicIndex: number,
+    logicSpec: z.infer<typeof LogicSpec>,
+    logicIndex: number,
     doSpec: z.infer<typeof DoDecStateSpec>,
     _doIndex: number
 ): string {
-    const stateVariableIndex = (spec.state || []).findIndex((stateSpec) => stateSpec.name === doSpec.name);
-    return `decStateValue(ds, partId, ${stateVariableIndex}, ${doSpec.index}, ${doSpec.step ?? 1});`;
+    if (!spec.state) throw new Error(`cannot generate decstate block: no state defined for part ${spec.name}`);
+
+    const stateVariableDef = spec.state.find((stateSpec) => stateSpec.name === doSpec.name);
+    if (!stateVariableDef)
+        throw new Error(`cannot generate decstate block: no state variable found with name: ${doSpec.name}`);
+
+    const stateVariableIndex = spec.state.indexOf(stateVariableDef);
+    return `decStateValue(ds, partId, ${stateVariableIndex}, ${generateValueFrom(
+        spec,
+        logicSpec,
+        logicIndex,
+        doSpec.index
+    )}, ${stateVariableDef.type}(${generateValueFrom(spec, logicSpec, logicIndex, doSpec.step)}));`;
 }
 
 export function generateLoopIndexString(
