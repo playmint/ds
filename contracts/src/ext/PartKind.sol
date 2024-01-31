@@ -223,5 +223,29 @@ contract PartKind {
             )
         );
     }
+
+    function callPartAction(
+        Game ds,
+        bytes24 thisPartId,
+        uint8 partVariableIndex,
+        uint8 partVariableElmIndex,
+        bytes24 actionDefId,
+        bytes memory payload
+    ) internal {
+        State state = ds.getState();
+        bytes24 connectedPartId = bytes24(
+            uint192(
+                uint256(state.getData(thisPartId, getStateKey(1, partVariableIndex, partVariableElmIndex)))
+            )
+        );
+        require(connectedPartId != 0x0, 'no part connected');
+
+
+        ds.getDispatcher().dispatch(
+            abi.encodeCall(
+                Actions.CALL_ACTION_ON_PART, (connectedPartId, actionDefId, payload)
+            )
+        );
+    }
     
 }

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import {
     ActionArg,
+    DoCallActionSpec,
     DoDecStateSpec,
     DoForEachSpec,
     DoIncStateSpec,
@@ -12,7 +13,7 @@ import {
     ValueFromSpec,
     ValueFromState,
 } from './manifest';
-import { encodePartKindID, encodePartKindStateDefID } from './applier';
+import { encodePartKindActionDefID, encodePartKindID, encodePartKindStateDefID } from './applier';
 
 // TODO: Should args always be an array?
 export function genArgType(arg: z.infer<typeof ActionArg>, includeStorageType: boolean = false): string {
@@ -119,6 +120,8 @@ export function generateValueFromPart(
     const connectedPartKindId = encodePartKindID(partDef.kind);
     const connectedPartStateDefId = encodePartKindStateDefID(connectedPartKindId, valueSpec.name);
 
+    // FIXME: support more than just Int64
+    // FIXME: support lists
     return `getValueFromPartInt64(
         ds,
         partId,
@@ -234,6 +237,34 @@ export function generateSetStateDoBlock(
     )}, ${stateDefSpec.type}(${generateValueFrom(spec, logicSpec, logicIndex, doSpec.value)}));`;
 }
 
+export function generateCallActionDoBlock(
+    spec: z.infer<typeof PartKindSpec>,
+    logicSpec: z.infer<typeof LogicSpec>,
+    logicIndex: number,
+    doSpec: z.infer<typeof DoCallActionSpec>,
+    _doIndex: number
+): string {
+    const partDef = (spec.parts || []).find(part => part.name === doSpec.part);
+    if (!partDef) {
+        throw new Error(`cannot callaction on part ${doSpec.part}: no part found`);
+    }
+    const partDefIndex = (spec.parts || []).indexOf(partDef);
+    const connectedPartKindId = encodePartKindID(partDef.kind);
+    const connectedPartActionDefId = encodePartKindActionDefID(connectedPartKindId, doSpec.name);
+
+    const payloadValues = doSpec.args.map(valueSpec => generateValueFrom(spec, logicSpec, logicIndex, valueSpec));
+    const payload = `abi.encode(${payloadValues.join(',')})`;
+
+    return `callPartAction(
+        ds,
+        partId,
+        ${partDefIndex},
+        0,
+        ${connectedPartActionDefId},
+        ${payload}
+    );`;
+}
+
 export function generateIncStateDoBlock(
     spec: z.infer<typeof PartKindSpec>,
     logicSpec: z.infer<typeof LogicSpec>,
@@ -322,7 +353,7 @@ export function generateForEachDoBlock(
     return `
             for (uint ${itr} = 0; ${itr} < ${getListLengthStr(doSpec.elements)}; ${itr}++) {
                 ${listType} ${valueName} = ${elementAccessor};
-                
+
                 ${doSpec.do
                     .map((doSpec, doIndex) =>
                         generateDoBlock(spec, logicSpec, logicIndex, doSpec, doIndex, doDepth + 1)
@@ -349,6 +380,8 @@ export function generateDoBlock(
             return generateDecStateDoBlock(spec, logicSpec, logicIndex, doSpec, doIndex);
         case 'foreach':
             return generateForEachDoBlock(spec, logicSpec, logicIndex, doSpec, doIndex, doDepth);
+        case 'callaction':
+            return generateCallActionDoBlock(spec, logicSpec, logicIndex, doSpec, doIndex);
         default:
             throw new Error(`${doSpec.kind} not implemented yet`);
     }

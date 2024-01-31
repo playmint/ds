@@ -198,7 +198,7 @@ interface Actions {
     function REGISTER_PART_ACTION_TRIGGER(
         bytes24 partKindId,
         uint8 triggerIndex,
-        bool actionIndex
+        bytes24 actionDefId
     ) external;
 
     function REGISTER_PART_STATE_TRIGGER(

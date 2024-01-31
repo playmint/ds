@@ -67,9 +67,9 @@ contract PartKindRule is Rule {
         }
 
         if (bytes4(action) == Actions.REGISTER_PART_ACTION_TRIGGER.selector) {
-            ( bytes24 partKindId, uint8 triggerIndex, uint8 actionIndex) =
-                abi.decode(action[4:], ( bytes24, uint8, uint8));
-            _registerPartActionTrigger(state, partKindId, triggerIndex, actionIndex);
+            ( bytes24 partKindId, uint8 triggerIndex, bytes24 actionDefId) =
+                abi.decode(action[4:], ( bytes24, uint8, bytes24));
+            _registerPartActionTrigger(state, partKindId, triggerIndex, actionDefId);
         }
 
         if (bytes4(action) == Actions.REGISTER_PART_STATE_TRIGGER.selector) {
@@ -162,7 +162,7 @@ contract PartKindRule is Rule {
         require(remotePartKindId != 0x0, 'invalid remotePartKindId');
 
         // get the partdef
-        bytes24 partRefDefId = Node.PartRefDef(partKindId, partRefVariableIndex);
+        bytes24 partRefDefId = state.getPartRefDef(partKindId, partRefVariableIndex);
         bytes24 partRefDefKindId = state.getPartRefDefKind(partRefDefId);
         require(remotePartKindId == partRefDefKindId, 'incompatible part assignment');
 
@@ -201,8 +201,7 @@ contract PartKindRule is Rule {
     }
 
 
-    function _registerPartActionTrigger(State state, bytes24 partKindId, uint8 triggerIndex, uint8 actionIndex) private {
-        bytes24 actionDefId = Node.PartActionDef(partKindId, actionIndex);
+    function _registerPartActionTrigger(State state, bytes24 partKindId, uint8 triggerIndex, bytes24 actionDefId) private {
         state.setTrigger(partKindId, actionDefId, triggerIndex, uint8(TriggerType.ACTION));
     }
 
@@ -226,7 +225,7 @@ contract PartKindRule is Rule {
         bool[] memory argLists,
         uint256[] memory argLengths
     ) private {
-        bytes24 actionDefId = Node.PartActionDef(partKindId, actionIndex);
+        bytes24 actionDefId = Node.PartActionDef(partKindId, name);
 
         state.annotate(actionDefId, "name", name);
         for (uint8 i = 0; i < argNames.length; i++) {
@@ -238,6 +237,7 @@ contract PartKindRule is Rule {
         }
 
         state.setActionDef(partKindId, actionDefId, actionIndex);
+        state.setPartKind(actionDefId, partKindId, actionIndex); // backlink from def -> kind
     }
 
     function _registerPartRef(
@@ -249,7 +249,7 @@ contract PartKindRule is Rule {
         bool list,
         uint256 length
     ) private {
-        bytes24 partRefDefId = Node.PartRefDef(partKindId, index);
+        bytes24 partRefDefId = Node.PartRefDef(partKindId, name);
         state.annotate(partRefDefId, "name", name);
         state.setData(partRefDefId, "list", bytes32(uint256(list ? 1 : 0)));
         state.setData(partRefDefId, "length", bytes32(uint256(length)));

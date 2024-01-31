@@ -76,3 +76,87 @@ it("should trigger on remote state change", async function() {
     expect(countBefore).to.equal(0);
     expect(countAfter).to.equal(3);
 });
+
+it("should trigger when another part tells it to", async function() {
+    const { newPartKind, walletClient } = await loadFixture(deployDownstream);
+
+    // Teller will tell the Displayer, which it expects to be connected
+    // at the scoreboard part variable, to update it's score by passing along the
+    // number of times that the Teller has been clicked
+    const Teller = await newPartKind({
+        name: 'Teller',
+        model: 'clicky-button',
+        parts: [
+            { name: 'scoreboard', kind: 'Displayer' }
+        ],
+        actions: [
+            { name: 'click' }
+        ],
+        state: [
+            { name: 'count', type: 'int64' },
+        ],
+        logic: [
+            {
+                when: { kind: 'action', name: 'click' },
+                do: [
+                    {
+                        kind: 'incstate',
+                        name: 'count',
+                    },
+                    {
+                        kind: 'callaction',
+                        name: 'update',
+                        part: 'scoreboard',
+                        args: [
+                            {
+                                kind: 'state',
+                                name: 'count',
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    });
+
+    // Displayer has a score variable that another component can update
+    // by calling it's `update` action and passing in the new score arg
+    const Displayer = await newPartKind({
+        name: 'Displayer',
+        model: 'clicky-button',
+        actions: [
+            { name: 'update', args: [{ name: 'newScore', type: 'int64' }] }
+        ],
+        state: [
+            { name: 'score', type: 'int64' },
+        ],
+        logic: [
+            {
+                when: { kind: 'action', name: 'update' },
+                do: [
+                    {
+                        kind: 'setstate',
+                        name: 'score',
+                        value: {
+                            kind: 'trigger',
+                            name: 'newScore',
+                        }
+                    }
+                ]
+            }
+        ]
+    });
+
+    const teller = await Teller.spawn([1, -3, 2]);
+    const displayer = await Displayer.spawn([3, 2, -5]);
+
+    // assign displayer to teller's scoreboard socket
+    await teller.setPart('scoreboard', displayer.id());
+
+    const countBefore = await displayer.getState('score');
+    await teller.call('click');
+    const countAfter = await displayer.getState('score');
+
+    expect(countBefore).to.equal(0);
+    expect(countAfter).to.equal(1);
+});

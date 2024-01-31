@@ -200,8 +200,8 @@ library Node {
         return CompoundKeyEncoder.BYTES(Kind.PartKind.selector, bytes20(abi.encodePacked(uint32(0), uint64(0), id)));
     }
 
-    function PartRefDef(bytes24 partKindId, uint8 index) internal pure returns (bytes24) {
-        uint64 id = uint64(uint256(keccak256(abi.encodePacked(partKindId, index))));
+    function PartRefDef(bytes24 partKindId, string memory name) internal pure returns (bytes24) {
+        uint64 id = uint64(uint256(keccak256(abi.encodePacked(partKindId, name))));
         return CompoundKeyEncoder.BYTES(Kind.PartRefDef.selector, bytes20(abi.encodePacked(uint32(0), uint64(0), id)));
     }
 
@@ -215,8 +215,8 @@ library Node {
         return CompoundKeyEncoder.BYTES(Kind.PartStateDef.selector, bytes20(abi.encodePacked(uint32(0), uint64(0), id)));
     }
 
-    function PartActionDef(bytes24 partKindId, uint8 index) internal pure returns (bytes24) {
-        uint64 id = uint64(uint256(keccak256(abi.encodePacked(partKindId, index))));
+    function PartActionDef(bytes24 partKindId, string memory name) internal pure returns (bytes24) {
+        uint64 id = uint64(uint256(keccak256(abi.encodePacked(partKindId, name))));
         return
             CompoundKeyEncoder.BYTES(Kind.PartActionDef.selector, bytes20(abi.encodePacked(uint32(0), uint64(0), id)));
     }
@@ -622,6 +622,15 @@ library Schema {
     ) internal view returns (bytes24) {
         (bytes24 kind,) = state.get(Rel.Has.selector, 0, partRefDefId);
         return kind;
+    }
+
+    function getPartRefDef(
+        State state,
+        bytes24 partKindId,
+        uint8 partRefIndex
+    ) internal view returns (bytes24) {
+        (bytes24 refDef,) = state.get(Rel.PartRef.selector, partRefIndex, partKindId);
+        return refDef;
     }
 
     function setPartKind(State state, bytes24 partInstance, bytes24 partKind) internal {

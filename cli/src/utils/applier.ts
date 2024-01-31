@@ -76,8 +76,8 @@ const getPartKindKey = (name: string) => {
     return BigInt.asUintN(64, BigInt(keccak256UTF8(`${name}`)));
 };
 
-const getPartKindActionDefKey = (partKindId: string, idx: number) => {
-    return BigInt.asUintN(64, BigInt(solidityPackedKeccak256(['bytes24', 'uint8'],[`${partKindId}`, idx])));
+const getPartKindActionDefKey = (partKindId: string, name: string) => {
+    return BigInt.asUintN(64, BigInt(solidityPackedKeccak256(['bytes24', 'string'],[`${partKindId}`, name])));
 };
 
 const getPartKindStateDefKey = (partKindId: string, name: string) => {
@@ -91,10 +91,10 @@ export const encodePartKindID = (name: string) => {
     );
 };
 
-export const encodePartKindActionDefID = (partID: string, idx: number) => {
+export const encodePartKindActionDefID = (partID: string, name: string) => {
     return solidityPacked(
         ['bytes4', 'uint32', 'uint64', 'uint64'],
-        [NodeSelectors.PartActionDef, 0, 0, getPartKindActionDefKey(partID, idx)]
+        [NodeSelectors.PartActionDef, 0, 0, getPartKindActionDefKey(partID, name)]
     );
 };
 
@@ -383,12 +383,13 @@ const partKindDeploymentActions = async (
             if (actionIndex < 0) {
                 throw new Error(`no action declared with name ${partLogic.when.name} for logic/trigger ${triggerIndex}`);
             }
+            const actionDefId = encodePartKindActionDefID(partKindId, partLogic.when.name);
             ops.push({
                 name: 'REGISTER_PART_ACTION_TRIGGER',
                 args: [
                     partKindId,
                     triggerIndex,
-                    actionIndex,
+                    actionDefId,
                 ],
             });
 

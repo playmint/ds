@@ -132,7 +132,7 @@ export class PartHelper {
         }
         const actionDefId = encodePartKindActionDefID(
             this.kind.id(),
-            partActionDefIndex,
+            partActionDef.name,
         );
         const argTypes = (partActionDef.args || []).map(
             ({ name, type, list, length }) => ({
