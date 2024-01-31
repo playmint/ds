@@ -12,7 +12,7 @@ import { ethers } from 'ethers';
 
 let runtime: QuickJSRuntime;
 
-const contexts: QuickJSContext[] = [];
+let contexts: QuickJSContext[] = [];
 
 // wrapper functions loaded by the fake 'downstream' module within the guest
 // to make it feel like a "normal" library import and potentially keep compatibility
@@ -60,7 +60,7 @@ export async function init() {
 
     runtime = qjs.newRuntime();
     // runtime.setMemoryLimit(1024 * 640);
-    runtime.setMemoryLimit(1024 * 640);
+    runtime.setMemoryLimit(50000);
     runtime.setMaxStackSize(1024 * 320);
 
     pollPendingJobs();
@@ -70,6 +70,13 @@ export async function init() {
     //     console.log('int');
     //     return ++interruptCycles > 1024;
     // });
+}
+
+function disposeRuntime() {
+    if (!runtime) return;
+    contexts.forEach((ctx) => ctx.dispose());
+    contexts = [];
+    // runtime.dispose(); // need to dipose everything inside runtime first?
 }
 
 export async function setState(newState: GameStatePlugin, newBlock: number) {
