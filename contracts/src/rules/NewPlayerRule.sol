@@ -72,7 +72,7 @@ contract NewPlayerRule is Rule {
             }
         }
 
-        if(bytes4(action) == Actions.AUTO_QUEST.selector)
+        if (bytes4(action) == Actions.AUTO_QUEST.selector)
         {
             (string memory name, uint8 index) = abi.decode(action[4:], (string, uint8));
             names.push(name);
