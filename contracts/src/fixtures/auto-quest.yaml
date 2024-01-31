@@ -1,0 +1,5 @@
+---
+kind: AutoQuest
+spec:
+  name: 'Report to Control'
+  index: 0

@@ -546,6 +546,26 @@ export const getOpsForManifests = async (
         });
     }
 
+    // add AutoQuests
+    opn++;
+    opsets[opn] = [];
+    for (const doc of docs) {
+        if (doc.manifest.kind != 'AutoQuest') {
+            continue;
+        }
+        const spec = doc.manifest.spec;
+        opsets[opn].push({
+            doc,
+            actions: [
+                {
+                    name: 'AUTO_QUEST',
+                    args: [spec.name, spec.index],
+                },
+            ],
+            note: `added auto-quest ${spec.name}`,
+        });
+    }
+
     return opsets;
 };
 
