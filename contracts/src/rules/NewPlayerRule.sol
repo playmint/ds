@@ -13,7 +13,8 @@ using Schema for State;
 
 contract NewPlayerRule is Rule {
     bool allowListEnabled;
-    string[] name;
+    string[] names;
+    uint8[] indexes;
     mapping(address => uint256) spawnable;
 
     constructor(address[] memory allowlist) {
@@ -66,14 +67,16 @@ contract NewPlayerRule is Rule {
             state.setItemSlot(bag1, 2, ItemUtils.RedGoo(), 100);
 
             // Accept the first quest in the chain
-            for (uint8 i = 0; i < name.length; i++) {
-                state.setQuestAccepted(Node.Quest(name[i]), Node.Player(ctx.sender), i);
+            for (uint8 i = 0; i < names.length; i++) {
+                state.setQuestAccepted(Node.Quest(names[i]), Node.Player(ctx.sender), indexes[i]);
             }
         }
 
         if(bytes4(action) == Actions.AUTO_QUEST.selector)
         {
-            name.push(abi.decode(action[4:], (string)));
+            (string memory name, uint8 index) = abi.decode(action[4:], (string, uint8));
+            names.push(name);
+            indexes.push(index);
         }
 
         return state;

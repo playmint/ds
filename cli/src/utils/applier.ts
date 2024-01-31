@@ -559,7 +559,7 @@ export const getOpsForManifests = async (
             actions: [
                 {
                     name: 'AUTO_QUEST',
-                    args: [spec.name],
+                    args: [spec.name, spec.index],
                 },
             ],
             note: `added auto-quest ${spec.name}`,

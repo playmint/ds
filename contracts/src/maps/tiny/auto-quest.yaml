@@ -2,7 +2,9 @@
 kind: AutoQuest
 spec:
   name: Example Quest
+  index: 0
 ---
 kind: AutoQuest
 spec:
   name: Another Example Quest
+  index: 1

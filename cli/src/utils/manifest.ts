@@ -318,6 +318,7 @@ export const Quest = z.object({
 
 export const AutoQuestSpec = z.object({
     name: Name,
+    index: z.number(),
 });
 
 export const AutoQuest = z.object({
