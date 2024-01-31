@@ -122,6 +122,21 @@ contract PartKind {
         );
     }
 
+    function incStateValue(
+        Game ds,
+        bytes24 thisPartId,
+        uint8 stateVariableIndex,
+        uint256 stateVariableElmIndex,
+        uint64 step
+    ) internal {
+        uint64 currentVal = uint64(
+            uint256(ds.getState().getData(thisPartId, getStateKey(0, stateVariableIndex, stateVariableElmIndex)))
+        );
+        setStateVariableData(
+            ds, thisPartId, stateVariableIndex, stateVariableElmIndex, bytes32(uint256(currentVal + step))
+        );
+    }
+
     function decStateValue(
         Game ds,
         bytes24 thisPartId,
@@ -136,6 +151,22 @@ contract PartKind {
         );
         setStateVariableData(
             ds, thisPartId, stateVariableIndex, stateVariableElmIndex, bytes32(uint256(int256(currentVal - step)))
+        );
+    }
+
+    function decStateValue(
+        Game ds,
+        bytes24 thisPartId,
+        uint8 stateVariableIndex,
+        uint256 stateVariableElmIndex,
+        uint64 step
+    ) internal {
+        uint64 currentVal = uint64(
+            uint256(ds.getState().getData(thisPartId, getStateKey(0, stateVariableIndex, stateVariableElmIndex)))
+        );
+
+        setStateVariableData(
+            ds, thisPartId, stateVariableIndex, stateVariableElmIndex, bytes32(uint256(currentVal - step))
         );
     }
 

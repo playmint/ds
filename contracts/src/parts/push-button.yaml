@@ -25,7 +25,6 @@ spec:
             name: player
         - kind: incstate
           name: pressed
-          step: 1
 ---
 kind: Part
 spec:
