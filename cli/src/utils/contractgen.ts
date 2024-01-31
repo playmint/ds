@@ -130,14 +130,17 @@ export function generateSetStateDoBlock(
     doSpec: z.infer<typeof DoSpec>,
     _doIndex: number
 ): string {
-    // const stateVariableDef = (spec.state || []).find((stateSpec) => stateSpec.name === doSpec.name);
-    const stateVariableIndex = (spec.state || []).findIndex((stateSpec) => stateSpec.name === doSpec.name);
-    return `setStateValue(ds, partId, ${stateVariableIndex}, ${doSpec.index}, ${generateValueFrom(
-        spec,
-        logicSpec,
-        logicIndex,
-        doSpec.value
-    )});`;
+    if (!spec.state) throw new Error(`cannot generate setstate block: no state defined for part ${spec.name}`);
+
+    const stateVariableDef = spec.state.find((stateSpec) => stateSpec.name === doSpec.name);
+    if (!stateVariableDef)
+        throw new Error(`cannot generate setstate block: no state variable found with name: ${doSpec.name}`);
+
+    const stateVariableIndex = spec.state.indexOf(stateVariableDef);
+
+    return `setStateValue(ds, partId, ${stateVariableIndex}, ${doSpec.index}, ${
+        stateVariableDef.type
+    }(${generateValueFrom(spec, logicSpec, logicIndex, doSpec.value)}));`;
 }
 
 export function generateIncStateDoBlock(
