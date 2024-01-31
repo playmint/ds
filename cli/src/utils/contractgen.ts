@@ -72,7 +72,7 @@ export function generateSetStateDoBlock(
 ): string {
     // const stateVariableDef = (spec.state || []).find((stateSpec) => stateSpec.name === doSpec.name);
     const stateVariableIndex = (spec.state || []).findIndex((stateSpec) => stateSpec.name === doSpec.name);
-    return `setStateValue(state, partId, ${stateVariableIndex}, ${doSpec.index}, ${generateValueFrom(
+    return `setStateValue(ds, partId, ${stateVariableIndex}, ${doSpec.index}, ${generateValueFrom(
         spec,
         logicSpec,
         logicIndex,
@@ -88,7 +88,7 @@ export function generateIncStateDoBlock(
     _doIndex: number
 ): string {
     const stateVariableIndex = (spec.state || []).findIndex((stateSpec) => stateSpec.name === doSpec.name);
-    return `incStateValue(state, partId, ${stateVariableIndex}, ${doSpec.index}, ${doSpec.step ?? 1});`;
+    return `incStateValue(ds, partId, ${stateVariableIndex}, ${doSpec.index}, ${doSpec.step ?? 1});`;
 }
 
 export function generateDeccStateDoBlock(
@@ -99,7 +99,7 @@ export function generateDeccStateDoBlock(
     _doIndex: number
 ): string {
     const stateVariableIndex = (spec.state || []).findIndex((stateSpec) => stateSpec.name === doSpec.name);
-    return `decStateValue(state, partId, ${stateVariableIndex}, ${doSpec.index}, ${doSpec.step ?? 1});`;
+    return `decStateValue(ds, partId, ${stateVariableIndex}, ${doSpec.index}, ${doSpec.step ?? 1});`;
 }
 
 export function generateDoBlock(
@@ -161,7 +161,7 @@ export function generateLogicFunc(
     logicIndex: number
 ): string {
     return `
-        function logicBlock${logicIndex}(State state, bytes24 sender, bytes24 partId, bytes memory payload) override internal {
+        function logicBlock${logicIndex}(Game ds, bytes24 sender, bytes24 partId, bytes memory payload) override internal {
             ${generateTriggerArgs(spec, logicSpec)}
 
             ${logicSpec.do
@@ -177,6 +177,7 @@ export function generateContract(spec: z.infer<typeof PartKindSpec>): string {
 pragma solidity ^0.8.13;
 
 import {State} from "cog/IState.sol";
+import {Game} from "cog/IGame.sol";
 import {PartKind} from "@ds/ext/PartKind.sol";
 
 contract Generated is PartKind {

@@ -12,6 +12,7 @@ import {Actions, ArgType, TriggerType} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 import {CraftingRule} from "@ds/rules/CraftingRule.sol";
 import {PartKind} from "@ds/ext/PartKind.sol";
+import {LibString} from "cog/utils/LibString.sol";
 
 using Schema for State;
 
@@ -73,6 +74,12 @@ contract PartKindRule is Rule {
             _spawnPart(state, partKindId, q, r, s);
         }
 
+        if (bytes4(action) == Actions.SET_STATE_VAR_ON_PART.selector) {
+            (bytes24 partId, uint8 stateVariableIndex, uint8 stateVariableElmIndex, bytes32 val) = abi.decode(action[4:], (bytes24, uint8, uint8, bytes32));
+            bytes24 player = Node.Player(ctx.sender);
+            _setStateVar(state, player, partId, stateVariableIndex, stateVariableElmIndex, val);
+        }
+
 
         return state;
     }
@@ -99,10 +106,29 @@ contract PartKindRule is Rule {
                 continue;
             }
             if (triggerActionDefId == actionDefId) {
-                partImplementation.call(state, sender, partId, i, payload);
+                partImplementation.call(game, sender, partId, i, payload);
             }
         }
             
+    }
+
+    function _setStateVar(State state, bytes24 sender, bytes24 partId, uint8 stateVariableIndex, uint8 stateVariableElmIndex, bytes32 val) private {
+        bytes24 partKindId = state.getPartKind(partId);
+        require(partKindId != 0x0, 'no kind, maybe invalid partId');
+
+        state.setData(partId, _getStateKey(stateVariableIndex, stateVariableElmIndex), val);
+
+        // TODO.. find all external triggers listening for this state change
+    }
+
+    function _getStateKey(uint8 stateVariableIndex, uint256 stateVariableElmIndex)
+        internal
+        pure
+        returns (string memory)
+    {
+        return string(
+            abi.encodePacked(LibString.toString(stateVariableIndex), "_", LibString.toString(stateVariableElmIndex))
+        );
     }
 
 
