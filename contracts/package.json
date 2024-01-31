@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "@downstream/cli": "file:cli",
+    "@downstream/core": "file:core",
+    "@nomicfoundation/hardhat-foundry": "^1.1.1",
+    "@nomicfoundation/hardhat-toolbox-viem": "^2.0.0",
+    "hardhat": "^2.19.4",
+    "hardhat-preprocessor": "^0.1.5"
+  }
+}
