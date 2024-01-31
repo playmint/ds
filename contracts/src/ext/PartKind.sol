@@ -47,13 +47,14 @@ contract PartKind {
         revert("not implemented");
     }
 
-    function getStateKey(uint8 stateVariableIndex, uint256 stateVariableElmIndex)
+    // dataKind is 0=STATE_VAR, 1=PART_VAR
+    function getStateKey(uint8 dataKind, uint8 stateVariableIndex, uint256 stateVariableElmIndex)
         internal
         pure
         returns (string memory)
     {
         return string(
-            abi.encodePacked(LibString.toString(stateVariableIndex), "_", LibString.toString(stateVariableElmIndex))
+            abi.encodePacked(LibString.toString(dataKind), "_", LibString.toString(stateVariableIndex), "_", LibString.toString(stateVariableElmIndex))
         );
     }
 
@@ -109,7 +110,7 @@ contract PartKind {
         internal
         returns (int64)
     {
-        return int64(int256(uint256(ds.getState().getData(thisPartId, getStateKey(stateVariableIndex, stateVariableElmIndex)))));
+        return int64(int256(uint256(ds.getState().getData(thisPartId, getStateKey(0, stateVariableIndex, stateVariableElmIndex)))));
     }
 
     function incStateValue(
@@ -120,7 +121,7 @@ contract PartKind {
         int64 step
     ) internal {
         int64 currentVal =
-            int64(int256(uint256(ds.getState().getData(thisPartId, getStateKey(stateVariableIndex, stateVariableElmIndex)))));
+            int64(int256(uint256(ds.getState().getData(thisPartId, getStateKey(0, stateVariableIndex, stateVariableElmIndex)))));
         setStateVariableData(
             ds,
             thisPartId,
@@ -138,7 +139,7 @@ contract PartKind {
         int64 step
     ) internal {
         int64 currentVal =
-            int64(int256(uint256(ds.getState().getData(thisPartId, getStateKey(stateVariableIndex, stateVariableElmIndex)))));
+            int64(int256(uint256(ds.getState().getData(thisPartId, getStateKey(0, stateVariableIndex, stateVariableElmIndex)))));
         setStateVariableData(
             ds,
             thisPartId,

@@ -56,7 +56,8 @@ export class PartHelper {
         if (stateVarIndex < 0) {
             throw new Error(`no state var: ${stateName}`);
         }
-        const label = `${stateVarIndex}_${stateVarElmIndex}`;
+        const dataKind = 0; // 0=statevar, 1=partvar
+        const label = `${dataKind}_${stateVarIndex}_${stateVarElmIndex}`;
         const data = await this.getData(this.id(), label);
         return Number(BigInt.asIntN(64, BigInt(data)));
     }

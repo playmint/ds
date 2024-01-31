@@ -80,6 +80,12 @@ contract PartKindRule is Rule {
             _setStateVar(state, player, partId, stateVariableIndex, stateVariableElmIndex, val);
         }
 
+        if (bytes4(action) == Actions.SET_PART_VAR_ON_PART.selector) {
+            (bytes24 partId, uint8 variableIndex, uint8 variableElmIndex, bytes24 remotePartId) = abi.decode(action[4:], (bytes24, uint8, uint8, bytes24));
+            bytes24 player = Node.Player(ctx.sender);
+            _setPartVar(state, player, partId, variableIndex, variableElmIndex, remotePartId);
+        }
+
 
         return state;
     }
@@ -116,18 +122,28 @@ contract PartKindRule is Rule {
         bytes24 partKindId = state.getPartKind(partId);
         require(partKindId != 0x0, 'no kind, maybe invalid partId');
 
-        state.setData(partId, _getStateKey(stateVariableIndex, stateVariableElmIndex), val);
+        state.setData(partId, _getStateKey(0, stateVariableIndex, stateVariableElmIndex), val);
 
         // TODO.. find all external triggers listening for this state change
     }
 
-    function _getStateKey(uint8 stateVariableIndex, uint256 stateVariableElmIndex)
+    function _setPartVar(State state, bytes24 sender, bytes24 partId, uint8 stateVariableIndex, uint8 stateVariableElmIndex, bytes32 val) private {
+        bytes24 partKindId = state.getPartKind(partId);
+        require(partKindId != 0x0, 'no kind, maybe invalid partId');
+
+        state.setData(partId, _getStateKey(1, stateVariableIndex, stateVariableElmIndex), val);
+
+        // TODO.. setup external triggers for any logic blocks watching this part 
+    }
+
+    // dataKind is 0=STATE_VAR, 1=PART_VAR
+    function _getStateKey(uint8 dataKind, uint8 stateVariableIndex, uint256 stateVariableElmIndex)
         internal
         pure
         returns (string memory)
     {
         return string(
-            abi.encodePacked(LibString.toString(stateVariableIndex), "_", LibString.toString(stateVariableElmIndex))
+            abi.encodePacked(LibString.toString(dataKind), "_", LibString.toString(stateVariableIndex), "_", LibString.toString(stateVariableElmIndex))
         );
     }
 
