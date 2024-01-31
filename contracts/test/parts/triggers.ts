@@ -17,7 +17,7 @@ it("should trigger on remote state change", async function() {
             { name: 'change' }
         ],
         state: [
-            { name: 'count', type: 'uint64' },
+            { name: 'count', type: 'int64' },
         ],
         logic: [
             {
@@ -32,8 +32,8 @@ it("should trigger on remote state change", async function() {
         ]
     });
 
-    // Watcher updates it's "watched" count each time the "remote" Changer
-    // part updates it's state
+    // Watcher updates it's "watched" count to match the "count" state of the
+    // connected Changer part
     const Watcher = await newPartKind({
         name: 'Watcher',
         model: 'clicky-button',
@@ -41,15 +41,20 @@ it("should trigger on remote state change", async function() {
             { name: 'remote', kind: 'Changer' }
         ],
         state: [
-            { name: 'watched', type: 'uint64' },
+            { name: 'watched', type: 'int64' },
         ],
         logic: [
             {
                 when: { kind: 'state', part: 'remote', state: 'count' },
                 do: [
                     {
-                        kind: 'incstate',
+                        kind: 'setstate',
                         name: 'watched',
+                        value: {
+                            kind: 'part',
+                            part: 'remote',
+                            name: 'count',
+                        }
                     }
                 ]
             }

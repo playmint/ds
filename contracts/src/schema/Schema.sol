@@ -619,7 +619,7 @@ library Schema {
     function getPartRefDefKind(
         State state,
         bytes24 partRefDefId
-    ) internal returns (bytes24) {
+    ) internal view returns (bytes24) {
         (bytes24 kind,) = state.get(Rel.Has.selector, 0, partRefDefId);
         return kind;
     }

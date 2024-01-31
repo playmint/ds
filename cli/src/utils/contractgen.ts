@@ -11,6 +11,7 @@ import {
     ValueFromLoop,
     ValueFromSpec,
 } from './manifest';
+import { encodePartKindID, encodePartKindStateDefID } from './applier';
 
 // TODO: Should args always be an array?
 export function genArgType(arg: z.infer<typeof ActionArg>, includeStorageType: boolean = false): string {
@@ -99,6 +100,32 @@ export function generateValueFromLiteral(valueSpec: z.infer<typeof ValueFromLite
     return `${valueSpec.type}(${valueSpec.value})`;
 }
 
+export function generateValueFromPart(
+    spec: z.infer<typeof PartKindSpec>,
+    valueSpec: z.infer<typeof ValueFromSpec>
+): string {
+    if (valueSpec.kind != 'part') {
+        throw new Error(`getValueFromPart called on a non action valueSpec`);
+    }
+    const partDef = (spec.parts || []).find(part => part.name === valueSpec.part);
+    if (!partDef) {
+        throw new Error(`cannot get value from part ${valueSpec.part}: no part found`);
+    }
+    const partDefIndex = (spec.parts || []).indexOf(partDef);
+
+    const connectedPartKindId = encodePartKindID(partDef.kind);
+    const connectedPartStateDefId = encodePartKindStateDefID(connectedPartKindId, valueSpec.name);
+
+    return `getValueFromPartInt64(
+        ds,
+        partId,
+        ${partDefIndex},
+        0,
+        bytes24(${connectedPartStateDefId}),
+        0
+    )`
+}
+
 export function generateValueFromLoop(
     _spec: z.infer<typeof PartKindSpec>,
     logicSpec: z.infer<typeof LogicSpec>,
@@ -122,6 +149,8 @@ export function generateValueFrom(
             return generateValueFromLoop(spec, logicSpec, logicIndex, valueSpec);
         case 'literal':
             return generateValueFromLiteral(valueSpec);
+        case 'part':
+            return generateValueFromPart(spec, valueSpec);
         default:
             throw new Error(`cannot get value from ${valueSpec.kind}: not implemented yet`);
     }

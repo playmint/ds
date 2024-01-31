@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 import {State} from "cog/IState.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {Game} from "cog/IGame.sol";
-import {Schema} from "@ds/schema/Schema.sol";
+import {Schema, Rel} from "@ds/schema/Schema.sol";
 import {LibString} from "cog/utils/LibString.sol";
 
 using Schema for State;
@@ -183,4 +183,36 @@ contract PartKind {
             )
         );
     }
+
+    function getValueFromPartInt64(
+        Game ds,
+        bytes24 thisPartId,
+        uint8 partVariableIndex,
+        uint8 partVariableElmIndex,
+        bytes24 stateDefId,
+        uint8 connectedStateElmIndex
+    ) internal returns (int64) {
+        State state = ds.getState();
+        bytes24 connectedPartId = bytes24(
+            uint192(
+                uint256(state.getData(thisPartId, getStateKey(1, partVariableIndex, partVariableElmIndex)))
+            )
+        );
+        require(connectedPartId != 0x0, 'no part connected');
+
+        bytes24 connectedPartKindId = state.getPartKind(connectedPartId);
+        require(connectedPartKindId != 0x0, 'invalid connected part: no kind');
+
+        (bytes24 stateDefParentKindId, uint64 connectedStateIndex) = state.get(Rel.Is.selector, 0x0, stateDefId);
+        require(stateDefParentKindId != 0x0, 'no state def parent kind');
+        require(stateDefParentKindId == connectedPartKindId, 'invalid state def given');
+
+        // read the remote state value
+        return int64(
+            int256(
+                uint256(state.getData(connectedPartId, getStateKey(0, uint8(connectedStateIndex), connectedStateElmIndex)))
+            )
+        );
+    }
+    
 }
