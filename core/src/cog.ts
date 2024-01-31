@@ -297,7 +297,7 @@ export function configureClient({
  * actionArgFromUnknown
  *
  */
-function encodeActionData(actions: ethers.Interface, name: string, givenArgs: unknown[]) {
+export function encodeActionData(actions: ethers.Interface, name: string, givenArgs: unknown[]) {
     const fn = actions.getFunction(name);
     if (!fn) {
         throw new Error(`invalid action: ${name}`);

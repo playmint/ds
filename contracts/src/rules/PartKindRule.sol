@@ -79,6 +79,8 @@ contract PartKindRule is Rule {
 
     function _callPartAction(State state, bytes24 sender, bytes24 partId, bytes24 actionDefId, bytes memory payload) private {
         bytes24 partKindId = state.getPartKind(partId);
+        require(partKindId != 0x0, 'no kind, maybe invalid partId');
+
         PartKind partImplementation = PartKind(state.getImplementation(partKindId));
 
         // no-op if no part implmenetation registered

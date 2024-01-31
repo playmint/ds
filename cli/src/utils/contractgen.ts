@@ -135,6 +135,9 @@ export function generateActionTriggerArgs(
     if (!action) {
         throw new Error(`no action found with name ${logicSpec.when.name}`);
     }
+    if (!action.args || action.args.length === 0) {
+        return '';
+    }
     const args = action.args || [];
     return `
         ( ${args

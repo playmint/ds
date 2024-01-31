@@ -3,7 +3,8 @@
   "workspaces": [
     "frontend",
     "cli",
-    "core"
+    "core",
+    "contracts"
   ],
   "scripts": {
     "start": "make dev"

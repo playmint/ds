@@ -1,6 +1,6 @@
 import { CogAction, CompoundKeyEncoder, NodeSelectors } from '@downstream/core';
 import { BuildingKindFragment, ItemFragment, WorldStateFragment } from '@downstream/core/src/gql/graphql';
-import { AbiCoder, id as keccak256UTF8, solidityPacked } from 'ethers';
+import { AbiCoder, id as keccak256UTF8, solidityPacked, solidityPackedKeccak256 } from 'ethers';
 import fs from 'fs';
 import path from 'path';
 import { z } from 'zod';
@@ -76,10 +76,21 @@ const getPartKindKey = (name: string) => {
     return BigInt.asUintN(64, BigInt(keccak256UTF8(`${name}`)));
 };
 
-const encodePartKindID = (name: string) => {
+const getPartKindActionDefKey = (partKindId: string, idx: number) => {
+    return BigInt.asUintN(64, BigInt(solidityPackedKeccak256(['bytes24', 'uint8'],[`${partKindId}`, idx])));
+};
+
+export const encodePartKindID = (name: string) => {
     return solidityPacked(
         ['bytes4', 'uint32', 'uint64', 'uint64'],
         [NodeSelectors.PartKind, 0, 0, getPartKindKey(name)]
+    );
+};
+
+export const encodePartKindActionDefID = (partID: string, idx: number) => {
+    return solidityPacked(
+        ['bytes4', 'uint32', 'uint64', 'uint64'],
+        [NodeSelectors.PartActionDef, 0, 0, getPartKindActionDefKey(partID, idx)]
     );
 };
 

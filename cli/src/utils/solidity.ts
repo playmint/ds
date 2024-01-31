@@ -10,6 +10,7 @@ export const remappings = [
 interface CompileOpts {
     libs?: string[];
     verbose?: boolean;
+    remappings?: string[][];
 }
 
 export async function compilePath(filepath: string, opts: CompileOpts) {
@@ -19,9 +20,10 @@ export async function compilePath(filepath: string, opts: CompileOpts) {
 
 export async function compileString(content:string, filepath: string, opts: CompileOpts) {
     const filename = path.basename(filepath);
+    const allRemappings = [...(opts.remappings || []), ...remappings];
 
     const findImports = (importpath: string) => {
-        for (const [from, to] of remappings) {
+        for (const [from, to] of allRemappings) {
             if (importpath.startsWith(from)) {
                 importpath = importpath.replace(from, to);
                 break;

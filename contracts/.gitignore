@@ -4,6 +4,7 @@ out/
 /deployments/
 node_modules/
 /broadcast
+/cache_hardhat
 
 # Dotenv file
 .env
@@ -11,3 +12,18 @@ node_modules/
 # js
 package.json
 package-*.json
+
+node_modules
+.env
+
+# Hardhat files
+/cache
+/artifacts
+
+# TypeChain files
+/typechain
+/typechain-types
+
+# solidity-coverage files
+/coverage
+/coverage.json

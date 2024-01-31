@@ -23,6 +23,8 @@ export const NodeSelectors = {
     Quest: getSelector('Quest'),
     Task: getSelector('Task'),
     PartKind: getSelector('PartKind'),
+    PartActionDef: getSelector('PartActionDef'),
+    Part: getSelector('Part'),
 };
 
 export const CompoundKeyEncoder = {

@@ -5,7 +5,7 @@ import "cog/BaseRouter.sol";
 import "cog/BaseDispatcher.sol";
 import "cog/BaseState.sol";
 import "cog/BaseGame.sol";
-import {LibString} from "cog/utils/LibString.sol";
+import {LibString as LS} from "@ds/utils/LibString.sol";
 
 import "./IDownstream.sol";
 import {Schema, Node, Rel, Kind} from "@ds/schema/Schema.sol";
@@ -38,10 +38,10 @@ contract DownstreamRouter is BaseRouter {
             "\n\nYou can revoke sessions and read more about them at https://downstream.com/sessions",
             "\n\nPermissions: send-actions, spend-energy",
             "\n\nValid: ",
-            LibString.toString(ttl),
+            LS.toString(ttl),
             " blocks",
             "\n\nSession: ",
-            LibString.toHexString(sessionAddr)
+            LS.toHexString(sessionAddr)
         );
     }
 }
