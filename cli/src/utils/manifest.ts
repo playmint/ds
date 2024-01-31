@@ -326,7 +326,7 @@ export type ActionArgType = z.infer<typeof ActionArgType>;
 export const ActionArg = z.object({
     name: Name,
     type: ActionArgType,
-    list: z.boolean().default(false),
+    list: z.boolean().default(false).optional(),
     length: z.number().min(0).optional(),
 });
 
@@ -338,7 +338,7 @@ export const ActionSpec = z.object({
 export const PartDefSpec = z.object({
     name: Name,
     kind: Name,
-    list: z.boolean().default(false),
+    list: z.boolean().default(false).optional(),
     length: z.number().min(0).optional(),
 });
 
@@ -346,7 +346,7 @@ export const StateDefSpec = z.object({
     // maybe ActionArg and StateDef are the same thing?
     name: Name,
     type: ActionArgType,
-    list: z.boolean().default(false),
+    list: z.boolean().default(false).optional(),
     length: z.number().min(0).optional(),
 });
 

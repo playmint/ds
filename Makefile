@@ -37,6 +37,9 @@ debugmap:
 dev: all
 	$(NODE) .devstartup.js
 
+test: all
+	(cd contracts && npx hardhat test)
+
 compose: frontend/public/ds-unity/Build/ds-unity.wasm
 	docker compose up --build
 

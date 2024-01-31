@@ -50,12 +50,13 @@ export class PartHelper {
         ) as Hex;
     }
 
-    async getState(stateName: string): Promise<number> {
+    async getState(stateName: string, elementIndex?: number): Promise<number> {
         const stateVarIndex = (this.kind.spec.state || []).findIndex(s => s.name === stateName);
+        const stateVarElmIndex = elementIndex ?? 0;
         if (stateVarIndex < 0) {
             throw new Error(`no state var: ${stateName}`);
         }
-        const label = `${stateVarIndex}`;
+        const label = `${stateVarIndex}_${stateVarElmIndex}`;
         const data = await this.getData(this.id(), label);
         return Number(BigInt.asIntN(64, BigInt(data)));
     }
