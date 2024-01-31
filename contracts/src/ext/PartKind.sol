@@ -54,7 +54,13 @@ contract PartKind {
         returns (string memory)
     {
         return string(
-            abi.encodePacked(LibString.toString(dataKind), "_", LibString.toString(stateVariableIndex), "_", LibString.toString(stateVariableElmIndex))
+            abi.encodePacked(
+                LibString.toString(dataKind),
+                "_",
+                LibString.toString(stateVariableIndex),
+                "_",
+                LibString.toString(stateVariableElmIndex)
+            )
         );
     }
 
@@ -65,13 +71,7 @@ contract PartKind {
         uint8 stateVariableElmIndex,
         int64 val
     ) internal {
-        setStateVariableData(
-            ds,
-            thisPartId,
-            stateVariableIndex,
-            stateVariableElmIndex,
-            bytes32(uint256(int256(val)))
-        );
+        setStateVariableData(ds, thisPartId, stateVariableIndex, stateVariableElmIndex, bytes32(uint256(int256(val))));
     }
 
     function setStateValue(
@@ -81,13 +81,7 @@ contract PartKind {
         uint8 stateVariableElmIndex,
         uint64 val
     ) internal {
-        setStateVariableData(
-            ds,
-            thisPartId,
-            stateVariableIndex,
-            stateVariableElmIndex,
-            bytes32(uint256(val))
-        );
+        setStateVariableData(ds, thisPartId, stateVariableIndex, stateVariableElmIndex, bytes32(uint256(val)));
     }
 
     function setStateValue(
@@ -97,20 +91,18 @@ contract PartKind {
         uint8 stateVariableElmIndex,
         address val
     ) internal {
-        setStateVariableData(
-            ds,
-            thisPartId,
-            stateVariableIndex,
-            stateVariableElmIndex,
-            bytes32(bytes20(val))
-        );
+        setStateVariableData(ds, thisPartId, stateVariableIndex, stateVariableElmIndex, bytes32(bytes20(val)));
     }
 
     function getStateInt64(Game ds, bytes24 thisPartId, uint8 stateVariableIndex, uint256 stateVariableElmIndex)
         internal
         returns (int64)
     {
-        return int64(int256(uint256(ds.getState().getData(thisPartId, getStateKey(0, stateVariableIndex, stateVariableElmIndex)))));
+        return int64(
+            int256(
+                uint256(ds.getState().getData(thisPartId, getStateKey(0, stateVariableIndex, stateVariableElmIndex)))
+            )
+        );
     }
 
     function incStateValue(
@@ -120,14 +112,13 @@ contract PartKind {
         uint8 stateVariableElmIndex,
         int64 step
     ) internal {
-        int64 currentVal =
-            int64(int256(uint256(ds.getState().getData(thisPartId, getStateKey(0, stateVariableIndex, stateVariableElmIndex)))));
+        int64 currentVal = int64(
+            int256(
+                uint256(ds.getState().getData(thisPartId, getStateKey(0, stateVariableIndex, stateVariableElmIndex)))
+            )
+        );
         setStateVariableData(
-            ds,
-            thisPartId,
-            stateVariableIndex,
-            stateVariableElmIndex,
-            bytes32(uint256(int256(currentVal + step)))
+            ds, thisPartId, stateVariableIndex, stateVariableElmIndex, bytes32(uint256(int256(currentVal + step)))
         );
     }
 
@@ -138,14 +129,13 @@ contract PartKind {
         uint8 stateVariableElmIndex,
         int64 step
     ) internal {
-        int64 currentVal =
-            int64(int256(uint256(ds.getState().getData(thisPartId, getStateKey(0, stateVariableIndex, stateVariableElmIndex)))));
+        int64 currentVal = int64(
+            int256(
+                uint256(ds.getState().getData(thisPartId, getStateKey(0, stateVariableIndex, stateVariableElmIndex)))
+            )
+        );
         setStateVariableData(
-            ds,
-            thisPartId,
-            stateVariableIndex,
-            stateVariableElmIndex,
-            bytes32(uint256(int256(currentVal - step)))
+            ds, thisPartId, stateVariableIndex, stateVariableElmIndex, bytes32(uint256(int256(currentVal - step)))
         );
     }
 
@@ -157,10 +147,7 @@ contract PartKind {
         bytes32 val
     ) internal {
         ds.getDispatcher().dispatch(
-            abi.encodeCall(
-                Actions.SET_STATE_VAR_ON_PART,
-                (thisPartId, stateVariableIndex, stateVariableElmIndex, val)
-            )
+            abi.encodeCall(Actions.SET_STATE_VAR_ON_PART, (thisPartId, stateVariableIndex, stateVariableElmIndex, val))
         );
     }
 }
