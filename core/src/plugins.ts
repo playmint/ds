@@ -37,6 +37,7 @@ import { getBagsAtEquipee, getBuildingAtTile } from './utils';
 import { Logger } from './logger';
 
 const active = new Map<string, ActivePlugin>();
+//
 
 /**
  * makeAvailablePlugins polls for the list of deployed plugins every now and
@@ -120,21 +121,27 @@ export function makePluginUI(
                                 }
                                 const plugin = active.has(p.id)
                                     ? active.get(p.id)
-                                    : await loadPlugin(
+                                    : state.world.buildings.some((building) => building?.kind?.id === p.kindID)
+                                    ? await loadPlugin(
                                           sandbox,
                                           dispatch,
                                           logMessage,
                                           questMessage.with({ name: p.kindID }),
                                           p,
-                                      );
+                                      )
+                                    : null;
                                 if (!plugin) {
-                                    console.warn(`failed to get or load plugin ${p.id}`);
+                                    // no longer logs this now that it plugin's that are not in the world are undefined
+                                    // console.warn(`failed to get or load plugin ${p.id}`);
                                     return null;
                                 }
                                 active.set(p.id, plugin);
                                 return plugin.update();
                             } catch (err) {
                                 console.error(`plugin ${p.id}:`, err);
+                                console.log(`Removing plugin ${p.id} from 'active' due to error`);
+                                active.delete(p.id);
+                                console.log(`removed`);
                                 return null;
                             }
                         })

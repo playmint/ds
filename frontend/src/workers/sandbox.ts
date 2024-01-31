@@ -60,7 +60,7 @@ export async function init() {
 
     runtime = qjs.newRuntime();
     // runtime.setMemoryLimit(1024 * 640);
-    runtime.setMemoryLimit(86000);
+    runtime.setMemoryLimit(1024 * 640);
     runtime.setMaxStackSize(1024 * 320);
 
     pollPendingJobs();
@@ -73,48 +73,75 @@ export async function init() {
 }
 
 export async function setState(newState: GameStatePlugin, newBlock: number) {
+    console.log(runtime.dumpMemoryUsage());
+    contexts.forEach(async (context) => {
+        if (context && context.alive) {
+            // try {
+            //     context.dispose();
+            //     console.log(`Disposed context `, context);
+            // } catch (err) {
+            //     console.error(`Error disposing context `, context, err);
+            // }
+        }
+        if (context && context.alive) {
+            context.evalCode(`
+            globalThis.__state = ${JSON.stringify(newState)};
+            globalThis.__block = ${newBlock};
+        `);
+        }
+    });
+}
+
+/* PAST EXPERIMENTS:    
     //console.log('JOSH-TEST: compute: ', runtime.computeMemoryUsage());
     //console.log('JOSH-TEST: contexts key: ', contexts[0].global.value);
     //console.log('JOSH-TEST: runtime: ', runtime);
     //console.log('JOSH-TEST: runtime memory usage: ', runtime.dumpMemoryUsage());
     const totalMemoryUsed = extractMemoryUsedSize(runtime?.dumpMemoryUsage()); // <---- usefull... but figure out what to do with this
     console.log('Total memory used: ', totalMemoryUsed);
-    contexts.forEach((context) => {
-        console.log('content alive: ', context.alive);
-        if (totalMemoryUsed || 0 >= 86000 * contexts.length) {
-            context.dispose(); // <--- this is getting called immediately, then when a context is disposed it breaks
-        }
-        //console.log('context stuff: ', context.global.value);
-        //console.log('getMemory: ', context.getMemory(context.global.value));
-        //console.log('JOSH-TEST: context info: ', context);
-        //console.log('context global: ', context.global);
-        if (!context.alive) {
-            return; // restart if not alive?
-        }
-        context.evalCode(`
-            globalThis.__state = ${JSON.stringify(newState)};
-            globalThis.__block = ${newBlock};
-        `);
-    });
-}
 
-function extractMemoryUsedSize(memoryDump) {
-    const lines = memoryDump.split('\n');
+    //console.log('context stuff: ', context.global.value);
+    //console.log('getMemory: ', context.getMemory(context.global.value));
+    //console.log('JOSH-TEST: context info: ', context);
+    //console.log('context global: ', context.global);
 
-    for (const line of lines) {
-        if (line.includes('memory used')) {
-            // Extract the size value using regex
-            const match = line.match(/memory used\s+\d+\s+(\d+)/);
-            if (match && match[1]) {
-                return parseInt(match[1], 10);
+    console.log('content alive: ', context.alive);
+    if (totalMemoryUsed || 0 >= 86000 * contexts.length) {
+        context.dispose(); // <--- this is getting called immediately, then when a context is disposed it breaks
+    }
+
+    if (!context.alive) {
+        return; // restart if not alive?
+    }
+
+    const memoryUsageHandle = runtime.computeMemoryUsage();
+    const memoryUsage = context.dump(memoryUsageHandle);
+    memoryUsageHandle.dispose();
+
+    plugins.ts (line 122 ish):
+    // ONLY LOAD PLUGINS THAT ARE IN THE WORLD - FIGURE IT OUT, PROB LINE 127 INVESTIGATE
+    // console.log('active ', active);
+    // console.log('buildings ', state.world.buildings);
+    // console.log('test ', p);
+    // console.log('womp ', active.has(p.kindID));
+    // console.log('p.kindID, ', p.kindID);
+
+    // THIS DOESN'T WORK - After adding this, the 'strings' in runtime.dumpMemoryUsage() increases every iteration
+    function pluginInWorld(buildings, kindID) {
+        for (const building of buildings) {
+            if (building.kind.id === kindID) {
+                return true;
             }
         }
+        return false;
     }
-    return null;
-}
+*/
 
 export async function evalCode(contextID: number, code: string) {
     const context = contexts[contextID];
+    if (!context || !context.alive) {
+        return;
+    }
     const res = context.evalCode(code);
     const promiseHandle = context.unwrapResult(res);
     // Convert the promise handle into a native promise and await it.
