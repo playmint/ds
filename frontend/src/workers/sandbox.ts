@@ -60,7 +60,7 @@ export async function init() {
 
     runtime = qjs.newRuntime();
     // runtime.setMemoryLimit(1024 * 640);
-    runtime.setMemoryLimit(50000);
+    runtime.setMemoryLimit(1024 * 640 * 20);
     runtime.setMaxStackSize(1024 * 320);
 
     pollPendingJobs();
