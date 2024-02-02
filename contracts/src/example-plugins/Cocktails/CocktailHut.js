@@ -4,6 +4,11 @@ let UPDATE_COCKTAIL_MS = 100000;
 let lastUpdated = Date.now();
 let cocktail;
 
+/**
+ * Asynchronously fetches a random cocktail from an API if the current cocktail is outdated or not set.
+ * It ensures that the cocktail data is fetched at most once every UPDATE_COCKTAIL_MS milliseconds.
+ * @returns {string} A string describing the current cocktail and its ingredients.
+ */
 async function getCocktailOfTheMoment() {
     const now = Date.now();
     const recentlyUpdate = now - lastUpdated < UPDATE_COCKTAIL_MS;
@@ -25,6 +30,97 @@ async function getCocktailOfTheMoment() {
         drink.strIngredient5,
     ].filter((ing) => !!ing);
     return `${drink.strDrink}: ${ingriedients.join(", ")}`;
+}
+
+const BN_0 = BigInt(0);
+const BN_1 = BigInt(1);
+
+/**
+ * Converts a two's complement binary representation to a BigInt.
+ * @param {number|string} n - The two's complement binary number.
+ * @param {number} w - The width (in bits) of the binary number.
+ * @returns {BigInt} The BigInt representation of the binary number.
+ */
+function fromTwos(n, w) {
+    let value = BigInt(n);
+    let width = BigInt(w);
+    if (value >> (width - BN_1)) {
+        const mask = (BN_1 << width) - BN_1;
+        return -(((~value) & mask) + BN_1);
+    }
+    return value;
+}
+
+/**
+ * Converts a BigInt to a two's complement binary representation.
+ * @param {BigInt} _value - The BigInt number to convert.
+ * @param {number} _width - The desired width of the binary representation.
+ * @returns {BigInt} The two's complement binary representation of the value.
+ */
+function toTwos(_value, _width) {
+    let value = BigInt(_value);
+    let width = BigInt(_width);
+    const limit = (BN_1 << (width - BN_1));
+    if (value < BN_0) {
+        value = -value;
+        const mask = (BN_1 << width) - BN_1;
+        return ((~value) & mask) + BN_1;
+    }
+    return value;
+}
+
+/**
+ * Converts an integer value to a hexadecimal string of 16 bits width
+ * @param {number} value - The integer value to convert.
+ * @returns {string} A 4-character hexadecimal string representation of the value.
+ */
+function toInt16Hex(value) {
+    return ('0000'+toTwos(value, 16).toString(16)).slice(-4)
+}
+
+/**
+ * Decodes a tile ID into its q, r, s hexagonal coordinates.
+ * @param {string} tileId - The ID of the tile to decode.
+ * @returns {Array} An array containing the q, r, s coordinates of the tile.
+ */
+function getTileCoordsFromId(tileId) {
+    const coords = [...tileId]
+        .slice(2)
+        .reduce((bs, b, idx) => {
+            if (idx % 4 === 0) {
+                bs.push('0x');
+            }
+            bs[bs.length - 1] += b;
+            return bs;
+        }, [])
+        .map((n) => Number(fromTwos(n, 16)))
+        .slice(-3);
+    if (coords.length !== 3) {
+        throw new Error(`failed to get q,r,s from tile id ${tileId}`);
+    }
+    return coords;
+};
+
+/**
+ * Calculates the IDs of tiles neighboring a given building based on its location.
+@param {object} building - The building object containing location information.
+@returns {Array} An array of strings representing the IDs of the neighboring tiles.
+*/
+function getBuildingNeighbourTiles(building) {
+    const [q,r,s] = getTileCoordsFromId(building.location?.tile?.id);
+    const neighbourCoords = [
+        { q: q + 1, r: r, s: s - 1 },
+        { q: q + 1, r: r - 1, s: s },
+        { q: q, r: r - 1, s: s + 1 },
+        { q: q - 1, r: r, s: s + 1 },
+        { q: q - 1, r: r + 1, s: s },
+        { q: q, r: r + 1, s: s - 1 },
+    ];
+    const neighbourTileIds = neighbourCoords.map(({q,r,s}) => {
+        const prefix = "0xe5a62ffc";
+        return `${prefix}0000000000000000000000000000${toInt16Hex(q)}${toInt16Hex(r)}${toInt16Hex(s)}`;
+    });
+    return neighbourTileIds;
 }
 
 export default async function update({ selected, world }) {
@@ -67,34 +163,24 @@ export default async function update({ selected, world }) {
         ds.log("Enjoy your drink!");
     };
 
+    const mapObj = [];
+    if (selectedBuilding)
+    {
+        getBuildingNeighbourTiles(selectedBuilding).forEach((t) => {
+            mapObj.push(
+                {
+                    type: "tile",
+                    key: "color",
+                    id: `${t}`,
+                    value: "red",
+                }
+            );
+        });
+    }
+
     return {
         version: 1,
-        map: [
-            {
-                type: "building",
-                key: "label",
-                id: "0x32750923750",
-                value: "hello",
-            },
-            {
-                type: "tile",
-                key: "color",
-                id: "0xe5a62ffc0000000000000000000000000000000000000000",
-                value: "red",
-            },
-            {
-                type: "building",
-                id: "0x123",
-                key: "countdown-starts",
-                value: 100,
-            },
-            {
-                type: "building",
-                id: "0x123",
-                key: "countdown-ends",
-                value: 120,
-            },
-        ],
+        map: mapObj,
         components: [
             {
                 id: "cocktail-hut",
