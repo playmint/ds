@@ -11,11 +11,19 @@ See the [docs](./docs/README.md)
 <details>
 
 <summary>Running with Docker</summary>
-
+<br>
 If you only need a local copy of the game built (without development helpers
 like hot reloading etc), then the easist way is to provision using
 Docker Compose.
 
+**PLEASE NOTE:** If when trying to run Docker you hit this error:
+```
+hardware assisted virtualization and data execution protection must be enabled in the bios
+```
+You will need to enter your BIOS and activate Hardware Virtualisation. This is usually the case for AMD processors.
+
+
+Once Docker is set up, you need to build the unity map project first:
 ```
 docker compose up
 ```
@@ -43,38 +51,66 @@ Once ready, the client will be available at http://locahost:3000
 
 <details>
 
-<summary>Building from Source (For Development) - macOS/Linux</summary>
+<summary>Building from Source (For Development) - OSX</summary>
+<br>
 
+This guide provides a detailed, step-by-step process for OSX users who are setting up a development environment for the client.
 
-If you are working on the client, then you will need to build everything
-yourself.
+## What You Need
 
-You will need the following tools installed:
-
-- Javascript toolchain (node lts/gallium)
-- Go toolchain (go v1.19)
-- Solidity toolchain (foundry)
-- Ethereum binaries (abigen)
-- Git (The in-house frontend is Fork)
-- Git-LFS
-- Unity Editor (2021.3.13f1)
+These are the tools you will be installing:
+- **OS Tools:**
+  - Git
+  - Unity Editor 2021.3.13f1
   - Unity WebGL submodule
+- **CMD Tools:**
+  - make
+  - Foundry
+  - Abigen
+  - Node/NPM
+  - Go
 
-Make sure LFS is initialised and then clone this repository:
+Please refer to the instructions below for setup guidance.
 
-```
-git lfs version
-git clone --recurse-submodules https://github.com/playmint/ds.git
-```
+## Installation Instructions
+
+### 1. Install Unity (for OSX)
+- Install [Unity Hub](https://unity.com/download)
+- Install Unity Editor version 2021.3.13f1 via [Unity LTS archive](https://unity.com/releases/editor/qa/lts-releases?version=2021.3)
+	- Use `Applications/Unity/Hub/Editor/2021.3.13f1` as your install path **(be sure to change the default path and folder name)**
+	- Install WebGL submodule
 
 
-build and start the client and supporting services in development mode run:
+### 2. Clone the Repository
+- **Install Git:** Visit [Git SCM](https://git-scm.com/download/mac) for download and installation.
+- **Install Git-LFS:*** Visit [Git-LFS](https://git-lfs.com/)
+- **Initialise Git-LFS:** Run the following command:
+  ```
+  git lfs install
+  ```
+- **Clone the Repository:** Use the following command:
+  ```
+  git clone --recurse-submodules https://github.com/playmint/ds
+  ```
 
-```
-make dev
-```
+### 3. Install Foundry
+- **Install Foundry:** Visit [Foundry](https://book.getfoundry.sh/getting-started/installation)
 
-Client will be available at localhost:3000
+### 4. Install Abigen
+- **Install Abigen:** Visit [Abigen](https://geth.ethereum.org/downloads)
+
+### 5. Install NPM 
+- **Install NPM:** Visit [NPM Docs](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+
+### 6. Install Go 
+- **Install Go:** Visit [Go](https://go.dev/doc/install)
+
+### 7. Build & Run
+- In the ds directory, run
+  ```
+  make dev
+  ```
+- In your browser, open `http://localhost:3000/`
 
 </details>
 
@@ -82,6 +118,7 @@ Client will be available at localhost:3000
 
 <summary>Building from Source (For Development) - Windows</summary>
 
+<br>
 This guide provides a detailed, step-by-step process for Windows users who are setting up a development environment for the client.
 
 ## What You Need
@@ -111,8 +148,13 @@ Please refer to the instructions below for setup guidance.
 
 
 ### 2. Clone the Repository
-- **Install Git:** Visit [Git SCM](https://git-scm.com/download/win) for download and installation.
-- **Clone the Repository:** Use the following command, **(do not clone within WSL)**:
+- **Install Git:** Visit [Git SCM](https://git-scm.com/download/mac) for download and installation.
+- **Install Git-LFS:*** Visit [Git-LFS](https://git-lfs.com/)
+- **Initialise Git-LFS:** Run the following command:
+  ```
+  git lfs install
+  ```
+- **Clone the Repository:** Use the following command:
   ```
   git clone --recurse-submodules https://github.com/playmint/ds
   ```
@@ -189,7 +231,7 @@ Please refer to the instructions below for setup guidance.
 <details>
 
 <summary>Building from source (for production)</summary>
-
+<br>
 Github Actions will build production ready Docker images on merge to `main`
 available: ghcr.io/playmint/ds
 
