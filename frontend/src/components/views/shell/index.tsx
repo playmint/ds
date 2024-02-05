@@ -287,6 +287,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         randomTileProperties={tileColorsModifiedByPlugins}
                     />
                     <MobileUnits
+                        currentBlock={world?.block || 0}
                         mobileUnits={world?.mobileUnits}
                         buildings={world?.buildings || []}
                         onClickMobileUnit={mobileUnitClick}

@@ -4,6 +4,7 @@ import { WorldBuildingFragment, WorldMobileUnitFragment, getCoords } from '@down
 import { memo, useCallback, useMemo, useState } from 'react';
 import Icon from './Icon';
 import { getBuildingAtTile } from '@downstream/core/src/utils';
+import { BLOCK_TIME_SECS } from '@app/fixtures/block-time-secs';
 
 // public int q;
 // public int r;
@@ -13,6 +14,10 @@ import { getBuildingAtTile } from '@downstream/core/src/utils';
 // public string? selected; // ={none/highlight/outline}
 // public bool shared; //  ie sharing with a building
 // public bool visible;
+
+export const DEBUG_ALWAYS_SHOW_UNITS = false;
+export const UNIT_DISPLAY_TIMEOUT_SECS = 60 * 30;
+export const UNIT_DISPLAY_TIMEOUT_BLOCK_COUNT = Math.floor(UNIT_DISPLAY_TIMEOUT_SECS / BLOCK_TIME_SECS);
 
 export interface MobileUnitData {
     q: number;
@@ -131,12 +136,14 @@ export const MobileUnit = memo(
 
 export const MobileUnits = memo(
     ({
+        currentBlock,
         mobileUnits,
         buildings,
         selectedMobileUnitID,
         onClickMobileUnit,
         playerID,
     }: {
+        currentBlock: number;
         mobileUnits?: WorldMobileUnitFragment[];
         buildings: WorldBuildingFragment[];
         selectedMobileUnitID?: string;
@@ -153,6 +160,20 @@ export const MobileUnits = memo(
             const counts = new Map<string, { count: number }>();
             return (mobileUnits || [])
                 .filter((u) => !!u.nextLocation?.tile)
+                .filter((u) => {
+                    if (DEBUG_ALWAYS_SHOW_UNITS) return true;
+
+                    // Always show player unit so they can be selected
+                    const isPlayerUnit = u.owner?.id == playerID;
+                    if (isPlayerUnit) return true;
+
+                    if (!u.nextLocation) {
+                        throw new Error('missing location');
+                    }
+
+                    // Hide units if they haven't moved in `UNIT_DISPLAY_TIMEOUT_BLOCK_COUNT` blocks;
+                    return currentBlock - u.nextLocation.time < UNIT_DISPLAY_TIMEOUT_BLOCK_COUNT;
+                })
                 .map((u) => {
                     const tile = u.nextLocation?.tile;
                     if (!tile) {
@@ -169,7 +190,7 @@ export const MobileUnits = memo(
                     const atBuilding = !!building;
                     return { ...u, visible, isPlayer, coords, counter, height, atBuilding };
                 });
-        }, [mobileUnits, playerID, buildings]);
+        }, [mobileUnits, playerID, currentBlock, buildings]);
 
         const unitComponents = useMemo(
             () =>
