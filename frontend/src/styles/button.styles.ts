@@ -34,6 +34,9 @@ export const TextButton = styled.button`
     color: ${colorMap.primaryButtonText};
     font-size: 1.6rem;
     font-weight: 800;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 `;
 
 export const ActionButton = styled(TextButton)`
