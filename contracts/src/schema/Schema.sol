@@ -18,6 +18,8 @@ interface Rel {
     function Output() external;
     function Has() external;
     function Combat() external;
+    function CombatAttacker() external;
+    function CombatDefender() external;
     function IsFinalised() external;
     function HasTask() external;
     function HasQuest() external;
@@ -82,6 +84,11 @@ enum QuestStatus {
 enum BuildingBlockNumKey {
     CONSTRUCTION,
     EXTRACTION
+}
+
+enum CombatSideKey {
+    ATTACK,
+    DEFENCE
 }
 
 int16 constant DEFAULT_ZONE = 0;
@@ -520,5 +527,27 @@ library Schema {
 
     function getDataUint256(State state, bytes24 nodeID, string memory key) external view returns (uint256) {
         return uint256(state.getData(nodeID, key));
+    }
+
+    function getAttacker(State state, bytes24 sessionID, uint8 index) external view returns (bytes24) {
+        (bytes24 unitID, /*uint64 blockNum*/ ) = state.get(Rel.CombatAttacker.selector, index, sessionID);
+        return unitID;
+    }
+
+    function setAttacker(State state, bytes24 sessionID, uint8 index, bytes24 unitID, uint64 blockNum) external {
+        state.set(Rel.CombatAttacker.selector, index, sessionID, unitID, blockNum);
+    }
+
+    function getDefender(State state, bytes24 sessionID, uint8 index) external view returns (bytes24) {
+        (bytes24 unitID, /*uint64 blockNum*/ ) = state.get(Rel.CombatDefender.selector, index, sessionID);
+        return unitID;
+    }
+
+    function setDefender(State state, bytes24 sessionID, uint8 index, bytes24 unitID, uint64 blockNum) external {
+        state.set(Rel.CombatDefender.selector, index, sessionID, unitID, blockNum);
+    }
+
+    function getAttackTile(State state, bytes24 sessionID) external view returns (bytes24 tileID, uint64 startBlock) {
+        return state.get(Rel.Has.selector, uint8(CombatSideKey.ATTACK), sessionID);
     }
 }

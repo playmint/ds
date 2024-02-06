@@ -119,11 +119,7 @@ interface Actions {
         bytes24[] calldata defenders
     ) external;
 
-    function FINALISE_COMBAT(
-        bytes24 sessionID,
-        CombatAction[][] calldata sessionUpdates,
-        uint32[] calldata sortedListIndexes
-    ) external;
+    function FINALISE_COMBAT(bytes24 sessionID) external;
 
     function NAME_OWNED_ENTITY(bytes24 entity, string calldata name) external;
     function DESCRIBE_OWNED_ENTITY(bytes24 entity, string calldata shortDescription) external;
