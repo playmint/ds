@@ -142,6 +142,8 @@ export function makePluginUI(
                                 console.log(`Removing plugin ${p.id} from 'active' due to error`);
                                 active.delete(p.id);
                                 console.log(`removed`);
+                                // NEED TO *UNLOAD* PLUGIN FROM CONTEXT - DESTROY CONTEXT
+                                // use p.id to call from sandbox to delete context properly
                                 return null;
                             }
                         })
