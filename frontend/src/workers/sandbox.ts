@@ -77,6 +77,7 @@ export async function init() {
 export async function disposeRuntime() {
     // renamed branch
     if (!runtime) return;
+    console.log('runtime before: ', await runtime.dumpMemoryUsage());
     console.log('%c DISPOSING CONTEXTS & RUNTIME...', 'background: #222; color: #bada55');
     const disposeContextPromises = contexts.map((ctx) => {
         return new Promise((resolve, reject) => {
@@ -98,19 +99,19 @@ export async function disposeRuntime() {
     //contexts = [];
 
     try {
-        clearTimeout(pollPendingJobsTimeout);
-        console.log('%c cleared pending jobs timeout (remove this later?)...', 'background: #222; color: #bada55');
+        //clearTimeout(pollPendingJobsTimeout);
+        //console.log('%c cleared pending jobs timeout (remove this later?)...', 'background: #222; color: #bada55');
     } catch (err) {
         console.error('Error clearing pollPendingJobs timeout: ', err);
     }
     try {
-        // console.log('runtime has pending stuff? ', runtime.hasPendingJob());
-        console.log('runtime: ', runtime);
-        runtime.dispose(); // Error disposing runtime:  RuntimeError: Aborted(Assertion failed: list_empty(&rt->gc_obj_list), at: quickjs/quickjs.c,1983,JS_FreeRuntime).
-        console.log('%c runtime disposed successfully...', 'background: #222; color: #bada55');
+        await init();
+        console.log('%c runtime re-initialized successfully...', 'background: #222; color: #bada55');
     } catch (err) {
         console.error('Error disposing runtime: ', err);
     }
+
+    console.log('runtime after: ', await runtime.dumpMemoryUsage());
 }
 
 // can also die at update time
