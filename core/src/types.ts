@@ -26,12 +26,15 @@ export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<T>;
 
 export interface Sandbox {
     init: () => Promise<void>;
+    disposeRuntime;
     newContext: (
         dispatch: PluginDispatchFunc,
         logMessage: Logger,
         questMessage: Logger,
         config: PluginConfig,
     ) => Promise<number>;
+    deleteContext;
+    hasContext;
     evalCode: (context: number, code: string) => Promise<any>;
     setState: (state: GameStatePlugin, blk: number) => Promise<void>;
 }

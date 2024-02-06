@@ -144,6 +144,7 @@ export function makePluginUI(
                                 console.log(`removed`);
                                 // NEED TO *UNLOAD* PLUGIN FROM CONTEXT - DESTROY CONTEXT
                                 // use p.id to call from sandbox to delete context properly
+                                sandbox.deleteContext(p.id);
                                 return null;
                             }
                         })
@@ -333,12 +334,17 @@ export async function loadPlugin(
         );
 
         try {
+            const _pluginResponse = (await sandbox.hasContext(context)) === true ? pluginResponse : {};
             return {
                 config,
-                state: apiv1.normalizePluginState(pluginResponse, submitProxy),
+                state: apiv1.normalizePluginState(_pluginResponse, submitProxy),
             };
         } catch (err) {
             console.error('plugin did not return an expected response object:', err);
+            // call sandbox dispose all
+            if (String(err).includes('memory')) {
+                await sandbox.disposeRuntime();
+            }
             return {
                 config,
                 state: apiv1.normalizePluginState({}, submitProxy),

@@ -12,7 +12,9 @@ import { ethers } from 'ethers';
 
 let runtime: QuickJSRuntime;
 
-let contexts: QuickJSContext[] = [];
+const contexts: QuickJSContext[] = [];
+
+let pollPendingJobsTimeout;
 
 // wrapper functions loaded by the fake 'downstream' module within the guest
 // to make it feel like a "normal" library import and potentially keep compatibility
@@ -52,7 +54,7 @@ function pollPendingJobs() {
         runtime.executePendingJobs(1);
     }
     const ms = runtime.hasPendingJob() ? 0 : 100;
-    setTimeout(() => pollPendingJobs(), ms);
+    pollPendingJobsTimeout = setTimeout(() => pollPendingJobs(), ms);
 }
 
 export async function init() {
@@ -72,17 +74,39 @@ export async function init() {
     // });
 }
 
-function disposeRuntime() {
+export async function disposeRuntime() {
     if (!runtime) return;
+    console.log('%c DISPOSING CONTEXTS & RUNTIME...', 'background: #222; color: #bada55');
+    const disposeContextPromises = contexts.map((ctx) => {
+        return new Promise((resolve, reject) => {
+            try {
+                ctx.dispose();
+                resolve(ctx);
+            } catch (err) {
+                reject(err);
+            }
+        });
+    });
+
     try {
-        contexts.forEach((ctx) => ctx.dispose());
+        await Promise.all(disposeContextPromises);
+        console.log('%c contexts disposed successfully...', 'background: #222; color: #bada55');
     } catch (err) {
         console.error('Error disposing contexts: ', err);
     }
-    contexts = [];
+    //contexts = [];
+
     try {
-        console.log('runtime has pending stuff? ', runtime.hasPendingJob());
+        clearTimeout(pollPendingJobsTimeout);
+        console.log('%c cleared pending jobs timeout (remove this later?)...', 'background: #222; color: #bada55');
+    } catch (err) {
+        console.error('Error clearing pollPendingJobs timeout: ', err);
+    }
+    try {
+        // console.log('runtime has pending stuff? ', runtime.hasPendingJob());
+        console.log('runtime: ', runtime);
         runtime.dispose(); // Error disposing runtime:  RuntimeError: Aborted(Assertion failed: list_empty(&rt->gc_obj_list), at: quickjs/quickjs.c,1983,JS_FreeRuntime).
+        console.log('%c runtime disposed successfully...', 'background: #222; color: #bada55');
     } catch (err) {
         console.error('Error disposing runtime: ', err);
     }
@@ -110,7 +134,7 @@ export async function setState(newState: GameStatePlugin, newBlock: number) {
                 if (String(err).includes('memory access out of bounds')) {
                     // Now try to dispose contexts/runtime?
                     try {
-                        disposeRuntime();
+                        await disposeRuntime();
                         return;
                     } catch (errr) {
                         console.error('Could not dispose... ', errr);
@@ -121,50 +145,19 @@ export async function setState(newState: GameStatePlugin, newBlock: number) {
     });
 }
 
-/* PAST EXPERIMENTS:    
-    //console.log('JOSH-TEST: compute: ', runtime.computeMemoryUsage());
-    //console.log('JOSH-TEST: contexts key: ', contexts[0].global.value);
-    //console.log('JOSH-TEST: runtime: ', runtime);
-    //console.log('JOSH-TEST: runtime memory usage: ', runtime.dumpMemoryUsage());
-    const totalMemoryUsed = extractMemoryUsedSize(runtime?.dumpMemoryUsage()); // <---- usefull... but figure out what to do with this
-    console.log('Total memory used: ', totalMemoryUsed);
-
-    //console.log('context stuff: ', context.global.value);
-    //console.log('getMemory: ', context.getMemory(context.global.value));
-    //console.log('JOSH-TEST: context info: ', context);
-    //console.log('context global: ', context.global);
-
-    console.log('content alive: ', context.alive);
-    if (totalMemoryUsed || 0 >= 86000 * contexts.length) {
-        context.dispose(); // <--- this is getting called immediately, then when a context is disposed it breaks
+export function deleteContext(contextID: number) {
+    try {
+        contexts[contextID].dispose();
+        console.log('just disposed context ', contextID);
+    } catch (err) {
+        console.error(`error disposing context ${contextID} `, err);
     }
+}
 
-    if (!context.alive) {
-        return; // restart if not alive?
-    }
-
-    const memoryUsageHandle = runtime.computeMemoryUsage();
-    const memoryUsage = context.dump(memoryUsageHandle);
-    memoryUsageHandle.dispose();
-
-    plugins.ts (line 122 ish):
-    // ONLY LOAD PLUGINS THAT ARE IN THE WORLD - FIGURE IT OUT, PROB LINE 127 INVESTIGATE
-    // console.log('active ', active);
-    // console.log('buildings ', state.world.buildings);
-    // console.log('test ', p);
-    // console.log('womp ', active.has(p.kindID));
-    // console.log('p.kindID, ', p.kindID);
-
-    // THIS DOESN'T WORK - After adding this, the 'strings' in runtime.dumpMemoryUsage() increases every iteration
-    function pluginInWorld(buildings, kindID) {
-        for (const building of buildings) {
-            if (building.kind.id === kindID) {
-                return true;
-            }
-        }
-        return false;
-    }
-*/
+export async function hasContext(contextID: number) {
+    const context = contexts[contextID];
+    return context?.alive;
+}
 
 export async function evalCode(contextID: number, code: string) {
     const context = contexts[contextID];
@@ -185,6 +178,14 @@ export async function evalCode(contextID: number, code: string) {
         return JSON.parse(responseJSON);
     } catch (err) {
         console.error('plugin did not return an expected response object:', err);
+        if (String(err).includes('memory')) {
+            try {
+                await disposeRuntime();
+                return;
+            } catch (errr) {
+                console.error('Could not dispose... ', errr);
+            }
+        }
         return {};
     }
 }
@@ -496,6 +497,6 @@ export async function newContext(
     return contextID;
 }
 
-const sandbox: Sandbox = { init, newContext, evalCode, setState };
+const sandbox: Sandbox = { init, disposeRuntime, newContext, deleteContext, hasContext, evalCode, setState };
 
 Comlink.expose(sandbox);
