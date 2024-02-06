@@ -1,3 +1,4 @@
+import { BLOCK_TIME_SECS } from '@app/fixtures/block-time-secs';
 import { getGooPerSec } from '@app/helpers/tile';
 import { useBlock } from '@app/hooks/use-game-state';
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
@@ -57,7 +58,7 @@ export const ExtractorBuilding = memo(
 
         // Calculate extracted goo and sum with previously extracted goo
         const GOO_RESERVOIR_MAX = 500;
-        const BLOCK_TIME_SECS = 2;
+
         const elapsedSecs = lastExtraction && blockNumber ? (blockNumber - lastExtraction) * BLOCK_TIME_SECS : 0;
         const extractedGoo = atoms
             .map((atomVal) => Math.floor(getGooPerSec(atomVal) * elapsedSecs))
