@@ -108,7 +108,7 @@ export async function disposeRuntime() {
         await init();
         console.log('%c runtime re-initialized successfully...', 'background: #222; color: #bada55');
     } catch (err) {
-        console.error('Error disposing runtime: ', err);
+        console.error('Error re-initializing runtime: ', err);
     }
 
     console.log('runtime after: ', await runtime.dumpMemoryUsage());
