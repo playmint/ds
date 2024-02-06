@@ -75,6 +75,7 @@ export async function init() {
 }
 
 export async function disposeRuntime() {
+    // renamed branch
     if (!runtime) return;
     console.log('%c DISPOSING CONTEXTS & RUNTIME...', 'background: #222; color: #bada55');
     const disposeContextPromises = contexts.map((ctx) => {
