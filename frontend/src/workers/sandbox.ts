@@ -60,7 +60,7 @@ export async function init() {
 
     runtime = qjs.newRuntime();
     // runtime.setMemoryLimit(1024 * 640);
-    runtime.setMemoryLimit(1024 * 640 * 20);
+    runtime.setMemoryLimit(46000);
     runtime.setMaxStackSize(1024 * 320);
 
     pollPendingJobs();
@@ -74,13 +74,23 @@ export async function init() {
 
 function disposeRuntime() {
     if (!runtime) return;
-    contexts.forEach((ctx) => ctx.dispose());
+    try {
+        contexts.forEach((ctx) => ctx.dispose());
+    } catch (err) {
+        console.error('Error disposing contexts: ', err);
+    }
     contexts = [];
-    // runtime.dispose(); // need to dipose everything inside runtime first?
+    try {
+        console.log('runtime has pending stuff? ', runtime.hasPendingJob());
+        runtime.dispose(); // Error disposing runtime:  RuntimeError: Aborted(Assertion failed: list_empty(&rt->gc_obj_list), at: quickjs/quickjs.c,1983,JS_FreeRuntime).
+    } catch (err) {
+        console.error('Error disposing runtime: ', err);
+    }
 }
 
+// can also die at update time
 export async function setState(newState: GameStatePlugin, newBlock: number) {
-    console.log(runtime.dumpMemoryUsage());
+    //console.log(runtime.dumpMemoryUsage());
     contexts.forEach(async (context) => {
         if (context && context.alive) {
             // try {
@@ -91,10 +101,22 @@ export async function setState(newState: GameStatePlugin, newBlock: number) {
             // }
         }
         if (context && context.alive) {
-            context.evalCode(`
-            globalThis.__state = ${JSON.stringify(newState)};
-            globalThis.__block = ${newBlock};
-        `);
+            try {
+                context.evalCode(`
+                globalThis.__state = ${JSON.stringify(newState)};
+                globalThis.__block = ${newBlock};
+            `);
+            } catch (err) {
+                if (String(err).includes('memory access out of bounds')) {
+                    // Now try to dispose contexts/runtime?
+                    try {
+                        disposeRuntime();
+                        return;
+                    } catch (errr) {
+                        console.error('Could not dispose... ', errr);
+                    }
+                }
+            }
         }
     });
 }
