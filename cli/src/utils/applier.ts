@@ -367,18 +367,13 @@ const questDeploymentActions = async (
 };
 
 const getBuildingKindIDByName = (existingBuildingKinds, pendingBuildingKinds, name: string) => {
-    const foundBuildingKinds = existingBuildingKinds.filter(
-        ({ kind, spec }) => kind === 'BuildingKind' && spec.name === name
-    );
+    const foundBuildingKinds = existingBuildingKinds.filter((buildingKind) => buildingKind.name?.value === name);
     if (foundBuildingKinds.length === 1) {
-        const manifest = foundBuildingKinds[0];
-        if (manifest.kind !== 'BuildingKind') {
-            throw new Error(`unexpect kind`);
-        }
-        if (!manifest.status || !manifest.status.id) {
+        const buildingKind = foundBuildingKinds[0];
+        if (!buildingKind.id) {
             throw new Error(`missing status.id field for BuildingKind ${name}`);
         }
-        return manifest.status.id;
+        return buildingKind.id;
     } else if (foundBuildingKinds.length > 1) {
         throw new Error(
             `BuildingKind ${name} is ambiguous, found ${foundBuildingKinds.length} existing BuildingKinds with that name`
