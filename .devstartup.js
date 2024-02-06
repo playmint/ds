@@ -10,7 +10,7 @@ const { execSync } = require("child_process");
 const SEQUENCER_PRIVATE_KEY = "095a37ef5b5d87db7fe50551725cb64804c8c554868d3d729c0dd17f0e664c87";
 const DEPLOYER_PRIVATE_KEY = "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff9524d487fb5d57a8";
 
-let MAP_VAR = (process.argv[2] || "../fixtures").toLowerCase();
+let MAP_VAR = (process.argv[2] || "../maps/default").toLowerCase();
 // if undefined default to 1, value is capped at 25
 const ARENAS_VAR = Math.min(Number(process.argv[3] || 1), 25);
 

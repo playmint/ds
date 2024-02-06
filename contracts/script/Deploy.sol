@@ -79,7 +79,7 @@ contract GameDeployer is Script {
 
     function _loadAllowList(address deployer) private view returns (address[] memory) {
         string memory root = vm.projectRoot();
-        string memory path = string.concat(root, "/src/fixtures/allowlist.json");
+        string memory path = string.concat(root, "/src/common/allowlist.json");
         string memory json = vm.readFile(path);
         address[] memory addresses = abi.decode(vm.parseJson(json, ".players"), (address[]));
         if (addresses.length == 0) {

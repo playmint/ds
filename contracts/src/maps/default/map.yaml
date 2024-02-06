@@ -1,0 +1,6 @@
+
+---
+kind: Tile
+spec:
+  location: [ 0, 0, 0 ]
+  biome: DISCOVERED
