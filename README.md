@@ -191,3 +191,29 @@ docker build -t ghcr.io/playmint/ds:latest .
 ```
 
 </details>
+
+<details>
+
+<summary>Running Local with different Map Setups</summary>
+<br>
+By Default, running `Make Dev` will spawn a one hex sized map. In order to deploy locally with a different map, there are a few options
+
+### 1. Using Playmint's Maps
+Inside of the `ds/contracts/src/maps/` folder, you will find a few premade maps  by Playmint. In order to force one of these maps to be deployed with a `make dev`, you will need to add the MAP=$ arg to your command. Here are the currently supported MAP args in context:
+
+`MAP=tiny make dev
+MAP=quest-map make dev
+MAP=default make dev`
+
+### 2. Apply a map after deploying
+After doing a standard make dev, you can run the DS apply command and point it at one of the map folders. For example: `ds apply -R -f ./contracts/src/maps/quest-map/`
+
+### 3. Build your own map and deploy it
+First up, you will need to run a `make dev` and then visit `http://localhost:3000/tile-fabricator`
+
+Once in the Tile Fabricator, you can design and export a map file. 
+
+If you then rename the .yml file to a .yaml and move it to your desired location, you will be able to run the ds apply command, like so:
+`ds apply -R -f ./path/to/mymap.yaml`
+
+</details>
