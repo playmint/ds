@@ -213,7 +213,7 @@ First up, you will need to run a `make dev` and then visit `http://localhost:300
 
 Once in the Tile Fabricator, you can design and export a map file. 
 
-If you then rename the .yml file to a .yaml and move it into a new folder within `ds/contracts/src/maps/`, you will be able to run the ds apply command, like so:
-`ds apply -R -f ./contracts/src/maps/quest-map/$YOUR-FOLDER-NAME`
+If you then rename the .yml file to a .yaml and move it to your desired location, you will be able to run the ds apply command, like so:
+`ds apply -R -f ./path/to/mymap.yaml`
 
 </details>
