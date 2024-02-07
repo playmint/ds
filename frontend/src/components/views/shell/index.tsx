@@ -1,4 +1,4 @@
-import { BagFragment, QUEST_STATUS_ACCEPTED, WorldTileFragment } from '@app/../../core/src';
+import { BagFragment, CogAction, QUEST_STATUS_ACCEPTED, WorldTileFragment } from '@app/../../core/src';
 import { Bags } from '@app/components/map/Bag';
 import { Buildings } from '@app/components/map/Buildings';
 import { CombatSessions } from '@app/components/map/CombatSession';
@@ -72,6 +72,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             (player?.quests || []).filter((q) => q.status == QUEST_STATUS_ACCEPTED).sort((a, b) => a.key - b.key) || []
         );
     }, [player?.quests]);
+    const unfinalisedCombatSessions = (world?.sessions || []).filter((s) => !s.isFinalised);
 
     // console.log(ui);
     const tileColorsModifiedByPlugins =
@@ -232,6 +233,22 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 break;
         }
     }, [selectTiles, selectedMapElement, selectedMobileUnit, tiles, world]);
+
+    // Auto finalise combat
+    useEffect(() => {
+        if (!player) {
+            return;
+        }
+
+        const finaliseActions = unfinalisedCombatSessions.map(
+            (s) =>
+                ({
+                    name: 'FINALISE_COMBAT',
+                    args: [s.id],
+                } as CogAction)
+        );
+        player.dispatchAndWait(...finaliseActions).catch((err) => console.warn(err));
+    }, [unfinalisedCombatSessions, player]);
 
     const tileClick = useCallback(
         (id) => {
