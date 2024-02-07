@@ -24,6 +24,11 @@ You will need to enter your BIOS and activate Hardware Virtualisation. This is u
 
 
 Once Docker is set up, you need to build the unity map project first:
+
+Once Docker is set up, you need to build the unity map project first:
+Once Docker is set up, you need to build the unity map project first (Check the
+"Running Local with different Map Setups" section for deploying diffeent maps):
+
 ```
 docker compose up
 ```
@@ -251,11 +256,15 @@ By Default, running `Make Dev` will spawn a one hex sized map. In order to deplo
 
 ### 1. Using Playmint's Maps
 
-Inside of the `ds/contracts/src/maps/` folder, you will find a few premade maps  by Playmint. In order to force one of these maps to be deployed with a `make dev`, you will need to add the MAP=$ arg to your command. Here are the currently supported MAP args in context:
+Inside of the `ds/contracts/src/maps/` folder, you will find a few premade mapsby Playmint. 
+In order to force one of these maps to be deployed with a `make dev`, you will need to add 
+the MAP=$ arg to your command. Here are the currently supported MAP args in context:
 
-`MAP=tiny make dev
+```
+MAP=tiny make dev
 MAP=quest-map make dev
-MAP=default make dev`
+MAP=default make dev
+```
 
 ### 2. Apply a map after deploying
 
@@ -281,5 +290,10 @@ NUM_ARENAS=4 make contracts/src/maps/performance-test
 ...this generates a map configuration in `contracts/src/maps/performance-test`
 
 You can then either start locally via `MAP=performance-test make dev` or manually `ds apply -R -f contracts/src/maps/performance-test`
+### PLEASE NOTE: 
+If you have built the map during the `make dev` flow and since, there have been changes in the Unity scene
+you will need to rebuild the map. To do this, it is advices to run the `make clean` command to clean up
+your work space. Once you are done, you can either build everything again with `make dev` or you can just
+build the map by using the `make map` command.
 
 </details>
