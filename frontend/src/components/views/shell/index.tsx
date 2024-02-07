@@ -72,7 +72,9 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             (player?.quests || []).filter((q) => q.status == QUEST_STATUS_ACCEPTED).sort((a, b) => a.key - b.key) || []
         );
     }, [player?.quests]);
-    const unfinalisedCombatSessions = (world?.sessions || []).filter((s) => !s.isFinalised);
+    const unfinalisedCombatSessions = (world?.sessions || []).filter(
+        (s) => !s.isFinalised && blockNumber && blockNumber >= (s.attackTile?.startBlock || 0)
+    );
 
     // console.log(ui);
     const tileColorsModifiedByPlugins =
@@ -247,7 +249,11 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     args: [s.id],
                 } as CogAction)
         );
-        player.dispatchAndWait(...finaliseActions).catch((err) => console.warn(err));
+
+        if (finaliseActions.length > 0) {
+            // FIXME: Would this lock up combat entirely if one of the combats couldn't resolve for some reason?
+            // player.dispatchAndWait(...finaliseActions).catch((err) => console.warn(err));
+        }
     }, [unfinalisedCombatSessions, player]);
 
     const tileClick = useCallback(

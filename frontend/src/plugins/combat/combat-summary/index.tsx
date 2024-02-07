@@ -9,7 +9,7 @@ import {
 } from '@app/../../core/src';
 import { Dialog } from '@app/components/molecules/dialog';
 import { ATOM_LIFE, Combat, CombatWinState, EntityState } from '@app/plugins/combat/combat';
-import { convertCombatActions, getActions } from '@app/plugins/combat/helpers';
+import { convertCombatActions, getActions, getMaterialStats, getMobileUnitStats } from '@app/plugins/combat/helpers';
 import { ProgressBar } from '@app/plugins/combat/progress-bar';
 import { ComponentProps } from '@app/types/component-props';
 import { getSessionsAtTile } from '@downstream/core/src/utils';
@@ -34,16 +34,19 @@ const StyledCombatSummary = styled(StyledHeaderPanel)`
 
 export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: CombatSummaryProps) => {
     const { selectedTiles, world, blockNumber, player } = props;
-    const sessions = world?.sessions || [];
 
-    // const [modal, setModal] = useState<boolean>(false);
-    // const showModal = useCallback(() => {
-    //     setModal(true);
-    // }, []);
+    const [modal, setModal] = useState<boolean>(false);
+    const showModal = useCallback(() => {
+        setModal(true);
+    }, []);
 
-    // const closeModal = useCallback(() => {
-    //     setModal(false);
-    // }, []);
+    const closeModal = useCallback(() => {
+        setModal(false);
+    }, []);
+
+    if (!world) return null;
+
+    const sessions = world.sessions || [];
 
     const handleFinaliseCombat = () => {
         if (!latestSession) {
@@ -78,29 +81,47 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
 
     const hasCombatStarted = blockNumber >= latestSession.attackTile.startBlock;
 
-    // const combat = new Combat(); // Is a class because it was converted from solidity
-    // const combatState = combat.calcCombatState(convertedActions, orderedListIndexes, blockNumber);
+    // Find all units/buildings present on the two combat tiles
+    const attackUnits = world.mobileUnits.filter((u) => u.nextLocation?.tile.id == latestSession.attackTile?.tile.id);
+    const attackBuildings = world.buildings.filter((b) => b.location?.tile.id == latestSession.attackTile?.tile.id);
+    const defenceUnits = world.mobileUnits.filter((u) => u.nextLocation?.tile.id == latestSession.defenceTile?.tile.id);
+    const defenceBuildings = world.buildings.filter((b) => b.location?.tile.id == latestSession.defenceTile?.tile.id);
 
-    // TODO: Need to sum stats by looking in inventories instead of combat actions
-    // const sumStats = (
-    //     [participantsMaxHealth, participantsCurrentHealth]: number[],
-    //     { stats, damage, isPresent }: EntityState
-    // ) => {
-    //     const maxHealth = isPresent ? stats[ATOM_LIFE] : 0;
-    //     const currentHealth = isPresent ? Math.max(stats[ATOM_LIFE] - damage, 0) : 0;
-    //     return [participantsMaxHealth + maxHealth, participantsCurrentHealth + currentHealth];
-    // };
-    // const [attackersMaxHealth, attackersCurrentHealth] = combatState.attackerStates.reduce(sumStats, [0, 0]);
-    // const [defendersMaxHealth, defendersCurrentHealth] = combatState.defenderStates.reduce(sumStats, [0, 0]);
+    // Get attack stats
+    const attackersStats = attackUnits
+        .map((u) => {
+            const [life, def, atk] = getMobileUnitStats(u, world.bags);
+            return { life, def, atk };
+        })
+        .concat(
+            attackBuildings.map((b) => {
+                const [life, def, atk] = getMaterialStats(b.kind?.materials || []);
+                return { life, def, atk };
+            })
+        );
 
-    const attackersMaxHealth = 100;
-    const attackersCurrentHealth = 100;
-    const defendersMaxHealth = 100;
-    const defendersCurrentHealth = 100;
+    // Get defence stats
+    const defendersStats = defenceUnits
+        .map((u) => {
+            const [life, def, atk] = getMobileUnitStats(u, world.bags);
+            return { life, def, atk };
+        })
+        .concat(
+            defenceBuildings.map((b) => {
+                const [life, def, atk] = getMaterialStats(b.kind?.materials || []);
+                return { life, def, atk };
+            })
+        );
+
+    // Sum up health state for both sides
+    const attackersMaxHealth = attackersStats.reduce((acc, stats) => acc + stats.life, 0);
+    const attackersCurrentHealth = attackersMaxHealth;
+    const defendersMaxHealth = defendersStats.reduce((acc, stats) => acc + stats.life, 0);
+    const defendersCurrentHealth = defendersMaxHealth;
 
     return (
         <StyledCombatSummary>
-            {/* {modal && player && world && blockNumber && (
+            {modal && player && world && blockNumber && (
                 <Dialog onClose={closeModal} width="850px" height="" icon="/combat-header.png">
                     <CombatModal
                         player={player}
@@ -110,7 +131,7 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
                         session={latestSession}
                     />
                 </Dialog>
-            )} */}
+            )}
             <div className="header">
                 <h3 className="title">Tile in combat</h3>
                 <img src="/combat-header.png" alt="" className="icon" />
@@ -125,7 +146,7 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
                         <span className="heading">Defenders</span>
                         <ProgressBar maxValue={defendersMaxHealth} currentValue={defendersCurrentHealth} />
                     </div>
-                    {/* <ActionButton onClick={showModal}>View Combat</ActionButton> */}
+                    <ActionButton onClick={showModal}>View Combat</ActionButton>
                     {hasCombatStarted && <ActionButton onClick={handleFinaliseCombat}>End Combat</ActionButton>}
                 </div>
             }
