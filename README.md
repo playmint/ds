@@ -195,7 +195,7 @@ docker build -t ghcr.io/playmint/ds:latest .
 <details>
 
 <summary>Running Local with different Map Setups</summary>
-
+<br>
 By Default, running `Make Dev` will spawn a one hex sized map. In order to deploy locally with a different map, there are a few options
 
 ### 1. Using Playmint's Maps
