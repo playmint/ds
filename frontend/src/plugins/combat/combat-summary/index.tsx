@@ -1,15 +1,8 @@
 /** @format */
 
-import {
-    CogAction,
-    ConnectedPlayer,
-    WorldMobileUnitFragment,
-    WorldStateFragment,
-    WorldTileFragment,
-} from '@app/../../core/src';
+import { ConnectedPlayer, WorldMobileUnitFragment, WorldStateFragment, WorldTileFragment } from '@app/../../core/src';
 import { Dialog } from '@app/components/molecules/dialog';
-import { ATOM_LIFE, Combat, CombatWinState, EntityState } from '@app/plugins/combat/combat';
-import { convertCombatActions, getActions, getMaterialStats, getMobileUnitStats } from '@app/plugins/combat/helpers';
+import { getMaterialStats, getMobileUnitStats } from '@app/plugins/combat/helpers';
 import { ProgressBar } from '@app/plugins/combat/progress-bar';
 import { ComponentProps } from '@app/types/component-props';
 import { getSessionsAtTile } from '@downstream/core/src/utils';
@@ -19,6 +12,7 @@ import { CombatModal } from '../combat-modal';
 import { styles } from './combat-summary.styles';
 import { ActionButton } from '@app/styles/button.styles';
 import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
+import { BLOCK_TIME_SECS } from '@app/fixtures/block-time-secs';
 
 export interface CombatSummaryProps extends ComponentProps {
     selectedTiles: WorldTileFragment[];
@@ -44,23 +38,29 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
         setModal(false);
     }, []);
 
+    const formattedTimeFromSeconds = (seconds: number) => {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes}:${remainingSeconds < 10 ? `0${remainingSeconds}` : remainingSeconds}`;
+    };
+
     if (!world) return null;
 
     const sessions = world.sessions || [];
 
-    const handleFinaliseCombat = () => {
-        if (!latestSession) {
-            return;
-        }
-        if (!player) {
-            return;
-        }
-        const action: CogAction = {
-            name: 'FINALISE_COMBAT',
-            args: [latestSession.id],
-        };
-        player.dispatchAndWait(action).catch((err) => console.error(err));
-    };
+    // const handleFinaliseCombat = () => {
+    //     if (!latestSession) {
+    //         return;
+    //     }
+    //     if (!player) {
+    //         return;
+    //     }
+    //     const action: CogAction = {
+    //         name: 'FINALISE_COMBAT',
+    //         args: [latestSession.id],
+    //     };
+    //     player.dispatchAndWait(action).catch((err) => console.error(err));
+    // };
 
     const selectedTileSessions = selectedTiles.length > 0 ? getSessionsAtTile(sessions, selectedTiles[0]) : [];
     if (selectedTiles.length === 0 || selectedTileSessions.length === 0) {
@@ -79,7 +79,8 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
         return null;
     }
 
-    const hasCombatStarted = blockNumber >= latestSession.attackTile.startBlock;
+    const combatStartRemainingSecs = Math.max(0, latestSession.attackTile.startBlock - blockNumber) * BLOCK_TIME_SECS;
+    // const hasCombatStarted = blockNumber >= latestSession.attackTile.startBlock;
 
     // Find all units/buildings present on the two combat tiles
     const attackUnits = world.mobileUnits.filter((u) => u.nextLocation?.tile.id == latestSession.attackTile?.tile.id);
@@ -129,11 +130,12 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
                         closeModal={closeModal}
                         blockNumber={blockNumber}
                         session={latestSession}
+                        combatStartRemainingSecs={combatStartRemainingSecs}
                     />
                 </Dialog>
             )}
             <div className="header">
-                <h3 className="title">Tile in combat</h3>
+                <h3 className="title">Combat starts in {formattedTimeFromSeconds(combatStartRemainingSecs)}</h3>
                 <img src="/combat-header.png" alt="" className="icon" />
             </div>
             {
@@ -147,7 +149,7 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
                         <ProgressBar maxValue={defendersMaxHealth} currentValue={defendersCurrentHealth} />
                     </div>
                     <ActionButton onClick={showModal}>View Combat</ActionButton>
-                    {hasCombatStarted && <ActionButton onClick={handleFinaliseCombat}>End Combat</ActionButton>}
+                    {/* {hasCombatStarted && <ActionButton onClick={handleFinaliseCombat}>End Combat</ActionButton>} */}
                 </div>
             }
         </StyledCombatSummary>

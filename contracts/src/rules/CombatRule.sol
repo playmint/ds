@@ -33,7 +33,7 @@ import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 
 using Schema for State;
 
-uint64 constant COMBAT_JOIN_WINDOW_BLOCKS = 30;
+uint64 constant COMBAT_JOIN_WINDOW_BLOCKS = 15;
 uint64 constant BLOCKS_PER_TICK = 1;
 uint64 constant MAX_TICKS = 300;
 uint8 constant MAX_ENTITIES_PER_SIDE = 100; // max allowed is 255 due to there being a reward bag for each entity and edges being 8 bit indices

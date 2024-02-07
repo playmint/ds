@@ -252,7 +252,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
 
         if (finaliseActions.length > 0) {
             // FIXME: Would this lock up combat entirely if one of the combats couldn't resolve for some reason?
-            // player.dispatchAndWait(...finaliseActions).catch((err) => console.warn(err));
+            player.dispatchAndWait(...finaliseActions).catch((err) => console.warn(err));
         }
     }, [unfinalisedCombatSessions, player]);
 

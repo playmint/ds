@@ -1,23 +1,19 @@
 /** @format */
 
-import { CogAction, ConnectedPlayer, WorldStateFragment } from '@app/../../core/src';
-import { Combat, CombatWinState, MAX_TICKS } from '@app/plugins/combat/combat';
+import { ConnectedPlayer, WorldStateFragment } from '@app/../../core/src';
+import { COMBAT_JOIN_WINDOW_BLOCKS, CombatWinState } from '@app/plugins/combat/combat';
 import { CombatParticipant, CombatParticipantProps } from '@app/plugins/combat/combat-participant';
-import {
-    CombatSession,
-    convertCombatActions,
-    entityStateToCombatParticipantProps,
-    getActions,
-    sumParticipants,
-} from '@app/plugins/combat/helpers';
+import { CombatSession, getMaterialStats, getMobileUnitStats } from '@app/plugins/combat/helpers';
 import { ProgressBar } from '@app/plugins/combat/progress-bar';
 import { TickTimerProgressBar } from '@app/plugins/combat/tick-timer-progress-bar';
 import { ComponentProps } from '@app/types/component-props';
 import { WorldCombatSessionFragment } from '@downstream/core/src/gql/graphql';
-import { Fragment, FunctionComponent, useMemo } from 'react';
+import { Fragment, FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { styles } from './combat-modal.styles';
 import { ActionButton } from '@app/styles/button.styles';
+import { formatNameOrId } from '@app/helpers';
+import { BLOCK_TIME_SECS } from '@app/fixtures/block-time-secs';
 
 export type CombatModalProps = ComponentProps & {
     world: WorldStateFragment;
@@ -25,6 +21,7 @@ export type CombatModalProps = ComponentProps & {
     blockNumber: number;
     closeModal: () => void;
     session: WorldCombatSessionFragment;
+    combatStartRemainingSecs: number;
 };
 
 type CombatParticipantsProps = {
@@ -52,7 +49,6 @@ type PostCombatStateProps = CombatModalProps &
     CombatParticipantSummaryProps & {
         winState: CombatWinState;
         session: CombatSession;
-        onFinaliseCombat: () => void;
     };
 
 const StyledCombatModal = styled('div')`
@@ -107,11 +103,10 @@ const CombatState: FunctionComponent<CombatStateProps> = (props) => {
         defenders,
         defendersMaxHealth,
         defendersCurrentHealth,
-        tickCount,
+        combatStartRemainingSecs,
     } = props;
 
-    const secondsRemaining = (MAX_TICKS - tickCount) * 2;
-    const timeRemaining = new Date(secondsRemaining * 1000).toISOString().slice(11, 19);
+    const timeRemaining = new Date(combatStartRemainingSecs * 1000).toISOString().slice(11, 19);
 
     return (
         <StyledCombatModal>
@@ -129,9 +124,9 @@ const CombatState: FunctionComponent<CombatStateProps> = (props) => {
             <div className="footer">
                 <TickTimerProgressBar className="in-progress" every={2000} />
                 <ProgressBar
-                    maxValue={MAX_TICKS}
-                    currentValue={MAX_TICKS - tickCount}
-                    label={`TIME REMAINING ${timeRemaining}`}
+                    maxValue={COMBAT_JOIN_WINDOW_BLOCKS * BLOCK_TIME_SECS}
+                    currentValue={combatStartRemainingSecs}
+                    label={`combat starts in ${timeRemaining}`}
                 />
             </div>
         </StyledCombatModal>
@@ -171,19 +166,13 @@ const PostCombatHeader: FunctionComponent<{ winState: CombatWinState }> = ({ win
 const PostCombatFooter: FunctionComponent<{
     isFinalised: boolean;
     closeModal: () => void;
-    finaliseCombat: () => void;
-}> = ({ isFinalised, closeModal, finaliseCombat }) => {
-    return isFinalised ? (
-        <ActionButton onClick={closeModal}>Close Combat</ActionButton>
-    ) : (
-        <ActionButton onClick={finaliseCombat}>End Combat</ActionButton>
-    );
+}> = ({ closeModal }) => {
+    return <ActionButton onClick={closeModal}>Close Combat</ActionButton>;
 };
 
 const PostCombatState: FunctionComponent<PostCombatStateProps> = (props) => {
     const {
         closeModal,
-        onFinaliseCombat,
         session,
         winState,
         attackers,
@@ -211,11 +200,7 @@ const PostCombatState: FunctionComponent<PostCombatStateProps> = (props) => {
                 <CombatParticipants attackers={attackers} defenders={defenders} />
             </div>
             <div className="footer">
-                <PostCombatFooter
-                    closeModal={closeModal}
-                    finaliseCombat={onFinaliseCombat}
-                    isFinalised={!!session.isFinalised}
-                />
+                <PostCombatFooter closeModal={closeModal} isFinalised={!!session.isFinalised} />
             </div>
         </StyledCombatModal>
     );
@@ -226,54 +211,71 @@ enum CombatModalState {
     PostCombat,
 }
 
-export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatModalProps) => {
-    const { player, world, blockNumber, closeModal, session: latestSession } = props;
-    const actions = latestSession && getActions(latestSession);
-    const convertedActions = convertCombatActions(actions || []);
-    const combat = new Combat(); // Is a class because it was converted from solidity
-    const orderedListIndexes = combat.getOrderedListIndexes(convertedActions);
-    const combatState = combat.calcCombatState(convertedActions, orderedListIndexes, blockNumber || 0);
+// --------------------------------------------------------------------------------------- //
 
-    const handleFinaliseCombat = () => {
-        if (!latestSession) {
-            return;
-        }
-        if (!player) {
-            return;
-        }
-        const action: CogAction = {
-            name: 'FINALISE_COMBAT',
-            args: [latestSession.id, actions, orderedListIndexes],
-        };
-        player
-            .dispatchAndWait(action)
-            .then(closeModal)
-            .catch((err) => console.error(err));
+export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatModalProps) => {
+    const { world, blockNumber, closeModal, session: latestSession } = props;
+
+    // Find all units/buildings present on the two combat tiles
+    const attackUnits = world.mobileUnits.filter((u) => u.nextLocation?.tile.id == latestSession.attackTile?.tile.id);
+    const attackBuildings = world.buildings.filter((b) => b.location?.tile.id == latestSession.attackTile?.tile.id);
+    const defenceUnits = world.mobileUnits.filter((u) => u.nextLocation?.tile.id == latestSession.defenceTile?.tile.id);
+    const defenceBuildings = world.buildings.filter((b) => b.location?.tile.id == latestSession.defenceTile?.tile.id);
+
+    const getParticipantProps = (
+        units: typeof attackUnits,
+        buildings: typeof attackBuildings
+    ): CombatParticipantProps[] => {
+        return units
+            .map((u) => {
+                const [maxHealth, defence, attack] = getMobileUnitStats(u, world.bags);
+                return {
+                    name: formatNameOrId(u, '#unit'),
+                    maxHealth,
+                    currentHealth: maxHealth,
+                    attack,
+                    defence,
+                    isDead: false,
+                    isPresent: true,
+                } as CombatParticipantProps;
+            })
+            .concat(
+                buildings.map((b) => {
+                    const [maxHealth, defence, attack] = getMaterialStats(b.kind?.materials || []);
+                    return {
+                        name: b.kind?.name?.value,
+                        maxHealth,
+                        currentHealth: maxHealth,
+                        attack,
+                        defence,
+                        isDead: false,
+                        isPresent: true,
+                    } as CombatParticipantProps;
+                })
+            );
     };
 
-    // state transitions
-    const combatModalState = useMemo(() => {
-        if (latestSession && latestSession.isFinalised) {
-            return CombatModalState.PostCombat;
-        } else if (latestSession && !latestSession.isFinalised) {
-            if (combatState.winState === CombatWinState.NONE) {
-                return CombatModalState.Combat;
-            } else {
-                return CombatModalState.PostCombat;
-            }
-        } else {
-            return null;
-        }
-    }, [combatState, latestSession]);
+    const attackers = getParticipantProps(attackUnits, attackBuildings);
+    const attackersMaxHealth = attackers.reduce((acc, participant) => acc + participant.maxHealth, 0);
+    const defenders = getParticipantProps(defenceUnits, defenceBuildings);
+    const defendersMaxHealth = defenders.reduce((acc, participant) => acc + participant.maxHealth, 0);
 
-    const attackers: CombatParticipantProps[] = combatState.attackerStates.map((entity) =>
-        entityStateToCombatParticipantProps(entity, world, player)
-    );
-    const [attackersMaxHealth, attackersCurrentHealth] = attackers.reduce(sumParticipants, [0, 0]);
-    const defenders: CombatParticipantProps[] = combatState.defenderStates.map((entity) =>
-        entityStateToCombatParticipantProps(entity, world, player)
-    );
-    const [defendersMaxHealth, defendersCurrentHealth] = defenders.reduce(sumParticipants, [0, 0]);
+    // state transitions
+    // const combatModalState = useMemo(() => {
+    //     if (latestSession && latestSession.isFinalised) {
+    //         return CombatModalState.PostCombat;
+    //     } else if (latestSession && !latestSession.isFinalised) {
+    //         if (combatState.winState === CombatWinState.NONE) {
+    //             return CombatModalState.Combat;
+    //         } else {
+    //             return CombatModalState.PostCombat;
+    //         }
+    //     } else {
+    //         return null;
+    //     }
+    // }, [combatState, latestSession]);
+
+    const combatModalState = CombatModalState.Combat;
 
     // During combat
     if (combatModalState === CombatModalState.Combat) {
@@ -282,13 +284,13 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
                 {...props}
                 attackers={attackers}
                 attackersMaxHealth={attackersMaxHealth}
-                attackersCurrentHealth={attackersCurrentHealth}
+                attackersCurrentHealth={attackersMaxHealth}
                 defenders={defenders}
                 defendersMaxHealth={defendersMaxHealth}
-                defendersCurrentHealth={defendersCurrentHealth}
+                defendersCurrentHealth={defendersMaxHealth}
                 blockNumber={blockNumber || 0}
                 blockTime={2}
-                tickCount={combatState.tickCount}
+                tickCount={0}
             />
         );
     }
@@ -301,13 +303,12 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
                 closeModal={closeModal}
                 attackers={attackers}
                 attackersMaxHealth={attackersMaxHealth}
-                attackersCurrentHealth={attackersCurrentHealth}
+                attackersCurrentHealth={defendersMaxHealth}
                 defenders={defenders}
                 defendersMaxHealth={defendersMaxHealth}
-                defendersCurrentHealth={defendersCurrentHealth}
-                winState={combatState.winState}
+                defendersCurrentHealth={defendersMaxHealth}
+                winState={CombatWinState.DRAW}
                 session={latestSession}
-                onFinaliseCombat={handleFinaliseCombat}
             />
         );
     }
