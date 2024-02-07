@@ -166,17 +166,22 @@ contract CombatRule is Rule {
             ( /*bytes24 attackTileID*/ , uint64 combatStartBlock) = state.getAttackTile(sessionID);
 
             require(ctx.clock >= combatStartBlock, "Cannot finalise combat before it has started");
+            require(!state.getIsFinalised(sessionID), "Combat session already finalised");
 
             CombatState memory combatState = calcCombatState(state, sessionID);
-            if (combatState.winState != CombatWinState.NONE && !state.getIsFinalised(sessionID)) {
-                _finaliseSession(state, combatState, sessionID);
-            }
+            _finaliseSession(state, combatState, sessionID);
         }
 
         return state;
     }
 
     function _finaliseSession(State state, CombatState memory combatState, bytes24 sessionID) private {
+        // No winner
+        if (combatState.winState == CombatWinState.NONE) {
+            state.setIsFinalised(sessionID, true);
+            return;
+        }
+
         // Get the winning entities
         EntityState[] memory winnerStates =
             combatState.winState == CombatWinState.ATTACKERS ? combatState.attackerStates : combatState.defenderStates;
@@ -315,6 +320,11 @@ contract CombatRule is Rule {
                     JoinActionInfo({combatSide: CombatSideKey.DEFENCE, stats: _getStatsForEntity(state, entityID)})
                 );
             }
+        }
+
+        // If nobody present on either side when combat finalises then no combat happened
+        if (combatState.attackerCount == 0 || combatState.defenderCount == 0) {
+            return combatState;
         }
 
         // Run through all the ticks

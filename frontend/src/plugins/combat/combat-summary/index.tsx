@@ -35,15 +35,15 @@ const StyledCombatSummary = styled(StyledHeaderPanel)`
 export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: CombatSummaryProps) => {
     const { selectedTiles, world, blockNumber, player } = props;
     const sessions = world?.sessions || [];
-    const [modal, setModal] = useState<boolean>(false);
 
-    const showModal = useCallback(() => {
-        setModal(true);
-    }, []);
+    // const [modal, setModal] = useState<boolean>(false);
+    // const showModal = useCallback(() => {
+    //     setModal(true);
+    // }, []);
 
-    const closeModal = useCallback(() => {
-        setModal(false);
-    }, []);
+    // const closeModal = useCallback(() => {
+    //     setModal(false);
+    // }, []);
 
     const handleFinaliseCombat = () => {
         if (!latestSession) {
@@ -54,7 +54,7 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
         }
         const action: CogAction = {
             name: 'FINALISE_COMBAT',
-            args: [latestSession.id, actions, orderedListIndexes],
+            args: [latestSession.id],
         };
         player.dispatchAndWait(action).catch((err) => console.error(err));
     };
@@ -68,29 +68,39 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
         return a.attackTile && b.attackTile ? b.attackTile.startBlock - a.attackTile.startBlock : 0;
     })[0];
 
-    const actions = latestSession && getActions(latestSession);
+    if (!latestSession.attackTile) {
+        return null;
+    }
 
-    if (!actions || !blockNumber) return null;
+    if (latestSession.isFinalised) {
+        return null;
+    }
 
-    const convertedActions = convertCombatActions(actions);
-    const combat = new Combat(); // Is a class because it was converted from solidity
-    const orderedListIndexes = combat.getOrderedListIndexes(convertedActions);
-    const combatState = combat.calcCombatState(convertedActions, orderedListIndexes, blockNumber);
+    const hasCombatStarted = blockNumber >= latestSession.attackTile.startBlock;
 
-    const sumStats = (
-        [participantsMaxHealth, participantsCurrentHealth]: number[],
-        { stats, damage, isPresent }: EntityState
-    ) => {
-        const maxHealth = isPresent ? stats[ATOM_LIFE] : 0;
-        const currentHealth = isPresent ? Math.max(stats[ATOM_LIFE] - damage, 0) : 0;
-        return [participantsMaxHealth + maxHealth, participantsCurrentHealth + currentHealth];
-    };
-    const [attackersMaxHealth, attackersCurrentHealth] = combatState.attackerStates.reduce(sumStats, [0, 0]);
-    const [defendersMaxHealth, defendersCurrentHealth] = combatState.defenderStates.reduce(sumStats, [0, 0]);
+    // const combat = new Combat(); // Is a class because it was converted from solidity
+    // const combatState = combat.calcCombatState(convertedActions, orderedListIndexes, blockNumber);
+
+    // TODO: Need to sum stats by looking in inventories instead of combat actions
+    // const sumStats = (
+    //     [participantsMaxHealth, participantsCurrentHealth]: number[],
+    //     { stats, damage, isPresent }: EntityState
+    // ) => {
+    //     const maxHealth = isPresent ? stats[ATOM_LIFE] : 0;
+    //     const currentHealth = isPresent ? Math.max(stats[ATOM_LIFE] - damage, 0) : 0;
+    //     return [participantsMaxHealth + maxHealth, participantsCurrentHealth + currentHealth];
+    // };
+    // const [attackersMaxHealth, attackersCurrentHealth] = combatState.attackerStates.reduce(sumStats, [0, 0]);
+    // const [defendersMaxHealth, defendersCurrentHealth] = combatState.defenderStates.reduce(sumStats, [0, 0]);
+
+    const attackersMaxHealth = 100;
+    const attackersCurrentHealth = 100;
+    const defendersMaxHealth = 100;
+    const defendersCurrentHealth = 100;
 
     return (
         <StyledCombatSummary>
-            {modal && player && world && blockNumber && (
+            {/* {modal && player && world && blockNumber && (
                 <Dialog onClose={closeModal} width="850px" height="" icon="/combat-header.png">
                     <CombatModal
                         player={player}
@@ -100,12 +110,12 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
                         session={latestSession}
                     />
                 </Dialog>
-            )}
+            )} */}
             <div className="header">
                 <h3 className="title">Tile in combat</h3>
                 <img src="/combat-header.png" alt="" className="icon" />
             </div>
-            {actions && (
+            {
                 <div className="content">
                     <div className="attackers">
                         <span className="heading">Attackers</span>
@@ -115,12 +125,10 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
                         <span className="heading">Defenders</span>
                         <ProgressBar maxValue={defendersMaxHealth} currentValue={defendersCurrentHealth} />
                     </div>
-                    <ActionButton onClick={showModal}>View Combat</ActionButton>
-                    {combatState.winState !== CombatWinState.NONE && (
-                        <ActionButton onClick={handleFinaliseCombat}>End Combat</ActionButton>
-                    )}
+                    {/* <ActionButton onClick={showModal}>View Combat</ActionButton> */}
+                    {hasCombatStarted && <ActionButton onClick={handleFinaliseCombat}>End Combat</ActionButton>}
                 </div>
-            )}
+            }
         </StyledCombatSummary>
     );
 };
