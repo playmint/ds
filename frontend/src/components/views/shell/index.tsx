@@ -42,6 +42,8 @@ const StyledShell = styled('div')`
     ${styles}
 `;
 
+const nullBytes24 = '0x' + '00'.repeat(24);
+
 export type SelectedBag = {
     equipIndex: number;
     bag: BagFragment;
@@ -74,9 +76,18 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     }, [player?.quests]);
     const unfinalisedCombatSessions = useMemo(
         () =>
-            (world?.sessions || []).filter(
-                (s) => !s.isFinalised && blockNumber && blockNumber >= (s.attackTile?.startBlock || 0)
-            ),
+            (world?.sessions || [])
+                .filter((s) => {
+                    return !s.isFinalised;
+                })
+                .filter((s) => {
+                    const oneSideZero =
+                        s.attackers.filter((paticipant) => paticipant.node.id != nullBytes24).length == 0 ||
+                        s.defenders.filter((paticipant) => paticipant.node.id != nullBytes24).length == 0;
+                    const combatStarted = blockNumber && blockNumber >= (s.attackTile?.startBlock || 0);
+                    return oneSideZero || combatStarted;
+                }),
+
         [world?.sessions, blockNumber]
     );
     // Only attempt to finalise every other block to not hammer the server

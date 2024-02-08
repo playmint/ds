@@ -165,10 +165,16 @@ contract CombatRule is Rule {
 
             ( /*bytes24 attackTileID*/ , uint64 combatStartBlock) = state.getAttackTile(sessionID);
 
-            require(ctx.clock >= combatStartBlock, "Cannot finalise combat before it has started");
             require(!state.getIsFinalised(sessionID), "Combat session already finalised");
 
             CombatState memory combatState = calcCombatState(state, sessionID);
+
+            // We only care about start time if there are entities on both sides. Combat can be finalised if one
+            // side has no entities
+            if (combatState.attackerCount > 0 && combatState.defenderCount > 0) {
+                require(ctx.clock >= combatStartBlock, "Cannot finalise combat before it has started");
+            }
+
             _finaliseSession(state, combatState, sessionID);
         }
 
