@@ -176,6 +176,12 @@ export function usePlayer(): ConnectedPlayer | undefined {
     return useSource(sources.player);
 }
 
+// This should become a function to call the reloading of the plugins
+export function usePluginReload(): number | undefined {
+    const sources = useSources();
+    return useSource(sources.block);
+}
+
 export function useWallet(): { wallet: Wallet | undefined; selectProvider: Selector<WalletProvider> | undefined } {
     const sources = useSources();
     const wallet = useSource(sources.wallet);
