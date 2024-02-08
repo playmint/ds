@@ -22,13 +22,12 @@ export const TaskCombat = memo(
         // Logic set within a setTimeout to debounce
         useEffect(() => {
             const evalTimeoutID = setTimeout(() => {
-                // const isCompleted = !!sessions.some((s) => {
-                //     if (!s.isFinalised) return false;
-                //     // TODO: Find a combat session that the playe participated in and won
-                // });
-
-                // setIsCompleted(isCompleted);
-                setIsCompleted(true);
+                const isCompleted = !!sessions.some((s) => {
+                    if (!s.isFinalised) return false;
+                    // TODO: Check that the outcome was a win
+                    return s.attackers.some((a) => playerUnitIDs.includes(a.node.id));
+                });
+                setIsCompleted(isCompleted);
             }, DEBOUNCE_MS);
 
             return () => {

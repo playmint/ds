@@ -125,9 +125,18 @@ fragment WorldCombatSession on Node {
         name
         value
     }
-    # flag is either 1 or 0 TODO: Use real boolean and if possible have the weight directly on `isFinalised`
     isFinalised: edge(match: { kinds: "CombatSession", via: { rel: "IsFinalised" } }) {
         flag: weight
+    }
+    attackers: edges(match: { via: { rel: "CombatAttacker" } }) {
+        node {
+            id
+        }
+    }
+    defenders: edges(match: { via: { rel: "CombatDefender" } }) {
+        node {
+            id
+        }
     }
 }
 
