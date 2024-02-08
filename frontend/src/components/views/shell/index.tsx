@@ -57,7 +57,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const player = usePlayer();
     const playerUnits = world?.mobileUnits.filter((mu) => mu.owner && player && mu.owner.id === player.id) || [];
     const { mobileUnit: selectedMobileUnit, tiles: selectedTiles, mapElement: selectedMapElement } = selected || {};
-    const blockNumber = useBlock();
+    const blockNumber = useBlock() ?? 0;
     const { connect } = useWalletProvider();
     const [selectedBags, setSelectedBags] = useState<SelectedBag[]>();
     const selectedTileBags = selectedBags?.filter((sb) => !sb.isCombatReward);
@@ -72,9 +72,22 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             (player?.quests || []).filter((q) => q.status == QUEST_STATUS_ACCEPTED).sort((a, b) => a.key - b.key) || []
         );
     }, [player?.quests]);
-    const unfinalisedCombatSessions = (world?.sessions || []).filter(
-        (s) => !s.isFinalised && blockNumber && blockNumber >= (s.attackTile?.startBlock || 0)
+    const unfinalisedCombatSessions = useMemo(
+        () =>
+            (world?.sessions || []).filter(
+                (s) => !s.isFinalised && blockNumber && blockNumber >= (s.attackTile?.startBlock || 0)
+            ),
+        [world?.sessions, blockNumber]
     );
+    // Only attempt to finalise every other block to not hammer the server
+    const combatSessionTick = Math.floor(blockNumber / 2);
+    const [prevCombatSessionTick, setPrevCombatSessionTick] = useState<number>(0);
+
+    useEffect(() => {
+        if (combatSessionTick !== prevCombatSessionTick) {
+            setPrevCombatSessionTick(combatSessionTick);
+        }
+    }, [combatSessionTick, prevCombatSessionTick]);
 
     // console.log(ui);
     const tileColorsModifiedByPlugins =
@@ -238,6 +251,9 @@ export const Shell: FunctionComponent<ShellProps> = () => {
 
     // Auto finalise combat
     useEffect(() => {
+        if (combatSessionTick == prevCombatSessionTick) {
+            return;
+        }
         if (!player) {
             return;
         }
@@ -254,7 +270,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             // FIXME: Would this lock up combat entirely if one of the combats couldn't resolve for some reason?
             player.dispatchAndWait(...finaliseActions).catch((err) => console.warn(err));
         }
-    }, [unfinalisedCombatSessions, player]);
+    }, [combatSessionTick, unfinalisedCombatSessions, player, prevCombatSessionTick]);
 
     const tileClick = useCallback(
         (id) => {
