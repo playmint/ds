@@ -6,6 +6,8 @@ import {
     PluginDispatchFunc,
     Sandbox,
 } from '@downstream/core';
+// This causes error - map doesn't load! need to find a way to call something in here
+// import { usePluginReload } from '../hooks/use-game-state';
 import * as Comlink from 'comlink';
 import { QuickJSContext, QuickJSRuntime, getQuickJS } from 'quickjs-emscripten';
 import { ethers } from 'ethers';
@@ -13,8 +15,6 @@ import { ethers } from 'ethers';
 let runtime: QuickJSRuntime;
 
 const contexts: QuickJSContext[] = [];
-
-let pollPendingJobsTimeout;
 
 // wrapper functions loaded by the fake 'downstream' module within the guest
 // to make it feel like a "normal" library import and potentially keep compatibility
@@ -49,6 +49,8 @@ export default {
 };
 `;
 
+let pollPendingJobsTimeout: NodeJS.Timeout;
+
 function pollPendingJobs() {
     if (runtime && runtime.hasPendingJob()) {
         runtime.executePendingJobs(1);
@@ -75,6 +77,7 @@ export async function init() {
 }
 
 export async function disposeRuntime() {
+    console.log('pre dispose testing! ', usePluginReload);
     // renamed branch
     if (!runtime) return;
     console.log('runtime before: ', await runtime.dumpMemoryUsage());

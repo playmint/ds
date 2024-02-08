@@ -37,7 +37,6 @@ import { getBagsAtEquipee, getBuildingAtTile } from './utils';
 import { Logger } from './logger';
 
 const active = new Map<string, ActivePlugin>();
-//
 
 /**
  * makeAvailablePlugins polls for the list of deployed plugins every now and
