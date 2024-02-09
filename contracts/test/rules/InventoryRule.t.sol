@@ -17,7 +17,7 @@ uint64 constant BUILDING_KIND_ID_1 = 20;
 uint64 constant BUILDING_KIND_ID_2 = 21;
 
 contract MockBuildingKind is BuildingKind {
-    function use(Game game, bytes24 building, bytes24 mobileUnit, bytes memory payload) public {}
+    function use(Game game, bytes24 building, bytes24 mobileUnit, bytes memory payload) override public {}
 }
 
 contract InventoryRuleTest is Test, GameTest {

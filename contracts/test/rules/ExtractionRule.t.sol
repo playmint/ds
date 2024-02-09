@@ -5,6 +5,7 @@ import "../helpers/GameTest.sol";
 
 import {GOO_PER_SEC, GOO_RESERVOIR_MAX} from "@ds/rules/ExtractionRule.sol";
 import {BuildingBlockNumKey} from "@ds/schema/Schema.sol";
+import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 
 using Schema for State;
 
@@ -14,8 +15,11 @@ uint64 constant BLOCKS_TO_MAX_RESERVOIR = ((GOO_RESERVOIR_MAX * 100) / (GOO_PER_
 bool constant ITEM_STACKABLE = true;
 bool constant ITEM_EQUIPABLE = false;
 
-contract MockCraftBuildingContract {
-    function use(Game, /*ds*/ bytes24, /*buildingInstance*/ bytes24, /*mobileUnit*/ bytes memory /*payload*/ ) public {}
+contract MockCraftBuildingContract is BuildingKind {
+    function use(Game, /*ds*/ bytes24, /*buildingInstance*/ bytes24, /*mobileUnit*/ bytes memory /*payload*/ )
+        public
+        override
+    {}
 }
 
 contract ExtractionRuleTest is Test, GameTest {

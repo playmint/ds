@@ -25,7 +25,7 @@ contract DuckBurgerHQ is BuildingKind {
     function claim() external {}
     function reset() external {}
 
-    function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes calldata payload) public {
+    function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes calldata payload) public override {
         State state = GetState(ds);
 
         // decode payload and call one of _join, _start, _claim or _reset

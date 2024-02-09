@@ -10,7 +10,7 @@ import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 using Schema for State;
 
 contract BasicFactory is BuildingKind {
-    function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes memory /*payload*/ ) public {
+    function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes memory /*payload*/ ) public override {
         State state = GetState(ds);
         // NOTE: Added 64 bits (8 bytes) of padding to the 24 byte ID
         ds.getDispatcher().dispatch(

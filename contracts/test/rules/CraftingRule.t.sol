@@ -2,6 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "../helpers/GameTest.sol";
+import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 
 using Schema for State;
 
@@ -10,8 +11,11 @@ uint8 constant MAX_CRAFT_INPUT_ITEMS = 4;
 bool constant ITEM_STACKABLE = true;
 bool constant ITEM_EQUIPABLE = false;
 
-contract MockCraftBuildingContract {
-    function use(Game, /*ds*/ bytes24, /*buildingInstance*/ bytes24, /*mobileUnit*/ bytes memory /*payload*/ ) public {}
+contract MockCraftBuildingContract is BuildingKind {
+    function use(Game, /*ds*/ bytes24, /*buildingInstance*/ bytes24, /*mobileUnit*/ bytes memory /*payload*/ )
+        public
+        override
+    {}
 }
 
 contract CraftingRuleTest is Test, GameTest {
