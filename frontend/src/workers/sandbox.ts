@@ -6,8 +6,6 @@ import {
     PluginDispatchFunc,
     Sandbox,
 } from '@downstream/core';
-// This causes error - map doesn't load! need to find a way to call something in here
-// import { usePluginReload } from '../hooks/use-game-state';
 import * as Comlink from 'comlink';
 import { QuickJSContext, QuickJSRuntime, getQuickJS } from 'quickjs-emscripten';
 import { ethers } from 'ethers';
