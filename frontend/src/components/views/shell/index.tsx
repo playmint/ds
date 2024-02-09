@@ -278,8 +278,13 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         );
 
         if (finaliseActions.length > 0) {
-            // FIXME: Would this lock up combat entirely if one of the combats couldn't resolve for some reason?
-            player.dispatchAndWait(...finaliseActions).catch((err) => console.warn(err));
+            // player.dispatchAndWait(...finaliseActions).catch((err) => console.warn(err));
+
+            // Dispatching all at once could prevent future combat sessions from finalising if
+            // one of the finalise transactions fail so we dispatch them one by one
+            Promise.all(finaliseActions.map((action) => player.dispatchAndWait(action))).catch((err) =>
+                console.warn(err)
+            );
         }
     }, [combatSessionTick, unfinalisedCombatSessions, player, prevCombatSessionTick]);
 
