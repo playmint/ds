@@ -1,4 +1,4 @@
-import { BagFragment, QUEST_STATUS_ACCEPTED, WorldTileFragment } from '@app/../../core/src';
+import { BagFragment, CogAction, QUEST_STATUS_ACCEPTED, WorldTileFragment } from '@app/../../core/src';
 import { Bags } from '@app/components/map/Bag';
 import { Buildings } from '@app/components/map/Buildings';
 import { CombatSessions } from '@app/components/map/CombatSession';
@@ -42,6 +42,8 @@ const StyledShell = styled('div')`
     ${styles}
 `;
 
+const nullBytes24 = '0x' + '00'.repeat(24);
+
 export type SelectedBag = {
     equipIndex: number;
     bag: BagFragment;
@@ -57,7 +59,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const player = usePlayer();
     const playerUnits = world?.mobileUnits.filter((mu) => mu.owner && player && mu.owner.id === player.id) || [];
     const { mobileUnit: selectedMobileUnit, tiles: selectedTiles, mapElement: selectedMapElement } = selected || {};
-    const blockNumber = useBlock();
+    const blockNumber = useBlock() ?? 0;
     const { connect } = useWalletProvider();
     const [selectedBags, setSelectedBags] = useState<SelectedBag[]>();
     const selectedTileBags = selectedBags?.filter((sb) => !sb.isCombatReward);
@@ -72,6 +74,31 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             (player?.quests || []).filter((q) => q.status == QUEST_STATUS_ACCEPTED).sort((a, b) => a.key - b.key) || []
         );
     }, [player?.quests]);
+    const unfinalisedCombatSessions = useMemo(
+        () =>
+            (world?.sessions || [])
+                .filter((s) => {
+                    return !s.isFinalised;
+                })
+                .filter((s) => {
+                    const oneSideZero =
+                        s.attackers.filter((paticipant) => paticipant.node.id != nullBytes24).length == 0 ||
+                        s.defenders.filter((paticipant) => paticipant.node.id != nullBytes24).length == 0;
+                    const combatStarted = blockNumber && blockNumber >= (s.attackTile?.startBlock || 0);
+                    return oneSideZero || combatStarted;
+                }),
+
+        [world?.sessions, blockNumber]
+    );
+    // Only attempt to finalise every other block to not hammer the server
+    const combatSessionTick = Math.floor(blockNumber / 2);
+    const [prevCombatSessionTick, setPrevCombatSessionTick] = useState<number>(0);
+
+    useEffect(() => {
+        if (combatSessionTick !== prevCombatSessionTick) {
+            setPrevCombatSessionTick(combatSessionTick);
+        }
+    }, [combatSessionTick, prevCombatSessionTick]);
 
     // console.log(ui);
     const tileColorsModifiedByPlugins =
@@ -232,6 +259,34 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 break;
         }
     }, [selectTiles, selectedMapElement, selectedMobileUnit, tiles, world]);
+
+    // Auto finalise combat
+    useEffect(() => {
+        if (combatSessionTick == prevCombatSessionTick) {
+            return;
+        }
+        if (!player) {
+            return;
+        }
+
+        const finaliseActions = unfinalisedCombatSessions.map(
+            (s) =>
+                ({
+                    name: 'FINALISE_COMBAT',
+                    args: [s.id],
+                } as CogAction)
+        );
+
+        if (finaliseActions.length > 0) {
+            // player.dispatchAndWait(...finaliseActions).catch((err) => console.warn(err));
+
+            // Dispatching all at once could prevent future combat sessions from finalising if
+            // one of the finalise transactions fail so we dispatch them one by one
+            Promise.all(finaliseActions.map((action) => player.dispatchAndWait(action))).catch((err) =>
+                console.warn(err)
+            );
+        }
+    }, [combatSessionTick, unfinalisedCombatSessions, player, prevCombatSessionTick]);
 
     const tileClick = useCallback(
         (id) => {

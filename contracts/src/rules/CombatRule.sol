@@ -14,6 +14,7 @@ import {
     BiomeKind,
     Rel,
     LocationKey,
+    CombatSideKey,
     TRAVEL_SPEED,
     DEFAULT_ZONE,
     GOO_GREEN,
@@ -32,9 +33,10 @@ import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 
 using Schema for State;
 
+uint64 constant COMBAT_JOIN_WINDOW_BLOCKS = 15;
 uint64 constant BLOCKS_PER_TICK = 1;
 uint64 constant MAX_TICKS = 300;
-uint8 constant MAX_ENTITIES_PER_SIDE = 100; // No higher than 256 due to there being a reward bag for each entity and edges being 8 bit indices
+uint8 constant MAX_ENTITIES_PER_SIDE = 100; // max allowed is 255 due to there being a reward bag for each entity and edges being 8 bit indices
 uint8 constant HASH_EDGE_INDEX = 2;
 
 struct JoinActionInfo {
@@ -77,14 +79,8 @@ enum CombatWinState {
     DRAW
 }
 
-enum CombatSideKey {
-    ATTACK,
-    DEFENCE
-}
-
 contract CombatRule is Rule {
     uint64 public prevCombatSessionID = 0; // combat sessions are incremented
-    uint256 public actionCount; // incremented each time an action event is dispatched. Used to maintain correct order on client side
 
     event SessionUpdate(uint64 indexed sessionID, bytes combatActions);
 
@@ -104,6 +100,7 @@ contract CombatRule is Rule {
             }
         }
 
+        // We still record the joining and leaving of units as we cannot get a list of which units are standing on a particular tile at finalisation time
         if (bytes4(action) == Actions.MOVE_MOBILE_UNIT.selector) {
             // NOTE: The MovementRule will revert if the following are true:
             //       The sender doesn't own the mobileUnit
@@ -163,64 +160,34 @@ contract CombatRule is Rule {
             _startSession(state, mobileUnitTile, targetTileID, attackers, defenders, ctx);
         }
 
-        if (bytes4(action) == Actions.TRANSFER_ITEM_MOBILE_UNIT.selector) {
-            // decode the action
-            (bytes24 mobileUnit,,,,,) =
-                abi.decode(action[4:], (bytes24, bytes24[2], uint8[2], uint8[2], bytes24, uint64));
-
-            (bytes24 nextTileID, uint64 arrivalBlockNum) =
-                state.get(Rel.Location.selector, uint8(LocationKey.NEXT), mobileUnit);
-            bytes24 sessionID = _getActiveSession(state, nextTileID, ctx);
-            if (sessionID != 0) {
-                _equip(state, sessionID, nextTileID, arrivalBlockNum, mobileUnit, ctx);
-            }
-        }
-
         if (bytes4(action) == Actions.FINALISE_COMBAT.selector) {
-            (bytes24 sessionID, CombatAction[][] memory sessionUpdates, uint32[] memory sortedListIndexes) =
-                abi.decode(action[4:], (bytes24, CombatAction[][], uint32[]));
+            (bytes24 sessionID) = abi.decode(action[4:], (bytes24));
 
-            // Check hash of actions matches hash of session (ensures supplied actions haven't been tampered with)
-            if (!_checkSessionHash(state, sessionID, sessionUpdates)) revert("CombatSessionHashIncorrect");
+            ( /*bytes24 attackTileID*/ , uint64 combatStartBlock) = state.getAttackTile(sessionID);
 
-            CombatState memory combatState = calcCombatState(sessionUpdates, sortedListIndexes, ctx.clock);
-            if (combatState.winState != CombatWinState.NONE && !state.getIsFinalised(sessionID)) {
-                _finaliseSession(state, combatState, sessionID);
+            require(!state.getIsFinalised(sessionID), "Combat session already finalised");
+
+            CombatState memory combatState = calcCombatState(state, sessionID);
+
+            // We only care about start time if there are entities on both sides. Combat can be finalised if one
+            // side has no entities
+            if (combatState.attackerCount > 0 && combatState.defenderCount > 0) {
+                require(ctx.clock >= combatStartBlock, "Cannot finalise combat before it has started");
             }
+
+            _finaliseSession(state, combatState, sessionID);
         }
 
         return state;
     }
 
-    function _equip(
-        State state,
-        bytes24 sessionID,
-        bytes24 mobileUnitTileID,
-        uint64 arrivalBlockNum,
-        bytes24 mobileUnitID,
-        Context calldata ctx
-    ) private {
-        (bytes24 attackTileID, /*uint64 combatStartBlock*/ ) =
-            state.get(Rel.Has.selector, uint8(CombatSideKey.ATTACK), sessionID);
-
-        EquipActionInfo memory info = EquipActionInfo({
-            combatSide: attackTileID == mobileUnitTileID ? CombatSideKey.ATTACK : CombatSideKey.DEFENCE,
-            stats: _getStatsForEntity(state, mobileUnitID)
-        });
-
-        // NOTE: Held in an array to keep it the same as the encoding used when starting combat
-        CombatAction[] memory combatActions = new CombatAction[](1);
-        combatActions[0] = CombatAction(
-            CombatActionKind.EQUIP,
-            mobileUnitID,
-            arrivalBlockNum > ctx.clock ? arrivalBlockNum : ctx.clock,
-            abi.encode(info)
-        );
-
-        _emitSessionUpdate(state, sessionID, combatActions);
-    }
-
     function _finaliseSession(State state, CombatState memory combatState, bytes24 sessionID) private {
+        // No winner
+        if (combatState.winState == CombatWinState.NONE) {
+            state.setIsFinalised(sessionID, true);
+            return;
+        }
+
         // Get the winning entities
         EntityState[] memory winnerStates =
             combatState.winState == CombatWinState.ATTACKERS ? combatState.attackerStates : combatState.defenderStates;
@@ -320,11 +287,10 @@ contract CombatRule is Rule {
     }
 
     // Calculates combat state by stepping through the actions and playing the tick by tick logic until `endBlockNum`
-    function calcCombatState(
-        CombatAction[][] memory sessionUpdates,
-        uint32[] memory sortedListIndexes,
-        uint64 endBlockNum
-    ) private pure returns (CombatState memory combatState) {
+    function calcCombatState(State state, bytes24 sessionID) private view returns (CombatState memory combatState) {
+        // (bytes24 attackTileID, /*uint64 combatStartBlock*/ ) = state.getAttackTile(sessionID);
+
+        // This state gets updated every tick
         combatState = CombatState({
             attackerStates: new EntityState[](MAX_ENTITIES_PER_SIDE),
             defenderStates: new EntityState[](MAX_ENTITIES_PER_SIDE),
@@ -334,81 +300,74 @@ contract CombatRule is Rule {
             tickCount: 0
         });
 
-        for (uint64 x = 0; x < sortedListIndexes.length; x++) {
-            CombatAction memory combatAction =
-                sessionUpdates[uint16(sortedListIndexes[x])][uint16(sortedListIndexes[x] >> 16)];
+        // -- Add all entities to the combat state at block 0
 
-            if (combatAction.blockNum > endBlockNum) {
-                // Battle not finished
+        // Add attackers
+        for (uint8 i = 0; i < MAX_ENTITIES_PER_SIDE; i++) {
+            bytes24 entityID = state.getAttacker(sessionID, i);
+            if (entityID != bytes24(0)) {
+                // NOTE: JoinActionInfo used to be encoded in the off-chain recorded CombatAction.data
+                _addEntityToCombat(
+                    combatState,
+                    CombatAction({kind: CombatActionKind.JOIN, entityID: entityID, blockNum: 0, data: ""}),
+                    JoinActionInfo({combatSide: CombatSideKey.ATTACK, stats: _getStatsForEntity(state, entityID)})
+                );
+            }
+        }
+
+        // Add Defenders
+        for (uint8 i = 0; i < MAX_ENTITIES_PER_SIDE; i++) {
+            bytes24 entityID = state.getDefender(sessionID, i);
+            if (entityID != bytes24(0)) {
+                // NOTE: JoinActionInfo used to be encoded in the off-chain recorded CombatAction.data
+                _addEntityToCombat(
+                    combatState,
+                    CombatAction({kind: CombatActionKind.JOIN, entityID: entityID, blockNum: 0, data: ""}),
+                    JoinActionInfo({combatSide: CombatSideKey.DEFENCE, stats: _getStatsForEntity(state, entityID)})
+                );
+            }
+        }
+
+        // If nobody present on either side when combat finalises then no combat happened
+        if (combatState.attackerCount == 0 || combatState.defenderCount == 0) {
+            return combatState;
+        }
+
+        // Run through all the ticks
+        for (uint64 t = 0; t < MAX_TICKS; t++) {
+            // Attackers attack
+            _combatLogic(combatState, CombatSideKey.ATTACK, t);
+            if (combatState.defenderCount == 0) {
+                combatState.winState = CombatWinState.ATTACKERS;
                 return (combatState);
             }
 
-            // How many ticks does this action apply to?
-            uint64 actionEndBlock = x + 1 < sortedListIndexes.length
-                ? sessionUpdates[uint16(sortedListIndexes[x + 1])][uint16(sortedListIndexes[x + 1] >> 16)].blockNum
-                : endBlockNum;
-
-            if (actionEndBlock > endBlockNum) {
-                actionEndBlock = endBlockNum;
+            // Defenders attack
+            _combatLogic(combatState, CombatSideKey.DEFENCE, t);
+            if (combatState.attackerCount == 0) {
+                combatState.winState = CombatWinState.DEFENDERS;
+                return (combatState);
             }
 
-            // Apply action
-            if (combatAction.kind == CombatActionKind.JOIN) {
-                (JoinActionInfo memory info) = abi.decode(combatAction.data, (JoinActionInfo));
-                _addEntityToCombat(combatState, combatAction, info);
-            } else if (combatAction.kind == CombatActionKind.LEAVE) {
-                (LeaveActionInfo memory info) = abi.decode(combatAction.data, (LeaveActionInfo));
-                _removeEntityFromCombat(combatState, combatAction, info);
-
-                // Check if either side has entirely left combat
-                if (combatState.attackerCount == 0) {
-                    combatState.winState = CombatWinState.DEFENDERS;
-                    return (combatState);
-                } else if (combatState.defenderCount == 0) {
-                    combatState.winState = CombatWinState.ATTACKERS;
-                    return (combatState);
-                }
-            } else if (combatAction.kind == CombatActionKind.EQUIP) {
-                (EquipActionInfo memory info) = abi.decode(combatAction.data, (EquipActionInfo));
-                _updateEntityStats(combatState, combatAction, info);
-            }
-
-            // Tick the battle until the next action
-            uint64 numTicks = (actionEndBlock - combatAction.blockNum) / BLOCKS_PER_TICK;
-            for (uint16 t = 0; t < numTicks; t++) {
-                // Attackers attack
-                _combatLogic(combatState, CombatSideKey.ATTACK, combatAction.blockNum);
-                if (combatState.defenderCount == 0) {
-                    combatState.winState = CombatWinState.ATTACKERS;
-                    return (combatState);
-                }
-
-                // Defenders attack
-                _combatLogic(combatState, CombatSideKey.DEFENCE, combatAction.blockNum);
-                if (combatState.attackerCount == 0) {
-                    combatState.winState = CombatWinState.DEFENDERS;
-                    return (combatState);
-                }
-
-                combatState.tickCount++;
-                if (combatState.tickCount == MAX_TICKS) {
-                    combatState.winState = CombatWinState.DRAW;
-                    return combatState;
-                }
+            combatState.tickCount++; // Now all actions start at zero, this should always equal t
+            if (combatState.tickCount == MAX_TICKS) {
+                combatState.winState = CombatWinState.DRAW;
+                return combatState;
             }
         }
 
         // if we got here, then we hit MAX_TICKS without a winner, it's a DRAW
-        if (combatState.winState == CombatWinState.NONE && combatState.tickCount == MAX_TICKS) {
+        if (combatState.winState == CombatWinState.NONE) {
             combatState.winState = CombatWinState.DRAW;
         }
+
         return combatState;
     }
 
     // NOTE: entityIndex is the index within one of the two arrays and entityNum is witin the whole battle
-    function _combatLogic(CombatState memory combatState, CombatSideKey combatSide, uint64 blockNum) private pure {
+    function _combatLogic(CombatState memory combatState, CombatSideKey combatSide, uint64 tick) private view {
         // TODO: obviously not random
-        bytes32 rnd = keccak256(abi.encode(blockNum, combatState.tickCount));
+        bytes32 rnd = keccak256(abi.encode(block.number, tick, combatState.tickCount, combatSide));
 
         // Sum up attack from all present entities
         uint256 attackTotal = _getAttackTotal(
@@ -425,6 +384,7 @@ contract CombatRule is Rule {
         if (attackTotal > enemyState.stats[GOO_BLUE]) {
             enemyState.damage += uint64(attackTotal - enemyState.stats[GOO_BLUE]);
         } else {
+            // Defence higher than attack so deal minimum damage
             enemyState.damage += 1;
         }
 
@@ -535,42 +495,6 @@ contract CombatRule is Rule {
         }
     }
 
-    function _removeEntityFromCombat(
-        CombatState memory combatState,
-        CombatAction memory combatAction,
-        LeaveActionInfo memory info
-    ) private pure {
-        EntityState[] memory entityStates =
-            info.combatSide == CombatSideKey.ATTACK ? combatState.attackerStates : combatState.defenderStates;
-
-        for (uint256 i = 0; i < entityStates.length; i++) {
-            if (entityStates[i].entityID == combatAction.entityID && entityStates[i].isPresent) {
-                entityStates[i].isPresent = false;
-                if (info.combatSide == CombatSideKey.ATTACK) {
-                    combatState.attackerCount--;
-                } else {
-                    combatState.defenderCount--;
-                }
-                return;
-            }
-        }
-    }
-
-    function _checkSessionHash(State state, bytes24 sessionID, CombatAction[][] memory sessionUpdates)
-        private
-        view
-        returns (bool)
-    {
-        // Check that the hashes match. Every combat list update is hashed against the last
-        bytes20 combatActionsHash;
-        for (uint256 i = 0; i < sessionUpdates.length; i++) {
-            combatActionsHash = bytes20(keccak256(abi.encodePacked(combatActionsHash, abi.encode(sessionUpdates[i]))));
-        }
-
-        bytes20 storedHash = state.getHash(sessionID, HASH_EDGE_INDEX);
-        return storedHash == combatActionsHash;
-    }
-
     function _getActiveSession(State state, bytes24 tileID, Context calldata /*ctx*/ ) private view returns (bytes24) {
         (bytes24 sessionID, uint64 startBlockNum) = state.get(Rel.Has.selector, 0, tileID);
         if (startBlockNum > 0 && !state.getIsFinalised(sessionID)) return sessionID;
@@ -588,76 +512,42 @@ contract CombatRule is Rule {
     ) private {
         // Create a new session
         prevCombatSessionID++;
-        uint64 sessionID = prevCombatSessionID;
+        uint64 rawSessionID = prevCombatSessionID;
 
         {
             // Link the session to the tiles
-            bytes24 sessionNode = Node.CombatSession(sessionID);
-            state.set(Rel.Has.selector, uint8(CombatSideKey.ATTACK), sessionNode, attTileID, ctx.clock);
-            state.set(Rel.Has.selector, uint8(CombatSideKey.DEFENCE), sessionNode, defTileID, ctx.clock);
+            bytes24 sessionID = Node.CombatSession(rawSessionID);
+            state.set(
+                Rel.Has.selector,
+                uint8(CombatSideKey.ATTACK),
+                sessionID,
+                attTileID,
+                ctx.clock + COMBAT_JOIN_WINDOW_BLOCKS
+            );
+            state.set(
+                Rel.Has.selector,
+                uint8(CombatSideKey.DEFENCE),
+                sessionID,
+                defTileID,
+                ctx.clock + COMBAT_JOIN_WINDOW_BLOCKS
+            );
 
-            // TODO: Find another way of doing this because making a two way connection is expensive
-            // TODO: Refactor 'Has' to 'Session' and increment the index so that rewards can be seen on tiles for old sessions
-            state.set(Rel.Has.selector, 0, attTileID, sessionNode, ctx.clock);
-            state.set(Rel.Has.selector, 0, defTileID, sessionNode, ctx.clock);
-        }
+            // We make a relationship from tile to session so we can check if a particular tile is in session
+            state.set(Rel.Has.selector, 0, attTileID, sessionID, ctx.clock + COMBAT_JOIN_WINDOW_BLOCKS);
+            state.set(Rel.Has.selector, 0, defTileID, sessionID, ctx.clock + COMBAT_JOIN_WINDOW_BLOCKS);
 
-        // Need a join action for each of the entities on the tiles
-        CombatAction[] memory sessionActions = new CombatAction[](attackers.length + defenders.length);
+            // -- We make log who is standing on the attack/defence tiles because we cannot get a list of who is standing at a particular tile
 
-        // Join each of the attackers to the session
-        // NOTE: Actions are not held in the graph!
-        // NOTE: For now not including buildings because with auto opt in, a building owned by the same person as the adjacent
-        //       building end up attacking their own building which seems really odd.
-        {
+            // Join all attackers
             for (uint256 i = 0; i < attackers.length; i++) {
-                uint64 arrivalBlockNum;
-                bytes24 entityTileID;
-
-                if (bytes4(attackers[i]) == Kind.MobileUnit.selector) {
-                    (entityTileID, arrivalBlockNum) =
-                        state.get(Rel.Location.selector, uint8(LocationKey.NEXT), attackers[i]);
-
-                    if (entityTileID != attTileID) revert("EntityNotAtAttackTile");
-                }
-
-                JoinActionInfo memory info =
-                    JoinActionInfo({combatSide: CombatSideKey.ATTACK, stats: _getStatsForEntity(state, attackers[i])});
-
-                sessionActions[i] = CombatAction(
-                    CombatActionKind.JOIN,
-                    attackers[i],
-                    arrivalBlockNum > ctx.clock ? arrivalBlockNum : ctx.clock,
-                    abi.encode(info)
-                );
+                _joinSession(state, sessionID, attTileID, 0, attackers[i]);
             }
-        }
 
-        // Join each of the defenders to the session
-        {
+            // Join all defenders
             for (uint256 i = 0; i < defenders.length; i++) {
-                uint64 arrivalBlockNum;
-                bytes24 entityTileID;
-
-                if (bytes4(defenders[i]) == Kind.MobileUnit.selector) {
-                    (entityTileID, arrivalBlockNum) =
-                        state.get(Rel.Location.selector, uint8(LocationKey.NEXT), defenders[i]);
-                    if (entityTileID != defTileID) revert("EntityNotAtDefenceTile");
-                }
-
-                JoinActionInfo memory info =
-                    JoinActionInfo({combatSide: CombatSideKey.DEFENCE, stats: _getStatsForEntity(state, defenders[i])});
-
-                sessionActions[attackers.length + i] = CombatAction(
-                    CombatActionKind.JOIN,
-                    defenders[i],
-                    arrivalBlockNum > ctx.clock ? arrivalBlockNum : ctx.clock,
-                    abi.encode(info)
-                );
+                _joinSession(state, sessionID, defTileID, 0, defenders[i]);
             }
         }
-
-        _emitSessionUpdate(state, Node.CombatSession(sessionID), sessionActions);
     }
 
     // NOTE: Using the term entity as it can be either a MobileUnit or a Building
@@ -705,22 +595,25 @@ contract CombatRule is Rule {
         State state,
         bytes24 sessionID,
         bytes24 mobileUnitTileID,
-        uint64 arrivalBlockNum,
+        uint64, /*arrivalBlockNum*/
         bytes24 mobileUnitID
     ) private {
-        (bytes24 attackTileID, /*uint64 combatStartBlock*/ ) =
-            state.get(Rel.Has.selector, uint8(CombatSideKey.ATTACK), sessionID);
+        (bytes24 attackTileID, /*uint64 combatStartBlock*/ ) = state.getAttackTile(sessionID);
 
-        JoinActionInfo memory info = JoinActionInfo({
-            combatSide: attackTileID == mobileUnitTileID ? CombatSideKey.ATTACK : CombatSideKey.DEFENCE,
-            stats: _getStatsForEntity(state, mobileUnitID)
-        });
-
-        // NOTE: Held in an array to keep it the same as the encoding used when starting combat
-        CombatAction[] memory combatActions = new CombatAction[](1);
-        combatActions[0] = CombatAction(CombatActionKind.JOIN, mobileUnitID, arrivalBlockNum, abi.encode(info));
-
-        _emitSessionUpdate(state, sessionID, combatActions);
+        // Find an empty slot of the combatSide the unit is joining
+        for (uint8 i = 0; i < MAX_ENTITIES_PER_SIDE; i++) {
+            bytes24 entityID =
+                attackTileID == mobileUnitTileID ? state.getAttacker(sessionID, i) : state.getDefender(sessionID, i);
+            if (entityID == bytes24(0)) {
+                if (attackTileID == mobileUnitTileID) {
+                    state.setAttacker(sessionID, i, mobileUnitID, 0);
+                    break;
+                } else {
+                    state.setDefender(sessionID, i, mobileUnitID, 0);
+                    break;
+                }
+            }
+        }
     }
 
     function _leaveSession(
@@ -728,31 +621,24 @@ contract CombatRule is Rule {
         bytes24 sessionID,
         bytes24 mobileUnitTileID,
         bytes24 mobileUnitID,
-        Context calldata ctx
+        Context calldata /*ctx*/
     ) private {
-        (bytes24 attackTileID, /*uint64 combatStartBlock*/ ) =
-            state.get(Rel.Has.selector, uint8(CombatSideKey.ATTACK), sessionID);
+        (bytes24 attackTileID, /*uint64 combatStartBlock*/ ) = state.getAttackTile(sessionID);
 
-        LeaveActionInfo memory info = LeaveActionInfo({
-            combatSide: attackTileID == mobileUnitTileID ? CombatSideKey.ATTACK : CombatSideKey.DEFENCE
-        });
-
-        // NOTE: Held in an array to keep it the same encoding as used when starting combat
-        CombatAction[] memory combatActions = new CombatAction[](1);
-        combatActions[0] = CombatAction(CombatActionKind.LEAVE, mobileUnitID, ctx.clock, abi.encode(info));
-
-        _emitSessionUpdate(state, sessionID, combatActions);
-    }
-
-    // NOTE: sessionUpdate is an encoded array of CombatActions
-    function _updateHash(State state, uint64 sessionID, bytes memory sessionUpdate) private returns (bytes20) {
-        bytes24 sessionNode = Node.CombatSession(sessionID);
-        bytes20 prevHash = state.getHash(sessionNode, HASH_EDGE_INDEX); // NOTE: Starts at 2 as I'm also using 'Has' edges to point to the 2 combat tiles
-        bytes20 newHash = bytes20(keccak256(abi.encodePacked(prevHash, sessionUpdate)));
-
-        // NOTE: Starts at 2 as I'm also using 'Has' edges to point to the 2 combat tiles
-        state.setHash(newHash, sessionNode, HASH_EDGE_INDEX);
-        return newHash;
+        // Find slot belonging to unitID and set to zero
+        for (uint8 i = 0; i < MAX_ENTITIES_PER_SIDE; i++) {
+            bytes24 entityID =
+                attackTileID == mobileUnitTileID ? state.getAttacker(sessionID, i) : state.getDefender(sessionID, i);
+            if (entityID == mobileUnitID) {
+                if (attackTileID == mobileUnitTileID) {
+                    state.setAttacker(sessionID, i, bytes24(0), 0);
+                    break;
+                } else {
+                    state.setDefender(sessionID, i, bytes24(0), 0);
+                    break;
+                }
+            }
+        }
     }
 
     function _requirePlayerOwnedMobileUnit(State state, bytes24 mobileUnit, bytes24 player) private view {
@@ -769,17 +655,6 @@ contract CombatRule is Rule {
         } else {
             state.setOwner(bag, entityID);
         }
-    }
-
-    function _emitSessionUpdate(State state, bytes24 sessionID, CombatAction[] memory sessionActions) private {
-        actionCount++;
-        _updateHash(state, CompoundKeyDecoder.UINT64(sessionID), abi.encode(sessionActions));
-        emit SessionUpdate(CompoundKeyDecoder.UINT64(sessionID), abi.encode(sessionActions));
-        state.annotate(
-            sessionID,
-            string(abi.encodePacked("action-", LibString.toString(actionCount))),
-            Base64.encode(abi.encode(sessionActions))
-        );
     }
 
     // -- MATH

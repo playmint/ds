@@ -1,5 +1,5 @@
 import { formatNameOrId, getItemStructure } from '@app/helpers';
-import { ATOM_ATTACK, ATOM_DEFENSE, ATOM_LIFE, CombatAction, EntityState } from '@app/plugins/combat/combat';
+import { ATOM_ATTACK, ATOM_DEFENSE, ATOM_LIFE, EntityState } from '@app/plugins/combat/combat';
 import { CombatParticipantProps } from '@app/plugins/combat/combat-participant';
 import {
     BuildingKindFragment,
@@ -112,27 +112,6 @@ export function getActions(session: CombatSession) {
         });
     });
     return actions;
-}
-
-export function convertCombatActions(actions: CombatActionStruct[][]): CombatAction[][] {
-    const convertedActions: CombatAction[][] = [];
-    for (let i = 0; i < actions.length; i++) {
-        const row: CombatAction[] = [];
-        for (let j = 0; j < actions[i].length; j++) {
-            const actionStruct = actions[i][j];
-
-            const convertedAction: CombatAction = {
-                kind: Number(actionStruct.kind),
-                entityID: actionStruct.entityID,
-                blockNum: Number(actionStruct.blockNum),
-                data: actionStruct.data,
-            };
-
-            row.push(convertedAction);
-        }
-        convertedActions.push(row);
-    }
-    return convertedActions;
 }
 
 export const getIcon = (entityID: BytesLike, mobileUnits: WorldMobileUnitFragment[]) => {

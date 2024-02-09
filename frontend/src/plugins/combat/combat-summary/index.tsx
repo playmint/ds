@@ -1,15 +1,8 @@
 /** @format */
 
-import {
-    CogAction,
-    ConnectedPlayer,
-    WorldMobileUnitFragment,
-    WorldStateFragment,
-    WorldTileFragment,
-} from '@app/../../core/src';
+import { ConnectedPlayer, WorldMobileUnitFragment, WorldStateFragment, WorldTileFragment } from '@app/../../core/src';
 import { Dialog } from '@app/components/molecules/dialog';
-import { ATOM_LIFE, Combat, CombatWinState, EntityState } from '@app/plugins/combat/combat';
-import { convertCombatActions, getActions } from '@app/plugins/combat/helpers';
+import { getMaterialStats, getMobileUnitStats } from '@app/plugins/combat/helpers';
 import { ProgressBar } from '@app/plugins/combat/progress-bar';
 import { ComponentProps } from '@app/types/component-props';
 import { getSessionsAtTile } from '@downstream/core/src/utils';
@@ -19,6 +12,7 @@ import { CombatModal } from '../combat-modal';
 import { styles } from './combat-summary.styles';
 import { ActionButton } from '@app/styles/button.styles';
 import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
+import { BLOCK_TIME_SECS } from '@app/fixtures/block-time-secs';
 
 export interface CombatSummaryProps extends ComponentProps {
     selectedTiles: WorldTileFragment[];
@@ -34,9 +28,8 @@ const StyledCombatSummary = styled(StyledHeaderPanel)`
 
 export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: CombatSummaryProps) => {
     const { selectedTiles, world, blockNumber, player } = props;
-    const sessions = world?.sessions || [];
-    const [modal, setModal] = useState<boolean>(false);
 
+    const [modal, setModal] = useState<boolean>(false);
     const showModal = useCallback(() => {
         setModal(true);
     }, []);
@@ -45,19 +38,29 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
         setModal(false);
     }, []);
 
-    const handleFinaliseCombat = () => {
-        if (!latestSession) {
-            return;
-        }
-        if (!player) {
-            return;
-        }
-        const action: CogAction = {
-            name: 'FINALISE_COMBAT',
-            args: [latestSession.id, actions, orderedListIndexes],
-        };
-        player.dispatchAndWait(action).catch((err) => console.error(err));
+    const formattedTimeFromSeconds = (seconds: number) => {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes}:${remainingSeconds < 10 ? `0${remainingSeconds}` : remainingSeconds}`;
     };
+
+    if (!world) return null;
+
+    const sessions = world.sessions || [];
+
+    // const handleFinaliseCombat = () => {
+    //     if (!latestSession) {
+    //         return;
+    //     }
+    //     if (!player) {
+    //         return;
+    //     }
+    //     const action: CogAction = {
+    //         name: 'FINALISE_COMBAT',
+    //         args: [latestSession.id],
+    //     };
+    //     player.dispatchAndWait(action).catch((err) => console.error(err));
+    // };
 
     const selectedTileSessions = selectedTiles.length > 0 ? getSessionsAtTile(sessions, selectedTiles[0]) : [];
     if (selectedTiles.length === 0 || selectedTileSessions.length === 0) {
@@ -68,25 +71,54 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
         return a.attackTile && b.attackTile ? b.attackTile.startBlock - a.attackTile.startBlock : 0;
     })[0];
 
-    const actions = latestSession && getActions(latestSession);
+    if (!latestSession.attackTile) {
+        return null;
+    }
 
-    if (!actions || !blockNumber) return null;
+    if (latestSession.isFinalised) {
+        return null;
+    }
 
-    const convertedActions = convertCombatActions(actions);
-    const combat = new Combat(); // Is a class because it was converted from solidity
-    const orderedListIndexes = combat.getOrderedListIndexes(convertedActions);
-    const combatState = combat.calcCombatState(convertedActions, orderedListIndexes, blockNumber);
+    const combatStartRemainingSecs = Math.max(0, latestSession.attackTile.startBlock - blockNumber) * BLOCK_TIME_SECS;
+    // const hasCombatStarted = blockNumber >= latestSession.attackTile.startBlock;
 
-    const sumStats = (
-        [participantsMaxHealth, participantsCurrentHealth]: number[],
-        { stats, damage, isPresent }: EntityState
-    ) => {
-        const maxHealth = isPresent ? stats[ATOM_LIFE] : 0;
-        const currentHealth = isPresent ? Math.max(stats[ATOM_LIFE] - damage, 0) : 0;
-        return [participantsMaxHealth + maxHealth, participantsCurrentHealth + currentHealth];
-    };
-    const [attackersMaxHealth, attackersCurrentHealth] = combatState.attackerStates.reduce(sumStats, [0, 0]);
-    const [defendersMaxHealth, defendersCurrentHealth] = combatState.defenderStates.reduce(sumStats, [0, 0]);
+    // Find all units/buildings present on the two combat tiles
+    const attackUnits = world.mobileUnits.filter((u) => u.nextLocation?.tile.id == latestSession.attackTile?.tile.id);
+    const attackBuildings = world.buildings.filter((b) => b.location?.tile.id == latestSession.attackTile?.tile.id);
+    const defenceUnits = world.mobileUnits.filter((u) => u.nextLocation?.tile.id == latestSession.defenceTile?.tile.id);
+    const defenceBuildings = world.buildings.filter((b) => b.location?.tile.id == latestSession.defenceTile?.tile.id);
+
+    // Get attack stats
+    const attackersStats = attackUnits
+        .map((u) => {
+            const [life, def, atk] = getMobileUnitStats(u, world.bags);
+            return { life, def, atk };
+        })
+        .concat(
+            attackBuildings.map((b) => {
+                const [life, def, atk] = getMaterialStats(b.kind?.materials || []);
+                return { life, def, atk };
+            })
+        );
+
+    // Get defence stats
+    const defendersStats = defenceUnits
+        .map((u) => {
+            const [life, def, atk] = getMobileUnitStats(u, world.bags);
+            return { life, def, atk };
+        })
+        .concat(
+            defenceBuildings.map((b) => {
+                const [life, def, atk] = getMaterialStats(b.kind?.materials || []);
+                return { life, def, atk };
+            })
+        );
+
+    // Sum up health state for both sides
+    const attackersMaxHealth = attackersStats.reduce((acc, stats) => acc + stats.life, 0);
+    const attackersCurrentHealth = attackersMaxHealth;
+    const defendersMaxHealth = defendersStats.reduce((acc, stats) => acc + stats.life, 0);
+    const defendersCurrentHealth = defendersMaxHealth;
 
     return (
         <StyledCombatSummary>
@@ -98,14 +130,15 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
                         closeModal={closeModal}
                         blockNumber={blockNumber}
                         session={latestSession}
+                        combatStartRemainingSecs={combatStartRemainingSecs}
                     />
                 </Dialog>
             )}
             <div className="header">
-                <h3 className="title">Tile in combat</h3>
+                <h3 className="title">Combat starts in {formattedTimeFromSeconds(combatStartRemainingSecs)}</h3>
                 <img src="/combat-header.png" alt="" className="icon" />
             </div>
-            {actions && (
+            {
                 <div className="content">
                     <div className="attackers">
                         <span className="heading">Attackers</span>
@@ -116,11 +149,9 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
                         <ProgressBar maxValue={defendersMaxHealth} currentValue={defendersCurrentHealth} />
                     </div>
                     <ActionButton onClick={showModal}>View Combat</ActionButton>
-                    {combatState.winState !== CombatWinState.NONE && (
-                        <ActionButton onClick={handleFinaliseCombat}>End Combat</ActionButton>
-                    )}
+                    {/* {hasCombatStarted && <ActionButton onClick={handleFinaliseCombat}>End Combat</ActionButton>} */}
                 </div>
-            )}
+            }
         </StyledCombatSummary>
     );
 };

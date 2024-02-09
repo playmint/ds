@@ -19,11 +19,10 @@ let startTime;
 let endTime;
 
 export default async function update(state, block) {
-    
     //
     // Action handler functions
     //
-    
+
     // An action can set a form submit handler which will be called after the action along with the form values
     let handleFormSubmit;
 
@@ -128,8 +127,8 @@ export default async function update(state, block) {
     );
 
     // early out if we don't have any buildings or state isn't ready
-    if (!selectedBuilding || !state?.world?.buildings ) {
-        console.log("NO DVB BUILDING FOUND");
+    if (!selectedBuilding || !state?.world?.buildings) {
+        // console.log("NO DVB BUILDING FOUND");
         return {
             version: 1,
             map: [],
@@ -177,8 +176,7 @@ export default async function update(state, block) {
         endBlock,
     );
 
-    connectDisplayBuildings(state, localBuildings);   
-    
+    connectDisplayBuildings(state, localBuildings);
 
     // check current game state:
     // - NotStarted : GameActive == false
@@ -192,38 +190,42 @@ export default async function update(state, block) {
     let htmlBlock = "<h3>Ducks vs Burgers HQ</h3>";
     htmlBlock += `<p>payout for win: ${prizeFee * 2}</p>`;
     htmlBlock += `<p>payout for draw: ${prizeFee}</p></br>`;
-    
 
     const canJoin = !gameActive && hasFee;
     const canStart = !gameActive && teamDuckLength > 0 && teamBurgerLength > 0;
 
     if (canJoin) {
-        htmlBlock += `<p>total players: ${teamDuckLength + teamBurgerLength}</p></br>`;
+        htmlBlock += `<p>total players: ${
+            teamDuckLength + teamBurgerLength
+        }</p></br>`;
     }
 
     // Show what team the unit is on
     const mobileUnit = getMobileUnit(state);
     let isOnTeam = false;
-    if (mobileUnit){
-        let unitTeam = '';
+    if (mobileUnit) {
+        let unitTeam = "";
 
         for (let i = 0; i < teamDuckLength; i++) {
             if (mobileUnit.id == getHQTeamUnit(selectedBuilding, "Duck", i)) {
-                unitTeam = '🐤';
+                unitTeam = "🐤";
                 break;
             }
         }
 
-        if (unitTeam === '') {
+        if (unitTeam === "") {
             for (let i = 0; i < teamBurgerLength; i++) {
-                if (mobileUnit.id == getHQTeamUnit(selectedBuilding, "Burger", i)) {
-                    unitTeam = '🍔';
+                if (
+                    mobileUnit.id ==
+                    getHQTeamUnit(selectedBuilding, "Burger", i)
+                ) {
+                    unitTeam = "🍔";
                     break;
                 }
             }
         }
 
-        if (unitTeam !== '') {
+        if (unitTeam !== "") {
             isOnTeam = true;
             htmlBlock += `
                 <p>You are on team ${unitTeam}</p></br>
@@ -231,28 +233,32 @@ export default async function update(state, block) {
         }
     }
 
-    if (!gameActive){
-        if (!isOnTeam){
+    if (!gameActive) {
+        if (!isOnTeam) {
             buttonList.push({
                 text: `Join Game (${prizeFee} Green Goo)`,
                 type: "action",
                 action: join,
                 disabled: !canJoin || isOnTeam,
             });
-        }else{
+        } else {
             // Check reason why game can't start
-            const waitingForStartCondition = teamDuckLength != teamBurgerLength || teamDuckLength + teamBurgerLength < 2;
+            const waitingForStartCondition =
+                teamDuckLength != teamBurgerLength ||
+                teamDuckLength + teamBurgerLength < 2;
             let startConditionMessage = "";
-            if (waitingForStartCondition){
-                if (teamDuckLength + teamBurgerLength < 2){
-                    startConditionMessage = "Waiting for players..."
-                } else if (teamDuckLength != teamBurgerLength){
+            if (waitingForStartCondition) {
+                if (teamDuckLength + teamBurgerLength < 2) {
+                    startConditionMessage = "Waiting for players...";
+                } else if (teamDuckLength != teamBurgerLength) {
                     startConditionMessage = "Teams must be balanced...";
                 }
             }
 
             buttonList.push({
-                text: waitingForStartCondition ? startConditionMessage : "Start",
+                text: waitingForStartCondition
+                    ? startConditionMessage
+                    : "Start",
                 type: "action",
                 action: start,
                 disabled: !canStart || teamDuckLength != teamBurgerLength,
@@ -281,9 +287,12 @@ export default async function update(state, block) {
 
     const nowBlock = block;
     const blocksLeft = endBlock > nowBlock ? endBlock - nowBlock : 0;
-    const blocksFromStart =  nowBlock - startBlock ;
+    const blocksFromStart = nowBlock - startBlock;
     const timeLeftMs = blocksLeft * 2 * 1000;
-    const timeSinceStartMs = startBlock <= nowBlock ? blocksFromStart * 2 * 1000 : countdownTotalTime;
+    const timeSinceStartMs =
+        startBlock <= nowBlock
+            ? blocksFromStart * 2 * 1000
+            : countdownTotalTime;
 
     if (gameActive) {
         // Display selected team buildings
@@ -303,22 +312,20 @@ export default async function update(state, block) {
         `;
 
         const now = Date.now();
-        if(!startTime)
-            startTime = now-timeSinceStartMs;
-        if(!endTime)
-            endTime = now+timeLeftMs;
-        
+        if (!startTime) startTime = now - timeSinceStartMs;
+        if (!endTime) endTime = now + timeLeftMs;
+
         if (blocksLeft > 0) {
             htmlBlock += `<p>time remaining: ${formatTime(timeLeftMs)}</p>`;
         } else {
             // End of game
-          buttonList.push({
+            buttonList.push({
                 text: prizePool > 0 ? `Claim Reward` : "Nothing to Claim",
                 type: "action",
                 action: claim,
                 disabled: prizePool == 0,
             });
-          
+
             htmlBlock += `
                 <h3 style="margin-top: 1em;">Game Over:</h3>
                 <p>Final Score: 🐤${duckCount} : 🍔${burgerCount}
@@ -434,7 +441,7 @@ function getHQData(selectedBuilding) {
     );
     const teamDuckLength = getDataInt(selectedBuilding, "teamDuckLength");
     const teamBurgerLength = getDataInt(selectedBuilding, "teamBurgerLength");
-  
+
     return {
         prizePool,
         gameActive,
@@ -448,7 +455,7 @@ function getHQData(selectedBuilding) {
     };
 }
 
-function getHQTeamUnit(selectedBuilding, team, index){
+function getHQTeamUnit(selectedBuilding, team, index) {
     return getDataBytes24(selectedBuilding, `team${team}Unit_${index}`);
 }
 
