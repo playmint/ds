@@ -49,22 +49,19 @@ export default {
 };
 `;
 
-let pollPendingJobsTimeout;
-
 function pollPendingJobs() {
     if (runtime && runtime.hasPendingJob()) {
         runtime.executePendingJobs(1);
     }
     const ms = runtime.hasPendingJob() ? 0 : 100;
-    pollPendingJobsTimeout = setTimeout(() => pollPendingJobs(), ms);
+    setTimeout(() => pollPendingJobs(), ms);
 }
 
 export async function init() {
     const qjs = await getQuickJS();
 
     runtime = qjs.newRuntime();
-    // runtime.setMemoryLimit(1024 * 640);
-    runtime.setMemoryLimit(110000);
+    runtime.setMemoryLimit(1024 * 640 * 10);
     runtime.setMaxStackSize(1024 * 320);
 
     pollPendingJobs();
@@ -76,58 +73,9 @@ export async function init() {
     // });
 }
 
-export async function disposeRuntime() {
-    // renamed branch
-    if (!runtime) return;
-    console.log('runtime before: ', await runtime.dumpMemoryUsage());
-    console.log('%c DISPOSING CONTEXTS & RUNTIME...', 'background: #222; color: #bada55');
-    const disposeContextPromises = contexts.map((ctx) => {
-        return new Promise((resolve, reject) => {
-            try {
-                ctx.dispose();
-                resolve(ctx);
-            } catch (err) {
-                reject(err);
-            }
-        });
-    });
-
-    try {
-        await Promise.all(disposeContextPromises);
-        console.log('%c contexts disposed successfully...', 'background: #222; color: #bada55');
-    } catch (err) {
-        console.error('Error disposing contexts: ', err);
-    }
-    //contexts = [];
-
-    try {
-        //clearTimeout(pollPendingJobsTimeout);
-        //console.log('%c cleared pending jobs timeout (remove this later?)...', 'background: #222; color: #bada55');
-    } catch (err) {
-        console.error('Error clearing pollPendingJobs timeout: ', err);
-    }
-    try {
-        await init();
-        console.log('%c runtime re-initialized successfully...', 'background: #222; color: #bada55');
-    } catch (err) {
-        console.error('Error re-initializing runtime: ', err);
-    }
-
-    console.log('runtime after: ', await runtime.dumpMemoryUsage());
-}
-
 // can also die at update time
 export async function setState(newState: GameStatePlugin, newBlock: number) {
-    //console.log(runtime.dumpMemoryUsage());
     contexts.forEach(async (context) => {
-        if (context && context.alive) {
-            // try {
-            //     context.dispose();
-            //     console.log(`Disposed context `, context);
-            // } catch (err) {
-            //     console.error(`Error disposing context `, context, err);
-            // }
-        }
         if (context && context.alive) {
             try {
                 context.evalCode(`
@@ -136,13 +84,6 @@ export async function setState(newState: GameStatePlugin, newBlock: number) {
             `);
             } catch (err) {
                 if (String(err).includes('memory access out of bounds')) {
-                    // Now try to dispose contexts/runtime?
-                    // try {
-                    //     await disposeRuntime();
-                    //     return;
-                    // } catch (errr) {
-                    //     console.error('Could not dispose... ', errr);
-                    // }
                     throw new Error('SANDBOX_OOM');
                 }
             }
@@ -183,13 +124,7 @@ export async function evalCode(contextID: number, code: string) {
         return JSON.parse(responseJSON);
     } catch (err) {
         console.error('plugin did not return an expected response object:', err);
-        if (String(err).includes('memory')) {
-            // try {
-            //     await disposeRuntime();
-            //     return;
-            // } catch (errr) {
-            //     console.error('Could not dispose... ', errr);
-            // }
+        if (String(err).includes('out of memory')) {
             throw new Error('SANDBOX_OOM');
         }
         return {};
@@ -205,8 +140,10 @@ export async function newContext(
     try {
         return _newContext(dispatch, logMessage, questMessage, config);
     } catch (err) {
-        // convert to SANDBOX_OOM
+        // So far haven't hit this error - need to trigger the memory error to make the .includes('memory') more specific
+        // (it should be more like 'memory access out of bounds' or 'out of memory')
         if (String(err).includes('memory')) {
+            console.error('This error message needs to be in the .includes part of the if statement: ', err);
             throw new Error('SANDBOX_OOM');
         } else {
             throw err;

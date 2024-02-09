@@ -174,12 +174,8 @@ export function makePluginUI(
                                         error: 'SANDBOX_OOM',
                                     };
                                 }
-                                console.error(`plugin ${p.id}:`, err);
-                                console.log(`Removing plugin ${p.id} from 'active' due to error`);
+                                console.error(`Removing plugin ${p.id} from 'active' due to error`, err);
                                 active.delete(p.id);
-                                console.log(`removed`);
-                                // NEED TO *UNLOAD* PLUGIN FROM CONTEXT - DESTROY CONTEXT
-                                // use p.id to call from sandbox to delete context properly
                                 sandbox.deleteContext(p.id);
                                 return null;
                             }
@@ -376,9 +372,7 @@ export async function loadPlugin(
                 state: apiv1.normalizePluginState(_pluginResponse, submitProxy),
             };
         } catch (err) {
-            // call sandbox dispose all
-            if (String(err).includes('memory')) {
-                //await sandbox.disposeRuntime();
+            if (String(err).includes('SANDBOX_OOM') || String(err).includes('out of memory')) {
                 throw new Error('SANDBOX_OOM');
             }
             console.error('plugin did not return an expected response object:', err);
