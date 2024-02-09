@@ -36,8 +36,6 @@ import {
 import { getBagsAtEquipee, getBuildingAtTile } from './utils';
 import { Logger } from './logger';
 
-const active = new Map<string, ActivePlugin>();
-
 /**
  * makeAvailablePlugins polls for the list of deployed plugins every now and
  * then (60s).
@@ -74,6 +72,8 @@ async function noopDispatcher(..._actions: CogAction[]): Promise<QueuedSequencer
     throw new Error('dispatch failed: attempt to dispatch without a connected player');
 }
 
+const activeBySandbox = new WeakMap<Object, Map<string, ActivePlugin>>();
+
 /**
  * makePluginUI sends the current State to each wanted plugin and returns a
  * stream of all the normalized plugin responses.
@@ -91,26 +91,53 @@ export function makePluginUI(
         debounce(() => 250),
         map<any, Promise<PluginUpdateResponse[]>>(
             async ({ state, plugins, block }: { state: GameState; plugins: PluginConfig[]; block: number }) => {
-                await sandbox.setState(
-                    {
-                        player: state.player
-                            ? {
-                                  id: state.player.id,
-                                  addr: state.player.addr,
-                                  quests: state.player.quests,
-                              }
-                            : undefined,
-                        world: {
-                            ...(state.world || {}),
-                            sessions: [],
+                if (!activeBySandbox.has(sandbox)) {
+                    const m = new Map<string, ActivePlugin>();
+                    activeBySandbox.set(sandbox, m);
+                }
+                const active = activeBySandbox.get(sandbox)!;
+                try {
+                    await sandbox.setState(
+                        {
+                            player: state.player
+                                ? {
+                                      id: state.player.id,
+                                      addr: state.player.addr,
+                                      quests: state.player.quests,
+                                  }
+                                : undefined,
+                            world: {
+                                ...(state.world || {}),
+                                sessions: [],
+                            },
+                            selected: state.selected,
                         },
-                        selected: state.selected,
-                    },
-                    block,
-                );
+                        block,
+                    );
+                } catch (err: any) {
+                    if (err?.message && err?.message == 'SANDBOX_OOM') {
+                        const dummy: PluginUpdateResponse = {
+                            config: {
+                                id: 'dummy',
+                                name: 'just-here-to-pass-the-oom-error',
+                                type: PluginType.CORE,
+                                trust: PluginTrust.UNTRUSTED,
+                                src: '',
+                                kindID: '',
+                            },
+                            state: {
+                                components: [],
+                                map: [],
+                            },
+                            error: 'SANDBOX_OOM',
+                        };
+                        return [dummy];
+                    }
+                    return [];
+                }
                 return Promise.all(
                     plugins
-                        .map(async (p) => {
+                        .map(async (p): Promise<PluginUpdateResponse | null> => {
                             try {
                                 const { player } = state;
                                 const dispatch = player ? player.dispatch : noopDispatcher;
@@ -135,8 +162,18 @@ export function makePluginUI(
                                     return null;
                                 }
                                 active.set(p.id, plugin);
-                                return plugin.update();
-                            } catch (err) {
+                                return await plugin.update();
+                            } catch (err: any) {
+                                if (err?.message && err?.message == 'SANDBOX_OOM') {
+                                    return {
+                                        config: p,
+                                        state: {
+                                            components: [],
+                                            map: [],
+                                        },
+                                        error: 'SANDBOX_OOM',
+                                    };
+                                }
                                 console.error(`plugin ${p.id}:`, err);
                                 console.log(`Removing plugin ${p.id} from 'active' due to error`);
                                 active.delete(p.id);
@@ -325,25 +362,26 @@ export async function loadPlugin(
 
     // setup the update func
     const updateProxy = async (): Promise<PluginUpdateResponse> => {
-        const pluginResponse = await sandbox.evalCode(
-            context,
-            `(async () => {
-                return globalThis.__update();
-            })()`,
-        );
-
         try {
+            const pluginResponse = await sandbox.evalCode(
+                context,
+                `(async () => {
+                    return globalThis.__update();
+                })()`,
+            );
+
             const _pluginResponse = (await sandbox.hasContext(context)) === true ? pluginResponse : {};
             return {
                 config,
                 state: apiv1.normalizePluginState(_pluginResponse, submitProxy),
             };
         } catch (err) {
-            console.error('plugin did not return an expected response object:', err);
             // call sandbox dispose all
             if (String(err).includes('memory')) {
-                await sandbox.disposeRuntime();
+                //await sandbox.disposeRuntime();
+                throw new Error('SANDBOX_OOM');
             }
+            console.error('plugin did not return an expected response object:', err);
             return {
                 config,
                 state: apiv1.normalizePluginState({}, submitProxy),

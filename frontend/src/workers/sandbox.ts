@@ -49,7 +49,7 @@ export default {
 };
 `;
 
-let pollPendingJobsTimeout: NodeJS.Timeout;
+let pollPendingJobsTimeout;
 
 function pollPendingJobs() {
     if (runtime && runtime.hasPendingJob()) {
@@ -64,7 +64,7 @@ export async function init() {
 
     runtime = qjs.newRuntime();
     // runtime.setMemoryLimit(1024 * 640);
-    runtime.setMemoryLimit(46000);
+    runtime.setMemoryLimit(110000);
     runtime.setMaxStackSize(1024 * 320);
 
     pollPendingJobs();
@@ -137,12 +137,13 @@ export async function setState(newState: GameStatePlugin, newBlock: number) {
             } catch (err) {
                 if (String(err).includes('memory access out of bounds')) {
                     // Now try to dispose contexts/runtime?
-                    try {
-                        await disposeRuntime();
-                        return;
-                    } catch (errr) {
-                        console.error('Could not dispose... ', errr);
-                    }
+                    // try {
+                    //     await disposeRuntime();
+                    //     return;
+                    // } catch (errr) {
+                    //     console.error('Could not dispose... ', errr);
+                    // }
+                    throw new Error('SANDBOX_OOM');
                 }
             }
         }
@@ -183,18 +184,36 @@ export async function evalCode(contextID: number, code: string) {
     } catch (err) {
         console.error('plugin did not return an expected response object:', err);
         if (String(err).includes('memory')) {
-            try {
-                await disposeRuntime();
-                return;
-            } catch (errr) {
-                console.error('Could not dispose... ', errr);
-            }
+            // try {
+            //     await disposeRuntime();
+            //     return;
+            // } catch (errr) {
+            //     console.error('Could not dispose... ', errr);
+            // }
+            throw new Error('SANDBOX_OOM');
         }
         return {};
     }
 }
 
 export async function newContext(
+    dispatch: PluginDispatchFunc,
+    logMessage: Logger,
+    questMessage: Logger,
+    config: PluginConfig
+): Promise<number> {
+    try {
+        return _newContext(dispatch, logMessage, questMessage, config);
+    } catch (err) {
+        // convert to SANDBOX_OOM
+        if (String(err).includes('memory')) {
+            throw new Error('SANDBOX_OOM');
+        } else {
+            throw err;
+        }
+    }
+}
+export async function _newContext(
     dispatch: PluginDispatchFunc,
     logMessage: Logger,
     questMessage: Logger,
@@ -501,6 +520,6 @@ export async function newContext(
     return contextID;
 }
 
-const sandbox: Sandbox = { init, disposeRuntime, newContext, deleteContext, hasContext, evalCode, setState };
+const sandbox: Sandbox = { init, newContext, deleteContext, hasContext, evalCode, setState };
 
 Comlink.expose(sandbox);

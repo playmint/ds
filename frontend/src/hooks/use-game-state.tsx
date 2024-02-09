@@ -30,7 +30,7 @@ import {
     World,
 } from '@app/../../core/src';
 import * as Comlink from 'comlink';
-import { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, ReactNode, useMemo, useContext, useEffect, useRef, useState } from 'react';
 import { mergeMap, pipe, scan, Source, subscribe } from 'wonka';
 import { useWalletProvider } from './use-wallet-provider';
 
@@ -50,7 +50,7 @@ export interface SelectionSelectors {
     selectMapElement: Selector<SelectedMapElement | undefined>;
 }
 
-export interface DSContextValue {
+export interface DSContextValue1 {
     wallet: Source<Wallet | undefined>;
     player: Source<ConnectedPlayer | undefined>;
     world: Source<World>;
@@ -59,14 +59,19 @@ export interface DSContextValue {
     selection: Source<Selection>;
     selectors: SelectionSelectors;
     selectProvider: Selector<WalletProvider>;
-    ui: Source<PluginUpdateResponse[]>;
     logger: Logger;
     logs: Source<Log>;
-    questMsgSender: Logger;
-    questMsgs: Source<Log>;
     buildingKinds: Source<AvailableBuildingKind[]>;
     availablePlugins: Source<AvailablePlugin[]>;
 }
+
+export interface DSContextValue2 {
+    ui: Source<PluginUpdateResponse[]>;
+    questMsgSender: Logger;
+    questMsgs: Source<Log>;
+}
+
+export type DSContextValue = DSContextValue1 & DSContextValue2;
 
 export type DSContextStore = Partial<DSContextValue>;
 
@@ -76,42 +81,24 @@ export const useSources = () => useContext(DSContext);
 
 export const GameStateProvider = ({ config, children }: DSContextProviderProps) => {
     const { provider } = useWalletProvider();
-    const [sources, setSources] = useState<DSContextStore>({});
-    const [sb, setSandbox] = useState<{ sandbox: Comlink.Remote<Sandbox> }>();
+    const [sources1, setSources1] = useState<DSContextValue1>();
+    const [sources2, setSources2] = useState<DSContextValue2>();
+    const [sandboxDeaths, setSandboxDeaths] = useState<number>(0);
     const workerRef = useRef<Worker>();
-
-    useEffect(() => {
-        workerRef.current = new Worker(new URL('../workers/sandbox.ts', import.meta.url));
-        const workerSandbox: Comlink.Remote<Sandbox> = Comlink.wrap(workerRef.current);
-        workerSandbox
-            .init()
-            .then(() => {
-                setSandbox({ sandbox: workerSandbox });
-            })
-            .catch(() => console.error(`sandbox init fail`));
-        return () => {
-            workerRef.current?.terminate();
-        };
-    }, []);
 
     useEffect(() => {
         if (!config) {
             return;
         }
-        if (!sb) {
-            return;
-        }
         const { wallet, selectProvider } = makeWallet();
         const { client } = makeCogClient(config);
         const { logger, logs } = makeLogger({ name: 'main' });
-        const { logger: questMsgSender, logs: questMsgs } = makeLogger({ name: 'questMessages' });
         const player = makeConnectedPlayer(client, wallet, logger);
         const world = makeWorld(client);
         const tiles = makeTiles(client);
         const { selection, ...selectors } = makeSelection(client, world, tiles, player);
 
         const { plugins: availablePlugins } = makeAvailablePlugins(client);
-        const { plugins: activePlugins } = makeAutoloadPlugins(availablePlugins, selection, world);
 
         const { kinds: buildingKinds } = makeAvailableBuildingKinds(client);
 
@@ -129,9 +116,8 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
             client,
             mergeMap((client) => client.block)
         );
-        const ui = makePluginUI(activePlugins, sb.sandbox, logger, questMsgSender, state, block);
 
-        setSources({
+        setSources1({
             block,
             wallet,
             player,
@@ -142,15 +128,68 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
             state,
             availablePlugins,
             buildingKinds,
-            ui,
             logger,
             logs,
-            questMsgSender,
-            questMsgs,
         });
-    }, [config, sb]);
+    }, [config]);
 
-    const { selectProvider } = sources;
+    useEffect(() => {
+        if (workerRef.current) {
+            workerRef.current?.terminate();
+        }
+        if (!sources1) {
+            return;
+        }
+        const { availablePlugins, selection, world, logger, state, block } = sources1;
+        if (!availablePlugins) {
+            return;
+        }
+        if (!selection) {
+            return;
+        }
+        if (!world) {
+            return;
+        }
+        if (!logger) {
+            return;
+        }
+        if (!state) {
+            return;
+        }
+        if (!block) {
+            return;
+        }
+        console.log('restart count', sandboxDeaths);
+        workerRef.current = new Worker(new URL('../workers/sandbox.ts', import.meta.url));
+        const workerSandbox: Comlink.Remote<Sandbox> = Comlink.wrap(workerRef.current);
+        workerSandbox
+            .init()
+            .then(() => {
+                console.log('new sandbox started');
+                const { logger: questMsgSender, logs: questMsgs } = makeLogger({ name: 'questMessages' });
+                const { plugins: activePlugins } = makeAutoloadPlugins(availablePlugins, selection, world);
+                const ui = makePluginUI(activePlugins, workerSandbox, logger, questMsgSender, state, block);
+
+                pipe(
+                    ui,
+                    subscribe((responses) => {
+                        if (responses.some((res) => res.error === 'SANDBOX_OOM')) {
+                            console.error('sandbox OOM detected, restarting?');
+                            setSandboxDeaths((prev) => prev + 1);
+                        }
+                    })
+                );
+                setSources2({
+                    ...sources1,
+                    ui,
+                    questMsgSender,
+                    questMsgs,
+                });
+            })
+            .catch(() => console.error(`sandbox init fail`));
+    }, [sandboxDeaths, sources1]);
+
+    const { selectProvider } = sources1 || {};
 
     useEffect(() => {
         if (!selectProvider) {
@@ -162,7 +201,14 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
         selectProvider(provider);
     }, [selectProvider, provider]);
 
-    return <DSContext.Provider value={sources}>{children}</DSContext.Provider>;
+    const value = useMemo(() => {
+        return {
+            ...(sources1 || {}),
+            ...(sources2 || {}),
+        };
+    }, [sources1, sources2]);
+
+    return <DSContext.Provider value={value || {}}>{children}</DSContext.Provider>;
 };
 
 export function useBlock(): number | undefined {

@@ -26,7 +26,6 @@ export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<T>;
 
 export interface Sandbox {
     init: () => Promise<void>;
-    disposeRuntime;
     newContext: (
         dispatch: PluginDispatchFunc,
         logMessage: Logger,
@@ -327,6 +326,7 @@ export interface PluginState {
 export interface PluginUpdateResponse {
     config: PluginConfig;
     state: PluginState;
+    error?: string;
 }
 
 export type PluginSubmitProxy = (ref: string, values: PluginSubmitCallValues) => Promise<void>;
