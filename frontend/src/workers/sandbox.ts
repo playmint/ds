@@ -77,7 +77,6 @@ export async function init() {
 }
 
 export async function disposeRuntime() {
-    console.log('pre dispose testing! ', usePluginReload);
     // renamed branch
     if (!runtime) return;
     console.log('runtime before: ', await runtime.dumpMemoryUsage());
