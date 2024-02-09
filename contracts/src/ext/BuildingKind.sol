@@ -9,6 +9,9 @@ interface IBuildingKind {
 }
 
 contract BuildingKind is IBuildingKind {
-    function use(Game ds, bytes24 buildingInstanceID, bytes24 mobileUnitID, bytes memory payload) virtual external {}
-    function construct(Game ds, bytes24 buildingInstanceID, bytes24 mobileUnitID, bytes memory payload) virtual external {}
+    function use(Game ds, bytes24 buildingInstanceID, bytes24 mobileUnitID, bytes memory payload) external virtual {}
+    function construct(Game ds, bytes24 buildingInstanceID, bytes24 mobileUnitID, bytes memory payload)
+        external
+        virtual
+    {}
 }

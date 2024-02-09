@@ -232,7 +232,7 @@ contract BuildingRule is Rule {
             revert("BuildingMustBeAdjacentToMobileUnit");
         }
 
-        // calls the preflight hook in the building implementation to add the possibility to make conditional builds 
+        // calls the preflight hook in the building implementation to add the possibility to make conditional builds
         // or consume inventory while building
         BuildingKind buildingImplementation = BuildingKind(state.getImplementation(buildingKind));
         // if no implementation set, then this is a no-op
