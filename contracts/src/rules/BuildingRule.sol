@@ -231,6 +231,15 @@ contract BuildingRule is Rule {
         if (TileUtils.distance(mobileUnitTile, targetTile) > 1 || !TileUtils.isDirect(mobileUnitTile, targetTile)) {
             revert("BuildingMustBeAdjacentToMobileUnit");
         }
+
+        // calls the preflight hook in the building implementation to add the possibility to make conditional builds
+        // or consume inventory while building
+        BuildingKind buildingImplementation = BuildingKind(state.getImplementation(buildingKind));
+        // if no implementation set, then this is a no-op
+        if (address(buildingImplementation) != address(0)) {
+            buildingImplementation.construct(game, buildingKind, mobileUnit, abi.encode(coords));
+        }
+
         bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, coords[0], coords[1], coords[2]);
         // burn resources from given towards construction
         _payConstructionFee(state, buildingKind, buildingInstance);
