@@ -40,11 +40,8 @@ contract DuckBurgerHQ is BuildingKind {
             _reset(ds, buildingInstance);
         }
 
-        ds.getDispatcher().dispatch(
-            abi.encodeCall(
-                Actions.SET_DATA_ON_BUILDING,
-                (buildingInstance, "prizePool", bytes32(uint256(_calculatePool(state, buildingInstance))))
-            )
+        _setDataOnBuilding(
+            ds.getDispatcher(), buildingInstance, "prizePool", bytes32(uint256(_calculatePool(state, buildingInstance)))
         );
     }
 
@@ -60,11 +57,8 @@ contract DuckBurgerHQ is BuildingKind {
         if (currentPrizeBalance - joinFee < lastKnownPrizeBalance) revert("Fee unpaid");
 
         // remember the new balance
-        ds.getDispatcher().dispatch(
-            abi.encodeCall(
-                Actions.SET_DATA_ON_BUILDING,
-                (buildingId, "lastKnownPrizeBalance", bytes32(uint256(currentPrizeBalance)))
-            )
+        _setDataOnBuilding(
+            ds.getDispatcher(), buildingId, "lastKnownPrizeBalance", bytes32(uint256(currentPrizeBalance))
         );
 
         // Check if unit has already joined
@@ -124,14 +118,9 @@ contract DuckBurgerHQ is BuildingKind {
         // adding to teamXUnit_X
         string memory teamUnitIndex =
             string(abi.encodePacked(teamPrefix, "Unit_", LibString.toString(uint256(teamLength))));
-        dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, teamUnitIndex, bytes32(unitId))));
-
-        // increase teamXLength
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.SET_DATA_ON_BUILDING,
-                (buildingId, string(abi.encodePacked(teamPrefix, "Length")), bytes32(uint256(teamLength) + 1))
-            )
+        _setDataOnBuilding(dispatcher, buildingId, teamUnitIndex, bytes32(unitId));
+        _setDataOnBuilding(
+            dispatcher, buildingId, string(abi.encodePacked(teamPrefix, "Length")), bytes32(uint256(teamLength) + 1)
         );
     }
 
@@ -144,30 +133,17 @@ contract DuckBurgerHQ is BuildingKind {
 
         Dispatcher dispatcher = ds.getDispatcher();
         // set team buildings
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingKindIdDuck", bytes32(duckBuildingID)))
-        );
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingKindIdBurger", bytes32(burgerBuildingID))
-            )
-        );
-        uint256 currentBlock = block.number;
+
+        _setDataOnBuilding(dispatcher, buildingId, "buildingKindIdDuck", duckBuildingID);
+        _setDataOnBuilding(dispatcher, buildingId, "buildingKindIdBurger", burgerBuildingID);
         // todo if the game length is a parameter, we could calculate this from the endBlock
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "startBlock", bytes32(currentBlock)))
-        );
+        _setDataOnBuilding(dispatcher, buildingId, "startBlock", bytes32(block.number));
         // set endblock to now plus 1 minute (assuming 2 second blocks)
         // todo do we take time as a param
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.SET_DATA_ON_BUILDING, (buildingId, "endBlock", bytes32(uint256(currentBlock + 1 * 30)))
-            )
-        );
+        _setDataOnBuilding(dispatcher, buildingId, "endBlock", bytes32(block.number + 1 * 30));
+
         // set game active
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "gameActive", bytes32(uint256(1))))
-        );
+        _setDataOnBuilding(dispatcher, buildingId, "gameActive", bytes32(uint256(1)));
     }
 
     function _claim(Game ds, State state, bytes24 unitId, bytes24 buildingId) private {
@@ -194,11 +170,8 @@ contract DuckBurgerHQ is BuildingKind {
         Dispatcher dispatcher = ds.getDispatcher();
         // calculate prize and award it
         _awardPrize(state, dispatcher, buildingId, unitId, isDraw ? joinFee : _calculatePrizeAmount());
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.SET_DATA_ON_BUILDING,
-                (buildingId, "lastKnownPrizeBalance", bytes32(uint256(_getPrizeBalance(state, buildingId))))
-            )
+        _setDataOnBuilding(
+            dispatcher, buildingId, "lastKnownPrizeBalance", bytes32(uint256(_getPrizeBalance(state, buildingId)))
         );
 
         // remove unit from team now that prize has been claimed
@@ -242,7 +215,7 @@ contract DuckBurgerHQ is BuildingKind {
         string memory teamUnitKey = string(abi.encodePacked("team", teamType, "Unit_", LibString.toString(unitIndex)));
 
         // set the team unit data to 0
-        dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, teamUnitKey, bytes32(0))));
+        _setDataOnBuilding(dispatcher, buildingId, teamUnitKey, bytes32(0));
 
         // if there is more than 1 unit in the team, move the last unit to replace the current
         if (teamLength > 1) {
@@ -251,17 +224,12 @@ contract DuckBurgerHQ is BuildingKind {
             bytes24 lastUnit = bytes24(state.getData(buildingId, lastTeamUnitKey));
 
             // set value of where this unit was to last unit id
-            dispatcher.dispatch(
-                abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, teamUnitKey, bytes32(lastUnit)))
-            );
+            _setDataOnBuilding(dispatcher, buildingId, teamUnitKey, bytes32(lastUnit));
         }
 
         // decrease team length
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.SET_DATA_ON_BUILDING,
-                (buildingId, string(abi.encodePacked("team", teamType, "Length")), bytes32(teamLength - 1))
-            )
+        _setDataOnBuilding(
+            dispatcher, buildingId, string(abi.encodePacked("team", teamType, "Length")), bytes32(teamLength - 1)
         );
     }
 
@@ -327,27 +295,15 @@ contract DuckBurgerHQ is BuildingKind {
         // for now allwing reset any time which requires some trust :)
 
         // set state to joining (gameActive ?)
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "startBlock", bytes32(uint256(block.number))))
-        );
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "endBlock", bytes32(uint256(block.number))))
-        );
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "gameActive", bytes32(uint256(0))))
-        );
-        dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "teamBurgerLength", bytes32(0))));
-        dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "teamDuckLength", bytes32(0))));
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "lastKnownPrizeBalance", bytes32(0)))
-        );
-        dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "prizePool", bytes32(0))));
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingKindIdDuck", bytes32(0)))
-        );
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingKindIdBurger", bytes32(0)))
-        );
+        _setDataOnBuilding(dispatcher, buildingId, "startBlock", bytes32(block.number));
+        _setDataOnBuilding(dispatcher, buildingId, "endBlock", bytes32(block.number));
+        _setDataOnBuilding(dispatcher, buildingId, "gameActive", bytes32(0));
+        _setDataOnBuilding(dispatcher, buildingId, "teamBurgerLength", bytes32(0));
+        _setDataOnBuilding(dispatcher, buildingId, "teamDuckLength", bytes32(0));
+        _setDataOnBuilding(dispatcher, buildingId, "lastKnownPrizeBalance", bytes32(0));
+        _setDataOnBuilding(dispatcher, buildingId, "prizePool", bytes32(0));
+        _setDataOnBuilding(dispatcher, buildingId, "buildingKindIdDuck", bytes32(0));
+        _setDataOnBuilding(dispatcher, buildingId, "buildingKindIdBurger", bytes32(0));
     }
 
     function _getPrizeBalance(State state, bytes24 buildingId) internal view returns (uint64) {
@@ -431,5 +387,9 @@ contract DuckBurgerHQ is BuildingKind {
 
     function GetState(Game ds) internal returns (State) {
         return ds.getState();
+    }
+
+    function _setDataOnBuilding(Dispatcher dispatcher, bytes24 buildingId, string memory key, bytes32 value) internal {
+        dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, key, value)));
     }
 }
