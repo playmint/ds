@@ -219,7 +219,7 @@ spec:
   - dnsName: "services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
     recordTTL: 60
     recordType: "CNAME"
-    targets: ["{{ $.Values.cluster.domain }}"]
+    targets: ["dev.playmint.com"]
 
 {{ if $.Values.anvil.enabled }}
 ---
@@ -233,7 +233,7 @@ spec:
   - dnsName: "network-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
     recordTTL: 60
     recordType: "CNAME"
-    targets: ["{{ $.Values.cluster.domain }}"]
+    targets: ["dev.playmint.com"]
 {{ end }}
 
 ---
@@ -247,7 +247,7 @@ spec:
   - dnsName: "{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
     recordTTL: 60
     recordType: "CNAME"
-    targets: ["{{ $.Values.cluster.domain }}"]
+    targets: ["dev.playmint.com"]
 
 ---
 apiVersion: "gateway.solo.io/v1"
