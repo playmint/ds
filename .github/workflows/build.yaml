@@ -292,7 +292,7 @@ jobs:
     - name: Deploy to Azure
       env:
         CHART_VERSION: ${{ github.sha }}
-        CHART_NAMESPACE: ds-${{ inputs.DEPLOYMENT_ENVIRONMENT }}
+        CHART_NAMESPACE: ${{ inputs.DEPLOYMENT_ENVIRONMENT }}
         CHART_VALUES: |-
           cluster:
             domain: ${{ inputs.DEPLOYMENT_DOMAIN }}

@@ -323,7 +323,7 @@ metadata:
   namespace: {{ $.Release.Namespace }}
 spec:
   virtualHost:
-    domains: ["frontend-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"]
+    domains: ["{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"]
     routes:
     - matchers:
       - prefix: "/"
