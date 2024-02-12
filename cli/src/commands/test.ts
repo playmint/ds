@@ -5,6 +5,7 @@ import util from 'node:util';
 import { spawn } from 'node:child_process';
 
 const spawnAsync = util.promisify(spawn);
+let buildings: string[];
 
 const concurrency = {
     command: 'concurrency',
@@ -16,9 +17,18 @@ const concurrency = {
                 describe: 'number of player connections to spawn',
                 type: 'number',
             })
+            .option('buildings', {
+                alias: 'b',
+                describe: 'list of BuildingKind ids to randomly place to randomly place',
+                type: 'string',
+            })
     ,
     handler: async (ctx) => {
         const maxConnections: number = ctx.maxConnections || 1;
+        buildings = ctx.buildings ? ctx.buildings.split(",") : [];
+        buildings.forEach(building => {
+            console.log(`building added to array: ${building}`)
+        });
 
         // generate wallets
         const wallets: ethers.HDNodeWallet[] = [];
@@ -68,6 +78,12 @@ const chaosUnit = {
 
             await player.dispatch({ name: 'MOVE_MOBILE_UNIT', args: [unitKey, q, r, s] }).then(res => res.wait());
             await sleep(Math.floor(Math.random() * 2000)); // jitter
+
+            // place building
+            if (buildings?.length > 0){
+                let selectedBuilding = buildings[Math.floor(Math.random() * buildings.length)];
+                console.log(`I want to place: ${selectedBuilding}`);
+            }
         }
     },
 };
