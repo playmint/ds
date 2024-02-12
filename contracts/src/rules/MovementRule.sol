@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
+import "cog/IGame.sol";
 import "cog/IState.sol";
 import "cog/IRule.sol";
 import "cog/IDispatcher.sol";
@@ -13,6 +14,12 @@ import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 using Schema for State;
 
 contract MovementRule is Rule {
+    Game game;
+
+    constructor(Game g) {
+        game = g;
+    }
+
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.MOVE_MOBILE_UNIT.selector) {
             // decode the action
@@ -72,7 +79,7 @@ contract MovementRule is Rule {
         if (buildingKind != bytes24(0)) {
             BuildingKind buildingImplementation = BuildingKind(state.getImplementation(buildingKind));
             if (address(buildingImplementation) != address(0)) {
-                buildingImplementation.onUnitLeave(state, building, mobileUnit, zone, q, r, s);
+                buildingImplementation.onUnitLeave(game, building, mobileUnit);
             }
         }
 
@@ -83,7 +90,7 @@ contract MovementRule is Rule {
         if (buildingKind != bytes24(0)) {
             BuildingKind buildingImplementation = BuildingKind(state.getImplementation(buildingKind));
             if (address(buildingImplementation) != address(0)) {
-                buildingImplementation.onUnitArrive(state, building, mobileUnit, zone, q, r, s);
+                buildingImplementation.onUnitArrive(game, building, mobileUnit);
             }
         }
     }

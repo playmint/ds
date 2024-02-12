@@ -108,7 +108,7 @@ abstract contract GameTest {
         game = new DownstreamGame();
         dispatcher = BaseDispatcher(address(game.getDispatcher()));
         dispatcher.registerRule(new CheatsRule(address(dev)));
-        dispatcher.registerRule(new MovementRule());
+        dispatcher.registerRule(new MovementRule(game));
         dispatcher.registerRule(new ScoutRule());
         dispatcher.registerRule(new InventoryRule());
         dispatcher.registerRule(new BuildingRule(game));

@@ -15,22 +15,6 @@ contract BuildingKind is IBuildingKind {
         external
         virtual
     {}
-    function onUnitArrive(
-        State state,
-        bytes24 buildingInstanceID,
-        bytes24 mobileUnitID,
-        int16 zone,
-        int16 q,
-        int16 r,
-        int16 s
-    ) external virtual {}
-    function onUnitLeave(
-        State state,
-        bytes24 buildingInstanceID,
-        bytes24 mobileUnitID,
-        int16 zone,
-        int16 q,
-        int16 r,
-        int16 s
-    ) external virtual {}
+    function onUnitArrive(Game ds, bytes24 buildingInstanceID, bytes24 mobileUnitID) external virtual {}
+    function onUnitLeave(Game ds, bytes24 buildingInstanceID, bytes24 mobileUnitID) external virtual {}
 }
