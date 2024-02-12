@@ -22,6 +22,10 @@ on:
         required: false
         default: true
         type: boolean
+      DEPLOYMENT_MAP:
+        type: string
+        description: Map
+        default: default
 
     secrets:
       AZURE_REGISTRY_URL:
@@ -290,6 +294,7 @@ jobs:
             domain: dev.playmint.com
           version: ${{ github.sha }}
           priorityClassName: ${{ inputs.DEPLOYMENT_PRIORITY }}
+          map: ${{ inputs.DEPLOYMENT_MAP }}
       run: |
         echo "${CHART_VALUES}" > /tmp/values.yaml
         helm upgrade --install --wait \

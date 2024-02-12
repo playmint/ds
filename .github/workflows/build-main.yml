@@ -11,6 +11,7 @@ jobs:
     name: Main Build
     uses: ./.github/workflows/build.yaml
     with:
+      DEPLOYMENT_MAP: quest-map
       DEPLOYMENT_ENVIRONMENT: main
       DEPLOYMENT_PRIORITY: default
       PLATFORMS: linux/amd64

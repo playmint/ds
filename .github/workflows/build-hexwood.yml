@@ -1,0 +1,57 @@
+name: Deployment (hexwood)
+
+on:
+  workflow_dispatch:
+    inputs:
+      SELECTED_ENVIRONMENT:
+        type: choice
+        description: Instance
+        required: true
+        options:
+        - hexwood1
+        - hexwood2
+        - hexwood3
+        - hexwood4
+        - hexwood5
+        - hexwood6
+        - hexwood7
+        - hexwood8
+        - hexwood9
+        - hexwood10
+        - hexwood11
+        - hexwood12
+        - hexwood13
+        - hexwood14
+        - hexwood15
+        - hexwood16
+      SELECTED_MAP:
+        type: choice
+        description: Map
+        required: true
+        options:
+        - default
+        - tiny
+        - quest-map
+        - team-vanilla
+        - arena-1kx
+
+jobs:
+
+  build:
+    name: Hexwood Build
+    uses: ./.github/workflows/build.yaml
+    with:
+      DEPLOYMENT_ENVIRONMENT: ${{ inputs.SELECTED_ENVIRONMENT }}
+      DEPLOYMENT_PRIORITY: default
+      PLATFORMS: linux/amd64
+      DEPLOYMENT_MAP: ${{ inputs.SELECTED_MAP }}
+    secrets:
+      AZURE_REGISTRY_URL: ${{ secrets.AZURE_REGISTRY_URL }}
+      AZURE_REGISTRY_USERNAME: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+      AZURE_REGISTRY_PASSWORD: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      AZURE_CLUSTER_NAME: ${{ secrets.AZURE_CLUSTER_NAME }}
+      AZURE_CLUSTER_RESOURCE_GROUP: ${{ secrets.AZURE_CLUSTER_RESOURCE_GROUP }}
+      UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+      UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+      UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}

@@ -53,8 +53,10 @@ while ! curl -sf -X GET "${SERVICES_HTTP}" >/dev/null; do
 done
 echo "waiting for services to settle..."
 sleep 5
-echo "ds apply..."
-ds -k "${DEPLOYER_PRIVATE_KEY}" -n local --ws-endpoint="${SERVICES_WS}" --http-endpoint="${SERVICES_HTTP}" apply -R -f ./src/fixtures
+
+MAP=${MAP:-"default"}
+echo "ds apply ${MAP}..."
+ds -k "${DEPLOYER_PRIVATE_KEY}" -n local --ws-endpoint="${SERVICES_WS}" --http-endpoint="${SERVICES_HTTP}" apply -R -f "./src/maps/${MAP}"
 
 echo "+-------+"
 echo "| ready |"
