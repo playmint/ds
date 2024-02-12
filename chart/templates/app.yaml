@@ -87,6 +87,8 @@ spec:
             value: "http://localhost:8080/query"
           - name: SERVICES_URL_WS
             value: "ws://localhost:8080/query"
+          - name: MAP
+            value: {{ $.Values.map | quote }}
           ports:
             - name: network
               containerPort: 8545

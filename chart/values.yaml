@@ -3,6 +3,7 @@ priorityClassName: default
 cluster:
   domain: dev.playmint.com
 chainId: 1337
+map: "default"
 anvil:
   enabled: true
 sequencer:
