@@ -16,5 +16,8 @@ contract BuildingKind is IBuildingKind {
         virtual
     {}
     function onUnitArrive(Game ds, bytes24 buildingInstanceID, bytes24 mobileUnitID) external virtual {}
+
+    // FIXME: This hook is useful however it could potentially trap a unit in a building if the contract code reverts!
+    //        Fine for now but we should consider a way to handle this in the future
     function onUnitLeave(Game ds, bytes24 buildingInstanceID, bytes24 mobileUnitID) external virtual {}
 }

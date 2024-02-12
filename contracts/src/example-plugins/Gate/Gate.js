@@ -13,6 +13,13 @@ export default async function update(state) {
         console.log(selectedBuilding);
     }
 
+    const hasIdCard =
+        getItemBalance(
+            getMobileUnit(state),
+            "ID Card",
+            state?.world?.bags ?? [],
+        ) > 0;
+
     return {
         version: 1,
         components: [
@@ -24,7 +31,13 @@ export default async function update(state) {
                         id: "default",
                         type: "inline",
                         html: `
-                            <p>Look in console to see data on this building</p>
+                            <p>${
+                                hasIdCard
+                                    ? "✅ You have an ID Card so you may pass"
+                                    : "❌ You don't have an ID Card so you cannot pass"
+                            }</p>
+                            <br/>
+                            <p>This building's graphQL fragment is logged to the console where you can see the custom data that has been set on it</p>
                         `,
                         buttons: [],
                     },
@@ -46,46 +59,6 @@ function getSelectedTile(state) {
 function getBuildingOnTile(state, tile) {
     return (state?.world?.buildings || []).find(
         (b) => tile && b.location?.tile?.id === tile.id,
-    );
-}
-
-// returns an array of items the building expects as input
-function getRequiredInputItems(building) {
-    return building?.kind?.inputs || [];
-}
-
-// search through all the bags in the world to find those belonging to this building
-function getBuildingBags(state, building) {
-    return building
-        ? (state?.world?.bags || []).filter(
-              (bag) => bag.equipee?.node.id === building.id,
-          )
-        : [];
-}
-
-// get building input slots
-function getInputSlots(state, building) {
-    // inputs are the bag with key 0 owned by the building
-    const buildingBags = getBuildingBags(state, building);
-    const inputBag = buildingBags.find((bag) => bag.equipee.key === 0);
-
-    // slots used for crafting have sequential keys startng with 0
-    return inputBag && inputBag.slots.sort((a, b) => a.key - b.key);
-}
-
-// are the required craft input items in the input slots?
-function inputsAreCorrect(state, building) {
-    const requiredInputItems = getRequiredInputItems(building);
-    const inputSlots = getInputSlots(state, building);
-
-    return (
-        inputSlots &&
-        inputSlots.length >= requiredInputItems.length &&
-        requiredInputItems.every(
-            (requiredItem) =>
-                inputSlots[requiredItem.key].item.id == requiredItem.item.id &&
-                inputSlots[requiredItem.key].balance == requiredItem.balance,
-        )
     );
 }
 
@@ -146,6 +119,24 @@ function unitOwnerConnectedToWallet(state, mobileUnit, walletAddress) {
         mobileUnit?.owner?.id == state?.player?.id &&
         state?.player?.addr == walletAddress
     );
+}
+
+function getItemBalance(mobileUnit, itemName, worldBags) {
+    const selectedUnitBags = mobileUnit
+        ? (worldBags || []).filter(
+              (bag) => bag.equipee?.node?.id === mobileUnit.id,
+          )
+        : [];
+    return selectedUnitBags.reduce((total, bag) => {
+        return (
+            total +
+            bag.slots.reduce((bagTotal, slot) => {
+                return slot.item.name.value === itemName
+                    ? bagTotal + slot.balance
+                    : bagTotal;
+            }, 0)
+        );
+    }, 0);
 }
 
 // the source for this code is on github where you can find other example buildings:
