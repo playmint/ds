@@ -236,8 +236,9 @@ spec:
           numRetries: 1
           perTryTimeout: 120s
   sslConfig:
+    sniDomains: ["services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"]
     secretRef:
-      name: "downstream-wildcard-certificate"
+      name: "downstream-domain-certificate"
       namespace: "ingress-system"
 
 {{ if $.Values.anvil.enabled }}
@@ -269,8 +270,9 @@ spec:
           numRetries: 1
           perTryTimeout: 120s
   sslConfig:
+    sniDomains: ["network-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"]
     secretRef:
-      name: "downstream-wildcard-certificate"
+      name: "downstream-domain-certificate"
       namespace: "ingress-system"
 {{ end }}
 
@@ -300,7 +302,8 @@ spec:
           numRetries: 1
           perTryTimeout: 120s
   sslConfig:
+    sniDomains: ["{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"]
     secretRef:
-      name: "downstream-wildcard-certificate"
+      name: "downstream-domain-certificate"
       namespace: "ingress-system"
 
