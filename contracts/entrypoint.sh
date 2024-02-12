@@ -40,6 +40,12 @@ while ! curl -sf -X POST --data '{"jsonrpc":"2.0","method":"eth_blockNumber","pa
 	echo "waiting for evm node to respond..."
 	sleep 1
 done
+
+# theres a race where anvil is not quite ready to deploy to
+# FIXME: we need a better way than checking the eth_blockNumber response as a readyness check
+sleep 2
+
+
 forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545" --slow
 
 echo "+---------------------+"
