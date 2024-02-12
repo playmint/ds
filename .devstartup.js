@@ -38,6 +38,7 @@ async function handleStartup(){
         {
             name: 'contract',
             command: `./lib/cog/services/bin/wait-for -it localhost:8545 -t 300 \
+                && sleep 3 \
                 && forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545" \
                 && ./lib/cog/services/bin/wait-for -it localhost:8080 -t 300 \
                 && sleep 2 \
