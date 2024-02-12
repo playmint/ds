@@ -48,6 +48,12 @@ contract MovementRule is Rule {
         //
         // fetch the mobileUnit's current location
         (bytes24 currentTile) = state.getCurrentLocation(mobileUnit, nowTime);
+
+        // check if the mobileUnit is already at the destination
+        if (currentTile == destTile) {
+            return;
+        }
+
         // check that destTile is direct 6-axis line from currentTile
         // require(TileUtils.isDirect(currentTile, destTile), "NoMoveToIndirect");
         // require(state.getBiome(currentTile) == BiomeKind.DISCOVERED, "NoMoveToUndiscovered");
