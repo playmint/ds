@@ -109,6 +109,7 @@ const chaosUnit = {
     },
 };
 
+// probably remove? vvv (along with other stuff)
 interface PassableTile {
     idx: number;
     q: number;
