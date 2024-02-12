@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
+import "cog/IGame.sol";
 import "cog/IState.sol";
 import "cog/IRule.sol";
 import "cog/IDispatcher.sol";
@@ -8,10 +9,17 @@ import "cog/IDispatcher.sol";
 import {Schema, Node, BiomeKind, TRAVEL_SPEED, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
+import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 
 using Schema for State;
 
 contract MovementRule is Rule {
+    Game game;
+
+    constructor(Game g) {
+        game = g;
+    }
+
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.MOVE_MOBILE_UNIT.selector) {
             // decode the action
@@ -40,6 +48,12 @@ contract MovementRule is Rule {
         //
         // fetch the mobileUnit's current location
         (bytes24 currentTile) = state.getCurrentLocation(mobileUnit, nowTime);
+
+        // check if the mobileUnit is already at the destination
+        if (currentTile == destTile) {
+            return;
+        }
+
         // check that destTile is direct 6-axis line from currentTile
         // require(TileUtils.isDirect(currentTile, destTile), "NoMoveToIndirect");
         // require(state.getBiome(currentTile) == BiomeKind.DISCOVERED, "NoMoveToUndiscovered");
@@ -63,5 +77,27 @@ contract MovementRule is Rule {
         //     process nailed more
         state.setNextLocation(mobileUnit, destTile, nowTime);
         state.setPrevLocation(mobileUnit, currentTile, nowTime);
+
+        // Get building at current tile and call arrive hook
+        (int16 zone, int16 q, int16 r, int16 s) = state.getTileCoords(currentTile);
+        bytes24 building = Node.Building(zone, q, r, s);
+        bytes24 buildingKind = state.getBuildingKind(building);
+        if (buildingKind != bytes24(0)) {
+            BuildingKind buildingImplementation = BuildingKind(state.getImplementation(buildingKind));
+            if (address(buildingImplementation) != address(0)) {
+                buildingImplementation.onUnitLeave(game, building, mobileUnit);
+            }
+        }
+
+        // Get building at dest tile and call arrive hook
+        (zone, q, r, s) = state.getTileCoords(destTile);
+        building = Node.Building(zone, q, r, s);
+        buildingKind = state.getBuildingKind(building);
+        if (buildingKind != bytes24(0)) {
+            BuildingKind buildingImplementation = BuildingKind(state.getImplementation(buildingKind));
+            if (address(buildingImplementation) != address(0)) {
+                buildingImplementation.onUnitArrive(game, building, mobileUnit);
+            }
+        }
     }
 }

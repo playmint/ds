@@ -550,4 +550,13 @@ library Schema {
     function getAttackTile(State state, bytes24 sessionID) external view returns (bytes24 tileID, uint64 startBlock) {
         return state.get(Rel.Has.selector, uint8(CombatSideKey.ATTACK), sessionID);
     }
+
+    function getTileCoords(State, /*state*/ bytes24 tile)
+        external
+        pure
+        returns (int16 zone, int16 q, int16 r, int16 s)
+    {
+        int16[4] memory keys = CompoundKeyDecoder.INT16_ARRAY(tile);
+        return (keys[0], keys[1], keys[2], keys[3]);
+    }
 }

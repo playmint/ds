@@ -237,6 +237,8 @@ contract BuildingRule is Rule {
         BuildingKind buildingImplementation = BuildingKind(state.getImplementation(buildingKind));
         // if no implementation set, then this is a no-op
         if (address(buildingImplementation) != address(0)) {
+            // FIXME: we are passing in the buildingKind when it should be the buildingInstance.
+            //        Not fixing now as I'm unsure if contracts that already implement this hook are working around this bug
             buildingImplementation.construct(game, buildingKind, mobileUnit, abi.encode(coords));
         }
 

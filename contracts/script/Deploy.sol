@@ -50,7 +50,7 @@ contract GameDeployer is Script {
         // enable rules
         BaseDispatcher dispatcher = BaseDispatcher(address(ds.getDispatcher()));
         dispatcher.registerRule(new CheatsRule(deployerAddr));
-        dispatcher.registerRule(new MovementRule());
+        dispatcher.registerRule(new MovementRule(ds));
         dispatcher.registerRule(new ScoutRule());
         dispatcher.registerRule(new InventoryRule());
         dispatcher.registerRule(new BuildingRule(ds));
