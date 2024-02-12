@@ -1,7 +1,7 @@
 version: latest
 priorityClassName: default
 cluster:
-  domain: dev.playmint.com
+  domain: downstream.game
 chainId: 1337
 map: "default"
 anvil:

@@ -12,6 +12,10 @@ on:
         description: priorityClassName for pods
         required: true
         type: string
+      DEPLOYMENT_DOMAIN:
+        description: externaldns name
+        required: true
+        type: string
       PLATFORMS:
         description: platforms for multiarch images
         required: true
@@ -291,7 +295,7 @@ jobs:
         CHART_NAMESPACE: ds-${{ inputs.DEPLOYMENT_ENVIRONMENT }}
         CHART_VALUES: |-
           cluster:
-            domain: dev.playmint.com
+            domain: ${{ inputs.DEPLOYMENT_DOMAIN }}
           version: ${{ github.sha }}
           priorityClassName: ${{ inputs.DEPLOYMENT_PRIORITY }}
           map: ${{ inputs.DEPLOYMENT_MAP }}
@@ -310,6 +314,6 @@ jobs:
       with:
         step: finish
         token: ${{ secrets.GITHUB_TOKEN }}
-        env_url: https://frontend-ds-${{ inputs.DEPLOYMENT_ENVIRONMENT }}.dev.playmint.com/
+        env_url: https://${{ inputs.DEPLOYMENT_ENVIRONMENT }}.${{ inputs.DEPLOYMENT_DOMAIN }}/
         status: ${{ job.status }}
         deployment_id: ${{ steps.deployment.outputs.deployment_id }}

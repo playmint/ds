@@ -11,8 +11,9 @@ jobs:
     name: Main Build
     uses: ./.github/workflows/build.yaml
     with:
+      DEPLOYMENT_DOMAIN: downstream.game
       DEPLOYMENT_MAP: quest-map
-      DEPLOYMENT_ENVIRONMENT: main
+      DEPLOYMENT_ENVIRONMENT: hexwood0
       DEPLOYMENT_PRIORITY: default
       PLATFORMS: linux/amd64
     secrets:

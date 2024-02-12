@@ -41,6 +41,7 @@ jobs:
     name: Hexwood Build
     uses: ./.github/workflows/build.yaml
     with:
+      DEPLOYMENT_DOMAIN: downstream.game
       DEPLOYMENT_ENVIRONMENT: ${{ inputs.SELECTED_ENVIRONMENT }}
       DEPLOYMENT_PRIORITY: default
       PLATFORMS: linux/amd64
