@@ -209,47 +209,6 @@ spec:
     app: {{ $.Release.Name }}-frontend
 
 ---
-apiVersion: externaldns.k8s.io/v1alpha1
-kind: DNSEndpoint
-metadata:
-  name: {{ $.Release.Name }}-services
-  namespace: {{ $.Release.Namespace }}
-spec:
-  endpoints:
-  - dnsName: "services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
-    recordTTL: 60
-    recordType: "CNAME"
-    targets: ["dev.playmint.com"]
-
-{{ if $.Values.anvil.enabled }}
----
-apiVersion: externaldns.k8s.io/v1alpha1
-kind: DNSEndpoint
-metadata:
-  name: {{ $.Release.Name }}-network
-  namespace: {{ $.Release.Namespace }}
-spec:
-  endpoints:
-  - dnsName: "network-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
-    recordTTL: 60
-    recordType: "CNAME"
-    targets: ["dev.playmint.com"]
-{{ end }}
-
----
-apiVersion: externaldns.k8s.io/v1alpha1
-kind: DNSEndpoint
-metadata:
-  name: {{ $.Release.Name }}-frontend
-  namespace: {{ $.Release.Namespace }}
-spec:
-  endpoints:
-  - dnsName: "{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
-    recordTTL: 60
-    recordType: "CNAME"
-    targets: ["dev.playmint.com"]
-
----
 apiVersion: "gateway.solo.io/v1"
 kind: VirtualService
 metadata:
@@ -278,7 +237,7 @@ spec:
           perTryTimeout: 120s
   sslConfig:
     secretRef:
-      name: "cluster-domain-certificate"
+      name: "downstream-wildcard-certificate"
       namespace: "ingress-system"
 
 {{ if $.Values.anvil.enabled }}
@@ -311,7 +270,7 @@ spec:
           perTryTimeout: 120s
   sslConfig:
     secretRef:
-      name: "cluster-domain-certificate"
+      name: "downstream-wildcard-certificate"
       namespace: "ingress-system"
 {{ end }}
 
@@ -342,6 +301,6 @@ spec:
           perTryTimeout: 120s
   sslConfig:
     secretRef:
-      name: "cluster-domain-certificate"
+      name: "downstream-wildcard-certificate"
       namespace: "ingress-system"
 
