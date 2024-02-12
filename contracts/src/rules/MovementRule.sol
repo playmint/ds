@@ -8,6 +8,7 @@ import "cog/IDispatcher.sol";
 import {Schema, Node, BiomeKind, TRAVEL_SPEED, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
+import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 
 using Schema for State;
 
@@ -63,5 +64,27 @@ contract MovementRule is Rule {
         //     process nailed more
         state.setNextLocation(mobileUnit, destTile, nowTime);
         state.setPrevLocation(mobileUnit, currentTile, nowTime);
+
+        // Get building at current tile and call arrive hook
+        (int16 zone, int16 q, int16 r, int16 s) = state.getTileCoords(currentTile);
+        bytes24 building = Node.Building(zone, q, r, s);
+        bytes24 buildingKind = state.getBuildingKind(building);
+        if (buildingKind != bytes24(0)) {
+            BuildingKind buildingImplementation = BuildingKind(state.getImplementation(buildingKind));
+            if (address(buildingImplementation) != address(0)) {
+                buildingImplementation.onUnitLeave(state, building, mobileUnit, zone, q, r, s);
+            }
+        }
+
+        // Get building at dest tile and call arrive hook
+        (zone, q, r, s) = state.getTileCoords(destTile);
+        building = Node.Building(zone, q, r, s);
+        buildingKind = state.getBuildingKind(building);
+        if (buildingKind != bytes24(0)) {
+            BuildingKind buildingImplementation = BuildingKind(state.getImplementation(buildingKind));
+            if (address(buildingImplementation) != address(0)) {
+                buildingImplementation.onUnitArrive(state, building, mobileUnit, zone, q, r, s);
+            }
+        }
     }
 }
