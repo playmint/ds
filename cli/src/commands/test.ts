@@ -90,7 +90,7 @@ const chaosUnit = {
             await sleep(Math.floor(Math.random() * 1000)); // jitter
             // place building
             if (buildings?.length > 0){
-                let selectedBuilding = buildings[Math.floor(Math.random() * buildings.length)];
+                const selectedBuilding = buildings[Math.floor(Math.random() * buildings.length)];
                 const targetTileID = CompoundKeyEncoder.encodeInt16(NodeSelectors.Tile, 0, q, r, s);
                 const world = await getWorld(ctx);
                 const buildingOnTargetTile = getBuildingOnTile(world.buildings, targetTileID);
