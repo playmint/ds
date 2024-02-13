@@ -120,34 +120,18 @@ jobs:
         registry: ${{ env.REGISTRY }}
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Extract Docker metadata
-      id: meta
-      uses: docker/metadata-action@v4
-      with:
-        images: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}
-    - name: Finalize Docker Metadata
-      id: docker_tagging
-      run: |
-          echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${GITHUB_SHA}"
-    - name: Inspect Docker Metadata
-      run: |
-        echo "TAGS -> ${{ steps.docker_tagging.outputs.docker_tags }}"
-        echo "LABELS ->  ${{ steps.meta.outputs.labels }}"
     - name: Build and push Docker image
       uses: docker/build-push-action@v3
       with:
         context: .
         file: frontend/Dockerfile
         push: true
-        tags: ${{ steps.docker_tagging.outputs.docker_tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+        tags: |
+          "${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }}"
+          "${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ inputs.DEPLOYMENT_ENVIRONMENT }}"
         cache-from: type=gha
         cache-to: type=gha,mode=max
         platforms: ${{ inputs.PLATFORMS }}
-        build-args: |
-            BUILDTIME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
-            VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
-            REVISION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
 
   contracts:
     name: Contracts
@@ -176,34 +160,18 @@ jobs:
         registry: ${{ env.REGISTRY }}
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Extract Docker metadata
-      id: meta
-      uses: docker/metadata-action@v4
-      with:
-        images: ${{ env.REGISTRY }}/${{ env.CONTRACTS_IMAGE_NAME }}
-    - name: Finalize Docker Metadata
-      id: docker_tagging
-      run: |
-        echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ env.CONTRACTS_IMAGE_NAME }}:${GITHUB_SHA}"
-    - name: Inspect Docker Metadata
-      run: |
-        echo "TAGS -> ${{ steps.docker_tagging.outputs.docker_tags }}"
-        echo "LABELS ->  ${{ steps.meta.outputs.labels }}"
     - name: Build and push Docker image
       uses: docker/build-push-action@v3
       with:
         context: .
         file: contracts/Dockerfile
         push: true
-        tags: ${{ steps.docker_tagging.outputs.docker_tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+        tags: |
+          "${{ env.REGISTRY }}/${{ env.CONTRACTS_IMAGE_NAME }}:${{ github.sha }}"
+          "${{ env.REGISTRY }}/${{ env.CONTRACTS_IMAGE_NAME }}:${{ inputs.DEPLOYMENT_ENVIRONMENT }}"
         cache-from: type=gha
         cache-to: type=gha,mode=max
         platforms: ${{ inputs.PLATFORMS }}
-        build-args: |
-            BUILDTIME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
-            VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
-            REVISION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
 
   services:
     name: Services
@@ -232,33 +200,17 @@ jobs:
         registry: ${{ env.REGISTRY }}
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Extract Docker metadata
-      id: meta
-      uses: docker/metadata-action@v4
-      with:
-        images: ${{ env.REGISTRY }}/${{ env.SERVICES_IMAGE_NAME }}
-    - name: Finalize Docker Metadata
-      id: docker_tagging
-      run: |
-        echo "::set-output name=docker_tags::${{ env.REGISTRY }}/${{ env.SERVICES_IMAGE_NAME }}:${GITHUB_SHA}"
-    - name: Inspect Docker Metadata
-      run: |
-        echo "TAGS -> ${{ steps.docker_tagging.outputs.docker_tags }}"
-        echo "LABELS ->  ${{ steps.meta.outputs.labels }}"
     - name: Build and push Docker image
       uses: docker/build-push-action@v3
       with:
         context: contracts/lib/cog/services
         push: true
-        tags: ${{ steps.docker_tagging.outputs.docker_tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+        tags: |
+          "${{ env.REGISTRY }}/${{ env.SERVICES_IMAGE_NAME }}:${{ github.sha }}"
+          "${{ env.REGISTRY }}/${{ env.SERVICES_IMAGE_NAME }}:${{ inputs.DEPLOYMENT_ENVIRONMENT }}"
         cache-from: type=gha
         cache-to: type=gha,mode=max
         platforms: ${{ inputs.PLATFORMS }}
-        build-args: |
-            BUILDTIME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
-            VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
-            REVISION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
 
   deploy:
     name: Deploy
