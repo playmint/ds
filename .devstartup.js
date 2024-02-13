@@ -1,5 +1,6 @@
 const concurrently = require('concurrently');
 const path = require('path');
+const fs = require('fs');
 const { execSync } = require("child_process");
 
 // ------------------------------------------------------------------
@@ -12,6 +13,20 @@ const DEPLOYER_PRIVATE_KEY = "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff
 const MAP = process.env.MAP || "default";
 
 async function handleStartup(){
+    // which map to deploy (relative to contracts)
+    const mapPath = path.join('./src/maps/', MAP);
+    if (!fs.existsSync(path.join('contracts', mapPath))) {
+        console.error('');
+        console.error(`ERROR: no map dir for '${MAP}' found`);
+        console.error('');
+        if (MAP === 'performance-test') {
+            console.error('hint: maybe you forgot to generate the performance-test map?');
+            console.error('');
+            console.error(`      NUM_ARENAS=3 make contracts/src/maps/performance-test`);
+            console.error('');
+        }
+        process.exit(1);
+    }
     // configure services to run
     const commands = [
         {
@@ -26,7 +41,7 @@ async function handleStartup(){
                 && forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545" \
                 && ./lib/cog/services/bin/wait-for -it localhost:8080 -t 300 \
                 && sleep 2 \
-                && ds -k ${DEPLOYER_PRIVATE_KEY} -n local apply -R -f ./src/maps/${MAP}/ --max-connections 500 \
+                && ds -k ${DEPLOYER_PRIVATE_KEY} -n local apply -R -f ${mapPath} --max-connections 500 \
                 && ds -k ${DEPLOYER_PRIVATE_KEY} -n local apply -R -f ./src/example-plugins/ --max-connections 500 \
                 && sleep 9999999`,
             prefixColor: 'black',
