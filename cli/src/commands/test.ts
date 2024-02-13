@@ -1,7 +1,6 @@
 import { ethers } from 'ethers';
 import { pipe, take, toPromise } from 'wonka';
-import { CompoundKeyEncoder, NodeSelectors, getCoords, WorldTileFragment } from "@downstream/core";
-import { getBuildingAtTile } from '@downstream/core/src/utils';
+import { CompoundKeyEncoder, NodeSelectors, getCoords } from "@downstream/core";
 import util from 'node:util';
 import { spawn } from 'node:child_process';
 import { getWorld } from './get';
@@ -38,12 +37,15 @@ const concurrency = {
         const procs: ReturnType<typeof spawnAsync>[] = [];
         for (let wallet of wallets) {
             console.log(`starting chaos-unit for ${wallet.privateKey}`);
-            procs.push(spawnAsync('ds', [
+            let args = [
                 '-n', `${ctx.network || 'local'}`,
                 `-k`, `${wallet.privateKey}`,
-                `-b`, `${buildings ? buildings : '0x0'}`,
                 `test`, `chaos-unit`
-            ], {stdio: ['ignore', process.stdout, process.stderr]}));
+            ];
+            if (buildings) {
+                args.push(`-b`, `${buildings}`);
+            }
+            procs.push(spawnAsync('ds', args, {stdio: ['ignore', process.stdout, process.stderr]}));
         }
 
         console.log('running, ctrl+c to stop');
@@ -85,37 +87,25 @@ const chaosUnit = {
             [q,r,s] = validNeighbours[Math.floor(Math.random() * validNeighbours.length)] || [0,0,0];
 
             await player.dispatch({ name: 'MOVE_MOBILE_UNIT', args: [unitKey, q, r, s] }).then(res => res.wait());
-            await sleep(Math.floor(Math.random() * 2000)); // jitter
-
+            await sleep(Math.floor(Math.random() * 1000)); // jitter
             // place building
             if (buildings?.length > 0){
                 let selectedBuilding = buildings[Math.floor(Math.random() * buildings.length)];
-                    // WORK IN PROGRESS...
-                    // Trying to make sure there's not already a buildin on the tile
-                // console.log(`I want to place: ${selectedBuilding}`);
-                //const world = await getWorld(ctx);
-                // const coords = world.buildings[Math.floor(Math.random() * world.buildings.length)]?.location?.tile?.coords // random building in world
-                //const coords = world.buildings[5]?.location?.tile?.coords;
-
-                const tileMap = new Map<string, PassableTile>();
-                const t = tileMap.get(`${q}:${r}:${s}`);
-                console.log(t);
-                
-                //getBuildingAtTile(world.buildings, t.id);
-                //console.log(coords);
-                await player.dispatch({ name: 'DEV_SPAWN_BUILDING', args: [selectedBuilding, q, r, s] }).then(res => res.wait());
+                const targetTileID = CompoundKeyEncoder.encodeInt16(NodeSelectors.Tile, 0, q, r, s);
+                const world = await getWorld(ctx);
+                const buildingOnTargetTile = getBuildingOnTile(world.buildings, targetTileID);
+                // console.log(`target tile (${targetTileID}) building: ${buildingOnTargetTile}`);
+                if (buildingOnTargetTile === undefined){
+                    await player.dispatch({ name: 'DEV_SPAWN_BUILDING', args: [selectedBuilding, q, r, s] }).then(res => res.wait());
+                }
             }
+            await sleep(Math.floor(Math.random() * 1000));
         }
     },
 };
 
-// probably remove? vvv (along with other stuff)
-interface PassableTile {
-    idx: number;
-    q: number;
-    r: number;
-    s: number;
-    tile: WorldTileFragment;
+function getBuildingOnTile(buildings, tileID) {
+    return (buildings || []).find((b) => tileID && b.location?.tile?.id === tileID);
 }
 
 export const test = {
