@@ -1,24 +1,9 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-module.exports.buildPerformanceTest = async function(arenas){
-    try{
-        await duplicateFiles(arenas);
-        return {MapName: "../test-plugins"}
-    } catch(e){
-        // log the error to a text file in targetMapDir
-        const errorFilePath = path.join('../contracts/src/test-plugins/', 'error_log.txt');
-        const errorMessage = `Error occurred: ${e.message}\n`;
-        await fs.appendFile(errorFilePath, errorMessage, 'utf8');
-        return {error: e.message, MapName: "default"};
-    }
-};
-
 // duplicates the content of the files in "./contracts/src/example-plugins/DuckBurger/"
-// puts them in a new folder (if it doesn't already exist) at "./contracts/src/test-plugins/DuckBurgerTest/"
-async function duplicateFiles(arenas) {
-    const targetMapDir = './contracts/src/test-plugins/';
-
+// puts them in a new folder (if it doesn't already exist) at targetMapDir
+async function duplicateFiles(arenas, targetMapDir) {
     // if input is 0, recursively delete test-plugins
     if (arenas === 0) {
         await deleteDirectory(targetMapDir);
@@ -26,13 +11,12 @@ async function duplicateFiles(arenas) {
     }
 
     const sourceDir = './contracts/src/example-plugins/DuckBurger/';
-    const targetDir = './contracts/src/test-plugins/DuckBurgerTest/';
 
     // first delete DuckBurgerTest - note it wouldn't delete map.yaml if it exists - TODO: make sure it does?
-    await deleteAndCreateDir(targetDir);
+    await deleteAndCreateDir(targetMapDir);
     const files = await fs.readdir(sourceDir);
 
-    // loop through files in sourceDir, make a new yaml in targetDir and adjust building name (file and builing kind)
+    // loop through files in sourceDir, make a new yaml in targetMapDir and adjust building name (file and builing kind)
     for (const file of files) {
         const sourcePath = path.join(sourceDir, file);
         if (file.endsWith('.yaml') && file != "TeamBuildings.yaml") {
@@ -40,7 +24,7 @@ async function duplicateFiles(arenas) {
             for (let i = 1; i <= arenas; i++) {
                 const modifiedContent = modifyYamlContent(content, i);
                 const newFilename = file.replace('.yaml', `_${i}.yaml`);
-                const targetPath = path.join(targetDir, newFilename);
+                const targetPath = path.join(targetMapDir, newFilename);
                 await fs.writeFile(targetPath, modifiedContent, 'utf8');
             }
         }
@@ -49,12 +33,12 @@ async function duplicateFiles(arenas) {
             for (let i = 1; i <= arenas; i++) {
                 const modifiedContent = modifyJsContent(content, i);
                 const newFilename = file.replace('.js', `_${i}.js`);
-                const targetPath = path.join(targetDir, newFilename);
+                const targetPath = path.join(targetMapDir, newFilename);
                 await fs.writeFile(targetPath, modifiedContent, 'utf8');
             }
         } else {
             // if not yaml file or DuckBurgerHQ.js, we just need to copy it over
-            const targetPath = path.join(targetDir, file);
+            const targetPath = path.join(targetMapDir, file);
             await fs.copyFile(sourcePath, targetPath);
         }
     }
@@ -63,9 +47,9 @@ async function duplicateFiles(arenas) {
     try{
         // this list includes the names so it knows where to put what
         const buildingsDuckBurger = [
-            {'name': 'Duck Burger HQ', 'x': 0, 'y': 0, 'z': 0}, 
-            {'name': 'Burger Display Building', 'x': 5, 'y': 0, 'z': -5}, 
-            {'name': 'Duck Display Building', 'x': -5, 'y': 0, 'z': 5}, 
+            {'name': 'Duck Burger HQ', 'x': 0, 'y': 0, 'z': 0},
+            {'name': 'Burger Display Building', 'x': 5, 'y': 0, 'z': -5},
+            {'name': 'Duck Display Building', 'x': -5, 'y': 0, 'z': 5},
             {'name': 'Countdown Building', 'x': 2, 'y': -4, 'z': 2}];
         const tiles = generateHexagonalGrid(5);
 
@@ -168,10 +152,33 @@ function modifyYamlContent(content, index) {
         // this is because the DuckBurgerHQ.js code needs to find the specific display buildings and the js needs to know the name of them
         content = content.replace(/(\.js)/g, `_${index}$1`);
     }
-    
+
     return content;
 }
 
 function modifyJsContent(content, index) {
     return content.replace(/(Burger Display Building|Duck Display Building|Countdown Building|Duck Burger HQ)/g, `$1_${index}`);
 }
+
+async function main() {
+    const targetMapDir = './contracts/src/maps/performance-test/';
+
+    const numArenas = parseInt(mustGetEnv('NUM_ARENAS'));
+    if (numArenas < 1) {
+        throw new Error(`NUM_ARENAS must be greater than 0`);
+    }
+    await duplicateFiles(numArenas, targetMapDir);
+}
+
+function mustGetEnv(name) {
+    const v = process.env[name];
+    if (!v) {
+        throw new Error(`required environment variable ${name} not set`);
+    }
+    return v;
+}
+
+main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+})

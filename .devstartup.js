@@ -9,27 +9,10 @@ const { execSync } = require("child_process");
 
 const SEQUENCER_PRIVATE_KEY = "095a37ef5b5d87db7fe50551725cb64804c8c554868d3d729c0dd17f0e664c87";
 const DEPLOYER_PRIVATE_KEY = "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff9524d487fb5d57a8";
-
-let MAP_VAR = (process.argv[2] || "../maps/default").toLowerCase();
-// if undefined default to 1, value is capped at 25
-const ARENAS_VAR = Math.min(Number(process.argv[3] || 1), 25);
+const MAP = process.env.MAP || "default";
 
 async function handleStartup(){
-    // specific startup processes
-    if (MAP_VAR === "performance-test"){
-        const performanceTestFile = require('./scripts/performance-test.js');
-        result = await performanceTestFile.buildPerformanceTest(ARENAS_VAR);
-        MAP_VAR = result.MapName;
-        if (result.error){
-            return console.log("There was an error building the performance test: ", result.error);
-        }
-        if (ARENAS_VAR === 0){
-            return console.log("test-plugins folder deleted");
-        }
-    }
-
     // configure services to run
-
     const commands = [
         {
             name: 'networks',
@@ -43,7 +26,7 @@ async function handleStartup(){
                 && forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545" \
                 && ./lib/cog/services/bin/wait-for -it localhost:8080 -t 300 \
                 && sleep 2 \
-                && ds -k ${DEPLOYER_PRIVATE_KEY} -n local apply -R -f ./src/maps/${MAP_VAR}/ --max-connections 500 \
+                && ds -k ${DEPLOYER_PRIVATE_KEY} -n local apply -R -f ./src/maps/${MAP}/ --max-connections 500 \
                 && ds -k ${DEPLOYER_PRIVATE_KEY} -n local apply -R -f ./src/example-plugins/ --max-connections 500 \
                 && sleep 9999999`,
             prefixColor: 'black',
