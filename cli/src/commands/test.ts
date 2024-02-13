@@ -37,7 +37,7 @@ const concurrency = {
         const procs: ReturnType<typeof spawnAsync>[] = [];
         for (let wallet of wallets) {
             console.log(`starting chaos-unit for ${wallet.privateKey}`);
-            let args = [
+            const args = [
                 '-n', `${ctx.network || 'local'}`,
                 `-k`, `${wallet.privateKey}`,
                 `test`, `chaos-unit`
@@ -94,8 +94,7 @@ const chaosUnit = {
                 const targetTileID = CompoundKeyEncoder.encodeInt16(NodeSelectors.Tile, 0, q, r, s);
                 const world = await getWorld(ctx);
                 const buildingOnTargetTile = getBuildingOnTile(world.buildings, targetTileID);
-                // console.log(`target tile (${targetTileID}) building: ${buildingOnTargetTile}`);
-                if (buildingOnTargetTile === undefined){
+                if (typeof buildingOnTargetTile === 'undefined'){
                     await player.dispatch({ name: 'DEV_SPAWN_BUILDING', args: [selectedBuilding, q, r, s] }).then(res => res.wait());
                 }
             }
