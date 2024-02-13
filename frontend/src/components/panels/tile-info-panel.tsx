@@ -364,14 +364,17 @@ export const TileInfoPanel = ({ kinds, ui }: { kinds: BuildingKindFragment[]; ui
                 mobileUnit.nextLocation &&
                 getTileDistance(mobileUnit.nextLocation.tile, selectedTile) < 2;
             return (
-                <TileBuilding
-                    kinds={kinds}
-                    canUse={!!canUse}
-                    building={building}
-                    world={world}
-                    mobileUnit={mobileUnit}
-                    ui={ui}
-                />
+                <>
+                    <TileBuilding
+                        kinds={kinds}
+                        canUse={!!canUse}
+                        building={building}
+                        world={world}
+                        mobileUnit={mobileUnit}
+                        ui={ui}
+                    />
+                    <TileAvailable player={player} mobileUnits={world?.mobileUnits || []} bags={world?.bags || []} />
+                </>
             );
         } else {
             return null; // fallback, don't expect this state
