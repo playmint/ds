@@ -10,25 +10,26 @@ See the [docs](./docs/README.md)
 
 <details>
 
-<summary>Building with Docker</summary>
+<summary>Running with Docker</summary>
 
 If you only need a local copy of the game built (without development helpers
 like hot reloading etc), then the easist way is to provision using
 Docker Compose.
 
-You need to build the unity map project first:
-
 ```
-make map
+MAP=tiny docker compose up
 ```
 
-Then to build and start the client and supporting services run:
+This will fetch the most recently built images for the game and run them
+without requiring a full build. 
+
+To start with a different set of map fixtures:
 
 ```
-docker compose up --build
+MAP=quest-map docker compuse up
 ```
 
-Client will be available at locahost:3000
+Once ready, the client will be available at http://locahost:3000
 
 </details>
 
