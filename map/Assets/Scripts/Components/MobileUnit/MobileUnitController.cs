@@ -256,7 +256,7 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
                     int.TryParse(parts[0].Trim(), out int r)
                     && int.TryParse(parts[1].Trim(), out int g)
                     && int.TryParse(parts[2].Trim(), out int b)
-                    )
+                )
                 {
                     return new Color(Mathf.Clamp01(r / 255f), Mathf.Clamp01(g / 255f), Mathf.Clamp01(b / 255f));
                 }
