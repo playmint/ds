@@ -17,16 +17,24 @@ like hot reloading etc), then the easist way is to provision using
 Docker Compose.
 
 ```
-MAP=tiny docker compose up
+docker compose up
 ```
 
 This will fetch the most recently built images for the game and run them
 without requiring a full build. 
 
-To start with a different set of map fixtures:
+By default we give you the "tiny" map, which is a small blank slate. To start
+with a different set of map fixtures you can edit the `.env` file in the root
+of the repository and set the `MAP` variable to the name of one of the
+directories
+[here](https://github.com/playmint/ds/tree/main/contracts/src/maps). 
+
+For example edit `.env` so that it looks like the following, and then run
+`docker compose up` to get a big populated map:
+
 
 ```
-MAP=quest-map docker compuse up
+MAP=quest-map
 ```
 
 Once ready, the client will be available at http://locahost:3000
