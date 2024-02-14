@@ -283,7 +283,7 @@ function getBlueBases(state) {
 }
 
 function checkRedBaseAmount(state) {
-  console.log(state);
+  // console.log(state);
   const redBaseAmount = state.world.buildings.filter(
     (b) => b.kind?.name?.value === "Red Base"
   ).length;
