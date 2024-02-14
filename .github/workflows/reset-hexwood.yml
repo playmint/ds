@@ -2,6 +2,8 @@ name: Reset (hexwood)
 
 on:
   workflow_dispatch:
+    branches:
+    - main
     inputs:
       SELECTED_ENVIRONMENT:
         type: choice
