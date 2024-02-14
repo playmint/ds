@@ -1,0 +1,42 @@
+name: Reset (hexwood)
+
+on:
+  workflow_dispatch:
+    inputs:
+      SELECTED_ENVIRONMENT:
+        type: choice
+        description: Instance
+        required: true
+        options:
+        - hexwood0
+        - hexwood1
+        - hexwood2
+        - hexwood3
+        - hexwood4
+        - hexwood5
+        - hexwood6
+        - hexwood7
+        - hexwood8
+        - hexwood9
+        - hexwood10
+        - hexwood11
+        - hexwood12
+        - hexwood13
+        - hexwood14
+        - hexwood15
+        - hexwood16
+
+jobs:
+
+  build:
+    name: Hexwood Reset
+    uses: ./.github/workflows/reset.yaml
+    with:
+      DEPLOYMENT_ENVIRONMENT: ${{ inputs.SELECTED_ENVIRONMENT }}
+    secrets:
+      AZURE_REGISTRY_URL: ${{ secrets.AZURE_REGISTRY_URL }}
+      AZURE_REGISTRY_USERNAME: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+      AZURE_REGISTRY_PASSWORD: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      AZURE_CLUSTER_NAME: ${{ secrets.AZURE_CLUSTER_NAME }}
+      AZURE_CLUSTER_RESOURCE_GROUP: ${{ secrets.AZURE_CLUSTER_RESOURCE_GROUP }}

@@ -1,0 +1,50 @@
+on:
+  workflow_call:
+    inputs:
+      DEPLOYMENT_ENVIRONMENT:
+        description: Name of environment main/prod/test to deploy to
+        required: true
+        type: string
+
+    secrets:
+      AZURE_REGISTRY_URL:
+        description: Docker login url for Azure Container Registry
+        required: true
+      AZURE_REGISTRY_USERNAME:
+        description: Docker login username for Azure Container Registry
+        required: true
+      AZURE_REGISTRY_PASSWORD:
+        description: Docker login password for Azure Container Registry
+        required: true
+      AZURE_CREDENTIALS:
+        description: Azure credentials for deploying to Azure Container Service
+        required: true
+      AZURE_CLUSTER_NAME:
+        description: Name of the Azure Container Service cluster
+        required: true
+      AZURE_CLUSTER_RESOURCE_GROUP:
+        description: Name of the resource group where the cluster lives
+        required: true
+
+
+jobs:
+
+  reset:
+    name: Reset
+    runs-on: ubuntu-latest
+    steps:
+    - name: Authenticate to Azure Container Service
+      uses: azure/aks-set-context@v1
+      with:
+        creds: '${{ secrets.AZURE_CREDENTIALS }}'
+        cluster-name: '${{ secrets.AZURE_CLUSTER_NAME }}'
+        resource-group: '${{ secrets.AZURE_CLUSTER_RESOURCE_GROUP }}'
+    - name: Prepare helm
+      uses: azure/setup-helm@v3
+      with:
+        version: '3.7.2'
+    - name: Deploy to Azure
+      env:
+        CHART_NAMESPACE: '${{ inputs.DEPLOYMENT_ENVIRONMENT }}'
+      run: |
+        kubectl -n "${CHART_NAMESPACE}" delete pod --all
