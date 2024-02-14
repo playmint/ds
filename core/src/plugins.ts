@@ -147,7 +147,8 @@ export function makePluginUI(
                                 }
                                 const plugin = active.has(p.id)
                                     ? active.get(p.id)
-                                    : state.world.buildings.some((building) => building?.kind?.id === p.kindID)
+                                    : state.world.buildings.some((building) => building?.kind?.id === p.kindID) ||
+                                      state.world.items.some((item) => item?.id === p.kindID)
                                     ? await loadPlugin(
                                           sandbox,
                                           dispatch,
