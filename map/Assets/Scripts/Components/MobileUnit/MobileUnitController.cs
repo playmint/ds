@@ -252,7 +252,8 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
             if (parts.Length == 3)
             {
                 // Try to parse each part to int, then normalize to float (0 to 1)
-                if (int.TryParse(parts[0].Trim(), out int r) &&
+                if (
+                    int.TryParse(parts[0].Trim(), out int r) &&
                     int.TryParse(parts[1].Trim(), out int g) &&
                     int.TryParse(parts[2].Trim(), out int b))
                 {
