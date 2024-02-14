@@ -21,7 +21,9 @@ COPY core ./core
 COPY cli ./cli
 COPY --from=contracts /contracts/lib/cog/services/schema/*.graphqls ./contracts/lib/cog/services/schema/
 COPY --from=contracts /contracts/out/Actions.sol/Actions.json ./contracts/out/Actions.sol/Actions.json
-RUN npm ci
+RUN npm config set fetch-retry-maxtimeout 300000 && \
+    npm install -g npm@9 && \
+    npm ci
 RUN npm run build:abi -w core
 RUN npm run build:graphql -w core
 ENV NEXT_TELEMETRY_DISABLED 1

@@ -28,7 +28,9 @@ WORKDIR /
 COPY package*.json ./
 COPY cli ./cli
 COPY core ./core
-RUN npm ci \
+RUN npm config set fetch-retry-maxtimeout 300000 \
+    && npm install -g npm@9 \
+    && npm ci \
     && npm run build -w core \
     && npm run build -w cli \
     && npm install -g ./cli
