@@ -8,35 +8,34 @@ on:
         description: Instance
         required: true
         options:
-        - hexwood1
-        - hexwood2
-        - hexwood3
-        - hexwood4
-        - hexwood5
-        - hexwood6
-        - hexwood7
-        - hexwood8
-        - hexwood9
-        - hexwood10
-        - hexwood11
-        - hexwood12
-        - hexwood13
-        - hexwood14
-        - hexwood15
-        - hexwood16
+          - hexwood1
+          - hexwood2
+          - hexwood3
+          - hexwood4
+          - hexwood5
+          - hexwood6
+          - hexwood7
+          - hexwood8
+          - hexwood9
+          - hexwood10
+          - hexwood11
+          - hexwood12
+          - hexwood13
+          - hexwood14
+          - hexwood15
+          - hexwood16
       SELECTED_MAP:
         type: choice
         description: Map
         required: true
         options:
-        - default
-        - tiny
-        - quest-map
-        - team-vanilla
-        - arena-1kx
+          - default
+          - tiny
+          - quest-map
+          - team-vanilla
+          - hexcraft
 
 jobs:
-
   build:
     name: Hexwood Build
     uses: ./.github/workflows/build.yaml
