@@ -148,8 +148,6 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
             _runningVisibilityCR = StartCoroutine(VisibilityCR(new Vector3(1, 1, 1), 1));
         }
 
-
-
         _prevData = _nextData;
     }
 
