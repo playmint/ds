@@ -15,7 +15,7 @@ jobs:
       DEPLOYMENT_MAP: quest-map
       DEPLOYMENT_ENVIRONMENT: hexwood0
       DEPLOYMENT_PRIORITY: default
-      PLATFORMS: linux/amd64
+      PLATFORMS: linux/arm64,linux/arm/v7,linux/arm/v6,linux/amd64
     secrets:
       AZURE_REGISTRY_URL: ${{ secrets.AZURE_REGISTRY_URL }}
       AZURE_REGISTRY_USERNAME: ${{ secrets.AZURE_REGISTRY_USERNAME }}
