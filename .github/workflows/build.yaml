@@ -71,10 +71,10 @@ jobs:
 
   frontend:
     name: Frontend
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-m
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: recursive
     - name: Create LFS file list
@@ -135,7 +135,7 @@ jobs:
 
   contracts:
     name: Contracts
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-m
     permissions:
       id-token: write
       packages: write
@@ -144,7 +144,7 @@ jobs:
     steps:
 
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: recursive
     - name: Set up QEMU
@@ -175,7 +175,7 @@ jobs:
 
   services:
     name: Services
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-m
     permissions:
       id-token: write
       packages: write
@@ -184,7 +184,7 @@ jobs:
     steps:
 
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: recursive
     - name: Set up QEMU
@@ -214,7 +214,7 @@ jobs:
 
   deploy:
     name: Deploy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-m
     if: ${{ inputs.RUN_DEPLOY }}
     needs:
     - frontend
@@ -222,7 +222,7 @@ jobs:
     - services
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
     - name: Update deployment status
       uses: bobheadxi/deployments@v0.6.2
       id: deployment
