@@ -26,6 +26,7 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
     public Material redOutlineMat,
         greenOutlineMat;
     protected Color _defaultColor;
+    protected Color _defaultBodyColor;
 
     private Transform _meshesTrans;
 
@@ -37,6 +38,7 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         if (renderers.Length > 0)
         {
             _defaultColor = renderers[0].material.GetColor("_EmissionColor");
+            _defaultBodyColor = renderers[0].material.color;
         }
 
         _meshesTrans = transform.GetChild(0);
@@ -109,6 +111,13 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
             }
         }
 
+        // Body color
+        if (_nextData.color?.Length > 0 && (_prevData?.color ?? "") != _nextData.color)
+        {
+            Color newColor = RGBStringToColor(_nextData.color);
+            renderers[0].material.color = newColor;
+        }
+
         // Visibility
         if (_prevData == null)
         {
@@ -138,6 +147,8 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
             }
             _runningVisibilityCR = StartCoroutine(VisibilityCR(new Vector3(1, 1, 1), 1));
         }
+
+
 
         _prevData = _nextData;
     }
@@ -228,5 +239,43 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         }
 
         _runningVisibilityCR = null;
+    }
+
+    // Helper function to convert RGB string to Color
+    Color RGBStringToColor(string rgb)
+    {
+        if (rgb == "0")
+        {
+            return _defaultBodyColor;
+        }
+        try
+        {
+            string[] parts = rgb.Split(',');
+            if (parts.Length == 3)
+            {
+                // Try to parse each part to int, then normalize to float (0 to 1)
+                if (int.TryParse(parts[0].Trim(), out int r) &&
+                    int.TryParse(parts[1].Trim(), out int g) &&
+                    int.TryParse(parts[2].Trim(), out int b))
+                {
+                    return new Color(Mathf.Clamp01(r / 255f), Mathf.Clamp01(g / 255f), Mathf.Clamp01(b / 255f));
+                }
+                else
+                {
+                    Debug.LogWarning("RGBStringToColor: One or more RGB components are not integers.");
+                    return _defaultBodyColor; // Return default color if parsing fails
+                }
+            }
+            else
+            {
+                Debug.LogWarning("Invalid RGB string format. Must be 'R,G,B'.");
+                return _defaultBodyColor; // Return default color if format is incorrect
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"RGBStringToColor: Error parsing color string '{rgb}'. Exception: {ex.Message}");
+            return _defaultBodyColor; // Return default color in case of unexpected error
+        }
     }
 }
