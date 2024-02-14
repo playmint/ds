@@ -604,7 +604,7 @@ interface CombatProps {
     tiles?: WorldTileFragment[];
     sessions: WorldCombatSessionFragment[];
     buildings: WorldBuildingFragment[];
-    mobileUnits?: WorldMobileUnitFragment[];
+    mobileUnits: WorldMobileUnitFragment[];
     mobileUnit?: WorldMobileUnitFragment;
     setActionQueue: (path: CogAction[][]) => void;
 }
@@ -889,6 +889,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
                 selectedTiles={selectedTiles}
                 selectTiles={selectTiles}
                 mobileUnit={mobileUnit}
+                mobileUnits={world?.mobileUnits || []}
                 player={player}
                 tiles={tiles || []}
                 buildings={world?.buildings || []}
