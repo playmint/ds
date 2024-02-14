@@ -12,8 +12,7 @@ import "./Utils.sol";
 using Schema for State;
 
 contract ClericsTent is BuildingKind {
-    function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes memory /*payload*/ ) override public {
-
+    function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes memory /*payload*/ ) public override {
         State state = ds.getState();
         Craftable hq = Craftable(state.getImplementation(HEADQUARTER_BUILDING_KIND_ID));
 
@@ -25,5 +24,4 @@ contract ClericsTent is BuildingKind {
 
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.CRAFT, (buildingInstance)));
     }
-
 }

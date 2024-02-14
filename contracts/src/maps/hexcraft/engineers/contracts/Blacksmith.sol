@@ -10,7 +10,7 @@ import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 using Schema for State;
 
 contract BasicFactory is BuildingKind {
-    function use(Game ds, bytes24 buildingInstance, bytes24, /*actor*/ bytes memory /*payload*/ ) override public {
+    function use(Game ds, bytes24 buildingInstance, bytes24, /*actor*/ bytes memory /*payload*/ ) public override {
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.CRAFT, (buildingInstance)));
     }
 }

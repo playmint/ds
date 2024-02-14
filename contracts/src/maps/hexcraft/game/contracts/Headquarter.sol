@@ -26,22 +26,14 @@ contract Headquarter is BuildingKind {
 
     function reset() external {}
 
-    function use(
-        Game ds,
-        bytes24 buildingInstance,
-        bytes24 actor,
-        bytes calldata payload
-    ) override public {
+    function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes calldata payload) public override {
         State state = GetState(ds);
 
         // decode payload and call one of _join, _start, _claim or _reset
         if ((bytes4)(payload) == this.join.selector) {
             _join(ds, actor, buildingInstance);
         } else if ((bytes4)(payload) == this.start.selector) {
-            (bytes24 redBaseID, bytes24 blueBaseId) = abi.decode(
-                payload[4:],
-                (bytes24, bytes24)
-            );
+            (bytes24 redBaseID, bytes24 blueBaseId) = abi.decode(payload[4:], (bytes24, bytes24));
             _start(ds, state, buildingInstance, redBaseID, blueBaseId);
         } else if ((bytes4)(payload) == this.reset.selector) {
             _reset(ds, buildingInstance);
@@ -52,11 +44,7 @@ contract Headquarter is BuildingKind {
      * Functions to handle game logic
      */
 
-    function _join(
-        Game ds,
-        bytes24 unitId,
-        bytes24 buildingId
-    ) private {
+    function _join(Game ds, bytes24 unitId, bytes24 buildingId) private {
         // check game not in progress
         if (gameActive) {
             revert("Can't join while a game is already active");
@@ -79,23 +67,12 @@ contract Headquarter is BuildingKind {
         }
     }
 
-    function assignUnitToTeam(
-        Game ds,
-        string memory team,
-        bytes24 unitId,
-        bytes24 buildingId
-    ) private {
+    function assignUnitToTeam(Game ds, string memory team, bytes24 unitId, bytes24 buildingId) private {
         Dispatcher dispatcher = ds.getDispatcher();
 
-        if (
-            keccak256(abi.encodePacked(team)) ==
-            keccak256(abi.encodePacked("red"))
-        ) {
+        if (keccak256(abi.encodePacked(team)) == keccak256(abi.encodePacked("red"))) {
             processTeam(dispatcher, buildingId, "redTeam", redTeam, unitId);
-        } else if (
-            keccak256(abi.encodePacked(team)) ==
-            keccak256(abi.encodePacked("blue"))
-        ) {
+        } else if (keccak256(abi.encodePacked(team)) == keccak256(abi.encodePacked("blue"))) {
             processTeam(dispatcher, buildingId, "blueTeam", blueTeam, unitId);
         } else {
             revert("invalid team");
@@ -112,46 +89,22 @@ contract Headquarter is BuildingKind {
         dispatcher.dispatch(
             abi.encodeCall(
                 Actions.SET_DATA_ON_BUILDING,
-                (
-                    buildingId,
-                    string(abi.encodePacked(teamPrefix, "Length")),
-                    bytes32(uint256(teamUnits.length))
-                )
+                (buildingId, string(abi.encodePacked(teamPrefix, "Length")), bytes32(uint256(teamUnits.length)))
             )
         );
 
-        string memory teamUnitIndex = string(
-            abi.encodePacked(
-                teamPrefix,
-                "Unit_",
-                LibString.toString(uint256(teamUnits.length) - 1)
-            )
-        );
+        string memory teamUnitIndex =
+            string(abi.encodePacked(teamPrefix, "Unit_", LibString.toString(uint256(teamUnits.length) - 1)));
 
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.SET_DATA_ON_BUILDING,
-                (buildingId, teamUnitIndex, bytes32(unitId))
-            )
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, teamUnitIndex, bytes32(unitId))));
     }
 
-    function _start(
-        Game ds,
-        State state,
-        bytes24 buildingId,
-        bytes24 redBaseID,
-        bytes24 blueBaseID
-    ) private {
+    function _start(Game ds, State state, bytes24 buildingId, bytes24 redBaseID, bytes24 blueBaseID) private {
         Dispatcher dispatcher = ds.getDispatcher();
 
         // check teams have at least one each
-        uint256 redTeamLength = uint256(
-            state.getData(buildingId, "redTeamLength")
-        );
-        uint256 blueTeamLength = uint256(
-            state.getData(buildingId, "blueTeamLength")
-        );
+        uint256 redTeamLength = uint256(state.getData(buildingId, "redTeamLength"));
+        uint256 blueTeamLength = uint256(state.getData(buildingId, "blueTeamLength"));
         if (redTeamLength == 0 || blueTeamLength == 0) {
             revert("Can't start, both teams must have at least 1 player");
         }
@@ -160,16 +113,10 @@ contract Headquarter is BuildingKind {
 
         // set team buildings
         dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.SET_DATA_ON_BUILDING,
-                (buildingId, "buildingIdRed", bytes32(redBaseID))
-            )
+            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingIdRed", bytes32(redBaseID)))
         );
         dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.SET_DATA_ON_BUILDING,
-                (buildingId, "buildingIdBlue", bytes32(blueBaseID))
-            )
+            abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingIdBlue", bytes32(blueBaseID)))
         );
 
         // TODO check is blueBaseId is a valid building
@@ -188,30 +135,10 @@ contract Headquarter is BuildingKind {
 
         delete redTeam;
         delete blueTeam;
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.SET_DATA_ON_BUILDING,
-                (buildingId, "blueTeamLength", bytes32(0))
-            )
-        );
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.SET_DATA_ON_BUILDING,
-                (buildingId, "redTeamLength", bytes32(0))
-            )
-        );
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.SET_DATA_ON_BUILDING,
-                (buildingId, "buildingIdRed", bytes32(0))
-            )
-        );
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.SET_DATA_ON_BUILDING,
-                (buildingId, "buildingIdBlue", bytes32(0))
-            )
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "blueTeamLength", bytes32(0))));
+        dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "redTeamLength", bytes32(0))));
+        dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingIdRed", bytes32(0))));
+        dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, "buildingIdBlue", bytes32(0))));
 
         delete crafted;
     }
@@ -219,12 +146,12 @@ contract Headquarter is BuildingKind {
     /*
      * Functions to handle character classes
      */
-     function setCrafted(bytes24 actor) public {
+    function setCrafted(bytes24 actor) public {
         crafted.push(actor);
     }
 
     function hasCrafted(bytes24 actor) public view returns (bool) {
-        for (uint i=0; i < crafted.length; i++) {
+        for (uint256 i = 0; i < crafted.length; i++) {
             if (crafted[i] == actor) {
                 return true;
             }

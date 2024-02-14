@@ -12,8 +12,7 @@ import "./Utils.sol";
 using Schema for State;
 
 contract BardsConcertHall is BuildingKind {
-    function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes memory /*payload*/ ) override public {
-
+    function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes memory /*payload*/ ) public override {
         State state = ds.getState();
         Craftable hq = Craftable(state.getImplementation(HEADQUARTER_BUILDING_KIND_ID));
 
