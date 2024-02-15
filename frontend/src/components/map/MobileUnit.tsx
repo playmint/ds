@@ -104,7 +104,7 @@ export const MobileUnit = memo(
                     sendScreenPosition,
                     screenPositionHeightOffset,
                     selected: selected || 'none',
-                    color: color || '0',
+                    color: color,
                     shared,
                     visible,
                     position: { x, y, z },
@@ -212,7 +212,7 @@ export const MobileUnits = memo(
                             height={u.height}
                             progress={1}
                             selected={selectedMobileUnitID === u.id ? 'outline' : 'none'}
-                            color={color || '0'}
+                            color={color}
                             shared={u.atBuilding}
                             visible={u.visible}
                             onPointerClick={onClickMobileUnit}
