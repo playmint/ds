@@ -146,7 +146,7 @@ export const MobileUnits = memo(
         selectedMobileUnitID,
         onClickMobileUnit,
         playerID,
-        randomUnitProperties,
+        pluginProperties,
     }: {
         currentBlock: number;
         mobileUnits?: WorldMobileUnitFragment[];
@@ -154,7 +154,7 @@ export const MobileUnits = memo(
         selectedMobileUnitID?: string;
         playerID?: string;
         onClickMobileUnit: (id: string) => void;
-        randomUnitProperties: PluginMapProperty[];
+        pluginProperties: PluginMapProperty[];
     }) => {
         const [unitPositions, setUnitPositions] = useState({}); // New state for positions
 
@@ -202,7 +202,7 @@ export const MobileUnits = memo(
             () =>
                 units.map((u) => {
                     // Make this like Tile.tsx line 71
-                    const color = randomUnitProperties.find((prop) => prop.id == u.id)?.value.toString();
+                    const color = pluginProperties.find((prop) => prop.id == u.id)?.value.toString();
                     return (
                         <MobileUnit
                             sendScreenPosition={true}
@@ -221,7 +221,7 @@ export const MobileUnits = memo(
                         />
                     );
                 }),
-            [onClickMobileUnit, selectedMobileUnitID, units, updatePosition, randomUnitProperties]
+            [onClickMobileUnit, selectedMobileUnitID, units, updatePosition, pluginProperties]
         );
 
         const unitIcons = useMemo(

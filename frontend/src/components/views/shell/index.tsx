@@ -351,7 +351,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         onClickMobileUnit={mobileUnitClick}
                         selectedMobileUnitID={selectedMobileUnit?.id}
                         playerID={player?.id}
-                        randomUnitProperties={unitColorsModifiedByPlugins}
+                        pluginProperties={unitColorsModifiedByPlugins}
                     />
                     <Bags
                         tiles={tiles || []}
