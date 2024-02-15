@@ -258,11 +258,17 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
                     && int.TryParse(parts[2].Trim(), out int b)
                 )
                 {
-                    return new Color(Mathf.Clamp01(r / 255f), Mathf.Clamp01(g / 255f), Mathf.Clamp01(b / 255f));
+                    return new Color(
+                        Mathf.Clamp01(r / 255f),
+                        Mathf.Clamp01(g / 255f),
+                        Mathf.Clamp01(b / 255f)
+                    );
                 }
                 else
                 {
-                    Debug.LogWarning("RGBStringToColor: One or more RGB components are not integers.");
+                    Debug.LogWarning(
+                        "RGBStringToColor: One or more RGB components are not integers."
+                    );
                     return _defaultBodyColor; // Return default color if parsing fails
                 }
             }
@@ -274,7 +280,9 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         }
         catch (System.Exception ex)
         {
-            Debug.LogWarning($"RGBStringToColor: Error parsing color string '{rgb}'. Exception: {ex.Message}");
+            Debug.LogWarning(
+                $"RGBStringToColor: Error parsing color string '{rgb}'. Exception: {ex.Message}"
+            );
             return _defaultBodyColor; // Return default color in case of unexpected error
         }
     }
