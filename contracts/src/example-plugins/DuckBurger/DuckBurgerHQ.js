@@ -178,6 +178,28 @@ export default async function update(state, block) {
 
     connectDisplayBuildings(state, localBuildings);
 
+    const unitMapObj = [];
+    for (let i = 0; i < teamDuckLength; i++) {
+        unitMapObj.push(
+            {
+                type: "unit",
+                key: "color",
+                id: getHQTeamUnit(selectedBuilding, "Duck", i),
+                value: "#ffcc00",
+            }
+        )
+    }
+    for (let i = 0; i < teamBurgerLength; i++) {
+        unitMapObj.push(
+            {
+                type: "unit",
+                key: "color",
+                id: getHQTeamUnit(selectedBuilding, "Burger", i),
+                value: "#b30000",
+            }
+        )
+    }
+
     // check current game state:
     // - NotStarted : GameActive == false
     // - Running : GameActive == true && endBlock < currentBlock
@@ -401,7 +423,7 @@ export default async function update(state, block) {
 
     return {
         version: 1,
-        map: mapObj,
+        map: mapObj.concat(unitMapObj),
         components: [
             {
                 id: "dbhq",
