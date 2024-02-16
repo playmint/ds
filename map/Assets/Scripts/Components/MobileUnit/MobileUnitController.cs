@@ -39,7 +39,7 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         if (renderers.Length > 0)
         {
             _defaultColor = renderers[0].material.GetColor("_EmissionColor");
-            _defaultBodyColor = ColorUtility.ToHtmlStringRGB(renderers[0].material.color);
+            _defaultBodyColor = "#" + ColorUtility.ToHtmlStringRGB(renderers[0].material.color);
         }
 
         _meshesTrans = transform.GetChild(0);
@@ -116,15 +116,7 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         if ((_prevData?.color ?? "") != _nextData.color)
         {
             string colorString = _nextData.color;
-            if (!string.IsNullOrEmpty(colorString) && !colorString.StartsWith("#"))
-            {
-                colorString = "#" + colorString;
-            }
-            else if (string.IsNullOrEmpty(colorString))
-            {
-                colorString = "#" + _defaultBodyColor;
-            }
-
+            colorString = string.IsNullOrEmpty(colorString) ? _defaultBodyColor : colorString;
             ColorUtility.TryParseHtmlString(colorString, out Color targetColor);
             renderers[0].material.color = targetColor;
         }

@@ -6,7 +6,7 @@ public class MobileUnitData : BaseComponentData
     public float height;
     public float progress; // 0 -> 1 percent between prev/next
     public string? selected; // ={none/highlight/outline}
-    public string? color; // hex eg "#ff0000" or "ff0000"
+    public string? color; // https://docs.unity3d.com/ScriptReference/ColorUtility.TryParseHtmlString.html
     public bool shared; //  ie sharing with a building
     public bool visible;
 }

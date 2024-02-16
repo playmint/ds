@@ -185,7 +185,7 @@ export default async function update(state, block) {
                 type: "unit",
                 key: "color",
                 id: getHQTeamUnit(selectedBuilding, "Duck", i),
-                value: "#ffcc00",
+                value: "#f1b14e",
             }
         )
     }
@@ -195,7 +195,7 @@ export default async function update(state, block) {
                 type: "unit",
                 key: "color",
                 id: getHQTeamUnit(selectedBuilding, "Burger", i),
-                value: "#b30000",
+                value: "#ec5c61",
             }
         )
     }
