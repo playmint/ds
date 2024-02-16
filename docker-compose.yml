@@ -51,3 +51,29 @@ services:
       - contracts
 
 
+  redis:
+      image: redis:latest
+      ports:
+        - "6379:6379"
+      depends_on:
+        - cog
+
+  tonk-state-service:
+    build:
+      context: ./tonk-services/packages
+      dockerfile: ./tonk-state-service/Dockerfile
+    depends_on:
+      - redis
+    # environment:
+    #  TONK_SERVICES_STAGE: LOCAL
+
+  tonk-web-server:
+    build:
+      context: ./tonk-services/packages
+      dockerfile: ./tonk-web-server/Dockerfile
+    ports:
+      - "8082:8082"
+    depends_on:
+      - redis
+    # environment:
+    #   TONK_SERVICES_STAGE: LOCAL
