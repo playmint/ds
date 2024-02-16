@@ -312,7 +312,7 @@ export interface PluginStateComponent {
 }
 
 export interface PluginMapProperty {
-    type: 'building' | 'tile';
+    type: 'building' | 'tile' | 'unit';
     id: string;
     key: string;
     value: string | number;

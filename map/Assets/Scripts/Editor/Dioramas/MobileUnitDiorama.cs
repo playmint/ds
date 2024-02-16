@@ -33,6 +33,7 @@ class MobileUnitDiorama : IDiorama
                     height = 0.1f,
                     progress = 0,
                     selected = "none",
+                    color = "#00ff1a",
                     shared = false,
                     visible = true
                 } },

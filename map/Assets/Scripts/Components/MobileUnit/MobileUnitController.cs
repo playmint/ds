@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using ColorUtility = UnityEngine.ColorUtility;
 
 public class MobileUnitController : BaseComponentController<MobileUnitData>
 {
@@ -26,6 +27,7 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
     public Material redOutlineMat,
         greenOutlineMat;
     protected Color _defaultColor;
+    protected string _defaultBodyColor;
 
     private Transform _meshesTrans;
 
@@ -37,6 +39,7 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         if (renderers.Length > 0)
         {
             _defaultColor = renderers[0].material.GetColor("_EmissionColor");
+            _defaultBodyColor = "#" + ColorUtility.ToHtmlStringRGB(renderers[0].material.color);
         }
 
         _meshesTrans = transform.GetChild(0);
@@ -107,6 +110,15 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
             {
                 rend.material.SetColor("_EmissionColor", _defaultColor);
             }
+        }
+
+        // Body color
+        if ((_prevData?.color ?? "") != _nextData.color)
+        {
+            string colorString = _nextData.color;
+            colorString = string.IsNullOrEmpty(colorString) ? _defaultBodyColor : colorString;
+            ColorUtility.TryParseHtmlString(colorString, out Color targetColor);
+            renderers[0].material.color = targetColor;
         }
 
         // Visibility

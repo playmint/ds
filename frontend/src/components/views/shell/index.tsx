@@ -107,6 +107,9 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const displayBuildingDataModifiedByPlugins =
         ui?.flatMap((res) => res.state.map.filter((prop) => prop.type === 'building')) || [];
 
+    const unitColorsModifiedByPlugins =
+        ui?.flatMap((res) => res.state.map.filter((prop) => prop.type === 'unit')) || [];
+
     // setup the unity frame
     useEffect(() => {
         if (!setContainerStyle) {
@@ -348,6 +351,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         onClickMobileUnit={mobileUnitClick}
                         selectedMobileUnitID={selectedMobileUnit?.id}
                         playerID={player?.id}
+                        pluginProperties={unitColorsModifiedByPlugins}
                     />
                     <Bags
                         tiles={tiles || []}

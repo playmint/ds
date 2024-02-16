@@ -1,6 +1,6 @@
 import { getTileHeightFromCoords } from '@app/helpers/tile';
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
-import { WorldBuildingFragment, WorldMobileUnitFragment, getCoords } from '@downstream/core';
+import { WorldBuildingFragment, WorldMobileUnitFragment, getCoords, PluginMapProperty } from '@downstream/core';
 import { memo, useCallback, useMemo, useState } from 'react';
 import Icon from './Icon';
 import { getBuildingAtTile } from '@downstream/core/src/utils';
@@ -26,6 +26,7 @@ export interface MobileUnitData {
     height: number;
     progress: number;
     selected?: 'none' | 'highlight' | 'outline';
+    color?: string;
     shared: boolean;
     visible: boolean;
     sendScreenPosition: boolean;
@@ -42,6 +43,7 @@ export const MobileUnit = memo(
         height,
         progress,
         selected,
+        color,
         shared,
         visible,
         sendScreenPosition,
@@ -102,6 +104,7 @@ export const MobileUnit = memo(
                     sendScreenPosition,
                     screenPositionHeightOffset,
                     selected: selected || 'none',
+                    color: color,
                     shared,
                     visible,
                     position: { x, y, z },
@@ -114,6 +117,7 @@ export const MobileUnit = memo(
                     height,
                     progress,
                     selected,
+                    color,
                     shared,
                     visible,
                     sendScreenPosition,
@@ -142,6 +146,7 @@ export const MobileUnits = memo(
         selectedMobileUnitID,
         onClickMobileUnit,
         playerID,
+        pluginProperties,
     }: {
         currentBlock: number;
         mobileUnits?: WorldMobileUnitFragment[];
@@ -149,6 +154,7 @@ export const MobileUnits = memo(
         selectedMobileUnitID?: string;
         playerID?: string;
         onClickMobileUnit: (id: string) => void;
+        pluginProperties: PluginMapProperty[];
     }) => {
         const [unitPositions, setUnitPositions] = useState({}); // New state for positions
 
@@ -195,6 +201,8 @@ export const MobileUnits = memo(
         const unitComponents = useMemo(
             () =>
                 units.map((u) => {
+                    // Make this like Tile.tsx line 71
+                    const color = pluginProperties.find((prop) => prop.id == u.id)?.value.toString();
                     return (
                         <MobileUnit
                             sendScreenPosition={true}
@@ -204,6 +212,7 @@ export const MobileUnits = memo(
                             height={u.height}
                             progress={1}
                             selected={selectedMobileUnitID === u.id ? 'outline' : 'none'}
+                            color={color}
                             shared={u.atBuilding}
                             visible={u.visible}
                             onPointerClick={onClickMobileUnit}
@@ -212,7 +221,7 @@ export const MobileUnits = memo(
                         />
                     );
                 }),
-            [onClickMobileUnit, selectedMobileUnitID, units, updatePosition]
+            [onClickMobileUnit, selectedMobileUnitID, units, updatePosition, pluginProperties]
         );
 
         const unitIcons = useMemo(
