@@ -2,7 +2,7 @@
 
 import { ConnectedPlayer, WorldMobileUnitFragment, WorldStateFragment, WorldTileFragment } from '@app/../../core/src';
 import { Dialog } from '@app/components/molecules/dialog';
-import { getMaterialStats, getMobileUnitStats } from '@app/plugins/combat/helpers';
+import { LIFE_MUL, getMaterialStats, getMobileUnitStats } from '@app/plugins/combat/helpers';
 import { ProgressBar } from '@app/plugins/combat/progress-bar';
 import { ComponentProps } from '@app/types/component-props';
 import { getSessionsAtTile } from '@downstream/core/src/utils';
@@ -97,7 +97,7 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
         .concat(
             attackBuildings.map((b) => {
                 const [life, def, atk] = getMaterialStats(b.kind?.materials || []);
-                return { life, def, atk };
+                return { life: life * LIFE_MUL, def, atk };
             })
         );
 
@@ -110,7 +110,7 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
         .concat(
             defenceBuildings.map((b) => {
                 const [life, def, atk] = getMaterialStats(b.kind?.materials || []);
-                return { life, def, atk };
+                return { life: life * LIFE_MUL, def, atk };
             })
         );
 

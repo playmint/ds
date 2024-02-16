@@ -3,7 +3,7 @@
 import { ConnectedPlayer, WorldStateFragment } from '@app/../../core/src';
 import { COMBAT_JOIN_WINDOW_BLOCKS, CombatWinState } from '@app/plugins/combat/combat';
 import { CombatParticipant, CombatParticipantProps } from '@app/plugins/combat/combat-participant';
-import { CombatSession, getMaterialStats, getMobileUnitStats } from '@app/plugins/combat/helpers';
+import { CombatSession, LIFE_MUL, getMaterialStats, getMobileUnitStats } from '@app/plugins/combat/helpers';
 import { ProgressBar } from '@app/plugins/combat/progress-bar';
 import { TickTimerProgressBar } from '@app/plugins/combat/tick-timer-progress-bar';
 import { ComponentProps } from '@app/types/component-props';
@@ -244,8 +244,8 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
                     const [maxHealth, defence, attack] = getMaterialStats(b.kind?.materials || []);
                     return {
                         name: b.kind?.name?.value,
-                        maxHealth,
-                        currentHealth: maxHealth,
+                        maxHealth: maxHealth * LIFE_MUL,
+                        currentHealth: maxHealth * LIFE_MUL,
                         attack,
                         defence,
                         isDead: false,
