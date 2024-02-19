@@ -2,9 +2,9 @@ version: "3"
 
 services:
   contracts:
-    # build:
-    #   context: .
-    #   dockerfile: ./contracts/Dockerfile
+    build:
+      context: .
+      dockerfile: ./contracts/Dockerfile
     image: ghcr.io/playmint/ds-contracts:hexwood0
     ports:
       - 8545:8545
@@ -18,16 +18,16 @@ services:
       - ./contracts/src/maps:/contracts/src/maps
 
   frontend:
-    # build:
-    #   context: .
-    #   dockerfile: ./frontend/Dockerfile
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
     image: ghcr.io/playmint/ds-shell:hexwood0
     ports:
       - 3000:80
 
   cog:
-    # build:
-    #   context: ./contracts/lib/cog/services
+    build:
+      context: ./contracts/lib/cog/services
     image: ghcr.io/playmint/ds-services:hexwood0
     restart: always
     entrypoint:
