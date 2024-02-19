@@ -64,6 +64,14 @@ MAP=${MAP:-"default"}
 echo "ds apply ${MAP}..."
 ds -k "${DEPLOYER_PRIVATE_KEY}" -n local --ws-endpoint="${SERVICES_WS}" --http-endpoint="${SERVICES_HTTP}" apply -R -f "./src/maps/${MAP}"
 
+# postinstall script
+if [ -f "./src/maps/${MAP}/postinstall.js" ]; then
+    echo "+------------------------+"
+    echo "| executing postinstall  |"
+    echo "+------------------------+"
+    node "./src/maps/${MAP}/postinstall.js"
+fi
+
 echo "+-------+"
 echo "| ready |"
 echo "+-------+"
