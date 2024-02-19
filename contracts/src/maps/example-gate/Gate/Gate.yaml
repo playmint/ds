@@ -10,6 +10,7 @@ spec:
     file: ./Gate.sol
   plugin:
     file: ./Gate.js
+    alwaysActive: true
   materials:
     - name: Red Goo
       quantity: 10

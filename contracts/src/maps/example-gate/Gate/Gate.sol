@@ -4,10 +4,9 @@ pragma solidity ^0.8.13;
 import {Game} from "cog/IGame.sol";
 import {Dispatcher} from "cog/IDispatcher.sol";
 import {State} from "cog/IState.sol";
-import {Schema, Kind} from "@ds/schema/Schema.sol";
+import {Schema, Kind, Node} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
-import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 
 using Schema for State;
 
@@ -18,8 +17,8 @@ contract ExampleGate is BuildingKind {
 
         // Example of not allowing a unit to stand on the building tile unless they have the ID Card item
         ( /*uint8 bagSlot*/ , /*uint8 itemSlot*/, uint64 balance) =
-            _findItem(ds.getState(), mobileUnitID, ItemUtils.IDCard());
-        require(balance > 0, "ExampleGate: Unit does not have ID Card");
+            _findItem(ds.getState(), mobileUnitID, Node.Item("Gate Key", [uint32(100), uint32(100), uint32(100)], true));
+        require(balance > 0, "ExampleGate: Unit does not have Gate Key");
     }
 
     function onUnitLeave(Game ds, bytes24 buildingInstanceID, bytes24 mobileUnitID) public override {

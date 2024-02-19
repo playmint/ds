@@ -16,12 +16,34 @@ export default async function update(state) {
     const hasIdCard =
         getItemBalance(
             getMobileUnit(state),
-            "ID Card",
+            "Gate Key",
             state?.world?.bags ?? [],
         ) > 0;
 
+    const pluginBuildings = getBuildingsByKindName(state, "example gate");
+    const pluginBuildingTileIDs = pluginBuildings.map(
+        (b) => b.location.tile.id,
+    );
+    const blockerTileMapObjs = pluginBuildingTileIDs.map((t) => {
+        return {
+            type: "tile",
+            key: "blocker",
+            id: t,
+            value: `${!hasIdCard}`,
+        };
+    });
+    const tileColorMapObjs = pluginBuildingTileIDs.map((t) => {
+        return {
+            type: "tile",
+            key: "color",
+            id: t,
+            value: hasIdCard ? "green" : "red",
+        };
+    });
+
     return {
         version: 1,
+        map: blockerTileMapObjs.concat(tileColorMapObjs),
         components: [
             {
                 id: "state-storage-test",
@@ -33,8 +55,8 @@ export default async function update(state) {
                         html: `
                             <p>${
                                 hasIdCard
-                                    ? "✅ You have an ID Card so you may pass"
-                                    : "❌ You don't have an ID Card so you cannot pass"
+                                    ? "✅ You have a <b>Gate Key</b> so you may pass"
+                                    : "❌ You don't have a <b>Gate Key</b> so you cannot pass"
                             }</p>
                             <br/>
                             <p>This building's graphQL fragment is logged to the console where you can see the custom data that has been set on it</p>
@@ -59,6 +81,12 @@ function getSelectedTile(state) {
 function getBuildingOnTile(state, tile) {
     return (state?.world?.buildings || []).find(
         (b) => tile && b.location?.tile?.id === tile.id,
+    );
+}
+
+function getBuildingsByKindName(state, kindName) {
+    return (state?.world?.buildings || []).filter(
+        (b) => b.kind?.name?.value === kindName,
     );
 }
 
@@ -137,6 +165,36 @@ function getItemBalance(mobileUnit, itemName, worldBags) {
             }, 0)
         );
     }, 0);
+}
+
+/**
+ * Converts a BigInt to a two's complement binary representation.
+ * @param {BigInt} _value - The BigInt number to convert.
+ * @param {number} _width - The desired width of the binary representation.
+ * @returns {BigInt} The two's complement binary representation of the value.
+ */
+function toTwos(_value, _width) {
+    const BN_0 = BigInt(0);
+    const BN_1 = BigInt(1);
+
+    let value = BigInt(_value);
+    let width = BigInt(_width);
+    const limit = BN_1 << (width - BN_1);
+    if (value < BN_0) {
+        value = -value;
+        const mask = (BN_1 << width) - BN_1;
+        return (~value & mask) + BN_1;
+    }
+    return value;
+}
+
+/**
+ * Converts an integer value to a hexadecimal string of 16 bits width
+ * @param {number} value - The integer value to convert.
+ * @returns {string} A 4-character hexadecimal string representation of the value.
+ */
+function toInt16Hex(value) {
+    return ("0000" + toTwos(value, 16).toString(16)).slice(-4);
 }
 
 // the source for this code is on github where you can find other example buildings:
