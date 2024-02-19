@@ -64,9 +64,9 @@ You will need to enter your BIOS and activate Hardware Virtualisation. This is u
 </details>
 
 <details>
-<summary>Building from Source (For Development)</summary>
+<summary>Building from Source</summary>
 
-### Building from Source (For Development)
+### Building from Source
 
 For deploying locally with maximum flexibility and minimum rebuild times, you can install the whole tool chain and then create a local build with make.
 
@@ -191,21 +191,6 @@ make clean
 
 Once you are done, you can either build everything again with `make dev` or you can just
 build the map by using the `make map` command.
-</details>
-
-<details>
-<summary>Building from source (for production)</summary>
-
-### Building from source (for production)
-
-Github Actions will build production ready Docker images on merge to `main`
-available: ghcr.io/playmint/ds
-
-To build the image yourself run:
-
-```
-docker build -t ghcr.io/playmint/ds:latest .
-```
 </details>
 
 <details>
