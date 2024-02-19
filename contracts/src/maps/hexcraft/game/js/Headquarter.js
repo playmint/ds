@@ -119,7 +119,7 @@ export default async function update(state) {
   for (let i = 0; i < blueTeamLength; i++){
     const unitId = getHQTeamUnit(selectedBuilding, "blue", i);
     const unitCoords = state.world?.mobileUnits?.find(unit => unit.id === unitId).nextLocation?.tile?.coords;
-    if (!inHexcraftArea(unitCoords, hqCoords)){
+    if (!inHexcraftArea(getTileCoords(unitCoords), getTileCoords(hqCoords))){
         continue;
     }
     unitMapObj.push(
@@ -375,13 +375,8 @@ function getTileCoords(coords) {
 }
 
 function inHexcraftArea(unitCoords, hqCoords){
-    const qDiff = unitCoords[1] - hqCoords[1];
-    const rDiff = unitCoords[2] - hqCoords[2];
-
-    const inWidth = Math.abs(qDiff) <= 12 / 2;
-    const inHeight = rDiff >= 0 && rDiff <= 18;
-
-    return inWidth && inHeight;
+    const inRange = unitCoords[1] >= hqCoords[1] && unitCoords[1] <= hqCoords[1] + 18;
+    return inRange;
 }
 
 // search through all the bags in the world to find those belonging to this eqipee
