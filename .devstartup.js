@@ -13,6 +13,17 @@ const DEPLOYER_PRIVATE_KEY = "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff
 const MAP = process.env.MAP || "default";
 
 async function handleStartup(){
+    // bail if MAP=tonk
+    if (MAP === 'tonk') {
+        console.error('');
+        console.error('MAP=tonk is not supported via `make dev`');
+        console.error('');
+        console.error('Either use: docker compose --profile tonk up');
+        console.error('');
+        console.error('Or use MAP=default and then work out how to build and run tonk services manually (requires rust toolchain)');
+        console.error('');
+        process.exit(1);
+    }
     // which map to deploy (relative to contracts)
     const mapPath = path.join('./src/maps/', MAP);
     if (!fs.existsSync(path.join('contracts', mapPath))) {
