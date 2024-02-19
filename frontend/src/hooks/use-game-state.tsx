@@ -159,11 +159,14 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
         if (!block) {
             return;
         }
+        if (!config) {
+            return;
+        }
         console.log('restart count', sandboxDeaths);
         workerRef.current = new Worker(new URL('../workers/sandbox.ts', import.meta.url));
         const workerSandbox: Comlink.Remote<Sandbox> = Comlink.wrap(workerRef.current);
         workerSandbox
-            .init()
+            .init(config)
             .then(() => {
                 console.log('new sandbox started');
                 const { logger: questMsgSender, logs: questMsgs } = makeLogger({ name: 'questMessages' });
@@ -187,7 +190,7 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
                 });
             })
             .catch(() => console.error(`sandbox init fail`));
-    }, [sandboxDeaths, sources1]);
+    }, [sandboxDeaths, sources1, config]);
 
     const { selectProvider } = sources1 || {};
 

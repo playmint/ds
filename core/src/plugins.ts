@@ -138,6 +138,7 @@ export function makePluginUI(
                 return Promise.all(
                     plugins
                         .map(async (p): Promise<PluginUpdateResponse | null> => {
+                            let plugin: ActivePlugin | null | undefined;
                             try {
                                 const { player } = state;
                                 const dispatch = player ? player.dispatch : noopDispatcher;
@@ -145,7 +146,7 @@ export function makePluginUI(
                                     console.warn(`plugin has no id, skipping`);
                                     return null;
                                 }
-                                const plugin = active.has(p.id)
+                                plugin = active.has(p.id)
                                     ? active.get(p.id)
                                     : state.world.buildings.some((building) => building?.kind?.id === p.kindID) ||
                                       state.world.items.some((item) => item?.id === p.kindID)
@@ -177,7 +178,9 @@ export function makePluginUI(
                                 }
                                 console.error(`Removing plugin ${p.id} from 'active' due to error`, err);
                                 active.delete(p.id);
-                                sandbox.deleteContext(p.id);
+                                if (plugin) {
+                                    await sandbox.deleteContext(plugin.context);
+                                }
                                 return null;
                             }
                         })

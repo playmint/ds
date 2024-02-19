@@ -5,19 +5,21 @@ import {
     PluginConfig,
     PluginDispatchFunc,
     Sandbox,
+    GameConfig,
 } from '@downstream/core';
 import * as Comlink from 'comlink';
 import { QuickJSContext, QuickJSRuntime, getQuickJS } from 'quickjs-emscripten';
 import { ethers } from 'ethers';
 
 let runtime: QuickJSRuntime;
+let config: Partial<GameConfig> = {};
 
 const contexts: QuickJSContext[] = [];
 
 // wrapper functions loaded by the fake 'downstream' module within the guest
 // to make it feel like a "normal" library import and potentially keep compatibility
 // with any future implementation changes where modules loading might be supported
-const DS_GUEST_FUNCTIONS = `
+const DS_GUEST_FUNCTIONS = () => `
 
 export function dispatch(...actions) {
     const req = JSON.stringify(actions);
@@ -39,11 +41,14 @@ export function sendQuestMessage(...args) {
     return globalThis.__ds.sendQuestMessage(req);
 }
 
+export const config = ${JSON.stringify(config)};
+
 export default {
     encodeCall,
     dispatch,
     log,
     sendQuestMessage,
+    config,
 };
 `;
 
@@ -55,7 +60,8 @@ function pollPendingJobs() {
     setTimeout(() => pollPendingJobs(), ms);
 }
 
-export async function init() {
+export async function init(cfg: Partial<GameConfig>) {
+    config = cfg;
     const qjs = await getQuickJS();
 
     runtime = qjs.newRuntime();
@@ -89,7 +95,7 @@ export async function setState(newState: GameStatePlugin, newBlock: number) {
     });
 }
 
-export function deleteContext(contextID: number) {
+export async function deleteContext(contextID: number) {
     try {
         contexts[contextID].dispose();
         console.log('just disposed context ', contextID);
@@ -285,7 +291,6 @@ export async function _newContext(
     context.setProp(consoleHandle, 'debug', debugHandle);
 
     context.setProp(context.global, 'console', consoleHandle);
-    consoleHandle.dispose();
     infoHandle.dispose();
     logHandle.dispose();
     warnHandle.dispose();
@@ -389,7 +394,7 @@ export async function _newContext(
             case '__plugin__':
                 return config.src;
             case 'downstream':
-                return DS_GUEST_FUNCTIONS;
+                return DS_GUEST_FUNCTIONS();
             default:
                 throw new Error('importing modules is only available for downstream module');
         }
