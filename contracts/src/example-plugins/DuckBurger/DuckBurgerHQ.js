@@ -178,23 +178,35 @@ export default async function update(state, block) {
 
     connectDisplayBuildings(state, localBuildings);
 
+    // unit plugin properties - unit color
     const unitMapObj = [];
+    const hqCoords = selectedBuilding.location?.tile?.coords;
     for (let i = 0; i < teamDuckLength; i++) {
+        const unitId = getHQTeamUnit(selectedBuilding, "Duck", i);
+        const unitCoords = state.world?.mobileUnits?.find(unit => unit.id === unitId).nextLocation?.tile?.coords;
+        if (distance(getTileCoords(unitCoords), getTileCoords(hqCoords)) > 5) {
+            continue;
+        }
         unitMapObj.push(
             {
                 type: "unit",
                 key: "color",
-                id: getHQTeamUnit(selectedBuilding, "Duck", i),
+                id: unitId,
                 value: "#f1b14e",
             }
         )
     }
     for (let i = 0; i < teamBurgerLength; i++) {
+        const unitId = getHQTeamUnit(selectedBuilding, "Burger", i);
+        const unitCoords = state.world?.mobileUnits?.find(unit => unit.id === unitId).nextLocation?.tile?.coords;
+        if (distance(getTileCoords(unitCoords), getTileCoords(hqCoords)) > 5) {
+            continue;
+        }
         unitMapObj.push(
             {
                 type: "unit",
                 key: "color",
-                id: getHQTeamUnit(selectedBuilding, "Burger", i),
+                id: unitId,
                 value: "#ec5c61",
             }
         )
