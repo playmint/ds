@@ -34,6 +34,7 @@ on:
           - quest-map
           - team-vanilla
           - hexcraft
+          - tonk
 
 jobs:
   build:
