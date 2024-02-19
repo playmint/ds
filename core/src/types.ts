@@ -25,15 +25,15 @@ export interface EthereumProvider extends Eip1193Provider {
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<T>;
 
 export interface Sandbox {
-    init: () => Promise<void>;
+    init: (cfg: Partial<GameConfig>) => Promise<void>;
     newContext: (
         dispatch: PluginDispatchFunc,
         logMessage: Logger,
         questMessage: Logger,
         config: PluginConfig,
     ) => Promise<number>;
-    deleteContext;
-    hasContext;
+    deleteContext: (id: number) => Promise<void>;
+    hasContext: (id: number) => Promise<boolean>;
     evalCode: (context: number, code: string) => Promise<any>;
     setState: (state: GameStatePlugin, blk: number) => Promise<void>;
 }
@@ -82,6 +82,7 @@ export interface GameConfig {
     wsSocketImpl?: unknown;
     httpEndpoint: string;
     httpFetchImpl?: typeof fetch;
+    tonkEndpoint?: string;
 }
 
 export type ActionName = Parameters<ActionsInterface['getFunction']>[0];
