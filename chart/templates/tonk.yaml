@@ -38,7 +38,7 @@ spec:
             - name: RUST_LOG
               value: "info"
             - name: DS_ENDPOINT
-              value: "http://{{ $.Release.Name}}-services.{{ $.Release.Namespace }}.svc.cluster.local"
+              value: "http://{{ $.Release.Name}}-services.{{ $.Release.Namespace }}.svc.cluster.local/query"
         - name: web
           image: playmint/tonk-web-server:latest
           imagePullPolicy: Always
