@@ -3,6 +3,7 @@ gameID: {{ $.Values.frontend.gameAddress | quote}}
 build: {{ $.Values.version | quote }}
 wsEndpoint: "wss://services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}/query"
 httpEndpoint: "https://services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}/query"
+tonkEndpoint: "https://tonk-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
 {{ end }}
 
 ---
@@ -89,6 +90,8 @@ spec:
             value: "ws://localhost:8080/query"
           - name: MAP
             value: {{ $.Values.map | quote }}
+          - name: TONK_URL_HTTP
+            value: "http://{{ $.Release.Name}}-tonk.{{ $.Release.Namespace }}.svc.cluster.local"
           ports:
             - name: network
               containerPort: 8545

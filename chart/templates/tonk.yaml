@@ -1,0 +1,108 @@
+{{ if eq $.Values.map "tonk" }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $.Release.Name }}-tonk
+  namespace: {{ $.Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ $.Release.Name }}-tonk
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ $.Release.Name }}-tonk
+      annotations:
+        gitsha: {{ $.Values.version | quote }}
+    spec:
+      priorityClassName: {{ $.Values.priorityClassName | quote }}
+      containers:
+        - name: redis
+          image: redis:7.2.4-alpine
+          imagePullPolicy: Always
+          ports:
+            - name: redis
+              containerPort: 6379
+              protocol: TCP
+        - name: state
+          image: playmint/tonk-state-service:latest
+          imagePullPolicy: Always
+          env:
+            - name: TONK_SERVICES_STAGE
+              value: "PRODUCTION"
+            - name: REDIS_URL
+              value: "redis://localhost:6379"
+            - name: RUST_LOG
+              value: "info"
+            - name: DS_ENDPOINT
+              value: "http://{{ $.Release.Name}}-services.{{ $.Release.Namespace }}.svc.cluster.local"
+        - name: web
+          image: playmint/tonk-web-server:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8082
+              protocol: TCP
+          env:
+            - name: TONK_SERVICES_STAGE
+              value: "PRODUCTION"
+            - name: REDIS_URL
+              value: "redis://localhost:6379"
+            - name: RUST_LOG
+              value: "info"
+            - name: ALLOWED_ORIGIN
+              value: "https://{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $.Release.Name }}-tonk
+  namespace: {{ $.Release.Namespace }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ $.Release.Name }}-tonk
+
+---
+apiVersion: "gateway.solo.io/v1"
+kind: VirtualService
+metadata:
+  name: {{ $.Release.Name }}-tonk
+  namespace: {{ $.Release.Namespace }}
+spec:
+  virtualHost:
+    domains: ["tonk-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"]
+    routes:
+    - matchers:
+      - prefix: "/"
+      routeAction:
+        single:
+          kube:
+            ref:
+              name: {{ $.Release.Name }}-tonk
+              namespace: {{ $.Release.Namespace }}
+            port: 80
+      options:
+        timeout: 120s
+        upgrades:
+        - websocket: {}
+        retries:
+          retryOn: gateway-error
+          numRetries: 1
+          perTryTimeout: 120s
+  sslConfig:
+    sniDomains: ["tonk-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"]
+    secretRef:
+      name: "downstream-domain-certificate"
+      namespace: "ingress-system"
+
+
+{{ end }}
