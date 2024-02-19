@@ -101,8 +101,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     }, [combatSessionTick, prevCombatSessionTick]);
 
     // console.log(ui);
-    const tileColorsModifiedByPlugins =
-        ui?.flatMap((res) => res.state.map.filter((prop) => prop.type === 'tile')) || [];
+    const tilesModifiedByPlugins = ui?.flatMap((res) => res.state.map.filter((prop) => prop.type === 'tile')) || [];
 
     const displayBuildingDataModifiedByPlugins =
         ui?.flatMap((res) => res.state.map.filter((prop) => prop.type === 'building')) || [];
@@ -342,7 +341,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         tiles={tiles}
                         onClickTile={tileClick}
                         selectedTiles={selectedTiles}
-                        randomTileProperties={tileColorsModifiedByPlugins}
+                        randomTileProperties={tilesModifiedByPlugins}
                     />
                     <MobileUnits
                         currentBlock={world?.block || 0}
@@ -394,7 +393,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         <MobileUnitPanel />
                         <div className="flex-spacer"></div>
                         <div className="bottom-middle">
-                            <ActionContextPanel />
+                            <ActionContextPanel tilesModifiedByPlugins={tilesModifiedByPlugins} />
                             <ActionBar />
                         </div>
                         <div className="flex-spacer"></div>
