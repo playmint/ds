@@ -18,7 +18,7 @@ async function handleStartup(){
         console.error('');
         console.error('MAP=tonk is not supported via `make dev`');
         console.error('');
-        console.error('Either use: docker compose --profile tonk up');
+        console.error('Either use: `MAP=tonk docker compose --profile tonk up`');
         console.error('');
         console.error('Or use MAP=default and then work out how to build and run tonk services manually (requires rust toolchain)');
         console.error('');
