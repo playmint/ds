@@ -374,9 +374,20 @@ function getTileCoords(coords) {
     ];
 }
 
+function distance(tileCoords, nextTile) {
+  return Math.max(
+      Math.abs(tileCoords[0] - nextTile[0]),
+      Math.abs(tileCoords[1] - nextTile[1]),
+      Math.abs(tileCoords[2] - nextTile[2]),
+  );
+}
+
 function inHexcraftArea(unitCoords, hqCoords){
     const inRange = unitCoords[1] >= hqCoords[1] && unitCoords[1] <= hqCoords[1] + 18;
-    return inRange;
+    const hexcraftMiddleCoords = [hqCoords[0], hqCoords[1] + 9, hqCoords[2]];
+    const d = distance(hexcraftMiddleCoords, unitCoords);
+    const inDistance = d <= 20;
+    return inRange && inDistance;
 }
 
 // search through all the bags in the world to find those belonging to this eqipee
