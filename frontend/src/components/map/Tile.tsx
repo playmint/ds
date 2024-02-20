@@ -47,12 +47,12 @@ export const Tiles = memo(
         tiles,
         selectedTiles,
         onClickTile,
-        randomTileProperties,
+        pluginTileProperties,
     }: {
         tiles?: WorldTileFragment[];
         selectedTiles?: WorldTileFragment[];
         onClickTile: (id: string) => void;
-        randomTileProperties: PluginMapProperty[];
+        pluginTileProperties: PluginMapProperty[];
     }) => {
         const [hovered, setHovered] = useState<string | undefined>();
         const hoveredTile = hovered && tiles ? tiles.find((t) => t.id === hovered) : undefined;
@@ -68,7 +68,9 @@ export const Tiles = memo(
         const tileComponents = useMemo(
             () =>
                 (tiles || []).map((t) => {
-                    const color = randomTileProperties.find((prop) => prop.id == t.id)?.value.toString();
+                    const color = pluginTileProperties
+                        .find((prop) => prop.id == t.id && prop.key == 'color')
+                        ?.value.toString();
                     const coords = getCoords(t);
                     return (
                         <Tile
@@ -84,7 +86,7 @@ export const Tiles = memo(
                         />
                     );
                 }),
-            [tiles, enter, exit, onClickTile, randomTileProperties]
+            [tiles, enter, exit, onClickTile, pluginTileProperties]
         );
 
         return (

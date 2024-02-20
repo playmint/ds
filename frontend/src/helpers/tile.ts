@@ -1,4 +1,4 @@
-import { WorldTileFragment } from '@downstream/core';
+import { PluginMapProperty, WorldTileFragment } from '@downstream/core';
 import { ethers } from 'ethers';
 import { makeNoise2D } from './noise';
 
@@ -181,4 +181,8 @@ export const getGooRates = (tile: WorldTileFragment) => {
 
 export const getGooSize = (goo: { key: number; weight: number }) => {
     return goo.weight > GOO_BIG_THRESH ? 'big' : 'small';
+};
+
+export const isBlockerTile = (tile: WorldTileFragment, tilesModifiedByPlugins: PluginMapProperty[]) => {
+    return tilesModifiedByPlugins.some((p) => p.id === tile.id && p.key == 'blocker' && p.value === 'true');
 };

@@ -13,15 +13,37 @@ export default async function update(state) {
         console.log(selectedBuilding);
     }
 
-    const hasIdCard =
+    const hasGateKey =
         getItemBalance(
             getMobileUnit(state),
-            "ID Card",
+            "Gate Key",
             state?.world?.bags ?? [],
         ) > 0;
 
+    const pluginBuildings = getBuildingsByKindName(state, "example gate");
+    const pluginBuildingTileIDs = pluginBuildings.map(
+        (b) => b.location.tile.id,
+    );
+    const blockerTileMapObjs = pluginBuildingTileIDs.map((t) => {
+        return {
+            type: "tile",
+            key: "blocker",
+            id: t,
+            value: `${!hasGateKey}`,
+        };
+    });
+    const tileColorMapObjs = pluginBuildingTileIDs.map((t) => {
+        return {
+            type: "tile",
+            key: "color",
+            id: t,
+            value: hasGateKey ? "green" : "red",
+        };
+    });
+
     return {
         version: 1,
+        map: blockerTileMapObjs.concat(tileColorMapObjs),
         components: [
             {
                 id: "state-storage-test",
@@ -32,9 +54,9 @@ export default async function update(state) {
                         type: "inline",
                         html: `
                             <p>${
-                                hasIdCard
-                                    ? "✅ You have an ID Card so you may pass"
-                                    : "❌ You don't have an ID Card so you cannot pass"
+                                hasGateKey
+                                    ? "✅ You have a <b>Gate Key</b> so you may pass"
+                                    : "❌ You don't have a <b>Gate Key</b> so you cannot pass"
                             }</p>
                             <br/>
                             <p>This building's graphQL fragment is logged to the console where you can see the custom data that has been set on it</p>
@@ -59,6 +81,12 @@ function getSelectedTile(state) {
 function getBuildingOnTile(state, tile) {
     return (state?.world?.buildings || []).find(
         (b) => tile && b.location?.tile?.id === tile.id,
+    );
+}
+
+function getBuildingsByKindName(state, kindName) {
+    return (state?.world?.buildings || []).filter(
+        (b) => b.kind?.name?.value === kindName,
     );
 }
 

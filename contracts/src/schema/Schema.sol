@@ -112,15 +112,12 @@ library Node {
     }
 
     function Item(string memory name, uint32[3] memory atoms, bool isStackable) internal pure returns (bytes24) {
-        uint32 uniqueID = uint32(uint256(keccak256(abi.encode(name, atoms, isStackable))));
+        uint32 uniqueID = uint32(uint256(keccak256(abi.encodePacked("item/", name))));
         return Item(uniqueID, atoms, isStackable);
     }
 
     function Item(uint32 uniqueID, uint32[3] memory atoms, bool isStackable) internal pure returns (bytes24) {
-        uint32 stackable = 0;
-        if (isStackable) {
-            stackable = 1;
-        }
+        uint32 stackable = isStackable ? 1 : 0;
         return bytes24(
             abi.encodePacked(Kind.Item.selector, uniqueID, stackable, atoms[GOO_GREEN], atoms[GOO_BLUE], atoms[GOO_RED])
         );

@@ -5,6 +5,7 @@ import {
     CogAction,
     ConnectedPlayer,
     ItemSlotFragment,
+    PluginMapProperty,
     Selector,
     WorldBuildingFragment,
     WorldMobileUnitFragment,
@@ -14,7 +15,7 @@ import { Path } from '@app/components/map/Path';
 import { TileHighlight } from '@app/components/map/TileHighlight';
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
 import { getPath } from '@app/helpers/pathfinding';
-import { getCoords, getTileDistance, getTileHeight } from '@app/helpers/tile';
+import { getCoords, getTileDistance, getTileHeight, isBlockerTile } from '@app/helpers/tile';
 import { useBuildingKinds, useGameState, usePlayer, useSelection } from '@app/hooks/use-game-state';
 import { getBagId, getBuildingId } from '@app/plugins/inventory/helpers';
 import { ComponentProps } from '@app/types/component-props';
@@ -25,7 +26,9 @@ import styled from 'styled-components';
 import { styles } from './action-context-panel.styles';
 import { ActionButton } from '@app/styles/button.styles';
 
-export interface ActionContextPanelProps extends ComponentProps {}
+export interface ActionContextPanelProps extends ComponentProps {
+    pluginTileProperties: PluginMapProperty[];
+}
 
 const CONSTRUCT_INTENT = 'construct';
 const MOVE_INTENT = 'move';
@@ -60,6 +63,7 @@ interface ConstructProps {
     selectTiles?: Selector<string[] | undefined>;
     player?: ConnectedPlayer;
     tiles: WorldTileFragment[];
+    pluginTileProperties: PluginMapProperty[];
     bags: BagFragment[];
     buildings: WorldBuildingFragment[];
     mobileUnit?: WorldMobileUnitFragment;
@@ -83,6 +87,7 @@ const Construct: FunctionComponent<ConstructProps> = ({
     mobileUnit,
     player,
     tiles,
+    pluginTileProperties,
     bags,
     buildings,
     selectIntent,
@@ -103,7 +108,7 @@ const Construct: FunctionComponent<ConstructProps> = ({
         if (!tiles) {
             return { path: [], valid: false };
         }
-        const path = getPath(tiles, buildings, fromTile, toTile);
+        const path = getPath(tiles, pluginTileProperties, buildings, fromTile, toTile);
         const isImposible = path.length === 1 && getTileDistance(fromTile, toTile) > 1;
         const targetTile = path.slice(-1).find(() => true);
         const targetHasBuilding = targetTile ? getBuildingAtTile(buildings, targetTile) : false;
@@ -111,7 +116,7 @@ const Construct: FunctionComponent<ConstructProps> = ({
             path: path.length > 0 ? [fromTile, ...path] : [],
             valid: path.length > 0 && !isImposible && !targetHasBuilding,
         };
-    }, [mobileUnit, selectedTiles, tiles, buildings]);
+    }, [mobileUnit, tiles, selectedTiles, pluginTileProperties, buildings]);
 
     const selectedTile = selectedTiles.find(() => true);
     const selectedTileBuilding = selectedTile ? getBuildingAtTile(buildings, selectedTile) : null;
@@ -471,6 +476,7 @@ interface MoveProps {
     selectTiles?: Selector<string[] | undefined>;
     player?: ConnectedPlayer;
     tiles: WorldTileFragment[];
+    pluginTileProperties: PluginMapProperty[];
     buildings: WorldBuildingFragment[];
     mobileUnit?: WorldMobileUnitFragment;
     setActionQueue: (path: CogAction[][]) => void;
@@ -480,6 +486,7 @@ const Move: FunctionComponent<MoveProps> = ({
     selectIntent,
     selectedTiles,
     tiles,
+    pluginTileProperties,
     buildings,
     player,
     mobileUnit,
@@ -499,7 +506,7 @@ const Move: FunctionComponent<MoveProps> = ({
         if (!tiles) {
             return { path: [], valid: false };
         }
-        const path = getPath(tiles, buildings, fromTile, toTile);
+        const path = getPath(tiles, pluginTileProperties, buildings, fromTile, toTile);
         const isImposible = path.length === 1 && getTileDistance(fromTile, toTile) > 1;
         const targetTile = path.slice(-1).find(() => true);
         const targetBuilding = targetTile ? getBuildingAtTile(buildings, targetTile) : undefined;
@@ -508,9 +515,10 @@ const Move: FunctionComponent<MoveProps> = ({
             valid:
                 path.length > 0 &&
                 !isImposible &&
+                !(targetTile && isBlockerTile(targetTile, pluginTileProperties)) &&
                 getBuildingCategory(targetBuilding?.kind) != BuildingCategory.BLOCKER,
         };
-    }, [mobileUnit, selectedTiles, tiles, buildings]);
+    }, [mobileUnit, tiles, selectedTiles, pluginTileProperties, buildings]);
 
     const move = useCallback(() => {
         if (path.length < 2) {
@@ -602,6 +610,7 @@ interface CombatProps {
     selectTiles?: Selector<string[] | undefined>;
     player?: ConnectedPlayer;
     tiles?: WorldTileFragment[];
+    pluginTileProperties: PluginMapProperty[];
     sessions: WorldCombatSessionFragment[];
     buildings: WorldBuildingFragment[];
     mobileUnits: WorldMobileUnitFragment[];
@@ -617,6 +626,7 @@ const Combat: FunctionComponent<CombatProps> = ({
     buildings,
     player,
     tiles,
+    pluginTileProperties,
     mobileUnit,
     setActionQueue,
 }) => {
@@ -669,7 +679,7 @@ const Combat: FunctionComponent<CombatProps> = ({
         if (!fromTile) {
             return { path: [], valid: false };
         }
-        const pathToEitherBuildingOrAttackTile = getPath(tiles, buildings, fromTile, toTile);
+        const pathToEitherBuildingOrAttackTile = getPath(tiles, pluginTileProperties, buildings, fromTile, toTile);
         const path = activeSessionAttackTile
             ? pathToEitherBuildingOrAttackTile
             : pathToEitherBuildingOrAttackTile.slice(0, -1);
@@ -709,7 +719,7 @@ const Combat: FunctionComponent<CombatProps> = ({
             defenceTile,
             defenceTileBuilding,
         };
-    }, [mobileUnit, tiles, mobileUnits, selectedTiles, buildings, sessions]);
+    }, [mobileUnit, tiles, mobileUnits, selectedTiles, buildings, sessions, pluginTileProperties]);
 
     const attackTile = path.slice(-1).find(() => true);
 
@@ -812,7 +822,7 @@ const Combat: FunctionComponent<CombatProps> = ({
     );
 };
 
-export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = () => {
+export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({ pluginTileProperties }) => {
     const [actionQueue, setActionQueue] = useState<CogAction[][]>();
     const { world, tiles } = useGameState();
     const { selectIntent, intent, tiles: sTiles, mobileUnit, selectTiles } = useSelection();
@@ -864,6 +874,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
                 mobileUnit={mobileUnit}
                 player={player}
                 tiles={tiles || []}
+                pluginTileProperties={pluginTileProperties || []}
                 bags={world?.bags || []}
                 buildings={world?.buildings || []}
                 setActionQueue={setActionQueue}
@@ -878,6 +889,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
                 mobileUnit={mobileUnit}
                 player={player}
                 tiles={tiles || []}
+                pluginTileProperties={pluginTileProperties || []}
                 buildings={world?.buildings || []}
                 setActionQueue={setActionQueue}
             />
@@ -892,6 +904,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ()
                 mobileUnits={world?.mobileUnits || []}
                 player={player}
                 tiles={tiles || []}
+                pluginTileProperties={pluginTileProperties || []}
                 buildings={world?.buildings || []}
                 sessions={world?.sessions || []}
                 setActionQueue={setActionQueue}
