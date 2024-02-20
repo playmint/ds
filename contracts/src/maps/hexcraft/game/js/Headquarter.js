@@ -98,6 +98,40 @@ export default async function update(state) {
   // - Running : GameActive == true && endBlock < currentBlock
   // - GameOver : GameActive == true && endBlock >= currentBlock
 
+  // unit team colors
+  const unitMapObj = [];
+  const hqCoords = selectedBuilding.location?.tile?.coords;
+  for (let i = 0; i < redTeamLength; i++){
+    const unitId = getHQTeamUnit(selectedBuilding, "red", i);
+    const unitCoords = state.world?.mobileUnits?.find(unit => unit.id === unitId).nextLocation?.tile?.coords;
+    if (!inHexcraftArea(getTileCoords(unitCoords), getTileCoords(hqCoords))){
+        continue;
+    }
+    unitMapObj.push(
+        {
+            type: "unit",
+            key: "color",
+            id: unitId,
+            value: "#ec5c61",
+        }
+    )
+  }
+  for (let i = 0; i < blueTeamLength; i++){
+    const unitId = getHQTeamUnit(selectedBuilding, "blue", i);
+    const unitCoords = state.world?.mobileUnits?.find(unit => unit.id === unitId).nextLocation?.tile?.coords;
+    if (!inHexcraftArea(getTileCoords(unitCoords), getTileCoords(hqCoords))){
+        continue;
+    }
+    unitMapObj.push(
+        {
+            type: "unit",
+            key: "color",
+            id: unitId,
+            value: "#2daee0",
+        }
+    )
+  }
+
   // we build a list of button objects that are rendered in the building UI panel when selected
   let buttonList = [];
 
@@ -216,7 +250,7 @@ export default async function update(state) {
   // console.log({ htmlBlock });
   return {
     version: 1,
-    map: [],
+    map: unitMapObj,
     components: [
       {
         id: "headquarter",
@@ -313,6 +347,47 @@ function checkBlueBaseAmount(state) {
 
 function getMobileUnit(state) {
   return state?.selected?.mobileUnit;
+}
+
+function hexToSignedDecimal(hex) {
+    if (hex.startsWith("0x")) {
+        hex = hex.substr(2);
+    }
+
+    let num = parseInt(hex, 16);
+    let bits = hex.length * 4;
+    let maxVal = Math.pow(2, bits);
+
+    // Check if the highest bit is set (negative number)
+    if (num >= maxVal / 2) {
+        num -= maxVal;
+    }
+
+    return num;
+}
+
+function getTileCoords(coords) {
+    return [
+        hexToSignedDecimal(coords[1]),
+        hexToSignedDecimal(coords[2]),
+        hexToSignedDecimal(coords[3]),
+    ];
+}
+
+function distance(tileCoords, nextTile) {
+  return Math.max(
+      Math.abs(tileCoords[0] - nextTile[0]),
+      Math.abs(tileCoords[1] - nextTile[1]),
+      Math.abs(tileCoords[2] - nextTile[2]),
+  );
+}
+
+function inHexcraftArea(unitCoords, hqCoords){
+    const inRange = unitCoords[1] >= hqCoords[1] && unitCoords[1] <= hqCoords[1] + 18;
+    const hexcraftMiddleCoords = [hqCoords[0], hqCoords[1] + 9, hqCoords[2]];
+    const d = distance(hexcraftMiddleCoords, unitCoords);
+    const inDistance = d <= 20;
+    return inRange && inDistance;
 }
 
 // search through all the bags in the world to find those belonging to this eqipee
