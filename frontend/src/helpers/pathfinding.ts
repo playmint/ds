@@ -2,7 +2,7 @@ import { getCoords, PluginMapProperty, WorldBuildingFragment, WorldTileFragment 
 import { MinQueue } from 'heapify';
 import { BuildingCategory, getBuildingCategory } from './building';
 import { getBuildingAtTile } from '@downstream/core/src/utils';
-import { isBlockerTile } from './tile';
+import { getTileCoordsFromId } from './tile';
 
 interface PassableTile {
     idx: number;
@@ -14,7 +14,7 @@ interface PassableTile {
 
 export function getPath(
     tiles: WorldTileFragment[],
-    tilesModifiedByPlugins: PluginMapProperty[],
+    pluginTileProperties: PluginMapProperty[],
     buildings: WorldBuildingFragment[],
     fromWorldTile: WorldTileFragment,
     toWorldTile: WorldTileFragment
@@ -23,6 +23,16 @@ export function getPath(
     const tileMap = new Map<string, PassableTile>();
     const tileList: PassableTile[] = [];
     const blockerMap = new Map<string, boolean>();
+
+    // add the dynamic blockers to blocker map
+    pluginTileProperties.forEach((p) => {
+        if (p.key == 'blocker' && p.value === 'true') {
+            const [q, r, s] = getTileCoordsFromId(p.id);
+            const key = `${q}:${r}:${s}`;
+            blockerMap.set(key, true);
+        }
+    });
+
     let fromTile: PassableTile | null = null;
     let toTile: PassableTile | null = null;
     for (let idx = 0; idx < tiles.length; idx++) {
@@ -37,10 +47,7 @@ export function getPath(
         // ignore tiles with blockers on them
         const building = getBuildingAtTile(buildings, t.tile);
         const key = `${q}:${r}:${s}`;
-        if (
-            isBlockerTile(t.tile, tilesModifiedByPlugins) ||
-            (building && getBuildingCategory(building?.kind) === BuildingCategory.BLOCKER)
-        ) {
+        if (building && getBuildingCategory(building?.kind) === BuildingCategory.BLOCKER) {
             blockerMap.set(key, true);
         }
         tileMap.set(key, t);
