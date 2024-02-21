@@ -7,9 +7,9 @@ spec:
   model: 01-08
   color: 3
   contract:
-    file: ../contracts/Barrier.sol
+    file: ./contracts/Barrier.sol
   plugin:
-    file: ../js/Barrier.js
+    file: ./js/Barrier.js
   materials:
     - name: Red Goo
       quantity: 10

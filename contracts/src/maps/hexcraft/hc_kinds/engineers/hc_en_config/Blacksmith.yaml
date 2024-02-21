@@ -7,9 +7,9 @@ spec:
   model: 05-02
   color: 3
   contract:
-    file: ../contracts/Blacksmith.sol
+    file: ./contracts/Blacksmith.sol
   plugin:
-    file: ../js/Blacksmith.js
+    file: ./js/Blacksmith.js
   materials:
     - name: Red Goo
       quantity: 10

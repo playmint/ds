@@ -1,15 +1,16 @@
+
 ---
 kind: BuildingKind
 spec:
   category: factory
-  name: "Clerics Tent"
-  description: Really nice and kind people you like hanging out with
-  model: 04-16
+  name: "Bards Concert Hall"
+  description: sick tunes mate
+  model: 12-14
   color: 3
   contract:
-    file: ../contracts/ClericsTent.sol
+    file: ./contracts/BardsConcertHall.sol
   plugin:
-    file: ../js/ClericsTent.js
+    file: ./js/BardsConcertHall.js
   materials:
     - name: Red Goo
       quantity: 10
@@ -19,22 +20,22 @@ spec:
       quantity: 10
   inputs:
     - name: Green Goo
-      quantity: 80
-    - name: Blue Goo
       quantity: 100
     - name: Blue Goo
-      quantity: 100
+      quantity: 50
+    - name: Red Goo
+      quantity: 50
   outputs:
-    - name: Friendly Puppy Companion
+    - name: "Taylor Swift's Guitar"
       quantity: 1
 
 ---
 kind: Item
 spec:
-  name: Friendly Puppy Companion
-  icon: 27-101
+  name: "Taylor Swift's Guitar"
+  icon: 19-35
   goo:
-    red: 0
-    green: 40
-    blue: 100
+    red: 25
+    green: 50
+    blue: 25
   stackable: false

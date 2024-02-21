@@ -7,9 +7,9 @@ spec:
   model: 14-04
   color: 2
   contract:
-    file: ../../example-plugins/BasicFactory/BasicFactory.sol
+    file: ./BasicFactory.sol
   plugin:
-    file: ../../example-plugins/BasicFactory/BasicFactory.js
+    file: ./BasicFactory.js
   materials:
     - name: Red Goo
       quantity: 10
@@ -48,9 +48,9 @@ spec:
   model: 14-17
   color: 4
   contract:
-    file: ../../example-plugins/BasicFactory/BasicFactory.sol
+    file: ./BasicFactory.sol
   plugin:
-    file: ../../example-plugins/BasicFactory/BasicFactory.js
+    file: ./BasicFactory.js
   materials:
     - name: Red Goo
       quantity: 10

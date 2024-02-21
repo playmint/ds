@@ -6,9 +6,9 @@ spec:
   model: 11-07
   color: 1
   contract:
-    file: ../contracts/Headquarter.sol
+    file: ./contracts/Headquarter.sol
   plugin:
-    file: ../js/Headquarter.js
+    file: ./js/Headquarter.js
     alwaysActive: true
   materials:
     - name: Green Goo
