@@ -15,7 +15,7 @@ services:
       SERVICES_URL_WS: "ws://cog:8080/query"
       MAP: "${MAP}"
     volumes:
-      - ./contracts/src/maps:/contracts/src/maps
+      - ./contracts/src:/contracts/src
 
   frontend:
     build:
