@@ -472,19 +472,19 @@ export default async function update(params) {
     let submit;
 
     const { selected, player, world } = params;
-    console.log(world);
+    //console.log(world);
     // console.log(params);
     const { mobileUnit } = selected || {};
     //console.log("building id: ", selected.mapElement.id);
     //console.log("selected coords: ", selected.tiles[0].coords);
     // console.log(player);
 
-    const buildingId = selected.mapElement.id;
-    let bags = findBags(world, mobileUnit);
+    const buildingId = selected?.mapElement?.id;
+    let bags = mobileUnit ? findBags(world, mobileUnit) : [];
     const has_tonk =
-        bags[0].slots.findIndex((b) => b.item && b.item.name.value == "Tonk") >=
+        bags[0]?.slots.findIndex((b) => b.item && b.item.name.value == "Tonk") >=
             0 ||
-        bags[1].slots.findIndex((b) => b.item && b.item.name.value == "Tonk") >=
+        bags[1]?.slots.findIndex((b) => b.item && b.item.name.value == "Tonk") >=
             0;
     const craft = () => {
         if (!mobileUnit) {
@@ -516,6 +516,62 @@ export default async function update(params) {
     game = await getGame();
     players = await getPlayers(game.id, player.id);
     tonkPlayer = await getPlayer(player.id);
+
+    // team colors
+    const mapUnitObj = [];
+    players.forEach((p) => {
+        switch(p.role) {
+            case "Normal":
+                // This info is only seen by bugged units
+                mapUnitObj.push({
+                    type: "unit",
+                    key: "color",
+                    id: p.mobile_unit_id,
+                    value: p.eliminated != null ? "#135198" : "#2daee0",
+                });
+                break;
+            case "Bugged":
+                // This info is only seen by bugged units
+                mapUnitObj.push({
+                    type: "unit",
+                    key: "color",
+                    id: p.mobile_unit_id,
+                    value: p.eliminated != null ? "9a201c" : "#ec5c61",
+                });
+                break;
+            default:
+                const { status, win_result } = game;
+                if (status === "End") {
+                    if (win_result === "Thuggery"){
+                        // game ended and bugged won - show units who are still in players list as red to reveal the winners
+                        mapUnitObj.push({
+                            type: "unit",
+                            key: "color",
+                            id: p.mobile_unit_id,
+                            value: p.eliminated != null ? "#9a201c" : "#ec5c61",
+                        });
+                    }else{
+                        // game ended and sentients won - show winners as blue
+                        mapUnitObj.push({
+                            type: "unit",
+                            key: "color",
+                            id: p.mobile_unit_id,
+                            value: p.eliminated != null ? "#135198" : "#2daee0",
+                        });
+                    }
+                    
+                }else{
+                    // show unit as blue - sentient units never see anyones roles
+                    mapUnitObj.push({
+                        type: "unit",
+                        key: "color",
+                        id: p.mobile_unit_id,
+                        value: p.eliminated != null ? "#135198" : "#2daee0",
+                    });
+                }                
+                break;
+        }
+    });
 
     if (wants_to_join) {
         try {
@@ -592,6 +648,7 @@ export default async function update(params) {
 
     return {
         version: 1,
+        map: mapUnitObj || [],
         components: [
             {
                 id: "tonk-tower",
