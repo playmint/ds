@@ -7,9 +7,9 @@ spec:
   model: 02-15
   color: 3
   contract:
-    file: ../contracts/PaladinsArmoury.sol
+    file: ./contracts/PaladinsArmoury.sol
   plugin:
-    file: ../js/PaladinsArmoury.js
+    file: ./js/PaladinsArmoury.js
   materials:
     - name: Green Goo
       quantity: 10

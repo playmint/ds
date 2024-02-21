@@ -7,9 +7,9 @@ spec:
   model: 01-13
   color: 3
   contract:
-    file: ../contracts/FightersArena.sol
+    file: ./contracts/FightersArena.sol
   plugin:
-    file: ../js/FightersArena.js
+    file: ./js/FightersArena.js
   materials:
     - name: Green Goo
       quantity: 10
