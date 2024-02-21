@@ -1,7 +1,7 @@
 import ds from "downstream";
 
 const prizeFee = 2;
-const prizeItemId = "0x6a7a67f063976de500000001000000010000000000000000"; // green goo
+const prizeItemId = "0x6a7a67f08c72b94400000001000000010000000000000000"; // green goo
 const buildingPrizeBagSlot = 0;
 const buildingPrizeItemSlot = 0;
 const nullBytes24 = `0x${"00".repeat(24)}`;
@@ -162,6 +162,7 @@ export default async function update(state, block) {
 
     const { unitFeeBagSlot, unitFeeItemSlot } = getMobileUnitFeeSlot(state);
     const hasFee = unitFeeBagSlot >= 0;
+    console.log("HAS FEE? " + unitFeeBagSlot);
     const localBuildings = range5(state, selectedBuilding);
     const duckCount = countBuildings(
         localBuildings,
@@ -673,6 +674,9 @@ function findBagAndSlot(bags, requiredItemId, requiredBalance) {
     for (const bag of bags) {
         for (const slotKey in bag.slots) {
             const slot = bag.slots[slotKey];
+            console.log(slot);
+            console.log("required ID: " + requiredItemId);
+            console.log("required balance: " + requiredBalance);
             if (
                 (!requiredItemId || slot.item.id == requiredItemId) &&
                 requiredBalance <= slot.balance
