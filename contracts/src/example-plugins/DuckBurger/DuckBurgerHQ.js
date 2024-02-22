@@ -162,7 +162,6 @@ export default async function update(state, block) {
 
     const { unitFeeBagSlot, unitFeeItemSlot } = getMobileUnitFeeSlot(state);
     const hasFee = unitFeeBagSlot >= 0;
-    console.log("HAS FEE? " + unitFeeBagSlot);
     const localBuildings = range5(state, selectedBuilding);
     const duckCount = countBuildings(
         localBuildings,
@@ -674,9 +673,6 @@ function findBagAndSlot(bags, requiredItemId, requiredBalance) {
     for (const bag of bags) {
         for (const slotKey in bag.slots) {
             const slot = bag.slots[slotKey];
-            console.log(slot);
-            console.log("required ID: " + requiredItemId);
-            console.log("required balance: " + requiredBalance);
             if (
                 (!requiredItemId || slot.item.id == requiredItemId) &&
                 requiredBalance <= slot.balance
