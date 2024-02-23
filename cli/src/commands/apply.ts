@@ -27,7 +27,7 @@ const getManifestFilenames = (filename: string, isRecursive: boolean): string[] 
         }
         // must be posix path, even on windows
         const globPath = path.join(filename, '**/*.yaml').replace(/\\/g, '/');
-        return globSync(globPath);
+        return globSync(globPath, {follow:true});
     } else if (isRecursive) {
         throw new Error(`--filename must be a directory when used with --recursive`);
     } else {
