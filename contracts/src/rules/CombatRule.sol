@@ -26,9 +26,6 @@ import {
     LIFE_MUL
 } from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
-import "forge-std/console.sol";
-import "@ds/utils/Base64.sol";
-import "@ds/utils/LibString.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 
 using Schema for State;

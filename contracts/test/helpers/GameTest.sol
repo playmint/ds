@@ -110,7 +110,7 @@ abstract contract GameTest {
         dispatcher.registerRule(new CheatsRule(address(dev)));
         dispatcher.registerRule(new MovementRule(game));
         dispatcher.registerRule(new ScoutRule());
-        dispatcher.registerRule(new InventoryRule());
+        dispatcher.registerRule(new InventoryRule(game));
         dispatcher.registerRule(new BuildingRule(game));
         dispatcher.registerRule(new CraftingRule(game));
         dispatcher.registerRule(new PluginRule());
