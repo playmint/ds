@@ -35,6 +35,7 @@ on:
           - team-vanilla
           - hexcraft
           - tonk
+          - croissant
 
 jobs:
   build:
