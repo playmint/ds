@@ -1,16 +1,11 @@
 ---
 kind: BuildingKind
 spec:
-  name: Burger Display Building
-  description: "Displays the Burger score!"
+  name: Burger Display Building 2
+  description: "Displays the Burger score! 2"
   category: display
   model: default
   color: 1
-  contract:
-    file: ./DisplayBuilding.sol
-  plugin:
-    file: ./DisplayBuilding.js
-    alwaysActive: true
   materials:
     - name: Green Goo
       quantity: 25

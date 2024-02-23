@@ -1,16 +1,11 @@
 ---
 kind: BuildingKind
 spec:
-  name: Duck Display Building
-  description: "Displays the Duck score!"
+  name: Duck Display Building 2
+  description: "Displays the Duck score! 2"
   category: display
   model: default
   color: 2
-  contract:
-    file: ./DisplayBuilding.sol
-  plugin:
-    file: ./DisplayBuilding.js
-    alwaysActive: true
   materials:
     - name: Green Goo
       quantity: 25
