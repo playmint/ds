@@ -1,4 +1,4 @@
-{{ if eq $.Values.map "tonk" }}
+{{ if or (eq $.Values.map "tonk") (eq $.Values.map "croissant") }}
 
 ---
 apiVersion: apps/v1
