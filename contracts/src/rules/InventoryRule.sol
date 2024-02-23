@@ -4,15 +4,27 @@ pragma solidity ^0.8.13;
 import "cog/IState.sol";
 import "cog/IRule.sol";
 import "cog/IDispatcher.sol";
+import "cog/IGame.sol";
 
 import {Schema, Node, Kind, TRAVEL_SPEED, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BagUtils} from "@ds/utils/BagUtils.sol";
+import {Items1155} from "../Items1155.sol";
 
 using Schema for State;
 
 contract InventoryRule is Rule {
+    Items1155 tokens;
+
+    constructor(Game g) {
+        tokens = new Items1155(address(this), g.getState());
+    }
+
+    function getTokensAddress() public view returns (address) {
+        return address(tokens);
+    }
+
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.TRANSFER_ITEM_MOBILE_UNIT.selector) {
             // decode the action
@@ -24,11 +36,78 @@ contract InventoryRule is Rule {
                 bytes24 toBagId,
                 uint64 qty
             ) = abi.decode(action[4:], (bytes24, bytes24[2], uint8[2], uint8[2], bytes24, uint64));
-
             _transferItem(state, ctx.clock, ctx.sender, actor, equipees, equipSlots, itemSlots, toBagId, qty);
+        } else if (bytes4(action) == Actions.EXPORT_ITEM.selector) {
+            (bytes24 fromEquipee, uint8 fromEquipSlot, uint8 fromItemSlot, address toAddress, uint64 qty) =
+                abi.decode(action[4:], (bytes24, uint8, uint8, address, uint64));
+            _exportItem(state, ctx.sender, fromEquipee, fromEquipSlot, fromItemSlot, toAddress, qty);
+        } else if (bytes4(action) == Actions.IMPORT_ITEM.selector) {
+            (bytes24 itemId, bytes24 toEquipee, uint8 toEquipSlot, uint8 toItemSlot, uint64 qty) =
+                abi.decode(action[4:], (bytes24, bytes24, uint8, uint8, uint64));
+            _importItem(state, ctx.sender, itemId, toEquipee, toEquipSlot, toItemSlot, qty);
         }
 
         return state;
+    }
+
+    function _exportItem(
+        State state,
+        address sender,
+        bytes24 fromEquipee,
+        uint8 fromEquipSlot,
+        uint8 fromItemSlot,
+        address toAddress,
+        uint64 qty
+    ) private {
+        // TODO: this check could be relaxed to match the TRANSFER_ITEM_MOBILE_UNIT "from" rules
+        require(state.getOwner(fromEquipee) == Node.Player(sender), "fromEquipee not owned by sender");
+
+        // get the item
+        bytes24 fromBag = state.getEquipSlot(fromEquipee, fromEquipSlot);
+        _requireIsBag(fromBag);
+        (bytes24 fromItem, uint64 fromBalance) = state.getItemSlot(fromBag, fromItemSlot);
+
+        // validate enough to burn
+        require(fromBalance >= qty, "balance too low");
+
+        // convert to tokenId
+        uint256 tokenId = uint256(uint192(fromItem));
+        require(tokenId != 0, "tokenid was zero");
+
+        // burn the inventory balance
+        state.setItemSlot(fromBag, fromItemSlot, fromItem, fromBalance - qty);
+
+        // mint the token balance to the target
+        tokens.mint(toAddress, uint256(uint192(fromItem)), qty, "");
+    }
+
+    function _importItem(
+        State state,
+        address sender,
+        bytes24 itemId,
+        bytes24 toEquipee,
+        uint8 toEquipSlot,
+        uint8 toItemSlot,
+        uint64 qty
+    ) private {
+        // convert to tokenId
+        uint256 tokenId = uint256(uint192(itemId));
+        require(tokenId != 0, "tokenid was zero");
+
+        // validate sender has enough to import
+        require(tokens.balanceOf(sender, tokenId) >= qty, "not enough tokens");
+
+        // burn qty of items
+        tokens.burn(sender, tokenId, qty);
+
+        // mint into the target inventory
+        bytes24 toBag = state.getEquipSlot(toEquipee, toEquipSlot);
+        _requireIsBag(toBag);
+        (bytes24 existingSlotItem, uint64 existingSlotBalance) = state.getItemSlot(toBag, toItemSlot);
+        if (existingSlotBalance != 0) {
+            require(itemId == existingSlotItem || existingSlotItem == 0x0, "bad token item");
+        }
+        state.setItemSlot(toBag, toItemSlot, itemId, existingSlotBalance + qty);
     }
 
     function _transferItem(

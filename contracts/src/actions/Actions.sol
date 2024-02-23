@@ -52,6 +52,11 @@ interface Actions {
         uint64 qty
     ) external;
 
+    function EXPORT_ITEM(bytes24 fromEquipee, uint8 fromEquipSlot, uint8 fromItemSlot, address toAddress, uint64 qty)
+        external;
+
+    function IMPORT_ITEM(bytes24 itemId, bytes24 toEquipee, uint8 toEquipSlot, uint8 toItemSlot, uint64 qty) external;
+
     // register an external contract as possible building
     function REGISTER_BUILDING_KIND(
         bytes24 buildingKind,
