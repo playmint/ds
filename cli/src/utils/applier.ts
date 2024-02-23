@@ -238,7 +238,7 @@ const buildingKindDeploymentActions = async (
     });
 
     // compile and deploy an implementation if given
-    if (spec.category != 'blocker' && spec.contract && (spec.contract.file || spec.contract.bytecode)) {
+    if (spec.category != 'billboard' && spec.category != 'blocker' && spec.contract && (spec.contract.file || spec.contract.bytecode)) {
         const bytecode = spec.contract.bytecode ? spec.contract.bytecode : await compiler(spec.contract, manifestDir);
         ops.push({
             name: 'DEPLOY_KIND_IMPLEMENTATION',
@@ -247,7 +247,7 @@ const buildingKindDeploymentActions = async (
     }
 
     // deploy client plugin if given
-    if (spec.category != 'blocker' && spec.plugin && (spec.plugin.file || spec.plugin.inline)) {
+    if (spec.category != 'billboard' && spec.category != 'blocker' && spec.plugin && (spec.plugin.file || spec.plugin.inline)) {
         const pluginID = encodePluginID(spec); // use building name for plugin id
         const js = spec.plugin.file
             ? (() => {
