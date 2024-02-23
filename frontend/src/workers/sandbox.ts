@@ -79,6 +79,7 @@ export async function init(cfg: Partial<GameConfig>) {
 
 // can also die at update time
 export async function setState(newState: GameStatePlugin, newBlock: number) {
+    console.log('runtime memory dump: ', runtime.dumpMemoryUsage());
     contexts.forEach(async (context) => {
         if (context && context.alive) {
             try {
