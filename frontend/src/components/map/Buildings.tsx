@@ -12,6 +12,7 @@ import { BlockerBuilding } from './BlockerBuilding';
 import { ExtractorBuilding } from './ExtractorBuilding';
 import { FactoryBuilding } from './FactoryBuilding';
 import { DisplayBuilding } from './DisplayBuilding';
+import { Billboard } from './Billboard';
 
 function getColorFromGoo(kind) {
     const outputName = kind?.outputs?.find((e) => ['Green Goo', 'Blue Goo', 'Red Goo'].includes(e.item.name?.value))
@@ -128,6 +129,19 @@ export const Buildings = memo(
                                 id={b.id}
                                 height={height}
                                 rotation={rotation}
+                                selected={selected}
+                                onPointerClick={onClickBuilding}
+                                {...coords}
+                            />
+                        );
+                    } else if (getBuildingCategory(b.kind) == BuildingCategory.BILLBOARD) {
+                        return (
+                            <Billboard
+                                key={b.id}
+                                id={b.id}
+                                height={height}
+                                rotation={rotation}
+                                url={b.kind?.model?.value}
                                 selected={selected}
                                 onPointerClick={onClickBuilding}
                                 {...coords}

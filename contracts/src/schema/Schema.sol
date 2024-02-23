@@ -72,7 +72,8 @@ enum BuildingCategory {
     EXTRACTOR,
     ITEM_FACTORY,
     CUSTOM,
-    DISPLAY
+    DISPLAY,
+    BILLBOARD
 }
 
 enum QuestStatus {
