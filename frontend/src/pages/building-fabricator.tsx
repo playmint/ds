@@ -267,7 +267,7 @@ contract BasicFactory is BuildingKind {
         // require carrying an idCard
         // you can change idCardItemId to another item id
         CheckIsCarryingItem(state, actor, idCardItemId);
-    
+
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.CRAFT, (buildingInstance)));
     }*/
 
@@ -1672,7 +1672,7 @@ export default function ShellPage() {
 
     return (
         <UnityMapProvider showLoading={false} display="none">
-            <WalletProviderProvider wallets={config?.wallets || {}}>
+            <WalletProviderProvider config={config}>
                 <GameStateProvider config={config}>
                     <SessionProvider>
                         <InventoryProvider>

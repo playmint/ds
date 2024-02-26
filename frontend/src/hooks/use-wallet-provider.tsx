@@ -8,7 +8,7 @@ import { EthereumProvider as WalletConnectProvider } from '@walletconnect/ethere
 import { ethers } from 'ethers';
 import { QRCodeSVG } from 'qrcode.react';
 import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { WalletConfig } from './use-config';
+import { ConfigFile } from './use-config';
 import { useLocalStorage } from './use-localstorage';
 
 export interface WalletContextValue {
@@ -21,37 +21,52 @@ export interface WalletContextValue {
 export const WalletProviderContext = createContext<WalletContextValue>({});
 export const useWalletProvider = () => useContext(WalletProviderContext);
 
-export const WalletProviderProvider = ({ children, wallets }: { children: ReactNode; wallets: WalletConfig }) => {
+export const WalletProviderProvider = ({ children, config }: { children: ReactNode; config?: ConfigFile }) => {
     const [provider, setProvider] = useState<WalletProvider>();
     const [connecting, setConnecting] = useState<boolean>(false);
     const [walletConnectURI, setWalletConnectURI] = useState<string | null>(null);
     const [autoconnectProvider, setAutoconnectProvider] = useLocalStorage(`ds/autoconnectprovider`, '');
     const [burnerPhrase, setBurnerPhrase] = useLocalStorage(`ds/burnerphrase`, '');
+    const [failedToSwitchNetwork, setFailedToSwitchNetwork] = useState(false);
 
-    const switchMetamaskNetwork = useCallback(async (provider: EthereumProvider) => {
-        try {
-            await provider.request({
-                method: 'wallet_switchEthereumChain',
-                params: [{ chainId: '0x7a69' }],
-            });
-        } catch (switchErr: any) {
-            // This error code indicates that the chain has not been added to MetaMask.
-            if (switchErr.code === 4902) {
-                await provider.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [
-                        {
-                            chainId: '0x7a69',
-                            chainName: 'localhost',
-                            rpcUrls: ['http://localhost:8545'],
-                        },
-                    ],
-                });
-            } else {
-                throw switchErr;
+    const switchMetamaskNetwork = useCallback(
+        async (provider: EthereumProvider) => {
+            if (!config) {
+                return;
             }
-        }
-    }, []);
+            if (failedToSwitchNetwork) {
+                return;
+            }
+            const gotChainId = (provider as any).networkVersion || 'unknown';
+            if (gotChainId === config.networkID) {
+                return;
+            }
+            const chainId = `0x${BigInt(config.networkID).toString(16)}`;
+            try {
+                await provider.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId }],
+                });
+            } catch (switchErr: any) {
+                // This error code indicates that the chain has not been added to MetaMask.
+                if (switchErr.code === 4902) {
+                    await provider.request({
+                        method: 'wallet_addEthereumChain',
+                        params: [
+                            {
+                                chainId,
+                                chainName: config.networkName,
+                                rpcUrls: [config.networkEndpoint],
+                            },
+                        ],
+                    });
+                } else {
+                    throw switchErr;
+                }
+            }
+        },
+        [config, failedToSwitchNetwork]
+    );
 
     const connectMetamask = useCallback(async () => {
         try {
@@ -60,10 +75,15 @@ export const WalletProviderProvider = ({ children, wallets }: { children: ReactN
                 console.warn('browser provider not available');
                 return;
             }
+            try {
+                await switchMetamaskNetwork(metamask);
+            } catch (err) {
+                console.error(`failed to switch network: ${err}`);
+                setFailedToSwitchNetwork(true);
+            }
             setProvider({ method: 'metamask', provider: metamask });
             await metamask.request({ method: 'eth_requestAccounts' });
             setAutoconnectProvider('metamask'); // TODO: make this opt-in
-            await switchMetamaskNetwork(metamask);
         } catch (err) {
             console.error(`connect: ${err}`);
             setProvider(undefined);
@@ -184,17 +204,17 @@ export const WalletProviderProvider = ({ children, wallets }: { children: ReactN
                 <Dialog onClose={closeConnector} width="304px" height="">
                     <div style={{ padding: 10 }}>
                         <h3>CONNECT USING...</h3>
-                        {wallets.metamask !== false && (
+                        {config?.wallets?.metamask !== false && (
                             <div>
                                 <ActionButton onClick={connectMetamask}>Metamask</ActionButton>
                             </div>
                         )}
-                        {wallets.walletconnect !== false && (
+                        {config?.wallets?.walletconnect !== false && (
                             <div style={{ paddingTop: 10 }}>
                                 <ActionButton onClick={connectWalletConnect}>WalletConnect</ActionButton>
                             </div>
                         )}
-                        {wallets.burner !== false && (
+                        {config?.wallets?.burner !== false && (
                             <div style={{ paddingTop: 10 }}>
                                 <ActionButton onClick={connectBurner}>Burner</ActionButton>
                             </div>

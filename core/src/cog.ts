@@ -58,6 +58,9 @@ const cogDefaultConfig = {
     actions: DOWNSTREAM_GAME_ACTIONS,
     wsEndpoint: 'ws://localhost:8080/query',
     httpEndpoint: 'http://localhost:8080/query',
+    networkEndpoint: 'http://localhost:8545',
+    networkID: '22300',
+    networkName: 'hexwoodlocal',
 } satisfies GameConfig;
 
 /**

@@ -83,6 +83,9 @@ export interface GameConfig {
     httpEndpoint: string;
     httpFetchImpl?: typeof fetch;
     tonkEndpoint?: string;
+    networkEndpoint: string;
+    networkID: string;
+    networkName: string;
 }
 
 export type ActionName = Parameters<ActionsInterface['getFunction']>[0];

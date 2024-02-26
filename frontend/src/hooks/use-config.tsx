@@ -11,6 +11,9 @@ export interface ConfigFile {
     build: string;
     wsEndpoint: string;
     httpEndpoint: string;
+    networkEndpoint: string;
+    networkID: string;
+    networkName: string;
     wallets?: WalletConfig;
 }
 
