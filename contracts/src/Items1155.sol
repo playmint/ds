@@ -105,7 +105,7 @@ contract Items1155 is ERC1155 {
     function _updateOwnedToken(address from, address to, uint256 tokenId, uint256 amount) public virtual {
         bytes24 itemId = bytes24(uint192(tokenId));
 
-        // decement from
+        // decrement from
         if (from != address(0)) {
             bytes24 ownedTokenId = Node.OwnedToken(tokenId, Node.Player(from));
             (bytes24 existingItem, uint64 existingBalance) = state.getItemSlot(ownedTokenId, 0);
