@@ -12,7 +12,7 @@ export default function ShellPage() {
 
     return (
         <UnityMapProvider>
-            <WalletProviderProvider wallets={config?.wallets || {}}>
+            <WalletProviderProvider config={config}>
                 <GameStateProvider config={config}>
                     <SessionProvider>
                         <InventoryProvider>

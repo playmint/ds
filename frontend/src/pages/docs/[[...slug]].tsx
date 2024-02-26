@@ -1,23 +1,23 @@
-import { readdir } from 'fs/promises';
-import { join } from 'path';
 import { readFileSync } from 'fs';
+import { readdir } from 'fs/promises';
 import matter from 'gray-matter';
 import ErrorPage from 'next/error';
 import Link from 'next/link';
-import { unified } from 'unified';
+import { join } from 'path';
 import rehypeHighlight from 'rehype-highlight';
-import remarkParse from 'remark-parse';
 import rehypeStringify from 'rehype-stringify';
+import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
+import { unified } from 'unified';
 
-import type { InferGetStaticPropsType, GetStaticProps, GetStaticPaths } from 'next';
-import styled from 'styled-components';
-import { WalletProviderProvider } from '@app/hooks/use-wallet-provider';
 import { useConfig } from '@app/hooks/use-config';
 import { GameStateProvider } from '@app/hooks/use-game-state';
 import { SessionProvider } from '@app/hooks/use-session';
-import { useRouter } from 'next/router';
+import { WalletProviderProvider } from '@app/hooks/use-wallet-provider';
+import type { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from 'next';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
+import styled from 'styled-components';
 
 const DOCS_CONTENT_DIR = '../docs';
 
@@ -226,7 +226,7 @@ export default function Page({ doc, tree }: InferGetStaticPropsType<typeof getSt
     }
     const title = doc.title || doc.slug.slice(-1).find(() => true) || '';
     return (
-        <WalletProviderProvider wallets={config?.wallets || {}}>
+        <WalletProviderProvider config={config}>
             <GameStateProvider config={config}>
                 <SessionProvider>
                     <Head>
