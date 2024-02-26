@@ -207,8 +207,8 @@ export const WalletItemsItem: FunctionComponent<{
     return (
         <StyledWalletItemsItem>
             <div className="header">
-                <h3>wallet items</h3>
-                <p>these things live in your wallet</p>
+                <h3>Wallet Storage</h3>
+                <p>Items stored with your player wallet</p>
             </div>
 
             <div className="taskContainer">
