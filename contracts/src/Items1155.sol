@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "forge-std/console2.sol";
 import "cog/IState.sol";
 import {Schema, Node, Kind, GOO_GREEN, GOO_BLUE, GOO_RED} from "@ds/schema/Schema.sol";
 import "@ds/utils/Base64.sol";
@@ -97,7 +96,6 @@ contract Items1155 is ERC1155 {
         bytes calldata data
     ) public virtual override {
         super.safeBatchTransferFrom(from, to, ids, amounts, data);
-        console2.log("------safeBatchTransferFrom");
 
         for (uint256 i = 0; i < ids.length; i++) {
             _updateOwnedToken(from, to, ids[i], amounts[i]);
@@ -106,11 +104,6 @@ contract Items1155 is ERC1155 {
 
     function _updateOwnedToken(address from, address to, uint256 tokenId, uint256 amount) public virtual {
         bytes24 itemId = bytes24(uint192(tokenId));
-
-        console2.log("to", to);
-        console2.log("tokenId", tokenId);
-        console2.log("addr", address(this));
-        console2.log("amount", amount);
 
         // decement from
         if (from != address(0)) {
