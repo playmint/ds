@@ -8,6 +8,18 @@ fragment SelectedPlayer on Node {
             ...Quest
         }
     }
+
+    tokens: edges(match: { kinds: "OwnedToken", via: { rel: "Owner", dir: IN } }) {
+        token: node {
+            id
+            info: edge(match: { kinds: "Item", via: { rel: "Balance", dir: OUT } }) {
+                balance: weight
+                item: node {
+                    ...Item
+                }
+            }
+        }
+    }
 }
 
 query GetSelectedPlayer($gameID: ID!, $id: String!) {
