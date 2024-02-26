@@ -12,6 +12,7 @@ import {DownstreamGame, PREFIX_MESSAGE} from "@ds/Downstream.sol";
 import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
 import "@ds/schema/Schema.sol";
 import "@ds/utils/ItemUtils.sol";
+import {Items1155} from "@ds/Items1155.sol";
 
 import {CheatsRule} from "@ds/rules/CheatsRule.sol";
 import {MovementRule} from "@ds/rules/MovementRule.sol";
@@ -83,6 +84,7 @@ abstract contract GameTest {
     State internal state;
     Dev internal dev;
     Vm internal __vm = Vm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
+    Items1155 tokens;
 
     // player accounts to test with
     PlayerAccount[4] players;
@@ -90,6 +92,7 @@ abstract contract GameTest {
     constructor() {
         // setup the dev contract for calling cheats
         dev = new Dev();
+        game = new DownstreamGame();
 
         // init players
         players[0] = PlayerAccount({key: 0xa1, addr: __vm.addr(0xa1)});
@@ -104,13 +107,16 @@ abstract contract GameTest {
         allowlist[2] = players[2].addr;
         allowlist[3] = players[3].addr;
 
+        // items
+        InventoryRule inventoryRule = new InventoryRule(game);
+        tokens = Items1155(inventoryRule.getTokensAddress());
+
         // setup game
-        game = new DownstreamGame();
         dispatcher = BaseDispatcher(address(game.getDispatcher()));
         dispatcher.registerRule(new CheatsRule(address(dev)));
         dispatcher.registerRule(new MovementRule(game));
         dispatcher.registerRule(new ScoutRule());
-        dispatcher.registerRule(new InventoryRule(game));
+        dispatcher.registerRule(inventoryRule);
         dispatcher.registerRule(new BuildingRule(game));
         dispatcher.registerRule(new CraftingRule(game));
         dispatcher.registerRule(new PluginRule());

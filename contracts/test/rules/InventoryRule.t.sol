@@ -467,6 +467,68 @@ contract InventoryRuleTest is Test, GameTest {
         assertEq(toBalanceAfter, 50, "expected mobileUnit1-equip1-bag-item0 balance to increase to 50 after xfer");
     }
 
+    function testExport() public {
+        _testExport();
+    }
+
+    function _testExport() internal returns (bytes24 fromEquipee) {
+        vm.startPrank(players[0].addr);
+        fromEquipee = _spawnMobileUnit(1, 0, 0, 0);
+        uint8 fromEquipSlot = EQUIP_SLOT_0;
+        uint8 fromItemSlot = ITEM_SLOT_0;
+        uint64 qty = 2;
+        bytes24 fromBag = _spawnBagWithWood(players[0].addr, fromEquipee, fromEquipSlot);
+        address toAddress = players[0].addr;
+
+        // confirm balance before
+        (bytes24 fromResourceBefore, uint64 fromBalanceBefore) = state.getItemSlot(fromBag, ITEM_SLOT_0);
+        assertEq(fromResourceBefore, ItemUtils.GreenGoo(), "expected green goo to start");
+        assertEq(fromBalanceBefore, 100, "expected 100 green goo to start");
+
+        // export it
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.EXPORT_ITEM, (fromEquipee, fromEquipSlot, fromItemSlot, toAddress, qty))
+        );
+
+        vm.stopPrank();
+
+        // confirm player addr has expected ERC1155 balance of green goo
+        uint256 walletBalance = tokens.balanceOf(toAddress, uint256(uint192(ItemUtils.GreenGoo())));
+        assertEq(walletBalance, 2, "expected player to have a balance of 2 ERC1155 GreeGoo");
+
+        // confirm unit balance decremented
+        (bytes24 fromResourceAfter, uint64 fromBalanceAfter) = state.getItemSlot(fromBag, ITEM_SLOT_0);
+        assertEq(fromResourceAfter, ItemUtils.GreenGoo(), "expected green goo to end");
+        assertEq(fromBalanceAfter, 98, "expected 98 green goo to end");
+    }
+
+    function testImport() public {
+        // do export first
+        bytes24 fromEquipee = _testExport();
+        bytes24 fromBag = state.getEquipSlot(fromEquipee, EQUIP_SLOT_0);
+
+        // confirm balance before
+        (bytes24 fromResourceBefore, uint64 fromBalanceBefore) = state.getItemSlot(fromBag, ITEM_SLOT_0);
+        assertEq(fromResourceBefore, ItemUtils.GreenGoo(), "expected green goo to start");
+        assertEq(fromBalanceBefore, 98, "expected 98 green goo to start");
+
+        // import item back again
+        vm.startPrank(players[0].addr);
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.IMPORT_ITEM, (ItemUtils.GreenGoo(), fromEquipee, EQUIP_SLOT_0, ITEM_SLOT_0, 1))
+        );
+        vm.stopPrank();
+
+        // confirm player addr has expected ERC1155 balance of green goo
+        uint256 walletBalance = tokens.balanceOf(players[0].addr, uint256(uint192(ItemUtils.GreenGoo())));
+        assertEq(walletBalance, 1, "expected player to have a balance of 1 ERC1155 GreeGoo");
+
+        // confirm unit balance incremeneted
+        (bytes24 fromResourceAfter, uint64 fromBalanceAfter) = state.getItemSlot(fromBag, ITEM_SLOT_0);
+        assertEq(fromResourceAfter, ItemUtils.GreenGoo(), "expected green goo to end");
+        assertEq(fromBalanceAfter, 99, "expected 99 green goo to end");
+    }
+
     function _spawnBagWithWood(address owner, bytes24 equipNode, uint8 equipSlot) private returns (bytes24) {
         bytes24[] memory items = new bytes24[](1);
         items[0] = ItemUtils.GreenGoo();
