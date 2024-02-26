@@ -27,7 +27,7 @@ public class BillboardController : BaseComponentController<BillboardData>
 
     protected void Start()
     {
-        _defaultColor = renderers[0].material.color;
+        _defaultColor = renderers[0].material.GetColor("_EmissionColor");
     }
 
     protected void Update()
@@ -51,7 +51,7 @@ public class BillboardController : BaseComponentController<BillboardData>
             }
             foreach (Renderer rend in renderers)
             {
-                rend.material.color = _defaultColor;
+                rend.material.SetColor("_EmissionColor", _defaultColor);
             }
         }
         else if (_nextData.selected == "highlight")
@@ -62,7 +62,7 @@ public class BillboardController : BaseComponentController<BillboardData>
             }
             foreach (Renderer rend in renderers)
             {
-                rend.material.color = highlightColor;
+                rend.material.SetColor("_EmissionColor", highlightColor);
             }
         }
         else
@@ -73,7 +73,7 @@ public class BillboardController : BaseComponentController<BillboardData>
             }
             foreach (Renderer rend in renderers)
             {
-                rend.material.color = _defaultColor;
+                rend.material.SetColor("_EmissionColor", _defaultColor);
             }
         }
 
