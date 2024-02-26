@@ -1,4 +1,4 @@
-import { Tile } from '@app/../../core/src';
+import { CogAction, Tile } from '@app/../../core/src';
 import { nullBagId } from '@app/fixtures/null-bag-id';
 import { getTileDistance } from '@app/helpers/tile';
 import { usePlayer, useSelection } from '@app/hooks/use-game-state';
@@ -35,6 +35,7 @@ interface InventoryContextStore {
     isPickedUpItemVisible: boolean;
     pickedUpItem: InventoryItem | null;
     pickUpItem: (item: InventoryItem) => void;
+    clearPickedUpItem: () => void;
     drop: (
         target: Pick<TransferInfo, 'id' | 'equipIndex' | 'slotKey'>,
         targetCurrentBalance: number,
@@ -74,6 +75,10 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
     const [busySlots, setBusySlots] = useState<Map<string, boolean>>();
     const pickedUpItemRef = useRef<InventoryItem | null>(null);
     const pickedUpItemElementRef = useRef<HTMLDivElement>(null);
+    const clearPickedUpItem = useCallback(() => {
+        pickedUpItemRef.current = null;
+        setIsPickedUpItemVisible(false);
+    }, [setIsPickedUpItemVisible]);
     const { addRef: addBagRef, removeRef: removeBagRef } = useClickOutside(clearPickedUpItem);
 
     const isBusySlot = useCallback(
@@ -116,11 +121,6 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         pickedUpItemRef.current = item;
         setIsPickedUpItemVisible(true);
     };
-
-    function clearPickedUpItem() {
-        pickedUpItemRef.current = null;
-        setIsPickedUpItemVisible(false);
-    }
 
     const drop = (
         target: TransferSlot,
@@ -187,6 +187,40 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         const fromSlotID = getFullSlotID(from);
         const toSlotID = getFullSlotID(to);
 
+        const action = ((): CogAction | undefined => {
+            if (from.id.startsWith('WALLET') && to.id.startsWith('WALLET')) {
+                console.warn('cannot move items within wallet');
+                return;
+            } else if (from.id.startsWith('WALLET')) {
+                return {
+                    name: 'IMPORT_ITEM',
+                    args: [from.itemId, to.id, to.equipIndex, to.slotKey, quantity],
+                };
+            } else if (to.id.startsWith('WALLET')) {
+                return {
+                    name: 'EXPORT_ITEM',
+                    args: [from.id, from.equipIndex, from.slotKey, to.id.replace(/WALLET/, ''), quantity],
+                };
+            } else {
+                return {
+                    name: 'TRANSFER_ITEM_MOBILE_UNIT',
+                    args: [
+                        selectedMobileUnit.id,
+                        [from.id, to.id],
+                        [from.equipIndex, to.equipIndex],
+                        [from.slotKey, to.slotKey],
+                        bagId || nullBagId,
+                        quantity,
+                    ],
+                };
+            }
+        })();
+
+        if (!action) {
+            return;
+        }
+
+        // mark as busy
         setBusySlots((busy) => {
             if (!busy) {
                 busy = new Map<string, boolean>();
@@ -200,17 +234,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
 
         // make our dispatch
         player
-            .dispatch({
-                name: 'TRANSFER_ITEM_MOBILE_UNIT',
-                args: [
-                    selectedMobileUnit.id,
-                    [from.id, to.id],
-                    [from.equipIndex, to.equipIndex],
-                    [from.slotKey, to.slotKey],
-                    bagId || nullBagId,
-                    quantity,
-                ],
-            })
+            .dispatch(action)
             .then((res) => res.wait())
             .catch((err) => console.error('transfer item failed', err))
             .finally(() => {
@@ -228,6 +252,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         isPickedUpItemVisible,
         pickedUpItem: pickedUpItemRef.current,
         pickUpItem,
+        clearPickedUpItem,
         drop,
         isMobileUnitAtLocation,
         addBagRef,
