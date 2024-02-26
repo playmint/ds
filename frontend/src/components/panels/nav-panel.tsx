@@ -52,10 +52,14 @@ export const NavPanel = ({
     toggleQuestsActive,
     questsActive,
     questsCount,
+    toggleWalletItemsActive,
+    walletItemsActive,
 }: {
     questsCount?: number;
     questsActive?: boolean;
     toggleQuestsActive?: () => void;
+    toggleWalletItemsActive?: () => void;
+    walletItemsActive?: boolean;
 }) => {
     const { connect, disconnect: forgetProvider, provider } = useWalletProvider();
     const { clearSession } = useSession();
@@ -240,6 +244,12 @@ export const NavPanel = ({
                 </svg>
                 {!player && <span className="text">CONNECT</span>}
             </AccountButton>
+
+            {toggleWalletItemsActive && (
+                <TextButton onClick={toggleWalletItemsActive} className={`${walletItemsActive ? 'toggleOn' : ''}`}>
+                    WALLET
+                </TextButton>
+            )}
 
             {typeof questsActive !== 'undefined' && questsCount && questsCount > 0 ? (
                 <TextButton onClick={toggleQuestsActive} className={`${questsActive ? 'toggleOn' : ''}`}>

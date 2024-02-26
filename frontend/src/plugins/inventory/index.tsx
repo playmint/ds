@@ -1,16 +1,17 @@
 /** @format */
 
+import { Bag } from '@app/plugins/inventory/bag';
+import { ComponentProps } from '@app/types/component-props';
+import { BagFragment } from '@downstream/core';
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
-import { ComponentProps } from '@app/types/component-props';
-import { Bag } from '@app/plugins/inventory/bag';
-import { BagFragment } from '@downstream/core';
 
 export interface InventoryProps extends ComponentProps {
     ownerId: string;
     bags: BagFragment[];
     isInteractable: boolean;
     showIcon?: boolean;
+    numBagSlots?: number;
 }
 
 const StyledInventory = styled('div')`
@@ -22,7 +23,7 @@ const StyledInventory = styled('div')`
 `;
 
 export const Inventory: FunctionComponent<InventoryProps> = (props: InventoryProps) => {
-    const { bags, ownerId, isInteractable, showIcon } = props;
+    const { bags, ownerId, isInteractable, showIcon, numBagSlots } = props;
 
     return (
         <StyledInventory>
@@ -35,6 +36,7 @@ export const Inventory: FunctionComponent<InventoryProps> = (props: InventoryPro
                         ownerId={ownerId}
                         isInteractable={isInteractable}
                         showIcon={showIcon}
+                        numBagSlots={numBagSlots}
                     />
                 ))}
             </ul>
