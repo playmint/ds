@@ -29,6 +29,7 @@ anvil \
     --transaction-block-keeper 25 \
     --prune-history \
 	--host 0.0.0.0 \
+    --chain-id "${CHAIN_ID}" \
 	-m "${ACCOUNT_MNEMONIC}" \
 	&
 

@@ -3,6 +3,9 @@ gameID: {{ $.Values.frontend.gameAddress | quote}}
 build: {{ $.Values.version | quote }}
 wsEndpoint: "wss://services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}/query"
 httpEndpoint: "https://services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}/query"
+networkEndpoint: "https://network-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
+networkName: "{{ $.Release.Namespace }}"
+networkID: "{{ $.Release.Namespace | mustRegexFind "[0-9]+$" | printf "223%02s" }}"
 tonkEndpoint: "https://tonk-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
 {{ end }}
 
@@ -33,7 +36,7 @@ spec:
             - name: PORT
               value: "8080"
             - name: CHAIN_ID
-              value: {{ $.Values.chainId | toString | quote }}
+              value: "{{ $.Release.Namespace | mustRegexFind "[0-9]+$" | printf "223%02s" }}"
             - name: SEQUENCER_PRIVATE_KEY
               value: {{ $.Values.sequencer.privateKey | quote }}
             - name: SEQUENCER_PROVIDER_URL_HTTP
@@ -82,6 +85,8 @@ spec:
           image: {{ printf "ghcr.io/playmint/ds-contracts:%s" $.Values.version }}
           imagePullPolicy: Always
           env:
+          - name: CHAIN_ID
+            value: "{{ $.Release.Namespace | mustRegexFind "[0-9]+$" | printf "223%02s" }}"
           - name: DEPLOYER_PRIVATE_KEY
             value: "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff9524d487fb5d57a8"
           - name: SERVICES_URL_HTTP
