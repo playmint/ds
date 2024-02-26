@@ -28,6 +28,31 @@ export const WalletProviderProvider = ({ children, wallets }: { children: ReactN
     const [autoconnectProvider, setAutoconnectProvider] = useLocalStorage(`ds/autoconnectprovider`, '');
     const [burnerPhrase, setBurnerPhrase] = useLocalStorage(`ds/burnerphrase`, '');
 
+    const switchMetamaskNetwork = useCallback(async (provider: EthereumProvider) => {
+        try {
+            await provider.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: '0x7a69' }],
+            });
+        } catch (switchErr: any) {
+            // This error code indicates that the chain has not been added to MetaMask.
+            if (switchErr.code === 4902) {
+                await provider.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [
+                        {
+                            chainId: '0x7a69',
+                            chainName: 'localhost',
+                            rpcUrls: ['http://localhost:8545'],
+                        },
+                    ],
+                });
+            } else {
+                throw switchErr;
+            }
+        }
+    }, []);
+
     const connectMetamask = useCallback(async () => {
         try {
             const metamask = (await detectEthereumProvider()) as EthereumProvider;
@@ -38,13 +63,14 @@ export const WalletProviderProvider = ({ children, wallets }: { children: ReactN
             setProvider({ method: 'metamask', provider: metamask });
             await metamask.request({ method: 'eth_requestAccounts' });
             setAutoconnectProvider('metamask'); // TODO: make this opt-in
+            await switchMetamaskNetwork(metamask);
         } catch (err) {
             console.error(`connect: ${err}`);
             setProvider(undefined);
         } finally {
             setConnecting(false);
         }
-    }, [setAutoconnectProvider]);
+    }, [setAutoconnectProvider, switchMetamaskNetwork]);
 
     const connectWalletConnect = useCallback(async (): Promise<unknown> => {
         try {
