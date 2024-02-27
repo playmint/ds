@@ -7,9 +7,9 @@ spec:
   model: 10-10
   color: 3
   contract:
-    file: ../contracts/WizardsMaze.sol
+    file: ./contracts/WizardsMaze.sol
   plugin:
-    file: ../js/WizardsMaze.js
+    file: ./js/WizardsMaze.js
   materials:
     - name: Red Goo
       quantity: 10

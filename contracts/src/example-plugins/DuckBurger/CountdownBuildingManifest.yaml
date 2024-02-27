@@ -6,11 +6,6 @@ spec:
   category: display
   model: countdown
   color: 4
-  contract:
-    file: ./CountdownBuilding.sol
-  plugin:
-    file: ./CountdownBuilding.js
-    alwaysActive: true
   materials:
     - name: Green Goo
       quantity: 25
