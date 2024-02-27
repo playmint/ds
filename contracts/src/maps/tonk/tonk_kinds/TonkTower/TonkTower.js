@@ -414,7 +414,7 @@ export function renderDefault(_time, gameStatusText, players, eliminated) {
     <div style="${inlineStyle({ ...rowStyle, display: "flex" })}">
         <div style="${inlineStyle(boxAndLabelStyle)}">
             <p style="${inlineStyle(labelStyle)}">ANNOUNCEMENTS</p>
-            <div style="${inlineStyle({ ...boxStyle, ...statusStyle })}"> 
+            <div style="${inlineStyle({ ...boxStyle, ...statusStyle })}">
                 <p style="${inlineStyle(entryStyle)}">${gameStatusText}</p>
             </div>
         </div>
@@ -430,7 +430,7 @@ export function renderDefault(_time, gameStatusText, players, eliminated) {
     <div style="${inlineStyle(rowStyle)}">
         <div style="${inlineStyle(boxAndLabelStyle)}">
             <p style="${inlineStyle(labelStyle)}">ACTIVE</p>
-            <div style="${inlineStyle({ ...boxStyle, ...activeUnitsStyle })}"> 
+            <div style="${inlineStyle({ ...boxStyle, ...activeUnitsStyle })}">
                 ${players
                     .map((p) => {
                         return `
@@ -442,7 +442,7 @@ export function renderDefault(_time, gameStatusText, players, eliminated) {
         </div>
         <div style="${inlineStyle(boxAndLabelStyle)}">
             <p style="${inlineStyle(labelStyle)}">ELIMINATED</p>
-            <div style="${inlineStyle({ ...boxStyle, ...eliminatedStyle })}"> 
+            <div style="${inlineStyle({ ...boxStyle, ...eliminatedStyle })}">
                 ${eliminated
                     .map((e) => {
                         if (e.player.role === "Bugged") {
@@ -616,9 +616,7 @@ export default async function update(params) {
         saved_vote_id = null;
     }
 
-    const player_is_in_game = players
-        ? players.findIndex((p) => p.id == player.id) >= 0
-        : [];
+    const player_is_in_game = (players || []).findIndex((p) => p.id == player.id) >= 0;
     if (game.status == "Lobby") {
         if (!player_is_in_game && !!has_tonk && game.status == "Lobby") {
             buttons.push({
