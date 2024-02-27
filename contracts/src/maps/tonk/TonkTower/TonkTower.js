@@ -472,11 +472,11 @@ export default async function update(params) {
     let submit;
 
     const { selected, player, world } = params;
-    //console.log(world);
+    // console.log(world);
     // console.log(params);
     const { mobileUnit } = selected || {};
-    //console.log("building id: ", selected.mapElement.id);
-    //console.log("selected coords: ", selected.tiles[0].coords);
+    // console.log("building id: ", selected.mapElement.id);
+    // console.log("selected coords: ", selected.tiles[0].coords);
     // console.log(player);
 
     const buildingId = selected?.mapElement?.id;
@@ -514,14 +514,15 @@ export default async function update(params) {
     }
 
     game = await getGame();
-    players = await getPlayers(game.id, player.id);
-    tonkPlayer = await getPlayer(player.id);
+    players = await getPlayers(game?.id, player?.id);
+    tonkPlayer = await getPlayer(player?.id);
 
     // team colors
-    console.log("players: ", players, "eliminated: ", game.eliminated_players || [], "game: ", game);
+    // console.log("players: ", players, "eliminated: ", game.eliminated_players || [], "game: ", game);
 
     const mapUnitObj = [];
-    players.forEach((p) => {
+    const { status, win_result } = game;
+    players?.forEach((p) => {
         switch(p.role) {
             // Only bugged units can see p.role
             case "Bugged":
@@ -539,22 +540,21 @@ export default async function update(params) {
                     type: "unit",
                     key: "color",
                     id: p.mobile_unit_id,
-                    value: "#2daee0", // BLUE - MAIN
+                    value: status === "End" && win_result === "Thuggery" ? "#135198" : "#2daee0", // Brainwashed win ? BLUE - SHADOW : BLUE - MAIN
                 });
                 break;
             default:
-                const { status, win_result } = game;
                 if (status === "End") {
                     if (win_result === "Thuggery"){
-                        // Bugged outnumber sentients - all units shown as yellow since sentients don't get info on player's who haven't been eleminated
+                        // Brainwashed win - show all as dark blue
                         mapUnitObj.push({
                             type: "unit",
                             key: "color",
                             id: p.mobile_unit_id,
-                            value: "#f1b14e", // YELLOW - MAIN
+                            value: "#135198", // BLUE - SHADOW
                         });
-                    }else if (win_result === "Democracy"){
-                        // All bugged units voted out - show winners as blue
+                    }else if (win_result === "Democracy" || win_result === "Perfection"){
+                        // Sentients win - show all as light blue
                         mapUnitObj.push({
                             type: "unit",
                             key: "color",
@@ -562,7 +562,6 @@ export default async function update(params) {
                             value: "#2daee0", // BLUE - MAIN
                         });
                     }
-                    
                 }
                 else if (game.status === "Lobby"){
                     // Show everyone as purple in lobby
@@ -582,27 +581,6 @@ export default async function update(params) {
                         value: "#2daee0", // BLUE - MAIN
                     });
                 }                
-                break;
-        }
-    });
-
-    game.eliminated_players?.forEach((e) => {
-        switch(e.player.role){
-            case "Normal":
-                mapUnitObj.push({
-                    type: "unit",
-                    key: "color",
-                    id: e.player.mobile_unit_id,
-                    value: "#135198", // BLUE - SHADOW
-                });
-                break;
-            case "Bugged":
-                mapUnitObj.push({
-                    type: "unit",
-                    key: "color",
-                    id: e.player.mobile_unit_id,
-                    value: "9a201c", // RED - SHADOW
-                });
                 break;
         }
     });
