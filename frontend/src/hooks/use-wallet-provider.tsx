@@ -57,6 +57,11 @@ export const WalletProviderProvider = ({ children, config }: { children: ReactNo
                                 chainId,
                                 chainName: config.networkName,
                                 rpcUrls: [config.networkEndpoint],
+                                nativeCurrency: {
+                                    name: 'ETH',
+                                    symbol: 'ETH',
+                                    decimals: 18,
+                                },
                             },
                         ],
                     });
