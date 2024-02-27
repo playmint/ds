@@ -7,7 +7,8 @@ export interface BillboardData {
     s: number;
     height: number;
     rotation?: number;
-    url?: string;
+    image?: string;
+    model?: string;
     selected?: '' | 'none' | 'highlight' | 'outline';
     sendScreenPosition?: boolean;
 }
@@ -19,7 +20,8 @@ export const Billboard = memo(
         r,
         s,
         height,
-        url,
+        image,
+        model,
         selected,
         sendScreenPosition,
         rotation,
@@ -38,8 +40,8 @@ export const Billboard = memo(
             type: 'BillboardData',
             id,
             data: useMemo(
-                () => ({ q, r, s, height, rotation, url, selected, sendScreenPosition }),
-                [q, r, s, height, rotation, url, selected, sendScreenPosition]
+                () => ({ q, r, s, height, rotation, image, model, selected, sendScreenPosition }),
+                [q, r, s, height, rotation, image, model, selected, sendScreenPosition]
             ),
             onPointerEnter,
             onPointerExit,

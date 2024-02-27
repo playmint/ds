@@ -23,7 +23,7 @@ public class BillboardController : BaseComponentController<BillboardData>
         greenOutlineMat;
 
     private Color _defaultColor;
-    private string currentURL;
+    private string currentImage;
 
     protected void Start()
     {
@@ -77,11 +77,11 @@ public class BillboardController : BaseComponentController<BillboardData>
             }
         }
 
-        if (_nextData.url != null && _nextData.url != currentURL)
+        if (_nextData.image != null && _nextData.image != currentImage)
         {
             StartCoroutine(
                 FetchTexture(
-                    _nextData.url,
+                    _nextData.image,
                     (texture) =>
                     {
                         if (texture != null)
@@ -96,7 +96,7 @@ public class BillboardController : BaseComponentController<BillboardData>
                     }
                 )
             );
-            currentURL = _nextData.url;
+            currentImage = _nextData.image;
         }
 
         _prevData = _nextData;

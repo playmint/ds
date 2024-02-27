@@ -135,13 +135,17 @@ export const Buildings = memo(
                             />
                         );
                     } else if (getBuildingCategory(b.kind) == BuildingCategory.BILLBOARD) {
+                        const image = randomTileProperties
+                            .find((prop) => prop.id == b.id && prop.key == 'image')
+                            ?.value.toString();
                         return (
                             <Billboard
                                 key={b.id}
                                 id={b.id}
                                 height={height}
                                 rotation={rotation}
-                                url={b.kind?.model?.value}
+                                image={image}
+                                model={b.kind?.model?.value}
                                 selected={selected}
                                 onPointerClick={onClickBuilding}
                                 {...coords}

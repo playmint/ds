@@ -6,5 +6,6 @@ public class BillboardData : BaseComponentData
     public float height;
     public float rotation;
     public string? selected; // none/highlight/outline
-    public string? url;
+    public string? image;
+    public string? model;
 }

@@ -80,6 +80,7 @@ const DecorativeModel = z.enum([
 ]);
 const ExtractorModel = z.enum(['red', 'green', 'blue']);
 const DisplayModel = z.enum(['default', 'countdown']);
+const BillboardModel = z.enum(['monitor']);
 
 export const BuildingKindFactorySpec = z.object({
     category: z.literal('factory'),
@@ -128,7 +129,7 @@ export const BillboardSpec = z.object({
     category: z.literal('billboard'),
     name: Name,
     description: OneLiner.optional(),
-    model: z.string(),
+    model: BillboardModel,
     materials: Slot.array().nonempty().max(4),
 });
 

@@ -2,9 +2,9 @@
 kind: BuildingKind
 spec:
   category: billboard
-  name: Basic Billboard
+  name: Cocktail Billboard
   description: Shows an image
-  model: http://localhost:3000/favicon-28978_favicon-192.png
+  model: monitor
   materials:
   - name: Red Goo
     quantity: 10
