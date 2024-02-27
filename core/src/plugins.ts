@@ -350,26 +350,14 @@ export async function loadPlugin(
     // setup the submit func
     const submitProxy = async (ref: string, values: PluginSubmitCallValues): Promise<void> => {
         console.log('submit', ref, values);
-        const res = await sandbox.evalCode(
-            context,
-            `(async function({ref, values}){
-                    const fn = globalThis.__refs[ref];
-                    fn && fn(values);
-                    return JSON.stringify({ok: true});
-                })(${JSON.stringify({ ref, values })})`,
-        );
+        const res = await sandbox.submit(context, { ref, values });
         console.log('submitted', ref, res);
     };
 
     // setup the update func
     const updateProxy = async (): Promise<PluginUpdateResponse> => {
         try {
-            const pluginResponse = await sandbox.evalCode(
-                context,
-                `(async () => {
-                    return globalThis.__update();
-                })()`,
-            );
+            const pluginResponse = await sandbox.update(context);
 
             const _pluginResponse = (await sandbox.hasContext(context)) === true ? pluginResponse : {};
             return {

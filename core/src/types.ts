@@ -34,7 +34,8 @@ export interface Sandbox {
     ) => Promise<number>;
     deleteContext: (id: number) => Promise<void>;
     hasContext: (id: number) => Promise<boolean>;
-    evalCode: (context: number, code: string) => Promise<any>;
+    update: (context: number) => Promise<PluginUpdateResponse>;
+    submit: (context: number, values: { ref: string; values: any }) => Promise<void>;
     setState: (state: GameStatePlugin, blk: number) => Promise<void>;
 }
 

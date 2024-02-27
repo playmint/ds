@@ -6,6 +6,7 @@ import {
     PluginDispatchFunc,
     Sandbox,
     GameConfig,
+    PluginUpdateResponse,
 } from '@downstream/core';
 import * as Comlink from 'comlink';
 import { QuickJSContext, QuickJSRuntime, getQuickJS } from 'quickjs-emscripten';
@@ -60,7 +61,7 @@ function pollPendingJobs() {
     setTimeout(() => pollPendingJobs(), ms);
 }
 
-export async function init(cfg: Partial<GameConfig>) {
+async function init(cfg: Partial<GameConfig>) {
     config = cfg;
     const qjs = await getQuickJS();
 
@@ -69,16 +70,10 @@ export async function init(cfg: Partial<GameConfig>) {
     runtime.setMaxStackSize(1024 * 320);
 
     pollPendingJobs();
-
-    // let interruptCycles = 0;
-    // runtime.setInterruptHandler(() => {
-    //     console.log('int');
-    //     return ++interruptCycles > 1024;
-    // });
 }
 
 // can also die at update time
-export async function setState(newState: GameStatePlugin, newBlock: number) {
+async function setState(newState: GameStatePlugin, newBlock: number) {
     contexts.forEach(async (context) => {
         if (context && context.alive) {
             try {
@@ -95,7 +90,7 @@ export async function setState(newState: GameStatePlugin, newBlock: number) {
     });
 }
 
-export async function deleteContext(contextID: number) {
+async function deleteContext(contextID: number) {
     try {
         contexts[contextID].dispose();
         console.log('just disposed context ', contextID);
@@ -104,12 +99,12 @@ export async function deleteContext(contextID: number) {
     }
 }
 
-export async function hasContext(contextID: number) {
+async function hasContext(contextID: number) {
     const context = contexts[contextID];
     return context?.alive;
 }
 
-export async function evalCode(contextID: number, code: string) {
+async function evalCode(contextID: number, code: string) {
     const context = contexts[contextID];
     if (!context || !context.alive) {
         return;
@@ -135,7 +130,7 @@ export async function evalCode(contextID: number, code: string) {
     }
 }
 
-export async function newContext(
+async function newContext(
     dispatch: PluginDispatchFunc,
     logMessage: Logger,
     questMessage: Logger,
@@ -154,7 +149,7 @@ export async function newContext(
         }
     }
 }
-export async function _newContext(
+async function _newContext(
     dispatch: PluginDispatchFunc,
     logMessage: Logger,
     questMessage: Logger,
@@ -460,6 +455,26 @@ export async function _newContext(
     return contextID;
 }
 
-const sandbox: Sandbox = { init, newContext, deleteContext, hasContext, evalCode, setState };
+async function update(contextId: number): Promise<PluginUpdateResponse> {
+    return await evalCode(
+        contextId,
+        `(async () => {
+            return globalThis.__update();
+        })()`
+    );
+}
+
+async function submit(contextId: number, data: { ref: string; values: any }): Promise<void> {
+    await evalCode(
+        contextId,
+        `(async function({ref, values}){
+            const fn = globalThis.__refs[ref];
+            fn && fn(values);
+            return JSON.stringify({ok: true});
+        })(${JSON.stringify(data)})`
+    );
+}
+
+const sandbox: Sandbox = { init, newContext, deleteContext, hasContext, setState, update, submit };
 
 Comlink.expose(sandbox);
