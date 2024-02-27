@@ -141,7 +141,7 @@ async function hasContext(id: number) {
 function rewriteModuleCode(code: string): string {
     code = code.replace(/\s*import.+from.*$/gm, '');
     code = `
-        let ds = undefined;
+        let ds = {config: ${JSON.stringify(globalConfig)}};
         export function __setDS(o) {
             ds = o;
         }
