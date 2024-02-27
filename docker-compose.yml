@@ -10,6 +10,7 @@ services:
       - 8545:8545
     environment:
       CHAIN_ID: "22300"
+      EXTRA_ANVIL_ARGS: "--transaction-block-keeper 250"
       DEPLOYER_PRIVATE_KEY: "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff9524d487fb5d57a8"
       TONK_URL_HTTP: "http://tonk-web-server:8082"
       SERVICES_URL_HTTP: "http://cog:8080/query"
