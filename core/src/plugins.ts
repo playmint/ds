@@ -231,7 +231,7 @@ function isAutoloadableBuildingPlugin(
                 return false;
             }
             const unitItemKindIds = getBagsAtEquipee(world.bags, mobileUnit).flatMap((bag) =>
-                bag.slots.flatMap((slot) => slot.item.id),
+                bag.slots.filter((slot) => slot.balance > 0).flatMap((slot) => slot.item.id),
             );
             return unitItemKindIds.some((id) => p.supports?.id === id);
         default:
