@@ -163,7 +163,7 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
             return;
         }
         console.log('restart count', sandboxDeaths);
-        workerRef.current = new Worker(new URL('../workers/sandbox.ts', import.meta.url));
+        workerRef.current = new Worker(new URL('../workers/snowsphere.ts', import.meta.url));
         const workerSandbox: Comlink.Remote<Sandbox> = Comlink.wrap(workerRef.current);
         workerSandbox
             .init(config)
