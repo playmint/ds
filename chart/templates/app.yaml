@@ -87,6 +87,8 @@ spec:
           env:
           - name: CHAIN_ID
             value: "{{ $.Release.Namespace | mustRegexFind "[0-9]+$" | printf "223%02s" }}"
+          - name: EXTRA_ANVIL_ARGS
+            value: "--prune-history --transaction-block-keeper 25"
           - name: DEPLOYER_PRIVATE_KEY
             value: "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff9524d487fb5d57a8"
           - name: SERVICES_URL_HTTP

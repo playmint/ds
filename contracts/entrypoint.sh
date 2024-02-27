@@ -20,17 +20,19 @@ rm -f deployments/*
 # must match the value for the target hardhat networks
 ACCOUNT_MNEMONIC="thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens"
 
+# optional anvil args
+ANVIL_ARGS=${EXTRA_ANVIL_ARGS:-""}
+
 echo "+-------------------+"
 echo "| starting evm node |"
 echo "+-------------------+"
 anvil \
     --block-base-fee-per-gas 1 \
     --block-time 2 \
-    --transaction-block-keeper 25 \
-    --prune-history \
 	--host 0.0.0.0 \
     --chain-id "${CHAIN_ID}" \
 	-m "${ACCOUNT_MNEMONIC}" \
+    ${ANVIL_ARGS} \
 	&
 
 
