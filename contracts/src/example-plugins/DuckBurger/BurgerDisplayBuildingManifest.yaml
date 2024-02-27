@@ -6,11 +6,6 @@ spec:
   category: display
   model: default
   color: 1
-  contract:
-    file: ./DisplayBuilding.sol
-  plugin:
-    file: ./DisplayBuilding.js
-    alwaysActive: true
   materials:
     - name: Green Goo
       quantity: 25

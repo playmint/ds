@@ -54,6 +54,12 @@ contract CraftingRule is Rule {
         }
         state.setID(itemKind, idNode);
 
+        state.setData(itemKind, "name", bytes32(bytes(name)));
+        state.setData(itemKind, "icon", bytes32(bytes(icon)));
+
+        // FIXME: remove these annotations
+        //        we don't need these annotations as we have the setData ones above
+        //        but we currently depend on the annotation in various graphql places
         state.annotate(itemKind, "name", name);
         state.annotate(itemKind, "icon", icon);
     }

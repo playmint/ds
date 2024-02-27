@@ -39,7 +39,7 @@ Docker Compose.
 [Install Docker Desktop](https://docs.docker.com/get-docker/)
 
 ```
-docker compose up
+docker compose up --pull=always
 ```
 
 This will fetch the most recently built images for the game and run them

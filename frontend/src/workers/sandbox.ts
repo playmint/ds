@@ -65,7 +65,7 @@ export async function init(cfg: Partial<GameConfig>) {
     const qjs = await getQuickJS();
 
     runtime = qjs.newRuntime();
-    runtime.setMemoryLimit(1024 * 640 * 10);
+    runtime.setMemoryLimit(256 * 1024 * 1024);
     runtime.setMaxStackSize(1024 * 320);
 
     pollPendingJobs();

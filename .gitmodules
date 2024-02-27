@@ -7,3 +7,6 @@
 [submodule "contracts/lib/abdk-libraries-solidity"]
 	path = contracts/lib/abdk-libraries-solidity
 	url = https://github.com/abdk-consulting/abdk-libraries-solidity
+[submodule "contracts/lib/solmate"]
+	path = contracts/lib/solmate
+	url = https://github.com/transmissions11/solmate

@@ -42,7 +42,7 @@ async function handleStartup(){
     const commands = [
         {
             name: 'networks',
-            command: "anvil -m 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --block-time 2 --block-base-fee-per-gas 1 --transaction-block-keeper 25 --prune-history",
+            command: "anvil -m 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens' --block-time 2 --block-base-fee-per-gas 1 --transaction-block-keeper 250",
             prefixColor: 'black',
         },
 

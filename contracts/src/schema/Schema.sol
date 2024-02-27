@@ -44,6 +44,7 @@ interface Kind {
     function Quest() external;
     function Task() external;
     function ID() external;
+    function OwnedToken() external;
 }
 
 uint64 constant BLOCK_TIME_SECS = 2;
@@ -121,6 +122,11 @@ library Node {
         return bytes24(
             abi.encodePacked(Kind.Item.selector, uniqueID, stackable, atoms[GOO_GREEN], atoms[GOO_BLUE], atoms[GOO_RED])
         );
+    }
+
+    function OwnedToken(uint256 tokenId, bytes24 playerId) internal pure returns (bytes24) {
+        return
+            CompoundKeyEncoder.BYTES(Kind.OwnedToken.selector, bytes20(keccak256(abi.encodePacked(tokenId, playerId))));
     }
 
     function Player(address addr) internal pure returns (bytes24) {
@@ -524,6 +530,19 @@ library Schema {
 
     function getDataUint256(State state, bytes24 nodeID, string memory key) external view returns (uint256) {
         return uint256(state.getData(nodeID, key));
+    }
+
+    function getDataString(State state, bytes24 nodeID, string memory key) external view returns (string memory) {
+        bytes32 b = state.getData(nodeID, key);
+        uint8 i = 0;
+        while (i < 32 && b[i] != 0) {
+            i++;
+        }
+        bytes memory nonNullBytes = new bytes(i);
+        for (i = 0; i < 32 && b[i] != 0; i++) {
+            nonNullBytes[i] = b[i];
+        }
+        return string(nonNullBytes);
     }
 
     function getAttacker(State state, bytes24 sessionID, uint8 index) external view returns (bytes24) {

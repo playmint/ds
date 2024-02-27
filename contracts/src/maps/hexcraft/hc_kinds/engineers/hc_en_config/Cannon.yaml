@@ -7,9 +7,9 @@ spec:
   model: 08-01
   color: 3
   contract:
-    file: ../contracts/Cannon.sol
+    file: ./contracts/Cannon.sol
   plugin:
-    file: ../js/Cannon.js
+    file: ./js/Cannon.js
   materials:
     - name: Red Goo
       quantity: 60

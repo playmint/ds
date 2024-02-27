@@ -1,14 +1,14 @@
 kind: BuildingKind
 spec:
   category: custom
-  name: Red Base
-  description: This is the red base
+  name: Blue Base
+  description: This is the blue base
   model: 17-03
-  color: 4
+  color: 0
   contract:
-    file: ../contracts/RedBase.sol
+    file: ./contracts/BlueBase.sol
   plugin:
-    file: ../js/RedBase.js
+    file: ./js/BlueBase.js
   materials:
     - name: Red Goo
       quantity: 100

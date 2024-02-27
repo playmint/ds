@@ -64,5 +64,6 @@ function toFakeSelectedPlayer(wallet: Wallet): SelectedPlayerFragment {
         id: wallet.id,
         addr: wallet.address,
         quests: [],
+        tokens: [],
     };
 }

@@ -35,6 +35,7 @@ import { styles } from './shell.styles';
 import { QuestPanel } from '@app/components/panels/quest-panel';
 import { getBagsAtEquipee, getBuildingAtTile, getSessionsAtTile } from '@downstream/core/src/utils';
 import { StyledBasePanel, StyledHeaderPanel } from '@app/styles/base-panel.styles';
+import { WalletItemsPanel } from '@app/components/panels/wallet-items-panel';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -68,6 +69,8 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const ui = usePluginState();
     const [questsActive, setQuestsActive] = useState<boolean>(true);
     const toggleQuestsActive = useCallback(() => setQuestsActive((prev) => !prev), []);
+    const [walletItemsActive, setWalletItemsActive] = useState<boolean>(false);
+    const toggleWalletItemsActive = useCallback(() => setWalletItemsActive((prev) => !prev), []);
     const questMessages = useQuestMessages(10);
     const acceptedQuests = useMemo(() => {
         return (
@@ -376,6 +379,8 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             questsActive={player && world && questsActive && acceptedQuests.length > 0}
                             toggleQuestsActive={toggleQuestsActive}
                             questsCount={acceptedQuests.length}
+                            toggleWalletItemsActive={toggleWalletItemsActive}
+                            walletItemsActive={walletItemsActive}
                         />
                         {world && player && questsActive && acceptedQuests.length > 0 && (
                             <QuestPanel
@@ -386,7 +391,9 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                                 questMessages={questMessages}
                             />
                         )}
-                        {/* <Logs className="logs" /> */}
+                        {world && player && walletItemsActive && (
+                            <WalletItemsPanel player={player} blockNumber={blockNumber} />
+                        )}
                     </div>
                     <ItemPluginPanel ui={ui || []} />
                     <div className="bottom-left">

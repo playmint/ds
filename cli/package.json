@@ -1,6 +1,6 @@
 {
   "name": "@playmint/ds-cli",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "description": "cli client for interacting with downstream.game",
   "main": "index.js",
   "bin": {
