@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -20,6 +21,9 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
     [SerializeField]
     private GameObject[] totemPrefabs;
 
+    [SerializeField]
+    private GameObject[] overridePrefabs;
+
     public Material redOutlineMat,
         greenOutlineMat;
 
@@ -28,6 +32,8 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
     List<FactoryBuildingBlockController> _blocks = new();
 
     private Color _defaultColor;
+
+    private Animator _currentAnimator;
 
     protected void Update()
     {
@@ -64,12 +70,25 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
                 || _nextData.color != _prevData.color
             )
             {
-                foreach (FactoryBuildingBlockController block in _blocks)
+                if (_nextData.model.Contains("door"))
                 {
-                    Destroy(block.gameObject);
+                    GameObject prefab = overridePrefabs.FirstOrDefault(
+                        (p) => p.name == _nextData.model
+                    );
+                    if (_currentAnimator != null && _nextData.model.Contains("open"))
+                    {
+                        StartCoroutine(WaitForAnimationEndCR(prefab, "DoorUnlock"));
+                    }
+                    else
+                    {
+                        SwapModels(prefab);
+                    }
                 }
-                _blocks = new();
-                ShowTotems(_nextData.model, dynamicColor, shadowColor);
+                else
+                {
+                    DestoryPreviousModels();
+                    ShowTotems(_nextData.model, dynamicColor, shadowColor);
+                }
             }
         }
         else
@@ -122,6 +141,39 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
         }
 
         _prevData = _nextData;
+    }
+
+    private IEnumerator WaitForAnimationEndCR(GameObject nextModel, string animName)
+    {
+        _currentAnimator.Play(animName);
+        yield return null;
+        while (_currentAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1)
+        {
+            yield return null;
+        }
+        SwapModels(nextModel);
+        yield return null;
+    }
+
+    void SwapModels(GameObject nextModel)
+    {
+        DestoryPreviousModels();
+        Instantiate(nextModel, stackPositions[0]).transform
+            .GetChild(0)
+            .TryGetComponent(out _currentAnimator);
+    }
+
+    void DestoryPreviousModels()
+    {
+        foreach (FactoryBuildingBlockController child in _blocks)
+        {
+            Destroy(child.gameObject);
+        }
+        foreach (Transform child in stackPositions[0])
+        {
+            Destroy(child.gameObject);
+        }
+        _blocks = new();
     }
 
     private string[] GetTotemNamesFromStackCode(string stackCode)

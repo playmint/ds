@@ -272,6 +272,9 @@ MonoBehaviour:
   - {fileID: 2199866000648510089, guid: cd0b8d125345923489cc4ea5a150ea1b, type: 3}
   - {fileID: 719213307565782192, guid: 8a0557c8e4b650e4bb6051dcbab29ea3, type: 3}
   - {fileID: 6934794725117978355, guid: 55290f63f5476644fad2dfd55e719459, type: 3}
+  overridePrefabs:
+  - {fileID: 2272075605432351405, guid: 7a0ee5afc169c4f4b99384c00b50913f, type: 3}
+  - {fileID: 2272075605432351405, guid: 9dfd99ebe7a834b77ac185a32beff9cd, type: 3}
   redOutlineMat: {fileID: 2100000, guid: ce6f5126ced564b2895e09480182616f, type: 2}
   greenOutlineMat: {fileID: 2100000, guid: 350e1b89b29f442e1ae981fd04ecfca4, type: 2}
 --- !u!4 &7268972727792134295 stripped

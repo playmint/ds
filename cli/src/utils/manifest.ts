@@ -68,7 +68,7 @@ export const Item = z.object({
         .optional(),
 });
 
-const TotemModel = z.string().regex(/^[0-9]{2}(-[0-9]{2})?$/);
+const TotemModel = z.string().regex(/^(?:[0-9]{2}-[0-9]{2}|door-open|door-closed)$/);
 const DecorativeModel = z.enum([
     'enemy',
     'OakTreesLarge',

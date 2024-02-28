@@ -76,6 +76,10 @@ export const Buildings = memo(
                     const selected = selectedElementID === b.id ? 'outline' : 'none';
                     const rotation = lerp(-20, 20, 0.5 - getUnscaledNoiseFromCoords(coords));
                     const tile = tiles.find(({ id }) => id === b.location?.tile.id);
+                    const overrideModel = randomTileProperties
+                        .find((prop) => prop.id == b.id && prop.key == 'model')
+                        ?.value.toString();
+
                     if (getBuildingCategory(b.kind) == BuildingCategory.EXTRACTOR) {
                         return (
                             <ExtractorBuilding
@@ -157,7 +161,7 @@ export const Buildings = memo(
                                 key={b.id}
                                 id={b.id}
                                 height={height}
-                                model={b.kind?.model?.value}
+                                model={overrideModel ? overrideModel : b.kind?.model?.value}
                                 rotation={-30}
                                 selected={selected}
                                 onPointerClick={onClickBuilding}
