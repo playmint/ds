@@ -17,7 +17,7 @@ async function getGame() {
         return JSON.parse(raw);
     } catch (e) {
         console.log(e);
-        return `{ "status": "GameServerDown" }`;
+        return { status: "GameServerDown" };
     }
 }
 
@@ -857,7 +857,7 @@ export default async function update(params) {
 
     // Team colorus
     const mapUnitObj = [];
-    const { game_status, win_result } = game;
+    const { status: game_status, win_result } = game;
     players?.forEach((p) => {
         switch(p.role) {
             // Only bugged units can see p.role
