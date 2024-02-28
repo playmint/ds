@@ -83,7 +83,7 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
     const { provider } = useWalletProvider();
     const [sources1, setSources1] = useState<DSContextValue1>();
     const [sources2, setSources2] = useState<DSContextValue2>();
-    const [sandboxDeaths, setSandboxDeaths] = useState<number>(0);
+    // const [sandboxDeaths, setSandboxDeaths] = useState<number>(0);
     const workerRef = useRef<Worker>();
 
     useEffect(() => {
@@ -162,7 +162,6 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
         if (!config) {
             return;
         }
-        console.log('restart count', sandboxDeaths);
         workerRef.current = new Worker(new URL('../workers/snowsphere.ts', import.meta.url));
         const workerSandbox: Comlink.Remote<Sandbox> = Comlink.wrap(workerRef.current);
         workerSandbox
@@ -173,15 +172,16 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
                 const { plugins: activePlugins } = makeAutoloadPlugins(availablePlugins, selection, world);
                 const ui = makePluginUI(activePlugins, workerSandbox, logger, questMsgSender, state, block);
 
-                pipe(
-                    ui,
-                    subscribe((responses) => {
-                        if (responses.some((res) => res.error === 'SANDBOX_OOM')) {
-                            console.error('sandbox OOM detected, restarting?');
-                            setSandboxDeaths((prev) => prev + 1);
-                        }
-                    })
-                );
+                // re-enable if using sandbox instead of snowsphere
+                // pipe(
+                //     ui,
+                //     subscribe((responses) => {
+                //         if (responses.some((res) => res.error === 'SANDBOX_OOM')) {
+                //             console.error('sandbox OOM detected, restarting?');
+                //             setSandboxDeaths((prev) => prev + 1);
+                //         }
+                //     })
+                // );
                 setSources2({
                     ...sources1,
                     ui,
@@ -190,7 +190,7 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
                 });
             })
             .catch(() => console.error(`sandbox init fail`));
-    }, [sandboxDeaths, sources1, config]);
+    }, [sources1, config]);
 
     const { selectProvider } = sources1 || {};
 
