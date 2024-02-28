@@ -228,6 +228,9 @@ const Construct: FunctionComponent<ConstructProps> = ({
     const displayKinds = constructableKinds
         .filter((kind) => kind.owner?.id !== player?.id)
         .filter((kind) => getBuildingCategory(kind) == BuildingCategory.DISPLAY);
+    const billboardKinds = constructableKinds
+        .filter((kind) => kind.owner?.id !== player?.id)
+        .filter((kind) => getBuildingCategory(kind) == BuildingCategory.BILLBOARD);
     const selectedKind = selectedKindRaw;
 
     const onChangeSelectedKind = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -428,6 +431,15 @@ const Construct: FunctionComponent<ConstructProps> = ({
                                 {displayKinds.length > 0 && (
                                     <optgroup label="Displays">
                                         {displayKinds.map((k) => (
+                                            <option key={k.id} value={k.id}>
+                                                {k.name?.value || k.id}
+                                            </option>
+                                        ))}
+                                    </optgroup>
+                                )}
+                                {billboardKinds.length > 0 && (
+                                    <optgroup label="Billboards">
+                                        {billboardKinds.map((k) => (
                                             <option key={k.id} value={k.id}>
                                                 {k.name?.value || k.id}
                                             </option>

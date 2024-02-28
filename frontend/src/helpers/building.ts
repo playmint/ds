@@ -7,6 +7,7 @@ export enum BuildingCategory {
     ITEM_FACTORY,
     CUSTOM,
     DISPLAY,
+    BILLBOARD,
 }
 export function getBuildingCategory(kind?: BuildingKindFragment | null) {
     if (!kind) {
@@ -23,6 +24,8 @@ export function getBuildingCategory(kind?: BuildingKindFragment | null) {
             return BuildingCategory.ITEM_FACTORY;
         case BuildingCategory.DISPLAY:
             return BuildingCategory.DISPLAY;
+        case BuildingCategory.BILLBOARD:
+            return BuildingCategory.BILLBOARD;
         default:
             return BuildingCategory.NONE;
     }

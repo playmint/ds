@@ -3,6 +3,7 @@ import ds from "downstream";
 let UPDATE_COCKTAIL_MS = 100000;
 let lastUpdated = Date.now();
 let cocktail;
+const billboardName = "Cocktail Billboard";
 
 /**
  * Asynchronously fetches a random cocktail from an API if the current cocktail is outdated or not set.
@@ -29,7 +30,8 @@ async function getCocktailOfTheMoment() {
         drink.strIngredient4,
         drink.strIngredient5,
     ].filter((ing) => !!ing);
-    return `${drink.strDrink}: ${ingriedients.join(", ")}`;
+    const cocktailImage = drink.strDrinkThumb;
+    return {recipe:`${drink.strDrink}: ${ingriedients.join(", ")}`, cocktailImage: cocktailImage};
 }
 
 const BN_0 = BigInt(0);
@@ -129,6 +131,11 @@ export default async function update({ selected, world }) {
     const selectedBuilding = (world?.buildings || []).find(
         (b) => selectedTile && b.location?.tile?.id === selectedTile.id,
     );
+
+    const billboardBuilding = (world?.buildings || []).find(
+        (b) => b.kind?.name?.value === billboardName,
+    );
+
     const selectedBuildingBags = selectedBuilding
         ? (world?.bags || []).filter(
               (bag) => bag.equipee?.node.id === selectedBuilding.id,
@@ -143,7 +150,7 @@ export default async function update({ selected, world }) {
         inputBag.slots.every((slot) => slot.balance > 0) &&
         mobileUnit;
 
-    const cocktail = await getCocktailOfTheMoment();
+    const {recipe, cocktailImage} = await getCocktailOfTheMoment();
 
     const craft = () => {
         if (!mobileUnit) {
@@ -177,6 +184,17 @@ export default async function update({ selected, world }) {
             );
         });
     }
+    if(billboardBuilding)
+    {
+        mapObj.push(
+            {
+                type: "building",
+                key: "image",
+                id: `${billboardBuilding.id}`,
+                value: `${cocktailImage}`,
+            }
+        );
+    }
 
     return {
         version: 1,
@@ -202,7 +220,7 @@ export default async function update({ selected, world }) {
                             <br />
                             <p>The current cocktail is:</p>
                             <br />
-                            <strong>${cocktail}</strong>
+                            <strong>${recipe}</strong>
                             <br />
                             <br />
                         `,

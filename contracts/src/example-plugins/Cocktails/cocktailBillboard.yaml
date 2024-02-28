@@ -1,0 +1,14 @@
+---
+kind: BuildingKind
+spec:
+  category: billboard
+  name: Cocktail Billboard
+  description: Shows an image
+  model: monitor
+  materials:
+  - name: Red Goo
+    quantity: 10
+  - name: Green Goo
+    quantity: 10
+  - name: Blue Goo
+    quantity: 10
