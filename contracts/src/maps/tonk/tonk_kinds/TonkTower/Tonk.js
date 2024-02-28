@@ -855,6 +855,72 @@ export default async function update(params) {
 
     status = tonkPlayer.eliminated || playerEliminated ? "ELIMINATED" : status;
 
+    // Team colorus
+    const mapUnitObj = [];
+    const { game_status, win_result } = game;
+    players?.forEach((p) => {
+        switch(p.role) {
+            // Only bugged units can see p.role
+            case "Bugged":
+                // This info is only seen by bugged units
+                mapUnitObj.push({
+                    type: "unit",
+                    key: "color",
+                    id: p.mobile_unit_id,
+                    value: "#ec5c61", // RED - MAIN
+                });
+                break;
+            case "Normal":
+                // This info is only seen by bugged units
+                mapUnitObj.push({
+                    type: "unit",
+                    key: "color",
+                    id: p.mobile_unit_id,
+                    value: game_status === "End" && win_result === "Thuggery" ? "#135198" : "#2daee0", // Brainwashed win ? BLUE - SHADOW : BLUE - MAIN
+                });
+                break;
+            default:
+                if (game_status === "End") {
+                    if (win_result === "Thuggery"){
+                        // Brainwashed win - show all as dark blue
+                        mapUnitObj.push({
+                            type: "unit",
+                            key: "color",
+                            id: p.mobile_unit_id,
+                            value: "#135198", // BLUE - SHADOW
+                        });
+                    }else if (win_result === "Democracy" || win_result === "Perfection"){
+                        // Sentients win - show all as light blue
+                        mapUnitObj.push({
+                            type: "unit",
+                            key: "color",
+                            id: p.mobile_unit_id,
+                            value: "#2daee0", // BLUE - MAIN
+                        });
+                    }
+                }
+                else if (game.status === "Lobby"){
+                    // Show everyone as purple in lobby
+                    mapUnitObj.push({
+                        type: "unit",
+                        key: "color",
+                        id: p.mobile_unit_id,
+                        value: "#9c74fd", // PURPLE - MAIN
+                    });
+                }
+                else{
+                    // sentient units see everyone as blue
+                    mapUnitObj.push({
+                        type: "unit",
+                        key: "color",
+                        id: p.mobile_unit_id,
+                        value: "#2daee0", // BLUE - MAIN
+                    });
+                }
+                break;
+        }
+    });
+
     let buttons = [];
     const bugOut = (id, displayName) => {
         bugging = true;
@@ -1005,6 +1071,7 @@ export default async function update(params) {
 
     return {
         version: 1,
+        map: mapUnitObj || [],
         components: [
             {
                 id: "tonk",
