@@ -472,19 +472,19 @@ export default async function update(params) {
     let submit;
 
     const { selected, player, world } = params;
-    console.log(world);
+    // console.log(world);
     // console.log(params);
     const { mobileUnit } = selected || {};
-    //console.log("building id: ", selected.mapElement.id);
-    //console.log("selected coords: ", selected.tiles[0].coords);
+    // console.log("building id: ", selected.mapElement.id);
+    // console.log("selected coords: ", selected.tiles[0].coords);
     // console.log(player);
 
-    const buildingId = selected.mapElement.id;
-    let bags = findBags(world, mobileUnit);
+    const buildingId = selected?.mapElement?.id;
+    let bags = mobileUnit ? findBags(world, mobileUnit) : [];
     const has_tonk =
-        bags[0].slots.findIndex((b) => b.item && b.item.name.value == "Tonk") >=
+        bags[0]?.slots.findIndex((b) => b.item && b.item.name.value == "Tonk") >=
             0 ||
-        bags[1].slots.findIndex((b) => b.item && b.item.name.value == "Tonk") >=
+        bags[1]?.slots.findIndex((b) => b.item && b.item.name.value == "Tonk") >=
             0;
     const craft = () => {
         if (!mobileUnit) {
@@ -514,8 +514,76 @@ export default async function update(params) {
     }
 
     game = await getGame();
-    players = await getPlayers(game.id, player.id);
-    tonkPlayer = await getPlayer(player.id);
+    players = await getPlayers(game?.id, player?.id);
+    tonkPlayer = await getPlayer(player?.id);
+
+    // team colors
+    // console.log("players: ", players, "eliminated: ", game.eliminated_players || [], "game: ", game);
+
+    const mapUnitObj = [];
+    const { status, win_result } = game;
+    players?.forEach((p) => {
+        switch(p.role) {
+            // Only bugged units can see p.role
+            case "Bugged":
+                // This info is only seen by bugged units
+                mapUnitObj.push({
+                    type: "unit",
+                    key: "color",
+                    id: p.mobile_unit_id,
+                    value: "#ec5c61", // RED - MAIN
+                });
+                break;
+            case "Normal":
+                // This info is only seen by bugged units
+                mapUnitObj.push({
+                    type: "unit",
+                    key: "color",
+                    id: p.mobile_unit_id,
+                    value: status === "End" && win_result === "Thuggery" ? "#135198" : "#2daee0", // Brainwashed win ? BLUE - SHADOW : BLUE - MAIN
+                });
+                break;
+            default:
+                if (status === "End") {
+                    if (win_result === "Thuggery"){
+                        // Brainwashed win - show all as dark blue
+                        mapUnitObj.push({
+                            type: "unit",
+                            key: "color",
+                            id: p.mobile_unit_id,
+                            value: "#135198", // BLUE - SHADOW
+                        });
+                    }else if (win_result === "Democracy" || win_result === "Perfection"){
+                        // Sentients win - show all as light blue
+                        mapUnitObj.push({
+                            type: "unit",
+                            key: "color",
+                            id: p.mobile_unit_id,
+                            value: "#2daee0", // BLUE - MAIN
+                        });
+                    }
+                }
+                else if (game.status === "Lobby"){
+                    // Show everyone as purple in lobby
+                    mapUnitObj.push({
+                        type: "unit",
+                        key: "color",
+                        id: p.mobile_unit_id,
+                        value: "#9c74fd", // PURPLE - MAIN
+                    });
+                }
+                else{
+                    // sentient units see everyone as blue
+                    mapUnitObj.push({
+                        type: "unit",
+                        key: "color",
+                        id: p.mobile_unit_id,
+                        value: "#2daee0", // BLUE - MAIN
+                    });
+                }                
+                break;
+        }
+    });
 
     if (wants_to_join) {
         try {
@@ -592,6 +660,7 @@ export default async function update(params) {
 
     return {
         version: 1,
+        map: mapUnitObj || [],
         components: [
             {
                 id: "tonk-tower",
