@@ -22,7 +22,6 @@ spec:
     file: ./TonkTower.sol
   plugin:
     file: ./TonkTower.js
-    alwaysActive: true
   materials:
     - name: Green Goo
       quantity: 10 
