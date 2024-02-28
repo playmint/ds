@@ -37,7 +37,7 @@ async function getPlayers(gameId, playerId) {
         return JSON.parse(raw);
     } catch (e) {
         console.log(e);
-        return `[]`;
+        return [];
     }
 }
 
@@ -357,8 +357,6 @@ const logoStyle = {
 };
 
 export function renderVote(players, tonkPlayer) {
-    console.log(players);
-    console.log(tonkPlayer);
     return `
     <div style="${inlineStyle({ ...rowStyle, "margin-top": "25px" })}">
         <div style="${inlineStyle({ ...boxAndLabelStyle, display: "block" })}">
@@ -468,16 +466,36 @@ export function renderDefault(_time, gameStatusText, players, eliminated) {
 }
 
 export default async function update(params) {
+    try {
+        return await _update(params);
+    } catch (err) {
+        console.error('tonktower not ready:', err);
+        return {
+            version: 1,
+            map: [],
+            components: [
+                {
+                    id: "tonk-tower",
+                    type: "building",
+                    content: [
+                        {
+                            id: "default",
+                            type: "inline",
+                            html: `Not Ready`,
+                        },
+                    ],
+                },
+            ],
+        }
+    }
+}
+
+async function _update(params) {
     let buttons = [];
     let submit;
 
     const { selected, player, world } = params;
-    // console.log(world);
-    // console.log(params);
     const { mobileUnit } = selected || {};
-    // console.log("building id: ", selected.mapElement.id);
-    // console.log("selected coords: ", selected.tiles[0].coords);
-    // console.log(player);
 
     const buildingId = selected?.mapElement?.id;
     let bags = mobileUnit ? findBags(world, mobileUnit) : [];
@@ -580,7 +598,7 @@ export default async function update(params) {
                         id: p.mobile_unit_id,
                         value: "#2daee0", // BLUE - MAIN
                     });
-                }                
+                }
                 break;
         }
     });
@@ -650,7 +668,7 @@ export default async function update(params) {
     // }
 
     const warningText = getWarningText(game, players, has_tonk);
-    let time = game.status == "Vote" ? "N/A" : game.time.timer;
+    let time = game.status == "Vote" ? "N/A" : game.time?.timer || 'N/A';
     let showVote =
         game.status === "Vote" &&
         !tonkPlayer.eliminated &&
