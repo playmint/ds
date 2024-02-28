@@ -1,21 +1,22 @@
 import * as Comlink from 'comlink';
 import {
+    Source,
     concat,
+    concatMap,
     debounce,
     fromPromise,
     fromValue,
     lazy,
     map,
-    mergeMap,
     pipe,
     share,
-    Source,
     switchMap,
     tap,
     zip,
 } from 'wonka';
 import * as apiv1 from './api/v1';
 import { AvailablePluginFragment, GetAvailablePluginsDocument, WorldStateFragment } from './gql/graphql';
+import { Logger } from './logger';
 import {
     ActivePlugin,
     CogAction,
@@ -34,7 +35,6 @@ import {
     World,
 } from './types';
 import { getBagsAtEquipee, getBuildingAtTile } from './utils';
-import { Logger } from './logger';
 
 /**
  * makeAvailablePlugins polls for the list of deployed plugins every now and
@@ -74,6 +74,8 @@ async function noopDispatcher(..._actions: CogAction[]): Promise<QueuedSequencer
 
 const activeBySandbox = new WeakMap<Object, Map<string, ActivePlugin>>();
 
+type PluginExecutor = () => Promise<(PluginUpdateResponse | null)[]>;
+
 /**
  * makePluginUI sends the current State to each wanted plugin and returns a
  * stream of all the normalized plugin responses.
@@ -89,56 +91,56 @@ export function makePluginUI(
     return pipe(
         zip<any>({ plugins, state, block }),
         debounce(() => 250),
-        map<any, Promise<PluginUpdateResponse[]>>(
-            async ({ state, plugins, block }: { state: GameState; plugins: PluginConfig[]; block: number }) => {
-                if (!activeBySandbox.has(sandbox)) {
-                    const m = new Map<string, ActivePlugin>();
-                    activeBySandbox.set(sandbox, m);
-                }
-                const active = activeBySandbox.get(sandbox)!;
-                try {
-                    await sandbox.setState(
-                        {
-                            player: state.player
-                                ? {
-                                      id: state.player.id,
-                                      addr: state.player.addr,
-                                      quests: state.player.quests,
-                                      tokens: state.player.tokens,
-                                  }
-                                : undefined,
-                            world: {
-                                ...(state.world || {}),
-                                sessions: [],
-                            },
-                            selected: state.selected,
-                        },
-                        block,
-                    );
-                } catch (err: any) {
-                    if (err?.message && err?.message == 'SANDBOX_OOM') {
-                        const dummy: PluginUpdateResponse = {
-                            config: {
-                                id: 'dummy',
-                                name: 'just-here-to-pass-the-oom-error',
-                                type: PluginType.CORE,
-                                trust: PluginTrust.UNTRUSTED,
-                                src: '',
-                                kindID: '',
-                            },
-                            state: {
-                                components: [],
-                                map: [],
-                            },
-                            error: 'SANDBOX_OOM',
-                        };
-                        return [dummy];
+        map<any, PluginExecutor>(
+            ({ state, plugins, block }: { state: GameState; plugins: PluginConfig[]; block: number }) =>
+                async () => {
+                    if (!activeBySandbox.has(sandbox)) {
+                        const m = new Map<string, ActivePlugin>();
+                        activeBySandbox.set(sandbox, m);
                     }
-                    return [];
-                }
-                return Promise.all(
-                    plugins
-                        .map(async (p): Promise<PluginUpdateResponse | null> => {
+                    const active = activeBySandbox.get(sandbox)!;
+                    try {
+                        await sandbox.setState(
+                            {
+                                player: state.player
+                                    ? {
+                                          id: state.player.id,
+                                          addr: state.player.addr,
+                                          quests: state.player.quests,
+                                          tokens: state.player.tokens,
+                                      }
+                                    : undefined,
+                                world: {
+                                    ...(state.world || {}),
+                                    sessions: [],
+                                },
+                                selected: state.selected,
+                            },
+                            block,
+                        );
+                    } catch (err: any) {
+                        if (err?.message && err?.message == 'SANDBOX_OOM') {
+                            const dummy: PluginUpdateResponse = {
+                                config: {
+                                    id: 'dummy',
+                                    name: 'just-here-to-pass-the-oom-error',
+                                    type: PluginType.CORE,
+                                    trust: PluginTrust.UNTRUSTED,
+                                    src: '',
+                                    kindID: '',
+                                },
+                                state: {
+                                    components: [],
+                                    map: [],
+                                },
+                                error: 'SANDBOX_OOM',
+                            };
+                            return [dummy];
+                        }
+                        return [];
+                    }
+                    return Promise.all(
+                        plugins.map(async (p): Promise<PluginUpdateResponse | null> => {
                             let plugin: ActivePlugin | null | undefined;
                             try {
                                 const { player } = state;
@@ -160,12 +162,18 @@ export function makePluginUI(
                                       )
                                     : null;
                                 if (!plugin) {
-                                    // no longer logs this now that it plugin's that are not in the world are undefined
-                                    // console.warn(`failed to get or load plugin ${p.id}`);
                                     return null;
                                 }
                                 active.set(p.id, plugin);
-                                return await plugin.update();
+                                const res = await Promise.race([
+                                    plugin.update().catch((err) => console.error(`plugin-error: ${p.id}:`, err)),
+                                    sleep(1000).then(() => {}),
+                                ]);
+                                if (typeof res === 'undefined') {
+                                    console.warn(`plugin-timeout: ${p.id} took longer than 1000ms`);
+                                    return null;
+                                }
+                                return res;
                             } catch (err: any) {
                                 if (err?.message && err?.message == 'SANDBOX_OOM') {
                                     return {
@@ -178,19 +186,19 @@ export function makePluginUI(
                                     };
                                 }
                                 console.error(`Removing plugin ${p.id} from 'active' due to error`, err);
-                                active.delete(p.id);
                                 if (plugin) {
                                     await sandbox.deleteContext(plugin.context);
                                 }
+                                active.delete(p.id);
                                 return null;
                             }
-                        })
-                        .filter((res): res is Promise<PluginUpdateResponse> => !!res),
-                );
-            },
+                        }),
+                    );
+                },
         ),
-        mergeMap((pluginResponses) => fromPromise(pluginResponses)),
+        concatMap((getPluginResponses) => fromPromise(getPluginResponses())),
         map((pluginResponses) => pluginResponses.filter((res): res is PluginUpdateResponse => !!res)),
+        share,
     );
 }
 
@@ -394,4 +402,8 @@ export function pluginTypeForNodeKind(kind: string | undefined): PluginType {
             console.warn('unknown plugin type for node kind:', kind);
             return PluginType.CORE;
     }
+}
+
+export function sleep(ms: number): Promise<null> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
