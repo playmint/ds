@@ -50,16 +50,10 @@ function esm(raw: ReturnType<typeof String.raw>, ...vals: any[]) {
 class PluginContext {
     __module: PluginModule;
     __refs: { [key: string]: (values: any) => void };
-    __id: number;
 
-    constructor({ mod, id }: { mod: PluginModule; id: number }) {
+    constructor({ mod }: { mod: PluginModule }) {
         this.__module = mod;
         this.__refs = {};
-        this.__id = id;
-    }
-
-    id() {
-        return this.__id;
     }
 
     async update(): Promise<PluginUpdateResponse> {
@@ -67,9 +61,6 @@ class PluginContext {
             throw new Error('no state set yet');
         }
         let res = await Promise.resolve(this.__module.default(globalPluginState, globalPluginBlock));
-
-        // replace funcs with refs
-        const refs = {};
         if (!res) {
             res = {};
         }
@@ -83,11 +74,8 @@ class PluginContext {
                         return;
                     }
                     if (typeof cont.submit === 'function') {
-                        const ref = Math.random().toString(36);
-                        if (refs[ref]) {
-                            throw new Error('bang, need better ref picker');
-                        }
-                        refs[ref] = cont.submit;
+                        const ref = comp.id + '/' + cont.id + '/submit';
+                        this.__refs[ref] = cont.submit;
                         cont.submit = ref;
                     }
                     if (!cont.buttons || !cont.buttons.forEach) {
@@ -96,19 +84,13 @@ class PluginContext {
                     cont.buttons.forEach((btn, idx) => {
                         if (typeof btn.action === 'function') {
                             const ref = comp.id + '/' + cont.id + '/' + idx;
-                            if (refs[ref]) {
-                                throw new Error('bang, need better ref picker');
-                            }
-                            refs[ref] = btn.action;
+                            this.__refs[ref] = btn.action;
                             btn.action = ref;
                         }
                     });
                 });
             });
         }
-
-        // stick the refs somewhere we can find them later
-        this.__refs = refs;
 
         return res;
     }
@@ -217,7 +199,7 @@ async function newContext(
         config: globalConfig,
     });
 
-    const context = new PluginContext({ mod, id });
+    const context = new PluginContext({ mod });
     contexts.set(id, context);
     return id;
 }
