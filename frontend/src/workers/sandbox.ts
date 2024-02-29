@@ -9,7 +9,7 @@ import {
 } from '@downstream/core';
 import * as Comlink from 'comlink';
 import { QuickJSContext, QuickJSRuntime, getQuickJS } from 'quickjs-emscripten';
-import { ethers } from 'ethers';
+import { ethers, solidityPackedKeccak256 } from 'ethers';
 
 let runtime: QuickJSRuntime;
 let config: Partial<GameConfig> = {};
@@ -41,6 +41,11 @@ export function sendQuestMessage(...args) {
     return globalThis.__ds.sendQuestMessage(req);
 }
 
+export function solidityPackedKeccak256(...args) {
+    const req = JSON.stringify(args);
+    return globalThis.__ds.solidityPackedKeccak256(req);
+}
+
 export const config = ${JSON.stringify(config)};
 
 export default {
@@ -49,6 +54,7 @@ export default {
     log,
     sendQuestMessage,
     config,
+    solidityPackedKeccak256,
 };
 `;
 
@@ -252,6 +258,25 @@ export async function _newContext(
             return context.undefined;
         })
         .consume((fn: any) => context.setProp(dsHandle, 'sendQuestMessage', fn));
+
+    // expose keccack256 function
+    context
+        .newFunction('solidityPackedKeccak256', (reqHandle) => {
+            console.log(`calling solidityPackedKeccak256`);
+            try {
+                if (!api.enabled) {
+                    console.warn(`plugin-${config.id}: ds api is unavilable outside of event handlers`);
+                    return context.undefined;
+                }
+                const [types, values] = JSON.parse(context.getString(reqHandle));
+                const res = solidityPackedKeccak256(types, values);
+                return context.newString(res);
+            } catch (err) {
+                console.error(`plugin-${config.id}: error while attempting to solidityPackedKeccak256: ${err}`);
+            }
+            return context.undefined;
+        })
+        .consume((fn: any) => context.setProp(dsHandle, 'solidityPackedKeccak256', fn));
 
     // attach the __ds proxy to global object
     context.setProp(context.global, '__ds', dsHandle);
