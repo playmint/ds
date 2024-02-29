@@ -54,13 +54,13 @@ export const Buildings = memo(
         buildings,
         selectedElementID,
         onClickBuilding,
-        randomTileProperties,
+        pluginBuildingProperties,
     }: {
         tiles: WorldTileFragment[];
         buildings: WorldBuildingFragment[];
         selectedElementID?: string;
         onClickBuilding: (id: string) => void;
-        randomTileProperties: PluginMapProperty[];
+        pluginBuildingProperties: PluginMapProperty[];
     }) => {
         const buildingComponents = useMemo(
             () =>
@@ -76,7 +76,7 @@ export const Buildings = memo(
                     const selected = selectedElementID === b.id ? 'outline' : 'none';
                     const rotation = lerp(-20, 20, 0.5 - getUnscaledNoiseFromCoords(coords));
                     const tile = tiles.find(({ id }) => id === b.location?.tile.id);
-                    const overrideModel = randomTileProperties
+                    const overrideModel = pluginBuildingProperties
                         .find((prop) => prop.id == b.id && prop.key == 'model')
                         ?.value.toString();
 
@@ -111,14 +111,14 @@ export const Buildings = memo(
                             />
                         );
                     } else if (getBuildingCategory(b.kind) == BuildingCategory.DISPLAY) {
-                        const labelText = randomTileProperties
+                        const labelText = pluginBuildingProperties
                             .find((prop) => prop.id == b.id && prop.key == 'labelText')
                             ?.value.toString();
-                        const startTimeObject = randomTileProperties.find(
+                        const startTimeObject = pluginBuildingProperties.find(
                             (prop) => prop.id == b.id && prop.key == 'countdown-start'
                         )?.value as unknown as { start: number };
 
-                        const endTimeObject = randomTileProperties.find(
+                        const endTimeObject = pluginBuildingProperties.find(
                             (prop) => prop.id == b.id && prop.key == 'countdown-end'
                         )?.value as unknown as { end: number };
                         return (
@@ -139,7 +139,7 @@ export const Buildings = memo(
                             />
                         );
                     } else if (getBuildingCategory(b.kind) == BuildingCategory.BILLBOARD) {
-                        const image = randomTileProperties
+                        const image = pluginBuildingProperties
                             .find((prop) => prop.id == b.id && prop.key == 'image')
                             ?.value.toString();
                         return (
@@ -170,7 +170,7 @@ export const Buildings = memo(
                         );
                     }
                 }),
-            [buildings, selectedElementID, tiles, onClickBuilding, randomTileProperties]
+            [buildings, selectedElementID, tiles, onClickBuilding, pluginBuildingProperties]
         );
 
         return <>{buildingComponents}</>;
