@@ -37,7 +37,7 @@ async function getPlayers(gameId, playerId) {
         return JSON.parse(raw);
     } catch (e) {
         console.log(e);
-        return `[]`;
+        return [];
     }
 }
 
@@ -357,8 +357,6 @@ const logoStyle = {
 };
 
 export function renderVote(players, tonkPlayer) {
-    console.log(players);
-    console.log(tonkPlayer);
     return `
     <div style="${inlineStyle({ ...rowStyle, "margin-top": "25px" })}">
         <div style="${inlineStyle({ ...boxAndLabelStyle, display: "block" })}">
@@ -414,7 +412,7 @@ export function renderDefault(_time, gameStatusText, players, eliminated) {
     <div style="${inlineStyle({ ...rowStyle, display: "flex" })}">
         <div style="${inlineStyle(boxAndLabelStyle)}">
             <p style="${inlineStyle(labelStyle)}">ANNOUNCEMENTS</p>
-            <div style="${inlineStyle({ ...boxStyle, ...statusStyle })}"> 
+            <div style="${inlineStyle({ ...boxStyle, ...statusStyle })}">
                 <p style="${inlineStyle(entryStyle)}">${gameStatusText}</p>
             </div>
         </div>
@@ -430,7 +428,7 @@ export function renderDefault(_time, gameStatusText, players, eliminated) {
     <div style="${inlineStyle(rowStyle)}">
         <div style="${inlineStyle(boxAndLabelStyle)}">
             <p style="${inlineStyle(labelStyle)}">ACTIVE</p>
-            <div style="${inlineStyle({ ...boxStyle, ...activeUnitsStyle })}"> 
+            <div style="${inlineStyle({ ...boxStyle, ...activeUnitsStyle })}">
                 ${players
                     .map((p) => {
                         return `
@@ -442,7 +440,7 @@ export function renderDefault(_time, gameStatusText, players, eliminated) {
         </div>
         <div style="${inlineStyle(boxAndLabelStyle)}">
             <p style="${inlineStyle(labelStyle)}">ELIMINATED</p>
-            <div style="${inlineStyle({ ...boxStyle, ...eliminatedStyle })}"> 
+            <div style="${inlineStyle({ ...boxStyle, ...eliminatedStyle })}">
                 ${eliminated
                     .map((e) => {
                         if (e.player.role === "Bugged") {
@@ -468,16 +466,36 @@ export function renderDefault(_time, gameStatusText, players, eliminated) {
 }
 
 export default async function update(params) {
+    try {
+        return await _update(params);
+    } catch (err) {
+        console.error('tonktower not ready:', err);
+        return {
+            version: 1,
+            map: [],
+            components: [
+                {
+                    id: "tonk-tower",
+                    type: "building",
+                    content: [
+                        {
+                            id: "default",
+                            type: "inline",
+                            html: `Not Ready`,
+                        },
+                    ],
+                },
+            ],
+        }
+    }
+}
+
+async function _update(params) {
     let buttons = [];
     let submit;
 
     const { selected, player, world } = params;
-    // console.log(world);
-    // console.log(params);
     const { mobileUnit } = selected || {};
-    // console.log("building id: ", selected.mapElement.id);
-    // console.log("selected coords: ", selected.tiles[0].coords);
-    // console.log(player);
 
     const buildingId = selected?.mapElement?.id;
     let bags = mobileUnit ? findBags(world, mobileUnit) : [];
@@ -517,74 +535,6 @@ export default async function update(params) {
     players = await getPlayers(game?.id, player?.id);
     tonkPlayer = await getPlayer(player?.id);
 
-    // team colors
-    // console.log("players: ", players, "eliminated: ", game.eliminated_players || [], "game: ", game);
-
-    const mapUnitObj = [];
-    const { status, win_result } = game;
-    players?.forEach((p) => {
-        switch(p.role) {
-            // Only bugged units can see p.role
-            case "Bugged":
-                // This info is only seen by bugged units
-                mapUnitObj.push({
-                    type: "unit",
-                    key: "color",
-                    id: p.mobile_unit_id,
-                    value: "#ec5c61", // RED - MAIN
-                });
-                break;
-            case "Normal":
-                // This info is only seen by bugged units
-                mapUnitObj.push({
-                    type: "unit",
-                    key: "color",
-                    id: p.mobile_unit_id,
-                    value: status === "End" && win_result === "Thuggery" ? "#135198" : "#2daee0", // Brainwashed win ? BLUE - SHADOW : BLUE - MAIN
-                });
-                break;
-            default:
-                if (status === "End") {
-                    if (win_result === "Thuggery"){
-                        // Brainwashed win - show all as dark blue
-                        mapUnitObj.push({
-                            type: "unit",
-                            key: "color",
-                            id: p.mobile_unit_id,
-                            value: "#135198", // BLUE - SHADOW
-                        });
-                    }else if (win_result === "Democracy" || win_result === "Perfection"){
-                        // Sentients win - show all as light blue
-                        mapUnitObj.push({
-                            type: "unit",
-                            key: "color",
-                            id: p.mobile_unit_id,
-                            value: "#2daee0", // BLUE - MAIN
-                        });
-                    }
-                }
-                else if (game.status === "Lobby"){
-                    // Show everyone as purple in lobby
-                    mapUnitObj.push({
-                        type: "unit",
-                        key: "color",
-                        id: p.mobile_unit_id,
-                        value: "#9c74fd", // PURPLE - MAIN
-                    });
-                }
-                else{
-                    // sentient units see everyone as blue
-                    mapUnitObj.push({
-                        type: "unit",
-                        key: "color",
-                        id: p.mobile_unit_id,
-                        value: "#2daee0", // BLUE - MAIN
-                    });
-                }                
-                break;
-        }
-    });
-
     if (wants_to_join) {
         try {
             await requestJoin(game.id, player.id);
@@ -616,9 +566,7 @@ export default async function update(params) {
         saved_vote_id = null;
     }
 
-    const player_is_in_game = players
-        ? players.findIndex((p) => p.id == player.id) >= 0
-        : [];
+    const player_is_in_game = (players || []).findIndex((p) => p.id == player.id) >= 0;
     if (game.status == "Lobby") {
         if (!player_is_in_game && !!has_tonk && game.status == "Lobby") {
             buttons.push({
@@ -652,7 +600,7 @@ export default async function update(params) {
     // }
 
     const warningText = getWarningText(game, players, has_tonk);
-    let time = game.status == "Vote" ? "N/A" : game.time.timer;
+    let time = game.status == "Vote" ? "N/A" : game.time?.timer || 'N/A';
     let showVote =
         game.status === "Vote" &&
         !tonkPlayer.eliminated &&
@@ -660,7 +608,6 @@ export default async function update(params) {
 
     return {
         version: 1,
-        map: mapUnitObj || [],
         components: [
             {
                 id: "tonk-tower",

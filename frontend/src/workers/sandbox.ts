@@ -6,10 +6,11 @@ import {
     PluginDispatchFunc,
     Sandbox,
     GameConfig,
+    PluginUpdateResponse,
 } from '@downstream/core';
 import * as Comlink from 'comlink';
 import { QuickJSContext, QuickJSRuntime, getQuickJS } from 'quickjs-emscripten';
-import { ethers } from 'ethers';
+import { AbiCoder, ethers, keccak256, solidityPackedKeccak256 } from 'ethers';
 
 let runtime: QuickJSRuntime;
 let config: Partial<GameConfig> = {};
@@ -41,6 +42,26 @@ export function sendQuestMessage(...args) {
     return globalThis.__ds.sendQuestMessage(req);
 }
 
+export function solidityPackedKeccak256(...args) {
+    const req = JSON.stringify(args);
+    return globalThis.__ds.solidityPackedKeccak256(req);
+}
+
+export function keccak256(...args) {
+    const req = JSON.stringify(args);
+    return globalThis.__ds.keccak256(req);
+}
+
+export function abiEncode(...args) {
+    const req = JSON.stringify(args);
+    return globalThis.__ds.abiEncode(req);
+}
+
+export function abiDecode(...args) {
+    const req = JSON.stringify(args);
+    return globalThis.__ds.abiDecode(req);
+}
+
 export const config = ${JSON.stringify(config)};
 
 export default {
@@ -49,6 +70,11 @@ export default {
     log,
     sendQuestMessage,
     config,
+    solidityPackedKeccak256,
+    keccak256,
+    abiEncode,
+    abiDecode
+
 };
 `;
 
@@ -60,7 +86,7 @@ function pollPendingJobs() {
     setTimeout(() => pollPendingJobs(), ms);
 }
 
-export async function init(cfg: Partial<GameConfig>) {
+async function init(cfg: Partial<GameConfig>) {
     config = cfg;
     const qjs = await getQuickJS();
 
@@ -69,16 +95,10 @@ export async function init(cfg: Partial<GameConfig>) {
     runtime.setMaxStackSize(1024 * 320);
 
     pollPendingJobs();
-
-    // let interruptCycles = 0;
-    // runtime.setInterruptHandler(() => {
-    //     console.log('int');
-    //     return ++interruptCycles > 1024;
-    // });
 }
 
 // can also die at update time
-export async function setState(newState: GameStatePlugin, newBlock: number) {
+async function setState(newState: GameStatePlugin, newBlock: number) {
     contexts.forEach(async (context) => {
         if (context && context.alive) {
             try {
@@ -95,7 +115,7 @@ export async function setState(newState: GameStatePlugin, newBlock: number) {
     });
 }
 
-export async function deleteContext(contextID: number) {
+async function deleteContext(contextID: number) {
     try {
         contexts[contextID].dispose();
         console.log('just disposed context ', contextID);
@@ -104,12 +124,12 @@ export async function deleteContext(contextID: number) {
     }
 }
 
-export async function hasContext(contextID: number) {
+async function hasContext(contextID: number) {
     const context = contexts[contextID];
     return context?.alive;
 }
 
-export async function evalCode(contextID: number, code: string) {
+async function evalCode(contextID: number, code: string) {
     const context = contexts[contextID];
     if (!context || !context.alive) {
         return;
@@ -135,7 +155,7 @@ export async function evalCode(contextID: number, code: string) {
     }
 }
 
-export async function newContext(
+async function newContext(
     dispatch: PluginDispatchFunc,
     logMessage: Logger,
     questMessage: Logger,
@@ -154,7 +174,7 @@ export async function newContext(
         }
     }
 }
-export async function _newContext(
+async function _newContext(
     dispatch: PluginDispatchFunc,
     logMessage: Logger,
     questMessage: Logger,
@@ -252,6 +272,80 @@ export async function _newContext(
             return context.undefined;
         })
         .consume((fn: any) => context.setProp(dsHandle, 'sendQuestMessage', fn));
+
+    // expose keccack256 function
+    context
+        .newFunction('solidityPackedKeccak256', (reqHandle) => {
+            try {
+                if (!api.enabled) {
+                    console.warn(`plugin-${config.id}: ds api is unavilable outside of event handlers`);
+                    return context.undefined;
+                }
+                const [types, values] = JSON.parse(context.getString(reqHandle));
+                const res = solidityPackedKeccak256(types, values);
+                return context.newString(res);
+            } catch (err) {
+                console.error(`plugin-${config.id}: error while attempting to solidityPackedKeccak256: ${err}`);
+            }
+            return context.undefined;
+        })
+        .consume((fn: any) => context.setProp(dsHandle, 'solidityPackedKeccak256', fn));
+
+    // expose keccack256 function
+    context
+        .newFunction('keccak256', (reqHandle) => {
+            try {
+                if (!api.enabled) {
+                    console.warn(`plugin-${config.id}: ds api is unavilable outside of event handlers`);
+                    return context.undefined;
+                }
+                const [bytesHex] = JSON.parse(context.getString(reqHandle));
+                const res = keccak256(bytesHex);
+                return context.newString(res);
+            } catch (err) {
+                console.error(`plugin-${config.id}: error while attempting to keccak256: ${err}`);
+            }
+            return context.undefined;
+        })
+        .consume((fn: any) => context.setProp(dsHandle, 'keccak256', fn));
+
+    // expose encode function
+    context
+        .newFunction('abiEncode', (reqHandle) => {
+            try {
+                if (!api.enabled) {
+                    console.warn(`plugin-${config.id}: ds api is unavilable outside of event handlers`);
+                    return context.undefined;
+                }
+                const [types, values] = JSON.parse(context.getString(reqHandle));
+                const coder = AbiCoder.defaultAbiCoder();
+                const res = coder.encode(types, values);
+                return context.newString(res);
+            } catch (err) {
+                console.error(`plugin-${config.id}: error while attempting to abiEncode: ${err}`);
+            }
+            return context.undefined;
+        })
+        .consume((fn: any) => context.setProp(dsHandle, 'abiEncode', fn));
+
+    // expose encode function
+    context
+        .newFunction('abiDecode', (reqHandle) => {
+            try {
+                if (!api.enabled) {
+                    console.warn(`plugin-${config.id}: ds api is unavilable outside of event handlers`);
+                    return context.undefined;
+                }
+                const [types, data] = JSON.parse(context.getString(reqHandle));
+                const coder = AbiCoder.defaultAbiCoder();
+                const res = coder.decode(types, data);
+                return context.newString(JSON.stringify(res));
+            } catch (err) {
+                console.error(`plugin-${config.id}: error while attempting to abiDecode: ${err}`);
+            }
+            return context.undefined;
+        })
+        .consume((fn: any) => context.setProp(dsHandle, 'abiDecode', fn));
 
     // attach the __ds proxy to global object
     context.setProp(context.global, '__ds', dsHandle);
@@ -460,6 +554,26 @@ export async function _newContext(
     return contextID;
 }
 
-const sandbox: Sandbox = { init, newContext, deleteContext, hasContext, evalCode, setState };
+async function update(contextId: number): Promise<PluginUpdateResponse> {
+    return await evalCode(
+        contextId,
+        `(async () => {
+            return globalThis.__update();
+        })()`
+    );
+}
+
+async function submit(contextId: number, data: { ref: string; values: any }): Promise<void> {
+    await evalCode(
+        contextId,
+        `(async function({ref, values}){
+            const fn = globalThis.__refs[ref];
+            fn && fn(values);
+            return JSON.stringify({ok: true});
+        })(${JSON.stringify(data)})`
+    );
+}
+
+const sandbox: Sandbox = { init, newContext, deleteContext, hasContext, setState, update, submit };
 
 Comlink.expose(sandbox);
