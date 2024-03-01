@@ -111,9 +111,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   outlineObjs:
-  - {fileID: 3046992387255551075}
+  - {fileID: 0}
   renderers:
-  - {fileID: 1225168217145932007}
+  - {fileID: 0}
   highlightColor: {r: 0.078431375, g: 0.34509805, b: 0.48235294, a: 1}
   billboardRenderer: {fileID: 4437889770246841943}
   redOutlineMat: {fileID: 2100000, guid: ce6f5126ced564b2895e09480182616f, type: 2}
@@ -158,14 +158,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7654857204214624851}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.054, z: -0.168}
+  m_LocalRotation: {x: 0.17364816, y: 0, z: 0, w: 0.9848078}
+  m_LocalPosition: {x: 0, y: 0.07, z: -0.162}
   m_LocalScale: {x: 0.73229825, y: 0.495816, z: 1.1335887}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2266898730431942660}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 20, y: 0, z: 0}
 --- !u!33 &9175800255311845348
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -339,12 +339,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 486733599588377699}
   m_PrefabAsset: {fileID: 0}
---- !u!23 &1225168217145932007 stripped
-MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: e6dea8f88c661454785ef27354d8a594,
-    type: 3}
-  m_PrefabInstance: {fileID: 486733599588377699}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4433937660478576871
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -424,12 +418,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e6dea8f88c661454785ef27354d8a594, type: 3}
---- !u!23 &3046992387255551075 stripped
-MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: e6dea8f88c661454785ef27354d8a594,
-    type: 3}
-  m_PrefabInstance: {fileID: 4433937660478576871}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4179969040240885516 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: e6dea8f88c661454785ef27354d8a594,
