@@ -79,17 +79,14 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     }, [player?.quests]);
     const unfinalisedCombatSessions = useMemo(
         () =>
-            (world?.sessions || [])
-                .filter((s) => {
-                    return !s.isFinalised;
-                })
-                .filter((s) => {
-                    const oneSideZero =
-                        s.attackers.filter((paticipant) => paticipant.node.id != nullBytes24).length == 0 ||
-                        s.defenders.filter((paticipant) => paticipant.node.id != nullBytes24).length == 0;
-                    const combatStarted = blockNumber && blockNumber >= (s.attackTile?.startBlock || 0);
-                    return oneSideZero || combatStarted;
-                }),
+            (world?.sessions || []).filter((s) => {
+                const isNotFinalised = !s.isFinalised;
+                const oneSideZero =
+                    s.attackers.filter((paticipant) => paticipant.node.id != nullBytes24).length == 0 ||
+                    s.defenders.filter((paticipant) => paticipant.node.id != nullBytes24).length == 0;
+                const combatStarted = blockNumber && blockNumber >= (s.attackTile?.startBlock || 0);
+                return isNotFinalised && (oneSideZero || combatStarted);
+            }),
 
         [world?.sessions, blockNumber]
     );
