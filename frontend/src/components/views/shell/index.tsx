@@ -295,7 +295,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         const jitter = Math.random() * 1000; // For cases where multiple units moved on the same block
         const sleepFor = selectedIndex > -1 ? selectedIndex * (2000 + jitter) : 0;
 
-        setTimeout(() => {
+        const timeoutId = setTimeout(() => {
             const currentUnfinalisedCombatSessions = unfinalisedCombatSessionsRef.current;
             const finaliseActions = currentUnfinalisedCombatSessions.map(
                 (s) =>
@@ -306,8 +306,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             );
 
             if (finaliseActions.length > 0) {
-                console.log(`Slept for ${sleepFor}ms before finalising combat`);
-                console.log(`I'm finalising the combat 🙋‍♂️`, finaliseActions);
+                console.log(`I'm finalising combat because I moved last 🙋‍♂️`, finaliseActions);
                 // player.dispatchAndWait(...finaliseActions).catch((err) => console.warn(err));
 
                 // Dispatching all at once could prevent future combat sessions from finalising if
@@ -317,6 +316,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 );
             }
         }, sleepFor);
+        return () => clearTimeout(timeoutId);
     }, [combatSessionTick, player, prevCombatSessionTick, blockNumber, selectedMobileUnit, world?.mobileUnits]);
 
     const tileClick = useCallback(
