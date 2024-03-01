@@ -196,6 +196,28 @@ async function newContext(
             return context;
         },
 
+        solidityPackedKeccak256(...args: any[]) {
+            const [types, values] = args;
+            return ethers.solidityPackedKeccak256(types, values);
+        },
+
+        keccak256(...args: any[]) {
+            const [bytesHex] = args;
+            return ethers.keccak256(bytesHex);
+        },
+
+        abiEncode(...args: any[]) {
+            const [types, values] = args;
+            const coder = ethers.AbiCoder.defaultAbiCoder();
+            return coder.encode(types, values);
+        },
+
+        abiDecode(...args: any[]) {
+            const [types, data] = args;
+            const coder = ethers.AbiCoder.defaultAbiCoder();
+            return coder.decode(types, data);
+        },
+
         config: globalConfig,
     });
 
