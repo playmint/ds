@@ -367,7 +367,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         buildings={world?.buildings || []}
                         onClickBuilding={mapElementClick}
                         selectedElementID={selectedMapElement?.id}
-                        randomTileProperties={displayBuildingDataModifiedByPlugins}
+                        pluginBuildingProperties={displayBuildingDataModifiedByPlugins}
                     />
                     <CombatSessions tiles={tiles || []} sessions={world?.sessions || []} />
                 </>

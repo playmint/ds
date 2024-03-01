@@ -4,7 +4,7 @@ spec:
   category: custom
   name: example gate
   description: Building used gate off areas
-  model: 05-11
+  model: door-closed
   color: 5
   contract:
     file: ./Gate.sol
