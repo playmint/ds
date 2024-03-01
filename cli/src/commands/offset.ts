@@ -22,7 +22,7 @@ export const offset = {
                 type: '',
             })
             .check((ctx) => {
-                const coord = ctx.coordinate.split(',').map((c: string) => parseInt(c));
+                const coord = getCoordFromString(ctx.coordinate);
                 if (coord.length !== 3) {
                     throw new Error('invalid coord; must be in the format "q,r,s"');
                 }
@@ -46,7 +46,7 @@ export const offset = {
             .demand(['filename'])
             .example([[`$0 offset 0,2,-2 -f ./map.yaml`, `Offset a single map`]]),
     handler: async (ctx) => {
-        const offsetCoord = ctx.coordinate.split(',').map((c: string) => parseInt(c));
+        const offsetCoord = getCoordFromString(ctx.coordinate);
 
         const manifestFilenames = getManifestFilenames(ctx.filename, ctx.recursive);
         const docs = (await Promise.all(manifestFilenames.map(readManifestsDocumentsSync))).flatMap((docs) => docs);
@@ -54,7 +54,7 @@ export const offset = {
         const offsetDocs = docs.map((doc) => offsetDocument(doc, offsetCoord));
         const yamlDocs = offsetDocs.map((doc) => YAML.stringify(doc.manifest));
 
-        yamlDocs.forEach((doc) => console.log(`---\n${doc}`));
+        yamlDocs.forEach((doc) => process.stdout.write(`---\n${doc}\n`));
     },
 };
 
@@ -69,3 +69,9 @@ const offsetDocument = (doc: z.infer<typeof ManifestDocument>, offsetCoord: [num
 
     return doc;
 };
+
+const getCoordFromString = (coord: string) =>
+    coord
+        .replace(/[\[\]]/g, '')
+        .split(',')
+        .map((c: string) => parseInt(c)) as [number, number, number];
