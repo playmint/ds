@@ -292,31 +292,44 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             }
         }
 
-        const jitter = Math.random() * 1000; // For cases where multiple units moved on the same block
-        const sleepFor = selectedIndex > -1 ? selectedIndex * (2000 + jitter) : 0;
+        const jitter = Math.random() * 500; // For cases where multiple units moved on the same block
+        const sleepFor = selectedIndex > -1 ? selectedIndex * (1000 + jitter) : 0;
 
-        const timeoutId = setTimeout(() => {
-            const currentUnfinalisedCombatSessions = unfinalisedCombatSessionsRef.current;
-            const finaliseActions = currentUnfinalisedCombatSessions.map(
-                (s) =>
-                    ({
-                        name: 'FINALISE_COMBAT',
-                        args: [s.id],
-                    } as CogAction)
-            );
+        /*console.log(
+            "I'm waiting for",
+            Math.floor(sleepFor),
+            'ms, unfinalised sessions:',
+            unfinalisedCombatSessionsRef.current,
+            'selectedIndex:',
+            selectedIndex
+        );*/
 
-            if (finaliseActions.length > 0) {
-                console.log(`I'm finalising combat because I moved last 🙋‍♂️`, finaliseActions);
-                // player.dispatchAndWait(...finaliseActions).catch((err) => console.warn(err));
+        if (unfinalisedCombatSessionsRef.current.length > 0) {
+            const timeoutId = setTimeout(() => {
+                const currentUnfinalisedCombatSessions = unfinalisedCombatSessionsRef.current;
+                if (currentUnfinalisedCombatSessions.length > 0) {
+                    const finaliseActions = currentUnfinalisedCombatSessions.map(
+                        (s) =>
+                            ({
+                                name: 'FINALISE_COMBAT',
+                                args: [s.id],
+                            } as CogAction)
+                    );
 
-                // Dispatching all at once could prevent future combat sessions from finalising if
-                // one of the finalise transactions fail so we dispatch them one by one
-                Promise.all(finaliseActions.map((action) => player.dispatchAndWait(action))).catch((err) =>
-                    console.warn(err)
-                );
-            }
-        }, sleepFor);
-        return () => clearTimeout(timeoutId);
+                    if (finaliseActions.length > 0) {
+                        console.log(`I'm finalising combat because I moved last 🙋‍♂️`, finaliseActions);
+                        // player.dispatchAndWait(...finaliseActions).catch((err) => console.warn(err));
+
+                        // Dispatching all at once could prevent future combat sessions from finalising if
+                        // one of the finalise transactions fail so we dispatch them one by one
+                        Promise.all(finaliseActions.map((action) => player.dispatchAndWait(action))).catch((err) =>
+                            console.warn(err)
+                        );
+                    }
+                    return () => clearTimeout(timeoutId);
+                }
+            }, sleepFor);
+        }
     }, [combatSessionTick, player, prevCombatSessionTick, blockNumber, selectedMobileUnit, world?.mobileUnits]);
 
     const tileClick = useCallback(
