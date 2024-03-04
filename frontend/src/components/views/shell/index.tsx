@@ -328,6 +328,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     }
                     return () => clearTimeout(timeoutId);
                 }
+                return;
             }, sleepFor);
         }
     }, [combatSessionTick, player, prevCombatSessionTick, blockNumber, selectedMobileUnit, world?.mobileUnits]);
