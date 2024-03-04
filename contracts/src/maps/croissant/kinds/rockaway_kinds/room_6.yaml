@@ -1,0 +1,42 @@
+---
+kind: Building
+spec:
+  name: Goblin Post Office
+  location:
+    - 9
+    - -22
+    - 13
+
+---
+kind: Building
+spec:
+  name: Golden Gate
+  location:
+    - 12
+    - -22
+    - 10
+
+---
+kind: Bag
+spec:
+  location:
+    - 10
+    - -24
+    - 14
+  items:
+    - name: Red Goo
+      quantity: 50
+    - name: Green Goo
+      quantity: 50
+    - name: Blue Goo
+      quantity: 50
+
+---
+kind: Bag
+spec:
+  location:
+    - 11
+    - -23
+    - 12
+  items: []
+

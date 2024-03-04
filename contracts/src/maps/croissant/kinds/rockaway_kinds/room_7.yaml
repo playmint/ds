@@ -1,0 +1,9 @@
+---
+kind: Building
+spec:
+  name: The Core of the Labyrinth
+  location:
+    - 15
+    - -22
+    - 7
+

@@ -1,0 +1,33 @@
+---
+kind: Item
+spec:
+  name: Bronze Key
+  goo:
+    red: 10
+    green: 5
+    blue: 1
+  stackable: true
+  icon: 24-209
+
+---
+kind: Item
+spec:
+  name: Iron Key
+  goo:
+    red: 1
+    green: 5
+    blue: 10
+  stackable: true
+  icon: 24-209
+
+---
+kind: Item
+spec:
+  name: Golden Key
+  goo:
+    red: 2
+    green: 1
+    blue: 1
+  stackable: true
+  icon: 24-209
+
