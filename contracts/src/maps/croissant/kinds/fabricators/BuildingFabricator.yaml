@@ -1,0 +1,15 @@
+---
+kind: BuildingKind
+spec:
+  name: Building Fabricator
+  description: Creating the buildings of tomorrow
+  category: custom
+  model: 13-03
+  color: 2
+  contract:
+    file: ./BuildingFabricator.sol
+  plugin:
+    file: ./BuildingFabricator.js
+  materials:
+    - name: L33t Bricks
+      quantity: 100

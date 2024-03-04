@@ -1,0 +1,15 @@
+---
+kind: BuildingKind
+spec:
+  name: Tile Fabricator
+  description: Creating the blueprints for blue maps.
+  category: custom
+  model: 12-02
+  color: 3
+  contract:
+    file: ./TileFabricator.sol
+  plugin:
+    file: ./TileFabricator.js
+  materials:
+    - name: L33t Bricks
+      quantity: 100
