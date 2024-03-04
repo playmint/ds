@@ -7,12 +7,12 @@ export default async function update(state) {
     // uncomment this to browse the state object in browser console
     // this will be logged when selecting a unit and then selecting an instance of this building
     // logState(state);
-    const unit = getMobileUnit(state)
-    const bages = state?.world?.bags ?? []
+    const unit = getMobileUnit(state);
+    const bages = state?.world?.bags ?? [];
 
     const hasGateKey =
         getItemBalance(unit, "Dusty Leather Armor", bages) > 0 &&
-        getItemBalance(unit, "Sturdy Wooden Shield", bages) > 0 && 
+        getItemBalance(unit, "Sturdy Wooden Shield", bages) > 0 &&
         getItemBalance(unit, "Sharp Steel Sword", bages) > 0 &&
         getTotalBalance(unit, bages) == 3;
 
@@ -36,10 +36,20 @@ export default async function update(state) {
             value: hasGateKey ? "green" : "red",
         };
     });
+    const buildingModelMapObjs = pluginBuildings.map((t) => {
+        return {
+            type: "building",
+            key: "model",
+            id: t.id,
+            value: hasGateKey ? "door-open" : "door-closed",
+        };
+    });
 
     return {
         version: 1,
-        map: blockerTileMapObjs.concat(tileColorMapObjs),
+        map: blockerTileMapObjs
+            .concat(tileColorMapObjs)
+            .concat(buildingModelMapObjs),
         components: [
             {
                 id: "state-storage-test",
@@ -170,7 +180,8 @@ function getTotalBalance(mobileUnit, worldBags) {
         : [];
     return selectedUnitBags.reduce((total, bag) => {
         return (
-            total + bag.slots.reduce((bagTotal, slot) => bagTotal + slot.balance, 0)
+            total +
+            bag.slots.reduce((bagTotal, slot) => bagTotal + slot.balance, 0)
         );
     }, 0);
 }
