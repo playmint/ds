@@ -131,6 +131,7 @@ export const BillboardSpec = z.object({
     description: OneLiner.optional(),
     model: BillboardModel,
     materials: Slot.array().nonempty().max(4),
+    plugin: PluginSource.optional(),
 });
 
 export const BuildingKindCustomSpec = z.object({
