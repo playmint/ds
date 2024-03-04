@@ -138,9 +138,9 @@ contract DuckBurgerHQ is BuildingKind {
         _setDataOnBuilding(dispatcher, buildingId, "buildingKindIdBurger", burgerBuildingID);
         // todo if the game length is a parameter, we could calculate this from the endBlock
         _setDataOnBuilding(dispatcher, buildingId, "startBlock", bytes32(block.number));
-        // set endblock to now plus 1 minute (assuming 2 second blocks)
+        // set endblock to now plus 3 minutes (assuming 2 second blocks)
         // todo do we take time as a param
-        _setDataOnBuilding(dispatcher, buildingId, "endBlock", bytes32(block.number + 1 * 30));
+        _setDataOnBuilding(dispatcher, buildingId, "endBlock", bytes32(block.number + 3 * 30));
 
         // set game active
         _setDataOnBuilding(dispatcher, buildingId, "gameActive", bytes32(uint256(1)));
