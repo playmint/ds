@@ -4,9 +4,9 @@
     "wsEndpoint": "ws://localhost:8080/query",
     "httpEndpoint": "http://localhost:8080/query",
     "tonkEndpoint": "http://localhost:8082",
-    "networkEndpoint": "http://localhost:8545",
-    "networkID": "22300",
-    "networkName": "hexwoodlocal",
+    "networkEndpoint": "https://rpc.holesky.redstone.xyz",
+    "networkID": "17001",
+    "networkName": "Redstone Holesky",
     "wallets": {
         "metamask": true,
         "walletconnect": true,

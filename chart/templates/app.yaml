@@ -3,9 +3,9 @@ gameID: {{ $.Values.frontend.gameAddress | quote}}
 build: {{ $.Values.version | quote }}
 wsEndpoint: "wss://services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}/query"
 httpEndpoint: "https://services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}/query"
-networkEndpoint: "https://network-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
-networkName: "{{ $.Release.Namespace }}"
-networkID: "{{ $.Release.Namespace | mustRegexFind "[0-9]+$" | printf "223%02s" }}"
+networkEndpoint: {{ $.Values.networkEndpoint | default (printf "https://network-%s.%s" $.Release.Namespace $.Values.cluster.domain) | quote }}
+networkName: {{ $.Values.networkName | default $.Release.Namespace | quote }}
+networkID: {{ $.Values.networkID | default ($.Release.Namespace | mustRegexFind "[0-9]+$" | printf "223%02s") | quote }}
 tonkEndpoint: "https://tonk-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
 {{ end }}
 
@@ -36,7 +36,7 @@ spec:
             - name: PORT
               value: "8080"
             - name: CHAIN_ID
-              value: "{{ $.Release.Namespace | mustRegexFind "[0-9]+$" | printf "223%02s" }}"
+              value: {{ $.Values.networkID | default ($.Release.Namespace | mustRegexFind "[0-9]+$" | printf "223%02s") | quote }}
             - name: SEQUENCER_PRIVATE_KEY
               value: {{ $.Values.sequencer.privateKey | quote }}
             - name: SEQUENCER_PROVIDER_URL_HTTP

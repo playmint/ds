@@ -73,9 +73,6 @@ Thumbs.db
 /node_modules
 *.tsbuildinfo
 
-# dev script
-.livestartup.js
-
 # Performance test files
 contracts/src/test-plugins/
 contracts/src/maps/performance-test/
