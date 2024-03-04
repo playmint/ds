@@ -7,7 +7,7 @@ import {State} from "cog/IState.sol";
 import {Schema, Kind, Node} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
-import {PasswordFactory} from "PasswordFactory.sol";
+import {PasswordFactory} from "./PasswordFactory.sol";
 
 using Schema for State;
 

@@ -32,7 +32,7 @@ spec:
       location:
         - 19
         - -20
-        - -1
+        - 1
   next:
     - The Room of Preparation
 

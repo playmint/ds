@@ -7,7 +7,7 @@ import {State} from "cog/IState.sol";
 import {Schema, Kind, Node} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
-import {Gate} from "Gate.sol";
+import {Gate} from "./Gate.sol";
 
 using Schema for State;
 
