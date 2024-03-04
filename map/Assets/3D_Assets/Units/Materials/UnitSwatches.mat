@@ -23,14 +23,15 @@ Material:
   m_Name: UnitSwatches
   m_Shader: {fileID: -6465566751694194690, guid: a50674cc62df645d894fdcb1a55b3713,
     type: 3}
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _ALPHATEST_ON
   m_InvalidKeywords: []
   m_LightmapFlags: 6
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 2450
   stringTagMap:
-    RenderType: Opaque
+    RenderType: TransparentCutout
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
@@ -105,7 +106,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AlphaClip: 0
+    - _AlphaClip: 1
     - _Blend: 0
     - _BlendOp: 0
     - _BumpScale: 1
@@ -118,7 +119,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _EnvironmentReflections: 0
-    - _Fade: 0
+    - _Fade: 1
     - _GlossMapScale: 1
     - _Glossiness: 0
     - _GlossyReflections: 0
