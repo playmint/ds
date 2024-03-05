@@ -1,0 +1,14 @@
+---
+kind: BuildingKind
+spec:
+  category: blocker
+  name: Very Large Rocks
+  model: rocksLarge
+  materials:
+    - name: Green Goo
+      quantity: 100
+    - name: Blue Goo
+      quantity: 100
+    - name: Red Goo
+      quantity: 100
+

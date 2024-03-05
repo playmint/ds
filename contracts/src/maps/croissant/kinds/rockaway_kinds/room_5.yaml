@@ -1,0 +1,45 @@
+---
+kind: Building
+spec:
+  name: Campfire
+  location:
+    - 16
+    - -27
+    - 11
+
+---
+kind: Bag
+spec:
+  location:
+    - 17
+    - -29
+    - 12
+  items: []
+
+---
+kind: Building
+spec:
+  name: The Crusher
+  location:
+    - 15
+    - -28
+    - 13
+
+---
+kind: Building
+spec:
+  name: Altar of Hands
+  location:
+    - 13
+    - -28
+    - 15
+
+---
+kind: Building
+spec:
+  name: Bone Gate
+  location:
+    - 12
+    - -25
+    - 13
+

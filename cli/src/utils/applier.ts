@@ -247,7 +247,7 @@ const buildingKindDeploymentActions = async (
     }
 
     // deploy client plugin if given
-    if (spec.category != 'billboard' && spec.category != 'blocker' && spec.plugin && (spec.plugin.file || spec.plugin.inline)) {
+    if (spec.category != 'blocker' && spec.plugin && (spec.plugin.file || spec.plugin.inline)) {
         const pluginID = encodePluginID(spec); // use building name for plugin id
         const js = spec.plugin.file
             ? (() => {

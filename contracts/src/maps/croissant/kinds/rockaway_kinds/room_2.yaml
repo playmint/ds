@@ -1,0 +1,18 @@
+---
+kind: Building
+spec:
+  name: Blacksmith Secrets
+  location:
+    - 15
+    - -16
+    - 1
+
+---
+kind: Building
+spec:
+  name: Bronze Gate
+  location:
+    - 18
+    - -19
+    - 1
+

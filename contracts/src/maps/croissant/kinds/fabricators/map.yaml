@@ -1,0 +1,11 @@
+---
+kind: Building
+spec:
+  name: Tile Fabricator
+  location: [6, -2, -4]
+
+---
+kind: Building
+spec:
+  name: Building Fabricator
+  location: [-6, 3, 3]

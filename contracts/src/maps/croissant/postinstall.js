@@ -32,63 +32,34 @@ const HEX_DUMP_MESSAGE = "Download garbage data";
 const MEME_GEN_MESSAGE = "Download steamed hams";
 const SELFIE_POINT_MESSAGE = "Download vacation selfies";
 
-// async function register_all() {
-//     await register_building("0x34cf8a7e000000000000000000000000000000010000ffff", "COMPUTE CENTER", true, "", [
-//          '0x0', '0x0', '0x01', '0xffff'
-//     ])
-//     await register_building("0x34cf8a7e000000000000000000000000000000010000ffff", "DATA DUMP NORTH", false, HEX_DUMP_MESSAGE, [
-//         '0x0', '0xfff9', '0x0a', '0xfffd'
-//     ])
-//     await register_building("0x34cf8a7e000000000000000000000000000000050002fff9", "DATA DUMP EAST", false, MEME_GEN_MESSAGE, [
-//         '0x0', '0x09', '0x02', '0xfff5'
-//     ])
-//     await register_building("0x34cf8a7e0000000000000000000000000000fffcfffd0007", "DATA DUMP WEST", false, SELFIE_POINT_MESSAGE, [
-//         '0x0', '0xfff4', '0x03', '0x09'
-//     ])
-// }
-// async function register_all() {
-//     await register_building("0x34cf8a7e000000000000000000000000000000010000ffff",true, "", [
-//         '0x0', '0x01', '0x0', '0xffff'
-//     ])
-//     await register_building("0x34cf8a7e0000000000000000000000000000fff9000afffd",false, HEX_DUMP_MESSAGE, [
-//         '0x0', '0xfff9', '0x0a', '0xfffd'
-//     ])
-//     await register_building("0x34cf8a7e000000000000000000000000000000050002fff9",false, LOGGERS_MESSAGE, [
-//         '0x0', '0x05', '0x02', '0xfff9'
-//     ])
-//     await register_building("0x34cf8a7e0000000000000000000000000000fff400030009",false, BREAKPOINT_MESSAGE, [
-//         '0x0', '0xfff4', '0x03', '0x09'
-//     ])
-// }
-
 async function register_all() {
     await register_building(
-        "0x34cf8a7e0000000000000000000000000000fffbfff20013",
+        "0x34cf8a7e0000000000000000000000000000fff3fff80015",
         "COMPUTE CENTER",
         true,
         "",
-        ["0x0", "0xfffb", "0xfff2", "0x0013"],
+        ["0x0", "0xfff3", "0xfff8", "0x0015"],
     );
     await register_building(
-        "0x34cf8a7e0000000000000000000000000000fff2fffc0012",
+        "0x34cf8a7e0000000000000000000000000000ffea00020014",
         "DATA DUMP NORTH",
         false,
         HEX_DUMP_MESSAGE,
-        [ "0x0", "0xfff2", "0xfffc", "0x0012" ],
+        ["0x0", "0xffea", "0x0002", "0x0014"],
     );
     await register_building(
-        "0x34cf8a7e0000000000000000000000000000fffffff4000d",
+        "0x34cf8a7e0000000000000000000000000000fff7fffa000f",
         "DATA DUMP EAST",
         false,
         MEME_GEN_MESSAGE,
-        ["0x0", "0xffff", "0xfff4", "0x000d"],
+        ["0x0", "0xfff7", "0xfffa", "0x000f"],
     );
     await register_building(
-        "0x34cf8a7e0000000000000000000000000000fff6ffef001b",
+        "0x34cf8a7e0000000000000000000000000000ffeefff5001d",
         "DATA DUMP WEST",
         false,
         SELFIE_POINT_MESSAGE,
-        ["0x0", "0xfff6", "0xffef", "0x001b"],
+        ["0x0", "0xffee", "0xfff5", "0x001d"],
     );
 }
 
