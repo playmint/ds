@@ -461,7 +461,6 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                 }
                 return next;
             });
-            console.log('onMoveTiles');
         },
         [setManifests]
     );
