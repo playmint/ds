@@ -865,18 +865,18 @@ export default async function update(params) {
                 // This info is only seen by bugged units
                 mapUnitObj.push({
                     type: "unit",
-                    key: "color",
+                    key: "model",
                     id: p.mobile_unit_id,
-                    value: "#ec5c61", // RED - MAIN
+                    value: "Unit_Hoodie_05", // RED - MAIN
                 });
                 break;
             case "Normal":
                 // This info is only seen by bugged units
                 mapUnitObj.push({
                     type: "unit",
-                    key: "color",
+                    key: "model",
                     id: p.mobile_unit_id,
-                    value: game_status === "End" && win_result === "Thuggery" ? "#135198" : "#2daee0", // Brainwashed win ? BLUE - SHADOW : BLUE - MAIN
+                    value: game_status === "End" && win_result === "Thuggery" ? "Unit_Hoodie_06" : "Unit_Hoodie_04", // Brainwashed win ? BLUE - SHADOW : BLUE - MAIN
                 });
                 break;
             default:
@@ -885,17 +885,17 @@ export default async function update(params) {
                         // Brainwashed win - show all as dark blue
                         mapUnitObj.push({
                             type: "unit",
-                            key: "color",
+                            key: "model",
                             id: p.mobile_unit_id,
-                            value: "#135198", // BLUE - SHADOW
+                            value: "Unit_Hoodie_06", // BLUE - SHADOW
                         });
                     }else if (win_result === "Democracy" || win_result === "Perfection"){
                         // Sentients win - show all as light blue
                         mapUnitObj.push({
                             type: "unit",
-                            key: "color",
+                            key: "model",
                             id: p.mobile_unit_id,
-                            value: "#2daee0", // BLUE - MAIN
+                            value: "Unit_Hoodie_04", // BLUE - MAIN
                         });
                     }
                 }
@@ -903,18 +903,18 @@ export default async function update(params) {
                     // Show everyone as purple in lobby
                     mapUnitObj.push({
                         type: "unit",
-                        key: "color",
+                        key: "model",
                         id: p.mobile_unit_id,
-                        value: "#9c74fd", // PURPLE - MAIN
+                        value: "Unit_Hoodie_03", // PURPLE - MAIN
                     });
                 }
                 else{
                     // sentient units see everyone as blue
                     mapUnitObj.push({
                         type: "unit",
-                        key: "color",
+                        key: "model",
                         id: p.mobile_unit_id,
-                        value: "#2daee0", // BLUE - MAIN
+                        value: "Unit_Hoodie_04", // BLUE - MAIN
                     });
                 }
                 break;

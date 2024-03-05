@@ -37,6 +37,7 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
     protected void Start()
     {
         _meshesTrans = transform.GetChild(0);
+        ShowUnitModel("Unit_Hoodie_07");
     }
 
     protected void Update()
@@ -58,9 +59,9 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
                 ShowUnitModel(_nextData.model);
             }
         }
-        else
+        else if(_prevData.model != null && _nextData.model != _prevData.model)
         {
-            Debug.LogError("Building stack codes are null");
+            ShowUnitModel("Unit_Hoodie_07"); //Reset model
         }
 
         // movement
@@ -224,7 +225,7 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
     private void ShowUnitModel(string modelName)
     {
 
-        MobileUnitModelController unitController = CreateBlock(
+        MobileUnitModelController unitController = CreateUnit(
             modelName,
             "Unit_Hoodie_07"
         );
@@ -237,7 +238,7 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         units.Add(unitController);
     }
 
-    private MobileUnitModelController CreateBlock(
+    private MobileUnitModelController CreateUnit(
         string prefabName,
         string defaultModel
     )

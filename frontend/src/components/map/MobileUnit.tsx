@@ -27,6 +27,7 @@ export interface MobileUnitData {
     progress: number;
     selected?: 'none' | 'highlight' | 'outline';
     color?: string;
+    model?: string;
     shared: boolean;
     visible: boolean;
     sendScreenPosition: boolean;
@@ -44,6 +45,7 @@ export const MobileUnit = memo(
         progress,
         selected,
         color,
+        model,
         shared,
         visible,
         sendScreenPosition,
@@ -105,6 +107,7 @@ export const MobileUnit = memo(
                     screenPositionHeightOffset,
                     selected: selected || 'none',
                     color: color,
+                    model: model,
                     shared,
                     visible,
                     position: { x, y, z },
@@ -118,6 +121,7 @@ export const MobileUnit = memo(
                     progress,
                     selected,
                     color,
+                    model,
                     shared,
                     visible,
                     sendScreenPosition,
@@ -202,7 +206,12 @@ export const MobileUnits = memo(
             () =>
                 units.map((u) => {
                     // Make this like Tile.tsx line 71
-                    const color = pluginProperties.find((prop) => prop.id == u.id)?.value.toString();
+                    const color = pluginProperties
+                        .find((prop) => prop.id == u.id && prop.key == 'color')
+                        ?.value.toString();
+                    const model = pluginProperties
+                        .find((prop) => prop.id == u.id && prop.key == 'model')
+                        ?.value.toString();
                     return (
                         <MobileUnit
                             sendScreenPosition={true}
@@ -217,6 +226,7 @@ export const MobileUnits = memo(
                             visible={u.visible}
                             onPointerClick={onClickMobileUnit}
                             onUpdatePosition={updatePosition}
+                            model={model}
                             {...u.coords}
                         />
                     );
