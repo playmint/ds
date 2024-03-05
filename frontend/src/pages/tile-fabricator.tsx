@@ -450,6 +450,52 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
         }
     }, [sendMessage, tiles, manifests, preview, buildingKinds, ready]);
 
+    const onMoveTiles = useCallback(
+        (d: [number, number, number]) => {
+            setManifests((prev) => {
+                const next = new Map();
+                for (const [id, manifests] of prev) {
+                    const [q, r, s] = id.split(':').map(Number);
+                    const nextID = [q + d[0], r + d[1], s + d[2]].join(':');
+                    next.set(nextID, manifests);
+                }
+                return next;
+            });
+            console.log('onMoveTiles');
+        },
+        [setManifests]
+    );
+
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            const direction = 1;
+            switch (event.key) {
+                case 'd':
+                    onMoveTiles([direction, 0, -direction]);
+                    break;
+                case 'w':
+                    onMoveTiles([0, direction, -direction]);
+                    break;
+                case 'q':
+                    onMoveTiles([-direction, direction, 0]);
+                    break;
+                case 'a':
+                    onMoveTiles([-direction, 0, direction]);
+                    break;
+                case 's':
+                    onMoveTiles([0, -direction, direction]);
+                    break;
+                case 'e':
+                    onMoveTiles([direction, -direction, 0]);
+                    break;
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [onMoveTiles]);
+
     return (
         <div
             style={{
