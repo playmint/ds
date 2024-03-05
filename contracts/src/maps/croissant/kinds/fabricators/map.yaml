@@ -2,7 +2,7 @@
 kind: Building
 spec:
   name: Tile Fabricator
-  location: [6, -2, 4]
+  location: [6, -2, -4]
 
 ---
 kind: Building
