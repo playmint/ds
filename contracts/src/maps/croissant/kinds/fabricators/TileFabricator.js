@@ -16,7 +16,7 @@ export default async function update({ selected, world, player }) {
                         html: `
                             The place to fabricate new worlds.
                             <ul style="padding-left: 30px;">
-                            <li><a href="/building-fabricator">Tile Fabricator</a></li>
+                            <li><a href="/tile-fabricator">Tile Fabricator</a></li>
                             </ul>
                         `
                     }
