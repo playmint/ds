@@ -3,10 +3,7 @@ import { globSync } from 'glob';
 import path from 'path';
 import { z } from 'zod';
 import { Op, getOpsForManifests } from '../utils/applier';
-import {
-    ContractSource,
-    readManifestsDocumentsSync
-} from '../utils/manifest';
+import { ContractSource, readManifestsDocumentsSync } from '../utils/manifest';
 import { compilePath } from '../utils/solidity';
 import { getAvailableBuildingKinds, getWorld } from './get';
 
@@ -16,7 +13,7 @@ type OpResult = {
     op: Op;
 };
 
-const getManifestFilenames = (filename: string, isRecursive: boolean): string[] => {
+export const getManifestFilenames = (filename: string, isRecursive: boolean): string[] => {
     if (filename === '-') {
         return [filename];
     }
@@ -27,7 +24,7 @@ const getManifestFilenames = (filename: string, isRecursive: boolean): string[] 
         }
         // must be posix path, even on windows
         const globPath = path.join(filename, '**/*.yaml').replace(/\\/g, '/');
-        return globSync(globPath, {follow:true});
+        return globSync(globPath, { follow: true });
     } else if (isRecursive) {
         throw new Error(`--filename must be a directory when used with --recursive`);
     } else {
@@ -83,11 +80,10 @@ const deploy = {
         const compiler = async (source: z.infer<typeof ContractSource>, manifestDir: string): Promise<string> => {
             const relativeFilename = path.join(manifestDir, source.file || 'inline.sol');
             const libs = [path.join(path.dirname(relativeFilename)), ...(source.includes || [])];
-            const opts = {libs, verbose: false};
+            const opts = { libs, verbose: false };
             const { bytecode } = await (source.file
                 ? compilePath(relativeFilename, opts)
-                : {bytecode: source.bytecode}
-            );
+                : { bytecode: source.bytecode });
             return bytecode;
         };
 

@@ -13,6 +13,7 @@ import getter from './commands/get';
 import apply from './commands/apply';
 import { test } from './commands/test';
 import chalk from 'chalk';
+import { offset } from './commands/offset';
 
 const yargs = _yargs(hideBin(process.argv));
 
@@ -80,6 +81,7 @@ yargs
     .command(getter)
     .command(apply)
     .command(test)
+    .command(offset)
     .command({
         command: 'version',
         describe: 'show the current version and exit',
