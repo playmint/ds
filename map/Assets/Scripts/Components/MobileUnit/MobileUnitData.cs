@@ -9,4 +9,5 @@ public class MobileUnitData : BaseComponentData
     public string? color; // https://docs.unity3d.com/ScriptReference/ColorUtility.TryParseHtmlString.html
     public bool shared; //  ie sharing with a building
     public bool visible;
+    public string? model;
 }

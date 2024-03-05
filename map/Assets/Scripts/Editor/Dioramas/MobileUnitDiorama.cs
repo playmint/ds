@@ -35,7 +35,8 @@ class MobileUnitDiorama : IDiorama
                     selected = "none",
                     color = "#00ff1a",
                     shared = false,
-                    visible = true
+                    visible = true,
+                    model = "Unit_Hoodie_06"
                 } },
 
                 // Highlight / outline
@@ -47,7 +48,8 @@ class MobileUnitDiorama : IDiorama
                     progress = 1,
                     selected = "highlight",
                     shared = false,
-                    visible = true
+                    visible = true,
+                    model = "Unit_Hoodie_07"
                 } },
                 { "MobileUnit/3", new MobileUnitData() { 
                     q = 0,
@@ -57,7 +59,8 @@ class MobileUnitDiorama : IDiorama
                     progress = 1,
                     selected = "outline",
                     shared = false,
-                    visible = true
+                    visible = true,
+                    model = "Unit_Hoodie_07"
                 } },
 
                 // Movement to shared tile
@@ -69,7 +72,8 @@ class MobileUnitDiorama : IDiorama
                     progress = 1,
                     selected = "none",
                     shared = false,
-                    visible = true
+                    visible = true,
+                    model = "Unit_Hoodie_07"
                 } },
                 { "MobileUnit/5", new MobileUnitData() { 
                     q = -1,
@@ -79,7 +83,8 @@ class MobileUnitDiorama : IDiorama
                     progress = 1,
                     selected = "outline",
                     shared = false,
-                    visible = true
+                    visible = true,
+                    model = "Unit_Hoodie_07"
                 } },
                 { "MobileUnit/6", new MobileUnitData() { 
                     q = 0,
@@ -89,7 +94,8 @@ class MobileUnitDiorama : IDiorama
                     progress = 1,
                     selected = "none",
                     shared = true,
-                    visible = true
+                    visible = true,
+                    model = "Unit_Hoodie_07"
                 } },
             },
             new()
@@ -114,7 +120,8 @@ class MobileUnitDiorama : IDiorama
                     progress = 1,
                     selected = "none",
                     shared = false,
-                    visible = true
+                    visible = true,
+                    model = "Unit_Hoodie_07"
                 } },
 
                 // highlight and outline
@@ -126,7 +133,8 @@ class MobileUnitDiorama : IDiorama
                     progress = 1,
                     selected = "highlight",
                     shared = false,
-                    visible = true
+                    visible = true,
+                    model = "Unit_Hoodie_07"
                 } },
                 { "MobileUnit/3", new MobileUnitData() { 
                     q = 0,
@@ -136,7 +144,8 @@ class MobileUnitDiorama : IDiorama
                     progress = 1,
                     selected = "outline",
                     shared = false,
-                    visible = true
+                    visible = true,
+                    model = "Unit_Hoodie_07"
                 } },
 
                 // Movement to shared tile
@@ -148,7 +157,8 @@ class MobileUnitDiorama : IDiorama
                     progress = 1,
                     selected = "none",
                     shared = false,
-                    visible = false
+                    visible = false,
+                    model = "Unit_Hoodie_07"
                 } },
                 { "MobileUnit/5", new MobileUnitData() { 
                     q = -2,
@@ -158,7 +168,8 @@ class MobileUnitDiorama : IDiorama
                     progress = 1,
                     selected = "outline",
                     shared = false,
-                    visible = true
+                    visible = true,
+                    model = "Unit_Hoodie_07"
                 } },
                 { "MobileUnit/6", new MobileUnitData() { 
                     q = 0,
@@ -168,7 +179,8 @@ class MobileUnitDiorama : IDiorama
                     progress = 1,
                     selected = "none",
                     shared = true,
-                    visible = true
+                    visible = true,
+                    model = "Unit_Hoodie_07"
                 } },
             },
         };
