@@ -28,7 +28,7 @@ import { ActionContextPanel } from '@app/plugins/action-context-panel';
 import { CombatSummary } from '@app/plugins/combat/combat-summary';
 import { Bag as BagInventory } from '@app/plugins/inventory/bag';
 import { ComponentProps } from '@app/types/component-props';
-import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
@@ -79,17 +79,14 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     }, [player?.quests]);
     const unfinalisedCombatSessions = useMemo(
         () =>
-            (world?.sessions || [])
-                .filter((s) => {
-                    return !s.isFinalised;
-                })
-                .filter((s) => {
-                    const oneSideZero =
-                        s.attackers.filter((paticipant) => paticipant.node.id != nullBytes24).length == 0 ||
-                        s.defenders.filter((paticipant) => paticipant.node.id != nullBytes24).length == 0;
-                    const combatStarted = blockNumber && blockNumber >= (s.attackTile?.startBlock || 0);
-                    return oneSideZero || combatStarted;
-                }),
+            (world?.sessions || []).filter((s) => {
+                const isNotFinalised = !s.isFinalised;
+                const oneSideZero =
+                    s.attackers.filter((paticipant) => paticipant.node.id != nullBytes24).length == 0 ||
+                    s.defenders.filter((paticipant) => paticipant.node.id != nullBytes24).length == 0;
+                const combatStarted = blockNumber && blockNumber >= (s.attackTile?.startBlock || 0);
+                return isNotFinalised && (oneSideZero || combatStarted);
+            }),
 
         [world?.sessions, blockNumber]
     );
@@ -265,6 +262,9 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         }
     }, [selectTiles, selectedMapElement, selectedMobileUnit, tiles, world]);
 
+    const unfinalisedCombatSessionsRef = useRef(unfinalisedCombatSessions);
+    unfinalisedCombatSessionsRef.current = unfinalisedCombatSessions;
+
     // Auto finalise combat
     useEffect(() => {
         if (combatSessionTick == prevCombatSessionTick) {
@@ -274,24 +274,58 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             return;
         }
 
-        const finaliseActions = unfinalisedCombatSessions.map(
-            (s) =>
-                ({
-                    name: 'FINALISE_COMBAT',
-                    args: [s.id],
-                } as CogAction)
-        );
+        const sortedMobileUnits =
+            world?.mobileUnits?.sort((a, b) => {
+                const diffA = Math.abs((a.nextLocation?.time || 0) - blockNumber);
+                const diffB = Math.abs((b.nextLocation?.time || 0) - blockNumber);
+                return diffA - diffB;
+            }) || [];
 
-        if (finaliseActions.length > 0) {
-            // player.dispatchAndWait(...finaliseActions).catch((err) => console.warn(err));
+        let selectedIndex = -1;
 
-            // Dispatching all at once could prevent future combat sessions from finalising if
-            // one of the finalise transactions fail so we dispatch them one by one
-            Promise.all(finaliseActions.map((action) => player.dispatchAndWait(action))).catch((err) =>
-                console.warn(err)
-            );
+        if (sortedMobileUnits.length > 0 && selectedMobileUnit) {
+            for (let i = 0; i < sortedMobileUnits.length; i++) {
+                if (sortedMobileUnits[i].id === selectedMobileUnit?.id) {
+                    selectedIndex = i;
+                    break;
+                }
+            }
         }
-    }, [combatSessionTick, unfinalisedCombatSessions, player, prevCombatSessionTick]);
+
+        const jitter = Math.random() * 500; // For cases where multiple units moved on the same block
+        const sleepFor = selectedIndex > -1 ? selectedIndex * (1000 + jitter) : 0;
+
+        if (unfinalisedCombatSessionsRef.current.length > 0) {
+            const timeoutId = setTimeout(() => {
+                const currentUnfinalisedCombatSessions = unfinalisedCombatSessionsRef.current;
+                if (currentUnfinalisedCombatSessions.length > 0) {
+                    const finaliseActions = currentUnfinalisedCombatSessions.map(
+                        (s) =>
+                            ({
+                                name: 'FINALISE_COMBAT',
+                                args: [s.id],
+                            } as CogAction)
+                    );
+
+                    if (finaliseActions.length > 0) {
+                        console.log(
+                            `⚔️ Finalising combat because your selected unit was one of the last to move`,
+                            finaliseActions
+                        );
+                        // player.dispatchAndWait(...finaliseActions).catch((err) => console.warn(err));
+
+                        // Dispatching all at once could prevent future combat sessions from finalising if
+                        // one of the finalise transactions fail so we dispatch them one by one
+                        Promise.all(finaliseActions.map((action) => player.dispatchAndWait(action))).catch((err) =>
+                            console.warn(err)
+                        );
+                    }
+                    return () => clearTimeout(timeoutId);
+                }
+                return;
+            }, sleepFor);
+        }
+    }, [combatSessionTick, player, prevCombatSessionTick, blockNumber, selectedMobileUnit, world?.mobileUnits]);
 
     const tileClick = useCallback(
         (id) => {
