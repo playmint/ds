@@ -1,8 +1,8 @@
 ---
 kind: BuildingKind
 spec:
-  name: Tile Fabricator
-  description: Creating the blueprints for blue maps.
+  name: Litora
+  description: Creating blueprints for blue maps.
   category: custom
   model: 12-02
   color: 3

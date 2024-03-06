@@ -1,11 +1,11 @@
 ---
 kind: Building
 spec:
-  name: Tile Fabricator
-  location: [6, -2, -4]
+  name: Litora
+  location: [6, -1, -5]
 
 ---
 kind: Building
 spec:
-  name: Building Fabricator
-  location: [-6, 3, 3]
+  name: Apex
+  location: [-4, 5, -1]

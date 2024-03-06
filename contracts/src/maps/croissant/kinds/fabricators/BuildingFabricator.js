@@ -8,7 +8,7 @@ export default async function update({ selected, world, player }) {
         components: [
             {
                 type: 'building',
-                id: 'building-fabricator',
+                id: 'apex',
                 content: [
                     {
                         id: 'default',
