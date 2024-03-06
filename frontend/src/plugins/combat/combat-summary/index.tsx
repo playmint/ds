@@ -114,11 +114,26 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
             })
         );
 
-    // Sum up health state for both sides
-    const attackersMaxHealth = attackersStats.reduce((acc, stats) => acc + stats.life, 0);
-    const attackersCurrentHealth = attackersMaxHealth;
-    const defendersMaxHealth = defendersStats.reduce((acc, stats) => acc + stats.life, 0);
-    const defendersCurrentHealth = defendersMaxHealth;
+    // Sum up stats for both sides
+    const attackersHealth = attackersStats.reduce((acc, stats) => acc + stats.life, 0);
+    const attackersDefence = attackersStats.reduce((acc, stats) => acc + stats.def, 0);
+    const attackersAttack = attackersStats.reduce((acc, stats) => acc + stats.atk, 0);
+
+    const defendersHealth = defendersStats.reduce((acc, stats) => acc + stats.life, 0);
+    const defendersDefence = defendersStats.reduce((acc, stats) => acc + stats.def, 0);
+    const defendersAttack = defendersStats.reduce((acc, stats) => acc + stats.atk, 0);
+
+    const attackersAttackPerTick = Math.max(1, attackersAttack - defendersDefence);
+    const defendersAttackPerTick = Math.max(1, defendersAttack - attackersDefence);
+
+    // Calculate the number of ticks each side will survive
+    const attackerTicksAlive = Math.floor(attackersHealth / defendersAttackPerTick);
+    const defenderTicksAlive = Math.floor(defendersHealth / attackersAttackPerTick);
+    const tickDifference = Math.abs(attackerTicksAlive - defenderTicksAlive);
+
+    const isSelectedTileAttack = latestSession.attackTile.tile.id === selectedTiles[0].id;
+    const isAttackersWinning = attackerTicksAlive > defenderTicksAlive;
+    const isSelectedTileWinning = isSelectedTileAttack ? isAttackersWinning : !isAttackersWinning;
 
     return (
         <StyledCombatSummary>
@@ -135,22 +150,23 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
                 </Dialog>
             )}
             <div className="header">
-                <h3 className="title">Combat</h3>
+                <h3 className="title">Combat {isSelectedTileAttack ? `Attack` : `Defence`} Tile</h3>
                 <img src="/combat-header.png" alt="" className="icon" />
             </div>
             {
                 <div className="content">
-                    <h2>{formattedTimeFromSeconds(combatStartRemainingSecs)}</h2>
-                    <div className="attackers">
-                        <span className="heading">Attackers</span>
-                        <ProgressBar maxValue={attackersMaxHealth} currentValue={attackersCurrentHealth} />
+                    <p>Countdown until start of combat</p>
+                    <h2 className="countdown">{formattedTimeFromSeconds(combatStartRemainingSecs)}</h2>
+                    <div className="tileStats">
+                        <h3>This side is {isSelectedTileWinning ? `likely to win` : `likely to lose`}</h3>
+                        {/* <p>attacker health: {attackersHealth}</p>
+                        <p>defender health: {defendersHealth}</p>
+                        <p>attacker ticks alive: {attackerTicksAlive}</p>
+                        <p>defender ticks alive: {defenderTicksAlive}</p>
+                        <p>tick difference: {tickDifference}</p> */}
                     </div>
-                    <div className="defenders">
-                        <span className="heading">Defenders</span>
-                        <ProgressBar maxValue={defendersMaxHealth} currentValue={defendersCurrentHealth} />
-                    </div>
+
                     <ActionButton onClick={showModal}>View Combat</ActionButton>
-                    {/* {hasCombatStarted && <ActionButton onClick={handleFinaliseCombat}>End Combat</ActionButton>} */}
                 </div>
             }
         </StyledCombatSummary>
