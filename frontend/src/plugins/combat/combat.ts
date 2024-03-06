@@ -9,7 +9,7 @@ export const MAX_TICKS = 300;
 export const ATOM_LIFE = 0;
 export const ATOM_DEFENSE = 1;
 export const ATOM_ATTACK = 2;
-export const COMBAT_JOIN_WINDOW_BLOCKS = 15;
+export const COMBAT_JOIN_WINDOW_BLOCKS = 7;
 
 export interface EntityState {
     entityID: ethers.BytesLike;

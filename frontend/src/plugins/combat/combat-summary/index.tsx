@@ -135,11 +135,12 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
                 </Dialog>
             )}
             <div className="header">
-                <h3 className="title">Combat starts in {formattedTimeFromSeconds(combatStartRemainingSecs)}</h3>
+                <h3 className="title">Combat</h3>
                 <img src="/combat-header.png" alt="" className="icon" />
             </div>
             {
                 <div className="content">
+                    <h2>{formattedTimeFromSeconds(combatStartRemainingSecs)}</h2>
                     <div className="attackers">
                         <span className="heading">Attackers</span>
                         <ProgressBar maxValue={attackersMaxHealth} currentValue={attackersCurrentHealth} />
