@@ -25,6 +25,19 @@ The repository needs cloning with LFS and recursive submodules.
   ```
   git clone --recurse-submodules https://github.com/playmint/ds
   ```
+
+### **_⚠️ 🖥 Windows_** 
+
+Windows users must ensure they have symlinks enabled.
+
+- **Go to ds**
+  ```
+  cd ds
+  ```
+- **Set symlinks to true**
+  ```
+  git config core.symlinks true
+  ```
 </details>
 
 <details>
