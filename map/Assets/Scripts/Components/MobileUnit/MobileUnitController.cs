@@ -8,6 +8,7 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
 {
     [SerializeField]
     protected Transform modelParent;
+
     [SerializeField]
     protected GameObject[] unitPrefabs;
 
@@ -30,7 +31,6 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
     private Transform _meshesTrans;
 
     private Coroutine? _runningMovementCR;
-    
 
     List<MobileUnitModelController> units = new();
 
@@ -59,7 +59,7 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
                 ShowUnitModel(_nextData.model);
             }
         }
-        else if(_prevData.model != null && _nextData.model != _prevData.model)
+        else if (_prevData.model != null && _nextData.model != _prevData.model)
         {
             ShowUnitModel("Unit_Hoodie_07"); //Reset model
         }
@@ -143,7 +143,11 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
                     StopCoroutine(unit._runningVisibilityCR);
                 }
                 unit._runningVisibilityCR = StartCoroutine(
-                    unit.VisibilityCR(new Vector3(1, 1, 1), _nextData.visible ? 1 : 0, _visibilityCurve)
+                    unit.VisibilityCR(
+                        new Vector3(1, 1, 1),
+                        _nextData.visible ? 1 : 0,
+                        _visibilityCurve
+                    )
                 );
             }
             else if (_prevData.visible && !_nextData.visible)
@@ -162,7 +166,9 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
                 {
                     StopCoroutine(unit._runningVisibilityCR);
                 }
-                unit._runningVisibilityCR = StartCoroutine(unit.VisibilityCR(new Vector3(1, 1, 1), 1, _visibilityCurve));
+                unit._runningVisibilityCR = StartCoroutine(
+                    unit.VisibilityCR(new Vector3(1, 1, 1), 1, _visibilityCurve)
+                );
             }
         }
 
@@ -224,11 +230,7 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
 
     private void ShowUnitModel(string modelName)
     {
-
-        MobileUnitModelController unitController = CreateUnit(
-            modelName,
-            "Unit_Hoodie_07"
-        );
+        MobileUnitModelController unitController = CreateUnit(modelName, "Unit_Hoodie_07");
 
         foreach (Renderer rend in unitController.renderers)
         {
@@ -238,10 +240,7 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         units.Add(unitController);
     }
 
-    private MobileUnitModelController CreateUnit(
-        string prefabName,
-        string defaultModel
-    )
+    private MobileUnitModelController CreateUnit(string prefabName, string defaultModel)
     {
         GameObject prefab = unitPrefabs.FirstOrDefault(n => n.name == prefabName);
         if (prefab == null)
@@ -250,9 +249,4 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
             .GetComponent<MobileUnitModelController>();
         return controller;
     }
-
-
-
-
-    
 }
