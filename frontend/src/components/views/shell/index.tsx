@@ -295,15 +295,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         const jitter = Math.random() * 500; // For cases where multiple units moved on the same block
         const sleepFor = selectedIndex > -1 ? selectedIndex * (1000 + jitter) : 0;
 
-        /*console.log(
-            "I'm waiting for",
-            Math.floor(sleepFor),
-            'ms, unfinalised sessions:',
-            unfinalisedCombatSessionsRef.current,
-            'selectedIndex:',
-            selectedIndex
-        );*/
-
         if (unfinalisedCombatSessionsRef.current.length > 0) {
             const timeoutId = setTimeout(() => {
                 const currentUnfinalisedCombatSessions = unfinalisedCombatSessionsRef.current;
@@ -317,7 +308,10 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     );
 
                     if (finaliseActions.length > 0) {
-                        console.log(`I'm finalising combat because I moved last 🙋‍♂️`, finaliseActions);
+                        console.log(
+                            `⚔️ Finalising combat because your selected unit was one of the last to move`,
+                            finaliseActions
+                        );
                         // player.dispatchAndWait(...finaliseActions).catch((err) => console.warn(err));
 
                         // Dispatching all at once could prevent future combat sessions from finalising if
