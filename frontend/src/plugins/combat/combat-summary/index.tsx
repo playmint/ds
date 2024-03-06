@@ -3,7 +3,6 @@
 import { ConnectedPlayer, WorldMobileUnitFragment, WorldStateFragment, WorldTileFragment } from '@app/../../core/src';
 import { Dialog } from '@app/components/molecules/dialog';
 import { LIFE_MUL, getMaterialStats, getMobileUnitStats } from '@app/plugins/combat/helpers';
-import { ProgressBar } from '@app/plugins/combat/progress-bar';
 import { ComponentProps } from '@app/types/component-props';
 import { getSessionsAtTile } from '@downstream/core/src/utils';
 import { FunctionComponent, useCallback, useState } from 'react';
@@ -126,10 +125,12 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
     const attackersAttackPerTick = Math.max(1, attackersAttack - defendersDefence);
     const defendersAttackPerTick = Math.max(1, defendersAttack - attackersDefence);
 
-    // Calculate the number of ticks each side will survive
+    // Calculate the number of ticks each side will survive.
+    // It's a very rough estimate as it is subtracting the attack from the cumulative health
+    // of the other side. It doesn't take into account that the damage is only dealt to one participant per tick.
     const attackerTicksAlive = Math.floor(attackersHealth / defendersAttackPerTick);
     const defenderTicksAlive = Math.floor(defendersHealth / attackersAttackPerTick);
-    const tickDifference = Math.abs(attackerTicksAlive - defenderTicksAlive);
+    // const tickDifference = Math.abs(attackerTicksAlive - defenderTicksAlive);
 
     const isSelectedTileAttack = latestSession.attackTile.tile.id === selectedTiles[0].id;
     const isAttackersWinning = attackerTicksAlive > defenderTicksAlive;
