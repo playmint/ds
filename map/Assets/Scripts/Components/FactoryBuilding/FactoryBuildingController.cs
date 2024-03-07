@@ -77,11 +77,11 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
                     );
                     if (_currentAnimator != null && _nextData.model.Contains("open"))
                     {
-                        StartCoroutine(WaitForAnimationEndCR(prefab, "DoorUnlock"));
+                        StartCoroutine(WaitForAnimationEndCR(prefab, "DoorUnlock", dynamicColor, shadowColor));
                     }
                     else
                     {
-                        SwapModels(prefab);
+                        SwapModels(prefab, dynamicColor, shadowColor);
                     }
                 }
                 else
@@ -143,7 +143,7 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
         _prevData = _nextData;
     }
 
-    private IEnumerator WaitForAnimationEndCR(GameObject nextModel, string animName)
+    private IEnumerator WaitForAnimationEndCR(GameObject nextModel, string animName, Color dynamicColor, Color shadowColor)
     {
         _currentAnimator.Play(animName);
         yield return null;
@@ -151,16 +151,21 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
         {
             yield return null;
         }
-        SwapModels(nextModel);
+        SwapModels(nextModel, dynamicColor, shadowColor);
         yield return null;
     }
 
-    void SwapModels(GameObject nextModel)
+    void SwapModels(GameObject nextModel, Color dynamicColor, Color shadowColor)
     {
         DestoryPreviousModels();
-        Instantiate(nextModel, stackPositions[0]).transform
-            .GetChild(0)
-            .TryGetComponent(out _currentAnimator);
+        FactoryBuildingBlockController controller = Instantiate(nextModel, stackPositions[0]).GetComponent<FactoryBuildingBlockController>();
+        controller.transform.GetChild(0).TryGetComponent(out _currentAnimator);
+
+        foreach (Renderer rend in controller.renderers)
+        {
+            rend.material.SetColor("_DynamicColor", dynamicColor);
+            rend.material.SetColor("_DynamicShadowColor", shadowColor);
+        }
     }
 
     void DestoryPreviousModels()
