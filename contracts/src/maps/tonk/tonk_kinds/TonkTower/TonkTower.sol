@@ -5,6 +5,4 @@ import {Game} from "cog/IGame.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 
-contract TonkTower is BuildingKind {
-
-}
+contract TonkTower is BuildingKind {}
