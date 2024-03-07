@@ -226,7 +226,7 @@ export const MobileUnits = memo(
                             visible={u.visible}
                             onPointerClick={onClickMobileUnit}
                             onUpdatePosition={updatePosition}
-                            model={model}
+                            model={model || 'Unit_Hoodie_07'}
                             {...u.coords}
                         />
                     );
