@@ -1,0 +1,12 @@
+---
+kind: BuildingKind
+spec:
+  name: Corrupted Sector
+  description: A glitch in the simulation, and a threat to the stability of the world
+  category: blocker
+  model: enemy
+  materials:
+  - name: Gold Coin
+    quantity: 20
+  - name: Gold Note
+    quantity: 10

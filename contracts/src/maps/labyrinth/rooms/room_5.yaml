@@ -1,0 +1,25 @@
+---
+kind: Building
+spec:
+  name: Campfire
+  location: [7, -11, 4]
+---
+kind: Bag
+spec:
+  location: [8, -13, 5]
+  items: []
+---
+kind: Building
+spec:
+  name: The Crusher
+  location: [6, -12, 6]
+---
+kind: Building
+spec:
+  name: Altar of Hands
+  location: [4, -12, 8]
+---
+kind: Building
+spec:
+  name: Bone Gate
+  location: [3, -9, 6]

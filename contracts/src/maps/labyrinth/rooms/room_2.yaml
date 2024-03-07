@@ -1,0 +1,10 @@
+---
+kind: Building
+spec:
+  name: Blacksmith Secrets
+  location: [6, 0, -6]
+---
+kind: Building
+spec:
+  name: Bronze Gate
+  location: [9, -3, -6]

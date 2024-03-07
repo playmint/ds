@@ -1,0 +1,75 @@
+---
+kind: Building
+spec:
+  name: Very Large Rocks
+  location: [12, -11, -1]
+---
+kind: Building
+spec:
+  name: Very Large Rocks
+  location: [11, -11, 0]
+---
+kind: Building
+spec:
+  name: Very Large Rocks
+  location: [10, -10, 0]
+
+---
+kind: Building
+spec:
+  name: Very Large Rocks
+  location: [10, -11, 1]
+
+---
+kind: Building
+spec:
+  name: Large Rocks
+  location: [11, -12, 1]
+
+---
+kind: Building
+spec:
+  name: Very Large Rocks
+  location: [12, -12, 0]
+
+---
+kind: Building
+spec:
+  name: Large Rocks
+  location: [13, -12, -1]
+
+---
+kind: Building
+spec:
+  name: Very Large Rocks
+  location: [14, -12, -2]
+
+---
+kind: Building
+spec:
+  name: Very Large Rocks
+  location: [13, -13, 0]
+
+---
+kind: Building
+spec:
+  name: Very Large Rocks
+  location: [11, -13, 2]
+
+---
+kind: Building
+spec:
+  name: Very Large Rocks
+  location: [12, -14, 2]
+
+---
+kind: Building
+spec:
+  name: Large Rocks
+  location: [13, -14, 1]
+
+---
+kind: Building
+spec:
+  name: Large Rocks
+  location: [11, -10, -1]
