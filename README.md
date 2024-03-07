@@ -105,7 +105,7 @@ By Default, running `make dev` will spawn a one hex sized map and running with `
 Inside of the `ds/contracts/src/maps/` folder, you will find a few premade maps by Playmint. 
 In order to force one of these maps to be deployed with a local build of the game you need set the MAP env variable.
 
-For `docker` builds this must be doen by editing the `.env` file in the root
+For `docker` builds this must be done by editing the `.env` file in the root
 of the repository. 
 
 ```
