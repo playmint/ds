@@ -8,4 +8,4 @@ spec:
 kind: Building
 spec:
   name: Apex
-  location: [-4, 5, -1]
+  location: [0, 4, -4]

@@ -3,7 +3,7 @@ kind: BuildingKind
 spec:
   category: billboard
   name: Tonk Billboard
-  description: Shows an image
+  description: This game is brought to you by Tonk
   model: monitor
   plugin:
     file: ./tonk_billboard.js

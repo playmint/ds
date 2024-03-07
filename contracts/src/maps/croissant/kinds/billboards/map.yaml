@@ -1,0 +1,23 @@
+---
+kind: Building
+spec:
+  name: Tonk Billboard
+  location: [-8, -3, 11]
+
+---
+kind: Building
+spec:
+  name: Morton Billboard
+  location: [12, -5, -7]
+
+---
+kind: Building
+spec:
+  name: 1kx Billboard
+  location: [-3, 8, -5]
+
+---
+kind: Building
+spec:
+  name: Rockaway Billboard
+  location: [10, -12, 2]

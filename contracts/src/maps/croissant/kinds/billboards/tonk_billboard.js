@@ -31,7 +31,7 @@ export default async function update({ selected, world, player }) {
                         id: 'default',
                         type: 'inline',
                         html: `
-                            <p>Check out Tonk Attack!</p>
+                            <p>Tonk Attack</p>
                         `
                     }
                 ],
