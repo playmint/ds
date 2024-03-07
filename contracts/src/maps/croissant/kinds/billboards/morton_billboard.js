@@ -1,7 +1,7 @@
 import ds from 'downstream';
 
 const billboardName = "Morton Billboard";
-const billboardImage = "http://localhost:3000/favicon-28978_favicon-192.png";
+const billboardImage = "https://assets.downstream.game/logos/morton.png";
 
 export default async function update({ selected, world, player }) {
     const billboardBuilding = (world?.buildings || []).find(
