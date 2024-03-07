@@ -4954,7 +4954,7 @@ spec:
 ---
 kind: Bag
 spec:
-  location: [-10, -3, 13]
+  location: [-9, -4, 13]
   items:
     - name: Tonk
       quantity: 1
@@ -4968,7 +4968,7 @@ spec:
 ---
 kind: Bag
 spec:
-  location: [-10, -3, 13]
+  location: [-10, -4, 14]
   items:
     - name: Tonk
       quantity: 1
@@ -4982,7 +4982,7 @@ spec:
 ---
 kind: Bag
 spec:
-  location: [-10, -3, 13]
+  location: [-9, -3, 12]
   items:
     - name: Tonk
       quantity: 1
