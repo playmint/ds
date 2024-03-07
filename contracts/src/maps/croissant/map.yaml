@@ -4936,3 +4936,59 @@ kind: Tile
 spec:
   biome: DISCOVERED
   location: [ -10, -3, 13 ]
+
+---
+kind: Bag
+spec:
+  location: [-10, -3, 13]
+  items:
+    - name: Tonk
+      quantity: 1
+    - name: Tonk
+      quantity: 1
+    - name: Tonk
+      quantity: 1
+    - name: Tonk
+      quantity: 1
+
+---
+kind: Bag
+spec:
+  location: [-9, -4, 13]
+  items:
+    - name: Tonk
+      quantity: 1
+    - name: Tonk
+      quantity: 1
+    - name: Tonk
+      quantity: 1
+    - name: Tonk
+      quantity: 1
+
+---
+kind: Bag
+spec:
+  location: [-10, -4, 14]
+  items:
+    - name: Tonk
+      quantity: 1
+    - name: Tonk
+      quantity: 1
+    - name: Tonk
+      quantity: 1
+    - name: Tonk
+      quantity: 1
+
+---
+kind: Bag
+spec:
+  location: [-9, -3, 12]
+  items:
+    - name: Tonk
+      quantity: 1
+    - name: Tonk
+      quantity: 1
+    - name: Tonk
+      quantity: 1
+    - name: Tonk
+      quantity: 1
