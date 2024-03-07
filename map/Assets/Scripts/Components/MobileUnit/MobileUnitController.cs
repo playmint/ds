@@ -49,19 +49,11 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
 
         if (_nextData.model != null)
         {
-            if (
-                _prevData == null
-                || _nextData.model != _prevData.model
-                || _nextData.color != _prevData.color
-            )
+            if (_nextData.model != (_prevData?.model ?? "Unit_Hoodie_07"))
             {
                 DestoryPreviousModels();
                 ShowUnitModel(_nextData.model);
             }
-        }
-        else if (_prevData.model != null && _nextData.model != _prevData.model)
-        {
-            ShowUnitModel("Unit_Hoodie_07"); //Reset model
         }
 
         // movement
