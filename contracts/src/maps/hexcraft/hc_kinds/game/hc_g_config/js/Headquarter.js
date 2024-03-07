@@ -110,9 +110,9 @@ export default async function update(state) {
     unitMapObj.push(
         {
             type: "unit",
-            key: "color",
+            key: "model",
             id: unitId,
-            value: "#ec5c61",
+            value: "Unit_Hoodie_05", // red hoodie
         }
     )
   }
@@ -125,9 +125,9 @@ export default async function update(state) {
     unitMapObj.push(
         {
             type: "unit",
-            key: "color",
+            key: "model",
             id: unitId,
-            value: "#2daee0",
+            value: "Unit_Hoodie_04",
         }
     )
   }

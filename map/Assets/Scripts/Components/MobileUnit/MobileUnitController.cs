@@ -1,17 +1,16 @@
 using System.Collections;
-using System.Runtime.InteropServices;
-using Unity.VisualScripting;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using ColorUtility = UnityEngine.ColorUtility;
 
 public class MobileUnitController : BaseComponentController<MobileUnitData>
 {
     [SerializeField]
-    protected Renderer[] outlineObjs;
+    protected Transform modelParent;
 
     [SerializeField]
-    protected Renderer[] renderers;
+    protected GameObject[] unitPrefabs;
 
     [SerializeField]
     protected Color highlightColor;
@@ -32,17 +31,13 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
     private Transform _meshesTrans;
 
     private Coroutine? _runningMovementCR;
-    private Coroutine? _runningVisibilityCR;
+
+    List<MobileUnitModelController> units = new();
 
     protected void Start()
     {
-        if (renderers.Length > 0)
-        {
-            _defaultColor = renderers[0].material.GetColor("_EmissionColor");
-            _defaultBodyColor = "#" + ColorUtility.ToHtmlStringRGB(renderers[0].material.color);
-        }
-
         _meshesTrans = transform.GetChild(0);
+        ShowUnitModel("Unit_Hoodie_07");
     }
 
     protected void Update()
@@ -50,6 +45,23 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         if (_prevData == _nextData)
         {
             return;
+        }
+
+        if (_nextData.model != null)
+        {
+            if (
+                _prevData == null
+                || _nextData.model != _prevData.model
+                || _nextData.color != _prevData.color
+            )
+            {
+                DestoryPreviousModels();
+                ShowUnitModel(_nextData.model);
+            }
+        }
+        else if (_prevData.model != null && _nextData.model != _prevData.model)
+        {
+            ShowUnitModel("Unit_Hoodie_07"); //Reset model
         }
 
         // movement
@@ -78,77 +90,86 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         }
 
         // selected
-        if (_nextData.selected == "outline")
+        if (_nextData?.selected == "outline")
         {
-            foreach (Renderer outlineObj in outlineObjs)
+            foreach (MobileUnitModelController unit in units)
             {
-                outlineObj.material = redOutlineMat;
-            }
-            foreach (Renderer rend in renderers)
-            {
-                rend.material.SetColor("_EmissionColor", _defaultColor);
+                foreach (Renderer outlineObj in unit.outlineRenderers)
+                {
+                    outlineObj.material = redOutlineMat;
+                }
+                foreach (Renderer rend in unit.renderers)
+                {
+                    rend.material.SetColor("_EmissionColor", _defaultColor);
+                }
             }
         }
-        else if (_nextData.selected == "highlight")
+        else if (_nextData?.selected == "highlight")
         {
-            foreach (Renderer outlineObj in outlineObjs)
+            foreach (MobileUnitModelController unit in units)
             {
-                outlineObj.material = greenOutlineMat;
-            }
-            foreach (Renderer rend in renderers)
-            {
-                rend.material.SetColor("_EmissionColor", highlightColor);
+                foreach (Renderer outlineObj in unit.outlineRenderers)
+                {
+                    outlineObj.material = greenOutlineMat;
+                }
+                foreach (Renderer rend in unit.renderers)
+                {
+                    rend.material.SetColor("_EmissionColor", highlightColor);
+                }
             }
         }
         else
         {
-            foreach (Renderer outlineObj in outlineObjs)
+            foreach (MobileUnitModelController unit in units)
             {
-                outlineObj.material = greenOutlineMat;
+                foreach (Renderer outlineObj in unit.outlineRenderers)
+                {
+                    outlineObj.material = greenOutlineMat;
+                }
+                foreach (Renderer rend in unit.renderers)
+                {
+                    rend.material.SetColor("_EmissionColor", _defaultColor);
+                }
             }
-            foreach (Renderer rend in renderers)
-            {
-                rend.material.SetColor("_EmissionColor", _defaultColor);
-            }
-        }
-
-        // Body color
-        if ((_prevData?.color ?? "") != _nextData.color)
-        {
-            string colorString = _nextData.color;
-            colorString = string.IsNullOrEmpty(colorString) ? _defaultBodyColor : colorString;
-            ColorUtility.TryParseHtmlString(colorString, out Color targetColor);
-            renderers[0].material.color = targetColor;
         }
 
         // Visibility
-        if (_prevData == null)
+        foreach (MobileUnitModelController unit in units)
         {
-            if (_runningVisibilityCR != null)
+            if (_prevData == null)
             {
-                StopCoroutine(_runningVisibilityCR);
+                if (unit._runningVisibilityCR != null)
+                {
+                    StopCoroutine(unit._runningVisibilityCR);
+                }
+                unit._runningVisibilityCR = StartCoroutine(
+                    unit.VisibilityCR(
+                        new Vector3(1, 1, 1),
+                        _nextData.visible ? 1 : 0,
+                        _visibilityCurve
+                    )
+                );
             }
-            _runningVisibilityCR = StartCoroutine(
-                VisibilityCR(new Vector3(1, 1, 1), _nextData.visible ? 1 : 0)
-            );
-        }
-        else if (_prevData.visible && !_nextData.visible)
-        {
-            if (_runningVisibilityCR != null)
+            else if (_prevData.visible && !_nextData.visible)
             {
-                StopCoroutine(_runningVisibilityCR);
+                if (unit._runningVisibilityCR != null)
+                {
+                    StopCoroutine(units[0]._runningVisibilityCR);
+                }
+                unit._runningVisibilityCR = StartCoroutine(
+                    unit.VisibilityCR(new Vector3(1, 1, 1), 0, _visibilityCurve, 0.35f, 3.5f)
+                );
             }
-            _runningVisibilityCR = StartCoroutine(
-                VisibilityCR(new Vector3(1, 1, 1), 0, 0.35f, 3.5f)
-            );
-        }
-        else if (!_prevData.visible && _nextData.visible)
-        {
-            if (_runningVisibilityCR != null)
+            else if (!_prevData.visible && _nextData.visible)
             {
-                StopCoroutine(_runningVisibilityCR);
+                if (unit._runningVisibilityCR != null)
+                {
+                    StopCoroutine(unit._runningVisibilityCR);
+                }
+                unit._runningVisibilityCR = StartCoroutine(
+                    unit.VisibilityCR(new Vector3(1, 1, 1), 1, _visibilityCurve)
+                );
             }
-            _runningVisibilityCR = StartCoroutine(VisibilityCR(new Vector3(1, 1, 1), 1));
         }
 
         _prevData = _nextData;
@@ -194,51 +215,38 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         _runningMovementCR = null;
     }
 
-    IEnumerator VisibilityCR(
-        Vector3 endScale,
-        float endFade,
-        float delay = 0,
-        float deltaMultiplier = 2f
-    )
+    void DestoryPreviousModels()
     {
-        _meshesTrans.gameObject.SetActive(true);
-
-        // disable the outline meshes if fading out
-        foreach (Renderer outlineObj in outlineObjs)
+        foreach (MobileUnitModelController child in units)
         {
-            outlineObj.gameObject.SetActive(endFade > 0);
+            Destroy(child.gameObject);
+        }
+        foreach (Transform child in modelParent)
+        {
+            Destroy(child.gameObject);
+        }
+        units = new();
+    }
+
+    private void ShowUnitModel(string modelName)
+    {
+        MobileUnitModelController unitController = CreateUnit(modelName, "Unit_Hoodie_07");
+
+        foreach (Renderer rend in unitController.renderers)
+        {
+            _defaultColor = rend.material.GetColor("_EmissionColor");
         }
 
-        float t = 0;
-        Vector3 startScale = _meshesTrans.localScale;
-        float startFade = renderers[0].material.GetFloat("_Fade");
-        yield return new WaitForSeconds(delay);
-        while (t < 1)
-        {
-            t += Time.deltaTime * deltaMultiplier;
-            _meshesTrans.localScale = Vector3.LerpUnclamped(
-                startScale,
-                endScale,
-                _visibilityCurve.Evaluate(t)
-            );
-            foreach (Renderer rend in renderers)
-            {
-                rend.material.SetFloat(
-                    "_Fade",
-                    Mathf.Lerp(startFade, endFade, _visibilityCurve.Evaluate(t))
-                );
-            }
-            yield return null;
-        }
+        units.Add(unitController);
+    }
 
-        // Turning off mesh after fadeout to disable both events and to fix problem with overlapping unit's outine not displaying
-        _meshesTrans.gameObject.SetActive(endFade > 0);
-
-        foreach (Renderer rend in renderers)
-        {
-            rend.material.SetFloat("_Fade", endFade);
-        }
-
-        _runningVisibilityCR = null;
+    private MobileUnitModelController CreateUnit(string prefabName, string defaultModel)
+    {
+        GameObject prefab = unitPrefabs.FirstOrDefault(n => n.name == prefabName);
+        if (prefab == null)
+            prefab = unitPrefabs.FirstOrDefault(n => n.name == defaultModel);
+        MobileUnitModelController controller = Instantiate(prefab, modelParent)
+            .GetComponent<MobileUnitModelController>();
+        return controller;
     }
 }
