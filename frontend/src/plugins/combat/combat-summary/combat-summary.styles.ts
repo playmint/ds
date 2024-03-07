@@ -31,18 +31,12 @@ const baseStyles = (_: Partial<CombatSummaryProps>) => css`
         flex-direction: column;
         width: 100%;
 
-        .attackers,
-        .defenders {
-            width: 100%;
+        .countdown {
+            text-align: center;
         }
 
-        .attackers {
-            margin-top: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .defenders {
-            margin-bottom: 2rem;
+        .tileStats {
+            margin-top: 1rem;
         }
 
         > button {
