@@ -1,0 +1,39 @@
+
+---
+kind: BuildingKind
+spec:
+  category: factory
+  name: Cuspis
+  description: A baker that does not bake croissants
+  model: 04-11
+  color: 5
+  contract:
+    file: ./Cuspis.sol
+  plugin:
+    file: ./Cuspis.js
+  materials:
+  - name: Red Goo
+    quantity: 10
+  - name: Green Goo
+    quantity: 10
+  - name: Blue Goo
+    quantity: 10
+  inputs:
+  - name: ID Card
+    quantity: 1
+  - name: Acceptance Letter
+    quantity: 1
+  outputs:
+  - name: Not A Croissant
+    quantity: 1
+
+---
+kind: Item
+spec:
+  name: Not A Croissant
+  icon: 14-183
+  goo:
+    red: 76
+    green: 100
+    blue: 100
+  stackable: true
