@@ -114,3 +114,30 @@ spec:
     - 2
   items: []
 
+---
+kind: Bag
+spec:
+  location:
+    - 21
+    - -20
+    - -1
+  items: []
+
+---
+kind: Bag
+spec:
+  location:
+    - 22
+    - -21
+    - -1
+  items: []
+
+---
+kind: Bag
+spec:
+  location:
+    - 23
+    - -22
+    - -1
+  items: []
+

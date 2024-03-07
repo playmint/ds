@@ -16,3 +16,12 @@ spec:
     - -16
     - 4
 
+---
+kind: Bag
+spec:
+  location:
+    - 7
+    - -15
+    - 8
+  items: []
+

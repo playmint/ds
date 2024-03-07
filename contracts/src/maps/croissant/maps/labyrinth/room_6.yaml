@@ -35,6 +35,36 @@ spec:
 kind: Bag
 spec:
   location:
+    - 9
+    - -24
+    - 15
+  items:
+    - name: Red Goo
+      quantity: 50
+    - name: Green Goo
+      quantity: 50
+    - name: Blue Goo
+      quantity: 50
+
+---
+kind: Bag
+spec:
+  location:
+    - 8
+    - -23
+    - 15
+  items:
+    - name: Red Goo
+      quantity: 50
+    - name: Green Goo
+      quantity: 50
+    - name: Blue Goo
+      quantity: 50
+
+---
+kind: Bag
+spec:
+  location:
     - 11
     - -23
     - 12
