@@ -1,0 +1,30 @@
+---
+kind: Item
+spec:
+  name: Gold Coin
+  icon: 10-33
+  goo:
+    red: 5
+    green: 10
+    blue: 10
+  stackable: true
+---
+kind: Item
+spec:
+  name: Gold Note
+  icon: 10-32
+  goo:
+    red: 25
+    green: 50
+    blue: 10
+  stackable: true
+---
+kind: Item
+spec:
+  name: L33t Bricks
+  icon: 07-191
+  goo:
+    red: 1
+    green: 99999
+    blue: 99999
+  stackable: true

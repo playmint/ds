@@ -1,0 +1,78 @@
+---
+kind: BuildingKind
+spec:
+  name: Large Oak Trees
+  category: blocker
+  model: OakTreesLarge
+  materials:
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+    - name: Red Goo
+      quantity: 10
+---
+kind: BuildingKind
+spec:
+  name: Small Oak Trees
+  category: blocker
+  model: OakTreesSmall
+  materials:
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+    - name: Red Goo
+      quantity: 10
+---
+kind: BuildingKind
+spec:
+  name: Large Pine Trees
+  category: blocker
+  model: PineTreesLarge
+  materials:
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+    - name: Red Goo
+      quantity: 10
+---
+kind: BuildingKind
+spec:
+  name: Small Pine Trees
+  category: blocker
+  model: PineTreesSmall
+  materials:
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+    - name: Red Goo
+      quantity: 10
+---
+kind: BuildingKind
+spec:
+  name: Large Rocks
+  category: blocker
+  model: rocksLarge
+  materials:
+    - name: Green Goo
+      quantity: 100
+    - name: Blue Goo
+      quantity: 10
+    - name: Red Goo
+      quantity: 20
+---
+kind: BuildingKind
+spec:
+  name: Small Rocks
+  category: blocker
+  model: rocksSmall
+  materials:
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+    - name: Red Goo
+      quantity: 10

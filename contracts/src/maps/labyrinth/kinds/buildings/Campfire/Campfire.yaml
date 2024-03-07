@@ -1,0 +1,35 @@
+---
+kind: BuildingKind
+spec:
+  category: factory
+  name: Campfire
+  description: "Gather around the crackling campfire, its warmth fortifying your defenses against the chill of the night and the might of The Crusher."
+  model: 14-02
+  color: 3
+  contract:
+    file: ./../BaseFactory.sol
+  plugin:
+    file: ./Campfire.js
+  materials:
+    - name: L33t Bricks
+      quantity: 100
+  inputs:
+    - name: Red Goo
+      quantity: 2
+    - name: Green Goo
+      quantity: 100
+    - name: Blue Goo
+      quantity: 2
+  outputs:
+    - name: Extra Heart
+      quantity: 1
+---
+kind: Item
+spec:
+  name: Extra Heart
+  icon: 28-101
+  goo:
+    red: 1
+    green: 50
+    blue: 1
+  stackable: false

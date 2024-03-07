@@ -1,0 +1,25 @@
+---
+kind: BuildingKind
+spec:
+  category: factory
+  name: Iron Shrine
+  description: "A small shrine, dimly lit with candles."
+  model: 02-16
+  color: 4
+  contract:
+    file: ./../BaseFactory.sol
+  plugin:
+    file: ./IronShrine.js
+  materials:
+    - name: L33t Bricks
+      quantity: 100
+  inputs:
+    - name: Red Goo
+      quantity: 2
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 20
+  outputs:
+    - name: Iron Key
+      quantity: 1

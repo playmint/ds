@@ -1,0 +1,10 @@
+---
+kind: Building
+spec:
+  name: The Core of the Labyrinth
+  location: [6, -6, 0]
+---
+kind: Building
+spec:
+  name: Labyrinth Core Gate
+  location: [3, -3, 0]

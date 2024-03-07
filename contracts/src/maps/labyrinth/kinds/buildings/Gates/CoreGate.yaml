@@ -1,0 +1,26 @@
+---
+kind: BuildingKind
+spec:
+  category: custom
+  name: Labyrinth Core Gate
+  description: You cannot pass this gate from outside of the Labyrinth.
+  model: 01-08
+  color: 5
+  contract:
+    file: ./CoreGate.sol
+  plugin:
+    file: ./CoreGate.js
+    alwaysActive: true
+  materials:
+    - name: L33t Bricks
+      quantity: 100
+  inputs:
+    - name: Red Goo
+      quantity: 25
+    - name: Green Goo
+      quantity: 25
+    - name: Blue Goo
+      quantity: 25
+  outputs:
+    - name: Red Goo
+      quantity: 1

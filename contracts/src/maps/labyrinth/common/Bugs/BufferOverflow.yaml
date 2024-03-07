@@ -1,0 +1,12 @@
+---
+kind: BuildingKind
+spec:
+  name: Buffer Overflow
+  description: An dangerous Bug caused by an external attack
+  category: blocker
+  model: enemy
+  materials:
+  - name: Gold Coin
+    quantity: 30
+  - name: Gold Note
+    quantity: 30

@@ -1,0 +1,27 @@
+---
+kind: Building
+spec:
+  name: Iron Shrine
+  location:
+    - 7
+    - -16
+    - 9
+
+---
+kind: Building
+spec:
+  name: Iron Gate
+  location:
+    - 12
+    - -16
+    - 4
+
+---
+kind: Bag
+spec:
+  location:
+    - 7
+    - -15
+    - 8
+  items: []
+

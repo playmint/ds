@@ -1,0 +1,91 @@
+---
+kind: Building
+spec:
+  name: Gate of Preparation
+  location: [12, -9, -3]
+---
+kind: Bag
+spec:
+  location: [11, -6, -5]
+  items:
+    - name: Diamond Sword of Life
+      quantity: 1
+    - name: Dagger of Death
+      quantity: 1
+    - name: Shield of Power
+      quantity: 1
+---
+kind: Bag
+spec:
+  location: [11, -5, -6]
+  items:
+    - name: Staff of Power
+      quantity: 1
+    - name: Axe of Destruction
+      quantity: 1
+---
+kind: Bag
+spec:
+  location: [12, -5, -7]
+  items:
+    - name: Armor of Stone Skin
+      quantity: 1
+    - name: Dusty Leather Armor
+      quantity: 1
+---
+kind: Bag
+spec:
+  location: [13, -6, -7]
+  items:
+    - name: Mithril Armor
+      quantity: 1
+    - name: Sharp Steel Sword
+      quantity: 1
+---
+kind: Bag
+spec:
+  location: [13, -7, -6]
+  items:
+    - name: Legendary Rapiers
+      quantity: 1
+    - name: Sturdy Wooden Shield
+      quantity: 1
+---
+kind: Bag
+spec:
+  location: [12, -7, -5]
+  items:
+    - name: Shield of the Ancients
+      quantity: 1
+    - name: Staff of the Ancients
+      quantity: 1
+---
+kind: Bag
+spec:
+  location: [11, -7, -4]
+  items: []
+---
+kind: Bag
+spec:
+  location: [12, -8, -4]
+  items: []
+---
+kind: Bag
+spec:
+  location: [13, -8, -5]
+  items: []
+---
+kind: Bag
+spec:
+  location: [12, -4, -8]
+  items: []
+---
+kind: Bag
+spec:
+  location: [13, -5, -8]
+  items: []
+---
+kind: Bag
+spec:
+  location: [14, -6, -8]
+  items: []
