@@ -9,14 +9,18 @@ public class MobileUnitModelController : MonoBehaviour
 
     public Coroutine? _runningVisibilityCR;
 
-    public void StartVisibilityCR(float endFade,
+    public void StartVisibilityCR(
+        float endFade,
         AnimationCurve _visibilityCurve,
         float delay = 0,
-        float deltaMultiplier = 2f)
+        float deltaMultiplier = 2f
+    )
     {
         StopCoroutines();
         transform.parent.gameObject.SetActive(true);
-        _runningVisibilityCR = StartCoroutine(VisibilityCR(endFade, _visibilityCurve, delay, deltaMultiplier));
+        _runningVisibilityCR = StartCoroutine(
+            VisibilityCR(endFade, _visibilityCurve, delay, deltaMultiplier)
+        );
     }
 
     public void StopCoroutines()
@@ -47,7 +51,7 @@ public class MobileUnitModelController : MonoBehaviour
             t += Time.deltaTime * deltaMultiplier;
             foreach (Renderer rend in renderers)
             {
-                if (rend == null)// This shouldn't happen, but I'm scared now.
+                if (rend == null) // This shouldn't happen, but I'm scared now.
                     break;
                 rend.material.SetFloat(
                     "_Fade",
