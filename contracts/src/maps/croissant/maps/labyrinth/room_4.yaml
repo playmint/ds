@@ -1,7 +1,7 @@
 ---
 kind: Building
 spec:
-  name: Very Large Rocks
+  name: Very Large Boulders
   location:
     - 21
     - -27
@@ -10,7 +10,7 @@ spec:
 ---
 kind: Building
 spec:
-  name: Very Large Rocks
+  name: Very Large Boulders
   location:
     - 20
     - -27
@@ -19,7 +19,7 @@ spec:
 ---
 kind: Building
 spec:
-  name: Very Large Rocks
+  name: Very Large Boulders
   location:
     - 19
     - -26
@@ -28,7 +28,7 @@ spec:
 ---
 kind: Building
 spec:
-  name: Very Large Rocks
+  name: Very Large Boulders
   location:
     - 19
     - -27
@@ -37,7 +37,7 @@ spec:
 ---
 kind: Building
 spec:
-  name: Large Rocks
+  name: Large Boulders
   location:
     - 20
     - -28
@@ -46,7 +46,7 @@ spec:
 ---
 kind: Building
 spec:
-  name: Very Large Rocks
+  name: Very Large Boulders
   location:
     - 21
     - -28
@@ -55,7 +55,7 @@ spec:
 ---
 kind: Building
 spec:
-  name: Large Rocks
+  name: Large Boulders
   location:
     - 22
     - -28
@@ -64,7 +64,7 @@ spec:
 ---
 kind: Building
 spec:
-  name: Very Large Rocks
+  name: Very Large Boulders
   location:
     - 23
     - -28
@@ -73,7 +73,7 @@ spec:
 ---
 kind: Building
 spec:
-  name: Very Large Rocks
+  name: Very Large Boulders
   location:
     - 22
     - -29
@@ -82,7 +82,7 @@ spec:
 ---
 kind: Building
 spec:
-  name: Very Large Rocks
+  name: Very Large Boulders
   location:
     - 20
     - -29
@@ -91,7 +91,7 @@ spec:
 ---
 kind: Building
 spec:
-  name: Very Large Rocks
+  name: Very Large Boulders
   location:
     - 21
     - -30
@@ -100,7 +100,7 @@ spec:
 ---
 kind: Building
 spec:
-  name: Large Rocks
+  name: Large Boulders
   location:
     - 22
     - -30
@@ -109,9 +109,8 @@ spec:
 ---
 kind: Building
 spec:
-  name: Large Rocks
+  name: Large Boulders
   location:
     - 20
     - -26
     - 6
-

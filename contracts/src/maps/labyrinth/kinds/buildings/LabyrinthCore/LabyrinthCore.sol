@@ -11,7 +11,7 @@ using Schema for State;
 
 contract LabyrinthCore is BuildingKind {
     // for respawn
-    bytes24 constant _LARGE_ROCKS = 0xbe92755c0000000000000000bdcf2b5d0000000000000001;
+    bytes24 constant _LARGE_ROCKS = 0xbe92755c0000000000000000d4c1c6880000000000000001;
     bytes24 constant _CRUSHER = 0xbe92755c0000000000000000e92c4edd0000000000000001;
     bytes24 constant sword = 0x6a7a67f01df41ea10000000000000001000000010000001e;
     bytes24 constant shield = 0x6a7a67f0ab4f7a160000000000000014000000280000000a;
