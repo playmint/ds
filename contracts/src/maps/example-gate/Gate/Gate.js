@@ -41,7 +41,7 @@ export default async function update(state) {
             type: "building",
             key: "model",
             id: t.id,
-            value: hasGateKey ? "door-open-3" : "door-closed-3",
+            value: hasGateKey ? "door-open-5" : "door-closed-5",
         };
     });
 
