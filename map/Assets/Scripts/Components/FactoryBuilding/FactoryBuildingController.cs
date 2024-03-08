@@ -77,6 +77,7 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
                     );
                     if (_currentAnimator != null && _nextData.model.Contains("open"))
                     {
+                        StopAllCoroutines();
                         StartCoroutine(
                             WaitForAnimationEndCR(prefab, "DoorUnlock", dynamicColor, shadowColor)
                         );
