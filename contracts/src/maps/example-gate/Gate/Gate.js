@@ -9,10 +9,6 @@ export default async function update(state) {
     const selectedBuilding =
         selectedTile && getBuildingOnTile(state, selectedTile);
 
-    if (selectedBuilding) {
-        console.log(selectedBuilding);
-    }
-
     const hasGateKey =
         getItemBalance(
             getMobileUnit(state),
@@ -45,7 +41,7 @@ export default async function update(state) {
             type: "building",
             key: "model",
             id: t.id,
-            value: hasGateKey ? "door-open" : "door-closed",
+            value: hasGateKey ? "door-open-5" : "door-closed-5",
         };
     });
 
