@@ -228,17 +228,8 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
                     </PluginContent>
                 )}
                 {selectedTile && <TileInventory tile={selectedTile} bags={world?.bags || []} />}
-                <span className="label" style={{ width: '100%', marginTop: '2rem' }}>
-                    <strong>COORDINATES:</strong> {`${q}, ${r}, ${s}`}
-                </span>
-                {gooRatesInNameOrder.map((goo) => (
-                    <span key={goo?.name} className="label" style={{ width: '30%' }}>
-                        <strong>{goo?.name.toUpperCase().slice(0, 1)}:</strong>{' '}
-                        {`${Math.floor((goo?.gooPerSec || 0) * 3600)}/h`}
-                    </span>
-                ))}
                 {author && (
-                    <span className="label">
+                    <span className="label" style={{ marginTop: '2rem' }}>
                         <strong>AUTHOR:</strong> {author.name?.value ? author.name?.value : author.addr}
                     </span>
                 )}
