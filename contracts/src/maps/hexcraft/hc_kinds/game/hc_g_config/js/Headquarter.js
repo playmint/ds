@@ -383,7 +383,7 @@ function distance(tileCoords, nextTile) {
 }
 
 function inHexcraftArea(unitCoords, hqCoords){
-    const inRange = unitCoords[1] >= hqCoords[1] && unitCoords[1] <= hqCoords[1] + 18;
+    const inRange = unitCoords[1] >= hqCoords[1] - 1 && unitCoords[1] <= hqCoords[1] + 18;
     const hexcraftMiddleCoords = [hqCoords[0], hqCoords[1] + 9, hqCoords[2]];
     const d = distance(hexcraftMiddleCoords, unitCoords);
     const inDistance = d <= 20;
