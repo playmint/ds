@@ -1,6 +1,7 @@
+---
 kind: BuildingKind
 spec:
-  name: Very Large Rocks
+  name: Very Large Boulders
   category: blocker
   model: rocksLarge
   materials:
@@ -10,3 +11,17 @@ spec:
       quantity: 100
     - name: Red Goo
       quantity: 100
+
+---
+kind: BuildingKind
+spec:
+  name: Large Boulders
+  category: blocker
+  model: rocksLarge
+  materials:
+    - name: Green Goo
+      quantity: 100
+    - name: Blue Goo
+      quantity: 10
+    - name: Red Goo
+      quantity: 20
