@@ -28,17 +28,9 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
     protected Color _defaultColor;
     protected string _defaultBodyColor;
 
-    private Transform _meshesTrans;
-
     private Coroutine? _runningMovementCR;
 
     List<MobileUnitModelController> units = new();
-
-    protected void Start()
-    {
-        _meshesTrans = transform.GetChild(0);
-        ShowUnitModel("Unit_Hoodie_07");
-    }
 
     protected void Update()
     {
@@ -49,7 +41,7 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
 
         if (_nextData.model != null)
         {
-            if (_nextData.model != (_prevData?.model ?? "Unit_Hoodie_07"))
+            if (_nextData.model != _prevData?.model)
             {
                 DestoryPreviousModels();
                 ShowUnitModel(_nextData.model);
@@ -130,37 +122,15 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
         {
             if (_prevData == null)
             {
-                if (unit._runningVisibilityCR != null)
-                {
-                    StopCoroutine(unit._runningVisibilityCR);
-                }
-                unit._runningVisibilityCR = StartCoroutine(
-                    unit.VisibilityCR(
-                        new Vector3(1, 1, 1),
-                        _nextData.visible ? 1 : 0,
-                        _visibilityCurve
-                    )
-                );
+                unit.StartVisibilityCR(_nextData.visible ? 1 : 0, _visibilityCurve);
             }
             else if (_prevData.visible && !_nextData.visible)
             {
-                if (unit._runningVisibilityCR != null)
-                {
-                    StopCoroutine(units[0]._runningVisibilityCR);
-                }
-                unit._runningVisibilityCR = StartCoroutine(
-                    unit.VisibilityCR(new Vector3(1, 1, 1), 0, _visibilityCurve, 0.35f, 3.5f)
-                );
+                unit.StartVisibilityCR(0, _visibilityCurve, 0.35f, 3.5f);
             }
             else if (!_prevData.visible && _nextData.visible)
             {
-                if (unit._runningVisibilityCR != null)
-                {
-                    StopCoroutine(unit._runningVisibilityCR);
-                }
-                unit._runningVisibilityCR = StartCoroutine(
-                    unit.VisibilityCR(new Vector3(1, 1, 1), 1, _visibilityCurve)
-                );
+                unit.StartVisibilityCR(1, _visibilityCurve);
             }
         }
 
@@ -211,6 +181,7 @@ public class MobileUnitController : BaseComponentController<MobileUnitData>
     {
         foreach (MobileUnitModelController child in units)
         {
+            child.StopCoroutines();
             Destroy(child.gameObject);
         }
         foreach (Transform child in modelParent)
