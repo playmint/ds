@@ -157,17 +157,14 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
     const inputBag = buildingBags.find((b) => b.equipee?.key == 0);
     const outputBag = buildingBags.find((b) => b.equipee?.key == 1);
 
-    const author = world?.players.find((p) => p.id === building?.kind?.owner?.id);
+    const author = world?.players.find((p) => p.id === building?.kind?.owner?.id) ?? {
+        addr: 'unknown',
+        name: { value: 'unknown' },
+    };
     const owner = world?.players.find((p) => p.id === building?.owner?.id);
 
     const name = building?.kind?.name?.value ?? 'Unnamed Building';
     const description = building?.kind?.description?.value;
-
-    const { q, r, s } = selectedTile ? getCoords(selectedTile) : { q: 0, r: 0, s: 0 };
-    const gooRates = selectedTile ? getGooRates(selectedTile) : [];
-    const gooRatesInNameOrder = [GOO_RED, GOO_GREEN, GOO_BLUE]
-        .map((idx) => gooRates.find((goo) => goo.index === idx))
-        .filter((goo) => !!goo);
 
     const content = (component?.content || []).find((c) => {
         if (mobileUnit) {
@@ -228,11 +225,9 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
                     </PluginContent>
                 )}
                 {selectedTile && <TileInventory tile={selectedTile} bags={world?.bags || []} />}
-                {author && (
-                    <span className="label" style={{ marginTop: '2rem' }}>
-                        <strong>AUTHOR:</strong> {author.name?.value ? author.name?.value : author.addr}
-                    </span>
-                )}
+                <span className="label" style={{ marginTop: '2rem' }}>
+                    <strong>AUTHOR:</strong> {author.name?.value ? author.name?.value : author.addr}
+                </span>
                 {owner && (
                     <span className="label">
                         <strong>OWNER:</strong> {owner.name?.value ? owner.name?.value : owner.addr}
@@ -313,7 +308,7 @@ const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUn
         <StyledTileInfoPanel>
             <div className="header">
                 <h3>{tileName}</h3>
-                <div className="description">{tileDescription}</div>
+                <div className="sub-title">{tileDescription}</div>
             </div>
             <div className="content">
                 {tileMobileUnits.length > 0 && (
