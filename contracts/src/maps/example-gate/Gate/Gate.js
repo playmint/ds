@@ -9,10 +9,6 @@ export default async function update(state) {
     const selectedBuilding =
         selectedTile && getBuildingOnTile(state, selectedTile);
 
-    if (selectedBuilding) {
-        console.log(selectedBuilding);
-    }
-
     const hasGateKey =
         getItemBalance(
             getMobileUnit(state),

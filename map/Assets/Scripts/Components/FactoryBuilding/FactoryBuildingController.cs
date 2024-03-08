@@ -166,6 +166,8 @@ public class FactoryBuildingController : BaseComponentController<FactoryBuilding
             rend.material.SetColor("_DynamicColor", dynamicColor);
             rend.material.SetColor("_DynamicShadowColor", shadowColor);
         }
+
+        _blocks.Add(controller);
     }
 
     void DestoryPreviousModels()
