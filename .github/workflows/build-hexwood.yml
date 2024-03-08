@@ -37,6 +37,7 @@ on:
           - tonk
           - croissant
           - example-gate
+          - labyrinth
 
 jobs:
   build:

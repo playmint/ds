@@ -8,13 +8,13 @@ export default async function update({ selected, world, player }) {
         components: [
             {
                 type: 'building',
-                id: 'tile-fabricator',
+                id: 'litora',
                 content: [
                     {
                         id: 'default',
                         type: 'inline',
                         html: `
-                            The place to fabricate new worlds.
+                            The place to imagine and fabricate new worlds.
                             <ul style="padding-left: 30px;">
                             <li><a href="/tile-fabricator">Tile Fabricator</a></li>
                             </ul>

@@ -1,0 +1,120 @@
+---
+kind: Quest
+spec:
+  name: Awakening
+  description: Lost in a dim dungeon, echoes whisper secrets. Urged forward by
+    hope, each gate promises freedom. Filled with courage, you get up. The first
+    gate awaits.
+  location:
+    - 9
+    - -16
+    - 7
+  tasks:
+    - kind: coord
+      name: Pass the Iron Gate
+      location:
+        - 13
+        - -16
+        - 3
+  next:
+    - The Room of Riddles
+
+---
+kind: Quest
+spec:
+  name: The Room of Riddles
+  description: '"Seek the blacksmith," the whispers say. "He holds the key."'
+  location:
+    - 13
+    - -16
+    - 3
+  tasks:
+    - kind: coord
+      name: Answer the Riddle
+      location:
+        - 19
+        - -20
+        - 1
+  next:
+    - The Room of Preparation
+
+---
+kind: Quest
+spec:
+  name: The Room of Preparation
+  description: You you need to leave everything but the essentials behind.
+    Remember that all that glitters ain't gold. True power comes from within.
+    You only need leather, wood and steel.
+  location:
+    - 19
+    - -20
+    - 1
+  tasks:
+    - kind: coord
+      name: Equip yourself for future trials
+      location:
+        - 21
+        - -26
+        - 5
+  next:
+    - The Room of Paths
+
+---
+kind: Quest
+spec:
+  name: The Room of Paths
+  description: There are many obstacles ahead of you. Navigate the path of least
+    resistance to make it through in time.
+  location:
+    - 21
+    - -26
+    - 5
+  tasks:
+    - kind: coord
+      name: Clear the Path
+      location:
+        - 17
+        - -28
+        - 11
+  next:
+    - The Lair of The Crusher
+
+---
+kind: Quest
+spec:
+  name: The Lair of The Crusher
+  description: You must defeat The Crusher to free his previous victims and
+    continue moving forward. Make sure you have a plentiful rest before the
+    battle, and look for his weak spot.
+  location:
+    - 17
+    - -28
+    - 11
+  tasks:
+    - kind: coord
+      name: Pass the Bone Gate
+      location:
+        - 11
+        - -24
+        - 13
+  next:
+    - The Goblin Post Office
+
+---
+kind: Quest
+spec:
+  name: The Goblin Post Office
+  description: There is an interesting note pinned to the post office bulletin
+    board. "I'm currently out of office travelling to the realm of the Blue
+    Bird. -- Labyrinth Keeper."
+  location:
+    - 11
+    - -24
+    - 13
+  tasks:
+    - kind: coord
+      name: Pass the Golden Gate
+      location:
+        - 13
+        - -22
+        - 9

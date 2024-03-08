@@ -497,39 +497,12 @@ async function _update(params) {
     const { selected, player, world } = params;
     const { mobileUnit } = selected || {};
 
-    const buildingId = selected?.mapElement?.id;
     let bags = mobileUnit ? findBags(world, mobileUnit) : [];
     const has_tonk =
         bags[0]?.slots.findIndex((b) => b.item && b.item.name.value == "Tonk") >=
             0 ||
         bags[1]?.slots.findIndex((b) => b.item && b.item.name.value == "Tonk") >=
             0;
-    const craft = () => {
-        if (!mobileUnit) {
-            ds.log("no selected engineer");
-            return;
-        }
-        if (!buildingId) {
-            ds.log("no selected building");
-            return;
-        }
-
-        ds.dispatch({
-            name: "BUILDING_USE",
-            args: [buildingId, mobileUnit.id, []],
-        });
-
-        ds.log("Tonk!");
-    };
-
-    if (!has_tonk) {
-        buttons.push({
-            text: "Craft Tonk",
-            type: "action",
-            action: craft,
-            disabled: false,
-        });
-    }
 
     game = await getGame();
     players = await getPlayers(game?.id, player?.id);

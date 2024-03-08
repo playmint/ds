@@ -1,0 +1,11 @@
+---
+kind: BuildingKind
+spec:
+  name: Typo
+  category: blocker
+  description: A Bug created from a misplaced decimal point in the code
+  model: enemy
+  materials:
+  - name: Gold Coin
+    quantity: 5
+
