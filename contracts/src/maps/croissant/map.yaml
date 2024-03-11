@@ -39,7 +39,7 @@ spec:
 kind: Building
 spec:
   name: Burger Display Building
-  location: [ 15, -2, -13 ]
+  location: [ 19, -10, -9 ]
 
 ---
 kind: Tile
@@ -51,7 +51,7 @@ spec:
 kind: Building
 spec:
   name: Countdown Building
-  location: [ 16, -2, -14 ]
+  location: [ 20, -10, -10 ]
 
 ---
 kind: Tile
@@ -63,7 +63,7 @@ spec:
 kind: Building
 spec:
   name: Duck Display Building
-  location: [ 17, -2, -15 ]
+  location: [ 21, -10, -11 ]
 
 ---
 kind: Tile
