@@ -6,6 +6,7 @@ import {
     ConnectedPlayer,
     ItemSlotFragment,
     PluginMapProperty,
+    SelectedMapElement,
     Selector,
     WorldBuildingFragment,
     WorldMobileUnitFragment,
@@ -620,6 +621,7 @@ interface CombatProps {
     selectedTiles: WorldTileFragment[];
     selectIntent?: Selector<string | undefined>;
     selectTiles?: Selector<string[] | undefined>;
+    selectMapElement?: Selector<SelectedMapElement | undefined>;
     player?: ConnectedPlayer;
     tiles?: WorldTileFragment[];
     pluginTileProperties: PluginMapProperty[];
@@ -631,6 +633,7 @@ interface CombatProps {
 }
 const Combat: FunctionComponent<CombatProps> = ({
     selectTiles,
+    selectMapElement,
     selectIntent,
     selectedTiles,
     mobileUnits,
@@ -742,6 +745,7 @@ const Combat: FunctionComponent<CombatProps> = ({
 
     const mobileUnitKey = mobileUnit?.key;
     const mobileUnitId = mobileUnit?.id;
+    const mobileUnitLocation = mobileUnit?.nextLocation;
 
     const handleJoinCombat = useCallback(() => {
         if (!mobileUnitKey || !mobileUnitId) {
@@ -770,12 +774,36 @@ const Combat: FunctionComponent<CombatProps> = ({
                     args: [mobileUnitId, defenceTile.id, attackers, defenders],
                 },
             ]);
+            // deselect the building we are attacking otherwise the defence tile will be autoselected after clearIntent
+            if (selectMapElement) {
+                selectMapElement(undefined);
+            }
         }
+
         setActionQueue(actions);
         if (clearIntent) {
             clearIntent();
         }
-    }, [setActionQueue, clearIntent, path, mobileUnitId, mobileUnitKey, attackers, defenders, defenceTile, sessions]);
+
+        // Select attack tile if we started a new combat session
+        if (!hasActiveSession && selectTiles && mobileUnitLocation) {
+            const attackTile = path[path.length - 1];
+            selectTiles([attackTile.id]);
+        }
+    }, [
+        mobileUnitKey,
+        mobileUnitId,
+        path,
+        attackers,
+        sessions,
+        defenceTile,
+        setActionQueue,
+        clearIntent,
+        selectTiles,
+        mobileUnitLocation,
+        defenders,
+        selectMapElement,
+    ]);
 
     const highlights: WorldTileFragment[] = [defenceTile, attackTile].filter((t): t is WorldTileFragment => !!t);
     const joining = attackTile && getSessionsAtTile(sessions, attackTile).some((s) => !s.isFinalised);
@@ -837,7 +865,7 @@ const Combat: FunctionComponent<CombatProps> = ({
 export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({ pluginTileProperties }) => {
     const [actionQueue, setActionQueue] = useState<CogAction[][]>();
     const { world, tiles } = useGameState();
-    const { selectIntent, intent, tiles: sTiles, mobileUnit, selectTiles } = useSelection();
+    const { selectIntent, intent, tiles: sTiles, mobileUnit, selectTiles, selectMapElement } = useSelection();
     const player = usePlayer();
 
     const selectedTiles = sTiles || [];
@@ -912,6 +940,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({
                 selectIntent={selectIntent}
                 selectedTiles={selectedTiles}
                 selectTiles={selectTiles}
+                selectMapElement={selectMapElement}
                 mobileUnit={mobileUnit}
                 mobileUnits={world?.mobileUnits || []}
                 player={player}
