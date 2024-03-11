@@ -1,4 +1,4 @@
-import React, { useState, ReactNode } from 'react';
+import React, { useState, ReactNode, useEffect, useRef } from 'react';
 import { TooltipWrapper, TooltipTip } from './tooltip.styles';
 
 interface TooltipProps {
@@ -12,6 +12,8 @@ const Tooltip: React.FC<TooltipProps> = ({ children, delay = 400, direction = 't
     let timeout: NodeJS.Timeout;
 
     const [active, setActive] = useState<boolean>(false);
+    const tooltipRef = useRef<HTMLDivElement>(null);
+    const [tooltipDirection, setTooltipDirection] = useState<'top' | 'right' | 'bottom' | 'left'>(direction);
 
     const showTip = () => {
         timeout = setTimeout(() => {
@@ -24,11 +26,32 @@ const Tooltip: React.FC<TooltipProps> = ({ children, delay = 400, direction = 't
         setActive(false);
     };
 
+    useEffect(() => {
+        if (!active) {
+            return;
+        }
+
+        if (!tooltipRef.current) {
+            return;
+        }
+
+        const rect = tooltipRef.current.getBoundingClientRect();
+        // console.log('rect:', rect);
+
+        if (rect.y < 0 && tooltipDirection === 'top') {
+            setTooltipDirection('bottom');
+        }
+    }, [active, tooltipDirection]);
+
     return (
         <TooltipWrapper onMouseEnter={showTip} onMouseLeave={hideTip}>
             <span>
                 {children}
-                {active && <TooltipTip direction={direction}>{content}</TooltipTip>}
+                {active && (
+                    <TooltipTip ref={tooltipRef} direction={tooltipDirection}>
+                        {content}
+                    </TooltipTip>
+                )}
             </span>
         </TooltipWrapper>
     );
