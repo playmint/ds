@@ -10,7 +10,7 @@ const burgerBuildingTopId = "17";
 const burgerCounterKindId = "Burger Display Building";
 const duckCounterKindId = "Duck Display Building";
 const countdownBuildingKindId = "Countdown Building";
-const countdownTotalTime = 60000;
+const countdownTotalTime = 60000 * 3;
 
 let burgerCounter;
 let duckCounter;
