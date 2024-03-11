@@ -36,8 +36,6 @@ const Tooltip: React.FC<TooltipProps> = ({ children, delay = 400, direction = 't
         }
 
         const rect = tooltipRef.current.getBoundingClientRect();
-        // console.log('rect:', rect);
-
         if (rect.y < 0 && tooltipDirection === 'top') {
             setTooltipDirection('bottom');
         }
