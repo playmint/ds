@@ -10,7 +10,9 @@ export const TooltipWrapper = styled.div`
     position: relative;
 `;
 
-export const TooltipTip = styled.div<{ direction?: 'top' | 'right' | 'bottom' | 'left' }>`
+export const TooltipTip = styled.div<
+    { direction?: 'top' | 'right' | 'bottom' | 'left' } & React.HTMLAttributes<HTMLDivElement>
+>`
     position: absolute;
     border-radius: 4px;
     left: 50%;
@@ -70,10 +72,10 @@ export const TooltipTip = styled.div<{ direction?: 'top' | 'right' | 'bottom' | 
   ${(props) =>
         props.direction === 'bottom' &&
         css`
-            bottom: calc(${tooltipMargin} * -1);
-
+            transform: translate(-50%, calc(100% - 20px));
             &::before {
-                bottom: 100%;
+                top: 0;
+                transform: translateY(-100%);
                 border-bottom-color: ${tooltipBackgroundColor};
             }
         `}
