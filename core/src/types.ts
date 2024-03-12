@@ -75,6 +75,11 @@ export enum BiomeKind {
     DISCOVERED = 1,
 }
 
+export enum FacingDirectionKind {
+    RIGHT = 0,
+    LEFT = 1,
+}
+
 export interface GameConfig {
     gameID: string;
     authMessage: (addr: string, ttl: number) => string;

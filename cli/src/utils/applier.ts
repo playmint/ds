@@ -10,6 +10,7 @@ import {
     ContractSource,
     ManifestDocument,
     Slot,
+    FacingDirectionTypes,
 } from '../utils/manifest';
 
 const null24bytes = '0x000000000000000000000000000000000000000000000000';
@@ -456,6 +457,7 @@ export const getOpsForManifests = async (
                     args: [
                         getBuildingKindIDByName(existingBuildingKinds, pendingBuildingKinds, spec.name),
                         ...spec.location,
+                        FacingDirectionTypes.indexOf(spec.facingDirection),
                     ],
                 },
             ],

@@ -9,6 +9,11 @@ enum BiomeKind {
     DISCOVERED
 }
 
+enum FacingDirectionKind {
+    RIGHT,
+    LEFT
+}
+
 struct CombatAction {
     CombatActionKind kind;
     bytes24 entityID; // Can be mobileUnit or building
@@ -165,7 +170,7 @@ interface Actions {
     function DEV_SPAWN_TILE(int16 q, int16 r, int16 s) external;
 
     // spawn a building at any location
-    function DEV_SPAWN_BUILDING(bytes24 buildingKind, int16 q, int16 r, int16 s) external;
+    function DEV_SPAWN_BUILDING(bytes24 buildingKind, int16 q, int16 r, int16 s, FacingDirectionKind facingDirection) external;
 
     // spawn a bag with resources equip somewhere
     function DEV_SPAWN_BAG(

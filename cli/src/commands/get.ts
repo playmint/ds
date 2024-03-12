@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { WorldStateFragment, getCoords } from '@downstream/core';
 import { pipe, take, toPromise } from 'wonka';
-import { BiomeTypes, Manifest, Slot } from '../utils/manifest';
+import { BiomeTypes, FacingDirectionTypes, Manifest, Slot } from '../utils/manifest';
 import { BuildingKindFragment, GetAvailableBuildingKindsDocument, GetWorldDocument } from '@downstream/core/src/gql/graphql';
 
 const SLOT_FRAGMENT = `
@@ -110,7 +110,7 @@ const nodeToManifest = (node): z.infer<typeof Manifest> => {
             .map((l) => getCoords(l.tile))
             .map(({ q, r, s }) => [q, r, s])
             .find(() => true);
-        const spec = { name: buildingKindName, location };
+        const spec = { name: buildingKindName, location, facingDirection: node.facingDirection?.value || FacingDirectionTypes[0] };
         const status = { owner, id };
         return { kind, spec, status };
     } else if (node.kind == 'MobileUnit') {

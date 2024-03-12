@@ -165,9 +165,12 @@ export const BuildingKind = z.object({
         .optional(),
 });
 
+export const FacingDirectionTypes = ['RIGHT', 'LEFT'] as const;
+
 export const BuildingSpec = z.object({
     name: Name,
     location: Coords,
+    facingDirection: z.enum(FacingDirectionTypes).default(FacingDirectionTypes[0]),
 });
 
 export const Building = z.object({

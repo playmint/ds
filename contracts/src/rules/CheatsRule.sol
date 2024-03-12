@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 import "cog/IState.sol";
 import "cog/IRule.sol";
 
-import {Schema, Node, BiomeKind, BuildingCategory, BuildingBlockNumKey, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Schema, Node, BiomeKind, FacingDirectionKind, BuildingCategory, BuildingBlockNumKey, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
 using Schema for State;
@@ -50,8 +50,8 @@ contract CheatsRule is Rule {
         } else if (bytes4(action) == Actions.DEV_SPAWN_BUILDING.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_SPAWN_BUILDING not allowed");
 
-            (bytes24 buildingKind, int16 q, int16 r, int16 s) = abi.decode(action[4:], (bytes24, int16, int16, int16));
-            _construct(state, ctx, buildingKind, q, r, s);
+            (bytes24 buildingKind, int16 q, int16 r, int16 s, FacingDirectionKind facingDirection) = abi.decode(action[4:], (bytes24, int16, int16, int16, FacingDirectionKind));
+            _construct(state, ctx, buildingKind, q, r, s, facingDirection);
         } else if (bytes4(action) == Actions.DEV_DISABLE_CHEATS.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_DISABLE_CHEATS not allowed");
 
@@ -84,7 +84,7 @@ contract CheatsRule is Rule {
     }
 
     // allow constructing a building without any materials
-    function _construct(State state, Context calldata ctx, bytes24 buildingKind, int16 q, int16 r, int16 s) internal {
+    function _construct(State state, Context calldata ctx, bytes24 buildingKind, int16 q, int16 r, int16 s, FacingDirectionKind facingDirection) internal {
         _spawnTile(state, q, r, s);
         bytes24 targetTile = Node.Tile(0, q, r, s);
         bytes24 buildingInstance = Node.Building(0, q, r, s);
@@ -96,6 +96,8 @@ contract CheatsRule is Rule {
         bytes24 outputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "output")))));
         state.setEquipSlot(buildingInstance, 0, inputBag);
         state.setEquipSlot(buildingInstance, 1, outputBag);
+
+        state.setFacingDirection(buildingInstance, facingDirection);
 
         // -- Category specific calls
 

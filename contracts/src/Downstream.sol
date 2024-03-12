@@ -78,6 +78,7 @@ contract DownstreamGame is BaseGame {
         state.registerEdgeType(Rel.Output.selector, "Output", WeightKind.UINT64);
         state.registerEdgeType(Rel.Material.selector, "Material", WeightKind.UINT64);
         state.registerEdgeType(Rel.Biome.selector, "Biome", WeightKind.UINT64);
+        state.registerEdgeType(Rel.FacingDirection.selector, "FacingDirection", WeightKind.UINT64);
         state.registerEdgeType(Rel.Equip.selector, "Equip", WeightKind.UINT64);
         state.registerEdgeType(Rel.Is.selector, "Is", WeightKind.UINT64);
         state.registerEdgeType(Rel.Implementation.selector, "Implementation", WeightKind.UINT64);
