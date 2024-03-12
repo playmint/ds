@@ -1,0 +1,20 @@
+
+---
+kind: BuildingKind
+spec:
+  category: custom
+  name: Redeployinator
+  description: An example building for redeploying sections of the world
+  model: 02-08
+  color: 5
+  contract:
+    file: ./redeployinator.sol
+  plugin:
+    file: ./redeployinator.js
+  materials:
+  - name: Red Goo
+    quantity: 10
+  - name: Green Goo
+    quantity: 10
+  - name: Blue Goo
+    quantity: 10

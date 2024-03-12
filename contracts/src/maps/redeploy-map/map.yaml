@@ -1,0 +1,164 @@
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 0, 1, -1 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -1, 1, 0 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -1, 0, 1 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 0, -1, 1 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 1, -1, 0 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 1, 0, -1 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 0, 0, 0 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -1, 2, -1 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -2, 2, 0 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -2, 1, 1 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -2, 0, 2 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -1, -1, 2 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 0, -2, 2 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 1, -2, 1 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 2, -1, -1 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 2, 0, -2 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 2, -2, 0 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 1, 1, -2 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 0, 2, -2 ]
+
+---
+kind: Bag
+spec:
+  location: [0, -1, 1]
+  items:
+    - name: Red Goo
+      quantity: 12
+    - name: Green Goo
+      quantity: 34
+    - name: Blue Goo
+      quantity: 56
+---
+kind: Bag
+spec:
+  location: [1, -1, -0]
+  items:
+    - name: Red Goo
+      quantity: 65
+    - name: Green Goo
+      quantity: 43
+    - name: Blue Goo
+      quantity: 21
+
+---
+kind: Building
+spec:
+  name: Large Oak Trees
+  location:
+    - -1
+    - -0
+    - 1
+
+---
+kind: Building
+spec:
+  name: Small Oak Trees
+  location:
+    - 0
+    - 1
+    - -1
+
+---
+kind: Building
+spec:
+  name: Redeployinator
+  location:
+    - 2
+    - 0
+    - -2
