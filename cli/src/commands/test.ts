@@ -4,6 +4,7 @@ import { CompoundKeyEncoder, NodeSelectors, getCoords } from "@downstream/core";
 import util from 'node:util';
 import { spawn } from 'node:child_process';
 import { getWorld } from './get';
+import { FacingDirectionKind } from '@downstream/core';
 
 const spawnAsync = util.promisify(spawn);
 
@@ -95,7 +96,7 @@ const chaosUnit = {
                 const world = await getWorld(ctx);
                 const buildingOnTargetTile = getBuildingOnTile(world.buildings, targetTileID);
                 if (typeof buildingOnTargetTile === 'undefined'){
-                    await player.dispatch({ name: 'DEV_SPAWN_BUILDING', args: [selectedBuilding, q, r, s] }).then(res => res.wait());
+                    await player.dispatch({ name: 'DEV_SPAWN_BUILDING', args: [selectedBuilding, q, r, s, FacingDirectionKind.RIGHT] }).then(res => res.wait());
                 }
             }
             await sleep(Math.floor(Math.random() * 1000));
