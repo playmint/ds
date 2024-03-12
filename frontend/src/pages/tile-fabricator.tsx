@@ -10,6 +10,7 @@ import { UnityMapProvider, useUnityMap } from '@app/hooks/use-unity-map';
 import { BuildingKind, Manifest, parseManifestDocuments } from '@downstream/cli/utils/manifest';
 import {
     BiomeKind,
+    FacingDirectionKind,
     CompoundKeyEncoder,
     NodeSelectors,
     WorldBuildingFragment,
@@ -265,7 +266,7 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                             spec: {
                                 name: buildingKind.spec.name,
                                 location: t.location,
-                                facingDirection: facing,
+                                facingDirection: FacingDirectionKind[facing],
                             },
                         },
                     ];
