@@ -6,10 +6,11 @@ import {State} from "cog/IState.sol";
 import {Schema, Kind} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
+import {ILabyrinthCore} from "./ILabyrinthCore.sol";
 
 using Schema for State;
 
-contract LabyrinthCore is BuildingKind {
+contract LabyrinthCore is ILabyrinthCore, BuildingKind {
     // for respawn
     bytes24 constant _LARGE_ROCKS = 0xbe92755c0000000000000000d4c1c6880000000000000001;
     bytes24 constant _CRUSHER = 0xbe92755c0000000000000000e92c4edd0000000000000001;
@@ -20,10 +21,21 @@ contract LabyrinthCore is BuildingKind {
     function use(Game ds, bytes24 buildingInstance, bytes24, /*actor*/ bytes memory /*payload*/ ) public override {
         // Crafting the Playtest Pass
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.CRAFT, (buildingInstance)));
+        reset(ds, buildingInstance, buildingInstance);
+    }
+
+    function reset(Game ds, bytes24 buildingInstance, bytes24 coreBuildingInstance) public {
+        State state = ds.getState();
+
+        // Check that reset is called by this building or the reset tower
+        require(
+            msg.sender == address(this)
+                || msg.sender == state.getImplementation(state.getBuildingKind(buildingInstance)),
+            "Only the core building or the reset tower can call reset"
+        );
 
         // Get location of buildingInstance
-        State state = ds.getState();
-        bytes24 buildingTile = state.getFixedLocation(buildingInstance);
+        bytes24 buildingTile = state.getFixedLocation(coreBuildingInstance);
         int16 coreQ = int16(int192(uint192(buildingTile) >> 32));
         int16 coreR = int16(int192(uint192(buildingTile) >> 16));
         int16 coreS = int16(int192(uint192(buildingTile)));
