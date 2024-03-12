@@ -7,7 +7,7 @@ import { useConfig } from '@app/hooks/use-config';
 import { GameStateProvider } from '@app/hooks/use-game-state';
 import { useThrottle } from '@app/hooks/use-throttle';
 import { UnityMapProvider, useUnityMap } from '@app/hooks/use-unity-map';
-import { BuildingKind, Manifest, parseManifestDocuments } from '@downstream/cli/utils/manifest';
+import { BuildingKind, FacingDirectionTypes, Manifest, parseManifestDocuments } from '@downstream/cli/utils/manifest';
 import {
     BiomeKind,
     CompoundKeyEncoder,
@@ -265,7 +265,7 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                             spec: {
                                 name: buildingKind.spec.name,
                                 location: t.location,
-                                facingDirection: facing,
+                                facingDirection: FacingDirectionTypes[facing === 'RIGHT' ? 0 : 1],
                             },
                         },
                     ];
