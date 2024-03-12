@@ -13,3 +13,8 @@ kind: Bag
 spec:
   location: [-2, 1, 1]
   items: []
+---
+kind: Building
+spec:
+  name: Reset Tower
+  location: [-2, 2, 0]

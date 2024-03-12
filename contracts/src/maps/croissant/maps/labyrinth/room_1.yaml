@@ -25,3 +25,8 @@ spec:
     - 8
   items: []
 
+---
+kind: Building
+spec:
+  name: Reset Tower
+  location: [7, -14, 7]
