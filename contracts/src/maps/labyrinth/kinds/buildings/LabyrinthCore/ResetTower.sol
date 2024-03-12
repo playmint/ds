@@ -44,7 +44,7 @@ contract ResetTower is BuildingKind {
 
         require(address(coreBuildingImpl) != address(0), "Core building not found");
 
-        coreBuildingImpl.reset(ds, buildingInstance, coreBuildingInstance);
+        coreBuildingImpl.reset(ds, coreBuildingInstance);
     }
 
     function INT16_ARRAY(bytes4 kindID, int16[4] memory keys) internal pure returns (bytes24) {

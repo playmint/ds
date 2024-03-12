@@ -13,13 +13,3 @@ spec:
   materials:
     - name: L33t Bricks
       quantity: 100
-  inputs:
-    - name: Red Goo
-      quantity: 20
-    - name: Green Goo
-      quantity: 10
-    - name: Blue Goo
-      quantity: 2
-  outputs:
-    - name: Bronze Key
-      quantity: 1
