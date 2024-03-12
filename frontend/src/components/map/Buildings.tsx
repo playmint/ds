@@ -47,8 +47,6 @@ const getGooIndexFromBuildingOutput = (buildingKind?: BuildingKindFragment) => {
     return -1;
 };
 
-const lerp = (x, y, a) => x * (1 - a) + y * a;
-
 export const Buildings = memo(
     ({
         tiles,
