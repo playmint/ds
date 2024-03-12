@@ -27,10 +27,10 @@ contract ResetTower is BuildingKind {
         State state = ds.getState();
         bytes24 buildingTile = state.getFixedLocation(buildingInstance);
 
-        // Get location of origin (0, 0, 0) on non offset map
-        int16 coreQ = int16(int192(uint192(buildingTile) >> 32)) - 0;
-        int16 coreR = int16(int192(uint192(buildingTile) >> 16)) - -2;
-        int16 coreS = int16(int192(uint192(buildingTile))) - 2;
+        // Get location of origin (0, 0, 0) on non offset map by subtracting original reset tower coordinates [-2, 2, 0]
+        int16 coreQ = int16(int192(uint192(buildingTile) >> 32)) - -2;
+        int16 coreR = int16(int192(uint192(buildingTile) >> 16)) - 2;
+        int16 coreS = int16(int192(uint192(buildingTile))) - 0;
 
         // Get location of core tower
         coreQ += 6;

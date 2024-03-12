@@ -17,4 +17,4 @@ spec:
 kind: Building
 spec:
   name: Reset Tower
-  location: [0, -2, 2]
+  location: [-2, 2, 0]

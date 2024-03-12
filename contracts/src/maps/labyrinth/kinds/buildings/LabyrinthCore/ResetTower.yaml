@@ -5,7 +5,7 @@ spec:
   name: Reset Tower
   description: This building is for Playmint use only and isn't part of the labyrinth puzzle.
   model: 14-13
-  color: 1
+  color: 0
   contract:
     file: ./ResetTower.sol
   plugin:
