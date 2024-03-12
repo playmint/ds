@@ -14,20 +14,9 @@ export default async function update(state) {
     //    && unitIsFriendly(state, selectedBuilding)
         ;
 
-    const craft = () => {
-        const mobileUnit = getMobileUnit(state);
-
-        if (!mobileUnit) {
-            console.log('no selected unit');
-            return;
-        }
-
-        ds.dispatch({
-            name: 'BUILDING_USE',
-            args: [selectedBuilding.id, mobileUnit.id, []],
-        });
-
-        console.log('Craft dispatched');
+    const redeploy = () => {
+        //console.log('Doing nothing!');
+        ds.testFunc();
     };
 
     return {
@@ -40,13 +29,13 @@ export default async function update(state) {
                     {
                         id: 'default',
                         type: 'inline',
-                        html: '<p>Fill the input slots to enable crafing</p>',
+                        html: '',
                         buttons: [
                             {
-                                text: 'Craft',
+                                text: 'Redeploy',
                                 type: 'action',
-                                action: craft,
-                                disabled: !canCraft,
+                                action: redeploy,
+                                disabled: false,
                             },
                         ],
                     },
