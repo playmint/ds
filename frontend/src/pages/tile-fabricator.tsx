@@ -265,7 +265,7 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                             spec: {
                                 name: buildingKind.spec.name,
                                 location: t.location,
-                                facingDirection: FacingDirectionTypes[facing === 'RIGHT' ? 0 : 1],
+                                facingDirection: facing as (typeof FacingDirectionTypes)[number],
                             },
                         },
                     ];
