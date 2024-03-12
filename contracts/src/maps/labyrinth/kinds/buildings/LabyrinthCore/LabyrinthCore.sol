@@ -47,20 +47,30 @@ contract LabyrinthCore is ILabyrinthCore, BuildingKind {
         // resetting the map
         // rocks at room 4
         ds.getDispatcher().dispatch(
-            abi.encodeCall(Actions.DEV_SPAWN_BUILDING, (_LARGE_ROCKS, coreQ + 5, coreR + -4, coreS + -1, FacingDirectionKind.RIGHT))
+            abi.encodeCall(
+                Actions.DEV_SPAWN_BUILDING, (_LARGE_ROCKS, coreQ + 5, coreR + -4, coreS + -1, FacingDirectionKind.RIGHT)
+            )
         ); // 11, -10, -1
         ds.getDispatcher().dispatch(
-            abi.encodeCall(Actions.DEV_SPAWN_BUILDING, (_LARGE_ROCKS, coreQ + 7, coreR + -6, coreS + -1, FacingDirectionKind.RIGHT))
+            abi.encodeCall(
+                Actions.DEV_SPAWN_BUILDING, (_LARGE_ROCKS, coreQ + 7, coreR + -6, coreS + -1, FacingDirectionKind.RIGHT)
+            )
         ); // 13, -12, -1
         ds.getDispatcher().dispatch(
-            abi.encodeCall(Actions.DEV_SPAWN_BUILDING, (_LARGE_ROCKS, coreQ + 7, coreR + -8, coreS + 1, FacingDirectionKind.RIGHT))
+            abi.encodeCall(
+                Actions.DEV_SPAWN_BUILDING, (_LARGE_ROCKS, coreQ + 7, coreR + -8, coreS + 1, FacingDirectionKind.RIGHT)
+            )
         ); // 13, -14, 1
         ds.getDispatcher().dispatch(
-            abi.encodeCall(Actions.DEV_SPAWN_BUILDING, (_LARGE_ROCKS, coreQ + 5, coreR + -6, coreS + 1, FacingDirectionKind.RIGHT))
+            abi.encodeCall(
+                Actions.DEV_SPAWN_BUILDING, (_LARGE_ROCKS, coreQ + 5, coreR + -6, coreS + 1, FacingDirectionKind.RIGHT)
+            )
         ); // 11, -12, 1
         //crusher at room 5
         ds.getDispatcher().dispatch(
-            abi.encodeCall(Actions.DEV_SPAWN_BUILDING, (_CRUSHER, coreQ + 0, coreR + -6, coreS + 6, FacingDirectionKind.RIGHT))
+            abi.encodeCall(
+                Actions.DEV_SPAWN_BUILDING, (_CRUSHER, coreQ + 0, coreR + -6, coreS + 6, FacingDirectionKind.RIGHT)
+            )
         ); // 6, -12, 6
 
         //items at room 3

@@ -170,7 +170,8 @@ interface Actions {
     function DEV_SPAWN_TILE(int16 q, int16 r, int16 s) external;
 
     // spawn a building at any location
-    function DEV_SPAWN_BUILDING(bytes24 buildingKind, int16 q, int16 r, int16 s, FacingDirectionKind facingDirection) external;
+    function DEV_SPAWN_BUILDING(bytes24 buildingKind, int16 q, int16 r, int16 s, FacingDirectionKind facingDirection)
+        external;
 
     // spawn a bag with resources equip somewhere
     function DEV_SPAWN_BAG(

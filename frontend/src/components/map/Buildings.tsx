@@ -1,5 +1,5 @@
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
-import { GOO_BLUE, GOO_GREEN, GOO_RED, getTileHeightFromCoords, getUnscaledNoiseFromCoords } from '@app/helpers/tile';
+import { GOO_BLUE, GOO_GREEN, GOO_RED, getTileHeightFromCoords } from '@app/helpers/tile';
 import {
     BuildingKindFragment,
     FacingDirectionKind,
