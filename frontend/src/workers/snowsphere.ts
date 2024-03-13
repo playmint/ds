@@ -218,10 +218,6 @@ async function newContext(
             return coder.decode(types, data);
         },
 
-        testFunc() {
-            console.log('this test func has been called! BOOM');
-        },
-
         config: globalConfig,
     });
 

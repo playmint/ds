@@ -1,5 +1,7 @@
 import ds from 'downstream';
 
+let savedBuildings = [];
+
 export default async function update(state) {
     // uncomment this to browse the state object in browser console
     // this will be logged when selecting a unit and then selecting an instance of this building
@@ -14,10 +16,32 @@ export default async function update(state) {
     //    && unitIsFriendly(state, selectedBuilding)
         ;
 
-    const redeploy = () => {
-        //console.log('Doing nothing!');
-        ds.testFunc();
-    };
+        const redeploy = () => {
+            const actions = savedBuildings.map(savedBuilding => {
+                const { kind, location } = savedBuilding;
+                const { tile } = location;
+                const { id } = kind;
+        
+                const [q, r, s] = getTileCoords(tile.coords);
+        
+                console.log(`Preparing to spawn building with kind id: ${id} at coordinates: (${q}, ${r}, ${s})`);
+        
+                return {
+                    name: "DEV_SPAWN_BUILDING",
+                    args: [id, q, r, s],
+                };
+            });
+        
+            console.log(`Dispatching ${actions.length} DEV_SPAWN_BUILDING actions`);
+            ds.dispatch(...actions);
+            console.log('Dispatch complete');
+        };
+        
+        const saveWorldState = () => {
+            const { world } = state;
+            savedBuildings = world.buildings;
+            console.log(`Saved ${savedBuildings.length} buildings`);
+        };
 
     return {
         version: 1,
@@ -31,6 +55,12 @@ export default async function update(state) {
                         type: 'inline',
                         html: '',
                         buttons: [
+                            {
+                                text: 'Save World',
+                                type: 'action',
+                                action: saveWorldState,
+                                disabled: false,
+                            },
                             {
                                 text: 'Redeploy',
                                 type: 'action',
@@ -128,3 +158,29 @@ function unitOwnerConnectedToWallet(state, mobileUnit, walletAddress) {
 
 // the source for this code is on github where you can find other example buildings:
 // https://github.com/playmint/ds/tree/main/contracts/src/example-plugins
+
+
+function hexToSignedDecimal(hex) {
+    if (hex.startsWith("0x")) {
+        hex = hex.substr(2);
+    }
+
+    let num = parseInt(hex, 16);
+    let bits = hex.length * 4;
+    let maxVal = Math.pow(2, bits);
+
+    // Check if the highest bit is set (negative number)
+    if (num >= maxVal / 2) {
+        num -= maxVal;
+    }
+
+    return num;
+}
+
+function getTileCoords(coords) {
+    return [
+        hexToSignedDecimal(coords[1]),
+        hexToSignedDecimal(coords[2]),
+        hexToSignedDecimal(coords[3]),
+    ];
+}
