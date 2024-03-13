@@ -6,6 +6,7 @@ spec:
     - 21
     - -25
     - 4
+  facingDirection: LEFT
 
 ---
 kind: Bag

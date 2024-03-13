@@ -34,10 +34,18 @@ export default async function update(state) {
             value: hasGateKey ? "green" : "red",
         };
     });
+    const buildingModelMapObjs = pluginBuildings.map((t) => {
+        return {
+            type: "building",
+            key: "model",
+            id: t.id,
+            value: hasGateKey ? "door-open-4" : "door-closed-4",
+        };
+    });
 
     return {
         version: 1,
-        map: blockerTileMapObjs.concat(tileColorMapObjs),
+        map: blockerTileMapObjs.concat(tileColorMapObjs).concat(buildingModelMapObjs),
         components: [
             {
                 id: "state-storage-test",

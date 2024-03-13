@@ -15,6 +15,7 @@ spec:
     - 12
     - -22
     - 10
+  facingDirection: LEFT
 
 ---
 kind: Bag
