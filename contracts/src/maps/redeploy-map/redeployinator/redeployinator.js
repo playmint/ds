@@ -1,6 +1,7 @@
 import ds from 'downstream';
 
 let savedBuildings = [];
+let savedBags = [];
 
 export default async function update(state) {
     // uncomment this to browse the state object in browser console
@@ -40,7 +41,14 @@ export default async function update(state) {
         const saveWorldState = () => {
             const { world } = state;
             savedBuildings = world.buildings;
-            console.log(`Saved ${savedBuildings.length} buildings`);
+            savedBags = world.bags;
+            console.log(`Saved ${savedBuildings.length} buildings`, savedBuildings);
+            console.log(`Saved ${savedBags.length} bags`, savedBags);
+        };
+        
+        const logWorldState = () => {
+            const { world } = state;
+            console.log('state.world:', world);
         };
 
     return {
@@ -65,6 +73,12 @@ export default async function update(state) {
                                 text: 'Redeploy',
                                 type: 'action',
                                 action: redeploy,
+                                disabled: false,
+                            },
+                            {
+                                text: 'Log World State',
+                                type: 'action',
+                                action: logWorldState,
                                 disabled: false,
                             },
                         ],
