@@ -4,7 +4,7 @@ spec:
   category: custom
   name: Labyrinth Core Gate
   description: You cannot pass this gate from outside of the Labyrinth.
-  model: 01-08
+  model: door-closed
   color: 5
   contract:
     file: ./CoreGate.sol

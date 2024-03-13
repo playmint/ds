@@ -4,7 +4,7 @@ spec:
   category: custom
   name: Bronze Gate
   description: Pass through only if you have the right key.
-  model: 01-08
+  model: door-closed
   color: 2
   contract:
     file: ./BronzeGate.sol
