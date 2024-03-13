@@ -1,7 +1,8 @@
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
-import { GOO_BLUE, GOO_GREEN, GOO_RED, getTileHeightFromCoords, getUnscaledNoiseFromCoords } from '@app/helpers/tile';
+import { GOO_BLUE, GOO_GREEN, GOO_RED, getTileHeightFromCoords } from '@app/helpers/tile';
 import {
     BuildingKindFragment,
+    FacingDirectionKind,
     PluginMapProperty,
     WorldBuildingFragment,
     WorldTileFragment,
@@ -46,8 +47,6 @@ const getGooIndexFromBuildingOutput = (buildingKind?: BuildingKindFragment) => {
     return -1;
 };
 
-const lerp = (x, y, a) => x * (1 - a) + y * a;
-
 export const Buildings = memo(
     ({
         tiles,
@@ -74,7 +73,7 @@ export const Buildings = memo(
                     const coords = getCoords(b.location.tile);
                     const height = getTileHeightFromCoords(coords);
                     const selected = selectedElementID === b.id ? 'outline' : 'none';
-                    const rotation = lerp(-20, 20, 0.5 - getUnscaledNoiseFromCoords(coords));
+                    const rotation = b.facingDirection == FacingDirectionKind.RIGHT ? -30 : 30;
                     const tile = tiles.find(({ id }) => id === b.location?.tile.id);
                     const overrideModel = pluginBuildingProperties
                         .find((prop) => prop.id == b.id && prop.key == 'model')
@@ -162,7 +161,7 @@ export const Buildings = memo(
                                 id={b.id}
                                 height={height}
                                 model={overrideModel ? overrideModel : b.kind?.model?.value}
-                                rotation={-30}
+                                rotation={rotation}
                                 selected={selected}
                                 onPointerClick={onClickBuilding}
                                 {...coords}

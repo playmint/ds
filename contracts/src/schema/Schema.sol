@@ -2,12 +2,13 @@
 pragma solidity ^0.8.13;
 
 import {State, CompoundKeyEncoder, CompoundKeyDecoder} from "cog/IState.sol";
-import {BiomeKind} from "@ds/actions/Actions.sol";
+import {BiomeKind, FacingDirectionKind} from "@ds/actions/Actions.sol";
 
 interface Rel {
     function Owner() external;
     function Location() external;
     function Biome() external;
+    function FacingDirection() external;
     function Balance() external;
     function Equip() external;
     function Is() external;
@@ -290,6 +291,15 @@ library Schema {
     function getBiome(State state, bytes24 node) internal view returns (BiomeKind) {
         (, uint160 biome) = state.get(Rel.Biome.selector, 0x0, node);
         return BiomeKind(uint8(biome));
+    }
+
+    function setFacingDirection(State state, bytes24 node, FacingDirectionKind facingDirection) internal {
+        return state.set(Rel.FacingDirection.selector, 0x0, node, 0x0, uint64(facingDirection));
+    }
+
+    function getFacingDirection(State state, bytes24 node) internal view returns (FacingDirectionKind) {
+        (, uint160 facingDirection) = state.get(Rel.FacingDirection.selector, 0x0, node);
+        return FacingDirectionKind(uint8(facingDirection));
     }
 
     function setOwner(State state, bytes24 node, bytes24 ownerNode) internal {

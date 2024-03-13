@@ -8,6 +8,7 @@ kind: Building
 spec:
   name: Iron Gate
   location: [3, 0, -3]
+  facingDirection: LEFT
 ---
 kind: Bag
 spec:

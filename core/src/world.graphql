@@ -105,6 +105,7 @@ fragment WorldBuilding on Node {
         name
         value
     }
+    facingDirection: value(match: { via: { rel: "FacingDirection" } }) # 0=RIGHT, 1=LEFT
 }
 
 fragment WorldCombatSession on Node {

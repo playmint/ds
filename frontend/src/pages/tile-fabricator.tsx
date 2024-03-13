@@ -7,7 +7,7 @@ import { useConfig } from '@app/hooks/use-config';
 import { GameStateProvider } from '@app/hooks/use-game-state';
 import { useThrottle } from '@app/hooks/use-throttle';
 import { UnityMapProvider, useUnityMap } from '@app/hooks/use-unity-map';
-import { BuildingKind, Manifest, parseManifestDocuments } from '@downstream/cli/utils/manifest';
+import { BuildingKind, FacingDirectionTypes, Manifest, parseManifestDocuments } from '@downstream/cli/utils/manifest';
 import {
     BiomeKind,
     CompoundKeyEncoder,
@@ -167,7 +167,7 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
     const [buildingKinds, setBuildingKinds] = useState<BuildingKindMap>(new Map());
     const { sendMessage, ready } = useUnityMap();
 
-    const [{ diameter, brush, labels }] = useControls(
+    const [{ diameter, brush, facing, labels }] = useControls(
         'Tiles',
         () => {
             return {
@@ -179,6 +179,7 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                             .sort()
                     ),
                 },
+                facing: { options: ['RIGHT', 'LEFT'] },
                 labels: false,
             };
         },
@@ -264,6 +265,7 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                             spec: {
                                 name: buildingKind.spec.name,
                                 location: t.location,
+                                facingDirection: facing as (typeof FacingDirectionTypes)[number],
                             },
                         },
                     ];
@@ -273,7 +275,7 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                 setManifests((prev) => new Map(prev.set(t.id, newManifestsForTile)));
             }
         },
-        [mouseDown, brush, buildingKinds, manifests]
+        [mouseDown, brush, facing, buildingKinds, manifests]
     );
 
     const onLoadManifests = useCallback(() => {
