@@ -59,8 +59,10 @@ contract InventoryRule is Rule {
         address toAddress,
         uint64 qty
     ) private {
-        // TODO: this check could be relaxed to match the TRANSFER_ITEM_MOBILE_UNIT "from" rules
-        require(state.getOwner(fromEquipee) == Node.Player(sender), "fromEquipee not owned by sender");
+        require(
+            state.getOwner(fromEquipee) == Node.Player(sender) || bytes4(fromEquipee) == Kind.Building.selector,
+            "fromEquipee not owned by sender"
+        );
 
         // get the item
         bytes24 fromBag = state.getEquipSlot(fromEquipee, fromEquipSlot);
