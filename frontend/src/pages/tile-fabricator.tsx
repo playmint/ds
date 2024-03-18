@@ -4,23 +4,36 @@ import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } 
 import { z } from 'zod';
 
 import { useConfig } from '@app/hooks/use-config';
-import { GameStateProvider } from '@app/hooks/use-game-state';
+import { GameStateProvider, useBuildingKinds, useGameState } from '@app/hooks/use-game-state';
 import { useThrottle } from '@app/hooks/use-throttle';
 import { UnityMapProvider, useUnityMap } from '@app/hooks/use-unity-map';
-import { BuildingKind, FacingDirectionTypes, Manifest, parseManifestDocuments } from '@downstream/cli/utils/manifest';
+import {
+    BuildingCategoryEnumVals,
+    BuildingKind as BuildingKindManifest,
+    Building as BuildingManifest,
+    FacingDirectionTypes,
+    Manifest,
+    Tile as TileManifest,
+    parseManifestDocuments,
+} from '@downstream/cli/utils/manifest';
 import {
     BiomeKind,
     CompoundKeyEncoder,
+    FacingDirectionKind,
     NodeSelectors,
     WorldBuildingFragment,
     WorldTileFragment,
+    getCoords,
 } from '@downstream/core';
 import { Html, Instance, Instances, MapControls, OrthographicCamera, useFBX } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { ethers, id as keccak256UTF8, solidityPacked } from 'ethers';
 import { button, useControls } from 'leva';
-import * as THREE from 'three';
 import YAML from 'yaml';
+import * as THREE from 'three';
+import { GroundPlane } from '@app/components/map/GroundPlane';
+import { Tiles } from '@app/components/map/Tile';
+import { Buildings } from '@app/components/map/Buildings';
 
 const TILE_SIZE = 1;
 
@@ -34,7 +47,7 @@ function getTileXYZ([q, r]: [number, number, number], size = TILE_SIZE): [number
 }
 
 type ManifestMap = Map<string, z.infer<typeof Manifest>[]>; // map of locationid => Manifests
-type BuildingKindMap = Map<string, z.infer<typeof BuildingKind>>; // map of building kinds name => spec
+type BuildingKindMap = Map<string, z.infer<typeof BuildingKindManifest>>; // map of building kinds name => spec
 type GridTile = {
     id: string;
     location: [number, number, number]; // in game coords
@@ -165,13 +178,16 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
     const manifests = useThrottle(manifestsz, 15);
     const [mouseDown, setMouseDown] = useState(false);
     const [buildingKinds, setBuildingKinds] = useState<BuildingKindMap>(new Map());
-    const { sendMessage, ready } = useUnityMap();
+    const [stateLoaded, setStateLoaded] = useState(false);
+    const { ready: mapReady } = useUnityMap();
+    const state = useGameState();
+    const existingKinds = useBuildingKinds();
+    const diameter = 40;
 
-    const [{ diameter, brush, facing, labels }] = useControls(
+    const [{ brush, facing, labels }] = useControls(
         'Tiles',
         () => {
             return {
-                diameter: { value: 30, min: 5, max: 40, step: 1 },
                 brush: {
                     options: ['DISCOVERED TILE', 'UNDISCOVERED TILE'].concat(
                         Array.from(buildingKinds.values())
@@ -186,7 +202,7 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
         [buildingKinds, Array.from(buildingKinds.values()).length]
     );
 
-    const tiles = useMemo(() => {
+    const grid = useMemo(() => {
         const tiles: GridTile[] = [];
         for (let q = -diameter; q <= diameter; q++) {
             for (let r = -diameter; r <= diameter; r++) {
@@ -223,12 +239,94 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
         'Mannifests',
         () => ({
             stats: { editable: false, value: '' },
-            Reset: button(() => setManifests(new Map())),
+            Reset: button(() => window.location.reload()),
+            Clear: button(() => setManifests(new Map())),
             Import: button(() => fileRef.current.click()),
             Export: button(() => window.location.replace(getManifestDownloadURL())),
         }),
         [getManifestDownloadURL]
     );
+
+    useEffect(() => {
+        if (stateLoaded) {
+            return;
+        }
+        if (!state?.tiles) {
+            return;
+        }
+        if (!state.world) {
+            return;
+        }
+        if (!existingKinds) {
+            return;
+        }
+        let manifests: ManifestMap = new Map();
+        (state.world?.buildings || []).forEach((b) => {
+            if (!b.location) {
+                return;
+            }
+            if (!b.kind?.name?.value) {
+                return;
+            }
+            const { q, r, s } = getCoords(b.location.tile);
+            const m: z.infer<typeof BuildingManifest> = {
+                kind: 'Building',
+                spec: {
+                    name: b.kind.name.value,
+                    location: [q, r, s],
+                    facingDirection: b.facingDirection === FacingDirectionKind.RIGHT ? 'RIGHT' : 'LEFT',
+                },
+            };
+            const tile: z.infer<typeof TileManifest> = {
+                kind: 'Tile',
+                spec: {
+                    biome: 'DISCOVERED',
+                    location: m.spec.location,
+                },
+            };
+            const id = m.spec.location.join(':');
+            manifests = new Map(manifests.set(id, [tile, m]));
+        });
+        state.tiles.forEach((t) => {
+            const { q, r, s } = getCoords(t);
+            const m: z.infer<typeof TileManifest> = {
+                kind: 'Tile',
+                spec: {
+                    biome: 'DISCOVERED',
+                    location: [q, r, s],
+                },
+            };
+            const id = m.spec.location.join(':');
+            if (manifests.has(id)) {
+                return;
+            }
+            manifests = new Map(manifests.set(id, [m]));
+        });
+        let kinds: BuildingKindMap = new Map();
+        existingKinds.forEach((k) => {
+            const categoryIndex = parseInt('0x' + k.id.slice(-2));
+            const categoryString = BuildingCategoryEnumVals[categoryIndex];
+            if (!categoryString || categoryString === 'none') {
+                return;
+            }
+            const m: z.infer<typeof BuildingKindManifest> = {
+                kind: 'BuildingKind',
+                spec: {
+                    id: k.id,
+                    name: k.name?.value || 'unknown',
+                    category: categoryString,
+                    model: (k.model?.value || '') as any,
+                    materials: [] as any,
+                    inputs: [],
+                    outputs: [],
+                } as any, // FIXME: remove any
+            };
+            kinds = new Map(kinds.set(m.spec.name, m));
+        });
+        setManifests(manifests);
+        setBuildingKinds(kinds);
+        setStateLoaded(true);
+    }, [state.tiles, state.world, existingKinds, stateLoaded]);
 
     useEffect(() => {
         setManifestControl({ stats: `Tile count: ${Array.from(manifests.values()).length}` });
@@ -360,17 +458,10 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
         [buildingKinds, manifests, labels]
     );
 
-    useEffect(() => {
+    const previewState = useMemo(() => {
         if (!preview) {
             return;
         }
-        if (!sendMessage) {
-            return;
-        }
-        if (!ready) {
-            return;
-        }
-
         const worldBuildingForTile = (t: GridTile): WorldBuildingFragment | undefined => {
             const [q, r, s] = t.location;
             const id = CompoundKeyEncoder.encodeInt16(NodeSelectors.Building, 0, r, q, s);
@@ -396,11 +487,14 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                     factory: 3,
                     custom: 4,
                     display: 5,
+                    billboard: 6,
                 }[kind.spec.category] || 0;
             const kindID = solidityPacked(
                 ['bytes4', 'uint32', 'uint64', 'uint64'],
                 [NodeSelectors.BuildingKind, 0, kindNameID, categoryID]
             );
+            const tileId = CompoundKeyEncoder.encodeInt16(NodeSelectors.Tile, 0, r, q, s);
+            const tileCoords = [0, q, r, s].map((n) => ethers.toBeHex(ethers.toTwos(n, 16)));
             return {
                 id,
                 kind: {
@@ -412,18 +506,22 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                     inputs: [],
                     outputs: [],
                 },
+                location: { id: tileId, key: 0, time: 0, tile: { id: tileId, coords: tileCoords } },
                 timestamp: null,
                 gooReservoir: [],
                 allData: [],
             };
         };
 
-        const worldTiles: WorldTileFragment[] = tiles.map((t) => {
+        const worldTiles = grid.map((t) => {
             const [q, r, s] = t.location;
             const id = CompoundKeyEncoder.encodeInt16(NodeSelectors.Tile, 0, r, q, s);
             const coords = [0, q, r, s].map((n) => ethers.toBeHex(ethers.toTwos(n, 16)));
             const tileManifests = manifests.get(t.id);
             const isDiscovered = tileManifests && tileManifests.length != 0;
+            if (!isDiscovered) {
+                return;
+            }
             return {
                 id,
                 coords,
@@ -438,19 +536,15 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
             };
         });
 
-        const args: any[][] = [];
-        args.push([
-            'GameStateMediator',
-            'StartOnState',
-            JSON.stringify({ tiles: [], buildings: [], players: [], block: 1 }),
-        ]);
-        args.push(['GameStateMediator', 'ResetWorldTiles']);
-        args.push(['GameStateMediator', 'AddWorldTiles', JSON.stringify(worldTiles)]);
-        args.push(['GameStateMediator', 'EndOnState']);
-        for (let i = 0; i < args.length; i++) {
-            sendMessage(args[i][0], args[i][1], args[i][2]);
-        }
-    }, [sendMessage, tiles, manifests, preview, buildingKinds, ready]);
+        return {
+            world: {
+                buildings: worldTiles.map((t) => t?.building).filter((b) => !!b) as WorldBuildingFragment[],
+                players: [],
+                block: 1,
+            },
+            tiles: worldTiles.filter((t) => !!t) as WorldTileFragment[],
+        };
+    }, [grid, manifests, preview, buildingKinds]);
 
     const onMoveTiles = useCallback(
         (d: [number, number, number]) => {
@@ -497,6 +591,10 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
         };
     }, [onMoveTiles]);
 
+    if (!stateLoaded) {
+        return <div>loading</div>;
+    }
+
     return (
         <div
             style={{
@@ -529,9 +627,10 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                 <ambientLight color="#ffffff" intensity={0.55} />
                 <directionalLight color="#fff" position={[100, 100, 100]} />
                 <OrthographicCamera makeDefault zoom={20} near={0} far={10000} position={[0, 100, 0]} />
-                <Grid tiles={tiles} manifests={manifests} onPaintTile={onPaintTile} />
-                {tiles.map(buildingForTile).filter((v) => !!v)}
+                <Grid tiles={grid} manifests={manifests} onPaintTile={onPaintTile} />
+                {grid.map(buildingForTile).filter((v) => !!v)}
             </Canvas>
+
             <input
                 ref={fileRef}
                 type="file"
@@ -540,6 +639,13 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                 multiple
                 style={{ display: 'none' }}
             />
+            {mapReady && previewState && (
+                <>
+                    <GroundPlane height={-0.1} />
+                    <Tiles tiles={previewState?.tiles || []} />
+                    <Buildings tiles={previewState?.tiles || []} buildings={previewState?.world?.buildings || []} />
+                </>
+            )}
         </div>
     );
 };
@@ -548,10 +654,10 @@ export default function Page() {
     const config = useConfig();
 
     return (
-        <GameStateProvider config={config}>
-            <UnityMapProvider>
+        <UnityMapProvider>
+            <GameStateProvider config={config}>
                 <TileFab />
-            </UnityMapProvider>
-        </GameStateProvider>
+            </GameStateProvider>
+        </UnityMapProvider>
     );
 }
