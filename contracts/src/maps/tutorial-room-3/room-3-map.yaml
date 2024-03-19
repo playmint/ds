@@ -2,6 +2,18 @@
 ---
 kind: Tile
 spec:
+  location: [ 0, 0, 0 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  location: [ 1, -1, 0 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
   location: [ 2, -2, 0 ]
   biome: DISCOVERED
 
