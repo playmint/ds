@@ -27,9 +27,16 @@ export default async function update(state, block) {
         };
     }
 
-    console.log("countdownHQ", countdownHQ);
-
-    const countdownBuildings = getBuildingsByType(buildings, "Countdown");
+    const countdownBuildings = getBuildingsByType(
+        buildings,
+        "Countdown",
+    ).filter(
+        (b) =>
+            distance(
+                b.location.tile.coords,
+                countdownHQ.location.tile.coords,
+            ) <= 2,
+    );
 
     const nowBlock = block;
     const startBlock = getDataInt(countdownHQ, "startBlock");
@@ -114,12 +121,32 @@ const getBuildingsByType = (buildingsArray, type) => {
     );
 };
 
-function distance(tileCoords, nextTile) {
+function distance(signedHexCoordsA, signedHexCoordsB) {
+    const coordA = signedHexCoordsA.map(hexToSignedDecimal);
+    const coordB = signedHexCoordsB.map(hexToSignedDecimal);
+
     return Math.max(
-        Math.abs(tileCoords[0] - nextTile[0]),
-        Math.abs(tileCoords[1] - nextTile[1]),
-        Math.abs(tileCoords[2] - nextTile[2]),
+        Math.abs(coordA[0] - coordB[0]),
+        Math.abs(coordA[1] - coordB[1]),
+        Math.abs(coordA[2] - coordB[2]),
     );
+}
+
+function hexToSignedDecimal(hex) {
+    if (hex.startsWith("0x")) {
+        hex = hex.substr(2);
+    }
+
+    let num = parseInt(hex, 16);
+    let bits = hex.length * 4;
+    let maxVal = Math.pow(2, bits);
+
+    // Check if the highest bit is set (negative number)
+    if (num >= maxVal / 2) {
+        num -= maxVal;
+    }
+
+    return num;
 }
 
 // -- Onchain data helpers --

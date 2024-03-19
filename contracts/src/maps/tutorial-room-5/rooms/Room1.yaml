@@ -13,6 +13,12 @@ spec:
 ---
 kind: Building
 spec:
+  name: Counter
+  location: [-1, 0, 1]
+
+---
+kind: Building
+spec:
   name: Countdown HQ
   location: [0, 2, -2]
 
@@ -21,3 +27,9 @@ kind: Building
 spec:
   name: Countdown
   location: [2, 0, -2]
+
+---
+kind: Building
+spec:
+  name: Countdown
+  location: [1, 0, -1]
