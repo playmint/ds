@@ -1,0 +1,23 @@
+---
+kind: BuildingKind
+spec:
+  category: billboard
+  name: Disco Billboard
+  description: Beavers!
+  model: monitor
+  plugin:
+    file: ./DiscoBillboard.js
+    alwaysActive: true
+  materials:
+  - name: Red Goo
+    quantity: 10
+  - name: Green Goo
+    quantity: 10
+  - name: Blue Goo
+    quantity: 10
+
+---
+kind: Building
+spec:
+  name: Disco Billboard
+  location: [ 3, -8, 5 ]
