@@ -1,0 +1,11 @@
+---
+kind: Quest
+spec:
+  name: Create Some Treasure
+  description: "Use the Castle of Treasure to craft some Treasure."
+  tasks:
+    - kind: inventory
+      name: "Put some Treasure in your bag"
+      item:
+        name: Treasure
+        quantity: 1

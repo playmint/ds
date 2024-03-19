@@ -1,0 +1,41 @@
+
+---
+kind: BuildingKind
+spec:
+  category: factory
+  name: Castle of Treasure
+  description: This Building can create treasure!
+  model: 01-08
+  color: 2
+  contract:
+    file: ./CastleOfTreasure.sol
+  plugin:
+    file: ./CastleOfTreasure.js
+  materials:
+  - name: Red Goo
+    quantity: 10
+  - name: Green Goo
+    quantity: 10
+  - name: Blue Goo
+    quantity: 10
+  inputs:
+  - name: Red Goo
+    quantity: 10
+  - name: Green Goo
+    quantity: 10
+  - name: Blue Goo
+    quantity: 10
+  outputs:
+  - name: Treasure
+    quantity: 1
+
+---
+kind: Item
+spec:
+  name: Treasure
+  icon: 28-111
+  goo:
+    red: 5
+    green: 5
+    blue: 5
+  stackable: false

@@ -1,0 +1,5 @@
+---
+kind: AutoQuest
+spec:
+  name: 'Move to the South-East Island'
+  index: 0

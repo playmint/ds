@@ -1,0 +1,10 @@
+---
+kind: Quest
+spec:
+  name: Move to the South-East Island
+  description: "Click 'Move', then click on a tile. Then click 'Confirm' to move your Unit to that location."
+  tasks:
+    - kind: coord
+      name: Move your unit so that you are standing in the middle of the South-East island
+      location: [8, -8, 0]
+  next: ["Construct a Castle of Treasure"]
