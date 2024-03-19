@@ -1,71 +1,158 @@
-# Building Games with Downstream
+<img src="images/header.png">
 
-## Build and run locally
-Follow the instructions in the [root README](../README.md)
+
+# A guide to building your own game with Downstream
+
+__First__, follow the instructions for "_running with docker_" in the root [README](../README.md) so you have a local instance of the Downstream platform running.
+
+Browsing to [localhost:3000/](http://localhost:3000/) should look like this:
+
+<img src="images/fresh-local-downstream.png" width="200">
+
+You are now able to connect (Burner is recommended in development), spawn a Unit and move around.
+
+# Creation Tools
+
+Now you need to create buildings for your Unit to construct (and attack). You can then add game logic and create new maps.
 
 ## Building Fabricator
-browse to [localhost:3000/building-fabricator](http://localhost:3000/building-fabricator)
-
-The Building Fabricator allows you to deploy buildings and items to Downstream without having to leave the game!
-
 <img src="images/building-fabricator.png" width="200">
 
+Browse to [localhost:3000/building-fabricator](http://localhost:3000/building-fabricator)
+
+The Building Fabricator allows you to deploy buildings and items to Downstream without having to leave the game! Once configured hit the ___Deploy___ button.
+
+To add new behaviour to the building, once configured, hit the ___Export___ button and follow the instructions below for deploying any code changes from the command line.
+
 ## Tile Fabricator
-browse to [localhost:3000/tile-fabricator](http://localhost:3000/tile-fabricator)
+<img src="images/tile-fabricator.png" width="200">
 
-The Tile Fabricator allows you to draw and remove tiles and buildings from a map definition and then export that as a configuration yaml file.
+Browse to [localhost:3000/tile-fabricator](http://localhost:3000/tile-fabricator)
 
-![](images/tile-fabricator.png)
+The Tile Fabricator allows you to place tiles and buildings and then export that as a configuration yaml file.
+
+Any buildings you want to place on the map must be already deployed to the current running instance or you can use the import button for use by the tile-fabricator.
 
 ## CLI
-Available as an npm package, `ds` is how buildings and maps are deployed to Downstream.
+<img src="images/cli.png" width="200">
 
-Installation: `npm install -g @playmint/ds-cli`
+Available as an npm package, `ds` is a command line interface for deploying buildings and maps as well as getting information about what's already been deployed to a Downstream instance.
 
-Help: `ds --help`
 
-### Deploying over current map
+### Installation:
 
-Use the building-fabricator to export building sources and the tile-fabricator to export map files. Combine them all in a single folder and use `ds` to deploy them to a running Downstream:
+```npm install -g @playmint/ds-cli```
+
+### Commands   
+_Some common tasks:_
+
+| example | task |
+|---|---|
+| `ds apply -n local -f BasicFactory.yaml -k <private key>` | Apply manifest files (deploy buildings and maps) |
+| `ds get -n local items` | Get ids for all items |
+| `ds get -n local items` | Get info for a ll buildingkinds |
+| `ds help` | help on all commands |
+
+_options explained_
+| option | description |
+|---|---|
+| `-n local` | Routes commands to localhost. |
+| `-f BasicFactory.yaml`| Apply just BasicFactory.yaml file. |
+| `-R -f MyMapFolder`| Deploy all manifests in MyMapFolder recursively. |
+| `-k <private key>` | Sign with this private key (see warning below). |
+
+### Command line signing
+
+    ⚠️ Do not use a private key for any account you care about. You can use the Downstream connection dialogue box to copy the private key if connected with a burner. Or you can leave this option out and ds will give you a wallet connect QR code to sign.
+
+### Deploy a single building
+
+- Use the __building-fabricator__ to _export_ building sources.
+- Use __ds__ to deploy it to the local running Downstream:
+
+```ds apply -n local -k <private key> -f ./BasicFactory.yaml```
+
+### Deploy a map folder over the current map
+
+- Use the building-fabricator to export building sources and the tile-fabricator to export map files.
+- Combine them all in a single folder.
+- Use `ds apply` to deploy them to the local running Downstream:
 
 ```ds apply -n local -k <private key> -R f <exported folder>```
 
-> note that `-k <private key>` can use the player private key if connected to Downstream with a Burner. Or you wil be presented with a WalletConnect QR code if you leave this option out.
 
-### Deploying fresh Downstream with your map
+### Deploy as the initial map
 
 - Stop any local running build.
 - Copy your map manifest and building source to [contracts/src/maps](../contracts/src/maps)<map-folder>
 - Re-run with `MAP=<map-folder> docker compose up`
+    - Windows users may need to set the MAP variable in the root .env file because docker does 
 
-## Adding Game Logic
+# Adding Game Logic
 
-## BuildingKind source overview
-The source code exported from the building-fabricator is split into 3 files:
+The files exported from the Building Fabricator act as a starting point for implementing your own logic.
+
+| File | Purpose | Notes |
+|---|---|---|
+| BasicFactory.yaml | The manifest | Contains the parameters set by you in the Building Fabricator and is the entry point when passed to `ds apply`. |
+| BasicFactory.js | UI and Action dispatching | Implements an `update` function that is called when an instance of the building is clicked on in game. Use the `state` parameter to make control what html and buttons are returned.Dispatch onchain actions on behalf of the selected ***Unit*** with `ds.dispatch` |
+| BasicFactory.sol | Onchain logic | A solidity contract implementing `BuildingKind` interface. The entry point is the `BuildingKind.use` function, which can dispatch actions on behalf the ***Building***. |
+
+    📣 We are working on a tutorial to introduce all of Downstream's creation tools and game logic api. Until then, the examples below and reaching out in Discord are the best way to discover what's possible with your Downstream game.
+
+# Examples    
+
+ __[Complete Maps](../contracts/src/maps)__ 
+
+These are all under ds/contracts/src/maps/:
+
+| Folder      | Tile Fabricator View                           | Description       | Notes |
+|-------------|------------------------------------------------|-------------------|-------|
+| default     |<img src="images/map-default.png" width="100">  | Single tile       | Deploy this andhen use ds-cli to apply any other map |
+| example-gate|<img src="images/map-gate.png" width="100">     | Door and key      | Demonstrates how doors work |
+| hexcraft    |<img src="images/map-hexcraft.png" width="100"> | Game from [1kx](https://github.com/1kx-network/hexcraft) | Uses: Team allocation; Building contract code linked; Restricted crafting; Restricted building; Unit model swaps |
+| labyrinth   |<img src="images/map-labyrinth.png" width="100">| Game from [RockawayX](https://github.com/rockawayx-labs/ds-dx)| Uses: Doors; Password hashing; Combat Stats; Item checking; Quests; Map reset|
+| quest-map   |<img src="images/map-quests.png" width="100">   | Showcase of Downstream core systems | Uses the quest system to guide players from task to task|
+| team-vanilla|<img src="images/map-vanilla.png" width="100">  | Handy multiple size and shape arenas | Good for setting up and playing multiple session based games |
+| tiny        |<img src="images/map-tiny.png" width="100">     | A small empty map. | Good for iterating on building development. |
 
 
-#### BasicFactory.yaml
-This contains the parameters set by you in the Building Fabricator and is the entry point when passed to `ds apply`.
-        
-#### BasicFactory.js - UI and action dispatch
-This is the javascript that controls UI behaviour and is deployed to chain as call data and linked to your building contract.
+The following require experimental Tonk services to be run with docker so use the `tonk` profile: `docker compose --profile tonk up`
 
-It implements an `update` function, with access to state to make decisions about what to display.
+| Folder      | Tile Fabricator View                           | Description       | Notes |
+|-------------|------------------------------------------------|-------------------|-------|
+| tonk        |<img src="images/map-tonk.png" width="100">     | Game by [Tonk](https://github.com/tonk-gg/ds-extensions-debuggus) | Uses: Connection to external server; extensive UI take over; item UI plugin; Unit model swaps |
+| croissant   |<img src="images/map-croissant.png" width="100">| Multi Game Map    | This showcases multiple games on one map including Tonk Attack; Hexcraft; The Labyrinth and Ducks v Burgers |
 
-It also acts as a way to dispatch game actions to chain on behalf of the selected ***Unit***, e.g. BUILDING_USE. 
 
-The returns block of `update` configures the building UI for display and hooks up any buttons to functions declared in this file.
+__[Example Buildings](../contracts/src/maps)__
 
-The exported BasicFactory.js contains commented out code with examples of how to log the available state and how to restrict which Units can use the building.
-        
-#### BasicFactory.sol - onchain logic
-This defines the building contract deployed to chain and must implement `BuildingKind` interface. The entry point is the `BuildingKind.use` function, which can dispatch actions on behalf the ***Building***, e.g. CRAFT.
+| Folder        | Description          | Notes  |
+|---------------|----------------------|--------|
+| Basic Factory | Default Factory Code | This is the code exported by the Building Fabricator; It also contains commented out code for restricting access to items | 
+| Cocktail Hut  | Grab a cocktail      | Demonstrates: Billboards; Item Plugin; js fetch API; Tile colouring |
+| DuckBurger    | Popup Battle Kit     | All the buildings you need to start a game of Ducks vs Burger. Demonstrates: Solidity function selection with `buildingkind.use()`'s `payload` parameter; Reward claim; Timed session; Team allocation; Unit model swaps; Countdown display; Counter display; |
+| StateStorage  | Feature demo         | Demonstrates: Storing state onchain in a way that can be read by the js plugin code. |
 
-The `use` function takes an optional payload param to be used for variable behaviour.
+# Connecting External Apps
 
-The exported BasicFactory.sol contains commented out code of how to restrict which Units can use the building.
+## External Clients
+See [external-connection](external-connections.md) for connecting external clients to Downstream state.
 
-## Examples
-> ⚠️ We are working on a tutorial to introduce all of Downstream's creation tools. 
-See some feature examples in [contracts/src/example-plugins](../contracts/src/example-plugins) and full maps in [contracts/src/maps](../contracts/src/maps)
+## Downstream Item NFTs
+All Downstream items moved to the player's Wallet inventory are [ERC1155 item tokens](../contracts/src/Items1155.sol) owned by the connected player:
 
+<img src="images/wallet.png" width="200"> 
+
+Dapps on the same chain could interact with these items in standard ways.
+
+## Onchain composability
+Any Downstream building can interact with any other contract, including other onchain games, deployed to the same chain.
+
+Any other contract on the same chain can interact with the Downstream's read-only contract api but would not be able to send write actions.
+
+
+# Video Guides
+
+1. [___Run default map and deploy DuckBurger example.___](1rvXt3Fs4M0-yn83Mc0iAG9HlhIJpSDRl/view?usp=drive_link) <img src="images/dvb-thumb.png" width="200"> 
+2. [___Create new map with DuckBurger plus extractors.___](https://drive.google.com/file/d/1f6xYuzhBMBFMIYWe_Xb8Sr2vIhLukORY/view?usp=drive_link) <img src="images/dvb2-thumb.png" width="200"> 
