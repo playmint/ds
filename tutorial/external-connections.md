@@ -2,7 +2,8 @@
 
 External clients can connect to deployed Downstream instances and read game state in one of two ways.
 
-    The urls here assume running locally. Reach out to Playmint if you want to connect to a public instance.
+> [!IMPORTANT]  
+> The urls here assume running locally. Reach out to Playmint if you want to connect to a public instance.
 
 ## 1. GraphQL
 
