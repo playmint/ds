@@ -140,7 +140,10 @@ function getTileCoords(coords) {
 }
 
 function getTileIdFromCoords(coords) {
-    return `${TILE_ID_PREFIX}0000000000000000000000000000${toInt16Hex(coords[0])}${toInt16Hex(coords[1])}${toInt16Hex(coords[2])}`;
+    const q = toInt16Hex(coords[0]);
+    const r = toInt16Hex(coords[0]);
+    const s = toInt16Hex(coords[0]);
+    return `${TILE_ID_PREFIX}0000000000000000000000000000${q}${r}${s}`;
 }
 
 function hexToSignedDecimal(hex) {
