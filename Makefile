@@ -84,8 +84,6 @@ clean:
 	rm -rf core/src/gql
 	rm -rf core/src/abi
 	rm -rf core/node_modules
-	rm -f  frontend/public/ds-unity/Build/ds-unity.wasm
-	rm -rf frontend/public/ds-unity
 	rm -rf frontend/dist
 	rm -rf frontend/node_modules
 	rm -rf node_modules

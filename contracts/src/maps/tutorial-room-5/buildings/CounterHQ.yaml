@@ -1,0 +1,19 @@
+kind: BuildingKind
+spec:
+  name: Counter HQ
+  description: "This building is an example of driving counter buildings"
+  category: custom
+  model: 11-03
+  color: 2
+  contract:
+    file: ./CounterHQ.sol
+  plugin:
+    file: ./CounterHQ.js
+    alwaysActive: true
+  materials:
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+    - name: Red Goo
+      quantity: 10

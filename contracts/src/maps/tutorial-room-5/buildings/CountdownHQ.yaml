@@ -1,0 +1,19 @@
+kind: BuildingKind
+spec:
+  name: Countdown HQ
+  description: "This building is an example of driving countdown buildings"
+  category: custom
+  model: 11-03
+  color: 0
+  contract:
+    file: ./CountdownHQ.sol
+  plugin:
+    file: ./CountdownHQ.js
+    alwaysActive: true
+  materials:
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+    - name: Red Goo
+      quantity: 10
