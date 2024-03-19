@@ -86,7 +86,7 @@ _options explained_
 - Stop any local running build.
 - Copy your map manifest and building source to [contracts/src/maps](../contracts/src/maps)<map-folder>
 - Re-run with `MAP=<map-folder> docker compose up`
-    - Windows users may need to set the MAP variable in the root .env file because docker does 
+    - You can also set the MAP environment variable in the [.env file](../.env)
 
 # Adding Game Logic
 
