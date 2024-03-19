@@ -63,7 +63,8 @@ _options explained_
 
 ### Command line signing
 
-    ⚠️ Do not use a private key for any account you care about. You can use the Downstream connection dialogue box to copy the private key if connected with a burner. Or you can leave this option out and ds will give you a wallet connect QR code to sign.
+>[!CAUTION]
+>Do not use a private key for any account you care about. You can use the Downstream connection dialogue box to copy the private key if connected with a burner. Or you can leave this option out and ds will give you a wallet connect QR code to sign.
 
 ### Deploy a single building
 
