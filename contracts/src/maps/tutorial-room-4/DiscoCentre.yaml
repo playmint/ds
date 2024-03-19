@@ -23,3 +23,4 @@ kind: Building
 spec:
   name: Disco Centre
   location: [ 0, -8, 8 ]
+  facingDirection: LEFT

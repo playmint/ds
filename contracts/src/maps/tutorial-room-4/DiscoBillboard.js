@@ -2,10 +2,16 @@ import ds from 'downstream';
 
 // TODO: change these to beaver dancing images
 const images = [
-'https://assets.downstream.game/logos/morton.png',
-'https://assets.downstream.game/logos/tonk.png'
+'https://assets.downstream.game/examples/disco-beaver-0.jpeg',
+'https://assets.downstream.game/examples/disco-beaver-1.jpeg',
+'https://assets.downstream.game/examples/disco-beaver-2.jpeg',
+'https://assets.downstream.game/examples/disco-beaver-3.jpeg',
+'https://assets.downstream.game/examples/disco-beaver-4.jpeg',
+'https://assets.downstream.game/examples/disco-beaver-5.jpeg',
+'https://assets.downstream.game/examples/disco-beaver-6.jpeg',
+'https://assets.downstream.game/examples/disco-beaver-7.jpeg',
 ];
-let selectedImg = 0;
+let selectedImg = 1;
 
 const changeImg = () => {
     selectedImg = (selectedImg + 1) % images.length;
