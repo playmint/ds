@@ -1,0 +1,25 @@
+
+---
+kind: BuildingKind
+spec:
+  category: custom
+  name: Disco Centre
+  description: Controls tile colours and unit visuals
+  model: 03-06
+  color: 2
+  plugin:
+    file: ./DiscoCentre.js
+    alwaysActive: true
+  materials:
+  - name: Red Goo
+    quantity: 10
+  - name: Green Goo
+    quantity: 10
+  - name: Blue Goo
+    quantity: 10
+
+---
+kind: Building
+spec:
+  name: Disco Centre
+  location: [ 0, -8, 8 ]
