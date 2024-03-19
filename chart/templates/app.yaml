@@ -3,9 +3,15 @@ gameID: {{ $.Values.frontend.gameAddress | quote}}
 build: {{ $.Values.version | quote }}
 wsEndpoint: "wss://services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}/query"
 httpEndpoint: "https://services-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}/query"
+{{ if eq $.Values.chain "anvil" }}
 networkEndpoint: "https://network-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
 networkName: "{{ $.Release.Namespace }}"
 networkID: "{{ $.Release.Namespace | mustRegexFind "[0-9]+$" | printf "223%02s" }}"
+{{ else if eq $.Values.chain "redstone-holesky" }}
+networkEndpoint: "https://rpc.holesky.redstone.xyz"
+networkName: "Redstone Holesky"
+networkID: "17001"
+{{ end }}
 tonkEndpoint: "https://tonk-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
 {{ end }}
 
@@ -35,22 +41,27 @@ spec:
           env:
             - name: PORT
               value: "8080"
-            - name: CHAIN_ID
-              value: "{{ $.Release.Namespace | mustRegexFind "[0-9]+$" | printf "223%02s" }}"
             - name: SEQUENCER_PRIVATE_KEY
               value: {{ $.Values.sequencer.privateKey | quote }}
+            {{ if eq $.Values.chain "redstone-holesky" }}
+            - name: CHAIN_ID
+              value: "17001"
+            {{ else }}
+            - name: CHAIN_ID
+              value: "{{ $.Release.Namespace | mustRegexFind "[0-9]+$" | printf "223%02s" }}"
+            {{ end }}
+            - name: SEQUENCER_MINE_EMPTY
+              value: {{ $.Values.sequencer.mineEmpty | quote }}
             - name: SEQUENCER_PROVIDER_URL_HTTP
               value: {{ $.Values.sequencer.providerUrlHttp | quote }}
             - name: SEQUENCER_PROVIDER_URL_WS
               value: {{ $.Values.sequencer.providerUrlWs | quote }}
-            - name: SEQUENCER_MINE_EMPTY
-              value: {{ $.Values.sequencer.mineEmpty | quote }}
-            - name: INDEXER_WATCH_PENDING
-              value: {{ $.Values.indexer.watchPending | quote }}
             - name: INDEXER_PROVIDER_URL_HTTP
               value: {{ $.Values.indexer.providerUrlHttp | quote }}
             - name: INDEXER_PROVIDER_URL_WS
               value: {{ $.Values.indexer.providerUrlWs | quote }}
+            - name: INDEXER_WATCH_PENDING
+              value: {{ $.Values.indexer.watchPending | quote }}
             - name: INDEXER_GAME_ADDRESS
               value: {{ $.Values.indexer.gameAddress | quote }}
             - name: INDEXER_STATE_ADDRESS
@@ -64,7 +75,7 @@ spec:
           - -eu
           - -c
           - |
-            {{ if $.Values.anvil.enabled -}}
+            {{ if eq $.Values.chain "anvil" -}}
             echo "waiting"
             /wait-for -it localhost:8545 -t 300
             {{ end -}}
@@ -80,7 +91,7 @@ spec:
               port: http
             initialDelaySeconds: 30
             periodSeconds: 5
-        {{ if $.Values.anvil.enabled -}}
+        {{ if eq $.Values.chain "anvil" -}}
         - name: contracts
           image: {{ printf "ghcr.io/playmint/ds-contracts:%s" $.Values.version }}
           imagePullPolicy: Always
@@ -107,7 +118,7 @@ spec:
           - mountPath: "/root/.foundry/anvil/tmp"
             name: contracts-scratch
         {{ end -}}
-      {{ if $.Values.anvil.enabled }}
+      {{ if eq $.Values.chain "anvil" }}
       volumes:
       - name: contracts-scratch
         ephemeral:
@@ -184,7 +195,7 @@ spec:
   selector:
     app: {{ $.Release.Name }}-services
 
-{{ if $.Values.anvil.enabled }}
+{{ if eq $.Values.chain "chain" }}
 ---
 apiVersion: v1
 kind: Service
@@ -251,7 +262,7 @@ spec:
       name: "downstream-domain-certificate"
       namespace: "ingress-system"
 
-{{ if $.Values.anvil.enabled }}
+{{ if eq $.Values.chain "anvil" }}
 ---
 apiVersion: "gateway.solo.io/v1"
 kind: VirtualService
