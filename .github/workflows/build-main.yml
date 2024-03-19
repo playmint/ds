@@ -15,6 +15,7 @@ jobs:
       DEPLOYMENT_MAP: quest-map
       DEPLOYMENT_ENVIRONMENT: hexwood0
       DEPLOYMENT_PRIORITY: default
+      DEPLOYMENT_CHAIN: anvil
       PLATFORMS: linux/arm64/v8,linux/amd64
     secrets:
       AZURE_REGISTRY_URL: ${{ secrets.AZURE_REGISTRY_URL }}
@@ -26,3 +27,5 @@ jobs:
       UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
       UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
       UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+      DEPLOYER_PRIVATE_KEY: ${{ secrets.REDSTONE_HOLESKY_DEPLOYER_KEY }}
+      SEQUENCER_PRIVATE_KEY: ${{ secrets.REDSTONE_HOLESKY_SEQUENCER_KEY }}

@@ -4,6 +4,10 @@
 on:
   workflow_call:
     inputs:
+      DEPLOYMENT_CHAIN:
+        type: string
+        description: anvil,redstone etc
+        default: anvil
       DEPLOYMENT_ENVIRONMENT:
         description: Name of environment main/prod/test to deploy to
         required: true
@@ -49,6 +53,12 @@ on:
         required: true
       AZURE_CLUSTER_RESOURCE_GROUP:
         description: Name of the resource group where the cluster lives
+        required: true
+      DEPLOYER_PRIVATE_KEY:
+        description: key for (non-anvil) deployments
+        required: true
+      SEQUENCER_PRIVATE_KEY:
+        description: key for (non-anvil) sequencer
         required: true
       UNITY_SERIAL:
         description: Unity licence serial
@@ -223,6 +233,16 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: Install Foundry
+      uses: foundry-rs/foundry-toolchain@v1
+      with:
+        version: nightly
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
     - name: Update deployment status
       uses: bobheadxi/deployments@v0.6.2
       id: deployment
@@ -241,11 +261,42 @@ jobs:
       uses: azure/setup-helm@v3
       with:
         version: '3.7.2'
+    - name: Deploy Contracts
+      env:
+        OVERRIDE_VALUES: overrides.yaml
+        DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+        SEQUENCER_PRIVATE_KEY: ${{ secrets.SEQUENCER_PRIVATE_KEY }}
+      run: |
+        touch $OVERRIDE_VALUES
+        if [[ "${{ inputs.DEPLOYMENT_CHAIN }}" == "redstone-holesky" ]]; then
+          (cd contracts && forge script script/Deploy.sol:GameDeployer \
+            --broadcast \
+            --rpc-url "https://rpc.holesky.redstone.xyz" \
+            --slow
+          )
+          cat contracts/out/latest.json
+          echo "chainId: 17001" >> $OVERRIDE_VALUES
+          echo "indexer:" >> $OVERRIDE_VALUES
+          echo "  gameAddress: $(jq -r .game contracts/out/latest.json)" >> $OVERRIDE_VALUES
+          echo "  stateAddress: $(jq -r .state contracts/out/latest.json)" >> $OVERRIDE_VALUES
+          echo "  routerAddress: $(jq -r .router contracts/out/latest.json)" >> $OVERRIDE_VALUES
+          echo "  providerUrlHttp: https://rpc.holesky.redstone.xyz" >> $OVERRIDE_VALUES
+          echo "  providerUrlWs: wss://rpc.holesky.redstone.xyz/ws" >> $OVERRIDE_VALUES
+          echo "frontend:" >> $OVERRIDE_VALUES
+          echo "  gameAddress: $(jq -r .game contracts/out/latest.json)" >> $OVERRIDE_VALUES
+          echo "sequencer:" >> $OVERRIDE_VALUES
+          echo "  privateKey: ${SEQUENCER_PRIVATE_KEY}" >> $OVERRIDE_VALUES
+          echo "  providerUrlHttp: https://rpc.holesky.redstone.xyz" >> $OVERRIDE_VALUES
+          echo "  providerUrlWs: wss://rpc.holesky.redstone.xyz/ws" >> $OVERRIDE_VALUES
+          echo "  mineEmpty: false" >> $OVERRIDE_VALUES
+        fi
     - name: Deploy to Azure
       env:
+        OVERRIDE_VALUES: overrides.yaml
         CHART_VERSION: ${{ github.sha }}
         CHART_NAMESPACE: ${{ inputs.DEPLOYMENT_ENVIRONMENT }}
         CHART_VALUES: |-
+          chain: ${{ inputs.DEPLOYMENT_CHAIN }}
           cluster:
             domain: ${{ inputs.DEPLOYMENT_DOMAIN }}
           version: ${{ github.sha }}
@@ -258,8 +309,26 @@ jobs:
           --history-max 5 \
           ds ./chart \
             --values /tmp/values.yaml \
+            --values $OVERRIDE_VALUES \
             --create-namespace \
             -n "${CHART_NAMESPACE}"
+    - name: Wait for services
+      uses: iFaxity/wait-on-action@v1.1.0
+      with:
+        resource: https://services-${{ inputs.DEPLOYMENT_ENVIRONMENT }}.${{ inputs.DEPLOYMENT_DOMAIN }}/
+        interval: 1000
+        simultaneous: 1
+        timeout: 600000
+    - name: Apply Map
+      env:
+        DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+        MAP_NAME: ${{ inputs.DEPLOYMENT_MAP }}
+        NETWORK_NAME: ${{ inputs.DEPLOYMENT_ENVIRONMENT }}
+      run: |
+        if [[ "${{ inputs.DEPLOYMENT_CHAIN }}" == "redstone-holesky" ]]; then
+          (cd /tmp && (npm install -g @playmint/ds-cli || true))
+          ds -k "${DEPLOYER_PRIVATE_KEY}" -n "${NETWORK_NAME}" apply -R -f "contracts/src/maps/${MAP_NAME}" --max-connections 50
+        fi
     - name: Update deployment status
       uses: bobheadxi/deployments@v0.6.2
       if: always()
