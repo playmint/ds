@@ -1,0 +1,10 @@
+---
+kind: Quest
+spec:
+  name: Construct a Castle of Treasure
+  description: "Click 'Build', then click on a tile. Then select 'Castle of Treasure' from the list of buildings and click 'Confirm'"
+  tasks:
+    - kind: construct
+      name: Construct a Castle of Treasure.
+      buildingKind: Castle of Treasure
+  next: ["Create Some Treasure"]
