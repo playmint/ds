@@ -1,0 +1,10 @@
+---
+kind: Item
+spec:
+  name: Squisher
+  icon: xx-01
+  goo:
+    red: 60
+    green: 1
+    blue: 25
+  stackable: false

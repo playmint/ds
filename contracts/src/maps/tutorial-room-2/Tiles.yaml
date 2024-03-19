@@ -1,4 +1,3 @@
-
 ---
 kind: Tile
 spec:
@@ -178,33 +177,3 @@ kind: Tile
 spec:
   location: [ 2, 0, -2 ]
   biome: DISCOVERED
-
----
-kind: Building
-spec:
-  name: Mr. Squishy
-  location: [ 8, 2, -10 ]
-  facingDirection: LEFT
-
----
-kind: Bag
-spec:
-  location: [ 7, -2, -5]
-  items:
-    - name: Door Unlockinator 3000
-      quantity: 1
-
----
-kind: Bag
-spec:
-  location: [ 10, -2, -8]
-  items:
-    - name: Squisher
-      quantity: 1
-
----
-kind: Building
-spec:
-  name: Squishy Gate
-  location: [8, -1, -7]
-  facingDirection: RIGHT
