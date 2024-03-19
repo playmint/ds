@@ -159,9 +159,7 @@ Any other contract on the same chain can interact with the Downstream's read-onl
 
 # Video Guides
 
-| Video |   | Demonstrates |
-|-------|---|--------------|
-| [Tutorial 1](https://drive.google.com/file/d/1rvXt3Fs4M0-yn83Mc0iAG9HlhIJpSDRl/view?usp=drive_link) | <img src="images/dvb-thumb.png" width="200"> | Run default map and deploy DuckBurger example |
-2. [___Create new map with DuckBurger plus extractors.___](https://drive.google.com/file/d/1f6xYuzhBMBFMIYWe_Xb8Sr2vIhLukORY/view?usp=drive_link) 
-
-<img src="images/dvb2-thumb.png" width="200"> 
+| Video             | Demonstrates         |              |
+|-------------------|----------------------|--------------|
+| [Tutorial 1](https://drive.google.com/file/d/1rvXt3Fs4M0-yn83Mc0iAG9HlhIJpSDRl/view?usp=drive_link) | Build and run; Default Map; Deploy example buildings;| <img src="images/dvb-thumb.png" width="200"> |
+| [Tutorial 2](https://drive.google.com/file/d/1f6xYuzhBMBFMIYWe_Xb8Sr2vIhLukORY/view?usp=drive_link) | Tile Fabricator; Custom Map; |<img src="images/dvb2-thumb.png" width="200"> |
