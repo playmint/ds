@@ -49,8 +49,11 @@ _Some common tasks:_
 | example | task |
 |---|---|
 | `ds apply -n local -f BasicFactory.yaml -k <private key>` | Apply manifest files (deploy buildings and maps) |
+| `ds apply help` | help on apply command |
 | `ds get -n local items` | Get ids for all items |
-| `ds get -n local items` | Get info for a ll buildingkinds |
+| `ds get -n local buildingkinds` | Get info for all buildingkinds |
+| `ds get -n local buildingkinds` | Get info for all buildingkinds |
+| `ds get help` | help on get command |
 | `ds help` | help on all commands |
 
 _options explained_
