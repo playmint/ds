@@ -39,7 +39,7 @@ export default async function update(state) {
             type: "building",
             key: "model",
             id: t.id,
-            value: hasGateKey ? "door-open-4" : "door-closed-4",
+            value: hasGateKey ? "door-open-1" : "door-closed-1",
         };
     });
 
@@ -48,7 +48,7 @@ export default async function update(state) {
         map: blockerTileMapObjs.concat(tileColorMapObjs).concat(buildingModelMapObjs),
         components: [
             {
-                id: "state-storage-test",
+                id: "squishy-gate",
                 type: "building",
                 content: [
                     {

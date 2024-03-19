@@ -42,13 +42,6 @@ spec:
   location: [ 8, 2, -10 ]
 
 ---
-kind: Building
-spec:
-  name: Mr. Squishy
-  location: [ 8, 2, -10 ]
-  facingDirection: RIGHT
-
----
 kind: Tile
 spec:
   location: [ 8, 3, -11 ]
@@ -191,6 +184,7 @@ kind: Building
 spec:
   name: Mr. Squishy
   location: [ 8, 2, -10 ]
+  facingDirection: LEFT
 
 ---
 kind: Bag
