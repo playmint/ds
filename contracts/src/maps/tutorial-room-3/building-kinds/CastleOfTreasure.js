@@ -104,38 +104,3 @@ function inputsAreCorrect(state, building) {
         )
     );
 }
-
-function logState(state) {
-    console.log('State sent to pluging:', state);
-}
-
-const friendlyPlayerAddresses = [
-    // 0x402462EefC217bf2cf4E6814395E1b61EA4c43F7
-];
-
-function unitIsFriendly(state, selectedBuilding) {
-    const mobileUnit = getMobileUnit(state);
-    return (
-        unitIsBuildingOwner(mobileUnit, selectedBuilding) ||
-        unitIsBuildingAuthor(mobileUnit, selectedBuilding) ||
-        friendlyPlayerAddresses.some((addr) => unitOwnerConnectedToWallet(state, mobileUnit, addr))
-    );
-}
-
-function unitIsBuildingOwner(mobileUnit, selectedBuilding) {
-    //console.log('unit owner id:',  mobileUnit?.owner?.id, 'building owner id:', selectedBuilding?.owner?.id);
-    return mobileUnit?.owner?.id && mobileUnit?.owner?.id === selectedBuilding?.owner?.id;
-}
-
-function unitIsBuildingAuthor(mobileUnit, selectedBuilding) {
-    //console.log('unit owner id:',  mobileUnit?.owner?.id, 'building author id:', selectedBuilding?.kind?.owner?.id);
-    return mobileUnit?.owner?.id && mobileUnit?.owner?.id === selectedBuilding?.kind?.owner?.id;
-}
-
-function unitOwnerConnectedToWallet(state, mobileUnit, walletAddress) {
-    //console.log('Checking player:',  state?.player, 'controls unit', mobileUnit, walletAddress);
-    return mobileUnit?.owner?.id == state?.player?.id && state?.player?.addr == walletAddress;
-}
-
-// the source for this code is on github where you can find other example buildings:
-// https://github.com/playmint/ds/tree/main/contracts/src/example-plugins
