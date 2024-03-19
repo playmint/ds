@@ -159,5 +159,5 @@ Any other contract on the same chain can interact with the Downstream's read-onl
 
 # Video Guides
 
-1. [___Run default map and deploy DuckBurger example.___](1rvXt3Fs4M0-yn83Mc0iAG9HlhIJpSDRl/view?usp=drive_link) <img src="images/dvb-thumb.png" width="200"> 
+1. [___Run default map and deploy DuckBurger example.___](https://drive.google.com/file/d/1rvXt3Fs4M0-yn83Mc0iAG9HlhIJpSDRl/view?usp=drive_link) <img src="images/dvb-thumb.png" width="200"> 
 2. [___Create new map with DuckBurger plus extractors.___](https://drive.google.com/file/d/1f6xYuzhBMBFMIYWe_Xb8Sr2vIhLukORY/view?usp=drive_link) <img src="images/dvb2-thumb.png" width="200"> 
