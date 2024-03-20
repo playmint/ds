@@ -1,33 +1,48 @@
-# tutorial-room-2 provides examples on:
+# Tutorial Room 2
+
+This tutorial provides examples on:
 - Bags with containing items 
 - Doors that require a certain item to open 
 - An enemy to fight 
 
-## Build the map - Choose how you want to build:
+## Building the Map
+
+Choose your preferred method to build:
+
 ### With Docker: 
-`MAP=tutorial-room-2 docker compose up`
+Run the following command: 
+```
+MAP=tutorial-room-2 docker compose up
+```
 
 ### With `make dev`:
-`MAP=tutorial-room-2 make dev` 
+Run the following command: 
+```
+MAP=tutorial-room-2 make dev
+``` 
 
 ### With `ds apply`:
-`ds apply -k [YOUR_KEY] -n local -R -f contracts/src/maps/tutorial-room-2` 
+Run the following command: 
+```
+ds apply -k [YOUR_KEY] -n local -R -f contracts/src/maps/tutorial-room-2
+``` 
 
-For more info on building, see: https://github.com/playmint/ds/blob/main/tutorial/README.md
+For more information on building, see the [building guide](https://github.com/playmint/ds/blob/main/tutorial/README.md).
 
 ## Bags & Items
-In this tutorial, there is a key in the bag near the entrance. We've defined the key item in `DoorUnlockinator3000.yaml`, which makes it available to be placed in a bag as can be seen in `Bags.yaml`.
 
-## Using Items with the Door Logic
+In this tutorial, a key is placed in the bag near the entrance. The key item is defined in `DoorUnlockinator3000.yaml`, which makes it available to be placed in a bag as seen in `Bags.yaml`.
 
-In this tutorial, we're using the key item to determin whether or not the door should be open and passable.
+## Using Items with Door Logic
 
-We check to see if the unit has the key in the inventory:
+We use the key item to determine whether the door should be open and passable.
+
+The unit's inventory is checked for the key:
 ```js
 const hasGateKey = getItemBalance(mobileUnit, keyItemName, bags) > 0;
 ```
 
-We can stop or allow the unit from passing a tile:
+We can prevent or allow the unit from passing a tile:
 ```js
 const blockerTileMapObjs = pluginBuildingTileIDs.map((t) => {
         return {
