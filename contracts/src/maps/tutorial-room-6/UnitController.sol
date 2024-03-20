@@ -44,19 +44,57 @@ contract UnitController is BuildingKind {
 
     function _spawnUnit(Game ds) internal {
         // function SPAWN_MOBILE_UNIT(bytes24 mobileUnit) external;
-        bytes24 mobileUnit = Node.MobileUnit(uint64(uint256(keccak256(abi.encode(block.number)))));
+        bytes24 mobileUnit = Node.MobileUnit(uint32(uint256(keccak256(abi.encode(block.number)))));
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (mobileUnit)));
     }
 
-    function _moveUnitNE(Game ds, bytes24 buildingInstance, bytes24 mobileUnit) internal {}
+    function _moveUnitNE(Game ds, bytes24 buildingInstance, bytes24 mobileUnit) internal {
+        (int16 q, int16 r, int16 s) = _getUnitCoords(ds, mobileUnit);
+        ds.getDispatcher().dispatch(
+            abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (uint32(uint192(mobileUnit)), q, r + 1, s - 1))
+        );
+    }
 
-    function _moveUnitE(Game ds, bytes24 buildingInstance, bytes24 mobileUnit) internal {}
+    function _moveUnitE(Game ds, bytes24 buildingInstance, bytes24 mobileUnit) internal {
+        (int16 q, int16 r, int16 s) = _getUnitCoords(ds, mobileUnit);
+        ds.getDispatcher().dispatch(
+            abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (uint32(uint192(mobileUnit)), q + 1, r, s - 1))
+        );
+    }
 
-    function _moveUnitSE(Game ds, bytes24 buildingInstance, bytes24 mobileUnit) internal {}
+    function _moveUnitSE(Game ds, bytes24 buildingInstance, bytes24 mobileUnit) internal {
+        (int16 q, int16 r, int16 s) = _getUnitCoords(ds, mobileUnit);
+        ds.getDispatcher().dispatch(
+            abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (uint32(uint192(mobileUnit)), q + 1, r - 1, s))
+        );
+    }
 
-    function _moveUnitSW(Game ds, bytes24 buildingInstance, bytes24 mobileUnit) internal {}
+    function _moveUnitSW(Game ds, bytes24 buildingInstance, bytes24 mobileUnit) internal {
+        (int16 q, int16 r, int16 s) = _getUnitCoords(ds, mobileUnit);
+        ds.getDispatcher().dispatch(
+            abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (uint32(uint192(mobileUnit)), q, r - 1, s + 1))
+        );
+    }
 
-    function _moveUnitW(Game ds, bytes24 buildingInstance, bytes24 mobileUnit) internal {}
+    function _moveUnitW(Game ds, bytes24 buildingInstance, bytes24 mobileUnit) internal {
+        (int16 q, int16 r, int16 s) = _getUnitCoords(ds, mobileUnit);
+        ds.getDispatcher().dispatch(
+            abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (uint32(uint192(mobileUnit)), q - 1, r, s + 1))
+        );
+    }
 
-    function _moveUnitNW(Game ds, bytes24 buildingInstance, bytes24 mobileUnit) internal {}
+    function _moveUnitNW(Game ds, bytes24 buildingInstance, bytes24 mobileUnit) internal {
+        (int16 q, int16 r, int16 s) = _getUnitCoords(ds, mobileUnit);
+        ds.getDispatcher().dispatch(
+            abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (uint32(uint192(mobileUnit)), q - 1, r + 1, s))
+        );
+    }
+
+    function _getUnitCoords(Game ds, bytes24 mobileUnit) internal returns (int16 q, int16 r, int16 s) {
+        State state = ds.getState();
+        bytes24 location = state.getCurrentLocation(mobileUnit, uint64(block.number));
+        q = int16(int192(uint192(location) >> 32));
+        r = int16(int192(uint192(location) >> 16));
+        s = int16(int192(uint192(location)));
+    }
 }
