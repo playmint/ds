@@ -162,41 +162,6 @@ export const NavPanel = ({
                         <br />
 
                         <fieldset>
-                            <legend>Player Name:</legend>
-                            <input
-                                type="text"
-                                placeholder="Enter your name"
-                                value={playerName}
-                                onChange={(e) => setPlayerName(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        onSubmitPlayerName(playerName);
-                                        playerNameWarning = '';
-                                    }
-                                }}
-                                style={{ width: '100%', marginBottom: '10px' }}
-                            />
-                            <button
-                                onClick={() => {
-                                    playerNameWarning = '';
-                                    onSubmitPlayerName(playerName);
-                                }}
-                                style={{ width: '100%' }}
-                            >
-                                submit
-                            </button>
-
-                            {playerNameWarning.length > 0 && (
-                                <>
-                                    <br />
-                                    <br />
-                                    <p style={{ fontSize: '12px' }}>{playerNameWarning}</p>
-                                </>
-                            )}
-                        </fieldset>
-                        <br />
-
-                        <fieldset>
                             <legend>Quality:</legend>
                             <select onChange={onChangeQuality} value={canvasHeight}>
                                 <option value="480">Low (480p)</option>
