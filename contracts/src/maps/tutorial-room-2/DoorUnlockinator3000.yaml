@@ -1,0 +1,10 @@
+---
+kind: Item
+spec:
+  name: Door Unlockinator 3000
+  icon: 24-209
+  goo:
+    red: 2
+    green: 1
+    blue: 1
+  stackable: true
