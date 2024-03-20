@@ -133,14 +133,6 @@ export default async function update(state) {
     };
 }
 
-// Generate a random color
-function randomColour() {
-    const red = Math.floor(Math.random() * 256);
-    const green = Math.floor(Math.random() * 256);
-    const blue = Math.floor(Math.random() * 256);
-    return `#${red.toString(16).padStart(2, '0')}${green.toString(16).padStart(2, '0')}${blue.toString(16).padStart(2, '0')}`;
-}
-
 // Generate a random color from a predefined set
 function themedRandomColour(){
     const colours = ['#0000FF', '#1E90FF', '#ADD8E6', '#87CEEB', '#00008B', '#FFD700', '#FFFF00', '#FFA500', '#FF8C00'];

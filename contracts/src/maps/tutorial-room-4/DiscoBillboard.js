@@ -10,25 +10,15 @@ const images = [
 'https://assets.downstream.game/examples/disco-beaver-6.jpeg',
 'https://assets.downstream.game/examples/disco-beaver-7.jpeg',
 ];
-let selectedImg = 1;
-let blockWhenLastChanged = 0;
-const WAIT_BLOCKS_TO_AUTO_CHANGE = 5;
 
-const changeImg = (block) => {
+// Random initial image
+let selectedImg = Math.floor(Math.random() * images.length) + 1;
+
+const changeImg = () => {
     selectedImg = (selectedImg + 1) % images.length;
-    blockWhenLastChanged = block;
 };
 
-export default async function update(state, block) {
-
-    if (blockWhenLastChanged == 0){
-        blockWhenLastChanged = block;
-    }
-
-    if (block > blockWhenLastChanged + WAIT_BLOCKS_TO_AUTO_CHANGE){
-        changeImg(block);
-    }
-
+export default async function update(state) {
     const discoBillboard = state.world?.buildings.find(
         (b) => b.kind?.name?.value == "Disco Billboard",
     );
@@ -37,24 +27,23 @@ export default async function update(state, block) {
         return;
     }
 
-    const map = [];
-    const buttons = [];
-
-    map.push(
+    const map = [
         {
         type: "building",
         key: "image",
         id: `${discoBillboard.id}`,
         value: images[selectedImg],
         },
-    );
+    ];
 
-    buttons.push({
-        text: `Change Billboard Image 🔄`,
-        type: 'action',
-        action: () => changeImg(block),
-        disabled: false,
-    });
+    const buttons = [
+        {
+            text: `Change Billboard Image 🔄`,
+            type: 'action',
+            action: changeImg,
+            disabled: false,
+        },
+    ];
 
     return {
         version: 1,
