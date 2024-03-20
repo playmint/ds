@@ -47,12 +47,12 @@ export default async function update(state) {
         const unitDistanceFromBuilding = distance(buildingTileCoords, unitTileCoords);
 
         if (unitDistanceFromBuilding <= TILE_COLOUR_DISTANCE) {
-            // Yellow tile under the unit
+            // Orange tile under the unit
             map.push({
                 type: 'tile',
                 key: 'color',
                 id: getTileIdFromCoords(unitTileCoords),
-                value: '#ffff00',
+                value: '#f58c02',
             });
         }
 
@@ -83,21 +83,34 @@ export default async function update(state) {
             action: toggleDressed,
             disabled: false,
         });
-    }
 
-    if (disco) {
-        getTilesInRange(discoCentre, TILE_COLOUR_DISTANCE).forEach((t) => {
-            if (t !== unitTileId) {
-                map.push(
-                    {
-                        type: "tile",
-                        key: "color",
-                        id: `${t}`,
-                        value: randomColour(),
-                    }
-                );
-            }      
-        });
+        if (disco) {
+            getTilesInRange(discoCentre, TILE_COLOUR_DISTANCE).forEach((t) => {
+                if (t !== unitTileId) {
+                    map.push(
+                        {
+                            type: "tile",
+                            key: "color",
+                            id: `${t}`,
+                            value: themedRandomColour(),
+                        }
+                    );
+                }      
+            });
+        }else{
+            getTilesInRange(discoCentre, TILE_COLOUR_DISTANCE).forEach((t) => {
+                if (t !== unitTileId) {
+                    map.push(
+                        {
+                            type: "tile",
+                            key: "color",
+                            id: `${t}`,
+                            value: '#3386d4',
+                        }
+                    );
+                }      
+            });
+        }
     }
 
     return {
@@ -120,6 +133,7 @@ export default async function update(state) {
     };
 }
 
+// Generate a random color
 function randomColour() {
     const red = Math.floor(Math.random() * 256);
     const green = Math.floor(Math.random() * 256);
@@ -127,25 +141,18 @@ function randomColour() {
     return `#${red.toString(16).padStart(2, '0')}${green.toString(16).padStart(2, '0')}${blue.toString(16).padStart(2, '0')}`;
 }
 
+// Generate a random color from a predefined set
+function themedRandomColour(){
+    const colours = ['#0000FF', '#1E90FF', '#ADD8E6', '#87CEEB', '#00008B', '#FFD700', '#FFFF00', '#FFA500', '#FF8C00'];
+    return colours[Math.floor(Math.random() * colours.length)];
+}
+
+// Get the mobile unit from the state
 function getMobileUnit(state) {
     return state?.selected?.mobileUnit;
 }
 
-function getTileCoords(coords) {
-    return [
-        hexToSignedDecimal(coords[1]),
-        hexToSignedDecimal(coords[2]),
-        hexToSignedDecimal(coords[3]),
-    ];
-}
-
-function getTileIdFromCoords(coords) {
-    const q = toInt16Hex(coords[0]);
-    const r = toInt16Hex(coords[0]);
-    const s = toInt16Hex(coords[0]);
-    return `${TILE_ID_PREFIX}0000000000000000000000000000${q}${r}${s}`;
-}
-
+// Convert hexadecimal to signed decimal
 function hexToSignedDecimal(hex) {
     if (hex.startsWith("0x")) {
         hex = hex.substr(2);
@@ -163,6 +170,16 @@ function hexToSignedDecimal(hex) {
     return num;
 }
 
+// Get tile coordinates from hexadecimal coordinates
+function getTileCoords(coords) {
+    return [
+        hexToSignedDecimal(coords[1]),
+        hexToSignedDecimal(coords[2]),
+        hexToSignedDecimal(coords[3]),
+    ];
+}
+
+// Calculate distance between two tiles
 function distance(tileCoords, nextTile) {
     return Math.max(
         Math.abs(tileCoords[0] - nextTile[0]),
@@ -171,11 +188,7 @@ function distance(tileCoords, nextTile) {
     );
 }
 
-/**
- * Converts an integer value to a hexadecimal string of 16 bits width
- * @param {number} value - The integer value to convert.
- * @returns {string} A 4-character hexadecimal string representation of the value.
- */
+// Convert an integer to a 16-bit hexadecimal string
 function toInt16Hex(value) {
     return ('0000'+toTwos(value, 16).toString(16)).slice(-4)
 }
@@ -183,12 +196,7 @@ function toInt16Hex(value) {
 const BN_0 = BigInt(0);
 const BN_1 = BigInt(1);
 
-/**
- * Converts a two's complement binary representation to a BigInt.
- * @param {number|string} n - The two's complement binary number.
- * @param {number} w - The width (in bits) of the binary number.
- * @returns {BigInt} The BigInt representation of the binary number.
- */
+// Convert a two's complement binary representation to a BigInt
 function fromTwos(n, w) {
     let value = BigInt(n);
     let width = BigInt(w);
@@ -199,12 +207,7 @@ function fromTwos(n, w) {
     return value;
 }
 
-/**
- * Converts a BigInt to a two's complement binary representation.
- * @param {BigInt} _value - The BigInt number to convert.
- * @param {number} _width - The desired width of the binary representation.
- * @returns {BigInt} The two's complement binary representation of the value.
- */
+// Convert a BigInt to a two's complement binary representation
 function toTwos(_value, _width) {
     let value = BigInt(_value);
     let width = BigInt(_width);
@@ -217,30 +220,15 @@ function toTwos(_value, _width) {
     return value;
 }
 
-/**
- * Calculates the IDs of tiles within a certain range of a given building based on its location.
- * @param {object} building - The building object containing location information.
- * @param {number} range - The range within which to find tiles.
- * @returns {Array} An array of strings representing the IDs of the tiles within the given range.
- */
-function getTilesInRange(building, range) {
-    const [q,r,s] = getTileCoordsFromId(building.location?.tile?.id);
-    let tilesInRange = [];
-    for (let dx = -range; dx <= range; dx++) {
-        for (let dy = Math.max(-range, -dx-range); dy <= Math.min(range, -dx+range); dy++) {
-            const dz = -dx-dy;
-            const tileId = getTileIdFromCoords([q+dx, r+dy, s+dz]);
-            tilesInRange.push(tileId);
-        }
-    }
-    return tilesInRange;
+// Get tile ID from coordinates
+function getTileIdFromCoords(coords) {
+    const q = toInt16Hex(coords[0]);
+    const r = toInt16Hex(coords[1]);
+    const s = toInt16Hex(coords[2]);
+    return `${TILE_ID_PREFIX}0000000000000000000000000000${q}${r}${s}`;
 }
 
-/**
- * Decodes a tile ID into its q, r, s hexagonal coordinates.
- * @param {string} tileId - The ID of the tile to decode.
- * @returns {Array} An array containing the q, r, s coordinates of the tile.
- */
+// Decode a tile ID into its q, r, s hexagonal coordinates
 function getTileCoordsFromId(tileId) {
     const coords = [...tileId]
         .slice(2)
@@ -258,6 +246,20 @@ function getTileCoordsFromId(tileId) {
     }
     return coords;
 };
+
+// Calculate the IDs of tiles within a certain range of a given building based on its location
+function getTilesInRange(building, range) {
+    const [q,r,s] = getTileCoordsFromId(building.location?.tile?.id);
+    let tilesInRange = [];
+    for (let dx = -range; dx <= range; dx++) {
+        for (let dy = Math.max(-range, -dx-range); dy <= Math.min(range, -dx+range); dy++) {
+            const dz = -dx-dy;
+            const tileId = getTileIdFromCoords([q+dx, r+dy, s+dz]);
+            tilesInRange.push(tileId);
+        }
+    }
+    return tilesInRange;
+}
 
 function logState(state) {
     console.log('State sent to pluging:', state);

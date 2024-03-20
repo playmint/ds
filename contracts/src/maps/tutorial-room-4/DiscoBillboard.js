@@ -1,6 +1,5 @@
 import ds from 'downstream';
 
-// TODO: change these to beaver dancing images
 const images = [
 'https://assets.downstream.game/examples/disco-beaver-0.jpeg',
 'https://assets.downstream.game/examples/disco-beaver-1.jpeg',
@@ -12,12 +11,23 @@ const images = [
 'https://assets.downstream.game/examples/disco-beaver-7.jpeg',
 ];
 let selectedImg = 1;
+let blockWhenLastChanged = 0;
+const WAIT_BLOCKS_TO_AUTO_CHANGE = 5;
 
-const changeImg = () => {
+const changeImg = (block) => {
     selectedImg = (selectedImg + 1) % images.length;
+    blockWhenLastChanged = block;
 };
 
-export default async function update(state) {
+export default async function update(state, block) {
+
+    if (blockWhenLastChanged == 0){
+        blockWhenLastChanged = block;
+    }
+
+    if (block > blockWhenLastChanged + WAIT_BLOCKS_TO_AUTO_CHANGE){
+        changeImg(block);
+    }
 
     const discoBillboard = state.world?.buildings.find(
         (b) => b.kind?.name?.value == "Disco Billboard",
@@ -42,7 +52,7 @@ export default async function update(state) {
     buttons.push({
         text: `Change Billboard Image 🔄`,
         type: 'action',
-        action: changeImg,
+        action: () => changeImg(block),
         disabled: false,
     });
 
@@ -57,21 +67,17 @@ export default async function update(state) {
                     {
                         id: 'default',
                         type: 'inline',
-                        html: ``,
+                        html: `
+                            <h3>Now Showing:</h3>
+                            <img src="${images[selectedImg]}" alt="Current Billboard Image">
+                            [${selectedImg + 1}/${images.length}]
+                        `,
                         buttons: buttons,
                     },
                 ],
             },
         ],
     };
-}
-
-function getMobileUnit(state) {
-    return state?.selected?.mobileUnit;
-}
-
-function logState(state) {
-    console.log('State sent to pluging:', state);
 }
 
 // the source for this code is on github where you can find other example buildings:
