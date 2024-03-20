@@ -46,8 +46,6 @@ const NavContainer = styled.div`
     }
 `;
 
-let playerNameWarning = '';
-
 export const NavPanel = ({
     toggleQuestsActive,
     questsActive,
@@ -66,17 +64,9 @@ export const NavPanel = ({
     const { wallet } = useWallet();
     const player = usePlayer();
     const [showAccountDialog, setShowAccountDialog] = useState(false);
-    const [playerName, setPlayerName] = useState('');
 
     const hasConnection = player || wallet;
     const address = player?.addr || wallet?.address || '';
-
-    // set player name in input field when account dialog is opened
-    useEffect(() => {
-        if (showAccountDialog) {
-            setPlayerName(player?.name?.value ? player?.name?.value : '');
-        }
-    }, [showAccountDialog, player]);
 
     const closeAccountDialog = useCallback(() => {
         setShowAccountDialog(false);
@@ -106,33 +96,6 @@ export const NavPanel = ({
             g.__globalUnityContext.setCanvasHeight(newHeight);
         }
     }, []);
-
-    const onSubmitPlayerName = useCallback(
-        (playerName) => {
-            if (!player) {
-                console.warn('naming failed: no player');
-                return;
-            }
-            if (!playerName || playerName.length < 3) {
-                playerNameWarning = 'Must be at least 3 characters';
-                return;
-            }
-            if (playerName.length > 20) {
-                playerNameWarning = 'Must be under 20 characters';
-                return;
-            }
-            if (playerName === player.name?.value) {
-                playerNameWarning = 'You already have this name';
-                return;
-            }
-            player
-                .dispatch({ name: 'NAME_OWNED_ENTITY', args: [player.id, playerName] })
-                .catch((err) => console.error('naming failed', err));
-
-            playerNameWarning = '';
-        },
-        [player]
-    );
 
     // TEMP: allow revealing the burner private key, this is a workaround for
     // helping demo ds-cli bits for people without walletconnect
