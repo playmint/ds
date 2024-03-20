@@ -202,6 +202,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             case 'FactoryBuildingData':
             case 'BlockerBuildingData':
             case 'DisplayBuildingData':
+            case 'BillboardData':
             case 'ExtractorBuildingData':
                 {
                     const t = tiles.find(
