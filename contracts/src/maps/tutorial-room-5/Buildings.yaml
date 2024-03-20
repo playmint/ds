@@ -2,34 +2,34 @@
 kind: Building
 spec:
   name: Counter HQ
-  location: [-2, 2, 0]
+  location: [-10, 1, 9]
 
 ---
 kind: Building
 spec:
   name: Counter
-  location: [-2, 0, 2]
+  location: [-9, -1, 10]
 
 ---
 kind: Building
 spec:
   name: Counter
-  location: [-1, 0, 1]
+  location: [-10, -1, 11]
 
 ---
 kind: Building
 spec:
   name: Countdown HQ
-  location: [0, 2, -2]
+  location: [-7, 1, 6]
 
 ---
 kind: Building
 spec:
   name: Countdown
-  location: [2, 0, -2]
+  location: [-6, -1, 7]
 
 ---
 kind: Building
 spec:
   name: Countdown
-  location: [1, 0, -1]
+  location: [-5, -1, 6]
