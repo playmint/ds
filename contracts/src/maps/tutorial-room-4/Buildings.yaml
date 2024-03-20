@@ -1,0 +1,13 @@
+---
+kind: Building
+spec:
+  name: Disco Centre
+  location: [ 0, -8, 8 ]
+  facingDirection: RIGHT
+
+---
+kind: Building
+spec:
+  name: Disco Billboard
+  location: [ 3, -8, 5 ]
+  facingDirection: LEFT
