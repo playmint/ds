@@ -21,3 +21,4 @@ kind: Building
 spec:
   name: Disco Billboard
   location: [ 3, -8, 5 ]
+  facingDirection: LEFT
