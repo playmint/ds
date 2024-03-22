@@ -1,0 +1,122 @@
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 0, 0, 0 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -1, 1, 0 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -1, 0, 1 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 0, -1, 1 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 1, -1, 0 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 1, 0, -1 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 0, 1, -1 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -3, 0, 3 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -2, 0, 2 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -3, 1, 2 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -4, 1, 3 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -4, 0, 4 ]
+
+---
+kind: Building
+spec:
+  name: Cocktail Hut
+  location: [ -4, 0, 4 ]
+  facingDirection: RIGHT
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -3, -1, 4 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -2, -1, 3 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -4, -1, 5 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -5, 0, 5 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -5, 1, 4 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 2, 0, -2 ]
+
+---
+kind: Building
+spec:
+  name: Cocktail Billboard
+  location: [ 2, 0, -2 ]
+  facingDirection: LEFT

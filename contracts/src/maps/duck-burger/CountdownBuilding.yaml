@@ -1,0 +1,15 @@
+---
+kind: BuildingKind
+spec:
+  name: Countdown Building
+  description: "Countdown something!"
+  category: display
+  model: countdown
+  color: 4
+  materials:
+    - name: Green Goo
+      quantity: 25
+    - name: Blue Goo
+      quantity: 25
+    - name: Red Goo
+      quantity: 25

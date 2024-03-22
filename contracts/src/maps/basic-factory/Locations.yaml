@@ -1,0 +1,67 @@
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 0, 0, 0 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -1, 1, 0 ]
+
+---
+kind: Building
+spec:
+  name: Basic Factory
+  location: [ -1, 1, 0 ]
+  facingDirection: RIGHT
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -1, 0, 1 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 0, -1, 1 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 1, -1, 0 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 1, 0, -1 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 0, 1, -1 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -2, 1, 1 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -2, 2, 0 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -1, 2, -1 ]

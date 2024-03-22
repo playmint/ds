@@ -1,0 +1,15 @@
+---
+kind: BuildingKind
+spec:
+  name: Burger Display Building
+  description: "Displays the Burger score!"
+  category: display
+  model: default
+  color: 1
+  materials:
+    - name: Green Goo
+      quantity: 25
+    - name: Blue Goo
+      quantity: 25
+    - name: Red Goo
+      quantity: 25

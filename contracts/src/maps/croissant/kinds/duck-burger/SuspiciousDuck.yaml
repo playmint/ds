@@ -1,0 +1,9 @@
+kind: Item
+spec:
+  name: Suspicious Duck
+  icon: 27-101
+  goo:
+    red: 12
+    green: 12
+    blue: 12
+  stackable: false
