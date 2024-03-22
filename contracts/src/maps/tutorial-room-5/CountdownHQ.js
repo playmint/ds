@@ -66,20 +66,33 @@ export default async function update(state, block) {
 
     return {
         version: 1,
-        map: countdownBuildings.flatMap((b) => [
-            {
-                type: "building",
-                id: `${b.id}`,
-                key: "countdown-start",
-                value: `${startTime}`,
-            },
-            {
-                type: "building",
-                id: `${b.id}`,
-                key: "countdown-end",
-                value: `${endTime}`,
-            },
-        ]),
+        map: countdownBuildings.flatMap((b) => {
+            // If the startBlock hasn't been set then we're in the initial state therefore we
+            // set the label text so the countdown displays '00:30' without ringing
+            return startBlock === 0
+                ? [
+                      {
+                          type: "building",
+                          id: `${b.id}`,
+                          key: "labelText",
+                          value: `00:30`,
+                      },
+                  ]
+                : [
+                      {
+                          type: "building",
+                          id: `${b.id}`,
+                          key: "countdown-start",
+                          value: `${startTime}`,
+                      },
+                      {
+                          type: "building",
+                          id: `${b.id}`,
+                          key: "countdown-end",
+                          value: `${endTime}`,
+                      },
+                  ];
+        }),
         components: [
             {
                 id: "countdown-HQ",
