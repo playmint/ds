@@ -83,6 +83,7 @@ For this we are setting a start and end block as data on the `CountdownHQ` build
 ```
 
 And with this data we use these block numbers to calculate the elapsed and remaining time which is supplied to the countdown buildings via the map object.
+If no data has been set i.e initial state, then manually display '00:30' to prevent the clock from ringing during its initial state
 
 `CountdownHQ.js`
 
@@ -102,18 +103,31 @@ And with this data we use these block numbers to calculate the elapsed and remai
 
 ...
 
-    map: countdownBuildings.flatMap((b) => [
-        {
-            type: "building",
-            id: `${b.id}`,
-            key: "countdown-start",
-            value: `${startTime}`,
-        },
-        {
-            type: "building",
-            id: `${b.id}`,
-            key: "countdown-end",
-            value: `${endTime}`,
-        },
-    ]),
+    map: countdownBuildings.flatMap((b) => {
+        // If the startBlock hasn't been set then we're in the initial state therefore we
+        // set the label text so the countdown displays '00:30' without ringing
+        return startBlock === 0
+            ? [
+                    {
+                        type: "building",
+                        id: `${b.id}`,
+                        key: "labelText",
+                        value: `00:30`,
+                    },
+                ]
+            : [
+                    {
+                        type: "building",
+                        id: `${b.id}`,
+                        key: "countdown-start",
+                        value: `${startTime}`,
+                    },
+                    {
+                        type: "building",
+                        id: `${b.id}`,
+                        key: "countdown-end",
+                        value: `${endTime}`,
+                    },
+                ];
+    }),
 ```
