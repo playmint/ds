@@ -1,0 +1,9 @@
+kind: Item
+spec:
+  name: Gold Coin
+  icon: 10-33
+  goo:
+    red: 5
+    green: 10
+    blue: 10
+  stackable: true

@@ -1,0 +1,9 @@
+kind: Item
+spec:
+  name: Boring Disguise
+  icon: 18-1
+  goo:
+    red: 25
+    green: 25
+    blue: 25
+  stackable: false

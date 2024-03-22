@@ -1,0 +1,9 @@
+kind: Item
+spec:
+  name: Really Blue Goo
+  icon: 22-192
+  goo:
+    red: 0
+    green: 0
+    blue: 100
+  stackable: true
