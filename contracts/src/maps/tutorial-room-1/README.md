@@ -195,4 +195,6 @@ To complete this tutorial:
 - Finally, deploy your new map from your map folder.
 - `ds apply -n local -k <private-key> -R -f .`
 
-You should 
+You should now have a Downstream world that looks something like the one you get if you deploy _this_ folder:
+
+<img src="./screenshot.png" width=300>
