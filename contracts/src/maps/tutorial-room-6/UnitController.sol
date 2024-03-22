@@ -18,9 +18,9 @@ contract UnitController is BuildingKind {
     function moveUnitW(bytes24 mobileUnit) external {}
     function moveUnitNW(bytes24 mobileUnit) external {}
 
-    function use(Game ds, bytes24 buildingInstance, bytes24, /*actor*/ bytes calldata payload) public override {
+    function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes calldata payload) public override {
         if ((bytes4)(payload) == this.spawnUnit.selector) {
-            _spawnUnit(ds, buildingInstance);
+            _spawnUnit(ds, buildingInstance, actor);
         } else if ((bytes4)(payload) == this.moveUnitNE.selector) {
             (bytes24 mobileUnit) = abi.decode(payload[4:], (bytes24));
             _moveUnitNE(ds, mobileUnit);
@@ -42,8 +42,8 @@ contract UnitController is BuildingKind {
         }
     }
 
-    function _spawnUnit(Game ds, bytes24 buildingInstance) internal {
-        bytes24 mobileUnit = Node.MobileUnit(uint32(uint256(keccak256(abi.encode(block.number)))));
+    function _spawnUnit(Game ds, bytes24 buildingInstance, bytes24 actor) internal {
+        bytes24 mobileUnit = Node.MobileUnit(uint32(uint256(keccak256(abi.encodePacked(block.number, actor)))));
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (mobileUnit)));
 
         // Move mobile unit next to the building
