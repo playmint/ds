@@ -14,7 +14,7 @@ export default async function update(state) {
     console.log(selectedBuilding);
 
     const constructionBlockNum = selectedBuilding
-        ? selectedBuilding.constructionBlockNum.value
+        ? (selectedBuilding.constructionBlockNum?.value || 0)
         : 0;
 
     const incrementHex = getData(selectedBuilding, "increment");
