@@ -1,0 +1,36 @@
+---
+kind: BuildingKind
+spec:
+  category: factory
+  name: "Wizards Maze"
+  description: Blast em
+  model: 10-10
+  color: 3
+  contract:
+    file: ./contracts/WizardsMaze.sol
+  plugin:
+    file: ./js/WizardsMaze.js
+  materials:
+    - name: Red Goo
+      quantity: 10
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+  inputs:
+    - name: Red Goo
+      quantity: 100
+  outputs:
+    - name: Glock 19 with magic
+      quantity: 1
+
+---
+kind: Item
+spec:
+  name: Glock 19 with magic
+  icon: 18-82
+  goo:
+    red: 50
+    green: 0
+    blue: 0
+  stackable: false

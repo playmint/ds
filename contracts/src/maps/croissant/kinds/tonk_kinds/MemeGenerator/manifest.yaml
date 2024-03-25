@@ -1,0 +1,24 @@
+kind: BuildingKind
+spec:
+  name: Data Dump East 
+  description: "TonkAttack: You wouldn't steam a ham"
+  category: factory
+  model: 04-17
+  color: 1
+  contract:
+    file: ./MemeGenerator.sol
+  plugin:
+    file: ./MemeGenerator.js
+  materials:
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+    - name: Red Goo
+      quantity: 10
+  inputs: 
+    - name: Paperclip
+      quantity: 1
+  outputs: 
+    - name: Tonk 
+      quantity: 1

@@ -1,0 +1,19 @@
+---
+kind: BuildingKind
+spec:
+  category: custom
+  name: Barrier
+  description: Add more defense to your combat, needs a construction hammer to build
+  model: 01-08
+  color: 3
+  contract:
+    file: ./contracts/Barrier.sol
+  plugin:
+    file: ./js/Barrier.js
+  materials:
+    - name: Red Goo
+      quantity: 10
+    - name: Green Goo
+      quantity: 60
+    - name: Blue Goo
+      quantity: 60

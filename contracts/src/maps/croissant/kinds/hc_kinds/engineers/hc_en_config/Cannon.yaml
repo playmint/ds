@@ -1,0 +1,19 @@
+---
+kind: BuildingKind
+spec:
+  category: custom
+  name: Cannon
+  description: Add more attack to your combat, needs a construction hammer to build
+  model: 08-01
+  color: 3
+  contract:
+    file: ./contracts/Cannon.sol
+  plugin:
+    file: ./js/Cannon.js
+  materials:
+    - name: Red Goo
+      quantity: 60
+    - name: Green Goo
+      quantity: 25
+    - name: Blue Goo
+      quantity: 60

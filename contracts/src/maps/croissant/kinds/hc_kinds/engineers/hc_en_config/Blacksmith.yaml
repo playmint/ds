@@ -1,0 +1,40 @@
+---
+kind: BuildingKind
+spec:
+  category: factory
+  name: Blacksmith
+  description: Craft hammer to build more
+  model: 05-02
+  color: 3
+  contract:
+    file: ./contracts/Blacksmith.sol
+  plugin:
+    file: ./js/Blacksmith.js
+  materials:
+    - name: Red Goo
+      quantity: 10
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+  inputs:
+    - name: Green Goo
+      quantity: 30
+    - name: Blue Goo
+      quantity: 30
+    - name: Red Goo
+      quantity: 30
+  outputs:
+    - name: Crafting Hammer
+      quantity: 1
+
+---
+kind: Item
+spec:
+  name: Crafting Hammer
+  icon: 22-170
+  goo:
+    red: 15
+    green: 15
+    blue: 15
+  stackable: true

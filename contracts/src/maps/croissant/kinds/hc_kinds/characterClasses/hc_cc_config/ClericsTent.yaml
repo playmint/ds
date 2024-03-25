@@ -1,0 +1,40 @@
+---
+kind: BuildingKind
+spec:
+  category: factory
+  name: "Clerics Tent"
+  description: Really nice and kind people you like hanging out with
+  model: 04-16
+  color: 3
+  contract:
+    file: ./contracts/ClericsTent.sol
+  plugin:
+    file: ./js/ClericsTent.js
+  materials:
+    - name: Red Goo
+      quantity: 10
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+  inputs:
+    - name: Green Goo
+      quantity: 80
+    - name: Blue Goo
+      quantity: 100
+    - name: Blue Goo
+      quantity: 100
+  outputs:
+    - name: Friendly Puppy Companion
+      quantity: 1
+
+---
+kind: Item
+spec:
+  name: Friendly Puppy Companion
+  icon: 27-101
+  goo:
+    red: 0
+    green: 40
+    blue: 100
+  stackable: false

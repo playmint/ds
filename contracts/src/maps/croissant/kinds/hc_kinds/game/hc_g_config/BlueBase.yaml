@@ -1,0 +1,18 @@
+kind: BuildingKind
+spec:
+  category: custom
+  name: Blue Base
+  description: This is the blue base
+  model: 17-03
+  color: 0
+  contract:
+    file: ./contracts/BlueBase.sol
+  plugin:
+    file: ./js/BlueBase.js
+  materials:
+    - name: Red Goo
+      quantity: 100
+    - name: Green Goo
+      quantity: 100
+    - name: Blue Goo
+      quantity: 100

@@ -1,0 +1,40 @@
+---
+kind: BuildingKind
+spec:
+  category: factory
+  name: "Paladins Armoury"
+  description: Nerds that follow rules
+  model: 02-15
+  color: 3
+  contract:
+    file: ./contracts/PaladinsArmoury.sol
+  plugin:
+    file: ./js/PaladinsArmoury.js
+  materials:
+    - name: Green Goo
+      quantity: 10
+    - name: Red Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+  inputs:
+    - name: Blue Goo
+      quantity: 80
+    - name: Green Goo
+      quantity: 80
+    - name: Red Goo
+      quantity: 20
+  outputs:
+    - name: Strong Holy Kiteshield
+      quantity: 1
+
+---
+kind: Item
+spec:
+  name: Strong Holy Kiteshield
+  icon: 31-5
+  goo:
+    red: 10
+    green: 40
+    blue: 40
+  stackable: false

@@ -1,0 +1,30 @@
+---
+kind: Item
+spec:
+  name: Dusty Leather Armor
+  icon: 04-232
+  goo:
+    red: 1
+    green: 30
+    blue: 20
+  stackable: false
+---
+kind: Item
+spec:
+  name: Sturdy Wooden Shield
+  icon: 31-41
+  goo:
+    red: 10
+    green: 20
+    blue: 40
+  stackable: false
+---
+kind: Item
+spec:
+  name: Sharp Steel Sword
+  icon: xx-01
+  goo:
+    red: 30
+    green: 1
+    blue: 1
+  stackable: false
