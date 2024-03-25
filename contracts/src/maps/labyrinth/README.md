@@ -1,4 +1,8 @@
-# Using this map on another map
+# Labyrinth
+
+A labyrinth containing a series of challenges for you to solve.
+
+## Using this map on another map
 
 To use this map in another map e.g. `maps/croissant` you need to
 
