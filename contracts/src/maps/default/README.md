@@ -1,3 +1,3 @@
 # Default
 
-A map containing just one tile.
+A map containing a single tile.
