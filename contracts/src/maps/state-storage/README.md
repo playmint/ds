@@ -1,3 +1,3 @@
 # State Storage
 
-An example of storing and saving data on the building.
+Demonstrates: Storing state onchain in a way that can be read by the js plugin code.

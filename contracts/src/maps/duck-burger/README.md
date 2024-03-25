@@ -1,3 +1,3 @@
 # Duck Burger
 
-An experience made by Playmint. Duck Burger is a good starting point for building new experiences in Downstream.
+All the buildings you need to start a game of Duck Burger. Demonstrates: Solidity function selection with `buildingkind.use()`'s `payload` parameter; Reward claim; Timed session; Team allocation; Unit model swaps; Countdown display; Counter display;
