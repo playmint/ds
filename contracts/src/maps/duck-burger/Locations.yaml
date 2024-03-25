@@ -631,40 +631,22 @@ spec:
   facingDirection: RIGHT
 
 ---
-kind: Tile
-spec:
-  biome: DISCOVERED
-  location: [ 2, -6, 4 ]
-
----
 kind: Building
 spec:
   name: Duck Display Building
-  location: [ 2, -6, 4 ]
+  location: [ 1, -4, 3 ]
   facingDirection: LEFT
-
----
-kind: Tile
-spec:
-  biome: DISCOVERED
-  location: [ 3, -6, 3 ]
 
 ---
 kind: Building
 spec:
   name: Countdown Building
-  location: [ 3, -6, 3 ]
+  location: [ 2, -4, 2 ]
   facingDirection: LEFT
-
----
-kind: Tile
-spec:
-  biome: DISCOVERED
-  location: [ 4, -6, 2 ]
 
 ---
 kind: Building
 spec:
   name: Burger Display Building
-  location: [ 4, -6, 2 ]
+  location: [ 3, -4, 1 ]
   facingDirection: LEFT
