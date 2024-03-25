@@ -1,0 +1,13 @@
+kind: BuildingKind
+spec:
+  name: Blue Golem
+  category: blocker
+  description: A very blue enemy
+  model: enemy
+  materials:
+  - name: Very Blue
+    quantity: 1
+  - name: Red Goo
+    quantity: 10
+  - name: Green Goo
+    quantity: 10

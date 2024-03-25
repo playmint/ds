@@ -1,0 +1,110 @@
+---
+kind: Item
+spec:
+  name: Diamond
+  icon: 21-65
+  goo:
+    red: 10
+    green: 10
+    blue: 10
+  stackable: true
+---
+kind: Item
+spec:
+  name: Diamond Sword of Life
+  icon: xx-01
+  goo:
+    red: 50
+    green: 50
+    blue: 1
+  stackable: false
+---
+kind: Item
+spec:
+  name: Dagger of Death
+  icon: xx-01
+  goo:
+    red: 100
+    green: 1
+    blue: 10
+  stackable: false
+---
+kind: Item
+spec:
+  name: Staff of Power
+  icon: 31-218
+  goo:
+    red: 1
+    green: 50
+    blue: 50
+  stackable: false
+---
+kind: Item
+spec:
+  name: Armor of Stone Skin
+  icon: 28-100
+  goo:
+    red: 1
+    green: 100
+    blue: 1
+  stackable: false
+---
+kind: Item
+spec:
+  name: Mithril Armor
+  icon: 28-100
+  goo:
+    red: 1
+    green: 10
+    blue: 100
+  stackable: false
+---
+kind: Item
+spec:
+  name: Axe of Destruction
+  icon: 07-79
+  goo:
+    red: 100
+    green: 10
+    blue: 1
+  stackable: false
+---
+kind: Item
+spec:
+  name: Staff of the Ancients
+  icon: 31-218
+  goo:
+    red: 1
+    green: 100
+    blue: 10
+  stackable: false
+---
+kind: Item
+spec:
+  name: Shield of the Ancients
+  icon: 23-142
+  goo:
+    red: 10
+    green: 50
+    blue: 70
+  stackable: false
+---
+kind: Item
+spec:
+  name: Shield of Power
+  icon: 23-120
+  goo:
+    red: 40
+    green: 20
+    blue: 50
+  stackable: false
+---
+kind: Item
+spec:
+  name: Legendary Rapiers
+  icon: 26-214
+  goo:
+    red: 70
+    green: 10
+    blue: 30
+  stackable: false

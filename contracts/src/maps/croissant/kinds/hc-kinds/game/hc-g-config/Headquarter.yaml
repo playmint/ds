@@ -1,0 +1,19 @@
+kind: BuildingKind
+spec:
+  name: Headquarter
+  description: "Play Battle for Hexwood"
+  category: custom
+  model: 11-07
+  color: 1
+  contract:
+    file: ./contracts/Headquarter.sol
+  plugin:
+    file: ./js/Headquarter.js
+    alwaysActive: true
+  materials:
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+    - name: Red Goo
+      quantity: 10

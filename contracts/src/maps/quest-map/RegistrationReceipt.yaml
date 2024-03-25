@@ -1,0 +1,9 @@
+kind: Item
+spec:
+  name: Registration Receipt
+  icon: 01-209
+  goo:
+    red: 75
+    green: 100
+    blue: 100
+  stackable: true

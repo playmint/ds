@@ -1,0 +1,9 @@
+kind: Item
+spec:
+  name: Microchip
+  icon: 15-171
+  goo:
+    red: 25
+    green: 25
+    blue: 25
+  stackable: false

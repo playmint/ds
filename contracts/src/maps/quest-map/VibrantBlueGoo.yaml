@@ -1,0 +1,9 @@
+kind: Item
+spec:
+  name: Vibrant Blue Goo
+  icon: 22-197
+  goo:
+    red: 0
+    green: 0
+    blue: 10
+  stackable: true

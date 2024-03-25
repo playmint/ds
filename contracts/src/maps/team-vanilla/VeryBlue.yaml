@@ -1,0 +1,9 @@
+kind: Item
+spec:
+  name: Very Blue
+  icon: 10-34
+  goo:
+    blue: 400
+    green: 0
+    red: 0
+  stackable: true

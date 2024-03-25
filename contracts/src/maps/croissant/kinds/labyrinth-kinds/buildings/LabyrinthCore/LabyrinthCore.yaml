@@ -1,0 +1,37 @@
+---
+kind: BuildingKind
+spec:
+  category: factory
+  name: The Core of the Labyrinth
+  description: "Well, well, well. Congratulations, hero. You've made it to the core of the Labyrinth. Make a sacrifice to receive a memento of your success."
+  model: 05-15
+  color: 4
+  contract:
+    file: ./LabyrinthCore.sol
+  plugin:
+    file: ./LabyrinthCore.js
+  materials:
+    - name: L33t Bricks
+      quantity: 100
+  inputs:
+    - name: Extra Heart
+      quantity: 1
+    - name: Extra Heart
+      quantity: 1
+    - name: Extra Heart
+      quantity: 1
+    - name: Extra Heart
+      quantity: 1
+  outputs:
+    - name: Playtest Pass
+      quantity: 1
+---
+kind: Item
+spec:
+  name: Playtest Pass
+  icon: 26-23
+  goo:
+    red: 1
+    green: 75
+    blue: 1
+  stackable: true

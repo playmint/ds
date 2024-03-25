@@ -1,0 +1,12 @@
+---
+kind: Item
+spec:
+  name: Cocktail
+  icon: 02-40
+  plugin:
+    file: ./Cocktail.js
+  goo:
+    red: 0
+    green: 0
+    blue: 2
+  stackable: false

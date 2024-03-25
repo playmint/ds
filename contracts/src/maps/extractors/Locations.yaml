@@ -1,0 +1,96 @@
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 0, 0, 0 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -1, 0, 1 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 1, 0, -1 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -2, 1, 1 ]
+
+---
+kind: Building
+spec:
+  name: Red Goo Extractor
+  location: [ -2, 1, 1 ]
+  facingDirection: RIGHT
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -2, 0, 2 ]
+
+---
+kind: Building
+spec:
+  name: Green Goo Extractor
+  location: [ -2, 0, 2 ]
+  facingDirection: RIGHT
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -1, -1, 2 ]
+
+---
+kind: Building
+spec:
+  name: Blue Goo Extractor
+  location: [ -1, -1, 2 ]
+  facingDirection: RIGHT
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 2, -1, -1 ]
+
+---
+kind: Building
+spec:
+  name: Blue Goo Extractor
+  location: [ 2, -1, -1 ]
+  facingDirection: RIGHT
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 2, 0, -2 ]
+
+---
+kind: Building
+spec:
+  name: Green Goo Extractor
+  location: [ 2, 0, -2 ]
+  facingDirection: RIGHT
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 1, 1, -2 ]
+
+---
+kind: Building
+spec:
+  name: Red Goo Extractor
+  location: [ 1, 1, -2 ]
+  facingDirection: RIGHT

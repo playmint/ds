@@ -1,0 +1,40 @@
+---
+kind: BuildingKind
+spec:
+  category: factory
+  name: Fighters Arena
+  description: Cut em down
+  model: 01-13
+  color: 3
+  contract:
+    file: ./contracts/FightersArena.sol
+  plugin:
+    file: ./js/FightersArena.js
+  materials:
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+    - name: Red Goo
+      quantity: 10
+  inputs:
+    - name: Red Goo
+      quantity: 70
+    - name: Green Goo
+      quantity: 20
+    - name: Blue Goo
+      quantity: 20
+  outputs:
+    - name: Greatsword of Dawn
+      quantity: 1
+
+---
+kind: Item
+spec:
+  name: Greatsword of Dawn
+  icon: xx-01
+  goo:
+    red: 35
+    green: 10
+    blue: 10
+  stackable: false

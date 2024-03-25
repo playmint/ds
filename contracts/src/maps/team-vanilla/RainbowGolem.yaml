@@ -1,0 +1,13 @@
+kind: BuildingKind
+spec:
+  name: Rainbow Golem
+  category: blocker
+  description: A very red enemy
+  model: enemy
+  materials:
+  - name: Very Red
+    quantity: 1
+  - name: Very Blue
+    quantity: 1
+  - name: Very Green
+    quantity: 1

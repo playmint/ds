@@ -1,0 +1,9 @@
+kind: Item
+spec:
+  name: Rotten Burger
+  icon: 11-248
+  goo:
+    red: 12
+    green: 12
+    blue: 12
+  stackable: false

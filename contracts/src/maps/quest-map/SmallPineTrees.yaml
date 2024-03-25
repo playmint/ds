@@ -1,0 +1,12 @@
+kind: BuildingKind
+spec:
+  name: Small Pine Trees
+  category: blocker
+  model: PineTreesSmall
+  materials:
+  - name: Green Goo
+    quantity: 10
+  - name: Blue Goo
+    quantity: 10
+  - name: Red Goo
+    quantity: 10

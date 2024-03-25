@@ -1,0 +1,9 @@
+kind: Item
+spec:
+  name: Gold Note
+  icon: 10-32
+  goo:
+    red: 25
+    green: 50
+    blue: 10
+  stackable: true

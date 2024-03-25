@@ -1,7 +1,7 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-// duplicates the content of the files in "./contracts/src/example-plugins/DuckBurger/"
+// duplicates the content of the files in "./contracts/src/maps/duck-burger/"
 // puts them in a new folder (if it doesn't already exist) at targetMapDir
 async function duplicateFiles(arenas, targetMapDir) {
     // if input is 0, recursively delete test-plugins
@@ -10,16 +10,17 @@ async function duplicateFiles(arenas, targetMapDir) {
         return;
     }
 
-    const sourceDir = './contracts/src/example-plugins/DuckBurger/';
+    const sourceDir = './contracts/src/maps/duck-burger/';
+    const excludedFiles = ["WeakDuck.yaml", "WeakBurger.yaml", "SuspiciousDuck.yaml", "RottenBurger.yaml", "RedExtractor.yaml", "GreenExtractor.yaml", "BlueExtractor.yaml", "Locations.yaml"];
 
-    // first delete DuckBurgerTest - note it wouldn't delete map.yaml if it exists - TODO: make sure it does?
+    // first delete DuckBurgerTest - note it wouldn't delete Locations.yaml if it exists - TODO: make sure it does?
     await deleteAndCreateDir(targetMapDir);
     const files = await fs.readdir(sourceDir);
 
     // loop through files in sourceDir, make a new yaml in targetMapDir and adjust building name (file and builing kind)
     for (const file of files) {
         const sourcePath = path.join(sourceDir, file);
-        if (file.endsWith('.yaml') && file != "TeamBuildings.yaml") {
+        if (file.endsWith('.yaml') && !excludedFiles.includes(file)) {
             const content = await fs.readFile(sourcePath, 'utf8');
             for (let i = 1; i <= arenas; i++) {
                 const modifiedContent = modifyYamlContent(content, i);
@@ -53,14 +54,14 @@ async function duplicateFiles(arenas, targetMapDir) {
             {'name': 'Countdown Building', 'x': 2, 'y': -4, 'z': 2}];
         const tiles = generateHexagonalGrid(5);
 
-        // generate the map.yaml content
+        // generate the Locations.yaml content
         let mapYamlContent = '';
         for (let i = 1; i <= arenas; i++) {
             mapYamlContent += generateMapSection(tiles, buildingsDuckBurger, i);
         }
 
-        // write the map.yaml file
-        const mapFilePath = path.join(targetMapDir, 'map.yaml');
+        // write the Locations.yaml file
+        const mapFilePath = path.join(targetMapDir, 'Locations.yaml');
         await fs.writeFile(mapFilePath, mapYamlContent, 'utf8');
     }catch (error){
         // log the error to a text file in targetMapDir

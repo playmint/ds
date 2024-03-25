@@ -1,0 +1,31 @@
+---
+kind: BuildingKind
+spec:
+  category: factory
+  name: Altar of Hands
+  description: "Gruesome and powerful, the Altar of Hands is a place of sacrifice and creation."
+  model: 08-06
+  color: 1
+  contract:
+    file: ./../BaseFactory.sol
+  plugin:
+    file: ./AltarOfHands.js
+  materials:
+    - name: L33t Bricks
+      quantity: 100
+  inputs:
+    - name: Crusher Hand
+      quantity: 10
+  outputs:
+    - name: Bone Key
+      quantity: 1
+---
+kind: Item
+spec:
+  name: Bone Key
+  icon: 31-249
+  goo:
+    red: 1
+    green: 1
+    blue: 1
+  stackable: true

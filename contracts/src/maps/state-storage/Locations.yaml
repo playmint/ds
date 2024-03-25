@@ -1,0 +1,31 @@
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 0, 0, 0 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -1, 0, 1 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -1, 1, 0 ]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ -2, 1, 1 ]
+
+---
+kind: Building
+spec:
+  name: state storage
+  location: [ -2, 1, 1 ]
+  facingDirection: RIGHT

@@ -1,0 +1,20 @@
+kind: BuildingKind
+spec:
+  name: Blue Goo Extractor 2000
+  description: Extracts Blue Goo
+  category: extractor
+  model: blue
+  contract:
+    file: ./BlueExtractor.sol
+  plugin:
+    file: ./GenericExtractor.js
+  materials:
+  - name: Very Green
+    quantity: 10
+  - name: Very Blue
+    quantity: 10
+  - name: Very Red
+    quantity: 10
+  outputs:
+  - name: Blue Goo
+    quantity: 1

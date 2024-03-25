@@ -1,0 +1,9 @@
+kind: Item
+spec:
+  name: Boring Shirt
+  icon: 28-100
+  goo:
+    red: 50
+    green: 0
+    blue: 0
+  stackable: false

@@ -1,0 +1,20 @@
+kind: BuildingKind
+spec:
+  name: Red Goo Extractor 2000
+  description: Extracts Red Goo
+  category: extractor
+  model: red
+  contract:
+    file: ./RedExtractor.sol
+  plugin:
+    file: ./GenericExtractor.js
+  materials:
+  - name: Very Green
+    quantity: 10
+  - name: Very Blue
+    quantity: 10
+  - name: Very Red
+    quantity: 10
+  outputs:
+  - name: Red Goo
+    quantity: 1

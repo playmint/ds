@@ -1,0 +1,5 @@
+---
+kind: Building
+spec:
+  name: Cuspis
+  location: [0, -2, 2]

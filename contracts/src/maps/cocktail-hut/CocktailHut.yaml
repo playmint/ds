@@ -1,0 +1,30 @@
+
+
+---
+kind: BuildingKind
+spec:
+  name: Cocktail Hut
+  description: "Come relax, and have a drink!"
+  category: factory
+  model: 12-15
+  color: 4
+  contract:
+    file: ./CocktailHut.sol
+  plugin:
+    file: ./CocktailHut.js
+    alwaysActive: true
+  materials:
+    - name: Green Goo
+      quantity: 25
+    - name: Blue Goo
+      quantity: 25
+    - name: Red Goo
+      quantity: 25
+  inputs:
+    - name: Blue Goo
+      quantity: 4
+    - name: Red Goo
+      quantity: 4
+  outputs:
+    - name: Cocktail
+      quantity: 1

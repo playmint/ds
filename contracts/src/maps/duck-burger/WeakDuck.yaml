@@ -1,0 +1,29 @@
+---
+kind: BuildingKind
+spec:
+  category: factory
+  name: Weak Duck
+  description: A weak duck building
+  model: 14-04
+  color: 2
+  contract:
+    file: ./BasicFactory.sol
+  plugin:
+    file: ./BasicFactory.js
+  materials:
+    - name: Red Goo
+      quantity: 10
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+  inputs:
+    - name: Red Goo
+      quantity: 25
+    - name: Green Goo
+      quantity: 25
+    - name: Blue Goo
+      quantity: 25
+  outputs:
+    - name: Suspicious Duck
+      quantity: 1

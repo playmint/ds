@@ -1,0 +1,9 @@
+kind: Item
+spec:
+  name: Very Important Stuff
+  icon: 14-134
+  goo:
+    red: 5
+    green: 5
+    blue: 5
+  stackable: true

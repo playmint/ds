@@ -1,11 +1,5 @@
-# Using this map on another map
+# Labyrinth
 
-To use this map in another map e.g. `maps/croissant` you need to
+A labyrinth containing a series of challenges for you to solve.
 
--   symlink `maps/labyrinth/kinds` to `maps/croissant/labyrinth_kinds`
--   copy `maps/labyrinth/rooms` to `maps/croissant/maps/labyrinth`
--   offset the map by running `./offset.sh ../croissant/maps/labyrinth "[9,-16,7]"`
--   copy `maps/labyrinth/quests` to `maps/croissant/quests/labyrinth`
--   offset the quest by running `./offset.sh ../croissant/quests/labyrinth "[9,-16,7]"`
-
-NOTE: The offset tool doesn't offset the quest task locations!! You need to manually open the quests.yaml and update the location of each task
+This map uses: Doors; Password hashing; Combat Stats; Item checking; Quests; Map reset.

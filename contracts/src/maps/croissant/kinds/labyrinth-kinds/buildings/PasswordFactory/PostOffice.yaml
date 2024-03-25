@@ -1,0 +1,25 @@
+---
+kind: BuildingKind
+spec:
+  category: factory
+  name: Goblin Post Office
+  description: "Please note that we can only hand over deliveries if your LEGAL NAME matches the recipients name."
+  model: 09-03
+  color: 2
+  contract:
+    file: ./PostOffice.sol
+  plugin:
+    file: ./PostOffice.js
+  materials:
+    - name: L33t Bricks
+      quantity: 100
+  inputs:
+    - name: Red Goo
+      quantity: 4
+    - name: Green Goo
+      quantity: 2
+    - name: Blue Goo
+      quantity: 2
+  outputs:
+    - name: Golden Key
+      quantity: 1

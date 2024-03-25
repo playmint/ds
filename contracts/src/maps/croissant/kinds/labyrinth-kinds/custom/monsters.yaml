@@ -1,0 +1,20 @@
+kind: BuildingKind
+spec:
+  name: The Crusher
+  description: I will crush you with my bare hands!
+  category: blocker
+  model: enemy
+  color: 5
+  materials:
+    - name: Crusher Hand
+      quantity: 10
+---
+kind: Item
+spec:
+  name: Crusher Hand
+  icon: 26-77
+  goo:
+    red: 100
+    green: 2
+    blue: 1
+  stackable: true

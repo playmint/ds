@@ -1,0 +1,12 @@
+kind: BuildingKind
+spec:
+  name: Small Oak Trees
+  category: blocker
+  model: OakTreesSmall
+  materials:
+  - name: Green Goo
+    quantity: 10
+  - name: Blue Goo
+    quantity: 10
+  - name: Red Goo
+    quantity: 10
