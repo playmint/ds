@@ -3,16 +3,12 @@
 
 We will follow the steps below to create a series of quests which you will use to guide the player to complete various tasks.
 
-# Prerequisites
-- This repository cloned to your desktop. (Instructions in the top readme.)
-- Docker Desktop
-- npm
-
+## 1. Preparation
 - Before starting, ensure that you have deployed an instance of Downstream locally using Docker. You can find instructions on how to do that in [Tutorial 1 here](../tutorial-room-1/Readme.md).
 - You should also copy the CastleOfTreasure .yaml, .sol and .js files out of the tutorial room 3 folder and paste them into your working folder.
 
 
-# 1. Create a new Quest
+## 2. Create a new Quest
 
 We will begin by creating our first quest, which will ask the player to move to a certain location. Create a new file called “00_MoveToLocation.yaml” and open it in your IDE.
 Begin by adding the following lines to define that the code in this file will be representing a Quest:
@@ -28,10 +24,10 @@ spec:
 ```
 You can then define what tasks the player must do to complete this quest. For this first quest, we want the player to move to a location, so we’ll add a “coord” type task:
 ```yaml
-tasks:
-   - kind: coord
-     name: Move your unit so that you are standing in the middle of the South-East island
-     location: [8, -8, 0]
+    tasks:
+    - kind: coord
+        name: Move your unit so that you are standing in the middle of the South-East island
+        location: [8, -8, 0]
 ```
 Finally, you’ll need to add a line at the end to define which (if any) quest should start after the player completes this current quest, so we’ll add a reference to the name of the next quest here.
 ```yaml
@@ -51,7 +47,7 @@ spec:
  next: ["Construct a Castle of Treasure"]
 ```
 
-# 2. Create different kinds of Quests
+## 3. Create different kinds of Quests
 
 Now that we have our first quest defined, we’ll add in two more for the player to complete.
 
@@ -69,7 +65,7 @@ spec:
  next: ["Create Some Treasure"]
 ```
 Note that in this quest we are using a “construct” task type instead of a “coord” task type as we did in the previous example, and we reference what building we want the player to build by name.
-It’s also important that the name of this quest matches the name we provided to the “next” property in the previous quest’s code.
+It’s important that the name of this quest matches the name we provided to the “next” property in the previous quest’s code.
 
 With that quest ready, we’ll add one more which will require the player to create an item and place it into their inventory.
 As before, we will create a new file this time named “02_CreateSomeTreasure.yaml”, and paste the following code into it:
@@ -88,7 +84,7 @@ spec:
 ```
 Again, we have a new task type in this code, this time it’s an “inventory” kind, which has a reference to the name of the item we want the player to put into their inventory as well as the desired quantity.
 
-# 3. Begin a Quest automatically
+## 4. Begin a Quest automatically
 
 We now have all of our quests ready to go, but currently nothing will happen because they haven’t been auto-assigned to our player.
 
@@ -101,22 +97,24 @@ spec:
  index: 0
 ```
 
-# 4. Deploy your new Quests
+## 5. Deploy your new Quests
 
 We will use the Downstream CLI to deploy our newly created building to our local Downstream instance.
 
 Run the following in a terminal in the folder with your exported building source (refer to tutorial 1 for more information).
 ```
-ds apply -n local -k <private-key>> -R -f ./
+ds apply -n local -k <private-key> -R -f ./
 ```
 You should see an output like this:
 
 <img src="./readme-images/deployOutput.png" width=300>
 
+<br/>
 After that, you should see your first quest in the UI in your local instance of downstream. After completing each quest you should then see the next until you have completed them all.
 
+<img src="./readme-images/questUI.png" width=300>
 
-# Task Kinds
+## Task Kinds
 
 
 | Task Kind ID | Additional Parameters | Description |
