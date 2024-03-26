@@ -79,7 +79,7 @@ You will need to enter your BIOS and activate Hardware Virtualisation. This is u
 </details>
 </details>
 
-<h3>Advanced options for builders</h3>
+<h3>Advanced options for contributors</h3>
 <details>
 <summary>Building from Source</summary>
 

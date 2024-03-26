@@ -1,5 +1,5 @@
 # Downstream Game Creation Tutorial 1
-## Fabricators and CLI
+## Aim
 
 We will follow the steps below to create a simple downstream map, with your own tile layout and your own factory building.
 
@@ -7,17 +7,20 @@ Once complete, you will have used the core Downstream tools to create a map that
 
 <img src="./readme-images/screenshot.png" width=300>
 
-# Prerequisites
+## Prerequisites
 - This repository cloned to your desktop. (Instructions in the top [readme](../../../../README.md).)
 - [Docker Desktop](https://docs.docker.com/get-docker/)
 - [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 
-# 1. Deploy the game
+## 1. Deploy the game
 
 First, deploy an instance of Downstream locally using Docker.
 
-- From a terminal in the repository root run:
-- `docker compose up --pull=always`
+From a terminal in the repository root run:
+
+```bash
+docker compose up --pull=always
+```
 
 After some time (this could take up to 5 minutes), you should see "ready" in the terminal output:
 
@@ -31,7 +34,7 @@ You should see a blue world, with a single hex tile in the center and the **Welc
 
 <img src="./readme-images/step1.png" width=200>
 
-# 2. Spawn a Unit
+## 2. Spawn a Unit
 
 First click the **Connect Wallet** button.
 Then, select **Burner**.
@@ -44,7 +47,7 @@ You can now click "Spawn Unit" and you should see your Unit on the center tile:
 <img src="./readme-images/step2b.png" width=200>
 
 
-# 3. Create a map
+## 3. Create a map
 
 There is no where for the Unit to go so we will now expand the world by creating some tiles.
 
@@ -68,15 +71,18 @@ Finally, create a new folder in your desktop. This folder is your 'map' and will
 - Copy the exported tiles manifest into the folder.
 - Rename it to 'Locations.yaml'.
 
-# 4. Deploy the new tiles
+## 4. Deploy the new tiles
 
 We will use the Downstream CLI to deploy our newly created tiles to our local Downstream instance.
 
-First, install the CLI
-- From a terminal run
-- `npm i -g @playmint/ds-cli`
-- Check it is installed from any terminal folder by running
-- `ds help`
+First, install the CLI. From a terminal run:
+```bash
+npm i -g @playmint/ds-cli
+```
+Check it is installed from any terminal folder by running:
+```bash
+ds help
+```
 
 Now copy your Burner private key from Downstream:
 - Browse to [localhost:3000]([http://localhost:3000]).
@@ -91,9 +97,11 @@ Now copy your Burner private key from Downstream:
 - Highlight and copy the key.
 
 Finally, run the command to deploy your map:
-- In a terminal at your new folder run the following
-- (where `<private-key>` can be pasted from the one you just copied)
-- `ds apply -n local -k <private-key> -f Locations.yaml`
+In a terminal at your new folder run the following, where `<private-key>` can be pasted from the one you just copied:
+```bash
+ds apply -n local -k <private-key> -f Locations.yaml
+```
+
 
 You should see the terminal output display a series of ✅s for each tile that is deployed.
 
@@ -105,9 +113,9 @@ Browse to [localhost:3000]([http://localhost:3000]) and you should see your newl
 
 
 
-# 5. Create a new type of building
+## 5. Create a new type of building
 
-The map is currently empty and there are no buildings to build. So we are going to create a new type of 'Factory' building that crafts a new kind of item.
+The map is currently empty and there are no buildings to build. So we are going to create a new kind of 'Factory' building that crafts a new kind of item.
 
 First, open the the **building-fabricator**, by opening a web browser and navigating to [http://localhost:3000/building-fabricator].
 
@@ -128,13 +136,13 @@ You can change the appearance of the building by clicking on the arrows and colo
 Once you are happy, export the building source code:
 - Select **Export**.
 - Find the downloaded zip file. It will be named something like `BasicFactory.zip`.
-- Extract the files to the same folder as tiles.yaml.
+- Extract the files to the same folder as Locations.yaml.
 
 You should now have a folder that looks this:
 
 <img src="./readme-images/step5c.png" width=200>
 
-# 6. Deploy the new type of building
+## 6. Deploy the new type of building
 
 We will use the Downstream CLI to deploy our newly created building to our local Downstream instance.
 
@@ -158,7 +166,7 @@ You should now have an instance of your building deployed to the map!
 <img src="./readme-images/step6b.png" width=200>
 
 
-# 7. Add some decorations
+## 7. Add some decorations
 
 There are plenty for examples of pre-made building kinds in the ds repository that can be copy and pasted into your map folder.
 
@@ -179,7 +187,7 @@ Now, use the [tile-fabricator](http://localhost:3000/tile-fabricator) to add som
 - When you're happy, press the **export** button.
 - Replace your old Locations.yaml with the new downloaded manifest.
 
-# 8. Deploy the whole map folder
+## 8. Deploy the whole map folder
 
 To complete the tutorial, we're going to deploy your whole map folder together.
 
@@ -187,9 +195,11 @@ First, stop the Downstream instance running in Docker with **ctrl-c**, and resta
 
 Once you see "ready", browse to the game and check you have a single tile world.
 
-Now you can apply the whole map folder by passing the -R command and a folder path **ds apply**
-- At a terminal In your map folder run:
-- `ds apply -n local -k <private-key> -R -f .`
+Now you can `ds apply` the whole map folder by passing the `-R` flag and the folder path. At a terminal In your map folder run:
+```bash
+ds apply -n local -k <private-key> -R -f .
+```
+
 
 Browsing back to the game, you should now see your new map.
 
