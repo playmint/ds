@@ -12,28 +12,37 @@ We will follow the steps below to create a series of quests which you will use t
 
 We will begin by creating our first quest, which will ask the player to move to a certain location. Create a new file called “00_MoveToLocation.yaml” and open it in your IDE.
 Begin by adding the following lines to define that the code in this file will be representing a Quest:
+
 ```yaml
 ---
 kind: Quest
 ```
+
 Next you should add information about the Quest itself:
+
 ```yaml
 spec:
     name: Move to the South-East Island
     description: "Click 'Move', then click on a tile. Then click 'Confirm' to move your Unit to that location."
 ```
+
 You can then define what tasks the player must do to complete this quest. For this first quest, we want the player to move to a location, so we’ll add a “coord” type task:
+
 ```yaml
     tasks:
     - kind: coord
         name: Move your unit so that you are standing in the middle of the South-East island
         location: [8, -8, 0]
 ```
-Finally, you’ll need to add a line at the end to define which (if any) quest should start after the player completes this current quest, so we’ll add a reference to the name of the next quest here.
+
+We want a new quest to be assigned when the player completes this quest, so you will need to add the name of the quest to the `next` list:
+
 ```yaml
  next: ["Construct a Castle of Treasure"]
 ```
+
 With that added, your code should look like this. Be careful that you have the correct indentation.
+
 ```yaml
 ---
 kind: Quest
@@ -52,6 +61,7 @@ spec:
 Now that we have our first quest defined, we’ll add in two more for the player to complete.
 
 We’ll start with a quest to construct a building. Create a new file called “01_ConstructCastleOfTreasure.yaml” and paste the following code into it:
+
 ```yaml
 ---
 kind: Quest
@@ -64,11 +74,13 @@ spec:
      buildingKind: Castle of Treasure
  next: ["Create Some Treasure"]
 ```
+
 Note that in this quest we are using a “construct” task type instead of a “coord” task type as we did in the previous example, and we reference what building we want the player to build by name.
 It’s important that the name of this quest matches the name we provided to the “next” property in the previous quest’s code.
 
 With that quest ready, we’ll add one more which will require the player to create an item and place it into their inventory.
 As before, we will create a new file this time named “02_CreateSomeTreasure.yaml”, and paste the following code into it:
+
 ```yaml
 ---
 kind: Quest
@@ -82,6 +94,7 @@ spec:
        name: Treasure
        quantity: 1
 ```
+
 Again, we have a new task type in this code, this time it’s an “inventory” kind, which has a reference to the name of the item we want the player to put into their inventory as well as the desired quantity.
 
 ## 4. Begin a Quest automatically
@@ -89,6 +102,7 @@ Again, we have a new task type in this code, this time it’s an “inventory”
 We now have all of our quests ready to go, but currently nothing will happen because they haven’t been auto-assigned to our player.
 
 For that you’ll need to create a new file called “auto-quest.yaml” and add the following code to declare a starting quest which will be assigned to the player when they enter the game.
+
 ```yaml
 ---
 kind: AutoQuest
@@ -102,9 +116,11 @@ spec:
 We will use the Downstream CLI to deploy our newly created building to our local Downstream instance.
 
 Run the following in a terminal in the folder with your exported building source (refer to tutorial 1 for more information).
+
 ```
 ds apply -n local -k <private-key> -R -f ./
 ```
+
 You should see an output like this:
 
 <img src="./readme-images/deployOutput.png" width=300>
