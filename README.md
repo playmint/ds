@@ -10,6 +10,7 @@ Follow the guide to [build your own game with Downstream](./tutorial/README.md).
 
 # Build and run a local platform instance
 
+<h3>Get building on top of Downstream</h3>
 <details>
 <summary>Clone Repository (with submodules and LFS)</summary>
 
@@ -78,6 +79,7 @@ You will need to enter your BIOS and activate Hardware Virtualisation. This is u
 </details>
 </details>
 
+<h3>Advanced options for contributors</h3>
 <details>
 <summary>Building from Source</summary>
 

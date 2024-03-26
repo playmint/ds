@@ -1,21 +1,30 @@
 <img src="images/header.png">
 
-
 # A guide to building your own game with Downstream
 
-__First__, follow the instructions for "_running with docker_" in the root [README](../README.md) so you have a local instance of the Downstream platform running.
 
-Browsing to [localhost:3000/](http://localhost:3000/) should look like this:
+# Tutorials
+ 1. __[My First Map](../contracts/src/maps/tutorial-room-1/)__
+ 1. __[Doors, Bags and Enemies](../contracts/src/maps/tutorial-room-2/)__
+ 1. __[Quests](../contracts/src/maps/tutorial-room-3/)__
+ 1. __[Tile Colors, Unit Costumes, Billboards and Custom UI](../contracts/src/maps/tutorial-room-4/)__
+ 1. __[Count Display Buildings, Custom Onchain State](../contracts/src/maps/tutorial-room-5/)__
+ 1. __[Remote Control Units](../contracts/src/maps/tutorial-room-6/)__
+
+# Reference
+## Getting started
+
+Build and run a local Downstream instance with Docker. Follow the instructions for "_running with docker_" in the root [README](../README.md).
+
+The game will be running at [localhost:3000/](http://localhost:3000/).
 
 <img src="images/fresh-local-downstream.png" width="200">
 
-You are now able to connect (Burner is recommended in development), spawn a Unit and move around.
+During development, its recommended to always connect with the Burner option.
 
-# Creation Tools
+## Creation Tools
 
-Now you need to create buildings for your Unit to construct (and attack). You can then add game logic and create new maps.
-
-## Building Fabricator
+### Building Fabricator
 <img src="images/building-fabricator.png" width="200">
 
 Browse to [localhost:3000/building-fabricator](http://localhost:3000/building-fabricator)
@@ -24,7 +33,7 @@ The Building Fabricator allows you to deploy buildings and items to Downstream w
 
 To add new behaviour to the building, once configured, hit the ___Export___ button and follow the instructions below for deploying any code changes from the command line.
 
-## Tile Fabricator
+### Tile Fabricator
 <img src="images/tile-fabricator.png" width="200">
 
 Browse to [localhost:3000/tile-fabricator](http://localhost:3000/tile-fabricator)
@@ -33,17 +42,17 @@ The Tile Fabricator allows you to place tiles and buildings and then export that
 
 Any buildings you want to place on the map must be already deployed to the current running instance or you can use the import button for use by the tile-fabricator.
 
-## CLI
+### CLI
 <img src="images/cli.png" width="200">
 
 Available as an npm package, `ds` is a command line interface for deploying buildings and maps as well as getting information about what's already been deployed to a Downstream instance.
 
 
-### Installation:
+#### Installation:
 
 ```npm install -g @playmint/ds-cli```
 
-### Commands   
+#### Commands   
 _Some common tasks:_
 
 | example | task |
@@ -64,19 +73,19 @@ _options explained_
 | `-R -f MyMapFolder`| Deploy all manifests in MyMapFolder recursively. |
 | `-k <private key>` | Sign with this private key (see warning below). |
 
-### Command line signing
+#### Command line signing
 
 >[!CAUTION]
 >Do not use a private key for any account you care about. You can use the Downstream connection dialogue box to copy the private key if connected with a burner. Or you can leave this option out and ds will give you a wallet connect QR code to sign.
 
-### Deploy a single building
+#### Deploy a single building
 
 - Use the __building-fabricator__ to _export_ building sources.
 - Use __ds__ to deploy it to the local running Downstream:
 
 ```ds apply -n local -k <private key> -f ./BasicFactory.yaml```
 
-### Deploy a map folder over the current map
+#### Deploy a map folder over the current map
 
 - Use the building-fabricator to export building sources and the tile-fabricator to export map files.
 - Combine them all in a single folder.
@@ -85,14 +94,14 @@ _options explained_
 ```ds apply -n local -k <private key> -R f <exported folder>```
 
 
-### Deploy as the initial map
+#### Deploy as the initial map
 
 - Stop any local running build.
 - Copy your map manifest and building source to [contracts/src/maps](../contracts/src/maps)<map-folder>
 - Re-run with `MAP=<map-folder> docker compose up`
     - You can also set the MAP environment variable in the [.env file](../.env)
 
-# Adding Game Logic
+## Adding Game Logic
 
 The files exported from the Building Fabricator act as a starting point for implementing your own logic.
 
