@@ -4,7 +4,7 @@
 We will follow the steps below to create a series of quests which you will use to guide the player to complete various tasks.
 
 ## 1. Preparation
-- Before starting, ensure that you have deployed an instance of Downstream locally using Docker. You can find instructions on how to do that in [Tutorial 1 here](../tutorial-room-1/Readme.md).
+- Before starting, ensure that you have deployed an instance of Downstream locally using Docker. You can find instructions on how to do that in [Tutorial 1 here](../tutorial-room-1/README.md).
 - You should also copy the CastleOfTreasure .yaml, .sol and .js files out of the tutorial room 3 folder and paste them into your working folder.
 
 
