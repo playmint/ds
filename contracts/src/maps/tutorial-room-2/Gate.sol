@@ -13,23 +13,14 @@ using Schema for State;
 abstract contract Gate is BuildingKind {
     function getKeyId() internal pure virtual returns (bytes24);
 
-    bytes24 constant _UNIVERSAL_KEY = 0x6a7a67f0771dac36000000010000004b0000000100000001;
-
     function onUnitArrive(Game ds, bytes24 buildingInstanceID, bytes24 mobileUnitID) public override {
         // Example of logging the last unit to arrive at a building
         _setDataOnBuilding(ds.getDispatcher(), buildingInstanceID, "lastUnitToArrive", bytes32(mobileUnitID));
 
         // Example of not allowing a unit to stand on the building tile unless they have the Gate Key item
-
         ( /*uint8 bagSlot*/ , /*uint8 itemSlot*/, uint64 keyBalance) =
             _findItem(ds.getState(), mobileUnitID, getKeyId());
-        (,, uint64 uniKeybalance) = _findItem(ds.getState(), mobileUnitID, _UNIVERSAL_KEY);
-        require(keyBalance > 0 || uniKeybalance > 0, "Gate: Unit does not have the right key");
-    }
-
-    function onUnitLeave(Game ds, bytes24 buildingInstanceID, bytes24 mobileUnitID) public override {
-        // Example of logging the last unit to leave a building
-        _setDataOnBuilding(ds.getDispatcher(), buildingInstanceID, "lastUnitToLeave", bytes32(mobileUnitID));
+        require(keyBalance > 0, "Gate: Unit does not have the right key");
     }
 
     function _setDataOnBuilding(Dispatcher dispatcher, bytes24 buildingId, string memory key, bytes32 value) internal {
