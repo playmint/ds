@@ -23,22 +23,22 @@ contract UnitController is BuildingKind {
             _spawnUnit(ds, buildingInstance, actor);
         } else if ((bytes4)(payload) == this.moveUnitNE.selector) {
             (bytes24 mobileUnit) = abi.decode(payload[4:], (bytes24));
-            _moveUnitNE(ds, mobileUnit);
+            _moveUnit(ds, mobileUnit, [int16(0), int16(1), int16(-1)]);
         } else if ((bytes4)(payload) == this.moveUnitE.selector) {
             (bytes24 mobileUnit) = abi.decode(payload[4:], (bytes24));
-            _moveUnitE(ds, mobileUnit);
+            _moveUnit(ds, mobileUnit, [int16(1), int16(0), int16(-1)]);
         } else if ((bytes4)(payload) == this.moveUnitSE.selector) {
             (bytes24 mobileUnit) = abi.decode(payload[4:], (bytes24));
-            _moveUnitSE(ds, mobileUnit);
+            _moveUnit(ds, mobileUnit, [int16(1), int16(-1), int16(0)]);
         } else if ((bytes4)(payload) == this.moveUnitSW.selector) {
             (bytes24 mobileUnit) = abi.decode(payload[4:], (bytes24));
-            _moveUnitSW(ds, mobileUnit);
+            _moveUnit(ds, mobileUnit, [int16(0), int16(-1), int16(1)]);
         } else if ((bytes4)(payload) == this.moveUnitW.selector) {
             (bytes24 mobileUnit) = abi.decode(payload[4:], (bytes24));
-            _moveUnitW(ds, mobileUnit);
+            _moveUnit(ds, mobileUnit, [int16(-1), int16(0), int16(1)]);
         } else if ((bytes4)(payload) == this.moveUnitNW.selector) {
             (bytes24 mobileUnit) = abi.decode(payload[4:], (bytes24));
-            _moveUnitNW(ds, mobileUnit);
+            _moveUnit(ds, mobileUnit, [int16(-1), int16(1), int16(0)]);
         }
     }
 
@@ -53,45 +53,13 @@ contract UnitController is BuildingKind {
         );
     }
 
-    function _moveUnitNE(Game ds, bytes24 mobileUnit) internal {
+    function _moveUnit(Game ds, bytes24 mobileUnit, int16[3] memory direction) internal {
         (int16 q, int16 r, int16 s) = _getUnitCoords(ds, mobileUnit);
         ds.getDispatcher().dispatch(
-            abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (uint32(uint192(mobileUnit)), q, r + 1, s - 1))
-        );
-    }
-
-    function _moveUnitE(Game ds, bytes24 mobileUnit) internal {
-        (int16 q, int16 r, int16 s) = _getUnitCoords(ds, mobileUnit);
-        ds.getDispatcher().dispatch(
-            abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (uint32(uint192(mobileUnit)), q + 1, r, s - 1))
-        );
-    }
-
-    function _moveUnitSE(Game ds, bytes24 mobileUnit) internal {
-        (int16 q, int16 r, int16 s) = _getUnitCoords(ds, mobileUnit);
-        ds.getDispatcher().dispatch(
-            abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (uint32(uint192(mobileUnit)), q + 1, r - 1, s))
-        );
-    }
-
-    function _moveUnitSW(Game ds, bytes24 mobileUnit) internal {
-        (int16 q, int16 r, int16 s) = _getUnitCoords(ds, mobileUnit);
-        ds.getDispatcher().dispatch(
-            abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (uint32(uint192(mobileUnit)), q, r - 1, s + 1))
-        );
-    }
-
-    function _moveUnitW(Game ds, bytes24 mobileUnit) internal {
-        (int16 q, int16 r, int16 s) = _getUnitCoords(ds, mobileUnit);
-        ds.getDispatcher().dispatch(
-            abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (uint32(uint192(mobileUnit)), q - 1, r, s + 1))
-        );
-    }
-
-    function _moveUnitNW(Game ds, bytes24 mobileUnit) internal {
-        (int16 q, int16 r, int16 s) = _getUnitCoords(ds, mobileUnit);
-        ds.getDispatcher().dispatch(
-            abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (uint32(uint192(mobileUnit)), q - 1, r + 1, s))
+            abi.encodeCall(
+                Actions.MOVE_MOBILE_UNIT,
+                (uint32(uint192(mobileUnit)), q + direction[0], r + direction[1], s + direction[2])
+            )
         );
     }
 

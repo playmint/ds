@@ -14,15 +14,6 @@ export default async function update(state) {
         };
     }
 
-    const { mobileUnits } = state.world;
-
-    // We slice the first 10 characters from the ids to remove the 0x and Node prefix so we are left with the address part of the id
-    const buildingUnits = mobileUnits.filter(
-        (unit) =>
-            unit.owner.id.slice(10) ===
-            selectedBuilding.kind.implementation.id.slice(10),
-    );
-
     const spawnUnit = () => {
         const payload = ds.encodeCall("function spawnUnit()", []);
 
@@ -31,6 +22,15 @@ export default async function update(state) {
             args: [selectedBuilding.id, mobileUnit.id, payload],
         });
     };
+
+    const { mobileUnits } = state.world;
+
+    // We slice the first 10 characters from the ids to remove the 0x and Node prefix so we are left with the address part of the id
+    const buildingUnits = mobileUnits.filter(
+        (unit) =>
+            unit.owner.id.slice(10) ===
+            selectedBuilding.kind.implementation.id.slice(10),
+    );
 
     const moveNE = () => {
         buildingUnits.forEach((unit) => {
@@ -128,7 +128,6 @@ export default async function update(state) {
                                 text: "Spawn Unit",
                                 type: "action",
                                 action: spawnUnit,
-                                disabled: false,
                             },
                             {
                                 text: "Move Unit ↗️",
@@ -188,9 +187,3 @@ function getBuildingOnTile(state, tile) {
         (b) => tile && b.location?.tile?.id === tile.id,
     );
 }
-
-const getBuildingsByType = (buildingsArray, type) => {
-    return buildingsArray.filter((building) =>
-        building.kind?.name?.value.toLowerCase().includes(type),
-    );
-};
