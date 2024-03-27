@@ -4,34 +4,13 @@ export default async function update(state) {
     const mobileUnit = getMobileUnit(state);
     const buildings = state.world?.buildings || [];
     const counterHQ = getBuildingsByType(buildings, "Counter HQ")[0];
-    if (!counterHQ) {
-        return {
-            version: 1,
-            components: [
-                {
-                    id: "counter-hq",
-                    type: "building",
-                    content: [
-                        {
-                            id: "default",
-                            type: "inline",
-                            html: `Unable to find Counter HQ building`,
-
-                            buttons: [],
-                        },
-                    ],
-                },
-            ],
-        };
-    }
+    const count = getDataInt(counterHQ, "count");
 
     const counterBuildings = getBuildingsByType(buildings, "counter").filter(
         (b) =>
             distance(b.location.tile.coords, counterHQ.location.tile.coords) <=
             2,
     );
-
-    const count = getDataInt(counterHQ, "count");
 
     const IncrementCounter = () => {
         const payload = ds.encodeCall("function increment()", []);
