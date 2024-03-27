@@ -1,150 +1,53 @@
-# Tutorial Room 4
+# Downstream Game Creation Tutorial 4
 
-This tutorial provides examples on:
-- Changing tiles colours
-- Changing unit costumes
-- Custom (building) plugin UI
+## Aim
+We will follow the steps below to learn about 
+- Changing tile colours
+- Changing unit model
 - Billboards
+- Custom plugin UI
 
-## Changing Tile Colours
+Once complete, your map should something look like this:
 
-Tile colours are being controlled by the `DiscoCentre.js` plugin.
+<img src="./readme-images/step0.png" width=600>
 
-In this example, there are two states the "dance floor" can be in. 
-1. The default state changes all the tiles within a radius to blue, except for the tile your unit is stood on.
+# 1. Setup
+Follow steps 1 through 4 of `tutorial-room-1` to get started. This will walk you through:
+- Deploying the game
+- Spawning a unit
+- Creating a map *
+- Deploying new tiles
 
-2. When in disco mode, every tile in the radius is changes to a random colour from a predefined list.
+https://github.com/playmint/ds/blob/main/contracts/src/maps/tutorial-room-1/README.md
 
-In the code, we've started by setting the tile the unit is stood on to orange.
+\* The only change we want to make to these steps is in _Creating a map_. As this is the next room in the tutorial series, we will be creating our map at a different angle so it doesn't overlap with another tutorial room.
 
-First we need the coordinates of the unit (which we'll also use to calculate the tile ID), and the Disco Centre coordinates, so we can calculate the distance between the two:
-```js
-const buildingTileCoords = getTileCoords(discoCentre?.location?.tile?.coords);
-const unitTileCoords = getTileCoords(mobileUnit?.nextLocation?.tile?.coords);
-const unitDistanceFromBuilding = distance(buildingTileCoords, unitTileCoords);
+<img src="./readme-images/step1.png" width=600>
+
+## Let's create the files
+### YAML
+- DiscoCentre.yaml
+```yaml
+---
+kind: BuildingKind
+spec:
+  category: custom
+  name: Disco Centre
+  description: Controls tile colours and unit visuals
+  model: 03-06
+  color: 2
+  plugin:
+    file: ./DiscoCentre.js
+    alwaysActive: true
+  materials:
+  - name: Red Goo
+    quantity: 10
+  - name: Green Goo
+    quantity: 10
+  - name: Blue Goo
+    quantity: 10
 ```
-
-With this information we can set the colour value for the tile the unit is standing on:
-```js
-if (unitDistanceFromBuilding <= TILE_COLOUR_DISTANCE) {
-    // Orange tile under the unit
-    map.push({
-        type: 'tile',
-        key: 'color',
-        id: getTileIdFromCoords(unitTileCoords),
-        value: '#f58c02',
-    });
-}
-```
-
-(See `DiscoCentre.js` if you'd like to understand what the functions used are doing)
-
-We've implemented a function that gets an array of all the tiles within a range, `getTilesInRange`. To set the colours of all these tiles, we loop through them, and either give them a random colour, or turn them all blue - except for the one the unit is standing on:
-```js
-if (disco) {
-            getTilesInRange(discoCentre, TILE_COLOUR_DISTANCE).forEach((t) => {
-                if (t !== unitTileId) {
-                    map.push(
-                        {
-                            type: "tile",
-                            key: "color",
-                            id: `${t}`,
-                            value: themedRandomColour(),
-                        }
-                    );
-                }      
-            });
-        }else{
-            getTilesInRange(discoCentre, TILE_COLOUR_DISTANCE).forEach((t) => {
-                if (t !== unitTileId) {
-                    map.push(
-                        {
-                            type: "tile",
-                            key: "color",
-                            id: `${t}`,
-                            value: '#3386d4',
-                        }
-                    );
-                }      
-            });
-        }
-```
-
-Note that we've been adding these maps to the `map` array. Once we've done this for all our logic, the plugin should include it in the return as seen here:
-```js
-return {
-        version: 1,
-        map: map,
-        components: [
-            {
-                id: 'colour-controller',
-                type: 'building',
-                content: [
-                    {
-                        id: 'default',
-                        type: 'inline',
-                        html: '<p>Let\'s party!</p>',
-                        buttons: buttons,
-                    },
-                ],
-            },
-        ],
-    };
-```
-
-## Changing Unit Costumes
-Similarly to chanding tile colours, we can also change unit models.
-
-We get our unit ID:
-```js
-function getMobileUnit(state) {
-    return state?.selected?.mobileUnit;
-}
-```
-
-And set the value of the unit's model - based on some variables:
-```js
-if (dressed){
-            if (unitDistanceFromBuilding <= TILE_COLOUR_DISTANCE){
-                // Change unit model
-                map.push({
-                    type: "unit",
-                    key: "model",
-                    id: mobileUnit.id,
-                    value: `Unit_Tuxedo_0${selectedTux}`,
-                });
-            }
-        }
-```
-
-## Custom (Building) Plugin UI
-
-How is the player able to control things like toggling the disco dance floor mode, and what tuxedo the unit is wearing?
-
-The plugin allows you to create custom HTML so you can display whatever you like, or in this case, add clickable buttons that call functions to trigger logic.
-
-For exmaple, this is a button that calls the `toggleDressed` function:
-```js
-buttons.push({
-            text: dressed ? 'Remove Tuxedo 🙎‍♂️' : 'Wear Tuxedo 🤵',
-            type: 'action',
-            action: toggleDressed,
-            disabled: false,
-        });
-```
-
-`toggleDressed` is toggling the bool `dressed`.
-```js
-const toggleDressed = () => {
-    dressed = !dressed;
-};
-```
-
-So we can use the players input to change what's happening in the world.
-
-## Billboards
-
-The Disco Billboard has been added through `DiscoBillboard.yaml`:
+- DiscoBillboard.yaml
 ```yaml
 ---
 kind: BuildingKind
@@ -164,23 +67,23 @@ spec:
   - name: Blue Goo
     quantity: 10
 ```
+- Buildings.yaml
+```yaml
+---
+kind: Building
+spec:
+  name: Disco Centre
+  location: [ 0, -8, 8 ]
+  facingDirection: RIGHT
 
-You should note:
-- `category: billboard`
-- `alwaysActive: true`
-
-These are required for billboards to function.
-
-Again, similar to how we change tile colours, and unit models, we set values in a map, passing through the billboard building ID, and an image URL to set the image:
-```js
-    const map = [
-        {
-        type: "building",
-        key: "image",
-        id: `${discoBillboard.id}`,
-        value: images[selectedImg],
-        },
-    ];
+---
+kind: Building
+spec:
+  name: Disco Billboard
+  location: [ 3, -8, 5 ]
+  facingDirection: LEFT
 ```
+- Tiles.yaml
+  - _Get tile output from tile-fabricator, or copy from our example_
 
-Custom plugin UI is also being utilised here to allow the player to change the image being displayed on the billboard.
+# Changing Tile Colours
