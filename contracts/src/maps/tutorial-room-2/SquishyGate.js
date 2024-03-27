@@ -8,11 +8,10 @@ export default async function update(state) {
     // this will be logged when selecting a unit and then selecting an instance of this building
     // logState(state);
 
-    const uniKeyName = "Playtest Pass";
     const mobileUnit = getMobileUnit(state);
     const bags = state?.world?.bags ?? [];
 
-    const hasGateKey = getItemBalance(mobileUnit, keyItemName, bags) > 0 || getItemBalance(mobileUnit, uniKeyName, bags) > 0;
+    const hasGateKey = getItemBalance(mobileUnit, keyItemName, bags) > 0;
 
     const pluginBuildings = getBuildingsByKindName(state, gateName);
     const pluginBuildingTileIDs = pluginBuildings.map(
@@ -26,14 +25,6 @@ export default async function update(state) {
             value: `${!hasGateKey}`,
         };
     });
-    const tileColorMapObjs = pluginBuildingTileIDs.map((t) => {
-        return {
-            type: "tile",
-            key: "color",
-            id: t,
-            value: hasGateKey ? "green" : "red",
-        };
-    });
     const buildingModelMapObjs = pluginBuildings.map((t) => {
         return {
             type: "building",
@@ -45,7 +36,7 @@ export default async function update(state) {
 
     return {
         version: 1,
-        map: blockerTileMapObjs.concat(tileColorMapObjs).concat(buildingModelMapObjs),
+        map: blockerTileMapObjs.concat(buildingModelMapObjs),
         components: [
             {
                 id: "squishy-gate",

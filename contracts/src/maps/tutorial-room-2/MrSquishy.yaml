@@ -13,10 +13,3 @@ spec:
       quantity: 50
     - name: Green Goo
       quantity: 100
-
----
-kind: Building
-spec:
-  name: Mr. Squishy
-  location: [ 8, 2, -10 ]
-  facingDirection: LEFT

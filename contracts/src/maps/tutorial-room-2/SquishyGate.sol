@@ -11,7 +11,7 @@ import {Gate} from "./Gate.sol";
 
 using Schema for State;
 
-contract IronGate is Gate {
+contract SquishyGate is Gate {
     function getKeyId() internal pure override returns (bytes24) {
         return 0x6a7a67f05e359ab500000001000000010000000100000002;
     }
