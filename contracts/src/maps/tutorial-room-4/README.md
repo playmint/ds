@@ -181,8 +181,87 @@ return {
         map: map,
         ...
 ```
-(LINK TO TUTORIAL 1 DS APPLY)
+**(LINK TO TUTORIAL 1 DS APPLY)**
 
-(IMAGE OF WORLD (WITH DESTROYED BILLBOARD & NO TUX ON), BUT DISCO FEATURES ACTIVE)
+**(IMAGE OF WORLD (WITH DESTROYED BILLBOARD & NO TUX ON), BUT DISCO FEATURES ACTIVE)**
 
 # 3. Changing Unit Model
+
+Changing the unit model follows a similar process to changing the tile colours.
+
+Before the update function, declare a `boolean`: dressed, and a `number`: selectedTux:
+```js
+let dressed = false;
+let selectedTux = 1;
+```
+
+Make the function `toggleDressed()` to give the player control to change their unit's model:
+```js
+const toggleDressed = () => {
+    dressed = !dressed;
+};
+```
+
+And we'll use another function to change the variation of the model:
+```js
+const changeTux = () => {
+    selectedTux = selectedTux % 2 + 1;
+};
+```
+
+Next, the logic should be handled inside the `if (mobileUnit)` statement:
+```js
+if (dressed){
+    if (unitDistanceFromBuilding <= TILE_COLOUR_DISTANCE){
+        // Change unit model
+        map.push({
+            type: "unit",
+            key: "model",
+            id: mobileUnit.id,
+            value: `Unit_Tuxedo_0${selectedTux}`,
+        });
+    }            
+
+    // Add button to change tuxedo model variation
+    buttons.push({
+        text: `Change Tuxedo 🔄`,
+        type: 'action',
+        action: changeTux,
+        disabled: false,
+    });
+}
+```
+
+As you can see here, we add a button giving the player the option to change the variation of tuxedo model they're wearing if they have `dressed` toggled on. In our example, it's switching between `"Unit_Tuxedo_01"`, and `"Unit_Tuxedo_02"`.
+
+outside of the `if (dressed)` statement, add the option to allow them to wear/remove the tuxedo:
+```js
+buttons.push({
+            text: dressed ? 'Remove Tuxedo 🙎‍♂️' : 'Wear Tuxedo 🤵',
+            type: 'action',
+            action: toggleDressed,
+            disabled: false,
+        });
+```
+
+That's the `Disco Centre` logic done! Remember to pass in the `map` and `buttons` arrays in the `return` block:
+```js
+return {
+        version: 1,
+        map: map,
+        components: [
+            {
+                id: 'colour-controller',
+                type: 'building',
+                content: [
+                    {
+                        id: 'default',
+                        type: 'inline',
+                        html: '<p>Let\'s party!</p>',
+                        buttons: buttons,
+                    },
+                ],
+            },
+        ],
+    };
+```
