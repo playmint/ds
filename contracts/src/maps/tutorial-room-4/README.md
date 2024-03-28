@@ -182,7 +182,7 @@ return {
         ...
 ```
 
-**(IMAGE OF WORLD (WITH DESTROYED BILLBOARD & NO TUX ON), BUT DISCO FEATURES ACTIVE)**
+<img src="./readme-images/step2.png" width=600>
 
 # 3. Changing Unit Model
 
@@ -265,6 +265,7 @@ return {
     };
 ```
 
+<img src="./readme-images/step3.png" width=600>
 
 # 4. Disco Billboard
 Let's create a billboard to display images in the world.
@@ -348,6 +349,8 @@ In the `update` `return` block, be sure to set the map, and buttons to the const
     buttons: buttons,
     ```
 
+<img src="./readme-images/step4.png" width=600>
+
 # 5. Custom Plugin UI
 We can implement HTML into our plugin UI. This is a good way of creating custom experiences for players. In our example, we'll display what image is being shown on the billboard:
 ```js
@@ -384,8 +387,10 @@ return {
     };
 ```
 
+<img src="./readme-images/step5.png" width=600>
+
 # You did it, good job! 🥳
 
 At this point, everything should be working! Feel free to refer to the example files to learn more about the implementation.
 
-<img src="./readme-images/" width=600>
+<img src="./readme-images/step6.png" width=600>
