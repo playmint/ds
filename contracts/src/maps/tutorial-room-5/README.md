@@ -343,7 +343,7 @@ spec:
 
 ## Finding all counter buildings within a 2 tile radius
 
-To make this easier we can use the following helper functions which can be pasted at the end of `CounterHQ.js`
+The raw tile coordinates need decoding a bit to calculate distances between them. To make this easier we can use the following helper functions, which can be pasted at the end of `CounterHQ.js`
 
 ```js
 function distance(signedHexCoordsA, signedHexCoordsB) {
