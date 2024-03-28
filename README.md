@@ -61,7 +61,7 @@ docker compose up --pull=always
 This will fetch the most recently built images for the game and run them
 without requiring a full build.
 
-Once ready, the client will be available at http://locahost:3000
+Once ready, the client will be available at http://localhost:3000
 
 See "Running Local with different Map Setups" section for deploying different maps,
 
