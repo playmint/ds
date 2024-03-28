@@ -6,26 +6,6 @@ export default async function update(state, block) {
     const mobileUnit = getMobileUnit(state);
     const buildings = state.world?.buildings || [];
     const countdownHQ = getBuildingsByType(buildings, "Countdown HQ")[0];
-    if (!countdownHQ) {
-        return {
-            version: 1,
-            components: [
-                {
-                    id: "countdown-hq",
-                    type: "building",
-                    content: [
-                        {
-                            id: "default",
-                            type: "inline",
-                            html: `Unable to find Countdown HQ building`,
-
-                            buttons: [],
-                        },
-                    ],
-                },
-            ],
-        };
-    }
 
     const countdownBuildings = getBuildingsByType(
         buildings,
@@ -38,21 +18,8 @@ export default async function update(state, block) {
             ) <= 2,
     );
 
-    const nowBlock = block;
-    const startBlock = getDataInt(countdownHQ, "startBlock");
-    const endBlock = getDataInt(countdownHQ, "endBlock");
-
-    const remainingBlocks = Math.max(endBlock - nowBlock, 0);
-    const elapsedBlocks = nowBlock - startBlock;
-    const remainingTimeMs = remainingBlocks * 2 * 1000;
-    const elapsedTimeMS = elapsedBlocks * 2 * 1000;
-
-    const now = Date.now();
-    const startTime = now - elapsedTimeMS;
-    const endTime = now + remainingTimeMs;
-
     const startTimer = (durationSecs) => {
-        const endBlock = nowBlock + durationSecs / BLOCK_TIME_SECS;
+        const endBlock = block + durationSecs / BLOCK_TIME_SECS;
 
         const payload = ds.encodeCall("function startTimer(uint256)", [
             endBlock,
@@ -63,6 +30,18 @@ export default async function update(state, block) {
             args: [countdownHQ.id, mobileUnit.id, payload],
         });
     };
+
+    const startBlock = getDataInt(countdownHQ, "startBlock");
+    const endBlock = getDataInt(countdownHQ, "endBlock");
+
+    const remainingBlocks = Math.max(endBlock - block, 0);
+    const elapsedBlocks = block - startBlock;
+    const remainingTimeMs = remainingBlocks * BLOCK_TIME_SECS * 1000;
+    const elapsedTimeMS = elapsedBlocks * BLOCK_TIME_SECS * 1000;
+
+    const now = Date.now();
+    const startTime = now - elapsedTimeMS;
+    const endTime = now + remainingTimeMs;
 
     return {
         version: 1,
