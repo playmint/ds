@@ -18,10 +18,3 @@ spec:
       quantity: 100
     - name: Blue Goo
       quantity: 100
-
----
-kind: Building
-spec:
-  name: Squishy Gate
-  location: [8, -1, -7]
-  facingDirection: RIGHT
