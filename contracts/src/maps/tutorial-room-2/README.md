@@ -37,7 +37,7 @@ We will start by making a new .yaml file in your map directory. The name technic
 
 For example: if your item is named `"Door Unlockinator 3000"`, we would name the file `"DoorUnlockinator3000.yaml"`.
 
-### DoorUnlockinator3000.yaml:
+### Create file: DoorUnlockinator3000.yaml
 ```yaml
 ---
 kind: Item
@@ -51,6 +51,8 @@ spec:
   stackable: true
 ```
 
+**Note:** later, we'll be using the item ID to verify the unit has the key in their inventory. If you're following along and want to use the same ID as we do, you should use the same name. Otherwise, you can run the command `ds get items -n local` while running the game to get a list of all the items in your world with their IDs.
+
 One thing here that isn't clear is the icon. The best way to pick an icon is to open the [building-fabricator](http://localhost:3000/building-fabricator) where you can easily flick through the item icons available.
 
 You can change how much goo it costs the unit to craft this item.
@@ -60,7 +62,7 @@ You can change how much goo it costs the unit to craft this item.
 ## Sword
 Later we're going to add an enemy that requires the unit to have an item like a sword to defeat it, so now we'll add a sword.
 
-### Squisher.yaml
+### Create file: Squisher.yaml
 ```yaml
 ---
 kind: Item
@@ -84,7 +86,7 @@ Important things to note here:
 # 3. Bags
 We're going to use bags to introduce the items we made into the map.
 
-### Bags.yaml
+### Create file: Bags.yaml
 ```yaml
 ---
 kind: Bag
@@ -116,7 +118,7 @@ What we're doing here:
 # 4. Enemies
 Let's add an enemy to our map.
 
-### MrSquishy.yaml
+### Create file: MrSquishy.yaml
 ```yaml
 ---
 kind: BuildingKind
@@ -137,7 +139,7 @@ spec:
 
 Since you can enter combat with any building, the only difference with an enemy is the model: `model: enemy`.
 
-### Buildings.yaml
+### Create file: Buildings.yaml
 Place the enemy in your map:
 ```yaml
 ---
@@ -159,7 +161,7 @@ Secondly, we do on-chain validation to ensure the requested movement is allowed.
 ## 5.1 - YAML
 First define the BuildingKind YAML for the gate.
 
-### SquishyGate.yaml
+### Create file: SquishyGate.yaml
 ```yaml
 ---
 kind: BuildingKind
@@ -201,7 +203,7 @@ contract:
 Let's start by looking at the on-chain logic.
 ## 5.2 - Solidity
 
-### SquishyGate.sol
+### Create file: SquishyGate.sol
 We start every solidity file with this line:
 ```solidity
 pragma solidity ^0.8.13;
@@ -231,7 +233,26 @@ contract SquishyGate is Gate {
 
 Doing it this way allows you to easily add new gates and reuse all the logic in `Gate.sol`, but passing in a different item ID for each gate.
 
-### Gate.sol
+**Note:** In our example it's returning `0x6a7a67f05e359ab500000001000000010000000100000002`. If your key has a different name to ours, your ID will be different. You can get your key ID by running `ds get item "YOUR ITEM NAME" -n local` which the game is running.
+
+`SquishyGate.sol` should now look something like this:
+```solidity
+pragma solidity ^0.8.13;
+
+import {State} from "cog/IState.sol";
+import {Schema} from "@ds/schema/Schema.sol";
+import {Gate} from "./Gate.sol";
+
+using Schema for State;
+
+contract SquishyGate is Gate {
+    function getKeyId() internal pure override returns (bytes24) {
+        return <YOUR_KEY_ID>;
+    }
+}
+```
+
+### Create file: Gate.sol
 This will handle most of the on-chain validation.
 
 For this, we reference `BuildingKind`
@@ -277,12 +298,14 @@ function _findItem(State state, bytes24 mobileUnitID, bytes24 itemId)
     }
 ```
 
-Take a look at `Gate.sol` to see how the code has been structured.
+**Note:** Take a look at `Gate.sol` in the example folder to see how the code has been structured.
 
 ## 5.3 - javascript
 We're going to create the client-side plugin code. This code will handle what happens on the frontend of the game. Technically, the gate will function properly without any solidity code, but without on-chain validation, players would be able to cheat.
 
-### SquishyGate.js
+If you're starting from scratch, you should use the code from `maps/basic-factory/BasicFactory.js` for the javascript files you create. `BasicFactory` sets up up with the basic structure of a plugin.
+
+### Create file: SquishyGate.js
 
 First, define the key item name, and the name of the gate:
 ```js
