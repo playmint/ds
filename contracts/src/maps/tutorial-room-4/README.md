@@ -174,14 +174,13 @@ function themedRandomColour(){
 
 if `disco` is false, it makes each tile (except for the one the unit is standing on) blue.
 
-And for colouring the tiles, that's it! Once you've passed in the `map` array we pushed to, to the `map`, feel free to give it a test run!
+And for colouring the tiles, that's it! Once you've passed in the `map` array we pushed to, to the `map`, feel free to [give it a test run](https://github.com/playmint/ds/blob/main/contracts/src/maps/tutorial-room-1/README.md#8-deploy-the-whole-map-folder)!
 ```js
 return {
         version: 1,
         map: map,
         ...
 ```
-**(LINK TO TUTORIAL 1 DS APPLY)**
 
 **(IMAGE OF WORLD (WITH DESTROYED BILLBOARD & NO TUX ON), BUT DISCO FEATURES ACTIVE)**
 
@@ -265,3 +264,128 @@ return {
         ],
     };
 ```
+
+
+# 4. Disco Billboard
+Let's create a billboard to display images in the world.
+
+In this example, we're hosting a set of images displaying beavers at a disco!
+```js
+const images = [
+'https://assets.downstream.game/examples/disco-beaver-0.jpeg',
+'https://assets.downstream.game/examples/disco-beaver-1.jpeg',
+'https://assets.downstream.game/examples/disco-beaver-2.jpeg',
+'https://assets.downstream.game/examples/disco-beaver-3.jpeg',
+'https://assets.downstream.game/examples/disco-beaver-4.jpeg',
+'https://assets.downstream.game/examples/disco-beaver-5.jpeg',
+'https://assets.downstream.game/examples/disco-beaver-6.jpeg',
+'https://assets.downstream.game/examples/disco-beaver-7.jpeg',
+];
+```
+
+When the frontend loads, we can select a random image:
+```js
+let selectedImg = Math.floor(Math.random() * images.length) + 1;
+```
+
+If we want the user to be able to change the image, we can made a function to be called when a button is clicked:
+```js
+const changeImg = () => {
+    selectedImg = (selectedImg + 1) % images.length;
+};
+```
+
+In the `update` function, we should search the world for the `"Disco Billboard"`:
+```js
+    const discoBillboard = state.world?.buildings.find(
+        (b) => b.kind?.name?.value == "Disco Billboard",
+    );
+
+    if (!discoBillboard){
+        return;
+    }
+```
+
+Since we're not using as much logic here as we did for the Disco Centre, we can just define the `map` is a `const`:
+```js
+    const map = [
+        {
+        type: "building",
+        key: "image",
+        id: `${discoBillboard.id}`,
+        value: images[selectedImg],
+        },
+    ];
+```
+
+- For the ID, we're using the billboard we found in the world.
+- For the value, we passing in the image URL.
+  - Remember to consider CORS security requirements for the images you're using.
+
+We'll also define `buttons` as a `const` array of `map`(s):
+```js
+    const buttons = [
+        {
+            text: `Change Billboard Image 🔄`,
+            type: 'action',
+            action: changeImg,
+            disabled: false,
+        },
+    ];
+```
+
+The `action` is calling the function we created to iterate through the image URL array.
+
+In the `update` `return` block, be sure to set the map, and buttons to the const's we created.
+
+- map
+    ```js
+    map: map,
+    ```
+
+- buttons
+    ```js
+    buttons: buttons,
+    ```
+
+# 5. Custom Plugin UI
+We can implement HTML into our plugin UI. This is a good way of creating custom experiences for players. In our example, we'll display what image is being shown on the billboard:
+```js
+html: `
+    <h3>Now Showing:</h3>
+    <img src="${images[selectedImg]}" alt="Current Billboard Image">
+    [${selectedImg + 1}/${images.length}]
+`,
+```
+
+Your `return` block should now look something like this:
+```js
+return {
+        version: 1,
+        map: map,
+        components: [
+            {
+                id: 'disco-billboard',
+                type: 'building',
+                content: [
+                    {
+                        id: 'default',
+                        type: 'inline',
+                        html: `
+                            <h3>Now Showing:</h3>
+                            <img src="${images[selectedImg]}" alt="Current Billboard Image">
+                            [${selectedImg + 1}/${images.length}]
+                        `,
+                        buttons: buttons,
+                    },
+                ],
+            },
+        ],
+    };
+```
+
+# You did it, good job! 🥳
+
+At this point, everything should be working! Feel free to refer to the example files to learn more about the implementation.
+
+<img src="./readme-images/" width=600>
