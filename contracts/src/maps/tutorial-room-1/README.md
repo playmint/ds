@@ -5,7 +5,10 @@ We will follow the steps below to create a simple downstream map, with your own 
 
 Once complete, you will have used the core Downstream tools to create a map that looks like this when played:
 
-<img src="./readme-images/screenshot.png" width=300>
+<a href="https://drive.google.com/file/d/1C6Zou1v_ad8OlvZjKmixuvBBLpVJvkRZ/view?usp=drive_link"><img src="./readme-images/screenshot.png" width=300></a>
+
+[Watch a video run through of this tutorial.](https://drive.google.com/file/d/1C6Zou1v_ad8OlvZjKmixuvBBLpVJvkRZ/view?usp=drive_link)
+
 
 ## Prerequisites
 - This repository cloned to your desktop. (Instructions in the top [readme](../../../../README.md).)
