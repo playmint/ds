@@ -1,5 +1,6 @@
 # Downstream Game Creation Tutorial 3
-## Quests
+
+## Aim
 
 We will follow the steps below to create a series of quests which you will use to guide the player to complete various tasks.
 
