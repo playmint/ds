@@ -643,6 +643,8 @@ const startTimer = (durationSecs) => {
 This function is called from our button's `action` handler, which we already defined in the skeleton code earlier.
 
 ```js
+return {
+   ...
     buttons: [
         {
             text: "Start 30 second timer",
@@ -655,6 +657,8 @@ This function is called from our button's `action` handler, which we already def
             action: () => startTimer(60),
         },
     ],
+    ....
+};
 ```
 
 Currently the plugin is calling the `CountdownHQ` contract however it isn't currently doing anything with the block number we have calculated for `endBlock` so let's fill in the body of `_startTimer` in the contract to set the start and end blocks as building data.
