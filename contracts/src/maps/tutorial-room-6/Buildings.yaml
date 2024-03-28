@@ -1,5 +1,0 @@
----
-kind: Building
-spec:
-  name: Unit Controller
-  location: [-8, 8, 0]
