@@ -5,7 +5,7 @@ We will follow the steps below to create a series of quests which you will use t
 
 ## 1. Preparation
 - Before starting, ensure that you have deployed an instance of Downstream locally using Docker. You can find instructions on how to do that in [Tutorial 1 here](../tutorial-room-1/README.md).
-- You should also copy the CastleOfTreasure .yaml, .sol and .js files out of the tutorial room 3 folder and paste them into your working folder.
+- You should also copy the CastleOfTreasure .yaml, .sol and .js files out of the tutorial room 3 folder and paste them into your working folder. To save yo usome time drawing a map, you can also copy the Tile.yaml.
 
 
 ## 2. Create a new Quest
