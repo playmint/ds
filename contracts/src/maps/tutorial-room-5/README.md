@@ -30,7 +30,7 @@ After some time (this could take up to 5 minutes), you should see "ready" in the
     contracts-1  | | ready |
     contracts-1  | +-------+
 
-You can now open a web browser and navigate to [http://localhost:3000] to load the game.
+You can now open a web browser and navigate to [http://localhost:3000](http://localhost:3000) to load the game.
 
 You should see a blue world, with a single hex tile in the center and the **Welcome to Downstream** dialogue box:
 
