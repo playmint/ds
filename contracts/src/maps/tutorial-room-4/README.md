@@ -25,10 +25,10 @@ https://github.com/playmint/ds/blob/main/contracts/src/maps/tutorial-room-1/READ
 <img src="./readme-images/step1.png" width=600>
 
 ## Let's create the files
-If you're following along, you should copy the `.yaml` files into your own map. If you'd like to learn more about how we use the `.yaml` files, please review [tutorial-room-1](https://github.com/playmint/ds/blob/main/contracts/src/maps/tutorial-room-1/README.md)
+If you're following along, you should copy the `.yaml` files from `tutorial-room-4` into your own map. If you'd like to learn more about how we use the `.yaml` files, please review [tutorial-room-1](https://github.com/playmint/ds/blob/main/contracts/src/maps/tutorial-room-1/README.md)
 
 # 2. Changing Tile Colours
-### DiscoCentre.js
+### Create file: DiscoCentre.js
 Let's work on the `"Disco Centre"` we defined in the `.yaml`.
 
 To start with, make a `boolean` variable that we'll use to allow the player to change the behaviour of the tiles:
@@ -56,9 +56,10 @@ Now in the update function:
 ```js
 export default async function update(state) {
     ...
+}
 ```
 
-Find the `"Disco Centre":
+Find the `"Disco Centre"`:
 ```js
 const discoCentre = state.world?.buildings.find(
         (b) => b.kind?.name?.value == "Disco Centre",
@@ -270,6 +271,8 @@ return {
 # 4. Disco Billboard
 Let's create a billboard to display images in the world.
 
+### Create file: DiscoBillboard.js
+
 In this example, we're hosting a set of images displaying beavers at a disco!
 ```js
 const images = [
@@ -284,7 +287,7 @@ const images = [
 ];
 ```
 
-When the frontend loads, we can select a random image:
+When the plugin loads, we can select a random image:
 ```js
 let selectedImg = Math.floor(Math.random() * images.length) + 1;
 ```
