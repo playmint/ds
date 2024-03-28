@@ -12,7 +12,7 @@ We will follow the steps below to create a simple downstream map with a building
 -   [Docker Desktop](https://docs.docker.com/get-docker/)
 -   [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 
-## 1. Perparation
+## 1. Preparation
 
 Before starting, ensure that you have deployed an instance of Downstream locally using Docker. You can find instructions on how to do that in [Tutorial 1 here](../tutorial-room-1/README.md).
 
