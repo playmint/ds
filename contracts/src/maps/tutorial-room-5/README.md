@@ -640,7 +640,7 @@ const startTimer = (durationSecs) => {
 };
 ```
 
-We are calling this function from the button actions which were already defined in the skeleton code that we pasted earlier.
+This function is called from our button's `action` handler, which we already defined in the skeleton code earlier.
 
 ```js
     buttons: [
