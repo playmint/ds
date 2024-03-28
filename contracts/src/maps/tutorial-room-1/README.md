@@ -152,7 +152,7 @@ We will use the Downstream CLI to deploy our newly created building to our local
 Deploying the building is the same as the tiles manifest but passing BasicFactory.yaml instead of Locations.yaml: 
 - In a terminal in the folder with your exported building source.
 - (using the same `<private-key>` as above)
-- `ds apply -n local -k <private-key>> -f BasicFactory.yaml`
+- `ds apply -n local -k <private-key> -f BasicFactory.yaml`
 
 You should see the terminal output display for the building kind and item kind defined by your new factory:
 
