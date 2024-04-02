@@ -37,8 +37,12 @@ contract GameDeployer is Script {
 
         vm.startBroadcast(deployerKey);
 
-        address[] memory allowlist = _loadAllowList(deployerAddr);
-        DownstreamGame ds = new DownstreamGame();
+        address[] memory newPlayerAllowlist = _loadAllowList(deployerAddr);
+
+        // owner is set to deploy account not this contract's address as calls from this script have a msg.sender of the deployer
+        DownstreamGame ds = new DownstreamGame(address(msg.sender));
+        Dispatcher dispatcher = ds.getDispatcher();
+
         InventoryRule inventoryRule = new InventoryRule(ds);
 
         string memory o = "key";
@@ -46,24 +50,23 @@ contract GameDeployer is Script {
         vm.serializeAddress(o, "state", address(ds.getState()));
         vm.serializeAddress(o, "router", address(ds.getRouter()));
         vm.serializeAddress(o, "tokens", address(inventoryRule.getTokensAddress()));
-        string memory latestJson = vm.serializeAddress(o, "dispatcher", address(ds.getDispatcher()));
+        string memory latestJson = vm.serializeAddress(o, "dispatcher", address(dispatcher));
         vm.writeJson(latestJson, "./out/latest.json");
 
         // enable rules
-        BaseDispatcher dispatcher = BaseDispatcher(address(ds.getDispatcher()));
-        dispatcher.registerRule(new CheatsRule(deployerAddr));
-        dispatcher.registerRule(new MovementRule(ds));
-        dispatcher.registerRule(new ScoutRule());
-        dispatcher.registerRule(inventoryRule);
-        dispatcher.registerRule(new BuildingRule(ds));
-        dispatcher.registerRule(new CraftingRule(ds));
-        dispatcher.registerRule(new PluginRule());
-        dispatcher.registerRule(new NewPlayerRule(allowlist));
-        dispatcher.registerRule(new CombatRule());
-        dispatcher.registerRule(new NamingRule());
-        dispatcher.registerRule(new BagRule());
-        dispatcher.registerRule(new ExtractionRule(ds));
-        dispatcher.registerRule(new QuestRule());
+        ds.registerRule(new CheatsRule(deployerAddr));
+        ds.registerRule(new MovementRule(ds));
+        ds.registerRule(new ScoutRule());
+        ds.registerRule(inventoryRule);
+        ds.registerRule(new BuildingRule(ds));
+        ds.registerRule(new CraftingRule(ds));
+        ds.registerRule(new PluginRule());
+        ds.registerRule(new NewPlayerRule(newPlayerAllowlist));
+        ds.registerRule(new CombatRule());
+        ds.registerRule(new NamingRule());
+        ds.registerRule(new BagRule());
+        ds.registerRule(new ExtractionRule(ds));
+        ds.registerRule(new QuestRule());
 
         // register base goos
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.GreenGoo(), "Green Goo", "15-185")));
