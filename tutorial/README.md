@@ -2,17 +2,31 @@
 
 # A guide to building your own game with Downstream
 
-|Key|Tutorial|Preview|Features|
-|---|--------|-------|--------|
-|1|__[My First Map](../contracts/src/maps/tutorial-room-1/)__|<a href="https://drive.google.com/file/d/1rvXt3Fs4M0-yn83Mc0iAG9HlhIJpSDRl/view?usp=drive_link"><img src="images/tutRoom1.png" width="200"></a>|Workspace Set up, Wallets, Units, Tile Fabricator, Building Fabricator, Decorations, CLI, Important files|
-|2|__[Enemies in inaccessible places](../contracts/src/maps/tutorial-room-2/)__|<img src="images/tutRoom2.png" width="200">|Doors, Bags, Enemies, Movement, Blockers, Combat|
-|3|__[Questing](../contracts/src/maps/tutorial-room-3/)__|<img src="images/tutRoom3.png" width="200">|Quests system, coordinates
-|4|__[Disco Room](../contracts/src/maps/tutorial-room-4/)__|<img src="images/tutRoom4.png" width="200">|Tile Colors, Unit Costumes, Billboards, Custom UI|
-|5|__[Measuring Success](../contracts/src/maps/tutorial-room-5/)__|<img src="images/tutRoom5.png" width="200">|Counters, Timers, Display Buildings, Custom Onchain State
-|6|__[Unit Control Room](../contracts/src/maps/tutorial-room-6/)__|<img src="images/tutRoom6.png" width="200">|Controlling Unit Actions via Buildings
+
+## Tutorials
+|Tutorial|Preview|Features|
+|--------|-------|--------|
+|__[My First Map](../contracts/src/maps/tutorial-room-1/)__|<a href="https://drive.google.com/file/d/1rvXt3Fs4M0-yn83Mc0iAG9HlhIJpSDRl/view?usp=drive_link"><img src="images/tutRoom1.png" width="200"></a>|Workspace Set up, Wallets, Units, Tile Fabricator, Building Fabricator, Decorations, CLI, Important files|
+|__[Enemies in inaccessible places](../contracts/src/maps/tutorial-room-2/)__|<img src="images/tutRoom2.png" width="200">|Doors, Bags, Enemies, Movement, Blockers, Combat|
+|__[Questing](../contracts/src/maps/tutorial-room-3/)__|<img src="images/tutRoom3.png" width="200">|Quests system, coordinates
+|__[Disco Room](../contracts/src/maps/tutorial-room-4/)__|<img src="images/tutRoom4.png" width="200">|Tile Colors, Unit Costumes, Billboards, Custom UI|
+|__[Measuring Success](../contracts/src/maps/tutorial-room-5/)__|<img src="images/tutRoom5.png" width="200">|Counters, Timers, Display Buildings, Custom Onchain State
+|__[Unit Control Room](../contracts/src/maps/tutorial-room-6/)__|<img src="images/tutRoom6.png" width="200">|Controlling Unit Actions via Buildings
+
+## Example Buildings
+
+__[Example Buildings](../contracts/src/maps)__
+
+| Folder        | Description          | Notes  |
+|---------------|----------------------|--------|
+| Basic Factory | Default Factory Code | This is the code exported by the Building Fabricator; It also contains commented out code for restricting access to items | 
+| Cocktail Hut  | Grab a cocktail      | Demonstrates: Billboards; Item Plugin; js fetch API; Tile colouring |
+| DuckBurger    | Popup Battle Kit     | All the buildings you need to start a game of Ducks vs Burger. Demonstrates: Solidity function selection with `buildingkind.use()`'s `payload` parameter; Reward claim; Timed session; Team allocation; Unit model swaps; Countdown display; Counter display; |
+| StateStorage  | Feature demo         | Demonstrates: Storing state onchain in a way that can be read by the js plugin code. |
 
 
-# References   
+<details>
+  <summary> References </summary>summary>   
 ## Local instance
 
 Build and run a local Downstream instance with Docker. Follow the instructions for "_running with docker_" in the root [README](../README.md).
@@ -140,15 +154,6 @@ The following require experimental Tonk services to be run with docker so use th
 | croissant   |<img src="images/map-croissant.png" width="100">| Multi Game Map    | This showcases multiple games on one map including Tonk Attack; Hexcraft; The Labyrinth and Ducks v Burgers |
 
 
-__[Example Buildings](../contracts/src/maps)__
-
-| Folder        | Description          | Notes  |
-|---------------|----------------------|--------|
-| Basic Factory | Default Factory Code | This is the code exported by the Building Fabricator; It also contains commented out code for restricting access to items | 
-| Cocktail Hut  | Grab a cocktail      | Demonstrates: Billboards; Item Plugin; js fetch API; Tile colouring |
-| DuckBurger    | Popup Battle Kit     | All the buildings you need to start a game of Ducks vs Burger. Demonstrates: Solidity function selection with `buildingkind.use()`'s `payload` parameter; Reward claim; Timed session; Team allocation; Unit model swaps; Countdown display; Counter display; |
-| StateStorage  | Feature demo         | Demonstrates: Storing state onchain in a way that can be read by the js plugin code. |
-
 # Connecting External Apps
 
 ## External Clients
@@ -173,3 +178,4 @@ Any other contract on the same chain can interact with the Downstream's read-onl
 |-------------------|----------------------|
 | <a href="https://drive.google.com/file/d/1rvXt3Fs4M0-yn83Mc0iAG9HlhIJpSDRl/view?usp=drive_link"><img src="images/dvb-thumb.png" width="200"></a>  | Build and run; Default Map; Deploy example buildings;|
 | <a href="https://drive.google.com/file/d/1f6xYuzhBMBFMIYWe_Xb8Sr2vIhLukORY/view?usp=drive_link"><img src="images/dvb2-thumb.png" width="200"></a> | Tile Fabricator; Custom Map; |
+</details>
