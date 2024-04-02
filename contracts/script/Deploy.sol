@@ -44,12 +44,14 @@ contract GameDeployer is Script {
         Dispatcher dispatcher = ds.getDispatcher();
 
         InventoryRule inventoryRule = new InventoryRule(ds);
+        address tokenAddress = inventoryRule.getTokensAddress();
+        ds.autorizeStateMutation(tokenAddress);
 
         string memory o = "key";
         vm.serializeAddress(o, "game", address(ds));
         vm.serializeAddress(o, "state", address(ds.getState()));
         vm.serializeAddress(o, "router", address(ds.getRouter()));
-        vm.serializeAddress(o, "tokens", address(inventoryRule.getTokensAddress()));
+        vm.serializeAddress(o, "tokens", address(tokenAddress));
         string memory latestJson = vm.serializeAddress(o, "dispatcher", address(dispatcher));
         vm.writeJson(latestJson, "./out/latest.json");
 

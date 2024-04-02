@@ -56,7 +56,6 @@ contract DownstreamGame is BaseGame {
 
     constructor(address _owner) BaseGame("DOWNSTREAM", "http://downstream.game/") {
         owner = _owner;
-        console.log("Registering owner: ", owner);
         // create a state
         BaseState state = new BaseState(address(this));
 
@@ -118,8 +117,12 @@ contract DownstreamGame is BaseGame {
         _registerDispatcher(dispatcher);
     }
 
-    function registerRule(Rule rule) public ownerOnly returns (address) {
+    function registerRule(Rule rule) public ownerOnly {
         state.authorizeContract(address(rule));
         BaseDispatcher(address(dispatcher)).registerRule(rule);
+    }
+
+    function autorizeStateMutation(address addr) public ownerOnly {
+        state.authorizeContract(addr);
     }
 }
