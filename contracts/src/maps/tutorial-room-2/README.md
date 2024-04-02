@@ -13,19 +13,21 @@ Once complete, your map should something look like this:
 
 
 # 1. Setup
-Follow steps 1 through 4 to get started. This will walk you through:
+Follow steps 1 through 4 of `tutorial-room-1` to get started. This will walk you through:
 - Deploying the game
 - Spawning a unit
-- Creating a map *
+- Creating a map
 - Deploying new tiles
 
 https://github.com/playmint/ds/blob/main/contracts/src/maps/tutorial-room-1/README.md
 
-\* The only change we want to make to these steps is in _Creating a map_. As this is the next room in the tutorial series, we will be creating our map at a different angle so it doesn't overlap with tutorial-room-1.
+The only change we want to make to these steps is in _Creating a map_. As this is the next room in the tutorial series, we will be creating our map at a different angle so it doesn't overlap with tutorial-room-1.
 
 <img src="./readme-images/step1.png" width=600>
 
 We're using this particular shape to demonstrate the functionality of the gate. We will use the bottleneck to ensure there is no way around the gate.
+
+Run the game and use the [tile-fabricator](http://localhost:3000/tile-fabricator) to create tiles following the shape shown in the example above.
 
 # 2. Items
 First, let's add a couple of items to the game. For this tutorial, we need to make:
