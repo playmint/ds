@@ -13,7 +13,7 @@
 
 
 # References   
-## Getting started
+## Local instance
 
 Build and run a local Downstream instance with Docker. Follow the instructions for "_running with docker_" in the root [README](../README.md).
 
