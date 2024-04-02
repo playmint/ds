@@ -15,7 +15,7 @@
 
 ## Example Buildings
 
-__[Example Buildings](../contracts/src/maps)__
+__[All buildings referenced can be found here](../contracts/src/maps)__
 
 | Folder        | Description          | Notes  |
 |---------------|----------------------|--------|
