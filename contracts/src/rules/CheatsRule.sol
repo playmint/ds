@@ -85,7 +85,7 @@ contract CheatsRule is Rule {
         State state,
         bytes24 bag,
         address owner,
-        bytes24 equipee, // CAN BE LOTS OF DIF THINGS: IF TILE, DECODE TILE ID TO WORK ON QRS TO PASS TO BOUNDS CHECK
+        bytes24 equipee,
         uint8 equipSlot,
         bytes24[] memory slotContents,
         uint64[] memory slotBalances
