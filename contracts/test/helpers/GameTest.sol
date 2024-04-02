@@ -94,6 +94,9 @@ abstract contract GameTest {
         dev = new Dev();
         game = new DownstreamGame(address(this));
 
+        // tests are allowed to directly maniuplate the state
+        game.autorizeStateMutation(address(this));
+
         // init players
         players[0] = PlayerAccount({key: 0xa1, addr: __vm.addr(0xa1)});
         players[1] = PlayerAccount({key: 0xb2, addr: __vm.addr(0xb2)});
@@ -107,9 +110,18 @@ abstract contract GameTest {
         allowlist[2] = players[2].addr;
         allowlist[3] = players[3].addr;
 
+        // TODO: All players are able to directly manipulate the state. This wouldn't be true in a real game.
+        // however we would have to make all tests utilize the Rule contracts.
+        for (uint256 i = 0; i < allowlist.length; i++) {
+            game.autorizeStateMutation(players[i].addr);
+        }
+
         // items
         InventoryRule inventoryRule = new InventoryRule(game);
         tokens = Items1155(inventoryRule.getTokensAddress());
+
+        // The tokens contract directly mutates state. This is how it works within the real game.
+        game.autorizeStateMutation(address(tokens));
 
         // setup game
         game.registerRule(new CheatsRule(address(dev)));
