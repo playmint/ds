@@ -90,7 +90,10 @@ contract BuildingRule is Rule {
             if (state.getOwner(mobileUnit) != Node.Player(ctx.sender)) {
                 revert("MobileUnitNotOwnedByPlayer");
             }
-            require(Bounds.isInBounds(coords[0], coords[1], coords[2]), "CONSTRUCT_BUILDING_MOBILE_UNIT coords out of bounds");
+            require(
+                Bounds.isInBounds(coords[0], coords[1], coords[2]),
+                "CONSTRUCT_BUILDING_MOBILE_UNIT coords out of bounds"
+            );
 
             _constructBuilding(state, ctx, mobileUnit, buildingKind, coords);
         } else if (bytes4(action) == Actions.BUILDING_USE.selector) {

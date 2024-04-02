@@ -27,7 +27,7 @@ contract MovementRule is Rule {
             (uint32 sid, int16 q, int16 r, int16 s) = abi.decode(action[4:], (uint32, int16, int16, int16));
 
             require(Bounds.isInBounds(q, r, s), "MOVE_MOBILE_UNIT coords out of bounds");
-            
+
             // encode the full mobileUnit node id
             bytes24 mobileUnit = Node.MobileUnit(sid);
 

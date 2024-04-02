@@ -58,9 +58,9 @@ contract CheatsRule is Rule {
                 bytes24[] memory slotContents,
                 uint64[] memory slotBalances
             ) = abi.decode(action[4:], (bytes24, address, bytes24, uint8, bytes24[], uint64[]));
-            if (bytes4(equipee) == Kind.Tile.selector){
+            if (bytes4(equipee) == Kind.Tile.selector) {
                 (, int16 q, int16 r, int16 s) = state.getTileCoords(equipee);
-                require(Bounds.isInBounds(q, r, s), "DEV_SPAWN_BAG coords out of bounds");        
+                require(Bounds.isInBounds(q, r, s), "DEV_SPAWN_BAG coords out of bounds");
             }
 
             _spawnBag(state, bagID, owner, equipee, equipSlot, slotContents, slotBalances);
