@@ -24,6 +24,30 @@ __[All buildings referenced can be found here](../contracts/src/maps)__
 | DuckBurger    | Popup Battle Kit     | All the buildings you need to start a game of Ducks vs Burger. Demonstrates: Solidity function selection with `buildingkind.use()`'s `payload` parameter; Reward claim; Timed session; Team allocation; Unit model swaps; Countdown display; Counter display; |
 | StateStorage  | Feature demo         | Demonstrates: Storing state onchain in a way that can be read by the js plugin code. |
 
+ ## __[Complete Maps](../contracts/src/maps)__ 
+These are all under ds/contracts/src/maps/:
+
+| Folder      | Tile Fabricator View                           | Description       | Notes |
+|-------------|------------------------------------------------|-------------------|-------|
+| default     |<img src="images/map-default.png" width="100">  | Single tile       | Deploy this andhen use ds-cli to apply any other map |
+| example-gate|<img src="images/map-gate.png" width="100">     | Door and key      | Demonstrates how doors work |
+| quest-map   |<img src="images/map-quests.png" width="100">   | Showcase of Downstream core systems | Uses the quest system to guide players from task to task|
+| team-vanilla|<img src="images/map-vanilla.png" width="100">  | Handy multiple size and shape arenas | Good for setting up and playing multiple session based games |
+| tiny        |<img src="images/map-tiny.png" width="100">     | A small empty map. | Good for iterating on building development. |
+| croissant   |<img src="images/map-croissant.png" width="100">| Multi Game Map    | This showcases multiple games on one map including Tonk Attack; Hexcraft; The Labyrinth and Ducks v Burgers |
+
+
+## Existing games
+
+| Folder      | Tile Fabricator View                           | Description       | Notes |
+|-------------|------------------------------------------------|-------------------|-------|
+| tonk        |<img src="images/map-tonk.png" width="100">     | Game by [Tonk](https://github.com/tonk-gg/ds-extensions-debuggus) | Uses: Connection to external server; extensive UI take over; item UI plugin; Unit model swaps |
+| hexcraft    |<img src="images/map-hexcraft.png" width="100"> | Game from [1kx](https://github.com/1kx-network/hexcraft) | Uses: Team allocation; Building contract code linked; Restricted crafting; Restricted building; Unit model swaps |
+| labyrinth   |<img src="images/map-labyrinth.png" width="100">| Game from [RockawayX](https://github.com/rockawayx-labs/ds-dx)| Uses: Doors; Password hashing; Combat Stats; Item checking; Quests; Map reset|
+| duck-burger |<img src="images/map-tonk.png" width="100">     | Game by Playmint | Learn how to make DVB using [Tutorial 5](../contracts/src/maps/tutorial-room-5/)|
+
+### Please note:
+Tonk attack requires Tonk services to be running: Run with docker using the `tonk` profile: `docker compose --profile tonk up`
 
 <details>
   <summary> References </summary>summary>   
@@ -128,30 +152,6 @@ The files exported from the Building Fabricator act as a starting point for impl
 
 > [!TIP]
 > We are working on a tutorial to introduce all of Downstream's creation tools and game logic api. Until then, the examples below and reaching out in Discord are the best way to discover what's possible with your Downstream game.
-
-# Examples    
-
- __[Complete Maps](../contracts/src/maps)__ 
-
-These are all under ds/contracts/src/maps/:
-
-| Folder      | Tile Fabricator View                           | Description       | Notes |
-|-------------|------------------------------------------------|-------------------|-------|
-| default     |<img src="images/map-default.png" width="100">  | Single tile       | Deploy this andhen use ds-cli to apply any other map |
-| example-gate|<img src="images/map-gate.png" width="100">     | Door and key      | Demonstrates how doors work |
-| hexcraft    |<img src="images/map-hexcraft.png" width="100"> | Game from [1kx](https://github.com/1kx-network/hexcraft) | Uses: Team allocation; Building contract code linked; Restricted crafting; Restricted building; Unit model swaps |
-| labyrinth   |<img src="images/map-labyrinth.png" width="100">| Game from [RockawayX](https://github.com/rockawayx-labs/ds-dx)| Uses: Doors; Password hashing; Combat Stats; Item checking; Quests; Map reset|
-| quest-map   |<img src="images/map-quests.png" width="100">   | Showcase of Downstream core systems | Uses the quest system to guide players from task to task|
-| team-vanilla|<img src="images/map-vanilla.png" width="100">  | Handy multiple size and shape arenas | Good for setting up and playing multiple session based games |
-| tiny        |<img src="images/map-tiny.png" width="100">     | A small empty map. | Good for iterating on building development. |
-
-
-The following require experimental Tonk services to be run with docker so use the `tonk` profile: `docker compose --profile tonk up`
-
-| Folder      | Tile Fabricator View                           | Description       | Notes |
-|-------------|------------------------------------------------|-------------------|-------|
-| tonk        |<img src="images/map-tonk.png" width="100">     | Game by [Tonk](https://github.com/tonk-gg/ds-extensions-debuggus) | Uses: Connection to external server; extensive UI take over; item UI plugin; Unit model swaps |
-| croissant   |<img src="images/map-croissant.png" width="100">| Multi Game Map    | This showcases multiple games on one map including Tonk Attack; Hexcraft; The Labyrinth and Ducks v Burgers |
 
 
 # Connecting External Apps
