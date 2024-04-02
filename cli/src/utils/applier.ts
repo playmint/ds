@@ -12,6 +12,7 @@ import {
     Slot,
     FacingDirectionTypes,
 } from '../utils/manifest';
+import { isInBounds } from '../utils/bounds';
 
 const null24bytes = '0x000000000000000000000000000000000000000000000000';
 
@@ -449,6 +450,9 @@ export const getOpsForManifests = async (
             continue;
         }
         const spec = doc.manifest.spec;
+        const [q, r, s] = spec.location;
+        const inBounds = isInBounds(q, r, s);
+        
         opsets[opn].push({
             doc,
             actions: [
@@ -462,6 +466,7 @@ export const getOpsForManifests = async (
                 },
             ],
             note: `spawned building instance of ${spec.name} at ${spec.location.join(',')}`,
+            inBounds: inBounds,
         });
     }
 
@@ -489,6 +494,9 @@ export const getOpsForManifests = async (
             continue;
         }
         const spec = doc.manifest.spec;
+        const [q, r, s] = spec.location;
+        const inBounds = isInBounds(q, r, s);
+
         opsets[opn].push({
             doc,
             actions: [
@@ -498,6 +506,7 @@ export const getOpsForManifests = async (
                 },
             ],
             note: `spawned tile ${spec.location.join(',')}`,
+            inBounds: inBounds,
         });
     }
 
@@ -521,6 +530,7 @@ export const getOpsForManifests = async (
 
         const spec = doc.manifest.spec;
         const [q, r, s] = spec.location;
+        const inBounds = isInBounds(q, r, s);
 
         const bagID = encodeBagID({ q, r, s });
         const ownerAddress = solidityPacked(['uint160'], [0]); // public
@@ -540,6 +550,7 @@ export const getOpsForManifests = async (
                 },
             ],
             note: `spawned bag ${spec.location.join(',')}`,
+            inBounds: inBounds,
         });
     }
 
@@ -570,6 +581,7 @@ export type Op = {
     doc: z.infer<typeof ManifestDocument>;
     actions: CogAction[];
     note: string;
+    inBounds?: boolean;
 };
 
 export type OpSet = Op[];
