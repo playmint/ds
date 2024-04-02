@@ -79,7 +79,7 @@ struct PlayerAccount {
 }
 
 abstract contract GameTest {
-    Game internal game;
+    DownstreamGame internal game;
     BaseDispatcher internal dispatcher;
     State internal state;
     Dev internal dev;
@@ -92,7 +92,7 @@ abstract contract GameTest {
     constructor() {
         // setup the dev contract for calling cheats
         dev = new Dev();
-        game = new DownstreamGame();
+        game = new DownstreamGame(address(this));
 
         // init players
         players[0] = PlayerAccount({key: 0xa1, addr: __vm.addr(0xa1)});
@@ -112,25 +112,25 @@ abstract contract GameTest {
         tokens = Items1155(inventoryRule.getTokensAddress());
 
         // setup game
-        dispatcher = BaseDispatcher(address(game.getDispatcher()));
-        dispatcher.registerRule(new CheatsRule(address(dev)));
-        dispatcher.registerRule(new MovementRule(game));
-        dispatcher.registerRule(new ScoutRule());
-        dispatcher.registerRule(inventoryRule);
-        dispatcher.registerRule(new BuildingRule(game));
-        dispatcher.registerRule(new CraftingRule(game));
-        dispatcher.registerRule(new PluginRule());
-        dispatcher.registerRule(new NewPlayerRule(allowlist));
-        dispatcher.registerRule(new CombatRule());
-        dispatcher.registerRule(new NamingRule());
-        dispatcher.registerRule(new BagRule());
-        dispatcher.registerRule(new ExtractionRule(game));
+        game.registerRule(new CheatsRule(address(dev)));
+        game.registerRule(new MovementRule(game));
+        game.registerRule(new ScoutRule());
+        game.registerRule(inventoryRule);
+        game.registerRule(new BuildingRule(game));
+        game.registerRule(new CraftingRule(game));
+        game.registerRule(new PluginRule());
+        game.registerRule(new NewPlayerRule(allowlist));
+        game.registerRule(new CombatRule());
+        game.registerRule(new NamingRule());
+        game.registerRule(new BagRule());
+        game.registerRule(new ExtractionRule(game));
         dev.setGame(game);
 
         // fetch the State
         state = game.getState();
 
         // register base goos
+        dispatcher = BaseDispatcher(address(game.getDispatcher()));
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.GreenGoo(), "Green Goo", "15-185")));
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.BlueGoo(), "Blue Goo", "32-96")));
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.RedGoo(), "Red Goo", "22-256")));
