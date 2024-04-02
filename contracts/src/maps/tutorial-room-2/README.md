@@ -29,6 +29,8 @@ We're using this particular shape to demonstrate the functionality of the gate. 
 
 Run the game and use the [tile-fabricator](http://localhost:3000/tile-fabricator) to create tiles following the shape shown in the example above.
 
+Once you've painted the tiles, click export, and save the output file as `Locations.yaml` in a new project folder on your computer.
+
 # 2. Items
 First, let's add a couple of items to the game. For this tutorial, we need to make:
 - Door key
