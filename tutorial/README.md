@@ -2,16 +2,17 @@
 
 # A guide to building your own game with Downstream
 
+|Key|Tutorial|Preview|Features|
+|---|--------|-------|--------|
+|1|__[My First Map](../contracts/src/maps/tutorial-room-1/)__|<a href="https://drive.google.com/file/d/1rvXt3Fs4M0-yn83Mc0iAG9HlhIJpSDRl/view?usp=drive_link"><img src="images/tutRoom1.png" width="200"></a>|Workspace Set up, Wallets, Units, Tile Fabricator, Building Fabricator, Decorations, CLI, Important files|
+|2|__[Enemies in inaccessible places](../contracts/src/maps/tutorial-room-2/)__|<img src="images/tutRoom2.png" width="200">|Doors, Bags, Enemies, Movement, Blockers, Combat|
+|3|__[Questing](../contracts/src/maps/tutorial-room-3/)__|<img src="images/tutRoom3.png" width="200">|Quests system, coordinates
+|4|__[Disco Room](../contracts/src/maps/tutorial-room-4/)__|<img src="images/tutRoom4.png" width="200">|Tile Colors, Unit Costumes, Billboards, Custom UI|
+|5|__[Measuring Success](../contracts/src/maps/tutorial-room-5/)__|<img src="images/tutRoom5.png" width="200">|Counters, Timers, Display Buildings, Custom Onchain State
+|6|__[Unit Control Room](../contracts/src/maps/tutorial-room-6/)__|<img src="images/tutRoom6.png" width="200">|Controlling Unit Actions via Buildings
 
-# Tutorials
- 1. __[My First Map](../contracts/src/maps/tutorial-room-1/)__
- 1. __[Doors, Bags and Enemies](../contracts/src/maps/tutorial-room-2/)__
- 1. __[Quests](../contracts/src/maps/tutorial-room-3/)__
- 1. __[Tile Colors, Unit Costumes, Billboards and Custom UI](../contracts/src/maps/tutorial-room-4/)__
- 1. __[Count Display Buildings, Custom Onchain State](../contracts/src/maps/tutorial-room-5/)__
- 1. __[Remote Control Units](../contracts/src/maps/tutorial-room-6/)__
 
-# Reference
+# References   
 ## Getting started
 
 Build and run a local Downstream instance with Docker. Follow the instructions for "_running with docker_" in the root [README](../README.md).
