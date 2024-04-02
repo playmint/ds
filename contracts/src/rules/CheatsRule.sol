@@ -44,7 +44,7 @@ contract CheatsRule is Rule {
             require(isCheatAllowed(ctx.sender), "DEV_SPAWN_TILE not allowed");
 
             (int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16));
-            require(Bounds.isInBounds(q, r, s), "DEV_SPAWN_TILE out of bounds");
+            require(Bounds.isInBounds(q, r, s), "DEV_SPAWN_TILE coords out of bounds");
 
             _spawnTile(state, q, r, s);
         } else if (bytes4(action) == Actions.DEV_SPAWN_BAG.selector) {
@@ -60,7 +60,7 @@ contract CheatsRule is Rule {
             ) = abi.decode(action[4:], (bytes24, address, bytes24, uint8, bytes24[], uint64[]));
             if (bytes4(equipee) == Kind.Tile.selector){
                 (, int16 q, int16 r, int16 s) = state.getTileCoords(equipee);
-                require(Bounds.isInBounds(q, r, s), "DEV_SPAWN_BAG out of bounds");        
+                require(Bounds.isInBounds(q, r, s), "DEV_SPAWN_BAG coords out of bounds");        
             }
 
             _spawnBag(state, bagID, owner, equipee, equipSlot, slotContents, slotBalances);
@@ -69,7 +69,7 @@ contract CheatsRule is Rule {
 
             (bytes24 buildingKind, int16 q, int16 r, int16 s, FacingDirectionKind facingDirection) =
                 abi.decode(action[4:], (bytes24, int16, int16, int16, FacingDirectionKind));
-            require(Bounds.isInBounds(q, r, s), "DEV_SPAWN_BUILDING out of bounds");
+            require(Bounds.isInBounds(q, r, s), "DEV_SPAWN_BUILDING coords out of bounds");
 
             _construct(state, ctx, buildingKind, q, r, s, facingDirection);
         } else if (bytes4(action) == Actions.DEV_DISABLE_CHEATS.selector) {

@@ -8,6 +8,7 @@ import "cog/IDispatcher.sol";
 
 import {Schema, Node, BiomeKind, TRAVEL_SPEED, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
+import {Bounds} from "@ds/utils/Bounds.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 
@@ -25,6 +26,8 @@ contract MovementRule is Rule {
             // decode the action
             (uint32 sid, int16 q, int16 r, int16 s) = abi.decode(action[4:], (uint32, int16, int16, int16));
 
+            require(Bounds.isInBounds(q, r, s), "MOVE_MOBILE_UNIT coords out of bounds");
+            
             // encode the full mobileUnit node id
             bytes24 mobileUnit = Node.MobileUnit(sid);
 
