@@ -24,8 +24,8 @@ __[All buildings referenced can be found here](../contracts/src/maps)__
 | DuckBurger    | Popup Battle Kit     | All the buildings you need to start a game of Ducks vs Burger. Demonstrates: Solidity function selection with `buildingkind.use()`'s `payload` parameter; Reward claim; Timed session; Team allocation; Unit model swaps; Countdown display; Counter display; |
 | StateStorage  | Feature demo         | Demonstrates: Storing state onchain in a way that can be read by the js plugin code. |
 
- ## __[Complete Maps](../contracts/src/maps)__ 
-These are all under ds/contracts/src/maps/:
+ ## Complete maps
+__[All example maps can be found here](../contracts/src/maps)__ 
 
 | Folder      | Tile Fabricator View                           | Description       | Notes |
 |-------------|------------------------------------------------|-------------------|-------|
@@ -38,6 +38,7 @@ These are all under ds/contracts/src/maps/:
 
 
 ## Existing games
+__[All example games can be found here](../contracts/src/maps)__ 
 
 | Folder      | Tile Fabricator View                           | Description       | Notes |
 |-------------|------------------------------------------------|-------------------|-------|
