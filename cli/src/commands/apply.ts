@@ -119,6 +119,14 @@ const deploy = {
             const batches = batched(opsets[i], ctx.maxConnections);
             for (let j = 0; j < batches.length; j++) {
                 const pending = batches[j].map(async (op) => {
+                    if (op.inBounds === false) {
+                        console.log(`❌ ${op.note} - out of bounds\n`);
+                                return {
+                                    ok: false,
+                                    err: 'coords were out of bounds',
+                                    op,
+                                };
+                    }
                     let retries = 0;
                     while (retries < 5) {
                         try {

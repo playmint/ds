@@ -8,6 +8,7 @@ import "cog/IRule.sol";
 import {Schema, Node, Kind, DEFAULT_ZONE, BuildingCategory, BuildingBlockNumKey} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
+import {Bounds} from "@ds/utils/Bounds.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 import {CraftingRule} from "@ds/rules/CraftingRule.sol";
@@ -89,6 +90,11 @@ contract BuildingRule is Rule {
             if (state.getOwner(mobileUnit) != Node.Player(ctx.sender)) {
                 revert("MobileUnitNotOwnedByPlayer");
             }
+            require(
+                Bounds.isInBounds(coords[0], coords[1], coords[2]),
+                "CONSTRUCT_BUILDING_MOBILE_UNIT coords out of bounds"
+            );
+
             _constructBuilding(state, ctx, mobileUnit, buildingKind, coords);
         } else if (bytes4(action) == Actions.BUILDING_USE.selector) {
             (bytes24 buildingInstance, bytes24 mobileUnitID, bytes memory payload) =

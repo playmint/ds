@@ -11,6 +11,7 @@ import {Schema, Node, BiomeKind, DEFAULT_ZONE, GOO_GREEN, GOO_BLUE, GOO_RED} fro
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {Perlin} from "@ds/utils/Perlin.sol";
+import {Bounds} from "@ds/utils/Bounds.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
 using Schema for State;
@@ -20,6 +21,8 @@ contract ScoutRule is Rule {
         if (bytes4(action) == Actions.SCOUT_MOBILE_UNIT.selector) {
             // decode the action
             (uint32 sid, int16[3] memory coords) = abi.decode(action[4:], (uint32, int16[3]));
+
+            require(Bounds.isInBounds(coords[0], coords[1], coords[2]), "SCOUT_MOBILE_UNIT coords out of bounds");
 
             // encode the full mobileUnit node id
             bytes24 mobileUnit = Node.MobileUnit(sid);
@@ -57,6 +60,7 @@ contract ScoutRule is Rule {
         if (bytes4(action) == Actions.DEV_SPAWN_TILE.selector) {
             // decode action
             (int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16));
+            require(Bounds.isInBounds(q, r, s), "DEV_SPAWN_TILE coords out of bounds");
             bytes24 targetTile = Node.Tile(DEFAULT_ZONE, q, r, s);
             _generateAtomValues(state, targetTile, [q, r, s]);
         }
