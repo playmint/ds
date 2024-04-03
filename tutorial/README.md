@@ -34,7 +34,7 @@ __[All example games can be found here](../contracts/src/maps)__
 | tonk        |<img src="images/map-tonk.png" width="200">     | Game by [Tonk](https://github.com/tonk-gg/ds-extensions-debuggus). Uses: Connection to external server; extensive UI take over; item UI plugin; Unit model swaps |
 | hexcraft    |<img src="images/map-hexcraft.png" width="200"> | Game from [1kx](https://github.com/1kx-network/hexcraft). Uses: Team allocation; Building contract code linked; Restricted crafting; Restricted building; Unit model swaps |
 | labyrinth   |<img src="images/map-labyrinth.png" width="200">| Game from [RockawayX](https://github.com/rockawayx-labs/ds-dx). Uses: Doors; Password hashing; Combat Stats; Item checking; Quests; Map reset|
-| duck-burger |<img src="images/map-tonk.png" width="200">     | Game by [Playmint] (https://www.playmint.com). Learn how to make DVB using [Tutorial 5](../contracts/src/maps/tutorial-room-5/)|
+| duck-burger |<img src="images/map-tonk.png" width="200">     | Game by [Playmint](https://www.playmint.com). Learn how to make DVB using [Tutorial 5](../contracts/src/maps/tutorial-room-5/)|
 
 ### Please note:
 Tonk attack requires Tonk services to be running: Run with docker using the `tonk` profile: `docker compose --profile tonk up`
