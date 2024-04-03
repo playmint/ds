@@ -5,7 +5,7 @@
 
 ## Tutorials
 |Tutorial|Preview|Features|
-|--------|-------|--------|
+|:-------|:-----:|:-------|
 |__[My First Map](../contracts/src/maps/tutorial-room-1/)__|<a href="https://drive.google.com/file/d/1rvXt3Fs4M0-yn83Mc0iAG9HlhIJpSDRl/view?usp=drive_link"><img src="images/tutRoom1.png" width="200"></a>|Workspace Set up, Wallets, Units, Tile Fabricator, Building Fabricator, Decorations, CLI, Important files|
 |__[Enemies in inaccessible places](../contracts/src/maps/tutorial-room-2/)__|<img src="images/tutRoom2.png" width="200">|Doors, Bags, Enemies, Movement, Blockers, Combat|
 |__[Questing](../contracts/src/maps/tutorial-room-3/)__|<img src="images/tutRoom3.png" width="200">|Quests system, coordinates
@@ -17,7 +17,7 @@
 __[All example maps can be found here](../contracts/src/maps)__ 
 
 | Folder      | Tile Fabricator View                           | Description       |
-|-------------|------------------------------------------------|-------------------|
+|:------------|:----------------------------------------------:|:------------------|
 | default     |<img src="images/map-default.png" width="200">  | A single tile map. Deploy this andhen use ds-cli to apply any other map |
 | example-gate|<img src="images/map-gate.png" width="200">     | A map containing a Door and key demo |
 | quest-map   |<img src="images/map-quests.png" width="200">   | Showcase of Downstream core systems. Uses the quest system to guide players from task to task|
@@ -30,7 +30,7 @@ __[All example maps can be found here](../contracts/src/maps)__
 __[All example games can be found here](../contracts/src/maps)__ 
 
 | Folder      | Tile Fabricator View                           | Description       |
-|-------------|------------------------------------------------|-------------------|
+|:------------|:----------------------------------------------:|:------------------|
 | tonk        |<img src="images/map-tonk.png" width="200">     | Game by [Tonk](https://github.com/tonk-gg/ds-extensions-debuggus). Uses: Connection to external server; extensive UI take over; item UI plugin; Unit model swaps |
 | hexcraft    |<img src="images/map-hexcraft.png" width="200"> | Game from [1kx](https://github.com/1kx-network/hexcraft). Uses: Team allocation; Building contract code linked; Restricted crafting; Restricted building; Unit model swaps |
 | labyrinth   |<img src="images/map-labyrinth.png" width="200">| Game from [RockawayX](https://github.com/rockawayx-labs/ds-dx). Uses: Doors; Password hashing; Combat Stats; Item checking; Quests; Map reset|
