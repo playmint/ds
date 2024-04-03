@@ -11,6 +11,7 @@ import { actions, dispatch } from './commands/actions';
 import config from './commands/config';
 import getter from './commands/get';
 import apply from './commands/apply';
+import destroy from './commands/destroy';
 import { test } from './commands/test';
 import chalk from 'chalk';
 import { offset } from './commands/offset';
@@ -80,6 +81,7 @@ yargs
     .command(config)
     .command(getter)
     .command(apply)
+    .command(destroy)
     .command(test)
     .command(offset)
     .command({

@@ -72,6 +72,18 @@ contract CheatsRule is Rule {
             require(Bounds.isInBounds(q, r, s), "DEV_SPAWN_BUILDING coords out of bounds");
 
             _construct(state, ctx, buildingKind, q, r, s, facingDirection);
+        } else if (bytes4(action) == Actions.DEV_DESTROY_TILE.selector) {
+            require(isCheatAllowed(ctx.sender), "DEV_DESTROY_TILE not allowed");
+            (int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16));
+            require(Bounds.isInBounds(q, r, s), "DEV_DESTROY_TILE coords out of bounds");
+             _destroyTile(state, q, r, s);
+
+        } else if (bytes4(action) == Actions.DEV_DESTROY_BUILDING.selector) {
+            require(isCheatAllowed(ctx.sender), "DEV_DESTROY_BUILDING not allowed");
+
+        } else if (bytes4(action) == Actions.DEV_DESTROY_BAG.selector) {
+            require(isCheatAllowed(ctx.sender), "DEV_DESTROY_BAG not allowed");
+
         } else if (bytes4(action) == Actions.DEV_DISABLE_CHEATS.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_DISABLE_CHEATS not allowed");
 
@@ -101,6 +113,11 @@ contract CheatsRule is Rule {
 
     function _spawnTile(State state, int16 q, int16 r, int16 s) private {
         state.setBiome(Node.Tile(DEFAULT_ZONE, q, r, s), BiomeKind.DISCOVERED);
+    }
+
+    function _destroyTile(State state, int16 q, int16 r, int16 s) private {
+        //state.setBiome(Node.Tile(DEFAULT_ZONE, q, r, s), BiomeKind.UNDISCOVERED);
+        state.destroyTile(Node.Tile(DEFAULT_ZONE, q, r, s));
     }
 
     // allow constructing a building without any materials

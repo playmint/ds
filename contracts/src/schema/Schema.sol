@@ -288,6 +288,11 @@ library Schema {
         return state.set(Rel.Biome.selector, 0x0, node, 0x0, uint64(biome));
     }
 
+    function destroyTile(State state, bytes24 node) internal {
+        // return state.set(Rel.Biome.selector, 0x0, node, 0x0, uint64(biome));
+        return state.remove(Rel.Biome.selector, 0x0, node);
+    }
+
     function getBiome(State state, bytes24 node) internal view returns (BiomeKind) {
         (, uint160 biome) = state.get(Rel.Biome.selector, 0x0, node);
         return BiomeKind(uint8(biome));
