@@ -13,17 +13,6 @@
 |__[Measuring Success](../contracts/src/maps/tutorial-room-5/)__|<img src="images/tutRoom5.png" width="200">|Counters, Timers, Display Buildings, Custom Onchain State
 |__[Unit Control Room](../contracts/src/maps/tutorial-room-6/)__|<img src="images/tutRoom6.png" width="200">|Controlling Unit Actions via Buildings
 
-## Example Buildings
-
-__[All buildings referenced can be found here](../contracts/src/maps)__
-
-| Folder        | Description          | Notes  |
-|---------------|----------------------|--------|
-| Basic Factory | Default Factory Code | This is the code exported by the Building Fabricator; It also contains commented out code for restricting access to items | 
-| Cocktail Hut  | Grab a cocktail      | Demonstrates: Billboards; Item Plugin; js fetch API; Tile colouring |
-| DuckBurger    | Popup Battle Kit     | All the buildings you need to start a game of Ducks vs Burger. Demonstrates: Solidity function selection with `buildingkind.use()`'s `payload` parameter; Reward claim; Timed session; Team allocation; Unit model swaps; Countdown display; Counter display; |
-| StateStorage  | Feature demo         | Demonstrates: Storing state onchain in a way that can be read by the js plugin code. |
-
  ## Complete maps
 __[All example maps can be found here](../contracts/src/maps)__ 
 
@@ -45,7 +34,7 @@ __[All example games can be found here](../contracts/src/maps)__
 | tonk        |<img src="images/map-tonk.png" width="100">     | Game by [Tonk](https://github.com/tonk-gg/ds-extensions-debuggus) | Uses: Connection to external server; extensive UI take over; item UI plugin; Unit model swaps |
 | hexcraft    |<img src="images/map-hexcraft.png" width="100"> | Game from [1kx](https://github.com/1kx-network/hexcraft) | Uses: Team allocation; Building contract code linked; Restricted crafting; Restricted building; Unit model swaps |
 | labyrinth   |<img src="images/map-labyrinth.png" width="100">| Game from [RockawayX](https://github.com/rockawayx-labs/ds-dx)| Uses: Doors; Password hashing; Combat Stats; Item checking; Quests; Map reset|
-| duck-burger |<img src="images/map-tonk.png" width="100">     | Game by [Playmint] (https://github.com/playmint/) | Learn how to make DVB using [Tutorial 5](../contracts/src/maps/tutorial-room-5/)|
+| duck-burger |<img src="images/map-tonk.png" width="100">     | Game by [Playmint] (https://www.playmint.com) | Learn how to make DVB using [Tutorial 5](../contracts/src/maps/tutorial-room-5/)|
 
 ### Please note:
 Tonk attack requires Tonk services to be running: Run with docker using the `tonk` profile: `docker compose --profile tonk up`
@@ -153,6 +142,17 @@ The files exported from the Building Fabricator act as a starting point for impl
 
 > [!TIP]
 > We are working on a tutorial to introduce all of Downstream's creation tools and game logic api. Until then, the examples below and reaching out in Discord are the best way to discover what's possible with your Downstream game.
+
+## Example Buildings
+
+__[All buildings referenced can be found here](../contracts/src/maps)__
+
+| Folder        | Description          | Notes  |
+|---------------|----------------------|--------|
+| Basic Factory | Default Factory Code | This is the code exported by the Building Fabricator; It also contains commented out code for restricting access to items | 
+| Cocktail Hut  | Grab a cocktail      | Demonstrates: Billboards; Item Plugin; js fetch API; Tile colouring |
+| DuckBurger    | Popup Battle Kit     | All the buildings you need to start a game of Ducks vs Burger. Demonstrates: Solidity function selection with `buildingkind.use()`'s `payload` parameter; Reward claim; Timed session; Team allocation; Unit model swaps; Countdown display; Counter display; |
+| StateStorage  | Feature demo         | Demonstrates: Storing state onchain in a way that can be read by the js plugin code. |
 
 
 # Connecting External Apps
