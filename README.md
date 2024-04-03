@@ -163,4 +163,4 @@ You can then either start locally via `MAP=performance-test make dev` or manuall
 </details>
 
 # References
-__[For more information, check the reference page](/REFERENCE.md)__
+__[For more information, check the reference page](/tutorial/REFERENCE.md)__
