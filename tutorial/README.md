@@ -40,7 +40,7 @@ __[All example games can be found here](../contracts/src/maps)__
 Tonk attack requires Tonk services to be running: Run with docker using the `tonk` profile: `docker compose --profile tonk up`
 
 <details>
-  <summary> References </summary>summary>   
+  <summary> References </summary>
 ## Local instance
 
 Build and run a local Downstream instance with Docker. Follow the instructions for "_running with docker_" in the root [README](../README.md).
