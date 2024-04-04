@@ -29,8 +29,8 @@ export function getItemDetails(itemSlot: ItemSlotFragment) {
     };
 }
 
-export function getBuildingId(q: number, r: number, s: number) {
-    return CompoundKeyEncoder.encodeInt16(NodeSelectors.Building, 0, q, r, s);
+export function getBuildingId(z: number, q: number, r: number, s: number) {
+    return CompoundKeyEncoder.encodeInt16(NodeSelectors.Building, z, q, r, s);
 }
 
 export function getBagId(buildingId: string) {

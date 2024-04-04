@@ -5,7 +5,7 @@ import "cog/IGame.sol";
 import "cog/IState.sol";
 import "cog/IRule.sol";
 
-import {Schema, Node, Kind, DEFAULT_ZONE, BuildingCategory, BuildingBlockNumKey} from "@ds/schema/Schema.sol";
+import {Schema, Node, Kind, BuildingCategory, BuildingBlockNumKey} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {Bounds} from "@ds/utils/Bounds.sol";
@@ -84,8 +84,8 @@ contract BuildingRule is Rule {
             (
                 bytes24 mobileUnit, // which mobileUnit is performing the construction
                 bytes24 buildingKind, // what kind of building
-                int16[3] memory coords
-            ) = abi.decode(action[4:], (bytes24, bytes24, int16[3]));
+                int16[4] memory coords
+            ) = abi.decode(action[4:], (bytes24, bytes24, int16[4]));
             // player must own mobileUnit
             if (state.getOwner(mobileUnit) != Node.Player(ctx.sender)) {
                 revert("MobileUnitNotOwnedByPlayer");
@@ -228,11 +228,11 @@ contract BuildingRule is Rule {
         Context calldata ctx,
         bytes24 mobileUnit,
         bytes24 buildingKind,
-        int16[3] memory coords
+        int16[4] memory coords
     ) private {
         // get mobileUnit location
         bytes24 mobileUnitTile = state.getCurrentLocation(mobileUnit, ctx.clock);
-        bytes24 targetTile = Node.Tile(DEFAULT_ZONE, coords[0], coords[1], coords[2]);
+        bytes24 targetTile = Node.Tile(coords[0], coords[1], coords[2], coords[3]);
         // check that target is same tile or adjacent to mobileUnit
         if (TileUtils.distance(mobileUnitTile, targetTile) > 1 || !TileUtils.isDirect(mobileUnitTile, targetTile)) {
             revert("BuildingMustBeAdjacentToMobileUnit");
@@ -248,7 +248,7 @@ contract BuildingRule is Rule {
             buildingImplementation.construct(game, buildingKind, mobileUnit, abi.encode(coords));
         }
 
-        bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, coords[0], coords[1], coords[2]);
+        bytes24 buildingInstance = Node.Building(coords[0], coords[1], coords[2], coords[3]);
         // burn resources from given towards construction
         _payConstructionFee(state, buildingKind, buildingInstance);
         // set type of building

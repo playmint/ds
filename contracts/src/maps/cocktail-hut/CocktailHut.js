@@ -96,9 +96,9 @@ function getTileCoordsFromId(tileId) {
             return bs;
         }, [])
         .map((n) => Number(fromTwos(n, 16)))
-        .slice(-3);
-    if (coords.length !== 3) {
-        throw new Error(`failed to get q,r,s from tile id ${tileId}`);
+        .slice(-4);
+    if (coords.length !== 4) {
+        throw new Error(`failed to get z,q,r,s from tile id ${tileId}`);
     }
     return coords;
 };
@@ -109,18 +109,18 @@ function getTileCoordsFromId(tileId) {
 @returns {Array} An array of strings representing the IDs of the neighboring tiles.
 */
 function getBuildingNeighbourTiles(building) {
-    const [q,r,s] = getTileCoordsFromId(building.location?.tile?.id);
+    const [z,q,r,s] = getTileCoordsFromId(building.location?.tile?.id);
     const neighbourCoords = [
-        { q: q + 1, r: r, s: s - 1 },
-        { q: q + 1, r: r - 1, s: s },
-        { q: q, r: r - 1, s: s + 1 },
-        { q: q - 1, r: r, s: s + 1 },
-        { q: q - 1, r: r + 1, s: s },
-        { q: q, r: r + 1, s: s - 1 },
+        { z: z, q: q + 1, r: r, s: s - 1 },
+        { z: z, q: q + 1, r: r - 1, s: s },
+        { z: z, q: q, r: r - 1, s: s + 1 },
+        { z: z, q: q - 1, r: r, s: s + 1 },
+        { z: z, q: q - 1, r: r + 1, s: s },
+        { z: z, q: q, r: r + 1, s: s - 1 },
     ];
-    const neighbourTileIds = neighbourCoords.map(({q,r,s}) => {
+    const neighbourTileIds = neighbourCoords.map(({z,q,r,s}) => {
         const prefix = "0xe5a62ffc";
-        return `${prefix}0000000000000000000000000000${toInt16Hex(q)}${toInt16Hex(r)}${toInt16Hex(s)}`;
+        return `${prefix}00000000000000000000${toInt16Hex(z)}${toInt16Hex(q)}${toInt16Hex(r)}${toInt16Hex(s)}`;
     });
     return neighbourTileIds;
 }
