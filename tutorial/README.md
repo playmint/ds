@@ -6,12 +6,12 @@
 ## Tutorials
 |Tutorial|Preview|Features|
 |:-------|:-----:|:-------|
-|__[My First Map](../contracts/src/maps/tutorial-room-1/)__|<a href="https://drive.google.com/file/d/1rvXt3Fs4M0-yn83Mc0iAG9HlhIJpSDRl/view?usp=drive_link"><img src="images/tutRoom1.png" width="200"></a>|Workspace Set up, Wallets, Units, Tile Fabricator, Building Fabricator, Decorations, CLI, Important files|
-|__[Enemies in inaccessible places](../contracts/src/maps/tutorial-room-2/)__|<img src="images/tutRoom2.png" width="200">|Doors, Bags, Enemies, Movement, Blockers, Combat|
-|__[Questing](../contracts/src/maps/tutorial-room-3/)__|<img src="images/tutRoom3.png" width="200">|Quests system, coordinates
-|__[Disco Room](../contracts/src/maps/tutorial-room-4/)__|<img src="images/tutRoom4.png" width="200">|Tile Colors, Unit Costumes, Billboards, Custom UI|
-|__[Measuring Success](../contracts/src/maps/tutorial-room-5/)__|<img src="images/tutRoom5.png" width="200">|Counters, Timers, Display Buildings, Custom Onchain State
-|__[Unit Control Room](../contracts/src/maps/tutorial-room-6/)__|<img src="images/tutRoom6.png" width="200">|Controlling Unit Actions via Buildings
+|__[1. My First Map](../contracts/src/maps/tutorial-room-1/)__|<a href="https://drive.google.com/file/d/1rvXt3Fs4M0-yn83Mc0iAG9HlhIJpSDRl/view?usp=drive_link"><img src="images/tutRoom1.png" width="200"></a>|Workspace Set up, Wallets, Units, Tile Fabricator, Building Fabricator, Decorations, CLI, Important files|
+|__[2. Enemies in inaccessible places](../contracts/src/maps/tutorial-room-2/)__|<img src="images/tutRoom2.png" width="200">|Doors, Bags, Enemies, Movement, Blockers, Combat|
+|__[3. Questing](../contracts/src/maps/tutorial-room-3/)__|<img src="images/tutRoom3.png" width="200">|Quests system, coordinates
+|__[4. Disco Room](../contracts/src/maps/tutorial-room-4/)__|<img src="images/tutRoom4.png" width="200">|Tile Colors, Unit Costumes, Billboards, Custom UI|
+|__[5. Measuring Success](../contracts/src/maps/tutorial-room-5/)__|<img src="images/tutRoom5.png" width="200">|Counters, Timers, Display Buildings, Custom Onchain State
+|__[6. Unit Control Room](../contracts/src/maps/tutorial-room-6/)__|<img src="images/tutRoom6.png" width="200">|Controlling Unit Actions via Buildings
 
  ## Complete maps
 __[All example maps can be found here](../contracts/src/maps)__ 
