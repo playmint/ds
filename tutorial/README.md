@@ -2,7 +2,7 @@
 
 # A guide to building your own game with Downstream
 
-## Welcome to the learning zone!
+## Welcome!
 
 This page is your one stop shop for learning how to build on top of Downstream. We recommend that you follow the Tutorials to get up and running. The tutorials will explain how to set up your work space and then run you through small example Islands that focus on a small set of mechanics. 
 
