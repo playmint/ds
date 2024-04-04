@@ -1,11 +1,12 @@
 import { CogAction, NodeSelectors } from '@downstream/core';
-import { BuildingKindFragment } from '@downstream/core/src/gql/graphql';
+import { BuildingKindFragment, ItemFragment, WorldStateFragment } from '@downstream/core/src/gql/graphql';
 import { id as keccak256UTF8, solidityPacked } from 'ethers';
 import { z } from 'zod';
 import {
     BuildingCategoryEnum,
     BuildingCategoryEnumVals,
     ManifestDocument,
+    Slot,
 } from '../utils/manifest';
 import { isInBounds } from '../utils/bounds';
 
@@ -13,6 +14,22 @@ export const encodeTileID = ({ q, r, s }: { q: number; r: number; s: number }) =
     return solidityPacked(
         ['bytes4', 'uint96', 'int16', 'int16', 'int16', 'int16'],
         [NodeSelectors.Tile, 0, 0, q, r, s]
+    );
+};
+
+export const encodeItemID = ({
+    name,
+    stackable,
+    goo,
+}: {
+    name: string;
+    stackable: boolean;
+    goo: { red: number; green: number; blue: number };
+}) => {
+    const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`item/${name}`))));
+    return solidityPacked(
+        ['bytes4', 'uint32', 'uint32', 'uint32', 'uint32', 'uint32'],
+        [NodeSelectors.Item, id, stackable ? 1 : 0, goo.green, goo.blue, goo.red]
     );
 };
 
@@ -28,6 +45,36 @@ const encodeBuildingKindID = ({ name, category }) => {
 
 const getBuildingCategoryEnum = (category: BuildingCategoryEnum): number => {
     return BuildingCategoryEnumVals.indexOf(category);
+};
+
+const getItemIdByName = (files, existingItems: ItemFragment[], name: string): string => {
+    const foundItems = existingItems.filter((item) => item.name?.value === name);
+    if (foundItems.length === 1) {
+        const item = foundItems[0];
+        if (!item.id) {
+            throw new Error(`missing item.id field for Item ${name}`);
+        }
+        return item.id;
+    } else if (foundItems.length > 1) {
+        throw new Error(`item ${name} is ambiguous, found ${foundItems.length} existing items with that name`);
+    }
+    // find ID based on pending specs
+    const manifests = files
+        .map((file) => file.manifest)
+        .filter((manifest) => manifest.kind === 'Item' && manifest.spec.name === name);
+    if (manifests.length === 0) {
+        throw new Error(`unable to find Item id for reference: ${name}, are you missing an Item manifest?`);
+    }
+    if (manifests.length > 1) {
+        throw new Error(
+            `item ${name} is ambiguous, found ${manifests.length} different manifests that declare items with that name`
+        );
+    }
+    const manifest = manifests[0];
+    if (manifest.kind !== 'Item') {
+        throw new Error(`unexpected kind: wanted Item got ${manifest.kind}`);
+    }
+    return encodeItemID(manifest.spec);
 };
 
 const getBuildingKindIDByName = (existingBuildingKinds, pendingBuildingKinds, name: string) => {
@@ -64,6 +111,7 @@ const getBuildingKindIDByName = (existingBuildingKinds, pendingBuildingKinds, na
 
 export const getOpsForManifests = async (
     docs,
+    world: WorldStateFragment,
     existingBuildingKinds: BuildingKindFragment[],
 ): Promise<OpSet[]> => {
     const pendingBuildingKinds = docs.map((doc) => doc.manifest).filter(({ kind }) => kind === 'BuildingKind');
@@ -131,6 +179,16 @@ export const getOpsForManifests = async (
             continue;
         }
 
+        const encodeSlotConfig = (slots: ReturnType<typeof Slot.parse>[]) => {
+            const items = [0, 0, 0, 0].map((_, idx) =>
+                slots[idx]
+                    ? getItemIdByName(docs, world.items, slots[idx].name)
+                    : '0x000000000000000000000000000000000000000000000000'
+            );
+            const quantities = [0, 0, 0, 0].map((_, idx) => (slots[idx] ? slots[idx].quantity : 0));
+            return { items, quantities };
+        };
+
         const spec = doc.manifest.spec;
         const [q, r, s] = spec.location;
         const inBounds = isInBounds(q, r, s);
@@ -140,12 +198,15 @@ export const getOpsForManifests = async (
         const equipee = encodeTileID({ q, r, s });
         const equipSlot = 0;
 
+        const bagContents = encodeSlotConfig(spec.items || []);
+        const slotContents = bagContents.items;
+
         opsets[opn].push({
             doc,
             actions: [
                 {
                     name: 'DEV_DESTROY_BAG',
-                    args: [bagID, ownerAddress, equipee, equipSlot],
+                    args: [bagID, ownerAddress, equipee, equipSlot, slotContents],
                 },
             ],
             note: `destroyed bag ${spec.location.join(',')}`,

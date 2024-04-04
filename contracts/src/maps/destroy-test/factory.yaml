@@ -1,0 +1,20 @@
+---
+kind: Building
+spec:
+  name: Basic Factory
+  location: [ 0, 1, -1 ]
+  facingDirection: RIGHT
+
+---
+kind: Bag
+spec:
+  location: [1, 0, -1]
+  items:
+    - name: Acceptance Letter
+      quantity: 1
+    - name: ID Card
+      quantity: 1
+    - name: Acceptance Letter
+      quantity: 1
+    - name: ID Card
+      quantity: 1

@@ -190,7 +190,7 @@ interface Actions {
     function DEV_DESTROY_BUILDING(bytes24 buildingKind, int16 q, int16 r, int16 s) external;
 
     // spawn a bag with resources equip somewhere
-    function DEV_DESTROY_BAG(bytes24 bagID, address owner, bytes24 equipee, uint8 equipSlot) external;
+    function DEV_DESTROY_BAG(bytes24 bagID, address owner, bytes24 equipee, uint8 equipSlot, bytes24[] calldata slotContents) external;
 
     // calling DEV_DISABLE_CHEATS will disable cheats this action cannot
     // be undone, DEV_ cheat actions will be disabled and ignored forever
