@@ -8,7 +8,7 @@ This page is your one stop shop for learning how to build on top of Downstream. 
 
 - Once you feel you are up to speed on what is currently possible on Downstream, you can check out our Existing Maps and Games!
 
-- The Existing Maps are various things that Playmind has created in Downstream. There are some smaller examples like the Gate Demo and some larger examples like the quest-map.
+The Existing Maps are various things that Playmint has created in Downstream. There are some smaller examples like the Gate Demo and some larger examples like the quest-map.
 The Existing Games are full games that have been developed by external developers and one by Playmint! They will give you an insight into how far Downstream has already been pushed!
 
 For more in depth information, check out the References page!
