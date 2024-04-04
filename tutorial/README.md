@@ -2,16 +2,28 @@
 
 # A guide to building your own game with Downstream
 
+## Welcome!
+
+This page is your one stop shop for learning how to build on top of Downstream. We recommend that you follow the Tutorials to get up and running. The tutorials will explain how to set up your work space and then run you through small example Islands that focus on a small set of mechanics. 
+
+Once you feel you are up to speed on what is currently possible on Downstream, you can check out our Existing Maps and Games!
+
+The Existing Maps are various things that Playmint has created in Downstream. There are some smaller examples like the Gate Demo and some larger examples like the quest-map.
+
+The Existing Games are full games that have been developed by external developers and one by Playmint! They will give you an insight into how far Downstream has already been pushed!
+
+See the [References](./REFERENCE.md) for information on common tooling and commands.
+
 
 ## Tutorials
 |Tutorial|Preview|Features|
 |:-------|:-----:|:-------|
-|__[My First Map](../contracts/src/maps/tutorial-room-1/)__|<a href="https://drive.google.com/file/d/1rvXt3Fs4M0-yn83Mc0iAG9HlhIJpSDRl/view?usp=drive_link"><img src="images/tutRoom1.png" width="200"></a>|Workspace Set up, Wallets, Units, Tile Fabricator, Building Fabricator, Decorations, CLI, Important files|
-|__[Enemies in inaccessible places](../contracts/src/maps/tutorial-room-2/)__|<img src="images/tutRoom2.png" width="200">|Doors, Bags, Enemies, Movement, Blockers, Combat|
-|__[Questing](../contracts/src/maps/tutorial-room-3/)__|<img src="images/tutRoom3.png" width="200">|Quests system, coordinates
-|__[Disco Room](../contracts/src/maps/tutorial-room-4/)__|<img src="images/tutRoom4.png" width="200">|Tile Colors, Unit Costumes, Billboards, Custom UI|
-|__[Measuring Success](../contracts/src/maps/tutorial-room-5/)__|<img src="images/tutRoom5.png" width="200">|Counters, Timers, Display Buildings, Custom Onchain State
-|__[Unit Control Room](../contracts/src/maps/tutorial-room-6/)__|<img src="images/tutRoom6.png" width="200">|Controlling Unit Actions via Buildings
+|__[1. My First Map](../contracts/src/maps/tutorial-room-1/)__|<a href="https://drive.google.com/file/d/1rvXt3Fs4M0-yn83Mc0iAG9HlhIJpSDRl/view?usp=drive_link"><img src="images/tutRoom1.png" width="200"></a>|Workspace Set up, Wallets, Units, Tile Fabricator, Building Fabricator, Decorations, CLI, Important files|
+|__[2. Enemies in inaccessible places](../contracts/src/maps/tutorial-room-2/)__|<img src="images/tutRoom2.png" width="200">|Doors, Bags, Enemies, Movement, Blockers, Combat|
+|__[3. Questing](../contracts/src/maps/tutorial-room-3/)__|<img src="images/tutRoom3.png" width="200">|Quests system, coordinates
+|__[4. Disco Room](../contracts/src/maps/tutorial-room-4/)__|<img src="images/tutRoom4.png" width="200">|Tile Colors, Unit Costumes, Billboards, Custom UI|
+|__[5. Measuring Success](../contracts/src/maps/tutorial-room-5/)__|<img src="images/tutRoom5.png" width="200">|Counters, Timers, Display Buildings, Custom Onchain State
+|__[6. Unit Control Room](../contracts/src/maps/tutorial-room-6/)__|<img src="images/tutRoom6.png" width="200">|Controlling Unit Actions via Buildings
 
  ## Complete maps
 __[All example maps can be found here](../contracts/src/maps)__ 
@@ -41,4 +53,4 @@ Tonk attack requires Tonk services to be running: Run with docker using the `ton
 
 
 # References
-__[For more information, check the reference page](/REFERENCE.md)__
+__[For more information, check the reference page](./REFERENCE.md)__
