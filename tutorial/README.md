@@ -2,6 +2,17 @@
 
 # A guide to building your own game with Downstream
 
+## Welcome to the learning zone!
+
+This page is your one stop shop for learning how to build on top of Downstream. We recommend that you follow the Tutorials to get up and running. The tutorials will explain how to set up your work space and then run you through small example Islands that focus on a small set of mechanics. 
+
+Once you feel you are up to speed on what is currently possible on Downstream, you can check out our Existing Maps and Games!
+
+The Existing Maps are various things that Playmind has created in Downstream. There are some smaller examples like the Gate Demo and some larger examples like the quest-map.
+The Existing Games are full games that have been developed by external developers and one by Playmint! They will give you an insight into how far Downstream has already been pushed!
+
+For more in depth information, check out the References page!
+
 
 ## Tutorials
 |Tutorial|Preview|Features|
