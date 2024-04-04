@@ -53,4 +53,4 @@ Tonk attack requires Tonk services to be running: Run with docker using the `ton
 
 
 # References
-__[For more information, check the reference page](/REFERENCE.md)__
+__[For more information, check the reference page](./REFERENCE.md)__
