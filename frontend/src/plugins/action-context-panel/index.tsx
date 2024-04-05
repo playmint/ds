@@ -770,10 +770,6 @@ const Combat: FunctionComponent<CombatProps> = ({
     const attackTile = path.slice(-1).find(() => true);
 
     const canAttack = mobileUnit && player && valid && attackTile;
-    if (!valid) {
-        console.log('not valid cos', reason);
-    }
-
     const mobileUnitKey = mobileUnit?.key;
     const mobileUnitId = mobileUnit?.id;
     const mobileUnitLocation = mobileUnit?.nextLocation;
