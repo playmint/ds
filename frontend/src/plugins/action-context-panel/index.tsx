@@ -387,11 +387,11 @@ const Construct: FunctionComponent<ConstructProps> = ({
             }
             const actions: CogAction[][] = [
                 ...path.slice(1, -1).map((t) => {
-                    const [_zone, q, r, s] = t.coords;
+                    const [zone, q, r, s] = t.coords;
                     return [
                         {
                             name: 'MOVE_MOBILE_UNIT',
-                            args: [mobileUnitKey, _zone, q, r, s],
+                            args: [mobileUnitKey, zone, q, r, s],
                         },
                     ] satisfies CogAction[];
                 }),
@@ -575,11 +575,11 @@ const Move: FunctionComponent<MoveProps> = ({
 
         setActionQueue(
             path.slice(1).map((t) => {
-                const [_zone, q, r, s] = t.coords;
+                const [zone, q, r, s] = t.coords;
                 return [
                     {
                         name: 'MOVE_MOBILE_UNIT',
-                        args: [mobileUnitKey, _zone, q, r, s],
+                        args: [mobileUnitKey, zone, q, r, s],
                     },
                 ];
             })
@@ -789,11 +789,11 @@ const Combat: FunctionComponent<CombatProps> = ({
             return;
         }
         const actions: CogAction[][] = path.slice(1).map((t) => {
-            const [_zone, q, r, s] = t.coords;
+            const [zone, q, r, s] = t.coords;
             return [
                 {
                     name: 'MOVE_MOBILE_UNIT',
-                    args: [mobileUnitKey, _zone, q, r, s],
+                    args: [mobileUnitKey, zone, q, r, s],
                 },
             ];
         });
