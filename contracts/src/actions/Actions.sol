@@ -35,11 +35,11 @@ enum CombatActionKind {
 interface Actions {
     // move mobileUnit with given id from current location to target location
     // mobileUnit id must be owned by ctx.sender
-    function MOVE_MOBILE_UNIT(uint32 sid, int16 q, int16 r, int16 s) external;
+    function MOVE_MOBILE_UNIT(uint32 sid, int16 z, int16 q, int16 r, int16 s) external;
 
     // mobileUnit action to reveal terrain tiles, mobileUnit must be located adjacent
     // to scout location
-    function SCOUT_MOBILE_UNIT(uint32 sid, int16 q, int16 r, int16 s) external;
+    function SCOUT_MOBILE_UNIT(uint32 sid, int16 z, int16 q, int16 r, int16 s) external;
 
     // action to set the type of quest the player should begin with
     function AUTO_QUEST(string calldata name, uint8 index) external;
@@ -100,6 +100,7 @@ interface Actions {
     function CONSTRUCT_BUILDING_MOBILE_UNIT(
         bytes24 mobileUnit, // which mobileUnit is performing the construction
         bytes24 buildingKind, // what kind of building
+        int16 z, // which zone to create on
         int16 q,
         int16 r,
         int16 s // which tile to create on (can be adjacent)
@@ -147,6 +148,7 @@ interface Actions {
         string calldata name,
         string calldata description,
         bool hasLocation,
+        int16 z,
         int16 q,
         int16 r,
         int16 s,
@@ -167,11 +169,17 @@ interface Actions {
     // ---------------------
 
     // spawn a tile at any location
-    function DEV_SPAWN_TILE(int16 q, int16 r, int16 s) external;
+    function DEV_SPAWN_TILE(int16 z, int16 q, int16 r, int16 s) external;
 
     // spawn a building at any location
-    function DEV_SPAWN_BUILDING(bytes24 buildingKind, int16 q, int16 r, int16 s, FacingDirectionKind facingDirection)
-        external;
+    function DEV_SPAWN_BUILDING(
+        bytes24 buildingKind,
+        int16 z,
+        int16 q,
+        int16 r,
+        int16 s,
+        FacingDirectionKind facingDirection
+    ) external;
 
     // spawn a bag with resources equip somewhere
     function DEV_SPAWN_BAG(

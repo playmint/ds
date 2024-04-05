@@ -22,8 +22,8 @@ contract BagRuleTest is Test, GameTest {
 
     function setUp() public {
         // spawn tiles
-        dev.spawnTile(0, 0, 0);
-        dev.spawnTile(1, -1, 0);
+        dev.spawnTile(0, 0, 0, 0);
+        dev.spawnTile(0, 1, -1, 0);
         // setup default material construction costs
         defaultMaterialItem[0] = ItemUtils.GreenGoo();
         defaultMaterialItem[1] = ItemUtils.BlueGoo();
@@ -40,7 +40,7 @@ contract BagRuleTest is Test, GameTest {
         _mobileUnit1 = _spawnMobileUnitWithResources();
         vm.stopPrank();
 
-        _buildingInstance = _constructBuilding(players[1].addr, _mobileUnit1, 1, -1, 0);
+        _buildingInstance = _constructBuilding(players[1].addr, _mobileUnit1, 0, 1, -1, 0);
     }
 
     function testTransferToAndFromMobileUnits() public {
@@ -220,7 +220,7 @@ contract BagRuleTest is Test, GameTest {
 
     // ------------------------------------------------------------------------------------------- //
 
-    function _constructBuilding(address builderAccount, bytes24 mobileUnit, int16 q, int16 r, int16 s)
+    function _constructBuilding(address builderAccount, bytes24 mobileUnit, int16 z, int16 q, int16 r, int16 s)
         private
         returns (bytes24)
     {
@@ -256,19 +256,17 @@ contract BagRuleTest is Test, GameTest {
         // spawn a mobileUnit
         vm.startPrank(builderAccount);
         // get our building and give it the resources to construct
-        bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
+        bytes24 buildingInstance = Node.Building(z, q, r, s);
         // construct our building
         _transferFromMobileUnit(mobileUnit, 0, 25, buildingInstance);
         _transferFromMobileUnit(mobileUnit, 1, 25, buildingInstance);
         _transferFromMobileUnit(mobileUnit, 2, 25, buildingInstance);
-        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, q, r, s)));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, z, q, r, s))
+        );
         vm.stopPrank();
         // check the building has a location at q/r/s
-        assertEq(
-            state.getFixedLocation(buildingInstance),
-            Node.Tile(DEFAULT_ZONE, q, r, s),
-            "expected building to have location"
-        );
+        assertEq(state.getFixedLocation(buildingInstance), Node.Tile(z, q, r, s), "expected building to have location");
         // check building has owner
         assertEq(
             state.getOwner(buildingInstance),
@@ -287,7 +285,7 @@ contract BagRuleTest is Test, GameTest {
     // 0,0,0 with 100 of each resource in an equiped bag
     function _spawnMobileUnitWithResources() private returns (bytes24) {
         sid++;
-        dev.spawnTile(0, 0, 0);
+        dev.spawnTile(0, 0, 0, 0);
         bytes24 mobileUnit = spawnMobileUnit(sid);
         dev.spawnFullBag(state.getOwnerAddress(mobileUnit), mobileUnit, 0);
 

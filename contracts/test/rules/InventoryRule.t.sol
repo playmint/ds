@@ -25,10 +25,10 @@ contract InventoryRuleTest is Test, GameTest {
     uint64[4] defaultMaterialQty;
 
     function setUp() public {
-        dev.spawnTile(0, 0, 0);
-        dev.spawnTile(1, 0, -1);
-        dev.spawnTile(2, 0, -2);
-        dev.spawnTile(3, 0, -3);
+        dev.spawnTile(0, 0, 0, 0);
+        dev.spawnTile(0, 1, 0, -1);
+        dev.spawnTile(0, 2, 0, -2);
+        dev.spawnTile(0, 3, 0, -3);
 
         // setup default material construction costs
         defaultMaterialItem[0] = ItemUtils.GreenGoo();
@@ -41,7 +41,7 @@ contract InventoryRuleTest is Test, GameTest {
 
     function testTransferItemMobileUnitBagToMobileUnitBag() public {
         vm.startPrank(players[0].addr);
-        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
+        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0, 0);
         _testTransferItemBetweenEquipees(
             mobileUnit, // mobileUnit perfoming the action
             mobileUnit, // location of from-bag
@@ -54,7 +54,7 @@ contract InventoryRuleTest is Test, GameTest {
         vm.startPrank(players[0].addr);
         bytes24 mobileUnit = _spawnMobileUnitWithResources(1);
         (bytes24 buildingInstance, address buildingImplementation) =
-            _constructBuilding(players[0].addr, BUILDING_KIND_ID_1, mobileUnit, 1, -1, 0);
+            _constructBuilding(players[0].addr, BUILDING_KIND_ID_1, mobileUnit, 0, 1, -1, 0);
         vm.stopPrank();
 
         vm.startPrank(buildingImplementation);
@@ -68,8 +68,8 @@ contract InventoryRuleTest is Test, GameTest {
 
     function testTransferItemMobileUnitBagToTileBag() public {
         vm.startPrank(players[0].addr);
-        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
-        bytes24 tile = Node.Tile(DEFAULT_ZONE, 0, 0, 0);
+        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0, 0);
+        bytes24 tile = Node.Tile(0, 0, 0, 0);
         _testTransferItemBetweenEquipees(
             mobileUnit, // mobileUnit perfoming the action
             mobileUnit, // location of from-bag
@@ -82,8 +82,8 @@ contract InventoryRuleTest is Test, GameTest {
         vm.startPrank(players[0].addr);
         bytes24 mobileUnit = _spawnMobileUnitWithResources(1);
         (bytes24 buildingInstance, address buildingImplementation) =
-            _constructBuilding(players[0].addr, BUILDING_KIND_ID_1, mobileUnit, 1, -1, 0);
-        bytes24 tile = Node.Tile(DEFAULT_ZONE, 0, 0, 0);
+            _constructBuilding(players[0].addr, BUILDING_KIND_ID_1, mobileUnit, 0, 1, -1, 0);
+        bytes24 tile = Node.Tile(0, 0, 0, 0);
         vm.stopPrank();
 
         vm.startPrank(buildingImplementation);
@@ -97,8 +97,8 @@ contract InventoryRuleTest is Test, GameTest {
 
     function testTransferItemTileBagToTileBag() public {
         vm.startPrank(players[0].addr);
-        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
-        bytes24 tile = Node.Tile(DEFAULT_ZONE, 0, 0, 0);
+        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0, 0);
+        bytes24 tile = Node.Tile(0, 0, 0, 0);
         _testTransferItemBetweenEquipees(
             mobileUnit, // mobileUnit perfoming the action
             tile, // location of from-bag
@@ -109,9 +109,9 @@ contract InventoryRuleTest is Test, GameTest {
 
     function testTransferItemMobileUnitBagToBuildingBagNotAtOrigin() public {
         vm.startPrank(players[0].addr);
-        bytes24 mobileUnit = _spawnMobileUnit(1, 2, 0, -2);
-        (int16 q, int16 r, int16 s) = (3, 0, -3);
-        bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
+        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 2, 0, -2);
+        (int16 z, int16 q, int16 r, int16 s) = (0, 3, 0, -3);
+        bytes24 buildingInstance = Node.Building(z, q, r, s);
         bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
         _testTransferItemBetweenEquipeesWithBag(
             mobileUnit, // mobileUnit perfoming the action
@@ -125,10 +125,10 @@ contract InventoryRuleTest is Test, GameTest {
     function testTransferItemBuildingBagNotAtOriginToMobileUnit() public {
         vm.startPrank(players[0].addr);
         bytes24 mobileUnit = _spawnMobileUnitWithResources(1);
-        moveMobileUnit(1, 2, 0, -2);
-        (int16 q, int16 r, int16 s) = (3, 0, -3);
+        moveMobileUnit(1, 0, 2, 0, -2);
+        (int16 z, int16 q, int16 r, int16 s) = (0, 3, 0, -3);
         (bytes24 buildingInstance, address buildingImplementation) =
-            _constructBuilding(players[0].addr, BUILDING_KIND_ID_1, mobileUnit, q, r, s);
+            _constructBuilding(players[0].addr, BUILDING_KIND_ID_1, mobileUnit, z, q, r, s);
         vm.stopPrank();
 
         vm.startPrank(buildingImplementation);
@@ -142,7 +142,7 @@ contract InventoryRuleTest is Test, GameTest {
 
     function testTransferItemFailNotOwner() public {
         vm.startPrank(players[0].addr);
-        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
+        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0, 0);
         vm.stopPrank();
 
         vm.startPrank(players[1].addr); // bob trying to use alice's mobileUnit
@@ -158,7 +158,7 @@ contract InventoryRuleTest is Test, GameTest {
     function testTransferItemFailNotBuildingImplementer() public {
         vm.startPrank(players[0].addr);
         bytes24 mobileUnit = _spawnMobileUnitWithResources(1);
-        (bytes24 buildingInstance,) = _constructBuilding(players[0].addr, BUILDING_KIND_ID_1, mobileUnit, 1, -1, 0);
+        (bytes24 buildingInstance,) = _constructBuilding(players[0].addr, BUILDING_KIND_ID_1, mobileUnit, 0, 1, -1, 0);
 
         // pranked sender is still the player
 
@@ -173,10 +173,10 @@ contract InventoryRuleTest is Test, GameTest {
 
     function testTransferItemFailNotSameLocationMobileUnit() public {
         vm.startPrank(players[0].addr);
-        bytes24 mobileUnit1 = _spawnMobileUnit(1, 0, 0, 0);
+        bytes24 mobileUnit1 = _spawnMobileUnit(1, 0, 0, 0, 0);
         vm.stopPrank();
         vm.startPrank(players[1].addr);
-        bytes24 mobileUnit2 = _spawnMobileUnit(2, 3, 0, -3);
+        bytes24 mobileUnit2 = _spawnMobileUnit(2, 0, 3, 0, -3);
         vm.stopPrank();
 
         vm.startPrank(players[0].addr);
@@ -191,8 +191,8 @@ contract InventoryRuleTest is Test, GameTest {
 
     function testTransferItemFailNotSameLocationTile() public {
         vm.startPrank(players[0].addr);
-        bytes24 mobileUnit1 = _spawnMobileUnit(1, 0, 0, 0);
-        bytes24 tile = Node.Tile(DEFAULT_ZONE, 3, 0, -3);
+        bytes24 mobileUnit1 = _spawnMobileUnit(1, 0, 0, 0, 0);
+        bytes24 tile = Node.Tile(0, 3, 0, -3);
         _testTransferItemFailBetweenEquipees(
             mobileUnit1, // mobileUnit perfoming the action
             mobileUnit1, // location of from-bag
@@ -204,10 +204,10 @@ contract InventoryRuleTest is Test, GameTest {
 
     function testTransferItemFailNotYourBag() public {
         vm.startPrank(players[1].addr);
-        bytes24 mobileUnitStranger = _spawnMobileUnit(2, 0, 0, 0);
+        bytes24 mobileUnitStranger = _spawnMobileUnit(2, 0, 0, 0, 0);
         vm.stopPrank();
         vm.startPrank(players[0].addr);
-        bytes24 mobileUnitAlice = _spawnMobileUnit(1, 0, 0, 0);
+        bytes24 mobileUnitAlice = _spawnMobileUnit(1, 0, 0, 0, 0);
         _spawnBagWithWood(
             address(1), // stranger's bag
             mobileUnitStranger,
@@ -235,7 +235,7 @@ contract InventoryRuleTest is Test, GameTest {
         vm.startPrank(players[0].addr);
         bytes24 mobileUnit = _spawnMobileUnitWithResources(1);
         (bytes24 buildingInstance, address buildingImplementation) =
-            _constructBuilding(players[0].addr, BUILDING_KIND_ID_1, mobileUnit, 1, -1, 0);
+            _constructBuilding(players[0].addr, BUILDING_KIND_ID_1, mobileUnit, 0, 1, -1, 0);
         vm.stopPrank();
 
         vm.startPrank(buildingImplementation);
@@ -250,7 +250,7 @@ contract InventoryRuleTest is Test, GameTest {
 
     function testTransferItemFailIncompatibleSlot() public {
         vm.startPrank(players[0].addr);
-        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
+        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0, 0);
         _spawnBagWithWood(players[0].addr, mobileUnit, EQUIP_SLOT_0);
         _spawnBagWithStone(players[0].addr, mobileUnit, EQUIP_SLOT_1);
 
@@ -271,7 +271,7 @@ contract InventoryRuleTest is Test, GameTest {
 
     function testTransferItemFailSameSlot() public {
         vm.startPrank(players[0].addr);
-        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
+        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0, 0);
         _spawnBagWithWood(players[0].addr, mobileUnit, EQUIP_SLOT_0);
         _spawnBagWithStone(players[0].addr, mobileUnit, EQUIP_SLOT_1);
 
@@ -292,7 +292,7 @@ contract InventoryRuleTest is Test, GameTest {
 
     function testTransferItemFailLowBalance() public {
         vm.startPrank(players[0].addr);
-        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
+        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0, 0);
         _spawnBagWithWood(players[0].addr, mobileUnit, EQUIP_SLOT_0);
         _spawnBagEmpty(players[0].addr, mobileUnit, EQUIP_SLOT_1);
 
@@ -414,7 +414,7 @@ contract InventoryRuleTest is Test, GameTest {
 
     function testTransferItemBetweenEquipeeAndMissingBag() public {
         vm.startPrank(players[0].addr);
-        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0);
+        bytes24 mobileUnit = _spawnMobileUnit(1, 0, 0, 0, 0);
         bytes24 fromEquipee = mobileUnit;
 
         // equip two bags to mobileUnit
@@ -473,7 +473,7 @@ contract InventoryRuleTest is Test, GameTest {
 
     function _testExport() internal returns (bytes24 fromEquipee) {
         vm.startPrank(players[0].addr);
-        fromEquipee = _spawnMobileUnit(1, 0, 0, 0);
+        fromEquipee = _spawnMobileUnit(1, 0, 0, 0, 0);
         uint8 fromEquipSlot = EQUIP_SLOT_0;
         uint8 fromItemSlot = ITEM_SLOT_0;
         uint64 qty = 2;
@@ -551,9 +551,9 @@ contract InventoryRuleTest is Test, GameTest {
         return dev.spawnBag(owner, equipNode, equipSlot, items, balances);
     }
 
-    function _spawnMobileUnit(uint32 sid, int16 q, int16 r, int16 s) private returns (bytes24) {
+    function _spawnMobileUnit(uint32 sid, int16 z, int16 q, int16 r, int16 s) private returns (bytes24) {
         spawnMobileUnit(sid);
-        moveMobileUnit(sid, q, r, s);
+        moveMobileUnit(sid, z, q, r, s);
         vm.roll(block.number + 100);
         return Node.MobileUnit(sid);
     }
@@ -577,7 +577,7 @@ contract InventoryRuleTest is Test, GameTest {
     // _spawnMobileUnitWithResources spawns a mobileUnit for the current sender at
     // 0,0,0 with 100 of each resource in an equiped bag
     function _spawnMobileUnitWithResources(uint64 id) private returns (bytes24) {
-        dev.spawnTile(0, 0, 0);
+        dev.spawnTile(0, 0, 0, 0);
         bytes24 mobileUnit = spawnMobileUnit(id);
         dev.spawnFullBag(state.getOwnerAddress(mobileUnit), mobileUnit, 0);
         dev.spawnFullBag(state.getOwnerAddress(mobileUnit), mobileUnit, 1);
@@ -622,6 +622,7 @@ contract InventoryRuleTest is Test, GameTest {
         address builderAccount,
         bytes24 buildingKind,
         bytes24 mobileUnit,
+        int16 z,
         int16 q,
         int16 r,
         int16 s
@@ -629,23 +630,21 @@ contract InventoryRuleTest is Test, GameTest {
         // spawn a mobileUnit
         vm.startPrank(builderAccount);
         // get our building and give it the resources to construct
-        bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
+        bytes24 buildingInstance = Node.Building(z, q, r, s);
         // construct our building
         _transferFromMobileUnitToBuilding(mobileUnit, 0, 0, 25, buildingInstance);
         _transferFromMobileUnitToBuilding(mobileUnit, 0, 1, 25, buildingInstance);
         _transferFromMobileUnitToBuilding(mobileUnit, 0, 2, 25, buildingInstance);
-        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, q, r, s)));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, z, q, r, s))
+        );
 
         // put some extra goo in bag 0 for transfer testing
         _transferFromMobileUnitToBuilding(mobileUnit, 1, 0, 100, buildingInstance);
 
         vm.stopPrank();
         // check the building has a location at q/r/s
-        assertEq(
-            state.getFixedLocation(buildingInstance),
-            Node.Tile(DEFAULT_ZONE, q, r, s),
-            "expected building to have location"
-        );
+        assertEq(state.getFixedLocation(buildingInstance), Node.Tile(z, q, r, s), "expected building to have location");
         // check building has owner
         assertEq(
             state.getOwner(buildingInstance),
@@ -665,13 +664,18 @@ contract InventoryRuleTest is Test, GameTest {
         return buildingInstance;
     }
 
-    function _constructBuilding(address builderAccount, uint64 kindId, bytes24 mobileUnit, int16 q, int16 r, int16 s)
-        private
-        returns (bytes24, address)
-    {
+    function _constructBuilding(
+        address builderAccount,
+        uint64 kindId,
+        bytes24 mobileUnit,
+        int16 z,
+        int16 q,
+        int16 r,
+        int16 s
+    ) private returns (bytes24, address) {
         // register a building kind
         (bytes24 buildingKind, address buildingImplementation) = _registerBuildingKind(kindId);
-        bytes24 buildingInstance = _constructWithBuildingKind(builderAccount, buildingKind, mobileUnit, q, r, s);
+        bytes24 buildingInstance = _constructWithBuildingKind(builderAccount, buildingKind, mobileUnit, z, q, r, s);
 
         return (buildingInstance, address(buildingImplementation));
     }

@@ -40,6 +40,7 @@ contract LabyrinthCore is ILabyrinthCore, BuildingKind {
 
         // Get location of buildingInstance
         bytes24 buildingTile = state.getFixedLocation(coreBuildingInstance);
+        int16 coreZ = int16(int192(uint192(buildingTile) >> 48));
         int16 coreQ = int16(int192(uint192(buildingTile) >> 32));
         int16 coreR = int16(int192(uint192(buildingTile) >> 16));
         int16 coreS = int16(int192(uint192(buildingTile)));
@@ -48,37 +49,43 @@ contract LabyrinthCore is ILabyrinthCore, BuildingKind {
         // rocks at room 4
         ds.getDispatcher().dispatch(
             abi.encodeCall(
-                Actions.DEV_SPAWN_BUILDING, (_LARGE_ROCKS, coreQ + 5, coreR + -4, coreS + -1, FacingDirectionKind.RIGHT)
+                Actions.DEV_SPAWN_BUILDING,
+                (_LARGE_ROCKS, coreZ, coreQ + 5, coreR + -4, coreS + -1, FacingDirectionKind.RIGHT)
             )
         ); // 11, -10, -1
         ds.getDispatcher().dispatch(
             abi.encodeCall(
-                Actions.DEV_SPAWN_BUILDING, (_LARGE_ROCKS, coreQ + 7, coreR + -6, coreS + -1, FacingDirectionKind.RIGHT)
+                Actions.DEV_SPAWN_BUILDING,
+                (_LARGE_ROCKS, coreZ, coreQ + 7, coreR + -6, coreS + -1, FacingDirectionKind.RIGHT)
             )
         ); // 13, -12, -1
         ds.getDispatcher().dispatch(
             abi.encodeCall(
-                Actions.DEV_SPAWN_BUILDING, (_LARGE_ROCKS, coreQ + 7, coreR + -8, coreS + 1, FacingDirectionKind.RIGHT)
+                Actions.DEV_SPAWN_BUILDING,
+                (_LARGE_ROCKS, coreZ, coreQ + 7, coreR + -8, coreS + 1, FacingDirectionKind.RIGHT)
             )
         ); // 13, -14, 1
         ds.getDispatcher().dispatch(
             abi.encodeCall(
-                Actions.DEV_SPAWN_BUILDING, (_LARGE_ROCKS, coreQ + 5, coreR + -6, coreS + 1, FacingDirectionKind.RIGHT)
+                Actions.DEV_SPAWN_BUILDING,
+                (_LARGE_ROCKS, coreZ, coreQ + 5, coreR + -6, coreS + 1, FacingDirectionKind.RIGHT)
             )
         ); // 11, -12, 1
         //crusher at room 5
         ds.getDispatcher().dispatch(
             abi.encodeCall(
-                Actions.DEV_SPAWN_BUILDING, (_CRUSHER, coreQ + 0, coreR + -6, coreS + 6, FacingDirectionKind.RIGHT)
+                Actions.DEV_SPAWN_BUILDING,
+                (_CRUSHER, coreZ, coreQ + 0, coreR + -6, coreS + 6, FacingDirectionKind.RIGHT)
             )
         ); // 6, -12, 6
 
         //items at room 3
+        int16 z = coreZ;
         int16 q = coreQ + 8; // 14
         int16 r = coreR + -1; // -7
         int16 s = coreS + -7; // -7
-        bytes24 bagId = bytes24(abi.encodePacked(Kind.Bag.selector, uint96(0), int16(0), q, r, s));
-        bytes24 tileId = bytes24(abi.encodePacked(Kind.Tile.selector, uint96(0), int16(0), q, r, s));
+        bytes24 bagId = bytes24(abi.encodePacked(Kind.Bag.selector, uint96(0), z, q, r, s));
+        bytes24 tileId = bytes24(abi.encodePacked(Kind.Tile.selector, uint96(0), z, q, r, s));
         bytes24[] memory items = new bytes24[](4);
         uint64[] memory balances = new uint64[](4);
         items[0] = sword;

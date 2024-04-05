@@ -16,7 +16,6 @@ import {
     LocationKey,
     CombatSideKey,
     TRAVEL_SPEED,
-    DEFAULT_ZONE,
     GOO_GREEN,
     GOO_BLUE,
     GOO_RED,

@@ -108,7 +108,7 @@ const nodeToManifest = (node): z.infer<typeof Manifest> => {
         const { kind, id } = node;
         const location = node.location
             .map((l) => getCoords(l.tile))
-            .map(({ q, r, s }) => [q, r, s])
+            .map(({ z, q, r, s }) => [z, q, r, s])
             .find(() => true);
         const spec = { name: buildingKindName, location, facingDirection: node.facingDirection?.value || FacingDirectionTypes[0] };
         const status = { owner, id };
@@ -117,7 +117,7 @@ const nodeToManifest = (node): z.infer<typeof Manifest> => {
         const { kind, id } = node;
         const location = node.location
             .map((l) => getCoords(l.tile))
-            .map(({ q, r, s }) => [q, r, s])
+            .map(({ z, q, r, s }) => [z, q, r, s])
             .find(() => true);
         const spec = { name };
         const status = { id, owner, location };
@@ -167,8 +167,8 @@ const nodeToManifest = (node): z.infer<typeof Manifest> => {
         const status = { id };
         return { kind, spec, status };
     } else if (node.kind == 'Tile') {
-        const { q, r, s } = getCoords({ coords: node.keys });
-        const location: [number, number, number] = [q, r, s];
+        const { z, q, r, s } = getCoords({ coords: node.keys });
+        const location: [number, number, number, number] = [z, q, r, s];
         const { kind, id } = node;
         const spec = { location, biome: BiomeTypes[1] };
         const status = { id };

@@ -7,7 +7,7 @@ import "cog/IState.sol";
 import "cog/IRule.sol";
 import "cog/IDispatcher.sol";
 
-import {Schema, Node, BiomeKind, DEFAULT_ZONE, GOO_GREEN, GOO_BLUE, GOO_RED} from "@ds/schema/Schema.sol";
+import {Schema, Node, BiomeKind, GOO_GREEN, GOO_BLUE, GOO_RED} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {Perlin} from "@ds/utils/Perlin.sol";
@@ -20,7 +20,7 @@ contract ScoutRule is Rule {
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.SCOUT_MOBILE_UNIT.selector) {
             // decode the action
-            (uint32 sid, int16[3] memory coords) = abi.decode(action[4:], (uint32, int16[3]));
+            (uint32 sid, int16[4] memory coords) = abi.decode(action[4:], (uint32, int16[4]));
 
             require(Bounds.isInBounds(coords[0], coords[1], coords[2]), "SCOUT_MOBILE_UNIT coords out of bounds");
 
@@ -33,7 +33,7 @@ contract ScoutRule is Rule {
             }
 
             // encode destination tile
-            bytes24 targetTile = Node.Tile(DEFAULT_ZONE, coords[0], coords[1], coords[2]);
+            bytes24 targetTile = Node.Tile(coords[0], coords[1], coords[2], coords[3]);
 
             // fail if already discovered
             if (state.getBiome(targetTile) == BiomeKind.DISCOVERED) {
@@ -51,17 +51,17 @@ contract ScoutRule is Rule {
             // do the reveal
             state.setBiome(targetTile, BiomeKind.DISCOVERED);
 
-            _generateAtomValues(state, targetTile, coords);
+            _generateAtomValues(state, targetTile, [coords[1], coords[2], coords[3]]);
 
             // randomly spawn a bag with some base items in it
-            _tempSpawnResourceBag(state, targetTile, coords);
+            _tempSpawnResourceBag(state, targetTile, [coords[1], coords[2], coords[3]]);
         }
 
         if (bytes4(action) == Actions.DEV_SPAWN_TILE.selector) {
             // decode action
-            (int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16));
+            (int16 z, int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16, int16));
             require(Bounds.isInBounds(q, r, s), "DEV_SPAWN_TILE coords out of bounds");
-            bytes24 targetTile = Node.Tile(DEFAULT_ZONE, q, r, s);
+            bytes24 targetTile = Node.Tile(z, q, r, s);
             _generateAtomValues(state, targetTile, [q, r, s]);
         }
 

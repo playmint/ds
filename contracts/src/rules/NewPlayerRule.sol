@@ -5,7 +5,7 @@ import "cog/IState.sol";
 import "cog/IRule.sol";
 import "cog/IDispatcher.sol";
 
-import {Schema, Node, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Schema, Node} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 
@@ -50,7 +50,7 @@ contract NewPlayerRule is Rule {
             // set the mobileUnit's owner
             state.setOwner(mobileUnit, Node.Player(ctx.sender));
             // set location
-            bytes24 locationTile = Node.Tile(DEFAULT_ZONE, 0, 0, 0);
+            bytes24 locationTile = Node.Tile(0, 0, 0, 0);
             state.setPrevLocation(mobileUnit, locationTile, 0);
             state.setNextLocation(mobileUnit, locationTile, ctx.clock);
             // give the mobileUnit a couple of bags

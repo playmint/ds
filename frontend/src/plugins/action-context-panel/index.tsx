@@ -166,7 +166,7 @@ const Construct: FunctionComponent<ConstructProps> = ({
         }, new Map() as SlotMap);
 
     const targetBuildingId = constructionCoords
-        ? getBuildingId(constructionCoords.q, constructionCoords.r, constructionCoords.s)
+        ? getBuildingId(constructionCoords.z, constructionCoords.q, constructionCoords.r, constructionCoords.s)
         : undefined;
     const targetBagId = targetBuildingId ? getBagId(targetBuildingId) : undefined;
     const targetEquipKey = 0;
@@ -387,11 +387,11 @@ const Construct: FunctionComponent<ConstructProps> = ({
             }
             const actions: CogAction[][] = [
                 ...path.slice(1, -1).map((t) => {
-                    const [_zone, q, r, s] = t.coords;
+                    const [zone, q, r, s] = t.coords;
                     return [
                         {
                             name: 'MOVE_MOBILE_UNIT',
-                            args: [mobileUnitKey, q, r, s],
+                            args: [mobileUnitKey, zone, q, r, s],
                         },
                     ] satisfies CogAction[];
                 }),
@@ -402,6 +402,7 @@ const Construct: FunctionComponent<ConstructProps> = ({
                         args: [
                             mobileUnitId,
                             selectedKind.id,
+                            constructableTile.coords[0],
                             constructableTile.coords[1],
                             constructableTile.coords[2],
                             constructableTile.coords[3],
@@ -574,11 +575,11 @@ const Move: FunctionComponent<MoveProps> = ({
 
         setActionQueue(
             path.slice(1).map((t) => {
-                const [_zone, q, r, s] = t.coords;
+                const [zone, q, r, s] = t.coords;
                 return [
                     {
                         name: 'MOVE_MOBILE_UNIT',
-                        args: [mobileUnitKey, q, r, s],
+                        args: [mobileUnitKey, zone, q, r, s],
                     },
                 ];
             })
@@ -788,11 +789,11 @@ const Combat: FunctionComponent<CombatProps> = ({
             return;
         }
         const actions: CogAction[][] = path.slice(1).map((t) => {
-            const [_zone, q, r, s] = t.coords;
+            const [zone, q, r, s] = t.coords;
             return [
                 {
                     name: 'MOVE_MOBILE_UNIT',
-                    args: [mobileUnitKey, q, r, s],
+                    args: [mobileUnitKey, zone, q, r, s],
                 },
             ];
         });

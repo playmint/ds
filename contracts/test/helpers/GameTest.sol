@@ -32,8 +32,9 @@ contract Dev {
 
     uint64 lastBag;
 
-    function spawnTile(int16 q, int16 r, int16 s) public {
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (q, r, s)));
+    function spawnTile(int16 z, int16 q, int16 r, int16 s) public {
+        //ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (q, r, s)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (z, q, r, s)));
     }
 
     function spawnBag(
@@ -148,8 +149,8 @@ abstract contract GameTest {
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.RedGoo(), "Red Goo", "22-256")));
     }
 
-    function moveMobileUnit(uint32 id, int16 q, int16 r, int16 s) public {
-        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (id, q, r, s)));
+    function moveMobileUnit(uint32 id, int16 z, int16 q, int16 r, int16 s) public {
+        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (id, z, q, r, s)));
     }
 
     function spawnMobileUnit(uint64 id) public returns (bytes24) {
@@ -158,12 +159,13 @@ abstract contract GameTest {
         return unitID;
     }
 
-    function scoutMobileUnit(uint32 id, int16 q, int16 r, int16 s) public {
+    function scoutMobileUnit(uint32 id, int16 z, int16 q, int16 r, int16 s) public {
         dispatcher.dispatch(
             abi.encodeCall(
                 Actions.SCOUT_MOBILE_UNIT,
                 (
                     id, // mobileUnit id (sid)
+                    z, // z
                     q, // q
                     r, // r
                     s // s
