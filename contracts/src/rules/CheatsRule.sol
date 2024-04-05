@@ -46,7 +46,6 @@ contract CheatsRule is Rule {
             require(Bounds.isInBounds(q, r, s), "DEV_SPAWN_TILE coords out of bounds");
 
             _spawnTile(state, z, q, r, s);
-            
         } else if (bytes4(action) == Actions.DEV_SPAWN_BAG.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_SPAWN_BAG not allowed");
 
