@@ -12,6 +12,8 @@ The Existing Maps are various things that Playmint has created in Downstream. Th
 
 The Existing Games are full games that have been developed by external developers and one by Playmint! They will give you an insight into how far Downstream has already been pushed!
 
+Specific questions? Drop into our [Discord](https://discord.gg/MvYb9PBjGW) where you can have direct access to the Playmint dev team!
+
 See the [References](./REFERENCE.md) for information on common tooling and commands.
 
 
