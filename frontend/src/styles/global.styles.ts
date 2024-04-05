@@ -130,7 +130,8 @@ export const GlobalStyles = createGlobalStyle`
       padding: 1rem;
       color: #333;
       min-width: var(--trigger-width);
-      max-width: 50rem;    
+      max-width: 50rem;
+      overflow: auto;
     }
     
     .react-aria-ListBoxItem {
