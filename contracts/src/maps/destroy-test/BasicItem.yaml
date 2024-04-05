@@ -1,9 +1,0 @@
-kind: Item
-spec:
-  name: Basic Item
-  icon: 24-129
-  goo:
-    red: 1
-    green: 1
-    blue: 1
-  stackable: false

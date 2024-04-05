@@ -5,49 +5,16 @@ import fs from 'fs';
 import path from 'path';
 import { z } from 'zod';
 import {
-    BuildingCategoryEnum,
-    BuildingCategoryEnumVals,
     ContractSource,
     ManifestDocument,
     Slot,
     FacingDirectionTypes,
 } from '../utils/manifest';
+import { encodeTileID, encodeItemID, encodeBagID, getItemIdByName, encodeBuildingKindID, getBuildingKindIDByName, getBuildingCategoryEnum } from './helpers';
 import { isInBounds } from '../utils/bounds';
 
 const null24bytes = '0x000000000000000000000000000000000000000000000000';
 
-export const encodeTileID = ({ q, r, s }: { q: number; r: number; s: number }) => {
-    return solidityPacked(
-        ['bytes4', 'uint96', 'int16', 'int16', 'int16', 'int16'],
-        [NodeSelectors.Tile, 0, 0, q, r, s]
-    );
-};
-
-export const encodeBagID = ({ q, r, s }: { q: number; r: number; s: number }) => {
-    return solidityPacked(['bytes4', 'uint96', 'int16', 'int16', 'int16', 'int16'], [NodeSelectors.Bag, 0, 0, q, r, s]);
-};
-
-export const encodeItemID = ({
-    name,
-    stackable,
-    goo,
-}: {
-    name: string;
-    stackable: boolean;
-    goo: { red: number; green: number; blue: number };
-}) => {
-    const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`item/${name}`))));
-    return solidityPacked(
-        ['bytes4', 'uint32', 'uint32', 'uint32', 'uint32', 'uint32'],
-        [NodeSelectors.Item, id, stackable ? 1 : 0, goo.green, goo.blue, goo.red]
-    );
-};
-
-const encodeBuildingKindID = ({ name, category }) => {
-    const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`building/${name}`))));
-    const categoryEnum = getBuildingCategoryEnum(category);
-    return solidityPacked(['bytes4', 'uint32', 'uint64', 'uint64'], [NodeSelectors.BuildingKind, 0, id, categoryEnum]);
-};
 
 const encodePluginID = ({ name }) => {
     const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`plugin/${name}`))));
@@ -70,11 +37,6 @@ const getQuestKey = (name: string) => {
 
 const encodeQuestID = ({ name }) => {
     return solidityPacked(['bytes4', 'uint32', 'uint64', 'uint64'], [NodeSelectors.Quest, 0, 0, getQuestKey(name)]);
-};
-
-// TODO: Is there a way of referencing the Solidity enum?
-const getBuildingCategoryEnum = (category: BuildingCategoryEnum): number => {
-    return BuildingCategoryEnumVals.indexOf(category);
 };
 
 const itemKindDeploymentActions = async (
@@ -117,36 +79,6 @@ const itemKindDeploymentActions = async (
     }
 
     return ops;
-};
-
-const getItemIdByName = (files, existingItems: ItemFragment[], name: string): string => {
-    const foundItems = existingItems.filter((item) => item.name?.value === name);
-    if (foundItems.length === 1) {
-        const item = foundItems[0];
-        if (!item.id) {
-            throw new Error(`missing item.id field for Item ${name}`);
-        }
-        return item.id;
-    } else if (foundItems.length > 1) {
-        throw new Error(`item ${name} is ambiguous, found ${foundItems.length} existing items with that name`);
-    }
-    // find ID based on pending specs
-    const manifests = files
-        .map((file) => file.manifest)
-        .filter((manifest) => manifest.kind === 'Item' && manifest.spec.name === name);
-    if (manifests.length === 0) {
-        throw new Error(`unable to find Item id for reference: ${name}, are you missing an Item manifest?`);
-    }
-    if (manifests.length > 1) {
-        throw new Error(
-            `item ${name} is ambiguous, found ${manifests.length} different manifests that declare items with that name`
-        );
-    }
-    const manifest = manifests[0];
-    if (manifest.kind !== 'Item') {
-        throw new Error(`unexpected kind: wanted Item got ${manifest.kind}`);
-    }
-    return encodeItemID(manifest.spec);
 };
 
 const buildingKindDeploymentActions = async (
@@ -338,7 +270,6 @@ const questDeploymentActions = async (
             }
         }
 
-        return solidityPacked(['uint8'], [0]);
     };
 
     // register tasks
@@ -366,38 +297,6 @@ const questDeploymentActions = async (
     });
 
     return ops;
-};
-
-const getBuildingKindIDByName = (existingBuildingKinds, pendingBuildingKinds, name: string) => {
-    const foundBuildingKinds = existingBuildingKinds.filter((buildingKind) => buildingKind.name?.value === name);
-    if (foundBuildingKinds.length === 1) {
-        const buildingKind = foundBuildingKinds[0];
-        if (!buildingKind.id) {
-            throw new Error(`missing status.id field for BuildingKind ${name}`);
-        }
-        return buildingKind.id;
-    } else if (foundBuildingKinds.length > 1) {
-        throw new Error(
-            `BuildingKind ${name} is ambiguous, found ${foundBuildingKinds.length} existing BuildingKinds with that name`
-        );
-    }
-    // find ID based on pending specs
-    const manifests = pendingBuildingKinds.filter((m) => m.spec.name == name);
-    if (manifests.length === 0) {
-        throw new Error(
-            `unable to find BuildingKind id for reference: ${name}, are you missing an BuildingKind manifest?`
-        );
-    }
-    if (manifests.length > 1) {
-        throw new Error(
-            `BuildingKind ${name} is ambiguous, found ${manifests.length} different manifests that declare BuildingKinds with that name`
-        );
-    }
-    const manifest = manifests[0];
-    if (manifest.kind !== 'BuildingKind') {
-        throw new Error(`unexpected kind: wanted BuildingKind got ${manifest.kind}`);
-    }
-    return encodeBuildingKindID(manifest.spec);
 };
 
 export const getOpsForManifests = async (
