@@ -187,7 +187,7 @@ interface Actions {
     function DEV_DESTROY_TILE(int16 q, int16 r, int16 s) external;
 
     // destroy a building at any location
-    function DEV_DESTROY_BUILDING(bytes24 buildingKind, int16 q, int16 r, int16 s) external;
+    function DEV_DESTROY_BUILDING(int16 q, int16 r, int16 s) external;
 
     // spawn a bag with resources equip somewhere
     function DEV_DESTROY_BAG(
