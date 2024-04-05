@@ -77,27 +77,24 @@ contract CheatsRule is Rule {
             (int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16));
             require(Bounds.isInBounds(q, r, s), "DEV_DESTROY_TILE coords out of bounds");
             _destroyTile(state, q, r, s);
-
         } else if (bytes4(action) == Actions.DEV_DESTROY_BUILDING.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_DESTROY_BUILDING not allowed");
-            (, int16 q, int16 r, int16 s) =
-                abi.decode(action[4:], (bytes24, int16, int16, int16));
-            
-            require(Bounds.isInBounds(q, r, s), "DEV_DESTROY_BUILDING coords out of bounds");
-            
-            _destroyBuilding(state, q, r, s);
+            (, int16 q, int16 r, int16 s) = abi.decode(action[4:], (bytes24, int16, int16, int16));
 
+            require(Bounds.isInBounds(q, r, s), "DEV_DESTROY_BUILDING coords out of bounds");
+
+            _destroyBuilding(state, q, r, s);
         } else if (bytes4(action) == Actions.DEV_DESTROY_BAG.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_DESTROY_BAG not allowed");
-                
-                (
-                    bytes24 bagID,
-                    address owner,
-                    bytes24 equipee, // tile
-                    uint8 equipSlot,
-                    bytes24[] memory slotContents
-                ) = abi.decode(action[4:], (bytes24, address, bytes24, uint8, bytes24[]));
-                if (bytes4(equipee) == Kind.Tile.selector) {
+
+            (
+                bytes24 bagID,
+                address owner,
+                bytes24 equipee, // tile
+                uint8 equipSlot,
+                bytes24[] memory slotContents
+            ) = abi.decode(action[4:], (bytes24, address, bytes24, uint8, bytes24[]));
+            if (bytes4(equipee) == Kind.Tile.selector) {
                 (, int16 q, int16 r, int16 s) = state.getTileCoords(equipee);
                 require(Bounds.isInBounds(q, r, s), "DEV_DESTROY_BAG coords out of bounds");
             }
@@ -146,8 +143,6 @@ contract CheatsRule is Rule {
         state.removeEquipSlot(equipee, equipSlot);
     }
 
-
-
     function _spawnTile(State state, int16 q, int16 r, int16 s) private {
         state.setBiome(Node.Tile(DEFAULT_ZONE, q, r, s), BiomeKind.DISCOVERED);
     }
@@ -157,11 +152,7 @@ contract CheatsRule is Rule {
         state.removeBiome(tile);
     }
 
-    function _destroyBuilding(
-        State state,
-        int16 q,
-        int16 r,
-        int16 s) private {
+    function _destroyBuilding(State state, int16 q, int16 r, int16 s) private {
         bytes24 buildingInstance = Node.Building(0, q, r, s);
         // state.destroyBuilding(Node.Building(DEFAULT_ZONE, q, r, s));
         state.removeBuildingKind(buildingInstance);
