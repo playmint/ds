@@ -14,7 +14,6 @@ import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 
 import {CheatsRule} from "@ds/rules/CheatsRule.sol";
 import {MovementRule} from "@ds/rules/MovementRule.sol";
-import {ScoutRule} from "@ds/rules/ScoutRule.sol";
 import {InventoryRule} from "@ds/rules/InventoryRule.sol";
 import {BuildingRule} from "@ds/rules/BuildingRule.sol";
 import {CraftingRule} from "@ds/rules/CraftingRule.sol";
@@ -58,7 +57,6 @@ contract GameDeployer is Script {
         // enable rules
         ds.registerRule(new CheatsRule(deployerAddr));
         ds.registerRule(new MovementRule(ds));
-        ds.registerRule(new ScoutRule());
         ds.registerRule(inventoryRule);
         ds.registerRule(new BuildingRule(ds));
         ds.registerRule(new CraftingRule(ds));

@@ -46,6 +46,7 @@ contract CheatsRule is Rule {
             require(Bounds.isInBounds(q, r, s), "DEV_SPAWN_TILE coords out of bounds");
 
             _spawnTile(state, z, q, r, s);
+            
         } else if (bytes4(action) == Actions.DEV_SPAWN_BAG.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_SPAWN_BAG not allowed");
 
@@ -99,7 +100,9 @@ contract CheatsRule is Rule {
     }
 
     function _spawnTile(State state, int16 z, int16 q, int16 r, int16 s) private {
-        state.setBiome(Node.Tile(z, q, r, s), BiomeKind.DISCOVERED);
+        bytes24 tile = Node.Tile(z, q, r, s);
+        state.setBiome(tile, BiomeKind.DISCOVERED);
+        state.setTileAtomValues(tile, [uint64(255), uint64(255), uint64(255)]);
     }
 
     // allow constructing a building without any materials

@@ -20,10 +20,7 @@ struct ItemConfig {
 }
 
 library ItemUtils {
-    // temp base "resource" ids used by scouting
-    // these should not really be special, they are simply
-    // how we seed the world with atoms at the moment by
-    // dropping these per-atom resources in bags during scout
+    // Base "resource" ids which are registered during game deployment
     function GreenGoo() internal pure returns (bytes24) {
         return Node.Item("Green Goo", [uint32(1), uint32(0), uint32(0)], true);
     }

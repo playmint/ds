@@ -6,7 +6,7 @@ import { CogServices } from './types';
  * makeTiles checks that the provided ids exist in the world data before
  * attempting to request more detailed tile data
  *
- * only data for scouted tiles is requested, but unscouted tiles remain in the
+ * only data for discovered tiles is requested, but undiscovered tiles remain in the
  * selection
  */
 export function makeSelectedTiles(

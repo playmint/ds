@@ -16,7 +16,6 @@ import {Items1155} from "@ds/Items1155.sol";
 
 import {CheatsRule} from "@ds/rules/CheatsRule.sol";
 import {MovementRule} from "@ds/rules/MovementRule.sol";
-import {ScoutRule} from "@ds/rules/ScoutRule.sol";
 import {InventoryRule} from "@ds/rules/InventoryRule.sol";
 import {BuildingRule} from "@ds/rules/BuildingRule.sol";
 import {CraftingRule} from "@ds/rules/CraftingRule.sol";
@@ -127,7 +126,6 @@ abstract contract GameTest {
         // setup game
         game.registerRule(new CheatsRule(address(dev)));
         game.registerRule(new MovementRule(game));
-        game.registerRule(new ScoutRule());
         game.registerRule(inventoryRule);
         game.registerRule(new BuildingRule(game));
         game.registerRule(new CraftingRule(game));
@@ -157,21 +155,6 @@ abstract contract GameTest {
         bytes24 unitID = Node.MobileUnit(id);
         dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (unitID)));
         return unitID;
-    }
-
-    function scoutMobileUnit(uint32 id, int16 z, int16 q, int16 r, int16 s) public {
-        dispatcher.dispatch(
-            abi.encodeCall(
-                Actions.SCOUT_MOBILE_UNIT,
-                (
-                    id, // mobileUnit id (sid)
-                    z, // z
-                    q, // q
-                    r, // r
-                    s // s
-                )
-            )
-        );
     }
 
     function setName(bytes24 entity, string memory name) public {
