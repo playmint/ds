@@ -74,11 +74,7 @@ contract CheatsRuleTest is Test, GameTest {
         bytes24 buildingInstance = Node.Building(z, q, r, s);
 
         // check the building has a location at q/r/s
-        assertEq(
-            state.getFixedLocation(buildingInstance),
-            Node.Tile(z, q, r, s),
-            "expected building to have location"
-        );
+        assertEq(state.getFixedLocation(buildingInstance), Node.Tile(z, q, r, s), "expected building to have location");
     }
 
     function testDestroyBuilding() public {
@@ -117,8 +113,7 @@ contract CheatsRuleTest is Test, GameTest {
 
         // check the building has been destroyed
         assertFalse(
-            state.getFixedLocation(buildingInstance) == Node.Tile(z, q, r, s),
-            "expected building to be destroyed"
+            state.getFixedLocation(buildingInstance) == Node.Tile(z, q, r, s), "expected building to be destroyed"
         );
     }
 

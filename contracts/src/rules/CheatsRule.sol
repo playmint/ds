@@ -98,7 +98,6 @@ contract CheatsRule is Rule {
                 require(Bounds.isInBounds(q, r, s), "DEV_DESTROY_BAG coords out of bounds");
             }
             _destroyBag(state, bagID, owner, equipee, equipSlot, slotContents);
-
         } else if (bytes4(action) == Actions.DEV_DISABLE_CHEATS.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_DISABLE_CHEATS not allowed");
 
@@ -163,7 +162,7 @@ contract CheatsRule is Rule {
         }
     }
 
-     function _setInitialExtractorData(State state, bytes24 buildingInstance, uint64 timestamp) private {
+    function _setInitialExtractorData(State state, bytes24 buildingInstance, uint64 timestamp) private {
         state.setBlockNum(buildingInstance, uint8(BuildingBlockNumKey.EXTRACTION), timestamp);
         state.setBuildingReservoirAtoms(buildingInstance, [uint64(499), uint64(499), uint64(499)]);
     }
