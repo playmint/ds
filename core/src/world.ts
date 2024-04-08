@@ -41,7 +41,7 @@ export function makeTiles(cog: Source<CogServices>) {
     const tiles = pipe(
         cog,
         switchMap(({ query, gameID }) => query(GetTilesDocument, { gameID }, { poll: 60 * 1000 * 10 })),
-        map(({ game }) => game?.state?.tiles || []),
+        map(({ game }) => game?.state?.tiles.filter((tile) => tile.biome === 1) || []),
         tap((next) => (prev = next)),
         share,
     );

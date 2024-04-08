@@ -203,6 +203,10 @@ library Schema {
         return state.set(Rel.Location.selector, uint8(LocationKey.FIXED), node, tile, 0);
     }
 
+    function removeFixedLocation(State state, bytes24 node) internal {
+        return state.remove(Rel.Location.selector, uint8(LocationKey.FIXED), node);
+    }
+
     function setNextLocation(State state, bytes24 node, bytes24 tile, uint64 arrivalTime) internal {
         return state.set(Rel.Location.selector, uint8(LocationKey.NEXT), node, tile, arrivalTime);
     }
@@ -287,6 +291,10 @@ library Schema {
         return state.set(Rel.Biome.selector, 0x0, node, 0x0, uint64(biome));
     }
 
+    function removeBiome(State state, bytes24 node) internal {
+        return state.remove(Rel.Biome.selector, 0x0, node);
+    }
+
     function getBiome(State state, bytes24 node) internal view returns (BiomeKind) {
         (, uint160 biome) = state.get(Rel.Biome.selector, 0x0, node);
         return BiomeKind(uint8(biome));
@@ -303,6 +311,10 @@ library Schema {
 
     function setOwner(State state, bytes24 node, bytes24 ownerNode) internal {
         return state.set(Rel.Owner.selector, 0x0, node, ownerNode, 0);
+    }
+
+    function removeOwner(State state, bytes24 node) internal {
+        return state.remove(Rel.Owner.selector, 0x0, node);
     }
 
     function getOwner(State state, bytes24 node) internal view returns (bytes24) {
@@ -337,6 +349,10 @@ library Schema {
         return state.set(Rel.Equip.selector, equipSlot, equipee, equipment, 1);
     }
 
+    function removeEquipSlot(State state, bytes24 equipee, uint8 equipSlot) internal {
+        return state.remove(Rel.Equip.selector, equipSlot, equipee);
+    }
+
     function getEquipSlot(State state, bytes24 equipee, uint8 equipSlot) internal view returns (bytes24 equipedThing) {
         (bytes24 thing,) = state.get(Rel.Equip.selector, equipSlot, equipee);
         return thing;
@@ -353,6 +369,10 @@ library Schema {
 
     function setBuildingKind(State state, bytes24 buildingInstance, bytes24 buildingKind) internal {
         return state.set(Rel.Is.selector, 0x0, buildingInstance, buildingKind, 0);
+    }
+
+    function removeBuildingKind(State state, bytes24 buildingInstance) internal {
+        return state.remove(Rel.Is.selector, 0x0, buildingInstance);
     }
 
     function getBuildingKind(State state, bytes24 buildingInstance) internal view returns (bytes24) {

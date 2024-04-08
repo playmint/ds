@@ -187,6 +187,21 @@ interface Actions {
         uint64[] calldata slotBalances
     ) external;
 
+    // destroy a tile at any location
+    function DEV_DESTROY_TILE(int16 z, int16 q, int16 r, int16 s) external;
+
+    // destroy a building at any location
+    function DEV_DESTROY_BUILDING(int16 z, int16 q, int16 r, int16 s) external;
+
+    // spawn a bag with resources equip somewhere
+    function DEV_DESTROY_BAG(
+        bytes24 bagID,
+        address owner,
+        bytes24 equipee,
+        uint8 equipSlot,
+        bytes24[] calldata slotContents
+    ) external;
+
     // calling DEV_DISABLE_CHEATS will disable cheats this action cannot
     // be undone, DEV_ cheat actions will be disabled and ignored forever
     function DEV_DISABLE_CHEATS() external;
