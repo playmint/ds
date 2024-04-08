@@ -29,18 +29,22 @@ contract NamingRule is Rule {
     }
 
     function _changeEntityName(State state, bytes24 player, bytes24 entity, string memory name) private {
+        require(bytes(name).length <= 32, "Name exceeds 32 characters");
+
         bytes24 existingOwner = state.getOwner(entity);
         if (existingOwner != 0x0 && existingOwner != player) {
             revert("EntityNotOwnedByPlayer");
         }
-        state.annotate(entity, "name", name);
+        state.setData(entity, "name", bytes32(bytes(name)));
     }
 
     function _changeEntityDescription(State state, bytes24 player, bytes24 entity, string memory desc) private {
+        require(bytes(desc).length <= 140, "Description exceeds 140 characters");
+
         bytes24 existingOwner = state.getOwner(entity);
         if (existingOwner != 0x0 && existingOwner != player) {
             revert("EntityNotOwnedByPlayer");
         }
-        state.annotate(entity, "description", desc);
+        state.setData(entity, "description", bytes32(bytes(desc)));
     }
 }

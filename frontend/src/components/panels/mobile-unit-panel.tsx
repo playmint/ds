@@ -188,8 +188,10 @@ export const MobileUnitPanel = () => {
             if (!player) {
                 return;
             }
-            const name = prompt('Enter a name:');
+            const defaultName = formatNameOrId(selectedMobileUnit, 'unit');
+            const name = prompt('Enter a name:', defaultName);
             if (!name || name.length < 3) {
+                alert('rejected: min 3 characters');
                 return;
             }
             if (name.length > 20) {

@@ -75,7 +75,7 @@ fragment WorldMobileUnit on Node {
         id
     }
     # owner assigned name
-    name: annotation(name: "name") {
+    name: data(name: "name") {
         value
     }
 }
@@ -163,10 +163,6 @@ fragment WorldTile on Node {
 fragment WorldPlayer on Node {
     id
     addr: key
-    # player name
-    name: annotation(name: "name") {
-        value
-    }
 }
 
 fragment WorldState on State {

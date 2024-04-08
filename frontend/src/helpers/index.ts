@@ -1,5 +1,7 @@
 /** @format */
 
+const decoder = new TextDecoder();
+
 interface MaybeNamed {
     id: string;
     name?: {
@@ -15,7 +17,22 @@ export const formatNameOrId = (node?: MaybeNamed, idPrefix: string = ''): string
     if (!node) {
         return '';
     }
-    return node.name?.value ? node.name.value : `${idPrefix}${formatShortId(node.id)}`;
+    if (node.name?.value) {
+        const length = node.name.value.length / 2;
+
+        // convert the bytes32 (data) value to a Uint8Array
+        const bytes = new Uint8Array(length);
+        for (let i = 0; i < length; i++) {
+            bytes[i] = parseInt(node.name.value.slice(i * 2, i * 2 + 2), 16);
+        }
+
+        // decode the Uint8Array as a string and trim trailing null characters
+        const name = decoder.decode(bytes);
+        const trimmedName = name.replace(/\0/g, '');
+        return trimmedName;
+    } else {
+        return `${idPrefix}${formatShortId(node.id)}`;
+    }
 };
 
 export const getItemStructure = (itemId: string) => {
