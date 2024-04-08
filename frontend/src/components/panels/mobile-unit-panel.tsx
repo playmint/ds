@@ -202,7 +202,7 @@ export const MobileUnitPanel = () => {
                 .dispatch({ name: 'NAME_OWNED_ENTITY', args: [entityId, name] })
                 .catch((err) => console.error('naming failed', err));
         },
-        [player]
+        [player, selectedMobileUnit]
     );
 
     const mobileUnitBags = selectedMobileUnit ? getBagsAtEquipee(world?.bags || [], selectedMobileUnit) : [];
