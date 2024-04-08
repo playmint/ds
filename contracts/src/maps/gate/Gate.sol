@@ -49,7 +49,7 @@ contract ExampleGate is BuildingKind {
             for (itemSlot = 0; itemSlot < 4; itemSlot++) {
                 bytes24 bagItemId;
                 (bagItemId, balance) = state.getItemSlot(bagId, itemSlot);
-                if (bagItemId == itemId) {
+                if (bagItemId == itemId && balance > 0) {
                     // Found item
                     return (bagSlot, itemSlot, balance);
                 }

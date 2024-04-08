@@ -16,7 +16,7 @@ function getItemSlot(State state, bytes24 actor, bytes24 item) view returns (byt
         if (bag != 0) {
             for (uint8 slot = 0; slot < 4; slot++) {
                 (bytes24 resource, uint64 balance) = state.getItemSlot(bag, slot);
-                if (resource == item) {
+                if (resource == item && balance > 0) {
                     return (bag, slot, balance);
                 }
             }
