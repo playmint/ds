@@ -184,7 +184,7 @@ contract CheatsRule is Rule {
     }
 
     function _destroyTile(State state, int16 q, int16 r, int16 s) private {
-        bytes24 tile = Node.Tile(DEFAULT_ZONE, q, r, s);
+        bytes24 tile = Node.Tile(0, q, r, s);
         state.removeBiome(tile);
     }
 
