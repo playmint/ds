@@ -160,7 +160,6 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
 
     const author = world?.players.find((p) => p.id === building?.kind?.owner?.id) ?? {
         addr: 'unknown',
-        name: { value: 'unknown' },
     };
     const owner = world?.players.find((p) => p.id === building?.owner?.id);
 
