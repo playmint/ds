@@ -21,26 +21,26 @@ contract CombatRuleTest is Test, GameTest {
     function setUp() public {
         // discover a star shape of tiles 6-axis from center
         for (int16 i = 0; i < 3; i++) {
-            dev.spawnTile(0, -i, i);
-            dev.spawnTile(0, i, -i);
-            dev.spawnTile(i, 0, -i);
-            dev.spawnTile(-i, 0, i);
-            dev.spawnTile(-i, i, 0);
-            dev.spawnTile(i, -i, 0);
+            dev.spawnTile(0, 0, -i, i);
+            dev.spawnTile(0, 0, i, -i);
+            dev.spawnTile(0, i, 0, -i);
+            dev.spawnTile(0, -i, 0, i);
+            dev.spawnTile(0, -i, i, 0);
+            dev.spawnTile(0, i, -i, 0);
         }
 
         // place mobileUnits (maybe using separate accounts was overkill...)
 
         vm.startPrank(players[0].addr);
-        mobileUnit0 = _spawnMobileUnit(++sid, 0, 0, 0);
+        mobileUnit0 = _spawnMobileUnit(++sid, 0, 0, 0, 0);
         vm.stopPrank();
 
         vm.startPrank(players[1].addr);
-        mobileUnit1 = _spawnMobileUnit(++sid, 1, 0, -1);
+        mobileUnit1 = _spawnMobileUnit(++sid, 0, 1, 0, -1);
         vm.stopPrank();
 
         vm.startPrank(players[2].addr);
-        mobileUnit2 = _spawnMobileUnit(++sid, 0, 1, -1);
+        mobileUnit2 = _spawnMobileUnit(++sid, 0, 0, 1, -1);
         vm.stopPrank();
 
         // setup default material construction costs
@@ -170,22 +170,20 @@ contract CombatRuleTest is Test, GameTest {
         vm.startPrank(players[3].addr);
         bytes24 mobileUnit = _spawnMobileUnitWithResources();
         // discover an adjacent tile for our building site
-        (int16 q, int16 r, int16 s) = (1, -1, 0);
-        dev.spawnTile(q, r, s);
+        (int16 z, int16 q, int16 r, int16 s) = (0, 1, -1, 0);
+        dev.spawnTile(z, q, r, s);
         // get our building and give it the resources to construct
-        bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
+        bytes24 buildingInstance = Node.Building(z, q, r, s);
         // construct our building
         _transferFromMobileUnit(mobileUnit, 0, 25, buildingInstance);
         _transferFromMobileUnit(mobileUnit, 1, 25, buildingInstance);
         _transferFromMobileUnit(mobileUnit, 2, 25, buildingInstance);
-        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, q, r, s)));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, z, q, r, s))
+        );
         vm.stopPrank();
         // check the building has a location at q/r/s
-        assertEq(
-            state.getFixedLocation(buildingInstance),
-            Node.Tile(DEFAULT_ZONE, q, r, s),
-            "expected building to have location"
-        );
+        assertEq(state.getFixedLocation(buildingInstance), Node.Tile(z, q, r, s), "expected building to have location");
         // check building has owner
         assertEq(
             state.getOwner(buildingInstance), Node.Player(players[3].addr), "expected building to be owned by alice"
@@ -202,16 +200,16 @@ contract CombatRuleTest is Test, GameTest {
     // 0,0,0 with 100 of each resource in an equiped bag
     function _spawnMobileUnitWithResources() private returns (bytes24) {
         sid++;
-        dev.spawnTile(0, 0, 0);
+        dev.spawnTile(0, 0, 0, 0);
         bytes24 mobileUnit = spawnMobileUnit(sid);
         dev.spawnFullBag(state.getOwnerAddress(mobileUnit), mobileUnit, 0);
 
         return mobileUnit;
     }
 
-    function _spawnMobileUnit(uint32 mobileUnitID, int16 q, int16 r, int16 s) private returns (bytes24) {
+    function _spawnMobileUnit(uint32 mobileUnitID, int16 z, int16 q, int16 r, int16 s) private returns (bytes24) {
         spawnMobileUnit(mobileUnitID);
-        moveMobileUnit(sid, q, r, s);
+        moveMobileUnit(sid, z, q, r, s);
         vm.roll(block.number + 100);
         return Node.MobileUnit(sid);
     }

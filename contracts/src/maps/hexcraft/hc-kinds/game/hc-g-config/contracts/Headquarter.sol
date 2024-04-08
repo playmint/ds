@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 import {Game} from "cog/IGame.sol";
 import {Dispatcher} from "cog/IDispatcher.sol";
 import {State, CompoundKeyDecoder} from "cog/IState.sol";
-import {Schema, Node, DEFAULT_ZONE, Q, R, S, Kind} from "@ds/schema/Schema.sol";
+import {Schema, Node, Q, R, S, Kind} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 import "@ds/utils/LibString.sol";

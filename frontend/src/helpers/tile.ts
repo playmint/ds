@@ -20,6 +20,7 @@ export function getTileDistance(t1: Locatable, t2: Locatable): number {
 
 export function getCoords(t: Locatable) {
     return {
+        z: Number(ethers.fromTwos(t.coords[0], 16)),
         q: Number(ethers.fromTwos(t.coords[1], 16)),
         r: Number(ethers.fromTwos(t.coords[2], 16)),
         s: Number(ethers.fromTwos(t.coords[3], 16)),

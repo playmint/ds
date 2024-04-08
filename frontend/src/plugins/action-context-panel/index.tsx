@@ -22,10 +22,22 @@ import { getBagId, getBuildingId } from '@app/plugins/inventory/helpers';
 import { ComponentProps } from '@app/types/component-props';
 import { WorldCombatSessionFragment } from '@downstream/core/src/gql/graphql';
 import { getBagsAtEquipee, getBuildingAtTile, getSessionsAtTile } from '@downstream/core/src/utils';
-import React, { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FunctionComponent, Key, useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { styles } from './action-context-panel.styles';
 import { ActionButton } from '@app/styles/button.styles';
+import {
+    Button,
+    ComboBox,
+    Input,
+    Label,
+    ListBox,
+    ListBoxItem,
+    Popover,
+    Header,
+    Section,
+    Collection,
+} from 'react-aria-components';
 
 export interface ActionContextPanelProps extends ComponentProps {
     pluginTileProperties: PluginMapProperty[];
@@ -94,7 +106,7 @@ const Construct: FunctionComponent<ConstructProps> = ({
     selectIntent,
     setActionQueue,
 }) => {
-    const [selectedKindRaw, selectKind] = useState<undefined | BuildingKindWithOps>();
+    const [selectedKind, selectKind] = useState<undefined | BuildingKindWithOps>();
     const [showOnlyConstructable, setShowOnlyConstructable] = useState<boolean>(true);
 
     const { path, valid } = useMemo(() => {
@@ -154,7 +166,7 @@ const Construct: FunctionComponent<ConstructProps> = ({
         }, new Map() as SlotMap);
 
     const targetBuildingId = constructionCoords
-        ? getBuildingId(constructionCoords.q, constructionCoords.r, constructionCoords.s)
+        ? getBuildingId(constructionCoords.z, constructionCoords.q, constructionCoords.r, constructionCoords.s)
         : undefined;
     const targetBagId = targetBuildingId ? getBagId(targetBuildingId) : undefined;
     const targetEquipKey = 0;
@@ -232,10 +244,100 @@ const Construct: FunctionComponent<ConstructProps> = ({
     const billboardKinds = constructableKinds
         .filter((kind) => kind.owner?.id !== player?.id)
         .filter((kind) => getBuildingCategory(kind) == BuildingCategory.BILLBOARD);
-    const selectedKind = selectedKindRaw;
 
-    const onChangeSelectedKind = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const kindID = e.target.value;
+    const options = [
+        {
+            name: 'Your kinds',
+            children:
+                playerKinds.length > 0
+                    ? playerKinds.map((kind) => ({
+                          name: kind.name?.value || kind.id,
+                          id: kind.id,
+                      }))
+                    : [
+                          {
+                              name: 'You have not deployed any building kinds',
+                              id: 'player-none',
+                          },
+                      ],
+        },
+    ];
+
+    constructableKinds.length === 0 &&
+        options.push({
+            name: 'Other kinds',
+            children: [
+                {
+                    name: 'You do not have enough materials to construct any buildings',
+                    id: 'none',
+                },
+            ],
+        });
+
+    extractorKinds.length > 0 &&
+        options.push({
+            name: 'Extractors',
+            children: extractorKinds.map((kind) => ({
+                name: kind.name?.value || kind.id,
+                id: kind.id,
+            })),
+        });
+
+    blockerKinds.length > 0 &&
+        options.push({
+            name: 'Blockers',
+            children: blockerKinds.map((kind) => ({
+                name: kind.name?.value || kind.id,
+                id: kind.id,
+            })),
+        });
+
+    factoryKinds.length > 0 &&
+        options.push({
+            name: 'Factories',
+            children: factoryKinds.map((kind) => ({
+                name: kind.name?.value || kind.id,
+                id: kind.id,
+            })),
+        });
+
+    enemyKinds.length > 0 &&
+        options.push({
+            name: 'Enemies',
+            children: enemyKinds.map((kind) => ({
+                name: kind.name?.value || kind.id,
+                id: kind.id,
+            })),
+        });
+
+    displayKinds.length > 0 &&
+        options.push({
+            name: 'Displays',
+            children: displayKinds.map((kind) => ({
+                name: kind.name?.value || kind.id,
+                id: kind.id,
+            })),
+        });
+
+    billboardKinds.length > 0 &&
+        options.push({
+            name: 'Billboards',
+            children: billboardKinds.map((kind) => ({
+                name: kind.name?.value || kind.id,
+                id: kind.id,
+            })),
+        });
+
+    otherKinds.length > 0 &&
+        options.push({
+            name: 'Other kinds',
+            children: otherKinds.map((kind) => ({
+                name: kind.name?.value || kind.id,
+                id: kind.id,
+            })),
+        });
+
+    const onChangeSelectedKind = (kindID: Key) => {
         const kind = kindID ? constructableKinds.find((k) => k.id == kindID) : undefined;
         selectKind(kind);
     };
@@ -271,8 +373,6 @@ const Construct: FunctionComponent<ConstructProps> = ({
     const handleConstruct = useCallback(
         (e: React.FormEvent<HTMLFormElement>) => {
             e.preventDefault();
-            const form = new FormData(e.target as any);
-            const data = Object.fromEntries(form.entries());
             if (!mobileUnitKey || !mobileUnitId) {
                 return;
             }
@@ -287,11 +387,11 @@ const Construct: FunctionComponent<ConstructProps> = ({
             }
             const actions: CogAction[][] = [
                 ...path.slice(1, -1).map((t) => {
-                    const [_zone, q, r, s] = t.coords;
+                    const [zone, q, r, s] = t.coords;
                     return [
                         {
                             name: 'MOVE_MOBILE_UNIT',
-                            args: [mobileUnitKey, q, r, s],
+                            args: [mobileUnitKey, zone, q, r, s],
                         },
                     ] satisfies CogAction[];
                 }),
@@ -301,7 +401,8 @@ const Construct: FunctionComponent<ConstructProps> = ({
                         name: 'CONSTRUCT_BUILDING_MOBILE_UNIT',
                         args: [
                             mobileUnitId,
-                            data.kind,
+                            selectedKind.id,
+                            constructableTile.coords[0],
                             constructableTile.coords[1],
                             constructableTile.coords[2],
                             constructableTile.coords[3],
@@ -370,94 +471,24 @@ const Construct: FunctionComponent<ConstructProps> = ({
             <form onSubmit={handleConstruct}>
                 {constructableTile && (
                     <>
-                        <div className="select">
-                            <select name="kind" onChange={onChangeSelectedKind} value={selectedKind?.id || ''}>
-                                <option value={''}>Select...</option>
-                                <optgroup label="Your kinds">
-                                    {playerKinds.length > 0 ? (
-                                        playerKinds.map((k) => (
-                                            <option key={k.id} value={k.id}>
-                                                {k.name?.value || k.id}
-                                            </option>
-                                        ))
-                                    ) : (
-                                        <option key="player-none" disabled={true}>
-                                            You have not deployed any building kinds
-                                        </option>
+                        <ComboBox onSelectionChange={onChangeSelectedKind} disabledKeys={['player-none', 'none']}>
+                            <Label />
+                            <Input />
+                            <Button>▼</Button>
+                            <Popover>
+                                <ListBox items={options}>
+                                    {(section) => (
+                                        <Section id={section.name}>
+                                            <Header>{section.name}</Header>
+                                            <Collection items={section.children}>
+                                                {(item) => <ListBoxItem>{item.name}</ListBoxItem>}
+                                            </Collection>
+                                        </Section>
                                     )}
-                                </optgroup>
-                                {constructableKinds.length === 0 && (
-                                    <optgroup label="Other kinds">
-                                        <option key="none" disabled={true}>
-                                            You do not have enough materials to construct any buildings
-                                        </option>
-                                    </optgroup>
-                                )}
-                                {extractorKinds.length > 0 && (
-                                    <optgroup label="Extractors">
-                                        {extractorKinds.map((k) => (
-                                            <option key={k.id} value={k.id}>
-                                                {k.name?.value || k.id}
-                                            </option>
-                                        ))}
-                                    </optgroup>
-                                )}
-                                {blockerKinds.length > 0 && (
-                                    <optgroup label="Blockers">
-                                        {blockerKinds.map((k) => (
-                                            <option key={k.id} value={k.id}>
-                                                {k.name?.value || k.id}
-                                            </option>
-                                        ))}
-                                    </optgroup>
-                                )}
-                                {factoryKinds.length > 0 && (
-                                    <optgroup label="Factories">
-                                        {factoryKinds.map((k) => (
-                                            <option key={k.id} value={k.id}>
-                                                {k.name?.value || k.id}
-                                            </option>
-                                        ))}
-                                    </optgroup>
-                                )}
-                                {enemyKinds.length > 0 && (
-                                    <optgroup label="Enemies">
-                                        {enemyKinds.map((k) => (
-                                            <option key={k.id} value={k.id}>
-                                                {k.name?.value || k.id}
-                                            </option>
-                                        ))}
-                                    </optgroup>
-                                )}
-                                {displayKinds.length > 0 && (
-                                    <optgroup label="Displays">
-                                        {displayKinds.map((k) => (
-                                            <option key={k.id} value={k.id}>
-                                                {k.name?.value || k.id}
-                                            </option>
-                                        ))}
-                                    </optgroup>
-                                )}
-                                {billboardKinds.length > 0 && (
-                                    <optgroup label="Billboards">
-                                        {billboardKinds.map((k) => (
-                                            <option key={k.id} value={k.id}>
-                                                {k.name?.value || k.id}
-                                            </option>
-                                        ))}
-                                    </optgroup>
-                                )}
-                                {otherKinds.length > 0 && (
-                                    <optgroup label="Other kinds">
-                                        {otherKinds.map((k) => (
-                                            <option key={k.id} value={k.id}>
-                                                {k.name?.value || k.id}
-                                            </option>
-                                        ))}
-                                    </optgroup>
-                                )}
-                            </select>
-                        </div>
+                                </ListBox>
+                            </Popover>
+                        </ComboBox>
+
                         <div className="toggle">
                             <label>
                                 <input
@@ -544,11 +575,11 @@ const Move: FunctionComponent<MoveProps> = ({
 
         setActionQueue(
             path.slice(1).map((t) => {
-                const [_zone, q, r, s] = t.coords;
+                const [zone, q, r, s] = t.coords;
                 return [
                     {
                         name: 'MOVE_MOBILE_UNIT',
-                        args: [mobileUnitKey, q, r, s],
+                        args: [mobileUnitKey, zone, q, r, s],
                     },
                 ];
             })
@@ -739,10 +770,6 @@ const Combat: FunctionComponent<CombatProps> = ({
     const attackTile = path.slice(-1).find(() => true);
 
     const canAttack = mobileUnit && player && valid && attackTile;
-    if (!valid) {
-        console.log('not valid cos', reason);
-    }
-
     const mobileUnitKey = mobileUnit?.key;
     const mobileUnitId = mobileUnit?.id;
     const mobileUnitLocation = mobileUnit?.nextLocation;
@@ -758,11 +785,11 @@ const Combat: FunctionComponent<CombatProps> = ({
             return;
         }
         const actions: CogAction[][] = path.slice(1).map((t) => {
-            const [_zone, q, r, s] = t.coords;
+            const [zone, q, r, s] = t.coords;
             return [
                 {
                     name: 'MOVE_MOBILE_UNIT',
-                    args: [mobileUnitKey, q, r, s],
+                    args: [mobileUnitKey, zone, q, r, s],
                 },
             ];
         });

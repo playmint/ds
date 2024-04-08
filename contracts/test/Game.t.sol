@@ -9,7 +9,7 @@ using Schema for State;
 contract DownstreamTest is Test, GameTest {
     function testSpawn() public {
         // spawn a tile
-        dev.spawnTile(1, -2, 1);
+        dev.spawnTile(0, 1, -2, 1);
 
         // dispatch as alice
         vm.startPrank(players[0].addr);

@@ -36,8 +36,8 @@ contract ExtractionRuleTest is Test, GameTest {
     function setUp() public {
         aliceAccount = players[0].addr;
 
-        dev.spawnTile(0, 0, 0);
-        dev.spawnTile(-1, 1, 0);
+        dev.spawnTile(0, 0, 0, 0);
+        dev.spawnTile(0, -1, 1, 0);
 
         // mobileUnits
         vm.startPrank(aliceAccount);
@@ -59,7 +59,7 @@ contract ExtractionRuleTest is Test, GameTest {
 
     function testBlockNum() public {
         vm.startPrank(aliceAccount);
-        bytes24 buildingInstance = _constructBuildingInstance(mockBuildingKind, aliceMobileUnit, -1, 1, 0);
+        bytes24 buildingInstance = _constructBuildingInstance(mockBuildingKind, aliceMobileUnit, 0, -1, 1, 0);
         vm.stopPrank();
 
         uint64 blockNum = state.getBlockNum(buildingInstance, uint8(BuildingBlockNumKey.EXTRACTION));
@@ -68,7 +68,7 @@ contract ExtractionRuleTest is Test, GameTest {
 
     function testExtractionFailureNoElapsedTime() public {
         vm.startPrank(aliceAccount);
-        bytes24 buildingInstance = _constructBuildingInstance(mockBuildingKind, aliceMobileUnit, -1, 1, 0);
+        bytes24 buildingInstance = _constructBuildingInstance(mockBuildingKind, aliceMobileUnit, 0, -1, 1, 0);
         vm.stopPrank();
 
         // Expect to revert as no time has passed for exaction to have occured
@@ -80,7 +80,7 @@ contract ExtractionRuleTest is Test, GameTest {
 
     function testExtractionFailureNoTileGoo() public {
         vm.startPrank(aliceAccount);
-        bytes24 buildingInstance = _constructBuildingInstance(mockBuildingKind, aliceMobileUnit, -1, 1, 0);
+        bytes24 buildingInstance = _constructBuildingInstance(mockBuildingKind, aliceMobileUnit, 0, -1, 1, 0);
         vm.stopPrank();
 
         // forcibly set goo values onto the tile
@@ -99,7 +99,7 @@ contract ExtractionRuleTest is Test, GameTest {
 
     function testExtraction() public {
         vm.startPrank(aliceAccount);
-        bytes24 buildingInstance = _constructBuildingInstance(mockBuildingKind, aliceMobileUnit, -1, 1, 0);
+        bytes24 buildingInstance = _constructBuildingInstance(mockBuildingKind, aliceMobileUnit, 0, -1, 1, 0);
         vm.stopPrank();
 
         // forcibly set goo values onto the tile
@@ -171,12 +171,12 @@ contract ExtractionRuleTest is Test, GameTest {
     }
 
     // _constructCraftingBuilding sets up and constructs a crafting building that
-    function _constructBuildingInstance(bytes24 buildingKind, bytes24 mobileUnit, int16 q, int16 r, int16 s)
+    function _constructBuildingInstance(bytes24 buildingKind, bytes24 mobileUnit, int16 z, int16 q, int16 r, int16 s)
         private
         returns (bytes24 buildingInstance)
     {
         // get our building and give it the resources to construct
-        buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
+        buildingInstance = Node.Building(z, q, r, s);
         // magic 100 items into the construct slot
         bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
         state.setEquipSlot(buildingInstance, 0, inputBag);
@@ -184,7 +184,9 @@ contract ExtractionRuleTest is Test, GameTest {
         state.setItemSlot(inputBag, 1, ItemUtils.BlueGoo(), 25);
         state.setItemSlot(inputBag, 2, ItemUtils.RedGoo(), 25);
         // construct our building
-        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, q, r, s)));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, z, q, r, s))
+        );
         return buildingInstance;
     }
 }

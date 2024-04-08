@@ -6,7 +6,7 @@ import "cog/IRule.sol";
 import "cog/IDispatcher.sol";
 import "cog/IGame.sol";
 
-import {Schema, Node, Kind, TRAVEL_SPEED, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Schema, Node, Kind, TRAVEL_SPEED} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BagUtils} from "@ds/utils/BagUtils.sol";

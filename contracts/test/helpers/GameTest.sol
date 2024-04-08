@@ -32,8 +32,9 @@ contract Dev {
 
     uint64 lastBag;
 
-    function spawnTile(int16 q, int16 r, int16 s) public {
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (q, r, s)));
+    function spawnTile(int16 z, int16 q, int16 r, int16 s) public {
+        //ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (q, r, s)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (z, q, r, s)));
     }
 
     function spawnBag(
@@ -79,7 +80,7 @@ struct PlayerAccount {
 }
 
 abstract contract GameTest {
-    Game internal game;
+    DownstreamGame internal game;
     BaseDispatcher internal dispatcher;
     State internal state;
     Dev internal dev;
@@ -92,7 +93,10 @@ abstract contract GameTest {
     constructor() {
         // setup the dev contract for calling cheats
         dev = new Dev();
-        game = new DownstreamGame();
+        game = new DownstreamGame(address(this));
+
+        // tests are allowed to directly maniuplate the state
+        game.autorizeStateMutation(address(this));
 
         // init players
         players[0] = PlayerAccount({key: 0xa1, addr: __vm.addr(0xa1)});
@@ -107,37 +111,46 @@ abstract contract GameTest {
         allowlist[2] = players[2].addr;
         allowlist[3] = players[3].addr;
 
+        // TODO: All players are able to directly manipulate the state. This wouldn't be true in a real game.
+        // however we would have to make all tests utilize the Rule contracts.
+        for (uint256 i = 0; i < allowlist.length; i++) {
+            game.autorizeStateMutation(players[i].addr);
+        }
+
         // items
         InventoryRule inventoryRule = new InventoryRule(game);
         tokens = Items1155(inventoryRule.getTokensAddress());
 
+        // The tokens contract directly mutates state. This is how it works within the real game.
+        game.autorizeStateMutation(address(tokens));
+
         // setup game
-        dispatcher = BaseDispatcher(address(game.getDispatcher()));
-        dispatcher.registerRule(new CheatsRule(address(dev)));
-        dispatcher.registerRule(new MovementRule(game));
-        dispatcher.registerRule(new ScoutRule());
-        dispatcher.registerRule(inventoryRule);
-        dispatcher.registerRule(new BuildingRule(game));
-        dispatcher.registerRule(new CraftingRule(game));
-        dispatcher.registerRule(new PluginRule());
-        dispatcher.registerRule(new NewPlayerRule(allowlist));
-        dispatcher.registerRule(new CombatRule());
-        dispatcher.registerRule(new NamingRule());
-        dispatcher.registerRule(new BagRule());
-        dispatcher.registerRule(new ExtractionRule(game));
+        game.registerRule(new CheatsRule(address(dev)));
+        game.registerRule(new MovementRule(game));
+        game.registerRule(new ScoutRule());
+        game.registerRule(inventoryRule);
+        game.registerRule(new BuildingRule(game));
+        game.registerRule(new CraftingRule(game));
+        game.registerRule(new PluginRule());
+        game.registerRule(new NewPlayerRule(allowlist));
+        game.registerRule(new CombatRule());
+        game.registerRule(new NamingRule());
+        game.registerRule(new BagRule());
+        game.registerRule(new ExtractionRule(game));
         dev.setGame(game);
 
         // fetch the State
         state = game.getState();
 
         // register base goos
+        dispatcher = BaseDispatcher(address(game.getDispatcher()));
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.GreenGoo(), "Green Goo", "15-185")));
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.BlueGoo(), "Blue Goo", "32-96")));
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.RedGoo(), "Red Goo", "22-256")));
     }
 
-    function moveMobileUnit(uint32 id, int16 q, int16 r, int16 s) public {
-        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (id, q, r, s)));
+    function moveMobileUnit(uint32 id, int16 z, int16 q, int16 r, int16 s) public {
+        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (id, z, q, r, s)));
     }
 
     function spawnMobileUnit(uint64 id) public returns (bytes24) {
@@ -146,12 +159,13 @@ abstract contract GameTest {
         return unitID;
     }
 
-    function scoutMobileUnit(uint32 id, int16 q, int16 r, int16 s) public {
+    function scoutMobileUnit(uint32 id, int16 z, int16 q, int16 r, int16 s) public {
         dispatcher.dispatch(
             abi.encodeCall(
                 Actions.SCOUT_MOBILE_UNIT,
                 (
                     id, // mobileUnit id (sid)
+                    z, // z
                     q, // q
                     r, // r
                     s // s

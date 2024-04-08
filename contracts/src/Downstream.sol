@@ -47,9 +47,17 @@ contract DownstreamRouter is BaseRouter {
 }
 
 contract DownstreamGame is BaseGame {
-    constructor() BaseGame("DOWNSTREAM", "http://downstream.game/") {
+    address public owner;
+
+    modifier ownerOnly() {
+        require(msg.sender == owner, "DownstreamGame: Sender is not the owner");
+        _;
+    }
+
+    constructor(address _owner) BaseGame("DOWNSTREAM", "http://downstream.game/") {
+        owner = _owner;
         // create a state
-        BaseState state = new BaseState();
+        BaseState state = new BaseState(address(this));
 
         // register the kind ids we are using
         state.registerNodeType(Kind.Player.selector, "Player", CompoundKeyKind.ADDRESS);
@@ -97,7 +105,9 @@ contract DownstreamGame is BaseGame {
         BaseRouter router = new DownstreamRouter();
 
         // configure our dispatcher with state
-        BaseDispatcher dispatcher = new BaseDispatcher();
+        BaseDispatcher dispatcher = new BaseDispatcher(address(this));
+        state.authorizeContract(address(dispatcher));
+
         dispatcher.registerState(state);
         dispatcher.registerRouter(router);
 
@@ -105,5 +115,14 @@ contract DownstreamGame is BaseGame {
         _registerState(state);
         _registerRouter(router);
         _registerDispatcher(dispatcher);
+    }
+
+    function registerRule(Rule rule) public ownerOnly {
+        state.authorizeContract(address(rule));
+        BaseDispatcher(address(dispatcher)).registerRule(rule);
+    }
+
+    function autorizeStateMutation(address addr) public ownerOnly {
+        state.authorizeContract(addr);
     }
 }

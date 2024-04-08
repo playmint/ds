@@ -12,7 +12,7 @@ uint32 constant TEST_MOBILE_UNIT_ID = 1;
 contract ScoutRuleTest is Test, GameTest {
     function setUp() public {
         // force tile 0,0,0 DISCOVERED
-        dev.spawnTile(0, 0, 0);
+        dev.spawnTile(0, 0, 0, 0);
 
         // place a mobileUnit at 0,0,0
         vm.startPrank(players[0].addr);
@@ -23,23 +23,24 @@ contract ScoutRuleTest is Test, GameTest {
     function testScoutErrorAlreadyDiscovered() public {
         vm.startPrank(players[0].addr);
         vm.expectRevert("NoScoutAlreadyDiscovered");
-        scoutMobileUnit(TEST_MOBILE_UNIT_ID, 0, 0, 0); // expect fail as 0,0,0 already discovered in setUp
+        scoutMobileUnit(TEST_MOBILE_UNIT_ID, 0, 0, 0, 0); // expect fail as 0,0,0 already discovered in setUp
         vm.stopPrank();
     }
 
     function testScoutErrorNotOwner() public {
         vm.expectRevert("NoScoutNotOwner");
-        scoutMobileUnit(TEST_MOBILE_UNIT_ID, 0, 1, -1); // expect fail as no prank
+        scoutMobileUnit(TEST_MOBILE_UNIT_ID, 0, 0, 1, -1); // expect fail as no prank
     }
 
     function testScoutNotAdjacent() public {
         vm.startPrank(players[0].addr);
         vm.expectRevert("NoScoutUnadjacent");
-        scoutMobileUnit(TEST_MOBILE_UNIT_ID, 0, 2, -2); // expect fail as too far away from mobileUnit at 0,0,0
+        scoutMobileUnit(TEST_MOBILE_UNIT_ID, 0, 0, 2, -2); // expect fail as too far away from mobileUnit at 0,0,0
         vm.stopPrank();
     }
 
     function testScoutUndiscovered() public {
+        int16 z = 0;
         int16 q = 0;
         int16 r = 1;
         int16 s = -1;
@@ -47,7 +48,7 @@ contract ScoutRuleTest is Test, GameTest {
         // be alice
         vm.startPrank(players[0].addr);
 
-        bytes24 targetTile = Node.Tile(DEFAULT_ZONE, q, r, s);
+        bytes24 targetTile = Node.Tile(z, q, r, s);
 
         assertEq(
             uint256(state.getBiome(targetTile)),
@@ -56,7 +57,7 @@ contract ScoutRuleTest is Test, GameTest {
         );
 
         // dispatch SCOUT_MOBILE_UNIT
-        scoutMobileUnit(TEST_MOBILE_UNIT_ID, q, r, s);
+        scoutMobileUnit(TEST_MOBILE_UNIT_ID, z, q, r, s);
 
         assertEq(
             uint256(state.getBiome(targetTile)),

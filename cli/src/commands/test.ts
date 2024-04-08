@@ -80,23 +80,23 @@ const chaosUnit = {
         const buildings:string[] = ctx.buildings ? ctx.buildings.split(",") : [];
 
         // move unit around randomly
-        let [q,r,s] = [0,0,0];
+        let [z,q,r,s] = [0,0,0,0];
         while (true) {
-            const validNeighbours = getNeighbourCoords(q,r,s)
+            const validNeighbours = getNeighbourCoords(z,q,r,s)
                 .filter((nc) => validCoords.some((vc) => `${nc.q}:${nc.r}:${nc.s}` === `${vc.q}:${vc.r}:${vc.s}`))
-                .map(({q,r,s}) => [q,r,s]);
-            [q,r,s] = validNeighbours[Math.floor(Math.random() * validNeighbours.length)] || [0,0,0];
+                .map(({z,q,r,s}) => [z,q,r,s]);
+            [z,q,r,s] = validNeighbours[Math.floor(Math.random() * validNeighbours.length)] || [0,0,0,0];
 
-            await player.dispatch({ name: 'MOVE_MOBILE_UNIT', args: [unitKey, q, r, s] }).then(res => res.wait());
+            await player.dispatch({ name: 'MOVE_MOBILE_UNIT', args: [unitKey, z, q, r, s] }).then(res => res.wait());
             await sleep(Math.floor(Math.random() * 1000)); // jitter
             // place building
             if (buildings?.length > 0){
                 const selectedBuilding = buildings[Math.floor(Math.random() * buildings.length)];
-                const targetTileID = CompoundKeyEncoder.encodeInt16(NodeSelectors.Tile, 0, q, r, s);
+                const targetTileID = CompoundKeyEncoder.encodeInt16(NodeSelectors.Tile, z, q, r, s);
                 const world = await getWorld(ctx);
                 const buildingOnTargetTile = getBuildingOnTile(world.buildings, targetTileID);
                 if (typeof buildingOnTargetTile === 'undefined'){
-                    await player.dispatch({ name: 'DEV_SPAWN_BUILDING', args: [selectedBuilding, q, r, s, FacingDirectionKind.RIGHT] }).then(res => res.wait());
+                    await player.dispatch({ name: 'DEV_SPAWN_BUILDING', args: [selectedBuilding, z, q, r, s, FacingDirectionKind.RIGHT] }).then(res => res.wait());
                 }
             }
             await sleep(Math.floor(Math.random() * 1000));
@@ -127,14 +127,14 @@ const GET_TILES = `query GetTiles($gameID: ID!) {
     }
 }`;
 
-function getNeighbourCoords(q, r, s) {
+function getNeighbourCoords(z, q, r, s) {
     return [
-        { q: q + 1, r: r, s: s - 1 },
-        { q: q + 1, r: r - 1, s: s },
-        { q: q, r: r - 1, s: s + 1 },
-        { q: q - 1, r: r, s: s + 1 },
-        { q: q - 1, r: r + 1, s: s },
-        { q: q, r: r + 1, s: s - 1 },
+        { z: z, q: q + 1, r: r, s: s - 1 },
+        { z: z, q: q + 1, r: r - 1, s: s },
+        { z: z, q: q, r: r - 1, s: s + 1 },
+        { z: z, q: q - 1, r: r, s: s + 1 },
+        { z: z, q: q - 1, r: r + 1, s: s },
+        { z: z, q: q, r: r + 1, s: s - 1 },
     ];
 }
 
