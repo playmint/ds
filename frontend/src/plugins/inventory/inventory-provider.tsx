@@ -70,7 +70,6 @@ const StyledPickedUpItem = styled('div')`
 export const InventoryProvider = ({ children }: InventoryContextProviderProps): JSX.Element => {
     const player = usePlayer();
     const { mobileUnit: selectedMobileUnit } = useSelection();
-    // const world = useWorld();
     const [isPickedUpItemVisible, setIsPickedUpItemVisible] = useState<boolean>(false);
     const [busySlots, setBusySlots] = useState<Map<string, boolean>>();
     const pickedUpItemRef = useRef<InventoryItem | null>(null);

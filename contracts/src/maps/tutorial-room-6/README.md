@@ -162,8 +162,7 @@ The contract doesn't yet do anything so next we are going to implement the code 
 
 ```solidity
     function _spawnUnit(Game ds, bytes24 buildingInstance, bytes24 actor) internal {
-        bytes24 mobileUnit = Node.MobileUnit(uint32(uint256(keccak256(abi.encodePacked(block.number, actor)))));
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (mobileUnit)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, ()));
     }
 ```
 
@@ -189,13 +188,12 @@ Next we call the helper function and move the unit to the east by offsetting the
 
 ```solidity
     function _spawnUnit(Game ds, bytes24 buildingInstance, bytes24 actor) internal {
-        bytes24 mobileUnit = Node.MobileUnit(uint32(uint256(keccak256(abi.encodePacked(block.number, actor)))));
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (mobileUnit)));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, ()));
 
         // Move mobile unit next to the building
         (int16 q, int16 r, int16 s) = _getTileCoords(ds.getState().getFixedLocation(buildingInstance));
         ds.getDispatcher().dispatch(
-            abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (uint32(uint192(mobileUnit)), q + 1, r, s - 1))
+            abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (q + 1, r, s - 1))
         );
     }
 ```
@@ -331,16 +329,16 @@ Next we implement the `_moveUnit` function that actually does the movement
 
 ```solidity
     function _moveUnit(Game ds, bytes24 mobileUnit, int16[3] memory direction) internal {
-        (int16 q, int16 r, int16 s) = _getUnitCoords(ds, mobileUnit);
+        (int16 z, int16 q, int16 r, int16 s) = _getUnitCoords(ds, mobileUnit);
         ds.getDispatcher().dispatch(
             abi.encodeCall(
                 Actions.MOVE_MOBILE_UNIT,
-                (uint32(uint192(mobileUnit)), q + direction[0], r + direction[1], s + direction[2])
+                (z, q + direction[0], r + direction[1], s + direction[2])
             )
         );
     }
 
-    function _getUnitCoords(Game ds, bytes24 mobileUnit) internal returns (int16 q, int16 r, int16 s) {
+    function _getUnitCoords(Game ds, bytes24 mobileUnit) internal returns (int16 z, int16 q, int16 r, int16 s) {
         State state = ds.getState();
         bytes24 tile = state.getCurrentLocation(mobileUnit, uint64(block.number));
         return _getTileCoords(tile);

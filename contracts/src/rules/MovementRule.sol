@@ -24,13 +24,12 @@ contract MovementRule is Rule {
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.MOVE_MOBILE_UNIT.selector) {
             // decode the action
-            (uint32 sid, int16 z, int16 q, int16 r, int16 s) =
-                abi.decode(action[4:], (uint32, int16, int16, int16, int16));
+            (int16 z, int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16, int16));
 
             require(Bounds.isInBounds(q, r, s), "MOVE_MOBILE_UNIT coords out of bounds");
 
             // encode the full mobileUnit node id
-            bytes24 mobileUnit = Node.MobileUnit(sid);
+            bytes24 mobileUnit = Node.MobileUnit(ctx.sender);
 
             // check that sender owns mobileUnit
             require(state.getOwner(mobileUnit) == Node.Player(ctx.sender), "NoMoveNotOwner");
@@ -81,6 +80,9 @@ contract MovementRule is Rule {
         //     process nailed more
         state.setNextLocation(mobileUnit, destTile, nowTime);
         state.setPrevLocation(mobileUnit, currentTile, nowTime);
+
+        // assign to parent zone
+        state.setParent(mobileUnit, state.getParent(destTile));
 
         // Get building at current tile and call arrive hook
         (int16 z, int16 q, int16 r, int16 s) = state.getTileCoords(currentTile);

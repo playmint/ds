@@ -33,9 +33,8 @@ enum CombatActionKind {
 // ----------------------------------
 
 interface Actions {
-    // move mobileUnit with given id from current location to target location
-    // mobileUnit id must be owned by ctx.sender
-    function MOVE_MOBILE_UNIT(uint32 sid, int16 z, int16 q, int16 r, int16 s) external;
+    // move the sending player's mobileUnit to target location
+    function MOVE_MOBILE_UNIT(int16 z, int16 q, int16 r, int16 s) external;
 
     // action to set the type of quest the player should begin with
     function AUTO_QUEST(string calldata name, uint8 index) external;
@@ -94,7 +93,6 @@ interface Actions {
 
     // construct a building
     function CONSTRUCT_BUILDING_MOBILE_UNIT(
-        bytes24 mobileUnit, // which mobileUnit is performing the construction
         bytes24 buildingKind, // what kind of building
         int16 z, // which zone to create on
         int16 q,
@@ -117,7 +115,7 @@ interface Actions {
     ) external;
 
     // spawn a mobileUnit for the sender
-    function SPAWN_MOBILE_UNIT(bytes24 mobileUnit) external;
+    function SPAWN_MOBILE_UNIT() external;
 
     function START_COMBAT(
         bytes24 mobileUnitID,

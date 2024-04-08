@@ -121,11 +121,11 @@ const MobileUnitContainer = styled.div`
 
 export const MobileUnitPanel = () => {
     const { ready: mapReady, sendMessage } = useUnityMap();
-    const { world, player, selectMobileUnit, selected } = useGameState();
+    const { zone, player, selectMobileUnit, selected } = useGameState();
     const { mobileUnit: selectedMobileUnit } = selected || {};
     const playerUnits = useMemo(
-        () => world?.mobileUnits.filter((mu) => mu.owner && player && mu.owner.id === player.id) || [],
-        [world, player]
+        () => zone?.mobileUnits.filter((mu) => mu.owner && player && mu.owner.id === player.id) || [],
+        [zone, player]
     );
 
     const selectAndFocusMobileUnit = useCallback(() => {
@@ -203,13 +203,13 @@ export const MobileUnitPanel = () => {
         [player]
     );
 
-    const mobileUnitBags = selectedMobileUnit ? getBagsAtEquipee(world?.bags || [], selectedMobileUnit) : [];
-    const [life, def, atk] = getMobileUnitStats(selectedMobileUnit, world?.bags);
+    const mobileUnitBags = selectedMobileUnit ? getBagsAtEquipee(zone?.bags || [], selectedMobileUnit) : [];
+    const [life, def, atk] = getMobileUnitStats(selectedMobileUnit, zone?.bags);
 
     return (
         <>
             {mapReady &&
-                world &&
+                zone &&
                 player &&
                 playerUnits.length > 0 &&
                 (selectedMobileUnit ? (

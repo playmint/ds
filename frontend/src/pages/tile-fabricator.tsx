@@ -1,10 +1,8 @@
-/** @format */
-
 import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { z } from 'zod';
 
 import { useConfig } from '@app/hooks/use-config';
-import { GameStateProvider, useBuildingKinds, useGameState } from '@app/hooks/use-game-state';
+import { GameStateProvider, useGameState, useGlobal } from '@app/hooks/use-game-state';
 import { useThrottle } from '@app/hooks/use-throttle';
 import { UnityMapProvider, useUnityMap } from '@app/hooks/use-unity-map';
 import {
@@ -181,7 +179,7 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
     const [stateLoaded, setStateLoaded] = useState(false);
     const { ready: mapReady } = useUnityMap();
     const state = useGameState();
-    const existingKinds = useBuildingKinds();
+    const global = useGlobal();
     const diameter = 40;
 
     const [{ brush, facing, labels }] = useControls(
@@ -248,20 +246,18 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
     );
 
     useEffect(() => {
+        const existingKinds = global?.buildingKinds || [];
         if (stateLoaded) {
             return;
         }
-        if (!state?.tiles) {
-            return;
-        }
-        if (!state.world) {
+        if (!state.zone) {
             return;
         }
         if (!existingKinds) {
             return;
         }
         let manifests: ManifestMap = new Map();
-        (state.world?.buildings || []).forEach((b) => {
+        (state.zone?.buildings || []).forEach((b) => {
             if (!b.location) {
                 return;
             }
@@ -287,7 +283,7 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
             const id = m.spec.location.join(':');
             manifests = new Map(manifests.set(id, [tile, m]));
         });
-        state.tiles.forEach((t) => {
+        state.zone.tiles.forEach((t) => {
             const { q, r, s } = getCoords(t);
             const m: z.infer<typeof TileManifest> = {
                 kind: 'Tile',
@@ -326,7 +322,7 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
         setManifests(manifests);
         setBuildingKinds(kinds);
         setStateLoaded(true);
-    }, [state.tiles, state.world, existingKinds, stateLoaded]);
+    }, [state?.zone?.tiles, state.zone, global?.buildingKinds, stateLoaded]);
 
     useEffect(() => {
         setManifestControl({ stats: `Tile count: ${Array.from(manifests.values()).length}` });
@@ -510,6 +506,7 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                 timestamp: null,
                 gooReservoir: [],
                 allData: [],
+                bags: [],
             };
         };
 
@@ -537,7 +534,7 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
         });
 
         return {
-            world: {
+            zone: {
                 buildings: worldTiles.map((t) => t?.building).filter((b) => !!b) as WorldBuildingFragment[],
                 players: [],
                 block: 1,
@@ -643,7 +640,7 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                 <>
                     <GroundPlane height={-0.1} />
                     <Tiles tiles={previewState?.tiles || []} />
-                    <Buildings tiles={previewState?.tiles || []} buildings={previewState?.world?.buildings || []} />
+                    <Buildings tiles={previewState?.tiles || []} buildings={previewState?.zone?.buildings || []} />
                 </>
             )}
         </div>

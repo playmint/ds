@@ -1,6 +1,6 @@
 /** @format */
 
-import { useWorld } from '@app/hooks/use-game-state';
+import { useZone } from '@app/hooks/use-game-state';
 import { Bag } from '@app/plugins/inventory/bag';
 import { getBagId, getBuildingBag } from '@app/plugins/inventory/helpers';
 import { ComponentProps } from '@app/types/component-props';
@@ -18,7 +18,7 @@ const StyledBuildingInventory = styled.div``;
 export const BuildingInventory: FunctionComponent<BuildingInventoryProps> = (props: BuildingInventoryProps) => {
     const { buildingId, recipe } = props;
     const bagId = getBagId(buildingId);
-    const bag = getBuildingBag(useWorld(), buildingId, 0) ?? { id: bagId, slots: [] };
+    const bag = getBuildingBag(useZone(), buildingId, 0) ?? { id: bagId, slots: [] };
 
     return (
         <StyledBuildingInventory>

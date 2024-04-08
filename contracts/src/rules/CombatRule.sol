@@ -82,9 +82,7 @@ contract CombatRule is Rule {
 
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.SPAWN_MOBILE_UNIT.selector) {
-            // decode action
-            (bytes24 mobileUnit) = abi.decode(action[4:], (bytes24));
-
+            bytes24 mobileUnit = Node.MobileUnit(ctx.sender);
             {
                 // If destination has active session then join
                 (bytes24 nextTileID, uint64 arrivalBlockNum) =
@@ -103,11 +101,8 @@ contract CombatRule is Rule {
             //       The destination tile is undiscoved
             //       The tile isn't a direct 6-axis line
 
-            // decode the action
-            (uint32 sid, /*int16 q*/, /*int16 r*/, /*int16 s*/ ) = abi.decode(action[4:], (uint32, int16, int16, int16));
-
             // encode the full mobileUnit node id
-            bytes24 mobileUnit = Node.MobileUnit(sid);
+            bytes24 mobileUnit = Node.MobileUnit(ctx.sender);
 
             {
                 // If prev tile has an active session then leave
@@ -238,6 +233,7 @@ contract CombatRule is Rule {
         state.setBuildingKind(buildingInstance, bytes24(0));
         // set building owner to player who created it
         state.setOwner(buildingInstance, bytes24(0));
+        state.removeParent(buildingInstance);
         // set building location
         state.setFixedLocation(buildingInstance, bytes24(0));
 
@@ -513,6 +509,7 @@ contract CombatRule is Rule {
         {
             // Link the session to the tiles
             bytes24 sessionID = Node.CombatSession(rawSessionID);
+            state.setParent(sessionID, state.getParent(attTileID));
             state.set(
                 Rel.Has.selector,
                 uint8(CombatSideKey.ATTACK),

@@ -11,6 +11,7 @@ import {DownstreamGame} from "@ds/Downstream.sol";
 import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
 import {Node, Schema} from "@ds/schema/Schema.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
+import {Zones721} from "@ds/Zones721.sol";
 
 import {CheatsRule} from "@ds/rules/CheatsRule.sol";
 import {MovementRule} from "@ds/rules/MovementRule.sol";
@@ -36,11 +37,20 @@ contract GameDeployer is Script {
 
         vm.startBroadcast(deployerKey);
 
-        address[] memory newPlayerAllowlist = _loadAllowList(deployerAddr);
+        // contract that manages the ownership of zones as NFTs
+        Zones721 zoneOwnership = new Zones721(deployerAddr);
 
         // owner is set to deploy account not this contract's address as calls from this script have a msg.sender of the deployer
-        DownstreamGame ds = new DownstreamGame(address(msg.sender));
+        DownstreamGame ds = new DownstreamGame(address(msg.sender), zoneOwnership);
         Dispatcher dispatcher = ds.getDispatcher();
+
+        // tell the zoneOwnership contract to manage the state
+        zoneOwnership.registerState(ds.getState());
+
+        // deployer claims first zone mostly to make local dev easier
+        // we do the withdraw as a sanity check
+        zoneOwnership.mintTo{value: 0.05 ether}(deployerAddr);
+        zoneOwnership.withdrawPayments(payable(deployerAddr));
 
         InventoryRule inventoryRule = new InventoryRule(ds);
         address tokenAddress = inventoryRule.getTokensAddress();
@@ -51,17 +61,18 @@ contract GameDeployer is Script {
         vm.serializeAddress(o, "state", address(ds.getState()));
         vm.serializeAddress(o, "router", address(ds.getRouter()));
         vm.serializeAddress(o, "tokens", address(tokenAddress));
+        vm.serializeAddress(o, "zones", address(zoneOwnership));
         string memory latestJson = vm.serializeAddress(o, "dispatcher", address(dispatcher));
         vm.writeJson(latestJson, "./out/latest.json");
 
         // enable rules
-        ds.registerRule(new CheatsRule(deployerAddr));
+        ds.registerRule(new CheatsRule());
         ds.registerRule(new MovementRule(ds));
         ds.registerRule(inventoryRule);
         ds.registerRule(new BuildingRule(ds));
         ds.registerRule(new CraftingRule(ds));
         ds.registerRule(new PluginRule());
-        ds.registerRule(new NewPlayerRule(newPlayerAllowlist));
+        ds.registerRule(new NewPlayerRule());
         ds.registerRule(new CombatRule());
         ds.registerRule(new NamingRule());
         ds.registerRule(new BagRule());

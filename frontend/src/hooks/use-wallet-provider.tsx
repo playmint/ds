@@ -132,7 +132,6 @@ export const WalletProviderProvider = ({ children, config }: { children: ReactNo
     const connectBurner = useCallback(async () => {
         try {
             const burner = ethers.Wallet.createRandom();
-            setProvider({ method: 'burner', provider: burner });
             setBurnerPhrase(burner.mnemonic?.phrase || '');
             setAutoconnectProvider('burner');
         } catch (err) {
@@ -143,7 +142,25 @@ export const WalletProviderProvider = ({ children, config }: { children: ReactNo
         }
     }, [setBurnerPhrase, setAutoconnectProvider]);
 
+    // this is a helper for local development, letting you player using the same
+    // well known key used to the deploy the game to local chain
+    const connectLocalDevAccount = useCallback(async () => {
+        try {
+            const localDevPhrase = 'thunder road vendor cradle rigid subway isolate ridge feel illegal whale lens';
+            setBurnerPhrase(localDevPhrase);
+            setAutoconnectProvider('burner');
+        } catch (err) {
+            console.error(`burnerconnect: ${err}`);
+            setProvider(undefined);
+        } finally {
+            setConnecting(false);
+        }
+    }, [setBurnerPhrase, setAutoconnectProvider]);
+
     useEffect(() => {
+        if (provider) {
+            return;
+        }
         if (autoconnectProvider !== 'burner') {
             return;
         }
@@ -153,7 +170,12 @@ export const WalletProviderProvider = ({ children, config }: { children: ReactNo
         if (provider) {
             return;
         }
-        const burner = ethers.Wallet.fromPhrase(burnerPhrase);
+        const burnerAccount = ethers.HDNodeWallet.fromMnemonic(
+            ethers.Mnemonic.fromPhrase(burnerPhrase),
+            "m/44'/60'/0'/0/0"
+        );
+        const rpc = ethers.getDefaultProvider('http://localhost:8545');
+        const burner = new ethers.Wallet(burnerAccount.privateKey, rpc);
         setProvider({ method: 'burner', provider: burner });
         setConnecting(false);
     }, [burnerPhrase, provider, autoconnectProvider]);
@@ -222,6 +244,11 @@ export const WalletProviderProvider = ({ children, config }: { children: ReactNo
                         {config?.wallets?.burner !== false && (
                             <div style={{ paddingTop: 10 }}>
                                 <ActionButton onClick={connectBurner}>Burner</ActionButton>
+                            </div>
+                        )}
+                        {config?.wallets?.burner !== false && (
+                            <div style={{ paddingTop: 10 }}>
+                                <ActionButton onClick={connectLocalDevAccount}>LocalDevAccount</ActionButton>
                             </div>
                         )}
                     </div>

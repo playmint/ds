@@ -16,7 +16,7 @@ export type WalletProvider =
       }
     | {
           method: 'burner';
-          provider: ethers.Wallet | ethers.HDNodeWallet;
+          provider: ethers.Wallet;
           address?: string;
       };
 

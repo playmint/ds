@@ -1,20 +1,29 @@
-import { CogAction, CompoundKeyEncoder, NodeSelectors } from '@downstream/core';
-import { BuildingKindFragment, ItemFragment, WorldStateFragment } from '@downstream/core/src/gql/graphql';
+import {
+    CogAction,
+    CompoundKeyEncoder,
+    NodeSelectors,
+    BuildingKindFragment,
+    ItemFragment,
+    GlobalStateFragment,
+    ZoneStateFragment,
+} from '@downstream/core';
 import { AbiCoder, id as keccak256UTF8, solidityPacked } from 'ethers';
 import fs from 'fs';
 import path from 'path';
 import { z } from 'zod';
+import { ContractSource, ManifestDocument, Slot, FacingDirectionTypes } from '../utils/manifest';
 import {
-    ContractSource,
-    ManifestDocument,
-    Slot,
-    FacingDirectionTypes,
-} from '../utils/manifest';
-import { encodeTileID, encodeItemID, encodeBagID, getItemIdByName, encodeBuildingKindID, getBuildingKindIDByName, getBuildingCategoryEnum } from './helpers';
+    encodeTileID,
+    encodeItemID,
+    encodeBagID,
+    getItemIdByName,
+    encodeBuildingKindID,
+    getBuildingKindIDByName,
+    getBuildingCategoryEnum,
+} from './helpers';
 import { isInBounds } from '../utils/bounds';
 
 const null24bytes = '0x000000000000000000000000000000000000000000000000';
-const temporaryZoneConstant = 0;
 
 const encodePluginID = ({ name }) => {
     const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`plugin/${name}`))));
@@ -172,7 +181,12 @@ const buildingKindDeploymentActions = async (
     });
 
     // compile and deploy an implementation if given
-    if (spec.category != 'billboard' && spec.category != 'blocker' && spec.contract && (spec.contract.file || spec.contract.bytecode)) {
+    if (
+        spec.category != 'billboard' &&
+        spec.category != 'blocker' &&
+        spec.contract &&
+        (spec.contract.file || spec.contract.bytecode)
+    ) {
         const bytecode = spec.contract.bytecode ? spec.contract.bytecode : await compiler(spec.contract, manifestDir);
         ops.push({
             name: 'DEPLOY_KIND_IMPLEMENTATION',
@@ -209,6 +223,7 @@ const buildingKindDeploymentActions = async (
 };
 
 const questDeploymentActions = async (
+    zoneId: number,
     file: ReturnType<typeof ManifestDocument.parse>,
     files: ReturnType<typeof ManifestDocument.parse>[],
     existingItemKinds: ItemFragment[],
@@ -228,7 +243,10 @@ const questDeploymentActions = async (
 
         switch (task.kind) {
             case 'coord': {
-                return coder.encode(['int16', 'int16', 'int16', 'int16'], [temporaryZoneConstant, task.location[0], task.location[1], task.location[2]]);
+                return coder.encode(
+                    ['int16', 'int16', 'int16', 'int16'],
+                    [zoneId, task.location[0], task.location[1], task.location[2]]
+                );
             }
             case 'inventory': {
                 const item = getItemIdByName(files, existingItemKinds, task.item.name);
@@ -269,7 +287,6 @@ const questDeploymentActions = async (
                 return coder.encode(['bytes24', 'bytes24'], [craftInputID, craftOutputID]);
             }
         }
-
     };
 
     // register tasks
@@ -289,7 +306,9 @@ const questDeploymentActions = async (
     const questId = encodeQuestID(spec);
     const taskIds = spec.tasks.map((task) => encodeTaskID(task));
     const nextQuestIds = spec.next?.map((questName) => encodeQuestID({ name: questName })) || [];
-    const [z, q, r, s] = spec.location ? [temporaryZoneConstant, spec.location[0], spec.location[1], spec.location[2]] : [temporaryZoneConstant, 0, 0, 0];
+    const [z, q, r, s] = spec.location
+        ? [zoneId, spec.location[0], spec.location[1], spec.location[2]]
+        : [zoneId, 0, 0, 0];
 
     ops.push({
         name: 'REGISTER_QUEST',
@@ -301,11 +320,14 @@ const questDeploymentActions = async (
 
 export const getOpsForManifests = async (
     docs,
-    world: WorldStateFragment,
-    existingBuildingKinds: BuildingKindFragment[],
+    zone: ZoneStateFragment,
+    global: GlobalStateFragment,
     compiler: (source: z.infer<typeof ContractSource>, manifestDir: string) => Promise<string>
 ): Promise<OpSet[]> => {
+    const existingBuildingKinds = global.buildingKinds;
     const pendingBuildingKinds = docs.map((doc) => doc.manifest).filter(({ kind }) => kind === 'BuildingKind');
+
+    const zoneId = Number(BigInt.asIntN(16, zone.key));
 
     // build list of operations
     const opsets: OpSet[] = [];
@@ -333,7 +355,7 @@ export const getOpsForManifests = async (
         if (doc.manifest.kind != 'BuildingKind') {
             continue;
         }
-        const actions = await buildingKindDeploymentActions(doc, docs, world.items, compiler);
+        const actions = await buildingKindDeploymentActions(doc, docs, global.items, compiler);
         opsets[opn].push({
             doc,
             actions,
@@ -351,7 +373,7 @@ export const getOpsForManifests = async (
         const spec = doc.manifest.spec;
         const [q, r, s] = spec.location;
         const inBounds = isInBounds(q, r, s);
-        
+
         opsets[opn].push({
             doc,
             actions: [
@@ -359,7 +381,10 @@ export const getOpsForManifests = async (
                     name: 'DEV_SPAWN_BUILDING',
                     args: [
                         getBuildingKindIDByName(existingBuildingKinds, pendingBuildingKinds, spec.name),
-                        temporaryZoneConstant, spec.location[0], spec.location[1], spec.location[2],
+                        zoneId,
+                        spec.location[0],
+                        spec.location[1],
+                        spec.location[2],
                         FacingDirectionTypes.indexOf(spec.facingDirection),
                     ],
                 },
@@ -377,7 +402,7 @@ export const getOpsForManifests = async (
             continue;
         }
 
-        const actions = await questDeploymentActions(doc, docs, world.items, existingBuildingKinds);
+        const actions = await questDeploymentActions(zoneId, doc, docs, global.items, existingBuildingKinds);
         opsets[opn].push({
             doc,
             actions,
@@ -401,7 +426,7 @@ export const getOpsForManifests = async (
             actions: [
                 {
                     name: 'DEV_SPAWN_TILE',
-                    args: [temporaryZoneConstant, spec.location[0], spec.location[1], spec.location[2]],
+                    args: [zoneId, spec.location[0], spec.location[1], spec.location[2]],
                 },
             ],
             note: `spawned tile ${spec.location.join(',')}`,
@@ -420,7 +445,7 @@ export const getOpsForManifests = async (
         const encodeSlotConfig = (slots: ReturnType<typeof Slot.parse>[]) => {
             const items = [0, 0, 0, 0].map((_, idx) =>
                 slots[idx]
-                    ? getItemIdByName(docs, world.items, slots[idx].name)
+                    ? getItemIdByName(docs, global.items, slots[idx].name)
                     : '0x000000000000000000000000000000000000000000000000'
             );
             const quantities = [0, 0, 0, 0].map((_, idx) => (slots[idx] ? slots[idx].quantity : 0));
@@ -428,7 +453,7 @@ export const getOpsForManifests = async (
         };
 
         const spec = doc.manifest.spec;
-        const [z, q, r, s] =  [temporaryZoneConstant, spec.location[0], spec.location[1], spec.location[2]];
+        const [z, q, r, s] = [zoneId, spec.location[0], spec.location[1], spec.location[2]];
         const inBounds = isInBounds(q, r, s);
 
         const bagID = encodeBagID({ z, q, r, s });

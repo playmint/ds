@@ -1,6 +1,6 @@
 /** @format */
 
-import { ConnectedPlayer, WorldMobileUnitFragment, WorldStateFragment, WorldTileFragment } from '@app/../../core/src';
+import { ConnectedPlayer, WorldMobileUnitFragment, ZoneWithBags, WorldTileFragment } from '@app/../../core/src';
 import { Dialog } from '@app/components/molecules/dialog';
 import { LIFE_MUL, getMaterialStats, getMobileUnitStats } from '@app/plugins/combat/helpers';
 import { ComponentProps } from '@app/types/component-props';
@@ -16,7 +16,7 @@ import { BLOCK_TIME_SECS } from '@app/fixtures/block-time-secs';
 export interface CombatSummaryProps extends ComponentProps {
     selectedTiles: WorldTileFragment[];
     player?: ConnectedPlayer;
-    world?: WorldStateFragment;
+    zone?: ZoneWithBags;
     blockNumber: number;
     selectedMobileUnit?: WorldMobileUnitFragment;
 }
@@ -26,7 +26,7 @@ const StyledCombatSummary = styled(StyledHeaderPanel)`
 `;
 
 export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: CombatSummaryProps) => {
-    const { selectedTiles, world, blockNumber, player } = props;
+    const { selectedTiles, zone, blockNumber, player } = props;
 
     const [modal, setModal] = useState<boolean>(false);
     const showModal = useCallback(() => {
@@ -43,9 +43,9 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
         return `${minutes}:${remainingSeconds < 10 ? `0${remainingSeconds}` : remainingSeconds}`;
     };
 
-    if (!world) return null;
+    if (!zone) return null;
 
-    const sessions = world.sessions || [];
+    const sessions = zone.sessions || [];
 
     // const handleFinaliseCombat = () => {
     //     if (!latestSession) {
@@ -82,15 +82,15 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
     // const hasCombatStarted = blockNumber >= latestSession.attackTile.startBlock;
 
     // Find all units/buildings present on the two combat tiles
-    const attackUnits = world.mobileUnits.filter((u) => u.nextLocation?.tile.id == latestSession.attackTile?.tile.id);
-    const attackBuildings = world.buildings.filter((b) => b.location?.tile.id == latestSession.attackTile?.tile.id);
-    const defenceUnits = world.mobileUnits.filter((u) => u.nextLocation?.tile.id == latestSession.defenceTile?.tile.id);
-    const defenceBuildings = world.buildings.filter((b) => b.location?.tile.id == latestSession.defenceTile?.tile.id);
+    const attackUnits = zone.mobileUnits.filter((u) => u.nextLocation?.tile.id == latestSession.attackTile?.tile.id);
+    const attackBuildings = zone.buildings.filter((b) => b.location?.tile.id == latestSession.attackTile?.tile.id);
+    const defenceUnits = zone.mobileUnits.filter((u) => u.nextLocation?.tile.id == latestSession.defenceTile?.tile.id);
+    const defenceBuildings = zone.buildings.filter((b) => b.location?.tile.id == latestSession.defenceTile?.tile.id);
 
     // Get attack stats
     const attackersStats = attackUnits
         .map((u) => {
-            const [life, def, atk] = getMobileUnitStats(u, world.bags);
+            const [life, def, atk] = getMobileUnitStats(u, zone.bags);
             return { life, def, atk };
         })
         .concat(
@@ -103,7 +103,7 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
     // Get defence stats
     const defendersStats = defenceUnits
         .map((u) => {
-            const [life, def, atk] = getMobileUnitStats(u, world.bags);
+            const [life, def, atk] = getMobileUnitStats(u, zone.bags);
             return { life, def, atk };
         })
         .concat(
@@ -138,11 +138,11 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
 
     return (
         <StyledCombatSummary>
-            {modal && player && world && blockNumber && (
+            {modal && player && zone && blockNumber && (
                 <Dialog onClose={closeModal} width="850px" height="" icon="/combat-header.png">
                     <CombatModal
                         player={player}
-                        world={world}
+                        zone={zone}
                         closeModal={closeModal}
                         blockNumber={blockNumber}
                         session={latestSession}

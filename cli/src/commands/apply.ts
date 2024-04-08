@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { Op, getOpsForManifests } from '../utils/applier';
 import { ContractSource, readManifestsDocumentsSync } from '../utils/manifest';
 import { compilePath } from '../utils/solidity';
-import { getAvailableBuildingKinds, getWorld } from './get';
+import { getGlobal, getZone } from './get';
 
 type OpResult = {
     ok: boolean;
@@ -74,8 +74,8 @@ const deploy = {
     handler: async (ctx) => {
         const manifestFilenames = getManifestFilenames(ctx.filename, ctx.recursive);
         const docs = (await Promise.all(manifestFilenames.map(readManifestsDocumentsSync))).flatMap((docs) => docs);
-        const existingBuildingKinds = await getAvailableBuildingKinds(ctx);
-        const world = await getWorld(ctx);
+        const zone = await getZone(ctx);
+        const global = await getGlobal(ctx);
 
         const compiler = async (source: z.infer<typeof ContractSource>, manifestDir: string): Promise<string> => {
             const relativeFilename = path.join(manifestDir, source.file || 'inline.sol');
@@ -87,7 +87,7 @@ const deploy = {
             return bytecode;
         };
 
-        const opsets = await getOpsForManifests(docs, world, existingBuildingKinds, compiler);
+        const opsets = await getOpsForManifests(docs, zone, global, compiler);
 
         // abort here if dry-run
         if (ctx.dryRun) {
@@ -121,11 +121,11 @@ const deploy = {
                 const pending = batches[j].map(async (op) => {
                     if (op.inBounds === false) {
                         console.log(`❌ ${op.note} - out of bounds\n`);
-                                return {
-                                    ok: false,
-                                    err: 'coords were out of bounds',
-                                    op,
-                                };
+                        return {
+                            ok: false,
+                            err: 'coords were out of bounds',
+                            op,
+                        };
                     }
                     let retries = 0;
                     while (retries < 5) {

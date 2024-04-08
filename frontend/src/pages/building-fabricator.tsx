@@ -6,7 +6,7 @@ import { Tile } from '@app/components/map/Tile';
 import { NavPanel } from '@app/components/panels/nav-panel';
 import { getItemStructure } from '@app/helpers';
 import { useConfig } from '@app/hooks/use-config';
-import { GameStateProvider, useBuildingKinds, usePlayer, useWorld } from '@app/hooks/use-game-state';
+import { GameStateProvider, useGlobal, usePlayer, useZone } from '@app/hooks/use-game-state';
 import useResizeObserver from '@app/hooks/use-resize-observer';
 import { SessionProvider } from '@app/hooks/use-session';
 import { UnityMapProvider, useUnityMap } from '@app/hooks/use-unity-map';
@@ -871,10 +871,11 @@ const BuildingFabricator = () => {
     const [outputExisting, setOutputExisting] = useState<boolean>(false);
     const [outputStackable, setOutputStackable] = useState<boolean>(false);
     const [outputIcon, setOutputIcon] = useState<number>(0);
-    const world = useWorld();
+    const global = useGlobal();
+    const zone = useZone();
     const player = usePlayer();
-    const buildingKinds = useBuildingKinds();
-    const availableItems = world?.items || [];
+    const buildingKinds = global?.buildingKinds || [];
+    const availableItems = global?.items || [];
     const coords = useMemo(() => ({ q: 0, r: 0, s: 0 }), []);
     const model = buildingSpec.model;
     const [errors, setErrors] = useState<string[]>([]);
@@ -1129,8 +1130,11 @@ const BuildingFabricator = () => {
             if (!player) {
                 throw new Error('no player connected');
             }
-            if (!world) {
-                throw new Error('no world data loaded');
+            if (!zone) {
+                throw new Error('no zone data loaded');
+            }
+            if (!global) {
+                throw new Error('no global data loaded');
             }
             if (!buildingKinds) {
                 throw new Error('no building kinds data loaded');
@@ -1142,7 +1146,7 @@ const BuildingFabricator = () => {
             });
             const docs = parseManifestDocuments(yaml, 'BasicFactory.yaml');
             const compiler: any = () => {}; // FIXME: hack until we can compile in browser
-            const opsets = await getOpsForManifests(docs, world, buildingKinds, compiler);
+            const opsets = await getOpsForManifests(docs, zone, global, compiler);
             const actions = opsets.flatMap((opset) => opset.flatMap((op) => op.actions));
             await player.dispatchAndWait(...actions);
             setStatus('Deployed!');
@@ -1482,7 +1486,7 @@ const BuildingFabricator = () => {
                                         <ItemSelector
                                             name={outputItemName}
                                             onChange={onChangeOutputName}
-                                            items={world?.items || []}
+                                            items={global?.items || []}
                                             enabledIf={hasEnoughAvailableGoo}
                                         />
                                     ) : (

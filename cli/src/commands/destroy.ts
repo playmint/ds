@@ -3,7 +3,7 @@ import { globSync } from 'glob';
 import path from 'path';
 import { Op, getOpsForManifests } from '../utils/destroyer';
 import { readManifestsDocumentsSync } from '../utils/manifest';
-import { getWorld } from './get';
+import { getZone, getGlobal } from './get';
 
 type OpResult = {
     ok: boolean;
@@ -72,9 +72,10 @@ const destroy = {
     handler: async (ctx) => {
         const manifestFilenames = getManifestFilenames(ctx.filename, ctx.recursive);
         const docs = (await Promise.all(manifestFilenames.map(readManifestsDocumentsSync))).flatMap((docs) => docs);
-        const world = await getWorld(ctx);
+        const zone = await getZone(ctx);
+        const global = await getGlobal(ctx);
 
-        const opsets = await getOpsForManifests(docs, world);
+        const opsets = await getOpsForManifests(docs, zone, global);
 
         // abort here if dry-run
         if (ctx.dryRun) {
@@ -107,11 +108,11 @@ const destroy = {
                 const pending = batches[j].map(async (op) => {
                     if (op.inBounds === false) {
                         console.log(`❌ ${op.note} - out of bounds\n`);
-                                return {
-                                    ok: false,
-                                    err: 'coords were out of bounds',
-                                    op,
-                                };
+                        return {
+                            ok: false,
+                            err: 'coords were out of bounds',
+                            op,
+                        };
                     }
                     let retries = 0;
                     while (retries < 5) {

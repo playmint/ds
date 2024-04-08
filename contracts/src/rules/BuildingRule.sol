@@ -82,10 +82,10 @@ contract BuildingRule is Rule {
             );
         } else if (bytes4(action) == Actions.CONSTRUCT_BUILDING_MOBILE_UNIT.selector) {
             (
-                bytes24 mobileUnit, // which mobileUnit is performing the construction
                 bytes24 buildingKind, // what kind of building
                 int16[4] memory coords
-            ) = abi.decode(action[4:], (bytes24, bytes24, int16[4]));
+            ) = abi.decode(action[4:], (bytes24, int16[4]));
+            bytes24 mobileUnit = Node.MobileUnit(ctx.sender);
             // player must own mobileUnit
             if (state.getOwner(mobileUnit) != Node.Player(ctx.sender)) {
                 revert("MobileUnitNotOwnedByPlayer");
@@ -255,6 +255,8 @@ contract BuildingRule is Rule {
         state.setBuildingKind(buildingInstance, buildingKind);
         // set building owner to player who created it
         state.setOwner(buildingInstance, Node.Player(ctx.sender));
+        // scope to parent zone
+        state.setParent(buildingInstance, Node.Zone(coords[0]));
         // set building location
         state.setFixedLocation(buildingInstance, targetTile);
         // set construction block num

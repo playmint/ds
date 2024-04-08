@@ -1,6 +1,6 @@
 import { getTileHeight } from '@app/helpers/tile';
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
-import { WorldStateFragment, WorldTileFragment, getCoords } from '@downstream/core';
+import { WorldTileFragment, getCoords, ZoneWithBags } from '@downstream/core';
 import { getBagsAtEquipee, getSessionsAtTile } from '@downstream/core/src/utils';
 import { memo, useCallback, useMemo, useState } from 'react';
 
@@ -54,13 +54,13 @@ export const Bag = memo(
 export const Bags = memo(
     ({
         tiles,
-        world,
+        zone,
         selectedMobileUnitID,
         selectedElementID,
         onClickBag,
     }: {
         tiles: WorldTileFragment[];
-        world?: WorldStateFragment;
+        zone?: ZoneWithBags;
         selectedMobileUnitID?: string;
         selectedElementID?: string;
         onClickBag: (id: string) => void;
@@ -68,13 +68,13 @@ export const Bags = memo(
         const bagComponents = useMemo(
             () =>
                 (tiles || []).map((t) => {
-                    const tileBags = getBagsAtEquipee(world?.bags || [], t);
-                    const tileSessions = getSessionsAtTile(world?.sessions || [], t);
+                    const tileBags = getBagsAtEquipee(zone?.bags || [], t);
+                    const tileSessions = getSessionsAtTile(zone?.sessions || [], t);
                     const coords = getCoords(t);
                     const rewardBags =
                         (selectedMobileUnitID &&
                             tileSessions.flatMap((cs) => {
-                                return getBagsAtEquipee(world?.bags || [], cs).filter((bag) => {
+                                return getBagsAtEquipee(zone?.bags || [], cs).filter((bag) => {
                                     if (bag.slots.every((slot) => !slot.balance)) {
                                         return false;
                                     }
@@ -105,7 +105,7 @@ export const Bags = memo(
                         />
                     ) : null;
                 }),
-            [tiles, selectedMobileUnitID, selectedElementID, onClickBag, world]
+            [tiles, selectedMobileUnitID, selectedElementID, onClickBag, zone]
         );
 
         return <>{bagComponents}</>;

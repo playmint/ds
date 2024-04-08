@@ -1,29 +1,23 @@
 import { concat, debounce, fromValue, lazy, map, pipe, share, Source, switchMap, tap } from 'wonka';
 import { WorldTileFragment } from './gql/graphql';
 import { CogServices } from './types';
+import { ZoneWithBags } from './world';
 
-/**
- * makeTiles checks that the provided ids exist in the world data before
- * attempting to request more detailed tile data
- *
- * only data for discovered tiles is requested, but undiscovered tiles remain in the
- * selection
- */
 export function makeSelectedTiles(
     _client: Source<CogServices>, // remove
-    tiles: Source<WorldTileFragment[]>,
+    zone: Source<ZoneWithBags>,
     ids: Source<string[] | undefined>,
 ) {
     let prev: WorldTileFragment[];
     const source = pipe(
-        tiles,
-        switchMap((tiles) =>
+        zone,
+        switchMap((zone) =>
             pipe(
                 ids,
                 map((selectedIDs) =>
                     selectedIDs
                         ? selectedIDs
-                              .map((id) => tiles.find((t) => t.id === id))
+                              .map((id) => zone.tiles.find((t) => t.id === id))
                               .filter((t): t is WorldTileFragment => !!t)
                         : ([] as WorldTileFragment[]),
                 ),

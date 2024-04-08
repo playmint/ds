@@ -6,15 +6,17 @@ import {
     AvailablePluginFragment,
     BuildingKindFragment,
     GetSelectedPlayerQuery,
-    GetWorldQuery,
+    GetZoneQuery,
+    GetGlobalQuery,
     OnEventSubscription,
     SelectedPlayerFragment,
     WorldMobileUnitFragment,
     WorldPlayerFragment,
-    WorldStateFragment,
     WorldTileFragment,
+    GlobalStateFragment,
 } from './gql/graphql';
 import { Logger } from './logger';
+import { ZoneWithBags } from './world';
 
 export interface EthereumProvider extends Eip1193Provider {
     isMetaMask?: boolean;
@@ -238,7 +240,7 @@ export interface Wallet {
     method: string;
 }
 
-export type AnyGameQuery = GetSelectedPlayerQuery | GetWorldQuery;
+export type AnyGameQuery = GetSelectedPlayerQuery | GetZoneQuery | GetGlobalQuery;
 export type AnyGameSubscription = OnEventSubscription;
 
 export enum PluginTrust {
@@ -363,23 +365,24 @@ export interface Selection {
 
 export type Selector<T> = (v: T) => void;
 
-export type World = WorldStateFragment;
-
 // shortcuts useful when you don't know if you have to full data or not
 export type Player = WorldPlayerFragment & Partial<SelectedPlayerFragment>;
 export type MobileUnit = WorldMobileUnitFragment & Partial<WorldMobileUnitFragment>;
 export type Tile = WorldTileFragment & Partial<WorldTileFragment>;
 
+// try to stay compat with existing plugins that expect "world"
+export interface GameStatePluginWorld extends ZoneWithBags {}
+
 export interface GameStatePlugin {
     player?: SelectedPlayerFragment;
-    world: World;
+    world: GameStatePluginWorld;
     selected: Selection;
 }
 
 export interface GameState {
     player?: ConnectedPlayer;
-    world: World;
-    tiles: WorldTileFragment[];
+    zone: ZoneWithBags;
+    global: GlobalStateFragment;
     selected: Selection;
     selectTiles: Selector<string[] | undefined>;
     selectMobileUnit: Selector<string | undefined>;

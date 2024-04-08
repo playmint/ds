@@ -26,6 +26,7 @@ interface Rel {
     function HasQuest() external;
     function ID() external;
     function HasBlockNum() external;
+    function Parent() external;
 }
 
 interface Kind {
@@ -46,6 +47,7 @@ interface Kind {
     function Task() external;
     function ID() external;
     function OwnedToken() external;
+    function Zone() external;
 }
 
 uint64 constant BLOCK_TIME_SECS = 2;
@@ -99,12 +101,21 @@ library Node {
         return CompoundKeyEncoder.BYTES(Kind.ClientPlugin.selector, bytes20(uint160(id)));
     }
 
-    function MobileUnit(uint64 id) internal pure returns (bytes24) {
-        return CompoundKeyEncoder.UINT64(Kind.MobileUnit.selector, id);
+    function MobileUnit(address addr) internal pure returns (bytes24) {
+        return CompoundKeyEncoder.ADDRESS(Kind.MobileUnit.selector, addr);
     }
 
     function Bag(uint64 id) internal pure returns (bytes24) {
         return CompoundKeyEncoder.UINT64(Kind.Bag.selector, id);
+    }
+
+    function Zone(int16 id) internal pure returns (bytes24) {
+        require(id >= 0, "InvalidZoneID");
+        return CompoundKeyEncoder.UINT64(Kind.Zone.selector, uint16(id));
+    }
+
+    function Zone(uint256 id) internal pure returns (bytes24) {
+        return Zone(int16(uint16(id)));
     }
 
     function Tile(int16 z, int16 q, int16 r, int16 s) internal pure returns (bytes24) {
@@ -311,6 +322,19 @@ library Schema {
 
     function setOwner(State state, bytes24 node, bytes24 ownerNode) internal {
         return state.set(Rel.Owner.selector, 0x0, node, ownerNode, 0);
+    }
+
+    function setParent(State state, bytes24 node, bytes24 parentNode) internal {
+        return state.set(Rel.Parent.selector, 0x0, node, parentNode, 0);
+    }
+
+    function removeParent(State state, bytes24 node) internal {
+        return state.remove(Rel.Parent.selector, 0x0, node);
+    }
+
+    function getParent(State state, bytes24 node) internal view returns (bytes24) {
+        (bytes24 parent,) = state.get(Rel.Parent.selector, 0x0, node);
+        return parent;
     }
 
     function removeOwner(State state, bytes24 node) internal {

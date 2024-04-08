@@ -24,6 +24,7 @@ contract CheatsRuleTest is Test, GameTest {
     // To be implemented: base it off of BuildingRule.t.sol
     function testSpawnTile() public {
         (int16 z, int16 q, int16 r, int16 s) = (0, 1, -1, 0);
+        vm.prank(address(dev));
         dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (z, q, r, s)));
 
         // check the tile has been spawned
@@ -34,7 +35,9 @@ contract CheatsRuleTest is Test, GameTest {
     // To be implemented: base it off of BuildingRule.t.sol
     function testDestroyTile() public {
         (int16 z, int16 q, int16 r, int16 s) = (0, 1, -1, 0);
+        vm.prank(address(dev));
         dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (z, q, r, s)));
+        vm.prank(address(dev));
         dispatcher.dispatch(abi.encodeCall(Actions.DEV_DESTROY_TILE, (z, q, r, s)));
 
         // check the tile has been spawned
@@ -49,6 +52,7 @@ contract CheatsRuleTest is Test, GameTest {
         bytes24[4] memory inputItemIDs;
         uint64[4] memory inputQtys;
 
+        vm.prank(address(dev));
         dispatcher.dispatch(
             abi.encodeCall(
                 Actions.REGISTER_BUILDING_KIND,
@@ -69,6 +73,7 @@ contract CheatsRuleTest is Test, GameTest {
 
         (int16 z, int16 q, int16 r, int16 s) = (0, -1, 1, 0);
         dev.spawnTile(z, q, r, s);
+        vm.prank(address(dev));
         dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_BUILDING, (buildingKind, z, q, r, s, facing)));
 
         bytes24 buildingInstance = Node.Building(z, q, r, s);
@@ -104,9 +109,11 @@ contract CheatsRuleTest is Test, GameTest {
 
         (int16 z, int16 q, int16 r, int16 s) = (0, -1, 1, 0);
         dev.spawnTile(z, q, r, s);
+        vm.prank(address(dev));
         dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_BUILDING, (buildingKind, z, q, r, s, facing)));
 
         // destroy the building
+        vm.prank(address(dev));
         dispatcher.dispatch(abi.encodeCall(Actions.DEV_DESTROY_BUILDING, (z, q, r, s)));
 
         bytes24 buildingInstance = Node.Building(z, q, r, s);
@@ -120,6 +127,7 @@ contract CheatsRuleTest is Test, GameTest {
     function testSpawnBag() public {
         // spawn tile
         (int16 z, int16 q, int16 r, int16 s) = (0, 1, 0, -1);
+        vm.prank(address(dev));
         dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (z, q, r, s)));
 
         // spawn a bag
@@ -130,6 +138,7 @@ contract CheatsRuleTest is Test, GameTest {
         bytes24[] memory slotContents = new bytes24[](0);
         uint64[] memory slotBalances = new uint64[](0);
 
+        vm.prank(address(dev));
         dispatcher.dispatch(
             abi.encodeCall(Actions.DEV_SPAWN_BAG, (bag, owner, equipee, equipSlot, slotContents, slotBalances))
         );
@@ -140,6 +149,7 @@ contract CheatsRuleTest is Test, GameTest {
     function testDestroyBag() public {
         // spawn tile
         (int16 z, int16 q, int16 r, int16 s) = (0, 1, 0, -1);
+        vm.prank(address(dev));
         dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (z, q, r, s)));
 
         // spawn a bag
@@ -150,11 +160,13 @@ contract CheatsRuleTest is Test, GameTest {
         bytes24[] memory slotContents = new bytes24[](0);
         uint64[] memory slotBalances = new uint64[](0);
 
+        vm.prank(address(dev));
         dispatcher.dispatch(
             abi.encodeCall(Actions.DEV_SPAWN_BAG, (bag, owner, equipee, equipSlot, slotContents, slotBalances))
         );
 
         // destroy the bag
+        vm.prank(address(dev));
         dispatcher.dispatch(abi.encodeCall(Actions.DEV_DESTROY_BAG, (bag, owner, equipee, equipSlot, slotContents)));
 
         assertEq(state.getEquipSlot(equipee, equipSlot), bytes24(0), "expected bag to be removed from tile");

@@ -3,11 +3,11 @@ import {
     ConnectedPlayer,
     Log,
     QuestFragment,
-    WorldStateFragment,
+    ZoneWithBags,
     WorldTileFragment,
 } from '@app/../../core/src';
 import { Locatable, getCoords } from '@app/helpers/tile';
-import { useBuildingKinds } from '@app/hooks/use-game-state';
+import { useGlobal } from '@app/hooks/use-game-state';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { BasePanelStyles } from '@app/styles/base-panel.styles';
 import { ActionButton } from '@app/styles/button.styles';
@@ -236,14 +236,14 @@ const StyledQuestItem = styled.div`
 export const QuestItem: FunctionComponent<{
     expanded: boolean;
     quest: QuestFragment;
-    world: WorldStateFragment;
+    zone: ZoneWithBags;
     tiles: WorldTileFragment[];
     player: ConnectedPlayer;
     buildingKinds: BuildingKindFragment[];
     questMessages?: Log[];
     setFocusLocation: ReturnType<typeof useState<Location>>[1];
     onExpandClick: (questId: string) => void;
-}> = ({ expanded, world, tiles, player, buildingKinds, quest, questMessages, setFocusLocation, onExpandClick }) => {
+}> = ({ expanded, zone, tiles, player, buildingKinds, quest, questMessages, setFocusLocation, onExpandClick }) => {
     const [taskCompletion, setTaskCompletion] = useState<{ [key: string]: boolean }>({});
     const [allCompleted, setAllCompleted] = useState<boolean>(false);
     const [completionCount, setCompletionCount] = useState<number>(0);
@@ -284,7 +284,7 @@ export const QuestItem: FunctionComponent<{
                         key={idx}
                         tiles={tiles}
                         task={task}
-                        world={world}
+                        zone={zone}
                         buildingKinds={buildingKinds}
                         player={player}
                         questMessages={questMessages}
@@ -340,21 +340,22 @@ export const QuestItem: FunctionComponent<{
 
 export interface QuestPanelProps {
     player: ConnectedPlayer;
-    world: WorldStateFragment;
+    zone: ZoneWithBags;
     tiles: WorldTileFragment[];
     acceptedQuests: QuestFragment[];
     questMessages?: Log[];
 }
 
 export const QuestPanel: FunctionComponent<QuestPanelProps> = ({
-    world,
+    zone,
     tiles,
     player,
     acceptedQuests,
     questMessages,
 }: QuestPanelProps) => {
     const { ready: mapReady, sendMessage } = useUnityMap();
-    const buildingKinds = useBuildingKinds();
+    const global = useGlobal();
+    const buildingKinds = global?.buildingKinds || [];
     const [expandedQuest, setExpandedQuest] = useState<string>();
 
     useEffect(() => {
@@ -399,7 +400,7 @@ export const QuestPanel: FunctionComponent<QuestPanelProps> = ({
                     key={questIdx}
                     quest={quest}
                     player={player}
-                    world={world}
+                    zone={zone}
                     buildingKinds={buildingKinds || []}
                     questMessages={questMessages}
                     setFocusLocation={setFocusLocation}
