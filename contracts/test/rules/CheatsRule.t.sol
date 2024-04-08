@@ -23,22 +23,22 @@ contract CheatsRuleTest is Test, GameTest {
 
     // To be implemented: base it off of BuildingRule.t.sol
     function testSpawnTile() public {
-        (int16 q, int16 r, int16 s) = (1, -1, 0);
-        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (q, r, s)));
+        (int16 z, int16 q, int16 r, int16 s) = (0, 1, -1, 0);
+        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (z, q, r, s)));
 
         // check the tile has been spawned
-        bytes24 tile = Node.Tile(DEFAULT_ZONE, q, r, s);
+        bytes24 tile = Node.Tile(z, q, r, s);
         assertTrue(state.getBiome(tile) == BiomeKind.DISCOVERED, "expected tile to be spawned (DISCOVERED)");
     }
 
     // To be implemented: base it off of BuildingRule.t.sol
     function testDestroyTile() public {
-        (int16 q, int16 r, int16 s) = (1, -1, 0);
-        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (q, r, s)));
-        dispatcher.dispatch(abi.encodeCall(Actions.DEV_DESTROY_TILE, (q, r, s)));
+        (int16 z, int16 q, int16 r, int16 s) = (0, 1, -1, 0);
+        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (z, q, r, s)));
+        dispatcher.dispatch(abi.encodeCall(Actions.DEV_DESTROY_TILE, (z, q, r, s)));
 
         // check the tile has been spawned
-        bytes24 tile = Node.Tile(DEFAULT_ZONE, q, r, s);
+        bytes24 tile = Node.Tile(z, q, r, s);
         assertTrue(state.getBiome(tile) == BiomeKind.UNDISCOVERED, "expected tile to be destroyed (UNDISCOVERED)");
     }
 
@@ -67,16 +67,16 @@ contract CheatsRuleTest is Test, GameTest {
             )
         );
 
-        (int16 q, int16 r, int16 s) = (-1, 1, 0);
-        dev.spawnTile(q, r, s);
-        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_BUILDING, (buildingKind, q, r, s, facing)));
+        (int16 z, int16 q, int16 r, int16 s) = (0, -1, 1, 0);
+        dev.spawnTile(z, q, r, s);
+        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_BUILDING, (buildingKind, z, q, r, s, facing)));
 
-        bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
+        bytes24 buildingInstance = Node.Building(z, q, r, s);
 
         // check the building has a location at q/r/s
         assertEq(
             state.getFixedLocation(buildingInstance),
-            Node.Tile(DEFAULT_ZONE, q, r, s),
+            Node.Tile(z, q, r, s),
             "expected building to have location"
         );
     }
@@ -106,31 +106,31 @@ contract CheatsRuleTest is Test, GameTest {
             )
         );
 
-        (int16 q, int16 r, int16 s) = (-1, 1, 0);
-        dev.spawnTile(q, r, s);
-        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_BUILDING, (buildingKind, q, r, s, facing)));
+        (int16 z, int16 q, int16 r, int16 s) = (0, -1, 1, 0);
+        dev.spawnTile(z, q, r, s);
+        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_BUILDING, (buildingKind, z, q, r, s, facing)));
 
         // destroy the building
-        dispatcher.dispatch(abi.encodeCall(Actions.DEV_DESTROY_BUILDING, (q, r, s)));
+        dispatcher.dispatch(abi.encodeCall(Actions.DEV_DESTROY_BUILDING, (z, q, r, s)));
 
-        bytes24 buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
+        bytes24 buildingInstance = Node.Building(z, q, r, s);
 
         // check the building has been destroyed
         assertFalse(
-            state.getFixedLocation(buildingInstance) == Node.Tile(DEFAULT_ZONE, q, r, s),
+            state.getFixedLocation(buildingInstance) == Node.Tile(z, q, r, s),
             "expected building to be destroyed"
         );
     }
 
     function testSpawnBag() public {
         // spawn tile
-        (int16 q, int16 r, int16 s) = (1, 0, -1);
-        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (q, r, s)));
+        (int16 z, int16 q, int16 r, int16 s) = (0, 1, 0, -1);
+        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (z, q, r, s)));
 
         // spawn a bag
         bytes24 bag = Node.Bag(20);
         address owner = address(this);
-        bytes24 equipee = Node.Tile(DEFAULT_ZONE, q, r, s);
+        bytes24 equipee = Node.Tile(z, q, r, s);
         uint8 equipSlot = 0;
         bytes24[] memory slotContents = new bytes24[](0);
         uint64[] memory slotBalances = new uint64[](0);
@@ -144,13 +144,13 @@ contract CheatsRuleTest is Test, GameTest {
 
     function testDestroyBag() public {
         // spawn tile
-        (int16 q, int16 r, int16 s) = (1, 0, -1);
-        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (q, r, s)));
+        (int16 z, int16 q, int16 r, int16 s) = (0, 1, 0, -1);
+        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (z, q, r, s)));
 
         // spawn a bag
         bytes24 bag = Node.Bag(20);
         address owner = address(this);
-        bytes24 equipee = Node.Tile(DEFAULT_ZONE, q, r, s);
+        bytes24 equipee = Node.Tile(z, q, r, s);
         uint8 equipSlot = 0;
         bytes24[] memory slotContents = new bytes24[](0);
         uint64[] memory slotBalances = new uint64[](0);

@@ -141,7 +141,6 @@ contract CheatsRule is Rule {
         int16 s,
         FacingDirectionKind facingDirection
     ) internal {
-        bytes24 targetTile = Node.Tile(0, q, r, s);
         bytes24 buildingInstance = Node.Building(z, q, r, s);
 
         state.setBuildingKind(buildingInstance, buildingKind);
