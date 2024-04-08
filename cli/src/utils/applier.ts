@@ -1,5 +1,5 @@
 import { CogAction, CompoundKeyEncoder, NodeSelectors } from '@downstream/core';
-import { BuildingKindFragment, ItemFragment, WorldStateFragment } from '@downstream/core/src/gql/graphql';
+import { BuildingKindFragment, ItemFragment, TilesStateFragment, WorldStateFragment } from '@downstream/core/src/gql/graphql';
 import { AbiCoder, id as keccak256UTF8, solidityPacked } from 'ethers';
 import fs from 'fs';
 import path from 'path';
@@ -302,6 +302,7 @@ const questDeploymentActions = async (
 export const getOpsForManifests = async (
     docs,
     world: WorldStateFragment,
+    tiles: TilesStateFragment,
     existingBuildingKinds: BuildingKindFragment[],
     compiler: (source: z.infer<typeof ContractSource>, manifestDir: string) => Promise<string>
 ): Promise<OpSet[]> => {
@@ -396,6 +397,15 @@ export const getOpsForManifests = async (
         const [q, r, s] = spec.location;
         const inBounds = isInBounds(q, r, s);
 
+        // GOTTA WORK THIS STUFF OUT v
+
+        const existsInTiles = tiles.tiles.some(tile => {
+            const [_z, q1, r1, s1] = tile.coords.map(coord => parseInt(coord, 16));
+            return q1 === q && r1 === r && s1 === s;
+        });
+
+        // GOTTA WORK THIS STUFF OUT ^
+
         opsets[opn].push({
             doc,
             actions: [
@@ -406,6 +416,7 @@ export const getOpsForManifests = async (
             ],
             note: `spawned tile ${spec.location.join(',')}`,
             inBounds: inBounds,
+            test: existsInTiles,
         });
     }
 
@@ -481,6 +492,7 @@ export type Op = {
     actions: CogAction[];
     note: string;
     inBounds?: boolean;
+    test?: boolean;
 };
 
 export type OpSet = Op[];

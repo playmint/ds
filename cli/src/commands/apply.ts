@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { Op, getOpsForManifests } from '../utils/applier';
 import { ContractSource, readManifestsDocumentsSync } from '../utils/manifest';
 import { compilePath } from '../utils/solidity';
-import { getAvailableBuildingKinds, getWorld } from './get';
+import { getAvailableBuildingKinds, getWorld, getTiles } from './get';
 
 type OpResult = {
     ok: boolean;
@@ -76,6 +76,7 @@ const deploy = {
         const docs = (await Promise.all(manifestFilenames.map(readManifestsDocumentsSync))).flatMap((docs) => docs);
         const existingBuildingKinds = await getAvailableBuildingKinds(ctx);
         const world = await getWorld(ctx);
+        const tiles = await getTiles(ctx);
 
         const compiler = async (source: z.infer<typeof ContractSource>, manifestDir: string): Promise<string> => {
             const relativeFilename = path.join(manifestDir, source.file || 'inline.sol');
@@ -87,7 +88,7 @@ const deploy = {
             return bytecode;
         };
 
-        const opsets = await getOpsForManifests(docs, world, existingBuildingKinds, compiler);
+        const opsets = await getOpsForManifests(docs, world, tiles, existingBuildingKinds, compiler);
 
         // abort here if dry-run
         if (ctx.dryRun) {
@@ -105,7 +106,6 @@ const deploy = {
             );
             console.error('');
             process.exit(0);
-            return;
         }
 
         // authenticate player

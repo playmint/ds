@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { WorldStateFragment, getCoords } from '@downstream/core';
 import { pipe, take, toPromise } from 'wonka';
 import { BiomeTypes, FacingDirectionTypes, Manifest, Slot } from '../utils/manifest';
-import { BuildingKindFragment, GetAvailableBuildingKindsDocument, GetWorldDocument } from '@downstream/core/src/gql/graphql';
+import { BuildingKindFragment, GetAvailableBuildingKindsDocument, GetWorldDocument, GetTilesDocument, TilesStateFragment } from '@downstream/core/src/gql/graphql';
 
 const SLOT_FRAGMENT = `
     key
@@ -187,6 +187,12 @@ export const getManifestsByKind = async (ctx, kinds: string[]): Promise<z.infer<
 export const getWorld = async (ctx): Promise<WorldStateFragment> => {
     const client = await ctx.client();
     const res: any = await pipe(client.query(GetWorldDocument, { gameID: ctx.game }), take(1), toPromise);
+    return res.game.state;
+};
+
+export const getTiles = async (ctx): Promise<TilesStateFragment> => {
+    const client = await ctx.client();
+    const res: any = await pipe(client.query(GetTilesDocument, { gameID: ctx.game }), take(1), toPromise);
     return res.game.state;
 };
 
