@@ -11,6 +11,10 @@ networkID: "{{ $.Release.Namespace | mustRegexFind "[0-9]+$" | printf "223%02s" 
 networkEndpoint: "https://rpc.holesky.redstone.xyz"
 networkName: "Redstone Holesky"
 networkID: "17001"
+wallets:
+  metamask: true
+  walletconnect: true
+  burner: false
 {{ end }}
 tonkEndpoint: "https://tonk-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
 {{ end }}
