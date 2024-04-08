@@ -161,3 +161,6 @@ NUM_ARENAS=4 make contracts/src/maps/performance-test
 
 You can then either start locally via `MAP=performance-test make dev` or manually `ds apply -R -f contracts/src/maps/performance-test`
 </details>
+
+# References
+__[For more information, check the reference page](/tutorial/REFERENCE.md)__

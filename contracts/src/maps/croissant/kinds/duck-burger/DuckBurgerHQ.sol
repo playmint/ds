@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 import {Game} from "cog/IGame.sol";
 import {Dispatcher} from "cog/IDispatcher.sol";
 import {State, CompoundKeyDecoder} from "cog/IState.sol";
-import {Schema, Node, DEFAULT_ZONE, Q, R, S, Kind} from "@ds/schema/Schema.sol";
+import {Schema, Node, Z, Q, R, S, Kind} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 import "@ds/utils/LibString.sol";
@@ -336,7 +336,7 @@ contract DuckBurgerHQ is BuildingKind {
         bytes24[99] memory arenaTiles = range5(tile);
         for (uint256 i = 0; i < arenaTiles.length; i++) {
             bytes24 arenaBuildingID = Node.Building(
-                DEFAULT_ZONE, coords(arenaTiles[i])[1], coords(arenaTiles[i])[2], coords(arenaTiles[i])[3]
+                coords(arenaTiles[i])[0], coords(arenaTiles[i])[1], coords(arenaTiles[i])[2], coords(arenaTiles[i])[3]
             );
             if (state.getBuildingKind(arenaBuildingID) == duckBuildingKind) {
                 uint64 constructionBlockNum = state.getBuildingConstructionBlockNum(arenaBuildingID);
@@ -363,7 +363,7 @@ contract DuckBurgerHQ is BuildingKind {
         for (int16 q = tileCoords[1] - range; q <= tileCoords[1] + range; q++) {
             for (int16 r = tileCoords[2] - range; r <= tileCoords[2] + range; r++) {
                 int16 s = -q - r;
-                bytes24 nextTile = Node.Tile(0, q, r, s);
+                bytes24 nextTile = Node.Tile(tileCoords[0], q, r, s);
                 if (distance(tile, nextTile) <= uint256(uint16(range))) {
                     results[i] = nextTile;
                     i++;

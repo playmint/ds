@@ -122,6 +122,43 @@ export const GlobalStyles = createGlobalStyle`
         }
     }
 
+    .react-aria-Popover {
+      box-sizing: border-box;
+      background-color: #eee;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      color: #333;
+      min-width: var(--trigger-width);
+      max-width: 50rem;
+      overflow: auto;
+    }
+    
+    .react-aria-ListBoxItem {
+      cursor: pointer;
+      padding-left: 1rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      &[data-focused=true]  {
+        background-color: ${colorMap.primaryButtonHoverBackground};
+        color: ${colorMap.primaryButtonHoverText};
+      }
+
+      &[data-disabled=true] {
+        color: #aaa;
+        cursor: default;
+      }
+    }
+
+    .react-aria-Section .react-aria-Header {
+        color: #aaa;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
 /* find another theme: https://unpkg.com/browse/highlightjs@9.16.2/styles/ */
 /* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
 

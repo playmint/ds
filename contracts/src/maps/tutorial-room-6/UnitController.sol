@@ -47,29 +47,30 @@ contract UnitController is BuildingKind {
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (mobileUnit)));
 
         // Move mobile unit next to the building
-        (int16 q, int16 r, int16 s) = _getTileCoords(ds.getState().getFixedLocation(buildingInstance));
+        (int16 z, int16 q, int16 r, int16 s) = _getTileCoords(ds.getState().getFixedLocation(buildingInstance));
         ds.getDispatcher().dispatch(
-            abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (uint32(uint192(mobileUnit)), q + 1, r, s - 1))
+            abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (uint32(uint192(mobileUnit)), z, q + 1, r, s - 1))
         );
     }
 
     function _moveUnit(Game ds, bytes24 mobileUnit, int16[3] memory direction) internal {
-        (int16 q, int16 r, int16 s) = _getUnitCoords(ds, mobileUnit);
+        (int16 z, int16 q, int16 r, int16 s) = _getUnitCoords(ds, mobileUnit);
         ds.getDispatcher().dispatch(
             abi.encodeCall(
                 Actions.MOVE_MOBILE_UNIT,
-                (uint32(uint192(mobileUnit)), q + direction[0], r + direction[1], s + direction[2])
+                (uint32(uint192(mobileUnit)), z, q + direction[0], r + direction[1], s + direction[2])
             )
         );
     }
 
-    function _getUnitCoords(Game ds, bytes24 mobileUnit) internal returns (int16 q, int16 r, int16 s) {
+    function _getUnitCoords(Game ds, bytes24 mobileUnit) internal returns (int16 z, int16 q, int16 r, int16 s) {
         State state = ds.getState();
         bytes24 tile = state.getCurrentLocation(mobileUnit, uint64(block.number));
         return _getTileCoords(tile);
     }
 
-    function _getTileCoords(bytes24 tile) public pure returns (int16 q, int16 r, int16 s) {
+    function _getTileCoords(bytes24 tile) public pure returns (int16 z, int16 q, int16 r, int16 s) {
+        z = int16(int192(uint192(tile) >> 48));
         q = int16(int192(uint192(tile) >> 32));
         r = int16(int192(uint192(tile) >> 16));
         s = int16(int192(uint192(tile)));

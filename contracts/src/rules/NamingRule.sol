@@ -5,7 +5,7 @@ import "cog/IState.sol";
 import "cog/IRule.sol";
 import "cog/IDispatcher.sol";
 
-import {Schema, Node, Kind, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Schema, Node, Kind} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";

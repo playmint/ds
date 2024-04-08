@@ -6,7 +6,7 @@ import "cog/IState.sol";
 import "cog/IRule.sol";
 import "cog/IDispatcher.sol";
 
-import {Schema, Node, BiomeKind, TRAVEL_SPEED, DEFAULT_ZONE} from "@ds/schema/Schema.sol";
+import {Schema, Node, BiomeKind, TRAVEL_SPEED} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {Bounds} from "@ds/utils/Bounds.sol";
 import {Actions} from "@ds/actions/Actions.sol";
@@ -24,7 +24,8 @@ contract MovementRule is Rule {
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.MOVE_MOBILE_UNIT.selector) {
             // decode the action
-            (uint32 sid, int16 q, int16 r, int16 s) = abi.decode(action[4:], (uint32, int16, int16, int16));
+            (uint32 sid, int16 z, int16 q, int16 r, int16 s) =
+                abi.decode(action[4:], (uint32, int16, int16, int16, int16));
 
             require(Bounds.isInBounds(q, r, s), "MOVE_MOBILE_UNIT coords out of bounds");
 
@@ -35,7 +36,7 @@ contract MovementRule is Rule {
             require(state.getOwner(mobileUnit) == Node.Player(ctx.sender), "NoMoveNotOwner");
 
             // encode destination tile
-            bytes24 destTile = Node.Tile(DEFAULT_ZONE, q, r, s);
+            bytes24 destTile = Node.Tile(z, q, r, s);
 
             // check that the destination tile has been discovered
             require(state.getBiome(destTile) != BiomeKind.UNDISCOVERED, "NoMoveToUndiscovered");
@@ -82,8 +83,8 @@ contract MovementRule is Rule {
         state.setPrevLocation(mobileUnit, currentTile, nowTime);
 
         // Get building at current tile and call arrive hook
-        (int16 zone, int16 q, int16 r, int16 s) = state.getTileCoords(currentTile);
-        bytes24 building = Node.Building(zone, q, r, s);
+        (int16 z, int16 q, int16 r, int16 s) = state.getTileCoords(currentTile);
+        bytes24 building = Node.Building(z, q, r, s);
         bytes24 buildingKind = state.getBuildingKind(building);
         if (buildingKind != bytes24(0)) {
             BuildingKind buildingImplementation = BuildingKind(state.getImplementation(buildingKind));
@@ -93,8 +94,8 @@ contract MovementRule is Rule {
         }
 
         // Get building at dest tile and call arrive hook
-        (zone, q, r, s) = state.getTileCoords(destTile);
-        building = Node.Building(zone, q, r, s);
+        (z, q, r, s) = state.getTileCoords(destTile);
+        building = Node.Building(z, q, r, s);
         buildingKind = state.getBuildingKind(building);
         if (buildingKind != bytes24(0)) {
             BuildingKind buildingImplementation = BuildingKind(state.getImplementation(buildingKind));

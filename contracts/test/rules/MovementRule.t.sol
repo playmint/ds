@@ -11,12 +11,12 @@ contract MovementRuleTest is Test, GameTest {
     function setUp() public {
         // discover a star shape of tiles 6-axis from center
         for (int16 i = 0; i < 3; i++) {
-            dev.spawnTile(0, -i, i);
-            dev.spawnTile(0, i, -i);
-            dev.spawnTile(i, 0, -i);
-            dev.spawnTile(-i, 0, i);
-            dev.spawnTile(-i, i, 0);
-            dev.spawnTile(i, -i, 0);
+            dev.spawnTile(0, 0, -i, i);
+            dev.spawnTile(0, 0, i, -i);
+            dev.spawnTile(0, i, 0, -i);
+            dev.spawnTile(0, -i, 0, i);
+            dev.spawnTile(0, -i, i, 0);
+            dev.spawnTile(0, i, -i, 0);
         }
 
         // place a mobileUnit at 0,0,0
@@ -26,27 +26,27 @@ contract MovementRuleTest is Test, GameTest {
     }
 
     function testMoveSE() public {
-        _testMoveTo(0, 1, -1);
+        _testMoveTo(0, 0, 1, -1);
     }
 
     function testMoveNW() public {
-        _testMoveTo(0, -1, 1);
+        _testMoveTo(0, 0, -1, 1);
     }
 
     function testMoveE() public {
-        _testMoveTo(1, 0, -1);
+        _testMoveTo(0, 1, 0, -1);
     }
 
     function testMoveW() public {
-        _testMoveTo(-1, 0, 1);
+        _testMoveTo(0, -1, 0, 1);
     }
 
     function testMoveNE() public {
-        _testMoveTo(1, -1, 0);
+        _testMoveTo(0, 1, -1, 0);
     }
 
     function testMoveSW() public {
-        _testMoveTo(-1, 1, 0);
+        _testMoveTo(0, -1, 1, 0);
     }
 
     // function testMoveWhenMoving() public {
@@ -95,7 +95,7 @@ contract MovementRuleTest is Test, GameTest {
 
     function testNoMoveNotOwner() public {
         vm.expectRevert("NoMoveNotOwner");
-        moveMobileUnit(TEST_MOBILE_UNIT_ID, 0, 1, 1); // should fail without prank
+        moveMobileUnit(TEST_MOBILE_UNIT_ID, 0, 0, 1, 1); // should fail without prank
             // dispatcher.dispatch(
             //     abi.encodeCall(
             //         Actions.MOVE_MOBILE_UNIT,
@@ -107,7 +107,7 @@ contract MovementRuleTest is Test, GameTest {
     function testNoMoveToUndiscovered() public {
         vm.startPrank(players[0].addr);
         vm.expectRevert("NoMoveToUndiscovered");
-        moveMobileUnit(TEST_MOBILE_UNIT_ID, 0, 5, -5);
+        moveMobileUnit(TEST_MOBILE_UNIT_ID, 0, 0, 5, -5);
         vm.stopPrank();
     }
 
@@ -120,16 +120,16 @@ contract MovementRuleTest is Test, GameTest {
     //     vm.stopPrank();
     // }
 
-    function _testMoveTo(int16 q, int16 r, int16 s) private {
+    function _testMoveTo(int16 z, int16 q, int16 r, int16 s) private {
         // dispatch as alice
         vm.startPrank(players[0].addr);
-        moveMobileUnit(TEST_MOBILE_UNIT_ID, q, r, s);
+        moveMobileUnit(TEST_MOBILE_UNIT_ID, z, q, r, s);
 
         bytes24 mobileUnit = Node.MobileUnit(TEST_MOBILE_UNIT_ID);
 
         assertEq(
             state.getNextLocation(mobileUnit),
-            Node.Tile(0, q, r, s),
+            Node.Tile(z, q, r, s),
             "expected mobileUnit next location to be correctly set"
         );
 
@@ -145,7 +145,7 @@ contract MovementRuleTest is Test, GameTest {
 
         assertEq(
             state.getCurrentLocation(Node.MobileUnit(TEST_MOBILE_UNIT_ID), uint64(block.number)),
-            Node.Tile(DEFAULT_ZONE, q, r, s),
+            Node.Tile(z, q, r, s),
             "expected current location to now be same as next location"
         );
         // stop being alice

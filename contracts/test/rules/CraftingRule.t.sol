@@ -36,7 +36,7 @@ contract CraftingRuleTest is Test, GameTest {
         // setup a mock building instance owned by alice
         mockBuildingContract = new MockCraftBuildingContract();
         mockBuildingKind = _registerBuildingKind(1001, address(mockBuildingContract));
-        mockBuildingInstance = _constructBuildingInstance(mockBuildingKind, aliceMobileUnit, -1, 1, 0);
+        mockBuildingInstance = _constructBuildingInstance(mockBuildingKind, aliceMobileUnit, 0, -1, 1, 0);
 
         // stop being alice
         vm.stopPrank();
@@ -149,7 +149,8 @@ contract CraftingRuleTest is Test, GameTest {
         // setup a mock building instance owned by alice
         MockCraftBuildingContract buildingContract = new MockCraftBuildingContract();
         bytes24 redFiverBuildingKind = _registerRedFiverBuildingKind(1002, address(buildingContract));
-        bytes24 redFiverBuildingInstance = _constructBuildingInstance(redFiverBuildingKind, aliceMobileUnit, -1, 1, 0);
+        bytes24 redFiverBuildingInstance =
+            _constructBuildingInstance(redFiverBuildingKind, aliceMobileUnit, 0, -1, 1, 0);
 
         // alice puts the input items (two sets of 5 x red) into the building's bag
         transferItem(
@@ -269,7 +270,7 @@ contract CraftingRuleTest is Test, GameTest {
     // 0,0,0 with 100 of each resource in an equiped bag
     function _spawnMobileUnitWithResources() private returns (bytes24) {
         sid++;
-        dev.spawnTile(0, 0, 0);
+        dev.spawnTile(0, 0, 0, 0);
         bytes24 mobileUnit = spawnMobileUnit(sid);
         dev.spawnFullBag(state.getOwnerAddress(mobileUnit), mobileUnit, 0);
 
@@ -409,14 +410,14 @@ contract CraftingRuleTest is Test, GameTest {
     }
 
     // _constructCraftingBuilding sets up and constructs a crafting building that
-    function _constructBuildingInstance(bytes24 buildingKind, bytes24 mobileUnit, int16 q, int16 r, int16 s)
+    function _constructBuildingInstance(bytes24 buildingKind, bytes24 mobileUnit, int16 z, int16 q, int16 r, int16 s)
         private
         returns (bytes24 buildingInstance)
     {
         // discover an adjacent tile for our building site
-        dev.spawnTile(q, r, s);
+        dev.spawnTile(z, q, r, s);
         // get our building and give it the resources to construct
-        buildingInstance = Node.Building(DEFAULT_ZONE, q, r, s);
+        buildingInstance = Node.Building(z, q, r, s);
         // magic 100 items into the construct slot
         bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance)))));
         state.setEquipSlot(buildingInstance, 0, inputBag);
@@ -424,7 +425,9 @@ contract CraftingRuleTest is Test, GameTest {
         state.setItemSlot(inputBag, 1, ItemUtils.BlueGoo(), 25);
         state.setItemSlot(inputBag, 2, ItemUtils.RedGoo(), 25);
         // construct our building
-        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, q, r, s)));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, z, q, r, s))
+        );
         return buildingInstance;
     }
 }

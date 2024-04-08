@@ -94,8 +94,6 @@ enum CombatSideKey {
     DEFENCE
 }
 
-int16 constant DEFAULT_ZONE = 0;
-
 library Node {
     function ClientPlugin(uint160 id) internal pure returns (bytes24) {
         return CompoundKeyEncoder.BYTES(Kind.ClientPlugin.selector, bytes20(uint160(id)));
@@ -109,9 +107,9 @@ library Node {
         return CompoundKeyEncoder.UINT64(Kind.Bag.selector, id);
     }
 
-    function Tile(int16 zone, int16 q, int16 r, int16 s) internal pure returns (bytes24) {
+    function Tile(int16 z, int16 q, int16 r, int16 s) internal pure returns (bytes24) {
         require((q + r + s) == 0, "InvalidTileCoords");
-        return CompoundKeyEncoder.INT16_ARRAY(Kind.Tile.selector, [zone, q, r, s]);
+        return CompoundKeyEncoder.INT16_ARRAY(Kind.Tile.selector, [z, q, r, s]);
     }
 
     function Item(string memory name, uint32[3] memory atoms, bool isStackable) internal pure returns (bytes24) {
@@ -151,8 +149,8 @@ library Node {
         return CompoundKeyEncoder.ADDRESS(Kind.Extension.selector, addr);
     }
 
-    function Building(int16 zone, int16 q, int16 r, int16 s) internal pure returns (bytes24) {
-        return CompoundKeyEncoder.INT16_ARRAY(Kind.Building.selector, [zone, q, r, s]);
+    function Building(int16 z, int16 q, int16 r, int16 s) internal pure returns (bytes24) {
+        return CompoundKeyEncoder.INT16_ARRAY(Kind.Building.selector, [z, q, r, s]);
     }
 
     function CombatSession(uint64 id) internal pure returns (bytes24) {
@@ -195,6 +193,7 @@ library Node {
 uint8 constant Q = 1;
 uint8 constant R = 2;
 uint8 constant S = 3;
+uint8 constant Z = 0;
 int16 constant TRAVEL_SPEED = 10; // 10 == 1 tile per block
 
 using Schema for State;
@@ -598,11 +597,7 @@ library Schema {
         return state.get(Rel.Has.selector, uint8(CombatSideKey.ATTACK), sessionID);
     }
 
-    function getTileCoords(State, /*state*/ bytes24 tile)
-        external
-        pure
-        returns (int16 zone, int16 q, int16 r, int16 s)
-    {
+    function getTileCoords(State, /*state*/ bytes24 tile) external pure returns (int16 z, int16 q, int16 r, int16 s) {
         int16[4] memory keys = CompoundKeyDecoder.INT16_ARRAY(tile);
         return (keys[0], keys[1], keys[2], keys[3]);
     }

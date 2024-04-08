@@ -11,8 +11,7 @@ import {
     BiomeKind,
     FacingDirectionKind,
     BuildingCategory,
-    BuildingBlockNumKey,
-    DEFAULT_ZONE
+    BuildingBlockNumKey
 } from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {Bounds} from "@ds/utils/Bounds.sol";
@@ -43,10 +42,10 @@ contract CheatsRule is Rule {
         if (bytes4(action) == Actions.DEV_SPAWN_TILE.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_SPAWN_TILE not allowed");
 
-            (int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16));
+            (int16 z, int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16, int16));
             require(Bounds.isInBounds(q, r, s), "DEV_SPAWN_TILE coords out of bounds");
 
-            _spawnTile(state, q, r, s);
+            _spawnTile(state, z, q, r, s);
         } else if (bytes4(action) == Actions.DEV_SPAWN_BAG.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_SPAWN_BAG not allowed");
 
@@ -67,11 +66,11 @@ contract CheatsRule is Rule {
         } else if (bytes4(action) == Actions.DEV_SPAWN_BUILDING.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_SPAWN_BUILDING not allowed");
 
-            (bytes24 buildingKind, int16 q, int16 r, int16 s, FacingDirectionKind facingDirection) =
-                abi.decode(action[4:], (bytes24, int16, int16, int16, FacingDirectionKind));
+            (bytes24 buildingKind, int16 z, int16 q, int16 r, int16 s, FacingDirectionKind facingDirection) =
+                abi.decode(action[4:], (bytes24, int16, int16, int16, int16, FacingDirectionKind));
             require(Bounds.isInBounds(q, r, s), "DEV_SPAWN_BUILDING coords out of bounds");
 
-            _construct(state, ctx, buildingKind, q, r, s, facingDirection);
+            _construct(state, ctx, buildingKind, z, q, r, s, facingDirection);
         } else if (bytes4(action) == Actions.DEV_DESTROY_TILE.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_DESTROY_TILE not allowed");
             (int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16));
@@ -99,6 +98,7 @@ contract CheatsRule is Rule {
                 require(Bounds.isInBounds(q, r, s), "DEV_DESTROY_BAG coords out of bounds");
             }
             _destroyBag(state, bagID, owner, equipee, equipSlot, slotContents);
+
         } else if (bytes4(action) == Actions.DEV_DISABLE_CHEATS.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_DISABLE_CHEATS not allowed");
 
@@ -126,8 +126,8 @@ contract CheatsRule is Rule {
         state.setEquipSlot(equipee, equipSlot, bag);
     }
 
-    function _spawnTile(State state, int16 q, int16 r, int16 s) private {
-        state.setBiome(Node.Tile(DEFAULT_ZONE, q, r, s), BiomeKind.DISCOVERED);
+    function _spawnTile(State state, int16 z, int16 q, int16 r, int16 s) private {
+        state.setBiome(Node.Tile(z, q, r, s), BiomeKind.DISCOVERED);
     }
 
     // allow constructing a building without any materials
@@ -135,34 +135,32 @@ contract CheatsRule is Rule {
         State state,
         Context calldata ctx,
         bytes24 buildingKind,
+        int16 z,
         int16 q,
         int16 r,
         int16 s,
         FacingDirectionKind facingDirection
     ) internal {
         bytes24 targetTile = Node.Tile(0, q, r, s);
-        bytes24 buildingInstance = Node.Building(0, q, r, s);
+        bytes24 buildingInstance = Node.Building(z, q, r, s);
+
         state.setBuildingKind(buildingInstance, buildingKind);
         state.setOwner(buildingInstance, Node.Player(msg.sender));
-        state.setFixedLocation(buildingInstance, targetTile);
-        // attach the inputs/output bags
+        state.setFixedLocation(buildingInstance, Node.Tile(z, q, r, s));
+
+        // Attach the inputs/output bags
         bytes24 inputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "input")))));
         bytes24 outputBag = Node.Bag(uint64(uint256(keccak256(abi.encode(buildingInstance, "output")))));
         state.setEquipSlot(buildingInstance, 0, inputBag);
         state.setEquipSlot(buildingInstance, 1, outputBag);
-
         state.setFacingDirection(buildingInstance, facingDirection);
 
-        // -- Category specific calls
-
+        // Category specific calls
         ( /*uint64 id*/ , BuildingCategory category) = state.getBuildingKindInfo(buildingKind);
 
         if (category == BuildingCategory.EXTRACTOR) {
-            // set initial extraction timestamp
-            state.setBlockNum(buildingInstance, uint8(BuildingBlockNumKey.EXTRACTION), ctx.clock);
-
-            // set inital reservoir to full
-            state.setBuildingReservoirAtoms(buildingInstance, [uint64(499), uint64(499), uint64(499)]);
+            // Set initial extraction timestamp and reservoir
+            _setInitialExtractorData(state, buildingInstance, ctx.clock);
         }
     }
 

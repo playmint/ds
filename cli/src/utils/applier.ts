@@ -14,7 +14,7 @@ import { encodeTileID, encodeItemID, encodeBagID, getItemIdByName, encodeBuildin
 import { isInBounds } from '../utils/bounds';
 
 const null24bytes = '0x000000000000000000000000000000000000000000000000';
-
+const temporaryZoneConstant = 0;
 
 const encodePluginID = ({ name }) => {
     const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`plugin/${name}`))));
@@ -228,7 +228,7 @@ const questDeploymentActions = async (
 
         switch (task.kind) {
             case 'coord': {
-                return coder.encode(['int16', 'int16', 'int16'], [...task.location]);
+                return coder.encode(['int16', 'int16', 'int16', 'int16'], [temporaryZoneConstant, task.location[0], task.location[1], task.location[2]]);
             }
             case 'inventory': {
                 const item = getItemIdByName(files, existingItemKinds, task.item.name);
@@ -289,11 +289,11 @@ const questDeploymentActions = async (
     const questId = encodeQuestID(spec);
     const taskIds = spec.tasks.map((task) => encodeTaskID(task));
     const nextQuestIds = spec.next?.map((questName) => encodeQuestID({ name: questName })) || [];
-    const [q, r, s] = spec.location ? spec.location : [0, 0, 0];
+    const [z, q, r, s] = spec.location ? [temporaryZoneConstant, spec.location[0], spec.location[1], spec.location[2]] : [temporaryZoneConstant, 0, 0, 0];
 
     ops.push({
         name: 'REGISTER_QUEST',
-        args: [questId, spec.name, spec.description, !!spec.location, q, r, s, taskIds, nextQuestIds],
+        args: [questId, spec.name, spec.description, !!spec.location, z, q, r, s, taskIds, nextQuestIds],
     });
 
     return ops;
@@ -359,7 +359,7 @@ export const getOpsForManifests = async (
                     name: 'DEV_SPAWN_BUILDING',
                     args: [
                         getBuildingKindIDByName(existingBuildingKinds, pendingBuildingKinds, spec.name),
-                        ...spec.location,
+                        temporaryZoneConstant, spec.location[0], spec.location[1], spec.location[2],
                         FacingDirectionTypes.indexOf(spec.facingDirection),
                     ],
                 },
@@ -401,7 +401,7 @@ export const getOpsForManifests = async (
             actions: [
                 {
                     name: 'DEV_SPAWN_TILE',
-                    args: spec.location,
+                    args: [temporaryZoneConstant, spec.location[0], spec.location[1], spec.location[2]],
                 },
             ],
             note: `spawned tile ${spec.location.join(',')}`,
@@ -428,12 +428,12 @@ export const getOpsForManifests = async (
         };
 
         const spec = doc.manifest.spec;
-        const [q, r, s] = spec.location;
+        const [z, q, r, s] =  [temporaryZoneConstant, spec.location[0], spec.location[1], spec.location[2]];
         const inBounds = isInBounds(q, r, s);
 
-        const bagID = encodeBagID({ q, r, s });
+        const bagID = encodeBagID({ z, q, r, s });
         const ownerAddress = solidityPacked(['uint160'], [0]); // public
-        const equipee = encodeTileID({ q, r, s });
+        const equipee = encodeTileID({ z, q, r, s });
         const equipSlot = 0;
 
         const bagContents = encodeSlotConfig(spec.items || []);
