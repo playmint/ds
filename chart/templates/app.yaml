@@ -200,7 +200,7 @@ spec:
   selector:
     app: {{ $.Release.Name }}-services
 
-{{ if eq $.Values.chain "chain" }}
+{{ if eq $.Values.chain "anvil" }}
 ---
 apiVersion: v1
 kind: Service
