@@ -19,7 +19,7 @@ Follow steps 1 through 4 of `tutorial-room-1` to get started. This will walk you
 - Creating a map
 - Deploying new tiles
 
-https://github.com/playmint/ds/blob/main/contracts/src/maps/tutorial-room-1/README.md
+[tutorial-room-1/README.md](../tutorial-room-1/README.md)
 
 The only change we want to make to these steps is in _Creating a map_. As this is the next room in the tutorial series, we will be creating our map at a different angle so it doesn't overlap with tutorial-room-1.
 
