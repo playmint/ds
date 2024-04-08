@@ -50,16 +50,16 @@ contract PrepGate is BuildingKind {
                 uint64 balance;
                 (bagItemId, balance) = state.getItemSlot(bagId, itemSlot);
                 //TODO: this is shameful
-                if (bagItemId == sword) {
+                if (bagItemId == sword && balance > 0) {
                     hasSword = true;
                 }
-                if (bagItemId == shield) {
+                if (bagItemId == shield && balance > 0) {
                     hasShield = true;
                 }
-                if (bagItemId == armor) {
+                if (bagItemId == armor && balance > 0) {
                     hasArmor = true;
                 }
-                if (bagItemId == _UNIVERSAL_KEY) {
+                if (bagItemId == _UNIVERSAL_KEY && balance > 0) {
                     hasUniversalKey = true;
                 }
                 numItems += balance;

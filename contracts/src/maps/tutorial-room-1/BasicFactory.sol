@@ -86,8 +86,8 @@ contract BasicFactory is BuildingKind {
             bytes24 bag = state.getEquipSlot(actor, bagIndex);
             if (bag != 0) {
                 for (uint8 slot = 0; slot < 4; slot++) {
-                    (bytes24 resource, /*uint64 balance*/ ) = state.getItemSlot(bag, slot);
-                    if (resource == item) {
+                    (bytes24 resource, uint64 balance) = state.getItemSlot(bag, slot);
+                    if (resource == item && balance > 0) {
                         return true;
                     }
                 }
