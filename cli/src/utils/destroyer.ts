@@ -9,6 +9,8 @@ import {
 import { encodeTileID, encodeBagID, getItemIdByName } from './helpers';
 import { isInBounds } from '../utils/bounds';
 
+const temporaryZoneConstant = 0;
+
 export const getOpsForManifests = async (
     docs,
     world: WorldStateFragment,
@@ -34,7 +36,7 @@ export const getOpsForManifests = async (
                 {
                     name: 'DEV_DESTROY_BUILDING',
                     args: [
-                        ...spec.location,
+                        ...[temporaryZoneConstant, spec.location]
                     ],
                 },
             ],
@@ -59,7 +61,7 @@ export const getOpsForManifests = async (
             actions: [
                 {
                     name: 'DEV_DESTROY_TILE',
-                    args: spec.location,
+                    args: [temporaryZoneConstant, spec.location]
                 },
             ],
             note: `destroyed tile ${spec.location.join(',')}`,
@@ -86,12 +88,12 @@ export const getOpsForManifests = async (
         };
 
         const spec = doc.manifest.spec;
-        const [q, r, s] = spec.location;
+        const [z, q, r, s] = [temporaryZoneConstant, spec.location[0], spec.location[1], spec.location[2]];
         const inBounds = isInBounds(q, r, s);
 
-        const bagID = encodeBagID({ q, r, s });
+        const bagID = encodeBagID({ z, q, r, s });
         const ownerAddress = solidityPacked(['uint160'], [0]); // public
-        const equipee = encodeTileID({ q, r, s });
+        const equipee = encodeTileID({z, q, r, s });
         const equipSlot = 0;
 
         const bagContents = encodeSlotConfig(spec.items || []);

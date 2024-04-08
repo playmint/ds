@@ -73,16 +73,16 @@ contract CheatsRule is Rule {
             _construct(state, ctx, buildingKind, z, q, r, s, facingDirection);
         } else if (bytes4(action) == Actions.DEV_DESTROY_TILE.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_DESTROY_TILE not allowed");
-            (int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16));
+            (int16 z, int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16, int16));
             require(Bounds.isInBounds(q, r, s), "DEV_DESTROY_TILE coords out of bounds");
-            _destroyTile(state, q, r, s);
+            _destroyTile(state, z, q, r, s);
         } else if (bytes4(action) == Actions.DEV_DESTROY_BUILDING.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_DESTROY_BUILDING not allowed");
-            (int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16));
+            (int16 z, int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16, int16));
 
             require(Bounds.isInBounds(q, r, s), "DEV_DESTROY_BUILDING coords out of bounds");
 
-            _destroyBuilding(state, q, r, s);
+            _destroyBuilding(state, z, q, r, s);
         } else if (bytes4(action) == Actions.DEV_DESTROY_BAG.selector) {
             require(isCheatAllowed(ctx.sender), "DEV_DESTROY_BAG not allowed");
 
@@ -164,6 +164,11 @@ contract CheatsRule is Rule {
         }
     }
 
+     function _setInitialExtractorData(State state, bytes24 buildingInstance, uint64 timestamp) private {
+        state.setBlockNum(buildingInstance, uint8(BuildingBlockNumKey.EXTRACTION), timestamp);
+        state.setBuildingReservoirAtoms(buildingInstance, [uint64(499), uint64(499), uint64(499)]);
+    }
+
     function _destroyBag(
         State state,
         bytes24 bag,
@@ -181,14 +186,13 @@ contract CheatsRule is Rule {
         state.removeEquipSlot(equipee, equipSlot);
     }
 
-    function _destroyTile(State state, int16 q, int16 r, int16 s) private {
-        bytes24 tile = Node.Tile(0, q, r, s);
+    function _destroyTile(State state, int16 z, int16 q, int16 r, int16 s) private {
+        bytes24 tile = Node.Tile(z, q, r, s);
         state.removeBiome(tile);
     }
 
-    function _destroyBuilding(State state, int16 q, int16 r, int16 s) private {
-        bytes24 buildingInstance = Node.Building(0, q, r, s);
-        // state.destroyBuilding(Node.Building(DEFAULT_ZONE, q, r, s));
+    function _destroyBuilding(State state, int16 z, int16 q, int16 r, int16 s) private {
+        bytes24 buildingInstance = Node.Building(z, q, r, s);
         state.removeBuildingKind(buildingInstance);
         state.removeOwner(buildingInstance);
         state.removeFixedLocation(buildingInstance);
