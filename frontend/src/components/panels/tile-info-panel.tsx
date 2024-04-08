@@ -227,11 +227,11 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
                 )}
                 {selectedTile && <TileInventory tile={selectedTile} bags={world?.bags || []} />}
                 <span className="label" style={{ marginTop: '2rem' }}>
-                    <strong>AUTHOR:</strong> {author.name?.value ? author.name?.value : author.addr}
+                    <strong>AUTHOR:</strong> {author.addr}
                 </span>
                 {owner && (
                     <span className="label">
-                        <strong>OWNER:</strong> {owner.name?.value ? owner.name?.value : owner.addr}
+                        <strong>OWNER:</strong> {owner.addr}
                     </span>
                 )}
                 <span className="label" style={{ width: '30%' }}>
