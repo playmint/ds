@@ -36,7 +36,7 @@ export const getOpsForManifests = async (
                 {
                     name: 'DEV_DESTROY_BUILDING',
                     args: [
-                        ...[temporaryZoneConstant, spec.location]
+                        ...[temporaryZoneConstant, spec.location[0], spec.location[1], spec.location[2]]
                     ],
                 },
             ],
@@ -61,7 +61,7 @@ export const getOpsForManifests = async (
             actions: [
                 {
                     name: 'DEV_DESTROY_TILE',
-                    args: [temporaryZoneConstant, spec.location]
+                    args: [temporaryZoneConstant, spec.location[0], spec.location[1], spec.location[2]]
                 },
             ],
             note: `destroyed tile ${spec.location.join(',')}`,
