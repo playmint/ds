@@ -6,10 +6,10 @@ import {
     BuildingCategoryEnumVals,
 } from '../utils/manifest';
 
-export const encodeTileID = ({ q, r, s }: { q: number; r: number; s: number }) => {
+export const encodeTileID = ({ z, q, r, s }: { z:number;  q: number; r: number; s: number }) => {
     return solidityPacked(
         ['bytes4', 'uint96', 'int16', 'int16', 'int16', 'int16'],
-        [NodeSelectors.Tile, 0, 0, q, r, s]
+        [NodeSelectors.Tile, 0, z, q, r, s]
     );
 };
 
@@ -29,8 +29,8 @@ export const encodeItemID = ({
     );
 };
 
-export const encodeBagID = ({ q, r, s }: { q: number; r: number; s: number }) => {
-    return solidityPacked(['bytes4', 'uint96', 'int16', 'int16', 'int16', 'int16'], [NodeSelectors.Bag, 0, 0, q, r, s]);
+export const encodeBagID = ({ z, q, r, s }: { z:number; q: number; r: number; s: number }) => {
+    return solidityPacked(['bytes4', 'uint96', 'int16', 'int16', 'int16', 'int16'], [NodeSelectors.Bag, 0, z, q, r, s]);
 };
 
 export const encodeBuildingKindID = ({ name, category }) => {
