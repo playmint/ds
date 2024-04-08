@@ -1,4 +1,4 @@
-import { BagFragment, CogAction, QUEST_STATUS_ACCEPTED, WorldTileFragment } from '@app/../../core/src';
+import { BagFragment, CogAction, GameConfig, QUEST_STATUS_ACCEPTED, WorldTileFragment } from '@app/../../core/src';
 import { Bags } from '@app/components/map/Bag';
 import { Buildings } from '@app/components/map/Buildings';
 import { CombatSessions } from '@app/components/map/CombatSession';
@@ -37,7 +37,9 @@ import { getBagsAtEquipee, getBuildingAtTile, getSessionsAtTile } from '@downstr
 import { StyledBasePanel, StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { WalletItemsPanel } from '@app/components/panels/wallet-items-panel';
 
-export interface ShellProps extends ComponentProps {}
+export interface ShellProps extends ComponentProps {
+    config?: Partial<GameConfig>;
+}
 
 const StyledShell = styled('div')`
     ${styles}
@@ -53,7 +55,7 @@ export type SelectedBag = {
     isCombatReward?: boolean;
 };
 
-export const Shell: FunctionComponent<ShellProps> = () => {
+export const Shell: FunctionComponent<ShellProps> = ({ config }) => {
     const { ready: mapReady, setContainerStyle } = useUnityMap();
     const { world, selected, tiles, selectTiles, selectMobileUnit, selectMapElement, selectIntent } = useGameState();
     const { loadingSession } = useSession();
@@ -427,7 +429,11 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             />
                         )}
                         {world && player && walletItemsActive && (
-                            <WalletItemsPanel player={player} blockNumber={blockNumber} />
+                            <WalletItemsPanel
+                                player={player}
+                                blockNumber={blockNumber}
+                                tokenAddress={config?.tokenAddress || ''}
+                            />
                         )}
                     </div>
                     <ItemPluginPanel ui={ui || []} />

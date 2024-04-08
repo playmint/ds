@@ -98,7 +98,8 @@ const StyledWalletItemsItem = styled.div`
 export const WalletItemsItem: FunctionComponent<{
     blockNumber: number;
     player: ConnectedPlayer;
-}> = ({ player, blockNumber }) => {
+    tokenAddress: string;
+}> = ({ player, blockNumber, tokenAddress }) => {
     const { provider } = useWalletProvider();
     const tokens = useMemo(
         () =>
@@ -185,8 +186,7 @@ export const WalletItemsItem: FunctionComponent<{
                 params: {
                     type: 'ERC1155',
                     options: {
-                        // FIXME: get this from config.json or graphql somehow
-                        address: '0x0a668c3342e68b5F9054403e2080fA77259e8DbA',
+                        address: tokenAddress,
                         tokenId: BigInt(token.info.item.id).toString(),
                     },
                 },
@@ -202,7 +202,7 @@ export const WalletItemsItem: FunctionComponent<{
         } else {
             console.warn('provider does not support sendAsync or sendCustomRequest');
         }
-    }, [player, provider]);
+    }, [player, provider, tokenAddress]);
 
     return (
         <StyledWalletItemsItem>
@@ -232,17 +232,18 @@ export const WalletItemsItem: FunctionComponent<{
 
 export interface WalletItemsPanelProps {
     player: ConnectedPlayer;
+    tokenAddress: string;
     blockNumber: number;
 }
 
 export const WalletItemsPanel: FunctionComponent<WalletItemsPanelProps> = ({
     player,
     blockNumber,
-}: // acceptedWalletItemss,
-WalletItemsPanelProps) => {
+    tokenAddress,
+}: WalletItemsPanelProps) => {
     return (
         <StyledWalletItemsPanel className="no-scrollbars">
-            <WalletItemsItem player={player} blockNumber={blockNumber} />
+            <WalletItemsItem player={player} blockNumber={blockNumber} tokenAddress={tokenAddress} />
         </StyledWalletItemsPanel>
     );
 };

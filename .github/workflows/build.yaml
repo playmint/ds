@@ -284,6 +284,7 @@ jobs:
           echo "  providerUrlWs: wss://rpc.holesky.redstone.xyz/ws" >> $OVERRIDE_VALUES
           echo "frontend:" >> $OVERRIDE_VALUES
           echo "  gameAddress: $(jq -r .game contracts/out/latest.json)" >> $OVERRIDE_VALUES
+          echo "  tokenAddress: $(jq -r .tokens contracts/out/latest.json)" >> $OVERRIDE_VALUES
           echo "sequencer:" >> $OVERRIDE_VALUES
           echo "  privateKey: ${SEQUENCER_PRIVATE_KEY}" >> $OVERRIDE_VALUES
           echo "  providerUrlHttp: https://rpc.holesky.redstone.xyz" >> $OVERRIDE_VALUES

@@ -16,6 +16,7 @@ wallets:
   walletconnect: true
   burner: false
 {{ end }}
+tokenAddress: {{ $.Values.frontend.tokenAddress | quote }}
 tonkEndpoint: "https://tonk-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
 {{ end }}
 

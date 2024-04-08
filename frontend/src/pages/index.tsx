@@ -16,7 +16,7 @@ export default function ShellPage() {
                 <GameStateProvider config={config}>
                     <SessionProvider>
                         <InventoryProvider>
-                            <Shell />
+                            <Shell config={config} />
                             {config && <div className="build-version">build v0.1-{config.commit}</div>}
                         </InventoryProvider>
                     </SessionProvider>

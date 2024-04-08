@@ -92,6 +92,7 @@ export interface GameConfig {
     networkEndpoint: string;
     networkID: string;
     networkName: string;
+    tokenAddress: string;
 }
 
 export type ActionName = Parameters<ActionsInterface['getFunction']>[0];
