@@ -37,10 +37,6 @@ interface Actions {
     // mobileUnit id must be owned by ctx.sender
     function MOVE_MOBILE_UNIT(uint32 sid, int16 z, int16 q, int16 r, int16 s) external;
 
-    // mobileUnit action to reveal terrain tiles, mobileUnit must be located adjacent
-    // to scout location
-    function SCOUT_MOBILE_UNIT(uint32 sid, int16 z, int16 q, int16 r, int16 s) external;
-
     // action to set the type of quest the player should begin with
     function AUTO_QUEST(string calldata name, uint8 index) external;
 

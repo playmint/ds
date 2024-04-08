@@ -99,7 +99,9 @@ contract CheatsRule is Rule {
     }
 
     function _spawnTile(State state, int16 z, int16 q, int16 r, int16 s) private {
-        state.setBiome(Node.Tile(z, q, r, s), BiomeKind.DISCOVERED);
+        bytes24 tile = Node.Tile(z, q, r, s);
+        state.setBiome(tile, BiomeKind.DISCOVERED);
+        state.setTileAtomValues(tile, [uint64(255), uint64(255), uint64(255)]);
     }
 
     // allow constructing a building without any materials

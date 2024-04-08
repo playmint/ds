@@ -45,7 +45,6 @@ export interface ActionContextPanelProps extends ComponentProps {
 
 const CONSTRUCT_INTENT = 'construct';
 const MOVE_INTENT = 'move';
-// const SCOUT_INTENT = 'scout';
 const COMBAT_INTENT = 'combat';
 
 const StyledActionContextPanel = styled('div')`

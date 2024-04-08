@@ -252,10 +252,7 @@ const TileUndiscovered: FunctionComponent<unknown> = (_props) => {
     return (
         <StyledTileInfoPanel>
             <div className="header">
-                <h3>Undiscovered Tile</h3>
-            </div>
-            <div className="content">
-                <span className="sub-title">You can&apos;t make out this tile. Scouting should help!</span>
+                <h3>Empty Tile</h3>
             </div>
         </StyledTileInfoPanel>
     );
