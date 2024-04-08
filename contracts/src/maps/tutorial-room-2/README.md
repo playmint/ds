@@ -19,7 +19,7 @@ Follow steps 1 through 4 of `tutorial-room-1` to get started. This will walk you
 - Creating a map
 - Deploying new tiles
 
-https://github.com/playmint/ds/blob/main/contracts/src/maps/tutorial-room-1/README.md
+[tutorial-room-1/README.md](../tutorial-room-1/README.md)
 
 The only change we want to make to these steps is in _Creating a map_. As this is the next room in the tutorial series, we will be creating our map at a different angle so it doesn't overlap with tutorial-room-1.
 
@@ -233,7 +233,7 @@ contract SquishyGate is Gate {
 
 Doing it this way allows you to easily add new gates and reuse all the logic in `Gate.sol`, but passing in a different item ID for each gate.
 
-**Note:** In our example it's returning `0x6a7a67f05e359ab500000001000000010000000100000002`. If your key has a different name to ours, your ID will be different. You can get your key ID by running `ds get item "YOUR ITEM NAME" -n local` which the game is running.
+**Note:** In our example it's returning `0x6a7a67f05e359ab500000001000000010000000100000002`. If your key has a different name to ours, your ID will be different. You can get your key ID by running `ds get item "YOUR ITEM NAME" -n local` while the game is running.
 
 `SquishyGate.sol` should now look something like this:
 ```solidity
