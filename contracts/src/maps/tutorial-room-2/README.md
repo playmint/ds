@@ -233,7 +233,7 @@ contract SquishyGate is Gate {
 
 Doing it this way allows you to easily add new gates and reuse all the logic in `Gate.sol`, but passing in a different item ID for each gate.
 
-**Note:** In our example it's returning `0x6a7a67f05e359ab500000001000000010000000100000002`. If your key has a different name to ours, your ID will be different. You can get your key ID by running `ds get item "YOUR ITEM NAME" -n local` which the game is running.
+**Note:** In our example it's returning `0x6a7a67f05e359ab500000001000000010000000100000002`. If your key has a different name to ours, your ID will be different. You can get your key ID by running `ds get item "YOUR ITEM NAME" -n local` while the game is running.
 
 `SquishyGate.sol` should now look something like this:
 ```solidity
