@@ -3,7 +3,7 @@ import { globSync } from 'glob';
 import path from 'path';
 import { Op, getOpsForManifests } from '../utils/destroyer';
 import { readManifestsDocumentsSync } from '../utils/manifest';
-import { getWorld } from './get';
+import { getWorld, getTiles } from './get';
 
 type OpResult = {
     ok: boolean;
@@ -73,8 +73,9 @@ const destroy = {
         const manifestFilenames = getManifestFilenames(ctx.filename, ctx.recursive);
         const docs = (await Promise.all(manifestFilenames.map(readManifestsDocumentsSync))).flatMap((docs) => docs);
         const world = await getWorld(ctx);
+        const tiles = await getTiles(ctx);
 
-        const opsets = await getOpsForManifests(docs, world);
+        const opsets = await getOpsForManifests(docs, world, tiles);
 
         // abort here if dry-run
         if (ctx.dryRun) {

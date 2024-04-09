@@ -1,6 +1,6 @@
 import { CogAction, CompoundKeyEncoder, NodeSelectors } from '@downstream/core';
 import { BuildingKindFragment, ItemFragment, TilesStateFragment, WorldStateFragment } from '@downstream/core/src/gql/graphql';
-import { AbiCoder, id as keccak256UTF8, solidityPacked } from 'ethers';
+import { AbiCoder, id as keccak256UTF8, solidityPacked, fromTwos } from 'ethers';
 import fs from 'fs';
 import path from 'path';
 import { z } from 'zod';
@@ -343,6 +343,10 @@ export const getOpsForManifests = async (
     }
 
     // spawn building instances
+    const convertedBuildingCoords = world.buildings.map(building => 
+        building.location?.tile.coords.map(coord => fromTwos(coord, 16))
+    );
+    let skippedBuildings = 0;
     opn++;
     opsets[opn] = [];
     for (const doc of docs) {
@@ -352,7 +356,21 @@ export const getOpsForManifests = async (
         const spec = doc.manifest.spec;
         const [q, r, s] = spec.location;
         const inBounds = isInBounds(q, r, s);
-        
+
+        let shouldSkip = false;
+        for (let i = 0; i < convertedBuildingCoords.length; i++) {
+            const coords = String(convertedBuildingCoords[i]).split(',').map(Number);
+            if (coords[1] == q && coords[2] == r && coords[3] == s){
+                shouldSkip = true;
+                skippedBuildings++;
+                break;
+            }
+        }
+
+        if (shouldSkip){
+            continue;
+        }
+
         opsets[opn].push({
             doc,
             actions: [
@@ -368,6 +386,11 @@ export const getOpsForManifests = async (
             note: `spawned building instance of ${spec.name} at ${spec.location.join(',')}`,
             inBounds: inBounds,
         });
+    }
+
+    if (skippedBuildings > 0) {
+        const skipReason = skippedBuildings === 1 ? 'building location because it already exists in the world' : 'building locations because they already exist in the world';
+        console.log(`⏩ skipped ${skippedBuildings} ${skipReason}\n`);
     }
 
     // process quests
@@ -387,6 +410,10 @@ export const getOpsForManifests = async (
     }
 
     // spawn tile manifests (this is only valid while cheats are enabled)
+    const convertedTileCoords = tiles.tiles.map(tile => 
+        tile.coords.map(coord => fromTwos(coord, 16))
+    );
+    let skippedTiles = 0;
     opn++;
     opsets[opn] = [];
     for (const doc of docs) {
@@ -396,16 +423,20 @@ export const getOpsForManifests = async (
         const spec = doc.manifest.spec;
         const [q, r, s] = spec.location;
         const inBounds = isInBounds(q, r, s);
+        
+        let shouldSkip = false;
+        for (let i = 0; i < convertedTileCoords.length; i++) {
+            if (convertedTileCoords[i][1] == q && convertedTileCoords[i][2] == r && convertedTileCoords[i][3] == s && tiles.tiles[i].biome != undefined){
+                shouldSkip = true;
+                skippedTiles++;
+                break;
+            }
+        }
 
-        // GOTTA WORK THIS STUFF OUT v
-
-        const existsInTiles = tiles.tiles.some(tile => {
-            const [_z, q1, r1, s1] = tile.coords.map(coord => parseInt(coord, 16));
-            return q1 === q && r1 === r && s1 === s;
-        });
-
-        // GOTTA WORK THIS STUFF OUT ^
-
+        if (shouldSkip){
+            continue;
+        }
+        
         opsets[opn].push({
             doc,
             actions: [
@@ -416,8 +447,12 @@ export const getOpsForManifests = async (
             ],
             note: `spawned tile ${spec.location.join(',')}`,
             inBounds: inBounds,
-            test: existsInTiles,
         });
+    }
+
+    if (skippedTiles > 0) {
+        const skipReason = skippedTiles === 1 ? 'tile because it already exists in the world' : 'tiles because they already exist in the world';
+        console.log(`⏩ skipped ${skippedTiles} ${skipReason}\n`);
     }
 
     // spawn bag manifests (this is only valid while cheats are enabled)
@@ -492,7 +527,6 @@ export type Op = {
     actions: CogAction[];
     note: string;
     inBounds?: boolean;
-    test?: boolean;
 };
 
 export type OpSet = Op[];
