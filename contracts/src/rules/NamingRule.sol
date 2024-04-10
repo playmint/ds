@@ -36,15 +36,16 @@ contract NamingRule is Rule {
             revert("EntityNotOwnedByPlayer");
         }
         state.setData(entity, "name", bytes32(bytes(name)));
+        state.annotate(entity, "name", name);
     }
 
     function _changeEntityDescription(State state, bytes24 player, bytes24 entity, string memory desc) private {
-        require(bytes(desc).length <= 32, "Description exceeds 32 characters");
+        require(bytes(desc).length <= 140, "Description exceeds 140 characters");
 
         bytes24 existingOwner = state.getOwner(entity);
         if (existingOwner != 0x0 && existingOwner != player) {
             revert("EntityNotOwnedByPlayer");
         }
-        state.setData(entity, "description", bytes32(bytes(desc)));
+        state.annotate(entity, "description", desc);
     }
 }
