@@ -21,6 +21,30 @@ contract ZoneTest is Test, GameTest {
         console2.log(dataURI);
     }
 
+    function test_transferZoneOwnership() public {
+        // player 0 mints a zone
+        zoneOwnership.mintTo{value: 1 ether}(players[0].addr);
+
+        // player 0 spawns a tile
+        vm.prank(players[0].addr);
+        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (1, 2, 2, -4)));
+        assert(zoneOwnership.ownerOf(1) == players[0].addr);
+
+        // player 0 transfers the zone to player 1
+        vm.prank(players[0].addr);
+        zoneOwnership.transferFrom(players[0].addr, players[1].addr, 1);
+        assert(zoneOwnership.ownerOf(1) == players[1].addr);
+
+        // player 1 spawns a tile
+        vm.prank(players[1].addr);
+        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (1, 3, 3, -6)));
+
+        // player 0 should fail to spawn a tile now
+        vm.prank(players[0].addr);
+        vm.expectRevert("owner only");
+        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (1, 4, 4, -8)));
+    }
+
     function test_RevertMintMaxSupplyReached() public {
         uint256 slot = stdstore.target(address(zoneOwnership)).sig("currentTokenId()").find();
         bytes32 loc = bytes32(slot);
