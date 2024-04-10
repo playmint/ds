@@ -22,7 +22,7 @@ contract NamingRuleTest is Test, GameTest {
         setName(entity, name);
 
         BaseState base = BaseState(address(game.getState()));
-        assertEq(base.getAnnotationRef(entity, "name"), keccak256(bytes(name)));
+        assertEq(base.getData(entity, "name"), bytes32(bytes(name)));
         vm.stopPrank();
     }
 
