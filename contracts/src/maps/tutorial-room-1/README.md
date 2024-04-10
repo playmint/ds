@@ -13,7 +13,7 @@ Once complete, you will have used the core Downstream tools to create a map that
 ## Prerequisites
 - This repository cloned to your desktop. (Instructions in the top [readme](../../../../README.md).)
 - [Docker Desktop](https://docs.docker.com/get-docker/)
-- [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+- [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) or [npm Windows](https://nodejs.org/en/download/)
 
 ## 1. Deploy the game
 
