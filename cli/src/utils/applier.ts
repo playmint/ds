@@ -7,7 +7,6 @@ import {
     GlobalStateFragment,
     ZoneStateFragment,
 } from '@downstream/core';
-import { BuildingKindFragment, ItemFragment, TilesStateFragment, WorldStateFragment } from '@downstream/core/src/gql/graphql';
 import { AbiCoder, id as keccak256UTF8, solidityPacked, fromTwos } from 'ethers';
 import fs from 'fs';
 import path from 'path';
@@ -365,7 +364,7 @@ export const getOpsForManifests = async (
     }
 
     // spawn building instances
-    const convertedBuildingCoords = world.buildings.map(building => 
+    const convertedBuildingCoords = zone.buildings.map(building => 
         building.location?.tile.coords.map(coord => fromTwos(coord, 16))
     );
     let skippedBuildings = 0;
@@ -414,7 +413,7 @@ export const getOpsForManifests = async (
     }
 
     if (skippedBuildings > 0) {
-        const skipReason = skippedBuildings === 1 ? 'building location because it already exists in the world' : 'building locations because they already exist in the world';
+        const skipReason = skippedBuildings === 1 ? 'building location because it already exists in the zone' : 'building locations because they already exist in the zone';
         console.log(`⏩ skipped ${skippedBuildings} ${skipReason}\n`);
     }
 
@@ -435,7 +434,7 @@ export const getOpsForManifests = async (
     }
 
     // spawn tile manifests (this is only valid while cheats are enabled)
-    const convertedTileCoords = tiles.tiles.map(tile => 
+    const convertedTileCoords = zone.tiles.map(tile => 
         tile.coords.map(coord => fromTwos(coord, 16))
     );
     let skippedTiles = 0;
@@ -451,7 +450,7 @@ export const getOpsForManifests = async (
         
         let shouldSkip = false;
         for (let i = 0; i < convertedTileCoords.length; i++) {
-            if (convertedTileCoords[i][1] == q && convertedTileCoords[i][2] == r && convertedTileCoords[i][3] == s && tiles.tiles[i].biome != undefined){
+            if (convertedTileCoords[i][1] == q && convertedTileCoords[i][2] == r && convertedTileCoords[i][3] == s && zone.tiles[i].biome != undefined && zone.tiles[i].biome != 0){
                 shouldSkip = true;
                 skippedTiles++;
                 break;
@@ -476,7 +475,7 @@ export const getOpsForManifests = async (
     }
 
     if (skippedTiles > 0) {
-        const skipReason = skippedTiles === 1 ? 'tile because it already exists in the world' : 'tiles because they already exist in the world';
+        const skipReason = skippedTiles === 1 ? 'tile because it already exists in the zone' : 'tiles because they already exist in the zone';
         console.log(`⏩ skipped ${skippedTiles} ${skipReason}\n`);
     }
 
