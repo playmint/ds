@@ -1,5 +1,7 @@
 /** @format */
 
+import { ethers } from 'ethers';
+
 interface MaybeNamed {
     id: string;
     name?: {
@@ -15,7 +17,11 @@ export const formatNameOrId = (node?: MaybeNamed, idPrefix: string = ''): string
     if (!node) {
         return '';
     }
-    return node.name?.value ? node.name.value : `${idPrefix}${formatShortId(node.id)}`;
+    if (node.name?.value) {
+        return ethers.decodeBytes32String(node.name.value);
+    } else {
+        return `${idPrefix}${formatShortId(node.id)}`;
+    }
 };
 
 export const getItemStructure = (itemId: string) => {
