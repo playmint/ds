@@ -17,7 +17,7 @@ error WithdrawTransfer();
 
 contract Zones721 is ERC721 {
     uint256 public constant TOTAL_SUPPLY = 32_000;
-    uint256 public constant MINT_PRICE = 0.05 ether;
+    uint256 public mintPrice = 1 ether;
 
     uint256 public currentTokenId;
     address owner; // The ZoneRule owns this
@@ -35,7 +35,7 @@ contract Zones721 is ERC721 {
     }
 
     function mintTo(address recipient) public payable returns (uint256) {
-        if (msg.value != MINT_PRICE) {
+        if (msg.value != mintPrice) {
             revert MintPriceNotPaid();
         }
         uint256 newTokenId = currentTokenId + 1;
@@ -88,6 +88,10 @@ contract Zones721 is ERC721 {
 
     function registerState(State _state) external onlyOwner {
         state = _state;
+    }
+
+    function setMintPrice(uint256 _mintPrice) external onlyOwner {
+        mintPrice = _mintPrice;
     }
 
     function withdrawPayments(address payable payee) external onlyOwner {

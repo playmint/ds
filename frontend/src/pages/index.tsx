@@ -16,7 +16,6 @@ import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 import { pipe, subscribe } from 'wonka';
 
-const MINT_PRICE = ethers.parseEther('0.05'); // FIXME: should be configurable
 const ACTIVE_UNIT_TIMEOUT = 10; // FIXME: value should match spawn logic
 const UNIT_CAP = 20; // FIXME: value should match real spawn cap
 
@@ -27,6 +26,9 @@ const ZoneMinter = ({ gameAddress }: { gameAddress: string }) => {
     const { clearSession } = useSession();
     const { wallet } = useWallet();
     const [error, setError] = useState<string>();
+    const [mintPrice, setMintPrice] = useState<bigint>();
+    const displayPrice = mintPrice ? `${ethers.formatEther(mintPrice)} ETH` : '';
+    const [minting, setMinting] = useState(false);
 
     const disconnect = useCallback(() => {
         if (clearSession) {
@@ -38,7 +40,32 @@ const ZoneMinter = ({ gameAddress }: { gameAddress: string }) => {
         window.location.reload();
     }, [clearSession, forgetProvider]);
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        if (!provider) {
+            return;
+        }
+        if (!wallet) {
+            return;
+        }
+        if (!gameAddress) {
+            return;
+        }
+        (async () => {
+            const signer = await wallet.signer();
+            const downstreamGameContract = DownstreamGame__factory.connect(gameAddress, signer);
+            const zonesContractAddr = await downstreamGameContract.zoneOwnership();
+            const zonesContract = Zones721__factory.connect(zonesContractAddr, signer);
+            const actualMintPrice = await zonesContract.mintPrice();
+            setMintPrice(actualMintPrice);
+        })().catch((err) => console.error('failed to update mint price', err));
+    }, [gameAddress, provider, wallet]);
+
     const createZone = useCallback(async () => {
+        if (minting) {
+            console.warn('already minting');
+            return;
+        }
         if (!player) {
             console.warn('no player');
             return;
@@ -56,25 +83,31 @@ const ZoneMinter = ({ gameAddress }: { gameAddress: string }) => {
             return;
         }
         try {
+            setMinting(true);
             const signer = await wallet.signer();
             const downstreamGameContract = DownstreamGame__factory.connect(gameAddress, signer);
             const zonesContractAddr = await downstreamGameContract.zoneOwnership();
             const zonesContract = Zones721__factory.connect(zonesContractAddr, signer);
-            const tx = await zonesContract.mintTo(player.addr, { value: MINT_PRICE });
+            const mintPrice = await zonesContract.mintPrice();
+            const tx = await zonesContract.mintTo(player.addr, { value: mintPrice });
             console.log('tx submitted', tx);
             await tx.wait();
         } catch (err) {
             console.error('MINTFAIL:', err);
             setError(`failed, do you have enough ETH?`);
+        } finally {
+            setMinting(false);
         }
-    }, [player, provider, wallet, gameAddress]);
+    }, [minting, player, provider, wallet, gameAddress]);
 
     return (
         <div>
             {player ? (
                 <div>
                     <p>Welcome {player.addr}</p>
-                    <TextButton onClick={createZone}>CREATE ZONE {ethers.formatEther(MINT_PRICE)} ETH</TextButton>
+                    <TextButton onClick={createZone} disabled={minting}>
+                        {minting ? `loading` : `CREATE ZONE ${displayPrice}`}
+                    </TextButton>
                     {error}
                     <TextButton onClick={disconnect}>DISCONNECT</TextButton>
                 </div>
@@ -99,7 +132,7 @@ const ZoneItem = ({ zone, units, currentBlock }: { zone: Zone; units: ZoneUnit[]
     const zoneUnits = units.filter((u) => u.location?.tile?.coords && u.location.tile?.coords[0] === zone.key);
     const activeUnits = zoneUnits.filter((u) => u.location && u.location.time + ACTIVE_UNIT_TIMEOUT < currentBlock);
     const availableSlots = UNIT_CAP - activeUnits.length;
-    const owner = zone.owner?.addr || '0x0';
+    const owner = (zone.owner?.addr || '0x0').slice(0, 6) + '...' + (zone.owner?.addr || '0x0').slice(-4);
 
     const visit = useCallback(() => {
         router.push(url).catch((err) => console.error('failed to navigate', err));

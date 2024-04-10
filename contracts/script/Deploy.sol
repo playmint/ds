@@ -47,6 +47,10 @@ contract GameDeployer is Script {
         // tell the zoneOwnership contract to manage the state
         zoneOwnership.registerState(ds.getState());
 
+        // set zone price, the price is a mechanism to prevent bricking
+        // the deployment by claiming all the zones
+        zoneOwnership.setMintPrice(0.05 ether);
+
         // deployer claims first zone mostly to make local dev easier
         // we do the withdraw as a sanity check
         zoneOwnership.mintTo{value: 0.05 ether}(deployerAddr);
