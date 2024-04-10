@@ -27,6 +27,9 @@ export const Onboarding = ({ player, playerUnits, onClickConnect, zone, block }:
     const [isSpawningMobileUnit, setIsSpawningMobileUnit] = useState<boolean>(false);
 
     const ACTIVE_UNIT_TIMEOUT = 10; // FIXME: value should match spawn logic
+    const ZONE_UNIT_LIMIT = 1;
+
+    const isZoneOwner = player && zone.owner && zone.owner.addr === player.addr;
 
     const spawnMobileUnit = useCallback(() => {
         if (!player) {
@@ -36,18 +39,20 @@ export const Onboarding = ({ player, playerUnits, onClickConnect, zone, block }:
             return;
         }
         const zoneId = Number(BigInt.asIntN(16, zone.key));
-        setIsSpawningMobileUnit(true);
-
         const inactiveUnits = zone.mobileUnits.filter(
-            (u) => u.nextLocation && u.nextLocation.time + ACTIVE_UNIT_TIMEOUT < block
+            (u) => u.nextLocation && u.nextLocation.time + ACTIVE_UNIT_TIMEOUT <= block
         );
 
         const spawnActions: CogAction[] = [{ name: 'SPAWN_MOBILE_UNIT', args: [] }];
 
-        // Kick out first inactive unit
-        if (inactiveUnits.length > 0) {
-            const inactiveUnit = inactiveUnits[0];
-            console.log('kicking inactive unit', inactiveUnit.id);
+        // We need to kick out 2 units if the owner is pushing the capacity over the limit
+        // If we are the owner and there are no inactive units, we can spawn anyway
+        const kickCount =
+            inactiveUnits.length == 0 && isZoneOwner ? 0 : zone.mobileUnits.length > ZONE_UNIT_LIMIT ? 2 : 1;
+
+        for (let i = 0; i < kickCount; i++) {
+            const inactiveUnit = inactiveUnits[i];
+            console.log('kicking inactive unit ' + i, inactiveUnit.id);
             spawnActions.push({
                 name: 'KICK_UNIT_FROM_ZONE',
                 args: [inactiveUnit.id],
@@ -56,13 +61,15 @@ export const Onboarding = ({ player, playerUnits, onClickConnect, zone, block }:
 
         spawnActions.push({ name: 'MOVE_MOBILE_UNIT', args: [zoneId, 0, 0, 0] });
 
+        setIsSpawningMobileUnit(true);
+
         player
             .dispatch(...spawnActions)
             .catch((e) => {
                 console.error('failed to spawn mobileUnit:', e);
             })
             .finally(() => setIsSpawningMobileUnit(false));
-    }, [block, player, setIsSpawningMobileUnit, zone]);
+    }, [block, isZoneOwner, player, zone]);
 
     const zoneName = zone.name?.value ? ethers.decodeBytes32String(zone.name.value) : `unnamed`;
     const zoneDescription = zone.description?.value
@@ -72,6 +79,9 @@ export const Onboarding = ({ player, playerUnits, onClickConnect, zone, block }:
     const activeUnits = zone.mobileUnits.filter(
         (u) => u.nextLocation && u.nextLocation.time + ACTIVE_UNIT_TIMEOUT > block
     );
+
+    // Zone owners can spawn into a zone even when it's at capacity
+    const canSpawn = activeUnits.length < ZONE_UNIT_LIMIT || isZoneOwner;
 
     return (
         <StyledOnboarding>
@@ -84,8 +94,9 @@ export const Onboarding = ({ player, playerUnits, onClickConnect, zone, block }:
                     welcome to {zoneName}, {zoneDescription}
                 </p>
                 <p>There are {activeUnits.length} active units here</p>
+                {!canSpawn && <p>Zone is currently full, try returning later</p>}
                 {player && playerUnits.length === 0 ? (
-                    <ActionButton onClick={spawnMobileUnit} disabled={isSpawningMobileUnit}>
+                    <ActionButton onClick={spawnMobileUnit} disabled={isSpawningMobileUnit || !canSpawn}>
                         Enter
                     </ActionButton>
                 ) : (
