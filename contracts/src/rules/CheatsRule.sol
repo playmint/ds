@@ -78,7 +78,6 @@ contract CheatsRule is Rule {
         bytes24[] memory slotContents,
         uint64[] memory slotBalances
     ) private {
-        {}
         require(Bounds.isInBounds(q, r, s), "coords out of bounds");
         bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode("devbag", z, q, r, s, equipSlot)))));
         for (uint8 i = 0; i < slotContents.length; i++) {
