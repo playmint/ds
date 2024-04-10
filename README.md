@@ -18,7 +18,7 @@ Follow the guide to [build your own game with Downstream](./tutorial/README.md).
 
 The repository needs cloning with LFS and recursive submodules.
 
-- **Install Git:** [Git SCM](https://git-scm.com/download/mac) for download and installation.
+- **Install Git:** [Git SCM](https://git-scm.com/download/) for download and installation.
 - **Install Git-LFS:** Visit [Git-LFS](https://git-lfs.com/)
 - **Initialise Git-LFS:** Run the following command:
   ```

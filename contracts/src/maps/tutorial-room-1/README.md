@@ -13,7 +13,7 @@ Once complete, you will have used the core Downstream tools to create a map that
 ## Prerequisites
 - This repository cloned to your desktop. (Instructions in the top [readme](../../../../README.md).)
 - [Docker Desktop](https://docs.docker.com/get-docker/)
-- [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+- [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) or [npm Windows](https://nodejs.org/en/download/)
 
 ## 1. Deploy the game
 
@@ -105,6 +105,7 @@ In a terminal at your new folder run the following, where `<private-key>` can be
 ds apply -n local -k <private-key> -f Locations.yaml
 ```
 
+Note: If using Windows you get the error "running scripts is disabled on this system", open Powershell as an Administrator and run `Set-ExecutionPolicy  RemoteSigned`
 
 You should see the terminal output display a series of ✅s for each tile that is deployed.
 
