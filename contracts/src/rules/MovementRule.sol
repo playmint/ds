@@ -11,13 +11,19 @@ import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {Bounds} from "@ds/utils/Bounds.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
+import {DownstreamGame} from "@ds/Downstream.sol";
+
+// import {ERC721} from "solmate/tokens/ERC721.sol";
 
 using Schema for State;
 
 contract MovementRule is Rule {
-    Game game;
+    DownstreamGame game;
 
-    constructor(Game g) {
+    // Maps zone id to the number of units in that zone
+    mapping (int16 => uint256) public zoneUnitCount;
+
+    constructor(DownstreamGame g) {
         game = g;
     }
 
@@ -84,7 +90,7 @@ contract MovementRule is Rule {
         // assign to parent zone
         state.setParent(mobileUnit, state.getParent(destTile));
 
-        // Get building at current tile and call arrive hook
+        // Get building at current tile and call leave hook
         (int16 z, int16 q, int16 r, int16 s) = state.getTileCoords(currentTile);
         bytes24 building = Node.Building(z, q, r, s);
         bytes24 buildingKind = state.getBuildingKind(building);
@@ -95,6 +101,11 @@ contract MovementRule is Rule {
             }
         }
 
+        // Count the unit out of the current zone
+        if (z > 0) {
+            zoneUnitCount[z] -= 1;
+        }
+
         // Get building at dest tile and call arrive hook
         (z, q, r, s) = state.getTileCoords(destTile);
         building = Node.Building(z, q, r, s);
@@ -103,6 +114,18 @@ contract MovementRule is Rule {
             BuildingKind buildingImplementation = BuildingKind(state.getImplementation(buildingKind));
             if (address(buildingImplementation) != address(0)) {
                 buildingImplementation.onUnitArrive(game, building, mobileUnit);
+            }
+        }
+
+        // Count the unit into the new zone
+        if (z > 0) { 
+            zoneUnitCount[z] += 1;
+
+            bytes24 player = state.getOwner(mobileUnit);
+
+            // If player doesn't own zone check limit
+            if (zoneUnitCount[z] > 1 && game.zoneOwnership().ownerOf(uint16(z)) != address(uint160(uint192(player)))) {
+                revert("Limit reached on zone");
             }
         }
     }
