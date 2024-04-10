@@ -76,7 +76,6 @@ export const Shell: FunctionComponent<ShellProps> = ({ config }) => {
     const [walletItemsActive, setWalletItemsActive] = useState<boolean>(false);
     const toggleWalletItemsActive = useCallback(() => setWalletItemsActive((prev) => !prev), []);
     const questMessages = useQuestMessages(10);
-    console.log(zone?.bags);
     const acceptedQuests = useMemo(() => {
         return (
             (player?.quests || []).filter((q) => q.status == QUEST_STATUS_ACCEPTED).sort((a, b) => a.key - b.key) || []
@@ -105,7 +104,6 @@ export const Shell: FunctionComponent<ShellProps> = ({ config }) => {
         }
     }, [combatSessionTick, prevCombatSessionTick]);
 
-    // console.log(ui);
     const pluginTileProperties = ui?.flatMap((res) => res.state.map.filter((prop) => prop.type === 'tile')) || [];
 
     const displayBuildingDataModifiedByPlugins =
