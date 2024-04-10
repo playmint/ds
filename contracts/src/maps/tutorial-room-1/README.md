@@ -105,6 +105,7 @@ In a terminal at your new folder run the following, where `<private-key>` can be
 ds apply -n local -k <private-key> -f Locations.yaml
 ```
 
+Note: If using Windows you get the error "running scripts is disabled on this system", open Powershell as an Administrator and run `Set-ExecutionPolicy  RemoteSigned`
 
 You should see the terminal output display a series of ✅s for each tile that is deployed.
 
