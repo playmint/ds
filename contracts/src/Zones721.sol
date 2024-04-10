@@ -18,6 +18,7 @@ error WithdrawTransfer();
 contract Zones721 is ERC721 {
     uint256 public constant TOTAL_SUPPLY = 32_000;
     uint256 public mintPrice = 1 ether;
+    string public baseURI = "https://assets.downstream.game";
 
     uint256 public currentTokenId;
     address owner; // The ZoneRule owns this
@@ -62,6 +63,9 @@ contract Zones721 is ERC721 {
     }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
+        if (ownerOf(tokenId) == address(0)) {
+            revert NonExistentTokenURI();
+        }
         return getDataURI(tokenId);
     }
 
@@ -76,9 +80,11 @@ contract Zones721 is ERC721 {
             '"description": "',
             state.getDataString(zoneId, "description"),
             '",',
-            '"image": "https://assets.downstream.game/icons/',
-            "26-178", // Hardcoded icon for now
-            '.svg",',
+            '"image": "',
+            baseURI,
+            "/zone/",
+            LibString.toString(tokenId),
+            '.png",',
             '"attributes": ',
             getDataAttributes(zoneId),
             "}"
@@ -86,8 +92,9 @@ contract Zones721 is ERC721 {
         return string(abi.encodePacked("data:application/json;base64,", Base64.encode(dataURI)));
     }
 
-    function getDataAttributes(bytes24 /* zoneId */ ) internal pure returns (bytes memory) {
-        return abi.encodePacked("[", '{"trait_type": "Something", "value": ', LibString.toString(1), "}", "]");
+    function getDataAttributes(bytes24 zoneId) internal pure returns (bytes memory) {
+        uint256 seed = uint32(uint256(keccak256(abi.encodePacked("downstream/se", zoneId))));
+        return abi.encodePacked("[", '{"trait_type": "seed", "value": ', LibString.toString(seed), "}", "]");
     }
 
     function transferFrom(address from, address to, uint256 tokenId) public override {
@@ -102,6 +109,10 @@ contract Zones721 is ERC721 {
 
     function setMintPrice(uint256 _mintPrice) external onlyOwner {
         mintPrice = _mintPrice;
+    }
+
+    function setBaseURI(string memory _baseURI) external onlyOwner {
+        baseURI = _baseURI;
     }
 
     function withdrawPayments(address payable payee) external onlyOwner {

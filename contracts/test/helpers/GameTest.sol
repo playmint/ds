@@ -85,6 +85,7 @@ abstract contract GameTest {
     Dev internal dev;
     Vm internal __vm = Vm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
     Items1155 tokens;
+    Zones721 zoneOwnership;
 
     // player accounts to test with
     PlayerAccount[4] players;
@@ -93,7 +94,7 @@ abstract contract GameTest {
         // setup the dev contract for calling cheats
         dev = new Dev();
 
-        Zones721 zoneOwnership = new Zones721(address(this));
+        zoneOwnership = new Zones721(address(this));
         game = new DownstreamGame(address(this), zoneOwnership);
         zoneOwnership.registerState(game.getState());
 
