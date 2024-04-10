@@ -165,6 +165,7 @@ function hexToSignedDecimal(hex) {
 // Get tile coordinates from hexadecimal coordinates
 function getTileCoords(coords) {
     return [
+        hexToSignedDecimal(coords[0]),
         hexToSignedDecimal(coords[1]),
         hexToSignedDecimal(coords[2]),
         hexToSignedDecimal(coords[3]),
@@ -214,10 +215,11 @@ function toTwos(_value, _width) {
 
 // Get tile ID from coordinates
 function getTileIdFromCoords(coords) {
-    const q = toInt16Hex(coords[0]);
-    const r = toInt16Hex(coords[1]);
-    const s = toInt16Hex(coords[2]);
-    return `${TILE_ID_PREFIX}0000000000000000000000000000${q}${r}${s}`;
+    const z = toInt16Hex(coords[0]);
+    const q = toInt16Hex(coords[1]);
+    const r = toInt16Hex(coords[2]);
+    const s = toInt16Hex(coords[3]);
+    return `${TILE_ID_PREFIX}000000000000000000000000${z}${q}${r}${s}`;
 }
 
 // Decode a tile ID into its q, r, s hexagonal coordinates
@@ -232,21 +234,21 @@ function getTileCoordsFromId(tileId) {
             return bs;
         }, [])
         .map((n) => Number(fromTwos(n, 16)))
-        .slice(-3);
-    if (coords.length !== 3) {
-        throw new Error(`failed to get q,r,s from tile id ${tileId}`);
+        .slice(-4);
+    if (coords.length !== 4) {
+        throw new Error(`failed to get z,q,r,s from tile id ${tileId}`);
     }
     return coords;
 };
 
 // Calculate the IDs of tiles within a certain range of a given building based on its location
 function getTilesInRange(building, range) {
-    const [q,r,s] = getTileCoordsFromId(building.location?.tile?.id);
+    const [z,q,r,s] = getTileCoordsFromId(building.location?.tile?.id);
     let tilesInRange = [];
     for (let dx = -range; dx <= range; dx++) {
         for (let dy = Math.max(-range, -dx-range); dy <= Math.min(range, -dx+range); dy++) {
             const dz = -dx-dy;
-            const tileId = getTileIdFromCoords([q+dx, r+dy, s+dz]);
+            const tileId = getTileIdFromCoords([z, q+dx, r+dy, s+dz]);
             tilesInRange.push(tileId);
         }
     }

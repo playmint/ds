@@ -70,7 +70,6 @@ on:
         description: Unity password for the licence
         required: true
 
-
 env:
   REGISTRY: ghcr.io
   FRONTEND_IMAGE_NAME: playmint/ds-shell
@@ -78,70 +77,69 @@ env:
   SERVICES_IMAGE_NAME: playmint/ds-services
 
 jobs:
-
   frontend:
     name: Frontend
     runs-on: ubuntu-latest-m
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
-    - name: Create LFS file list
-      run: git lfs ls-files -l | cut -d ' ' -f1 | sort > .lfs-assets-id
-    - name: Restore LFS cache
-      uses: actions/cache@v2
-      id: lfs-cache
-      with:
-        path: .git/lfs
-        key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
-    - name: Git LFS Pull
-      run: |
-        git lfs pull
-    - name: Restore Library cache
-      uses: actions/cache@v2
-      with:
-        path: map/Library
-        key: Library-ds
-        restore-keys: |
-          Library-ds
-          Library-
-    - name: Build ds
-      uses: game-ci/unity-builder@v2
-      env:
-        UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
-        UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-        UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-      with:
-        targetPlatform: WebGL
-        projectPath: map
-        buildMethod: BuildScript.GitHubBuild
-        allowDirtyBuild: true # allows for use of LFS cache
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v2
-      with:
-        platforms: 'arm64,arm'
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-    - name: Log into registry ${{ env.REGISTRY }}
-      if: github.event_name != 'pull_request'
-      uses: docker/login-action@v2
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v3
-      with:
-        context: .
-        file: frontend/Dockerfile
-        push: true
-        tags: |
-          "${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }}"
-          "${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ inputs.DEPLOYMENT_ENVIRONMENT }}"
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-        platforms: ${{ inputs.PLATFORMS }}
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Create LFS file list
+        run: git lfs ls-files -l | cut -d ' ' -f1 | sort > .lfs-assets-id
+      - name: Restore LFS cache
+        uses: actions/cache@v2
+        id: lfs-cache
+        with:
+          path: .git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
+      - name: Git LFS Pull
+        run: |
+          git lfs pull
+      - name: Restore Library cache
+        uses: actions/cache@v2
+        with:
+          path: map/Library
+          key: Library-ds
+          restore-keys: |
+            Library-ds
+            Library-
+      - name: Build ds
+        uses: game-ci/unity-builder@v2
+        env:
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: WebGL
+          projectPath: map
+          buildMethod: BuildScript.GitHubBuild
+          allowDirtyBuild: true # allows for use of LFS cache
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: "arm64,arm"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: frontend/Dockerfile
+          push: true
+          tags: |
+            "${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }}"
+            "${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ inputs.DEPLOYMENT_ENVIRONMENT }}"
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: ${{ inputs.PLATFORMS }}
 
   contracts:
     name: Contracts
@@ -152,36 +150,35 @@ jobs:
       contents: read
     timeout-minutes: 60
     steps:
-
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v2
-      with:
-        platforms: 'arm64,arm'
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-    - name: Log into registry ${{ env.REGISTRY }}
-      if: github.event_name != 'pull_request'
-      uses: docker/login-action@v2
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v3
-      with:
-        context: .
-        file: contracts/Dockerfile
-        push: true
-        tags: |
-          "${{ env.REGISTRY }}/${{ env.CONTRACTS_IMAGE_NAME }}:${{ github.sha }}"
-          "${{ env.REGISTRY }}/${{ env.CONTRACTS_IMAGE_NAME }}:${{ inputs.DEPLOYMENT_ENVIRONMENT }}"
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-        platforms: ${{ inputs.PLATFORMS }}
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: "arm64,arm"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: contracts/Dockerfile
+          push: true
+          tags: |
+            "${{ env.REGISTRY }}/${{ env.CONTRACTS_IMAGE_NAME }}:${{ github.sha }}"
+            "${{ env.REGISTRY }}/${{ env.CONTRACTS_IMAGE_NAME }}:${{ inputs.DEPLOYMENT_ENVIRONMENT }}"
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: ${{ inputs.PLATFORMS }}
 
   services:
     name: Services
@@ -192,149 +189,150 @@ jobs:
       contents: read
     timeout-minutes: 60
     steps:
-
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v2
-      with:
-        platforms: 'arm64,arm'
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-    - name: Log into registry ${{ env.REGISTRY }}
-      if: github.event_name != 'pull_request'
-      uses: docker/login-action@v2
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v3
-      with:
-        context: contracts/lib/cog/services
-        push: true
-        tags: |
-          "${{ env.REGISTRY }}/${{ env.SERVICES_IMAGE_NAME }}:${{ github.sha }}"
-          "${{ env.REGISTRY }}/${{ env.SERVICES_IMAGE_NAME }}:${{ inputs.DEPLOYMENT_ENVIRONMENT }}"
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-        platforms: ${{ inputs.PLATFORMS }}
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: "arm64,arm"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: contracts/lib/cog/services
+          push: true
+          tags: |
+            "${{ env.REGISTRY }}/${{ env.SERVICES_IMAGE_NAME }}:${{ github.sha }}"
+            "${{ env.REGISTRY }}/${{ env.SERVICES_IMAGE_NAME }}:${{ inputs.DEPLOYMENT_ENVIRONMENT }}"
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: ${{ inputs.PLATFORMS }}
 
   deploy:
     name: Deploy
     runs-on: ubuntu-latest-m
     if: ${{ inputs.RUN_DEPLOY }}
     needs:
-    - frontend
-    - contracts
-    - services
+      - frontend
+      - contracts
+      - services
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
-    - name: Install Foundry
-      uses: foundry-rs/foundry-toolchain@v1
-      with:
-        version: nightly
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18.x'
-    - name: Update deployment status
-      uses: bobheadxi/deployments@v0.6.2
-      id: deployment
-      with:
-        step: start
-        token: ${{ secrets.GITHUB_TOKEN }}
-        env: ${{ inputs.DEPLOYMENT_ENVIRONMENT }}
-        ref: ${{ github.head_ref }}
-    - name: Authenticate to Azure Container Service
-      uses: azure/aks-set-context@v1
-      with:
-        creds: '${{ secrets.AZURE_CREDENTIALS }}'
-        cluster-name: ${{ secrets.AZURE_CLUSTER_NAME }}
-        resource-group: ${{ secrets.AZURE_CLUSTER_RESOURCE_GROUP }}
-    - name: Prepare helm
-      uses: azure/setup-helm@v3
-      with:
-        version: '3.7.2'
-    - name: Deploy Contracts
-      env:
-        OVERRIDE_VALUES: overrides.yaml
-        DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
-        SEQUENCER_PRIVATE_KEY: ${{ secrets.SEQUENCER_PRIVATE_KEY }}
-      run: |
-        touch $OVERRIDE_VALUES
-        if [[ "${{ inputs.DEPLOYMENT_CHAIN }}" == "redstone-holesky" ]]; then
-          (cd contracts && forge script script/Deploy.sol:GameDeployer \
-            --broadcast \
-            --rpc-url "https://rpc.holesky.redstone.xyz" \
-            --slow
-          )
-          cat contracts/out/latest.json
-          echo "chainId: 17001" >> $OVERRIDE_VALUES
-          echo "indexer:" >> $OVERRIDE_VALUES
-          echo "  gameAddress: $(jq -r .game contracts/out/latest.json)" >> $OVERRIDE_VALUES
-          echo "  stateAddress: $(jq -r .state contracts/out/latest.json)" >> $OVERRIDE_VALUES
-          echo "  routerAddress: $(jq -r .router contracts/out/latest.json)" >> $OVERRIDE_VALUES
-          echo "  providerUrlHttp: https://rpc.holesky.redstone.xyz" >> $OVERRIDE_VALUES
-          echo "  providerUrlWs: wss://rpc.holesky.redstone.xyz/ws" >> $OVERRIDE_VALUES
-          echo "frontend:" >> $OVERRIDE_VALUES
-          echo "  gameAddress: $(jq -r .game contracts/out/latest.json)" >> $OVERRIDE_VALUES
-          echo "sequencer:" >> $OVERRIDE_VALUES
-          echo "  privateKey: ${SEQUENCER_PRIVATE_KEY}" >> $OVERRIDE_VALUES
-          echo "  providerUrlHttp: https://rpc.holesky.redstone.xyz" >> $OVERRIDE_VALUES
-          echo "  providerUrlWs: wss://rpc.holesky.redstone.xyz/ws" >> $OVERRIDE_VALUES
-          echo "  mineEmpty: false" >> $OVERRIDE_VALUES
-        fi
-    - name: Deploy to Azure
-      env:
-        OVERRIDE_VALUES: overrides.yaml
-        CHART_VERSION: ${{ github.sha }}
-        CHART_NAMESPACE: ${{ inputs.DEPLOYMENT_ENVIRONMENT }}
-        CHART_VALUES: |-
-          chain: ${{ inputs.DEPLOYMENT_CHAIN }}
-          cluster:
-            domain: ${{ inputs.DEPLOYMENT_DOMAIN }}
-          version: ${{ github.sha }}
-          priorityClassName: ${{ inputs.DEPLOYMENT_PRIORITY }}
-          map: ${{ inputs.DEPLOYMENT_MAP }}
-      run: |
-        echo "${CHART_VALUES}" > /tmp/values.yaml
-        helm upgrade --install --wait \
-          --timeout "30m" \
-          --history-max 5 \
-          ds ./chart \
-            --values /tmp/values.yaml \
-            --values $OVERRIDE_VALUES \
-            --create-namespace \
-            -n "${CHART_NAMESPACE}"
-    - name: Wait for services
-      uses: iFaxity/wait-on-action@v1.1.0
-      with:
-        resource: https://services-${{ inputs.DEPLOYMENT_ENVIRONMENT }}.${{ inputs.DEPLOYMENT_DOMAIN }}/
-        interval: 1000
-        simultaneous: 1
-        timeout: 600000
-    - name: Apply Map
-      env:
-        DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
-        MAP_NAME: ${{ inputs.DEPLOYMENT_MAP }}
-        NETWORK_NAME: ${{ inputs.DEPLOYMENT_ENVIRONMENT }}
-      run: |
-        if [[ "${{ inputs.DEPLOYMENT_CHAIN }}" == "redstone-holesky" ]]; then
-          (cd /tmp && (npm install -g @playmint/ds-cli || true))
-          ds -k "${DEPLOYER_PRIVATE_KEY}" -n "${NETWORK_NAME}" apply -R -f "contracts/src/maps/${MAP_NAME}" --max-connections 50
-        fi
-    - name: Update deployment status
-      uses: bobheadxi/deployments@v0.6.2
-      if: always()
-      with:
-        step: finish
-        token: ${{ secrets.GITHUB_TOKEN }}
-        env_url: https://${{ inputs.DEPLOYMENT_ENVIRONMENT }}.${{ inputs.DEPLOYMENT_DOMAIN }}/
-        status: ${{ job.status }}
-        deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18.x"
+      - name: Update deployment status
+        uses: bobheadxi/deployments@v0.6.2
+        id: deployment
+        with:
+          step: start
+          token: ${{ secrets.GITHUB_TOKEN }}
+          env: ${{ inputs.DEPLOYMENT_ENVIRONMENT }}
+          ref: ${{ github.head_ref }}
+      - name: Authenticate to Azure Container Service
+        uses: azure/aks-set-context@v1
+        with:
+          creds: "${{ secrets.AZURE_CREDENTIALS }}"
+          cluster-name: ${{ secrets.AZURE_CLUSTER_NAME }}
+          resource-group: ${{ secrets.AZURE_CLUSTER_RESOURCE_GROUP }}
+      - name: Prepare helm
+        uses: azure/setup-helm@v3
+        with:
+          version: "3.7.2"
+      - name: Deploy Contracts
+        env:
+          OVERRIDE_VALUES: overrides.yaml
+          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+          SEQUENCER_PRIVATE_KEY: ${{ secrets.SEQUENCER_PRIVATE_KEY }}
+        run: |
+          touch $OVERRIDE_VALUES
+          if [[ "${{ inputs.DEPLOYMENT_CHAIN }}" == "redstone-holesky" ]]; then
+            (cd contracts && forge script script/Deploy.sol:GameDeployer \
+              --broadcast \
+              --rpc-url "https://rpc.holesky.redstone.xyz" \
+              --slow
+            )
+            cat contracts/out/latest.json
+            echo "chainId: 17001" >> $OVERRIDE_VALUES
+            echo "indexer:" >> $OVERRIDE_VALUES
+            echo "  gameAddress: $(jq -r .game contracts/out/latest.json)" >> $OVERRIDE_VALUES
+            echo "  stateAddress: $(jq -r .state contracts/out/latest.json)" >> $OVERRIDE_VALUES
+            echo "  routerAddress: $(jq -r .router contracts/out/latest.json)" >> $OVERRIDE_VALUES
+            echo "  providerUrlHttp: https://rpc.holesky.redstone.xyz" >> $OVERRIDE_VALUES
+            echo "  providerUrlWs: wss://rpc.holesky.redstone.xyz/ws" >> $OVERRIDE_VALUES
+            echo "frontend:" >> $OVERRIDE_VALUES
+            echo "  gameAddress: $(jq -r .game contracts/out/latest.json)" >> $OVERRIDE_VALUES
+            echo "  tokenAddress: $(jq -r .tokens contracts/out/latest.json)" >> $OVERRIDE_VALUES
+            echo "  zonesAddress: $(jq -r .zones contracts/out/latest.json)" >> $OVERRIDE_VALUES
+            echo "sequencer:" >> $OVERRIDE_VALUES
+            echo "  privateKey: ${SEQUENCER_PRIVATE_KEY}" >> $OVERRIDE_VALUES
+            echo "  providerUrlHttp: https://rpc.holesky.redstone.xyz" >> $OVERRIDE_VALUES
+            echo "  providerUrlWs: wss://rpc.holesky.redstone.xyz/ws" >> $OVERRIDE_VALUES
+            echo "  mineEmpty: false" >> $OVERRIDE_VALUES
+          fi
+      - name: Deploy to Azure
+        env:
+          OVERRIDE_VALUES: overrides.yaml
+          CHART_VERSION: ${{ github.sha }}
+          CHART_NAMESPACE: ${{ inputs.DEPLOYMENT_ENVIRONMENT }}
+          CHART_VALUES: |-
+            chain: ${{ inputs.DEPLOYMENT_CHAIN }}
+            cluster:
+              domain: ${{ inputs.DEPLOYMENT_DOMAIN }}
+            version: ${{ github.sha }}
+            priorityClassName: ${{ inputs.DEPLOYMENT_PRIORITY }}
+            map: ${{ inputs.DEPLOYMENT_MAP }}
+        run: |
+          echo "${CHART_VALUES}" > /tmp/values.yaml
+          helm upgrade --install --wait \
+            --timeout "30m" \
+            --history-max 5 \
+            ds ./chart \
+              --values /tmp/values.yaml \
+              --values $OVERRIDE_VALUES \
+              --create-namespace \
+              -n "${CHART_NAMESPACE}"
+      - name: Wait for services
+        uses: iFaxity/wait-on-action@v1.1.0
+        with:
+          resource: https://services-${{ inputs.DEPLOYMENT_ENVIRONMENT }}.${{ inputs.DEPLOYMENT_DOMAIN }}/
+          interval: 1000
+          simultaneous: 1
+          timeout: 600000
+      - name: Apply Map
+        env:
+          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+          MAP_NAME: ${{ inputs.DEPLOYMENT_MAP }}
+          NETWORK_NAME: ${{ inputs.DEPLOYMENT_ENVIRONMENT }}
+        run: |
+          if [[ "${{ inputs.DEPLOYMENT_CHAIN }}" == "redstone-holesky" ]]; then
+            (cd /tmp && (npm install -g @playmint/ds-cli || true))
+            ds -k "${DEPLOYER_PRIVATE_KEY}" -n "${NETWORK_NAME}" apply -R -f "contracts/src/maps/${MAP_NAME}" --max-connections 50
+          fi
+      - name: Update deployment status
+        uses: bobheadxi/deployments@v0.6.2
+        if: always()
+        with:
+          step: finish
+          token: ${{ secrets.GITHUB_TOKEN }}
+          env_url: https://${{ inputs.DEPLOYMENT_ENVIRONMENT }}.${{ inputs.DEPLOYMENT_DOMAIN }}/
+          status: ${{ job.status }}
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}

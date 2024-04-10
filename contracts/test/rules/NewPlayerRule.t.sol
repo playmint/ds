@@ -12,14 +12,7 @@ contract NewPlayerRuleTest is Test, GameTest {
 
     function testAllowedPlayerCanSpawnMobileUnit() public {
         vm.startPrank(players[0].addr);
-        spawnMobileUnit(1);
-        vm.stopPrank();
-    }
-
-    function testDisallowedPlayerCanNotSpawnMobileUnit() public {
-        vm.startPrank(vm.addr(0xB4DD1E));
-        vm.expectRevert("NotAllowListed");
-        spawnMobileUnit(1);
+        spawnMobileUnit();
         vm.stopPrank();
     }
 }

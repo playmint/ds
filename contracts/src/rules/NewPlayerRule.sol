@@ -12,44 +12,20 @@ import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 using Schema for State;
 
 contract NewPlayerRule is Rule {
-    bool allowListEnabled;
     string[] names;
     uint8[] indexes;
-    mapping(address => uint256) spawnable;
-
-    constructor(address[] memory allowlist) {
-        if (allowlist.length > 0) {
-            allowListEnabled = true;
-        }
-        for (uint256 i = 0; i < allowlist.length; i++) {
-            spawnable[allowlist[i]] = 1;
-        }
-    }
-
-    function allow(address addr) public {
-        spawnable[addr] = 1;
-    }
 
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         // spawn a mobileUnit for any player at any location
         if (bytes4(action) == Actions.SPAWN_MOBILE_UNIT.selector) {
-            // check if player allowed to spawn another mobileUnit
-            if (allowListEnabled) {
-                uint256 spawnableCount = spawnable[ctx.sender];
-                if (spawnableCount < 1) {
-                    revert("NotAllowListed");
-                }
-                spawnable[ctx.sender] = spawnable[ctx.sender] - 1;
-            }
             // decode action
-            (bytes24 mobileUnit) = abi.decode(action[4:], (bytes24));
-            // check mobileUnit isn't already owned
-            if (mobileUnit == 0 || state.getOwner(mobileUnit) != 0) {
-                revert("MobileUnitIdAlreadyClaimed");
+            bytes24 mobileUnit = Node.MobileUnit(ctx.sender);
+            if (state.getOwner(mobileUnit) != 0) {
+                return state;
             }
             // set the mobileUnit's owner
             state.setOwner(mobileUnit, Node.Player(ctx.sender));
-            // set location
+            // set location to limbo zone
             bytes24 locationTile = Node.Tile(0, 0, 0, 0);
             state.setPrevLocation(mobileUnit, locationTile, 0);
             state.setNextLocation(mobileUnit, locationTile, ctx.clock);

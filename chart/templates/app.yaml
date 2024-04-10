@@ -11,7 +11,13 @@ networkID: "{{ $.Release.Namespace | mustRegexFind "[0-9]+$" | printf "223%02s" 
 networkEndpoint: "https://rpc.holesky.redstone.xyz"
 networkName: "Redstone Holesky"
 networkID: "17001"
+wallets:
+  metamask: true
+  walletconnect: true
+  burner: false
 {{ end }}
+zonesAddress: {{ $.Values.frontend.zonesAddress | quote }}
+tokenAddress: {{ $.Values.frontend.tokenAddress | quote }}
 tonkEndpoint: "https://tonk-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
 {{ end }}
 
@@ -195,7 +201,7 @@ spec:
   selector:
     app: {{ $.Release.Name }}-services
 
-{{ if eq $.Values.chain "chain" }}
+{{ if eq $.Values.chain "anvil" }}
 ---
 apiVersion: v1
 kind: Service

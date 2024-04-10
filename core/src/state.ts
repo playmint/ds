@@ -1,6 +1,7 @@
 import { filter, map, merge, pipe, scan, Source } from 'wonka';
-import { ConnectedPlayer, GameState, SelectedMapElement, Selection, Selector, World } from './types';
-import { WorldTileFragment } from './gql/graphql';
+import { ConnectedPlayer, GameState, SelectedMapElement, Selection, Selector } from './types';
+import { GlobalStateFragment } from './gql/graphql';
+import { ZoneWithBags } from './world';
 
 /**
  * makeState is a helper to merge player+world+selection together into the State object.
@@ -11,8 +12,8 @@ import { WorldTileFragment } from './gql/graphql';
  */
 export function makeGameState(
     player: Source<ConnectedPlayer | undefined>,
-    world: Source<World>,
-    tiles: Source<WorldTileFragment[]>,
+    zone: Source<ZoneWithBags>,
+    global: Source<GlobalStateFragment>,
     selection: Source<Selection>,
     selectTiles: Selector<string[] | undefined>,
     selectMobileUnit: Selector<string | undefined>,
@@ -26,12 +27,12 @@ export function makeGameState(
                 map((player) => ({ player })),
             ),
             pipe(
-                world,
-                map((world) => ({ world })),
+                zone,
+                map((zone) => ({ zone })),
             ),
             pipe(
-                tiles,
-                map((tiles) => ({ tiles })),
+                global,
+                map((global) => ({ global })),
             ),
             pipe(
                 selection,
@@ -42,6 +43,6 @@ export function makeGameState(
             (inputs, v) => ({ selectTiles, selectMobileUnit, selectIntent, selectMapElement, ...inputs, ...v }),
             {} as Partial<GameState>,
         ),
-        filter((inputs): inputs is GameState => !!inputs.world),
+        filter((inputs): inputs is GameState => !!inputs.zone && !!inputs.global),
     ) satisfies Source<GameState>;
 }

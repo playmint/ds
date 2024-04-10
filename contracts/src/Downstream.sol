@@ -10,6 +10,7 @@ import {LibString} from "cog/utils/LibString.sol";
 import "./IDownstream.sol";
 import {Schema, Node, Rel, Kind} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
+import {Zones721} from "@ds/Zones721.sol";
 
 using Schema for BaseState;
 
@@ -48,16 +49,22 @@ contract DownstreamRouter is BaseRouter {
 
 contract DownstreamGame is BaseGame {
     address public owner;
+    Zones721 public zoneOwnership;
 
     modifier ownerOnly() {
         require(msg.sender == owner, "DownstreamGame: Sender is not the owner");
         _;
     }
 
-    constructor(address _owner) BaseGame("DOWNSTREAM", "http://downstream.game/") {
+    constructor(address _owner, Zones721 _zoneOwnership) BaseGame("DOWNSTREAM", "http://downstream.game/") {
         owner = _owner;
+
         // create a state
         BaseState state = new BaseState(address(this));
+
+        // setup the zone ownership contract
+        zoneOwnership = _zoneOwnership;
+        state.authorizeContract(address(zoneOwnership));
 
         // register the kind ids we are using
         state.registerNodeType(Kind.Player.selector, "Player", CompoundKeyKind.ADDRESS);
@@ -77,6 +84,7 @@ contract DownstreamGame is BaseGame {
         state.registerNodeType(Kind.Task.selector, "Task", CompoundKeyKind.UINT32_ARRAY);
         state.registerNodeType(Kind.ID.selector, "ID", CompoundKeyKind.BYTES);
         state.registerNodeType(Kind.OwnedToken.selector, "OwnedToken", CompoundKeyKind.BYTES);
+        state.registerNodeType(Kind.Zone.selector, "Zone", CompoundKeyKind.UINT160);
 
         // register the relationship ids we are using
         state.registerEdgeType(Rel.Owner.selector, "Owner", WeightKind.UINT64);
@@ -100,6 +108,7 @@ contract DownstreamGame is BaseGame {
         state.registerEdgeType(Rel.HasTask.selector, "HasTask", WeightKind.UINT64);
         state.registerEdgeType(Rel.ID.selector, "ID", WeightKind.UINT64);
         state.registerEdgeType(Rel.HasBlockNum.selector, "HasBlockNum", WeightKind.UINT64);
+        state.registerEdgeType(Rel.Parent.selector, "Parent", WeightKind.UINT64);
 
         // create a session router
         BaseRouter router = new DownstreamRouter();

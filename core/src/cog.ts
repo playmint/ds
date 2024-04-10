@@ -61,6 +61,7 @@ const cogDefaultConfig = {
     networkEndpoint: 'http://localhost:8545',
     networkID: '22300',
     networkName: 'hexwoodlocal',
+    tokenAddress: '0x0a668c3342e68b5F9054403e2080fA77259e8DbA',
 } satisfies GameConfig;
 
 /**
@@ -94,6 +95,7 @@ export function configureClient({
     actions: iactions,
     authMessage,
     gameID,
+    tokenAddress,
 }: GameConfig) {
     const wsClient = createWSClient({
         url: wsEndpoint,
@@ -289,7 +291,7 @@ export function configureClient({
             ),
         );
 
-    return { gameID, signin, signout, query, subscription, dispatch, block };
+    return { gameID, tokenAddress, signin, signout, query, subscription, dispatch, block };
 }
 
 /**

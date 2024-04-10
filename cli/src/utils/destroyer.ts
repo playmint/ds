@@ -2,20 +2,17 @@ import { CogAction, } from '@downstream/core';
 import { WorldStateFragment, TilesStateFragment } from '@downstream/core/src/gql/graphql';
 import { id as keccak256UTF8, solidityPacked, fromTwos } from 'ethers';
 import { z } from 'zod';
-import {
-    ManifestDocument,
-    Slot,
-} from '../utils/manifest';
+import { ManifestDocument, Slot } from '../utils/manifest';
 import { encodeTileID, encodeBagID, getItemIdByName } from './helpers';
 import { isInBounds } from '../utils/bounds';
-
-const temporaryZoneConstant = 0;
+import { ZoneStateFragment, GlobalStateFragment } from '@downstream/core';
 
 export const getOpsForManifests = async (
     docs,
-    world: WorldStateFragment,
-    tiles: TilesStateFragment,
+    zone: ZoneStateFragment,
+    global: GlobalStateFragment
 ): Promise<OpSet[]> => {
+    const zoneId = Number(BigInt.asIntN(16, zone.key));
     // build list of operations
     const opsets: OpSet[] = [];
     let opn = -1;
@@ -54,9 +51,7 @@ export const getOpsForManifests = async (
             actions: [
                 {
                     name: 'DEV_DESTROY_BUILDING',
-                    args: [
-                        ...[temporaryZoneConstant, spec.location[0], spec.location[1], spec.location[2]]
-                    ],
+                    args: [...[zoneId, spec.location[0], spec.location[1], spec.location[2]]],
                 },
             ],
             note: `destroyed building instance of ${spec.name} at ${spec.location.join(',')}`,
@@ -102,7 +97,7 @@ export const getOpsForManifests = async (
             actions: [
                 {
                     name: 'DEV_DESTROY_TILE',
-                    args: [temporaryZoneConstant, spec.location[0], spec.location[1], spec.location[2]]
+                    args: [zoneId, spec.location[0], spec.location[1], spec.location[2]],
                 },
             ],
             note: `destroyed tile ${spec.location.join(',')}`,
@@ -126,7 +121,7 @@ export const getOpsForManifests = async (
         const encodeSlotConfig = (slots: ReturnType<typeof Slot.parse>[]) => {
             const items = [0, 0, 0, 0].map((_, idx) =>
                 slots[idx]
-                    ? getItemIdByName(docs, world.items, slots[idx].name)
+                    ? getItemIdByName(docs, global.items, slots[idx].name)
                     : '0x000000000000000000000000000000000000000000000000'
             );
             const quantities = [0, 0, 0, 0].map((_, idx) => (slots[idx] ? slots[idx].quantity : 0));
@@ -134,12 +129,12 @@ export const getOpsForManifests = async (
         };
 
         const spec = doc.manifest.spec;
-        const [z, q, r, s] = [temporaryZoneConstant, spec.location[0], spec.location[1], spec.location[2]];
+        const [z, q, r, s] = [zoneId, spec.location[0], spec.location[1], spec.location[2]];
         const inBounds = isInBounds(q, r, s);
 
         const bagID = encodeBagID({ z, q, r, s });
         const ownerAddress = solidityPacked(['uint160'], [0]); // public
-        const equipee = encodeTileID({z, q, r, s });
+        const equipee = encodeTileID({ z, q, r, s });
         const equipSlot = 0;
 
         const bagContents = encodeSlotConfig(spec.items || []);

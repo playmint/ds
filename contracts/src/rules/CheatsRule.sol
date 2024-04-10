@@ -23,32 +23,12 @@ using Schema for State;
 // testing that would otherwise be illegal.
 
 contract CheatsRule is Rule {
-    address authorizedCheater;
-    bool disabled;
-    bool bypass = true; // just let folks do whatever they want for crying out loud
-
-    constructor(address cheater) {
-        authorizedCheater = cheater;
-    }
-
-    function isCheatAllowed(address cheater) internal view returns (bool) {
-        if (bypass || (!disabled && cheater == authorizedCheater)) {
-            return true;
-        }
-        return false;
-    }
-
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.DEV_SPAWN_TILE.selector) {
-            require(isCheatAllowed(ctx.sender), "DEV_SPAWN_TILE not allowed");
-
             (int16 z, int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16, int16));
-            require(Bounds.isInBounds(q, r, s), "DEV_SPAWN_TILE coords out of bounds");
 
-            _spawnTile(state, z, q, r, s);
+            _spawnTile(state, ctx, z, q, r, s);
         } else if (bytes4(action) == Actions.DEV_SPAWN_BAG.selector) {
-            require(isCheatAllowed(ctx.sender), "DEV_SPAWN_BAG not allowed");
-
             (
                 bytes24 bagID,
                 address owner,
@@ -57,35 +37,22 @@ contract CheatsRule is Rule {
                 bytes24[] memory slotContents,
                 uint64[] memory slotBalances
             ) = abi.decode(action[4:], (bytes24, address, bytes24, uint8, bytes24[], uint64[]));
-            if (bytes4(equipee) == Kind.Tile.selector) {
-                (, int16 q, int16 r, int16 s) = state.getTileCoords(equipee);
-                require(Bounds.isInBounds(q, r, s), "DEV_SPAWN_BAG coords out of bounds");
-            }
 
-            _spawnBag(state, bagID, owner, equipee, equipSlot, slotContents, slotBalances);
+            _spawnBag(state, ctx, bagID, owner, equipee, equipSlot, slotContents, slotBalances);
         } else if (bytes4(action) == Actions.DEV_SPAWN_BUILDING.selector) {
-            require(isCheatAllowed(ctx.sender), "DEV_SPAWN_BUILDING not allowed");
-
             (bytes24 buildingKind, int16 z, int16 q, int16 r, int16 s, FacingDirectionKind facingDirection) =
                 abi.decode(action[4:], (bytes24, int16, int16, int16, int16, FacingDirectionKind));
-            require(Bounds.isInBounds(q, r, s), "DEV_SPAWN_BUILDING coords out of bounds");
 
             _construct(state, ctx, buildingKind, z, q, r, s, facingDirection);
         } else if (bytes4(action) == Actions.DEV_DESTROY_TILE.selector) {
-            require(isCheatAllowed(ctx.sender), "DEV_DESTROY_TILE not allowed");
             (int16 z, int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16, int16));
-            require(Bounds.isInBounds(q, r, s), "DEV_DESTROY_TILE coords out of bounds");
-            _destroyTile(state, z, q, r, s);
+
+            _destroyTile(state, ctx, z, q, r, s);
         } else if (bytes4(action) == Actions.DEV_DESTROY_BUILDING.selector) {
-            require(isCheatAllowed(ctx.sender), "DEV_DESTROY_BUILDING not allowed");
             (int16 z, int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16, int16));
 
-            require(Bounds.isInBounds(q, r, s), "DEV_DESTROY_BUILDING coords out of bounds");
-
-            _destroyBuilding(state, z, q, r, s);
+            _destroyBuilding(state, ctx, z, q, r, s);
         } else if (bytes4(action) == Actions.DEV_DESTROY_BAG.selector) {
-            require(isCheatAllowed(ctx.sender), "DEV_DESTROY_BAG not allowed");
-
             (
                 bytes24 bagID,
                 address owner,
@@ -93,15 +60,7 @@ contract CheatsRule is Rule {
                 uint8 equipSlot,
                 bytes24[] memory slotContents
             ) = abi.decode(action[4:], (bytes24, address, bytes24, uint8, bytes24[]));
-            if (bytes4(equipee) == Kind.Tile.selector) {
-                (, int16 q, int16 r, int16 s) = state.getTileCoords(equipee);
-                require(Bounds.isInBounds(q, r, s), "DEV_DESTROY_BAG coords out of bounds");
-            }
-            _destroyBag(state, bagID, owner, equipee, equipSlot, slotContents);
-        } else if (bytes4(action) == Actions.DEV_DISABLE_CHEATS.selector) {
-            require(isCheatAllowed(ctx.sender), "DEV_DISABLE_CHEATS not allowed");
-
-            disabled = true;
+            _destroyBag(state, ctx, bagID, owner, equipee, equipSlot, slotContents);
         }
 
         return state;
@@ -109,6 +68,7 @@ contract CheatsRule is Rule {
 
     function _spawnBag(
         State state,
+        Context calldata ctx,
         bytes24 bag,
         address owner,
         bytes24 equipee,
@@ -116,6 +76,13 @@ contract CheatsRule is Rule {
         bytes24[] memory slotContents,
         uint64[] memory slotBalances
     ) private {
+        if (bytes4(equipee) == Kind.Tile.selector) {
+            (int16 z, int16 q, int16 r, int16 s) = state.getTileCoords(equipee);
+            bytes24 zone = Node.Zone(z);
+            require(Bounds.isInBounds(q, r, s), "coords out of bounds");
+            require(state.getOwner(zone) == Node.Player(ctx.sender), "owner only");
+            state.setParent(bag, zone);
+        }
         for (uint8 i = 0; i < slotContents.length; i++) {
             state.setItemSlot(bag, i, slotContents[i], slotBalances[i]);
         }
@@ -125,8 +92,12 @@ contract CheatsRule is Rule {
         state.setEquipSlot(equipee, equipSlot, bag);
     }
 
-    function _spawnTile(State state, int16 z, int16 q, int16 r, int16 s) private {
+    function _spawnTile(State state, Context calldata ctx, int16 z, int16 q, int16 r, int16 s) private {
+        bytes24 zone = Node.Zone(z);
+        require(Bounds.isInBounds(q, r, s), "coords out of bounds");
+        require(state.getOwner(zone) == Node.Player(ctx.sender), "owner only");
         bytes24 tile = Node.Tile(z, q, r, s);
+        state.setParent(tile, zone);
         state.setBiome(tile, BiomeKind.DISCOVERED);
         state.setTileAtomValues(tile, [uint64(255), uint64(255), uint64(255)]);
     }
@@ -142,9 +113,13 @@ contract CheatsRule is Rule {
         int16 s,
         FacingDirectionKind facingDirection
     ) internal {
+        bytes24 zone = Node.Zone(z);
+        require(Bounds.isInBounds(q, r, s), "coords out of bounds");
+        require(state.getOwner(zone) == Node.Player(ctx.sender), "owner only");
         bytes24 buildingInstance = Node.Building(z, q, r, s);
 
         state.setBuildingKind(buildingInstance, buildingKind);
+        state.setParent(buildingInstance, zone);
         state.setOwner(buildingInstance, Node.Player(msg.sender));
         state.setFixedLocation(buildingInstance, Node.Tile(z, q, r, s));
 
@@ -171,12 +146,18 @@ contract CheatsRule is Rule {
 
     function _destroyBag(
         State state,
+        Context calldata ctx,
         bytes24 bag,
         address owner,
         bytes24 equipee,
         uint8 equipSlot,
         bytes24[] memory slotContents
     ) private {
+        if (bytes4(equipee) == Kind.Tile.selector) {
+            (int16 z, int16 q, int16 r, int16 s) = state.getTileCoords(equipee);
+            require(Bounds.isInBounds(q, r, s), "coords out of bounds");
+            require(state.getOwner(Node.Zone(z)) == Node.Player(ctx.sender), "owner only");
+        }
         for (uint8 i = 0; i < slotContents.length; i++) {
             state.clearItemSlot(bag, i);
         }
@@ -184,17 +165,24 @@ contract CheatsRule is Rule {
             state.removeOwner(bag);
         }
         state.removeEquipSlot(equipee, equipSlot);
+        state.removeParent(bag);
     }
 
-    function _destroyTile(State state, int16 z, int16 q, int16 r, int16 s) private {
+    function _destroyTile(State state, Context calldata ctx, int16 z, int16 q, int16 r, int16 s) private {
+        require(Bounds.isInBounds(q, r, s), "coords out of bounds");
+        require(state.getOwner(Node.Zone(z)) == Node.Player(ctx.sender), "owner only");
         bytes24 tile = Node.Tile(z, q, r, s);
         state.removeBiome(tile);
+        state.removeParent(tile);
     }
 
-    function _destroyBuilding(State state, int16 z, int16 q, int16 r, int16 s) private {
+    function _destroyBuilding(State state, Context calldata ctx, int16 z, int16 q, int16 r, int16 s) private {
+        require(Bounds.isInBounds(q, r, s), "coords out of bounds");
+        require(state.getOwner(Node.Zone(z)) == Node.Player(ctx.sender), "owner only");
         bytes24 buildingInstance = Node.Building(z, q, r, s);
         state.removeBuildingKind(buildingInstance);
         state.removeOwner(buildingInstance);
+        state.removeParent(buildingInstance);
         state.removeFixedLocation(buildingInstance);
     }
 }

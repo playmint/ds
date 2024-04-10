@@ -15,7 +15,7 @@ import {
     zip,
 } from 'wonka';
 import * as apiv1 from './api/v1';
-import { AvailablePluginFragment, GetAvailablePluginsDocument, WorldStateFragment } from './gql/graphql';
+import { AvailablePluginFragment, GetAvailablePluginsDocument } from './gql/graphql';
 import { Logger } from './logger';
 import {
     ActivePlugin,
@@ -32,9 +32,9 @@ import {
     QueuedSequencerAction,
     Sandbox,
     Selection,
-    World,
 } from './types';
 import { getBagsAtEquipee, getBuildingAtTile } from './utils';
+import { ZoneWithBags } from './world';
 
 /**
  * makeAvailablePlugins polls for the list of deployed plugins every now and
@@ -111,7 +111,7 @@ export function makePluginUI(
                                       }
                                     : undefined,
                                 world: {
-                                    ...(state.world || {}),
+                                    ...(state.zone || {}),
                                     sessions: [],
                                 },
                                 selected: state.selected,
@@ -151,8 +151,8 @@ export function makePluginUI(
                                 }
                                 plugin = active.has(p.id)
                                     ? active.get(p.id)
-                                    : state.world.buildings.some((building) => building?.kind?.id === p.kindID) ||
-                                      state.world.items.some((item) => item?.id === p.kindID)
+                                    : state.zone.buildings.some((building) => building?.kind?.id === p.kindID) ||
+                                      state.global.items.some((item) => item?.id === p.kindID)
                                     ? await loadPlugin(
                                           sandbox,
                                           dispatch,
@@ -205,7 +205,7 @@ export function makePluginUI(
 function isAutoloadableBuildingPlugin(
     p: AvailablePluginFragment,
     { tiles, mobileUnit }: Selection,
-    world: WorldStateFragment,
+    zone: ZoneWithBags,
 ) {
     if (!p.supports) {
         return false;
@@ -229,7 +229,7 @@ function isAutoloadableBuildingPlugin(
             if (!selectedTile) {
                 return false;
             }
-            const selectedBuilding = getBuildingAtTile(world.buildings, selectedTile);
+            const selectedBuilding = getBuildingAtTile(zone.buildings, selectedTile);
             if (!selectedBuilding) {
                 return false;
             }
@@ -238,7 +238,7 @@ function isAutoloadableBuildingPlugin(
             if (!mobileUnit) {
                 return false;
             }
-            const unitItemKindIds = getBagsAtEquipee(world.bags, mobileUnit).flatMap((bag) =>
+            const unitItemKindIds = getBagsAtEquipee(zone.bags, mobileUnit).flatMap((bag) =>
                 bag.slots.filter((slot) => slot.balance > 0).flatMap((slot) => slot.item.id),
             );
             return unitItemKindIds.some((id) => p.supports?.id === id);
@@ -254,19 +254,19 @@ function isAutoloadableBuildingPlugin(
 export function makeAutoloadPlugins(
     availablePlugins: Source<AvailablePluginFragment[]>,
     selection: Source<Selection>,
-    world: Source<World>,
+    zone: Source<ZoneWithBags>,
 ) {
     const plugins = pipe(
         availablePlugins,
         switchMap((availablePlugins) =>
             pipe(
-                world,
-                switchMap((world) => {
+                zone,
+                switchMap((zone) => {
                     return pipe(
                         selection,
                         map((selection) =>
                             availablePlugins
-                                .filter((p) => isAutoloadableBuildingPlugin(p, selection, world))
+                                .filter((p) => isAutoloadableBuildingPlugin(p, selection, zone))
                                 .map(
                                     (p) =>
                                         ({

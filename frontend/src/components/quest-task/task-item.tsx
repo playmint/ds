@@ -3,7 +3,7 @@ import {
     Player,
     Log,
     TaskKinds,
-    WorldStateFragment,
+    ZoneWithBags,
     BuildingKindFragment,
     WorldTileFragment,
 } from '@downstream/core';
@@ -32,7 +32,7 @@ const taskUnitStats = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.u
 
 export interface TaskItemProps {
     task: QuestTaskEdge;
-    world: WorldStateFragment;
+    zone: ZoneWithBags;
     tiles: WorldTileFragment[];
     buildingKinds: BuildingKindFragment[];
     player: Player;
@@ -68,7 +68,7 @@ const useTaskMemo = (task: QuestTaskEdge) => {
 
 export const TaskItem: FunctionComponent<TaskItemProps> = ({
     task,
-    world,
+    zone,
     tiles,
     buildingKinds,
     player,
@@ -76,7 +76,7 @@ export const TaskItem: FunctionComponent<TaskItemProps> = ({
     setTaskCompletion,
 }) => {
     const taskKind = task.node.keys[0];
-    const playerUnits = world?.mobileUnits.filter((mu) => mu.owner && player && mu.owner.id === player.id) || [];
+    const playerUnits = zone?.mobileUnits.filter((mu) => mu.owner && player && mu.owner.id === player.id) || [];
 
     // The ref to the array containing the IDs is only updated if the IDs change. Needed so the CombatMemo didn't update every time we supplied it with a newly filtered list
     const playerUnitIDs = usePlayerUnitIDsMemo(playerUnits.map((u) => u.id));
@@ -88,7 +88,7 @@ export const TaskItem: FunctionComponent<TaskItemProps> = ({
         case taskInventory:
             return (
                 <TaskInventory
-                    bags={world?.bags || []}
+                    bags={zone?.bags || []}
                     task={taskMemo}
                     mobileUnits={playerUnits || []}
                     setTaskCompletion={setTaskCompletion}
@@ -103,7 +103,7 @@ export const TaskItem: FunctionComponent<TaskItemProps> = ({
         case taskConstruct:
             return (
                 <TaskConstruct
-                    buildings={world?.buildings || []}
+                    buildings={zone?.buildings || []}
                     task={taskMemo}
                     tiles={tiles}
                     playerID={player.id}
@@ -113,7 +113,7 @@ export const TaskItem: FunctionComponent<TaskItemProps> = ({
         case taskCombat:
             return (
                 <TaskCombat
-                    sessions={world?.sessions || []}
+                    sessions={zone?.sessions || []}
                     task={taskMemo}
                     playerUnitIDs={playerUnitIDs}
                     setTaskCompletion={setTaskCompletion}
@@ -131,7 +131,7 @@ export const TaskItem: FunctionComponent<TaskItemProps> = ({
         case taskUnitStats:
             return (
                 <TaskUnitStats
-                    worldBags={world?.bags || []}
+                    worldBags={zone?.bags || []}
                     task={taskMemo}
                     mobileUnits={playerUnits}
                     setTaskCompletion={setTaskCompletion}

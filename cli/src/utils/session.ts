@@ -2,6 +2,7 @@ import {
     ConnectedPlayer,
     EthereumProvider,
     LogLevel,
+    NodeSelectors,
     makeConnectedPlayer,
     makeKeyWallet,
     makeLogger,
@@ -64,6 +65,9 @@ export const session = async (ctx) => {
     if (!network) {
         throw new Error(`no network found with name ${ctx.network}`);
     }
+    if (!ctx.zone) {
+        throw new Error(`no zone provided`);
+    }
 
     let __client: ReturnType<typeof makeCogClient>;
     ctx.makeClient = () => {
@@ -105,10 +109,7 @@ export const session = async (ctx) => {
                 take(1),
                 toPromise
             );
-            const provider = await Promise.race([
-                newWalletConnectProvider(),
-                sleep(60 * 1000).then(() => null),
-            ]);
+            const provider = await Promise.race([newWalletConnectProvider(), sleep(60 * 1000).then(() => null)]);
             if (provider === null) {
                 throw new Error('Timed out waiting for walletconnect connection or approval, please try again');
             }
@@ -141,6 +142,11 @@ export const session = async (ctx) => {
         }
         return __player;
     };
+
+    // if a full id is provided, convert to the small key/id
+    ctx.zone = (ctx.zone || '').startsWith(NodeSelectors.Zone)
+        ? Number(BigInt.asIntN(16, ctx.zone.replace(NodeSelectors.Zone, '')))
+        : ctx.zone;
 };
 
 function sleep(ms: number): Promise<void> {

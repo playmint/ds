@@ -1,12 +1,15 @@
-import { CompoundKeyEncoder, ConnectedPlayer, NodeSelectors, WorldMobileUnitFragment } from '@app/../../core/src';
+import { ConnectedPlayer, WorldMobileUnitFragment, ZoneWithBags } from '@app/../../core/src';
 import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { ActionButton } from '@app/styles/button.styles';
 import { useCallback, useState } from 'react';
+import { ethers } from 'ethers';
 import styled from 'styled-components';
 
 export interface OnboardingProps {
+    zone: ZoneWithBags;
     player?: ConnectedPlayer;
     playerUnits: WorldMobileUnitFragment[];
+    block: number;
     onClickConnect: () => void;
 }
 
@@ -20,42 +23,50 @@ const StyledOnboarding = styled(StyledHeaderPanel)`
     }
 `;
 
-export const Onboarding = ({ player, playerUnits, onClickConnect }: OnboardingProps) => {
+export const Onboarding = ({ player, playerUnits, onClickConnect, zone, block }: OnboardingProps) => {
     const [isSpawningMobileUnit, setIsSpawningMobileUnit] = useState<boolean>(false);
 
     const spawnMobileUnit = useCallback(() => {
         if (!player) {
             return;
         }
-        const id = CompoundKeyEncoder.encodeUint160(
-            NodeSelectors.MobileUnit,
-            BigInt(Math.floor(Math.random() * 10000))
-        );
+        if (!zone) {
+            return;
+        }
+        const zoneId = Number(BigInt.asIntN(16, zone.key));
         setIsSpawningMobileUnit(true);
         player
-            .dispatch({ name: 'SPAWN_MOBILE_UNIT', args: [id] })
+            .dispatch({ name: 'SPAWN_MOBILE_UNIT', args: [] }, { name: 'MOVE_MOBILE_UNIT', args: [zoneId, 0, 0, 0] })
             .catch((e) => {
                 console.error('failed to spawn mobileUnit:', e);
             })
             .finally(() => setIsSpawningMobileUnit(false));
-    }, [player, setIsSpawningMobileUnit]);
+    }, [player, setIsSpawningMobileUnit, zone]);
+
+    const zoneName = zone.name?.value ? ethers.decodeBytes32String(zone.name.value) : `unnamed`;
+    const zoneDescription = zone.description?.value
+        ? ethers.decodeBytes32String(zone.description.value)
+        : `no description`;
+
+    const ACTIVE_UNIT_TIMEOUT = 10; // FIXME: value should match spawn logic
+    const activeUnits = zone.mobileUnits.filter(
+        (u) => u.nextLocation && u.nextLocation.time + ACTIVE_UNIT_TIMEOUT < block
+    );
 
     return (
         <StyledOnboarding>
             <div className="header">
-                <h3>👁️‍🗨️ Welcome to Downstream</h3>
+                <h3>👁️‍🗨️ {zoneName}</h3>
             </div>
             <div className="content">
-                <p>✅ If you’re an approved playtester, simply connect your wallet and click ‘Spawn Unit’ to begin. </p>
+                <p></p>
                 <p>
-                    If you want to join the community, check out our{' '}
-                    <a href="https://discord.gg/VdXWWNaqGN" target="_blank" rel="noopener noreferrer">
-                        communications server!
-                    </a>
+                    welcome to {zoneName}, {zoneDescription}
                 </p>
+                <p>There are {activeUnits.length} active units here</p>
                 {player && playerUnits.length === 0 ? (
                     <ActionButton onClick={spawnMobileUnit} disabled={isSpawningMobileUnit}>
-                        Spawn Unit
+                        Enter
                     </ActionButton>
                 ) : (
                     <ActionButton onClick={onClickConnect}>Connect Wallet</ActionButton>

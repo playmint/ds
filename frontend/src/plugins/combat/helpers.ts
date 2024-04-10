@@ -6,7 +6,7 @@ import {
     ConnectedPlayer,
     ItemSlotFragment,
     WorldMobileUnitFragment,
-    WorldStateFragment,
+    ZoneWithBags,
     WorldTileFragment,
 } from '@downstream/core';
 import { BagFragment, WorldCombatSessionFragment } from '@downstream/core/src/gql/graphql';
@@ -123,13 +123,13 @@ export const getIcon = (entityID: BytesLike, mobileUnits: WorldMobileUnitFragmen
     return mobileUnit ? '/icons/mobile-unit-yours.svg' : '/icons/mobile-unit-theirs.svg';
 };
 
-export const getEntityName = (entityID: BytesLike, world: WorldStateFragment) => {
+export const getEntityName = (entityID: BytesLike, zone: ZoneWithBags) => {
     const id = hexlify(entityID).toString();
     if (id.startsWith(buildingIdStart)) {
-        const building = world.buildings.find((b) => b.id === id);
+        const building = zone.buildings.find((b) => b.id === id);
         return building?.kind?.name?.value ?? 'Building';
     }
-    const unit = (world?.mobileUnits || []).find((s) => s.id === entityID);
+    const unit = (zone?.mobileUnits || []).find((s) => s.id === entityID);
     return formatNameOrId(unit, 'Unit ');
 };
 
@@ -182,15 +182,15 @@ export const getMaterialStats = (materials: ItemSlotFragment[]) => {
 
 export const unitToCombatParticipantProps = (
     unit: WorldMobileUnitFragment,
-    world: WorldStateFragment,
+    zone: ZoneWithBags,
     player: ConnectedPlayer
 ) => {
     const entityID = unit.id;
-    const unitBags = getBagsAtEquipee(world?.bags || [], unit);
-    const playerMobileUnits = (world?.mobileUnits || []).filter((mu) => mu.owner?.id == player.id);
+    const unitBags = getBagsAtEquipee(zone?.bags || [], unit);
+    const playerMobileUnits = (zone?.mobileUnits || []).filter((mu) => mu.owner?.id == player.id);
     const stats = getEquipmentStats(unitBags);
     return {
-        name: getEntityName(entityID, world),
+        name: getEntityName(entityID, zone),
         icon: getIcon(entityID, playerMobileUnits),
         maxHealth: stats[ATOM_LIFE] + UNIT_BASE_LIFE * LIFE_MUL,
         currentHealth: stats[ATOM_LIFE] + UNIT_BASE_LIFE * LIFE_MUL,
@@ -217,12 +217,12 @@ export const buildingToCombatParticipantProps = (buildingKind: BuildingKindFragm
 
 export const entityStateToCombatParticipantProps = (
     { entityID, damage, stats, isDead, isPresent }: EntityState,
-    world: WorldStateFragment,
+    zone: ZoneWithBags,
     player: ConnectedPlayer
 ) => {
-    const playerMobileUnits = (world?.mobileUnits || []).filter((mu) => mu.owner?.id == player.id);
+    const playerMobileUnits = (zone?.mobileUnits || []).filter((mu) => mu.owner?.id == player.id);
     return {
-        name: getEntityName(entityID, world),
+        name: getEntityName(entityID, zone),
         icon: getIcon(entityID, playerMobileUnits),
         maxHealth: stats[ATOM_LIFE],
         currentHealth: Math.max(stats[ATOM_LIFE] - damage, 0),
@@ -244,19 +244,19 @@ export const sumParticipants = (
 
 export const getTileEntities = (
     tile: WorldTileFragment,
-    world: WorldStateFragment,
+    zone: ZoneWithBags,
     player: ConnectedPlayer
 ): CombatParticipantProps[] => {
     if (!tile) {
         return [];
     }
     const entities: CombatParticipantProps[] = [];
-    const building = getBuildingAtTile(world?.buildings || [], tile);
+    const building = getBuildingAtTile(zone?.buildings || [], tile);
     if (building && building.kind) {
         entities.push(buildingToCombatParticipantProps(building.kind));
     }
-    const mobileUnits = getMobileUnitsAtTile(world?.mobileUnits || [], tile);
-    entities.push(...mobileUnits.map((unit) => unitToCombatParticipantProps(unit, world, player)));
+    const mobileUnits = getMobileUnitsAtTile(zone?.mobileUnits || [], tile);
+    entities.push(...mobileUnits.map((unit) => unitToCombatParticipantProps(unit, zone, player)));
     return entities;
 };
 

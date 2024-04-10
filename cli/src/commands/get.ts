@@ -1,8 +1,15 @@
-import { z } from 'zod';
-import { WorldStateFragment, getCoords } from '@downstream/core';
+import {
+    GetGlobalDocument,
+    GetZoneDocument,
+    CompoundKeyEncoder,
+    NodeSelectors,
+    getCoords,
+    ZoneStateFragment,
+} from '@downstream/core';
 import { pipe, take, toPromise } from 'wonka';
+import { z } from 'zod';
 import { BiomeTypes, FacingDirectionTypes, Manifest, Slot } from '../utils/manifest';
-import { BuildingKindFragment, GetAvailableBuildingKindsDocument, GetWorldDocument, GetTilesDocument, TilesStateFragment } from '@downstream/core/src/gql/graphql';
+import { GlobalStateFragment } from '@downstream/core';
 
 const SLOT_FRAGMENT = `
     key
@@ -110,7 +117,11 @@ const nodeToManifest = (node): z.infer<typeof Manifest> => {
             .map((l) => getCoords(l.tile))
             .map(({ z, q, r, s }) => [z, q, r, s])
             .find(() => true);
-        const spec = { name: buildingKindName, location, facingDirection: node.facingDirection?.value || FacingDirectionTypes[0] };
+        const spec = {
+            name: buildingKindName,
+            location,
+            facingDirection: node.facingDirection?.value || FacingDirectionTypes[0],
+        };
         const status = { owner, id };
         return { kind, spec, status };
     } else if (node.kind == 'MobileUnit') {
@@ -167,10 +178,9 @@ const nodeToManifest = (node): z.infer<typeof Manifest> => {
         const status = { id };
         return { kind, spec, status };
     } else if (node.kind == 'Tile') {
-        const { z, q, r, s } = getCoords({ coords: node.keys });
-        const location: [number, number, number, number] = [z, q, r, s];
+        const { q, r, s } = getCoords({ coords: node.keys });
         const { kind, id } = node;
-        const spec = { location, biome: BiomeTypes[1] };
+        const spec = { location: [q, r, s] as [number, number, number], biome: BiomeTypes[1] };
         const status = { id };
         return { kind, spec, status };
     } else {
@@ -184,22 +194,27 @@ export const getManifestsByKind = async (ctx, kinds: string[]): Promise<z.infer<
     return res.game.state.nodes.map(nodeToManifest);
 };
 
-export const getWorld = async (ctx): Promise<WorldStateFragment> => {
+export const getZone = async (ctx): Promise<ZoneStateFragment> => {
     const client = await ctx.client();
-    const res: any = await pipe(client.query(GetWorldDocument, { gameID: ctx.game }), take(1), toPromise);
-    return res.game.state;
+    const res: any = await pipe(
+        client.query(GetZoneDocument, {
+            gameID: ctx.game,
+            zoneID: CompoundKeyEncoder.encodeUint160(NodeSelectors.Zone, ctx.zone),
+        }),
+        take(1),
+        toPromise
+    );
+    const zone = res?.game?.state?.zone;
+    if (!zone?.key) {
+        throw new Error(`zone not found`);
+    }
+    return zone;
 };
 
-export const getTiles = async (ctx): Promise<TilesStateFragment> => {
+export const getGlobal = async (ctx): Promise<GlobalStateFragment> => {
     const client = await ctx.client();
-    const res: any = await pipe(client.query(GetTilesDocument, { gameID: ctx.game }), take(1), toPromise);
+    const res: any = await pipe(client.query(GetGlobalDocument, { gameID: ctx.game }), take(1), toPromise);
     return res.game.state;
-};
-
-export const getAvailableBuildingKinds = async (ctx): Promise<BuildingKindFragment[]> => {
-    const client = await ctx.client();
-    const res: any = await pipe(client.query(GetAvailableBuildingKindsDocument, { gameID: ctx.game }), take(1), toPromise);
-    return res.game.state.kinds;
 };
 
 const kindNames = {
@@ -252,7 +267,9 @@ const command = {
         // filter by id or name
         if (ctx.id) {
             if (ctx.id.startsWith('0x')) {
-                manifests = manifests.filter(({ status, kind }) => status && kind !== 'Quest' && status.id === ctx.id);
+                manifests = manifests.filter(
+                    ({ status, kind }) => status && kind !== 'Quest' && (status as any).id === ctx.id
+                );
             } else {
                 const re = new RegExp(ctx.id, 'i');
                 manifests = manifests.filter((manifest: any) => manifest.spec?.name && re.test(manifest.spec?.name));

@@ -1,6 +1,6 @@
 /** @format */
 
-import { CompoundKeyEncoder, ItemSlotFragment, NodeSelectors, WorldStateFragment } from '@downstream/core';
+import { CompoundKeyEncoder, ItemSlotFragment, NodeSelectors, ZoneWithBags } from '@downstream/core';
 import { AbiCoder, ethers } from 'ethers';
 import { TransferSlot } from './inventory-provider';
 import { getBagsAtEquipee } from '@downstream/core/src/utils';
@@ -39,8 +39,8 @@ export function getBagId(buildingId: string) {
     return CompoundKeyEncoder.encodeUint160(NodeSelectors.Bag, uint64Hash);
 }
 
-export function getBuildingBag(world: WorldStateFragment | undefined, buildingId: string, equipIndex: number) {
-    const building = world?.buildings?.find((b) => b.id === buildingId);
-    const bags = building ? getBagsAtEquipee(world?.bags || [], building) : [];
+export function getBuildingBag(zone: ZoneWithBags | undefined, buildingId: string, equipIndex: number) {
+    const building = zone?.buildings?.find((b) => b.id === buildingId);
+    const bags = building ? getBagsAtEquipee(zone?.bags || [], building) : [];
     return bags.find((b) => b.key == equipIndex);
 }

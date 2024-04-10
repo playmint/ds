@@ -9,8 +9,6 @@ using Schema for State;
 contract BagRuleTest is Test, GameTest {
     event AnnotationSet(bytes24 id, AnnotationKind kind, string label, bytes32 ref, string data);
 
-    uint64 sid;
-
     bytes24[4] defaultMaterialItem;
     uint64[4] defaultMaterialQty;
 
@@ -32,14 +30,8 @@ contract BagRuleTest is Test, GameTest {
         defaultMaterialQty[1] = 25;
         defaultMaterialQty[2] = 25;
 
-        vm.startPrank(players[0].addr);
-        _mobileUnit0 = _spawnMobileUnitWithResources();
-        vm.stopPrank();
-
-        vm.startPrank(players[1].addr);
-        _mobileUnit1 = _spawnMobileUnitWithResources();
-        vm.stopPrank();
-
+        _mobileUnit0 = _spawnMobileUnitWithResources(players[0].addr);
+        _mobileUnit1 = _spawnMobileUnitWithResources(players[1].addr);
         _buildingInstance = _constructBuilding(players[1].addr, _mobileUnit1, 0, 1, -1, 0);
     }
 
@@ -261,9 +253,7 @@ contract BagRuleTest is Test, GameTest {
         _transferFromMobileUnit(mobileUnit, 0, 25, buildingInstance);
         _transferFromMobileUnit(mobileUnit, 1, 25, buildingInstance);
         _transferFromMobileUnit(mobileUnit, 2, 25, buildingInstance);
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, z, q, r, s))
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (buildingKind, z, q, r, s)));
         vm.stopPrank();
         // check the building has a location at q/r/s
         assertEq(state.getFixedLocation(buildingInstance), Node.Tile(z, q, r, s), "expected building to have location");
@@ -283,11 +273,13 @@ contract BagRuleTest is Test, GameTest {
 
     // _spawnMobileUnitWithResources spawns a mobileUnit for the current sender at
     // 0,0,0 with 100 of each resource in an equiped bag
-    function _spawnMobileUnitWithResources() private returns (bytes24) {
-        sid++;
+    function _spawnMobileUnitWithResources(address player) private returns (bytes24) {
+        vm.startPrank(player);
         dev.spawnTile(0, 0, 0, 0);
-        bytes24 mobileUnit = spawnMobileUnit(sid);
+        spawnMobileUnit();
+        bytes24 mobileUnit = Node.MobileUnit(player);
         dev.spawnFullBag(state.getOwnerAddress(mobileUnit), mobileUnit, 0);
+        vm.stopPrank();
 
         return mobileUnit;
     }

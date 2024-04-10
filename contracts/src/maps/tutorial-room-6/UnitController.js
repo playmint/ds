@@ -35,8 +35,8 @@ export default async function update(state) {
     const moveNE = () => {
         buildingUnits.forEach((unit) => {
             const payload = ds.encodeCall(
-                "function moveUnitNE(bytes24 mobileUnit)",
-                [unit.id],
+                "function moveUnitNE()",
+                [],
             );
 
             ds.dispatch({
@@ -48,8 +48,8 @@ export default async function update(state) {
     const moveE = () => {
         buildingUnits.forEach((unit) => {
             const payload = ds.encodeCall(
-                "function moveUnitE(bytes24 mobileUnit)",
-                [unit.id],
+                "function moveUnitE()",
+                [],
             );
 
             ds.dispatch({
@@ -61,8 +61,8 @@ export default async function update(state) {
     const moveSE = () => {
         buildingUnits.forEach((unit) => {
             const payload = ds.encodeCall(
-                "function moveUnitSE(bytes24 mobileUnit)",
-                [unit.id],
+                "function moveUnitSE()",
+                [],
             );
 
             ds.dispatch({
@@ -74,8 +74,8 @@ export default async function update(state) {
     const moveSW = () => {
         buildingUnits.forEach((unit) => {
             const payload = ds.encodeCall(
-                "function moveUnitSW(bytes24 mobileUnit)",
-                [unit.id],
+                "function moveUnitSW()",
+                [],
             );
 
             ds.dispatch({
@@ -87,8 +87,8 @@ export default async function update(state) {
     const moveW = () => {
         buildingUnits.forEach((unit) => {
             const payload = ds.encodeCall(
-                "function moveUnitW(bytes24 mobileUnit)",
-                [unit.id],
+                "function moveUnitW()",
+                [],
             );
 
             ds.dispatch({
@@ -100,8 +100,8 @@ export default async function update(state) {
     const moveNW = () => {
         buildingUnits.forEach((unit) => {
             const payload = ds.encodeCall(
-                "function moveUnitNW(bytes24 mobileUnit)",
-                [unit.id],
+                "function moveUnitNW()",
+                [],
             );
 
             ds.dispatch({
