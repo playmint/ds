@@ -51,6 +51,9 @@ contract DownstreamGame is BaseGame {
     address public zoneOwnership;
     address public tokens;
 
+    uint256 public zoneUnitLimit = 1;
+    uint256 public unitTimeoutBlocks = 10;
+
     modifier ownerOnly() {
         require(msg.sender == owner, "DownstreamGame: Sender is not the owner");
         _;
@@ -137,5 +140,21 @@ contract DownstreamGame is BaseGame {
 
     function autorizeStateMutation(address addr) public ownerOnly {
         state.authorizeContract(addr);
+    }
+
+    function getUnitTimeoutBlocks() public view returns (uint256) {
+        return unitTimeoutBlocks;
+    }
+
+    function setUnitTimeoutBlocks(uint256 blocks) public ownerOnly {
+        unitTimeoutBlocks = blocks;
+    }
+
+    function getZoneUnitLimit() public view returns (uint256) {
+        return zoneUnitLimit;
+    }
+
+    function setZoneUnitLimit(uint256 limit) public ownerOnly {
+        zoneUnitLimit = limit;
     }
 }

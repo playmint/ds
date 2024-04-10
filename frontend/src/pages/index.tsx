@@ -130,7 +130,7 @@ const ZoneItem = ({ zone, units, currentBlock }: { zone: Zone; units: ZoneUnit[]
     const description = zone.description?.value ? ethers.decodeBytes32String(zone.description.value) : `no description`;
     const url = `/zones/${id}`;
     const zoneUnits = units.filter((u) => u.location?.tile?.coords && u.location.tile?.coords[0] === zone.key);
-    const activeUnits = zoneUnits.filter((u) => u.location && u.location.time + ACTIVE_UNIT_TIMEOUT < currentBlock);
+    const activeUnits = zoneUnits.filter((u) => u.location && u.location.time + ACTIVE_UNIT_TIMEOUT > currentBlock);
     const availableSlots = UNIT_CAP - activeUnits.length;
     const owner = (zone.owner?.addr || '0x0').slice(0, 6) + '...' + (zone.owner?.addr || '0x0').slice(-4);
 

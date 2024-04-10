@@ -1,4 +1,4 @@
-import { ConnectedPlayer, WorldMobileUnitFragment, ZoneWithBags } from '@app/../../core/src';
+import { CogAction, ConnectedPlayer, WorldMobileUnitFragment, ZoneWithBags } from '@app/../../core/src';
 import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { ActionButton } from '@app/styles/button.styles';
 import { useCallback, useState } from 'react';
@@ -26,6 +26,8 @@ const StyledOnboarding = styled(StyledHeaderPanel)`
 export const Onboarding = ({ player, playerUnits, onClickConnect, zone, block }: OnboardingProps) => {
     const [isSpawningMobileUnit, setIsSpawningMobileUnit] = useState<boolean>(false);
 
+    const ACTIVE_UNIT_TIMEOUT = 10; // FIXME: value should match spawn logic
+
     const spawnMobileUnit = useCallback(() => {
         if (!player) {
             return;
@@ -35,22 +37,40 @@ export const Onboarding = ({ player, playerUnits, onClickConnect, zone, block }:
         }
         const zoneId = Number(BigInt.asIntN(16, zone.key));
         setIsSpawningMobileUnit(true);
+
+        const inactiveUnits = zone.mobileUnits.filter(
+            (u) => u.nextLocation && u.nextLocation.time + ACTIVE_UNIT_TIMEOUT < block
+        );
+
+        const spawnActions: CogAction[] = [{ name: 'SPAWN_MOBILE_UNIT', args: [] }];
+
+        // Kick out first inactive unit
+        if (inactiveUnits.length > 0) {
+            const inactiveUnit = inactiveUnits[0];
+            console.log('kicking inactive unit', inactiveUnit.id);
+            spawnActions.push({
+                name: 'KICK_UNIT_FROM_ZONE',
+                args: [inactiveUnit.id],
+            });
+        }
+
+        spawnActions.push({ name: 'MOVE_MOBILE_UNIT', args: [zoneId, 0, 0, 0] });
+
         player
-            .dispatch({ name: 'SPAWN_MOBILE_UNIT', args: [] }, { name: 'MOVE_MOBILE_UNIT', args: [zoneId, 0, 0, 0] })
+            .dispatch(...spawnActions)
             .catch((e) => {
                 console.error('failed to spawn mobileUnit:', e);
             })
             .finally(() => setIsSpawningMobileUnit(false));
-    }, [player, setIsSpawningMobileUnit, zone]);
+    }, [block, player, setIsSpawningMobileUnit, zone]);
 
     const zoneName = zone.name?.value ? ethers.decodeBytes32String(zone.name.value) : `unnamed`;
     const zoneDescription = zone.description?.value
         ? ethers.decodeBytes32String(zone.description.value)
         : `no description`;
 
-    const ACTIVE_UNIT_TIMEOUT = 10; // FIXME: value should match spawn logic
     const activeUnits = zone.mobileUnits.filter(
-        (u) => u.nextLocation && u.nextLocation.time + ACTIVE_UNIT_TIMEOUT < block
+        (u) => u.nextLocation && u.nextLocation.time + ACTIVE_UNIT_TIMEOUT > block
     );
 
     return (

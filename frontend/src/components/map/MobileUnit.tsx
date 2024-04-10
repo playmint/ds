@@ -17,7 +17,7 @@ import { BLOCK_TIME_SECS } from '@app/fixtures/block-time-secs';
 
 export const DEBUG_ALWAYS_SHOW_UNITS = false;
 export const UNIT_DISPLAY_TIMEOUT_SECS = 60 * 30;
-export const UNIT_DISPLAY_TIMEOUT_BLOCK_COUNT = Math.floor(UNIT_DISPLAY_TIMEOUT_SECS / BLOCK_TIME_SECS);
+export const UNIT_DISPLAY_TIMEOUT_BLOCK_COUNT = 10; //Math.floor(UNIT_DISPLAY_TIMEOUT_SECS / BLOCK_TIME_SECS);
 
 export interface MobileUnitData {
     q: number;
