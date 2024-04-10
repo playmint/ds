@@ -419,6 +419,7 @@ export const Shell: FunctionComponent<ShellProps> = ({ config }) => {
                             questsCount={acceptedQuests.length}
                             toggleWalletItemsActive={toggleWalletItemsActive}
                             walletItemsActive={walletItemsActive}
+                            zone={zone}
                         />
                         {zone && player && questsActive && acceptedQuests.length > 0 && (
                             <QuestPanel

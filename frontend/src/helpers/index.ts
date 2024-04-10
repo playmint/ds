@@ -24,6 +24,13 @@ export const formatNameOrId = (node?: MaybeNamed, idPrefix: string = ''): string
     }
 };
 
+export const decodeString = (value: string): string => {
+    if (!value) {
+        return '';
+    }
+    return ethers.decodeBytes32String(value);
+};
+
 export const getItemStructure = (itemId: string) => {
     return [...itemId]
         .slice(2)

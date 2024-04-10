@@ -1,3 +1,4 @@
+import { decodeString } from '@app/helpers';
 import { usePlayer, useWallet } from '@app/hooks/use-game-state';
 import { useSession } from '@app/hooks/use-session';
 import { GlobalUnityContext } from '@app/hooks/use-unity-instance';
@@ -6,6 +7,7 @@ import { ActionButton, TextButton } from '@app/styles/button.styles';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Dialog } from '../molecules/dialog';
+import { ZoneWithBags } from '@downstream/core';
 
 const g = globalThis as unknown as { __globalUnityContext: GlobalUnityContext };
 
@@ -52,21 +54,27 @@ export const NavPanel = ({
     questsCount,
     toggleWalletItemsActive,
     walletItemsActive,
+    zone,
 }: {
     questsCount?: number;
     questsActive?: boolean;
     toggleQuestsActive?: () => void;
     toggleWalletItemsActive?: () => void;
     walletItemsActive?: boolean;
+    zone?: ZoneWithBags;
 }) => {
     const { connect, disconnect: forgetProvider, provider } = useWalletProvider();
     const { clearSession } = useSession();
     const { wallet } = useWallet();
     const player = usePlayer();
     const [showAccountDialog, setShowAccountDialog] = useState(false);
+    const [islandName, setIslandName] = useState(decodeString(zone?.name?.value) || '');
+    const [islandDescription, setIslandDescription] = useState(decodeString(zone?.description?.value) || '');
 
     const hasConnection = player || wallet;
     const address = player?.addr || wallet?.address || '';
+
+    const isZoneOwner = address === zone?.owner?.addr;
 
     const closeAccountDialog = useCallback(() => {
         setShowAccountDialog(false);
@@ -97,6 +105,26 @@ export const NavPanel = ({
         }
     }, []);
 
+    const handleIslandNameChange = useCallback((e) => {
+        setIslandName(e.target.value.slice(0, 32));
+    }, []);
+
+    const handleIslandDescriptionChange = useCallback((e) => {
+        setIslandDescription(e.target.value.slice(0, 32));
+    }, []);
+
+    const applyIslandChanges = useCallback(() => {
+        if (!player) {
+            return;
+        }
+        player
+            .dispatch(
+                { name: 'NAME_OWNED_ENTITY', args: [zone?.id, islandName] },
+                { name: 'DESCRIBE_OWNED_ENTITY', args: [zone?.id, islandDescription] }
+            )
+            .catch((err) => console.error('naming failed', err));
+    }, [player, zone?.id, islandName, islandDescription]);
+
     // TEMP: allow revealing the burner private key, this is a workaround for
     // helping demo ds-cli bits for people without walletconnect
     const [burnerKey, setBurnerKey] = useState<string | null>(null);
@@ -113,19 +141,49 @@ export const NavPanel = ({
         setBurnerKey(provider.provider.privateKey);
     }, [provider]);
 
+    useEffect(() => {
+        setIslandName(decodeString(zone?.name?.value) || '');
+        setIslandDescription(decodeString(zone?.description?.value) || '');
+    }, [zone?.name?.value, zone?.description?.value]);
+
     return (
         <NavContainer>
             {showAccountDialog && hasConnection && (
                 <Dialog onClose={closeAccountDialog} width="304px" height="">
-                    <div style={{ padding: 15 }}>
-                        <h3>PLAYER ACCOUNT</h3>
+                    <div style={{ padding: 0 }}>
+                        <h3>SETTINGS</h3>
                         <p>
                             0x{address.slice(0, 9)}...{address.slice(-9)}
                         </p>
                         <br />
 
+                        {isZoneOwner && (
+                            <fieldset>
+                                <legend>Owner Controls</legend>
+                                <div>
+                                    <strong>Island Name:</strong>
+                                    <input type="text" value={islandName} onChange={handleIslandNameChange} />
+                                </div>
+                                <br />
+                                <div>
+                                    <strong>Island Description:</strong>
+                                    <input
+                                        type="text"
+                                        value={islandDescription}
+                                        onChange={handleIslandDescriptionChange}
+                                    />
+                                </div>
+                                <br />
+                                <button onClick={applyIslandChanges} style={{ width: '100%' }}>
+                                    Apply
+                                </button>
+                            </fieldset>
+                        )}
+
+                        <br />
+
                         <fieldset>
-                            <legend>Quality:</legend>
+                            <legend>Quality</legend>
                             <select onChange={onChangeQuality} value={canvasHeight}>
                                 <option value="480">Low (480p)</option>
                                 <option value="720">Medium (720p)</option>
