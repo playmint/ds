@@ -6,7 +6,7 @@ import { Tile } from '@app/components/map/Tile';
 import { NavPanel } from '@app/components/panels/nav-panel';
 import { getItemStructure } from '@app/helpers';
 import { useConfig } from '@app/hooks/use-config';
-import { GameStateProvider, useGlobal, usePlayer, useZone } from '@app/hooks/use-game-state';
+import { GameStateProvider, useGlobal, usePlayer } from '@app/hooks/use-game-state';
 import useResizeObserver from '@app/hooks/use-resize-observer';
 import { SessionProvider } from '@app/hooks/use-session';
 import { UnityMapProvider, useUnityMap } from '@app/hooks/use-unity-map';
@@ -17,7 +17,7 @@ import { InventoryProvider } from '@app/plugins/inventory/inventory-provider';
 import { getOpsForManifests } from '@downstream/cli/utils/applier';
 import { encodeItemID } from '@downstream/cli/utils/helpers';
 import { BuildingKindFactorySpec, Manifest, parseManifestDocuments } from '@downstream/cli/utils/manifest';
-import { ItemFragment } from '@downstream/core/src/gql/graphql';
+import { ItemFragment, ZoneStateFragment } from '@downstream/core';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 import Head from 'next/head';
@@ -872,7 +872,6 @@ const BuildingFabricator = () => {
     const [outputStackable, setOutputStackable] = useState<boolean>(false);
     const [outputIcon, setOutputIcon] = useState<number>(0);
     const global = useGlobal();
-    const zone = useZone();
     const player = usePlayer();
     const buildingKinds = global?.buildingKinds || [];
     const availableItems = global?.items || [];
@@ -1130,15 +1129,22 @@ const BuildingFabricator = () => {
             if (!player) {
                 throw new Error('no player connected');
             }
-            if (!zone) {
-                throw new Error('no zone data loaded');
-            }
             if (!global) {
                 throw new Error('no global data loaded');
             }
             if (!buildingKinds) {
                 throw new Error('no building kinds data loaded');
             }
+            // we dont deploy anything zone-specific here so we can use a dummy
+            // zone for zone zero
+            const zone: ZoneStateFragment = {
+                id: '0x0',
+                key: '0x0',
+                buildings: [],
+                tiles: [],
+                mobileUnits: [],
+                sessions: [],
+            };
             validate();
             const yaml = getManifestsYAML({
                 contract: { bytecode: BASIC_FACTORY_BYTECODE }, // FIXME: hack until we can compile in browser
