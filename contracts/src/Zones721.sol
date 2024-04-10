@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "cog/IState.sol";
-import {Schema, Node, Kind, GOO_GREEN, GOO_BLUE, GOO_RED} from "@ds/schema/Schema.sol";
+import {Schema, BiomeKind, Node} from "@ds/schema/Schema.sol";
 import "@ds/utils/Base64.sol";
 import "@ds/utils/LibString.sol";
 
@@ -44,10 +44,20 @@ contract Zones721 is ERC721 {
         }
         currentTokenId = newTokenId;
         _safeMint(recipient, newTokenId);
-        bytes24 zoneId = Node.Zone(newTokenId);
+
+        // setup zone data
+        int16 zoneKey = int16(uint16(newTokenId));
+        bytes24 zoneId = Node.Zone(zoneKey);
         state.setOwner(zoneId, Node.Player(recipient));
         state.setData(zoneId, "name", bytes32(abi.encodePacked("Zone ", LibString.toString(newTokenId))));
         state.setData(zoneId, "description", bytes32(abi.encodePacked("Zone ", LibString.toString(newTokenId))));
+
+        // spawn a single tile
+        bytes24 tile = Node.Tile(zoneKey, 0, 0, 0);
+        state.setParent(tile, zoneId);
+        state.setBiome(tile, BiomeKind.DISCOVERED);
+        state.setTileAtomValues(tile, [uint64(255), uint64(255), uint64(255)]);
+
         return newTokenId;
     }
 
