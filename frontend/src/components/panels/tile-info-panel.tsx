@@ -31,7 +31,7 @@ import { FunctionComponent, useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { colors } from '@app/styles/colors';
 import { getMaterialStats } from '@app/plugins/combat/helpers';
-import { UNIT_DISPLAY_TIMEOUT_BLOCK_COUNT } from '../map/MobileUnit';
+import { unitTimeoutBlocks } from '../map/MobileUnit';
 
 interface KeyedThing {
     key: number;
@@ -279,7 +279,7 @@ const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUn
 
     const visibleUnits = tileMobileUnits
         .filter(excludeSelected)
-        .filter((u) => currentBlock - (u.nextLocation?.time || 0) < UNIT_DISPLAY_TIMEOUT_BLOCK_COUNT);
+        .filter((u) => currentBlock - (u.nextLocation?.time || 0) < unitTimeoutBlocks);
 
     const lastTile = selectedTiles?.slice(-1, 1).find(() => true);
     if (!lastTile) {

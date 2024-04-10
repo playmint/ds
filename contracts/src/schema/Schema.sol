@@ -27,6 +27,8 @@ interface Rel {
     function ID() external;
     function HasBlockNum() external;
     function Parent() external;
+    function ZoneUnitLimit() external;
+    function UnitTimeoutBlocks() external;
 }
 
 interface Kind {
@@ -48,6 +50,7 @@ interface Kind {
     function ID() external;
     function OwnedToken() external;
     function Zone() external;
+    function GameSettings() external;
 }
 
 uint64 constant BLOCK_TIME_SECS = 2;
@@ -198,6 +201,10 @@ library Node {
     function Quest(string memory name) internal pure returns (bytes24) {
         uint64 id = uint64(uint256(keccak256(abi.encodePacked("quest/", name))));
         return CompoundKeyEncoder.BYTES(Kind.Quest.selector, bytes20(abi.encodePacked(uint32(0), uint64(0), id)));
+    }
+
+    function GameSettings() internal pure returns (bytes24) {
+        return bytes24(Kind.GameSettings.selector);
     }
 }
 

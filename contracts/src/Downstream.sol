@@ -47,12 +47,12 @@ contract DownstreamRouter is BaseRouter {
 }
 
 contract DownstreamGame is BaseGame {
+    uint64 constant DEFAULT_ZONE_UNIT_LIMIT = 20;
+    uint64 constant DEFAULT_UNIT_TIMEOUT_BLOCKS = 10;
+
     address public owner;
     address public zoneOwnership;
     address public tokens;
-
-    uint256 public zoneUnitLimit = 1;
-    uint256 public unitTimeoutBlocks = 10;
 
     modifier ownerOnly() {
         require(msg.sender == owner, "DownstreamGame: Sender is not the owner");
@@ -88,6 +88,7 @@ contract DownstreamGame is BaseGame {
         state.registerNodeType(Kind.ID.selector, "ID", CompoundKeyKind.BYTES);
         state.registerNodeType(Kind.OwnedToken.selector, "OwnedToken", CompoundKeyKind.BYTES);
         state.registerNodeType(Kind.Zone.selector, "Zone", CompoundKeyKind.UINT160);
+        state.registerNodeType(Kind.GameSettings.selector, "GameSettings", CompoundKeyKind.NONE);
 
         // register the relationship ids we are using
         state.registerEdgeType(Rel.Owner.selector, "Owner", WeightKind.UINT64);
@@ -112,6 +113,8 @@ contract DownstreamGame is BaseGame {
         state.registerEdgeType(Rel.ID.selector, "ID", WeightKind.UINT64);
         state.registerEdgeType(Rel.HasBlockNum.selector, "HasBlockNum", WeightKind.UINT64);
         state.registerEdgeType(Rel.Parent.selector, "Parent", WeightKind.UINT64);
+        state.registerEdgeType(Rel.ZoneUnitLimit.selector, "ZoneUnitLimit", WeightKind.UINT64);
+        state.registerEdgeType(Rel.UnitTimeoutBlocks.selector, "UnitTimeoutBlocks", WeightKind.UINT64);
 
         // create a session router
         BaseRouter router = new DownstreamRouter();
@@ -127,6 +130,9 @@ contract DownstreamGame is BaseGame {
         _registerState(state);
         _registerRouter(router);
         _registerDispatcher(dispatcher);
+
+        _setZoneUnitLimit(DEFAULT_ZONE_UNIT_LIMIT);
+        _setUnitTimeoutBlocks(DEFAULT_UNIT_TIMEOUT_BLOCKS);
     }
 
     function registerRule(Rule rule) public ownerOnly {
@@ -142,19 +148,29 @@ contract DownstreamGame is BaseGame {
         state.authorizeContract(addr);
     }
 
-    function getUnitTimeoutBlocks() public view returns (uint256) {
+    function getUnitTimeoutBlocks() public view returns (uint64) {
+        (, uint64 unitTimeoutBlocks) = state.get(Rel.UnitTimeoutBlocks.selector, 0, Node.GameSettings());
         return unitTimeoutBlocks;
     }
 
     function setUnitTimeoutBlocks(uint256 blocks) public ownerOnly {
-        unitTimeoutBlocks = blocks;
+        _setUnitTimeoutBlocks(blocks);
     }
 
-    function getZoneUnitLimit() public view returns (uint256) {
+    function _setUnitTimeoutBlocks(uint256 blocks) internal {
+        state.set(Rel.UnitTimeoutBlocks.selector, 0, Node.GameSettings(), Node.GameSettings(), uint64(blocks));
+    }
+
+    function getZoneUnitLimit() public view returns (uint64) {
+        (, uint64 zoneUnitLimit) = state.get(Rel.ZoneUnitLimit.selector, 0, Node.GameSettings());
         return zoneUnitLimit;
     }
 
     function setZoneUnitLimit(uint256 limit) public ownerOnly {
-        zoneUnitLimit = limit;
+        _setZoneUnitLimit(limit);
+    }
+
+    function _setZoneUnitLimit(uint256 limit) internal {
+        state.set(Rel.ZoneUnitLimit.selector, 0, Node.GameSettings(), Node.GameSettings(), uint64(limit));
     }
 }

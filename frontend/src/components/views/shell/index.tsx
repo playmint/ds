@@ -60,6 +60,9 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const selectedTileBags = selectedBags?.filter((sb) => !sb.isCombatReward);
     const selectedRewardBags = selectedBags?.filter((sb) => sb.isCombatReward);
     const kinds = global?.buildingKinds || [];
+    const unitTimeoutBlocks = global?.gameSettings?.unitTimeoutBlocks?.weight || 0;
+    const zoneUnitLimit = global?.gameSettings?.zoneUnitLimit?.weight || 0;
+
     const ui = usePluginState();
     const [questsActive, setQuestsActive] = useState<boolean>(true);
     const toggleQuestsActive = useCallback(() => setQuestsActive((prev) => !prev), []);
@@ -382,6 +385,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         selectedMobileUnitID={selectedMobileUnit?.id}
                         playerID={player?.id}
                         pluginProperties={unitColorsModifiedByPlugins}
+                        unitTimeoutBlocks={unitTimeoutBlocks}
                     />
                     <Bags
                         tiles={tiles || []}
@@ -446,6 +450,8 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                                 onClickConnect={connect}
                                 zone={zone}
                                 block={blockNumber}
+                                unitTimeoutBlocks={unitTimeoutBlocks}
+                                zoneUnitLimit={zoneUnitLimit}
                             />
                         )}
                     {player && playerUnits.length > 0 && <TileInfoPanel kinds={kinds || []} ui={ui || []} />}

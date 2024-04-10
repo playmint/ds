@@ -1,5 +1,5 @@
 import { useConfig } from '@app/hooks/use-config';
-import { GameStateProvider, useBlock, useCogClient, usePlayer, useWallet } from '@app/hooks/use-game-state';
+import { GameStateProvider, useBlock, useCogClient, useGlobal, usePlayer, useWallet } from '@app/hooks/use-game-state';
 import { SessionProvider, useSession } from '@app/hooks/use-session';
 import { WalletProviderProvider, useWalletProvider } from '@app/hooks/use-wallet-provider';
 import { TextButton } from '@app/styles/button.styles';
@@ -15,9 +15,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 import { pipe, subscribe } from 'wonka';
-
-const ACTIVE_UNIT_TIMEOUT = 10; // FIXME: value should match spawn logic
-const UNIT_CAP = 20; // FIXME: value should match real spawn cap
 
 const ZoneMinter = ({ gameAddress }: { gameAddress: string }) => {
     const { connect, disconnect: forgetProvider, provider: walletProvider } = useWalletProvider();
@@ -123,15 +120,27 @@ const ZoneMinter = ({ gameAddress }: { gameAddress: string }) => {
 type Zone = GetZonesQuery['game']['state']['zones'][0];
 type ZoneUnit = GetZonesQuery['game']['state']['mobileUnits'][0];
 
-const ZoneItem = ({ zone, units, currentBlock }: { zone: Zone; units: ZoneUnit[]; currentBlock: number }) => {
+const ZoneItem = ({
+    zone,
+    units,
+    currentBlock,
+    unitTimeoutBlocks,
+    zoneUnitLimit,
+}: {
+    zone: Zone;
+    units: ZoneUnit[];
+    currentBlock: number;
+    unitTimeoutBlocks: number;
+    zoneUnitLimit: number;
+}) => {
     const router = useRouter();
     const id = Number(BigInt.asIntN(16, BigInt(zone.key)));
     const name = zone.name?.value ? ethers.decodeBytes32String(zone.name.value) : `unnamed`;
     const description = zone.description?.value ? ethers.decodeBytes32String(zone.description.value) : `no description`;
     const url = `/zones/${id}`;
     const zoneUnits = units.filter((u) => u.location?.tile?.coords && u.location.tile?.coords[0] === zone.key);
-    const activeUnits = zoneUnits.filter((u) => u.location && u.location.time + ACTIVE_UNIT_TIMEOUT > currentBlock);
-    const availableSlots = UNIT_CAP - activeUnits.length;
+    const activeUnits = zoneUnits.filter((u) => u.location && u.location.time + unitTimeoutBlocks > currentBlock);
+    const availableSlots = zoneUnitLimit - activeUnits.length;
     const owner = (zone.owner?.addr || '0x0').slice(0, 6) + '...' + (zone.owner?.addr || '0x0').slice(-4);
 
     const visit = useCallback(() => {
@@ -147,7 +156,7 @@ const ZoneItem = ({ zone, units, currentBlock }: { zone: Zone; units: ZoneUnit[]
             <div style={{ padding: '14px' }}>{owner}</div>
             <div style={{ padding: '14px' }}>{zoneUnits.length} units</div>
             <div style={{ padding: '14px' }}>
-                {availableSlots}/{UNIT_CAP} slots
+                {availableSlots}/{zoneUnitLimit} slots
             </div>
             <div style={{ padding: '14px' }}>
                 <TextButton onClick={visit}>VISIT</TextButton>
@@ -161,6 +170,9 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
     const client = useCogClient();
     const block = useBlock();
     const [zonesData, setZonesData] = useState<GetZonesQuery>();
+    const global = useGlobal();
+    const unitTimeoutBlocks = global?.gameSettings?.unitTimeoutBlocks?.weight || 0;
+    const zoneUnitLimit = global?.gameSettings?.zoneUnitLimit?.weight || 0;
 
     useEffect(() => {
         if (!config?.gameID) {
@@ -192,7 +204,14 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
             <ZoneMinter gameAddress={gameAddress} />
             <h2>Island where you unit is:</h2>
             {currentZone ? (
-                <ZoneItem key={currentZone.id} zone={currentZone} units={units} currentBlock={block || 0} />
+                <ZoneItem
+                    key={currentZone.id}
+                    zone={currentZone}
+                    units={units}
+                    currentBlock={block || 0}
+                    unitTimeoutBlocks={unitTimeoutBlocks}
+                    zoneUnitLimit={zoneUnitLimit}
+                />
             ) : (
                 <p>Your unit is not in any zones</p>
             )}
@@ -201,7 +220,14 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
             {playerZones.length === 0 && <p>None</p>}
             <ul>
                 {playerZones.map((z) => (
-                    <ZoneItem key={z.id} zone={z} units={units} currentBlock={block || 0} />
+                    <ZoneItem
+                        key={z.id}
+                        zone={z}
+                        units={units}
+                        currentBlock={block || 0}
+                        unitTimeoutBlocks={unitTimeoutBlocks}
+                        zoneUnitLimit={zoneUnitLimit}
+                    />
                 ))}
             </ul>
 
@@ -209,7 +235,14 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
             {zones.length === 0 && <p>None</p>}
             <ul>
                 {zones.map((z) => (
-                    <ZoneItem key={z.id} zone={z} units={units} currentBlock={block || 0} />
+                    <ZoneItem
+                        key={z.id}
+                        zone={z}
+                        units={units}
+                        currentBlock={block || 0}
+                        unitTimeoutBlocks={unitTimeoutBlocks}
+                        zoneUnitLimit={zoneUnitLimit}
+                    />
                 ))}
             </ul>
         </div>

@@ -128,7 +128,10 @@ contract MovementRule is Rule {
             bytes24 player = state.getOwner(mobileUnit);
 
             // If player doesn't own zone check limit
-            if (zoneUnitCount[z] > game.getZoneUnitLimit() && game.zoneOwnership().ownerOf(uint16(z)) != address(uint160(uint192(player)))) {
+            if (
+                zoneUnitCount[z] > game.getZoneUnitLimit()
+                    && game.zoneOwnership().ownerOf(uint16(z)) != address(uint160(uint192(player)))
+            ) {
                 revert("Limit reached on zone");
             }
         }
