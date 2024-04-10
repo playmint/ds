@@ -1,6 +1,6 @@
 /** @format */
 
-import {ethers} from 'ethers';
+import { ethers } from 'ethers';
 
 interface MaybeNamed {
     id: string;
