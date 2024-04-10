@@ -151,7 +151,6 @@ contract MovementRule is Rule {
         zoneUnitCount[z] -= 1;
 
         state.setNextLocation(mobileUnit, Node.Tile(0, 0, 0, 0), nowTime);
-        // assign to parent zone
-        state.setParent(mobileUnit, state.getParent(Node.Tile(0, 0, 0, 0)));
+        state.setParent(mobileUnit, bytes24(0));
     }
 }
