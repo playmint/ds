@@ -30,15 +30,16 @@ contract CheatsRule is Rule {
             _spawnTile(state, ctx, z, q, r, s);
         } else if (bytes4(action) == Actions.DEV_SPAWN_BAG.selector) {
             (
-                bytes24 bagID,
-                address owner,
-                bytes24 equipee,
+                int16 z,
+                int16 q,
+                int16 r,
+                int16 s,
                 uint8 equipSlot,
                 bytes24[] memory slotContents,
                 uint64[] memory slotBalances
-            ) = abi.decode(action[4:], (bytes24, address, bytes24, uint8, bytes24[], uint64[]));
+            ) = abi.decode(action[4:], (int16, int16, int16, int16, uint8, bytes24[], uint64[]));
 
-            _spawnBag(state, ctx, bagID, owner, equipee, equipSlot, slotContents, slotBalances);
+            _spawnBag(state, ctx, z, q, r, s, equipSlot, slotContents, slotBalances);
         } else if (bytes4(action) == Actions.DEV_SPAWN_BUILDING.selector) {
             (bytes24 buildingKind, int16 z, int16 q, int16 r, int16 s, FacingDirectionKind facingDirection) =
                 abi.decode(action[4:], (bytes24, int16, int16, int16, int16, FacingDirectionKind));
@@ -69,27 +70,29 @@ contract CheatsRule is Rule {
     function _spawnBag(
         State state,
         Context calldata ctx,
-        bytes24 bag,
-        address owner,
-        bytes24 equipee,
+        int16 z,
+        int16 q,
+        int16 r,
+        int16 s,
         uint8 equipSlot,
         bytes24[] memory slotContents,
         uint64[] memory slotBalances
     ) private {
-        if (bytes4(equipee) == Kind.Tile.selector) {
-            (int16 z, int16 q, int16 r, int16 s) = state.getTileCoords(equipee);
-            bytes24 zone = Node.Zone(z);
-            require(Bounds.isInBounds(q, r, s), "coords out of bounds");
-            require(state.getOwner(zone) == Node.Player(ctx.sender), "owner only");
-            state.setParent(bag, zone);
-        }
+        {}
+        require(Bounds.isInBounds(q, r, s), "coords out of bounds");
+        bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode("devbag", z, q, r, s, equipSlot)))));
         for (uint8 i = 0; i < slotContents.length; i++) {
             state.setItemSlot(bag, i, slotContents[i], slotBalances[i]);
         }
-        if (owner != address(0)) {
-            state.setOwner(bag, Node.Player(owner));
+        {
+            bytes24 zone = Node.Zone(z);
+            require(state.getOwner(zone) == Node.Player(ctx.sender), "owner only");
+            bytes24 tile = Node.Tile(z, q, r, s);
+            require(state.getBiome(tile) == BiomeKind.DISCOVERED, "tile must be discovered");
+            state.setEquipSlot(tile, equipSlot, bag);
+            state.setParent(bag, zone);
+            state.removeOwner(bag);
         }
-        state.setEquipSlot(equipee, equipSlot, bag);
     }
 
     function _spawnTile(State state, Context calldata ctx, int16 z, int16 q, int16 r, int16 s) private {

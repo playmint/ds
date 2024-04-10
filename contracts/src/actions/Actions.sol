@@ -175,11 +175,12 @@ interface Actions {
         FacingDirectionKind facingDirection
     ) external;
 
-    // spawn a bag with resources equip somewhere
+    // spawn a public bag on a tile populated with items
     function DEV_SPAWN_BAG(
-        bytes24 bagID,
-        address owner,
-        bytes24 equipee,
+        int16 z,
+        int16 q,
+        int16 r,
+        int16 s,
         uint8 equipSlot,
         bytes24[] calldata slotContents,
         uint64[] calldata slotBalances

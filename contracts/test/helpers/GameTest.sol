@@ -27,6 +27,8 @@ import {NamingRule} from "@ds/rules/NamingRule.sol";
 import {BagRule} from "@ds/rules/BagRule.sol";
 import {ExtractionRule} from "@ds/rules/ExtractionRule.sol";
 
+using Schema for State;
+
 contract Dev {
     Game internal ds;
 
@@ -36,6 +38,14 @@ contract Dev {
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (z, q, r, s)));
     }
 
+    function setGame(Game game) public {
+        ds = game;
+    }
+
+    function disableCheats() public {
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_DISABLE_CHEATS, ()));
+    }
+
     function spawnBag(
         address owner,
         bytes24 equipNode,
@@ -43,11 +53,16 @@ contract Dev {
         bytes24[] memory resources,
         uint64[] memory qty
     ) public returns (bytes24) {
-        bytes24 bagID = Node.Bag(++lastBag);
-        ds.getDispatcher().dispatch(
-            abi.encodeCall(Actions.DEV_SPAWN_BAG, (bagID, owner, equipNode, equipSlot, resources, qty))
-        );
-        return bagID;
+        State state = ds.getState();
+        bytes24 bag = Node.Bag(++lastBag);
+        for (uint8 i = 0; i < resources.length; i++) {
+            state.setItemSlot(bag, i, resources[i], qty[i]);
+        }
+        state.setEquipSlot(equipNode, equipSlot, bag);
+        if (owner != address(0)) {
+            state.setOwner(bag, Node.Player(owner));
+        }
+        return bag;
     }
 
     function spawnFullBag(address owner, bytes24 equipNode, uint8 equipSlot) public returns (bytes24) {
@@ -62,14 +77,6 @@ contract Dev {
         balances[2] = 100;
 
         return spawnBag(owner, equipNode, equipSlot, items, balances);
-    }
-
-    function setGame(Game game) public {
-        ds = game;
-    }
-
-    function disableCheats() public {
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_DISABLE_CHEATS, ()));
     }
 }
 
@@ -100,6 +107,7 @@ abstract contract GameTest {
 
         // tests are allowed to directly maniuplate the state
         game.autorizeStateMutation(address(this));
+        game.autorizeStateMutation(address(dev));
 
         // init players
         players[0] = PlayerAccount({key: 0xa1, addr: __vm.addr(0xa1)});
@@ -144,7 +152,7 @@ abstract contract GameTest {
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.RedGoo(), "Red Goo", "22-256")));
 
         // make the dev sender the owner of zone 0
-        Schema.setOwner(state, Node.Zone(int16(0)), Node.Player(address(dev)));
+        state.setOwner(Node.Zone(int16(0)), Node.Player(address(dev)));
     }
 
     function moveMobileUnit(int16 z, int16 q, int16 r, int16 s) public {

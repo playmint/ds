@@ -13,9 +13,7 @@ import path from 'path';
 import { z } from 'zod';
 import { ContractSource, ManifestDocument, Slot, FacingDirectionTypes } from '../utils/manifest';
 import {
-    encodeTileID,
     encodeItemID,
-    encodeBagID,
     getItemIdByName,
     encodeBuildingKindID,
     getBuildingKindIDByName,
@@ -456,11 +454,7 @@ export const getOpsForManifests = async (
         const [z, q, r, s] = [zoneId, spec.location[0], spec.location[1], spec.location[2]];
         const inBounds = isInBounds(q, r, s);
 
-        const bagID = encodeBagID({ z, q, r, s });
-        const ownerAddress = solidityPacked(['uint160'], [0]); // public
-        const equipee = encodeTileID({ z, q, r, s });
         const equipSlot = 0;
-
         const bagContents = encodeSlotConfig(spec.items || []);
         const slotContents = bagContents.items;
         const slotBalances = bagContents.quantities;
@@ -470,7 +464,7 @@ export const getOpsForManifests = async (
             actions: [
                 {
                     name: 'DEV_SPAWN_BAG',
-                    args: [bagID, ownerAddress, equipee, equipSlot, slotContents, slotBalances],
+                    args: [z, q, r, s, equipSlot, slotContents, slotBalances],
                 },
             ],
             note: `spawned bag ${spec.location.join(',')}`,

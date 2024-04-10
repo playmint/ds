@@ -130,20 +130,21 @@ contract CheatsRuleTest is Test, GameTest {
         vm.prank(address(dev));
         dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (z, q, r, s)));
 
-        // spawn a bag
-        bytes24 bag = Node.Bag(20);
-        address owner = address(this);
-        bytes24 equipee = Node.Tile(z, q, r, s);
+        // spawn a bag on a tile
         uint8 equipSlot = 0;
-        bytes24[] memory slotContents = new bytes24[](0);
-        uint64[] memory slotBalances = new uint64[](0);
+        bytes24[] memory slotContents = new bytes24[](1);
+        uint64[] memory slotBalances = new uint64[](1);
+        slotContents[0] = ItemUtils.GreenGoo();
+        slotBalances[0] = 100;
 
         vm.prank(address(dev));
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.DEV_SPAWN_BAG, (bag, owner, equipee, equipSlot, slotContents, slotBalances))
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_BAG, (z, q, r, s, equipSlot, slotContents, slotBalances)));
 
-        assertEq(state.getEquipSlot(equipee, equipSlot), bag, "expected bag to be on tile");
+        bytes24 tile = Node.Tile(z, q, r, s);
+        bytes24 bag = state.getEquipSlot(tile, equipSlot);
+        (bytes24 item, uint64 qty) = state.getItemSlot(bag, 0);
+        assertEq(item, slotContents[0], "expected bag with item1 to be on tile");
+        assertEq(qty, 100, "expected bag with item1 to be on tile");
     }
 
     function testDestroyBag() public {
@@ -161,9 +162,7 @@ contract CheatsRuleTest is Test, GameTest {
         uint64[] memory slotBalances = new uint64[](0);
 
         vm.prank(address(dev));
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.DEV_SPAWN_BAG, (bag, owner, equipee, equipSlot, slotContents, slotBalances))
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_BAG, (z, q, r, s, equipSlot, slotContents, slotBalances)));
 
         // destroy the bag
         vm.prank(address(dev));
