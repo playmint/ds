@@ -162,7 +162,6 @@ interface Actions {
     // action to set the type of quest the player should begin with
     function DEV_ASSIGN_AUTO_QUEST(bytes24 questID, uint16 zone) external;
 
-
     // spawn a tile at any location
     function DEV_SPAWN_TILE(int16 z, int16 q, int16 r, int16 s) external;
 
