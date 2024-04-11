@@ -60,8 +60,8 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const selectedTileBags = selectedBags?.filter((sb) => !sb.isCombatReward);
     const selectedRewardBags = selectedBags?.filter((sb) => sb.isCombatReward);
     const kinds = global?.buildingKinds || [];
-    const unitTimeoutBlocks = global?.gameSettings?.unitTimeoutBlocks?.weight || 0;
-    const zoneUnitLimit = global?.gameSettings?.zoneUnitLimit?.weight || 0;
+    const unitTimeoutBlocks = parseInt(global?.gameSettings?.unitTimeoutBlocks?.value || '0x0', 16);
+    const zoneUnitLimit = parseInt(global?.gameSettings?.zoneUnitLimit?.value || '0x0', 16);
 
     const ui = usePluginState();
     const [questsActive, setQuestsActive] = useState<boolean>(true);

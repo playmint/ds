@@ -11,19 +11,16 @@ import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {Bounds} from "@ds/utils/Bounds.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
-import {DownstreamGame} from "@ds/Downstream.sol";
-
-// import {ERC721} from "solmate/tokens/ERC721.sol";
 
 using Schema for State;
 
 contract MovementRule is Rule {
-    DownstreamGame game;
+    Game game;
 
     // Maps zone id to the number of units in that zone
     mapping(int16 => uint256) public zoneUnitCount;
 
-    constructor(DownstreamGame g) {
+    constructor(Game g) {
         game = g;
     }
 
@@ -132,8 +129,8 @@ contract MovementRule is Rule {
 
                 // If player doesn't own zone check limit
                 if (
-                    zoneUnitCount[z] > game.getZoneUnitLimit()
-                        && game.zoneOwnership().ownerOf(uint16(z)) != address(uint160(uint192(player)))
+                    zoneUnitCount[z] > state.getZoneUnitLimit()
+                        && state.getOwner(Node.Zone(z)) != player
                 ) {
                     revert("Limit reached on zone");
                 }
@@ -147,7 +144,7 @@ contract MovementRule is Rule {
 
         require(z > 0, "Unit not in zone");
 
-        require((nowTime > arrivalTime) && nowTime - arrivalTime >= game.getUnitTimeoutBlocks(), "Unit not timed out");
+        require((nowTime > arrivalTime) && nowTime - arrivalTime >= state.getUnitTimeoutBlocks(), "Unit not timed out");
 
         zoneUnitCount[z] -= 1;
 

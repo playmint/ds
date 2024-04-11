@@ -171,8 +171,8 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
     const block = useBlock();
     const [zonesData, setZonesData] = useState<GetZonesQuery>();
     const global = useGlobal();
-    const unitTimeoutBlocks = global?.gameSettings?.unitTimeoutBlocks?.weight || 0;
-    const zoneUnitLimit = global?.gameSettings?.zoneUnitLimit?.weight || 0;
+    const unitTimeoutBlocks = parseInt(global?.gameSettings?.unitTimeoutBlocks?.value || '0x0', 16);
+    const zoneUnitLimit = parseInt(global?.gameSettings?.zoneUnitLimit?.value || '0x0', 16);
 
     useEffect(() => {
         if (!config?.gameID) {

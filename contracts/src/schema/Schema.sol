@@ -27,8 +27,6 @@ interface Rel {
     function ID() external;
     function HasBlockNum() external;
     function Parent() external;
-    function ZoneUnitLimit() external;
-    function UnitTimeoutBlocks() external;
 }
 
 interface Kind {
@@ -666,5 +664,21 @@ library Schema {
     function getTileZone(State, /*state*/ bytes24 tile) external pure returns (int16 z) {
         int16[4] memory keys = CompoundKeyDecoder.INT16_ARRAY(tile);
         return (keys[0]);
+    }
+
+    function setZoneUnitLimit(State state, uint64 limit) internal {
+        state.setData(Node.GameSettings(), "zoneUnitLimit", bytes32(uint256(limit)));
+    }
+
+    function getZoneUnitLimit(State state) internal view returns (uint64) {
+        return uint64(uint256(state.getData(Node.GameSettings(), "zoneUnitLimit")));
+    }
+
+    function setUnitTimeoutBlocks(State state, uint64 blocks) internal {
+        state.setData(Node.GameSettings(), "unitTimeoutBlocks", bytes32(uint256(blocks)));
+    }
+
+    function getUnitTimeoutBlocks(State state) internal view returns (uint64) {
+        return uint64(uint256(state.getData(Node.GameSettings(), "unitTimeoutBlocks")));
     }
 }

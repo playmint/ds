@@ -209,11 +209,11 @@ fragment ZoneState on Node {
 fragment GlobalState on State {
     block
     gameSettings: node(match: { kinds: ["GameSettings"] }) {
-        zoneUnitLimit: edge(match: { kinds: "GameSettings", via: { rel: "ZoneUnitLimit" } }) {
-            weight
+        zoneUnitLimit: data(name: "zoneUnitLimit") {
+            value
         }
-        unitTimeoutBlocks: edge(match: { kinds: "GameSettings", via: { rel: "UnitTimeoutBlocks" } }) {
-            weight
+        unitTimeoutBlocks: data(name: "unitTimeoutBlocks") {
+            value
         }
     }
     items: nodes(match: { kinds: "Item" }) {
