@@ -98,21 +98,4 @@ contract GameDeployer is Script {
 
         vm.stopBroadcast();
     }
-
-    function _loadAllowList(address deployer) private view returns (address[] memory) {
-        string memory root = vm.projectRoot();
-        string memory path = string.concat(root, "/src/common/allowlist.json");
-        string memory json = vm.readFile(path);
-        address[] memory addresses = abi.decode(vm.parseJson(json, ".players"), (address[]));
-        if (addresses.length == 0) {
-            address[] memory none = new address[](0);
-            return none;
-        }
-        address[] memory allowlist = new address[](addresses.length + 1);
-        for (uint256 i = 0; i < addresses.length; i++) {
-            allowlist[i] = addresses[i];
-        }
-        allowlist[addresses.length] = deployer; // allowlist the deployer address
-        return allowlist;
-    }
 }
