@@ -11,6 +11,8 @@ import "./IDownstream.sol";
 import {Schema, Node, Rel, Kind} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
+import {ERC721} from "solmate/tokens/ERC721.sol";
+
 using Schema for BaseState;
 
 // -----------------------------------------------
@@ -51,7 +53,7 @@ contract DownstreamGame is BaseGame {
     uint64 constant DEFAULT_UNIT_TIMEOUT_BLOCKS = 10;
 
     address public owner;
-    address public zoneOwnership;
+    ERC721 public zoneOwnership;
     address public tokens;
 
     modifier ownerOnly() {
@@ -59,7 +61,7 @@ contract DownstreamGame is BaseGame {
         _;
     }
 
-    constructor(address _owner, address _zoneOwnership) BaseGame("DOWNSTREAM", "http://downstream.game/") {
+    constructor(address _owner, ERC721 _zoneOwnership) BaseGame("DOWNSTREAM", "http://downstream.game/") {
         owner = _owner;
 
         // create a state
@@ -67,7 +69,7 @@ contract DownstreamGame is BaseGame {
 
         // setup the zone ownership contract
         zoneOwnership = _zoneOwnership;
-        state.authorizeContract(zoneOwnership);
+        state.authorizeContract(address(zoneOwnership));
 
         // register the kind ids we are using
         state.registerNodeType(Kind.Player.selector, "Player", CompoundKeyKind.ADDRESS);

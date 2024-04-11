@@ -102,7 +102,7 @@ abstract contract GameTest {
         dev = new Dev();
 
         zoneOwnership = new Zones721(address(this));
-        game = new DownstreamGame(address(this), address(zoneOwnership));
+        game = new DownstreamGame(address(this), zoneOwnership);
         zoneOwnership.registerState(game.getState());
 
         // tests are allowed to directly maniuplate the state

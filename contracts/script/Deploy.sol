@@ -41,7 +41,7 @@ contract GameDeployer is Script {
         Zones721 zoneOwnership = new Zones721(deployerAddr);
 
         // owner is set to deploy account not this contract's address as calls from this script have a msg.sender of the deployer
-        DownstreamGame ds = new DownstreamGame(address(msg.sender), address(zoneOwnership));
+        DownstreamGame ds = new DownstreamGame(address(msg.sender), zoneOwnership);
         Dispatcher dispatcher = ds.getDispatcher();
 
         // tell the zoneOwnership contract to manage the state
