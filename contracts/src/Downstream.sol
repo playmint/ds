@@ -14,6 +14,7 @@ import {Actions} from "@ds/actions/Actions.sol";
 import {ERC721} from "solmate/tokens/ERC721.sol";
 
 using Schema for BaseState;
+using Schema for State;
 
 // -----------------------------------------------
 // a Game sets up the State, Dispatcher and Router
@@ -115,8 +116,6 @@ contract DownstreamGame is BaseGame {
         state.registerEdgeType(Rel.ID.selector, "ID", WeightKind.UINT64);
         state.registerEdgeType(Rel.HasBlockNum.selector, "HasBlockNum", WeightKind.UINT64);
         state.registerEdgeType(Rel.Parent.selector, "Parent", WeightKind.UINT64);
-        state.registerEdgeType(Rel.ZoneUnitLimit.selector, "ZoneUnitLimit", WeightKind.UINT64);
-        state.registerEdgeType(Rel.UnitTimeoutBlocks.selector, "UnitTimeoutBlocks", WeightKind.UINT64);
 
         // create a session router
         BaseRouter router = new DownstreamRouter();
@@ -133,8 +132,8 @@ contract DownstreamGame is BaseGame {
         _registerRouter(router);
         _registerDispatcher(dispatcher);
 
-        _setZoneUnitLimit(DEFAULT_ZONE_UNIT_LIMIT);
-        _setUnitTimeoutBlocks(DEFAULT_UNIT_TIMEOUT_BLOCKS);
+        state.setZoneUnitLimit(DEFAULT_ZONE_UNIT_LIMIT);
+        state.setUnitTimeoutBlocks(DEFAULT_UNIT_TIMEOUT_BLOCKS);
     }
 
     function registerRule(Rule rule) public ownerOnly {
@@ -151,28 +150,18 @@ contract DownstreamGame is BaseGame {
     }
 
     function getUnitTimeoutBlocks() public view returns (uint64) {
-        (, uint64 unitTimeoutBlocks) = state.get(Rel.UnitTimeoutBlocks.selector, 0, Node.GameSettings());
-        return unitTimeoutBlocks;
+        return state.getUnitTimeoutBlocks();
     }
 
     function setUnitTimeoutBlocks(uint64 blocks) public ownerOnly {
-        _setUnitTimeoutBlocks(blocks);
-    }
-
-    function _setUnitTimeoutBlocks(uint64 blocks) internal {
-        state.set(Rel.UnitTimeoutBlocks.selector, 0, Node.GameSettings(), Node.GameSettings(), uint64(blocks));
+        state.setUnitTimeoutBlocks(blocks);
     }
 
     function getZoneUnitLimit() public view returns (uint64) {
-        (, uint64 zoneUnitLimit) = state.get(Rel.ZoneUnitLimit.selector, 0, Node.GameSettings());
-        return zoneUnitLimit;
+        return state.getZoneUnitLimit();
     }
 
     function setZoneUnitLimit(uint64 limit) public ownerOnly {
-        _setZoneUnitLimit(limit);
-    }
-
-    function _setZoneUnitLimit(uint64 limit) internal {
-        state.set(Rel.ZoneUnitLimit.selector, 0, Node.GameSettings(), Node.GameSettings(), uint64(limit));
+        state.setZoneUnitLimit(limit);
     }
 }
