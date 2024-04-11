@@ -6,9 +6,11 @@ Build and run a local Downstream instance with Docker. Follow the instructions f
 
 The game will be running at [localhost:3000/](http://localhost:3000/).
 
+To enter a map, select Zone 1 from the list or naviage to [localhost:3000/zones/1](http://localhost:3000/zones/1)
+
 <img src="images/fresh-local-downstream.png" width="200">
 
-During development, its recommended to always connect with the Burner option.
+During development, its recommended to always connect with the LocalDevAccount option.
 
 ## Creation Tools
 
