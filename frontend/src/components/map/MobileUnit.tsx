@@ -200,7 +200,7 @@ export const MobileUnits = memo(
                     const atBuilding = !!building;
                     return { ...u, visible, isPlayer, coords, counter, height, atBuilding };
                 });
-        }, [mobileUnits, playerID, currentBlock, buildings]);
+        }, [mobileUnits, playerID, currentBlock, unitTimeoutBlocks, buildings]);
 
         const unitComponents = useMemo(
             () =>

@@ -456,7 +456,9 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                                 zoneUnitLimit={zoneUnitLimit}
                             />
                         )}
-                    {player && playerUnits.length > 0 && <TileInfoPanel kinds={kinds || []} ui={ui || []} />}
+                    {player && playerUnits.length > 0 && (
+                        <TileInfoPanel kinds={kinds || []} ui={ui || []} unitTimeoutBlocks={unitTimeoutBlocks} />
+                    )}
                     {selectedTiles &&
                         selectedTiles.length > 0 &&
                         blockNumber &&
