@@ -99,7 +99,7 @@ _options explained_
 - Copy your map manifest and building source to [contracts/src/maps](../contracts/src/maps)<map-folder>
 - Re-run with `MAP=<map-folder> docker compose up`
     - You can also set the MAP environment variable in the [.env file](../.env)
-    - This map will always be Zone 1
+    - This map passed through the MAP flag will always be assigned Zone 1
 
 ## Adding Game Logic
 

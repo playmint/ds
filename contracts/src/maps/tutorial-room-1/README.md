@@ -31,16 +31,19 @@ After some time (this could take up to 5 minutes), you should see "ready" in the
     contracts-1  | | ready |
     contracts-1  | +-------+
     
-You can now open a web browser and navigate to [http://localhost:3000] to load the game.
+You can now open a web browser and navigate to [http://localhost:3000] to load the front page.
 
-You should see a blue world, with a single hex tile in the center and the **Welcome to Downstream** dialogue box:
+From here you can select a zone, select Zone 1 as it will be owned by the deployer.
+
+You should see a blue world, with a single hex tile in the center and the **Welcome to Zone 1** dialogue box:
 
 <img src="./readme-images/step1.png" width=200>
 
-## 2. Spawn a Unit
+## 2. Enter the Zone and Spawn a Unit
 
 First click the **Connect Wallet** button.
-Then, select **Burner**.
+Then, select **LocalDevAccount**.
+Then visit Zone 1 (Zone 1 will be owned by the LocalDevAccount)
 
 <img src="./readme-images/step2a.png" width=200>
 
@@ -105,13 +108,15 @@ In a terminal at your new folder run the following, where `<private-key>` can be
 ds apply -n local -z 1 -k <private-key> -f Locations.yaml
 ```
 
+We are using Zone 1 (`-z 1`) as the LocalDevAccount already owns Zone 1 and it saves up some time!
+
 Note: If using Windows you get the error "running scripts is disabled on this system", open Powershell as an Administrator and run `Set-ExecutionPolicy  RemoteSigned`
 
 You should see the terminal output display a series of ✅s for each tile that is deployed.
 
 <img src="./readme-images/step4c.png" width=200>
 
-Browse to [localhost:3000]([http://localhost:3000]) and you should see your newly created map and be able to move your Unit around it!
+Browse to [localhost:3000]([http://localhost:3000/zones/1]) and you should see your newly created map and be able to move your Unit around it!
 
 <img src="./readme-images/step4d.png" width=200>
 
@@ -153,6 +158,7 @@ We will use the Downstream CLI to deploy our newly created building to our local
 Deploying the building is the same as the tiles manifest but passing BasicFactory.yaml instead of Locations.yaml: 
 - In a terminal in the folder with your exported building source.
 - (using the same `<private-key>` as above)
+- Still using Zone 1 (`-z 1`)
 - `ds apply -n local -z 1 -k <private-key> -f BasicFactory.yaml`
 
 You should see the terminal output display for the building kind and item kind defined by your new factory:
@@ -160,7 +166,7 @@ You should see the terminal output display for the building kind and item kind d
 <img src="./readme-images/step6a.png" width=200>
 
 This type of building now exists in our local instance of Downstream, which means it is available for Units to build on the map:
-- Browse to [localhost:3000]([http://localhost:3000]).
+- Browse to [localhost:3000]([http://localhost:3000/zones/1]).
 - Select the build action.
 - Choose your new building type from the drop down list.
 - Confirm.
