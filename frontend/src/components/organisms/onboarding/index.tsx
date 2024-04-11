@@ -4,7 +4,6 @@ import { useWallet } from '@app/hooks/use-game-state';
 import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { ActionButton } from '@app/styles/button.styles';
 import { useCallback, useState } from 'react';
-import { ethers } from 'ethers';
 import styled from 'styled-components';
 
 export interface OnboardingProps {
@@ -98,7 +97,7 @@ export const Onboarding = ({ player, playerUnits, onClickConnect, zone, block }:
                     <ActionButton onClick={spawnMobileUnit} disabled={isSpawningMobileUnit}>
                         Enter
                     </ActionButton>
-                ) : (
+                ) : playerUnits.length > 0 ? null : (
                     <ActionButton onClick={onClickConnect}>Connect Wallet</ActionButton>
                 )}
             </div>
