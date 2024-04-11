@@ -52,14 +52,6 @@ const encodeQuestID = ({ zone, name }) => {
     return solidityPacked(['bytes4', 'uint32', 'uint64', 'uint64'], [NodeSelectors.Quest, zone, 0, getQuestKey(name)]);
 };
 
-const getAutoQuestKey = (name: string) => {
-    return BigInt.asUintN(64, BigInt(keccak256UTF8(`quest/${name}`)));
-};
-
-const encodeAutoQuestID = ({ name }) => {
-    return solidityPacked(['bytes4', 'uint32', 'uint64', 'uint64'], [NodeSelectors.Quest, 0, 0, getAutoQuestKey(name)]);
-};
-
 const itemKindDeploymentActions = async (
     file: ReturnType<typeof ManifestDocument.parse>,
     compiler: (source: z.infer<typeof ContractSource>, manifestDir: string) => Promise<string>
