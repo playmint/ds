@@ -35,7 +35,6 @@ enum CombatActionKind {
 interface Actions {
     // move the sending player's mobileUnit to target location
     function MOVE_MOBILE_UNIT(int16 z, int16 q, int16 r, int16 s) external;
-
     // transfer a qty of items from itemSlot[0] in equipees[0]'s equipSlots[0] bag
     // to itemSlot[1] in equipees[1]'s equipSlots[1] bag
     // bags must be at same location as mobileUnit
@@ -161,7 +160,8 @@ interface Actions {
     // ---------------------
 
     // action to set the type of quest the player should begin with
-    function DEV_ASSIGN_AUTO_QUEST(string memory name, uint16 zone) external;
+    function DEV_ASSIGN_AUTO_QUEST(bytes24 questID, uint16 zone) external;
+
 
     // spawn a tile at any location
     function DEV_SPAWN_TILE(int16 z, int16 q, int16 r, int16 s) external;
