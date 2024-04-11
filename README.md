@@ -136,6 +136,11 @@ For `make` builds (and OSX docker builds) the MAP variable can be set as part of
 MAP=quest-map make dev
 ```
 
+## 2. Claiming a zone
+
+Once your build has succeeded, `http://localhost:3000/tile-fabricator` will take you to the Downstream homepage. Here you can sign in via Metamask, Wallet connect or use one of our Burner wallets. When deploying locally, a wallet called the 
+
+
 ## 2. Apply a map after deploying
 
 After doing a standard `docker` or `make` build, you can run the DS apply command and point it at one of the map folders. For example: `ds apply -n local -z 1 -R -f ./contracts/src/maps/quest-map/`
