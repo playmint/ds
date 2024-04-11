@@ -155,11 +155,11 @@ contract DownstreamGame is BaseGame {
         return unitTimeoutBlocks;
     }
 
-    function setUnitTimeoutBlocks(uint256 blocks) public ownerOnly {
+    function setUnitTimeoutBlocks(uint64 blocks) public ownerOnly {
         _setUnitTimeoutBlocks(blocks);
     }
 
-    function _setUnitTimeoutBlocks(uint256 blocks) internal {
+    function _setUnitTimeoutBlocks(uint64 blocks) internal {
         state.set(Rel.UnitTimeoutBlocks.selector, 0, Node.GameSettings(), Node.GameSettings(), uint64(blocks));
     }
 
@@ -168,11 +168,11 @@ contract DownstreamGame is BaseGame {
         return zoneUnitLimit;
     }
 
-    function setZoneUnitLimit(uint256 limit) public ownerOnly {
+    function setZoneUnitLimit(uint64 limit) public ownerOnly {
         _setZoneUnitLimit(limit);
     }
 
-    function _setZoneUnitLimit(uint256 limit) internal {
+    function _setZoneUnitLimit(uint64 limit) internal {
         state.set(Rel.ZoneUnitLimit.selector, 0, Node.GameSettings(), Node.GameSettings(), uint64(limit));
     }
 }
