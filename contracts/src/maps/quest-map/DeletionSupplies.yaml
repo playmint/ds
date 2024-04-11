@@ -17,7 +17,7 @@ spec:
   - name: Registration Receipt
     quantity: 1
   - name: Red Goo
-    quantity: 50
+    quantity: 100
   outputs:
   - name: Deletion Tool
     quantity: 1
