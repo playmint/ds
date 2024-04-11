@@ -57,6 +57,7 @@ _options explained_
 | option | description |
 |---|---|
 | `-n local` | Routes commands to localhost. |
+| `-z <zone>` | Routes commands to a specific zone. | 
 | `-f BasicFactory.yaml`| Apply just BasicFactory.yaml file. |
 | `-R -f MyMapFolder`| Deploy all manifests in MyMapFolder recursively. |
 | `-k <private key>` | Sign with this private key (see warning below). |
