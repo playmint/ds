@@ -222,7 +222,7 @@ Run the following from the root of your map folder
 ds apply -n local -z 1 -k <private-key> -R -f .
 ```
 
-If we now refresh Open [http://localhost:3000/] we will see our map with our Unit Controller building on it. To spawn a unit from the building we'll first need to spawn our own unit and walk up to the building in order to interact with the building's UI.
+If we now refresh Open [http://localhost:3000/zones/1] we will see our map with our Unit Controller building on it. To spawn a unit from the building we'll first need to spawn our own unit and walk up to the building in order to interact with the building's UI.
 
 <img src="./readme-images/step4c.png" width=200>
 
