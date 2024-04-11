@@ -87,6 +87,19 @@ enum QuestStatus {
     COMPLETED
 }
 
+enum TaskKind {
+    NONE,
+    COORD,
+    INVENTORY,
+    MESSAGE,
+    QUEST_ACCEPT,
+    QUEST_COMPLETE,
+    COMBAT,
+    CONSTRUCT,
+    UNIT_STATS,
+    DEPLOY_BUILDING
+}
+
 enum BuildingBlockNumKey {
     CONSTRUCTION,
     EXTRACTION
@@ -195,11 +208,11 @@ library Node {
         return bytes24(Kind.BlockNum.selector);
     }
 
-    function Task(int16 zone, string memory name, string memory kind) internal pure returns (bytes24) {
+    function Task(int16 zone, string memory name, TaskKind kind) internal pure returns (bytes24) {
         uint64 nameHash = uint64(uint256(keccak256(abi.encodePacked("task/", name))));
-        uint32 kindHash = uint32(uint256(keccak256(abi.encodePacked(kind))));
         return CompoundKeyEncoder.BYTES(
-            Kind.Task.selector, bytes20(abi.encodePacked(uint32(uint16(zone)), uint32(0), kindHash, nameHash))
+            Kind.Task.selector,
+            bytes20(abi.encodePacked(uint32(uint16(zone)), uint32(0), uint32(uint8(kind)), nameHash))
         );
     }
 

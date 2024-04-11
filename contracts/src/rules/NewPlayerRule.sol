@@ -5,16 +5,13 @@ import "cog/IState.sol";
 import "cog/IRule.sol";
 import "cog/IDispatcher.sol";
 
-import {Schema, Node} from "@ds/schema/Schema.sol";
+import {Schema, Node, QuestStatus} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 
 using Schema for State;
 
 contract NewPlayerRule is Rule {
-    string[] names;
-    uint8[] indexes;
-
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         // spawn a mobileUnit for any player at any location
         if (bytes4(action) == Actions.SPAWN_MOBILE_UNIT.selector) {
@@ -41,12 +38,6 @@ contract NewPlayerRule is Rule {
             state.setItemSlot(bag1, 0, ItemUtils.GreenGoo(), 100);
             state.setItemSlot(bag1, 1, ItemUtils.BlueGoo(), 100);
             state.setItemSlot(bag1, 2, ItemUtils.RedGoo(), 100);
-        }
-
-        if (bytes4(action) == Actions.AUTO_QUEST.selector) {
-            (string memory name, uint8 index) = abi.decode(action[4:], (string, uint8));
-            names.push(name);
-            indexes.push(index);
         }
 
         return state;

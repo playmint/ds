@@ -24,7 +24,6 @@ fragment Quest on Node {
 
 fragment QuestTask on Node {
     id
-    keys
     name: annotation(name: "name") {
         value
     }

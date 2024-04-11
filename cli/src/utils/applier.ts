@@ -11,7 +11,14 @@ import { AbiCoder, id as keccak256UTF8, solidityPacked } from 'ethers';
 import fs from 'fs';
 import path from 'path';
 import { z } from 'zod';
-import { ContractSource, ManifestDocument, Slot, FacingDirectionTypes } from '../utils/manifest';
+import {
+    ContractSource,
+    ManifestDocument,
+    Slot,
+    Task,
+    FacingDirectionTypes,
+    TaskKindEnumVals,
+} from '../utils/manifest';
 import {
     encodeItemID,
     getItemIdByName,
@@ -28,12 +35,12 @@ const encodePluginID = ({ name }) => {
     return CompoundKeyEncoder.encodeUint160(NodeSelectors.ClientPlugin, id);
 };
 
-const encodeTaskID = ({ zone, name, kind }) => {
+const encodeTaskID = ({ zone, name, kind }: z.infer<typeof Task> & { zone: number }) => {
+    const kindIndex = TaskKindEnumVals.indexOf(kind);
     const id = BigInt.asUintN(64, BigInt(keccak256UTF8(`task/${name}`)));
-    const kindHash = BigInt.asUintN(32, BigInt(keccak256UTF8(kind)));
     return solidityPacked(
         ['bytes4', 'uint32', 'uint32', 'uint32', 'uint64'],
-        [NodeSelectors.Task, zone, 0, kindHash, id]
+        [NodeSelectors.Task, zone, 0, kindIndex, id]
     );
 };
 
@@ -292,7 +299,7 @@ const questDeploymentActions = async (
             const taskData = encodeTaskData(task);
             return {
                 name: 'REGISTER_TASK',
-                args: [zoneId, task.name, task.kind, taskData],
+                args: [zoneId, task.name, TaskKindEnumVals.indexOf(task.kind), taskData],
             };
         })
     );
@@ -480,8 +487,8 @@ export const getOpsForManifests = async (
             doc,
             actions: [
                 {
-                    name: 'AUTO_QUEST',
-                    args: [spec.name, spec.index],
+                    name: 'DEV_ASSIGN_AUTO_QUEST',
+                    args: [spec.name, zoneId],
                 },
             ],
             note: `added auto-quest ${spec.name}`,

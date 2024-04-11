@@ -1,34 +1,15 @@
-import {
-    QuestTaskEdge,
-    Player,
-    Log,
-    TaskKinds,
-    ZoneWithBags,
-    BuildingKindFragment,
-    WorldTileFragment,
-} from '@downstream/core';
+import { QuestTaskEdge, Player, Log, ZoneWithBags, BuildingKindFragment, WorldTileFragment } from '@downstream/core';
 import { FunctionComponent, Dispatch, SetStateAction, useRef } from 'react';
 import { TaskCoord } from './kinds/task-coord';
 import { TaskInventory } from './kinds/task-inventory';
 import { TaskMessage } from './kinds/task-message';
 import { TaskQuestAccept } from './kinds/task-quest-accept';
 import { TaskQuestComplete } from './kinds/task-quest-complete';
-import { id as keccak256UTF8 } from 'ethers';
 import { TaskConstruct } from './kinds/task-construct';
 import { TaskCombat } from './kinds/task-combat';
 import { TaskDeployBuilding } from './kinds/task-deploy-building';
 import { TaskUnitStats } from './kinds/task-unit-stats';
-
-// TODO: Generate these
-const taskCoord = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.coord))).toString(16);
-const taskMessage = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.message))).toString(16);
-const taskInventory = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.inventory))).toString(16);
-const taskQuestAccept = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.questAccept))).toString(16);
-const taskQuestComplete = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.questComplete))).toString(16);
-const taskCombat = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.combat))).toString(16);
-const taskConstruct = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.construct))).toString(16);
-const taskDeployBuilding = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.deployBuilding))).toString(16);
-const taskUnitStats = '0x' + BigInt.asUintN(32, BigInt(keccak256UTF8(TaskKinds.unitStats))).toString(16);
+import { TaskKindEnumVals } from '@downstream/cli/utils/manifest';
 
 export interface TaskItemProps {
     task: QuestTaskEdge;
@@ -76,17 +57,18 @@ export const TaskItem: FunctionComponent<TaskItemProps> = ({
     setTaskCompletion,
 }) => {
     const quests = player?.zone?.quests || [];
-    const taskKind = task.node.keys[0];
+    const taskKindIndex = Number(BigInt.asUintN(8, BigInt(task.node.id) >> BigInt(64)));
+    const taskKindValue = TaskKindEnumVals[taskKindIndex];
     const playerUnits = zone?.mobileUnits.filter((mu) => mu.owner && player && mu.owner.id === player.id) || [];
 
     // The ref to the array containing the IDs is only updated if the IDs change. Needed so the CombatMemo didn't update every time we supplied it with a newly filtered list
     const playerUnitIDs = usePlayerUnitIDsMemo(playerUnits.map((u) => u.id));
     const taskMemo = useTaskMemo(task);
 
-    switch (taskKind) {
-        case taskCoord:
+    switch (taskKindValue) {
+        case 'coord':
             return <TaskCoord task={taskMemo} mobileUnits={playerUnits || []} setTaskCompletion={setTaskCompletion} />;
-        case taskInventory:
+        case 'inventory':
             return (
                 <TaskInventory
                     bags={zone?.bags || []}
@@ -95,13 +77,13 @@ export const TaskItem: FunctionComponent<TaskItemProps> = ({
                     setTaskCompletion={setTaskCompletion}
                 />
             );
-        case taskMessage:
+        case 'message':
             return <TaskMessage task={taskMemo} questMessages={questMessages} setTaskCompletion={setTaskCompletion} />;
-        case taskQuestAccept:
+        case 'questAccept':
             return <TaskQuestAccept task={taskMemo} quests={quests} setTaskCompletion={setTaskCompletion} />;
-        case taskQuestComplete:
+        case 'questComplete':
             return <TaskQuestComplete task={taskMemo} quests={quests} setTaskCompletion={setTaskCompletion} />;
-        case taskConstruct:
+        case 'construct':
             return (
                 <TaskConstruct
                     buildings={zone?.buildings || []}
@@ -111,7 +93,7 @@ export const TaskItem: FunctionComponent<TaskItemProps> = ({
                     setTaskCompletion={setTaskCompletion}
                 />
             );
-        case taskCombat:
+        case 'combat':
             return (
                 <TaskCombat
                     sessions={zone?.sessions || []}
@@ -120,7 +102,7 @@ export const TaskItem: FunctionComponent<TaskItemProps> = ({
                     setTaskCompletion={setTaskCompletion}
                 />
             );
-        case taskDeployBuilding:
+        case 'deployBuilding':
             return (
                 <TaskDeployBuilding
                     task={taskMemo}
@@ -129,7 +111,7 @@ export const TaskItem: FunctionComponent<TaskItemProps> = ({
                     setTaskCompletion={setTaskCompletion}
                 />
             );
-        case taskUnitStats:
+        case 'unitStats':
             return (
                 <TaskUnitStats
                     worldBags={zone?.bags || []}
@@ -138,6 +120,8 @@ export const TaskItem: FunctionComponent<TaskItemProps> = ({
                     setTaskCompletion={setTaskCompletion}
                 />
             );
+        default:
+            console.warn(`unexpected task kind: ${taskKindValue}`);
     }
 
     return null;

@@ -402,19 +402,6 @@ export type UnconnectedPlayer = undefined;
 
 export type SelectedMapElement = { id: string; type: string };
 
-// TODO: Generate these from the contract
-export enum TaskKinds {
-    coord = 'coord',
-    message = 'message',
-    inventory = 'inventory',
-    combat = 'combat',
-    questAccept = 'questAccept',
-    questComplete = 'questComplete',
-    construct = 'construct',
-    deployBuilding = 'deployBuilding',
-    unitStats = 'unitStats',
-}
-
 export type QuestTaskEdge = AssignedQuestFragment['node']['tasks'][0];
 
 export const QUEST_STATUS_ACCEPTED = 1;

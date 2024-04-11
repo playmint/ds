@@ -5,7 +5,7 @@ import "cog/IState.sol";
 import "cog/IRule.sol";
 import "cog/IDispatcher.sol";
 
-import {Schema, Kind, Node, Rel, QuestStatus, LIFE, DEFENCE, ATTACK} from "@ds/schema/Schema.sol";
+import {Schema, Kind, Node, Rel, TaskKind, QuestStatus, LIFE, DEFENCE, ATTACK} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
 import "forge-std/console.sol";
@@ -45,42 +45,38 @@ contract QuestRule is Rule {
     }
 
     function _registerTask(State state, bytes calldata action, address sender) private {
-        (int16 zone, string memory name, string memory taskType, bytes memory taskData) =
-            abi.decode(action[4:], (int16, string, string, bytes));
+        (int16 zone, string memory name, TaskKind taskKind, bytes memory taskData) =
+            abi.decode(action[4:], (int16, string, TaskKind, bytes));
 
         // sender claims id
-        bytes24 task = Node.Task(zone, name, taskType);
+        bytes24 task = Node.Task(zone, name, taskKind);
         _claimEntity(state, task, sender);
 
         // Store the task data
-        uint32 taskKind = _getTaskKind(task);
-        if (uint32(uint256(keccak256(abi.encodePacked("coord")))) == taskKind) {
+        if (TaskKind.COORD == taskKind) {
             (int16 z, int16 q, int16 r, int16 s) = abi.decode(taskData, (int16, int16, int16, int16));
             bytes24 tile = Node.Tile(z, q, r, s);
             state.set(Rel.Location.selector, 0, task, tile, 0);
-        } else if (uint32(uint256(keccak256(abi.encodePacked("inventory")))) == taskKind) {
+        } else if (TaskKind.INVENTORY == taskKind) {
             (bytes24 item, uint64 quantity) = abi.decode(taskData, (bytes24, uint64));
             require(bytes4(item) == Kind.Item.selector, "inventoryTask: item ID not Item node");
             state.set(Rel.Balance.selector, 0, task, item, quantity);
-        } else if (uint32(uint256(keccak256(abi.encodePacked("message")))) == taskKind) {
+        } else if (TaskKind.MESSAGE == taskKind) {
             (bytes24 buildingKind, string memory message) = abi.decode(taskData, (bytes24, string));
             require(
                 bytes4(buildingKind) == Kind.BuildingKind.selector, "messageTask: buildingKind ID not BuildingKind node"
             );
             state.set(Rel.Has.selector, 0, task, buildingKind, 0);
             state.annotate(task, "message", message);
-        } else if (
-            uint32(uint256(keccak256(abi.encodePacked("questAccept")))) == taskKind
-                || uint32(uint256(keccak256(abi.encodePacked("questComplete")))) == taskKind
-        ) {
+        } else if (TaskKind.QUEST_ACCEPT == taskKind || TaskKind.QUEST_COMPLETE == taskKind) {
             (bytes24 quest) = abi.decode(taskData, (bytes24));
             require(bytes4(quest) == Kind.Quest.selector, "questAccept/questComplete: quest ID not Quest node");
             state.set(Rel.HasQuest.selector, 0, task, quest, 0);
-        } else if (uint32(uint256(keccak256(abi.encodePacked("combat")))) == taskKind) {
+        } else if (TaskKind.COMBAT == taskKind) {
             (uint8 combatState) = abi.decode(taskData, (uint8));
             // HACK: Storing arbitrary data by setting an edge to itself
             state.set(Rel.Has.selector, 0, task, task, combatState);
-        } else if (uint32(uint256(keccak256(abi.encodePacked("construct")))) == taskKind) {
+        } else if (TaskKind.CONSTRUCT == taskKind) {
             // Building kind is optional
             (bytes24 buildingKind) = abi.decode(taskData, (bytes24));
             if (buildingKind != bytes24(0)) {
@@ -90,12 +86,12 @@ contract QuestRule is Rule {
                 );
                 state.set(Rel.Has.selector, 0, task, buildingKind, 0);
             }
-        } else if (uint32(uint256(keccak256(abi.encodePacked("unitStats")))) == taskKind) {
+        } else if (TaskKind.UNIT_STATS == taskKind) {
             (uint64 life, uint64 defence, uint64 attack) = abi.decode(taskData, (uint64, uint64, uint64));
             state.set(Rel.Balance.selector, LIFE, task, Node.Atom(LIFE), life);
             state.set(Rel.Balance.selector, DEFENCE, task, Node.Atom(DEFENCE), defence);
             state.set(Rel.Balance.selector, ATTACK, task, Node.Atom(ATTACK), attack);
-        } else if (uint32(uint256(keccak256(abi.encodePacked("deployBuilding")))) == taskKind) {
+        } else if (TaskKind.DEPLOY_BUILDING == taskKind) {
             (bytes24 craftInput, bytes24 craftOutput) = abi.decode(taskData, (bytes24, bytes24));
             if (craftInput != bytes24(0)) {
                 state.set(Rel.Balance.selector, 0, task, craftInput, 0);
@@ -226,10 +222,6 @@ contract QuestRule is Rule {
             revert("EntityNotOwnedByPlayer");
         }
         state.annotate(entity, "description", name);
-    }
-
-    function _getTaskKind(bytes24 task) internal pure returns (uint32) {
-        return uint32(uint192(task) >> 32 & type(uint32).max);
     }
 
     function _getZone(bytes24 questOrTask) internal pure returns (int16) {
