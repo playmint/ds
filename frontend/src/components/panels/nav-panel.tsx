@@ -243,7 +243,7 @@ export const NavPanel = ({
                 {!player && <span className="text">CONNECT</span>}
             </AccountButton>
 
-            {toggleWalletItemsActive && (
+            {address && toggleWalletItemsActive && (
                 <TextButton onClick={toggleWalletItemsActive} className={`${walletItemsActive ? 'toggleOn' : ''}`}>
                     WALLET
                 </TextButton>
