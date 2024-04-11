@@ -5,7 +5,7 @@ import {
     ConnectedPlayer,
     GameConfig,
     GameState,
-    GlobalStateFragment,
+    GlobalState,
     Log,
     Logger,
     makeAutoloadPlugins,
@@ -19,6 +19,7 @@ import {
     makeSelection,
     makeWallet,
     makeZone,
+    NodeSelectors,
     PluginUpdateResponse,
     Sandbox,
     SelectedMapElement,
@@ -54,7 +55,7 @@ export interface DSContextValue1 {
     wallet: Source<Wallet | undefined>;
     player: Source<ConnectedPlayer | undefined>;
     zone: Source<ZoneWithBags>;
-    global: Source<GlobalStateFragment>;
+    global: Source<GlobalState>;
     state: Source<GameState>;
     block: Source<number>;
     selection: Source<Selection>;
@@ -94,7 +95,9 @@ export const GameStateProvider = ({ config, zoneId, children }: DSContextProvide
         const { wallet, selectProvider } = makeWallet();
         const { client } = makeCogClient(config);
         const { logger, logs } = makeLogger({ name: 'main' });
-        const player = makeConnectedPlayer(client, wallet, logger);
+
+        const zoneKey = zoneId ? Number(BigInt.asIntN(16, BigInt(zoneId.replace(NodeSelectors.Zone, '')))) : 0;
+        const player = makeConnectedPlayer(client, wallet, logger, zoneKey);
         const global = makeGlobal(client);
         const zone = makeZone(client, zoneId || '');
         const { selection, ...selectors } = makeSelection(client, zone, player);
@@ -253,7 +256,7 @@ export function useZone(): ZoneWithBags | undefined {
 }
 
 // fetch the shared global state (building kinds, etc)
-export function useGlobal(): GlobalStateFragment | undefined {
+export function useGlobal(): GlobalState | undefined {
     const sources = useSources();
     return useSource(sources.global);
 }

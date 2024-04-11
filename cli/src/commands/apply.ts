@@ -39,7 +39,9 @@ const deploy = {
         yargs
             .option('filename', {
                 alias: 'f',
-                describe: 'path to manifest that contain the configurations to apply, use "-" to read from stdin',
+                demandOption: true,
+                describe:
+                    'path to manifest or dir that contain the configurations to apply, use "-" to read from stdin',
                 type: 'string',
             })
             .option('recursive', {
@@ -47,6 +49,12 @@ const deploy = {
                 describe:
                     'process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory',
                 type: '',
+            })
+            .option('zone', {
+                alias: 'z',
+                demandOption: true,
+                describe: 'id of the zone/island to deploy in to',
+                type: 'string',
             })
             .option('dry-run', {
                 describe: 'show changes that would be applied',
@@ -72,6 +80,9 @@ const deploy = {
                 ['$0 apply -R -f .', 'Apply ALL manifests in directory'],
             ]),
     handler: async (ctx) => {
+        if (ctx.zone < 1) {
+            throw new Error('invalid zone id');
+        }
         const manifestFilenames = getManifestFilenames(ctx.filename, ctx.recursive);
         const docs = (await Promise.all(manifestFilenames.map(readManifestsDocumentsSync))).flatMap((docs) => docs);
         const zone = await getZone(ctx);

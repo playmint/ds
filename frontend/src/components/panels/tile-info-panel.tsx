@@ -31,7 +31,6 @@ import { FunctionComponent, useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { colors } from '@app/styles/colors';
 import { getMaterialStats } from '@app/plugins/combat/helpers';
-import { UNIT_DISPLAY_TIMEOUT_BLOCK_COUNT } from '../map/MobileUnit';
 
 interface KeyedThing {
     key: number;
@@ -259,8 +258,9 @@ interface TileAvailableProps {
     player?: ConnectedPlayer;
     mobileUnits: WorldMobileUnitFragment[];
     bags: BagFragment[];
+    unitTimeoutBlocks: number;
 }
-const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUnits, bags }) => {
+const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUnits, bags, unitTimeoutBlocks }) => {
     const { tiles: selectedTiles, mobileUnit: selectedMobileUnit } = useSelection();
     const selectedTile = selectedTiles?.[0];
     const tileMobileUnits = selectedTile ? getMobileUnitsAtTile(mobileUnits, selectedTile) : [];
@@ -279,7 +279,7 @@ const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUn
 
     const visibleUnits = tileMobileUnits
         .filter(excludeSelected)
-        .filter((u) => currentBlock - (u.nextLocation?.time || 0) < UNIT_DISPLAY_TIMEOUT_BLOCK_COUNT);
+        .filter((u) => currentBlock - (u.nextLocation?.time || 0) < unitTimeoutBlocks);
 
     const lastTile = selectedTiles?.slice(-1, 1).find(() => true);
     if (!lastTile) {
@@ -327,7 +327,15 @@ const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUn
     );
 };
 
-export const TileInfoPanel = ({ kinds, ui }: { kinds: BuildingKindFragment[]; ui: PluginUpdateResponse[] }) => {
+export const TileInfoPanel = ({
+    kinds,
+    ui,
+    unitTimeoutBlocks,
+}: {
+    kinds: BuildingKindFragment[];
+    ui: PluginUpdateResponse[];
+    unitTimeoutBlocks;
+}) => {
     const { tiles, mobileUnit } = useSelection();
     const player = usePlayer();
 
@@ -342,7 +350,14 @@ export const TileInfoPanel = ({ kinds, ui }: { kinds: BuildingKindFragment[]; ui
         if (selectedTile.biome == BiomeKind.UNDISCOVERED) {
             return <TileUndiscovered />;
         } else if (!building) {
-            return <TileAvailable player={player} mobileUnits={zone?.mobileUnits || []} bags={zone?.bags || []} />;
+            return (
+                <TileAvailable
+                    player={player}
+                    mobileUnits={zone?.mobileUnits || []}
+                    bags={zone?.bags || []}
+                    unitTimeoutBlocks={unitTimeoutBlocks}
+                />
+            );
         } else if (building) {
             const canUse =
                 mobileUnit &&
@@ -358,7 +373,12 @@ export const TileInfoPanel = ({ kinds, ui }: { kinds: BuildingKindFragment[]; ui
                         mobileUnit={mobileUnit}
                         ui={ui}
                     />
-                    <TileAvailable player={player} mobileUnits={zone?.mobileUnits || []} bags={zone?.bags || []} />
+                    <TileAvailable
+                        player={player}
+                        mobileUnits={zone?.mobileUnits || []}
+                        bags={zone?.bags || []}
+                        unitTimeoutBlocks={unitTimeoutBlocks}
+                    />
                 </>
             );
         } else {

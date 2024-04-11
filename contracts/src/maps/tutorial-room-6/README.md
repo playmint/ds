@@ -219,7 +219,7 @@ With the map tiles defined and the building location set we can now deploy our m
 Run the following from the root of your map folder
 
 ```bash
-ds apply -n local -k <private-key> -R -f .
+ds apply -n local -z 1 -k <private-key> -R -f .
 ```
 
 If we now refresh Open [http://localhost:3000/] we will see our map with our Unit Controller building on it. To spawn a unit from the building we'll first need to spawn our own unit and walk up to the building in order to interact with the building's UI.

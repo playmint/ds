@@ -208,6 +208,14 @@ fragment ZoneState on Node {
 
 fragment GlobalState on State {
     block
+    gameSettings: node(match: { kinds: ["GameSettings"] }) {
+        zoneUnitLimit: data(name: "zoneUnitLimit") {
+            value
+        }
+        unitTimeoutBlocks: data(name: "unitTimeoutBlocks") {
+            value
+        }
+    }
     items: nodes(match: { kinds: "Item" }) {
         ...Item
     }

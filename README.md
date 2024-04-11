@@ -138,7 +138,7 @@ MAP=quest-map make dev
 
 ## 2. Apply a map after deploying
 
-After doing a standard `docker` or `make` build, you can run the DS apply command and point it at one of the map folders. For example: `ds apply -n local -R -f ./contracts/src/maps/quest-map/`
+After doing a standard `docker` or `make` build, you can run the DS apply command and point it at one of the map folders. For example: `ds apply -n local -z 1 -R -f ./contracts/src/maps/quest-map/`
 
 ## 3. Build your own map and deploy it
 
@@ -147,7 +147,7 @@ Once the game is running locally, browsing to `http://localhost:3000/tile-fabric
 Once in the Tile Fabricator, you can design and export a map file. If you want to pre-populate your map wih buildings you will need to import .yaml files that define the buildingKinds.
 
 If you then rename the .yml file to a .yaml and move it to your desired location, you will be able to run the ds apply command, like so:
-`ds apply -n local -f ./path/to/mymap.yaml`
+`ds apply -n local -z 1 -f ./path/to/mymap.yaml`
 
 ## 4 Generating the performance-test map
 
@@ -159,7 +159,7 @@ NUM_ARENAS=4 make contracts/src/maps/performance-test
 
 ...this generates a map configuration in `contracts/src/maps/performance-test`
 
-You can then either start locally via `MAP=performance-test make dev` or manually `ds apply -R -f contracts/src/maps/performance-test`
+You can then either start locally via `MAP=performance-test make dev` or manually `ds apply -n local -z 1 -R -f contracts/src/maps/performance-test`
 </details>
 
 # References

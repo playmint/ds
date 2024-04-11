@@ -66,13 +66,20 @@ const toYAML = (o: any): string => {
 export function output(ctx) {
     ctx.output = {
         write: (entities: any[]) => {
-            const args = entities.map((entity) => {
-                const o = { ...entity };
-                if (ctx.status === false && o.status) {
-                    delete o.status;
+            let args: any[] = [];
+            try {
+                if (entities && typeof entities.map === 'function') {
+                    args = entities.map((entity) => {
+                        const o = { ...entity };
+                        if (ctx.status === false && o.status) {
+                            delete o.status;
+                        }
+                        return o;
+                    });
                 }
-                return o;
-            });
+            } catch (e) {
+                console.warn('executed ok, but failed to format output', e);
+            }
             if (ctx.format == 'json') {
                 const data = args.map((d) => JSON.stringify(d, null, 4));
                 console.log(...data);

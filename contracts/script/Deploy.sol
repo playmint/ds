@@ -56,8 +56,10 @@ contract GameDeployer is Script {
         zoneOwnership.mintTo{value: 0.05 ether}(deployerAddr);
         zoneOwnership.withdrawPayments(payable(deployerAddr));
 
+        // setup the tokens contract that manages items as ERC1155
         InventoryRule inventoryRule = new InventoryRule(ds);
         address tokenAddress = inventoryRule.getTokensAddress();
+        ds.registerTokensContract(tokenAddress);
         ds.autorizeStateMutation(tokenAddress);
 
         string memory o = "key";
@@ -95,22 +97,5 @@ contract GameDeployer is Script {
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.IDCard(), "ID Card", "10-46")));
 
         vm.stopBroadcast();
-    }
-
-    function _loadAllowList(address deployer) private view returns (address[] memory) {
-        string memory root = vm.projectRoot();
-        string memory path = string.concat(root, "/src/common/allowlist.json");
-        string memory json = vm.readFile(path);
-        address[] memory addresses = abi.decode(vm.parseJson(json, ".players"), (address[]));
-        if (addresses.length == 0) {
-            address[] memory none = new address[](0);
-            return none;
-        }
-        address[] memory allowlist = new address[](addresses.length + 1);
-        for (uint256 i = 0; i < addresses.length; i++) {
-            allowlist[i] = addresses[i];
-        }
-        allowlist[addresses.length] = deployer; // allowlist the deployer address
-        return allowlist;
     }
 }

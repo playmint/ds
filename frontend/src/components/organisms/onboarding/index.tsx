@@ -1,4 +1,4 @@
-import { ConnectedPlayer, WorldMobileUnitFragment, ZoneWithBags } from '@app/../../core/src';
+import { CogAction, ConnectedPlayer, WorldMobileUnitFragment, ZoneWithBags } from '@app/../../core/src';
 import { decodeString } from '@app/helpers';
 import { useWallet } from '@app/hooks/use-game-state';
 import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
@@ -11,6 +11,8 @@ export interface OnboardingProps {
     player?: ConnectedPlayer;
     playerUnits: WorldMobileUnitFragment[];
     block: number;
+    unitTimeoutBlocks: number;
+    zoneUnitLimit: number;
     onClickConnect: () => void;
 }
 
@@ -24,8 +26,18 @@ const StyledOnboarding = styled(StyledHeaderPanel)`
     }
 `;
 
-export const Onboarding = ({ player, playerUnits, onClickConnect, zone, block }: OnboardingProps) => {
+export const Onboarding = ({
+    player,
+    playerUnits,
+    onClickConnect,
+    zone,
+    block,
+    unitTimeoutBlocks,
+    zoneUnitLimit,
+}: OnboardingProps) => {
     const [isSpawningMobileUnit, setIsSpawningMobileUnit] = useState<boolean>(false);
+
+    const isZoneOwner = player && zone.owner && zone.owner.addr === player.addr;
 
     const spawnMobileUnit = useCallback(() => {
         if (!player) {
@@ -35,26 +47,49 @@ export const Onboarding = ({ player, playerUnits, onClickConnect, zone, block }:
             return;
         }
         const zoneId = Number(BigInt.asIntN(16, zone.key));
+        const inactiveUnits = zone.mobileUnits.filter(
+            (u) => u.nextLocation && u.nextLocation.time + unitTimeoutBlocks <= block
+        );
+
+        const spawnActions: CogAction[] = [{ name: 'SPAWN_MOBILE_UNIT', args: [] }];
+
+        // We need to kick out 2 units if the owner is pushing the capacity over the limit
+        // If we are the owner and there are no inactive units, we can spawn anyway
+        const kickCount = Math.min(inactiveUnits.length, zone.mobileUnits.length > zoneUnitLimit ? 2 : 1);
+
+        for (let i = 0; i < kickCount; i++) {
+            const inactiveUnit = inactiveUnits[i];
+            console.log('kicking inactive unit ' + i, inactiveUnit.id);
+            spawnActions.push({
+                name: 'KICK_UNIT_FROM_ZONE',
+                args: [inactiveUnit.id],
+            });
+        }
+
+        spawnActions.push({ name: 'MOVE_MOBILE_UNIT', args: [zoneId, 0, 0, 0] });
+
         setIsSpawningMobileUnit(true);
+
         player
-            .dispatch({ name: 'SPAWN_MOBILE_UNIT', args: [] }, { name: 'MOVE_MOBILE_UNIT', args: [zoneId, 0, 0, 0] })
+            .dispatch(...spawnActions)
             .catch((e) => {
                 console.error('failed to spawn mobileUnit:', e);
             })
             .finally(() => setIsSpawningMobileUnit(false));
-    }, [player, setIsSpawningMobileUnit, zone]);
+    }, [block, player, unitTimeoutBlocks, zone, zoneUnitLimit]);
 
     const zoneName = zone.name?.value ? decodeString(zone.name.value) : `unnamed`;
     const zoneDescription = zone.description?.value ? decodeString(zone.description.value) : `no description`;
 
-    const ACTIVE_UNIT_TIMEOUT = 10; // FIXME: value should match spawn logic
     const activeUnits = zone.mobileUnits.filter(
-        (u) => u.nextLocation && u.nextLocation.time + ACTIVE_UNIT_TIMEOUT < block
+        (u) => u.nextLocation && u.nextLocation.time + unitTimeoutBlocks > block
     );
 
     const { wallet } = useWallet();
     const address = player?.addr || wallet?.address || '';
     const isZoneOwner = address === zone?.owner?.addr;
+    // Zone owners can spawn into a zone even when it's at capacity
+    const canSpawn = activeUnits.length < zoneUnitLimit || isZoneOwner;
 
     return (
         <StyledOnboarding>
@@ -92,9 +127,13 @@ export const Onboarding = ({ player, playerUnits, onClickConnect, zone, block }:
                 )}
                 <br />
                 <p>There are {activeUnits.length} active units here</p>
+
                 <br />
+
+                {!canSpawn && <p>Zone is currently full, try returning later</p>}
+
                 {player && playerUnits.length === 0 ? (
-                    <ActionButton onClick={spawnMobileUnit} disabled={isSpawningMobileUnit}>
+                    <ActionButton onClick={spawnMobileUnit} disabled={isSpawningMobileUnit || !canSpawn}>
                         Enter
                     </ActionButton>
                 ) : playerUnits.length > 0 ? null : (

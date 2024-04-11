@@ -10,9 +10,11 @@ import {LibString} from "cog/utils/LibString.sol";
 import "./IDownstream.sol";
 import {Schema, Node, Rel, Kind} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
-import {Zones721} from "@ds/Zones721.sol";
+
+import {ERC721} from "solmate/tokens/ERC721.sol";
 
 using Schema for BaseState;
+using Schema for State;
 
 // -----------------------------------------------
 // a Game sets up the State, Dispatcher and Router
@@ -48,15 +50,19 @@ contract DownstreamRouter is BaseRouter {
 }
 
 contract DownstreamGame is BaseGame {
+    uint64 constant DEFAULT_ZONE_UNIT_LIMIT = 20;
+    uint64 constant DEFAULT_UNIT_TIMEOUT_BLOCKS = 10;
+
     address public owner;
-    Zones721 public zoneOwnership;
+    ERC721 public zoneOwnership;
+    address public tokens;
 
     modifier ownerOnly() {
         require(msg.sender == owner, "DownstreamGame: Sender is not the owner");
         _;
     }
 
-    constructor(address _owner, Zones721 _zoneOwnership) BaseGame("DOWNSTREAM", "http://downstream.game/") {
+    constructor(address _owner, ERC721 _zoneOwnership) BaseGame("DOWNSTREAM", "http://downstream.game/") {
         owner = _owner;
 
         // create a state
@@ -80,11 +86,13 @@ contract DownstreamGame is BaseGame {
         state.registerNodeType(Kind.Hash.selector, "Hash", CompoundKeyKind.BYTES);
         state.registerNodeType(Kind.Atom.selector, "Atom", CompoundKeyKind.UINT160);
         state.registerNodeType(Kind.BlockNum.selector, "BlockNum", CompoundKeyKind.UINT160);
-        state.registerNodeType(Kind.Quest.selector, "Quest", CompoundKeyKind.UINT160);
-        state.registerNodeType(Kind.Task.selector, "Task", CompoundKeyKind.UINT32_ARRAY);
+        state.registerNodeType(Kind.Quest.selector, "Quest", CompoundKeyKind.BYTES);
+        state.registerNodeType(Kind.Task.selector, "Task", CompoundKeyKind.BYTES);
         state.registerNodeType(Kind.ID.selector, "ID", CompoundKeyKind.BYTES);
         state.registerNodeType(Kind.OwnedToken.selector, "OwnedToken", CompoundKeyKind.BYTES);
         state.registerNodeType(Kind.Zone.selector, "Zone", CompoundKeyKind.UINT160);
+        state.registerNodeType(Kind.ZonedPlayer.selector, "ZonedPlayer", CompoundKeyKind.BYTES);
+        state.registerNodeType(Kind.GameSettings.selector, "GameSettings", CompoundKeyKind.NONE);
 
         // register the relationship ids we are using
         state.registerEdgeType(Rel.Owner.selector, "Owner", WeightKind.UINT64);
@@ -124,6 +132,9 @@ contract DownstreamGame is BaseGame {
         _registerState(state);
         _registerRouter(router);
         _registerDispatcher(dispatcher);
+
+        state.setZoneUnitLimit(DEFAULT_ZONE_UNIT_LIMIT);
+        state.setUnitTimeoutBlocks(DEFAULT_UNIT_TIMEOUT_BLOCKS);
     }
 
     function registerRule(Rule rule) public ownerOnly {
@@ -131,7 +142,27 @@ contract DownstreamGame is BaseGame {
         BaseDispatcher(address(dispatcher)).registerRule(rule);
     }
 
+    function registerTokensContract(address _tokens) public ownerOnly {
+        tokens = _tokens;
+    }
+
     function autorizeStateMutation(address addr) public ownerOnly {
         state.authorizeContract(addr);
+    }
+
+    function getUnitTimeoutBlocks() public view returns (uint64) {
+        return state.getUnitTimeoutBlocks();
+    }
+
+    function setUnitTimeoutBlocks(uint64 blocks) public ownerOnly {
+        state.setUnitTimeoutBlocks(blocks);
+    }
+
+    function getZoneUnitLimit() public view returns (uint64) {
+        return state.getZoneUnitLimit();
+    }
+
+    function setZoneUnitLimit(uint64 limit) public ownerOnly {
+        state.setZoneUnitLimit(limit);
     }
 }

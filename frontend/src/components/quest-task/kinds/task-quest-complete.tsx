@@ -1,4 +1,4 @@
-import { QuestFragment, QUEST_STATUS_COMPLETED } from '@downstream/core';
+import { QUEST_STATUS_COMPLETED, AssignedQuestFragment } from '@downstream/core';
 import { memo, useEffect } from 'react';
 import { TaskItemProps } from '../task-item';
 
@@ -8,7 +8,7 @@ export const TaskQuestComplete = memo(
         quests,
         setTaskCompletion,
     }: {
-        quests?: QuestFragment[];
+        quests?: AssignedQuestFragment[];
     } & Pick<TaskItemProps, 'task' | 'setTaskCompletion'>) => {
         // console.log(`evaluating TaskQuestCompleted`);
         const isCompleted = !!quests?.some(

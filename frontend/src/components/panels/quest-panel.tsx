@@ -2,7 +2,7 @@ import {
     BuildingKindFragment,
     ConnectedPlayer,
     Log,
-    QuestFragment,
+    AssignedQuestFragment,
     ZoneWithBags,
     WorldTileFragment,
 } from '@app/../../core/src';
@@ -235,7 +235,7 @@ const StyledQuestItem = styled.div`
 
 export const QuestItem: FunctionComponent<{
     expanded: boolean;
-    quest: QuestFragment;
+    quest: AssignedQuestFragment;
     zone: ZoneWithBags;
     tiles: WorldTileFragment[];
     player: ConnectedPlayer;
@@ -263,7 +263,7 @@ export const QuestItem: FunctionComponent<{
         setCompletionPerc(quest.node.tasks.length > 0 ? completionCount / quest.node.tasks.length : 0);
     }, [quest, taskCompletion, setAllCompleted]);
 
-    const onCompleteClick = (quest: QuestFragment) => {
+    const onCompleteClick = (quest: AssignedQuestFragment) => {
         player
             .dispatch({
                 name: 'COMPLETE_QUEST',
@@ -342,7 +342,7 @@ export interface QuestPanelProps {
     player: ConnectedPlayer;
     zone: ZoneWithBags;
     tiles: WorldTileFragment[];
-    acceptedQuests: QuestFragment[];
+    acceptedQuests: AssignedQuestFragment[];
     questMessages?: Log[];
 }
 

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 // TODO: Move BuildingCategory into this file
-import {BuildingCategory} from "@ds/schema/Schema.sol";
+import {BuildingCategory, TaskKind} from "@ds/schema/Schema.sol";
 
 enum BiomeKind {
     UNDISCOVERED,
@@ -35,9 +35,6 @@ enum CombatActionKind {
 interface Actions {
     // move the sending player's mobileUnit to target location
     function MOVE_MOBILE_UNIT(int16 z, int16 q, int16 r, int16 s) external;
-
-    // action to set the type of quest the player should begin with
-    function AUTO_QUEST(string calldata name, uint8 index) external;
 
     // transfer a qty of items from itemSlot[0] in equipees[0]'s equipSlots[0] bag
     // to itemSlot[1] in equipees[1]'s equipSlots[1] bag
@@ -128,6 +125,7 @@ interface Actions {
 
     function NAME_OWNED_ENTITY(bytes24 entity, string calldata name) external;
     function DESCRIBE_OWNED_ENTITY(bytes24 entity, string calldata shortDescription) external;
+    function URL_OWNED_ENTITY(bytes24 entity, string calldata url) external;
 
     function TRANSFER_BAG_OWNERSHIP(bytes24 bag, bytes24 toEntity) external;
 
@@ -138,7 +136,7 @@ interface Actions {
     // Quests
 
     function REGISTER_QUEST(
-        bytes24 quest,
+        int16 zone,
         string calldata name,
         string calldata description,
         bool hasLocation,
@@ -150,7 +148,7 @@ interface Actions {
         bytes24[] calldata nextQuests
     ) external;
 
-    function REGISTER_TASK(bytes24 task, string calldata name, bytes calldata taskData) external;
+    function REGISTER_TASK(int16 zone, string calldata name, TaskKind kind, bytes calldata taskData) external;
 
     function ACCEPT_QUEST(bytes24 quest, uint8 questNum) external;
 
@@ -161,6 +159,9 @@ interface Actions {
     // only available by a single authorized account and only for a short
     // period after initial world deployment.
     // ---------------------
+
+    // action to set the type of quest the player should begin with
+    function DEV_ASSIGN_AUTO_QUEST(string memory name, uint16 zone) external;
 
     // spawn a tile at any location
     function DEV_SPAWN_TILE(int16 z, int16 q, int16 r, int16 s) external;
@@ -206,4 +207,6 @@ interface Actions {
     function DEV_DISABLE_CHEATS() external;
 
     function SET_DATA_ON_BUILDING(bytes24 buildingID, string memory key, bytes32 data) external;
+
+    function KICK_UNIT_FROM_ZONE(bytes24 mobileUnitID) external;
 }

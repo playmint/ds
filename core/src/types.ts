@@ -13,10 +13,10 @@ import {
     WorldMobileUnitFragment,
     WorldPlayerFragment,
     WorldTileFragment,
-    GlobalStateFragment,
+    AssignedQuestFragment,
 } from './gql/graphql';
 import { Logger } from './logger';
-import { ZoneWithBags } from './world';
+import { GlobalState, ZoneWithBags } from './world';
 
 export interface EthereumProvider extends Eip1193Provider {
     isMetaMask?: boolean;
@@ -94,7 +94,6 @@ export interface GameConfig {
     networkEndpoint: string;
     networkID: string;
     networkName: string;
-    tokenAddress: string;
 }
 
 export type ActionName = Parameters<ActionsInterface['getFunction']>[0];
@@ -382,7 +381,7 @@ export interface GameStatePlugin {
 export interface GameState {
     player?: ConnectedPlayer;
     zone: ZoneWithBags;
-    global: GlobalStateFragment;
+    global: GlobalState;
     selected: Selection;
     selectTiles: Selector<string[] | undefined>;
     selectMobileUnit: Selector<string | undefined>;
@@ -403,22 +402,7 @@ export type UnconnectedPlayer = undefined;
 
 export type SelectedMapElement = { id: string; type: string };
 
-export type QuestFragment = SelectedPlayerFragment['quests'][0];
-
-// TODO: Generate these from the contract
-export enum TaskKinds {
-    coord = 'coord',
-    message = 'message',
-    inventory = 'inventory',
-    combat = 'combat',
-    questAccept = 'questAccept',
-    questComplete = 'questComplete',
-    construct = 'construct',
-    deployBuilding = 'deployBuilding',
-    unitStats = 'unitStats',
-}
-
-export type QuestTaskEdge = QuestFragment['node']['tasks'][0];
+export type QuestTaskEdge = AssignedQuestFragment['node']['tasks'][0];
 
 export const QUEST_STATUS_ACCEPTED = 1;
 export const QUEST_STATUS_COMPLETED = 2;

@@ -2,9 +2,30 @@ import fs from 'fs';
 import { z } from 'zod';
 import YAML from 'yaml';
 
-export const BuildingCategoryEnumVals = ['none', 'blocker', 'extractor', 'factory', 'custom', 'display', 'billboard'] as const;
+export const BuildingCategoryEnumVals = [
+    'none',
+    'blocker',
+    'extractor',
+    'factory',
+    'custom',
+    'display',
+    'billboard',
+] as const;
 export const BuildingCategoryEnum = z.enum(BuildingCategoryEnumVals);
 export type BuildingCategoryEnum = z.infer<typeof BuildingCategoryEnum>;
+
+export const TaskKindEnumVals = [
+    'none',
+    'coord',
+    'inventory',
+    'message',
+    'questAccept',
+    'questComplete',
+    'combat',
+    'construct',
+    'unitStats',
+    'deployBuilding',
+] as const;
 
 export const ContractSource = z.object({
     file: z.string().optional(),
