@@ -69,6 +69,11 @@ export const session = async (ctx) => {
         throw new Error(`no zone provided`);
     }
 
+    // if a full id is provided, convert to the small key/id
+    ctx.zone = (ctx.zone || '').startsWith(NodeSelectors.Zone)
+        ? Number(BigInt.asIntN(16, BigInt(ctx.zone.replace(NodeSelectors.Zone, ''))))
+        : ctx.zone;
+
     let __client: ReturnType<typeof makeCogClient>;
     ctx.makeClient = () => {
         if (__client) {
@@ -90,7 +95,7 @@ export const session = async (ctx) => {
         if (ctx.k) {
             const wallet = makeKeyWallet(ctx.k.startsWith('0x') ? ctx.k : `0x${ctx.k}`);
             const player = pipe(
-                makeConnectedPlayer(client, wallet, logger),
+                makeConnectedPlayer(client, wallet, logger, ctx.zone || 0),
                 skipWhile((p): p is ConnectedPlayer => typeof p === 'undefined'),
                 take(1),
                 toPromise
@@ -104,7 +109,7 @@ export const session = async (ctx) => {
         } else {
             const { wallet, selectProvider } = makeWallet();
             const player = pipe(
-                makeConnectedPlayer(client, wallet, logger),
+                makeConnectedPlayer(client, wallet, logger, ctx.zone || 0),
                 skipWhile((p): p is ConnectedPlayer => typeof p === 'undefined'),
                 take(1),
                 toPromise
@@ -142,11 +147,6 @@ export const session = async (ctx) => {
         }
         return __player;
     };
-
-    // if a full id is provided, convert to the small key/id
-    ctx.zone = (ctx.zone || '').startsWith(NodeSelectors.Zone)
-        ? Number(BigInt.asIntN(16, ctx.zone.replace(NodeSelectors.Zone, '')))
-        : ctx.zone;
 };
 
 function sleep(ms: number): Promise<void> {

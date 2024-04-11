@@ -75,6 +75,7 @@ export const TaskItem: FunctionComponent<TaskItemProps> = ({
     questMessages,
     setTaskCompletion,
 }) => {
+    const quests = player?.zone?.quests || [];
     const taskKind = task.node.keys[0];
     const playerUnits = zone?.mobileUnits.filter((mu) => mu.owner && player && mu.owner.id === player.id) || [];
 
@@ -97,9 +98,9 @@ export const TaskItem: FunctionComponent<TaskItemProps> = ({
         case taskMessage:
             return <TaskMessage task={taskMemo} questMessages={questMessages} setTaskCompletion={setTaskCompletion} />;
         case taskQuestAccept:
-            return <TaskQuestAccept task={taskMemo} quests={player.quests} setTaskCompletion={setTaskCompletion} />;
+            return <TaskQuestAccept task={taskMemo} quests={quests} setTaskCompletion={setTaskCompletion} />;
         case taskQuestComplete:
-            return <TaskQuestComplete task={taskMemo} quests={player.quests} setTaskCompletion={setTaskCompletion} />;
+            return <TaskQuestComplete task={taskMemo} quests={quests} setTaskCompletion={setTaskCompletion} />;
         case taskConstruct:
             return (
                 <TaskConstruct

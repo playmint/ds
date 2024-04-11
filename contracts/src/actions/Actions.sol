@@ -138,7 +138,7 @@ interface Actions {
     // Quests
 
     function REGISTER_QUEST(
-        bytes24 quest,
+        int16 zone,
         string calldata name,
         string calldata description,
         bool hasLocation,
@@ -150,7 +150,7 @@ interface Actions {
         bytes24[] calldata nextQuests
     ) external;
 
-    function REGISTER_TASK(bytes24 task, string calldata name, bytes calldata taskData) external;
+    function REGISTER_TASK(int16 zone, string calldata name, string calldata kind, bytes calldata taskData) external;
 
     function ACCEPT_QUEST(bytes24 quest, uint8 questNum) external;
 

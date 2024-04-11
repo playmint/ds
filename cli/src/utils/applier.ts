@@ -28,13 +28,12 @@ const encodePluginID = ({ name }) => {
     return CompoundKeyEncoder.encodeUint160(NodeSelectors.ClientPlugin, id);
 };
 
-const encodeTaskID = ({ name, kind }) => {
-    const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`task/${name}`))));
-    const kindHash = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(kind))));
-
+const encodeTaskID = ({ zone, name, kind }) => {
+    const id = BigInt.asUintN(64, BigInt(keccak256UTF8(`task/${name}`)));
+    const kindHash = BigInt.asUintN(32, BigInt(keccak256UTF8(kind)));
     return solidityPacked(
-        ['bytes4', 'uint32', 'uint32', 'uint32', 'uint32', 'uint32'],
-        [NodeSelectors.Task, 0, 0, 0, kindHash, id]
+        ['bytes4', 'uint32', 'uint32', 'uint32', 'uint64'],
+        [NodeSelectors.Task, zone, 0, kindHash, id]
     );
 };
 
@@ -42,8 +41,8 @@ const getQuestKey = (name: string) => {
     return BigInt.asUintN(64, BigInt(keccak256UTF8(`quest/${name}`)));
 };
 
-const encodeQuestID = ({ name }) => {
-    return solidityPacked(['bytes4', 'uint32', 'uint64', 'uint64'], [NodeSelectors.Quest, 0, 0, getQuestKey(name)]);
+const encodeQuestID = ({ zone, name }) => {
+    return solidityPacked(['bytes4', 'uint32', 'uint64', 'uint64'], [NodeSelectors.Quest, zone, 0, getQuestKey(name)]);
 };
 
 const itemKindDeploymentActions = async (
@@ -260,7 +259,7 @@ const questDeploymentActions = async (
             }
             case 'questAccept':
             case 'questComplete': {
-                return coder.encode(['bytes24'], [encodeQuestID({ name: task.quest })]);
+                return coder.encode(['bytes24'], [encodeQuestID({ name: task.quest, zone: zoneId })]);
             }
             case 'combat': {
                 const combatState = task.combatState == 'winAttack' ? 0 : 1;
@@ -288,29 +287,26 @@ const questDeploymentActions = async (
     };
 
     // register tasks
-    // const questKey = getQuestKey(spec.name); // TODO: Add questKey to taskID so tasks do not require a unique name globally
     ops.push(
         ...spec.tasks.map((task): CogAction => {
-            const id = encodeTaskID(task);
             const taskData = encodeTaskData(task);
             return {
                 name: 'REGISTER_TASK',
-                args: [id, task.name, taskData],
+                args: [zoneId, task.name, task.kind, taskData],
             };
         })
     );
 
     // register quest
-    const questId = encodeQuestID(spec);
-    const taskIds = spec.tasks.map((task) => encodeTaskID(task));
-    const nextQuestIds = spec.next?.map((questName) => encodeQuestID({ name: questName })) || [];
+    const taskIds = spec.tasks.map((task) => encodeTaskID({ ...task, zone: zoneId }));
+    const nextQuestIds = spec.next?.map((questName) => encodeQuestID({ name: questName, zone: zoneId })) || [];
     const [z, q, r, s] = spec.location
         ? [zoneId, spec.location[0], spec.location[1], spec.location[2]]
         : [zoneId, 0, 0, 0];
 
     ops.push({
         name: 'REGISTER_QUEST',
-        args: [questId, spec.name, spec.description, !!spec.location, z, q, r, s, taskIds, nextQuestIds],
+        args: [zoneId, spec.name, spec.description, !!spec.location, z, q, r, s, taskIds, nextQuestIds],
     });
 
     return ops;

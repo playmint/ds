@@ -3,6 +3,8 @@ import { makeDispatcher } from './dispatcher';
 import { GetSelectedPlayerDocument, SelectedPlayerFragment } from './gql/graphql';
 import { Logger } from './logger';
 import { CogServices, ConnectedPlayer, UnconnectedPlayer, Wallet } from './types';
+import { NodeSelectors } from './helpers';
+import { solidityPacked, solidityPackedKeccak256 } from 'ethers';
 
 interface ClientWallet {
     client: CogServices;
@@ -18,12 +20,13 @@ export function makeConnectedPlayer(
     client: Source<CogServices>,
     wallet: Source<Wallet | undefined>,
     logger: Logger,
+    zone: number,
 ): Source<ConnectedPlayer | UnconnectedPlayer> {
     let prev: ConnectedPlayer | UnconnectedPlayer;
     const source = pipe(
         zip<any>({ client, wallet }),
         switchMap<any, ConnectedPlayer | UnconnectedPlayer>(({ client, wallet }: ClientWallet) =>
-            wallet ? makeConnectedPlayerQuery(client, wallet, logger) : makeUnconnectedPlayerQuery(),
+            wallet ? makeConnectedPlayerQuery(client, wallet, logger, zone) : makeUnconnectedPlayerQuery(),
         ),
         tap((next) => (prev = next)),
         share,
@@ -38,10 +41,21 @@ function makeUnconnectedPlayerQuery(): Source<UnconnectedPlayer> {
     return fromValue(undefined satisfies UnconnectedPlayer);
 }
 
-function makeConnectedPlayerQuery(client: CogServices, wallet: Wallet, logger: Logger): Source<ConnectedPlayer> {
+export const encodeZonedPlayerID = ({ zone, address }: { zone: number; address: string }) => {
+    const id = BigInt.asUintN(64, BigInt(solidityPackedKeccak256(['int16', 'address'], [zone, address])));
+    return solidityPacked(['bytes4', 'uint96', 'uint64'], [NodeSelectors.ZonedPlayer, 0, id]);
+};
+
+function makeConnectedPlayerQuery(
+    client: CogServices,
+    wallet: Wallet,
+    logger: Logger,
+    zone: number,
+): Source<ConnectedPlayer> {
     const dispatcher = makeDispatcher(client, wallet, logger);
+    const zonedPlayerID = encodeZonedPlayerID({ zone, address: wallet.address });
     return pipe(
-        client.query(GetSelectedPlayerDocument, { gameID: client.gameID, id: wallet.id }),
+        client.query(GetSelectedPlayerDocument, { gameID: client.gameID, id: wallet.id, zonedPlayerID }),
         map(({ game }) => (game.state.player ? game.state.player : toFakeSelectedPlayer(wallet))),
         map(
             (selectedPlayer) =>
@@ -63,7 +77,7 @@ function toFakeSelectedPlayer(wallet: Wallet): SelectedPlayerFragment {
     return {
         id: wallet.id,
         addr: wallet.address,
-        quests: [],
+        zone: null,
         tokens: [],
     };
 }

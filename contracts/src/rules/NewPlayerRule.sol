@@ -41,11 +41,6 @@ contract NewPlayerRule is Rule {
             state.setItemSlot(bag1, 0, ItemUtils.GreenGoo(), 100);
             state.setItemSlot(bag1, 1, ItemUtils.BlueGoo(), 100);
             state.setItemSlot(bag1, 2, ItemUtils.RedGoo(), 100);
-
-            // Accept the first quest in the chain
-            for (uint8 i = 0; i < names.length; i++) {
-                state.setQuestAccepted(Node.Quest(names[i]), Node.Player(ctx.sender), indexes[i]);
-            }
         }
 
         if (bytes4(action) == Actions.AUTO_QUEST.selector) {
