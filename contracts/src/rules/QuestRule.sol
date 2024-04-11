@@ -5,7 +5,7 @@ import "cog/IState.sol";
 import "cog/IRule.sol";
 import "cog/IDispatcher.sol";
 
-import {Schema, Node, Kind, Rel, QuestStatus, LIFE, DEFENCE, ATTACK} from "@ds/schema/Schema.sol";
+import {Schema, Kind, Node, Rel, TaskKind, QuestStatus, LIFE, DEFENCE, ATTACK} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 
 import "forge-std/console.sol";
@@ -45,39 +45,38 @@ contract QuestRule is Rule {
     }
 
     function _registerTask(State state, bytes calldata action, address sender) private {
-        (bytes24 task, string memory name, bytes memory taskData) = abi.decode(action[4:], (bytes24, string, bytes));
+        (int16 zone, string memory name, TaskKind taskKind, bytes memory taskData) =
+            abi.decode(action[4:], (int16, string, TaskKind, bytes));
 
-        // TODO: Check for owner
+        // sender claims id
+        bytes24 task = Node.Task(zone, name, taskKind);
+        _claimEntity(state, task, sender);
 
         // Store the task data
-        uint32 taskKind = state.getTaskKind(task);
-        if (uint32(uint256(keccak256(abi.encodePacked("coord")))) == taskKind) {
+        if (TaskKind.COORD == taskKind) {
             (int16 z, int16 q, int16 r, int16 s) = abi.decode(taskData, (int16, int16, int16, int16));
             bytes24 tile = Node.Tile(z, q, r, s);
             state.set(Rel.Location.selector, 0, task, tile, 0);
-        } else if (uint32(uint256(keccak256(abi.encodePacked("inventory")))) == taskKind) {
+        } else if (TaskKind.INVENTORY == taskKind) {
             (bytes24 item, uint64 quantity) = abi.decode(taskData, (bytes24, uint64));
             require(bytes4(item) == Kind.Item.selector, "inventoryTask: item ID not Item node");
             state.set(Rel.Balance.selector, 0, task, item, quantity);
-        } else if (uint32(uint256(keccak256(abi.encodePacked("message")))) == taskKind) {
+        } else if (TaskKind.MESSAGE == taskKind) {
             (bytes24 buildingKind, string memory message) = abi.decode(taskData, (bytes24, string));
             require(
                 bytes4(buildingKind) == Kind.BuildingKind.selector, "messageTask: buildingKind ID not BuildingKind node"
             );
             state.set(Rel.Has.selector, 0, task, buildingKind, 0);
             state.annotate(task, "message", message);
-        } else if (
-            uint32(uint256(keccak256(abi.encodePacked("questAccept")))) == taskKind
-                || uint32(uint256(keccak256(abi.encodePacked("questComplete")))) == taskKind
-        ) {
+        } else if (TaskKind.QUEST_ACCEPT == taskKind || TaskKind.QUEST_COMPLETE == taskKind) {
             (bytes24 quest) = abi.decode(taskData, (bytes24));
             require(bytes4(quest) == Kind.Quest.selector, "questAccept/questComplete: quest ID not Quest node");
             state.set(Rel.HasQuest.selector, 0, task, quest, 0);
-        } else if (uint32(uint256(keccak256(abi.encodePacked("combat")))) == taskKind) {
+        } else if (TaskKind.COMBAT == taskKind) {
             (uint8 combatState) = abi.decode(taskData, (uint8));
             // HACK: Storing arbitrary data by setting an edge to itself
             state.set(Rel.Has.selector, 0, task, task, combatState);
-        } else if (uint32(uint256(keccak256(abi.encodePacked("construct")))) == taskKind) {
+        } else if (TaskKind.CONSTRUCT == taskKind) {
             // Building kind is optional
             (bytes24 buildingKind) = abi.decode(taskData, (bytes24));
             if (buildingKind != bytes24(0)) {
@@ -87,12 +86,12 @@ contract QuestRule is Rule {
                 );
                 state.set(Rel.Has.selector, 0, task, buildingKind, 0);
             }
-        } else if (uint32(uint256(keccak256(abi.encodePacked("unitStats")))) == taskKind) {
+        } else if (TaskKind.UNIT_STATS == taskKind) {
             (uint64 life, uint64 defence, uint64 attack) = abi.decode(taskData, (uint64, uint64, uint64));
             state.set(Rel.Balance.selector, LIFE, task, Node.Atom(LIFE), life);
             state.set(Rel.Balance.selector, DEFENCE, task, Node.Atom(DEFENCE), defence);
             state.set(Rel.Balance.selector, ATTACK, task, Node.Atom(ATTACK), attack);
-        } else if (uint32(uint256(keccak256(abi.encodePacked("deployBuilding")))) == taskKind) {
+        } else if (TaskKind.DEPLOY_BUILDING == taskKind) {
             (bytes24 craftInput, bytes24 craftOutput) = abi.decode(taskData, (bytes24, bytes24));
             if (craftInput != bytes24(0)) {
                 state.set(Rel.Balance.selector, 0, task, craftInput, 0);
@@ -107,7 +106,7 @@ contract QuestRule is Rule {
 
     function _registerQuest(State state, bytes calldata action, address sender) private {
         (
-            bytes24 quest,
+            int16 zone,
             string memory name,
             string memory description,
             bool hasLocation,
@@ -117,9 +116,11 @@ contract QuestRule is Rule {
             int16 s,
             bytes24[] memory tasks,
             bytes24[] memory nextQuests
-        ) = abi.decode(action[4:], (bytes24, string, string, bool, int16, int16, int16, int16, bytes24[], bytes24[]));
+        ) = abi.decode(action[4:], (int16, string, string, bool, int16, int16, int16, int16, bytes24[], bytes24[]));
 
-        // TODO: Check for owner
+        // sender claims id
+        bytes24 quest = Node.Quest(zone, name);
+        _claimEntity(state, quest, sender);
 
         _setName(state, Node.Player(sender), quest, name);
         _setDescription(state, Node.Player(sender), quest, description);
@@ -131,42 +132,44 @@ contract QuestRule is Rule {
 
         // Link tasks
         for (uint8 i = 0; i < tasks.length; i++) {
-            bytes24 task = tasks[i];
-            require(bytes4(task) == Kind.Task.selector, "Linked task must be a task node");
-            state.set(Rel.HasTask.selector, i, quest, task, 0);
+            require(bytes4(tasks[i]) == Kind.Task.selector, "Linked task must be a task node");
+            state.set(Rel.HasTask.selector, i, quest, tasks[i], 0);
         }
 
         // Point to next quests
         for (uint8 i = 0; i < nextQuests.length; i++) {
-            bytes24 nextQuest = nextQuests[i];
-            require(bytes4(nextQuest) == Kind.Quest.selector, "Linked quest must be a quest node");
-            state.set(Rel.HasQuest.selector, i, quest, nextQuest, 0);
+            require(bytes4(nextQuests[i]) == Kind.Quest.selector, "Linked quest must be a quest node");
+            state.set(Rel.HasQuest.selector, i, quest, nextQuests[i], 0);
         }
     }
 
     function _acceptQuest(State state, bytes calldata action, address sender) private {
         (bytes24 quest, uint8 questNum) = abi.decode(action[4:], (bytes24, uint8));
+        int16 zone = _getZone(quest);
+        require(zone != 0x0, "Quest must be zoned");
 
         // Check that we haven't already accepted / completed the quest in the past
         // NOTE: We are making the assuption that supplied questNums are supplied from the frontend in sequence.
         //       To make this more secure (at a cost of gas) we could check all 256 slots
         for (uint8 i = 0; i < questNum; i++) {
-            (bytes24 existingQuest, /*QuestStatus questStatus*/ ) = state.getPlayerQuest(Node.Player(sender), i);
+            (bytes24 existingQuest, /*QuestStatus questStatus*/ ) = state.getZonedPlayerQuest(zone, sender, i);
             require(existingQuest != quest, "Quest already accepted/completed");
         }
 
-        ( /*bytes24 currentQuest*/ , QuestStatus questStatus) = state.getPlayerQuest(Node.Player(sender), questNum);
+        ( /*bytes24 currentQuest*/ , QuestStatus questStatus) = state.getZonedPlayerQuest(zone, sender, questNum);
         require(questStatus == QuestStatus.NONE, "Quest already present at given questNum");
 
-        state.setQuestAccepted(quest, Node.Player(sender), questNum);
+        state.setZonedPlayerQuest(quest, zone, sender, questNum, QuestStatus.ACCEPTED);
     }
 
     function _completeQuest(State state, bytes calldata action, address sender) private {
         (bytes24 quest, uint8 questNum) = abi.decode(action[4:], (bytes24, uint8));
+        int16 zone = _getZone(quest);
+        require(zone != 0x0, "Quest must be zoned");
 
         // Check the quest at questNum matches supplied quest. Maybe we only need to supply questNum seeing as we have to fetch it
         {
-            (bytes24 currentQuest, QuestStatus questStatus) = state.getPlayerQuest(Node.Player(sender), questNum);
+            (bytes24 currentQuest, QuestStatus questStatus) = state.getZonedPlayerQuest(zone, sender, questNum);
 
             require(quest == currentQuest, "Quest at given questNum doesn't match supplied quest ID");
             require(questStatus == QuestStatus.ACCEPTED, "Quest must be in ACCEPTED state to be completed");
@@ -174,7 +177,7 @@ contract QuestRule is Rule {
 
         // TODO: Do evalutation of task completion
 
-        state.setQuestCompleted(quest, Node.Player(sender), questNum);
+        state.setZonedPlayerQuest(quest, zone, sender, questNum, QuestStatus.COMPLETED);
 
         // Auto accept next quests
 
@@ -190,11 +193,19 @@ contract QuestRule is Rule {
                 // TODO: Quests are linked to a player via edges which means there is a hard limit of 256 quests
                 require(questNum < 255, "Reached maximum number of quests the player can have record of");
                 questNum++;
-                (questAtSlot, /*questStatus*/ ) = state.getPlayerQuest(Node.Player(sender), questNum);
+                (questAtSlot, /*questStatus*/ ) = state.getZonedPlayerQuest(zone, sender, questNum);
             }
 
-            state.setQuestAccepted(nextQuest, Node.Player(sender), questNum);
+            zone = _getZone(nextQuest);
+            require(zone != 0x0, "Quest must be zoned");
+            state.setZonedPlayerQuest(nextQuest, zone, sender, questNum, QuestStatus.ACCEPTED);
         }
+    }
+
+    function _claimEntity(State state, bytes24 entity, address sender) private {
+        bytes24 existingOwner = state.getOwner(entity);
+        require(existingOwner == 0x0 || existingOwner == Node.Player(sender), "already registered");
+        state.setOwner(entity, Node.Player(sender));
     }
 
     function _setName(State state, bytes24 player, bytes24 entity, string memory name) private {
@@ -211,5 +222,9 @@ contract QuestRule is Rule {
             revert("EntityNotOwnedByPlayer");
         }
         state.annotate(entity, "description", name);
+    }
+
+    function _getZone(bytes24 questOrTask) internal pure returns (int16) {
+        return int16(uint16(uint160(uint192(questOrTask)) >> 128));
     }
 }

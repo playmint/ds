@@ -16,6 +16,7 @@ export const NodeSelectors = {
     Item: getSelector('Item'),
     MobileUnit: getSelector('MobileUnit'),
     Player: getSelector('Player'),
+    ZonedPlayer: getSelector('ZonedPlayer'),
     Building: getSelector('Building'),
     BuildingKind: getSelector('BuildingKind'),
     ClientPlugin: getSelector('ClientPlugin'),

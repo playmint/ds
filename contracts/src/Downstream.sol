@@ -85,11 +85,12 @@ contract DownstreamGame is BaseGame {
         state.registerNodeType(Kind.Hash.selector, "Hash", CompoundKeyKind.BYTES);
         state.registerNodeType(Kind.Atom.selector, "Atom", CompoundKeyKind.UINT160);
         state.registerNodeType(Kind.BlockNum.selector, "BlockNum", CompoundKeyKind.UINT160);
-        state.registerNodeType(Kind.Quest.selector, "Quest", CompoundKeyKind.UINT160);
-        state.registerNodeType(Kind.Task.selector, "Task", CompoundKeyKind.UINT32_ARRAY);
+        state.registerNodeType(Kind.Quest.selector, "Quest", CompoundKeyKind.BYTES);
+        state.registerNodeType(Kind.Task.selector, "Task", CompoundKeyKind.BYTES);
         state.registerNodeType(Kind.ID.selector, "ID", CompoundKeyKind.BYTES);
         state.registerNodeType(Kind.OwnedToken.selector, "OwnedToken", CompoundKeyKind.BYTES);
         state.registerNodeType(Kind.Zone.selector, "Zone", CompoundKeyKind.UINT160);
+        state.registerNodeType(Kind.ZonedPlayer.selector, "ZonedPlayer", CompoundKeyKind.BYTES);
         state.registerNodeType(Kind.GameSettings.selector, "GameSettings", CompoundKeyKind.NONE);
 
         // register the relationship ids we are using

@@ -13,6 +13,7 @@ import {
     WorldMobileUnitFragment,
     WorldPlayerFragment,
     WorldTileFragment,
+    AssignedQuestFragment,
 } from './gql/graphql';
 import { Logger } from './logger';
 import { GlobalState, ZoneWithBags } from './world';
@@ -401,22 +402,7 @@ export type UnconnectedPlayer = undefined;
 
 export type SelectedMapElement = { id: string; type: string };
 
-export type QuestFragment = SelectedPlayerFragment['quests'][0];
-
-// TODO: Generate these from the contract
-export enum TaskKinds {
-    coord = 'coord',
-    message = 'message',
-    inventory = 'inventory',
-    combat = 'combat',
-    questAccept = 'questAccept',
-    questComplete = 'questComplete',
-    construct = 'construct',
-    deployBuilding = 'deployBuilding',
-    unitStats = 'unitStats',
-}
-
-export type QuestTaskEdge = QuestFragment['node']['tasks'][0];
+export type QuestTaskEdge = AssignedQuestFragment['node']['tasks'][0];
 
 export const QUEST_STATUS_ACCEPTED = 1;
 export const QUEST_STATUS_COMPLETED = 2;

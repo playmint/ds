@@ -106,7 +106,7 @@ export function makePluginUI(
                                     ? {
                                           id: state.player.id,
                                           addr: state.player.addr,
-                                          quests: state.player.quests,
+                                          zone: state.player.zone,
                                           tokens: state.player.tokens,
                                       }
                                     : undefined,

@@ -19,6 +19,7 @@ import {
     makeSelection,
     makeWallet,
     makeZone,
+    NodeSelectors,
     PluginUpdateResponse,
     Sandbox,
     SelectedMapElement,
@@ -94,7 +95,9 @@ export const GameStateProvider = ({ config, zoneId, children }: DSContextProvide
         const { wallet, selectProvider } = makeWallet();
         const { client } = makeCogClient(config);
         const { logger, logs } = makeLogger({ name: 'main' });
-        const player = makeConnectedPlayer(client, wallet, logger);
+
+        const zoneKey = zoneId ? Number(BigInt.asIntN(16, BigInt(zoneId.replace(NodeSelectors.Zone, '')))) : 0;
+        const player = makeConnectedPlayer(client, wallet, logger, zoneKey);
         const global = makeGlobal(client);
         const zone = makeZone(client, zoneId || '');
         const { selection, ...selectors } = makeSelection(client, zone, player);

@@ -71,9 +71,11 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const questMessages = useQuestMessages(10);
     const acceptedQuests = useMemo(() => {
         return (
-            (player?.quests || []).filter((q) => q.status == QUEST_STATUS_ACCEPTED).sort((a, b) => a.key - b.key) || []
+            (player?.zone?.quests || [])
+                .filter((q) => q.status == QUEST_STATUS_ACCEPTED)
+                .sort((a, b) => a.key - b.key) || []
         );
-    }, [player?.quests]);
+    }, [player?.zone?.quests]);
     const unfinalisedCombatSessions = useMemo(
         () =>
             (zone?.sessions || []).filter((s) => {

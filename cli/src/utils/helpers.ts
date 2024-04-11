@@ -1,12 +1,8 @@
-import { NodeSelectors } from '@downstream/core';
-import { ItemFragment } from '@downstream/core/src/gql/graphql';
+import { ItemFragment, NodeSelectors } from '@downstream/core';
 import { id as keccak256UTF8, solidityPacked } from 'ethers';
-import {
-    BuildingCategoryEnum,
-    BuildingCategoryEnumVals,
-} from '../utils/manifest';
+import { BuildingCategoryEnum, BuildingCategoryEnumVals } from '../utils/manifest';
 
-export const encodeTileID = ({ z, q, r, s }: { z:number;  q: number; r: number; s: number }) => {
+export const encodeTileID = ({ z, q, r, s }: { z: number; q: number; r: number; s: number }) => {
     return solidityPacked(
         ['bytes4', 'uint96', 'int16', 'int16', 'int16', 'int16'],
         [NodeSelectors.Tile, 0, z, q, r, s]
@@ -29,7 +25,7 @@ export const encodeItemID = ({
     );
 };
 
-export const encodeBagID = ({ z, q, r, s }: { z:number; q: number; r: number; s: number }) => {
+export const encodeBagID = ({ z, q, r, s }: { z: number; q: number; r: number; s: number }) => {
     return solidityPacked(['bytes4', 'uint96', 'int16', 'int16', 'int16', 'int16'], [NodeSelectors.Bag, 0, z, q, r, s]);
 };
 

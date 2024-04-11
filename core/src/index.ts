@@ -26,6 +26,7 @@ export type {
     LocationFragment,
     GetZonesQuery,
     ItemFragment,
+    AssignedQuestFragment,
 } from './gql/graphql';
 
 export { GetZonesDocument, GetZoneDocument, GetGlobalDocument } from './gql/graphql';
