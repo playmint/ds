@@ -108,8 +108,11 @@ contract CheatsRule is Rule {
         state.setTileAtomValues(tile, [uint64(255), uint64(255), uint64(255)]);
     }
 
+    function _assignAutoQuest(State state, Context calldata ctx, bytes24 questID, int16 zone) private {
         bytes24 nZone = Node.Zone(zone);
         require(state.getOwner(nZone) == Node.Player(ctx.sender), "owner only");
+        bytes24 quest = Node.Quest(questID);
+        state.setParent(quest, nZone);
     }
 
     // allow constructing a building without any materials
