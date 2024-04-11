@@ -4,7 +4,7 @@ import { WorldBuildingFragment, WorldMobileUnitFragment, getCoords, PluginMapPro
 import { memo, useCallback, useMemo, useState } from 'react';
 import Icon from './Icon';
 import { getBuildingAtTile } from '@downstream/core/src/utils';
-import { BLOCK_TIME_SECS } from '@app/fixtures/block-time-secs';
+// import { BLOCK_TIME_SECS } from '@app/fixtures/block-time-secs';
 
 // public int q;
 // public int r;
@@ -16,8 +16,6 @@ import { BLOCK_TIME_SECS } from '@app/fixtures/block-time-secs';
 // public bool visible;
 
 export const DEBUG_ALWAYS_SHOW_UNITS = false;
-export const UNIT_DISPLAY_TIMEOUT_SECS = 60 * 30;
-export const UNIT_DISPLAY_TIMEOUT_BLOCK_COUNT = Math.floor(UNIT_DISPLAY_TIMEOUT_SECS / BLOCK_TIME_SECS);
 
 export interface MobileUnitData {
     q: number;
@@ -151,6 +149,7 @@ export const MobileUnits = memo(
         onClickMobileUnit,
         playerID,
         pluginProperties,
+        unitTimeoutBlocks,
     }: {
         currentBlock: number;
         mobileUnits?: WorldMobileUnitFragment[];
@@ -159,6 +158,7 @@ export const MobileUnits = memo(
         playerID?: string;
         onClickMobileUnit: (id: string) => void;
         pluginProperties: PluginMapProperty[];
+        unitTimeoutBlocks: number;
     }) => {
         const [unitPositions, setUnitPositions] = useState({}); // New state for positions
 
@@ -182,7 +182,7 @@ export const MobileUnits = memo(
                     }
 
                     // Hide units if they haven't moved in `UNIT_DISPLAY_TIMEOUT_BLOCK_COUNT` blocks;
-                    return currentBlock - u.nextLocation.time < UNIT_DISPLAY_TIMEOUT_BLOCK_COUNT;
+                    return currentBlock - u.nextLocation.time < unitTimeoutBlocks;
                 })
                 .map((u) => {
                     const tile = u.nextLocation?.tile;

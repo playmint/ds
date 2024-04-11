@@ -206,4 +206,6 @@ interface Actions {
     function DEV_DISABLE_CHEATS() external;
 
     function SET_DATA_ON_BUILDING(bytes24 buildingID, string memory key, bytes32 data) external;
+
+    function KICK_UNIT_FROM_ZONE(bytes24 mobileUnitID) external;
 }
