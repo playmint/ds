@@ -28,6 +28,9 @@ export const decodeString = (value: string): string => {
     if (!value) {
         return '';
     }
+    if (value.length === 0) {
+        return '';
+    }
     return ethers.decodeBytes32String(value);
 };
 
