@@ -6,18 +6,24 @@ import "cog/IState.sol";
 import "cog/IRule.sol";
 import "cog/IDispatcher.sol";
 
-import {Schema, Node, BiomeKind, TRAVEL_SPEED} from "@ds/schema/Schema.sol";
+import {Schema, Node, BiomeKind, LocationKey, Rel} from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {Bounds} from "@ds/utils/Bounds.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
+import {DownstreamGame} from "@ds/Downstream.sol";
+
+// import {ERC721} from "solmate/tokens/ERC721.sol";
 
 using Schema for State;
 
 contract MovementRule is Rule {
-    Game game;
+    DownstreamGame game;
 
-    constructor(Game g) {
+    // Maps zone id to the number of units in that zone
+    mapping(int16 => uint256) public zoneUnitCount;
+
+    constructor(DownstreamGame g) {
         game = g;
     }
 
@@ -42,6 +48,10 @@ contract MovementRule is Rule {
 
             // move
             moveTo(state, mobileUnit, destTile, ctx.clock);
+        }
+        if (bytes4(action) == Actions.KICK_UNIT_FROM_ZONE.selector) {
+            (bytes24 mobileUnit) = abi.decode(action[4:], (bytes24));
+            kickUnitFromZone(state, mobileUnit, ctx.clock);
         }
 
         return state;
@@ -81,11 +91,9 @@ contract MovementRule is Rule {
         state.setNextLocation(mobileUnit, destTile, nowTime);
         state.setPrevLocation(mobileUnit, currentTile, nowTime);
 
-        // assign to parent zone
-        state.setParent(mobileUnit, state.getParent(destTile));
-
-        // Get building at current tile and call arrive hook
         (int16 z, int16 q, int16 r, int16 s) = state.getTileCoords(currentTile);
+
+        // Get building at current tile and call leave hook
         bytes24 building = Node.Building(z, q, r, s);
         bytes24 buildingKind = state.getBuildingKind(building);
         if (buildingKind != bytes24(0)) {
@@ -93,6 +101,12 @@ contract MovementRule is Rule {
             if (address(buildingImplementation) != address(0)) {
                 buildingImplementation.onUnitLeave(game, building, mobileUnit);
             }
+        }
+
+        // Count the unit out of the current zone if zone changed
+        bool zoneChange = state.getTileZone(destTile) != z;
+        if (zoneChange && z > 0) {
+            zoneUnitCount[z] -= 1;
         }
 
         // Get building at dest tile and call arrive hook
@@ -105,5 +119,39 @@ contract MovementRule is Rule {
                 buildingImplementation.onUnitArrive(game, building, mobileUnit);
             }
         }
+
+        // Count the unit into the new zone if zone changed
+        if (zoneChange) {
+            // assign to parent zone
+            state.setParent(mobileUnit, state.getParent(destTile));
+
+            if (z > 0) {
+                zoneUnitCount[z] += 1;
+
+                bytes24 player = state.getOwner(mobileUnit);
+
+                // If player doesn't own zone check limit
+                if (
+                    zoneUnitCount[z] > game.getZoneUnitLimit()
+                        && game.zoneOwnership().ownerOf(uint16(z)) != address(uint160(uint192(player)))
+                ) {
+                    revert("Limit reached on zone");
+                }
+            }
+        }
+    }
+
+    function kickUnitFromZone(State state, bytes24 mobileUnit, uint64 nowTime) private {
+        (bytes24 tile, uint64 arrivalTime) = state.get(Rel.Location.selector, uint8(LocationKey.NEXT), mobileUnit);
+        (int16 z, /*int16 q*/, /*int16 r*/, /*int16 s*/ ) = state.getTileCoords(tile);
+
+        require(z > 0, "Unit not in zone");
+
+        require((nowTime > arrivalTime) && nowTime - arrivalTime >= game.getUnitTimeoutBlocks(), "Unit not timed out");
+
+        zoneUnitCount[z] -= 1;
+
+        state.setNextLocation(mobileUnit, Node.Tile(0, 0, 0, 0), nowTime);
+        state.setParent(mobileUnit, bytes24(0));
     }
 }
