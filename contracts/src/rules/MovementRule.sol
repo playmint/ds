@@ -91,11 +91,9 @@ contract MovementRule is Rule {
         state.setNextLocation(mobileUnit, destTile, nowTime);
         state.setPrevLocation(mobileUnit, currentTile, nowTime);
 
-        // assign to parent zone
-        state.setParent(mobileUnit, state.getParent(destTile));
+        (int16 z, int16 q, int16 r, int16 s) = state.getTileCoords(currentTile);
 
         // Get building at current tile and call leave hook
-        (int16 z, int16 q, int16 r, int16 s) = state.getTileCoords(currentTile);
         bytes24 building = Node.Building(z, q, r, s);
         bytes24 buildingKind = state.getBuildingKind(building);
         if (buildingKind != bytes24(0)) {
@@ -105,8 +103,9 @@ contract MovementRule is Rule {
             }
         }
 
-        // Count the unit out of the current zone
-        if (z > 0) {
+        // Count the unit out of the current zone if zone changed
+        bool zoneChange = state.getTileZone(destTile) != z;
+        if (zoneChange && z > 0) {
             zoneUnitCount[z] -= 1;
         }
 
@@ -121,18 +120,23 @@ contract MovementRule is Rule {
             }
         }
 
-        // Count the unit into the new zone
-        if (z > 0) {
-            zoneUnitCount[z] += 1;
+        // Count the unit into the new zone if zone changed
+        if (zoneChange) {
+            // assign to parent zone
+            state.setParent(mobileUnit, state.getParent(destTile));
 
-            bytes24 player = state.getOwner(mobileUnit);
+            if (z > 0) {
+                zoneUnitCount[z] += 1;
 
-            // If player doesn't own zone check limit
-            if (
-                zoneUnitCount[z] > game.getZoneUnitLimit()
-                    && game.zoneOwnership().ownerOf(uint16(z)) != address(uint160(uint192(player)))
-            ) {
-                revert("Limit reached on zone");
+                bytes24 player = state.getOwner(mobileUnit);
+
+                // If player doesn't own zone check limit
+                if (
+                    zoneUnitCount[z] > game.getZoneUnitLimit()
+                        && game.zoneOwnership().ownerOf(uint16(z)) != address(uint160(uint192(player)))
+                ) {
+                    revert("Limit reached on zone");
+                }
             }
         }
     }
@@ -142,12 +146,6 @@ contract MovementRule is Rule {
         (int16 z, /*int16 q*/, /*int16 r*/, /*int16 s*/ ) = state.getTileCoords(tile);
 
         require(z > 0, "Unit not in zone");
-
-        // Don't allow kicking units from owned zones
-        // require(
-        //     game.zoneOwnership().ownerOf(uint16(z)) != address(uint160(uint192(state.getOwner(mobileUnit)))),
-        //     "Cannot kick unit from owned zone"
-        // );
 
         require((nowTime > arrivalTime) && nowTime - arrivalTime >= game.getUnitTimeoutBlocks(), "Unit not timed out");
 

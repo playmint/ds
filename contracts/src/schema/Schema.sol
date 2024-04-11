@@ -632,4 +632,9 @@ library Schema {
         int16[4] memory keys = CompoundKeyDecoder.INT16_ARRAY(tile);
         return (keys[0], keys[1], keys[2], keys[3]);
     }
+
+    function getTileZone(State, /*state*/ bytes24 tile) external pure returns (int16 z) {
+        int16[4] memory keys = CompoundKeyDecoder.INT16_ARRAY(tile);
+        return (keys[0]);
+    }
 }
