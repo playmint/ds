@@ -68,8 +68,8 @@ export const NavPanel = ({
     const { wallet } = useWallet();
     const player = usePlayer();
     const [showAccountDialog, setShowAccountDialog] = useState(false);
-    const [islandName, setIslandName] = useState(decodeString(zone?.name?.value) || '');
-    const [islandDescription, setIslandDescription] = useState(decodeString(zone?.description?.value) || '');
+    const [islandName, setIslandName] = useState(decodeString(zone?.name?.value ?? '') || '');
+    const [islandDescription, setIslandDescription] = useState(decodeString(zone?.description?.value ?? '') || '');
 
     const hasConnection = player || wallet;
     const address = player?.addr || wallet?.address || '';
@@ -106,11 +106,11 @@ export const NavPanel = ({
     }, []);
 
     const handleIslandNameChange = useCallback((e) => {
-        setIslandName(e.target.value.slice(0, 32));
+        setIslandName(e.target.value.slice(0, 31));
     }, []);
 
     const handleIslandDescriptionChange = useCallback((e) => {
-        setIslandDescription(e.target.value.slice(0, 32));
+        setIslandDescription(e.target.value.slice(0, 31));
     }, []);
 
     const applyIslandChanges = useCallback(() => {
@@ -118,8 +118,8 @@ export const NavPanel = ({
             return;
         }
         if (
-            islandName === decodeString(zone?.name?.value) &&
-            islandDescription === decodeString(zone?.description?.value)
+            islandName === decodeString(zone?.name?.value ?? '') &&
+            islandDescription === decodeString(zone?.description?.value ?? '')
         ) {
             console.log("Can't apply changes, no changes detected.");
             return;
@@ -130,7 +130,7 @@ export const NavPanel = ({
                 { name: 'DESCRIBE_OWNED_ENTITY', args: [zone?.id, islandDescription] }
             )
             .catch((err) => console.error('naming failed', err));
-    }, [player, zone?.id, islandName, islandDescription]);
+    }, [player, islandName, zone?.name?.value, zone?.description?.value, zone?.id, islandDescription]);
 
     // TEMP: allow revealing the burner private key, this is a workaround for
     // helping demo ds-cli bits for people without walletconnect
@@ -149,8 +149,8 @@ export const NavPanel = ({
     }, [provider]);
 
     useEffect(() => {
-        setIslandName(decodeString(zone?.name?.value) || '');
-        setIslandDescription(decodeString(zone?.description?.value) || '');
+        setIslandName(decodeString(zone?.name?.value ?? '') || '');
+        setIslandDescription(decodeString(zone?.description?.value ?? '') || '');
     }, [zone?.name?.value, zone?.description?.value]);
 
     return (

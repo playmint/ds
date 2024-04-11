@@ -1,4 +1,5 @@
 import { ConnectedPlayer, WorldMobileUnitFragment, ZoneWithBags } from '@app/../../core/src';
+import { decodeString } from '@app/helpers';
 import { useWallet } from '@app/hooks/use-game-state';
 import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { ActionButton } from '@app/styles/button.styles';
@@ -44,10 +45,8 @@ export const Onboarding = ({ player, playerUnits, onClickConnect, zone, block }:
             .finally(() => setIsSpawningMobileUnit(false));
     }, [player, setIsSpawningMobileUnit, zone]);
 
-    const zoneName = zone.name?.value ? ethers.decodeBytes32String(zone.name.value) : `unnamed`;
-    const zoneDescription = zone.description?.value
-        ? ethers.decodeBytes32String(zone.description.value)
-        : `no description`;
+    const zoneName = zone.name?.value ? decodeString(zone.name.value) : `unnamed`;
+    const zoneDescription = zone.description?.value ? decodeString(zone.description.value) : `no description`;
 
     const ACTIVE_UNIT_TIMEOUT = 10; // FIXME: value should match spawn logic
     const activeUnits = zone.mobileUnits.filter(
