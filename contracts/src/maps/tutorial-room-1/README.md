@@ -166,7 +166,7 @@ You should see the terminal output display for the building kind and item kind d
 <img src="./readme-images/step6a.png" width=200>
 
 This type of building now exists in our local instance of Downstream, which means it is available for Units to build on the map:
-- Browse to [localhost:3000]([http://localhost:3000/zones/1]).
+- Browse to [http://localhost:3000/zones/1].
 - Select the build action.
 - Choose your new building type from the drop down list.
 - Confirm.
