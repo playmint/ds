@@ -65,14 +65,11 @@ export const session = async (ctx) => {
     if (!network) {
         throw new Error(`no network found with name ${ctx.network}`);
     }
-    if (!ctx.zone) {
-        throw new Error(`no zone provided`);
-    }
 
     // if a full id is provided, convert to the small key/id
     ctx.zone = (ctx.zone || '').startsWith(NodeSelectors.Zone)
         ? Number(BigInt.asIntN(16, BigInt(ctx.zone.replace(NodeSelectors.Zone, ''))))
-        : ctx.zone;
+        : ctx.zone || 0;
 
     let __client: ReturnType<typeof makeCogClient>;
     ctx.makeClient = () => {

@@ -47,12 +47,6 @@ yargs
         choices: networks.map((n) => n.name),
         type: 'string',
     })
-    .option('zone', {
-        alias: 'z',
-        demandOption: true,
-        describe: 'id of the zone/island to deploy in to',
-        type: 'string',
-    })
     .option('ws-endpoint', {
         describe: 'override websocket query endpoint',
         type: 'string',

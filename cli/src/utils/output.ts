@@ -66,10 +66,9 @@ const toYAML = (o: any): string => {
 export function output(ctx) {
     ctx.output = {
         write: (entities: any[]) => {
-            console.log(entities);
             let args: any[] = [];
             try {
-                if (entities && typeof entities.map !== 'function') {
+                if (entities && typeof entities.map === 'function') {
                     args = entities.map((entity) => {
                         const o = { ...entity };
                         if (ctx.status === false && o.status) {
