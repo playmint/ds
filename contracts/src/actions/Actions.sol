@@ -125,6 +125,7 @@ interface Actions {
 
     function NAME_OWNED_ENTITY(bytes24 entity, string calldata name) external;
     function DESCRIBE_OWNED_ENTITY(bytes24 entity, string calldata shortDescription) external;
+    function URL_OWNED_ENTITY(bytes24 entity, string calldata url) external;
 
     function TRANSFER_BAG_OWNERSHIP(bytes24 bag, bytes24 toEntity) external;
 
