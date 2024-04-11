@@ -59,13 +59,15 @@ export function makeZone(cog: Source<CogServices>, zoneID: string) {
     );
 }
 
+export type GlobalState = GlobalStateFragment & { gameID: string };
+
 export function makeGlobal(cog: Source<CogServices>) {
-    let prev: GlobalStateFragment | undefined;
+    let prev: GlobalState | undefined;
 
     const global = pipe(
         cog,
         switchMap(({ query, gameID }) => query(GetGlobalDocument, { gameID })),
-        map((next) => next.game?.state),
+        map((next) => ({ ...next.game?.state, gameID: next.game?.id })),
         tap((next) => (prev = next)),
         share,
     );

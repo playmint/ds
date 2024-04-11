@@ -5,7 +5,7 @@ import {
     ConnectedPlayer,
     GameConfig,
     GameState,
-    GlobalStateFragment,
+    GlobalState,
     Log,
     Logger,
     makeAutoloadPlugins,
@@ -54,7 +54,7 @@ export interface DSContextValue1 {
     wallet: Source<Wallet | undefined>;
     player: Source<ConnectedPlayer | undefined>;
     zone: Source<ZoneWithBags>;
-    global: Source<GlobalStateFragment>;
+    global: Source<GlobalState>;
     state: Source<GameState>;
     block: Source<number>;
     selection: Source<Selection>;
@@ -253,7 +253,7 @@ export function useZone(): ZoneWithBags | undefined {
 }
 
 // fetch the shared global state (building kinds, etc)
-export function useGlobal(): GlobalStateFragment | undefined {
+export function useGlobal(): GlobalState | undefined {
     const sources = useSources();
     return useSource(sources.global);
 }

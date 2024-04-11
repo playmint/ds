@@ -41,7 +41,7 @@ contract GameDeployer is Script {
         Zones721 zoneOwnership = new Zones721(deployerAddr);
 
         // owner is set to deploy account not this contract's address as calls from this script have a msg.sender of the deployer
-        DownstreamGame ds = new DownstreamGame(address(msg.sender), zoneOwnership);
+        DownstreamGame ds = new DownstreamGame(address(msg.sender), address(zoneOwnership));
         Dispatcher dispatcher = ds.getDispatcher();
 
         // tell the zoneOwnership contract to manage the state
@@ -56,8 +56,10 @@ contract GameDeployer is Script {
         zoneOwnership.mintTo{value: 0.05 ether}(deployerAddr);
         zoneOwnership.withdrawPayments(payable(deployerAddr));
 
+        // setup the tokens contract that manages items as ERC1155
         InventoryRule inventoryRule = new InventoryRule(ds);
         address tokenAddress = inventoryRule.getTokensAddress();
+        ds.registerTokensContract(tokenAddress);
         ds.autorizeStateMutation(tokenAddress);
 
         string memory o = "key";

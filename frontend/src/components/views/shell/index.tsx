@@ -1,4 +1,4 @@
-import { BagFragment, CogAction, GameConfig, QUEST_STATUS_ACCEPTED, WorldTileFragment } from '@app/../../core/src';
+import { BagFragment, CogAction, QUEST_STATUS_ACCEPTED, WorldTileFragment } from '@app/../../core/src';
 import { Bags } from '@app/components/map/Bag';
 import { Buildings } from '@app/components/map/Buildings';
 import { CombatSessions } from '@app/components/map/CombatSession';
@@ -12,14 +12,7 @@ import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
 import { NavPanel } from '@app/components/panels/nav-panel';
 import { TileInfoPanel } from '@app/components/panels/tile-info-panel';
 import { getTileDistance } from '@app/helpers/tile';
-import {
-    useBlock,
-    useGameState,
-    useGlobal,
-    usePlayer,
-    usePluginState,
-    useQuestMessages,
-} from '@app/hooks/use-game-state';
+import { useBlock, useGameState, usePluginState, useQuestMessages } from '@app/hooks/use-game-state';
 import { useSession } from '@app/hooks/use-session';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { useWalletProvider } from '@app/hooks/use-wallet-provider';
@@ -37,9 +30,7 @@ import { getBagsAtEquipee, getBuildingAtTile, getSessionsAtTile } from '@downstr
 import { StyledBasePanel, StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { WalletItemsPanel } from '@app/components/panels/wallet-items-panel';
 
-export interface ShellProps extends ComponentProps {
-    config?: Partial<GameConfig>;
-}
+export interface ShellProps extends ComponentProps {}
 
 const StyledShell = styled('div')`
     ${styles}
@@ -55,12 +46,12 @@ export type SelectedBag = {
     isCombatReward?: boolean;
 };
 
-export const Shell: FunctionComponent<ShellProps> = ({ config }) => {
+export const Shell: FunctionComponent<ShellProps> = () => {
     const { ready: mapReady, setContainerStyle } = useUnityMap();
-    const { zone, selected, selectTiles, selectMobileUnit, selectMapElement, selectIntent } = useGameState();
+    const { player, zone, selected, selectTiles, selectMobileUnit, selectMapElement, selectIntent, global } =
+        useGameState();
     const { tiles } = zone || {};
     const { loadingSession } = useSession();
-    const player = usePlayer();
     const playerUnits = zone?.mobileUnits.filter((mu) => mu.owner && player && mu.owner.id === player.id) || [];
     const { mobileUnit: selectedMobileUnit, tiles: selectedTiles, mapElement: selectedMapElement } = selected || {};
     const blockNumber = useBlock() ?? 0;
@@ -68,7 +59,6 @@ export const Shell: FunctionComponent<ShellProps> = ({ config }) => {
     const [selectedBags, setSelectedBags] = useState<SelectedBag[]>();
     const selectedTileBags = selectedBags?.filter((sb) => !sb.isCombatReward);
     const selectedRewardBags = selectedBags?.filter((sb) => sb.isCombatReward);
-    const global = useGlobal();
     const kinds = global?.buildingKinds || [];
     const ui = usePluginState();
     const [questsActive, setQuestsActive] = useState<boolean>(true);
@@ -429,12 +419,8 @@ export const Shell: FunctionComponent<ShellProps> = ({ config }) => {
                                 questMessages={questMessages}
                             />
                         )}
-                        {zone && player && walletItemsActive && (
-                            <WalletItemsPanel
-                                player={player}
-                                blockNumber={blockNumber}
-                                tokenAddress={config?.tokenAddress || ''}
-                            />
+                        {zone && player && walletItemsActive && global?.gameID && (
+                            <WalletItemsPanel player={player} blockNumber={blockNumber} gameAddress={global?.gameID} />
                         )}
                     </div>
                     <ItemPluginPanel ui={ui || []} />

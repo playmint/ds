@@ -6,6 +6,8 @@ import { ActionButton } from '@app/styles/button.styles';
 import { colorMap, colors } from '@app/styles/colors';
 import { FunctionComponent, useCallback, useMemo } from 'react';
 import styled, { css } from 'styled-components';
+import { DownstreamGame__factory } from '@downstream/core';
+import { ethers } from 'ethers';
 
 const StyledWalletItemsPanel = styled.div`
     width: 43.5rem;
@@ -98,8 +100,8 @@ const StyledWalletItemsItem = styled.div`
 export const WalletItemsItem: FunctionComponent<{
     blockNumber: number;
     player: ConnectedPlayer;
-    tokenAddress: string;
-}> = ({ player, blockNumber, tokenAddress }) => {
+    gameAddress: string;
+}> = ({ player, blockNumber, gameAddress }) => {
     const { provider } = useWalletProvider();
     const tokens = useMemo(
         () =>
@@ -170,39 +172,50 @@ export const WalletItemsItem: FunctionComponent<{
         [psudoBags, player.id]
     );
 
-    const addTokensMetamask = useCallback(() => {
+    const addTokensMetamask = useCallback(async () => {
         if (!provider) {
             return;
         }
         if (!player || player.tokens.length == 0) {
             return;
         }
-        const args = player.tokens.reduce((args, { token }) => {
-            if (!token.info) {
-                return args;
-            }
-            args.push({
-                method: 'wallet_watchAsset',
-                params: {
-                    type: 'ERC1155',
-                    options: {
-                        address: tokenAddress,
-                        tokenId: BigInt(token.info.item.id).toString(),
-                    },
-                },
-            });
-            return args;
-        }, [] as any[]);
-        console.debug('sending to metamask', args);
-        const p = provider.provider as any;
-        if (p.sendAsync) {
-            p.sendAsync(args);
-        } else if (p.sendCustomRequest) {
-            p.sendCustomRequest(args);
-        } else {
-            console.warn('provider does not support sendAsync or sendCustomRequest');
+        if (provider.method !== 'metamask') {
+            console.warn('provider is not metamask');
+            return;
         }
-    }, [player, provider, tokenAddress]);
+        try {
+            const wallet = new ethers.BrowserProvider(provider.provider);
+            const downstreamGameContract = DownstreamGame__factory.connect(gameAddress, wallet);
+            const tokenAddress = await downstreamGameContract.tokens();
+            const args = player.tokens.reduce((args, { token }) => {
+                if (!token.info) {
+                    return args;
+                }
+                args.push({
+                    method: 'wallet_watchAsset',
+                    params: {
+                        type: 'ERC1155',
+                        options: {
+                            address: tokenAddress,
+                            tokenId: BigInt(token.info.item.id).toString(),
+                        },
+                    },
+                });
+                return args;
+            }, [] as any[]);
+            console.debug('sending to metamask', args);
+            const p = provider.provider as any;
+            if (p.sendAsync) {
+                p.sendAsync(args);
+            } else if (p.sendCustomRequest) {
+                p.sendCustomRequest(args);
+            } else {
+                console.warn('provider does not support sendAsync or sendCustomRequest');
+            }
+        } catch (e) {
+            console.error('error adding tokens to metamask', e);
+        }
+    }, [gameAddress, player, provider]);
 
     return (
         <StyledWalletItemsItem>
@@ -232,18 +245,18 @@ export const WalletItemsItem: FunctionComponent<{
 
 export interface WalletItemsPanelProps {
     player: ConnectedPlayer;
-    tokenAddress: string;
+    gameAddress: string;
     blockNumber: number;
 }
 
 export const WalletItemsPanel: FunctionComponent<WalletItemsPanelProps> = ({
     player,
     blockNumber,
-    tokenAddress,
+    gameAddress,
 }: WalletItemsPanelProps) => {
     return (
         <StyledWalletItemsPanel className="no-scrollbars">
-            <WalletItemsItem player={player} blockNumber={blockNumber} tokenAddress={tokenAddress} />
+            <WalletItemsItem player={player} blockNumber={blockNumber} gameAddress={gameAddress} />
         </StyledWalletItemsPanel>
     );
 };

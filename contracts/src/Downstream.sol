@@ -10,7 +10,6 @@ import {LibString} from "cog/utils/LibString.sol";
 import "./IDownstream.sol";
 import {Schema, Node, Rel, Kind} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
-import {Zones721} from "@ds/Zones721.sol";
 
 using Schema for BaseState;
 
@@ -49,14 +48,15 @@ contract DownstreamRouter is BaseRouter {
 
 contract DownstreamGame is BaseGame {
     address public owner;
-    Zones721 public zoneOwnership;
+    address public zoneOwnership;
+    address public tokens;
 
     modifier ownerOnly() {
         require(msg.sender == owner, "DownstreamGame: Sender is not the owner");
         _;
     }
 
-    constructor(address _owner, Zones721 _zoneOwnership) BaseGame("DOWNSTREAM", "http://downstream.game/") {
+    constructor(address _owner, address _zoneOwnership) BaseGame("DOWNSTREAM", "http://downstream.game/") {
         owner = _owner;
 
         // create a state
@@ -64,7 +64,7 @@ contract DownstreamGame is BaseGame {
 
         // setup the zone ownership contract
         zoneOwnership = _zoneOwnership;
-        state.authorizeContract(address(zoneOwnership));
+        state.authorizeContract(zoneOwnership);
 
         // register the kind ids we are using
         state.registerNodeType(Kind.Player.selector, "Player", CompoundKeyKind.ADDRESS);
@@ -129,6 +129,10 @@ contract DownstreamGame is BaseGame {
     function registerRule(Rule rule) public ownerOnly {
         state.authorizeContract(address(rule));
         BaseDispatcher(address(dispatcher)).registerRule(rule);
+    }
+
+    function registerTokensContract(address _tokens) public ownerOnly {
+        tokens = _tokens;
     }
 
     function autorizeStateMutation(address addr) public ownerOnly {

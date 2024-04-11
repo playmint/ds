@@ -13,10 +13,9 @@ import {
     WorldMobileUnitFragment,
     WorldPlayerFragment,
     WorldTileFragment,
-    GlobalStateFragment,
 } from './gql/graphql';
 import { Logger } from './logger';
-import { ZoneWithBags } from './world';
+import { GlobalState, ZoneWithBags } from './world';
 
 export interface EthereumProvider extends Eip1193Provider {
     isMetaMask?: boolean;
@@ -94,7 +93,6 @@ export interface GameConfig {
     networkEndpoint: string;
     networkID: string;
     networkName: string;
-    tokenAddress: string;
 }
 
 export type ActionName = Parameters<ActionsInterface['getFunction']>[0];
@@ -382,7 +380,7 @@ export interface GameStatePlugin {
 export interface GameState {
     player?: ConnectedPlayer;
     zone: ZoneWithBags;
-    global: GlobalStateFragment;
+    global: GlobalState;
     selected: Selection;
     selectTiles: Selector<string[] | undefined>;
     selectMobileUnit: Selector<string | undefined>;
