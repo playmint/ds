@@ -45,7 +45,7 @@ _Some common tasks:_
 
 | example | task |
 |---|---|
-| `ds apply -n local -f BasicFactory.yaml -k <private key>` | Apply manifest files (deploy buildings and maps) |
+| `ds apply -n local -z 1 -f BasicFactory.yaml -k <private key>` | Apply manifest files (deploy buildings and maps) |
 | `ds apply help` | help on apply command |
 | `ds get -n local items` | Get ids for all items |
 | `ds get -n local buildingkinds` | Get info for all buildingkinds |
@@ -71,7 +71,7 @@ _options explained_
 - Use the __building-fabricator__ to _export_ building sources.
 - Use __ds__ to deploy it to the local running Downstream:
 
-```ds apply -n local -k <private key> -f ./BasicFactory.yaml```
+```ds apply -n local -z 1 -k <private key> -f ./BasicFactory.yaml```
 
 #### Deploy a map folder over the current map
 
@@ -79,7 +79,7 @@ _options explained_
 - Combine them all in a single folder.
 - Use `ds apply` to deploy them to the local running Downstream:
 
-```ds apply -n local -k <private key> -R f <exported folder>```
+```ds apply -n local -z 1 -k <private key> -R f <exported folder>```
 
 
 #### Deploy as the initial map

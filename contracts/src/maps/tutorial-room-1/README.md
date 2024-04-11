@@ -102,7 +102,7 @@ Now copy your Burner private key from Downstream:
 Finally, run the command to deploy your map:
 In a terminal at your new folder run the following, where `<private-key>` can be pasted from the one you just copied:
 ```bash
-ds apply -n local -k <private-key> -f Locations.yaml
+ds apply -n local -z 1 -k <private-key> -f Locations.yaml
 ```
 
 Note: If using Windows you get the error "running scripts is disabled on this system", open Powershell as an Administrator and run `Set-ExecutionPolicy  RemoteSigned`
@@ -153,7 +153,7 @@ We will use the Downstream CLI to deploy our newly created building to our local
 Deploying the building is the same as the tiles manifest but passing BasicFactory.yaml instead of Locations.yaml: 
 - In a terminal in the folder with your exported building source.
 - (using the same `<private-key>` as above)
-- `ds apply -n local -k <private-key> -f BasicFactory.yaml`
+- `ds apply -n local -z 1 -k <private-key> -f BasicFactory.yaml`
 
 You should see the terminal output display for the building kind and item kind defined by your new factory:
 
@@ -201,7 +201,7 @@ Once you see "ready", browse to the game and check you have a single tile world.
 
 Now you can `ds apply` the whole map folder by passing the `-R` flag and the folder path. At a terminal In your map folder run:
 ```bash
-ds apply -n local -k <private-key> -R -f .
+ds apply -n local -z 1 -k <private-key> -R -f .
 ```
 
 
