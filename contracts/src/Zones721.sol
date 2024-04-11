@@ -16,13 +16,27 @@ error NonExistentTokenURI();
 error WithdrawTransfer();
 
 contract Zones721 is ERC721 {
-    uint256 public constant TOTAL_SUPPLY = 32_000;
+    uint256 public constant TOTAL_SUPPLY = 32_000; // basically the int16 limit of the map
     uint256 public mintPrice = 1 ether;
     string public baseURI = "https://assets.downstream.game";
 
     uint256 public currentTokenId;
     address owner; // The ZoneRule owns this
     State state;
+
+    string constant DRIVING_SIDE_LABEL = "DrivingSide";
+    uint256 constant DRIVING_SIDE_COUNT = 3;
+    string[] private DRIVING_SIDE_VALUES = ["left", "right", "whatever"];
+
+    string constant CLIMATE_LABEL = "Climate";
+    uint256 constant CLIMATE_COUNT = 7;
+    string[] private CLIMATE_VALUES =
+        ["damn cold", "endless drizzle", "arid", "tropical", "humid", "sweaty", "hot as hades"];
+
+    string constant GOVERNMENT_LABEL = "Government";
+    uint256 constant GOVERNMENT_COUNT = 7;
+    string[] private GOVERNMENT_VALUES =
+        ["empire", "cyberocracy", "bureaucracy", "theocracy", "hexalopoly", "hive mind", "demarchy"];
 
     modifier onlyOwner() {
         if (msg.sender != owner) {
@@ -86,15 +100,61 @@ contract Zones721 is ERC721 {
             LibString.toString(tokenId),
             '.png",',
             '"attributes": ',
-            getDataAttributes(zoneId),
+            getDataAttributes(tokenId),
             "}"
         );
         return string(abi.encodePacked("data:application/json;base64,", Base64.encode(dataURI)));
     }
 
-    function getDataAttributes(bytes24 zoneId) internal pure returns (bytes memory) {
-        uint256 seed = uint32(uint256(keccak256(abi.encodePacked("downstream/se", zoneId))));
-        return abi.encodePacked("[", '{"trait_type": "seed", "value": ', LibString.toString(seed), "}", "]");
+    function getTraitIndex(uint256 tokenId, string memory traitName, uint256 traitCount)
+        private
+        pure
+        returns (uint256)
+    {
+        return pluckTrait(tokenId, traitName, traitCount);
+    }
+
+    function getTraitName(uint256 tokenId, string memory traitName, string[] storage traitList)
+        private
+        view
+        returns (string memory)
+    {
+        uint256 index = getTraitIndex(tokenId, traitName, traitList.length);
+        return traitList[index];
+    }
+
+    function pluckTrait(uint256 tokenId, string memory keyPrefix, uint256 traitCount) internal pure returns (uint256) {
+        uint256 rand = randomish(string(abi.encodePacked(keyPrefix, LibString.toString(tokenId))));
+        uint256 index = rand % traitCount;
+        return index;
+    }
+
+    function randomish(string memory input) internal pure returns (uint256) {
+        return uint256(keccak256(abi.encodePacked(input)));
+    }
+
+    function getDataAttributes(uint256 tokenId) internal view returns (bytes memory) {
+        return abi.encodePacked(
+            "[",
+            '{"trait_type": "',
+            DRIVING_SIDE_LABEL,
+            '", "value": "',
+            DRIVING_SIDE_VALUES[getTraitIndex(tokenId, DRIVING_SIDE_LABEL, DRIVING_SIDE_COUNT)],
+            '"}',
+            ",",
+            '{"trait_type": "',
+            CLIMATE_LABEL,
+            '", "value": "',
+            CLIMATE_VALUES[getTraitIndex(tokenId, CLIMATE_LABEL, CLIMATE_COUNT)],
+            '"}',
+            ",",
+            '{"trait_type": "',
+            GOVERNMENT_LABEL,
+            '", "value": "',
+            GOVERNMENT_VALUES[getTraitIndex(tokenId, GOVERNMENT_LABEL, GOVERNMENT_COUNT)],
+            '"}',
+            "]"
+        );
     }
 
     function transferFrom(address from, address to, uint256 tokenId) public override {

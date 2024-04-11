@@ -17,8 +17,11 @@ contract ZoneTest is Test, GameTest {
 
     function test_mint() public {
         zoneOwnership.mintTo{value: 1 ether}(address(1));
-        string memory dataURI = zoneOwnership.tokenURI(1);
-        console2.log(dataURI);
+        string memory dataURI1 = zoneOwnership.tokenURI(1);
+        console2.log(dataURI1);
+        zoneOwnership.mintTo{value: 1 ether}(address(1));
+        string memory dataURI2 = zoneOwnership.tokenURI(2);
+        console2.log(dataURI2);
     }
 
     function test_transferZoneOwnership() public {
