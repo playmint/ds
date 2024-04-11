@@ -364,10 +364,6 @@ export const getOpsForManifests = async (
     }
 
     // spawn building instances
-    const convertedBuildingCoords = zone.buildings.map(building => 
-        building.location?.tile.coords.map(coord => fromTwos(coord, 16))
-    );
-    let skippedBuildings = 0;
     opn++;
     opsets[opn] = [];
     for (const doc of docs) {
@@ -377,20 +373,6 @@ export const getOpsForManifests = async (
         const spec = doc.manifest.spec;
         const [q, r, s] = spec.location;
         const inBounds = isInBounds(q, r, s);
-
-        let shouldSkip = false;
-        for (let i = 0; i < convertedBuildingCoords.length; i++) {
-            const coords = String(convertedBuildingCoords[i]).split(',').map(Number);
-            if (coords[1] == q && coords[2] == r && coords[3] == s){
-                shouldSkip = true;
-                skippedBuildings++;
-                break;
-            }
-        }
-
-        if (shouldSkip){
-            continue;
-        }
 
         opsets[opn].push({
             doc,
@@ -410,11 +392,6 @@ export const getOpsForManifests = async (
             note: `spawned building instance of ${spec.name} at ${spec.location.join(',')}`,
             inBounds: inBounds,
         });
-    }
-
-    if (skippedBuildings > 0) {
-        const skipReason = skippedBuildings === 1 ? 'building location because it already exists in the zone' : 'building locations because they already exist in the zone';
-        console.log(`⏩ skipped ${skippedBuildings} ${skipReason}\n`);
     }
 
     // process quests
