@@ -133,18 +133,18 @@ export const NavPanel = ({
         const currentZoneDescription = zone?.description?.value;
         const currentZoneUrl = zone?.url?.value;
 
-        const actions: CogAction[] = [];
-        if (zoneName !== currentZoneName) {
-            actions.push({ name: 'NAME_OWNED_ENTITY', args: [zone?.id, zoneName] });
-        }
-        if (zoneDescription !== currentZoneDescription) {
-            actions.push({ name: 'DESCRIBE_OWNED_ENTITY', args: [zone?.id, zoneDescription] });
-        }
-        if (zoneUrl !== currentZoneUrl) {
-            actions.push({ name: 'URL_OWNED_ENTITY', args: [zone?.id, zoneUrl] });
+        if (zoneName === currentZoneName && zoneDescription === currentZoneDescription && zoneUrl === currentZoneUrl) {
+            console.log("Can't apply changes, no changes detected.");
+            return;
         }
 
-        player.dispatch(...actions).catch((err) => console.error('naming failed', err));
+        player
+            .dispatch(
+                { name: 'NAME_OWNED_ENTITY', args: [zone?.id, zoneName] },
+                { name: 'DESCRIBE_OWNED_ENTITY', args: [zone?.id, zoneDescription] },
+                { name: 'URL_OWNED_ENTITY', args: [zone?.id, zoneUrl] }
+            )
+            .catch((err) => console.error('naming failed', err));
     }, [
         player,
         zoneName,
