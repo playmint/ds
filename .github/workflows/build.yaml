@@ -260,7 +260,7 @@ jobs:
       - name: Deploy Contracts
         env:
           OVERRIDE_VALUES: overrides.yaml
-          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+          DEPLOYER_PRIVATE_KEY: "0x${{ secrets.DEPLOYER_PRIVATE_KEY }}"
           SEQUENCER_PRIVATE_KEY: ${{ secrets.SEQUENCER_PRIVATE_KEY }}
         run: |
           touch $OVERRIDE_VALUES
@@ -320,13 +320,13 @@ jobs:
           timeout: 600000
       - name: Apply Map
         env:
-          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+          DEPLOYER_PRIVATE_KEY: "0x${{ secrets.DEPLOYER_PRIVATE_KEY }}"
           MAP_NAME: ${{ inputs.DEPLOYMENT_MAP }}
           NETWORK_NAME: ${{ inputs.DEPLOYMENT_ENVIRONMENT }}
         run: |
           if [[ "${{ inputs.DEPLOYMENT_CHAIN }}" == "garnet" ]]; then
             (cd /tmp && (npm install -g @playmint/ds-cli || true))
-            ds -k "${DEPLOYER_PRIVATE_KEY}" -n "${NETWORK_NAME}" apply -R -f "contracts/src/maps/${MAP_NAME}" --max-connections 50
+            ds -k "0x${DEPLOYER_PRIVATE_KEY}" -n "${NETWORK_NAME}" apply -R -f "contracts/src/maps/${MAP_NAME}" --max-connections 50
           fi
       - name: Update deployment status
         uses: bobheadxi/deployments@v0.6.2
