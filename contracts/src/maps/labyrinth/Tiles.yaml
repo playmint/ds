@@ -831,3 +831,9 @@ kind: Tile
 spec:
   biome: DISCOVERED
   location: [3, -6, 3]
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [3, -3, 0]
