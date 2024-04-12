@@ -116,7 +116,7 @@ You should see the terminal output display a series of ✅s for each tile that i
 
 <img src="./readme-images/step4c.png" width=200>
 
-Browse to [localhost:3000]([http://localhost:3000/zones/1]) and you should see your newly created map and be able to move your Unit around it!
+Browse to [localhost:3000/zones/1](http://localhost:3000/zones/1) and you should see your newly created map and be able to move your Unit around it!
 
 <img src="./readme-images/step4d.png" width=200>
 
