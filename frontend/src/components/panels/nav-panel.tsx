@@ -156,13 +156,13 @@ export const NavPanel = ({
     }, [zone?.name?.value, zone?.description?.value]);
 
     return (
-        <NavContainer>
+        <NavContainer className={className}>
             {showAccountDialog && hasConnection && (
                 <Dialog onClose={closeAccountDialog} width="304px" height="">
                     <div style={{ padding: 0 }}>
                         <h3>SETTINGS</h3>
                         <p>
-                            0x{address.slice(0, 9)}...{address.slice(-9)}
+                            {address.slice(0, 9)}...{address.slice(-9)}
                         </p>
                         <br />
 

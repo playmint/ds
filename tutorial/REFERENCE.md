@@ -6,9 +6,11 @@ Build and run a local Downstream instance with Docker. Follow the instructions f
 
 The game will be running at [localhost:3000/](http://localhost:3000/).
 
+To enter a map, select Zone 1 from the list or naviage to [localhost:3000/zones/1](http://localhost:3000/zones/1)
+
 <img src="images/fresh-local-downstream.png" width="200">
 
-During development, its recommended to always connect with the Burner option.
+During development, its recommended to always connect with the LocalDevAccount option.
 
 ## Creation Tools
 
@@ -74,6 +76,16 @@ _options explained_
 
 ```ds apply -n local -z 1 -k <private key> -f ./BasicFactory.yaml```
 
+#### Zones
+
+- Downstream is made up of multiple zones
+- Through the homepage users can mint new zones or access existing ones
+- When working locally, zone 1 is always assigned to the deployer account
+- You can login as the deployer by connecting using the LocalDevAccount
+- Use the `-z` flag in the `ds cli` to specify a zone to deploy to
+- All Kinds are deployed against all zones
+- Specific buildings, tiles, quests, etc are deployed against a zone
+
 #### Deploy a map folder over the current map
 
 - Use the building-fabricator to export building sources and the tile-fabricator to export map files.
@@ -89,6 +101,7 @@ _options explained_
 - Copy your map manifest and building source to [contracts/src/maps](../contracts/src/maps)<map-folder>
 - Re-run with `MAP=<map-folder> docker compose up`
     - You can also set the MAP environment variable in the [.env file](../.env)
+    - This map passed through the MAP flag will always be assigned Zone 1
 
 ## Adding Game Logic
 

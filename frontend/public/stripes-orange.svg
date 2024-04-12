@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="38" height="74" viewBox="0 0 38 74">
+  <defs>
+    <clipPath id="clip-stripes-orange">
+      <rect width="38" height="74"/>
+    </clipPath>
+  </defs>
+  <g id="stripes-orange" clip-path="url(#clip-stripes-orange)">
+    <path id="Path_26" data-name="Path 26" d="M-.267.247h20v133h-20Z" transform="translate(34.733 -33.591) rotate(30)" fill="#fb7001"/>
+    <path id="Path_28" data-name="Path 28" d="M-.183.2h20v133h-20Z" transform="translate(72.733 -33.591) rotate(30)" fill="#fb7001"/>
+  </g>
+</svg>

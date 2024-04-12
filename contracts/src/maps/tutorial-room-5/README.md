@@ -30,7 +30,7 @@ After some time (this could take up to 5 minutes), you should see "ready" in the
     contracts-1  | | ready |
     contracts-1  | +-------+
 
-You can now open a web browser and navigate to [http://localhost:3000](http://localhost:3000) to load the game.
+You can now open a web browser and navigate to [http://localhost:3000/zones/1](http://localhost:3000/zones/1) to load the game.
 
 You should see a blue world, with a single hex tile in the center and the **Welcome to Downstream** dialogue box:
 
@@ -91,7 +91,7 @@ ds help
 
 Now copy your Burner private key from Downstream:
 
--   Browse to [localhost:3000]([http://localhost:3000]).
+-   Browse to [localhost:3000/zones/1]([http://localhost:3000/zones/1]).
 -   Click the player icon at the top left.
 
 <img src="./readme-images/step4a.png" width=200>
@@ -111,7 +111,7 @@ ds apply -n local -z 1 -k <private-key> -f Locations.yaml
 
 You should see the terminal output display a series of ✅s for each tile that is deployed.
 
-Browse to [localhost:3000]([http://localhost:3000]) and you should see your newly created map and be able to move your Unit around it!
+Browse to [localhost:3000/zones/1]([http://localhost:3000/zones/1]) and you should see your newly created map and be able to move your Unit around it!
 
 <img src="./readme-images/step4c.png" width=200>
 
@@ -439,7 +439,7 @@ Run the deploy command again which will redeploy all tiles and building definiti
 ds apply -n local -z 1 -k <private-key> -R -f .
 ```
 
-Browse to or refresh [localhost:3000]([http://localhost:3000]) and you should see the Counter HQ building along with the two Counter buildings on the map. By moving your Unit next to the HQ building and selecting it, you will be able to increment the counter via the building's plugin UI.
+Browse to or refresh [localhost:3000/zones/1]([http://localhost:3000/zones/1]) and you should see the Counter HQ building along with the two Counter buildings on the map. By moving your Unit next to the HQ building and selecting it, you will be able to increment the counter via the building's plugin UI.
 
 <img src="./readme-images/step9d.png" width=200>
 <img src="./readme-images/step9e.png" width=200>

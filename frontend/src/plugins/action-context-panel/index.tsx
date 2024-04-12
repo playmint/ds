@@ -777,7 +777,7 @@ const Combat: FunctionComponent<CombatProps> = ({
             return [
                 {
                     name: 'MOVE_MOBILE_UNIT',
-                    args: [mobileUnitKey, zone, q, r, s],
+                    args: [zone, q, r, s],
                 },
             ];
         });
