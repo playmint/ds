@@ -50,7 +50,6 @@ contract NamingRule is Rule {
             revert("EntityNotOwnedByPlayer");
         }
         
-        state.setData(entity, "description", bytes32(bytes(desc)));
         state.annotate(entity, "description", desc);
     }
 

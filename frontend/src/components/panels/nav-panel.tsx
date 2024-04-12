@@ -71,7 +71,7 @@ export const NavPanel = ({
     const player = usePlayer();
     const [showAccountDialog, setShowAccountDialog] = useState(false);
     const [islandName, setIslandName] = useState(decodeString(zone?.name?.value ?? '') || '');
-    const [islandDescription, setIslandDescription] = useState(decodeString(zone?.description?.value ?? '') || '');
+    const [islandDescription, setIslandDescription] = useState(zone?.description?.value || '');
 
     const hasConnection = player || wallet;
     const address = player?.addr || wallet?.address || '';
@@ -119,10 +119,7 @@ export const NavPanel = ({
         if (!player) {
             return;
         }
-        if (
-            islandName === decodeString(zone?.name?.value ?? '') &&
-            islandDescription === decodeString(zone?.description?.value ?? '')
-        ) {
+        if (islandName === decodeString(zone?.name?.value ?? '') && islandDescription === zone?.description?.value) {
             console.log("Can't apply changes, no changes detected.");
             return;
         }
@@ -152,7 +149,7 @@ export const NavPanel = ({
 
     useEffect(() => {
         setIslandName(decodeString(zone?.name?.value ?? '') || '');
-        setIslandDescription(decodeString(zone?.description?.value ?? '') || '');
+        setIslandDescription(zone?.description?.value || '');
     }, [zone?.name?.value, zone?.description?.value]);
 
     return (

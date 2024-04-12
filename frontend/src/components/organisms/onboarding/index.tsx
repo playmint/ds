@@ -77,7 +77,7 @@ export const Onboarding = ({
     }, [block, player, unitTimeoutBlocks, zone, zoneUnitLimit]);
 
     const zoneName = zone.name?.value ? decodeString(zone.name.value) : `unnamed`;
-    const zoneDescription = zone.description?.value ? decodeString(zone.description.value) : `no description`;
+    const zoneDescription = zone.description?.value ? zone.description.value : `no description`;
 
     const activeUnits = zone.mobileUnits.filter(
         (u) => u.nextLocation && u.nextLocation.time + unitTimeoutBlocks > block
