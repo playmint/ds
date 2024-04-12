@@ -7,7 +7,7 @@ import {
     GlobalStateFragment,
     ZoneStateFragment,
 } from '@downstream/core';
-import { AbiCoder, id as keccak256UTF8, solidityPacked } from 'ethers';
+import { AbiCoder, id as keccak256UTF8, solidityPacked, fromTwos } from 'ethers';
 import fs from 'fs';
 import path from 'path';
 import { z } from 'zod';
@@ -412,6 +412,10 @@ export const getOpsForManifests = async (
     }
 
     // spawn tile manifests (this is only valid while cheats are enabled)
+    const convertedTileCoords = zone.tiles.map(tile => 
+        tile.coords.map(coord => fromTwos(coord, 16))
+    );
+    let skippedTiles = 0;
     opn++;
     opsets[opn] = [];
     for (const doc of docs) {
@@ -421,7 +425,20 @@ export const getOpsForManifests = async (
         const spec = doc.manifest.spec;
         const [q, r, s] = spec.location;
         const inBounds = isInBounds(q, r, s);
+        
+        let shouldSkip = false;
+        for (let i = 0; i < convertedTileCoords.length; i++) {
+            if (convertedTileCoords[i][1] == q && convertedTileCoords[i][2] == r && convertedTileCoords[i][3] == s && zone.tiles[i].biome != undefined && zone.tiles[i].biome != 0){
+                shouldSkip = true;
+                skippedTiles++;
+                break;
+            }
+        }
 
+        if (shouldSkip){
+            continue;
+        }
+        
         opsets[opn].push({
             doc,
             actions: [
@@ -433,6 +450,11 @@ export const getOpsForManifests = async (
             note: `spawned tile ${spec.location.join(',')}`,
             inBounds: inBounds,
         });
+    }
+
+    if (skippedTiles > 0) {
+        const skipReason = skippedTiles === 1 ? 'tile because it already exists in the zone' : 'tiles because they already exist in the zone';
+        console.log(`⏩ skipped ${skippedTiles} ${skipReason}\n`);
     }
 
     // spawn bag manifests (this is only valid while cheats are enabled)

@@ -1,5 +1,5 @@
-import { CogAction } from '@downstream/core';
-import { solidityPacked } from 'ethers';
+import { CogAction, } from '@downstream/core';
+import { solidityPacked, fromTwos } from 'ethers';
 import { z } from 'zod';
 import { ManifestDocument, Slot } from '../utils/manifest';
 import { encodeTileID, encodeBagID, getItemIdByName } from './helpers';
@@ -17,6 +17,10 @@ export const getOpsForManifests = async (
     let opn = -1;
 
     // destroy building instances
+    const convertedBuildingCoords = zone.buildings.map(building => 
+        building.location?.tile.coords.map(coord => fromTwos(coord, 16))
+    );
+    let skippedBuildings = 0;
     opn++;
     opsets[opn] = [];
     for (const doc of docs) {
@@ -27,6 +31,20 @@ export const getOpsForManifests = async (
         const [q, r, s] = spec.location;
         const inBounds = isInBounds(q, r, s);
 
+        let shouldSkip = true;
+        for (let i = 0; i < convertedBuildingCoords.length; i++) {
+            const coords = String(convertedBuildingCoords[i]).split(',').map(Number);
+            if (coords[1] == q && coords[2] == r && coords[3] == s){
+                shouldSkip = false;
+                break;
+            }
+        }
+
+        if (shouldSkip){
+            skippedBuildings++;
+            continue;
+        }
+        
         opsets[opn].push({
             doc,
             actions: [
@@ -40,7 +58,16 @@ export const getOpsForManifests = async (
         });
     }
 
+    if (skippedBuildings > 0) {
+        const skipReason = skippedBuildings === 1 ? 'building location because it doesn\'t exist in the zone' : 'building locations because they don\'t exist in the zone';
+        console.log(`⏩ skipped ${skippedBuildings} ${skipReason}\n`);
+    }
+
     // destroy tile manifests (this is only valid while cheats are enabled)
+    const convertedTileCoords = zone.tiles.map(tile => 
+        tile.coords.map(coord => fromTwos(coord, 16))
+    );
+    let skippedTiles = 0;
     opn++;
     opsets[opn] = [];
     for (const doc of docs) {
@@ -50,6 +77,19 @@ export const getOpsForManifests = async (
         const spec = doc.manifest.spec;
         const [q, r, s] = spec.location;
         const inBounds = isInBounds(q, r, s);
+
+        let shouldSkip = true;
+        for (let i = 0; i < convertedTileCoords.length; i++) {
+            if (convertedTileCoords[i][1] == q && convertedTileCoords[i][2] == r && convertedTileCoords[i][3] == s && zone.tiles[i].biome != undefined && zone.tiles[i].biome != 0){
+                shouldSkip = false;
+                break;
+            }
+        }
+
+        if (shouldSkip){
+            skippedTiles++;
+            continue;
+        }
 
         opsets[opn].push({
             doc,
@@ -62,6 +102,11 @@ export const getOpsForManifests = async (
             note: `destroyed tile ${spec.location.join(',')}`,
             inBounds: inBounds,
         });
+    }
+
+    if (skippedTiles > 0) {
+        const skipReason = skippedTiles === 1 ? 'tile because it doesn\'t exist in the zone' : 'tiles because they don\'t exist in the zone';
+        console.log(`⏩ skipped ${skippedTiles} ${skipReason}\n`);
     }
 
     // destory bag manifests (this is only valid while cheats are enabled)

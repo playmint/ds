@@ -85,6 +85,7 @@ const deploy = {
         }
         const manifestFilenames = getManifestFilenames(ctx.filename, ctx.recursive);
         const docs = (await Promise.all(manifestFilenames.map(readManifestsDocumentsSync))).flatMap((docs) => docs);
+
         const zone = await getZone(ctx);
         const global = await getGlobal(ctx);
 
@@ -116,7 +117,6 @@ const deploy = {
             );
             console.error('');
             process.exit(0);
-            return;
         }
 
         // authenticate player
