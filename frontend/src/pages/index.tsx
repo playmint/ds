@@ -1,6 +1,6 @@
 import { useConfig } from '@app/hooks/use-config';
 import { GameStateProvider, useBlock, useCogClient, useGlobal, usePlayer, useWallet } from '@app/hooks/use-game-state';
-import { SessionProvider, useSession } from '@app/hooks/use-session';
+import { SessionProvider } from '@app/hooks/use-session';
 import { WalletProviderProvider, useWalletProvider } from '@app/hooks/use-wallet-provider';
 import { TextButton } from '@app/styles/button.styles';
 import {
@@ -537,7 +537,7 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
             <div className="page">
                 <Image src={DownstreamLogo} alt="Downstream Logo" className="logo" />
                 Welcome to Downstream! Please connect your wallet to get started. From this page you can visit an island
-                by clicking on one in the list or create your own island by clicking the "CREATE ISLAND" button.
+                by clicking on one in the list or create your own island by clicking the CREATE ISLAND button.
                 <h2>
                     <span>Islands</span>
                 </h2>
