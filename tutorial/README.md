@@ -4,7 +4,7 @@
 
 ## Welcome!
 
-This page is your one stop shop for learning how to build on top of Downstream. We recommend that you follow the Tutorials to get up and running. The tutorials will explain how to set up your work space and then run you through small example Islands that focus on a small set of mechanics. 
+This page is your one stop shop for learning how to build on top of Downstream. We recommend that you follow the Tutorials to get up and running. The tutorials will explain how to set up your work space and then run you through some example Maps, each focusing on a small set of mechanics. 
 
 Once you feel you are up to speed on what is currently possible on Downstream, you can check out our Existing Maps and Games!
 
