@@ -167,18 +167,18 @@ export const WalletProviderProvider = ({ children, config }: { children: ReactNo
         if (!burnerPhrase) {
             return;
         }
-        if (provider) {
+        if (!config?.networkEndpoint) {
             return;
         }
         const burnerAccount = ethers.HDNodeWallet.fromMnemonic(
             ethers.Mnemonic.fromPhrase(burnerPhrase),
             "m/44'/60'/0'/0/0"
         );
-        const rpc = ethers.getDefaultProvider('http://localhost:8545');
+        const rpc = ethers.getDefaultProvider(config.networkEndpoint);
         const burner = new ethers.Wallet(burnerAccount.privateKey, rpc);
         setProvider({ method: 'burner', provider: burner });
         setConnecting(false);
-    }, [burnerPhrase, provider, autoconnectProvider]);
+    }, [burnerPhrase, provider, autoconnectProvider, config?.networkEndpoint]);
 
     const closeWalletConnector = useCallback(() => setWalletConnectURI(''), []);
     const closeConnector = useCallback(() => setConnecting(false), []);
