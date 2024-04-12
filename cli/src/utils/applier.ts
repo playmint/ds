@@ -505,7 +505,7 @@ export const getOpsForManifests = async (
             continue;
         }
         const spec = doc.manifest.spec;
-        const tempID = encodeQuestID(spec.name);
+        const tempID = spec.name;//encodeQuestID(spec.name);
         opsets[opn].push({
             doc,
             actions: [

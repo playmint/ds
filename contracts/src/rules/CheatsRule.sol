@@ -63,9 +63,9 @@ contract CheatsRule is Rule {
             ) = abi.decode(action[4:], (bytes24, address, bytes24, uint8, bytes24[]));
             _destroyBag(state, ctx, bagID, owner, equipee, equipSlot, slotContents);
         } else if (bytes4(action) == Actions.DEV_ASSIGN_AUTO_QUEST.selector) {
-            (bytes24 questID, int16 zone) = abi.decode(action[4:], (bytes24, int16));
+            (string memory name, int16 zone) = abi.decode(action[4:], (string, int16));
 
-            _assignAutoQuest(state, ctx, questID, zone);
+            _assignAutoQuest(state, ctx, name, zone);
         }
 
         return state;
@@ -108,10 +108,10 @@ contract CheatsRule is Rule {
         state.setTileAtomValues(tile, [uint64(255), uint64(255), uint64(255)]);
     }
 
-    function _assignAutoQuest(State state, Context calldata ctx, bytes24 questID, int16 zone) private {
+    function _assignAutoQuest(State state, Context calldata ctx,  string memory name, int16 zone) private {
         bytes24 nZone = Node.Zone(zone);
         require(state.getOwner(nZone) == Node.Player(ctx.sender), "owner only");
-        bytes24 quest = Node.Quest(questID);
+        bytes24 quest = Node.Quest(zone, name);
         state.setParent(quest, nZone);
     }
 
