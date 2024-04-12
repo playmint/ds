@@ -21,6 +21,8 @@ COPY core ./core
 COPY cli ./cli
 COPY --from=contracts /contracts/lib/cog/services/schema/*.graphqls ./contracts/lib/cog/services/schema/
 COPY --from=contracts /contracts/out/Actions.sol/Actions.json ./contracts/out/Actions.sol/Actions.json
+COPY --from=contracts /contracts/out/Zones721.sol/Zones721.json ./contracts/out/Zones721.sol/Zones721.json
+COPY --from=contracts /contracts/out/Downstream.sol/DownstreamGame.json ./contracts/out/Downstream.sol/DownstreamGame.json
 RUN npm config set fetch-retry-maxtimeout 300000 && \
     npm install -g npm@9 && \
     npm ci
