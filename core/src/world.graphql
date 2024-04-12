@@ -204,6 +204,12 @@ fragment ZoneState on Node {
     tiles: nodes(match: { kinds: "Tile", via: { rel: "Parent", dir: IN } }) {
         ...WorldTile
     }
+    autoquests: nodes(match: { kinds: "Quest", via: { rel: "Parent", dir: IN } }) {
+        id
+        name: annotation(name: "name") {
+            value
+        }
+    }
 }
 
 fragment GlobalState on State {
