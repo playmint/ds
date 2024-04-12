@@ -112,7 +112,7 @@ export const NavPanel = ({
     }, []);
 
     const handleIslandDescriptionChange = useCallback((e) => {
-        setIslandDescription(e.target.value.slice(0, 31));
+        setIslandDescription(e.target.value.slice(0, 140));
     }, []);
 
     const applyIslandChanges = useCallback(() => {

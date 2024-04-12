@@ -447,6 +447,9 @@ const ZoneItem = ({
                     overflow: hidden;
                 }
 
+                overflow: hidden;
+                text-overflow: ellipsis;
+
                 :nth-child(4) {
                     width: 80px;
                 }
@@ -457,7 +460,8 @@ const ZoneItem = ({
     const router = useRouter();
     const id = Number(BigInt.asIntN(16, BigInt(zone.key)));
     const name = zone.name?.value ? ethers.decodeBytes32String(zone.name.value) : `unnamed`;
-    const description = zone.description?.value ? zone.description.value : `no description`;
+    const description = zone.description?.value ? zone.description.value : '';
+
     const url = `/zones/${id}`;
     const zoneUnits = units.filter((u) => u.location?.tile?.coords && u.location.tile?.coords[0] === zone.key);
     const activeUnits = zoneUnits.filter((u) => u.location && u.location.time + unitTimeoutBlocks > currentBlock);
