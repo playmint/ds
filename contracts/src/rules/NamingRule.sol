@@ -49,7 +49,7 @@ contract NamingRule is Rule {
         if (existingOwner != 0x0 && existingOwner != player) {
             revert("EntityNotOwnedByPlayer");
         }
-        
+
         state.annotate(entity, "description", desc);
     }
 
