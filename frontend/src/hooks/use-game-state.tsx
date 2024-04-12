@@ -96,7 +96,7 @@ export const GameStateProvider = ({ config, zoneId, children }: DSContextProvide
         const { client } = makeCogClient(config);
         const { logger, logs } = makeLogger({ name: 'main' });
 
-        const zoneKey = zoneId ? Number(BigInt.asIntN(16, BigInt(zoneId.replace(NodeSelectors.Zone, '')))) : 0;
+        const zoneKey = zoneId ? Number(BigInt.asIntN(16, BigInt(zoneId.replace(NodeSelectors.Zone, '0x')))) : 0;
         const player = makeConnectedPlayer(client, wallet, logger, zoneKey);
         const global = makeGlobal(client);
         const zone = makeZone(client, zoneId || '');

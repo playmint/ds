@@ -68,7 +68,7 @@ export const session = async (ctx) => {
 
     // if a full id is provided, convert to the small key/id
     ctx.zone = (ctx.zone || '').startsWith(NodeSelectors.Zone)
-        ? Number(BigInt.asIntN(16, BigInt(ctx.zone.replace(NodeSelectors.Zone, ''))))
+        ? Number(BigInt.asIntN(16, BigInt(ctx.zone.replace(NodeSelectors.Zone, '0x'))))
         : ctx.zone || 0;
 
     let __client: ReturnType<typeof makeCogClient>;
