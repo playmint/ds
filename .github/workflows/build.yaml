@@ -268,8 +268,7 @@ jobs:
             (cd contracts && forge script script/Deploy.sol:GameDeployer \
               --broadcast \
               --rpc-url "https://rpc.garnet.qry.live" \
-              --private-key "${DEPLOYER_PRIVATE_KEY}" \
-              --slow
+              --private-key "${DEPLOYER_PRIVATE_KEY}"
             )
             cat contracts/out/latest.json
             echo "chainId: 17001" >> $OVERRIDE_VALUES
