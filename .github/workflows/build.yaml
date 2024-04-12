@@ -317,16 +317,6 @@ jobs:
           interval: 1000
           simultaneous: 1
           timeout: 600000
-      - name: Apply Map
-        env:
-          DEPLOYER_PRIVATE_KEY: "0x${{ secrets.DEPLOYER_PRIVATE_KEY }}"
-          MAP_NAME: ${{ inputs.DEPLOYMENT_MAP }}
-          NETWORK_NAME: ${{ inputs.DEPLOYMENT_ENVIRONMENT }}
-        run: |
-          if [[ "${{ inputs.DEPLOYMENT_CHAIN }}" == "garnet" ]]; then
-            (cd /tmp && (npm install -g @playmint/ds-cli || true))
-            ds -k "0x${DEPLOYER_PRIVATE_KEY}" -n "${NETWORK_NAME}" -z 1 apply -R -f "contracts/src/maps/${MAP_NAME}" --max-connections 50
-          fi
       - name: Update deployment status
         uses: bobheadxi/deployments@v0.6.2
         if: always()
