@@ -96,6 +96,10 @@ export const NavPanel = ({
         window.location.reload();
     }, [clearSession, forgetProvider]);
 
+    const home = useCallback(() => {
+        window.location.href = '/';
+    }, []);
+
     const canvasHeight = g.__globalUnityContext?.getCanvasHeight ? g.__globalUnityContext.getCanvasHeight() : -1;
     const onChangeQuality = useCallback((e) => {
         if (!e) {
@@ -215,6 +219,8 @@ export const NavPanel = ({
                             </>
                         ) : undefined}
 
+                        <ActionButton onClick={home}>Home</ActionButton>
+                        <br />
                         <ActionButton onClick={disconnect}>Disconnect</ActionButton>
                     </div>
                 </Dialog>
