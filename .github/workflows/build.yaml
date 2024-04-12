@@ -264,10 +264,10 @@ jobs:
           SEQUENCER_PRIVATE_KEY: ${{ secrets.SEQUENCER_PRIVATE_KEY }}
         run: |
           touch $OVERRIDE_VALUES
-          if [[ "${{ inputs.DEPLOYMENT_CHAIN }}" == "redstone-holesky" ]]; then
+          if [[ "${{ inputs.DEPLOYMENT_CHAIN }}" == "garnet" ]]; then
             (cd contracts && forge script script/Deploy.sol:GameDeployer \
               --broadcast \
-              --rpc-url "https://rpc.holesky.redstone.xyz" \
+              --rpc-url "https://rpc.garnet.qry.live" \
               --slow
             )
             cat contracts/out/latest.json
@@ -276,16 +276,16 @@ jobs:
             echo "  gameAddress: $(jq -r .game contracts/out/latest.json)" >> $OVERRIDE_VALUES
             echo "  stateAddress: $(jq -r .state contracts/out/latest.json)" >> $OVERRIDE_VALUES
             echo "  routerAddress: $(jq -r .router contracts/out/latest.json)" >> $OVERRIDE_VALUES
-            echo "  providerUrlHttp: https://rpc.holesky.redstone.xyz" >> $OVERRIDE_VALUES
-            echo "  providerUrlWs: wss://rpc.holesky.redstone.xyz/ws" >> $OVERRIDE_VALUES
+            echo "  providerUrlHttp: https://rpc.garnet.qry.live" >> $OVERRIDE_VALUES
+            echo "  providerUrlWs: wss://rpc.garnet.qry.live" >> $OVERRIDE_VALUES
             echo "frontend:" >> $OVERRIDE_VALUES
             echo "  gameAddress: $(jq -r .game contracts/out/latest.json)" >> $OVERRIDE_VALUES
             echo "  tokenAddress: $(jq -r .tokens contracts/out/latest.json)" >> $OVERRIDE_VALUES
             echo "  zonesAddress: $(jq -r .zones contracts/out/latest.json)" >> $OVERRIDE_VALUES
             echo "sequencer:" >> $OVERRIDE_VALUES
             echo "  privateKey: ${SEQUENCER_PRIVATE_KEY}" >> $OVERRIDE_VALUES
-            echo "  providerUrlHttp: https://rpc.holesky.redstone.xyz" >> $OVERRIDE_VALUES
-            echo "  providerUrlWs: wss://rpc.holesky.redstone.xyz/ws" >> $OVERRIDE_VALUES
+            echo "  providerUrlHttp: https://rpc.garnet.qry.live" >> $OVERRIDE_VALUES
+            echo "  providerUrlWs: wss://rpc.garnet.qry.live" >> $OVERRIDE_VALUES
             echo "  mineEmpty: false" >> $OVERRIDE_VALUES
           fi
       - name: Deploy to Azure
@@ -323,7 +323,7 @@ jobs:
           MAP_NAME: ${{ inputs.DEPLOYMENT_MAP }}
           NETWORK_NAME: ${{ inputs.DEPLOYMENT_ENVIRONMENT }}
         run: |
-          if [[ "${{ inputs.DEPLOYMENT_CHAIN }}" == "redstone-holesky" ]]; then
+          if [[ "${{ inputs.DEPLOYMENT_CHAIN }}" == "garnet" ]]; then
             (cd /tmp && (npm install -g @playmint/ds-cli || true))
             ds -k "${DEPLOYER_PRIVATE_KEY}" -n "${NETWORK_NAME}" apply -R -f "contracts/src/maps/${MAP_NAME}" --max-connections 50
           fi
