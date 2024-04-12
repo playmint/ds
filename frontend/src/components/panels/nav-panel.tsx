@@ -52,12 +52,14 @@ export const NavPanel = ({
     questsCount,
     toggleWalletItemsActive,
     walletItemsActive,
+    className,
 }: {
     questsCount?: number;
     questsActive?: boolean;
     toggleQuestsActive?: () => void;
     toggleWalletItemsActive?: () => void;
     walletItemsActive?: boolean;
+    className?: string;
 }) => {
     const { connect, disconnect: forgetProvider, provider } = useWalletProvider();
     const { clearSession } = useSession();
@@ -114,13 +116,13 @@ export const NavPanel = ({
     }, [provider]);
 
     return (
-        <NavContainer>
+        <NavContainer className={className}>
             {showAccountDialog && hasConnection && (
                 <Dialog onClose={closeAccountDialog} width="304px" height="">
                     <div style={{ padding: 15 }}>
                         <h3>PLAYER ACCOUNT</h3>
                         <p>
-                            0x{address.slice(0, 9)}...{address.slice(-9)}
+                            {address.slice(0, 9)}...{address.slice(-9)}
                         </p>
                         <br />
 
