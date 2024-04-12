@@ -103,7 +103,7 @@ export const Onboarding = ({
                 {isZoneOwner && (
                     <fieldset>
                         <legend>Owner Information</legend>
-                        <p>Welcome to your island!</p> <br />
+                        <p>Welcome to your zone!</p> <br />
                         <p>Here are some links you might find useful:</p>
                         <a
                             href="https://github.com/playmint/ds/tree/main/tutorial#readme"

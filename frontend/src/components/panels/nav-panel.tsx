@@ -70,8 +70,8 @@ export const NavPanel = ({
     const { wallet } = useWallet();
     const player = usePlayer();
     const [showAccountDialog, setShowAccountDialog] = useState(false);
-    const [islandName, setIslandName] = useState(decodeString(zone?.name?.value ?? '') || '');
-    const [islandDescription, setIslandDescription] = useState(zone?.description?.value || '');
+    const [zoneName, setZoneName] = useState(decodeString(zone?.name?.value ?? '') || '');
+    const [zoneDescription, setZoneDescription] = useState(zone?.description?.value || '');
 
     const hasConnection = player || wallet;
     const address = player?.addr || wallet?.address || '';
@@ -107,29 +107,29 @@ export const NavPanel = ({
         }
     }, []);
 
-    const handleIslandNameChange = useCallback((e) => {
-        setIslandName(e.target.value.slice(0, 31));
+    const handleZoneNameChange = useCallback((e) => {
+        setZoneName(e.target.value.slice(0, 31));
     }, []);
 
-    const handleIslandDescriptionChange = useCallback((e) => {
-        setIslandDescription(e.target.value.slice(0, 140));
+    const handleZoneDescriptionChange = useCallback((e) => {
+        setZoneDescription(e.target.value.slice(0, 140));
     }, []);
 
-    const applyIslandChanges = useCallback(() => {
+    const applyZoneChanges = useCallback(() => {
         if (!player) {
             return;
         }
-        if (islandName === decodeString(zone?.name?.value ?? '') && islandDescription === zone?.description?.value) {
+        if (zoneName === decodeString(zone?.name?.value ?? '') && zoneDescription === zone?.description?.value) {
             console.log("Can't apply changes, no changes detected.");
             return;
         }
         player
             .dispatch(
-                { name: 'NAME_OWNED_ENTITY', args: [zone?.id, islandName] },
-                { name: 'DESCRIBE_OWNED_ENTITY', args: [zone?.id, islandDescription] }
+                { name: 'NAME_OWNED_ENTITY', args: [zone?.id, zoneName] },
+                { name: 'DESCRIBE_OWNED_ENTITY', args: [zone?.id, zoneDescription] }
             )
             .catch((err) => console.error('naming failed', err));
-    }, [player, islandName, zone?.name?.value, zone?.description?.value, zone?.id, islandDescription]);
+    }, [player, zoneName, zone?.name?.value, zone?.description?.value, zone?.id, zoneDescription]);
 
     // TEMP: allow revealing the burner private key, this is a workaround for
     // helping demo ds-cli bits for people without walletconnect
@@ -148,8 +148,8 @@ export const NavPanel = ({
     }, [provider]);
 
     useEffect(() => {
-        setIslandName(decodeString(zone?.name?.value ?? '') || '');
-        setIslandDescription(zone?.description?.value || '');
+        setZoneName(decodeString(zone?.name?.value ?? '') || '');
+        setZoneDescription(zone?.description?.value || '');
     }, [zone?.name?.value, zone?.description?.value]);
 
     return (
@@ -167,20 +167,16 @@ export const NavPanel = ({
                             <fieldset>
                                 <legend>Owner Controls</legend>
                                 <div>
-                                    <strong>Island Name:</strong>
-                                    <input type="text" value={islandName} onChange={handleIslandNameChange} />
+                                    <strong>Zone Name:</strong>
+                                    <input type="text" value={zoneName} onChange={handleZoneNameChange} />
                                 </div>
                                 <br />
                                 <div>
-                                    <strong>Island Description:</strong>
-                                    <input
-                                        type="text"
-                                        value={islandDescription}
-                                        onChange={handleIslandDescriptionChange}
-                                    />
+                                    <strong>Zone Description:</strong>
+                                    <input type="text" value={zoneDescription} onChange={handleZoneDescriptionChange} />
                                 </div>
                                 <br />
-                                <button onClick={applyIslandChanges} style={{ width: '100%' }}>
+                                <button onClick={applyZoneChanges} style={{ width: '100%' }}>
                                     Apply
                                 </button>
                             </fieldset>

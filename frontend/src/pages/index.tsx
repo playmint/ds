@@ -360,7 +360,7 @@ const ZoneMinter = ({
             {player && (
                 <div>
                     <TextButton onClick={createZone} disabled={minting}>
-                        {minting ? `loading` : `CREATE ISLAND ${displayPrice}`}
+                        {minting ? `loading` : `CREATE ZONE ${displayPrice}`}
                     </TextButton>
                     {error}
                 </div>
@@ -394,9 +394,9 @@ const ZoneFilterSelect = ({
             </Button>
             <Popover>
                 <ListBox>
-                    <ListBoxItem id={ZoneFilter.AllZones}>All Islands</ListBoxItem>
-                    {hasZones && <ListBoxItem id={ZoneFilter.PlayerZones}>Your Islands</ListBoxItem>}
-                    {isInZone && <ListBoxItem id={ZoneFilter.CurrentZone}>Current Island</ListBoxItem>}
+                    <ListBoxItem id={ZoneFilter.AllZones}>All Zones</ListBoxItem>
+                    {hasZones && <ListBoxItem id={ZoneFilter.PlayerZones}>Your Zones</ListBoxItem>}
+                    {isInZone && <ListBoxItem id={ZoneFilter.CurrentZone}>Current Zone</ListBoxItem>}
                 </ListBox>
             </Popover>
         </Select>
@@ -540,10 +540,10 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
             <NavPanel className="navPanel" />
             <div className="page">
                 <Image src={DownstreamLogo} alt="Downstream Logo" className="logo" />
-                Welcome to Downstream! Please connect your wallet to get started. From this page you can visit an island
-                by clicking on one in the list or create your own island by clicking the CREATE ISLAND button.
+                Welcome to Downstream! Please connect your wallet to get started. From this page you can visit an zone
+                by clicking on one in the list or create your own zone by clicking the CREATE ZONE button.
                 <h2>
-                    <span>Islands</span>
+                    <span>Zones</span>
                 </h2>
                 <StyledPanel className="zonePanel">
                     <div style={{ display: 'flex' }}>
