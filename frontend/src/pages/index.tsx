@@ -431,6 +431,10 @@ const ZoneItem = ({
             height: 80px;
             background-color: #526caf;
             border-radius: 0.5rem;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .zoneProperties {
@@ -461,6 +465,7 @@ const ZoneItem = ({
     const id = Number(BigInt.asIntN(16, BigInt(zone.key)));
     const name = zone.name?.value ? ethers.decodeBytes32String(zone.name.value) : `unnamed`;
     const description = zone.description?.value ? zone.description.value : '';
+    const imageUrl = zone.url?.value ? zone.url.value : '';
 
     const url = `/zones/${id}`;
     const zoneUnits = units.filter((u) => u.location?.tile?.coords && u.location.tile?.coords[0] === zone.key);
@@ -473,7 +478,7 @@ const ZoneItem = ({
 
     return (
         <StyledZoneItem onClick={visit}>
-            <div className="zoneImage"></div>
+            <div className="zoneImage">{imageUrl && <img src={imageUrl} alt="Zone" />}</div>
             <div className="zoneProperties">
                 <div>
                     <Link href={url}>{name}</Link>

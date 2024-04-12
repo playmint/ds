@@ -7,7 +7,7 @@ import { ActionButton, TextButton } from '@app/styles/button.styles';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Dialog } from '../molecules/dialog';
-import { ZoneWithBags } from '@downstream/core';
+import { CogAction, ZoneWithBags } from '@downstream/core';
 
 const g = globalThis as unknown as { __globalUnityContext: GlobalUnityContext };
 
@@ -72,6 +72,7 @@ export const NavPanel = ({
     const [showAccountDialog, setShowAccountDialog] = useState(false);
     const [zoneName, setZoneName] = useState(decodeString(zone?.name?.value ?? '') || '');
     const [zoneDescription, setZoneDescription] = useState(zone?.description?.value || '');
+    const [zoneUrl, setZoneUrl] = useState(zone?.url?.value || '');
 
     const hasConnection = player || wallet;
     const address = player?.addr || wallet?.address || '';
@@ -119,21 +120,41 @@ export const NavPanel = ({
         setZoneDescription(e.target.value.slice(0, 140));
     }, []);
 
+    const handleZoneUrlChange = useCallback((e) => {
+        setZoneUrl(e.target.value.slice(0, 140));
+    }, []);
+
     const applyZoneChanges = useCallback(() => {
         if (!player) {
             return;
         }
-        if (zoneName === decodeString(zone?.name?.value ?? '') && zoneDescription === zone?.description?.value) {
-            console.log("Can't apply changes, no changes detected.");
-            return;
+
+        const currentZoneName = decodeString(zone?.name?.value ?? '');
+        const currentZoneDescription = zone?.description?.value;
+        const currentZoneUrl = zone?.url?.value;
+
+        const actions: CogAction[] = [];
+        if (zoneName !== currentZoneName) {
+            actions.push({ name: 'NAME_OWNED_ENTITY', args: [zone?.id, zoneName] });
         }
-        player
-            .dispatch(
-                { name: 'NAME_OWNED_ENTITY', args: [zone?.id, zoneName] },
-                { name: 'DESCRIBE_OWNED_ENTITY', args: [zone?.id, zoneDescription] }
-            )
-            .catch((err) => console.error('naming failed', err));
-    }, [player, zoneName, zone?.name?.value, zone?.description?.value, zone?.id, zoneDescription]);
+        if (zoneDescription !== currentZoneDescription) {
+            actions.push({ name: 'DESCRIBE_OWNED_ENTITY', args: [zone?.id, zoneDescription] });
+        }
+        if (zoneUrl !== currentZoneUrl) {
+            actions.push({ name: 'URL_OWNED_ENTITY', args: [zone?.id, zoneUrl] });
+        }
+
+        player.dispatch(...actions).catch((err) => console.error('naming failed', err));
+    }, [
+        player,
+        zoneName,
+        zone?.name?.value,
+        zone?.description?.value,
+        zone?.url?.value,
+        zone?.id,
+        zoneDescription,
+        zoneUrl,
+    ]);
 
     // TEMP: allow revealing the burner private key, this is a workaround for
     // helping demo ds-cli bits for people without walletconnect
@@ -154,7 +175,8 @@ export const NavPanel = ({
     useEffect(() => {
         setZoneName(decodeString(zone?.name?.value ?? '') || '');
         setZoneDescription(zone?.description?.value || '');
-    }, [zone?.name?.value, zone?.description?.value]);
+        setZoneUrl(zone?.url?.value || '');
+    }, [zone?.name?.value, zone?.description?.value, zone?.url?.value]);
 
     return (
         <NavContainer className={className}>
@@ -178,6 +200,11 @@ export const NavPanel = ({
                                 <div>
                                     <strong>Zone Description:</strong>
                                     <input type="text" value={zoneDescription} onChange={handleZoneDescriptionChange} />
+                                </div>
+                                <br />
+                                <div>
+                                    <strong>Zone Image URL:</strong>
+                                    <input type="text" value={zoneUrl} onChange={handleZoneUrlChange} />
                                 </div>
                                 <br />
                                 <button onClick={applyZoneChanges} style={{ width: '100%' }}>

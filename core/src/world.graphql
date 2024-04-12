@@ -188,6 +188,9 @@ fragment ZoneState on Node {
     description: annotation(name: "description") {
         value
     }
+    url: annotation(name: "url") {
+        value
+    }
     owner: node(match: { via: { rel: "Owner" } }) {
         id
         addr: key
@@ -260,6 +263,9 @@ query GetZones($gameID: ID!) {
                 description: annotation(name: "description") {
                     value
                 }
+                url: annotation(name: "url") {
+                    value
+                }                
                 owner: node(match: { via: { rel: "Owner" } }) {
                     id
                     addr: key
