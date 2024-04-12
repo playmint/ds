@@ -65,7 +65,7 @@ sleep 5
 
 MAP=${MAP:-"default"}
 echo "ds apply ${MAP}..."
-ds -k "${DEPLOYER_PRIVATE_KEY}" -n local --ws-endpoint="${SERVICES_WS}" --http-endpoint="${SERVICES_HTTP}" apply -R -f "./src/maps/${MAP}"
+ds -k "${DEPLOYER_PRIVATE_KEY}" -n local --ws-endpoint="${SERVICES_WS}" --http-endpoint="${SERVICES_HTTP}" apply -z 1 -R -f "./src/maps/${MAP}"
 
 # postinstall script
 if [ -f "./src/maps/${MAP}/postinstall.js" ]; then

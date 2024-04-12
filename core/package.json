@@ -26,7 +26,7 @@
         "build": "npm run build:graphql && npm run build:abi && npm run build:package",
         "build:package": "rollup -c scripts/rollup.config.mjs",
         "build:graphql": "graphql-codegen",
-        "build:abi": "typechain --target ethers-v6 --out-dir src/abi ../contracts/out/Actions.sol/Actions.json ../contracts/out/CombatRule.sol/CombatRule.json",
+        "build:abi": "typechain --target ethers-v6 --out-dir src/abi ../contracts/out/Actions.sol/Actions.json ../contracts/out/Zones721.sol/Zones721.json ../contracts/out/Downstream.sol/DownstreamGame.json",
         "build:watch": "rollup -c scripts/rollup.config.mjs -w",
         "clean": "rimraf dist node_modules/.cache",
         "prepublishOnly": "run-s clean build check test"

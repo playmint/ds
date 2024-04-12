@@ -16,12 +16,14 @@ export const NodeSelectors = {
     Item: getSelector('Item'),
     MobileUnit: getSelector('MobileUnit'),
     Player: getSelector('Player'),
+    ZonedPlayer: getSelector('ZonedPlayer'),
     Building: getSelector('Building'),
     BuildingKind: getSelector('BuildingKind'),
     ClientPlugin: getSelector('ClientPlugin'),
     Bag: getSelector('Bag'),
     Quest: getSelector('Quest'),
     Task: getSelector('Task'),
+    Zone: getSelector('Zone'),
 };
 
 export const CompoundKeyEncoder = {

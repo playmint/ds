@@ -72,11 +72,15 @@ fragment WorldMobileUnit on Node {
     }
     # who owns this mobileUnit
     owner: node(match: { kinds: "Player", via: { rel: "Owner" } }) {
-        id
+        ...WorldPlayer
     }
     # owner assigned name
     name: data(name: "name") {
         value
+    }
+    # equipment
+    bags: nodes(match: { kinds: "Bag", via: { rel: "Equip", dir: OUT } }) {
+        ...Bag
     }
 }
 
@@ -87,6 +91,7 @@ fragment WorldBuilding on Node {
     }
     owner: node(match: { kinds: "Player", via: { rel: "Owner" } }) {
         id
+        addr: key
     }
     timestamp: edge(match: { kinds: ["BlockNum"], via: { rel: "HasBlockNum", key: 1 } }) {
         blockNum: weight
@@ -104,6 +109,9 @@ fragment WorldBuilding on Node {
     allData {
         name
         value
+    }
+    bags: nodes(match: { kinds: "Bag", via: { rel: "Equip", dir: OUT } }) {
+        ...Bag
     }
     facingDirection: value(match: { via: { rel: "FacingDirection" } }) # 0=RIGHT, 1=LEFT
 }
@@ -139,6 +147,9 @@ fragment WorldCombatSession on Node {
             id
         }
     }
+    bags: nodes(match: { kinds: "Bag", via: { rel: "Equip", dir: OUT } }) {
+        ...Bag
+    }
 }
 
 fragment WorldTile on Node {
@@ -158,6 +169,9 @@ fragment WorldTile on Node {
         key
         weight
     }
+    bags: nodes(match: { kinds: "Bag", via: { rel: "Equip", dir: OUT } }) {
+        ...Bag
+    }
 }
 
 fragment WorldPlayer on Node {
@@ -165,64 +179,108 @@ fragment WorldPlayer on Node {
     addr: key
 }
 
-fragment WorldState on State {
-    block
-    players: nodes(match: { kinds: "Player" }) {
-        ...WorldPlayer
+fragment ZoneState on Node {
+    id
+    key
+    name: data(name: "name") {
+        value
     }
-    buildings: nodes(match: { kinds: "Building" }) {
+    description: annotation(name: "description") {
+        value
+    }
+    url: annotation(name: "url") {
+        value
+    }
+    owner: node(match: { via: { rel: "Owner" } }) {
+        id
+        addr: key
+    }
+    buildings: nodes(match: { kinds: "Building", via: { rel: "Parent", dir: IN } }) {
         ...WorldBuilding
     }
-    mobileUnits: nodes(match: { kinds: "MobileUnit" }) {
+    mobileUnits: nodes(match: { kinds: "MobileUnit", via: { rel: "Parent", dir: IN } }) {
         ...WorldMobileUnit
     }
-    sessions: nodes(match: { kinds: "CombatSession" }) {
+    sessions: nodes(match: { kinds: "CombatSession", via: { rel: "Parent", dir: IN } }) {
         ...WorldCombatSession
     }
-    bags: nodes(match: { kinds: "Bag" }) {
-        ...Bag
+    tiles: nodes(match: { kinds: "Tile", via: { rel: "Parent", dir: IN } }) {
+        ...WorldTile
+    }
+}
+
+fragment GlobalState on State {
+    block
+    gameSettings: node(match: { kinds: ["GameSettings"] }) {
+        zoneUnitLimit: data(name: "zoneUnitLimit") {
+            value
+        }
+        unitTimeoutBlocks: data(name: "unitTimeoutBlocks") {
+            value
+        }
     }
     items: nodes(match: { kinds: "Item" }) {
         ...Item
     }
     buildingKinds: nodes(match: { kinds: "BuildingKind" }) {
-        id
-        name: annotation(name: "name") {
-            value
-        }
-        model: annotation(name: "model") {
-            value
-        }
+        ...BuildingKind
     }
 }
 
-fragment TilesState on State {
-    tiles: nodes(match: { kinds: "Tile" }) {
-        ...WorldTile
-    }
-}
-
-fragment WorldStateWithTiles on State {
-    ...WorldState
-    ...TilesState
-}
-
-query GetTiles($gameID: ID!) {
+query GetZone($gameID: ID!, $zoneID: String!) {
     game(id: $gameID) {
         id
         state(simulated: true) {
             id
-            ...TilesState
+            zone: node(match: { ids: [$zoneID] }) {
+                ...ZoneState
+            }
         }
     }
 }
 
-query GetWorld($gameID: ID!) {
+query GetGlobal($gameID: ID!) {
     game(id: $gameID) {
         id
         state(simulated: true) {
             id
-            ...WorldState
+            ...GlobalState
+        }
+    }
+}
+
+query GetZones($gameID: ID!) {
+    game(id: $gameID) {
+        id
+        state(simulated: true) {
+            id
+            zones: nodes(match: { kinds: "Zone" }) {
+                id
+                key
+                name: data(name: "name") {
+                    value
+                }
+                description: annotation(name: "description") {
+                    value
+                }
+                url: annotation(name: "url") {
+                    value
+                }                
+                owner: node(match: { via: { rel: "Owner" } }) {
+                    id
+                    addr: key
+                }
+            }
+            mobileUnits: nodes(match: { kinds: "MobileUnit" }) {
+                id
+                key
+                location: edge(match: { kinds: "Tile", via: { rel: "Location", key: 1 } }) {
+                    ...Location
+                }
+                owner: node(match: { kinds: "Player", via: { rel: "Owner" } }) {
+                    ...WorldPlayer
+                }
+            }
         }
     }
 }

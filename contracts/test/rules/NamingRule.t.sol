@@ -14,8 +14,8 @@ contract NamingRuleTest is Test, GameTest {
     function testNameOwnedEntity() public {
         vm.startPrank(players[0].addr);
         sid++;
-        bytes24 entity = Node.MobileUnit(sid);
-        spawnMobileUnit(sid);
+        bytes24 entity = Node.MobileUnit(players[0].addr);
+        spawnMobileUnit();
 
         // rename the unit
         string memory name = "Jeff";
@@ -29,8 +29,8 @@ contract NamingRuleTest is Test, GameTest {
     function testNameUnownedEntity() public {
         vm.startPrank(players[0].addr);
         sid++;
-        bytes24 entity = Node.MobileUnit(sid);
-        spawnMobileUnit(sid);
+        bytes24 entity = Node.MobileUnit(players[0].addr);
+        spawnMobileUnit();
         vm.stopPrank();
 
         // another tries to rename it

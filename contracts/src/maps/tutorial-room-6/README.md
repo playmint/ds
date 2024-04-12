@@ -2,7 +2,7 @@
 
 ## Aim
 
-We will follow the steps below to create a simple downstream map with a building that can spawn and control Mobile Units
+We will follow the steps below to create a simple downstream map with a building that can spawn and control a Mobile Unit
 
 <img src="./readme-images/screenshot.png" width=300>
 
@@ -30,7 +30,6 @@ Next past the following starter code into each of the 3 files
 import ds from "downstream";
 
 export default async function update(state) {
-    // const buildings = state.world?.buildings || [];
     const mobileUnit = getMobileUnit(state);
     const selectedTile = getSelectedTile(state);
     const selectedBuilding =
@@ -104,13 +103,13 @@ using Schema for State;
 contract UnitController is BuildingKind {
     function spawnUnit() external {}
 
-    function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes calldata payload) public override {
+    function use(Game ds, bytes24 buildingInstance, bytes24, /*actor*/ bytes calldata payload) public override {
         if ((bytes4)(payload) == this.spawnUnit.selector) {
-            _spawnUnit(ds, buildingInstance, actor);
+            _spawnUnit(ds, buildingInstance);
         }
     }
 
-    function _spawnUnit(Game ds, bytes24 buildingInstance, bytes24 actor) internal {}
+    function _spawnUnit(Game ds, bytes24 buildingInstance) internal {}
 }
 
 ```
@@ -123,7 +122,7 @@ kind: BuildingKind
 spec:
     category: custom
     name: Unit Controller
-    description: This Building can spawn and control units
+    description: This Building can spawn and control a mobile unit
     model: 01-01
     color: 2
     contract:
@@ -161,9 +160,8 @@ The contract doesn't yet do anything so next we are going to implement the code 
 `UnitController.sol`
 
 ```solidity
-    function _spawnUnit(Game ds, bytes24 buildingInstance, bytes24 actor) internal {
-        bytes24 mobileUnit = Node.MobileUnit(uint32(uint256(keccak256(abi.encodePacked(block.number, actor)))));
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (mobileUnit)));
+    function _spawnUnit(Game ds, bytes24 buildingInstance) internal {
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, ()));
     }
 ```
 
@@ -174,7 +172,8 @@ First we need a helper to decode the location. Paste the following at the end of
 `UnitController.sol`
 
 ```solidity
-    function _getTileCoords(bytes24 tile) public pure returns (int16 q, int16 r, int16 s) {
+    function _getTileCoords(bytes24 tile) public pure returns (int16 z, int16 q, int16 r, int16 s) {
+        z = int16(int192(uint192(tile) >> 48));
         q = int16(int192(uint192(tile) >> 32));
         r = int16(int192(uint192(tile) >> 16));
         s = int16(int192(uint192(tile)));
@@ -188,15 +187,12 @@ Next we call the helper function and move the unit to the east by offsetting the
 `UnitController.sol`
 
 ```solidity
-    function _spawnUnit(Game ds, bytes24 buildingInstance, bytes24 actor) internal {
-        bytes24 mobileUnit = Node.MobileUnit(uint32(uint256(keccak256(abi.encodePacked(block.number, actor)))));
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (mobileUnit)));
+    function _spawnUnit(Game ds, bytes24 buildingInstance) internal {
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, ()));
 
         // Move mobile unit next to the building
-        (int16 q, int16 r, int16 s) = _getTileCoords(ds.getState().getFixedLocation(buildingInstance));
-        ds.getDispatcher().dispatch(
-            abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (uint32(uint192(mobileUnit)), q + 1, r, s - 1))
-        );
+        (int16 z, int16 q, int16 r, int16 s) = _getTileCoords(ds.getState().getFixedLocation(buildingInstance));
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (z, q + 1, r, s - 1)));
     }
 ```
 
@@ -221,10 +217,10 @@ With the map tiles defined and the building location set we can now deploy our m
 Run the following from the root of your map folder
 
 ```bash
-ds apply -n local -k <private-key> -R -f .
+ds apply -n local -z 1 -k <private-key> -R -f .
 ```
 
-If we now refresh Open [http://localhost:3000/] we will see our map with our Unit Controller building on it. To spawn a unit from the building we'll first need to spawn our own unit and walk up to the building in order to interact with the building's UI.
+If we now refresh Open [http://localhost:3000/zones/1] we will see our map with our Unit Controller building on it. To spawn a unit from the building we'll first need to spawn our own unit and walk up to the building in order to interact with the building's UI.
 
 <img src="./readme-images/step4c.png" width=200>
 
@@ -232,7 +228,7 @@ If we now refresh Open [http://localhost:3000/] we will see our map with our Uni
 
 ### Get references to all units that have been spawned from the building
 
-So far we have managed to spawn a Unit to the east of our building however we cannot move it. Let's first find a find a reference to all of the Units that have been spawned from the building by using the following code pased after the `spawnUnit` function from earlier.
+So far we have managed to spawn a Unit to the east of our building however we cannot move it. Let's first get a reference to that Unit by using the following code pasted after the `spawnUnit` function from earlier.
 
 `UnitController.js`
 
@@ -240,20 +236,20 @@ So far we have managed to spawn a Unit to the east of our building however we ca
 ...
 const { mobileUnits } = state.world;
 
-// We slice the first 10 characters from the ids to remove the 0x and Node prefix so we are left with the address part of the id
-const buildingUnits = mobileUnits.filter(
+// We slice the last 40 characters (20 bytes) from the ids which is the address
+const buildingUnit = mobileUnits.find(
     (unit) =>
-        unit.owner.id.slice(10) ===
-        selectedBuilding.kind.implementation.id.slice(10),
+        unit.owner.id.slice(-40) ===
+        selectedBuilding.kind.implementation.id.slice(-40),
 );
 ...
 ```
 
-We destructure the world object to get at all the Units in the world and then compare the owner addresses with the address of our building contract. As it was the building contract that spawned the Units, the units are inherently owned by that contract.
+We destructure the world object to get at all the Units in the world and then compare the owner addresses with the address of our building contract. As it was the building contract that spawned the Unit, the unit is inherently owned by that contract.
 
 ### Add buttons to move the units
 
-Next we want to actually move all the units we have found so let's first add a button to move the Unit one tile to the North East.
+Next we want to actually move the unit we have found so let's first add a button to move the Unit one tile to the North East.
 
 `UnitController.js`
 
@@ -265,13 +261,13 @@ Next we want to actually move all the units we have found so let's first add a b
                                 text: "Spawn Unit",
                                 type: "action",
                                 action: spawnUnit,
-                                disabled: false,
+                                disabled: buildingUnit,
                             },
                             {
                                 text: "Move Unit ↗️",
                                 type: "action",
                                 action: moveNE,
-                                disabled: buildingUnits.length === 0,
+                                disabled: !buildingUnit,
                             },
                         ]
 ...
@@ -286,16 +282,11 @@ We have specified we are calling `moveNE` as the button's action so we need to d
 ```js
 ...
     const moveNE = () => {
-        buildingUnits.forEach((unit) => {
-            const payload = ds.encodeCall(
-                "function moveUnitNE(bytes24 mobileUnit)",
-                [unit.id],
-            );
+        const payload = ds.encodeCall("function moveUnitNE()", []);
 
-            ds.dispatch({
-                name: "BUILDING_USE",
-                args: [selectedBuilding.id, mobileUnit.id, payload],
-            });
+        ds.dispatch({
+            name: "BUILDING_USE",
+            args: [selectedBuilding.id, mobileUnit.id, payload],
         });
     };
 ...
@@ -310,37 +301,34 @@ The js plugin is currently calling into our contract but we have yet to implemen
 ```solidity
 contract UnitController is BuildingKind {
     function spawnUnit() external {}
-    function moveUnitNE(bytes24 mobileUnit) external {}
+    function moveUnitNE() external {}
 
-    function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes calldata payload) public override {
+    function use(Game ds, bytes24 buildingInstance, bytes24, /*actor*/ bytes calldata payload) public override {
         if ((bytes4)(payload) == this.spawnUnit.selector) {
-            _spawnUnit(ds, buildingInstance, actor);
+            _spawnUnit(ds, buildingInstance);
         } else if ((bytes4)(payload) == this.moveUnitNE.selector) {
-            (bytes24 mobileUnit) = abi.decode(payload[4:], (bytes24));
-            _moveUnit(ds, mobileUnit, [0, 1, -1]);
+            _moveUnit(ds, [int16(0), int16(1), int16(-1)]);
         }
     }
 ...
 ```
 
-Please note that we have added the `function moveUnitNE(bytes24 mobileUnit) external {}` function signature which is used when decoding the function that was passed in via the payload.
+Please note that we have added the `function moveUnitNE() external {}` function signature to the beginning of the contract. This is used when decoding the function that was passed in via the payload.
 
 Next we implement the `_moveUnit` function that actually does the movement
 
 `UnitController.sol`
 
 ```solidity
-    function _moveUnit(Game ds, bytes24 mobileUnit, int16[3] memory direction) internal {
-        (int16 q, int16 r, int16 s) = _getUnitCoords(ds, mobileUnit);
+    function _moveUnit(Game ds, int16[3] memory direction) internal {
+        (int16 z, int16 q, int16 r, int16 s) = _getUnitCoords(ds);
         ds.getDispatcher().dispatch(
-            abi.encodeCall(
-                Actions.MOVE_MOBILE_UNIT,
-                (uint32(uint192(mobileUnit)), q + direction[0], r + direction[1], s + direction[2])
-            )
+            abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (z, q + direction[0], r + direction[1], s + direction[2]))
         );
     }
 
-    function _getUnitCoords(Game ds, bytes24 mobileUnit) internal returns (int16 q, int16 r, int16 s) {
+    function _getUnitCoords(Game ds) internal returns (int16 z, int16 q, int16 r, int16 s) {
+        bytes24 mobileUnit = Node.MobileUnit(address(this));
         State state = ds.getState();
         bytes24 tile = state.getCurrentLocation(mobileUnit, uint64(block.number));
         return _getTileCoords(tile);
@@ -360,16 +348,11 @@ So far we have implemented movement in one direction so to move in the other 5 c
 ```js
 ...
     const moveE = () => {
-        buildingUnits.forEach((unit) => {
-            const payload = ds.encodeCall(
-                "function moveUnitE(bytes24 mobileUnit)",
-                [unit.id],
-            );
+        const payload = ds.encodeCall("function moveUnitE()", []);
 
-            ds.dispatch({
-                name: "BUILDING_USE",
-                args: [selectedBuilding.id, mobileUnit.id, payload],
-            });
+        ds.dispatch({
+            name: "BUILDING_USE",
+            args: [selectedBuilding.id, mobileUnit.id, payload],
         });
     };
 ...
@@ -390,19 +373,19 @@ So far we have implemented movement in one direction so to move in the other 5 c
                                 text: "Spawn Unit",
                                 type: "action",
                                 action: spawnUnit,
-                                disabled: false,
+                                disabled: buildingUnit,
                             },
                             {
                                 text: "Move Unit ↗️",
                                 type: "action",
                                 action: moveNE,
-                                disabled: buildingUnits.length === 0,
+                                disabled: !buildingUnit,
                             },
                             {
                                 text: "Move Unit ➡️",
                                 type: "action",
                                 action: moveE,
-                                disabled: buildingUnits.length === 0,
+                                disabled: !buildingUnit,
                             },
 ...
 ```
@@ -415,12 +398,12 @@ So far we have implemented movement in one direction so to move in the other 5 c
 ...
 contract UnitController is BuildingKind {
     function spawnUnit() external {}
-    function moveUnitNE(bytes24 mobileUnit) external {}
-    function moveUnitE(bytes24 mobileUnit) external {}
-    function moveUnitSE(bytes24 mobileUnit) external {}
-    function moveUnitSW(bytes24 mobileUnit) external {}
-    function moveUnitW(bytes24 mobileUnit) external {}
-    function moveUnitNW(bytes24 mobileUnit) external {}
+    function moveUnitNE() external {}
+    function moveUnitE() external {}
+    function moveUnitSE() external {}
+    function moveUnitSW() external {}
+    function moveUnitW() external {}
+    function moveUnitNW() external {}
 ...
 ```
 
@@ -428,27 +411,21 @@ contract UnitController is BuildingKind {
 
 ```solidity
 ...
-    function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes calldata payload) public override {
+    function use(Game ds, bytes24 buildingInstance, bytes24, /*actor*/ bytes calldata payload) public override {
         if ((bytes4)(payload) == this.spawnUnit.selector) {
-            _spawnUnit(ds, buildingInstance, actor);
+            _spawnUnit(ds, buildingInstance);
         } else if ((bytes4)(payload) == this.moveUnitNE.selector) {
-            (bytes24 mobileUnit) = abi.decode(payload[4:], (bytes24));
-            _moveUnit(ds, mobileUnit, [int16(0), int16(1), int16(-1)]);
+            _moveUnit(ds, [int16(0), int16(1), int16(-1)]);
         } else if ((bytes4)(payload) == this.moveUnitE.selector) {
-            (bytes24 mobileUnit) = abi.decode(payload[4:], (bytes24));
-            _moveUnit(ds, mobileUnit, [int16(1), int16(0), int16(-1)]);
+            _moveUnit(ds, [int16(1), int16(0), int16(-1)]);
         } else if ((bytes4)(payload) == this.moveUnitSE.selector) {
-            (bytes24 mobileUnit) = abi.decode(payload[4:], (bytes24));
-            _moveUnit(ds, mobileUnit, [int16(1), int16(-1), int16(0)]);
+            _moveUnit(ds, [int16(1), int16(-1), int16(0)]);
         } else if ((bytes4)(payload) == this.moveUnitSW.selector) {
-            (bytes24 mobileUnit) = abi.decode(payload[4:], (bytes24));
-            _moveUnit(ds, mobileUnit, [int16(0), int16(-1), int16(1)]);
+            _moveUnit(ds, [int16(0), int16(-1), int16(1)]);
         } else if ((bytes4)(payload) == this.moveUnitW.selector) {
-            (bytes24 mobileUnit) = abi.decode(payload[4:], (bytes24));
-            _moveUnit(ds, mobileUnit, [int16(-1), int16(0), int16(1)]);
+            _moveUnit(ds, [int16(-1), int16(0), int16(1)]);
         } else if ((bytes4)(payload) == this.moveUnitNW.selector) {
-            (bytes24 mobileUnit) = abi.decode(payload[4:], (bytes24));
-            _moveUnit(ds, mobileUnit, [int16(-1), int16(1), int16(0)]);
+            _moveUnit(ds, [int16(-1), int16(1), int16(0)]);
         }
     }
 ...

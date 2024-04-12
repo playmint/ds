@@ -30,7 +30,7 @@ After some time (this could take up to 5 minutes), you should see "ready" in the
     contracts-1  | | ready |
     contracts-1  | +-------+
 
-You can now open a web browser and navigate to [http://localhost:3000](http://localhost:3000) to load the game.
+You can now open a web browser and navigate to [http://localhost:3000/zones/1](http://localhost:3000/zones/1) to load the game.
 
 You should see a blue world, with a single hex tile in the center and the **Welcome to Downstream** dialogue box:
 
@@ -91,7 +91,7 @@ ds help
 
 Now copy your Burner private key from Downstream:
 
--   Browse to [localhost:3000]([http://localhost:3000]).
+-   Browse to [localhost:3000/zones/1]([http://localhost:3000/zones/1]).
 -   Click the player icon at the top left.
 
 <img src="./readme-images/step4a.png" width=200>
@@ -106,12 +106,12 @@ Finally, run the command to deploy your map:
 In a terminal at your new folder run the following, where `<private-key>` can be pasted from the one you just copied:
 
 ```bash
-ds apply -n local -k <private-key> -f Locations.yaml
+ds apply -n local -z 1 -k <private-key> -f Locations.yaml
 ```
 
 You should see the terminal output display a series of ✅s for each tile that is deployed.
 
-Browse to [localhost:3000]([http://localhost:3000]) and you should see your newly created map and be able to move your Unit around it!
+Browse to [localhost:3000/zones/1]([http://localhost:3000/zones/1]) and you should see your newly created map and be able to move your Unit around it!
 
 <img src="./readme-images/step4c.png" width=200>
 
@@ -411,7 +411,7 @@ At this stage we have a set of tiles without any buildings on them so let's depl
 At a terminal In your map folder run:
 
 ```bash
-ds apply -n local -k <private-key> -R -f .
+ds apply -n local -z 1 -k <private-key> -R -f .
 ```
 
 This will deploy both `CounterHQ` and the `Counter` building along with the tiles that were placed earlier.
@@ -436,10 +436,10 @@ Export the tiles and save over `Locations.yaml`
 Run the deploy command again which will redeploy all tiles and building definitions along with the locations of the buildings we have just chosen.
 
 ```bash
-ds apply -n local -k <private-key> -R -f .
+ds apply -n local -z 1 -k <private-key> -R -f .
 ```
 
-Browse to or refresh [localhost:3000]([http://localhost:3000]) and you should see the Counter HQ building along with the two Counter buildings on the map. By moving your Unit next to the HQ building and selecting it, you will be able to increment the counter via the building's plugin UI.
+Browse to or refresh [localhost:3000/zones/1]([http://localhost:3000/zones/1]) and you should see the Counter HQ building along with the two Counter buildings on the map. By moving your Unit next to the HQ building and selecting it, you will be able to increment the counter via the building's plugin UI.
 
 <img src="./readme-images/step9d.png" width=200>
 <img src="./readme-images/step9e.png" width=200>
@@ -786,7 +786,7 @@ spec:
 Now deploy the map as before and you should see our new buildings on the map.
 
 ```bash
-ds apply -n local -k <private-key> -R -f .
+ds apply -n local -z 1 -k <private-key> -R -f .
 ```
 
 <img src="./readme-images/step13.png" width=300>

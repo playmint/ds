@@ -26,12 +26,14 @@ interface Rel {
     function HasQuest() external;
     function ID() external;
     function HasBlockNum() external;
+    function Parent() external;
 }
 
 interface Kind {
     function ClientPlugin() external;
     function Extension() external;
     function Player() external;
+    function ZonedPlayer() external;
     function MobileUnit() external;
     function Bag() external;
     function Tile() external;
@@ -46,6 +48,8 @@ interface Kind {
     function Task() external;
     function ID() external;
     function OwnedToken() external;
+    function Zone() external;
+    function GameSettings() external;
 }
 
 uint64 constant BLOCK_TIME_SECS = 2;
@@ -84,6 +88,19 @@ enum QuestStatus {
     COMPLETED
 }
 
+enum TaskKind {
+    NONE,
+    COORD,
+    INVENTORY,
+    MESSAGE,
+    QUEST_ACCEPT,
+    QUEST_COMPLETE,
+    COMBAT,
+    CONSTRUCT,
+    UNIT_STATS,
+    DEPLOY_BUILDING
+}
+
 enum BuildingBlockNumKey {
     CONSTRUCTION,
     EXTRACTION
@@ -99,12 +116,21 @@ library Node {
         return CompoundKeyEncoder.BYTES(Kind.ClientPlugin.selector, bytes20(uint160(id)));
     }
 
-    function MobileUnit(uint64 id) internal pure returns (bytes24) {
-        return CompoundKeyEncoder.UINT64(Kind.MobileUnit.selector, id);
+    function MobileUnit(address addr) internal pure returns (bytes24) {
+        return CompoundKeyEncoder.ADDRESS(Kind.MobileUnit.selector, addr);
     }
 
     function Bag(uint64 id) internal pure returns (bytes24) {
         return CompoundKeyEncoder.UINT64(Kind.Bag.selector, id);
+    }
+
+    function Zone(int16 id) internal pure returns (bytes24) {
+        require(id >= 0, "InvalidZoneID");
+        return CompoundKeyEncoder.UINT64(Kind.Zone.selector, uint16(id));
+    }
+
+    function Zone(uint256 id) internal pure returns (bytes24) {
+        return Zone(int16(uint16(id)));
     }
 
     function Tile(int16 z, int16 q, int16 r, int16 s) internal pure returns (bytes24) {
@@ -131,6 +157,12 @@ library Node {
 
     function Player(address addr) internal pure returns (bytes24) {
         return CompoundKeyEncoder.ADDRESS(Kind.Player.selector, addr);
+    }
+
+    function ZonedPlayer(int16 zone, address addr) internal pure returns (bytes24) {
+        return CompoundKeyEncoder.UINT64(
+            Kind.ZonedPlayer.selector, uint64(uint256(keccak256(abi.encodePacked(zone, addr))))
+        );
     }
 
     function BuildingKind(uint64 id, BuildingCategory category) internal pure returns (bytes24) {
@@ -177,16 +209,23 @@ library Node {
         return bytes24(Kind.BlockNum.selector);
     }
 
-    function Task(uint32 id, string memory kind) internal pure returns (bytes24) {
-        uint32 kindHash = uint32(uint256(keccak256(abi.encode(kind))));
+    function Task(int16 zone, string memory name, TaskKind kind) internal pure returns (bytes24) {
+        uint64 nameHash = uint64(uint256(keccak256(abi.encodePacked("task/", name))));
         return CompoundKeyEncoder.BYTES(
-            Kind.Task.selector, bytes20(abi.encodePacked(uint32(0), uint32(0), uint32(0), kindHash, id))
+            Kind.Task.selector,
+            bytes20(abi.encodePacked(uint32(uint16(zone)), uint32(0), uint32(uint8(kind)), nameHash))
         );
     }
 
-    function Quest(string memory name) internal pure returns (bytes24) {
+    function Quest(int16 zone, string memory name) internal pure returns (bytes24) {
         uint64 id = uint64(uint256(keccak256(abi.encodePacked("quest/", name))));
-        return CompoundKeyEncoder.BYTES(Kind.Quest.selector, bytes20(abi.encodePacked(uint32(0), uint64(0), id)));
+        return CompoundKeyEncoder.BYTES(
+            Kind.Quest.selector, bytes20(abi.encodePacked(uint32(uint16(zone)), uint64(0), id))
+        );
+    }
+
+    function GameSettings() internal pure returns (bytes24) {
+        return bytes24(Kind.GameSettings.selector);
     }
 }
 
@@ -311,6 +350,19 @@ library Schema {
 
     function setOwner(State state, bytes24 node, bytes24 ownerNode) internal {
         return state.set(Rel.Owner.selector, 0x0, node, ownerNode, 0);
+    }
+
+    function setParent(State state, bytes24 node, bytes24 parentNode) internal {
+        return state.set(Rel.Parent.selector, 0x0, node, parentNode, 0);
+    }
+
+    function removeParent(State state, bytes24 node) internal {
+        return state.remove(Rel.Parent.selector, 0x0, node);
+    }
+
+    function getParent(State state, bytes24 node) internal view returns (bytes24) {
+        (bytes24 parent,) = state.get(Rel.Parent.selector, 0x0, node);
+        return parent;
     }
 
     function removeOwner(State state, bytes24 node) internal {
@@ -529,20 +581,27 @@ library Schema {
         return state.getBlockNum(buildingID, uint8(BuildingBlockNumKey.CONSTRUCTION));
     }
 
-    function getTaskKind(State, /*state*/ bytes24 task) internal pure returns (uint32) {
-        return uint32(uint192(task) >> 32 & type(uint32).max);
+    function setZonedPlayerQuest(
+        State state,
+        bytes24 quest,
+        int16 zone,
+        address player,
+        uint8 questNum,
+        QuestStatus status
+    ) internal {
+        bytes24 zonedPlayer = Node.ZonedPlayer(zone, player);
+        state.setParent(zonedPlayer, Node.Zone(zone));
+        state.setOwner(zonedPlayer, Node.Player(player));
+        state.set(Rel.HasQuest.selector, questNum, zonedPlayer, quest, uint8(status));
     }
 
-    function setQuestAccepted(State state, bytes24 quest, bytes24 player, uint8 questNum) internal {
-        state.set(Rel.HasQuest.selector, questNum, player, quest, uint8(QuestStatus.ACCEPTED));
-    }
-
-    function setQuestCompleted(State state, bytes24 quest, bytes24 player, uint8 questNum) internal {
-        state.set(Rel.HasQuest.selector, questNum, player, quest, uint8(QuestStatus.COMPLETED));
-    }
-
-    function getPlayerQuest(State state, bytes24 player, uint8 questNum) internal view returns (bytes24, QuestStatus) {
-        (bytes24 quest, uint64 status) = state.get(Rel.HasQuest.selector, questNum, player);
+    function getZonedPlayerQuest(State state, int16 zone, address player, uint8 questNum)
+        internal
+        view
+        returns (bytes24, QuestStatus)
+    {
+        bytes24 zonedPlayer = Node.ZonedPlayer(zone, player);
+        (bytes24 quest, uint64 status) = state.get(Rel.HasQuest.selector, questNum, zonedPlayer);
         return (quest, QuestStatus(status));
     }
 
@@ -600,5 +659,26 @@ library Schema {
     function getTileCoords(State, /*state*/ bytes24 tile) external pure returns (int16 z, int16 q, int16 r, int16 s) {
         int16[4] memory keys = CompoundKeyDecoder.INT16_ARRAY(tile);
         return (keys[0], keys[1], keys[2], keys[3]);
+    }
+
+    function getTileZone(State, /*state*/ bytes24 tile) external pure returns (int16 z) {
+        int16[4] memory keys = CompoundKeyDecoder.INT16_ARRAY(tile);
+        return (keys[0]);
+    }
+
+    function setZoneUnitLimit(State state, uint64 limit) internal {
+        state.setData(Node.GameSettings(), "zoneUnitLimit", bytes32(uint256(limit)));
+    }
+
+    function getZoneUnitLimit(State state) internal view returns (uint64) {
+        return uint64(uint256(state.getData(Node.GameSettings(), "zoneUnitLimit")));
+    }
+
+    function setUnitTimeoutBlocks(State state, uint64 blocks) internal {
+        state.setData(Node.GameSettings(), "unitTimeoutBlocks", bytes32(uint256(blocks)));
+    }
+
+    function getUnitTimeoutBlocks(State state) internal view returns (uint64) {
+        return uint64(uint256(state.getData(Node.GameSettings(), "unitTimeoutBlocks")));
     }
 }

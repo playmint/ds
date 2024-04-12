@@ -5,9 +5,9 @@ import {
     ConnectedPlayer,
     PluginType,
     PluginUpdateResponse,
-    World,
     WorldBuildingFragment,
     WorldMobileUnitFragment,
+    ZoneWithBags,
 } from '@app/../../core/src';
 import { PluginContent } from '@app/components/organisms/tile-action';
 import {
@@ -20,7 +20,7 @@ import {
     getGooRates,
     getTileDistance,
 } from '@app/helpers/tile';
-import { usePlayer, useSelection, useWorld } from '@app/hooks/use-game-state';
+import { useBlock, usePlayer, useSelection, useZone } from '@app/hooks/use-game-state';
 import { Bag } from '@app/plugins/inventory/bag';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { TileInventory } from '@app/plugins/inventory/tile-inventory';
@@ -31,7 +31,6 @@ import { FunctionComponent, useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { colors } from '@app/styles/colors';
 import { getMaterialStats } from '@app/plugins/combat/helpers';
-import { UNIT_DISPLAY_TIMEOUT_BLOCK_COUNT } from '../map/MobileUnit';
 
 interface KeyedThing {
     key: number;
@@ -125,12 +124,12 @@ const StyledTileInfoPanel = styled(StyledHeaderPanel)`
 interface TileBuildingProps {
     canUse: boolean;
     building: WorldBuildingFragment;
-    world?: World;
+    zone?: ZoneWithBags;
     kinds: BuildingKindFragment[];
     mobileUnit?: WorldMobileUnitFragment;
     ui: PluginUpdateResponse[];
 }
-const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, world, mobileUnit, ui, canUse }) => {
+const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, zone, mobileUnit, ui, canUse }) => {
     const { tiles: selectedTiles } = useSelection();
     const selectedTile = selectedTiles?.[0];
     const component = (ui || [])
@@ -154,14 +153,12 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
         };
     }, [addBagRef, removeBagRef]);
 
-    const buildingBags = getBagsAtEquipee(world?.bags || [], building);
+    const buildingBags = getBagsAtEquipee(zone?.bags || [], building);
     const inputBag = buildingBags.find((b) => b.equipee?.key == 0);
     const outputBag = buildingBags.find((b) => b.equipee?.key == 1);
 
-    const author = world?.players.find((p) => p.id === building?.kind?.owner?.id) ?? {
-        addr: 'unknown',
-    };
-    const owner = world?.players.find((p) => p.id === building?.owner?.id);
+    const author = building?.kind?.owner?.addr || 'unknown';
+    const owner = building?.owner?.addr || 'unknown';
 
     const name = building?.kind?.name?.value ?? 'Unnamed Building';
     const description = building?.kind?.description?.value;
@@ -224,13 +221,13 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, w
                         )}
                     </PluginContent>
                 )}
-                {selectedTile && <TileInventory tile={selectedTile} bags={world?.bags || []} />}
+                {selectedTile && <TileInventory tile={selectedTile} bags={zone?.bags || []} />}
                 <span className="label" style={{ marginTop: '2rem' }}>
-                    <strong>AUTHOR:</strong> {author.addr}
+                    <strong>AUTHOR:</strong> {author}
                 </span>
                 {owner && (
                     <span className="label">
-                        <strong>OWNER:</strong> {owner.addr}
+                        <strong>OWNER:</strong> {owner}
                     </span>
                 )}
                 <span className="label" style={{ width: '30%' }}>
@@ -261,13 +258,14 @@ interface TileAvailableProps {
     player?: ConnectedPlayer;
     mobileUnits: WorldMobileUnitFragment[];
     bags: BagFragment[];
+    unitTimeoutBlocks: number;
 }
-const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUnits, bags }) => {
+const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUnits, bags, unitTimeoutBlocks }) => {
     const { tiles: selectedTiles, mobileUnit: selectedMobileUnit } = useSelection();
     const selectedTile = selectedTiles?.[0];
     const tileMobileUnits = selectedTile ? getMobileUnitsAtTile(mobileUnits, selectedTile) : [];
-    const world = useWorld();
-    const currentBlock = world?.block || 0;
+    const blockNumber = useBlock();
+    const currentBlock = blockNumber || 0;
 
     const excludeSelected = useCallback(
         (unit) => {
@@ -281,7 +279,7 @@ const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUn
 
     const visibleUnits = tileMobileUnits
         .filter(excludeSelected)
-        .filter((u) => currentBlock - (u.nextLocation?.time || 0) < UNIT_DISPLAY_TIMEOUT_BLOCK_COUNT);
+        .filter((u) => currentBlock - (u.nextLocation?.time || 0) < unitTimeoutBlocks);
 
     const lastTile = selectedTiles?.slice(-1, 1).find(() => true);
     if (!lastTile) {
@@ -329,22 +327,37 @@ const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUn
     );
 };
 
-export const TileInfoPanel = ({ kinds, ui }: { kinds: BuildingKindFragment[]; ui: PluginUpdateResponse[] }) => {
+export const TileInfoPanel = ({
+    kinds,
+    ui,
+    unitTimeoutBlocks,
+}: {
+    kinds: BuildingKindFragment[];
+    ui: PluginUpdateResponse[];
+    unitTimeoutBlocks;
+}) => {
     const { tiles, mobileUnit } = useSelection();
     const player = usePlayer();
 
     const selectedTiles = tiles || [];
 
-    const world = useWorld();
+    const zone = useZone();
 
     const selectedTile = selectedTiles?.slice(-1).find(() => true);
 
     if (selectedTile) {
-        const building = getBuildingAtTile(world?.buildings || [], selectedTile);
+        const building = getBuildingAtTile(zone?.buildings || [], selectedTile);
         if (selectedTile.biome == BiomeKind.UNDISCOVERED) {
             return <TileUndiscovered />;
         } else if (!building) {
-            return <TileAvailable player={player} mobileUnits={world?.mobileUnits || []} bags={world?.bags || []} />;
+            return (
+                <TileAvailable
+                    player={player}
+                    mobileUnits={zone?.mobileUnits || []}
+                    bags={zone?.bags || []}
+                    unitTimeoutBlocks={unitTimeoutBlocks}
+                />
+            );
         } else if (building) {
             const canUse =
                 mobileUnit &&
@@ -356,11 +369,16 @@ export const TileInfoPanel = ({ kinds, ui }: { kinds: BuildingKindFragment[]; ui
                         kinds={kinds}
                         canUse={!!canUse}
                         building={building}
-                        world={world}
+                        zone={zone}
                         mobileUnit={mobileUnit}
                         ui={ui}
                     />
-                    <TileAvailable player={player} mobileUnits={world?.mobileUnits || []} bags={world?.bags || []} />
+                    <TileAvailable
+                        player={player}
+                        mobileUnits={zone?.mobileUnits || []}
+                        bags={zone?.bags || []}
+                        unitTimeoutBlocks={unitTimeoutBlocks}
+                    />
                 </>
             );
         } else {

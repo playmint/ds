@@ -3,7 +3,7 @@ import { globSync } from 'glob';
 import path from 'path';
 import { Op, getOpsForManifests } from '../utils/destroyer';
 import { readManifestsDocumentsSync } from '../utils/manifest';
-import { getWorld } from './get';
+import { getZone, getGlobal } from './get';
 
 type OpResult = {
     ok: boolean;
@@ -37,7 +37,9 @@ const destroy = {
         yargs
             .option('filename', {
                 alias: 'f',
-                describe: 'path to manifest that contain the configurations to destroy, use "-" to read from stdin',
+                describe:
+                    'path to manifest or dir that contain the configurations to destroy, use "-" to read from stdin',
+                demandOption: true,
                 type: 'string',
             })
             .option('recursive', {
@@ -45,6 +47,12 @@ const destroy = {
                 describe:
                     'process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory',
                 type: '',
+            })
+            .option('zone', {
+                alias: 'z',
+                demandOption: true,
+                describe: 'id of the zone to deploy in to',
+                type: 'string',
             })
             .option('dry-run', {
                 describe: 'show changes that would be destroyed',
@@ -70,11 +78,16 @@ const destroy = {
                 ['$0 destroy -R -f .', 'Destroy ALL manifests in directory'],
             ]),
     handler: async (ctx) => {
+        if (ctx.zone < 1) {
+            throw new Error('invalid zone id');
+        }
         const manifestFilenames = getManifestFilenames(ctx.filename, ctx.recursive);
         const docs = (await Promise.all(manifestFilenames.map(readManifestsDocumentsSync))).flatMap((docs) => docs);
-        const world = await getWorld(ctx);
+      
+        const zone = await getZone(ctx);
+        const global = await getGlobal(ctx);
 
-        const opsets = await getOpsForManifests(docs, world);
+        const opsets = await getOpsForManifests(docs, zone, global);
 
         // abort here if dry-run
         if (ctx.dryRun) {
@@ -107,11 +120,11 @@ const destroy = {
                 const pending = batches[j].map(async (op) => {
                     if (op.inBounds === false) {
                         console.log(`❌ ${op.note} - out of bounds\n`);
-                                return {
-                                    ok: false,
-                                    err: 'coords were out of bounds',
-                                    op,
-                                };
+                        return {
+                            ok: false,
+                            err: 'coords were out of bounds',
+                            op,
+                        };
                     }
                     let retries = 0;
                     while (retries < 5) {

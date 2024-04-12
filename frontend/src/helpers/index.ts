@@ -24,6 +24,21 @@ export const formatNameOrId = (node?: MaybeNamed, idPrefix: string = ''): string
     }
 };
 
+export const decodeString = (value: string): string => {
+    if (!value || value.length === 0 || !value.startsWith('0x')) {
+        return '';
+    }
+    if (!value.endsWith('00')) {
+        value += '00';
+    }
+    try {
+        return ethers.decodeBytes32String(value);
+    } catch (error) {
+        console.error('failed to decode string:', error);
+        return 'invalid string';
+    }
+};
+
 export const getItemStructure = (itemId: string) => {
     return [...itemId]
         .slice(2)

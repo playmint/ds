@@ -7,15 +7,16 @@ httpEndpoint: "https://services-{{ $.Release.Namespace }}.{{ $.Values.cluster.do
 networkEndpoint: "https://network-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
 networkName: "{{ $.Release.Namespace }}"
 networkID: "{{ $.Release.Namespace | mustRegexFind "[0-9]+$" | printf "223%02s" }}"
-{{ else if eq $.Values.chain "redstone-holesky" }}
-networkEndpoint: "https://rpc.holesky.redstone.xyz"
-networkName: "Redstone Holesky"
-networkID: "17001"
+{{ else if eq $.Values.chain "garnet" }}
+networkEndpoint: "https://rpc.garnet.qry.live"
+networkName: "Garnet"
+networkID: "17069"
 wallets:
   metamask: true
   walletconnect: true
   burner: false
 {{ end }}
+zonesAddress: {{ $.Values.frontend.zonesAddress | quote }}
 tokenAddress: {{ $.Values.frontend.tokenAddress | quote }}
 tonkEndpoint: "https://tonk-{{ $.Release.Namespace }}.{{ $.Values.cluster.domain }}"
 {{ end }}
@@ -48,9 +49,9 @@ spec:
               value: "8080"
             - name: SEQUENCER_PRIVATE_KEY
               value: {{ $.Values.sequencer.privateKey | quote }}
-            {{ if eq $.Values.chain "redstone-holesky" }}
+            {{ if eq $.Values.chain "garnet" }}
             - name: CHAIN_ID
-              value: "17001"
+              value: "17069"
             {{ else }}
             - name: CHAIN_ID
               value: "{{ $.Release.Namespace | mustRegexFind "[0-9]+$" | printf "223%02s" }}"

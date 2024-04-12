@@ -1,6 +1,6 @@
 /** @format */
 
-import { ConnectedPlayer, WorldStateFragment } from '@app/../../core/src';
+import { ConnectedPlayer, ZoneWithBags } from '@app/../../core/src';
 import { COMBAT_JOIN_WINDOW_BLOCKS, CombatWinState } from '@app/plugins/combat/combat';
 import { CombatParticipant, CombatParticipantProps } from '@app/plugins/combat/combat-participant';
 import { CombatSession, LIFE_MUL, getMaterialStats, getMobileUnitStats } from '@app/plugins/combat/helpers';
@@ -16,7 +16,7 @@ import { formatNameOrId } from '@app/helpers';
 import { BLOCK_TIME_SECS } from '@app/fixtures/block-time-secs';
 
 export type CombatModalProps = ComponentProps & {
-    world: WorldStateFragment;
+    zone: ZoneWithBags;
     player: ConnectedPlayer;
     blockNumber: number;
     closeModal: () => void;
@@ -214,13 +214,13 @@ enum CombatModalState {
 // --------------------------------------------------------------------------------------- //
 
 export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatModalProps) => {
-    const { world, blockNumber, closeModal, session: latestSession } = props;
+    const { zone, blockNumber, closeModal, session: latestSession } = props;
 
     // Find all units/buildings present on the two combat tiles
-    const attackUnits = world.mobileUnits.filter((u) => u.nextLocation?.tile.id == latestSession.attackTile?.tile.id);
-    const attackBuildings = world.buildings.filter((b) => b.location?.tile.id == latestSession.attackTile?.tile.id);
-    const defenceUnits = world.mobileUnits.filter((u) => u.nextLocation?.tile.id == latestSession.defenceTile?.tile.id);
-    const defenceBuildings = world.buildings.filter((b) => b.location?.tile.id == latestSession.defenceTile?.tile.id);
+    const attackUnits = zone.mobileUnits.filter((u) => u.nextLocation?.tile.id == latestSession.attackTile?.tile.id);
+    const attackBuildings = zone.buildings.filter((b) => b.location?.tile.id == latestSession.attackTile?.tile.id);
+    const defenceUnits = zone.mobileUnits.filter((u) => u.nextLocation?.tile.id == latestSession.defenceTile?.tile.id);
+    const defenceBuildings = zone.buildings.filter((b) => b.location?.tile.id == latestSession.defenceTile?.tile.id);
 
     const getParticipantProps = (
         units: typeof attackUnits,
@@ -228,7 +228,7 @@ export const CombatModal: FunctionComponent<CombatModalProps> = (props: CombatMo
     ): CombatParticipantProps[] => {
         return units
             .map((u) => {
-                const [maxHealth, defence, attack] = getMobileUnitStats(u, world.bags);
+                const [maxHealth, defence, attack] = getMobileUnitStats(u, zone.bags);
                 return {
                     name: formatNameOrId(u, '#unit'),
                     maxHealth,

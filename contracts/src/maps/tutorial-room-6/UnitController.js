@@ -1,7 +1,6 @@
 import ds from "downstream";
 
 export default async function update(state) {
-    // const buildings = state.world?.buildings || [];
     const mobileUnit = getMobileUnit(state);
     const selectedTile = getSelectedTile(state);
     const selectedBuilding =
@@ -25,89 +24,59 @@ export default async function update(state) {
 
     const { mobileUnits } = state.world;
 
-    // We slice the first 10 characters from the ids to remove the 0x and Node prefix so we are left with the address part of the id
-    const buildingUnits = mobileUnits.filter(
+    // We slice the last 40 characters (20 bytes) from the ids which is the address
+    const buildingUnit = mobileUnits.find(
         (unit) =>
-            unit.owner.id.slice(10) ===
-            selectedBuilding.kind.implementation.id.slice(10),
+            unit.owner.id.slice(-40) ===
+            selectedBuilding.kind.implementation.id.slice(-40),
     );
 
     const moveNE = () => {
-        buildingUnits.forEach((unit) => {
-            const payload = ds.encodeCall(
-                "function moveUnitNE(bytes24 mobileUnit)",
-                [unit.id],
-            );
+        const payload = ds.encodeCall("function moveUnitNE()", []);
 
-            ds.dispatch({
-                name: "BUILDING_USE",
-                args: [selectedBuilding.id, mobileUnit.id, payload],
-            });
+        ds.dispatch({
+            name: "BUILDING_USE",
+            args: [selectedBuilding.id, mobileUnit.id, payload],
         });
     };
     const moveE = () => {
-        buildingUnits.forEach((unit) => {
-            const payload = ds.encodeCall(
-                "function moveUnitE(bytes24 mobileUnit)",
-                [unit.id],
-            );
+        const payload = ds.encodeCall("function moveUnitE()", []);
 
-            ds.dispatch({
-                name: "BUILDING_USE",
-                args: [selectedBuilding.id, mobileUnit.id, payload],
-            });
+        ds.dispatch({
+            name: "BUILDING_USE",
+            args: [selectedBuilding.id, mobileUnit.id, payload],
         });
     };
     const moveSE = () => {
-        buildingUnits.forEach((unit) => {
-            const payload = ds.encodeCall(
-                "function moveUnitSE(bytes24 mobileUnit)",
-                [unit.id],
-            );
+        const payload = ds.encodeCall("function moveUnitSE()", []);
 
-            ds.dispatch({
-                name: "BUILDING_USE",
-                args: [selectedBuilding.id, mobileUnit.id, payload],
-            });
+        ds.dispatch({
+            name: "BUILDING_USE",
+            args: [selectedBuilding.id, mobileUnit.id, payload],
         });
     };
     const moveSW = () => {
-        buildingUnits.forEach((unit) => {
-            const payload = ds.encodeCall(
-                "function moveUnitSW(bytes24 mobileUnit)",
-                [unit.id],
-            );
+        const payload = ds.encodeCall("function moveUnitSW()", []);
 
-            ds.dispatch({
-                name: "BUILDING_USE",
-                args: [selectedBuilding.id, mobileUnit.id, payload],
-            });
+        ds.dispatch({
+            name: "BUILDING_USE",
+            args: [selectedBuilding.id, mobileUnit.id, payload],
         });
     };
     const moveW = () => {
-        buildingUnits.forEach((unit) => {
-            const payload = ds.encodeCall(
-                "function moveUnitW(bytes24 mobileUnit)",
-                [unit.id],
-            );
+        const payload = ds.encodeCall("function moveUnitW()", []);
 
-            ds.dispatch({
-                name: "BUILDING_USE",
-                args: [selectedBuilding.id, mobileUnit.id, payload],
-            });
+        ds.dispatch({
+            name: "BUILDING_USE",
+            args: [selectedBuilding.id, mobileUnit.id, payload],
         });
     };
     const moveNW = () => {
-        buildingUnits.forEach((unit) => {
-            const payload = ds.encodeCall(
-                "function moveUnitNW(bytes24 mobileUnit)",
-                [unit.id],
-            );
+        const payload = ds.encodeCall("function moveUnitNW()", []);
 
-            ds.dispatch({
-                name: "BUILDING_USE",
-                args: [selectedBuilding.id, mobileUnit.id, payload],
-            });
+        ds.dispatch({
+            name: "BUILDING_USE",
+            args: [selectedBuilding.id, mobileUnit.id, payload],
         });
     };
 
@@ -128,42 +97,43 @@ export default async function update(state) {
                                 text: "Spawn Unit",
                                 type: "action",
                                 action: spawnUnit,
+                                disabled: buildingUnit,
                             },
                             {
                                 text: "Move Unit ↗️",
                                 type: "action",
                                 action: moveNE,
-                                disabled: buildingUnits.length === 0,
+                                disabled: !buildingUnit,
                             },
                             {
                                 text: "Move Unit ➡️",
                                 type: "action",
                                 action: moveE,
-                                disabled: buildingUnits.length === 0,
+                                disabled: !buildingUnit,
                             },
                             {
                                 text: "Move Unit ↘️",
                                 type: "action",
                                 action: moveSE,
-                                disabled: buildingUnits.length === 0,
+                                disabled: !buildingUnit,
                             },
                             {
                                 text: "Move Unit ↙️",
                                 type: "action",
                                 action: moveSW,
-                                disabled: buildingUnits.length === 0,
+                                disabled: !buildingUnit,
                             },
                             {
                                 text: "Move Unit ←",
                                 type: "action",
                                 action: moveW,
-                                disabled: buildingUnits.length === 0,
+                                disabled: !buildingUnit,
                             },
                             {
                                 text: "Move Unit ↖️",
                                 type: "action",
                                 action: moveNW,
-                                disabled: buildingUnits.length === 0,
+                                disabled: !buildingUnit,
                             },
                         ],
                     },

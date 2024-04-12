@@ -9,8 +9,6 @@ using Schema for State;
 contract BuildingRuleTest is Test, GameTest {
     event AnnotationSet(bytes24 id, AnnotationKind kind, string label, bytes32 ref, string data);
 
-    uint64 sid;
-
     bytes24[4] defaultMaterialItem;
     uint64[4] defaultMaterialQty;
 
@@ -60,7 +58,7 @@ contract BuildingRuleTest is Test, GameTest {
         );
         // spawn a mobileUnit
         vm.startPrank(players[0].addr);
-        bytes24 mobileUnit = _spawnMobileUnitWithResources();
+        bytes24 mobileUnit = _spawnMobileUnitWithResources(players[0].addr);
         // discover an adjacent tile for our building site
         (int16 z, int16 q, int16 r, int16 s) = (0, 1, -1, 0);
         dev.spawnTile(z, q, r, s);
@@ -70,9 +68,7 @@ contract BuildingRuleTest is Test, GameTest {
         _transferFromMobileUnit(mobileUnit, 0, 25, buildingInstance);
         _transferFromMobileUnit(mobileUnit, 1, 25, buildingInstance);
         _transferFromMobileUnit(mobileUnit, 2, 25, buildingInstance);
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, z, q, r, s))
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (buildingKind, z, q, r, s)));
         vm.stopPrank();
         // check the building has a location at q/r/s
         assertEq(state.getFixedLocation(buildingInstance), Node.Tile(z, q, r, s), "expected building to have location");
@@ -112,7 +108,7 @@ contract BuildingRuleTest is Test, GameTest {
             )
         );
         // spawn a mobileUnit
-        bytes24 mobileUnit = _spawnMobileUnitWithResources();
+        bytes24 mobileUnit = _spawnMobileUnitWithResources(players[0].addr);
         // discover an adjacent tile for our building site
         (int16 z, int16 q, int16 r, int16 s) = (0, 1, -1, 0);
         dev.spawnTile(z, q, r, s);
@@ -123,9 +119,7 @@ contract BuildingRuleTest is Test, GameTest {
         _transferFromMobileUnit(mobileUnit, 2, 1, buildingInstance); // ...
         // construct our building
         vm.expectRevert("input 0 qty does not match construction recipe");
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, z, q, r, s))
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (buildingKind, z, q, r, s)));
         vm.stopPrank();
     }
 
@@ -237,16 +231,14 @@ contract BuildingRuleTest is Test, GameTest {
         dev.spawnTile(z, q, r, s);
         // spawn a mobileUnit
         vm.startPrank(players[0].addr);
-        bytes24 mobileUnit = _spawnMobileUnitWithResources();
+        bytes24 mobileUnit = _spawnMobileUnitWithResources(players[0].addr);
         // get our building and give it the resources to construct
         bytes24 buildingInstance = Node.Building(z, q, r, s);
         _transferFromMobileUnit(mobileUnit, 0, 25, buildingInstance);
         _transferFromMobileUnit(mobileUnit, 1, 25, buildingInstance);
         _transferFromMobileUnit(mobileUnit, 2, 25, buildingInstance);
         // construct our building
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, z, q, r, s))
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (buildingKind, z, q, r, s)));
         // use the building
         bytes memory payload = bytes("CUSTOM_PAYLOAD");
         dispatcher.dispatch(abi.encodeCall(Actions.BUILDING_USE, (buildingInstance, mobileUnit, payload)));
@@ -286,7 +278,7 @@ contract BuildingRuleTest is Test, GameTest {
         );
         // spawn a mobileUnit
         vm.startPrank(players[0].addr);
-        bytes24 mobileUnit = _spawnMobileUnitWithResources();
+        _spawnMobileUnitWithResources(players[0].addr);
         // target building site
         dev.spawnTile(z, q, r, s);
         // get our building and magic it the resources to construct
@@ -298,18 +290,16 @@ contract BuildingRuleTest is Test, GameTest {
         state.setItemSlot(buildingBag, 2, ItemUtils.RedGoo(), 100);
         // construct our building
         vm.expectRevert("BuildingMustBeAdjacentToMobileUnit"); // expect fail as q/r/s not adjacent
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (mobileUnit, buildingKind, z, q, r, s))
-        );
+        dispatcher.dispatch(abi.encodeCall(Actions.CONSTRUCT_BUILDING_MOBILE_UNIT, (buildingKind, z, q, r, s)));
         vm.stopPrank();
     }
 
     // _spawnMobileUnitWithResources spawns a mobileUnit for the current sender at
     // 0,0,0 with 100 of each resource in an equiped bag
-    function _spawnMobileUnitWithResources() private returns (bytes24) {
-        sid++;
+    function _spawnMobileUnitWithResources(address player) private returns (bytes24) {
         dev.spawnTile(0, 0, 0, 0);
-        bytes24 mobileUnit = spawnMobileUnit(sid);
+        spawnMobileUnit();
+        bytes24 mobileUnit = Node.MobileUnit(player);
         dev.spawnFullBag(state.getOwnerAddress(mobileUnit), mobileUnit, 0);
 
         return mobileUnit;

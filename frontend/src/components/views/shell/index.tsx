@@ -1,4 +1,4 @@
-import { BagFragment, CogAction, GameConfig, QUEST_STATUS_ACCEPTED, WorldTileFragment } from '@app/../../core/src';
+import { BagFragment, CogAction, QUEST_STATUS_ACCEPTED, WorldTileFragment } from '@app/../../core/src';
 import { Bags } from '@app/components/map/Bag';
 import { Buildings } from '@app/components/map/Buildings';
 import { CombatSessions } from '@app/components/map/CombatSession';
@@ -12,14 +12,7 @@ import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
 import { NavPanel } from '@app/components/panels/nav-panel';
 import { TileInfoPanel } from '@app/components/panels/tile-info-panel';
 import { getTileDistance } from '@app/helpers/tile';
-import {
-    useBlock,
-    useBuildingKinds,
-    useGameState,
-    usePlayer,
-    usePluginState,
-    useQuestMessages,
-} from '@app/hooks/use-game-state';
+import { useBlock, useGameState, usePluginState, useQuestMessages } from '@app/hooks/use-game-state';
 import { useSession } from '@app/hooks/use-session';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { useWalletProvider } from '@app/hooks/use-wallet-provider';
@@ -37,9 +30,7 @@ import { getBagsAtEquipee, getBuildingAtTile, getSessionsAtTile } from '@downstr
 import { StyledBasePanel, StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { WalletItemsPanel } from '@app/components/panels/wallet-items-panel';
 
-export interface ShellProps extends ComponentProps {
-    config?: Partial<GameConfig>;
-}
+export interface ShellProps extends ComponentProps {}
 
 const StyledShell = styled('div')`
     ${styles}
@@ -55,19 +46,23 @@ export type SelectedBag = {
     isCombatReward?: boolean;
 };
 
-export const Shell: FunctionComponent<ShellProps> = ({ config }) => {
+export const Shell: FunctionComponent<ShellProps> = () => {
     const { ready: mapReady, setContainerStyle } = useUnityMap();
-    const { world, selected, tiles, selectTiles, selectMobileUnit, selectMapElement, selectIntent } = useGameState();
+    const { player, zone, selected, selectTiles, selectMobileUnit, selectMapElement, selectIntent, global } =
+        useGameState();
+    const { tiles } = zone || {};
     const { loadingSession } = useSession();
-    const player = usePlayer();
-    const playerUnits = world?.mobileUnits.filter((mu) => mu.owner && player && mu.owner.id === player.id) || [];
+    const playerUnits = zone?.mobileUnits.filter((mu) => mu.owner && player && mu.owner.id === player.id) || [];
     const { mobileUnit: selectedMobileUnit, tiles: selectedTiles, mapElement: selectedMapElement } = selected || {};
     const blockNumber = useBlock() ?? 0;
     const { connect } = useWalletProvider();
     const [selectedBags, setSelectedBags] = useState<SelectedBag[]>();
     const selectedTileBags = selectedBags?.filter((sb) => !sb.isCombatReward);
     const selectedRewardBags = selectedBags?.filter((sb) => sb.isCombatReward);
-    const kinds = useBuildingKinds();
+    const kinds = global?.buildingKinds || [];
+    const unitTimeoutBlocks = parseInt(global?.gameSettings?.unitTimeoutBlocks?.value || '0x0', 16);
+    const zoneUnitLimit = parseInt(global?.gameSettings?.zoneUnitLimit?.value || '0x0', 16);
+
     const ui = usePluginState();
     const [questsActive, setQuestsActive] = useState<boolean>(true);
     const toggleQuestsActive = useCallback(() => setQuestsActive((prev) => !prev), []);
@@ -76,12 +71,14 @@ export const Shell: FunctionComponent<ShellProps> = ({ config }) => {
     const questMessages = useQuestMessages(10);
     const acceptedQuests = useMemo(() => {
         return (
-            (player?.quests || []).filter((q) => q.status == QUEST_STATUS_ACCEPTED).sort((a, b) => a.key - b.key) || []
+            (player?.zone?.quests || [])
+                .filter((q) => q.status == QUEST_STATUS_ACCEPTED)
+                .sort((a, b) => a.key - b.key) || []
         );
-    }, [player?.quests]);
+    }, [player?.zone?.quests]);
     const unfinalisedCombatSessions = useMemo(
         () =>
-            (world?.sessions || []).filter((s) => {
+            (zone?.sessions || []).filter((s) => {
                 const isNotFinalised = !s.isFinalised;
                 const oneSideZero =
                     s.attackers.filter((paticipant) => paticipant.node.id != nullBytes24).length == 0 ||
@@ -90,7 +87,7 @@ export const Shell: FunctionComponent<ShellProps> = ({ config }) => {
                 return isNotFinalised && (oneSideZero || combatStarted);
             }),
 
-        [world?.sessions, blockNumber]
+        [zone?.sessions, blockNumber]
     );
     // Only attempt to finalise every other block to not hammer the server
     const combatSessionTick = Math.floor(blockNumber / 2);
@@ -102,7 +99,6 @@ export const Shell: FunctionComponent<ShellProps> = ({ config }) => {
         }
     }, [combatSessionTick, prevCombatSessionTick]);
 
-    // console.log(ui);
     const pluginTileProperties = ui?.flatMap((res) => res.state.map.filter((prop) => prop.type === 'tile')) || [];
 
     const displayBuildingDataModifiedByPlugins =
@@ -208,7 +204,7 @@ export const Shell: FunctionComponent<ShellProps> = ({ config }) => {
             case 'ExtractorBuildingData':
                 {
                     const t = tiles.find(
-                        (t) => getBuildingAtTile(world?.buildings || [], t)?.id == selectedMapElement.id
+                        (t) => getBuildingAtTile(zone?.buildings || [], t)?.id == selectedMapElement.id
                     );
                     if (t) {
                         selectTiles([t.id]);
@@ -225,14 +221,14 @@ export const Shell: FunctionComponent<ShellProps> = ({ config }) => {
                 }
 
                 // Tile bags
-                const selectedBags: SelectedBag[] = getBagsAtEquipee(world?.bags || [], t).map((bag): SelectedBag => {
+                const selectedBags: SelectedBag[] = getBagsAtEquipee(zone?.bags || [], t).map((bag): SelectedBag => {
                     return { equipIndex: bag.equipee?.key || 0, bag, ownerId: t.id, parentTile: t };
                 });
 
                 // Combat rewards
                 if (selectedMobileUnit) {
-                    const selectedRewardBags = getSessionsAtTile(world?.sessions || [], t).flatMap((cs) => {
-                        return getBagsAtEquipee(world?.bags || [], cs)
+                    const selectedRewardBags = getSessionsAtTile(zone?.sessions || [], t).flatMap((cs) => {
+                        return getBagsAtEquipee(zone?.bags || [], cs)
                             .filter((bag) => {
                                 if (!cs.defenceTile || cs.defenceTile.tile.id !== t.id) {
                                     return false;
@@ -263,7 +259,7 @@ export const Shell: FunctionComponent<ShellProps> = ({ config }) => {
                 setSelectedBags(selectedBags);
                 break;
         }
-    }, [selectTiles, selectedMapElement, selectedMobileUnit, tiles, world]);
+    }, [selectTiles, selectedMapElement, selectedMobileUnit, tiles, zone]);
 
     const unfinalisedCombatSessionsRef = useRef(unfinalisedCombatSessions);
     unfinalisedCombatSessionsRef.current = unfinalisedCombatSessions;
@@ -278,7 +274,7 @@ export const Shell: FunctionComponent<ShellProps> = ({ config }) => {
         }
 
         const sortedMobileUnits =
-            world?.mobileUnits?.sort((a, b) => {
+            zone?.mobileUnits?.sort((a, b) => {
                 const diffA = Math.abs((a.nextLocation?.time || 0) - blockNumber);
                 const diffB = Math.abs((b.nextLocation?.time || 0) - blockNumber);
                 return diffA - diffB;
@@ -328,7 +324,7 @@ export const Shell: FunctionComponent<ShellProps> = ({ config }) => {
                 return;
             }, sleepFor);
         }
-    }, [combatSessionTick, player, prevCombatSessionTick, blockNumber, selectedMobileUnit, world?.mobileUnits]);
+    }, [combatSessionTick, player, prevCombatSessionTick, blockNumber, selectedMobileUnit, zone?.mobileUnits]);
 
     const tileClick = useCallback(
         (id) => {
@@ -349,16 +345,16 @@ export const Shell: FunctionComponent<ShellProps> = ({ config }) => {
             if (!selectMobileUnit || !selectTiles || !selectMapElement || !player) {
                 return;
             }
-            if (world?.mobileUnits.find((u) => u.id === id)?.owner?.id === player.id) {
+            if (zone?.mobileUnits.find((u) => u.id === id)?.owner?.id === player.id) {
                 selectMobileUnit(id);
                 selectTiles(undefined);
             } else {
-                const tileId = world?.mobileUnits.find((u) => u.id === id)?.nextLocation?.tile.id;
+                const tileId = zone?.mobileUnits.find((u) => u.id === id)?.nextLocation?.tile.id;
                 if (tileId) selectTiles([tileId]);
             }
             selectMapElement(undefined);
         },
-        [world, player, selectMapElement, selectMobileUnit, selectTiles]
+        [zone, player, selectMapElement, selectMobileUnit, selectTiles]
     );
 
     const deselectAll = useCallback(() => {
@@ -384,56 +380,54 @@ export const Shell: FunctionComponent<ShellProps> = ({ config }) => {
                         pluginTileProperties={pluginTileProperties}
                     />
                     <MobileUnits
-                        currentBlock={world?.block || 0}
-                        mobileUnits={world?.mobileUnits}
-                        buildings={world?.buildings || []}
+                        currentBlock={blockNumber || 0}
+                        mobileUnits={zone?.mobileUnits}
+                        buildings={zone?.buildings || []}
                         onClickMobileUnit={mobileUnitClick}
                         selectedMobileUnitID={selectedMobileUnit?.id}
                         playerID={player?.id}
                         pluginProperties={unitColorsModifiedByPlugins}
+                        unitTimeoutBlocks={unitTimeoutBlocks}
                     />
                     <Bags
                         tiles={tiles || []}
-                        world={world}
+                        zone={zone}
                         onClickBag={mapElementClick}
                         selectedMobileUnitID={selectedMobileUnit?.id}
                         selectedElementID={selectedMapElement?.id}
                     />
                     <Buildings
                         tiles={tiles || []}
-                        buildings={world?.buildings || []}
+                        buildings={zone?.buildings || []}
                         onClickBuilding={mapElementClick}
                         selectedElementID={selectedMapElement?.id}
                         pluginBuildingProperties={displayBuildingDataModifiedByPlugins}
                     />
-                    <CombatSessions tiles={tiles || []} sessions={world?.sessions || []} />
+                    <CombatSessions tiles={tiles || []} sessions={zone?.sessions || []} />
                 </>
             )}
             <div className="hud-container">
                 <div className="left">
                     <div className="top-left">
                         <NavPanel
-                            questsActive={player && world && questsActive && acceptedQuests.length > 0}
+                            questsActive={player && zone && questsActive && acceptedQuests.length > 0}
                             toggleQuestsActive={toggleQuestsActive}
                             questsCount={acceptedQuests.length}
                             toggleWalletItemsActive={toggleWalletItemsActive}
                             walletItemsActive={walletItemsActive}
+                            zone={zone}
                         />
-                        {world && player && questsActive && acceptedQuests.length > 0 && (
+                        {zone && player && questsActive && acceptedQuests.length > 0 && (
                             <QuestPanel
-                                world={world}
+                                zone={zone}
                                 tiles={tiles || []}
                                 player={player}
                                 acceptedQuests={acceptedQuests}
                                 questMessages={questMessages}
                             />
                         )}
-                        {world && player && walletItemsActive && (
-                            <WalletItemsPanel
-                                player={player}
-                                blockNumber={blockNumber}
-                                tokenAddress={config?.tokenAddress || ''}
-                            />
+                        {zone && player && walletItemsActive && global?.gameID && (
+                            <WalletItemsPanel player={player} blockNumber={blockNumber} gameAddress={global?.gameID} />
                         )}
                     </div>
                     <ItemPluginPanel ui={ui || []} />
@@ -448,19 +442,35 @@ export const Shell: FunctionComponent<ShellProps> = ({ config }) => {
                     </div>
                 </div>
                 <div className="right no-scrollbars">
-                    {(!player || (player && playerUnits.length === 0)) && mapReady && connect && !loadingSession && (
-                        <Onboarding player={player} playerUnits={playerUnits} onClickConnect={connect} />
+                    {(!player ||
+                        (zone?.tiles?.length && zone?.tiles?.length <= 1) ||
+                        (player && playerUnits.length === 0)) &&
+                        mapReady &&
+                        connect &&
+                        zone &&
+                        !loadingSession && (
+                            <Onboarding
+                                player={player}
+                                playerUnits={playerUnits}
+                                onClickConnect={connect}
+                                zone={zone}
+                                block={blockNumber}
+                                unitTimeoutBlocks={unitTimeoutBlocks}
+                                zoneUnitLimit={zoneUnitLimit}
+                            />
+                        )}
+                    {player && playerUnits.length > 0 && (
+                        <TileInfoPanel kinds={kinds || []} ui={ui || []} unitTimeoutBlocks={unitTimeoutBlocks} />
                     )}
-                    {player && playerUnits.length > 0 && <TileInfoPanel kinds={kinds || []} ui={ui || []} />}
                     {selectedTiles &&
                         selectedTiles.length > 0 &&
                         blockNumber &&
-                        getSessionsAtTile(world?.sessions || [], selectedTiles[0]).filter((s) => !s.isFinalised)
-                            .length > 0 && (
+                        getSessionsAtTile(zone?.sessions || [], selectedTiles[0]).filter((s) => !s.isFinalised).length >
+                            0 && (
                             <CombatSummary
                                 className="action"
                                 selectedTiles={selectedTiles}
-                                world={world}
+                                zone={zone}
                                 player={player}
                                 selectedMobileUnit={selectedMobileUnit}
                                 blockNumber={blockNumber}

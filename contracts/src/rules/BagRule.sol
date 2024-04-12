@@ -17,24 +17,14 @@ uint8 constant MAX_EQUIP_SLOT_INDEX = 254; // There appears to be a problem with
 contract BagRule is Rule {
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.SPAWN_EMPTY_BAG.selector) {
-            // decode the action
             (bytes24 equipee, uint8 equipSlot) = abi.decode(action[4:], (bytes24, uint8));
-
             _spawnEmptyBag(state, ctx.sender, ctx.clock, equipee, equipSlot);
-        }
-
-        if (bytes4(action) == Actions.TRANSFER_BAG_OWNERSHIP.selector) {
-            // decode the action
+        } else if (bytes4(action) == Actions.TRANSFER_BAG_OWNERSHIP.selector) {
             (bytes24 bag, bytes24 toEntity) = abi.decode(action[4:], (bytes24, bytes24));
-
             _transferBagOwnership(state, ctx.sender, bag, toEntity);
-        }
-
-        if (bytes4(action) == Actions.TRANSFER_BAG.selector) {
-            // decode the action
+        } else if (bytes4(action) == Actions.TRANSFER_BAG.selector) {
             (bytes24 bag, bytes24 fromEntity, bytes24 toEntity, uint8 toEquipSlot) =
                 abi.decode(action[4:], (bytes24, bytes24, bytes24, uint8));
-
             _transferBag(state, ctx, bag, fromEntity, toEntity, toEquipSlot);
         }
 

@@ -17,7 +17,7 @@ import { TileHighlight } from '@app/components/map/TileHighlight';
 import { BuildingCategory, getBuildingCategory } from '@app/helpers/building';
 import { getPath } from '@app/helpers/pathfinding';
 import { getCoords, getTileDistance, getTileHeight, isBlockerTile } from '@app/helpers/tile';
-import { useBuildingKinds, useGameState, usePlayer, useSelection } from '@app/hooks/use-game-state';
+import { useGlobal, usePlayer, useSelection, useZone } from '@app/hooks/use-game-state';
 import { getBagId, getBuildingId } from '@app/plugins/inventory/helpers';
 import { ComponentProps } from '@app/types/component-props';
 import { WorldCombatSessionFragment } from '@downstream/core/src/gql/graphql';
@@ -137,7 +137,8 @@ const Construct: FunctionComponent<ConstructProps> = ({
             ? selectedTile
             : undefined;
     const constructionCoords = constructableTile ? getCoords(constructableTile) : undefined;
-    const kinds = useBuildingKinds();
+    const global = useGlobal();
+    const kinds = global?.buildingKinds || [];
 
     // build a map of itemid => {slotKey => balance} for player's inventories
     const mobileUnitBags = mobileUnit ? getBagsAtEquipee(bags, mobileUnit) : [];
@@ -366,15 +367,9 @@ const Construct: FunctionComponent<ConstructProps> = ({
 
     const canConstruct = selectedKind && selectedKind.ops && selectedKind.ops.length > 0 && constructableTile;
 
-    const mobileUnitKey = mobileUnit?.key;
-    const mobileUnitId = mobileUnit?.id;
-
     const handleConstruct = useCallback(
         (e: React.FormEvent<HTMLFormElement>) => {
             e.preventDefault();
-            if (!mobileUnitKey || !mobileUnitId) {
-                return;
-            }
             if (!constructableTile) {
                 return;
             }
@@ -390,7 +385,7 @@ const Construct: FunctionComponent<ConstructProps> = ({
                     return [
                         {
                             name: 'MOVE_MOBILE_UNIT',
-                            args: [mobileUnitKey, zone, q, r, s],
+                            args: [zone, q, r, s],
                         },
                     ] satisfies CogAction[];
                 }),
@@ -399,7 +394,6 @@ const Construct: FunctionComponent<ConstructProps> = ({
                     {
                         name: 'CONSTRUCT_BUILDING_MOBILE_UNIT',
                         args: [
-                            mobileUnitId,
                             selectedKind.id,
                             constructableTile.coords[0],
                             constructableTile.coords[1],
@@ -413,7 +407,7 @@ const Construct: FunctionComponent<ConstructProps> = ({
             setActionQueue(actions);
             clearIntent();
         },
-        [mobileUnitId, mobileUnitKey, selectedKind, constructableTile, clearIntent, setActionQueue, path]
+        [selectedKind, constructableTile, clearIntent, setActionQueue, path]
     );
     const costs = selectedKind?.materials.map((slot) => `${slot.balance} ${slot.item?.name?.value || ''}`) || [];
     const building = selectedTile ? getBuildingAtTile(buildings, selectedTile) : null;
@@ -535,8 +529,6 @@ const Move: FunctionComponent<MoveProps> = ({
     mobileUnit,
     setActionQueue,
 }) => {
-    const mobileUnitKey = mobileUnit?.key;
-
     const { path, valid } = useMemo(() => {
         const fromTile = mobileUnit && tiles && tiles.find((t) => t.id === mobileUnit.nextLocation?.tile.id);
         if (!fromTile) {
@@ -568,9 +560,6 @@ const Move: FunctionComponent<MoveProps> = ({
             // first element is the origin
             return;
         }
-        if (!mobileUnitKey) {
-            return;
-        }
 
         setActionQueue(
             path.slice(1).map((t) => {
@@ -578,7 +567,7 @@ const Move: FunctionComponent<MoveProps> = ({
                 return [
                     {
                         name: 'MOVE_MOBILE_UNIT',
-                        args: [mobileUnitKey, zone, q, r, s],
+                        args: [zone, q, r, s],
                     },
                 ];
             })
@@ -586,7 +575,7 @@ const Move: FunctionComponent<MoveProps> = ({
         if (selectIntent) {
             selectIntent(undefined);
         }
-    }, [path, setActionQueue, mobileUnitKey, selectIntent]);
+    }, [path, setActionQueue, selectIntent]);
 
     const canMove = mobileUnit && player && path.length > 0 && valid;
 
@@ -788,7 +777,7 @@ const Combat: FunctionComponent<CombatProps> = ({
             return [
                 {
                     name: 'MOVE_MOBILE_UNIT',
-                    args: [mobileUnitKey, zone, q, r, s],
+                    args: [zone, q, r, s],
                 },
             ];
         });
@@ -890,7 +879,8 @@ const Combat: FunctionComponent<CombatProps> = ({
 
 export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({ pluginTileProperties }) => {
     const [actionQueue, setActionQueue] = useState<CogAction[][]>();
-    const { world, tiles } = useGameState();
+    const zone = useZone();
+    const { tiles } = zone || {};
     const { selectIntent, intent, tiles: sTiles, mobileUnit, selectTiles, selectMapElement } = useSelection();
     const player = usePlayer();
 
@@ -941,8 +931,8 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({
                 player={player}
                 tiles={tiles || []}
                 pluginTileProperties={pluginTileProperties || []}
-                bags={world?.bags || []}
-                buildings={world?.buildings || []}
+                bags={zone?.bags || []}
+                buildings={zone?.buildings || []}
                 setActionQueue={setActionQueue}
             />
         );
@@ -956,7 +946,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({
                 player={player}
                 tiles={tiles || []}
                 pluginTileProperties={pluginTileProperties || []}
-                buildings={world?.buildings || []}
+                buildings={zone?.buildings || []}
                 setActionQueue={setActionQueue}
             />
         );
@@ -968,12 +958,12 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({
                 selectTiles={selectTiles}
                 selectMapElement={selectMapElement}
                 mobileUnit={mobileUnit}
-                mobileUnits={world?.mobileUnits || []}
+                mobileUnits={zone?.mobileUnits || []}
                 player={player}
                 tiles={tiles || []}
                 pluginTileProperties={pluginTileProperties || []}
-                buildings={world?.buildings || []}
-                sessions={world?.sessions || []}
+                buildings={zone?.buildings || []}
+                sessions={zone?.sessions || []}
                 setActionQueue={setActionQueue}
             />
         );

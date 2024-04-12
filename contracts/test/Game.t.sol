@@ -15,10 +15,10 @@ contract DownstreamTest is Test, GameTest {
         vm.startPrank(players[0].addr);
 
         // spawn a mobileUnit at that tile
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (Node.MobileUnit(1))));
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, ()));
 
         assertEq(
-            state.getCurrentLocation(Node.MobileUnit(1), uint64(block.number)),
+            state.getCurrentLocation(Node.MobileUnit(players[0].addr), uint64(block.number)),
             Node.Tile(0, 0, 0, 0),
             "expected next mobileUnit to start at tile 0,0,0"
         );
@@ -57,9 +57,8 @@ contract DownstreamTest is Test, GameTest {
         game.getRouter().authorizeAddr(game.getDispatcher(), 5, 0, sessionAddr, sig);
 
         // should now be able to use sessionKey to sign actions to pass to router
-        bytes24 mobileUnit = Node.MobileUnit(111);
         bytes[] memory actions = new bytes[](1);
-        actions[0] = abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (mobileUnit));
+        actions[0] = abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, ());
         bytes32 digest =
             keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", keccak256(abi.encode(actions, 123))));
         bytes[] memory batchedSigs = new bytes[](1);
@@ -68,6 +67,6 @@ contract DownstreamTest is Test, GameTest {
         vm.prank(relayAddr);
         game.getRouter().dispatch(actions, batchedSigs[0], 123); // 123=random nonce
         // check the action created mobileUnit with correct owner
-        assertEq(state.getOwnerAddress(mobileUnit), players[0].addr);
+        assertEq(state.getOwnerAddress(Node.MobileUnit(players[0].addr)), players[0].addr);
     }
 }

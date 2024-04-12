@@ -1,27 +1,25 @@
 import { concat, debounce, fromValue, lazy, makeSubject, map, merge, pipe, scan, Source, switchMap, tap } from 'wonka';
-import { WorldTileFragment } from './gql/graphql';
 import { makePlayerMobileUnit } from './mobile-unit';
 import { makeSelectedTiles } from './tile';
-import { CogServices, ConnectedPlayer, SelectedMapElement, Selection, Selector, World } from './types';
+import { CogServices, ConnectedPlayer, SelectedMapElement, Selection, Selector } from './types';
+import { ZoneWithBags } from './world';
 
 export function makeSelection(
     client: Source<CogServices>,
-    world: Source<World>,
-    tiles: Source<WorldTileFragment[]>,
+    zone: Source<ZoneWithBags>,
     player: Source<ConnectedPlayer | undefined>,
 ) {
     const { selector: selectMobileUnit, selection: selectedMobileUnitID } = makeSelector<string | undefined>(player);
-    const selectedMobileUnit = makePlayerMobileUnit(player, world, selectedMobileUnitID);
+    const selectedMobileUnit = makePlayerMobileUnit(player, zone, selectedMobileUnitID);
 
     const { selector: selectTiles, selection: selectedTileIDs } = makeSelector<string[] | undefined>(player);
-    const selectedTiles = makeSelectedTiles(client, tiles, selectedTileIDs);
+    const selectedTiles = makeSelectedTiles(client, zone, selectedTileIDs);
 
     const { selector: selectIntent, selection: selectedIntent } = makeSelector<string | undefined>(player);
 
     const { selector: selectMapElement, selection: selectedMapElement } = makeSelector<SelectedMapElement | undefined>(
         player,
     );
-    //const selectedMapElement = makePlayerMobileUnit(player, selectedMobileUnitID);
 
     let prev: any;
     const selectionPipe = pipe(

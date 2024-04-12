@@ -1,25 +1,25 @@
 // @refresh reset
 import {
-    AvailableBuildingKind,
     AvailablePlugin,
-    BuildingKindFragment,
+    CogServices,
     ConnectedPlayer,
     GameConfig,
     GameState,
+    GlobalState,
     Log,
     Logger,
     makeAutoloadPlugins,
-    makeAvailableBuildingKinds,
     makeAvailablePlugins,
     makeCogClient,
     makeConnectedPlayer,
     makeGameState,
+    makeGlobal,
     makeLogger,
     makePluginUI,
     makeSelection,
-    makeTiles,
     makeWallet,
-    makeWorld,
+    makeZone,
+    NodeSelectors,
     PluginUpdateResponse,
     Sandbox,
     SelectedMapElement,
@@ -27,7 +27,7 @@ import {
     Selector,
     Wallet,
     WalletProvider,
-    World,
+    ZoneWithBags,
 } from '@app/../../core/src';
 import * as Comlink from 'comlink';
 import { createContext, ReactNode, useMemo, useContext, useEffect, useRef, useState } from 'react';
@@ -40,6 +40,7 @@ export { disableFastRefresh } from './use-unity-map';
 
 export interface DSContextProviderProps {
     config?: Partial<GameConfig>;
+    zoneId?: string;
     children?: ReactNode;
 }
 
@@ -53,7 +54,8 @@ export interface SelectionSelectors {
 export interface DSContextValue1 {
     wallet: Source<Wallet | undefined>;
     player: Source<ConnectedPlayer | undefined>;
-    world: Source<World>;
+    zone: Source<ZoneWithBags>;
+    global: Source<GlobalState>;
     state: Source<GameState>;
     block: Source<number>;
     selection: Source<Selection>;
@@ -61,8 +63,8 @@ export interface DSContextValue1 {
     selectProvider: Selector<WalletProvider>;
     logger: Logger;
     logs: Source<Log>;
-    buildingKinds: Source<AvailableBuildingKind[]>;
     availablePlugins: Source<AvailablePlugin[]>;
+    client: Source<CogServices>;
 }
 
 export interface DSContextValue2 {
@@ -79,7 +81,7 @@ export const DSContext = createContext({} as DSContextStore);
 
 export const useSources = () => useContext(DSContext);
 
-export const GameStateProvider = ({ config, children }: DSContextProviderProps) => {
+export const GameStateProvider = ({ config, zoneId, children }: DSContextProviderProps) => {
     const { provider } = useWalletProvider();
     const [sources1, setSources1] = useState<DSContextValue1>();
     const [sources2, setSources2] = useState<DSContextValue2>();
@@ -93,19 +95,19 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
         const { wallet, selectProvider } = makeWallet();
         const { client } = makeCogClient(config);
         const { logger, logs } = makeLogger({ name: 'main' });
-        const player = makeConnectedPlayer(client, wallet, logger);
-        const world = makeWorld(client);
-        const tiles = makeTiles(client);
-        const { selection, ...selectors } = makeSelection(client, world, tiles, player);
+
+        const zoneKey = zoneId ? Number(BigInt.asIntN(16, BigInt(zoneId.replace(NodeSelectors.Zone, '0x')))) : 0;
+        const player = makeConnectedPlayer(client, wallet, logger, zoneKey);
+        const global = makeGlobal(client);
+        const zone = makeZone(client, zoneId || '');
+        const { selection, ...selectors } = makeSelection(client, zone, player);
 
         const { plugins: availablePlugins } = makeAvailablePlugins(client);
 
-        const { kinds: buildingKinds } = makeAvailableBuildingKinds(client);
-
         const state = makeGameState(
             player,
-            world,
-            tiles,
+            zone,
+            global,
             selection,
             selectors.selectTiles,
             selectors.selectMobileUnit,
@@ -118,20 +120,21 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
         );
 
         setSources1({
+            client,
             block,
             wallet,
             player,
-            world,
+            global,
+            zone,
             selection,
             selectors,
             selectProvider,
             state,
             availablePlugins,
-            buildingKinds,
             logger,
             logs,
         });
-    }, [config]);
+    }, [config, zoneId]);
 
     useEffect(() => {
         if (workerRef.current) {
@@ -140,14 +143,17 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
         if (!sources1) {
             return;
         }
-        const { availablePlugins, selection, world, logger, state, block } = sources1;
+        const { availablePlugins, selection, zone, global, logger, state, block } = sources1;
         if (!availablePlugins) {
             return;
         }
         if (!selection) {
             return;
         }
-        if (!world) {
+        if (!zone) {
+            return;
+        }
+        if (!global) {
             return;
         }
         if (!logger) {
@@ -169,7 +175,7 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
             .then(() => {
                 console.log('new sandbox started');
                 const { logger: questMsgSender, logs: questMsgs } = makeLogger({ name: 'questMessages' });
-                const { plugins: activePlugins } = makeAutoloadPlugins(availablePlugins, selection, world);
+                const { plugins: activePlugins } = makeAutoloadPlugins(availablePlugins, selection, zone);
                 const ui = makePluginUI(activePlugins, workerSandbox, logger, questMsgSender, state, block);
 
                 // re-enable if using sandbox instead of snowsphere
@@ -214,6 +220,11 @@ export const GameStateProvider = ({ config, children }: DSContextProviderProps) 
     return <DSContext.Provider value={value || {}}>{children}</DSContext.Provider>;
 };
 
+export function useCogClient(): CogServices | undefined {
+    const sources = useSources();
+    return useSource(sources.client);
+}
+
 export function useBlock(): number | undefined {
     const sources = useSources();
     return useSource(sources.block);
@@ -238,13 +249,16 @@ export function useWallet(): { wallet: Wallet | undefined; selectProvider: Selec
     return { selectProvider, wallet };
 }
 
-// fetch the current world state
-// the world state is "a little bit of everything, but not in detail", enough
-// to draw the map with some things on it, the selected items have more data as
-// they are selected
-export function useWorld(): World | undefined {
+// fetch the current zone state
+export function useZone(): ZoneWithBags | undefined {
     const sources = useSources();
-    return useSource(sources.world);
+    return useSource(sources.zone);
+}
+
+// fetch the shared global state (building kinds, etc)
+export function useGlobal(): GlobalState | undefined {
+    const sources = useSources();
+    return useSource(sources.global);
 }
 
 // fetch the current selection data + selector funcs
@@ -258,12 +272,6 @@ export function useSelection(): Partial<Selection> & Partial<SelectionSelectors>
 export function usePluginState(): PluginUpdateResponse[] | undefined {
     const sources = useSources();
     return useSource(sources.ui);
-}
-
-// fetch the list of building kind names/ids
-export function useBuildingKinds(): BuildingKindFragment[] | undefined {
-    const sources = useSources();
-    return useSource(sources.buildingKinds);
 }
 
 // subscribe to the last n most recent logs

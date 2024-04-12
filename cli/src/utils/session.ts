@@ -2,6 +2,7 @@ import {
     ConnectedPlayer,
     EthereumProvider,
     LogLevel,
+    NodeSelectors,
     makeConnectedPlayer,
     makeKeyWallet,
     makeLogger,
@@ -65,6 +66,11 @@ export const session = async (ctx) => {
         throw new Error(`no network found with name ${ctx.network}`);
     }
 
+    // if a full id is provided, convert to the small key/id
+    ctx.zone = (ctx.zone || '').startsWith(NodeSelectors.Zone)
+        ? Number(BigInt.asIntN(16, BigInt(ctx.zone.replace(NodeSelectors.Zone, '0x'))))
+        : ctx.zone || 0;
+
     let __client: ReturnType<typeof makeCogClient>;
     ctx.makeClient = () => {
         if (__client) {
@@ -86,7 +92,7 @@ export const session = async (ctx) => {
         if (ctx.k) {
             const wallet = makeKeyWallet(ctx.k.startsWith('0x') ? ctx.k : `0x${ctx.k}`);
             const player = pipe(
-                makeConnectedPlayer(client, wallet, logger),
+                makeConnectedPlayer(client, wallet, logger, ctx.zone || 0),
                 skipWhile((p): p is ConnectedPlayer => typeof p === 'undefined'),
                 take(1),
                 toPromise
@@ -100,15 +106,12 @@ export const session = async (ctx) => {
         } else {
             const { wallet, selectProvider } = makeWallet();
             const player = pipe(
-                makeConnectedPlayer(client, wallet, logger),
+                makeConnectedPlayer(client, wallet, logger, ctx.zone || 0),
                 skipWhile((p): p is ConnectedPlayer => typeof p === 'undefined'),
                 take(1),
                 toPromise
             );
-            const provider = await Promise.race([
-                newWalletConnectProvider(),
-                sleep(60 * 1000).then(() => null),
-            ]);
+            const provider = await Promise.race([newWalletConnectProvider(), sleep(60 * 1000).then(() => null)]);
             if (provider === null) {
                 throw new Error('Timed out waiting for walletconnect connection or approval, please try again');
             }

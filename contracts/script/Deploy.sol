@@ -11,6 +11,7 @@ import {DownstreamGame} from "@ds/Downstream.sol";
 import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
 import {Node, Schema} from "@ds/schema/Schema.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
+import {Zones721} from "@ds/Zones721.sol";
 
 import {CheatsRule} from "@ds/rules/CheatsRule.sol";
 import {MovementRule} from "@ds/rules/MovementRule.sol";
@@ -36,14 +37,29 @@ contract GameDeployer is Script {
 
         vm.startBroadcast(deployerKey);
 
-        address[] memory newPlayerAllowlist = _loadAllowList(deployerAddr);
+        // contract that manages the ownership of zones as NFTs
+        Zones721 zoneOwnership = new Zones721(deployerAddr);
 
         // owner is set to deploy account not this contract's address as calls from this script have a msg.sender of the deployer
-        DownstreamGame ds = new DownstreamGame(address(msg.sender));
+        DownstreamGame ds = new DownstreamGame(address(msg.sender), zoneOwnership);
         Dispatcher dispatcher = ds.getDispatcher();
 
+        // tell the zoneOwnership contract to manage the state
+        zoneOwnership.registerState(ds.getState());
+
+        // set zone price, the price is a mechanism to prevent bricking
+        // the deployment by claiming all the zones
+        zoneOwnership.setMintPrice(0.05 ether);
+
+        // deployer claims first zone mostly to make local dev easier
+        // we do the withdraw as a sanity check
+        zoneOwnership.mintTo{value: 0.05 ether}(deployerAddr);
+        zoneOwnership.withdrawPayments(payable(deployerAddr));
+
+        // setup the tokens contract that manages items as ERC1155
         InventoryRule inventoryRule = new InventoryRule(ds);
         address tokenAddress = inventoryRule.getTokensAddress();
+        ds.registerTokensContract(tokenAddress);
         ds.autorizeStateMutation(tokenAddress);
 
         string memory o = "key";
@@ -51,17 +67,18 @@ contract GameDeployer is Script {
         vm.serializeAddress(o, "state", address(ds.getState()));
         vm.serializeAddress(o, "router", address(ds.getRouter()));
         vm.serializeAddress(o, "tokens", address(tokenAddress));
+        vm.serializeAddress(o, "zones", address(zoneOwnership));
         string memory latestJson = vm.serializeAddress(o, "dispatcher", address(dispatcher));
         vm.writeJson(latestJson, "./out/latest.json");
 
         // enable rules
-        ds.registerRule(new CheatsRule(deployerAddr));
+        ds.registerRule(new CheatsRule());
         ds.registerRule(new MovementRule(ds));
         ds.registerRule(inventoryRule);
         ds.registerRule(new BuildingRule(ds));
         ds.registerRule(new CraftingRule(ds));
         ds.registerRule(new PluginRule());
-        ds.registerRule(new NewPlayerRule(newPlayerAllowlist));
+        ds.registerRule(new NewPlayerRule());
         ds.registerRule(new CombatRule());
         ds.registerRule(new NamingRule());
         ds.registerRule(new BagRule());
@@ -80,22 +97,5 @@ contract GameDeployer is Script {
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.IDCard(), "ID Card", "10-46")));
 
         vm.stopBroadcast();
-    }
-
-    function _loadAllowList(address deployer) private view returns (address[] memory) {
-        string memory root = vm.projectRoot();
-        string memory path = string.concat(root, "/src/common/allowlist.json");
-        string memory json = vm.readFile(path);
-        address[] memory addresses = abi.decode(vm.parseJson(json, ".players"), (address[]));
-        if (addresses.length == 0) {
-            address[] memory none = new address[](0);
-            return none;
-        }
-        address[] memory allowlist = new address[](addresses.length + 1);
-        for (uint256 i = 0; i < addresses.length; i++) {
-            allowlist[i] = addresses[i];
-        }
-        allowlist[addresses.length] = deployer; // allowlist the deployer address
-        return allowlist;
     }
 }

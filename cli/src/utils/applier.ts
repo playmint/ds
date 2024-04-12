@@ -1,6 +1,13 @@
-import { CogAction, CompoundKeyEncoder, NodeSelectors } from '@downstream/core';
-import { BuildingKindFragment, ItemFragment, WorldStateFragment } from '@downstream/core/src/gql/graphql';
-import { AbiCoder, id as keccak256UTF8, solidityPacked } from 'ethers';
+import {
+    CogAction,
+    CompoundKeyEncoder,
+    NodeSelectors,
+    BuildingKindFragment,
+    ItemFragment,
+    GlobalStateFragment,
+    ZoneStateFragment,
+} from '@downstream/core';
+import { AbiCoder, id as keccak256UTF8, solidityPacked, fromTwos } from 'ethers';
 import fs from 'fs';
 import path from 'path';
 import { z } from 'zod';
@@ -8,26 +15,32 @@ import {
     ContractSource,
     ManifestDocument,
     Slot,
+    Task,
     FacingDirectionTypes,
+    TaskKindEnumVals,
 } from '../utils/manifest';
-import { encodeTileID, encodeItemID, encodeBagID, getItemIdByName, encodeBuildingKindID, getBuildingKindIDByName, getBuildingCategoryEnum } from './helpers';
+import {
+    encodeItemID,
+    getItemIdByName,
+    encodeBuildingKindID,
+    getBuildingKindIDByName,
+    getBuildingCategoryEnum,
+} from './helpers';
 import { isInBounds } from '../utils/bounds';
 
 const null24bytes = '0x000000000000000000000000000000000000000000000000';
-const temporaryZoneConstant = 0;
 
 const encodePluginID = ({ name }) => {
     const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`plugin/${name}`))));
     return CompoundKeyEncoder.encodeUint160(NodeSelectors.ClientPlugin, id);
 };
 
-const encodeTaskID = ({ name, kind }) => {
-    const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`task/${name}`))));
-    const kindHash = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(kind))));
-
+const encodeTaskID = ({ zone, name, kind }: z.infer<typeof Task> & { zone: number }) => {
+    const kindIndex = TaskKindEnumVals.indexOf(kind);
+    const id = BigInt.asUintN(64, BigInt(keccak256UTF8(`task/${name}`)));
     return solidityPacked(
-        ['bytes4', 'uint32', 'uint32', 'uint32', 'uint32', 'uint32'],
-        [NodeSelectors.Task, 0, 0, 0, kindHash, id]
+        ['bytes4', 'uint32', 'uint32', 'uint32', 'uint64'],
+        [NodeSelectors.Task, zone, 0, kindIndex, id]
     );
 };
 
@@ -35,8 +48,8 @@ const getQuestKey = (name: string) => {
     return BigInt.asUintN(64, BigInt(keccak256UTF8(`quest/${name}`)));
 };
 
-const encodeQuestID = ({ name }) => {
-    return solidityPacked(['bytes4', 'uint32', 'uint64', 'uint64'], [NodeSelectors.Quest, 0, 0, getQuestKey(name)]);
+const encodeQuestID = ({ zone, name }) => {
+    return solidityPacked(['bytes4', 'uint32', 'uint64', 'uint64'], [NodeSelectors.Quest, zone, 0, getQuestKey(name)]);
 };
 
 const itemKindDeploymentActions = async (
@@ -172,7 +185,12 @@ const buildingKindDeploymentActions = async (
     });
 
     // compile and deploy an implementation if given
-    if (spec.category != 'billboard' && spec.category != 'blocker' && spec.contract && (spec.contract.file || spec.contract.bytecode)) {
+    if (
+        spec.category != 'billboard' &&
+        spec.category != 'blocker' &&
+        spec.contract &&
+        (spec.contract.file || spec.contract.bytecode)
+    ) {
         const bytecode = spec.contract.bytecode ? spec.contract.bytecode : await compiler(spec.contract, manifestDir);
         ops.push({
             name: 'DEPLOY_KIND_IMPLEMENTATION',
@@ -209,6 +227,7 @@ const buildingKindDeploymentActions = async (
 };
 
 const questDeploymentActions = async (
+    zoneId: number,
     file: ReturnType<typeof ManifestDocument.parse>,
     files: ReturnType<typeof ManifestDocument.parse>[],
     existingItemKinds: ItemFragment[],
@@ -228,7 +247,10 @@ const questDeploymentActions = async (
 
         switch (task.kind) {
             case 'coord': {
-                return coder.encode(['int16', 'int16', 'int16', 'int16'], [temporaryZoneConstant, task.location[0], task.location[1], task.location[2]]);
+                return coder.encode(
+                    ['int16', 'int16', 'int16', 'int16'],
+                    [zoneId, task.location[0], task.location[1], task.location[2]]
+                );
             }
             case 'inventory': {
                 const item = getItemIdByName(files, existingItemKinds, task.item.name);
@@ -244,7 +266,7 @@ const questDeploymentActions = async (
             }
             case 'questAccept':
             case 'questComplete': {
-                return coder.encode(['bytes24'], [encodeQuestID({ name: task.quest })]);
+                return coder.encode(['bytes24'], [encodeQuestID({ name: task.quest, zone: zoneId })]);
             }
             case 'combat': {
                 const combatState = task.combatState == 'winAttack' ? 0 : 1;
@@ -269,31 +291,29 @@ const questDeploymentActions = async (
                 return coder.encode(['bytes24', 'bytes24'], [craftInputID, craftOutputID]);
             }
         }
-
     };
 
     // register tasks
-    // const questKey = getQuestKey(spec.name); // TODO: Add questKey to taskID so tasks do not require a unique name globally
     ops.push(
         ...spec.tasks.map((task): CogAction => {
-            const id = encodeTaskID(task);
             const taskData = encodeTaskData(task);
             return {
                 name: 'REGISTER_TASK',
-                args: [id, task.name, taskData],
+                args: [zoneId, task.name, TaskKindEnumVals.indexOf(task.kind), taskData],
             };
         })
     );
 
     // register quest
-    const questId = encodeQuestID(spec);
-    const taskIds = spec.tasks.map((task) => encodeTaskID(task));
-    const nextQuestIds = spec.next?.map((questName) => encodeQuestID({ name: questName })) || [];
-    const [z, q, r, s] = spec.location ? [temporaryZoneConstant, spec.location[0], spec.location[1], spec.location[2]] : [temporaryZoneConstant, 0, 0, 0];
+    const taskIds = spec.tasks.map((task) => encodeTaskID({ ...task, zone: zoneId }));
+    const nextQuestIds = spec.next?.map((questName) => encodeQuestID({ name: questName, zone: zoneId })) || [];
+    const [z, q, r, s] = spec.location
+        ? [zoneId, spec.location[0], spec.location[1], spec.location[2]]
+        : [zoneId, 0, 0, 0];
 
     ops.push({
         name: 'REGISTER_QUEST',
-        args: [questId, spec.name, spec.description, !!spec.location, z, q, r, s, taskIds, nextQuestIds],
+        args: [zoneId, spec.name, spec.description, !!spec.location, z, q, r, s, taskIds, nextQuestIds],
     });
 
     return ops;
@@ -301,11 +321,14 @@ const questDeploymentActions = async (
 
 export const getOpsForManifests = async (
     docs,
-    world: WorldStateFragment,
-    existingBuildingKinds: BuildingKindFragment[],
+    zone: ZoneStateFragment,
+    global: GlobalStateFragment,
     compiler: (source: z.infer<typeof ContractSource>, manifestDir: string) => Promise<string>
 ): Promise<OpSet[]> => {
+    const existingBuildingKinds = global.buildingKinds;
     const pendingBuildingKinds = docs.map((doc) => doc.manifest).filter(({ kind }) => kind === 'BuildingKind');
+
+    const zoneId = Number(BigInt.asIntN(16, zone.key));
 
     // build list of operations
     const opsets: OpSet[] = [];
@@ -333,7 +356,7 @@ export const getOpsForManifests = async (
         if (doc.manifest.kind != 'BuildingKind') {
             continue;
         }
-        const actions = await buildingKindDeploymentActions(doc, docs, world.items, compiler);
+        const actions = await buildingKindDeploymentActions(doc, docs, global.items, compiler);
         opsets[opn].push({
             doc,
             actions,
@@ -351,7 +374,7 @@ export const getOpsForManifests = async (
         const spec = doc.manifest.spec;
         const [q, r, s] = spec.location;
         const inBounds = isInBounds(q, r, s);
-        
+
         opsets[opn].push({
             doc,
             actions: [
@@ -359,7 +382,10 @@ export const getOpsForManifests = async (
                     name: 'DEV_SPAWN_BUILDING',
                     args: [
                         getBuildingKindIDByName(existingBuildingKinds, pendingBuildingKinds, spec.name),
-                        temporaryZoneConstant, spec.location[0], spec.location[1], spec.location[2],
+                        zoneId,
+                        spec.location[0],
+                        spec.location[1],
+                        spec.location[2],
                         FacingDirectionTypes.indexOf(spec.facingDirection),
                     ],
                 },
@@ -377,7 +403,7 @@ export const getOpsForManifests = async (
             continue;
         }
 
-        const actions = await questDeploymentActions(doc, docs, world.items, existingBuildingKinds);
+        const actions = await questDeploymentActions(zoneId, doc, docs, global.items, existingBuildingKinds);
         opsets[opn].push({
             doc,
             actions,
@@ -386,6 +412,10 @@ export const getOpsForManifests = async (
     }
 
     // spawn tile manifests (this is only valid while cheats are enabled)
+    const convertedTileCoords = zone.tiles.map(tile => 
+        tile.coords.map(coord => fromTwos(coord, 16))
+    );
+    let skippedTiles = 0;
     opn++;
     opsets[opn] = [];
     for (const doc of docs) {
@@ -395,18 +425,36 @@ export const getOpsForManifests = async (
         const spec = doc.manifest.spec;
         const [q, r, s] = spec.location;
         const inBounds = isInBounds(q, r, s);
+        
+        let shouldSkip = false;
+        for (let i = 0; i < convertedTileCoords.length; i++) {
+            if (convertedTileCoords[i][1] == q && convertedTileCoords[i][2] == r && convertedTileCoords[i][3] == s && zone.tiles[i].biome != undefined && zone.tiles[i].biome != 0){
+                shouldSkip = true;
+                skippedTiles++;
+                break;
+            }
+        }
 
+        if (shouldSkip){
+            continue;
+        }
+        
         opsets[opn].push({
             doc,
             actions: [
                 {
                     name: 'DEV_SPAWN_TILE',
-                    args: [temporaryZoneConstant, spec.location[0], spec.location[1], spec.location[2]],
+                    args: [zoneId, spec.location[0], spec.location[1], spec.location[2]],
                 },
             ],
             note: `spawned tile ${spec.location.join(',')}`,
             inBounds: inBounds,
         });
+    }
+
+    if (skippedTiles > 0) {
+        const skipReason = skippedTiles === 1 ? 'tile because it already exists in the zone' : 'tiles because they already exist in the zone';
+        console.log(`⏩ skipped ${skippedTiles} ${skipReason}\n`);
     }
 
     // spawn bag manifests (this is only valid while cheats are enabled)
@@ -420,7 +468,7 @@ export const getOpsForManifests = async (
         const encodeSlotConfig = (slots: ReturnType<typeof Slot.parse>[]) => {
             const items = [0, 0, 0, 0].map((_, idx) =>
                 slots[idx]
-                    ? getItemIdByName(docs, world.items, slots[idx].name)
+                    ? getItemIdByName(docs, global.items, slots[idx].name)
                     : '0x000000000000000000000000000000000000000000000000'
             );
             const quantities = [0, 0, 0, 0].map((_, idx) => (slots[idx] ? slots[idx].quantity : 0));
@@ -428,14 +476,10 @@ export const getOpsForManifests = async (
         };
 
         const spec = doc.manifest.spec;
-        const [z, q, r, s] =  [temporaryZoneConstant, spec.location[0], spec.location[1], spec.location[2]];
+        const [z, q, r, s] = [zoneId, spec.location[0], spec.location[1], spec.location[2]];
         const inBounds = isInBounds(q, r, s);
 
-        const bagID = encodeBagID({ z, q, r, s });
-        const ownerAddress = solidityPacked(['uint160'], [0]); // public
-        const equipee = encodeTileID({ z, q, r, s });
         const equipSlot = 0;
-
         const bagContents = encodeSlotConfig(spec.items || []);
         const slotContents = bagContents.items;
         const slotBalances = bagContents.quantities;
@@ -445,7 +489,7 @@ export const getOpsForManifests = async (
             actions: [
                 {
                     name: 'DEV_SPAWN_BAG',
-                    args: [bagID, ownerAddress, equipee, equipSlot, slotContents, slotBalances],
+                    args: [z, q, r, s, equipSlot, slotContents, slotBalances],
                 },
             ],
             note: `spawned bag ${spec.location.join(',')}`,
@@ -465,8 +509,8 @@ export const getOpsForManifests = async (
             doc,
             actions: [
                 {
-                    name: 'AUTO_QUEST',
-                    args: [spec.name, spec.index],
+                    name: 'DEV_ASSIGN_AUTO_QUEST',
+                    args: [spec.name, zoneId],
                 },
             ],
             note: `added auto-quest ${spec.name}`,

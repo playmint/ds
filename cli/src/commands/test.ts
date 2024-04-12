@@ -1,9 +1,9 @@
 import { ethers } from 'ethers';
 import { pipe, take, toPromise } from 'wonka';
-import { CompoundKeyEncoder, NodeSelectors, getCoords } from "@downstream/core";
+import { CompoundKeyEncoder, NodeSelectors, getCoords } from '@downstream/core';
 import util from 'node:util';
 import { spawn } from 'node:child_process';
-import { getWorld } from './get';
+import { getZone } from './get';
 import { FacingDirectionKind } from '@downstream/core';
 
 const spawnAsync = util.promisify(spawn);
@@ -22,15 +22,14 @@ const concurrency = {
                 alias: 'b',
                 describe: 'list of BuildingKind ids to randomly place to randomly place',
                 type: 'string',
-            })
-    ,
+            }),
     handler: async (ctx) => {
         const maxConnections: number = ctx.maxConnections || 1;
         const buildings = ctx.buildings ? ctx.buildings : undefined;
 
         // generate wallets
         const wallets: ethers.HDNodeWallet[] = [];
-        for (let i=-1; i<maxConnections; i++) {
+        for (let i = -1; i < maxConnections; i++) {
             wallets.push(ethers.Wallet.createRandom());
         }
 
@@ -38,15 +37,11 @@ const concurrency = {
         const procs: ReturnType<typeof spawnAsync>[] = [];
         for (let wallet of wallets) {
             console.log(`starting chaos-unit for ${wallet.privateKey}`);
-            const args = [
-                '-n', `${ctx.network || 'local'}`,
-                `-k`, `${wallet.privateKey}`,
-                `test`, `chaos-unit`
-            ];
+            const args = ['-n', `${ctx.network || 'local'}`, `-k`, `${wallet.privateKey}`, `test`, `chaos-unit`];
             if (buildings) {
                 args.push(`-b`, `${buildings}`);
             }
-            procs.push(spawnAsync('ds', args, {stdio: ['ignore', process.stdout, process.stderr]}));
+            procs.push(spawnAsync('ds', args, { stdio: ['ignore', process.stdout, process.stderr] }));
         }
 
         console.log('running, ctrl+c to stop');
@@ -58,45 +53,50 @@ const chaosUnit = {
     command: 'chaos-unit',
     describe: 'spawn a unit and keep moving it',
     builder: (yargs) =>
-        yargs
-            .option('buildings', {
-                alias: 'b',
-                describe: 'list of BuildingKind ids to randomly place to randomly place',
-                type: 'string',
-            })
-    ,
+        yargs.option('buildings', {
+            alias: 'b',
+            describe: 'list of BuildingKind ids to randomly place to randomly place',
+            type: 'string',
+        }),
     handler: async (ctx) => {
         const player = await ctx.player();
 
         // spawn a unit
-        const unitKey = BigInt(Math.floor(Math.random() * 100000))
-        const unitId = CompoundKeyEncoder.encodeUint160( NodeSelectors.MobileUnit, unitKey);
-        await player.dispatchAndWait({ name: 'SPAWN_MOBILE_UNIT', args: [unitId] });
+        await player.dispatchAndWait({ name: 'SPAWN_MOBILE_UNIT', args: [] });
 
         // load the tiles
         const client = await ctx.client();
-        const res: any = await pipe(client.query(GET_TILES, { gameID: ctx.game }, {subscribe: false}), take(1), toPromise);
+        const res: any = await pipe(
+            client.query(GET_TILES, { gameID: ctx.game }, { subscribe: false }),
+            take(1),
+            toPromise
+        );
         const validCoords = res.game.state.tiles.map(getCoords);
-        const buildings:string[] = ctx.buildings ? ctx.buildings.split(",") : [];
+        const buildings: string[] = ctx.buildings ? ctx.buildings.split(',') : [];
 
         // move unit around randomly
-        let [z,q,r,s] = [0,0,0,0];
+        let [z, q, r, s] = [0, 0, 0, 0];
         while (true) {
-            const validNeighbours = getNeighbourCoords(z,q,r,s)
+            const validNeighbours = getNeighbourCoords(z, q, r, s)
                 .filter((nc) => validCoords.some((vc) => `${nc.q}:${nc.r}:${nc.s}` === `${vc.q}:${vc.r}:${vc.s}`))
-                .map(({z,q,r,s}) => [z,q,r,s]);
-            [z,q,r,s] = validNeighbours[Math.floor(Math.random() * validNeighbours.length)] || [0,0,0,0];
+                .map(({ z, q, r, s }) => [z, q, r, s]);
+            [z, q, r, s] = validNeighbours[Math.floor(Math.random() * validNeighbours.length)] || [0, 0, 0, 0];
 
-            await player.dispatch({ name: 'MOVE_MOBILE_UNIT', args: [unitKey, z, q, r, s] }).then(res => res.wait());
+            await player.dispatch({ name: 'MOVE_MOBILE_UNIT', args: [z, q, r, s] }).then((res) => res.wait());
             await sleep(Math.floor(Math.random() * 1000)); // jitter
             // place building
-            if (buildings?.length > 0){
+            if (buildings?.length > 0) {
                 const selectedBuilding = buildings[Math.floor(Math.random() * buildings.length)];
                 const targetTileID = CompoundKeyEncoder.encodeInt16(NodeSelectors.Tile, z, q, r, s);
-                const world = await getWorld(ctx);
-                const buildingOnTargetTile = getBuildingOnTile(world.buildings, targetTileID);
-                if (typeof buildingOnTargetTile === 'undefined'){
-                    await player.dispatch({ name: 'DEV_SPAWN_BUILDING', args: [selectedBuilding, z, q, r, s, FacingDirectionKind.RIGHT] }).then(res => res.wait());
+                const zone = await getZone(ctx);
+                const buildingOnTargetTile = getBuildingOnTile(zone.buildings, targetTileID);
+                if (typeof buildingOnTargetTile === 'undefined') {
+                    await player
+                        .dispatch({
+                            name: 'DEV_SPAWN_BUILDING',
+                            args: [selectedBuilding, z, q, r, s, FacingDirectionKind.RIGHT],
+                        })
+                        .then((res) => res.wait());
                 }
             }
             await sleep(Math.floor(Math.random() * 1000));
@@ -111,10 +111,7 @@ function getBuildingOnTile(buildings, tileID) {
 export const test = {
     command: 'test',
     describe: 'internal test tooling',
-    builder: (yargs) =>
-        yargs
-            .command(chaosUnit)
-            .command(concurrency)
+    builder: (yargs) => yargs.command(chaosUnit).command(concurrency),
 };
 
 const GET_TILES = `query GetTiles($gameID: ID!) {

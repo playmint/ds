@@ -84,8 +84,6 @@ contract LabyrinthCore is ILabyrinthCore, BuildingKind {
         int16 q = coreQ + 8; // 14
         int16 r = coreR + -1; // -7
         int16 s = coreS + -7; // -7
-        bytes24 bagId = bytes24(abi.encodePacked(Kind.Bag.selector, uint96(0), z, q, r, s));
-        bytes24 tileId = bytes24(abi.encodePacked(Kind.Tile.selector, uint96(0), z, q, r, s));
         bytes24[] memory items = new bytes24[](4);
         uint64[] memory balances = new uint64[](4);
         items[0] = sword;
@@ -96,8 +94,6 @@ contract LabyrinthCore is ILabyrinthCore, BuildingKind {
         balances[1] = 1;
         balances[2] = 1;
         balances[3] = 0;
-        ds.getDispatcher().dispatch(
-            abi.encodeCall(Actions.DEV_SPAWN_BAG, (bagId, address(0), tileId, 0, items, balances))
-        );
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_BAG, (z, q, r, s, 0, items, balances)));
     }
 }

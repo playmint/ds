@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { Op, getOpsForManifests } from '../utils/applier';
 import { ContractSource, readManifestsDocumentsSync } from '../utils/manifest';
 import { compilePath } from '../utils/solidity';
-import { getAvailableBuildingKinds, getWorld } from './get';
+import { getGlobal, getZone } from './get';
 
 type OpResult = {
     ok: boolean;
@@ -39,7 +39,9 @@ const deploy = {
         yargs
             .option('filename', {
                 alias: 'f',
-                describe: 'path to manifest that contain the configurations to apply, use "-" to read from stdin',
+                demandOption: true,
+                describe:
+                    'path to manifest or dir that contain the configurations to apply, use "-" to read from stdin',
                 type: 'string',
             })
             .option('recursive', {
@@ -47,6 +49,12 @@ const deploy = {
                 describe:
                     'process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory',
                 type: '',
+            })
+            .option('zone', {
+                alias: 'z',
+                demandOption: true,
+                describe: 'id of the zone to deploy in to',
+                type: 'string',
             })
             .option('dry-run', {
                 describe: 'show changes that would be applied',
@@ -72,10 +80,14 @@ const deploy = {
                 ['$0 apply -R -f .', 'Apply ALL manifests in directory'],
             ]),
     handler: async (ctx) => {
+        if (ctx.zone < 1) {
+            throw new Error('invalid zone id');
+        }
         const manifestFilenames = getManifestFilenames(ctx.filename, ctx.recursive);
         const docs = (await Promise.all(manifestFilenames.map(readManifestsDocumentsSync))).flatMap((docs) => docs);
-        const existingBuildingKinds = await getAvailableBuildingKinds(ctx);
-        const world = await getWorld(ctx);
+
+        const zone = await getZone(ctx);
+        const global = await getGlobal(ctx);
 
         const compiler = async (source: z.infer<typeof ContractSource>, manifestDir: string): Promise<string> => {
             const relativeFilename = path.join(manifestDir, source.file || 'inline.sol');
@@ -87,7 +99,7 @@ const deploy = {
             return bytecode;
         };
 
-        const opsets = await getOpsForManifests(docs, world, existingBuildingKinds, compiler);
+        const opsets = await getOpsForManifests(docs, zone, global, compiler);
 
         // abort here if dry-run
         if (ctx.dryRun) {
@@ -105,7 +117,6 @@ const deploy = {
             );
             console.error('');
             process.exit(0);
-            return;
         }
 
         // authenticate player
@@ -121,11 +132,11 @@ const deploy = {
                 const pending = batches[j].map(async (op) => {
                     if (op.inBounds === false) {
                         console.log(`❌ ${op.note} - out of bounds\n`);
-                                return {
-                                    ok: false,
-                                    err: 'coords were out of bounds',
-                                    op,
-                                };
+                        return {
+                            ok: false,
+                            err: 'coords were out of bounds',
+                            op,
+                        };
                     }
                     let retries = 0;
                     while (retries < 5) {

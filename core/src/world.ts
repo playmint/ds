@@ -1,13 +1,14 @@
 import { ethers } from 'ethers';
-import { concat, debounce, fromValue, lazy, map, pipe, share, Source, switchMap, tap } from 'wonka';
-import {
-    GetTilesDocument,
-    GetWorldDocument,
-    GetWorldQuery,
-    WorldStateFragment,
-    WorldTileFragment,
-} from './gql/graphql';
+import { filter, concat, debounce, fromValue, lazy, map, pipe, share, Source, switchMap, tap } from 'wonka';
+import { BagFragment, GetGlobalDocument, GetZoneDocument, GetZoneQuery, GlobalStateFragment } from './gql/graphql';
 import { CogServices } from './types';
+
+export type ZoneWithBags = GetZoneQuery['game']['state']['zone'] & { bags: BagFragment[] };
+export type Equipee = { bags: BagFragment[] };
+
+function flatMapBags(equipees: Equipee[]): BagFragment[] {
+    return equipees.flatMap((e) => e.bags);
+}
 
 /**
  * makeWorldState subscribes to changes to the world state.
@@ -18,13 +19,36 @@ import { CogServices } from './types';
  * SelectedTile/SelectedMobileUnit/etc states hold more detailed information.
  *
  */
-export function makeWorld(cog: Source<CogServices>) {
-    let prev: WorldStateFragment | undefined;
+export function makeZone(cog: Source<CogServices>, zoneID: string) {
+    let prev: ZoneWithBags | undefined;
 
     const world = pipe(
         cog,
-        switchMap(({ query, gameID }) => query(GetWorldDocument, { gameID })),
-        map(normalizeWorldState),
+        switchMap(({ query, gameID }) => query(GetZoneDocument, { gameID, zoneID: zoneID ? zoneID : '__NOZONE' })),
+        map((res) => {
+            if (!res || !res.game || !res.game.state || !res.game.state.zone) {
+                return undefined;
+            }
+            // find all the bags and put them in the zone we do this because the
+            // frontend currently expects a single big list of all available
+            // bags, not bags attached to things, but bags attached to things is
+            // the only sensible way to track which bags are visible in the zone
+            const bags = [
+                ...flatMapBags(res.game.state.zone.mobileUnits),
+                ...flatMapBags(res.game.state.zone.buildings),
+                ...flatMapBags(res.game.state.zone.tiles),
+                ...flatMapBags(res.game.state.zone.sessions),
+            ];
+
+            // include the bags in the zone
+            const resWithBags: ZoneWithBags = {
+                ...res.game.state.zone,
+                bags,
+            };
+
+            return resWithBags;
+        }),
+        filter((next): next is ZoneWithBags => !!next),
         tap((next) => (prev = next)),
         share,
     );
@@ -35,29 +59,28 @@ export function makeWorld(cog: Source<CogServices>) {
     );
 }
 
-export function makeTiles(cog: Source<CogServices>) {
-    let prev: WorldTileFragment[] | undefined;
+export type GlobalState = GlobalStateFragment & { gameID: string };
 
-    const tiles = pipe(
+export function makeGlobal(cog: Source<CogServices>) {
+    let prev: GlobalState | undefined;
+
+    const global = pipe(
         cog,
-        switchMap(({ query, gameID }) => query(GetTilesDocument, { gameID }, { poll: 60 * 1000 * 10 })),
-        map(({ game }) => game?.state?.tiles.filter((tile) => tile.biome === 1) || []),
+        switchMap(({ query, gameID }) => query(GetGlobalDocument, { gameID })),
+        map((next) => ({ ...next.game?.state, gameID: next.game?.id })),
         tap((next) => (prev = next)),
         share,
     );
 
     return pipe(
-        lazy(() => (prev ? concat([fromValue(prev), tiles]) : tiles)),
+        lazy(() => (prev ? concat([fromValue(prev), global]) : global)),
         debounce(() => 10),
     );
 }
 
-function normalizeWorldState({ game }: GetWorldQuery): WorldStateFragment {
-    return game.state satisfies WorldStateFragment;
-}
-
 export function getCoords({ coords }) {
     return {
+        z: Number(ethers.fromTwos(coords[0], 16)),
         q: Number(ethers.fromTwos(coords[1], 16)),
         r: Number(ethers.fromTwos(coords[2], 16)),
         s: Number(ethers.fromTwos(coords[3], 16)),

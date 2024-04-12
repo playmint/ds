@@ -53,7 +53,7 @@ async function handleStartup(){
                 && forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545" \
                 && ./lib/cog/services/bin/wait-for -it localhost:8080 -t 300 \
                 && sleep 2 \
-                && ds -k ${DEPLOYER_PRIVATE_KEY} -n local apply -R -f ${mapPath} --max-connections 500 \
+                && ds -k ${DEPLOYER_PRIVATE_KEY} -n local -z 1 apply -R -f ${mapPath} --max-connections 500 \
                 && sleep 9999999`,
             prefixColor: 'black',
             env: {

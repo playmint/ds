@@ -13,6 +13,7 @@ import {Actions, BiomeKind} from "@ds/actions/Actions.sol";
 import "@ds/schema/Schema.sol";
 import "@ds/utils/ItemUtils.sol";
 import {Items1155} from "@ds/Items1155.sol";
+import {Zones721} from "@ds/Zones721.sol";
 
 import {CheatsRule} from "@ds/rules/CheatsRule.sol";
 import {MovementRule} from "@ds/rules/MovementRule.sol";
@@ -26,14 +27,23 @@ import {NamingRule} from "@ds/rules/NamingRule.sol";
 import {BagRule} from "@ds/rules/BagRule.sol";
 import {ExtractionRule} from "@ds/rules/ExtractionRule.sol";
 
+using Schema for State;
+
 contract Dev {
     Game internal ds;
 
     uint64 lastBag;
 
     function spawnTile(int16 z, int16 q, int16 r, int16 s) public {
-        //ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (q, r, s)));
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (z, q, r, s)));
+    }
+
+    function setGame(Game game) public {
+        ds = game;
+    }
+
+    function disableCheats() public {
+        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_DISABLE_CHEATS, ()));
     }
 
     function spawnBag(
@@ -43,11 +53,16 @@ contract Dev {
         bytes24[] memory resources,
         uint64[] memory qty
     ) public returns (bytes24) {
-        bytes24 bagID = Node.Bag(++lastBag);
-        ds.getDispatcher().dispatch(
-            abi.encodeCall(Actions.DEV_SPAWN_BAG, (bagID, owner, equipNode, equipSlot, resources, qty))
-        );
-        return bagID;
+        State state = ds.getState();
+        bytes24 bag = Node.Bag(++lastBag);
+        for (uint8 i = 0; i < resources.length; i++) {
+            state.setItemSlot(bag, i, resources[i], qty[i]);
+        }
+        state.setEquipSlot(equipNode, equipSlot, bag);
+        if (owner != address(0)) {
+            state.setOwner(bag, Node.Player(owner));
+        }
+        return bag;
     }
 
     function spawnFullBag(address owner, bytes24 equipNode, uint8 equipSlot) public returns (bytes24) {
@@ -63,14 +78,6 @@ contract Dev {
 
         return spawnBag(owner, equipNode, equipSlot, items, balances);
     }
-
-    function setGame(Game game) public {
-        ds = game;
-    }
-
-    function disableCheats() public {
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_DISABLE_CHEATS, ()));
-    }
 }
 
 struct PlayerAccount {
@@ -85,6 +92,7 @@ abstract contract GameTest {
     Dev internal dev;
     Vm internal __vm = Vm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
     Items1155 tokens;
+    Zones721 zoneOwnership;
 
     // player accounts to test with
     PlayerAccount[4] players;
@@ -92,10 +100,14 @@ abstract contract GameTest {
     constructor() {
         // setup the dev contract for calling cheats
         dev = new Dev();
-        game = new DownstreamGame(address(this));
+
+        zoneOwnership = new Zones721(address(this));
+        game = new DownstreamGame(address(this), zoneOwnership);
+        zoneOwnership.registerState(game.getState());
 
         // tests are allowed to directly maniuplate the state
         game.autorizeStateMutation(address(this));
+        game.autorizeStateMutation(address(dev));
 
         // init players
         players[0] = PlayerAccount({key: 0xa1, addr: __vm.addr(0xa1)});
@@ -103,16 +115,9 @@ abstract contract GameTest {
         players[2] = PlayerAccount({key: 0xc3, addr: __vm.addr(0xc3)});
         players[3] = PlayerAccount({key: 0xd4, addr: __vm.addr(0xd4)});
 
-        // allow all the players
-        address[] memory allowlist = new address[](4);
-        allowlist[0] = players[0].addr;
-        allowlist[1] = players[1].addr;
-        allowlist[2] = players[2].addr;
-        allowlist[3] = players[3].addr;
-
         // TODO: All players are able to directly manipulate the state. This wouldn't be true in a real game.
         // however we would have to make all tests utilize the Rule contracts.
-        for (uint256 i = 0; i < allowlist.length; i++) {
+        for (uint256 i = 0; i < players.length; i++) {
             game.autorizeStateMutation(players[i].addr);
         }
 
@@ -124,13 +129,13 @@ abstract contract GameTest {
         game.autorizeStateMutation(address(tokens));
 
         // setup game
-        game.registerRule(new CheatsRule(address(dev)));
+        game.registerRule(new CheatsRule());
         game.registerRule(new MovementRule(game));
         game.registerRule(inventoryRule);
         game.registerRule(new BuildingRule(game));
         game.registerRule(new CraftingRule(game));
         game.registerRule(new PluginRule());
-        game.registerRule(new NewPlayerRule(allowlist));
+        game.registerRule(new NewPlayerRule());
         game.registerRule(new CombatRule());
         game.registerRule(new NamingRule());
         game.registerRule(new BagRule());
@@ -145,16 +150,18 @@ abstract contract GameTest {
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.GreenGoo(), "Green Goo", "15-185")));
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.BlueGoo(), "Blue Goo", "32-96")));
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.RedGoo(), "Red Goo", "22-256")));
+
+        // make the dev sender the owner of zone 0
+        state.setOwner(Node.Zone(int16(0)), Node.Player(address(dev)));
     }
 
-    function moveMobileUnit(uint32 id, int16 z, int16 q, int16 r, int16 s) public {
-        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (id, z, q, r, s)));
+    function moveMobileUnit(int16 z, int16 q, int16 r, int16 s) public {
+        dispatcher.dispatch(abi.encodeCall(Actions.MOVE_MOBILE_UNIT, (z, q, r, s)));
     }
 
-    function spawnMobileUnit(uint64 id) public returns (bytes24) {
-        bytes24 unitID = Node.MobileUnit(id);
-        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, (unitID)));
-        return unitID;
+    function spawnMobileUnit() public returns (bytes24) {
+        dispatcher.dispatch(abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, ()));
+        return Node.MobileUnit(msg.sender);
     }
 
     function setName(bytes24 entity, string memory name) public {

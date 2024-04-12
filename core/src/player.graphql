@@ -1,11 +1,18 @@
+fragment AssignedQuest on Edge {
+    id
+    key
+    status: weight
+    node {
+        ...Quest
+    }
+}
+
 fragment SelectedPlayer on Node {
     ...WorldPlayer
 
-    quests: edges(match: { via: { rel: "HasQuest", dir: OUT } }) {
-        key
-        status: weight
-        node {
-            ...Quest
+    zone: node(match: { ids: [$zonedPlayerID], via: { rel: "Owner", dir: IN } }) {
+        quests: edges(match: { via: { rel: "HasQuest", dir: OUT } }) {
+            ...AssignedQuest
         }
     }
 
@@ -22,7 +29,7 @@ fragment SelectedPlayer on Node {
     }
 }
 
-query GetSelectedPlayer($gameID: ID!, $id: String!) {
+query GetSelectedPlayer($gameID: ID!, $id: String!, $zonedPlayerID: String!) {
     game(id: $gameID) {
         id
         state(simulated: true) {

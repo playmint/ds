@@ -119,7 +119,7 @@ We will use the Downstream CLI to deploy our newly created building to our local
 Run the following in a terminal in the folder with your exported building source (refer to tutorial 1 for more information).
 
 ```
-ds apply -n local -k <private-key> -R -f ./
+ds apply -n local -z 1 -k <private-key> -R -f ./
 ```
 
 You should see an output like this:
