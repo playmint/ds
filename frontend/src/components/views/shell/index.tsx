@@ -442,7 +442,9 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     </div>
                 </div>
                 <div className="right no-scrollbars">
-                    {(!player || zone?.tiles?.length <= 1 || (player && playerUnits.length === 0)) &&
+                    {(!player ||
+                        (zone?.tiles?.length && zone?.tiles?.length <= 1) ||
+                        (player && playerUnits.length === 0)) &&
                         mapReady &&
                         connect &&
                         zone &&
