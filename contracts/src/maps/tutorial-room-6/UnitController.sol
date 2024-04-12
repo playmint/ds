@@ -11,12 +11,12 @@ using Schema for State;
 
 contract UnitController is BuildingKind {
     function spawnUnit() external {}
-    function moveUnitNE(bytes24 mobileUnit) external {}
-    function moveUnitE(bytes24 mobileUnit) external {}
-    function moveUnitSE(bytes24 mobileUnit) external {}
-    function moveUnitSW(bytes24 mobileUnit) external {}
-    function moveUnitW(bytes24 mobileUnit) external {}
-    function moveUnitNW(bytes24 mobileUnit) external {}
+    function moveUnitNE() external {}
+    function moveUnitE() external {}
+    function moveUnitSE() external {}
+    function moveUnitSW() external {}
+    function moveUnitW() external {}
+    function moveUnitNW() external {}
 
     function use(Game ds, bytes24 buildingInstance, bytes24, /*actor*/ bytes calldata payload) public override {
         if ((bytes4)(payload) == this.spawnUnit.selector) {

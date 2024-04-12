@@ -3,7 +3,7 @@ kind: BuildingKind
 spec:
   category: custom
   name: Unit Controller
-  description: This Building can spawn and control units
+  description: This Building can spawn and control a mobile unit
   model: 01-01
   color: 2
   contract:
