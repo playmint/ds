@@ -55,6 +55,7 @@ export const NavPanel = ({
     toggleWalletItemsActive,
     walletItemsActive,
     zone,
+    className,
 }: {
     questsCount?: number;
     questsActive?: boolean;
@@ -62,6 +63,7 @@ export const NavPanel = ({
     toggleWalletItemsActive?: () => void;
     walletItemsActive?: boolean;
     zone?: ZoneWithBags;
+    className?: string;
 }) => {
     const { connect, disconnect: forgetProvider, provider } = useWalletProvider();
     const { clearSession } = useSession();

@@ -37,8 +37,6 @@ export const Onboarding = ({
 }: OnboardingProps) => {
     const [isSpawningMobileUnit, setIsSpawningMobileUnit] = useState<boolean>(false);
 
-    const isZoneOwner = player && zone.owner && zone.owner.addr === player.addr;
-
     const spawnMobileUnit = useCallback(() => {
         if (!player) {
             return;
