@@ -219,7 +219,7 @@ export const NavPanel = ({
                             </>
                         ) : undefined}
 
-                        <ActionButton onClick={home}>Home</ActionButton>
+                        {zone && <ActionButton onClick={home}>Home</ActionButton>}
                         <br />
                         <ActionButton onClick={disconnect}>Disconnect</ActionButton>
                     </div>
