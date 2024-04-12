@@ -1,3 +1,4 @@
+import { decodeString } from '@app/helpers';
 import { usePlayer, useWallet } from '@app/hooks/use-game-state';
 import { useSession } from '@app/hooks/use-session';
 import { GlobalUnityContext } from '@app/hooks/use-unity-instance';
@@ -6,6 +7,7 @@ import { ActionButton, TextButton } from '@app/styles/button.styles';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Dialog } from '../molecules/dialog';
+import { ZoneWithBags } from '@downstream/core';
 
 const g = globalThis as unknown as { __globalUnityContext: GlobalUnityContext };
 
@@ -52,6 +54,7 @@ export const NavPanel = ({
     questsCount,
     toggleWalletItemsActive,
     walletItemsActive,
+    zone,
     className,
 }: {
     questsCount?: number;
@@ -59,6 +62,7 @@ export const NavPanel = ({
     toggleQuestsActive?: () => void;
     toggleWalletItemsActive?: () => void;
     walletItemsActive?: boolean;
+    zone?: ZoneWithBags;
     className?: string;
 }) => {
     const { connect, disconnect: forgetProvider, provider } = useWalletProvider();
@@ -66,9 +70,13 @@ export const NavPanel = ({
     const { wallet } = useWallet();
     const player = usePlayer();
     const [showAccountDialog, setShowAccountDialog] = useState(false);
+    const [zoneName, setZoneName] = useState(decodeString(zone?.name?.value ?? '') || '');
+    const [zoneDescription, setZoneDescription] = useState(zone?.description?.value || '');
 
     const hasConnection = player || wallet;
     const address = player?.addr || wallet?.address || '';
+
+    const isZoneOwner = address === zone?.owner?.addr;
 
     const closeAccountDialog = useCallback(() => {
         setShowAccountDialog(false);
@@ -99,6 +107,30 @@ export const NavPanel = ({
         }
     }, []);
 
+    const handleZoneNameChange = useCallback((e) => {
+        setZoneName(e.target.value.slice(0, 31));
+    }, []);
+
+    const handleZoneDescriptionChange = useCallback((e) => {
+        setZoneDescription(e.target.value.slice(0, 140));
+    }, []);
+
+    const applyZoneChanges = useCallback(() => {
+        if (!player) {
+            return;
+        }
+        if (zoneName === decodeString(zone?.name?.value ?? '') && zoneDescription === zone?.description?.value) {
+            console.log("Can't apply changes, no changes detected.");
+            return;
+        }
+        player
+            .dispatch(
+                { name: 'NAME_OWNED_ENTITY', args: [zone?.id, zoneName] },
+                { name: 'DESCRIBE_OWNED_ENTITY', args: [zone?.id, zoneDescription] }
+            )
+            .catch((err) => console.error('naming failed', err));
+    }, [player, zoneName, zone?.name?.value, zone?.description?.value, zone?.id, zoneDescription]);
+
     // TEMP: allow revealing the burner private key, this is a workaround for
     // helping demo ds-cli bits for people without walletconnect
     const [burnerKey, setBurnerKey] = useState<string | null>(null);
@@ -115,19 +147,45 @@ export const NavPanel = ({
         setBurnerKey(provider.provider.privateKey);
     }, [provider]);
 
+    useEffect(() => {
+        setZoneName(decodeString(zone?.name?.value ?? '') || '');
+        setZoneDescription(zone?.description?.value || '');
+    }, [zone?.name?.value, zone?.description?.value]);
+
     return (
         <NavContainer className={className}>
             {showAccountDialog && hasConnection && (
                 <Dialog onClose={closeAccountDialog} width="304px" height="">
-                    <div style={{ padding: 15 }}>
-                        <h3>PLAYER ACCOUNT</h3>
+                    <div style={{ padding: 0 }}>
+                        <h3>SETTINGS</h3>
                         <p>
                             {address.slice(0, 9)}...{address.slice(-9)}
                         </p>
                         <br />
 
+                        {isZoneOwner && (
+                            <fieldset>
+                                <legend>Owner Controls</legend>
+                                <div>
+                                    <strong>Zone Name:</strong>
+                                    <input type="text" value={zoneName} onChange={handleZoneNameChange} />
+                                </div>
+                                <br />
+                                <div>
+                                    <strong>Zone Description:</strong>
+                                    <input type="text" value={zoneDescription} onChange={handleZoneDescriptionChange} />
+                                </div>
+                                <br />
+                                <button onClick={applyZoneChanges} style={{ width: '100%' }}>
+                                    Apply
+                                </button>
+                            </fieldset>
+                        )}
+
+                        <br />
+
                         <fieldset>
-                            <legend>Quality:</legend>
+                            <legend>Quality</legend>
                             <select onChange={onChangeQuality} value={canvasHeight}>
                                 <option value="480">Low (480p)</option>
                                 <option value="720">Medium (720p)</option>
@@ -162,20 +220,25 @@ export const NavPanel = ({
                 </Dialog>
             )}
             <AccountButton onClick={player ? openAccountDialog : connect}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="20" viewBox="0 0 16 20" fill="none">
-                    <path
-                        d="M7.93965 11.9394C11.5641 11.917 16 14.0805 16 18.2253C16 19.2054 15.2116 20 14.239 20H1.76101C0.78843 20 0 19.2054 0 18.2253C0 14.1255 4.34649 11.9616 7.93965 11.9394Z"
-                        fill="#F7F5FA"
-                    />
-                    <path
-                        d="M2.97741 5C2.97741 3.13077 2.97741 2.19615 3.37623 1.5C3.63751 1.04394 4.0133 0.665229 4.46584 0.401924C5.15663 0 6.08403 0 7.93885 0C9.79366 0 10.7211 0 11.4119 0.401924C11.8644 0.665229 12.2402 1.04394 12.5015 1.5C12.9003 2.19615 12.9003 3.13077 12.9003 5C12.9003 6.86923 12.9003 7.80385 12.5015 8.5C12.2402 8.95606 11.8644 9.33477 11.4119 9.59807C10.7211 10 9.79366 10 7.93885 10C6.08403 10 5.15663 10 4.46584 9.59807C4.0133 9.33477 3.63751 8.95606 3.37623 8.5C2.97741 7.80385 2.97741 6.86923 2.97741 5Z"
-                        fill="#F7F5FA"
-                    />
-                </svg>
+                {hasConnection ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="30" viewBox="3 0 20 24" fill="none">
+                        <path
+                            d="m2.344 15.271 2 3.46a1 1 0 0 0 1.366.365l1.396-.806c.58.457 1.221.832 1.895 1.112V21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1.598a8.094 8.094 0 0 0 1.895-1.112l1.396.806c.477.275 1.091.11 1.366-.365l2-3.46a1.004 1.004 0 0 0-.365-1.366l-1.372-.793a7.683 7.683 0 0 0-.002-2.224l1.372-.793c.476-.275.641-.89.365-1.366l-2-3.46a1 1 0 0 0-1.366-.365l-1.396.806A8.034 8.034 0 0 0 15 4.598V3a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v1.598A8.094 8.094 0 0 0 7.105 5.71L5.71 4.904a.999.999 0 0 0-1.366.365l-2 3.46a1.004 1.004 0 0 0 .365 1.366l1.372.793a7.683 7.683 0 0 0 0 2.224l-1.372.793c-.476.275-.641.89-.365 1.366zM12 8c2.206 0 4 1.794 4 4s-1.794 4-4 4-4-1.794-4-4 1.794-4 4-4z"
+                            fill="#dedede"
+                        />
+                    </svg>
+                ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 500 500" fill="none">
+                        <path
+                            d="M461.2 128H80c-8.84 0-16-7.16-16-16s7.16-16 16-16h384c8.84 0 16-7.16 16-16 0-26.51-21.49-48-48-48H64C28.65 32 0 60.65 0 96v320c0 35.35 28.65 64 64 64h397.2c28.02 0 50.8-21.53 50.8-48V176c0-26.47-22.78-48-50.8-48zM416 336c-17.67 0-32-14.33-32-32s14.33-32 32-32 32 14.33 32 32-14.33 32-32 32z"
+                            fill="#dedede"
+                        />
+                    </svg>
+                )}
                 {!player && <span className="text">CONNECT</span>}
             </AccountButton>
 
-            {toggleWalletItemsActive && (
+            {address && toggleWalletItemsActive && (
                 <TextButton onClick={toggleWalletItemsActive} className={`${walletItemsActive ? 'toggleOn' : ''}`}>
                     WALLET
                 </TextButton>

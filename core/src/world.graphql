@@ -185,7 +185,7 @@ fragment ZoneState on Node {
     name: data(name: "name") {
         value
     }
-    description: data(name: "description") {
+    description: annotation(name: "description") {
         value
     }
     owner: node(match: { via: { rel: "Owner" } }) {
@@ -257,7 +257,7 @@ query GetZones($gameID: ID!) {
                 name: data(name: "name") {
                     value
                 }
-                description: data(name: "description") {
+                description: annotation(name: "description") {
                     value
                 }
                 owner: node(match: { via: { rel: "Owner" } }) {

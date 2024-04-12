@@ -51,7 +51,7 @@ const destroy = {
             .option('zone', {
                 alias: 'z',
                 demandOption: true,
-                describe: 'id of the zone/island to deploy in to',
+                describe: 'id of the zone to deploy in to',
                 type: 'string',
             })
             .option('dry-run', {

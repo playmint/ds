@@ -1,8 +1,9 @@
 import { CogAction, ConnectedPlayer, WorldMobileUnitFragment, ZoneWithBags } from '@app/../../core/src';
+import { decodeString } from '@app/helpers';
+import { useWallet } from '@app/hooks/use-game-state';
 import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { ActionButton } from '@app/styles/button.styles';
 import { useCallback, useState } from 'react';
-import { ethers } from 'ethers';
 import styled from 'styled-components';
 
 export interface OnboardingProps {
@@ -35,8 +36,6 @@ export const Onboarding = ({
     zoneUnitLimit,
 }: OnboardingProps) => {
     const [isSpawningMobileUnit, setIsSpawningMobileUnit] = useState<boolean>(false);
-
-    const isZoneOwner = player && zone.owner && zone.owner.addr === player.addr;
 
     const spawnMobileUnit = useCallback(() => {
         if (!player) {
@@ -77,35 +76,65 @@ export const Onboarding = ({
             .finally(() => setIsSpawningMobileUnit(false));
     }, [block, player, unitTimeoutBlocks, zone, zoneUnitLimit]);
 
-    const zoneName = zone.name?.value ? ethers.decodeBytes32String(zone.name.value) : `unnamed`;
-    const zoneDescription = zone.description?.value
-        ? ethers.decodeBytes32String(zone.description.value)
-        : `no description`;
+    const zoneName = zone.name?.value ? decodeString(zone.name.value) : `unnamed`;
+    const zoneDescription = zone.description?.value ? zone.description.value : `no description`;
 
     const activeUnits = zone.mobileUnits.filter(
         (u) => u.nextLocation && u.nextLocation.time + unitTimeoutBlocks > block
     );
 
+    const { wallet } = useWallet();
+    const address = player?.addr || wallet?.address || '';
+    const isZoneOwner = address === zone?.owner?.addr;
     // Zone owners can spawn into a zone even when it's at capacity
     const canSpawn = activeUnits.length < zoneUnitLimit || isZoneOwner;
 
     return (
         <StyledOnboarding>
             <div className="header">
-                <h3>👁️‍🗨️ {zoneName}</h3>
+                <h3>{zoneName}</h3>
+                <div className="description">
+                    <p>{zoneDescription}</p>
+                </div>
             </div>
+
             <div className="content">
                 <p></p>
-                <p>
-                    welcome to {zoneName}, {zoneDescription}
-                </p>
+                {isZoneOwner && (
+                    <fieldset>
+                        <legend>Owner Information</legend>
+                        <p>Welcome to your zone!</p> <br />
+                        <p>Here are some links you might find useful:</p>
+                        <a
+                            href="https://github.com/playmint/ds/tree/main/tutorial#readme"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            Builder Tutorials
+                        </a>
+                        <br />
+                        <a href="/tile-fabricator" target="_blank" rel="noopener noreferrer">
+                            Tile Fabricator
+                        </a>
+                        <br />
+                        <a href="/building-fabricator" target="_blank" rel="noopener noreferrer">
+                            Building Fabricator
+                        </a>
+                        <br />
+                    </fieldset>
+                )}
+                <br />
                 <p>There are {activeUnits.length} active units here</p>
+
+                <br />
+
                 {!canSpawn && <p>Zone is currently full, try returning later</p>}
+
                 {player && playerUnits.length === 0 ? (
                     <ActionButton onClick={spawnMobileUnit} disabled={isSpawningMobileUnit || !canSpawn}>
                         Enter
                     </ActionButton>
-                ) : (
+                ) : playerUnits.length > 0 ? null : (
                     <ActionButton onClick={onClickConnect}>Connect Wallet</ActionButton>
                 )}
             </div>
