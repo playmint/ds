@@ -31,8 +31,8 @@ contract NewPlayerRule is Rule {
             bytes24 bag1 = _spawnBag(state, mobileUnit, ctx.sender, 1);
 
             //give the mobileUnit the two starter items
-            state.setItemSlot(bag0, 0, ItemUtils.AcceptanceLetter(), 1);
-            state.setItemSlot(bag0, 1, ItemUtils.IDCard(), 1);
+            //state.setItemSlot(bag0, 0, ItemUtils.AcceptanceLetter(), 1);
+            //state.setItemSlot(bag0, 1, ItemUtils.IDCard(), 1);
 
             //give the mobileUnit 100 of each of the base materials
             state.setItemSlot(bag1, 0, ItemUtils.GreenGoo(), 100);

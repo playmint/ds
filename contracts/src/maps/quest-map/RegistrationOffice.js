@@ -136,7 +136,7 @@ export default function update({ selected, world, player }) {
                         {
                             id: 'default',
                             type: 'inline',
-                            html: 'To register please handover your Acceptance Letter and proof of identification.',
+                            html: "Give me goo and I'll register you. Collect some from other islands if you don't have enough",
                             buttons: [{ text: 'Register', type: 'action', action: craft, disabled: !canCraft }]
                         },
                     ],
