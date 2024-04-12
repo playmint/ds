@@ -51,7 +51,7 @@ contract DownstreamRouter is BaseRouter {
 
 contract DownstreamGame is BaseGame {
     uint64 constant DEFAULT_ZONE_UNIT_LIMIT = 20;
-    uint64 constant DEFAULT_UNIT_TIMEOUT_BLOCKS = 10;
+    uint64 constant DEFAULT_UNIT_TIMEOUT_BLOCKS = (30 * 60) / 2; // 30 minutes (2 second blocks)
 
     address public owner;
     ERC721 public zoneOwnership;
