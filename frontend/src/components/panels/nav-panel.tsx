@@ -7,7 +7,7 @@ import { ActionButton, TextButton } from '@app/styles/button.styles';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Dialog } from '../molecules/dialog';
-import { CogAction, ZoneWithBags } from '@downstream/core';
+import { ZoneWithBags } from '@downstream/core';
 
 const g = globalThis as unknown as { __globalUnityContext: GlobalUnityContext };
 
