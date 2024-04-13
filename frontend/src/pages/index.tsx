@@ -585,16 +585,14 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                             ? [currentZone]
                             : zones
                         ).map((z) => (
-                            <>
-                                <ZoneItem
-                                    key={z.id}
-                                    zone={z}
-                                    units={units}
-                                    currentBlock={block || 0}
-                                    unitTimeoutBlocks={unitTimeoutBlocks}
-                                    zoneUnitLimit={zoneUnitLimit}
-                                />
-                            </>
+                            <ZoneItem
+                                key={z.id}
+                                zone={z}
+                                units={units}
+                                currentBlock={block || 0}
+                                unitTimeoutBlocks={unitTimeoutBlocks}
+                                zoneUnitLimit={zoneUnitLimit}
+                            />
                         ))}
                     </ul>
                 </StyledPanel>
