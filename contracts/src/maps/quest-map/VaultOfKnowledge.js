@@ -8,7 +8,7 @@ export default async function update({ selected, world, player }) {
     //const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
     //const selectedBuilding = selectedTile?.building;
     //const selectedUnit = mobileUnit;
-    const quests = player?.quests || [];
+    const quests = player?.zone?.quests || [];
 
     const getNextQuestNum = () => {
         const questNum = quests.reduce(
@@ -35,7 +35,7 @@ export default async function update({ selected, world, player }) {
         type: "action",
         action: () => {
             acceptQuest(
-                "0xadbb33ce000000000000000000000000e5a40d8f48aab41b", //A Squircle-Shaped Hole
+                "0xadbb33ce000000010000000000000000e5a40d8f48aab41b", //A Squircle-Shaped Hole
             );
         },
         disabled: false

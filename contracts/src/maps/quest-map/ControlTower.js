@@ -19,7 +19,7 @@ export default async function update({ selected, player }) {
     const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
     const selectedUnit = mobileUnit;
-    const quests = player?.quests || [];
+    const quests = player?.zone?.quests || [];
 
     // Have to use encode function call
     // const encodeQuestID = ({ name }) => {
@@ -211,9 +211,9 @@ export default async function update({ selected, player }) {
 
         const acceptOrientation = () => {
             acceptMultipleQuests([
-                "0xadbb33ce000000000000000000000000c533c3b1b9d5856c", //Orientation
-                "0xadbb33ce0000000000000000000000001296e6522b8258fd", //Goo Harvesting
-                "0xadbb33ce00000000000000000000000065b3cb8a1f5db1f3"]); //Deletion Preparation
+                "0xadbb33ce000000010000000000000000c533c3b1b9d5856c", //Orientation
+                "0xadbb33ce0000000100000000000000001296e6522b8258fd", //Goo Harvesting
+                "0xadbb33ce00000001000000000000000065b3cb8a1f5db1f3"]); //Deletion Preparation
         }
 
         var orientationButton = {
@@ -229,7 +229,7 @@ export default async function update({ selected, player }) {
             type: "action",
             action: () => {
                 acceptQuest(
-                    "0xadbb33ce000000000000000000000000a217b97e1de447f5", //Vault of Knowledge
+                    "0xadbb33ce000000010000000000000000a217b97e1de447f5", //Vault of Knowledge
                 );
             },
             disabled: false
@@ -291,18 +291,18 @@ export default async function update({ selected, player }) {
             type: "action",
             action: () => {
                 acceptQuest(
-                    "0xadbb33ce00000000000000000000000001a36800d83d56b4",
+                    "0xadbb33ce00000001000000000000000001a36800d83d56b4",
                 );
             },
             disabled: false
         };
-        
+
         var corruptedUserButton = {
             text: "Corrupted User Quest",
             type: "action",
             action: () => {
                 acceptQuest(
-                    "0xadbb33ce000000000000000000000000866b8ef618cdb4be",
+                    "0xadbb33ce000000010000000000000000866b8ef618cdb4be",
                 );
             },
             disabled: false
@@ -314,7 +314,7 @@ export default async function update({ selected, player }) {
             type: "action",
             action: () => {
                 acceptQuest(
-                    "0xadbb33ce000000000000000000000000a217b97e1de447f5", //Vault of Knowledge
+                    "0xadbb33ce000000010000000000000000a217b97e1de447f5", //Vault of Knowledge
                 );
             },
             disabled: false
@@ -352,7 +352,7 @@ export default async function update({ selected, player }) {
                 },
             ],
         };
-    
+
     }
 
     else {

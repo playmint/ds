@@ -8,7 +8,7 @@ export default function update({ selected, world, player }) {
     const selectedBuildingBags = selectedBuilding ? (world?.bags || []).filter(bag => bag.equipee?.node.id === selectedBuilding.id) : [];
     const selectedUnit = mobileUnit;
     const selectedUnitBags = selectedUnit ? (world?.bags || []).filter(bag => bag.equipee?.node?.id === selectedUnit.id) : [];
-    const quests = player?.quests || [];
+    const quests = player?.zone?.quests || [];
 
 
     //Show this if there is no selected unit
