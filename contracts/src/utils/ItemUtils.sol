@@ -41,24 +41,4 @@ library ItemUtils {
     function IDCard() internal pure returns (bytes24) {
         return Node.Item("ID Card", [uint32(100), uint32(100), uint32(76)], true);
     }
-
-    // register is a helper to declare a new kind of item
-    function register(Game ds, ItemConfig memory cfg) internal returns (bytes24) {
-        Dispatcher dispatcher = ds.getDispatcher();
-        uint32[3] memory outputItemAtoms = [uint32(cfg.greenGoo), uint32(cfg.blueGoo), uint32(cfg.redGoo)];
-        bytes24 itemKind = Node.Item(uint32(cfg.id), outputItemAtoms, cfg.stackable);
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (itemKind, cfg.name, cfg.icon)));
-        if (address(cfg.implementation) != address(0)) {
-            dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (itemKind, cfg.implementation)));
-        }
-        if (abi.encodePacked(cfg.plugin).length != 0) {
-            dispatcher.dispatch(
-                abi.encodeCall(
-                    Actions.REGISTER_KIND_PLUGIN,
-                    (Node.ClientPlugin(uint64(cfg.id)), itemKind, cfg.name, cfg.plugin, cfg.alwaysActivePlugin)
-                )
-            );
-        }
-        return itemKind;
-    }
 }
