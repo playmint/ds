@@ -325,6 +325,42 @@ export const Shell: FunctionComponent<ShellProps> = () => {
         }
     }, [combatSessionTick, player, prevCombatSessionTick, blockNumber, selectedMobileUnit, zone?.mobileUnits]);
 
+    // if there is an available quest to accept in this zone
+    // and the player has not accept it, automatically accept it now
+    const [acceptingAutoQuest, setAcceptingAutoQuest] = useState(false);
+    useEffect(() => {
+        if (!player) {
+            return;
+        }
+        if (!zone?.availableQuests) {
+            return;
+        }
+        if (acceptingAutoQuest) {
+            return;
+        }
+        const actions = zone.availableQuests
+            .filter((available) => !player?.zone?.quests.some((accepted) => accepted.node.id == available.id))
+            .map(
+                ({ id }, idx): CogAction => ({
+                    name: 'ACCEPT_QUEST',
+                    args: [id, idx],
+                })
+            );
+        if (actions.length == 0) {
+            return;
+        }
+        setAcceptingAutoQuest(true);
+        // NOTE: it is intensional that setAcceptingAutoQuest is not in a finally() and only in the then()
+        // this is so that any errors do not cause an infinite loop. this is just a best effort attempt to
+        // assign all the quests, but the way quests are assigned is not currently setup to handle changing
+        // the auto assigned quests after they have been assigned, so the chances of this getting in a bad
+        // state are quite high... so just give up if it fails for now
+        player
+            .dispatch(...actions)
+            .then(() => setAcceptingAutoQuest(false))
+            .catch((err) => console.error('failed to accept auto assigned quest', err));
+    }, [player, zone?.availableQuests, acceptingAutoQuest]);
+
     const tileClick = useCallback(
         (id) => {
             if (!selectTiles) {
