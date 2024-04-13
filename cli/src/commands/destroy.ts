@@ -61,7 +61,7 @@ const destroy = {
             .option('max-connections', {
                 describe: 'max number of connections to use for submitting parallel tx',
                 type: 'number',
-                default: 250,
+                default: 10,
             })
             .check((ctx) => {
                 if (ctx.filename === '-') {
@@ -83,7 +83,7 @@ const destroy = {
         }
         const manifestFilenames = getManifestFilenames(ctx.filename, ctx.recursive);
         const docs = (await Promise.all(manifestFilenames.map(readManifestsDocumentsSync))).flatMap((docs) => docs);
-      
+
         const zone = await getZone(ctx);
         const global = await getGlobal(ctx);
 

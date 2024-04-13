@@ -63,7 +63,7 @@ const deploy = {
             .option('max-connections', {
                 describe: 'max number of connections to use for submitting parallel tx',
                 type: 'number',
-                default: 250,
+                default: 10,
             })
             .check((ctx) => {
                 if (ctx.filename === '-') {
