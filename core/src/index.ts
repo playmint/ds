@@ -17,6 +17,7 @@ export type {
     WorldMobileUnitFragment,
     WorldPlayerFragment,
     WorldTileFragment,
+    WorldCombatSessionFragment,
     GlobalStateFragment,
     ZoneStateFragment,
     WorldBuildingFragment,
