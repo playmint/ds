@@ -207,6 +207,12 @@ fragment ZoneState on Node {
     tiles: nodes(match: { kinds: "Tile", via: { rel: "Parent", dir: IN } }) {
         ...WorldTile
     }
+    availableQuests: nodes(match: { kinds: "Quest", via: { rel: "Parent", dir: IN } }) {
+        id
+        name: annotation(name: "name") {
+            value
+        }
+    }
 }
 
 fragment GlobalState on State {
@@ -265,7 +271,7 @@ query GetZones($gameID: ID!) {
                 }
                 url: annotation(name: "url") {
                     value
-                }                
+                }
                 owner: node(match: { via: { rel: "Owner" } }) {
                     id
                     addr: key
