@@ -7,6 +7,31 @@ import { ContractSource, readManifestsDocumentsSync } from '../utils/manifest';
 import { compilePath } from '../utils/solidity';
 import { getGlobal, getZone } from './get';
 
+/**
+ * if contractName identifies a foundry artifact return the bytecode for
+ * deploying the contract.
+ *
+ * @param contractName - The name of the contract.
+ * @param manifestDir - The directory where the manifest is located.
+ * @param outPath - The path within the manifest directory.
+ * @returns The bytecode of the contract if found, as a hex string, otherwise null.
+ */
+function foundryArtifact(contractName: string, manifestDir: string, outPath: string): string | null {
+    const fileName: string = path.join(manifestDir, outPath, `${contractName}.sol`, `${contractName}.json`);
+    if (!fs.existsSync(fileName)) {
+        return null;
+    }
+
+    const content: string = fs.readFileSync(fileName, 'utf-8');
+    try {
+        const hex = JSON.parse(content)["bytecode"]["object"];
+        return hex.slice(2);
+    } catch (err) {
+        console.error(`Failed to read ${fileName}: ${err}`);
+        return null;
+    }
+}
+
 type OpResult = {
     ok: boolean;
     err?: unknown;
@@ -90,6 +115,19 @@ const deploy = {
         const global = await getGlobal(ctx);
 
         const compiler = async (source: z.infer<typeof ContractSource>, manifestDir: string): Promise<string> => {
+
+            if (source.file !== null && !source?.file?.endsWith(".sol") && fs.existsSync(path.join(manifestDir, "foundry.toml"))) {
+                // If the manifestDir is contains the foundry-rs toolchain
+                // configuration file 'foundry.toml', try to locate a compiled output file
+                // using the value of source.file as the contract name.
+                const foundryOut = process.env.FOUNDRY_OUT || "out";
+                // TODO: *read* the foundry.toml to get 'out'.
+                const bytecode = foundryArtifact(source.file, manifestDir, foundryOut);
+                if (bytecode != null)
+                    return bytecode;
+            }
+            // Ok, foundry not in play, fall back to solc.
+
             const relativeFilename = path.join(manifestDir, source.file || 'inline.sol');
             const libs = [path.join(path.dirname(relativeFilename)), ...(source.includes || [])];
             const opts = { libs, verbose: false };
