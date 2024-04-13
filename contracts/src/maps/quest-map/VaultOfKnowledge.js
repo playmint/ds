@@ -35,7 +35,7 @@ export default async function update({ selected, world, player }) {
         type: "action",
         action: () => {
             acceptQuest(
-                "0xadbb33ce000000000000000000000000e5a40d8f48aab41b", //A Squircle-Shaped Hole
+                "0xadbb33ce000000010000000000000000e5a40d8f48aab41b", //A Squircle-Shaped Hole
             );
         },
         disabled: false
