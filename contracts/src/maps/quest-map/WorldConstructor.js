@@ -16,7 +16,7 @@ export default function update({ selected, world, player }) {
         selectedBuilding &&
         selectedBuildingBags.find((bag) => bag.equipee.key === 0);
     const inputSlots = inputBag && inputBag.slots.sort((a, b) => a.key - b.key);
-    const quests = player?.quests || [];
+    const quests = player?.zone?.quests || [];
 
 
     if (!selectedUnit)
@@ -75,7 +75,7 @@ export default function update({ selected, world, player }) {
         return 1;
     }
 
-    
+
     const questStage = getQuestStage();
 
     if (questStage != 1) {

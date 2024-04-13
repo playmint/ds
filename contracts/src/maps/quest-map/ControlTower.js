@@ -19,7 +19,7 @@ export default async function update({ selected, player }) {
     const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
     const selectedUnit = mobileUnit;
-    const quests = player?.quests || [];
+    const quests = player?.zone?.quests || [];
 
     // Have to use encode function call
     // const encodeQuestID = ({ name }) => {
@@ -296,7 +296,7 @@ export default async function update({ selected, player }) {
             },
             disabled: false
         };
-        
+
         var corruptedUserButton = {
             text: "Corrupted User Quest",
             type: "action",
@@ -352,7 +352,7 @@ export default async function update({ selected, player }) {
                 },
             ],
         };
-    
+
     }
 
     else {
