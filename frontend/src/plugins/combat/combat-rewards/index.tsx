@@ -2,12 +2,11 @@
 
 import { Bag } from '@app/plugins/inventory/bag';
 import { ComponentProps } from '@app/types/component-props';
-import { WorldMobileUnitFragment, WorldTileFragment } from '@downstream/core';
+import { WorldMobileUnitFragment, BagFragment, WorldCombatSessionFragment, WorldTileFragment } from '@downstream/core';
 import { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import { styles } from './combat-rewards.styles';
-import { getBagsAtEquipee, getSessionsAtTile } from '@downstream/core/src/utils';
-import { BagFragment, WorldCombatSessionFragment } from '@downstream/core/src/gql/graphql';
+import { getSessionsAtTile } from '@downstream/core/src/utils';
 
 export interface CombatRewardsProps extends ComponentProps {
     selectedTiles: WorldTileFragment[];
@@ -21,7 +20,7 @@ const StyledCombatRewards = styled.div`
 `;
 
 export const CombatRewards: FunctionComponent<CombatRewardsProps> = (props: CombatRewardsProps) => {
-    const { selectedTiles, selectedMobileUnit, sessions, bags } = props;
+    const { selectedTiles, selectedMobileUnit, sessions } = props;
 
     const selectedTileSessions =
         selectedTiles && selectedTiles.length > 0 ? getSessionsAtTile(sessions, selectedTiles[0]) : [];
@@ -34,12 +33,11 @@ export const CombatRewards: FunctionComponent<CombatRewardsProps> = (props: Comb
 
     const rewardBags =
         latestSession && selectedMobileUnit
-            ? getBagsAtEquipee(bags, latestSession).filter((bag) => {
+            ? latestSession.bags.filter((bag) => {
                   // reward containing bags have an ID that is made up of 16bits of sessionID and 48bits of MobileUnitID
                   // bagIDs are 64bits
-                  const mobileUnitIdMask = BigInt('0xFFFFFFFFFFFF'); // 48bit mask (6 bytes)
-                  const bagMobileUnitID = (BigInt(bag.id) >> BigInt(16)) & mobileUnitIdMask;
-                  const truncatedMobileUnitID = BigInt(selectedMobileUnit.id) & mobileUnitIdMask;
+                  const bagMobileUnitID = BigInt.asUintN(32, BigInt(bag.id) >> BigInt(16));
+                  const truncatedMobileUnitID = BigInt.asUintN(32, BigInt(selectedMobileUnit.id));
                   return bagMobileUnitID === truncatedMobileUnitID;
               })
             : [];

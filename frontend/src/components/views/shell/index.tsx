@@ -228,16 +228,15 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                 // Combat rewards
                 if (selectedMobileUnit) {
                     const selectedRewardBags = getSessionsAtTile(zone?.sessions || [], t).flatMap((cs) => {
-                        return getBagsAtEquipee(zone?.bags || [], cs)
+                        return cs.bags
                             .filter((bag) => {
                                 if (!cs.defenceTile || cs.defenceTile.tile.id !== t.id) {
                                     return false;
                                 }
                                 // reward containing bags have an ID that is made up of 16bits of sessionID and 48bits of MobileUnitID
                                 // bagIDs are 64bits
-                                const mobileUnitIdMask = BigInt('0xFFFFFFFFFFFF'); // 48bit mask (6 bytes)
-                                const bagMobileUnitID = (BigInt(bag.id) >> BigInt(16)) & mobileUnitIdMask;
-                                const truncatedMobileUnitID = BigInt(selectedMobileUnit.id) & mobileUnitIdMask;
+                                const bagMobileUnitID = BigInt.asUintN(32, BigInt(bag.id) >> BigInt(16));
+                                const truncatedMobileUnitID = BigInt.asUintN(32, BigInt(selectedMobileUnit.id));
                                 return bagMobileUnitID === truncatedMobileUnitID;
                             })
                             ?.map((bag): SelectedBag => {
