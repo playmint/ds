@@ -5,8 +5,6 @@ const prizeItemId = "0x6a7a67f08c72b94400000001000000010000000000000000"; // gre
 const buildingPrizeBagSlot = 0;
 const buildingPrizeItemSlot = 0;
 const nullBytes24 = `0x${"00".repeat(24)}`;
-const duckBuildingTopId = "04";
-const burgerBuildingTopId = "17";
 const burgerCounterKindId = "Burger Display Building";
 const duckCounterKindId = "Duck Display Building";
 const countdownBuildingKindId = "Countdown Building";
@@ -59,23 +57,12 @@ export default async function update(state, block) {
 
     // NOTE: Because the 'action' doesn't get passed the form values we are setting a global value to a function that will
     const start = () => {
-        handleFormSubmit = startSubmit;
-    };
 
-    const startSubmit = (values) => {
-        const selectedBuildingIdDuck = values["buildingKindIdDuck"];
-        const selectedBuildingIdBurger = values["buildingKindIdBurger"];
+        // /todo - offer a way of choosing which buildingkinds 
+        // are eligible for each team
 
-        console.log("start(): form.currentValues", values);
-
-        // Verify selected buildings are different from each other
-        if (selectedBuildingIdDuck == selectedBuildingIdBurger) {
-            console.error("Team buildings must be different from each other", {
-                selectedBuildingIdDuck,
-                selectedBuildingIdBurger,
-            });
-            return;
-        }
+        const selectedBuildingIdDuck = "0xbe92755c0000000000000000546391e80000000000000003"
+        const selectedBuildingIdBurger = "0xbe92755c0000000000000000444749c70000000000000003";;
 
         const mobileUnit = getMobileUnit(state);
         const payload = ds.encodeCall(
@@ -300,25 +287,6 @@ export default async function update(state, block) {
         }
     }
 
-    if (canStart) {
-        // Show options to select team buildings
-        htmlBlock += `
-            <h3>Select Team Buildings</h3>
-            <p>Team 🐤</p>
-            ${getBuildingKindSelectHtml(
-                state,
-                duckBuildingTopId,
-                "buildingKindIdDuck",
-            )}
-            <p>Team 🍔</p>
-            ${getBuildingKindSelectHtml(
-                state,
-                burgerBuildingTopId,
-                "buildingKindIdBurger",
-            )}
-        `;
-    }
-
     const nowBlock = block;
     const blocksLeft = endBlock > nowBlock ? endBlock - nowBlock : 0;
     const blocksFromStart = nowBlock - startBlock;
@@ -330,18 +298,10 @@ export default async function update(state, block) {
 
     if (gameActive) {
         // Display selected team buildings
-        const buildingKindDuck =
-            state.world.buildingKinds.find(
-                (b) => b.id === buildingKindIdDuck,
-            ) || {};
-        const buildingKindBurger =
-            state.world.buildingKinds.find(
-                (b) => b.id === buildingKindIdBurger,
-            ) || {};
         htmlBlock += `
             <h3>Team Buildings:</h3>
-            <p>Team 🐤: ${buildingKindDuck.name?.value}</p>
-            <p>Team 🍔: ${buildingKindBurger.name?.value}</p></br>
+            <p>Team 🐤: Weak Duck</p>
+            <p>Team 🍔: Weak Burger</p></br>
 
         `;
 
@@ -445,11 +405,6 @@ export default async function update(state, block) {
                         id: "default",
                         type: "inline",
                         html: htmlBlock,
-                        submit: (values) => {
-                            if (typeof handleFormSubmit == "function") {
-                                handleFormSubmit(values);
-                            }
-                        },
                         buttons: buttonList,
                     },
                 ],
@@ -556,25 +511,6 @@ function getMobileUnitFeeSlot(state) {
         unitFeeBagSlot,
         unitFeeItemSlot,
     };
-}
-
-function getBuildingKindSelectHtml(state, buildingTopId, selectId) {
-    return `
-        <select id="${selectId}" name="${selectId}">
-            ${state.world.buildingKinds
-                .filter(
-                    (b) =>
-                        b.model &&
-                        b.model.value.substring(3, 5) === buildingTopId,
-                )
-                .map(
-                    (b) => `
-                .filter((b) => b.model && b.model.value.substring(3, 5) === buildingTopId)
-                    <option value="${b.id}">${b.name.value}</option>
-                `,
-                )}
-        </select>
-    `;
 }
 
 // --- Generic State helper functions
