@@ -428,7 +428,7 @@ export const QuestPanel: FunctionComponent<QuestPanelProps> = ({
         <StyledQuestPanel className="no-scrollbars">
             {zone?.autoquests.map(
                 (autoquest) =>
-                    acceptedQuests.find((quest) => quest.node.id === autoquest.id) && (
+                    !acceptedQuests.find((quest) => quest.node.id === autoquest.id) && (
                         <AutoQuestItem
                             key={autoquest.id}
                             id={autoquest.id || ''}
@@ -436,13 +436,6 @@ export const QuestPanel: FunctionComponent<QuestPanelProps> = ({
                             player={player}
                         />
                     )
-            )}
-            {zone?.autoquests.length > 0 && !acceptedQuests.find((quest) => quest.node.id == zone.autoquests[0].id) && (
-                <AutoQuestItem
-                    id={zone.autoquests[0].id}
-                    questName={zone.autoquests[0].name?.value || ''}
-                    player={player}
-                />
             )}
             {acceptedQuests.map((quest, questIdx) => (
                 <QuestItem
