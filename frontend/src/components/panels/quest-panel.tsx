@@ -339,7 +339,7 @@ export const QuestItem: FunctionComponent<{
 };
 
 export const AutoQuestItem: FunctionComponent<{
-    id: number;
+    id: string;
     questName: string;
     player: ConnectedPlayer;
 }> = ({ id, questName, player }) => {
@@ -358,7 +358,7 @@ export const AutoQuestItem: FunctionComponent<{
         <StyledQuestItem expanded={true}>
             <>
                 <div className="header">
-                    <h3>{questName?.value}</h3>
+                    <h3>{questName}</h3>
                 </div>
 
                 <div className="buttonContainer">
@@ -426,8 +426,23 @@ export const QuestPanel: FunctionComponent<QuestPanelProps> = ({
 
     return (
         <StyledQuestPanel className="no-scrollbars">
-            {!acceptedQuests.find((quest) => quest.node.id == zone.autoquests[0].id) && (
-                <AutoQuestItem id={zone.autoquests[0].id} questName={zone.autoquests[0].name} player={player} />
+            {zone?.autoquests.map(
+                (autoquest) =>
+                    acceptedQuests.find((quest) => quest.node.id === autoquest.id) && (
+                        <AutoQuestItem
+                            key={autoquest.id}
+                            id={autoquest.id || ''}
+                            questName={autoquest.name?.value || ''}
+                            player={player}
+                        />
+                    )
+            )}
+            {zone?.autoquests.length > 0 && !acceptedQuests.find((quest) => quest.node.id == zone.autoquests[0].id) && (
+                <AutoQuestItem
+                    id={zone.autoquests[0].id}
+                    questName={zone.autoquests[0].name?.value || ''}
+                    player={player}
+                />
             )}
             {acceptedQuests.map((quest, questIdx) => (
                 <QuestItem
