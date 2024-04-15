@@ -1144,7 +1144,7 @@ const BuildingFabricator = () => {
                 tiles: [],
                 mobileUnits: [],
                 sessions: [],
-                availableQuests: [],
+                autoquests: [],
             };
             validate();
             const yaml = getManifestsYAML({
