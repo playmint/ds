@@ -136,7 +136,7 @@ export default function update({ selected, world, player }) {
                         {
                             id: 'default',
                             type: 'inline',
-                            html: "Give me goo and I'll register you. Collect some from other islands if you don't have enough",
+                            html: "Give me goo and I'll register you. If you have already spent yours, you will just have to go find some.",
                             buttons: [{ text: 'Register', type: 'action', action: craft, disabled: !canCraft }]
                         },
                     ],

@@ -11,11 +11,11 @@ import {
 } from '@app/../../core/src';
 import { PluginContent } from '@app/components/organisms/tile-action';
 import {
-    GOO_BIG_THRESH,
+    //GOO_BIG_THRESH,
     GOO_BLUE,
     GOO_GREEN,
     GOO_RED,
-    GOO_SMALL_THRESH,
+    //GOO_SMALL_THRESH,
     getCoords,
     getGooRates,
     getTileDistance,
@@ -288,20 +288,24 @@ const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUn
     const { q, r, s } = getCoords(lastTile);
     const gooRates = getGooRates(lastTile);
     // const topGooRate = gooRates.length > 0 ? Math.floor(gooRates[0].gooPerSec * 100) / 100 : 0;
-    const topGooWeight = gooRates.length > 0 ? gooRates[0].weight : 0;
-    const topGooName = gooRates.length > 0 ? gooRates[0].name : '';
-    const hasSomeGoo = topGooWeight >= GOO_SMALL_THRESH;
-    const hasLotsGoo = topGooWeight >= GOO_BIG_THRESH;
+    //const topGooWeight = gooRates.length > 0 ? gooRates[0].weight : 0;
+    //const topGooName = gooRates.length > 0 ? gooRates[0].name : '';
+    //const hasSomeGoo = topGooWeight >= GOO_SMALL_THRESH;
+    //const hasLotsGoo = topGooWeight >= GOO_BIG_THRESH;
     const gooRatesInNameOrder = [GOO_RED, GOO_GREEN, GOO_BLUE]
         .map((idx) => gooRates.find((goo) => goo.index === idx))
         .filter((goo) => !!goo);
 
-    const tileName = hasSomeGoo ? `${topGooName.toUpperCase()} GOO TILE` : `TILE`;
+    /*const tileName = hasSomeGoo ? `${topGooName.toUpperCase()} GOO TILE` : `TILE`;
     const tileDescription = hasLotsGoo
         ? `A tile rich in ${topGooName} goo! ${topGooName} goo extractors will be very effective here`
         : hasSomeGoo
         ? `The tile has some ${topGooName} goo, extractors that need ${topGooName} goo will work well here`
         : undefined;
+    */
+
+    const tileName = 'TILE';
+    const tileDescription = ' ';
 
     return (
         <StyledTileInfoPanel>
