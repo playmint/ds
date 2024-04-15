@@ -5,5 +5,5 @@ spec:
   description: "This world was created from the gooey remains of the last. You need to learn how to extract this goo."
   tasks:
     - kind: construct
-      name: Construct a Red Goo Extractor. It works better on a tile with a high red goo-per-hour value.
+      name: Construct a Red Goo Extractor. It should work on any old tile these days.
       buildingKind: Red Goo Extractor
