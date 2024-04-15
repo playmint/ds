@@ -170,7 +170,11 @@ export default async function update(state, block) {
     const hqCoords = selectedBuilding.location?.tile?.coords;
     for (let i = 0; i < teamDuckLength; i++) {
         const unitId = getHQTeamUnit(selectedBuilding, "Duck", i);
-        const unitCoords = state.world?.mobileUnits?.find(unit => unit.id === unitId).nextLocation?.tile?.coords;
+        const mobileUnit = state.world?.mobileUnits?.find(unit => unit.id === unitId);
+        if (!mobileUnit) {
+            continue;
+        }
+        const unitCoords = mobileUnit.nextLocation?.tile?.coords;
         if (distance(getTileCoords(unitCoords), getTileCoords(hqCoords)) > 5) {
             continue;
         }
@@ -185,7 +189,11 @@ export default async function update(state, block) {
     }
     for (let i = 0; i < teamBurgerLength; i++) {
         const unitId = getHQTeamUnit(selectedBuilding, "Burger", i);
-        const unitCoords = state.world?.mobileUnits?.find(unit => unit.id === unitId).nextLocation?.tile?.coords;
+        const mobileUnit = state.world?.mobileUnits?.find(unit => unit.id === unitId);
+        if (!mobileUnit) {
+            continue;
+        }
+        const unitCoords = mobileUnit.nextLocation?.tile?.coords;
         if (distance(getTileCoords(unitCoords), getTileCoords(hqCoords)) > 5) {
             continue;
         }
