@@ -416,15 +416,19 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             toggleWalletItemsActive={toggleWalletItemsActive}
                             walletItemsActive={walletItemsActive}
                         />
-                        {zone && player && questsActive && acceptedQuests.length > 0 && (
-                            <QuestPanel
-                                zone={zone}
-                                tiles={tiles || []}
-                                player={player}
-                                acceptedQuests={acceptedQuests}
-                                questMessages={questMessages}
-                            />
-                        )}
+                        {zone &&
+                            player &&
+                            questsActive &&
+                            selected?.mobileUnit &&
+                            (acceptedQuests.length > 0 || zone.autoquests.length > 0) && (
+                                <QuestPanel
+                                    zone={zone}
+                                    tiles={tiles || []}
+                                    player={player}
+                                    acceptedQuests={acceptedQuests}
+                                    questMessages={questMessages}
+                                />
+                            )}
                         {zone && player && walletItemsActive && global?.gameID && (
                             <WalletItemsPanel player={player} blockNumber={blockNumber} gameAddress={global?.gameID} />
                         )}
