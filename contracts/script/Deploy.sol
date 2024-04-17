@@ -81,7 +81,7 @@ contract GameDeployer is Script {
         ds.autorizeStateMutation(tokenAddress);
 
         DummyERC20 bugs = new DummyERC20("Bugs", "BUGS", 0);
-        bugs.mint(deployerAddr, 1000);
+        bugs.mint(deployerAddr, 1600);
         bytes24 bugItem = Node.Item("Bug", [uint32(0), uint32(0), uint32(100)], true);
 
         DummyERC20 orbs = new DummyERC20("Orbs", "ORBS", 0);
