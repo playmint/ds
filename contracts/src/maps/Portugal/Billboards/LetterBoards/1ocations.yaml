@@ -1,0 +1,131 @@
+---
+kind: Building
+spec:
+  name: -T-
+  location: [3, -3, 0]
+
+---
+kind: Building
+spec:
+  name: -H-
+  location: [4, -3, -1]
+
+---
+kind: Building
+spec:
+  name: -E-
+  location: [5, -3, -2]
+
+---
+kind: Building
+spec:
+  name: -A-
+  location: [0, -4, 4]
+
+---
+kind: Building
+spec:
+  name: -U-
+  location: [1, -4, 3]
+
+---
+kind: Building
+spec:
+  name: -T2-
+  location: [2, -4, 2]
+
+---
+kind: Building
+spec:
+  name: -O-
+  location: [3, -4, 1]
+
+---
+kind: Building
+spec:
+  name: -N-
+  location: [4, -4, 0]
+
+---
+kind: Building
+spec:
+  name: -O2-
+  location: [5, -4, -1]
+
+---
+kind: Building
+spec:
+  name: -M-
+  location: [6, -4, -2]
+
+---
+kind: Building
+spec:
+  name: -O3-
+  location: [7, -4, -3]
+
+---
+kind: Building
+spec:
+  name: -U2-
+  location: [8, -4, -4]
+
+---
+kind: Building
+spec:
+  name: -S-
+  location: [9, -4, -5]
+
+---
+kind: Building
+spec:
+  name: -C-
+  location: [1, -5, 4]
+
+---
+kind: Building
+spec:
+  name: -E2-
+  location: [2, -5, 3]
+
+---
+kind: Building
+spec:
+  name: -N2-
+  location: [3, -5, 2]
+
+---
+kind: Building
+spec:
+  name: -T3-
+  location: [4, -5, 1]
+
+---
+kind: Building
+spec:
+  name: -I-
+  location: [5, -5, 0]
+
+---
+kind: Building
+spec:
+  name: -P-
+  location: [6, -5, -1]
+
+---
+kind: Building
+spec:
+  name: -E3-
+  location: [7, -5, -2]
+
+---
+kind: Building
+spec:
+  name: -D-
+  location: [8, -5, -3]
+
+---
+kind: Building
+spec:
+  name: -E4-
+  location: [9, -5, -4]

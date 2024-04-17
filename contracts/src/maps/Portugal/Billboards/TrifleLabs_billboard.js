@@ -1,7 +1,7 @@
 import ds from 'downstream';
 
-const billboardName = "Moving Castles Billboard";
-const billboardImage = "https://assets.downstream.game/logos/movingcastles.png";
+const billboardName = "Trifle Labs Billboard";
+const billboardImage = "https://i.imgur.com/GlCTWiS.png";
 
 export default async function update({ selected, world, player }) {
     const billboardBuilding = (world?.buildings || []).find(
@@ -25,7 +25,7 @@ export default async function update({ selected, world, player }) {
         components: [
             {
                 type: 'building',
-                id: 'moving-castles-billboard',
+                id: 'trifle-labs-billboard',
                 content: [
                     {
                         id: 'default',

@@ -1,7 +1,7 @@
 import ds from 'downstream';
 
-const billboardName = "Sky Strife Billboard";
-const billboardImage = "https://i.imgur.com/IRyH64W.png";
+const billboardName = "-E3-";
+const billboardImage = "https://i.imgur.com/wuhifWr.png";
 
 export default async function update({ selected, world, player }) {
     const billboardBuilding = (world?.buildings || []).find(
@@ -25,12 +25,12 @@ export default async function update({ selected, world, player }) {
         components: [
             {
                 type: 'building',
-                id: 'sky-strife-billboard',
+                id: 'e3-billboard',
                 content: [
                     {
                         id: 'default',
                         type: 'inline',
-                        html: 'lay on a leaf'
+                        html: 'E'
                     }
                 ],
             },

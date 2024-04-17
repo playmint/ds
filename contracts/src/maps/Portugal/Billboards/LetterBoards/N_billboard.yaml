@@ -1,0 +1,17 @@
+---
+kind: BuildingKind
+spec:
+  category: billboard
+  name: -N-
+  description: -N-
+  model: monitor
+  plugin:
+    file: ./N_billboard.js
+    alwaysActive: true
+  materials:
+  - name: Red Goo
+    quantity: 100
+  - name: Green Goo
+    quantity: 100
+  - name: Blue Goo
+    quantity: 100
