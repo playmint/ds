@@ -8,7 +8,7 @@
   },
   "scripts": {
     "prepack": "npm run build",
-    "build": "mkdir -p dist && rm -rf ./dist/contracts && cp -r ../contracts/src ./dist/contracts && cp -r ../contracts/lib/cog/contracts/src ./dist/contracts/cog && npx esbuild src/main.ts --bundle --outfile=dist/ds.js --platform=node --target=node12",
+    "build": "mkdir -p dist && rm -rf ./dist/contracts && cp -r ../contracts/src ./dist/contracts && cp -r ../contracts/lib/solmate/src ./dist/contracts/solmate && cp -r ../contracts/lib/cog/contracts/src ./dist/contracts/cog && npx esbuild src/main.ts --bundle --outfile=dist/ds.js --platform=node --target=node12",
     "exec": "npm run build >/dev/null && ./dist/ds.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

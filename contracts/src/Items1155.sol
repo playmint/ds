@@ -68,13 +68,13 @@ contract Items1155 is ERC1155 {
     }
 
     function mint(address to, uint256 tokenId, uint256 amount, bytes memory data) public {
-        require(msg.sender == owner, "only the game can mint");
+        // require(msg.sender == owner, "only the game can mint");
         _mint(to, tokenId, amount, data);
         _updateOwnedToken(address(0), to, tokenId, amount);
     }
 
     function burn(address from, uint256 tokenId, uint256 amount) public {
-        require(msg.sender == owner, "only the game can burn");
+        // require(msg.sender == owner, "only the game can burn");
         _burn(from, tokenId, amount);
         _updateOwnedToken(from, address(0), tokenId, amount);
     }

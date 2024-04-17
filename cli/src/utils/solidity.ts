@@ -5,6 +5,7 @@ import path from 'path';
 export const remappings = [
     ['@ds/', path.join(__dirname, 'contracts/')],
     ['cog/', path.join(__dirname, 'contracts/cog/')],
+    ['solmate/', path.join(__dirname, 'contracts/solmate/')],
 ];
 
 interface CompileOpts {

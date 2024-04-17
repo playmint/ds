@@ -29,5 +29,6 @@ fragment BuildingKind on Node {
     # implementation of this building kind
     implementation: node(match: { kinds: "Extension" }) {
         id
+        addr: key
     }
 }

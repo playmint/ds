@@ -13,6 +13,8 @@ import {Node, Schema} from "@ds/schema/Schema.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {Zones721} from "@ds/Zones721.sol";
 
+import {ERC20} from "solmate/tokens/ERC20.sol";
+
 import {CheatsRule} from "@ds/rules/CheatsRule.sol";
 import {MovementRule} from "@ds/rules/MovementRule.sol";
 import {InventoryRule} from "@ds/rules/InventoryRule.sol";
@@ -27,6 +29,22 @@ import {ExtractionRule} from "@ds/rules/ExtractionRule.sol";
 import {QuestRule} from "@ds/rules/QuestRule.sol";
 
 using Schema for State;
+
+contract DummyERC20 is ERC20 {
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        uint8 _decimals
+    ) ERC20(_name, _symbol, _decimals) {}
+
+    function mint(address to, uint256 value) public virtual {
+        _mint(to, value);
+    }
+
+    function burn(address from, uint256 value) public virtual {
+        _burn(from, value);
+    }
+}
 
 contract GameDeployer is Script {
     function setUp() public {}
@@ -62,12 +80,29 @@ contract GameDeployer is Script {
         ds.registerTokensContract(tokenAddress);
         ds.autorizeStateMutation(tokenAddress);
 
+        // mint fake tokens from other games
+        DummyERC20 bugs = new DummyERC20("Bugs", "BUGS", 1);
+        bugs.mint(deployerAddr, 1000);
+        bytes24 bugItem = Node.Item("BUG", [uint32(100), uint32(100), uint32(76)], true);
+        dispatcher.dispatch( abi.encodeCall(Actions.REGISTER_ITEM_KIND, (bugItem, "Bug", "31-311")));
+
+        DummyERC20 orbs = new DummyERC20("Orbs", "ORBS", 1);
+        orbs.mint(deployerAddr, 500);
+        bytes24 orbItem = Node.Item("ORB", [uint32(100), uint32(100), uint32(76)], true);
+        dispatcher.dispatch( abi.encodeCall(Actions.REGISTER_ITEM_KIND, (orbItem, "ORB", "31-311")));
+
+
+
         string memory o = "key";
         vm.serializeAddress(o, "game", address(ds));
         vm.serializeAddress(o, "state", address(ds.getState()));
         vm.serializeAddress(o, "router", address(ds.getRouter()));
         vm.serializeAddress(o, "tokens", address(tokenAddress));
         vm.serializeAddress(o, "zones", address(zoneOwnership));
+        vm.serializeAddress(o, "bugs", address(bugs));
+        vm.serializeUint(o, "bugitem", uint256(uint192(bugItem)));
+        vm.serializeAddress(o, "orbs", address(orbs));
+        vm.serializeUint(o, "orbitem", uint256(uint192(orbItem)));
         string memory latestJson = vm.serializeAddress(o, "dispatcher", address(dispatcher));
         vm.writeJson(latestJson, "./out/latest.json");
 

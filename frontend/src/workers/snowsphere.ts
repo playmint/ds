@@ -23,6 +23,7 @@
 // ////////////////////////////////////////
 //
 import {
+    ERC20Approver,
     GameConfig,
     GameStatePlugin,
     Logger,
@@ -136,6 +137,8 @@ async function newContext(
     dispatch: PluginDispatchFunc,
     logMessage: Logger,
     questMessage: Logger,
+    erc20Approver: ERC20Approver,
+    erc1155Approver: ERC1155Approver,
     config: PluginConfig
 ): Promise<number> {
     const id = ++globalContextSeq;
@@ -216,6 +219,18 @@ async function newContext(
             const [types, data] = args;
             const coder = ethers.AbiCoder.defaultAbiCoder();
             return coder.decode(types, data);
+        },
+
+        approveERC20(contractAddress: string, spenderAddress: string, amount: number) {
+            erc20Approver(contractAddress, spenderAddress, amount).catch((err) =>
+                console.error('erc20approve fail', err)
+            );
+        },
+
+        approveERC1155(contractAddress: string, spenderAddress: string, amount: number) {
+            erc1155Approver(contractAddress, spenderAddress, amount).catch((err) =>
+                console.error('erc1155approve fail', err)
+            );
         },
 
         config: globalConfig,

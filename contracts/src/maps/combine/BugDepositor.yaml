@@ -1,0 +1,19 @@
+---
+kind: BuildingKind
+spec:
+  name: BugDepositor
+  description: "Deposit Bugs"
+  category: custom
+  model: 12-15
+  color: 4
+  contract:
+    file: ./WrapperBuilding.sol
+  plugin:
+    file: ./BugDepositor.bundle.js
+  materials:
+    - name: Green Goo
+      quantity: 25
+    - name: Blue Goo
+      quantity: 25
+    - name: Red Goo
+      quantity: 25

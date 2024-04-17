@@ -26,12 +26,17 @@ export interface EthereumProvider extends Eip1193Provider {
 
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<T>;
 
+export type ERC20Approver = (contractAddress: string, spenderAddress: string, amount: number) => Promise<any>;
+export type ERC1155Approver = (contractAddress: string, spenderAddress: string, amount: number) => Promise<any>;
+
 export interface Sandbox {
     init: (cfg: Partial<GameConfig>) => Promise<void>;
     newContext: (
         dispatch: PluginDispatchFunc,
         logMessage: Logger,
         questMessage: Logger,
+        erc20Approver: ERC20Approver,
+        erc1155Approver: ERC1155Approver,
         config: PluginConfig,
     ) => Promise<number>;
     deleteContext: (id: number) => Promise<void>;
