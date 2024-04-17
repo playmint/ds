@@ -1,0 +1,19 @@
+---
+kind: BuildingKind
+spec:
+  name: DustDepositor
+  description: "Deposit Dust"
+  category: custom
+  model: 12-15
+  color: 3
+  contract:
+    file: ./WrapperBuilding.sol
+  plugin:
+    file: ./DustDepositor.bundle.js
+  materials:
+    - name: Green Goo
+      quantity: 25
+    - name: Blue Goo
+      quantity: 25
+    - name: Red Goo
+      quantity: 25

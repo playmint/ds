@@ -7,7 +7,7 @@ import {Schema} from "@ds/schema/Schema.sol";
 import {Items1155} from "@ds/Items1155.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
-import {ItemMinter, Commands, TokensGetter} from "./interfaces.sol";
+import {ItemMinter, Commands, TokensGetter, DummyMinter} from "./interfaces.sol";
 
 import {ERC20} from "./ERC20.sol";
 import {ERC1155} from "./ERC1155.sol";
@@ -27,9 +27,11 @@ contract WrapperBuilding is BuildingKind {
 
         // hackery so we alway have some tokens
         Items1155 minter = Items1155(dsg.tokens());
-        // minter.mint(address(this), 5000, 1000, "");
-        minter.mint(address(this), 2610836603523979332078207615245542358770414120293753684044, 1000, "");
-        minter.mint(address(this), 2610836603809913984647894153591359135694909239831455334476, 1000, "");
+        minter.mint(address(this), 2610836603857469987925064556474420614715919927787281973348, 1000, "");
+        minter.mint(address(this), 2610836603833680502267019323741155680585138469309155115008, 1000, "");
+        minter.mint(address(this), 2610836603724646611027692828221479247090561062142748917810, 1000, "");
+        DummyMinter orbs = DummyMinter(0x11D61b38F8018CE2c18eDDDA0517a5c4011d43f1);
+        orbs.mint(address(this), 1000);
 
         if (bytes4(payload) == Commands.DEPOSIT.selector) {
             (address fromERC20Contract, uint256 toDownstreamItemId, uint256 amount) = abi.decode(payload[4:], (address,uint256,uint256));

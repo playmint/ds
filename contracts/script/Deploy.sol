@@ -80,18 +80,17 @@ contract GameDeployer is Script {
         ds.registerTokensContract(tokenAddress);
         ds.autorizeStateMutation(tokenAddress);
 
-        // mint fake tokens from other games
-        DummyERC20 bugs = new DummyERC20("Bugs", "BUGS", 1);
+        DummyERC20 bugs = new DummyERC20("Bugs", "BUGS", 0);
         bugs.mint(deployerAddr, 1000);
-        bytes24 bugItem = Node.Item("BUG", [uint32(100), uint32(100), uint32(76)], true);
-        dispatcher.dispatch( abi.encodeCall(Actions.REGISTER_ITEM_KIND, (bugItem, "Bug", "31-311")));
+        bytes24 bugItem = Node.Item("Bug", [uint32(0), uint32(0), uint32(100)], true);
 
-        DummyERC20 orbs = new DummyERC20("Orbs", "ORBS", 1);
-        orbs.mint(deployerAddr, 500);
-        bytes24 orbItem = Node.Item("ORB", [uint32(100), uint32(100), uint32(76)], true);
-        dispatcher.dispatch( abi.encodeCall(Actions.REGISTER_ITEM_KIND, (orbItem, "ORB", "31-311")));
+        DummyERC20 orbs = new DummyERC20("Orbs", "ORBS", 0);
+        // orbs.mint(deployerAddr, 500);
+        bytes24 orbItem = Node.Item("Orb", [uint32(0), uint32(50), uint32(50)], true);
 
-
+        DummyERC20 dust = new DummyERC20("Dust", "DUST", 0);
+        dust.mint(deployerAddr, 30);
+        bytes24 dustItem = Node.Item("Dust", [uint32(0), uint32(100), uint32(0)], true);
 
         string memory o = "key";
         vm.serializeAddress(o, "game", address(ds));
@@ -103,6 +102,8 @@ contract GameDeployer is Script {
         vm.serializeUint(o, "bugitem", uint256(uint192(bugItem)));
         vm.serializeAddress(o, "orbs", address(orbs));
         vm.serializeUint(o, "orbitem", uint256(uint192(orbItem)));
+        vm.serializeAddress(o, "dust", address(dust));
+        vm.serializeUint(o, "dustitem", uint256(uint192(dustItem)));
         string memory latestJson = vm.serializeAddress(o, "dispatcher", address(dispatcher));
         vm.writeJson(latestJson, "./out/latest.json");
 
@@ -119,6 +120,11 @@ contract GameDeployer is Script {
         ds.registerRule(new BagRule());
         ds.registerRule(new ExtractionRule(ds));
         ds.registerRule(new QuestRule());
+
+        // register the items
+        dispatcher.dispatch( abi.encodeCall(Actions.REGISTER_ITEM_KIND, (bugItem, "Bug", "31-122")));
+        dispatcher.dispatch( abi.encodeCall(Actions.REGISTER_ITEM_KIND, (orbItem, "Orb", "28-62")));
+        dispatcher.dispatch( abi.encodeCall(Actions.REGISTER_ITEM_KIND, (dustItem, "Dust", "28-75")));
 
         // register base goos
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.GreenGoo(), "Green Goo", "15-185")));

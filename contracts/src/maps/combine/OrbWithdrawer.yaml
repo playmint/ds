@@ -1,0 +1,19 @@
+---
+kind: BuildingKind
+spec:
+  name: OrbWithdrawer
+  description: "Orb Withdrawer"
+  category: custom
+  model: 12-15
+  color: 2
+  contract:
+    file: ./WrapperBuilding.sol
+  plugin:
+    file: ./OrbWithdrawer.bundle.js
+  materials:
+    - name: Green Goo
+      quantity: 25
+    - name: Blue Goo
+      quantity: 25
+    - name: Red Goo
+      quantity: 25

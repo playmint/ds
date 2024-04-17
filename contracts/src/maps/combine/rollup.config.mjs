@@ -3,6 +3,7 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 export default {
     input: {
         BugDepositor: 'BugDepositor.js',
+        DustDepositor: 'DustDepositor.js',
     },
     output: {
         dir: './',

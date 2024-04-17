@@ -1,18 +1,17 @@
-
 const DEPOSIT_SIG = `function DEPOSIT(address fromERC20Contract, uint256 toDownstreamItemId, uint256 amount)`;
-const WITHDRAW_SIG = `function WITHDRAW(uint256 fromDownstreamItemId, address toERC20Contract, uint256 amount)`;
 
-export async function wrapper({TOKEN_NAME, TOKEN_ADDRESS, ITEM_ID, MODE}, { selected, world }) {
+async function wrapper({TOKEN_NAME, TOKEN_ADDRESS, ITEM_ID}, { selected, world }) {
     const { tiles, mobileUnit } = selected || {};
     const selectedTile = tiles && tiles.length === 1 ? tiles[0] : undefined;
     const selectedBuilding = (world?.buildings || []).find(
         (b) => selectedTile && b.location?.tile?.id === selectedTile.id,
     );
-    const buildingKindAddr = selectedBuilding?.kind?.implementation?.addr;
+    selectedBuilding?.kind?.implementation?.addr;
 
     const amount = 1;
 
     const deposit = async () => {
+        // await ds.approveERC20(TOKEN_ADDRESS, buildingKindAddr, amount);
         const payloadArgs = [
             TOKEN_ADDRESS,
             ITEM_ID,
@@ -20,20 +19,6 @@ export async function wrapper({TOKEN_NAME, TOKEN_ADDRESS, ITEM_ID, MODE}, { sele
         ];
         console.log('payload', payloadArgs);
         const payload = ds.encodeCall(DEPOSIT_SIG, payloadArgs);
-        ds.dispatch({
-            name: "BUILDING_USE",
-            args: [selectedBuilding.id, mobileUnit.id, payload],
-        });
-    };
-
-    const withdraw = async () => {
-        const payloadArgs = [
-            ITEM_ID,
-            TOKEN_ADDRESS,
-            amount,
-        ];
-        console.log('payload', payloadArgs);
-        const payload = ds.encodeCall(WITHDRAW_SIG, payloadArgs);
         ds.dispatch({
             name: "BUILDING_USE",
             args: [selectedBuilding.id, mobileUnit.id, payload],
@@ -51,14 +36,10 @@ export async function wrapper({TOKEN_NAME, TOKEN_ADDRESS, ITEM_ID, MODE}, { sele
                         id: "default",
                         type: "inline",
                         buttons: [
-                            MODE == 'deposit' ? {
+                            {
                                 text: `Deposit ${TOKEN_NAME}`,
                                 type: "action",
                                 action: deposit,
-                            } : {
-                                text: `Withdraw ${TOKEN_NAME}`,
-                                type: "action",
-                                action: withdraw,
                             },
                         ],
                         html: `
@@ -71,4 +52,4 @@ export async function wrapper({TOKEN_NAME, TOKEN_ADDRESS, ITEM_ID, MODE}, { sele
     };
 }
 
-
+export { wrapper as w };
