@@ -48,6 +48,7 @@ _Some common tasks:_
 | example | task |
 |---|---|
 | `ds apply -n local -z 1 -f BasicFactory.yaml -k <private key>` | Apply manifest files (deploy buildings and maps) |
+| `ds destroy -n local -z 1 -f BasicFactory.yaml -k <private key>` | Reverses an apply of manifest files, esentially the oppose of 'apply' |
 | `ds apply help` | help on apply command |
 | `ds get -n local items` | Get ids for all items |
 | `ds get -n local buildingkinds` | Get info for all buildingkinds |
