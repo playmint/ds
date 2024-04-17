@@ -1,0 +1,20 @@
+---
+kind: BuildingKind
+spec:
+  name: Recombobulator
+  description: "The BEST PLACE to recombobulate your ERCs."
+  category: custom
+  model: 05-05
+  color: 5
+  contract:
+    file: ./Recombobulator.sol
+  plugin:
+    file: ./Recombobulator.js
+  materials:
+    - name: Green Goo
+      quantity: 100
+    - name: Blue Goo
+      quantity: 100
+    - name: Red Goo
+      quantity: 100
+

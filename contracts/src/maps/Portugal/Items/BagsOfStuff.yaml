@@ -1,0 +1,9 @@
+---
+kind: Bag
+spec:
+  location: [1, 3, -4]
+  items:
+    - name: D$BUG
+      quantity: 100
+    - name: D$DUST
+      quantity: 100

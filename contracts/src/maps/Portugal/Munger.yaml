@@ -1,0 +1,29 @@
+
+---
+kind: BuildingKind
+spec:
+  category: factory
+  name: Munger
+  description: Munges stuff into DIFFERENT STUFF!!!!
+  model: 11-15
+  color: 3
+  contract:
+    file: ./Munger.sol
+  plugin:
+    file: ./Munger.js
+  materials:
+  - name: Red Goo
+    quantity: 100
+  - name: Green Goo
+    quantity: 100
+  - name: Blue Goo
+    quantity: 100
+  inputs:
+  - name: D$BUG
+    quantity: 1
+  - name: D$DUST
+    quantity: 1
+
+  outputs:
+  - name: D$ORB
+    quantity: 1

@@ -1,0 +1,9 @@
+kind: Item
+spec:
+  name: D$DUST
+  icon: 28-75
+  goo:
+    red: 0
+    green: 0
+    blue: 100
+  stackable: true

@@ -1,0 +1,9 @@
+kind: Item
+spec:
+  name: D$BUG
+  icon: 31-122
+  goo:
+    red: 100
+    green: 0
+    blue: 0
+  stackable: true

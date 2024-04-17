@@ -1,0 +1,9 @@
+kind: Item
+spec:
+  name: D$ORB
+  icon: 28-62
+  goo:
+    red: 50
+    green: 0
+    blue: 50
+  stackable: true

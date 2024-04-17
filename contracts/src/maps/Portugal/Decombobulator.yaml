@@ -1,0 +1,20 @@
+---
+kind: BuildingKind
+spec:
+  name: Decombobulator
+  description: "Debobbles your swag into $$ ERCs."
+  category: custom
+  model: 03-12
+  color: 1
+  contract:
+    file: ./Decombobulator.sol
+  plugin:
+    file: ./Decombobulator.js
+  materials:
+    - name: Green Goo
+      quantity: 100
+    - name: Blue Goo
+      quantity: 100
+    - name: Red Goo
+      quantity: 100
+

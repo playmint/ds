@@ -1,0 +1,17 @@
+---
+kind: Building
+spec:
+  name: Recombobulator  
+  location: [1, 3, -4]
+
+---
+kind: Building
+spec:
+  name: Munger  
+  location: [3, -1, -2]
+
+---
+kind: Building
+spec:
+  name: Decombobulator  
+  location: [5, 0, -5]
