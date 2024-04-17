@@ -1,0 +1,17 @@
+---
+kind: BuildingKind
+spec:
+  category: billboard
+  name: AA Billboard
+  description: In the light
+  model: monitor
+  plugin:
+    file: ./AA_billboard.js
+    alwaysActive: true
+  materials:
+  - name: Red Goo
+    quantity: 10
+  - name: Green Goo
+    quantity: 10
+  - name: Blue Goo
+    quantity: 10

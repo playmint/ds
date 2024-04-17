@@ -1,0 +1,23 @@
+---
+kind: Building
+spec:
+  name: AA Billboard
+  location: [-3, 0, 3]
+
+---
+kind: Building
+spec:
+  name: Moving Castles Billboard
+  location: [-1, 4, -3]
+
+---
+kind: Building
+spec:
+  name: Trifle Labs Billboard
+  location: [2, 4, -6]
+
+---
+kind: Building
+spec:
+  name: Sky Strife Billboard
+  location: [8, 0, -8]

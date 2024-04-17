@@ -1,0 +1,23 @@
+---
+kind: Building
+spec:
+  name: BugDepositor  
+  location: [1, 2, -3]
+
+---
+kind: Building
+spec:
+  name: DustDepositor  
+  location: [2, 2, -4]
+
+---
+kind: Building
+spec:
+  name: Orbifier  
+  location: [3, -1, -2]
+
+---
+kind: Building
+spec:
+  name: OrbWithdrawer  
+  location: [5, 0, -5]
