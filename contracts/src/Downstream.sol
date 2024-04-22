@@ -117,6 +117,7 @@ contract DownstreamGame is BaseGame {
         state.registerEdgeType(Rel.ID.selector, "ID", WeightKind.UINT64);
         state.registerEdgeType(Rel.HasBlockNum.selector, "HasBlockNum", WeightKind.UINT64);
         state.registerEdgeType(Rel.Parent.selector, "Parent", WeightKind.UINT64);
+        state.registerEdgeType(Rel.IsFeatured.selector, "IsFeatured", WeightKind.UINT64);
 
         // create a session router
         BaseRouter router = new DownstreamRouter();
@@ -164,5 +165,13 @@ contract DownstreamGame is BaseGame {
 
     function setZoneUnitLimit(uint64 limit) public ownerOnly {
         state.setZoneUnitLimit(limit);
+    }
+
+    function getZoneIsFeatured(uint64 zoneId) public view returns (bool) {
+        return state.getZoneIsFeatured(zoneId);
+    }
+
+    function setZoneIsFeatured(uint64 zoneId, bool isFeatured) public ownerOnly {
+        state.setZoneIsFeatured(zoneId, isFeatured);
     }
 }
