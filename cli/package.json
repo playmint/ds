@@ -1,14 +1,12 @@
 {
     "name": "@playmint/ds-cli",
-    "version": "0.0.29",
+    "version": "0.0.31",
     "description": "cli client for interacting with downstream.game",
     "main": "index.js",
     "bin": {
         "ds": "./dist/ds.js"
     },
     "scripts": {
-        "prepack": "npm run build && mkdir -p /tmp/ds-cli && cp package.json /tmp/ds-cli/ && jq 'del(.dependencies, .devDependencies)' package.json > package.json.tmp && mv package.json.tmp package.json",
-        "postpack": "cp /tmp/ds-cli/package.json . && rm -rf /tmp/ds-cli",
         "build": "mkdir -p dist && rm -rf ./dist/contracts && cp -r ../contracts/src ./dist/contracts && cp -r ../contracts/lib/cog/contracts/src ./dist/contracts/cog && npx esbuild src/main.ts --bundle --outfile=dist/ds.js --platform=node --target=node12",
         "exec": "npm run build >/dev/null && ./dist/ds.js",
         "test": "echo \"Error: no test specified\" && exit 1"
