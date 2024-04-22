@@ -100,8 +100,10 @@ _options explained_
 #### Destroy a map folder over the current map
 
 - After running the `ds apply` command, you can run the `ds destroy` command from the same location in order to reverse your deployment
-- Please note: All tiles, buildings and bags will be destroyed but the kinds specified during the apply will remain.
+- All tiles, buildings and bags will be destroyed but the kinds specified during the apply will remain.
 
+**Please note:** If you have modified the files you have applied to a zone, you will no longer be able to pass them through `ds destroy`. It is prudent to keep a copy of the files you have applied in the state you applied them in.
+  
 ```ds destroy -n local -z 1 -k <private key> -R f <exported folder>```
 
 

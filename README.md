@@ -156,7 +156,7 @@ If you then rename the .yml file to a .yaml and move it to your desired location
 
 ## 5. Destroying a map
 
-The `ds destroy` command essentially acts as the reverse of the `ds apply` command. If the user applies a manifest, running the `ds destroy` command and passing the same manifest will remove it.
+The `ds destroy` command essentially acts as the reverse of the `ds apply` command. If the user applies a manifest, running the `ds destroy` command and passing the same manifest will remove it. It is important to note that if you modify the files you recently applied, the destroy command will not work properly. It is worth keeping a copy of anything you have applied in the state you applied it in.
 
 As an example, if the user was to run this command from the root of the repository `ds apply -n local -z 1 -R -f contracts/src/maps/tutorial-room-1`, they will deploy the kinds, tiles, buildings and bags specified in the folder. If the user then runs `ds destroy -n local -z 1 -R -f contracts/src/maps/tutorial-room-1`, the tiles, buildings and bags specified in the manifest will be removed. The only thing that will remain deployed will be the kinds.
 
