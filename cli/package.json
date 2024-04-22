@@ -1,51 +1,52 @@
 {
-  "name": "@playmint/ds-cli",
-  "version": "0.0.28",
-  "description": "cli client for interacting with downstream.game",
-  "main": "index.js",
-  "bin": {
-    "ds": "./dist/ds.js"
-  },
-  "scripts": {
-    "prepack": "npm run build",
-    "build": "mkdir -p dist && rm -rf ./dist/contracts && cp -r ../contracts/src ./dist/contracts && cp -r ../contracts/lib/cog/contracts/src ./dist/contracts/cog && npx esbuild src/main.ts --bundle --outfile=dist/ds.js --platform=node --target=node12",
-    "exec": "npm run build >/dev/null && ./dist/ds.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "playmint",
-  "repository": "github:playmint/ds",
-  "keywords": [
-    "downstream",
-    "playmint",
-    "ds-cli",
-    "ds"
-  ],
-  "license": "MIT",
-  "devDependencies": {
-    "@types/node": "^20.4.5",
-    "@typescript-eslint/eslint-plugin": "^6.2.0",
-    "@typescript-eslint/parser": "^6.2.0",
-    "esbuild": "^0.18.17",
-    "eslint": "^8.46.0",
-    "eslint-config-prettier": "8.5.0",
-    "eslint-plugin-import": "^2.28.0",
-    "prettier": "2.8.8",
-    "typescript": "^5.1.6"
-  },
-  "dependencies": {
-    "@downstream/core": "file:core",
-    "@walletconnect/ethereum-provider": "^2.9.1",
-    "chalk": "^5.3.0",
-    "cli-table3": "^0.6.3",
-    "cross-fetch": "^4.0.0",
-    "glob": "10.3.3",
-    "lokijs": "^1.5.12",
-    "qrcode-terminal": "^0.12.0",
-    "solc": "0.8.19",
-    "tiny-updater": "^3.5.1",
-    "ws": "^8.13.0",
-    "yaml": "^2.3.1",
-    "yargs": "^17.7.2",
-    "zod": "^3.21.4"
-  }
+    "name": "@playmint/ds-cli",
+    "version": "0.0.29",
+    "description": "cli client for interacting with downstream.game",
+    "main": "index.js",
+    "bin": {
+        "ds": "./dist/ds.js"
+    },
+    "scripts": {
+        "prepack": "npm run build && mkdir -p /tmp/ds-cli && cp package.json /tmp/ds-cli/ && jq 'del(.dependencies, .devDependencies)' package.json > package.json.tmp && mv package.json.tmp package.json",
+        "postpack": "cp /tmp/ds-cli/package.json . && rm -rf /tmp/ds-cli",
+        "build": "mkdir -p dist && rm -rf ./dist/contracts && cp -r ../contracts/src ./dist/contracts && cp -r ../contracts/lib/cog/contracts/src ./dist/contracts/cog && npx esbuild src/main.ts --bundle --outfile=dist/ds.js --platform=node --target=node12",
+        "exec": "npm run build >/dev/null && ./dist/ds.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "playmint",
+    "repository": "github:playmint/ds",
+    "keywords": [
+        "downstream",
+        "playmint",
+        "ds-cli",
+        "ds"
+    ],
+    "license": "MIT",
+    "devDependencies": {
+        "@types/node": "^20.4.5",
+        "@typescript-eslint/eslint-plugin": "^6.2.0",
+        "@typescript-eslint/parser": "^6.2.0",
+        "esbuild": "^0.18.17",
+        "eslint": "^8.46.0",
+        "eslint-config-prettier": "8.5.0",
+        "eslint-plugin-import": "^2.28.0",
+        "prettier": "2.8.8",
+        "typescript": "^5.1.6"
+    },
+    "dependencies": {
+        "@downstream/core": "file:core",
+        "@walletconnect/ethereum-provider": "^2.9.1",
+        "chalk": "^5.3.0",
+        "cli-table3": "^0.6.3",
+        "cross-fetch": "^4.0.0",
+        "glob": "10.3.3",
+        "lokijs": "^1.5.12",
+        "qrcode-terminal": "^0.12.0",
+        "solc": "0.8.19",
+        "tiny-updater": "^3.5.1",
+        "ws": "^8.13.0",
+        "yaml": "^2.3.1",
+        "yargs": "^17.7.2",
+        "zod": "^3.21.4"
+    }
 }
