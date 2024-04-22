@@ -338,6 +338,39 @@ export const QuestItem: FunctionComponent<{
     );
 };
 
+export const AutoQuestItem: FunctionComponent<{
+    id: string;
+    questName: string;
+    player: ConnectedPlayer;
+}> = ({ id, questName, player }) => {
+    const onAcceptClick = () => {
+        player
+            .dispatch({
+                name: 'ACCEPT_QUEST',
+                args: [id, 0],
+            })
+            .catch((e) => {
+                console.error('Failed to accept quest', questName, e);
+            });
+    };
+
+    return (
+        <StyledQuestItem expanded={true}>
+            <>
+                <div className="header">
+                    <h3>{questName}</h3>
+                </div>
+
+                <div className="buttonContainer">
+                    <CompleteQuestButton onClick={() => onAcceptClick()} className="completeQuestButton">
+                        Accept Quest
+                    </CompleteQuestButton>
+                </div>
+            </>
+        </StyledQuestItem>
+    );
+};
+
 export interface QuestPanelProps {
     player: ConnectedPlayer;
     zone: ZoneWithBags;
@@ -393,6 +426,18 @@ export const QuestPanel: FunctionComponent<QuestPanelProps> = ({
 
     return (
         <StyledQuestPanel className="no-scrollbars">
+            {acceptedQuests.length === 0 &&
+                zone?.autoquests
+                    .filter((autoquests) => !acceptedQuests.some((quest) => quest.node.id === autoquests.id))
+                    .map((autoquest) => (
+                        <AutoQuestItem
+                            key={autoquest.id}
+                            id={autoquest.id || ''}
+                            questName={autoquest.name?.value || ''}
+                            player={player}
+                        />
+                    ))}
+
             {acceptedQuests.map((quest, questIdx) => (
                 <QuestItem
                     tiles={tiles}
