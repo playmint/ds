@@ -143,7 +143,7 @@ Once your build has succeeded, `http://localhost:3000/` will take you to the Dow
 
 ## 3. Apply a map after deploying
 
-After doing a standard `docker` or `make` build, you can run the DS apply command and point it at one of the map folders. For example: `ds apply -n local -z 1 -R -f ./contracts/src/maps/quest-map/`
+After doing a standard `docker` or `make` build, you can run the `ds apply` command and point it at one of the map folders. For example: `ds apply -n local -z 1 -R -f ./contracts/src/maps/quest-map/`
 
 ## 4. Build your own map and deploy it
 
@@ -154,13 +154,19 @@ Once in the Tile Fabricator, you can design and export a map file. If you want t
 If you then rename the .yml file to a .yaml and move it to your desired location, you will be able to run the ds apply command, like so:
 `ds apply -n local -z 1 -f ./path/to/mymap.yaml`
 
-## 5. Generating the performance-test map
+## 5. Destroying a map
+
+The `ds destroy` command essentially acts as the reverse of the `ds apply` command. If the user applies a manifest, running the `ds destroy` command and passing the same manifest will remove it. It is important to note that if you modify the files you recently applied, the destroy command will not work properly. It is worth keeping a copy of anything you have applied in the state you applied it in.
+
+As an example, if the user was to run this command from the root of the repository `ds apply -n local -z 1 -R -f contracts/src/maps/tutorial-room-1`, they will deploy the kinds, tiles, buildings and bags specified in the folder. If the user then runs `ds destroy -n local -z 1 -R -f contracts/src/maps/tutorial-room-1`, the tiles, buildings and bags specified in the manifest will be removed. The only thing that will remain deployed will be the kinds.
+
+## 6. Generating the performance-test map
 
 This is only possible with the `make` deploy flow and cannot be triggered for a `docker` build. To generate the performance-test map (used to push the limits of number of tiles and plugins) run:
 
 ```
 NUM_ARENAS=4 make contracts/src/maps/performance-test
-```
+``` 
 
 ...this generates a map configuration in `contracts/src/maps/performance-test`
 

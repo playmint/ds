@@ -48,7 +48,9 @@ _Some common tasks:_
 | example | task |
 |---|---|
 | `ds apply -n local -z 1 -f BasicFactory.yaml -k <private key>` | Apply manifest files (deploy buildings and maps) |
+| `ds destroy -n local -z 1 -f BasicFactory.yaml -k <private key>` | Reverses an apply of manifest files, esentially the oppose of 'apply' |
 | `ds apply help` | help on apply command |
+| `ds destroy help` | help on destroy command |
 | `ds get -n local items` | Get ids for all items |
 | `ds get -n local buildingkinds` | Get info for all buildingkinds |
 | `ds get -n local buildingkinds` | Get info for all buildingkinds |
@@ -93,6 +95,16 @@ _options explained_
 - Use `ds apply` to deploy them to the local running Downstream:
 
 ```ds apply -n local -z 1 -k <private key> -R f <exported folder>```
+
+
+#### Destroy a map folder over the current map
+
+- After running the `ds apply` command, you can run the `ds destroy` command from the same location in order to reverse your deployment
+- All tiles, buildings and bags will be destroyed but the kinds specified during the apply will remain.
+
+**Please note:** If you have modified the files you have applied to a zone, you will no longer be able to pass them through `ds destroy`. It is prudent to keep a copy of the files you have applied in the state you applied them in.
+  
+```ds destroy -n local -z 1 -k <private key> -R f <exported folder>```
 
 
 #### Deploy as the initial map

@@ -210,7 +210,6 @@ Now you can `ds apply` the whole map folder by passing the `-R` flag and the fol
 ds apply -n local -z 1 -k <private-key> -R -f .
 ```
 
-
 Browsing back to the game, you should now see your new map.
 
 <img src="./readme-images/screenshot.png" width=300>
