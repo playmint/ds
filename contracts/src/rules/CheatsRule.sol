@@ -191,8 +191,15 @@ contract CheatsRule is Rule {
 
     function _destroyBuilding(State state, Context calldata ctx, int16 z, int16 q, int16 r, int16 s) private {
         require(Bounds.isInBounds(q, r, s), "coords out of bounds");
-        require(state.getOwner(Node.Zone(z)) == Node.Player(ctx.sender), "owner only");
         bytes24 buildingInstance = Node.Building(z, q, r, s);
+        
+        // Only the building implementation or the owner can destroy the building
+        if (state.getOwner(Node.Zone(z)) != Node.Player(ctx.sender)) {
+            bytes24 buildingKind = state.getBuildingKind(buildingInstance);
+            address implementation = state.getImplementation(buildingKind);
+            require(ctx.sender == implementation, "owner only");
+        }
+
         state.removeBuildingKind(buildingInstance);
         state.removeOwner(buildingInstance);
         state.removeParent(buildingInstance);
