@@ -68,7 +68,7 @@ cli: node_modules core/dist/core.js
 	(cd cli && $(NPM) run build && $(NPM) install -g --force .)
 
 publish: cli
-	(cd cli && $(NPM) version patch && $(NPM) publish)
+	(cd cli && $(NPM) version patch && rm -rf /tmp/ds-cli && mkdir -p /tmp/ds-cli && cp -r dist /tmp/ds-cli/dist && jq 'del(.dependencies, .devDependencies)' package.json > /tmp/ds-cli/package.json && cd /tmp/ds-cli && $(NPM) publish)
 
 release: contracts node_modules cli
 	./scripts/release.mjs -i --max-connections 10
