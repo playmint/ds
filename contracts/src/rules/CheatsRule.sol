@@ -53,6 +53,10 @@ contract CheatsRule is Rule {
             (int16 z, int16 q, int16 r, int16 s) = abi.decode(action[4:], (int16, int16, int16, int16));
 
             _destroyBuilding(state, ctx, z, q, r, s);
+        } else if (bytes4(action) == Actions.DEV_DESTROY_AUTO_QUEST.selector) {
+            (string memory name, int16 zone) = abi.decode(action[4:], (string, int16));
+
+            _destroyAutoQuest(state, ctx, name, zone);
         } else if (bytes4(action) == Actions.DEV_DESTROY_BAG.selector) {
             (
                 bytes24 bagID,
@@ -113,6 +117,13 @@ contract CheatsRule is Rule {
         require(state.getOwner(nZone) == Node.Player(ctx.sender), "owner only");
         bytes24 quest = Node.Quest(zone, name);
         state.setParent(quest, nZone);
+    }
+
+    function _destroyAutoQuest(State state, Context calldata ctx, string memory name, int16 zone) private {
+        bytes24 nZone = Node.Zone(zone);
+        require(state.getOwner(nZone) == Node.Player(ctx.sender), "owner only");
+        bytes24 quest = Node.Quest(zone, name);
+        state.removeParent(quest);
     }
 
     // allow constructing a building without any materials
