@@ -5,6 +5,7 @@ import "cog/IState.sol";
 import {Schema, BiomeKind, Node} from "@ds/schema/Schema.sol";
 import "@ds/utils/Base64.sol";
 import "@ds/utils/LibString.sol";
+import "@ds/utils/ZoneUtils.sol";
 
 import {ERC721} from "solmate/tokens/ERC721.sol";
 
@@ -66,6 +67,11 @@ contract Zones721 is ERC721 {
         state.setOwner(zoneId, Node.Player(recipient));
         state.setData(zoneId, "name", bytes32(abi.encodePacked("Zone ", LibString.toString(newTokenId))));
         state.setData(zoneId, "description", bytes32(abi.encodePacked("Zone ", LibString.toString(newTokenId))));
+
+        // setup zone kind (might be an unnecessary step, but here to keep it the same pattern as building/buildingKind item/itemKind)
+        bytes24 zoneKind = Node.ZoneKind(zoneKey);
+        state.setZoneKind(zoneId, zoneKind);
+        state.setOwner(zoneKind, Node.Player(recipient));
 
         // spawn a single tile
         bytes24 tile = Node.Tile(zoneKey, 0, 0, 0);
@@ -160,7 +166,9 @@ contract Zones721 is ERC721 {
     function transferFrom(address from, address to, uint256 tokenId) public override {
         super.transferFrom(from, to, tokenId);
         bytes24 zoneId = Node.Zone(tokenId);
+        bytes24 zoneKind = Node.ZoneKind(ZoneUtils.getZoneKey(zoneId)); // state.getZoneKind(zoneId);
         state.setOwner(zoneId, Node.Player(to));
+        state.setOwner(zoneKind, Node.Player(to));
     }
 
     function registerState(State _state) external onlyOwner {

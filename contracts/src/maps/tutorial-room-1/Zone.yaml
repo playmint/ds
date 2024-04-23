@@ -1,0 +1,7 @@
+---
+kind: ZoneKind
+spec:
+  contract:
+    file: ./Zone.sol
+  plugin:
+    file: ./Zone.js

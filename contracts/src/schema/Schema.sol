@@ -39,6 +39,7 @@ interface Kind {
     function Bag() external;
     function Tile() external;
     function BuildingKind() external;
+    function ZoneKind() external;
     function Building() external;
     function Atom() external;
     function Item() external;
@@ -132,6 +133,15 @@ library Node {
 
     function Zone(uint256 id) internal pure returns (bytes24) {
         return Zone(int16(uint16(id)));
+    }
+
+    function ZoneKind(int16 id) internal pure returns (bytes24) {
+        require(id >= 0, "InvalidZoneID");
+        return CompoundKeyEncoder.UINT64(Kind.ZoneKind.selector, uint16(id));
+    }
+
+    function ZoneKind(uint256 id) internal pure returns (bytes24) {
+        return ZoneKind(int16(uint16(id)));
     }
 
     function Tile(int16 z, int16 q, int16 r, int16 s) internal pure returns (bytes24) {
@@ -424,12 +434,21 @@ library Schema {
         return state.set(Rel.Is.selector, 0x0, buildingInstance, buildingKind, 0);
     }
 
+    function setZoneKind(State state, bytes24 zone, bytes24 zoneKind) internal {
+        return state.set(Rel.Is.selector, 0x0, zone, zoneKind, 0);
+    }
+
     function removeBuildingKind(State state, bytes24 buildingInstance) internal {
         return state.remove(Rel.Is.selector, 0x0, buildingInstance);
     }
 
     function getBuildingKind(State state, bytes24 buildingInstance) internal view returns (bytes24) {
         (bytes24 kind,) = state.get(Rel.Is.selector, 0x0, buildingInstance);
+        return kind;
+    }
+
+    function getZoneKind(State state, bytes24 zone) internal view returns (bytes24) {
+        (bytes24 kind,) = state.get(Rel.Is.selector, 0x0, zone);
         return kind;
     }
 

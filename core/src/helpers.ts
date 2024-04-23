@@ -24,6 +24,7 @@ export const NodeSelectors = {
     Quest: getSelector('Quest'),
     Task: getSelector('Task'),
     Zone: getSelector('Zone'),
+    ZoneKind: getSelector('ZoneKind'),
 };
 
 export const CompoundKeyEncoder = {

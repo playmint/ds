@@ -25,6 +25,13 @@ export const encodeItemID = ({
     );
 };
 
+export const encodeZoneKindID = (zoneId: number) => {
+    return solidityPacked(
+        ['bytes4', 'uint96', 'uint64'],
+        [NodeSelectors.ZoneKind, 0, BigInt.asIntN(16, BigInt(zoneId))]
+    );
+};
+
 export const encodeBagID = ({ z, q, r, s }: { z: number; q: number; r: number; s: number }) => {
     return solidityPacked(['bytes4', 'uint96', 'int16', 'int16', 'int16', 'int16'], [NodeSelectors.Bag, 0, z, q, r, s]);
 };

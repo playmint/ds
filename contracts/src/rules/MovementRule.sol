@@ -11,6 +11,7 @@ import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {Bounds} from "@ds/utils/Bounds.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
+import {IZoneKind} from "@ds/ext/ZoneKind.sol";
 
 using Schema for State;
 
@@ -90,16 +91,6 @@ contract MovementRule is Rule {
 
         (int16 z, int16 q, int16 r, int16 s) = state.getTileCoords(currentTile);
 
-        // Get building at current tile and call leave hook
-        bytes24 building = Node.Building(z, q, r, s);
-        bytes24 buildingKind = state.getBuildingKind(building);
-        if (buildingKind != bytes24(0)) {
-            BuildingKind buildingImplementation = BuildingKind(state.getImplementation(buildingKind));
-            if (address(buildingImplementation) != address(0)) {
-                buildingImplementation.onUnitLeave(game, building, mobileUnit);
-            }
-        }
-
         // Count the unit out of the current zone if zone changed
         bool zoneChange = state.getTileZone(destTile) != z;
         if (zoneChange && z > 0) {
@@ -108,12 +99,25 @@ contract MovementRule is Rule {
 
         // Get building at dest tile and call arrive hook
         (z, q, r, s) = state.getTileCoords(destTile);
-        building = Node.Building(z, q, r, s);
-        buildingKind = state.getBuildingKind(building);
-        if (buildingKind != bytes24(0)) {
-            BuildingKind buildingImplementation = BuildingKind(state.getImplementation(buildingKind));
-            if (address(buildingImplementation) != address(0)) {
-                buildingImplementation.onUnitArrive(game, building, mobileUnit);
+        {
+            bytes24 building = Node.Building(z, q, r, s);
+            bytes24 buildingKind = state.getBuildingKind(building);
+            if (buildingKind != bytes24(0)) {
+                BuildingKind buildingImplementation = BuildingKind(state.getImplementation(buildingKind));
+                if (address(buildingImplementation) != address(0)) {
+                    buildingImplementation.onUnitArrive(game, building, mobileUnit);
+                }
+            }
+        }
+        // Call into the zone kind
+        {
+            bytes24 zone = Node.Zone(z);
+            bytes24 zoneKind = state.getZoneKind(zone);
+            if (zoneKind != bytes24(0)) {
+                IZoneKind zoneImplementation = IZoneKind(state.getImplementation(zoneKind));
+                if (address(zoneImplementation) != address(0)) {
+                    zoneImplementation.onUnitArrive(game, zone, mobileUnit);
+                }
             }
         }
 
