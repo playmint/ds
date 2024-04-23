@@ -27,6 +27,7 @@ interface Rel {
     function ID() external;
     function HasBlockNum() external;
     function Parent() external;
+    function IsFeatured() external;
 }
 
 interface Kind {
@@ -672,6 +673,15 @@ library Schema {
 
     function getZoneUnitLimit(State state) internal view returns (uint64) {
         return uint64(uint256(state.getData(Node.GameSettings(), "zoneUnitLimit")));
+    }
+
+    function setZoneIsFeatured(State state, uint64 zoneId, bool isFeatured) internal {
+        return state.set(Rel.IsFeatured.selector, 0x0, Node.Zone(zoneId), 0x0, isFeatured ? 1 : 0);
+    }
+
+    function getZoneIsFeatured(State state, uint64 zoneId) internal view returns (bool) {
+        (, uint64 isFeatured) = state.get(Rel.IsFeatured.selector, 0x0, Node.Zone(zoneId));
+        return isFeatured == 1;
     }
 
     function setUnitTimeoutBlocks(State state, uint64 blocks) internal {
