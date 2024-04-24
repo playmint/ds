@@ -118,7 +118,7 @@ deploy-redstone: deployments/redstone/contracts.yaml
 			--values ./deployments/redstone/values.yaml \
 			--values ./deployments/redstone/version.json \
 			--values ./deployments/redstone/contracts.yaml \
-			--set sequencer.privateKey=$$(bw get password da0f60df-2521-4fec-898a-b06800854c18)
+			--set sequencer.privateKey=$$(bw get password 1d719381-cceb-46f7-bc2f-b15c0100f285)
 	kubectl get po -n redstone
 
 clean-redstone:
