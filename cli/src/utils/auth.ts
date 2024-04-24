@@ -48,7 +48,6 @@ export const authenticate = async (loginURL: string): Promise<SessionData> => {
 
         server.get('/session/:auth', async function (req:AuthRequest, _res:FastifyReply): Promise<any> {
             try {
-                console.log(atob(req.params.auth));
                 const session = JSON.parse(atob(req.params.auth));
                 resolve(session);
                 return 'ok! you can close this window and return to the command line now';
@@ -66,7 +65,7 @@ export const authenticate = async (loginURL: string): Promise<SessionData> => {
                 return;
             }
             console.log(`
-                Please authenticate with metamask via ${loginURL}
+                Please authenticate via ${loginURL}
             `);
         });
 
