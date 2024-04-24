@@ -1,12 +1,6 @@
 ---
 kind: Building
 spec:
-  name: Tonk Billboard
-  location: [-8, -3, 11]
-
----
-kind: Building
-spec:
   name: Morton Billboard
   location: [12, -5, -7]
 
