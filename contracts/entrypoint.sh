@@ -49,7 +49,7 @@ done
 sleep 2
 
 
-forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545" --slow
+forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545" --slow --private-key "${DEPLOYER_PRIVATE_KEY}"
 
 echo "+---------------------+"
 echo "| deploying fixtures  |"
