@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 import "cog/IGame.sol";
 import "cog/IState.sol";
 
-import {CombatState} from "@ds/schema/Schema.sol";
+import {CombatWinState} from "@ds/schema/Schema.sol";
 
 interface IZoneKind {
     function use(Game ds, bytes24 zoneID, bytes24 mobileUnitID, bytes calldata payload) external;
@@ -12,7 +12,7 @@ interface IZoneKind {
     function onCombatStart(Game ds, bytes24 zoneID, bytes24 mobileUnitID, bytes24 sessionID) external;
     function onCombatJoin(Game ds, bytes24 zoneID, bytes24 mobileUnitID, bytes24 sessionID) external;
     function onCombatLeave(Game ds, bytes24 zoneID, bytes24 mobileUnitID, bytes24 sessionID) external;
-    function onCombatFinalise(Game ds, bytes24 zoneID, bytes24 sessionId, CombatState memory combatState) external;
+    function onCombatFinalise(Game ds, bytes24 zoneID, bytes24 sessionId, CombatWinState winState) external;
     function onTransferItem(
         Game ds,
         bytes24 zoneID,
@@ -27,8 +27,22 @@ interface IZoneKind {
     function onDestroyBuilding(Game ds, bytes24 zoneID, bytes24 buildingInstance, bytes24 buildingKind) external;
     function onAcceptQuest(Game ds, bytes24 zoneID, bytes24 quest, uint8 questNum, bytes24 player) external;
     function onCompleteQuest(Game ds, bytes24 zoneID, bytes24 quest, uint8 questNum, bytes24 player) external;
-    function onExtract(Game ds, bytes24 zoneID, bytes24 player, bytes24 buildingInstance, bytes24 outputItemID, uint64 qty) external;
-    function onCraft(Game ds, bytes24 zoneID, bytes24 player, bytes24 buildingInstance, bytes24 outputItemID, uint64 qty) external;
+    function onExtract(
+        Game ds,
+        bytes24 zoneID,
+        bytes24 player,
+        bytes24 buildingInstance,
+        bytes24 outputItemID,
+        uint64 qty
+    ) external;
+    function onCraft(
+        Game ds,
+        bytes24 zoneID,
+        bytes24 player,
+        bytes24 buildingInstance,
+        bytes24 outputItemID,
+        uint64 qty
+    ) external;
 }
 
 contract ZoneKind is IZoneKind {
@@ -37,10 +51,7 @@ contract ZoneKind is IZoneKind {
     function onCombatStart(Game ds, bytes24 zoneID, bytes24 mobileUnitID, bytes24 sessionID) external virtual {}
     function onCombatJoin(Game ds, bytes24 zoneID, bytes24 mobileUnitID, bytes24 sessionID) external virtual {}
     function onCombatLeave(Game ds, bytes24 zoneID, bytes24 mobileUnitID, bytes24 sessionID) external virtual {}
-    function onCombatFinalise(Game ds, bytes24 zoneID, bytes24 sessionId, CombatState memory combatState)
-        external
-        virtual
-    {}
+    function onCombatFinalise(Game ds, bytes24 zoneID, bytes24 sessionId, CombatWinState winState) external virtual {}
     function onTransferItem(
         Game ds,
         bytes24 zoneID,
@@ -61,6 +72,20 @@ contract ZoneKind is IZoneKind {
     {}
     function onAcceptQuest(Game ds, bytes24 zoneID, bytes24 quest, uint8 questNum, bytes24 player) external virtual {}
     function onCompleteQuest(Game ds, bytes24 zoneID, bytes24 quest, uint8 questNum, bytes24 player) external virtual {}
-    function onExtract(Game ds, bytes24 zoneID, bytes24 player, bytes24 buildingInstance, bytes24 outputItemID, uint64 qty) external virtual {}
-    function onCraft(Game ds, bytes24 zoneID, bytes24 player, bytes24 buildingInstance, bytes24 outputItemID, uint64 qty) external virtual {}
+    function onExtract(
+        Game ds,
+        bytes24 zoneID,
+        bytes24 player,
+        bytes24 buildingInstance,
+        bytes24 outputItemID,
+        uint64 qty
+    ) external virtual {}
+    function onCraft(
+        Game ds,
+        bytes24 zoneID,
+        bytes24 player,
+        bytes24 buildingInstance,
+        bytes24 outputItemID,
+        uint64 qty
+    ) external virtual {}
 }

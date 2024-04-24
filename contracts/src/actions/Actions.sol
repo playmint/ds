@@ -214,6 +214,6 @@ interface Actions {
     function KICK_UNIT_FROM_ZONE(bytes24 mobileUnitID) external;
 
     function ZONE_USE(bytes24 mobileUnitID, bytes calldata payload) external;
-    
+
     function SET_DATA_ON_ZONE(bytes24 zoneID, string memory key, bytes32 data) external;
 }
