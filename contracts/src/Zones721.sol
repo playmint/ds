@@ -24,19 +24,50 @@ contract Zones721 is ERC721 {
     address owner; // The ZoneRule owns this
     State state;
 
-    string constant DRIVING_SIDE_LABEL = "DrivingSide";
-    uint256 constant DRIVING_SIDE_COUNT = 3;
-    string[] private DRIVING_SIDE_VALUES = ["left", "right", "whatever"];
+    string constant GOO_TYPE_LABEL = "Goo type";
+    uint256 constant GOO_TYPE_COUNT = 18;
+    string[] private GOO_TYPE_VALUES = [
+        "Aromatic Surfactant",
+        "Biogenic Mucilage",
+        "Biphasic Hydrogel",
+        "Confectioner\u2019s Pastillage",
+        "Cosmetic Emollient",
+        "Echophagic Swarm",
+        "Lyotropic Liquid Crystal",
+        "Non-Newtonian Pseudoplastic",
+        "Petroleum Hydrocarbon",
+        "Pharmaceutical Paste",
+        "Primum Ens Salum",
+        "Programmable Nanotech",
+        "Pyroclastic Slurry",
+        "[REDACTED]",
+        "Rheopectic Synovia",
+        "Thixotropic Ground Substance",
+        "Unknown Exobiological",
+        "Viscoelastic Synthetic Polymer"
+    ];
 
-    string constant CLIMATE_LABEL = "Climate";
-    uint256 constant CLIMATE_COUNT = 7;
-    string[] private CLIMATE_VALUES =
-        ["damn cold", "endless drizzle", "arid", "tropical", "humid", "sweaty", "hot as hades"];
+    string constant TILE_ROTATION_LABEL = "Tile rotation";
+    uint256 constant TILE_ROTATION_COUNT = 16;
+    string[] private TILE_ROTATION_VALUES =
+        ["000", "060", "120", "180", "240", "300", "360", "420", "480", "540", "600", "660", "720", "780", "840", "900"];
 
-    string constant GOVERNMENT_LABEL = "Government";
-    uint256 constant GOVERNMENT_COUNT = 7;
-    string[] private GOVERNMENT_VALUES =
-        ["empire", "cyberocracy", "bureaucracy", "theocracy", "hexalopoly", "hive mind", "demarchy"];
+    string constant HISTORICAL_GOVERNANCE_LABEL = "Historical governance";
+    uint256 constant HISTORICAL_GOVERNANCE_COUNT = 12;
+    string[] private HISTORICAL_GOVERNANCE_VALUES = [
+        "Archeofuturist Patchwork",
+        "Autonomous Technocracy",
+        "Ex-human Pangalactic Strip Mining",
+        "Fully Automated Gay Space Luxury Communism",
+        "Hyper-Commodified Capitalism",
+        "Interplanetary Technofascist",
+        "Omnipresent AI Goddess",
+        "Pirate Sea-Steading",
+        "Post-Scarcity Technoreclusion",
+        "Psychic Megafauna Hypnowar",
+        "Recursive Matrioshka Brain",
+        "Universal Consciousness Upload"
+    ];
 
     modifier onlyOwner() {
         if (msg.sender != owner) {
@@ -137,21 +168,23 @@ contract Zones721 is ERC721 {
         return abi.encodePacked(
             "[",
             '{"trait_type": "',
-            DRIVING_SIDE_LABEL,
+            GOO_TYPE_LABEL,
             '", "value": "',
-            DRIVING_SIDE_VALUES[getTraitIndex(tokenId, DRIVING_SIDE_LABEL, DRIVING_SIDE_COUNT)],
+            GOO_TYPE_VALUES[getTraitIndex(tokenId, GOO_TYPE_LABEL, GOO_TYPE_COUNT)],
             '"}',
             ",",
             '{"trait_type": "',
-            CLIMATE_LABEL,
+            TILE_ROTATION_LABEL,
             '", "value": "',
-            CLIMATE_VALUES[getTraitIndex(tokenId, CLIMATE_LABEL, CLIMATE_COUNT)],
+            TILE_ROTATION_VALUES[getTraitIndex(tokenId, TILE_ROTATION_LABEL, TILE_ROTATION_COUNT)],
             '"}',
             ",",
             '{"trait_type": "',
-            GOVERNMENT_LABEL,
+            HISTORICAL_GOVERNANCE_LABEL,
             '", "value": "',
-            GOVERNMENT_VALUES[getTraitIndex(tokenId, GOVERNMENT_LABEL, GOVERNMENT_COUNT)],
+            HISTORICAL_GOVERNANCE_VALUES[getTraitIndex(
+                tokenId, HISTORICAL_GOVERNANCE_LABEL, HISTORICAL_GOVERNANCE_COUNT
+            )],
             '"}',
             "]"
         );
