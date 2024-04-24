@@ -5,6 +5,7 @@ import "cog/IState.sol";
 import {Schema, BiomeKind, Node} from "@ds/schema/Schema.sol";
 import "@ds/utils/Base64.sol";
 import "@ds/utils/LibString.sol";
+import "@ds/utils/UniverseValue.sol";
 
 import {ERC721} from "solmate/tokens/ERC721.sol";
 
@@ -23,6 +24,8 @@ contract Zones721 is ERC721 {
     uint256 public currentTokenId;
     address owner; // The ZoneRule owns this
     State state;
+
+    string constant LOCATION_LABEL = "Location";
 
     string constant GOO_TYPE_LABEL = "Goo type";
     uint256 constant GOO_TYPE_COUNT = 18;
@@ -167,26 +170,51 @@ contract Zones721 is ERC721 {
     function getDataAttributes(uint256 tokenId) internal view returns (bytes memory) {
         return abi.encodePacked(
             "[",
-            '{"trait_type": "',
-            GOO_TYPE_LABEL,
-            '", "value": "',
-            GOO_TYPE_VALUES[getTraitIndex(tokenId, GOO_TYPE_LABEL, GOO_TYPE_COUNT)],
-            '"}',
+            getTraitLocation(tokenId),
             ",",
-            '{"trait_type": "',
-            TILE_ROTATION_LABEL,
-            '", "value": "',
-            TILE_ROTATION_VALUES[getTraitIndex(tokenId, TILE_ROTATION_LABEL, TILE_ROTATION_COUNT)],
-            '"}',
+            getTraitGooType(),
             ",",
-            '{"trait_type": "',
-            HISTORICAL_GOVERNANCE_LABEL,
-            '", "value": "',
-            HISTORICAL_GOVERNANCE_VALUES[getTraitIndex(
-                tokenId, HISTORICAL_GOVERNANCE_LABEL, HISTORICAL_GOVERNANCE_COUNT
-            )],
-            '"}',
+            getTraitTileRotation(),
+            ",",
+            getTraitHistoricalGovernance(),
             "]"
+        );
+    }
+
+    function getTraitLocation(uint256 tokenId) internal pure returns (bytes memory) {
+        return
+            abi.encodePacked("{'trait_type': '", LOCATION_LABEL, "', 'value': '", UniverseValue.generate(tokenId), "'}");
+    }
+
+    function getTraitGooType() internal view returns (bytes memory) {
+        return abi.encodePacked(
+            "{'trait_type': '",
+            GOO_TYPE_LABEL,
+            "', 'value': '",
+            GOO_TYPE_VALUES[getTraitIndex(currentTokenId, GOO_TYPE_LABEL, GOO_TYPE_COUNT)],
+            "'}"
+        );
+    }
+
+    function getTraitTileRotation() internal view returns (bytes memory) {
+        return abi.encodePacked(
+            "{'trait_type': '",
+            TILE_ROTATION_LABEL,
+            "', 'value': '",
+            TILE_ROTATION_VALUES[getTraitIndex(currentTokenId, TILE_ROTATION_LABEL, TILE_ROTATION_COUNT)],
+            "'}"
+        );
+    }
+
+    function getTraitHistoricalGovernance() internal view returns (bytes memory) {
+        return abi.encodePacked(
+            "{'trait_type': '",
+            HISTORICAL_GOVERNANCE_LABEL,
+            "', 'value': '",
+            HISTORICAL_GOVERNANCE_VALUES[getTraitIndex(
+                currentTokenId, HISTORICAL_GOVERNANCE_LABEL, HISTORICAL_GOVERNANCE_COUNT
+            )],
+            "'}"
         );
     }
 
