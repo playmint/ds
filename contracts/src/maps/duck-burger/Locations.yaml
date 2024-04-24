@@ -650,3 +650,15 @@ spec:
   name: Burger Display Building
   location: [ 3, -4, 1 ]
   facingDirection: LEFT
+
+---
+kind: Tile
+spec:
+  location: [-3, 6, -3]
+  biome: DISCOVERED
+
+---
+kind: Building
+spec:
+  name: How To Play Ducks Vs Burgers
+  location: [-3, 6, -3]
