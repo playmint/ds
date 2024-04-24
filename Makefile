@@ -98,6 +98,34 @@ clean-garnet:
 	rm -f deployments/garnet/contracts.yaml
 	rm -f deployments/garnet/version.json
 
+deployments/redstone/contracts.json:
+	(cd contracts && forge script script/Deploy.sol:GameDeployer \
+		--broadcast \
+		--rpc-url "https://rpc.redstonechain.com" \
+		--ledger --mnemonic-indexes 0 --sender 0xfE4Aab053FED3cFbB7e5f6434e1585b4F17CC207 \
+		-vvv)
+	cp contracts/out/latest.json $@
+
+deployments/redstone/contracts.yaml: deployments/redstone/contracts.json
+	./scripts/genvalues deployments/redstone/contracts.json > $@
+
+deploy-redstone: deployments/redstone/contracts.yaml
+	bw login --check
+	node ./scripts/get-latest-images.mjs | jq . > ./deployments/redstone/version.json
+	helm upgrade --force --install --wait --timeout 30m --history-max 5 \
+		ds ./chart -n redstone \
+			--create-namespace\
+			--values ./deployments/redstone/values.yaml \
+			--values ./deployments/redstone/version.json \
+			--values ./deployments/redstone/contracts.yaml \
+			--set sequencer.privateKey=$$(bw get password da0f60df-2521-4fec-898a-b06800854c18)
+	kubectl get po -n redstone
+
+clean-redstone:
+	rm -f deployments/redstone/contracts.json
+	rm -f deployments/redstone/contracts.yaml
+	rm -f deployments/redstone/version.json
+
 clean:
 	rm -rf cli/dist
 	rm -rf cli/node_modules
