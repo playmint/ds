@@ -36,6 +36,11 @@ const encodePluginID = ({ name }) => {
     return CompoundKeyEncoder.encodeUint160(NodeSelectors.ClientPlugin, id);
 };
 
+const encodeZonePluginID = (zoneId: number) => {
+    const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`zonePlugin/${zoneId}`))));
+    return CompoundKeyEncoder.encodeUint160(NodeSelectors.ClientPlugin, id);
+};
+
 const encodeTaskID = ({ zone, name, kind }: z.infer<typeof Task> & { zone: number }) => {
     const kindIndex = TaskKindEnumVals.indexOf(kind);
     const id = BigInt.asUintN(64, BigInt(keccak256UTF8(`task/${name}`)));
@@ -249,24 +254,26 @@ const zoneKindDeploymentActions = async (
         });
     }
 
-    // TODO: Some thought needed about this. Plugin IDs are determined by name. Worried about clash with building names
     // deploy client plugin if given
-    // if (spec.plugin && (spec.plugin.file || spec.plugin.inline)) {
-    //     const pluginID = encodePluginID(spec); // use building name for plugin id
-    //     const js = spec.plugin.file
-    //         ? (() => {
-    //               const relativeFilename = path.join(manifestDir, spec.plugin.file);
-    //               if (!fs.existsSync(relativeFilename)) {
-    //                   throw new Error(`plugin source not found: ${spec.plugin.file}`);
-    //               }
-    //               return fs.readFileSync(relativeFilename, 'utf8').toString();
-    //           })()
-    //         : spec.plugin.inline;
-    //     ops.push({
-    //         name: 'REGISTER_KIND_PLUGIN',
-    //         args: [pluginID, id, spec.name, js, !!spec.plugin.alwaysActive],
-    //     });
-    // }
+    if (spec.plugin && (spec.plugin.file || spec.plugin.inline)) {
+        const zoneId = Number(BigInt.asIntN(16, zone.key));
+        const alwaysActive = true;
+        const pluginName = `zonePlugin/${zoneId}`;
+        const pluginID = encodeZonePluginID(zoneId);
+        const js = spec.plugin.file
+            ? (() => {
+                  const relativeFilename = path.join(manifestDir, spec.plugin.file);
+                  if (!fs.existsSync(relativeFilename)) {
+                      throw new Error(`plugin source not found: ${spec.plugin.file}`);
+                  }
+                  return fs.readFileSync(relativeFilename, 'utf8').toString();
+              })()
+            : spec.plugin.inline;
+        ops.push({
+            name: 'REGISTER_KIND_PLUGIN',
+            args: [pluginID, zone.id, pluginName, js, alwaysActive],
+        });
+    }
 
     if (spec.name && spec.name.length > 0) {
         ops.push({
