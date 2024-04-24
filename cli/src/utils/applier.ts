@@ -21,7 +21,6 @@ import {
 } from '../utils/manifest';
 import {
     encodeItemID,
-    encodeZoneKindID,
     getItemIdByName,
     encodeBuildingKindID,
     getBuildingKindIDByName,
