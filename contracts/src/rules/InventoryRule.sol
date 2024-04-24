@@ -11,14 +11,17 @@ import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BagUtils} from "@ds/utils/BagUtils.sol";
 import {Items1155} from "../Items1155.sol";
+import {IZoneKind} from "@ds/ext/ZoneKind.sol";
 
 using Schema for State;
 
 contract InventoryRule is Rule {
     Items1155 tokens;
+    Game game;
 
     constructor(Game g) {
         tokens = new Items1155(address(this), g.getState());
+        game = g;
     }
 
     function getTokensAddress() public view returns (address) {
@@ -163,6 +166,17 @@ contract InventoryRule is Rule {
 
         // perform transfer between item slots
         _transferBalance(state, bags[0], itemSlot[0], bags[1], itemSlot[1], qty);
+
+        // Call into the zone kind
+        {
+            bytes24 zone = Node.Zone(state.getTileZone(location));
+            if (zone != bytes24(0)) {
+                IZoneKind zoneImplementation = IZoneKind(state.getImplementation(zone));
+                if (address(zoneImplementation) != address(0)) {
+                    zoneImplementation.onTransferItem(game, zone, actor, equipee, equipSlot, itemSlot, toBagId, qty);
+                }
+            }
+        }
     }
 
     function _requireCanUseBag(State state, bytes24 bag, address sender) private view {

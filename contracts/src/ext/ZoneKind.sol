@@ -13,6 +13,18 @@ interface IZoneKind {
     function onCombatJoin(Game ds, bytes24 zoneID, bytes24 mobileUnitID, bytes24 sessionID) external;
     function onCombatLeave(Game ds, bytes24 zoneID, bytes24 mobileUnitID, bytes24 sessionID) external;
     function onCombatFinalise(Game ds, bytes24 zoneID, bytes24 sessionId, CombatState memory combatState) external;
+    function onTransferItem(
+        Game ds,
+        bytes24 zoneID,
+        bytes24 actor,
+        bytes24[2] memory equipee,
+        uint8[2] memory equipSlot,
+        uint8[2] memory itemSlot,
+        bytes24 toBagId,
+        uint64 qty
+    ) external;
+    function onContructBuilding(Game ds, bytes24 zoneID, bytes24 mobileUnitID, bytes24 buildingInstance) external;
+    function onDestroyBuilding(Game ds, bytes24 zoneID, bytes24 buildingInstance, bytes24 buildingKind) external;
 }
 
 contract ZoneKind is IZoneKind {
@@ -21,5 +33,26 @@ contract ZoneKind is IZoneKind {
     function onCombatStart(Game ds, bytes24 zoneID, bytes24 mobileUnitID, bytes24 sessionID) external virtual {}
     function onCombatJoin(Game ds, bytes24 zoneID, bytes24 mobileUnitID, bytes24 sessionID) external virtual {}
     function onCombatLeave(Game ds, bytes24 zoneID, bytes24 mobileUnitID, bytes24 sessionID) external virtual {}
-    function onCombatFinalise(Game ds, bytes24 zoneID, bytes24 sessionId, CombatState memory combatState) external virtual {}
+    function onCombatFinalise(Game ds, bytes24 zoneID, bytes24 sessionId, CombatState memory combatState)
+        external
+        virtual
+    {}
+    function onTransferItem(
+        Game ds,
+        bytes24 zoneID,
+        bytes24 actor,
+        bytes24[2] memory equipee,
+        uint8[2] memory equipSlot,
+        uint8[2] memory itemSlot,
+        bytes24 toBagId,
+        uint64 qty
+    ) external virtual {}
+    function onContructBuilding(Game ds, bytes24 zoneID, bytes24 mobileUnitID, bytes24 buildingInstance)
+        external
+        virtual
+    {}
+    function onDestroyBuilding(Game ds, bytes24 zoneID, bytes24 buildingInstance, bytes24 buildingKind)
+        external
+        virtual
+    {}
 }

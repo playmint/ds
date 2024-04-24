@@ -718,29 +718,23 @@ library Schema {
         return uint64(uint256(state.getData(Node.GameSettings(), "unitTimeoutBlocks")));
     }
 
-    function setCombatTiles(State state, bytes24 sessionID, bytes24 attackTile, bytes24 defenceTile, uint64 startBlock) internal {
-        state.set(
-            Rel.Has.selector,
-            uint8(CombatSideKey.ATTACK),
-            sessionID,
-            attackTile,
-            startBlock
-        );
-        state.set(
-            Rel.Has.selector,
-            uint8(CombatSideKey.DEFENCE),
-            sessionID,
-            defenceTile,
-            startBlock
-        );
+    function setCombatTiles(State state, bytes24 sessionID, bytes24 attackTile, bytes24 defenceTile, uint64 startBlock)
+        internal
+    {
+        state.set(Rel.Has.selector, uint8(CombatSideKey.ATTACK), sessionID, attackTile, startBlock);
+        state.set(Rel.Has.selector, uint8(CombatSideKey.DEFENCE), sessionID, defenceTile, startBlock);
 
         // We make a relationship from tile to session so we can check if a particular tile is in session
         state.set(Rel.Has.selector, 0, attackTile, sessionID, startBlock);
         state.set(Rel.Has.selector, 0, defenceTile, sessionID, startBlock);
     }
 
-    function getCombatTiles(State state, bytes24 sessionID) internal view returns (bytes24 attackTile, bytes24 defenceTile, uint64 startBlock) {
+    function getCombatTiles(State state, bytes24 sessionID)
+        internal
+        view
+        returns (bytes24 attackTile, bytes24 defenceTile, uint64 startBlock)
+    {
         (attackTile, startBlock) = state.get(Rel.Has.selector, uint8(CombatSideKey.ATTACK), sessionID);
-        (defenceTile, ) = state.get(Rel.Has.selector, uint8(CombatSideKey.DEFENCE), sessionID);
+        (defenceTile,) = state.get(Rel.Has.selector, uint8(CombatSideKey.DEFENCE), sessionID);
     }
 }

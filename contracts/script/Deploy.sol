@@ -73,7 +73,7 @@ contract GameDeployer is Script {
         vm.writeJson(latestJson, "./out/latest.json");
 
         // enable rules
-        ds.registerRule(new CheatsRule());
+        ds.registerRule(new CheatsRule(ds));
         ds.registerRule(new MovementRule(ds));
         ds.registerRule(inventoryRule);
         ds.registerRule(new BuildingRule(ds));

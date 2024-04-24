@@ -133,7 +133,7 @@ contract CombatRule is Rule {
             if (_getActiveSession(state, targetTileID, ctx) != 0) revert("CombatSessionAlreadyActive");
 
             bytes24 sessionID = _startSession(state, mobileUnitTile, targetTileID, attackers, defenders, ctx);
-            
+
             // Call into the zone kind
             {
                 bytes24 zone = Node.Zone(state.getTileZone(mobileUnitTile));
@@ -237,6 +237,9 @@ contract CombatRule is Rule {
     }
 
     function _destroyBuilding(State state, bytes24 buildingInstance) private {
+        bytes24 buildingKind = state.getBuildingKind(buildingInstance);
+        bytes24 zone = Node.Zone(state.getTileZone(state.getFixedLocation(buildingInstance)));
+
         // set type of building
         state.setBuildingKind(buildingInstance, bytes24(0));
         // set building owner to player who created it
@@ -248,6 +251,18 @@ contract CombatRule is Rule {
         // TODO: Orphaned bags
         state.setEquipSlot(buildingInstance, 0, bytes24(0));
         state.setEquipSlot(buildingInstance, 1, bytes24(0));
+
+        // NOTE: There are two places where buildings can be destroyed. CheatsRule and CombatRule
+        // Call into the zone kind
+        {
+            if (zone != bytes24(0)) {
+                IZoneKind zoneImplementation = IZoneKind(state.getImplementation(zone));
+                if (address(zoneImplementation) != address(0)) {
+                    // TODO: Should we be passing the combatState?
+                    zoneImplementation.onDestroyBuilding(game, zone, buildingInstance, buildingKind);
+                }
+            }
+        }
     }
 
     // Only counts entities that are present
@@ -509,7 +524,7 @@ contract CombatRule is Rule {
         bytes24[] memory attackers,
         bytes24[] memory defenders,
         Context calldata ctx
-    ) private returns (bytes24 sessionID){
+    ) private returns (bytes24 sessionID) {
         // Create a new session
         prevCombatSessionID++;
         uint64 rawSessionID = prevCombatSessionID;

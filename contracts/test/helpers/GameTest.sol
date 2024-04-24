@@ -129,7 +129,7 @@ abstract contract GameTest {
         game.autorizeStateMutation(address(tokens));
 
         // setup game
-        game.registerRule(new CheatsRule());
+        game.registerRule(new CheatsRule(game));
         game.registerRule(new MovementRule(game));
         game.registerRule(inventoryRule);
         game.registerRule(new BuildingRule(game));

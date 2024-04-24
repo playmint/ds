@@ -20,19 +20,13 @@ contract ZoneRule is Rule {
 
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.ZONE_USE.selector) {
-            (bytes24 mobileUnitID, bytes memory payload) =
-                abi.decode(action[4:], (bytes24, bytes));
+            (bytes24 mobileUnitID, bytes memory payload) = abi.decode(action[4:], (bytes24, bytes));
             _useZone(state, mobileUnitID, payload, ctx);
-        } 
+        }
         return state;
     }
 
-    function _useZone(
-        State state,
-        bytes24 mobileUnit,
-        bytes memory payload,
-        Context calldata ctx
-    ) internal {
+    function _useZone(State state, bytes24 mobileUnit, bytes memory payload, Context calldata ctx) internal {
         // check player owns mobileUnit
         if (Node.Player(ctx.sender) != state.getOwner(mobileUnit)) {
             revert("MobileUnitNotOwnedByPlayer");
