@@ -214,7 +214,7 @@ contract CheatsRule is Rule {
         _checkIsOwnerOrZone(state, ctx, z);
 
         bytes24 buildingInstance = Node.Building(z, q, r, s);
-        bytes24 buildingKind = state.getBuildingKind(buildingInstance);
+        // bytes24 buildingKind = state.getBuildingKind(buildingInstance);
         state.removeBuildingKind(buildingInstance);
         state.removeOwner(buildingInstance);
         state.removeParent(buildingInstance);
@@ -223,15 +223,15 @@ contract CheatsRule is Rule {
         // NOTE: There are two places where buildings can be destroyed. CheatsRule and CombatRule
         // TODO: Maybe this shouldn't call the hook because it's a dev action
         // Call into the zone kind
-        {
-            bytes24 zone = Node.Zone(z);
-            if (zone != bytes24(0)) {
-                IZoneKind zoneImplementation = IZoneKind(state.getImplementation(zone));
-                if (address(zoneImplementation) != address(0)) {
-                    zoneImplementation.onDestroyBuilding(game, zone, buildingInstance, buildingKind);
-                }
-            }
-        }
+        // {
+        //     bytes24 zone = Node.Zone(z);
+        //     if (zone != bytes24(0)) {
+        //         IZoneKind zoneImplementation = IZoneKind(state.getImplementation(zone));
+        //         if (address(zoneImplementation) != address(0)) {
+        //             zoneImplementation.onDestroyBuilding(game, zone, buildingInstance, buildingKind);
+        //         }
+        //     }
+        // }
     }
 
     function _checkIsOwnerOrZone(State state, Context calldata ctx, int16 zoneKey) internal view {
