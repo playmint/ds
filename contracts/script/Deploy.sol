@@ -80,7 +80,7 @@ contract GameDeployer is Script {
         ds.registerRule(new CraftingRule(ds));
         ds.registerRule(new PluginRule());
         ds.registerRule(new NewPlayerRule());
-        ds.registerRule(new CombatRule());
+        ds.registerRule(new CombatRule(ds));
         ds.registerRule(new NamingRule());
         ds.registerRule(new BagRule());
         ds.registerRule(new ExtractionRule(ds));

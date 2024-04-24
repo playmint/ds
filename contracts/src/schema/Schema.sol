@@ -112,6 +112,32 @@ enum CombatSideKey {
     DEFENCE
 }
 
+struct CombatState {
+    EntityState[] attackerStates;
+    EntityState[] defenderStates;
+    uint16 attackerCount;
+    uint16 defenderCount;
+    CombatWinState winState;
+    uint16 tickCount;
+}
+
+struct EntityState {
+    bytes24 entityID;
+    uint32[3] stats; // TODO: Why aren't these 64bit?
+    uint64 damage;
+    uint64 damageInflicted; // Each tick, entity's attack stat are added to this property. It actually represents effort more than the damage result
+    bool isPresent;
+    bool isDead;
+    bool hasClaimed;
+}
+
+enum CombatWinState {
+    NONE,
+    ATTACKERS,
+    DEFENDERS,
+    DRAW
+}
+
 library Node {
     function ClientPlugin(uint160 id) internal pure returns (bytes24) {
         return CompoundKeyEncoder.BYTES(Kind.ClientPlugin.selector, bytes20(uint160(id)));
@@ -690,5 +716,31 @@ library Schema {
 
     function getUnitTimeoutBlocks(State state) internal view returns (uint64) {
         return uint64(uint256(state.getData(Node.GameSettings(), "unitTimeoutBlocks")));
+    }
+
+    function setCombatTiles(State state, bytes24 sessionID, bytes24 attackTile, bytes24 defenceTile, uint64 startBlock) internal {
+        state.set(
+            Rel.Has.selector,
+            uint8(CombatSideKey.ATTACK),
+            sessionID,
+            attackTile,
+            startBlock
+        );
+        state.set(
+            Rel.Has.selector,
+            uint8(CombatSideKey.DEFENCE),
+            sessionID,
+            defenceTile,
+            startBlock
+        );
+
+        // We make a relationship from tile to session so we can check if a particular tile is in session
+        state.set(Rel.Has.selector, 0, attackTile, sessionID, startBlock);
+        state.set(Rel.Has.selector, 0, defenceTile, sessionID, startBlock);
+    }
+
+    function getCombatTiles(State state, bytes24 sessionID) internal view returns (bytes24 attackTile, bytes24 defenceTile, uint64 startBlock) {
+        (attackTile, startBlock) = state.get(Rel.Has.selector, uint8(CombatSideKey.ATTACK), sessionID);
+        (defenceTile, ) = state.get(Rel.Has.selector, uint8(CombatSideKey.DEFENCE), sessionID);
     }
 }

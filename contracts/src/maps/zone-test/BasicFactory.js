@@ -27,12 +27,24 @@ export default async function update(state) {
             args: [selectedBuilding.id, mobileUnit.id, []],
         });
 
+        console.log("Craft dispatched");
+    };
+
+    const destroy = () => {
+        const mobileUnit = getMobileUnit(state);
+        if (!mobileUnit) {
+            console.log("no selected unit");
+            return;
+        }
+
+        const payload = ds.encodeCall("function destroyBuilding(bytes24)", [
+            selectedBuilding.id,
+        ]);
+
         ds.dispatch({
             name: "ZONE_USE",
-            args: [selectedBuilding.id, mobileUnit.id, []],
+            args: [mobileUnit.id, payload],
         });
-
-        console.log("Craft dispatched");
     };
 
     return {
@@ -56,8 +68,7 @@ export default async function update(state) {
                             {
                                 text: "Destroy",
                                 type: "action",
-                                action: craft,
-                                disabled: !canCraft,
+                                action: destroy,
                             },
                         ],
                     },

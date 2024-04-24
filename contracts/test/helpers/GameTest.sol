@@ -136,7 +136,7 @@ abstract contract GameTest {
         game.registerRule(new CraftingRule(game));
         game.registerRule(new PluginRule());
         game.registerRule(new NewPlayerRule());
-        game.registerRule(new CombatRule());
+        game.registerRule(new CombatRule(game));
         game.registerRule(new NamingRule());
         game.registerRule(new BagRule());
         game.registerRule(new ExtractionRule(game));
