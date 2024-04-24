@@ -4,11 +4,6 @@ fragment AvailablePlugin on Node {
         id
         value
     }
-    src: annotation(name: "src") {
-        id
-        hash: ref
-        value
-    }
     alwaysActive: annotation(name: "alwaysActive") {
         id
         value
@@ -30,6 +25,23 @@ query GetAvailablePlugins($gameID: ID!) {
             id
             plugins: nodes(match: { kinds: "ClientPlugin" }) {
                 ...AvailablePlugin
+            }
+        }
+    }
+}
+
+query GetPluginSrc($gameID: ID!, $pluginIDs: [String!]!) {
+    game(id: $gameID) {
+        id
+        state(simulated: true) {
+            id
+            plugins: nodes(match: {ids: $pluginIDs}) {
+                id
+                src: annotation(name: "src") {
+                    id
+                    hash: ref
+                    value
+                }
             }
         }
     }

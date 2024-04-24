@@ -15,7 +15,7 @@ import {
     zip,
 } from 'wonka';
 import * as apiv1 from './api/v1';
-import { AvailablePluginFragment, GetAvailablePluginsDocument } from './gql/graphql';
+import { AvailablePluginFragment, GetAvailablePluginsDocument, GetPluginSrcDocument } from './gql/graphql';
 import { Logger } from './logger';
 import {
     ActivePlugin,
@@ -61,6 +61,14 @@ export function makeAvailablePlugins(client: Source<CogServices>) {
 
     const plugins = lazy(() => (prev ? concat([fromValue(prev), source]) : source));
     return { plugins };
+}
+
+export function fetchPluginSrc(client: Source<CogServices>, gameID: string, pluginIDs: string[]) {
+    return pipe(
+        client,
+        switchMap(({ query }) => query(GetPluginSrcDocument, { gameID, pluginIDs })),
+        map((result) => result.game.state.plugins),
+    );
 }
 
 /**
@@ -260,35 +268,45 @@ export function makeAutoloadPlugins(
     availablePlugins: Source<AvailablePluginFragment[]>,
     selection: Source<Selection>,
     zone: Source<ZoneWithBags>,
+    client: Source<CogServices>,
 ) {
     const plugins = pipe(
-        availablePlugins,
-        switchMap((availablePlugins) =>
-            pipe(
-                zone,
-                switchMap((zone) => {
-                    return pipe(
-                        selection,
-                        map((selection) =>
-                            availablePlugins
-                                .filter((p) => isAutoloadableBuildingPlugin(p, selection, zone))
-                                .map(
-                                    (p) =>
-                                        ({
-                                            id: p.id,
-                                            name: p.name ? p.name.value : 'unnamed',
-                                            src: p.src ? p.src.value : '',
-                                            trust: PluginTrust.UNTRUSTED,
-                                            type: pluginTypeForNodeKind(p.supports?.kind),
-                                            kindID: p.supports?.id || '<invalid>', // TODO: filter out invalid
-                                        } satisfies PluginConfig),
+        client,
+        switchMap((clientDetails) => {
+            const { gameID } = clientDetails;
+            return pipe(
+                availablePlugins,
+                switchMap((availablePlugins) =>
+                    pipe(
+                        zone,
+                        switchMap((zone) =>
+                            pipe(
+                                selection,
+                                map((selection) =>
+                                    availablePlugins.filter((p) => isAutoloadableBuildingPlugin(p, selection, zone)),
                                 ),
+                                switchMap((filteredPlugins) => {
+                                    const pluginIDs = filteredPlugins.map((p) => p.id);
+                                    return pipe(
+                                        fetchPluginSrc(client, gameID, pluginIDs),
+                                        map((srcs) =>
+                                            filteredPlugins.map((plugin) => ({
+                                                ...plugin,
+                                                src: srcs.find((src) => src.id === plugin.id)?.src?.value || '',
+                                                trust: PluginTrust.UNTRUSTED,
+                                                type: pluginTypeForNodeKind(plugin.supports?.kind),
+                                                kindID: plugin.supports?.id || '<invalid>',
+                                            })),
+                                        ),
+                                    );
+                                }),
+                            ),
                         ),
-                    );
-                }),
-            ),
-        ),
-    ) satisfies Source<PluginConfig[]>;
+                    ),
+                ),
+            );
+        }),
+    );
 
     return { plugins };
 }

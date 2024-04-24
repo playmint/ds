@@ -143,7 +143,7 @@ export const GameStateProvider = ({ config, zoneId, children }: DSContextProvide
         if (!sources1) {
             return;
         }
-        const { availablePlugins, selection, zone, global, logger, state, block } = sources1;
+        const { availablePlugins, selection, zone, global, logger, state, block, client } = sources1;
         if (!availablePlugins) {
             return;
         }
@@ -175,7 +175,7 @@ export const GameStateProvider = ({ config, zoneId, children }: DSContextProvide
             .then(() => {
                 console.log('new sandbox started');
                 const { logger: questMsgSender, logs: questMsgs } = makeLogger({ name: 'questMessages' });
-                const { plugins: activePlugins } = makeAutoloadPlugins(availablePlugins, selection, zone);
+                const { plugins: activePlugins } = makeAutoloadPlugins(availablePlugins, selection, zone, client);
                 const ui = makePluginUI(activePlugins, workerSandbox, logger, questMsgSender, state, block);
 
                 // re-enable if using sandbox instead of snowsphere
