@@ -7,6 +7,7 @@ import "cog/IState.sol";
 interface IBuildingKind {
     function use(Game ds, bytes24 buildingInstanceID, bytes24 mobileUnitID, bytes memory payload) external;
     function construct(Game ds, bytes24 buildingInstanceID, bytes24 mobileUnitID, bytes memory payload) external;
+    function onUnitArrive(Game ds, bytes24 buildingInstanceID, bytes24 mobileUnitID) external;
 }
 
 contract BuildingKind is IBuildingKind {

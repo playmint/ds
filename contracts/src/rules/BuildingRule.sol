@@ -13,6 +13,7 @@ import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 import {CraftingRule} from "@ds/rules/CraftingRule.sol";
 import {ItemKind} from "@ds/ext/ItemKind.sol";
+import {IZoneKind} from "@ds/ext/ZoneKind.sol";
 
 using Schema for State;
 
@@ -275,6 +276,17 @@ contract BuildingRule is Rule {
         if (category == BuildingCategory.EXTRACTOR) {
             // set initial extraction timestamp
             state.setBlockNum(buildingInstance, uint8(BuildingBlockNumKey.EXTRACTION), ctx.clock);
+        }
+
+        // Call into the zone kind
+        {
+            bytes24 zone = Node.Zone(state.getTileZone(targetTile));
+            if (zone != bytes24(0)) {
+                IZoneKind zoneImplementation = IZoneKind(state.getImplementation(zone));
+                if (address(zoneImplementation) != address(0)) {
+                    zoneImplementation.onContructBuilding(game, zone, mobileUnit, buildingInstance);
+                }
+            }
         }
     }
 

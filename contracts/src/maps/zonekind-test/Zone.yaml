@@ -1,0 +1,10 @@
+---
+kind: ZoneKind
+spec:
+  name: Zone Test
+  description: My test zone to test zone kinds
+  url: images/building-totems/Block_Van.png
+  contract:
+    file: ./Zone.sol
+  plugin:
+    file: ./Zone.js

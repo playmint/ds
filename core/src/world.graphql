@@ -191,6 +191,10 @@ fragment ZoneState on Node {
     url: annotation(name: "url") {
         value
     }
+    allData {
+        name
+        value
+    }
     isFeatured: edge(match: { via: { rel: "IsFeatured", key: 0 } }) {
         value: weight
     }

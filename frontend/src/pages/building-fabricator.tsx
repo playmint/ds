@@ -1145,6 +1145,7 @@ const BuildingFabricator = () => {
                 mobileUnits: [],
                 sessions: [],
                 autoquests: [],
+                allData: [],
             };
             validate();
             const yaml = getManifestsYAML({

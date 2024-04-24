@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 import "cog/IState.sol";
 import "cog/IRule.sol";
 import "cog/IDispatcher.sol";
+import "cog/IGame.sol";
 
 import {CombatActionKind, CombatAction, Actions} from "@ds/actions/Actions.sol";
 
@@ -22,10 +23,14 @@ import {
     UNIT_BASE_LIFE,
     UNIT_BASE_DEFENCE,
     UNIT_BASE_ATTACK,
-    LIFE_MUL
+    LIFE_MUL,
+    CombatState,
+    EntityState,
+    CombatWinState
 } from "@ds/schema/Schema.sol";
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
+import {IZoneKind} from "@ds/ext/ZoneKind.sol";
 
 using Schema for State;
 
@@ -49,36 +54,15 @@ struct EquipActionInfo {
     uint32[3] stats; // Based off of atoms. The key is Schema.AtomKind
 }
 
-struct CombatState {
-    EntityState[] attackerStates;
-    EntityState[] defenderStates;
-    uint16 attackerCount;
-    uint16 defenderCount;
-    CombatWinState winState;
-    uint16 tickCount;
-}
-
-struct EntityState {
-    bytes24 entityID;
-    uint32[3] stats; // TODO: Why aren't these 64bit?
-    uint64 damage;
-    uint64 damageInflicted; // Each tick, entity's attack stat are added to this property. It actually represents effort more than the damage result
-    bool isPresent;
-    bool isDead;
-    bool hasClaimed;
-}
-
-enum CombatWinState {
-    NONE,
-    ATTACKERS,
-    DEFENDERS,
-    DRAW
-}
-
 contract CombatRule is Rule {
+    Game game;
     uint64 public prevCombatSessionID = 0; // combat sessions are incremented
 
     event SessionUpdate(uint64 indexed sessionID, bytes combatActions);
+
+    constructor(Game g) {
+        game = g;
+    }
 
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.SPAWN_MOBILE_UNIT.selector) {
@@ -148,7 +132,18 @@ contract CombatRule is Rule {
             if (_getActiveSession(state, mobileUnitTile, ctx) != 0) revert("CombatSessionAlreadyActive");
             if (_getActiveSession(state, targetTileID, ctx) != 0) revert("CombatSessionAlreadyActive");
 
-            _startSession(state, mobileUnitTile, targetTileID, attackers, defenders, ctx);
+            bytes24 sessionID = _startSession(state, mobileUnitTile, targetTileID, attackers, defenders, ctx);
+
+            // Call into the zone kind
+            {
+                bytes24 zone = Node.Zone(state.getTileZone(mobileUnitTile));
+                if (zone != bytes24(0)) {
+                    IZoneKind zoneImplementation = IZoneKind(state.getImplementation(zone));
+                    if (address(zoneImplementation) != address(0)) {
+                        zoneImplementation.onCombatStart(game, zone, mobileUnitID, sessionID);
+                    }
+                }
+            }
         }
 
         if (bytes4(action) == Actions.FINALISE_COMBAT.selector) {
@@ -226,9 +221,24 @@ contract CombatRule is Rule {
         }
 
         state.setIsFinalised(sessionID, true);
+
+        // Call into the zone kind
+        {
+            (bytes24 attackTileID, /*uint64 combatStartBlock*/ ) = state.getAttackTile(sessionID);
+            bytes24 zone = Node.Zone(state.getTileZone(attackTileID));
+            if (zone != bytes24(0)) {
+                IZoneKind zoneImplementation = IZoneKind(state.getImplementation(zone));
+                if (address(zoneImplementation) != address(0)) {
+                    zoneImplementation.onCombatFinalise(game, zone, sessionID, combatState.winState);
+                }
+            }
+        }
     }
 
     function _destroyBuilding(State state, bytes24 buildingInstance) private {
+        bytes24 buildingKind = state.getBuildingKind(buildingInstance);
+        bytes24 zone = Node.Zone(state.getTileZone(state.getFixedLocation(buildingInstance)));
+
         // set type of building
         state.setBuildingKind(buildingInstance, bytes24(0));
         // set building owner to player who created it
@@ -240,6 +250,17 @@ contract CombatRule is Rule {
         // TODO: Orphaned bags
         state.setEquipSlot(buildingInstance, 0, bytes24(0));
         state.setEquipSlot(buildingInstance, 1, bytes24(0));
+
+        // NOTE: There are two places where buildings can be destroyed. CheatsRule and CombatRule
+        // Call into the zone kind
+        {
+            if (zone != bytes24(0)) {
+                IZoneKind zoneImplementation = IZoneKind(state.getImplementation(zone));
+                if (address(zoneImplementation) != address(0)) {
+                    zoneImplementation.onDestroyBuilding(game, zone, buildingInstance, buildingKind);
+                }
+            }
+        }
     }
 
     // Only counts entities that are present
@@ -501,33 +522,16 @@ contract CombatRule is Rule {
         bytes24[] memory attackers,
         bytes24[] memory defenders,
         Context calldata ctx
-    ) private {
+    ) private returns (bytes24 sessionID) {
         // Create a new session
         prevCombatSessionID++;
         uint64 rawSessionID = prevCombatSessionID;
 
         {
             // Link the session to the tiles
-            bytes24 sessionID = Node.CombatSession(rawSessionID);
+            sessionID = Node.CombatSession(rawSessionID);
             state.setParent(sessionID, state.getParent(attTileID));
-            state.set(
-                Rel.Has.selector,
-                uint8(CombatSideKey.ATTACK),
-                sessionID,
-                attTileID,
-                ctx.clock + COMBAT_JOIN_WINDOW_BLOCKS
-            );
-            state.set(
-                Rel.Has.selector,
-                uint8(CombatSideKey.DEFENCE),
-                sessionID,
-                defTileID,
-                ctx.clock + COMBAT_JOIN_WINDOW_BLOCKS
-            );
-
-            // We make a relationship from tile to session so we can check if a particular tile is in session
-            state.set(Rel.Has.selector, 0, attTileID, sessionID, ctx.clock + COMBAT_JOIN_WINDOW_BLOCKS);
-            state.set(Rel.Has.selector, 0, defTileID, sessionID, ctx.clock + COMBAT_JOIN_WINDOW_BLOCKS);
+            state.setCombatTiles(sessionID, attTileID, defTileID, ctx.clock + COMBAT_JOIN_WINDOW_BLOCKS);
 
             // -- We make log who is standing on the attack/defence tiles because we cannot get a list of who is standing at a particular tile
 
@@ -607,6 +611,17 @@ contract CombatRule is Rule {
                 }
             }
         }
+
+        // Call into the zone kind
+        {
+            bytes24 zone = Node.Zone(state.getTileZone(attackTileID));
+            if (zone != bytes24(0)) {
+                IZoneKind zoneImplementation = IZoneKind(state.getImplementation(zone));
+                if (address(zoneImplementation) != address(0)) {
+                    zoneImplementation.onCombatJoin(game, zone, mobileUnitID, sessionID);
+                }
+            }
+        }
     }
 
     function _leaveSession(
@@ -629,6 +644,17 @@ contract CombatRule is Rule {
                 } else {
                     state.setDefender(sessionID, i, bytes24(0), 0);
                     break;
+                }
+            }
+        }
+
+        // Call into the zone kind
+        {
+            bytes24 zone = Node.Zone(state.getTileZone(attackTileID));
+            if (zone != bytes24(0)) {
+                IZoneKind zoneImplementation = IZoneKind(state.getImplementation(zone));
+                if (address(zoneImplementation) != address(0)) {
+                    zoneImplementation.onCombatLeave(game, zone, mobileUnitID, sessionID);
                 }
             }
         }

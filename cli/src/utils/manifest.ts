@@ -186,6 +186,23 @@ export const BuildingKind = z.object({
         .optional(),
 });
 
+export const ZoneKind = z.object({
+    kind: z.literal('ZoneKind'),
+    spec: z.object({
+        name: Name,
+        description: OneLiner.max(140),
+        url: z.string().optional(),
+        contract: ContractSource.optional(),
+        plugin: PluginSource.optional(),
+    }),
+    status: z
+        .object({
+            id: z.string(),
+            owner: z.string(),
+        })
+        .optional(),
+});
+
 export const FacingDirectionTypes = ['RIGHT', 'LEFT'] as const;
 
 export const BuildingSpec = z.object({
@@ -374,6 +391,7 @@ export const Manifest = z.discriminatedUnion('kind', [
     Quest,
     Bag,
     AutoQuest,
+    ZoneKind,
 ]);
 
 export const ManifestDocument = z.object({

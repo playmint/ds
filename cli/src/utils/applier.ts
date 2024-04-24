@@ -35,6 +35,11 @@ const encodePluginID = ({ name }) => {
     return CompoundKeyEncoder.encodeUint160(NodeSelectors.ClientPlugin, id);
 };
 
+const encodeZonePluginID = (zoneId: number) => {
+    const id = Number(BigInt.asUintN(32, BigInt(keccak256UTF8(`zonePlugin/${zoneId}`))));
+    return CompoundKeyEncoder.encodeUint160(NodeSelectors.ClientPlugin, id);
+};
+
 const encodeTaskID = ({ zone, name, kind }: z.infer<typeof Task> & { zone: number }) => {
     const kindIndex = TaskKindEnumVals.indexOf(kind);
     const id = BigInt.asUintN(64, BigInt(keccak256UTF8(`task/${name}`)));
@@ -226,6 +231,71 @@ const buildingKindDeploymentActions = async (
     return ops;
 };
 
+const zoneKindDeploymentActions = async (
+    zone: ZoneStateFragment,
+    file: ReturnType<typeof ManifestDocument.parse>,
+    compiler: (source: z.infer<typeof ContractSource>, manifestDir: string) => Promise<string>
+): Promise<CogAction[]> => {
+    const ops: CogAction[] = [];
+    const manifestDir = path.dirname(file.filename);
+
+    if (file.manifest.kind != 'ZoneKind') {
+        throw new Error(`expected zone kind spec`);
+    }
+    const spec = file.manifest.spec;
+
+    // compile and deploy an implementation if given
+    if (spec.contract && (spec.contract.file || spec.contract.bytecode)) {
+        const bytecode = spec.contract.bytecode ? spec.contract.bytecode : await compiler(spec.contract, manifestDir);
+        ops.push({
+            name: 'DEPLOY_KIND_IMPLEMENTATION',
+            args: [zone.id, `0x${bytecode}`],
+        });
+    }
+
+    // deploy client plugin if given
+    if (spec.plugin && (spec.plugin.file || spec.plugin.inline)) {
+        const zoneId = Number(BigInt.asIntN(16, zone.key));
+        const alwaysActive = true;
+        const pluginName = `zonePlugin/${zoneId}`;
+        const pluginID = encodeZonePluginID(zoneId);
+        const js = spec.plugin.file
+            ? (() => {
+                  const relativeFilename = path.join(manifestDir, spec.plugin.file);
+                  if (!fs.existsSync(relativeFilename)) {
+                      throw new Error(`plugin source not found: ${spec.plugin.file}`);
+                  }
+                  return fs.readFileSync(relativeFilename, 'utf8').toString();
+              })()
+            : spec.plugin.inline;
+        ops.push({
+            name: 'REGISTER_KIND_PLUGIN',
+            args: [pluginID, zone.id, pluginName, js, alwaysActive],
+        });
+    }
+
+    if (spec.name && spec.name.length > 0) {
+        ops.push({
+            name: 'NAME_OWNED_ENTITY',
+            args: [zone.id, spec.name],
+        });
+    }
+    if (spec.description && spec.description.length > 0) {
+        ops.push({
+            name: 'DESCRIBE_OWNED_ENTITY',
+            args: [zone.id, spec.description],
+        });
+    }
+    if (spec.url && spec.url.length > 0) {
+        ops.push({
+            name: 'URL_OWNED_ENTITY',
+            args: [zone.id, spec.url],
+        });
+    }
+
+    return ops;
+};
+
 const questDeploymentActions = async (
     zoneId: number,
     file: ReturnType<typeof ManifestDocument.parse>,
@@ -364,6 +434,21 @@ export const getOpsForManifests = async (
         });
     }
 
+    // process zone kinds
+    opn++;
+    opsets[opn] = [];
+    for (const doc of docs) {
+        if (doc.manifest.kind != 'ZoneKind') {
+            continue;
+        }
+        const actions = await zoneKindDeploymentActions(zone, doc, compiler);
+        opsets[opn].push({
+            doc,
+            actions,
+            note: `registered zone kind for zone ${zoneId}`,
+        });
+    }
+
     // spawn building instances
     opn++;
     opsets[opn] = [];
@@ -412,9 +497,7 @@ export const getOpsForManifests = async (
     }
 
     // spawn tile manifests (this is only valid while cheats are enabled)
-    const convertedTileCoords = zone.tiles.map(tile => 
-        tile.coords.map(coord => fromTwos(coord, 16))
-    );
+    const convertedTileCoords = zone.tiles.map((tile) => tile.coords.map((coord) => fromTwos(coord, 16)));
     let skippedTiles = 0;
     opn++;
     opsets[opn] = [];
@@ -425,20 +508,26 @@ export const getOpsForManifests = async (
         const spec = doc.manifest.spec;
         const [q, r, s] = spec.location;
         const inBounds = isInBounds(q, r, s);
-        
+
         let shouldSkip = false;
         for (let i = 0; i < convertedTileCoords.length; i++) {
-            if (convertedTileCoords[i][1] == q && convertedTileCoords[i][2] == r && convertedTileCoords[i][3] == s && zone.tiles[i].biome != undefined && zone.tiles[i].biome != 0){
+            if (
+                convertedTileCoords[i][1] == q &&
+                convertedTileCoords[i][2] == r &&
+                convertedTileCoords[i][3] == s &&
+                zone.tiles[i].biome != undefined &&
+                zone.tiles[i].biome != 0
+            ) {
                 shouldSkip = true;
                 skippedTiles++;
                 break;
             }
         }
 
-        if (shouldSkip){
+        if (shouldSkip) {
             continue;
         }
-        
+
         opsets[opn].push({
             doc,
             actions: [
@@ -453,7 +542,10 @@ export const getOpsForManifests = async (
     }
 
     if (skippedTiles > 0) {
-        const skipReason = skippedTiles === 1 ? 'tile because it already exists in the zone' : 'tiles because they already exist in the zone';
+        const skipReason =
+            skippedTiles === 1
+                ? 'tile because it already exists in the zone'
+                : 'tiles because they already exist in the zone';
         console.log(`⏩ skipped ${skippedTiles} ${skipReason}\n`);
     }
 

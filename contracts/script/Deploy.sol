@@ -25,6 +25,7 @@ import {NamingRule} from "@ds/rules/NamingRule.sol";
 import {BagRule} from "@ds/rules/BagRule.sol";
 import {ExtractionRule} from "@ds/rules/ExtractionRule.sol";
 import {QuestRule} from "@ds/rules/QuestRule.sol";
+import {ZoneRule} from "@ds/rules/ZoneRule.sol";
 
 using Schema for State;
 
@@ -72,18 +73,19 @@ contract GameDeployer is Script {
         vm.writeJson(latestJson, "./out/latest.json");
 
         // enable rules
-        ds.registerRule(new CheatsRule());
+        ds.registerRule(new CheatsRule(ds));
         ds.registerRule(new MovementRule(ds));
         ds.registerRule(inventoryRule);
         ds.registerRule(new BuildingRule(ds));
         ds.registerRule(new CraftingRule(ds));
         ds.registerRule(new PluginRule());
         ds.registerRule(new NewPlayerRule());
-        ds.registerRule(new CombatRule());
+        ds.registerRule(new CombatRule(ds));
         ds.registerRule(new NamingRule());
         ds.registerRule(new BagRule());
         ds.registerRule(new ExtractionRule(ds));
-        ds.registerRule(new QuestRule());
+        ds.registerRule(new QuestRule(ds));
+        ds.registerRule(new ZoneRule(ds));
 
         // register base goos
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.GreenGoo(), "Green Goo", "15-185")));

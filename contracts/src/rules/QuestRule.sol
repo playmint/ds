@@ -4,11 +4,13 @@ pragma solidity ^0.8.13;
 import "cog/IState.sol";
 import "cog/IRule.sol";
 import "cog/IDispatcher.sol";
+import "cog/IGame.sol";
 
 import {Schema, Kind, Node, Rel, TaskKind, QuestStatus, LIFE, DEFENCE, ATTACK} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
+import {IZoneKind} from "@ds/ext/ZoneKind.sol";
 
-import "forge-std/console.sol";
+// import "forge-std/console.sol";
 
 using Schema for State;
 
@@ -22,7 +24,11 @@ uint8 constant MAX_NEXT_QUESTS = 5;
  * - The player can only ever complete 256 quests. We don't have any mechanism of tidying up completed quests
  */
 contract QuestRule is Rule {
-    constructor() {}
+    Game game;
+
+    constructor(Game g) {
+        game = g;
+    }
 
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
         if (bytes4(action) == Actions.REGISTER_TASK.selector) {
@@ -160,6 +166,12 @@ contract QuestRule is Rule {
         require(questStatus == QuestStatus.NONE, "Quest already present at given questNum");
 
         state.setZonedPlayerQuest(quest, zone, sender, questNum, QuestStatus.ACCEPTED);
+        // Call into the zone kind
+        bytes24 nZone = Node.Zone(zone);
+        IZoneKind zoneImplementation = IZoneKind(state.getImplementation(nZone));
+        if (address(zoneImplementation) != address(0)) {
+            zoneImplementation.onAcceptQuest(game, nZone, quest, questNum, Node.Player(sender));
+        }
     }
 
     function _completeQuest(State state, bytes calldata action, address sender) private {
@@ -178,6 +190,15 @@ contract QuestRule is Rule {
         // TODO: Do evalutation of task completion
 
         state.setZonedPlayerQuest(quest, zone, sender, questNum, QuestStatus.COMPLETED);
+
+        // Call into the zone kind
+        {
+            bytes24 nZone = Node.Zone(zone);
+            IZoneKind zoneImplementation = IZoneKind(state.getImplementation(nZone));
+            if (address(zoneImplementation) != address(0)) {
+                zoneImplementation.onCompleteQuest(game, nZone, quest, questNum, Node.Player(sender));
+            }
+        }
 
         // Auto accept next quests
 
@@ -199,6 +220,13 @@ contract QuestRule is Rule {
             zone = _getZone(nextQuest);
             require(zone != 0x0, "Quest must be zoned");
             state.setZonedPlayerQuest(nextQuest, zone, sender, questNum, QuestStatus.ACCEPTED);
+            {
+                bytes24 nZone = Node.Zone(zone);
+                IZoneKind zoneImplementation = IZoneKind(state.getImplementation(nZone));
+                if (address(zoneImplementation) != address(0)) {
+                    zoneImplementation.onAcceptQuest(game, nZone, nextQuest, questNum, Node.Player(sender));
+                }
+            }
         }
     }
 
