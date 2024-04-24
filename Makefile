@@ -70,8 +70,27 @@ cli: node_modules core/dist/core.js
 publish: cli
 	(cd cli && $(NPM) version patch && rm -rf /tmp/ds-cli && mkdir -p /tmp/ds-cli && cp -r dist /tmp/ds-cli/dist && jq 'del(.dependencies, .devDependencies)' package.json > /tmp/ds-cli/package.json && cd /tmp/ds-cli && $(NPM) publish)
 
-release: contracts node_modules cli
-	./scripts/release.mjs -i --max-connections 10
+deployments/garnet/contracts.json:
+	(cd contracts && forge script script/Deploy.sol:GameDeployer \
+		--rpc-url "https://rpc.garnetchain.com" \
+		--ledger)
+	cp contracts/out/latest.json $@
+
+deployments/garnet/contracts.yaml: deployments/garnet/contracts.json
+	./scripts/genvalues deployments/garnet/contracts.json > $@
+
+garnet: deployments/garnet/contracts.yaml
+	node ./scripts/get-latest-images.mjs | jq . > ./deployments/garnet/version.json
+	helm template ds ./chart -n garnet \
+		--values ./deployments/garnet/values.yaml \
+		--values ./deployments/garnet/version.json \
+		--values ./deployments/garnet/contracts.yaml \
+		--set sequencer.privateKey=$$(bw get password da0f60df-2521-4fec-898a-b06800854c18)
+
+clean-garnet:
+	rm -f deployments/garnet/contracts.json
+	rm -f deployments/garnet/contracts.yaml
+	rm -f deployments/garnet/version.json
 
 clean:
 	rm -rf cli/dist

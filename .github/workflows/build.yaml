@@ -54,12 +54,6 @@ on:
       AZURE_CLUSTER_RESOURCE_GROUP:
         description: Name of the resource group where the cluster lives
         required: true
-      DEPLOYER_PRIVATE_KEY:
-        description: key for (non-anvil) deployments
-        required: true
-      SEQUENCER_PRIVATE_KEY:
-        description: key for (non-anvil) sequencer
-        required: true
       UNITY_SERIAL:
         description: Unity licence serial
         required: true
@@ -257,37 +251,6 @@ jobs:
         uses: azure/setup-helm@v3
         with:
           version: "3.7.2"
-      - name: Deploy Contracts
-        env:
-          OVERRIDE_VALUES: overrides.yaml
-          DEPLOYER_PRIVATE_KEY: "0x${{ secrets.DEPLOYER_PRIVATE_KEY }}"
-          SEQUENCER_PRIVATE_KEY: ${{ secrets.SEQUENCER_PRIVATE_KEY }}
-        run: |
-          touch $OVERRIDE_VALUES
-          if [[ "${{ inputs.DEPLOYMENT_CHAIN }}" == "garnet" ]]; then
-            (cd contracts && forge script script/Deploy.sol:GameDeployer \
-              --broadcast \
-              --rpc-url "https://rpc.garnet.qry.live" \
-              --private-key "${DEPLOYER_PRIVATE_KEY}"
-            )
-            cat contracts/out/latest.json
-            echo "chainId: 17001" >> $OVERRIDE_VALUES
-            echo "indexer:" >> $OVERRIDE_VALUES
-            echo "  gameAddress: $(jq -r .game contracts/out/latest.json)" >> $OVERRIDE_VALUES
-            echo "  stateAddress: $(jq -r .state contracts/out/latest.json)" >> $OVERRIDE_VALUES
-            echo "  routerAddress: $(jq -r .router contracts/out/latest.json)" >> $OVERRIDE_VALUES
-            echo "  providerUrlHttp: https://rpc.garnet.qry.live" >> $OVERRIDE_VALUES
-            echo "  providerUrlWs: wss://rpc.garnet.qry.live" >> $OVERRIDE_VALUES
-            echo "frontend:" >> $OVERRIDE_VALUES
-            echo "  gameAddress: $(jq -r .game contracts/out/latest.json)" >> $OVERRIDE_VALUES
-            echo "  tokenAddress: $(jq -r .tokens contracts/out/latest.json)" >> $OVERRIDE_VALUES
-            echo "  zonesAddress: $(jq -r .zones contracts/out/latest.json)" >> $OVERRIDE_VALUES
-            echo "sequencer:" >> $OVERRIDE_VALUES
-            echo "  privateKey: ${SEQUENCER_PRIVATE_KEY}" >> $OVERRIDE_VALUES
-            echo "  providerUrlHttp: https://rpc.garnet.qry.live" >> $OVERRIDE_VALUES
-            echo "  providerUrlWs: wss://rpc.garnet.qry.live" >> $OVERRIDE_VALUES
-            echo "  mineEmpty: false" >> $OVERRIDE_VALUES
-          fi
       - name: Deploy to Azure
         env:
           OVERRIDE_VALUES: overrides.yaml
