@@ -83,7 +83,7 @@ deployments/garnet/contracts.yaml: deployments/garnet/contracts.json
 
 deploy-garnet: deployments/garnet/contracts.yaml
 	bw login --check
-	node ./scripts/get-latest-images.mjs | jq . > ./deployments/garnet/version.json
+	node ./scripts/get-latest-images.mjs -o ./deployments/garnet/version.json
 	helm upgrade --force --install --wait --timeout 30m --history-max 5 \
 		ds ./chart -n garnet \
 			--create-namespace\
@@ -111,7 +111,7 @@ deployments/redstone/contracts.yaml: deployments/redstone/contracts.json
 
 deploy-redstone: deployments/redstone/contracts.yaml
 	bw login --check
-	node ./scripts/get-latest-images.mjs | jq . > ./deployments/redstone/version.json
+	node ./scripts/get-latest-images.mjs -o ./deployments/redstone/version.json
 	helm upgrade --force --install --wait --timeout 30m --history-max 5 \
 		ds ./chart -n redstone \
 			--create-namespace\
