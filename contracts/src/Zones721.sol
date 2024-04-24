@@ -27,7 +27,7 @@ contract Zones721 is ERC721 {
 
     string constant LOCATION_LABEL = "Location";
 
-    string constant GOO_TYPE_LABEL = "Goo type";
+    string constant GOO_TYPE_LABEL = "Goo Type";
     uint256 constant GOO_TYPE_COUNT = 18;
     string[] private GOO_TYPE_VALUES = [
         "Aromatic Surfactant",
@@ -50,12 +50,12 @@ contract Zones721 is ERC721 {
         "Viscoelastic Synthetic Polymer"
     ];
 
-    string constant TILE_ROTATION_LABEL = "Tile rotation";
+    string constant TILE_ROTATION_LABEL = "Tile Rotation";
     uint256 constant TILE_ROTATION_COUNT = 16;
     string[] private TILE_ROTATION_VALUES =
         ["000", "060", "120", "180", "240", "300", "360", "420", "480", "540", "600", "660", "720", "780", "840", "900"];
 
-    string constant HISTORICAL_GOVERNANCE_LABEL = "Historical governance";
+    string constant HISTORICAL_GOVERNANCE_LABEL = "Historical Governance";
     uint256 constant HISTORICAL_GOVERNANCE_COUNT = 12;
     string[] private HISTORICAL_GOVERNANCE_VALUES = [
         "Archeofuturist Patchwork",
