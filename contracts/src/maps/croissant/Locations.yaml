@@ -4049,3 +4049,21 @@ kind: Tile
 spec:
   location: [ 9, -11, 2 ]
   biome: DISCOVERED
+
+---
+kind: Building
+spec:
+  name: How To Play Ducks Vs Burgers
+  location: [13, -7, -6]
+
+---
+kind: Tile
+spec:
+  location: [-5, 9, -4]
+  biome: DISCOVERED
+
+---
+kind: Building
+spec:
+  name: How To Play Hexcraft
+  location: [-5, 9, -4]

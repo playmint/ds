@@ -1,0 +1,17 @@
+---
+kind: BuildingKind
+spec:
+  category: billboard
+  name: How To Play Hexcraft
+  description: Game Rules
+  model: monitor
+  plugin:
+    file: ./HowToPlayBillboard-HC.js
+    alwaysActive: true
+  materials:
+  - name: Red Goo
+    quantity: 100
+  - name: Green Goo
+    quantity: 100
+  - name: Blue Goo
+    quantity: 100
