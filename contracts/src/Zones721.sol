@@ -27,7 +27,7 @@ contract Zones721 is ERC721 {
 
     string constant LOCATION_LABEL = "Location";
 
-    string constant GOO_TYPE_LABEL = "Goo Type";
+    string constant GOO_TYPE_LABEL = "GooType";
     uint256 constant GOO_TYPE_COUNT = 18;
     string[] private GOO_TYPE_VALUES = [
         "Aromatic Surfactant",
@@ -50,12 +50,12 @@ contract Zones721 is ERC721 {
         "Viscoelastic Synthetic Polymer"
     ];
 
-    string constant TILE_ROTATION_LABEL = "Tile Rotation";
+    string constant TILE_ROTATION_LABEL = "TileRotation";
     uint256 constant TILE_ROTATION_COUNT = 16;
     string[] private TILE_ROTATION_VALUES =
         ["000", "060", "120", "180", "240", "300", "360", "420", "480", "540", "600", "660", "720", "780", "840", "900"];
 
-    string constant HISTORICAL_GOVERNANCE_LABEL = "Historical Governance";
+    string constant HISTORICAL_GOVERNANCE_LABEL = "HistoricalGovernance";
     uint256 constant HISTORICAL_GOVERNANCE_COUNT = 12;
     string[] private HISTORICAL_GOVERNANCE_VALUES = [
         "Archeofuturist Patchwork",
@@ -182,39 +182,40 @@ contract Zones721 is ERC721 {
     }
 
     function getTraitLocation(uint256 tokenId) internal pure returns (bytes memory) {
-        return
-            abi.encodePacked("{'trait_type': '", LOCATION_LABEL, "', 'value': '", UniverseValue.generate(tokenId), "'}");
+        return abi.encodePacked(
+            "{\"trait_type\": \"", LOCATION_LABEL, "\", \"value\": \"", UniverseValue.generate(tokenId), "\"}"
+        );
     }
 
     function getTraitGooType() internal view returns (bytes memory) {
         return abi.encodePacked(
-            "{'trait_type': '",
+            "{\"trait_type\": \"",
             GOO_TYPE_LABEL,
-            "', 'value': '",
+            "\", \"value\": \"",
             GOO_TYPE_VALUES[getTraitIndex(currentTokenId, GOO_TYPE_LABEL, GOO_TYPE_COUNT)],
-            "'}"
+            "\"}"
         );
     }
 
     function getTraitTileRotation() internal view returns (bytes memory) {
         return abi.encodePacked(
-            "{'trait_type': '",
+            "{\"trait_type\": \"",
             TILE_ROTATION_LABEL,
-            "', 'value': '",
+            "\", \"value\": \"",
             TILE_ROTATION_VALUES[getTraitIndex(currentTokenId, TILE_ROTATION_LABEL, TILE_ROTATION_COUNT)],
-            "'}"
+            "\"}"
         );
     }
 
     function getTraitHistoricalGovernance() internal view returns (bytes memory) {
         return abi.encodePacked(
-            "{'trait_type': '",
+            "{\"trait_type\": \"",
             HISTORICAL_GOVERNANCE_LABEL,
-            "', 'value': '",
+            "\", \"value\": \"",
             HISTORICAL_GOVERNANCE_VALUES[getTraitIndex(
                 currentTokenId, HISTORICAL_GOVERNANCE_LABEL, HISTORICAL_GOVERNANCE_COUNT
             )],
-            "'}"
+            "\"}"
         );
     }
 
