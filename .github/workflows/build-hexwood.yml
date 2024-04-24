@@ -36,7 +36,6 @@ on:
           - hexcraft
           - tonk
           - croissant
-          - example-gate
           - labyrinth
       SELECTED_CHAIN:
         type: choice
