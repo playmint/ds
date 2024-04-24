@@ -88,6 +88,13 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
             .catch((err) => console.error(err));
     }, [player, provider, authorizing, setSessionData]);
 
+    const clearSession = useCallback(() => {
+        localStorage.removeItem(SESSION_LOCALSTORAGE_KEY);
+        if (setSessionData) {
+            setSessionData(null);
+        }
+    }, [setSessionData]);
+
     const loadSession = useCallback(() => {
         if (!player) {
             return;
@@ -98,16 +105,16 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
         setLoading(true);
         player
             .load(new ethers.Wallet(session.key), session.expires)
-            .catch((err) => console.error(err))
+            .catch((err) => {
+                if (/INVALID_SESSION/.test(err.toString())) {
+                    console.error('invalid session detected, clearing');
+                    clearSession();
+                    return;
+                }
+                console.error(err);
+            })
             .finally(() => setLoading(false));
-    }, [session, player]);
-
-    const clearSession = useCallback(() => {
-        localStorage.removeItem(SESSION_LOCALSTORAGE_KEY);
-        if (setSessionData) {
-            setSessionData(null);
-        }
-    }, [setSessionData]);
+    }, [session, player, clearSession]);
 
     useEffect(() => {
         if (sessionLoaded) {
