@@ -59,7 +59,7 @@ export const authenticate = async (loginURL: string): Promise<SessionData> => {
             }
         });
 
-        server.listen(AUTH_PORT, '0.0.0.0', (err, _address) => {
+        server.listen({ port: AUTH_PORT }, (err, _address) => {
             if (err) {
                 reject(err);
                 return;
