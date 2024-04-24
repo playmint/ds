@@ -84,10 +84,9 @@ contract TestZone is ZoneKind {
         ds.getDispatcher().dispatch(abi.encodeCall(Actions.SET_DATA_ON_ZONE, (zoneID, name, bytes32(count + 1))));
     }
 
-    function onCombatFinalise(Game ds, bytes24 zoneID, bytes24 sessionId, CombatWinState winState) external override{
+    function onCombatFinalise(Game ds, bytes24 zoneID, bytes24 sessionId, CombatWinState winState) external override {
         _increment(ds, zoneID, "combatCount");
         if (winState == CombatWinState.ATTACKERS) _increment(ds, zoneID, "attackerWinCount");
         else if (winState == CombatWinState.DEFENDERS) _increment(ds, zoneID, "defenderWinCount");
-
     }
 }
