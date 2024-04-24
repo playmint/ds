@@ -1,0 +1,12 @@
+chainId: 690
+chain: redstone
+indexer:
+  providerUrlHttp: https://rpc.redstonechain.com
+  providerUrlWs: wss://rpc.redstonechain.com
+sequencer:
+  providerUrlHttp: https://rpc.redstonechain.com
+  providerUrlWs: wss://rpc.redstonechain.com
+  mineEmpty: false
+cluster:
+  domain: "downstream.game"
+priorityClassName: production
