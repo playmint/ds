@@ -189,7 +189,10 @@ contract CheatsRule is Rule {
             require(Bounds.isInBounds(q, r, s), "coords out of bounds");
 
             _checkIsOwnerOrZone(state, ctx, z);
+        } else {
+            require(state.getOwner(equipee) == Node.Player(ctx.sender), "owner only");
         }
+
         for (uint8 i = 0; i < slotContents.length; i++) {
             state.clearItemSlot(bag, i);
         }
