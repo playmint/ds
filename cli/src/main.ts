@@ -47,12 +47,11 @@ yargs
         choices: networks.map((n) => n.name),
         type: 'string',
     })
-    .option('wallet', {
-        alias: 'w',
+    .option('auth', {
         demandOption: true,
-        default: 'metamask',
-        describe: 'wallet authentication method',
-        choices: ['metamask', 'walletconnect', 'private-key'],
+        default: 'browser',
+        describe: 'authentication method',
+        choices: ['browser', 'walletconnect', 'private-key'],
         type: 'string',
     })
     .option('ws-endpoint', {
@@ -78,7 +77,7 @@ yargs
     })
     .option('private-key', {
         alias: 'k',
-        describe: 'player private key (insecure!)',
+        describe: 'player private key (implies --auth private-key)',
         type: 'string',
     })
     .middleware(session)

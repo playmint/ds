@@ -93,6 +93,7 @@ export const session = async (ctx) => {
         const { logger } = makeLogger({ name: 'main', level: LogLevel.FATAL });
         const { client } = ctx.makeClient();
         if (ctx.k) {
+            ctx.auth = 'private-key';
             const wallet = makeKeyWallet(ctx.k.startsWith('0x') ? ctx.k : `0x${ctx.k}`);
             const player = pipe(
                 makeConnectedPlayer(client, wallet, logger, ctx.zone || 0),
@@ -106,7 +107,7 @@ export const session = async (ctx) => {
             }
             await p.login();
             return p;
-        } else if (ctx.wallet === 'metamask') {
+        } else if (ctx.auth === 'browser') {
             const session = await authenticate(network.loginEndpoint);
             const wallet = makeKeylessWallet(session.owner);
             const player = pipe(
@@ -121,7 +122,7 @@ export const session = async (ctx) => {
             await p.load(new ethers.Wallet(session.key), session.expires)
             console.log(`authenticated as player ${session.owner}`);
             return p;
-        } else if (ctx.wallet === 'walletconnect') {
+        } else if (ctx.auth === 'walletconnect') {
             const { wallet, selectProvider } = makeWallet();
             const player = pipe(
                 makeConnectedPlayer(client, wallet, logger, ctx.zone || 0),
