@@ -5,6 +5,7 @@ import {
     NodeSelectors,
     makeConnectedPlayer,
     makeKeyWallet,
+    makeKeylessWallet,
     makeLogger,
     makeWallet,
 } from '@downstream/core';
@@ -13,6 +14,8 @@ import fetch from 'cross-fetch';
 import qrcode from 'qrcode-terminal';
 import { pipe, skipWhile, take, toPromise } from 'wonka';
 import WebSocket from 'ws';
+import { authenticate } from './auth';
+import { ethers } from 'ethers';
 
 import { makeCogClient } from '@downstream/core';
 import { networks } from '../utils/networks';
@@ -103,7 +106,21 @@ export const session = async (ctx) => {
             }
             await p.login();
             return p;
-        } else {
+        } else if (ctx.wallet === 'metamask') {
+            const session = await authenticate(network.loginEndpoint);
+            const wallet = makeKeylessWallet(session.owner);
+            const player = pipe(
+                makeConnectedPlayer(client, wallet, logger, ctx.zone || 0),
+                take(1),
+                toPromise
+            );
+            const p = await player;
+            if (!p) {
+                throw new Error('authentication failure: unable to setup player, maybe try again');
+            }
+            await p.load(new ethers.Wallet(session.key), session.expires)
+            return p;
+        } else if (ctx.wallet === 'walletconnect') {
             const { wallet, selectProvider } = makeWallet();
             const player = pipe(
                 makeConnectedPlayer(client, wallet, logger, ctx.zone || 0),

@@ -47,6 +47,14 @@ yargs
         choices: networks.map((n) => n.name),
         type: 'string',
     })
+    .option('wallet', {
+        alias: 'w',
+        demandOption: true,
+        default: 'metamask',
+        describe: 'wallet authentication method',
+        choices: ['metamask', 'walletconnect', 'private-key'],
+        type: 'string',
+    })
     .option('ws-endpoint', {
         describe: 'override websocket query endpoint',
         type: 'string',
