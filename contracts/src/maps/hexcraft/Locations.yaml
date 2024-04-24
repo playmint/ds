@@ -2005,3 +2005,9 @@ kind: Building
 spec:
   name: Blacksmith
   location: [4, 6, -10]
+
+---
+kind: Building
+spec:
+  name: How To Play Hexcraft
+  location: [2, -3, 1]
