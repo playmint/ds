@@ -174,13 +174,22 @@ export default async function update(state) {
     if (unitTeam !== "") {
       isOnTeam = true;
       htmlBlock += `
-                <p>You are on team ${unitTeam}</p></br>
+                <p>You are on Team ${unitTeam}</p></br>
             `;
     }
   }
 
-  // console.log({ isOnTeam });
+  if (!isOnTeam) {
+    buttonList.push({
+      text: `Join a Team`,
+      type: "action",
+      action: join,
+      disabled: !canJoin || isOnTeam,
+    });
+  }
 
+  // console.log({ isOnTeam });
+ /*
   if (!gameActive) {
     if (!isOnTeam) {
       buttonList.push({
@@ -239,9 +248,11 @@ export default async function update(state) {
       `;
     }
   }
+  */
+
   // Reset is always offered (requires some trust!)
   buttonList.push({
-    text: "Reset",
+    text: "Reset Teams",
     type: "action",
     action: reset,
     disabled: false,
