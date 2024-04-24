@@ -4,11 +4,12 @@ import _yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { Octokit, App } from "octokit";
 import { execSync, exec } from 'child_process';
+import fs from 'fs';
 
 const GITHUB_OWNER = 'playmint';
 const DOCKER_REGISTERY = 'ghcr.io';
 
-async function main({}) {
+async function main({out}) {
 
     const octokit = new Octokit({});
 
@@ -33,7 +34,12 @@ async function main({}) {
         });
     };
 
-    console.log(JSON.stringify({ version: longSHA }));
+    const output = JSON.stringify({version: longSHA});
+    if (out) {
+        fs.writeFileSync(out, output);
+    } else {
+        console.log(output);
+    }
     process.exit(0);
 }
 
@@ -67,8 +73,12 @@ function fatal(...args) {
 
 const yargs = _yargs(hideBin(process.argv));
 yargs
-    .usage('$0', 'check images exist for current git sha', (cli) => {
-    }, async (ctx) => {
+    .option('out', {
+        alias: 'o',
+        describe: 'write output to file',
+        type: 'string',
+    })
+    .usage('$0', 'check images exist for current git sha', (cli) => {}, async (ctx) => {
         try {
             await main(ctx);
         } catch (err) {
