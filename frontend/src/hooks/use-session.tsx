@@ -6,8 +6,8 @@ import { ethers } from 'ethers';
 import Image from 'next/image';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { usePlayer } from './use-game-state';
-// import { useLocalStorage } from './use-localstorage';
 import { useWalletProvider } from './use-wallet-provider';
+import { useLocalStorage } from './use-localstorage';
 
 export const disableSessionRefresh = 'this export only exists to disable fast-refresh of this file';
 
@@ -15,6 +15,7 @@ export interface SessionContextValue {
     newSession: () => void;
     clearSession: () => void;
     loadingSession: boolean;
+    session?: SessionData;
 }
 
 export interface SessionData {
@@ -49,8 +50,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     const [authorizing, setAuthorizing] = useState<boolean>(false);
     const player = usePlayer();
     const closeAuthroizer = useCallback(() => setAuthorizing(false), []);
-    // const [sessionData, setSessionData] = useLocalStorage<SessionData | null>(SESSION_LOCALSTORAGE_KEY, null);
-    const [sessionData, setSessionData] = useState<SessionData | null>(null);
+    const [sessionData, setSessionData] = useLocalStorage<SessionData | null>(SESSION_LOCALSTORAGE_KEY, null);
     const [loadingSession, setLoading] = useState<boolean>(!!sessionData);
     const session = useMemo(() => (sessionData ? decodeSessionData(sessionData) : undefined), [sessionData]);
     const [sessionLoaded, setSessionLoaded] = useState<boolean>(false);
@@ -88,6 +88,13 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
             .catch((err) => console.error(err));
     }, [player, provider, authorizing, setSessionData]);
 
+    const clearSession = useCallback(() => {
+        localStorage.removeItem(SESSION_LOCALSTORAGE_KEY);
+        if (setSessionData) {
+            setSessionData(null);
+        }
+    }, [setSessionData]);
+
     const loadSession = useCallback(() => {
         if (!player) {
             return;
@@ -98,16 +105,16 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
         setLoading(true);
         player
             .load(new ethers.Wallet(session.key), session.expires)
-            .catch((err) => console.error(err))
+            .catch((err) => {
+                if (/INVALID_SESSION/.test(err.toString())) {
+                    console.error('invalid session detected, clearing');
+                    clearSession();
+                    return;
+                }
+                console.error(err);
+            })
             .finally(() => setLoading(false));
-    }, [session, player]);
-
-    const clearSession = useCallback(() => {
-        localStorage.removeItem(SESSION_LOCALSTORAGE_KEY);
-        if (setSessionData) {
-            setSessionData(null);
-        }
-    }, [setSessionData]);
+    }, [session, player, clearSession]);
 
     useEffect(() => {
         if (sessionLoaded) {
@@ -141,8 +148,8 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     }, [newSession, loadSession, clearSession, session, sessionLoaded, player]);
 
     const value: SessionContextValue = useMemo(() => {
-        return { newSession, clearSession, loadingSession };
-    }, [newSession, clearSession, loadingSession]);
+        return { newSession, clearSession, loadingSession, session };
+    }, [newSession, clearSession, loadingSession, session]);
 
     return (
         <SessionContext.Provider value={value}>

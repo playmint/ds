@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { concatMap, fromPromise, fromValue, makeSubject, pipe, publish, share, tap } from 'wonka';
+import { concatMap, fromPromise, toPromise, fromValue, makeSubject, pipe, publish, share, take, tap } from 'wonka';
 import { Logger } from './logger';
 import {
     CogAction,
@@ -11,6 +11,7 @@ import {
     RejectedClientAction,
     Wallet,
 } from './types';
+import { GetSessionDocument } from './gql/graphql';
 
 // we store sessions globally in memory at the moment
 // TODO: some kind of session store / local storage
@@ -105,6 +106,15 @@ export function makeDispatcher(client: CogServices, wallet: Wallet, logger: Logg
         login: () => findOrCreateSession(client, wallet),
         load: async (key: ethers.Wallet, expires: number) => {
             const owner = await wallet.signer();
+            const existingSession = await pipe(
+                client.query(GetSessionDocument, { gameID: client.gameID, sessionID: key.address }),
+                take(1),
+                toPromise,
+            );
+            const existingSessionOwnerAddress = existingSession?.game?.router?.session?.owner ?? '0x';
+            if (existingSessionOwnerAddress.toLowerCase() != wallet.address.toLowerCase()) {
+                throw new Error(`INVALID_SESSION`);
+            }
             const session = {
                 key,
                 expires,

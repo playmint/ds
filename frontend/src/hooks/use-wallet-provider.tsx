@@ -15,6 +15,7 @@ export interface WalletContextValue {
     connecting?: boolean;
     provider?: WalletProvider;
     connect?: () => void;
+    connectMetamask?: () => void;
     disconnect?: () => void;
 }
 
@@ -211,8 +212,8 @@ export const WalletProviderProvider = ({ children, config }: { children: ReactNo
     }, []);
 
     const value = useMemo(() => {
-        return { connect, connecting, provider, disconnect };
-    }, [connect, provider, connecting, disconnect]);
+        return { connect, connectMetamask, connecting, provider, disconnect };
+    }, [connect, provider, connecting, disconnect, connectMetamask]);
 
     return (
         <WalletProviderContext.Provider value={value}>

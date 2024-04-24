@@ -1,7 +1,16 @@
 import { useEffect, useState } from 'react';
 
 export function useLocalStorage<T>(key: string, defaultValue: T): [T, (v: T) => void] {
-    const [value, setValue] = useState<T>(() => {
+    const [value, setValue] = useState<T>(defaultValue);
+
+    useEffect(() => {
+        if (!value || value === defaultValue) {
+            return;
+        }
+        localStorage.setItem(key, JSON.stringify(value));
+    }, [value, key, defaultValue]);
+
+    useEffect(() => {
         let currentValue: T;
 
         try {
@@ -9,13 +18,8 @@ export function useLocalStorage<T>(key: string, defaultValue: T): [T, (v: T) => 
         } catch (error) {
             currentValue = defaultValue;
         }
-
-        return currentValue;
-    });
-
-    useEffect(() => {
-        localStorage.setItem(key, JSON.stringify(value));
-    }, [value, key]);
+        setValue(currentValue);
+    }, [defaultValue, key]);
 
     return [value, setValue];
 }

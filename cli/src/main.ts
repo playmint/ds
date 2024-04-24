@@ -47,6 +47,13 @@ yargs
         choices: networks.map((n) => n.name),
         type: 'string',
     })
+    .option('auth', {
+        demandOption: true,
+        default: 'browser',
+        describe: 'authentication method',
+        choices: ['browser', 'walletconnect', 'private-key'],
+        type: 'string',
+    })
     .option('ws-endpoint', {
         describe: 'override websocket query endpoint',
         type: 'string',
@@ -70,7 +77,7 @@ yargs
     })
     .option('private-key', {
         alias: 'k',
-        describe: 'player private key (insecure!)',
+        describe: 'player private key (implies --auth private-key)',
         type: 'string',
     })
     .middleware(session)

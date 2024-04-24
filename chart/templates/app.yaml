@@ -13,7 +13,7 @@ networkName: "Garnet"
 networkID: "17069"
 wallets:
   metamask: true
-  walletconnect: true
+  walletconnect: false
   burner: false
 {{ end }}
 zonesAddress: {{ $.Values.frontend.zonesAddress | quote }}

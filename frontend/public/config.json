@@ -9,7 +9,7 @@
     "networkName": "hexwoodlocal",
     "wallets": {
         "metamask": true,
-        "walletconnect": true,
+        "walletconnect": false,
         "burner": true
     }
 }
