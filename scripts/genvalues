@@ -1,0 +1,17 @@
+#/usr/bin/bash
+
+ADDRS="${1}"
+
+if [[ -z "${ADDRS}" ]]; then
+    echo "USAGE: genvalues path/to/latest.json"
+    exit 1
+fi
+
+echo "indexer:"
+echo "  gameAddress: $(jq -r .game ${ADDRS})"
+echo "  stateAddress: $(jq -r .state ${ADDRS})"
+echo "  routerAddress: $(jq -r .router ${ADDRS})"
+echo "frontend:"
+echo "  gameAddress: $(jq -r .game ${ADDRS})"
+echo "  tokenAddress: $(jq -r .tokens ${ADDRS})"
+echo "  zonesAddress: $(jq -r .zones ${ADDRS})"

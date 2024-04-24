@@ -33,16 +33,15 @@ contract GameDeployer is Script {
     function setUp() public {}
 
     function run() public {
-        uint256 deployerKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
-        address deployerAddr = vm.addr(deployerKey);
+        address deployerAddr = msg.sender;
 
-        vm.startBroadcast(deployerKey);
+        vm.startBroadcast();
 
         // contract that manages the ownership of zones as NFTs
         Zones721 zoneOwnership = new Zones721(deployerAddr);
 
         // owner is set to deploy account not this contract's address as calls from this script have a msg.sender of the deployer
-        DownstreamGame ds = new DownstreamGame(address(msg.sender), zoneOwnership);
+        DownstreamGame ds = new DownstreamGame(deployerAddr, zoneOwnership);
         Dispatcher dispatcher = ds.getDispatcher();
 
         // tell the zoneOwnership contract to manage the state
