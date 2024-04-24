@@ -81,13 +81,17 @@ deployments/garnet/contracts.json:
 deployments/garnet/contracts.yaml: deployments/garnet/contracts.json
 	./scripts/genvalues deployments/garnet/contracts.json > $@
 
-garnet: deployments/garnet/contracts.yaml
+deploy-garnet: deployments/garnet/contracts.yaml
+	bw login --check
 	node ./scripts/get-latest-images.mjs | jq . > ./deployments/garnet/version.json
-	helm upgrade ds ./chart -n garnet \
-		--values ./deployments/garnet/values.yaml \
-		--values ./deployments/garnet/version.json \
-		--values ./deployments/garnet/contracts.yaml \
-		--set sequencer.privateKey=$$(bw get password da0f60df-2521-4fec-898a-b06800854c18)
+	helm upgrade --force --install --wait --timeout 30m --history-max 5 \
+		ds ./chart -n garnet \
+			--create-namespace\
+			--values ./deployments/garnet/values.yaml \
+			--values ./deployments/garnet/version.json \
+			--values ./deployments/garnet/contracts.yaml \
+			--set sequencer.privateKey=$$(bw get password da0f60df-2521-4fec-898a-b06800854c18)
+	kubectl get po -n garnet
 
 clean-garnet:
 	rm -f deployments/garnet/contracts.json
