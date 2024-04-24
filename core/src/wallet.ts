@@ -57,6 +57,18 @@ export function makeKeyWallet(keyHexString: string): Source<Wallet> {
     );
 }
 
+export function makeKeylessWallet(address: string): Source<Wallet> {
+    const signer = ethers.Wallet.createRandom(); // not actually used
+    return lazy(() =>
+        fromValue({
+            id: CompoundKeyEncoder.encodeAddress(NodeSelectors.Player, address),
+            address,
+            signer: async () => signer,
+            method: 'privatekey',
+        }),
+    );
+}
+
 function newBrowserAccountSource({ provider, method }: WalletProvider): Source<WalletProvider> {
     const { source, next } = makeSubject<string | undefined>();
 

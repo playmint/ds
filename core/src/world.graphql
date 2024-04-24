@@ -296,3 +296,14 @@ query GetZones($gameID: ID!) {
         }
     }
 }
+
+query GetSession($gameID: ID!, $sessionID: ID!) {
+    game(id: $gameID) {
+        id
+        router {
+            session(id: $sessionID) {
+                owner
+            }
+        }
+    }
+}

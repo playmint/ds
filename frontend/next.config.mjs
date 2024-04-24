@@ -1,5 +1,6 @@
 const nextConfig = {
-    reactStrictMode: true,
+    // enabling strict mode will confuse the session keys, I guess just be careful
+    reactStrictMode: false,
     compiler: {
         styledComponents: true,
     },

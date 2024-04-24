@@ -37,7 +37,7 @@ __[All example maps can be found here](../contracts/src/maps)__
 | quest-map   |<img src="images/map-quests.png" width="200">   | Showcase of Downstream core systems. Uses the quest system to guide players from task to task|
 | team-vanilla|<img src="images/map-vanilla.png" width="200">  | Handy multiple size and shape arenas. Good for setting up and playing multiple session based games |
 | tiny        |<img src="images/map-tiny.png" width="200">     | A small empty map. Good for iterating on building development. |
-| croissant   |<img src="images/map-croissant.png" width="200">| A Multi Game Map. This showcases multiple games on one map including Tonk Attack; Hexcraft; The Labyrinth and Ducks v Burgers. Tonk attack requires it's own services to be run, see below for details |
+| croissant   |<img src="images/map-croissant.png" width="200">| A Multi Game Map. This showcases multiple games on one map including Hexcraft; The Labyrinth and Ducks v Burgers.|
 
 
 ## Existing games

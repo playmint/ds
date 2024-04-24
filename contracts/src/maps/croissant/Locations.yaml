@@ -32,38 +32,59 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 15, -2, -13 ]
+  biome: DISCOVERED
+
+---
+kind: Tile
+spec:
+  biome: DISCOVERED
+  location: [ 19, -10, -9 ]
 
 ---
 kind: Building
 spec:
   name: Burger Display Building
   location: [ 19, -10, -9 ]
+  facingDirection: RIGHT
+
+---
+kind: Tile
+spec:
+  location: [ 16, -2, -14 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
   biome: DISCOVERED
-  location: [ 16, -2, -14 ]
+  location: [ 20, -10, -10 ]
 
 ---
 kind: Building
 spec:
   name: Countdown Building
   location: [ 20, -10, -10 ]
+  facingDirection: RIGHT
+
+---
+kind: Tile
+spec:
+  location: [ 17, -2, -15 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
   biome: DISCOVERED
-  location: [ 17, -2, -15 ]
+  location: [ 21, -10, -11 ]
 
 ---
 kind: Building
 spec:
   name: Duck Display Building
   location: [ 21, -10, -11 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -117,24 +138,6 @@ spec:
 kind: Tile
 spec:
   location: [ 22, -10, -12 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ 21, -10, -11 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ 20, -10, -10 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ 19, -10, -9 ]
   biome: DISCOVERED
 
 ---
@@ -358,6 +361,7 @@ kind: Building
 spec:
   name: Duck Burger HQ
   location: [ 18, -6, -12 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -412,6 +416,7 @@ kind: Building
 spec:
   name: Red Goo Extractor
   location: [ 11, -2, -9 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -424,6 +429,7 @@ kind: Building
 spec:
   name: Green Goo Extractor
   location: [ 11, -1, -10 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -436,6 +442,7 @@ kind: Building
 spec:
   name: Blue Goo Extractor
   location: [ 12, -1, -11 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -460,6 +467,7 @@ kind: Building
 spec:
   name: Blue Goo Extractor
   location: [ 24, -11, -13 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -472,6 +480,7 @@ kind: Building
 spec:
   name: Green Goo Extractor
   location: [ 25, -11, -14 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -484,6 +493,7 @@ kind: Building
 spec:
   name: Red Goo Extractor
   location: [ 25, -10, -15 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -2018,954 +2028,6 @@ spec:
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
-  location: [ -13, -8, 21 ]
-
----
-kind: Building
-spec:
-  name: Tonk Compute Center
-  location: [ -13, -8, 21 ]
-
----
-kind: Tile
-spec:
-  biome: DISCOVERED
-  location: [ -9, -6, 15 ]
-
----
-kind: Building
-spec:
-  name: Data Dump East
-  location: [ -9, -6, 15 ]
-
----
-kind: Tile
-spec:
-  biome: DISCOVERED
-  location: [ -18, -11, 29 ]
-
----
-kind: Building
-spec:
-  name: Data Dump West
-  location: [ -18, -11, 29 ]
-
----
-kind: Tile
-spec:
-  biome: DISCOVERED
-  location: [ -22, 2, 20 ]
-
----
-kind: Building
-spec:
-  name: Data Dump North
-  location: [ -22, 2, 20 ]
-
----
-kind: Tile
-spec:
-  location: [ -16, -8, 24 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -17, -7, 24 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -17, -8, 25 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -15, -8, 23 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -16, -7, 23 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -15, -9, 24 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -16, -9, 25 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -17, -9, 26 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -18, -8, 26 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -18, -7, 25 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -17, -6, 23 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -18, -6, 24 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -16, -6, 22 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -15, -7, 22 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -14, -8, 22 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -13, -9, 22 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -14, -9, 23 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -14, -10, 24 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -14, -7, 21 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -15, -6, 21 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -14, -6, 20 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -13, -6, 19 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -12, -6, 18 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -11, -7, 18 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -10, -7, 17 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -10, -8, 18 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -9, -9, 18 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -9, -10, 19 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -10, -10, 20 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -10, -11, 21 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -10, -12, 22 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -11, -12, 23 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -12, -12, 24 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -13, -11, 24 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -14, -11, 25 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -15, -11, 26 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -16, -10, 26 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -13, -12, 25 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -14, -12, 26 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -15, -10, 25 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -12, -11, 23 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -11, -11, 22 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -13, -10, 23 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -12, -10, 22 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -11, -10, 21 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -12, -9, 21 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -13, -7, 20 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -12, -8, 20 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -12, -7, 19 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -14, -5, 19 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -13, -5, 18 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -14, -4, 18 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -15, -4, 19 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -16, -4, 20 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -16, -5, 21 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -17, -4, 21 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -17, -3, 20 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -18, -5, 23 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -18, -4, 22 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -18, -3, 21 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -19, -5, 24 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -19, -4, 23 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -19, -3, 22 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -19, -6, 25 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -19, -7, 26 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -18, -9, 27 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -19, -8, 27 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -15, -12, 27 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -12, -13, 25 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -11, -13, 24 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -10, -13, 23 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -9, -13, 22 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -13, -13, 26 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -14, -13, 27 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -17, -10, 27 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -16, -11, 27 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -15, -5, 20 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -17, -5, 22 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -16, -3, 19 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -15, -3, 18 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -14, -3, 17 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -13, -4, 17 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -11, -8, 19 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -11, -9, 20 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -11, -6, 17 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -10, -9, 19 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -9, -11, 20 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -9, -12, 21 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -9, -8, 17 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -12, -5, 17 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -19, -2, 21 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -20, -2, 22 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -20, -1, 21 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -19, -1, 20 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -19, 0, 19 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -20, 0, 20 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -21, 0, 21 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -21, -1, 22 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -22, 0, 22 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -23, 1, 22 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -23, 2, 21 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -23, 3, 20 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -22, 3, 19 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -21, 3, 18 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -21, 2, 19 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -20, 1, 19 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -20, 2, 18 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -21, 1, 20 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -22, 1, 21 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -11, -5, 16 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -11, -4, 15 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -10, -4, 14 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -9, -4, 13 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -8, -5, 13 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -7, -6, 13 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -7, -7, 14 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -8, -7, 15 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -8, -8, 16 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -9, -7, 16 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -10, -6, 16 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -10, -5, 15 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -9, -5, 14 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -8, -6, 14 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -18, -10, 28 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -17, -11, 28 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -17, -12, 29 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -18, -12, 30 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -19, -12, 31 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -19, -11, 30 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -20, -10, 30 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -19, -10, 29 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -19, -9, 28 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -16, -12, 28 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -15, -13, 28 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -16, -13, 29 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -16, -14, 30 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -17, -14, 31 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -17, -13, 30 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -18, -13, 31 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -19, -13, 32 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -20, -11, 31 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -20, -12, 32 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -7, -8, 15 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -18, -2, 20 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -17, -2, 19 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -18, -1, 19 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -18, 0, 18 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -19, 1, 18 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -19, 2, 17 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
-  location: [ -20, 3, 17 ]
-  biome: DISCOVERED
-
----
-kind: Tile
-spec:
   location: [ -9, 12, -3 ]
   biome: DISCOVERED
 
@@ -2998,6 +2060,7 @@ kind: Building
 spec:
   name: Headquarter
   location: [ -5, 11, -6 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3262,6 +2325,7 @@ kind: Building
 spec:
   name: Red Goo Extractor 2000
   location: [ -19, 17, 2 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3274,6 +2338,7 @@ kind: Building
 spec:
   name: Blue Goo Extractor 2000
   location: [ -20, 19, 1 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3286,6 +2351,7 @@ kind: Building
 spec:
   name: Green Goo Extractor 2000
   location: [ -21, 21, 0 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3298,6 +2364,7 @@ kind: Building
 spec:
   name: Red Goo Extractor 2000
   location: [ -22, 23, -1 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3346,6 +2413,7 @@ kind: Building
 spec:
   name: Green Goo Extractor 2000
   location: [ -23, 24, -1 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3364,6 +2432,7 @@ kind: Building
 spec:
   name: Blue Goo Extractor 2000
   location: [ -22, 22, 0 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3376,6 +2445,7 @@ kind: Building
 spec:
   name: Red Goo Extractor 2000
   location: [ -21, 20, 1 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3388,6 +2458,7 @@ kind: Building
 spec:
   name: Green Goo Extractor 2000
   location: [ -20, 18, 2 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3406,6 +2477,7 @@ kind: Building
 spec:
   name: Blue Goo Extractor 2000
   location: [ -19, 16, 3 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3454,6 +2526,7 @@ kind: Building
 spec:
   name: Red Base
   location: [ -16, 20, -4 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3466,6 +2539,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -15, 20, -5 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3478,6 +2552,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -14, 20, -6 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3490,6 +2565,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -13, 20, -7 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3502,6 +2578,7 @@ kind: Building
 spec:
   name: Strong Blocker
   location: [ -12, 20, -8 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3514,6 +2591,7 @@ kind: Building
 spec:
   name: Strong Blocker
   location: [ -11, 20, -9 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3526,6 +2604,7 @@ kind: Building
 spec:
   name: Strong Blocker
   location: [ -8, 20, -12 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3538,6 +2617,7 @@ kind: Building
 spec:
   name: Strong Blocker
   location: [ -7, 20, -13 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3550,6 +2630,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -6, 20, -14 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3562,6 +2643,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -5, 20, -15 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3574,6 +2656,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -4, 20, -16 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3586,6 +2669,7 @@ kind: Building
 spec:
   name: Blue Base
   location: [ -3, 20, -17 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3622,6 +2706,7 @@ kind: Building
 spec:
   name: Red Goo Extractor 2000
   location: [ 3, 17, -20 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3634,6 +2719,7 @@ kind: Building
 spec:
   name: Blue Goo Extractor 2000
   location: [ 2, 19, -21 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3646,6 +2732,7 @@ kind: Building
 spec:
   name: Green Goo Extractor 2000
   location: [ 1, 21, -22 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3658,6 +2745,7 @@ kind: Building
 spec:
   name: Red Goo Extractor 2000
   location: [ 0, 23, -23 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3700,6 +2788,7 @@ kind: Building
 spec:
   name: Green Goo Extractor 2000
   location: [ 0, 24, -24 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3718,6 +2807,7 @@ kind: Building
 spec:
   name: Blue Goo Extractor 2000
   location: [ 1, 22, -23 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3736,6 +2826,7 @@ kind: Building
 spec:
   name: Red Goo Extractor 2000
   location: [ 2, 20, -22 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3754,6 +2845,7 @@ kind: Building
 spec:
   name: Green Goo Extractor 2000
   location: [ 3, 18, -21 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -3772,6 +2864,7 @@ kind: Building
 spec:
   name: Blue Goo Extractor 2000
   location: [ 4, 16, -20 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4072,6 +3165,7 @@ kind: Building
 spec:
   name: Bards Concert Hall
   location: [ -18, 21, -3 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4090,6 +3184,7 @@ kind: Building
 spec:
   name: Clerics Tent
   location: [ -19, 22, -3 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4102,6 +3197,7 @@ kind: Building
 spec:
   name: Fighters Arena
   location: [ -19, 23, -4 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4114,6 +3210,7 @@ kind: Building
 spec:
   name: Paladins Armoury
   location: [ -18, 23, -5 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4132,6 +3229,7 @@ kind: Building
 spec:
   name: Wizards Maze
   location: [ -17, 22, -5 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4156,6 +3254,7 @@ kind: Building
 spec:
   name: Red Goo Extractor 2000
   location: [ -17, 18, -1 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4174,6 +3273,7 @@ kind: Building
 spec:
   name: Blacksmith
   location: [ -15, 18, -3 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4186,6 +3286,7 @@ kind: Building
 spec:
   name: Green Goo Extractor 2000
   location: [ -16, 17, -1 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4198,6 +3299,7 @@ kind: Building
 spec:
   name: Blue Goo Extractor 2000
   location: [ -15, 17, -2 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4210,6 +3312,7 @@ kind: Building
 spec:
   name: Medium Blocker
   location: [ -13, 21, -8 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4222,6 +3325,7 @@ kind: Building
 spec:
   name: Medium Blocker
   location: [ -13, 22, -9 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4234,6 +3338,7 @@ kind: Building
 spec:
   name: Medium Blocker
   location: [ -13, 23, -10 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4246,6 +3351,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -13, 24, -11 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4258,6 +3364,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -13, 25, -12 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4270,6 +3377,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -13, 26, -13 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4282,6 +3390,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -12, 26, -14 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4294,6 +3403,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -11, 25, -14 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4306,6 +3416,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -10, 24, -14 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4318,6 +3429,7 @@ kind: Building
 spec:
   name: Medium Blocker
   location: [ -9, 23, -14 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4330,6 +3442,7 @@ kind: Building
 spec:
   name: Medium Blocker
   location: [ -8, 22, -14 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4342,6 +3455,7 @@ kind: Building
 spec:
   name: Medium Blocker
   location: [ -7, 21, -14 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4354,6 +3468,7 @@ kind: Building
 spec:
   name: Strong Blocker
   location: [ -11, 21, -10 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4366,6 +3481,7 @@ kind: Building
 spec:
   name: Strong Blocker
   location: [ -11, 22, -11 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4378,6 +3494,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -12, 25, -13 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4390,6 +3507,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -12, 24, -12 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4402,6 +3520,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -11, 24, -13 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4414,6 +3533,7 @@ kind: Building
 spec:
   name: Strong Blocker
   location: [ -10, 22, -12 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4426,6 +3546,7 @@ kind: Building
 spec:
   name: Strong Blocker
   location: [ -9, 21, -12 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4438,6 +3559,7 @@ kind: Building
 spec:
   name: Strong Blocker
   location: [ -10, 19, -9 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4450,6 +3572,7 @@ kind: Building
 spec:
   name: Strong Blocker
   location: [ -9, 18, -9 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4462,6 +3585,7 @@ kind: Building
 spec:
   name: Strong Blocker
   location: [ -8, 18, -10 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4474,6 +3598,7 @@ kind: Building
 spec:
   name: Strong Blocker
   location: [ -8, 19, -11 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4486,6 +3611,7 @@ kind: Building
 spec:
   name: Medium Blocker
   location: [ -12, 19, -7 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4498,6 +3624,7 @@ kind: Building
 spec:
   name: Medium Blocker
   location: [ -11, 18, -7 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4510,6 +3637,7 @@ kind: Building
 spec:
   name: Medium Blocker
   location: [ -10, 17, -7 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4522,6 +3650,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -9, 16, -7 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4534,6 +3663,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -8, 16, -8 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4546,6 +3676,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -7, 16, -9 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4558,6 +3689,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -6, 16, -10 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4570,6 +3702,7 @@ kind: Building
 spec:
   name: Medium Blocker
   location: [ -6, 17, -11 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4582,6 +3715,7 @@ kind: Building
 spec:
   name: Medium Blocker
   location: [ -6, 18, -12 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4594,6 +3728,7 @@ kind: Building
 spec:
   name: Medium Blocker
   location: [ -6, 19, -13 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4606,6 +3741,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -8, 15, -7 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4618,6 +3754,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -7, 15, -8 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4630,6 +3767,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -6, 15, -9 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4642,6 +3780,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -7, 14, -7 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4654,6 +3793,7 @@ kind: Building
 spec:
   name: Weak Blocker
   location: [ -6, 14, -8 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4666,6 +3806,7 @@ kind: Building
 spec:
   name: Bards Concert Hall
   location: [ -2, 21, -19 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4684,6 +3825,7 @@ kind: Building
 spec:
   name: Wizards Maze
   location: [ -4, 22, -18 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4702,6 +3844,7 @@ kind: Building
 spec:
   name: Clerics Tent
   location: [ -2, 22, -20 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4714,6 +3857,7 @@ kind: Building
 spec:
   name: Fighters Arena
   location: [ -3, 23, -20 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4726,6 +3870,7 @@ kind: Building
 spec:
   name: Paladins Armoury
   location: [ -4, 23, -19 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4750,6 +3895,7 @@ kind: Building
 spec:
   name: Blacksmith
   location: [ -2, 18, -16 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4768,6 +3914,7 @@ kind: Building
 spec:
   name: Blue Goo Extractor 2000
   location: [ 0, 18, -18 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4780,6 +3927,7 @@ kind: Building
 spec:
   name: Red Goo Extractor 2000
   location: [ -1, 17, -16 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
@@ -4792,203 +3940,112 @@ kind: Building
 spec:
   name: Green Goo Extractor 2000
   location: [ 0, 17, -17 ]
+  facingDirection: RIGHT
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -3, 6, -3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -3, 7, -4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -4, 8, -4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -3, 8, -5 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -4, 9, -5 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ -4, 10, -6 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 11, -6, -5 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, -6, -6 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 13, -7, -6 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 13, -6, -7 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 12, -5, -7 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 8, -13, 5 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 9, -13, 4 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 9, -12, 3 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 10, -12, 2 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 9, -10, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 10, -11, 1 ]
+  biome: DISCOVERED
 
 ---
 kind: Tile
 spec:
-  biome: DISCOVERED
   location: [ 9, -11, 2 ]
-
----
-kind: Tile
-spec:
   biome: DISCOVERED
-  location: [ -9, -1, 10 ]
-
----
-kind: Tile
-spec:
-  biome: DISCOVERED
-  location: [ -9, -2, 11 ]
-
----
-kind: Tile
-spec:
-  biome: DISCOVERED
-  location: [ -8, -2, 10 ]
-
----
-kind: Tile
-spec:
-  biome: DISCOVERED
-  location: [ -8, -3, 11 ]
-
----
-kind: Tile
-spec:
-  biome: DISCOVERED
-  location: [ -9, -3, 12 ]
-
----
-kind: Tile
-spec:
-  biome: DISCOVERED
-  location: [ -10, -3, 13 ]
-
----
-kind: Bag
-spec:
-  location: [-10, -3, 13]
-  items:
-    - name: Tonk
-      quantity: 1
-    - name: Tonk
-      quantity: 1
-    - name: Tonk
-      quantity: 1
-    - name: Tonk
-      quantity: 1
-
----
-kind: Bag
-spec:
-  location: [-9, -4, 13]
-  items:
-    - name: Tonk
-      quantity: 1
-    - name: Tonk
-      quantity: 1
-    - name: Tonk
-      quantity: 1
-    - name: Tonk
-      quantity: 1
-
----
-kind: Bag
-spec:
-  location: [-10, -4, 14]
-  items:
-    - name: Tonk
-      quantity: 1
-    - name: Tonk
-      quantity: 1
-    - name: Tonk
-      quantity: 1
-    - name: Tonk
-      quantity: 1
-
----
-kind: Bag
-spec:
-  location: [-9, -3, 12]
-  items:
-    - name: Tonk
-      quantity: 1
-    - name: Tonk
-      quantity: 1
-    - name: Tonk
-      quantity: 1
-    - name: Tonk
-      quantity: 1
