@@ -25,7 +25,25 @@ const localNetworks = [
     },
 ];
 
+const publicNetworks = [
+    {
+        name: 'garnet',
+        description: 'public testnet',
+        wsEndpoint: `wss://services-garnet.downstream.game/query`,
+        httpEndpoint: `https://services-garnet.downstream.game/query`,
+        loginEndpoint: `https://garnet.downstream.game/login`
+    },
+    {
+        name: 'redstone',
+        description: 'public mainnet',
+        wsEndpoint: `wss://services-redstone.downstream.game/query`,
+        httpEndpoint: `https://services-redstone.downstream.game/query`,
+        loginEndpoint: `https://redstone.downstream.game/login`
+    },
+];
+
 export const networks: Network[] = [
     ...ephemeralNetworks,
     ...localNetworks,
+    ...publicNetworks,
 ];
