@@ -72,8 +72,10 @@ publish: cli
 
 deployments/garnet/contracts.json:
 	(cd contracts && forge script script/Deploy.sol:GameDeployer \
+		--broadcast \
 		--rpc-url "https://rpc.garnetchain.com" \
-		--ledger)
+		--ledger --mnemonic-indexes 0 --sender 0xfE4Aab053FED3cFbB7e5f6434e1585b4F17CC207 \
+		-vvv)
 	cp contracts/out/latest.json $@
 
 deployments/garnet/contracts.yaml: deployments/garnet/contracts.json
@@ -81,7 +83,7 @@ deployments/garnet/contracts.yaml: deployments/garnet/contracts.json
 
 garnet: deployments/garnet/contracts.yaml
 	node ./scripts/get-latest-images.mjs | jq . > ./deployments/garnet/version.json
-	helm template ds ./chart -n garnet \
+	helm upgrade ds ./chart -n garnet \
 		--values ./deployments/garnet/values.yaml \
 		--values ./deployments/garnet/version.json \
 		--values ./deployments/garnet/contracts.yaml \
