@@ -25,6 +25,10 @@ interface IZoneKind {
     ) external;
     function onContructBuilding(Game ds, bytes24 zoneID, bytes24 mobileUnitID, bytes24 buildingInstance) external;
     function onDestroyBuilding(Game ds, bytes24 zoneID, bytes24 buildingInstance, bytes24 buildingKind) external;
+    function onAcceptQuest(Game ds, bytes24 zoneID, bytes24 quest, uint8 questNum, bytes24 player) external;
+    function onCompleteQuest(Game ds, bytes24 zoneID, bytes24 quest, uint8 questNum, bytes24 player) external;
+    function onExtract(Game ds, bytes24 zoneID, bytes24 player, bytes24 buildingInstance, bytes24 outputItemID, uint64 qty) external;
+    function onCraft(Game ds, bytes24 zoneID, bytes24 player, bytes24 buildingInstance, bytes24 outputItemID, uint64 qty) external;
 }
 
 contract ZoneKind is IZoneKind {
@@ -55,4 +59,8 @@ contract ZoneKind is IZoneKind {
         external
         virtual
     {}
+    function onAcceptQuest(Game ds, bytes24 zoneID, bytes24 quest, uint8 questNum, bytes24 player) external virtual {}
+    function onCompleteQuest(Game ds, bytes24 zoneID, bytes24 quest, uint8 questNum, bytes24 player) external virtual {}
+    function onExtract(Game ds, bytes24 zoneID, bytes24 player, bytes24 buildingInstance, bytes24 outputItemID, uint64 qty) external virtual {}
+    function onCraft(Game ds, bytes24 zoneID, bytes24 player, bytes24 buildingInstance, bytes24 outputItemID, uint64 qty) external virtual {}
 }

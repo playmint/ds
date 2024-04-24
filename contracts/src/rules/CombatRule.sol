@@ -258,7 +258,6 @@ contract CombatRule is Rule {
             if (zone != bytes24(0)) {
                 IZoneKind zoneImplementation = IZoneKind(state.getImplementation(zone));
                 if (address(zoneImplementation) != address(0)) {
-                    // TODO: Should we be passing the combatState?
                     zoneImplementation.onDestroyBuilding(game, zone, buildingInstance, buildingKind);
                 }
             }

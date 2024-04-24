@@ -10,6 +10,7 @@ import {Kind, Schema, Node, Rel, BuildingCategory} from "@ds/schema/Schema.sol";
 import {BagUtils} from "@ds/utils/BagUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {ItemKind} from "@ds/ext/ItemKind.sol";
+import {IZoneKind} from "@ds/ext/ZoneKind.sol";
 
 using Schema for State;
 
@@ -93,11 +94,19 @@ contract CraftingRule is Rule {
         bytes24 outBag = state.getEquipSlot(buildingInstance, 1);
         _requireIsBag(outBag);
 
-        _craftFromBag(state, buildingKind, inBag, outBag, 0);
+        (bytes24 outputItem, uint64 outputQty) = _craftFromBag(state, buildingKind, inBag, outBag, 0);
+
+        // Call into the zone kind
+        bytes24 location = state.getFixedLocation(buildingInstance);
+        bytes24 nZone = Node.Zone(state.getTileZone(location));
+        IZoneKind zoneImplementation = IZoneKind(state.getImplementation(nZone));
+        if (address(zoneImplementation) != address(0)) {
+            zoneImplementation.onCraft(game, nZone, Node.Player(sender), buildingInstance, outputItem, outputQty);
+        }
     }
 
     function _craftFromBag(State state, bytes24 buildingKind, bytes24 inBag, bytes24 outBag, uint8 outItemSlot)
-        private
+        private returns (bytes24 outputItem, uint64 outputQty)
     {
         // fetch the recipe
         bytes24[4] memory wantItem;
@@ -113,7 +122,7 @@ contract CraftingRule is Rule {
                 "no crafting recipe registered for this building kind"
             );
         }
-        (bytes24 outputItem, uint64 outputQty) = state.getOutput(buildingKind, 0);
+        (outputItem, outputQty) = state.getOutput(buildingKind, 0);
 
         // burn input resources
         {

@@ -23,6 +23,7 @@ import {
 import {BagUtils} from "@ds/utils/BagUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {ItemKind} from "@ds/ext/ItemKind.sol";
+import {IZoneKind} from "@ds/ext/ZoneKind.sol";
 
 using Schema for State;
 using Math for int128;
@@ -127,6 +128,14 @@ contract ExtractionRule is Rule {
         }
 
         state.setItemSlot(outBag, 0, outputItemID, bagBal + qty);
+
+        // Call into the zone kind
+        bytes24 location = state.getFixedLocation(buildingInstance);
+        bytes24 nZone = Node.Zone(state.getTileZone(location));
+        IZoneKind zoneImplementation = IZoneKind(state.getImplementation(nZone));
+        if (address(zoneImplementation) != address(0)) {
+            zoneImplementation.onExtract(game, nZone, Node.Player(ctx.sender), buildingInstance, outputItemID, qty);
+        }
     }
 
     function min(uint256 a, uint256 b) public pure returns (uint256) {

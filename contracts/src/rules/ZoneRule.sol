@@ -53,15 +53,11 @@ contract ZoneRule is Rule {
     function _setDataOnZone(State state, Context calldata ctx, bytes24 zoneID, string memory key, bytes32 data)
         private
     {
-        require(
-            bytes4(zoneID) == Kind.Zone.selector, "cannot set data on building. Supplied ID not building ID"
-        );
+        require(bytes4(zoneID) == Kind.Zone.selector, "cannot set data on building. Supplied ID not building ID");
 
         address zoneImplementation = state.getImplementation(zoneID);
 
-        require(
-            ctx.sender == zoneImplementation, "cannot set data on zone. Caller must be zone implemenation"
-        );
+        require(ctx.sender == zoneImplementation, "cannot set data on zone. Caller must be zone implemenation");
 
         state.setData(zoneID, key, data);
     }

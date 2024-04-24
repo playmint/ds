@@ -84,7 +84,7 @@ contract GameDeployer is Script {
         ds.registerRule(new NamingRule());
         ds.registerRule(new BagRule());
         ds.registerRule(new ExtractionRule(ds));
-        ds.registerRule(new QuestRule());
+        ds.registerRule(new QuestRule(ds));
         ds.registerRule(new ZoneRule(ds));
 
         // register base goos
