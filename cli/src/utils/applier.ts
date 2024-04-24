@@ -228,7 +228,7 @@ const buildingKindDeploymentActions = async (
 };
 
 const zoneKindDeploymentActions = async (
-    zoneId: number,
+    zone: ZoneStateFragment,
     file: ReturnType<typeof ManifestDocument.parse>,
     compiler: (source: z.infer<typeof ContractSource>, manifestDir: string) => Promise<string>
 ): Promise<CogAction[]> => {
@@ -239,14 +239,13 @@ const zoneKindDeploymentActions = async (
         throw new Error(`expected zone kind spec`);
     }
     const spec = file.manifest.spec;
-    const id = encodeZoneKindID(zoneId);
 
     // compile and deploy an implementation if given
     if (spec.contract && (spec.contract.file || spec.contract.bytecode)) {
         const bytecode = spec.contract.bytecode ? spec.contract.bytecode : await compiler(spec.contract, manifestDir);
         ops.push({
             name: 'DEPLOY_KIND_IMPLEMENTATION',
-            args: [id, `0x${bytecode}`],
+            args: [zone.id, `0x${bytecode}`],
         });
     }
 
@@ -268,6 +267,25 @@ const zoneKindDeploymentActions = async (
     //         args: [pluginID, id, spec.name, js, !!spec.plugin.alwaysActive],
     //     });
     // }
+
+    if (spec.name && spec.name.length > 0) {
+        ops.push({
+            name: 'NAME_OWNED_ENTITY',
+            args: [zone.id, spec.name],
+        });
+    }
+    if (spec.description && spec.description.length > 0) {
+        ops.push({
+            name: 'DESCRIBE_OWNED_ENTITY',
+            args: [zone.id, spec.description],
+        });
+    }
+    if (spec.url && spec.url.length > 0) {
+        ops.push({
+            name: 'URL_OWNED_ENTITY',
+            args: [zone.id, spec.url],
+        });
+    }
 
     return ops;
 };
@@ -417,7 +435,7 @@ export const getOpsForManifests = async (
         if (doc.manifest.kind != 'ZoneKind') {
             continue;
         }
-        const actions = await zoneKindDeploymentActions(zoneId, doc, compiler);
+        const actions = await zoneKindDeploymentActions(zone, doc, compiler);
         opsets[opn].push({
             doc,
             actions,

@@ -189,6 +189,9 @@ export const BuildingKind = z.object({
 export const ZoneKind = z.object({
     kind: z.literal('ZoneKind'),
     spec: z.object({
+        name: Name,
+        description: OneLiner.max(140),
+        url: z.string().optional(),
         contract: ContractSource.optional(),
         plugin: PluginSource.optional(),
     }),

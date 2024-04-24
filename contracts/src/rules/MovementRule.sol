@@ -112,9 +112,8 @@ contract MovementRule is Rule {
         // Call into the zone kind
         {
             bytes24 zone = Node.Zone(z);
-            bytes24 zoneKind = state.getZoneKind(zone);
-            if (zoneKind != bytes24(0)) {
-                IZoneKind zoneImplementation = IZoneKind(state.getImplementation(zoneKind));
+            if (zone != bytes24(0)) {
+                IZoneKind zoneImplementation = IZoneKind(state.getImplementation(zone));
                 if (address(zoneImplementation) != address(0)) {
                     zoneImplementation.onUnitArrive(game, zone, mobileUnit);
                 }

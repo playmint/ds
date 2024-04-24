@@ -1,6 +1,9 @@
 ---
 kind: ZoneKind
 spec:
+  name: Tutorial Room 1
+  description: A simple room for learning the basics of the game.
+  url: /enemy.png
   contract:
     file: ./Zone.sol
   plugin:

@@ -10,6 +10,5 @@ using Schema for State;
 
 contract TestZone is ZoneKind {
     function onUnitArrive(Game ds, bytes24 buildingInstanceID, bytes24 mobileUnitID) override external {
-        revert("No moving in my zone buster!!!");
     }
 }
