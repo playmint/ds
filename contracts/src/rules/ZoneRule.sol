@@ -5,7 +5,7 @@ import "cog/IGame.sol";
 import "cog/IState.sol";
 import "cog/IRule.sol";
 
-import {Schema, Node} from "@ds/schema/Schema.sol";
+import {Schema, Node, Kind} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {IZoneKind} from "@ds/ext/ZoneKind.sol";
 
@@ -22,6 +22,9 @@ contract ZoneRule is Rule {
         if (bytes4(action) == Actions.ZONE_USE.selector) {
             (bytes24 mobileUnitID, bytes memory payload) = abi.decode(action[4:], (bytes24, bytes));
             _useZone(state, mobileUnitID, payload, ctx);
+        } else if (bytes4(action) == Actions.SET_DATA_ON_ZONE.selector) {
+            (bytes24 zoneID, string memory key, bytes32 data) = abi.decode(action[4:], (bytes24, string, bytes32));
+            _setDataOnZone(state, ctx, zoneID, key, data);
         }
         return state;
     }
@@ -45,5 +48,21 @@ contract ZoneRule is Rule {
         }
         // call the implementation
         zoneImplementation.use(game, zone, mobileUnit, payload);
+    }
+
+    function _setDataOnZone(State state, Context calldata ctx, bytes24 zoneID, string memory key, bytes32 data)
+        private
+    {
+        require(
+            bytes4(zoneID) == Kind.Zone.selector, "cannot set data on building. Supplied ID not building ID"
+        );
+
+        address zoneImplementation = state.getImplementation(zoneID);
+
+        require(
+            ctx.sender == zoneImplementation, "cannot set data on zone. Caller must be zone implemenation"
+        );
+
+        state.setData(zoneID, key, data);
     }
 }

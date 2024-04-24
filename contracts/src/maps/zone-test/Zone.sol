@@ -40,6 +40,19 @@ contract TestZone is ZoneKind {
         // revert("No transerring in my zone buddy!");
     }
 
+    function onUnitArrive(Game ds, bytes24 zoneID, bytes24 mobileUnitID) external override {
+        _increment(ds, zoneID);
+    }
+
+    function _increment(Game ds, bytes24 zoneID) internal {
+        State state = ds.getState();
+
+        uint256 count = uint256(state.getData(zoneID, "count"));
+        ds.getDispatcher().dispatch(
+            abi.encodeCall(Actions.SET_DATA_ON_ZONE, (zoneID, "count", bytes32(count + 1)))
+        );
+    }
+
     // function onContructBuilding(Game ds, bytes24 zoneID, bytes24 mobileUnitID, bytes24 buildingInstance) external override {
     //     revert ("no building on my turf bucko!");
     // }
