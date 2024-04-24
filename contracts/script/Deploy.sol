@@ -25,6 +25,7 @@ import {NamingRule} from "@ds/rules/NamingRule.sol";
 import {BagRule} from "@ds/rules/BagRule.sol";
 import {ExtractionRule} from "@ds/rules/ExtractionRule.sol";
 import {QuestRule} from "@ds/rules/QuestRule.sol";
+import {ZoneRule} from "@ds/rules/ZoneRule.sol";
 
 using Schema for State;
 
@@ -84,6 +85,7 @@ contract GameDeployer is Script {
         ds.registerRule(new BagRule());
         ds.registerRule(new ExtractionRule(ds));
         ds.registerRule(new QuestRule());
+        ds.registerRule(new ZoneRule(ds));
 
         // register base goos
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.GreenGoo(), "Green Goo", "15-185")));

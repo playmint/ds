@@ -93,7 +93,7 @@ contract CheatsRule is Rule {
         }
         {
             bytes24 zone = Node.Zone(z);
-            require(state.getOwner(zone) == Node.Player(ctx.sender), "owner only");
+            _checkIsOwnerOrZone(state, ctx, z);
             bytes24 tile = Node.Tile(z, q, r, s);
             require(state.getBiome(tile) == BiomeKind.DISCOVERED, "tile must be discovered");
             state.setEquipSlot(tile, equipSlot, bag);
@@ -105,7 +105,7 @@ contract CheatsRule is Rule {
     function _spawnTile(State state, Context calldata ctx, int16 z, int16 q, int16 r, int16 s) private {
         bytes24 zone = Node.Zone(z);
         require(Bounds.isInBounds(q, r, s), "coords out of bounds");
-        require(state.getOwner(zone) == Node.Player(ctx.sender), "owner only");
+        _checkIsOwnerOrZone(state, ctx, z);
         bytes24 tile = Node.Tile(z, q, r, s);
         state.setParent(tile, zone);
         state.setBiome(tile, BiomeKind.DISCOVERED);
@@ -114,14 +114,13 @@ contract CheatsRule is Rule {
 
     function _assignAutoQuest(State state, Context calldata ctx, string memory name, int16 zone) private {
         bytes24 nZone = Node.Zone(zone);
-        require(state.getOwner(nZone) == Node.Player(ctx.sender), "owner only");
+        _checkIsOwnerOrZone(state, ctx, zone);
         bytes24 quest = Node.Quest(zone, name);
         state.setParent(quest, nZone);
     }
 
     function _destroyAutoQuest(State state, Context calldata ctx, string memory name, int16 zone) private {
-        bytes24 nZone = Node.Zone(zone);
-        require(state.getOwner(nZone) == Node.Player(ctx.sender), "owner only");
+        _checkIsOwnerOrZone(state, ctx, zone);
         bytes24 quest = Node.Quest(zone, name);
         state.removeParent(quest);
     }
@@ -139,7 +138,7 @@ contract CheatsRule is Rule {
     ) internal {
         bytes24 zone = Node.Zone(z);
         require(Bounds.isInBounds(q, r, s), "coords out of bounds");
-        require(state.getOwner(zone) == Node.Player(ctx.sender), "owner only");
+        _checkIsOwnerOrZone(state, ctx, z);
         bytes24 buildingInstance = Node.Building(z, q, r, s);
 
         state.setBuildingKind(buildingInstance, buildingKind);
@@ -180,7 +179,8 @@ contract CheatsRule is Rule {
         if (bytes4(equipee) == Kind.Tile.selector) {
             (int16 z, int16 q, int16 r, int16 s) = state.getTileCoords(equipee);
             require(Bounds.isInBounds(q, r, s), "coords out of bounds");
-            require(state.getOwner(Node.Zone(z)) == Node.Player(ctx.sender), "owner only");
+            
+            _checkIsOwnerOrZone(state, ctx, z);
         }
         for (uint8 i = 0; i < slotContents.length; i++) {
             state.clearItemSlot(bag, i);
@@ -194,7 +194,8 @@ contract CheatsRule is Rule {
 
     function _destroyTile(State state, Context calldata ctx, int16 z, int16 q, int16 r, int16 s) private {
         require(Bounds.isInBounds(q, r, s), "coords out of bounds");
-        require(state.getOwner(Node.Zone(z)) == Node.Player(ctx.sender), "owner only");
+        _checkIsOwnerOrZone(state, ctx, z);
+
         bytes24 tile = Node.Tile(z, q, r, s);
         state.removeBiome(tile);
         state.removeParent(tile);
@@ -202,11 +203,21 @@ contract CheatsRule is Rule {
 
     function _destroyBuilding(State state, Context calldata ctx, int16 z, int16 q, int16 r, int16 s) private {
         require(Bounds.isInBounds(q, r, s), "coords out of bounds");
-        require(state.getOwner(Node.Zone(z)) == Node.Player(ctx.sender), "owner only");
+        _checkIsOwnerOrZone(state, ctx, z);
+
         bytes24 buildingInstance = Node.Building(z, q, r, s);
         state.removeBuildingKind(buildingInstance);
         state.removeOwner(buildingInstance);
         state.removeParent(buildingInstance);
         state.removeFixedLocation(buildingInstance);
+    }
+
+    function _checkIsOwnerOrZone(State state, Context calldata ctx, int16 zoneKey) internal view {
+        // zone implementations are allowed to call the owner functions
+        bytes24 zone = Node.Zone(zoneKey);
+        address impl = state.getImplementation(zone);
+        if (ctx.sender != impl) {
+            require(state.getOwner(zone) == Node.Player(ctx.sender), "owner only");
+        }
     }
 }

@@ -212,4 +212,6 @@ interface Actions {
     function SET_DATA_ON_BUILDING(bytes24 buildingID, string memory key, bytes32 data) external;
 
     function KICK_UNIT_FROM_ZONE(bytes24 mobileUnitID) external;
+
+    function ZONE_USE(bytes24 mobileUnitID, bytes calldata payload) external;
 }
