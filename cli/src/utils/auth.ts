@@ -50,7 +50,7 @@ export const authenticate = async (loginURL: string): Promise<SessionData> => {
             try {
                 const session = JSON.parse(atob(req.params.auth));
                 resolve(session);
-                return 'ok! you can close this window and return to the command line now';
+                return `OK! you are authenticated as ${session.owner}, you can close this window and return to the command line now`;
             } catch (err) {
                 reject(err);
                 return 'failed to authenticate, return to command line';

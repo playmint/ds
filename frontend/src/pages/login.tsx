@@ -25,6 +25,7 @@ const Login = ({}: { config: Partial<GameConfig> | undefined }) => {
     return (
         <div className="page" style={{ margin: '0 auto', width: 200 }}>
             <Image src={DownstreamLogo} alt="Downstream Logo" className="logo" width={200} />
+            <p>Authenticate by signing in to Downstream with your wallet.</p>
             {!session && <TextButton onClick={connectMetamask}>CONNECT</TextButton>}
         </div>
     );

@@ -119,6 +119,7 @@ export const session = async (ctx) => {
                 throw new Error('authentication failure: unable to setup player, maybe try again');
             }
             await p.load(new ethers.Wallet(session.key), session.expires)
+            console.log(`authenticated as player ${session.owner}`);
             return p;
         } else if (ctx.wallet === 'walletconnect') {
             const { wallet, selectProvider } = makeWallet();
