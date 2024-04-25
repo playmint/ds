@@ -212,8 +212,8 @@ export default async function update({ selected, player }) {
         const acceptOrientation = () => {
             acceptMultipleQuests([
                 "0xadbb33ce000000010000000000000000c533c3b1b9d5856c", //Orientation
-                "0xadbb33ce0000000100000000000000001296e6522b8258fd", //Goo Harvesting
-                "0xadbb33ce00000001000000000000000065b3cb8a1f5db1f3"]); //Deletion Preparation
+                "0xadbb33ce00000001000000000000000065b3cb8a1f5db1f3", //Deletion Preparation
+                "0xadbb33ce0000000100000000000000001296e6522b8258fd"]); //Goo Harvesting
         }
 
         var orientationButton = {
