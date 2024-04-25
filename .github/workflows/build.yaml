@@ -253,7 +253,6 @@ jobs:
           version: "3.7.2"
       - name: Deploy to Azure
         env:
-          OVERRIDE_VALUES: overrides.yaml
           CHART_VERSION: ${{ github.sha }}
           CHART_NAMESPACE: ${{ inputs.DEPLOYMENT_ENVIRONMENT }}
           CHART_VALUES: |-
@@ -270,7 +269,6 @@ jobs:
             --history-max 5 \
             ds ./chart \
               --values /tmp/values.yaml \
-              --values $OVERRIDE_VALUES \
               --create-namespace \
               -n "${CHART_NAMESPACE}"
       - name: Wait for services
