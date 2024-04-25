@@ -291,7 +291,8 @@ export function makeAutoloadPlugins(
                                         fetchPluginSrc(client, gameID, pluginIDs),
                                         map((srcs) =>
                                             filteredPlugins.map((plugin) => ({
-                                                ...plugin,
+                                                id: plugin.id,
+                                                name: plugin.name ? plugin.name.value : 'unnamed',
                                                 src: srcs.find((src) => src.id === plugin.id)?.src?.value || '',
                                                 trust: PluginTrust.UNTRUSTED,
                                                 type: pluginTypeForNodeKind(plugin.supports?.kind),
