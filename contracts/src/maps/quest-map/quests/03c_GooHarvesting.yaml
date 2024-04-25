@@ -2,8 +2,8 @@
 kind: Quest
 spec:
   name: Goo Harvesting
-  description: "To build a Red Extractor, you will need to collect 10 of each type of goo! Try using the pre-existing extractors!"
+  description: "To build a Red Extractor, you will need to 10 of each goo! Collect them from a defeated"
   tasks:
     - kind: construct
-      name: Construct a Red Goo Extractor. It should work on any old tile these days.
+      name: Construct a Red Goo Extractor on any tile. You will need 10 of each goo color. Collect these from other extractors or battle rewards.
       buildingKind: Red Goo Extractor
