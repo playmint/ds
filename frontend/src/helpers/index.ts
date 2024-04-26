@@ -18,7 +18,7 @@ export const formatNameOrId = (node?: MaybeNamed, idPrefix: string = ''): string
         return '';
     }
     if (node.name?.value) {
-        return ethers.decodeBytes32String(node.name.value);
+        return node.name.value;
     } else {
         return `${idPrefix}${formatShortId(node.id)}`;
     }

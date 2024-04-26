@@ -75,7 +75,7 @@ fragment WorldMobileUnit on Node {
         ...WorldPlayer
     }
     # owner assigned name
-    name: data(name: "name") {
+    name: annotation(name: "name") {
         value
     }
     # equipment
