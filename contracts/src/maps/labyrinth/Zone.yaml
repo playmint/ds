@@ -1,0 +1,8 @@
+---
+kind: ZoneKind
+spec:
+  name: Labyrinth
+  description: A labyrinth containing a series of challenges for you to solve.
+  url: images/building-totems/Block_Van.png
+  contract:
+    file: ./Zone.sol

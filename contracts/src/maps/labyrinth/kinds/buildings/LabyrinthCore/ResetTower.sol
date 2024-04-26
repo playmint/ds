@@ -3,17 +3,17 @@ pragma solidity ^0.8.13;
 
 import {Game} from "cog/IGame.sol";
 import {Dispatcher} from "cog/IDispatcher.sol";
-import {State} from "cog/IState.sol";
+import {State, CompoundKeyDecoder} from "cog/IState.sol";
 import {Schema, Kind, Node} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
-import {ILabyrinthCore} from "./ILabyrinthCore.sol";
+import {ILabyrinthZone} from "./IZone.sol"; // TODO: ds apply cannot find "../../../IZone.sol";
 
 using Schema for State;
 
 contract ResetTower is BuildingKind {
     function getPasswordHash() internal pure returns (bytes32) {
-        return 0x1f1fc8e191099524ede873ed4b43087e02baaa5f39243fdd808f60582dc7702e;
+        return 0x56eb92e3029c3933e5350d8418880dd9fa7c329cb0cbf40a904129df80f1a668;
     }
 
     function password(string calldata pswd) public {}
@@ -24,30 +24,32 @@ contract ResetTower is BuildingKind {
         (string memory pswd) = abi.decode(payload[4:], (string));
         require(keccak256(abi.encodePacked(pswd)) == getPasswordHash(), "Invalid password");
 
+        // -- Call reset on the zone
         State state = ds.getState();
         bytes24 buildingTile = state.getFixedLocation(buildingInstance);
+        (int16 z, int16 q, int16 r, int16 s) = getTileCoords(buildingTile);
+        bytes24 zone = Node.Zone(z);
 
-        // Get location of origin (0, 0, 0) on non offset map by subtracting original reset tower coordinates [-2, 2, 0]
-        int16 coreQ = int16(int192(uint192(buildingTile) >> 32)) - -2;
-        int16 coreR = int16(int192(uint192(buildingTile) >> 16)) - 2;
-        int16 coreS = int16(int192(uint192(buildingTile))) - 0;
+        ILabyrinthZone zoneImpl = ILabyrinthZone(state.getImplementation(zone));
+        require(zoneImpl != ILabyrinthZone(address(0)), "Zone implementation not found");
 
-        // Get location of core tower
-        coreQ += 6;
-        coreR += -6;
-        coreS += 0;
+        // Offset by the reset building's original coordinates found in room_1.yaml to get the origin coordinates
+        q -= -2;
+        r -= 2;
+        s -= 0;
 
-        // Get core building instance
-        bytes24 coreBuildingInstance = INT16_ARRAY(Kind.Building.selector, [int16(0), coreQ, coreR, coreS]);
-        bytes24 coreBuildingKind = state.getBuildingKind(coreBuildingInstance);
-        ILabyrinthCore coreBuildingImpl = ILabyrinthCore(state.getImplementation(coreBuildingKind));
-
-        require(address(coreBuildingImpl) != address(0), "Core building not found");
-
-        coreBuildingImpl.reset(ds, coreBuildingInstance);
+        zoneImpl.reset(ds, Node.Tile(z, q, r, s));
     }
 
-    function INT16_ARRAY(bytes4 kindID, int16[4] memory keys) internal pure returns (bytes24) {
-        return bytes24(abi.encodePacked(kindID, uint96(0), keys[0], keys[1], keys[2], keys[3]));
+    function getTileCoords(bytes24 tile) internal pure returns (int16 z, int16 q, int16 r, int16 s) {
+        int16[4] memory keys = INT16_ARRAY(tile);
+        return (keys[0], keys[1], keys[2], keys[3]);
+    }
+
+    function INT16_ARRAY(bytes24 id) internal pure returns (int16[4] memory keys) {
+        keys[0] = int16(int192(uint192(id) >> 48));
+        keys[1] = int16(int192(uint192(id) >> 32));
+        keys[2] = int16(int192(uint192(id) >> 16));
+        keys[3] = int16(int192(uint192(id)));
     }
 }
