@@ -159,7 +159,7 @@ async function dispatch(
     if (!session) {
         throw new Error(`no valid session`);
     }
-    const { data, error, wait } = bundle.optimistic
+    const { data, error } = bundle.optimistic
         ? await session.dispatch(...bundle.actions)
         : await session.dispatchAndWait(...bundle.actions);
     if (error) {
@@ -180,16 +180,26 @@ async function dispatch(
                 window.location.reload();
             }
         }
-        console.error(`dispatch fail:`, reason);
-        throw new Error(reason);
+        if (bundle.optimistic) {
+            // if this was an optimistic dispatch, then we can't trust the
+            // errors any more than we trust the simulated ops it produces so
+            // it is not correct to throw based on simulation errors best we
+            // can do is warn to the console about it to aid with debugging
+            console.debug(`ignoring untrustworthy simulated dispatch failure:`, reason);
+            return {
+                ...bundle,
+                status: DispatchedActionsStatus.QUEUED_SEQUENCER,
+            };
+        } else {
+            console.error(`dispatch fail:`, reason);
+            throw new Error(reason);
+        }
     }
     if (!data) {
         throw new Error(`invalid response from sequencer, try again later`);
     }
     return {
         ...bundle,
-        seqQueueId: data.dispatch.id,
         status: DispatchedActionsStatus.QUEUED_SEQUENCER,
-        wait,
     };
 }

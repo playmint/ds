@@ -591,7 +591,11 @@ const TileFab: FunctionComponent<PageProps> = ({}: PageProps) => {
                 <>
                     <GroundPlane height={-0.1} />
                     <Tiles tiles={previewState?.tiles || []} />
-                    <Buildings tiles={previewState?.tiles || []} buildings={previewState?.zone?.buildings || []} />
+                    <Buildings
+                        tiles={previewState?.tiles || []}
+                        buildings={previewState?.zone?.buildings || []}
+                        blockNumber={0}
+                    />
                 </>
             )}
         </div>

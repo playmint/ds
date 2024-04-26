@@ -1,27 +1,27 @@
+import DownstreamLogo from '@app/assets/downstream-logo-dark.svg';
+import { NavPanel } from '@app/components/panels/nav-panel';
+import { NetworkPanel } from '@app/components/panels/network-panel';
 import { useConfig } from '@app/hooks/use-config';
-import { GameStateProvider, useBlock, useCogClient, useGlobal, usePlayer, useWallet } from '@app/hooks/use-game-state';
+import { GameStateProvider, useCogClient, useGlobal, usePlayer, useWallet } from '@app/hooks/use-game-state';
 import { SessionProvider } from '@app/hooks/use-session';
 import { WalletProviderProvider, useWalletProvider } from '@app/hooks/use-wallet-provider';
 import { TextButton } from '@app/styles/button.styles';
 import {
     DownstreamGame__factory,
     GameConfig,
-    Zones721__factory,
     GetZonesDocument,
     GetZonesQuery,
     Wallet,
+    Zones721__factory,
 } from '@downstream/core';
 import { ethers } from 'ethers';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { CSSProperties, useCallback, useEffect, useState } from 'react';
-import { pipe, subscribe } from 'wonka';
-import DownstreamLogo from '@app/assets/downstream-logo-dark.svg';
-import Image from 'next/image';
-import styled from 'styled-components';
-import { NavPanel } from '@app/components/panels/nav-panel';
-import { NetworkPanel } from '@app/components/panels/network-panel';
 import { Button, Key, Label, ListBox, ListBoxItem, Popover, Select, SelectValue } from 'react-aria-components';
+import styled from 'styled-components';
+import { pipe, subscribe } from 'wonka';
 
 const StyledIndex = styled.div`
     display: flex;
@@ -525,7 +525,6 @@ const ZoneItem = ({
 const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
     const player = usePlayer();
     const client = useCogClient();
-    const block = useBlock();
     const [zonesData, setZonesData] = useState<GetZonesQuery>();
     const global = useGlobal();
     const unitTimeoutBlocks = parseInt(global?.gameSettings?.unitTimeoutBlocks?.value || '0x0', 16);
@@ -551,6 +550,7 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
 
     const gameAddress = zonesData?.game?.id || '0x0';
     const zones = zonesData?.game?.state?.zones || [];
+    const blockNumber = zonesData?.game?.state?.block || 0;
     const units = zonesData?.game?.state?.mobileUnits || [];
     const playerZones = zones.filter((z) => z.owner?.addr && z.owner?.addr === player?.addr);
     const featuredZones = zones.filter((z) => z.isFeatured?.value === 1);
@@ -605,7 +605,7 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                                         key={z.id}
                                         zone={z}
                                         units={units}
-                                        currentBlock={block || 0}
+                                        currentBlock={blockNumber}
                                         unitTimeoutBlocks={unitTimeoutBlocks}
                                         zoneUnitLimit={zoneUnitLimit}
                                     />
@@ -632,7 +632,7 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                                         key={z.id}
                                         zone={z}
                                         units={units}
-                                        currentBlock={block || 0}
+                                        currentBlock={blockNumber}
                                         unitTimeoutBlocks={unitTimeoutBlocks}
                                         zoneUnitLimit={zoneUnitLimit}
                                     />
@@ -674,14 +674,18 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                                               (u) => u.location?.tile?.coords && u.location.tile?.coords[0] === b.key
                                           )
                                           .filter(
-                                              (u) => u.location && u.location.time + unitTimeoutBlocks > (block || 0)
+                                              (u) =>
+                                                  u.location &&
+                                                  u.location.time + unitTimeoutBlocks > (global?.block || 0)
                                           ).length -
                                       units
                                           .filter(
                                               (u) => u.location?.tile?.coords && u.location.tile?.coords[0] === a.key
                                           )
                                           .filter(
-                                              (u) => u.location && u.location.time + unitTimeoutBlocks > (block || 0)
+                                              (u) =>
+                                                  u.location &&
+                                                  u.location.time + unitTimeoutBlocks > (global?.block || 0)
                                           ).length
                             )
                             .map((z) => (
@@ -689,7 +693,7 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                                     key={z.id}
                                     zone={z}
                                     units={units}
-                                    currentBlock={block || 0}
+                                    currentBlock={global?.block || 0}
                                     unitTimeoutBlocks={unitTimeoutBlocks}
                                     zoneUnitLimit={zoneUnitLimit}
                                 />

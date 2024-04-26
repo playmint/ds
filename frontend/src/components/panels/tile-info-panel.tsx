@@ -20,17 +20,17 @@ import {
     getGooRates,
     getTileDistance,
 } from '@app/helpers/tile';
-import { useBlock, usePlayer, useSelection, useZone } from '@app/hooks/use-game-state';
+import { usePlayer, useSelection, useZone } from '@app/hooks/use-game-state';
+import { getMaterialStats } from '@app/plugins/combat/helpers';
 import { Bag } from '@app/plugins/inventory/bag';
 import { useInventory } from '@app/plugins/inventory/inventory-provider';
 import { TileInventory } from '@app/plugins/inventory/tile-inventory';
 import { MobileUnitList } from '@app/plugins/mobile-unit-list';
-import { getBagsAtEquipee, getBuildingAtTile, getMobileUnitsAtTile } from '@downstream/core/src/utils';
 import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
+import { colors } from '@app/styles/colors';
+import { getBagsAtEquipee, getBuildingAtTile, getMobileUnitsAtTile } from '@downstream/core/src/utils';
 import { FunctionComponent, useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { colors } from '@app/styles/colors';
-import { getMaterialStats } from '@app/plugins/combat/helpers';
 
 interface KeyedThing {
     key: number;
@@ -259,12 +259,18 @@ interface TileAvailableProps {
     mobileUnits: WorldMobileUnitFragment[];
     bags: BagFragment[];
     unitTimeoutBlocks: number;
+    blockNumber: number;
 }
-const TileAvailable: FunctionComponent<TileAvailableProps> = ({ player, mobileUnits, bags, unitTimeoutBlocks }) => {
+const TileAvailable: FunctionComponent<TileAvailableProps> = ({
+    player,
+    mobileUnits,
+    bags,
+    unitTimeoutBlocks,
+    blockNumber,
+}) => {
     const { tiles: selectedTiles, mobileUnit: selectedMobileUnit } = useSelection();
     const selectedTile = selectedTiles?.[0];
     const tileMobileUnits = selectedTile ? getMobileUnitsAtTile(mobileUnits, selectedTile) : [];
-    const blockNumber = useBlock();
     const currentBlock = blockNumber || 0;
 
     const excludeSelected = useCallback(
@@ -335,10 +341,12 @@ export const TileInfoPanel = ({
     kinds,
     ui,
     unitTimeoutBlocks,
+    blockNumber,
 }: {
     kinds: BuildingKindFragment[];
     ui: PluginUpdateResponse[];
     unitTimeoutBlocks;
+    blockNumber: number;
 }) => {
     const { tiles, mobileUnit } = useSelection();
     const player = usePlayer();
@@ -360,6 +368,7 @@ export const TileInfoPanel = ({
                     mobileUnits={zone?.mobileUnits || []}
                     bags={zone?.bags || []}
                     unitTimeoutBlocks={unitTimeoutBlocks}
+                    blockNumber={blockNumber}
                 />
             );
         } else if (building) {
@@ -382,6 +391,7 @@ export const TileInfoPanel = ({
                         mobileUnits={zone?.mobileUnits || []}
                         bags={zone?.bags || []}
                         unitTimeoutBlocks={unitTimeoutBlocks}
+                        blockNumber={blockNumber}
                     />
                 </>
             );

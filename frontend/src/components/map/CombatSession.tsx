@@ -1,7 +1,7 @@
-import { getTileHeight } from '@app/helpers/tile';
-import { WorldTileFragment, getCoords } from '@downstream/core';
 import { memo, useMemo } from 'react';
 import { TileHighlight } from './TileHighlight';
+import { getTileHeight } from '@app/helpers/tile';
+import { WorldTileFragment, getCoords } from '@downstream/core';
 
 export const CombatSessions = memo(({ tiles }: { tiles: WorldTileFragment[] }) => {
     const activeCombatHighlights = useMemo(() => {

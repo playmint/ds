@@ -37,46 +37,56 @@ export const Onboarding = ({
     zoneUnitLimit,
 }: OnboardingProps) => {
     const [isSpawningMobileUnit, setIsSpawningMobileUnit] = useState<boolean>(false);
+    const dispatchAndWait = player?.dispatchAndWait;
 
-    const zoneId = Number(BigInt.asIntN(16, zone.key));
-    const spawnMobileUnit = useCallback(() => {
-        if (!player) {
-            return;
-        }
+    const spawnMobileUnit = useCallback(async () => {
         if (!zone) {
             return;
         }
+        if (!dispatchAndWait) {
+            return;
+        }
 
+        const zoneId = Number(BigInt.asIntN(16, zone.key));
         const inactiveUnits = zone.mobileUnits.filter(
             (u) => u.nextLocation && u.nextLocation.time + unitTimeoutBlocks <= block
         );
-
-        const spawnActions: CogAction[] = [{ name: 'SPAWN_MOBILE_UNIT', args: [] }];
 
         // We need to kick out 2 units if the owner is pushing the capacity over the limit
         // If we are the owner and there are no inactive units, we can spawn anyway
         const kickCount = Math.min(inactiveUnits.length, zone.mobileUnits.length > zoneUnitLimit ? 2 : 1);
 
+        const kickActions: CogAction[] = [];
         for (let i = 0; i < kickCount; i++) {
             const inactiveUnit = inactiveUnits[i];
             console.log('kicking inactive unit ' + i, inactiveUnit.id);
-            spawnActions.push({
+            kickActions.push({
                 name: 'KICK_UNIT_FROM_ZONE',
                 args: [inactiveUnit.id],
             });
         }
+        try {
+            if (kickActions.length > 0) {
+                await dispatchAndWait(...kickActions);
+            }
+        } catch (err) {
+            console.warn('failed to kick, but we will try and spawn anyway', err);
+        }
 
-        spawnActions.push({ name: 'MOVE_MOBILE_UNIT', args: [zoneId, 0, 0, 0] });
+        const spawnActions: CogAction[] = [
+            { name: 'SPAWN_MOBILE_UNIT', args: [] },
+            { name: 'MOVE_MOBILE_UNIT', args: [zoneId, 0, 0, 0] },
+        ];
 
+        return dispatchAndWait(...spawnActions);
+    }, [dispatchAndWait, unitTimeoutBlocks, zone, zoneUnitLimit, block]);
+
+    const onClickSpawn = useCallback(() => {
         setIsSpawningMobileUnit(true);
-
-        player
-            .dispatch(...spawnActions)
-            .catch((e) => {
-                console.error('failed to spawn mobileUnit:', e);
-            })
+        spawnMobileUnit()
+            .catch((err) => console.error('spawn fail', err))
             .finally(() => setIsSpawningMobileUnit(false));
-    }, [block, player, unitTimeoutBlocks, zone, zoneId, zoneUnitLimit]);
+    }, [spawnMobileUnit]);
 
     const zoneName = zone.name?.value ? decodeString(zone.name.value) : `unnamed`;
     const zoneDescription = zone.description?.value ? zone.description.value : `no description`;
@@ -139,7 +149,7 @@ export const Onboarding = ({
                             to deploy a map to your zone:
                         </p>
                         <b>
-                            ds apply -n {network} -z {zoneId} -R -f .
+                            ds apply -n {network} -z {Number(BigInt.asIntN(16, zone.key))} -R -f .
                         </b>
                     </fieldset>
                 )}
@@ -151,7 +161,7 @@ export const Onboarding = ({
                 {!canSpawn && <p>Zone is currently full, try returning later</p>}
 
                 {player && playerUnits.length === 0 ? (
-                    <ActionButton onClick={spawnMobileUnit} disabled={isSpawningMobileUnit || !canSpawn}>
+                    <ActionButton onClick={onClickSpawn} disabled={isSpawningMobileUnit || !canSpawn}>
                         Enter
                     </ActionButton>
                 ) : playerUnits.length > 0 ? null : (

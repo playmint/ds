@@ -1,10 +1,10 @@
-import { concat, debounce, fromValue, lazy, map, pipe, share, Source, switchMap, tap, zip } from 'wonka';
+import { solidityPacked, solidityPackedKeccak256 } from 'ethers';
+import { fromValue, map, pipe, Source, switchMap, zip } from 'wonka';
 import { makeDispatcher } from './dispatcher';
 import { GetSelectedPlayerDocument, SelectedPlayerFragment } from './gql/graphql';
+import { NodeSelectors } from './helpers';
 import { Logger } from './logger';
 import { CogServices, ConnectedPlayer, UnconnectedPlayer, Wallet } from './types';
-import { NodeSelectors } from './helpers';
-import { solidityPacked, solidityPackedKeccak256 } from 'ethers';
 
 interface ClientWallet {
     client: CogServices;
@@ -22,18 +22,11 @@ export function makeConnectedPlayer(
     logger: Logger,
     zone: number,
 ): Source<ConnectedPlayer | UnconnectedPlayer> {
-    let prev: ConnectedPlayer | UnconnectedPlayer;
-    const source = pipe(
+    return pipe(
         zip<any>({ client, wallet }),
         switchMap<any, ConnectedPlayer | UnconnectedPlayer>(({ client, wallet }: ClientWallet) =>
             wallet ? makeConnectedPlayerQuery(client, wallet, logger, zone) : makeUnconnectedPlayerQuery(),
         ),
-        tap((next) => (prev = next)),
-        share,
-    );
-    return pipe(
-        lazy(() => (prev ? concat([fromValue(prev), source]) : source)),
-        debounce(() => 10),
     );
 }
 

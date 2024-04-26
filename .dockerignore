@@ -1,5 +1,6 @@
 .dockerignore
 .git
+/chart/
 /frontend/Dockerfile
 /frontend/node_modules
 /frontend/npm-debug.log

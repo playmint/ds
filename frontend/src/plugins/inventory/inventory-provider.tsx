@@ -1,4 +1,4 @@
-import { CogAction, Tile } from '@app/../../core/src';
+import { CogAction, Tile, sleep } from '@app/../../core/src';
 import { nullBagId } from '@app/fixtures/null-bag-id';
 import { getTileDistance } from '@app/helpers/tile';
 import { usePlayer, useSelection } from '@app/hooks/use-game-state';
@@ -234,7 +234,7 @@ export const InventoryProvider = ({ children }: InventoryContextProviderProps): 
         // make our dispatch
         player
             .dispatch(action)
-            .then((res) => res.wait())
+            .then(() => sleep(500))
             .catch((err) => console.error('transfer item failed', err))
             .finally(() => {
                 setBusySlots((busy) => {

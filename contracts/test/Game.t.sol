@@ -61,11 +61,15 @@ contract DownstreamTest is Test, GameTest {
         actions[0] = abi.encodeCall(Actions.SPAWN_MOBILE_UNIT, ());
         bytes32 digest =
             keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", keccak256(abi.encode(actions, 123))));
-        bytes[] memory batchedSigs = new bytes[](1);
         (v, r, s) = vm.sign(sessionKey, digest);
+        bytes[][] memory batchedActions = new bytes[][](1);
+        bytes[] memory batchedSigs = new bytes[](1);
+        uint256[] memory batchedNonces = new uint256[](1);
+        batchedActions[0] = actions;
         batchedSigs[0] = abi.encodePacked(r, s, v);
+        batchedNonces[0] = 123; // 123=random nonce
         vm.prank(relayAddr);
-        game.getRouter().dispatch(actions, batchedSigs[0], 123); // 123=random nonce
+        game.getRouter().dispatch(batchedActions, batchedSigs, batchedNonces);
         // check the action created mobileUnit with correct owner
         assertEq(state.getOwnerAddress(Node.MobileUnit(players[0].addr)), players[0].addr);
     }

@@ -118,7 +118,6 @@ export type PromisifiedSource<T = any> = Source<T> & {
 export type CogIndexer = {
     gameID: string;
     query: ReturnType<typeof configureClient>['query'];
-    subscription: ReturnType<typeof configureClient>['subscription'];
 };
 
 export type CogRouter = {
@@ -179,15 +178,12 @@ export interface QueuedSequencerAction {
     status: DispatchedActionsStatus.QUEUED_SEQUENCER;
     actions: CogAction[];
     clientQueueId: string;
-    seqQueueId: string;
-    wait: () => Promise<boolean>;
 }
 
 export interface QueuedChainAction {
     status: DispatchedActionsStatus.QUEUED_CHAIN;
     actions: CogAction[];
     clientQueueId: string;
-    seqQueueId: string;
 }
 
 export interface RejectedClientAction {
@@ -201,7 +197,6 @@ export interface RejectedSequencerAction {
     status: DispatchedActionsStatus.REJECTED_SEQUENCER;
     actions: CogAction[];
     clientQueueId: string;
-    seqQueueId: string;
     error: string;
 }
 
@@ -209,7 +204,6 @@ export interface RejectedChainAction {
     status: DispatchedActionsStatus.REJECTED_CHAIN;
     actions: CogAction[];
     clientQueueId: string;
-    seqQueueId: string;
     txId: string;
     error: string;
 }
@@ -218,7 +212,6 @@ export interface CommitedAction {
     status: DispatchedActionsStatus.COMMITTED;
     actions: CogAction[];
     clientQueueId: string;
-    seqQueueId: string;
     txId: string;
 }
 

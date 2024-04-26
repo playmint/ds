@@ -1,6 +1,6 @@
 import { formatNameOrId } from '@app/helpers';
 import { getTileCoordsFromId } from '@app/helpers/tile';
-import { useGameState } from '@app/hooks/use-game-state';
+import { useSources } from '@app/hooks/use-game-state';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { getMobileUnitStats } from '@app/plugins/combat/helpers';
 import { MobileUnitInventory } from '@app/plugins/inventory/mobile-unit-inventory';
@@ -121,8 +121,9 @@ const MobileUnitContainer = styled.div`
 
 export const MobileUnitPanel = () => {
     const { ready: mapReady, sendMessage } = useUnityMap();
-    const { zone, player, selectMobileUnit, selected } = useGameState();
-    const { mobileUnit: selectedMobileUnit } = selected || {};
+    const { zone, player, selectors, selection } = useSources();
+    const { mobileUnit: selectedMobileUnit } = selection || {};
+    const { selectMobileUnit } = selectors || {};
     const playerUnits = useMemo(
         () => zone?.mobileUnits.filter((mu) => mu.owner && player && mu.owner.id === player.id) || [],
         [zone, player]

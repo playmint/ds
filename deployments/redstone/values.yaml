@@ -2,11 +2,23 @@ chainId: 690
 chain: redstone
 indexer:
   providerUrlHttp: https://rpc.redstonechain.com
-  providerUrlWs: wss://rpc.redstonechain.com
+  pendingExpiry: 3
+  headOffset: 1
+  logLevel: "info"
 sequencer:
   providerUrlHttp: https://rpc.redstonechain.com
-  providerUrlWs: wss://rpc.redstonechain.com
-  mineEmpty: false
+  blockGasLimit: "100000000"
+  batchTimeTarget: "250"
+  batchGasTarget: "10000000"
+  batchGasAverage: "500000"
+  batchItemGasExtra: "25"
+  commitTimeout: "4000"
+  sessionQueueLimit: 25
+  sessionPrepLimit: 25
+  sessionReadyLimit: 25
+  logLevel: "info"
+  commitMode: "optimistic"
 cluster:
   domain: "downstream.game"
 priorityClassName: production
+nodePool: redstone

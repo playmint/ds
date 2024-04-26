@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { filter, concat, debounce, fromValue, lazy, map, pipe, share, Source, switchMap, tap } from 'wonka';
+import { Source, filter, map, pipe, switchMap } from 'wonka';
 import { BagFragment, GetGlobalDocument, GetZoneDocument, GetZoneQuery, GlobalStateFragment } from './gql/graphql';
 import { CogServices } from './types';
 
@@ -20,9 +20,7 @@ function flatMapBags(equipees: Equipee[]): BagFragment[] {
  *
  */
 export function makeZone(cog: Source<CogServices>, zoneID: string) {
-    let prev: ZoneWithBags | undefined;
-
-    const world = pipe(
+    return pipe(
         cog,
         switchMap(({ query, gameID }) => query(GetZoneDocument, { gameID, zoneID: zoneID ? zoneID : '__NOZONE' })),
         map((res) => {
@@ -48,32 +46,16 @@ export function makeZone(cog: Source<CogServices>, zoneID: string) {
             return resWithBags;
         }),
         filter((next): next is ZoneWithBags => !!next),
-        tap((next) => (prev = next)),
-        share,
-    );
-
-    return pipe(
-        lazy(() => (prev ? concat([fromValue(prev), world]) : world)),
-        debounce(() => 10),
     );
 }
 
 export type GlobalState = GlobalStateFragment & { gameID: string };
 
 export function makeGlobal(cog: Source<CogServices>) {
-    let prev: GlobalState | undefined;
-
-    const global = pipe(
+    return pipe(
         cog,
         switchMap(({ query, gameID }) => query(GetGlobalDocument, { gameID })),
         map((next) => ({ ...next.game?.state, gameID: next.game?.id })),
-        tap((next) => (prev = next)),
-        share,
-    );
-
-    return pipe(
-        lazy(() => (prev ? concat([fromValue(prev), global]) : global)),
-        debounce(() => 10),
     );
 }
 

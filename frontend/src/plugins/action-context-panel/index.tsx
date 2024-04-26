@@ -11,6 +11,7 @@ import {
     WorldBuildingFragment,
     WorldMobileUnitFragment,
     WorldTileFragment,
+    sleep,
 } from '@app/../../core/src';
 import { Path } from '@app/components/map/Path';
 import { TileHighlight } from '@app/components/map/TileHighlight';
@@ -881,7 +882,7 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({
 
     const selectedTiles = sTiles || [];
     const mobileUnitKey = mobileUnit?.key;
-    const dispatch = player?.dispatch;
+    const { dispatch } = player || {};
 
     useEffect(() => {
         if (!actionQueue || actionQueue.length === 0) {
@@ -895,8 +896,9 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({
         if (!dispatch) {
             return;
         }
+
         dispatch(...actions)
-            .then((res) => res.wait())
+            .then(() => sleep(500))
             .then(() => {
                 // remove this action from the top of the queue
                 // ...but ONLY if the item is still at the top, since it

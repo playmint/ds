@@ -35,7 +35,7 @@ query GetPluginSrc($gameID: ID!, $pluginIDs: [String!]!) {
         id
         state(simulated: true) {
             id
-            plugins: nodes(match: {ids: $pluginIDs}) {
+            plugins: nodes(match: { ids: $pluginIDs }) {
                 id
                 src: annotation(name: "src") {
                     id

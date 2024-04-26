@@ -261,6 +261,7 @@ query GetZones($gameID: ID!) {
         id
         state(simulated: true) {
             id
+            block
             zones: nodes(match: { kinds: "Zone" }) {
                 id
                 key
