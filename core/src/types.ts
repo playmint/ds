@@ -251,6 +251,7 @@ export enum PluginType {
     CORE,
     BUILDING,
     ITEM,
+    ZONE,
 }
 
 export interface PluginConfig {

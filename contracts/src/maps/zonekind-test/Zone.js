@@ -1,179 +1,182 @@
 import ds from "downstream";
 
+let selectedTux = 1;
+const TILE_ID_PREFIX = "0xe5a62ffc";
+
 export default async function update(state) {
-    // uncomment this to browse the state object in browser console
-    // this will be logged when selecting a unit and then selecting an instance of this building
-    //logState(state);
+    const map = [];
+    console.log("Zone plugin update called");
 
-    const selectedTile = getSelectedTile(state);
-    const selectedBuilding =
-        selectedTile && getBuildingOnTile(state, selectedTile);
-    const canCraft =
-        selectedBuilding && inputsAreCorrect(state, selectedBuilding);
-    // uncomment this to be restrictve about which units can craft
-    // this is a client only check - to enforce it in contracts make
-    // similar changes in BasicFactory.sol
-    //    && unitIsFriendly(state, selectedBuilding)
-    const craft = () => {
-        const mobileUnit = getMobileUnit(state);
+    const mobileUnit = getMobileUnit(state);
 
-        if (!mobileUnit) {
-            console.log("no selected unit");
-            return;
-        }
-
-        ds.dispatch({
-            name: "BUILDING_USE",
-            args: [selectedBuilding.id, mobileUnit.id, []],
+    if (mobileUnit) {
+        const unitTileCoords = getTileCoords(
+            mobileUnit?.nextLocation?.tile?.coords,
+        );
+        // Orange tile under the unit
+        map.push({
+            type: "tile",
+            key: "color",
+            id: mobileUnit?.nextLocation?.tile?.id,
+            value: themedRandomColour(),
         });
 
-        console.log("Craft dispatched");
-    };
-
-    const destroy = () => {
-        const mobileUnit = getMobileUnit(state);
-        if (!mobileUnit) {
-            console.log("no selected unit");
-            return;
-        }
-
-        const payload = ds.encodeCall("function destroyBuilding(bytes24)", [
-            selectedBuilding.id,
-        ]);
-
-        ds.dispatch({
-            name: "ZONE_USE",
-            args: [mobileUnit.id, payload],
+        // Change unit model
+        map.push({
+            type: "unit",
+            key: "model",
+            id: mobileUnit.id,
+            value: `Unit_Tuxedo_0${selectedTux}`,
         });
-    };
+    }
 
     return {
         version: 1,
-        components: [
-            {
-                id: "basic-factory",
-                type: "building",
-                content: [
-                    {
-                        id: "default",
-                        type: "inline",
-                        html: "<p>Fill the input slots to enable crafing</p>",
-                        buttons: [
-                            {
-                                text: "Craft",
-                                type: "action",
-                                action: craft,
-                                disabled: !canCraft,
-                            },
-                            {
-                                text: "Destroy",
-                                type: "action",
-                                action: destroy,
-                            },
-                        ],
-                    },
-                ],
-            },
-        ],
+        map: map,
+        components: [],
     };
 }
 
+// Generate a random color from a predefined set
+function themedRandomColour() {
+    const colours = [
+        "#0000FF",
+        "#1E90FF",
+        "#ADD8E6",
+        "#87CEEB",
+        "#00008B",
+        "#FFD700",
+        "#FFFF00",
+        "#FFA500",
+        "#FF8C00",
+    ];
+    return colours[Math.floor(Math.random() * colours.length)];
+}
+
+// --- Helper functions ---
+
+// Get the mobile unit from the state
 function getMobileUnit(state) {
     return state?.selected?.mobileUnit;
 }
 
-function getSelectedTile(state) {
-    const tiles = state?.selected?.tiles || {};
-    return tiles && tiles.length === 1 ? tiles[0] : undefined;
+// Convert hexadecimal to signed decimal
+function hexToSignedDecimal(hex) {
+    if (hex.startsWith("0x")) {
+        hex = hex.substr(2);
+    }
+
+    let num = parseInt(hex, 16);
+    let bits = hex.length * 4;
+    let maxVal = Math.pow(2, bits);
+
+    // Check if the highest bit is set (negative number)
+    if (num >= maxVal / 2) {
+        num -= maxVal;
+    }
+
+    return num;
 }
 
-function getBuildingOnTile(state, tile) {
-    return (state?.world?.buildings || []).find(
-        (b) => tile && b.location?.tile?.id === tile.id,
+// Get tile coordinates from hexadecimal coordinates
+function getTileCoords(coords) {
+    return [
+        hexToSignedDecimal(coords[0]),
+        hexToSignedDecimal(coords[1]),
+        hexToSignedDecimal(coords[2]),
+        hexToSignedDecimal(coords[3]),
+    ];
+}
+
+// Calculate distance between two tiles
+function distance(tileCoords, nextTile) {
+    return Math.max(
+        Math.abs(tileCoords[0] - nextTile[0]),
+        Math.abs(tileCoords[1] - nextTile[1]),
+        Math.abs(tileCoords[2] - nextTile[2]),
     );
 }
 
-// returns an array of items the building expects as input
-function getRequiredInputItems(building) {
-    return building?.kind?.inputs || [];
+// Convert an integer to a 16-bit hexadecimal string
+function toInt16Hex(value) {
+    return ("0000" + toTwos(value, 16).toString(16)).slice(-4);
 }
 
-// search through all the bags in the world to find those belonging to this building
-function getBuildingBags(state, building) {
-    return building
-        ? (state?.world?.bags || []).filter(
-              (bag) => bag.equipee?.node.id === building.id,
-          )
-        : [];
+const BN_0 = BigInt(0);
+const BN_1 = BigInt(1);
+
+// Convert a two's complement binary representation to a BigInt
+function fromTwos(n, w) {
+    let value = BigInt(n);
+    let width = BigInt(w);
+    if (value >> (width - BN_1)) {
+        const mask = (BN_1 << width) - BN_1;
+        return -((~value & mask) + BN_1);
+    }
+    return value;
 }
 
-// get building input slots
-function getInputSlots(state, building) {
-    // inputs are the bag with key 0 owned by the building
-    const buildingBags = getBuildingBags(state, building);
-    const inputBag = buildingBags.find((bag) => bag.equipee.key === 0);
-
-    // slots used for crafting have sequential keys startng with 0
-    return inputBag && inputBag.slots.sort((a, b) => a.key - b.key);
+// Convert a BigInt to a two's complement binary representation
+function toTwos(_value, _width) {
+    let value = BigInt(_value);
+    let width = BigInt(_width);
+    const limit = BN_1 << (width - BN_1);
+    if (value < BN_0) {
+        value = -value;
+        const mask = (BN_1 << width) - BN_1;
+        return (~value & mask) + BN_1;
+    }
+    return value;
 }
 
-// are the required craft input items in the input slots?
-function inputsAreCorrect(state, building) {
-    const requiredInputItems = getRequiredInputItems(building);
-    const inputSlots = getInputSlots(state, building);
+// Get tile ID from coordinates
+function getTileIdFromCoords(coords) {
+    const z = toInt16Hex(coords[0]);
+    const q = toInt16Hex(coords[1]);
+    const r = toInt16Hex(coords[2]);
+    const s = toInt16Hex(coords[3]);
+    return `${TILE_ID_PREFIX}000000000000000000000000${z}${q}${r}${s}`;
+}
 
-    return (
-        inputSlots &&
-        inputSlots.length >= requiredInputItems.length &&
-        requiredInputItems.every(
-            (requiredItem) =>
-                inputSlots[requiredItem.key].item.id == requiredItem.item.id &&
-                inputSlots[requiredItem.key].balance == requiredItem.balance,
-        )
-    );
+// Decode a tile ID into its q, r, s hexagonal coordinates
+function getTileCoordsFromId(tileId) {
+    const coords = [...tileId]
+        .slice(2)
+        .reduce((bs, b, idx) => {
+            if (idx % 4 === 0) {
+                bs.push("0x");
+            }
+            bs[bs.length - 1] += b;
+            return bs;
+        }, [])
+        .map((n) => Number(fromTwos(n, 16)))
+        .slice(-4);
+    if (coords.length !== 4) {
+        throw new Error(`failed to get z,q,r,s from tile id ${tileId}`);
+    }
+    return coords;
+}
+
+// Calculate the IDs of tiles within a certain range of a given building based on its location
+function getTilesInRange(building, range) {
+    const [z, q, r, s] = getTileCoordsFromId(building.location?.tile?.id);
+    let tilesInRange = [];
+    for (let dx = -range; dx <= range; dx++) {
+        for (
+            let dy = Math.max(-range, -dx - range);
+            dy <= Math.min(range, -dx + range);
+            dy++
+        ) {
+            const dz = -dx - dy;
+            const tileId = getTileIdFromCoords([z, q + dx, r + dy, s + dz]);
+            tilesInRange.push(tileId);
+        }
+    }
+    return tilesInRange;
 }
 
 function logState(state) {
     console.log("State sent to pluging:", state);
-}
-
-const friendlyPlayerAddresses = [
-    // 0x402462EefC217bf2cf4E6814395E1b61EA4c43F7
-];
-
-function unitIsFriendly(state, selectedBuilding) {
-    const mobileUnit = getMobileUnit(state);
-    return (
-        unitIsBuildingOwner(mobileUnit, selectedBuilding) ||
-        unitIsBuildingAuthor(mobileUnit, selectedBuilding) ||
-        friendlyPlayerAddresses.some((addr) =>
-            unitOwnerConnectedToWallet(state, mobileUnit, addr),
-        )
-    );
-}
-
-function unitIsBuildingOwner(mobileUnit, selectedBuilding) {
-    //console.log('unit owner id:',  mobileUnit?.owner?.id, 'building owner id:', selectedBuilding?.owner?.id);
-    return (
-        mobileUnit?.owner?.id &&
-        mobileUnit?.owner?.id === selectedBuilding?.owner?.id
-    );
-}
-
-function unitIsBuildingAuthor(mobileUnit, selectedBuilding) {
-    //console.log('unit owner id:',  mobileUnit?.owner?.id, 'building author id:', selectedBuilding?.kind?.owner?.id);
-    return (
-        mobileUnit?.owner?.id &&
-        mobileUnit?.owner?.id === selectedBuilding?.kind?.owner?.id
-    );
-}
-
-function unitOwnerConnectedToWallet(state, mobileUnit, walletAddress) {
-    //console.log('Checking player:',  state?.player, 'controls unit', mobileUnit, walletAddress);
-    return (
-        mobileUnit?.owner?.id == state?.player?.id &&
-        state?.player?.addr == walletAddress
-    );
 }
 
 // the source for this code is on github where you can find other example buildings:
