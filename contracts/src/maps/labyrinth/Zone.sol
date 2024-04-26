@@ -12,6 +12,7 @@ using Schema for State;
 
 contract LabyrinthZone is ZoneKind, ILabyrinthZone {
     bytes24 constant _RESET_TOWER = 0xbe92755c0000000000000000f1e6d10a0000000000000004;
+    bytes24 constant _CORE_TOWER = 0xbe92755c0000000000000000cf51f0170000000000000003;
 
     // for respawn
     bytes24 constant _LARGE_ROCKS = 0xbe92755c0000000000000000d4c1c6880000000000000001;
@@ -24,7 +25,7 @@ contract LabyrinthZone is ZoneKind, ILabyrinthZone {
         // originTile is [0, 0, 0] for non transposed map
         (int16 z, int16 q, int16 r, int16 s) = getTileCoords(originTile); // state.getTileCoords(originTile); // doesn't work
         bytes24 zone = Node.Zone(z);
-        _requireOwnerOrResetTower(ds, zone, msg.sender);
+        _requireOwnerOrAllowedBuilding(ds, zone, msg.sender);
         _reset(ds, z, q, r, s);
     }
 
@@ -67,14 +68,17 @@ contract LabyrinthZone is ZoneKind, ILabyrinthZone {
         balances[1] = 1;
         balances[2] = 1;
         balances[3] = 0;
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_SPAWN_BAG, (z, q + 14, r + -7, s + -7, 0, items, balances)));
+        ds.getDispatcher().dispatch(
+            abi.encodeCall(Actions.DEV_SPAWN_BAG, (z, q + 14, r + -7, s + -7, 0, items, balances))
+        );
     }
 
-    function _requireOwnerOrResetTower(Game ds, bytes24 zone, address sender) internal {
+    function _requireOwnerOrAllowedBuilding(Game ds, bytes24 zone, address sender) internal {
         State state = ds.getState();
         require(
-            sender == state.getImplementation(_RESET_TOWER) || Node.Player(sender) == state.getOwner(zone),
-            "Only the owner or the reset tower can call public reset"
+            sender == state.getImplementation(_CORE_TOWER) || sender == state.getImplementation(_RESET_TOWER)
+                || Node.Player(sender) == state.getOwner(zone),
+            "Only the owner or an allowed building can reset the zone"
         );
     }
 

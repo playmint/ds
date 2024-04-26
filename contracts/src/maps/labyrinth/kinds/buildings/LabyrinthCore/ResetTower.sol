@@ -7,7 +7,6 @@ import {State, CompoundKeyDecoder} from "cog/IState.sol";
 import {Schema, Kind, Node} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
-import {ILabyrinthCore} from "./ILabyrinthCore.sol";
 import {ILabyrinthZone} from "./IZone.sol"; // TODO: ds apply cannot find "../../../IZone.sol";
 
 using Schema for State;
@@ -25,6 +24,7 @@ contract ResetTower is BuildingKind {
         (string memory pswd) = abi.decode(payload[4:], (string));
         require(keccak256(abi.encodePacked(pswd)) == getPasswordHash(), "Invalid password");
 
+        // -- Call reset on the zone
         State state = ds.getState();
         bytes24 buildingTile = state.getFixedLocation(buildingInstance);
         (int16 z, int16 q, int16 r, int16 s) = getTileCoords(buildingTile);
