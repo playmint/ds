@@ -3,6 +3,7 @@ import { NetworkPanel } from '@app/components/panels/network-panel';
 import Shell from '@app/components/views/shell';
 import { useConfig } from '@app/hooks/use-config';
 import { GameStateProvider } from '@app/hooks/use-game-state';
+import { PluginResponseProvider } from '@app/hooks/use-plugin-state';
 import { SessionProvider } from '@app/hooks/use-session';
 import { UnityMapProvider } from '@app/hooks/use-unity-map';
 import { WalletProviderProvider } from '@app/hooks/use-wallet-provider';
@@ -28,12 +29,14 @@ export default function ZonePage({ id }: ZonePageProps) {
             <WalletProviderProvider config={config}>
                 <NetworkPanel />
                 <GameStateProvider config={config} zoneId={zoneId}>
-                    <SessionProvider>
-                        <InventoryProvider>
-                            <Shell />
-                            {config && <div className="build-version">build v0.1-{config.commit}</div>}
-                        </InventoryProvider>
-                    </SessionProvider>
+                    <PluginResponseProvider config={config}>
+                        <SessionProvider>
+                            <InventoryProvider>
+                                <Shell />
+                                {config && <div className="build-version">build v0.1-{config.commit}</div>}
+                            </InventoryProvider>
+                        </SessionProvider>
+                    </PluginResponseProvider>
                 </GameStateProvider>
             </WalletProviderProvider>
         </UnityMapProvider>

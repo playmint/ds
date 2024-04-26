@@ -31,6 +31,8 @@ spec:
   selector:
     matchLabels:
       app: {{ $.Release.Name }}-services
+  strategy:
+    type: Recreate
   replicas: 1
   template:
     metadata:
@@ -39,38 +41,125 @@ spec:
       annotations:
         gitsha: {{ $.Values.version | quote }}
     spec:
+      {{ if $.Values.nodePool }}
+      tolerations:
+      - key: "network"
+        operator: "Equal"
+        value: {{ $.Values.nodePool | quote }}
+        effect: "NoSchedule"
+      nodeSelector:
+        network: {{ $.Values.nodePool | quote }}
+      {{ end }}
       priorityClassName: {{ $.Values.priorityClassName | quote }}
       containers:
         - name: services
+          {{ if $.Values.sequencer.image }}
+          image: {{ $.Values.sequencer.image | quote }}
+          {{ else }}
           image: {{ printf "ghcr.io/playmint/ds-services:%s" $.Values.version }}
+          {{ end }}
           imagePullPolicy: Always
           env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+
+            # api listener
             - name: PORT
               value: "8080"
+
+            # comma seperated list of keys, each key becomes a commit queue
             - name: SEQUENCER_PRIVATE_KEY
               value: {{ $.Values.sequencer.privateKey | quote }}
+
+            # id of network contracts deployed to
             - name: CHAIN_ID
               value: "{{ $.Release.Namespace | mustRegexFind "[0-9]+$" | printf "223%02s" }}"
-            - name: SEQUENCER_MINE_EMPTY
-              value: {{ $.Values.sequencer.mineEmpty | quote }}
+
+            # http rpc to send tx to
             - name: SEQUENCER_PROVIDER_URL_HTTP
               value: {{ $.Values.sequencer.providerUrlHttp | quote }}
-            - name: SEQUENCER_PROVIDER_URL_WS
-              value: {{ $.Values.sequencer.providerUrlWs | quote }}
+
+            # never leave a transaction sitting in a building batch longer than this
+            # bigger number means higher throughput but slower time for optimistic commits
+            - name: SEQUENCER_BATCH_TIME_TARGET
+              value: {{ $.Values.sequencer.batchTimeTarget | quote }}
+
+            # the size (in gas) of the batch we would like to see per commit
+            - name: SEQUENCER_BATCH_GAS_TARGET
+              value: {{ $.Values.sequencer.batchGasTarget | quote }}
+
+            # rough guess at expected tx size, used to make educated guessing while building batches
+            - name: SEQUENCER_BATCH_GAS_AVERAGE
+              value: {{ $.Values.sequencer.batchGasAverage | quote }}
+
+            # percentage extra gas applied on top of estimates when item is placed into a batch
+            - name: SEQUENCER_BATCH_ITEM_GAS_EXTRA
+              value: {{ $.Values.sequencer.batchItemGasExtra | quote }}
+
+            # how long do we wait to push things into a commit queue before just giving up
+            - name: SEQUENCER_COMMIT_TIMEOUT
+              value: {{ $.Values.sequencer.commitTimeout | quote }}
+
+            # queue rate limtis per user session
+            # sum of all queue values is the total number of in-flight connections before new ones will be rejected
+            - name: SEQUENCER_SESSION_QUEUE_LIMIT # raising this lets connections deliver their requests, but they might get stale
+              value: {{ $.Values.sequencer.sessionQueueLimit | quote }}
+            - name: SEQUENCER_SESSION_PREP_LIMIT   # raising this number does more preprocessing at increase in CPU per user
+              value: {{ $.Values.sequencer.sessionPrepLimit | quote }}
+            - name: SEQUENCER_SESSION_READY_LIMIT # lower this number can make it more "fair" who gets picked for the batch
+              value: {{ $.Values.sequencer.sessionReadyLimit | quote }}
+
+            # what block limit are we working with
+            - name: SEQUENCER_BLOCK_GAS_LIMIT
+              value: {{ $.Values.sequencer.blockGasLimit | quote }}
+
+            # set to debug for more indexing logs
+            - name: SEQUENCER_LOG_LEVEL
+              value: {{ $.Values.sequencer.logLevel | default "info" | quote }}
+
+            # choice of agressiveness... "optimistic" or "safe"
+            - name: SEQUENCER_COMMIT_MODE
+              value: {{ $.Values.sequencer.commitMode | quote }}
+
+            # number of blocks lower that the current head height to consider safe to
+            # index 0=high-risk, 1=ok, 3=low-risk more maybe be needed on flakey chains
+            - name: INDEXER_HEAD_OFFSET
+              value: {{ $.Values.indexer.headOffset | quote }}
+
+              # rpc endpoint
             - name: INDEXER_PROVIDER_URL_HTTP
               value: {{ $.Values.indexer.providerUrlHttp | quote }}
-            - name: INDEXER_PROVIDER_URL_WS
-              value: {{ $.Values.indexer.providerUrlWs | quote }}
-            - name: INDEXER_WATCH_PENDING
-              value: {{ $.Values.indexer.watchPending | quote }}
+
+            # number of blocks before we consider an optimistic operation to be stale and eject it
+            - name: INDEXER_PENDING_EXPIRY
+              value: {{ $.Values.indexer.pendingExpiry | default "3" | quote }}
+
+            # set to debug for more commit logs
+            - name: INDEXER_LOG_LEVEL
+              value: {{ $.Values.indexer.logLevel | default "info" | quote }}
+
+            # contract addrs
             - name: INDEXER_GAME_ADDRESS
               value: {{ $.Values.indexer.gameAddress | quote }}
             - name: INDEXER_STATE_ADDRESS
               value: {{ $.Values.indexer.stateAddress | quote }}
             - name: INDEXER_ROUTER_ADDRESS
               value: {{ $.Values.indexer.routerAddress | quote }}
-            - name: INDEXER_MAX_LOG_RANGE
-              value: {{ $.Values.indexer.maxLogRange | toString | quote }}
+
+            # metrics
+            - name: INDEXER_TELEMETRY_ENABLE
+              value: "true"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://grafana-k8s-monitoring-grafana-agent.grafana.svc.cluster.local:4317"
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: "grpc"
+            - name: OTEL_SERVICE_NAME
+              value: "ds-services"
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "deployment.environment=dev,service.namespace={{ $.Release.Namespace }},service.version={{ $.Values.version }},service.instance.id=$(POD_NAME)"
+
           command: ["/bin/ash"]
           args:
           - -eu
@@ -100,7 +189,7 @@ spec:
           - name: CHAIN_ID
             value: "{{ $.Release.Namespace | mustRegexFind "[0-9]+$" | printf "223%02s" }}"
           - name: EXTRA_ANVIL_ARGS
-            value: "--prune-history --transaction-block-keeper 25"
+            value: "--prune-history --transaction-block-keeper 25 --gas-limit {{ $.Values.sequencer.blockGasLimit }}"
           - name: DEPLOYER_PRIVATE_KEY
             value: "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff9524d487fb5d57a8"
           - name: SERVICES_URL_HTTP
@@ -165,7 +254,11 @@ spec:
       priorityClassName: {{ $.Values.priorityClassName | quote }}
       containers:
         - name: frontend
+          {{ if $.Values.frontend.image }}
+          image: {{ $.Values.frontend.image | quote }}
+          {{ else }}
           image: {{ printf "ghcr.io/playmint/ds-shell:%s" $.Values.version }}
+          {{ end }}
           imagePullPolicy: Always
           ports:
             - name: http

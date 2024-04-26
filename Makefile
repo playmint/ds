@@ -37,6 +37,9 @@ debugmap:
 dev: all
 	$(NODE) .devstartup.js
 
+live: all
+	$(NODE) .livestartup.js
+
 contracts/src/maps/performance-test:
 	$(NODE) ./scripts/generate-perf-test-map
 
@@ -81,16 +84,18 @@ deployments/garnet/contracts.json:
 deployments/garnet/contracts.yaml: deployments/garnet/contracts.json
 	./scripts/genvalues deployments/garnet/contracts.json > $@
 
-deploy-garnet: deployments/garnet/contracts.yaml
+deployments/garnet/version.json:
+	node ./scripts/get-latest-images.mjs -o $@
+
+deploy-garnet: deployments/garnet/contracts.yaml deployments/garnet/version.json
 	bw login --check
-	node ./scripts/get-latest-images.mjs -o ./deployments/garnet/version.json
 	helm upgrade --force --install --wait --timeout 30m --history-max 5 \
-		ds ./chart -n garnet \
+		ds ./chart $(EXTRA_ARGS) -n garnet \
 			--create-namespace\
 			--values ./deployments/garnet/values.yaml \
 			--values ./deployments/garnet/version.json \
 			--values ./deployments/garnet/contracts.yaml \
-			--set sequencer.privateKey=$$(bw get password da0f60df-2521-4fec-898a-b06800854c18)
+			--set sequencer.privateKey=$(shell bw get password 647bd598-f9e4-410a-a7cc-b16100fac3fb | sed s/,/\\\\\\\\,/g)
 	kubectl get po -n garnet
 
 clean-garnet:
@@ -109,16 +114,18 @@ deployments/redstone/contracts.json:
 deployments/redstone/contracts.yaml: deployments/redstone/contracts.json
 	./scripts/genvalues deployments/redstone/contracts.json > $@
 
-deploy-redstone: deployments/redstone/contracts.yaml
+deployments/redstone/version.json:
+	node ./scripts/get-latest-images.mjs -o $@
+
+deploy-redstone: deployments/redstone/contracts.yaml deployments/redstone/version.json
 	bw login --check
-	node ./scripts/get-latest-images.mjs -o ./deployments/redstone/version.json
 	helm upgrade --force --install --wait --timeout 30m --history-max 5 \
-		ds ./chart -n redstone \
+		ds ./chart $(EXTRA_ARGS) -n redstone \
 			--create-namespace\
 			--values ./deployments/redstone/values.yaml \
 			--values ./deployments/redstone/version.json \
 			--values ./deployments/redstone/contracts.yaml \
-			--set sequencer.privateKey=$$(bw get password 1d719381-cceb-46f7-bc2f-b15c0100f285)
+			--set sequencer.privateKey=$(shell bw get password 1d719381-cceb-46f7-bc2f-b15c0100f285 | sed s/,/\\\\\\\\,/g)
 	kubectl get po -n redstone
 
 clean-redstone:

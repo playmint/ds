@@ -1,6 +1,5 @@
 import { BLOCK_TIME_SECS } from '@app/fixtures/block-time-secs';
 import { getGooPerSec } from '@app/helpers/tile';
-import { useBlock } from '@app/hooks/use-game-state';
 import { UnityComponentProps, useUnityComponentManager } from '@app/hooks/use-unity-component-manager';
 import { WorldBuildingFragment } from '@downstream/core';
 import { memo, useCallback, useMemo, useState } from 'react';
@@ -28,6 +27,7 @@ export interface ExtractorBuildingProps {
     atoms: number[]; // sorted atomic weights
     color?: string;
     selected?: '' | 'none' | 'highlight' | 'outline';
+    blockNumber: number;
 }
 
 export const ExtractorBuilding = memo(
@@ -47,8 +47,8 @@ export const ExtractorBuilding = memo(
         onPointerEnter,
         onPointerExit,
         onPointerClick,
+        blockNumber,
     }: UnityComponentProps & ExtractorBuildingProps) => {
-        const blockNumber = useBlock();
         const [hovered, setHovered] = useState(false);
 
         onPointerEnter = useCallback(() => setHovered(true), []);

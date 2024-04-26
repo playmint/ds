@@ -10,7 +10,6 @@ import { ethers } from 'ethers';
 import { createClient as createWSClient } from 'graphql-ws';
 import {
     concat,
-    debounce,
     filter,
     fromPromise,
     fromValue,
@@ -18,27 +17,22 @@ import {
     lazy,
     makeSubject,
     map,
-    merge,
     pipe,
-    share,
     Source,
     switchMap,
-    take,
-    tap,
-    throttle,
-    toPromise,
 } from 'wonka';
 import { Actions__factory } from './abi';
-import { DispatchDocument, OnEventDocument, SigninDocument, SignoutDocument } from './gql/graphql';
-import { AnyGameSubscription, AnyGameVariables, CogAction, CogQueryConfig, GameConfig } from './types';
+import { DispatchDocument, SigninDocument, SignoutDocument } from './gql/graphql';
+import { AnyGameVariables, CogAction, CogQueryConfig, GameConfig } from './types';
 
 const EXPIRES_MILLISECONDS = 1000 * 60 * 60 * 12; // 12hrs
 
 const abi = ethers.AbiCoder.defaultAbiCoder();
 
 export const DOWNSTREAM_GAME_ACTIONS = Actions__factory.createInterface();
+export const DOWNSTREAM_ACTIONS_ABI = Actions__factory.abi;
 
-const DOWNSTREAM_AUTH_MESSAGE = (addr: string, ttl: number) =>
+export const DOWNSTREAM_AUTH_MESSAGE = (addr: string, ttl: number) =>
     [
         'Welcome to Downstream!',
         '\n\nThis site is requesting permission to interact with your Downstream assets.',
@@ -115,16 +109,12 @@ export function configureClient({
         ],
     });
 
-    const waiting = new Map<string, boolean>();
-
     const signout = async (signer: ethers.Signer, session: string): Promise<void> => {
         const msg = ethers.concat([ethers.toUtf8Bytes(`You are signing out of session: `), ethers.getBytes(session)]);
         const auth = await signer.signMessage(msg);
         await gql.mutation(SignoutDocument, { gameID, session, auth }, { requestPolicy: 'network-only' }).toPromise();
         return;
     };
-    const { source: forcedSource, next: force } = makeSubject<string>();
-    const forced = pipe(forcedSource, share);
 
     // nonce doesn't need to be unique forever... only unique within a short
     // lifespan of hours and only within the same session
@@ -141,37 +131,20 @@ export function configureClient({
         );
         const auth = await signer.signMessage(actionDigest);
 
-        if (optimistic) {
-            waiting.set(auth, true);
-        }
-        const waiter: Promise<boolean> = optimistic
-            ? pipe(
-                  events,
-                  filter((evt) => evt.simulated === false && evt.sigs.some((sig) => sig === auth)),
-                  map(() => true),
-                  take(1),
-                  toPromise,
-              )
-            : Promise.resolve(true);
-
         return gql
             .mutation(DispatchDocument, { gameID, auth, actions, nonce, optimistic }, { requestPolicy: 'network-only' })
             .toPromise()
             .then((res) => {
                 if (res.error) {
-                    waiting.delete(auth);
                     return {
                         ...res,
-                        wait: () => Promise.resolve(false),
                     };
                 }
-                force(auth);
+                // force(auth);
                 return {
                     ...res,
-                    wait: () => waiter,
                 };
-            })
-            .finally(() => setTimeout(() => waiting.delete(auth), 6000));
+            });
     };
 
     const signin = async (owner: ethers.Signer) => {
@@ -201,52 +174,6 @@ export function configureClient({
         };
     };
 
-    let lastSeenBlock: number | undefined;
-    const { source: blockSource, next: nextBlock } = makeSubject<number>();
-    const blockPipe = pipe(blockSource, share);
-    const block = lazy(() => (lastSeenBlock ? concat([fromValue(lastSeenBlock), blockPipe]) : blockPipe));
-
-    const subscription = <
-        Data extends TypedDocumentNode<AnyGameSubscription, Variables>,
-        Variables extends AnyGameVariables = AnyGameVariables,
-    >(
-        doc: Data,
-        vars: Variables,
-    ) =>
-        pipe(
-            gql.subscription(doc, vars, { requestPolicy: 'network-only' }),
-            map((res) => {
-                if (res.error) {
-                    console.warn('cog query error:', res.error);
-                    return undefined;
-                }
-                if (!res.data) {
-                    console.warn('cog query fail: returned no data');
-                    return undefined;
-                }
-                return res.data.events;
-            }),
-            filter((data): data is AnyGameSubscription['events'] => !!data),
-            tap((data) => {
-                if (data.block && data.simulated === false && (!lastSeenBlock || data.block > lastSeenBlock)) {
-                    lastSeenBlock = data.block;
-                    nextBlock(lastSeenBlock);
-                }
-            }),
-            filter((data): data is AnyGameSubscription['events'] => Array.isArray(data.sigs) && data.sigs.length > 0),
-            share,
-        );
-
-    const events = subscription(OnEventDocument, { gameID });
-
-    const externalEvents = pipe(
-        events,
-        throttle(() => 250),
-        debounce(() => 250),
-        map(() => ''),
-        share,
-    );
-
     // query executes a query which will get re-queried each time new data arrives
     // right now this is implemented rather naively (ANY new events causes ALL
     // queries to be re-run), we can do better with caching in the future
@@ -260,13 +187,11 @@ export function configureClient({
                 ? lazy(() => fromValue('')) // no subscription, just do the query once
                 : concat([
                       lazy(() => fromValue('')), // always emit one to start
-                      typeof config?.poll === 'undefined'
-                          ? merge([externalEvents, forced])
-                          : pipe(
-                                // emit signal periodically
-                                interval(config.poll),
-                                map(() => ''),
-                            ),
+                      pipe(
+                          // emit signal periodically
+                          interval(config?.poll || 1000),
+                          map(() => ''),
+                      ),
                   ]),
             switchMap(() =>
                 pipe(
@@ -289,7 +214,7 @@ export function configureClient({
             ),
         );
 
-    return { gameID, signin, signout, query, subscription, dispatch, block };
+    return { gameID, signin, signout, query, dispatch };
 }
 
 /**
@@ -300,7 +225,7 @@ export function configureClient({
  * actionArgFromUnknown
  *
  */
-function encodeActionData(actions: ethers.Interface, name: string, givenArgs: unknown[]) {
+export function encodeActionData(actions: ethers.Interface, name: string, givenArgs: unknown[]) {
     const fn = actions.getFunction(name);
     if (!fn) {
         throw new Error(`invalid action: ${name}`);

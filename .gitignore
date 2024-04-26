@@ -79,3 +79,6 @@ Thumbs.db
 # Performance test files
 contracts/src/test-plugins/
 contracts/src/maps/performance-test/
+
+# local config
+.vscode/

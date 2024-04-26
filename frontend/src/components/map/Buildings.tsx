@@ -54,12 +54,14 @@ export const Buildings = memo(
         selectedElementID,
         onClickBuilding,
         pluginBuildingProperties,
+        blockNumber,
     }: {
         tiles: WorldTileFragment[];
         buildings: WorldBuildingFragment[];
         selectedElementID?: string;
         onClickBuilding?: (id: string) => void;
         pluginBuildingProperties?: PluginMapProperty[];
+        blockNumber: number;
     }) => {
         const buildingComponents = useMemo(
             () =>
@@ -93,6 +95,7 @@ export const Buildings = memo(
                                 color={getColorFromGoo(b.kind)}
                                 selected={selected}
                                 onPointerClick={onClickBuilding}
+                                blockNumber={blockNumber}
                                 {...coords}
                             />
                         );
@@ -169,7 +172,7 @@ export const Buildings = memo(
                         );
                     }
                 }),
-            [buildings, selectedElementID, tiles, onClickBuilding, pluginBuildingProperties]
+            [buildings, selectedElementID, tiles, onClickBuilding, pluginBuildingProperties, blockNumber]
         );
 
         return <>{buildingComponents}</>;

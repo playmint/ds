@@ -2,11 +2,23 @@ chainId: 17069
 chain: garnet
 indexer:
   providerUrlHttp: https://rpc.garnetchain.com
-  providerUrlWs: wss://rpc.garnetchain.com
+  pendingExpiry: 6
+  headOffset: 2
+  logLevel: "info"
 sequencer:
   providerUrlHttp: https://rpc.garnetchain.com
-  providerUrlWs: wss://rpc.garnetchain.com
-  mineEmpty: false
+  blockGasLimit: "100000000"
+  batchTimeTarget: "250"
+  batchGasTarget: "10000000"
+  batchGasAverage: "500000"
+  batchItemGasExtra: "25"
+  commitTimeout: "4000"
+  sessionQueueLimit: 10
+  sessionPrepLimit: 10
+  sessionReadyLimit: 10
+  logLevel: "info"
+  commitMode: "optimistic"
 cluster:
   domain: "downstream.game"
 priorityClassName: default
+nodePool: redstone

@@ -138,34 +138,21 @@ const deploy = {
                             op,
                         };
                     }
-                    let retries = 0;
-                    while (retries < 5) {
-                        try {
-                            await player.dispatchAndWait(...op.actions);
-                            console.log(`✅ ${op.note}\n`);
-                            return {
-                                ok: true,
-                                op,
-                            };
-                        } catch (err) {
-                            if (retries === 4) {
-                                console.log(`❌ ${op.note}\n`);
-                                return {
-                                    ok: false,
-                                    err,
-                                    op,
-                                };
-                            } else {
-                                console.log(`🕒 retrying: ${op.note}\n`);
-                            }
-                        }
-                        retries++;
+                    try {
+                        await player.dispatchAndWait(...op.actions);
+                        console.log(`✅ ${op.note}\n`);
+                        return {
+                            ok: true,
+                            op,
+                        };
+                    } catch (err) {
+                        console.log(`❌ ${op.note}\n`);
+                        return {
+                            ok: false,
+                            err,
+                            op,
+                        };
                     }
-                    return {
-                        ok: false,
-                        err: `retries exceeded`,
-                        op,
-                    };
                 });
                 const res = await Promise.all(pending);
                 results = [...results, ...res];
@@ -178,10 +165,10 @@ const deploy = {
             .map(
                 (res) =>
                     `file: ${res.op.doc.filename}\nerror:${res.err || 'unknown'}\nactions:${JSON.stringify(
-                        res.op.actions
+                        res.op.actions.map(a => a.name)
                     )}`
             );
-        if (errs.length > 0) {
+        if (ctx.verbose && errs.length > 0) {
             console.error(`\n${errs.length} manifests failed to apply:\n\n${errs.join('\n\n')}`);
             process.exit(1);
         }

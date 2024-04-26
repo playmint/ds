@@ -10,9 +10,12 @@ import { Onboarding } from '@app/components/organisms/onboarding';
 import { ItemPluginPanel } from '@app/components/panels/item-plugin-panel';
 import { MobileUnitPanel } from '@app/components/panels/mobile-unit-panel';
 import { NavPanel } from '@app/components/panels/nav-panel';
+import { QuestPanel } from '@app/components/panels/quest-panel';
 import { TileInfoPanel } from '@app/components/panels/tile-info-panel';
+import { WalletItemsPanel } from '@app/components/panels/wallet-items-panel';
 import { getTileDistance } from '@app/helpers/tile';
-import { useBlock, useGameState, usePluginState, useQuestMessages } from '@app/hooks/use-game-state';
+import { useQuestMessages, useSources } from '@app/hooks/use-game-state';
+import { usePluginState } from '@app/hooks/use-plugin-state';
 import { useSession } from '@app/hooks/use-session';
 import { useUnityMap } from '@app/hooks/use-unity-map';
 import { useWalletProvider } from '@app/hooks/use-wallet-provider';
@@ -20,15 +23,13 @@ import { ActionBar } from '@app/plugins/action-bar';
 import { ActionContextPanel } from '@app/plugins/action-context-panel';
 import { CombatSummary } from '@app/plugins/combat/combat-summary';
 import { Bag as BagInventory } from '@app/plugins/inventory/bag';
+import { StyledBasePanel, StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { ComponentProps } from '@app/types/component-props';
-import { FunctionComponent, useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import { getBagsAtEquipee, getBuildingAtTile } from '@downstream/core/src/utils';
+import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
-import { QuestPanel } from '@app/components/panels/quest-panel';
-import { getBagsAtEquipee, getBuildingAtTile } from '@downstream/core/src/utils';
-import { StyledBasePanel, StyledHeaderPanel } from '@app/styles/base-panel.styles';
-import { WalletItemsPanel } from '@app/components/panels/wallet-items-panel';
 
 export interface ShellProps extends ComponentProps {}
 
@@ -48,13 +49,13 @@ export type SelectedBag = {
 
 export const Shell: FunctionComponent<ShellProps> = () => {
     const { ready: mapReady, setContainerStyle } = useUnityMap();
-    const { player, zone, selected, selectTiles, selectMobileUnit, selectMapElement, selectIntent, global } =
-        useGameState();
+    const { player, zone, selection, selectors, global } = useSources();
+    const { selectIntent, selectTiles, selectMobileUnit, selectMapElement } = selectors || {};
+    const { tiles: selectedTiles, mobileUnit: selectedMobileUnit, mapElement: selectedMapElement } = selection || {};
     const { tiles } = zone || {};
     const { loadingSession } = useSession();
     const playerUnits = zone?.mobileUnits.filter((mu) => mu.owner && player && mu.owner.id === player.id) || [];
-    const { mobileUnit: selectedMobileUnit, tiles: selectedTiles, mapElement: selectedMapElement } = selected || {};
-    const blockNumber = useBlock() ?? 0;
+    const blockNumber = global?.block ?? 0;
     const { connect } = useWalletProvider();
     const [selectedBags, setSelectedBags] = useState<SelectedBag[]>();
     const selectedTileBags = selectedBags?.filter((sb) => !sb.isCombatReward);
@@ -373,6 +374,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         onClickBuilding={mapElementClick}
                         selectedElementID={selectedMapElement?.id}
                         pluginBuildingProperties={displayBuildingDataModifiedByPlugins}
+                        blockNumber={blockNumber}
                     />
                     <CombatSessions tiles={tiles || []} />
                 </>
@@ -391,7 +393,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         {zone &&
                             player &&
                             questsActive &&
-                            selected?.mobileUnit &&
+                            selectedMobileUnit &&
                             (acceptedQuests.length > 0 || zone.autoquests.length > 0) && (
                                 <QuestPanel
                                     zone={zone}
@@ -435,7 +437,12 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                             />
                         )}
                     {player && playerUnits.length > 0 && (
-                        <TileInfoPanel kinds={kinds || []} ui={ui || []} unitTimeoutBlocks={unitTimeoutBlocks} />
+                        <TileInfoPanel
+                            kinds={kinds || []}
+                            ui={ui || []}
+                            unitTimeoutBlocks={unitTimeoutBlocks}
+                            blockNumber={blockNumber}
+                        />
                     )}
                     {selectedTiles && selectedTiles.length > 0 && blockNumber && !!selectedTiles[0].session && (
                         <CombatSummary
