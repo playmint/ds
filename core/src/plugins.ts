@@ -151,7 +151,8 @@ export function makePluginUI(
                                 }
                                 plugin = active.has(p.id)
                                     ? active.get(p.id)
-                                    : state.zone.buildings.some((building) => building?.kind?.id === p.kindID) ||
+                                    : isZonePlugin(p) ||
+                                      state.zone.buildings.some((building) => building?.kind?.id === p.kindID) ||
                                       state.global.items.some((item) => item?.id === p.kindID)
                                     ? await loadPlugin(
                                           sandbox,
@@ -212,6 +213,10 @@ function isAutoloadableBuildingPlugin(
     }
     if (!p.supports.metadata) {
         // FIXME: use src annotation not metadata
+        return false;
+    }
+    // filter out zone plugins for other zones
+    if (pluginTypeForNodeKind(p.supports?.kind) == PluginType.ZONE && p.supports?.id != zone.id) {
         return false;
     }
     if (p.alwaysActive?.value == 'true') {
@@ -398,6 +403,8 @@ export function pluginTypeForNodeKind(kind: string | undefined): PluginType {
             return PluginType.BUILDING;
         case 'Item':
             return PluginType.ITEM;
+        case 'Zone':
+            return PluginType.ZONE;
         default:
             console.warn('unknown plugin type for node kind:', kind);
             return PluginType.CORE;
@@ -406,4 +413,10 @@ export function pluginTypeForNodeKind(kind: string | undefined): PluginType {
 
 export function sleep(ms: number): Promise<null> {
     return new Promise((resolve) => setTimeout(resolve, ms));
+}
+export function isZonePlugin(p: PluginConfig) {
+    if (p.type != PluginType.ZONE) {
+        return false;
+    }
+    return true;
 }
