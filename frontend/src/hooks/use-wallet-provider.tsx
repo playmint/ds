@@ -81,12 +81,6 @@ export const WalletProviderProvider = ({ children, config }: { children: ReactNo
                 console.warn('browser provider not available');
                 return;
             }
-            try {
-                await switchMetamaskNetwork(metamask);
-            } catch (err) {
-                console.error(`failed to switch network: ${err}`);
-                setFailedToSwitchNetwork(true);
-            }
             setProvider({ method: 'metamask', provider: metamask });
             await metamask.request({ method: 'eth_requestAccounts' });
             setAutoconnectProvider('metamask'); // TODO: make this opt-in
@@ -96,7 +90,7 @@ export const WalletProviderProvider = ({ children, config }: { children: ReactNo
         } finally {
             setConnecting(false);
         }
-    }, [setAutoconnectProvider, switchMetamaskNetwork]);
+    }, [setAutoconnectProvider]);
 
     const connectWalletConnect = useCallback(async (): Promise<unknown> => {
         try {
