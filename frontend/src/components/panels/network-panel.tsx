@@ -50,22 +50,11 @@ export const NetworkPanel = () => {
 
         const gotChainId = (metamask as any).networkVersion || 'unknown';
         if (gotChainId === config.networkID) {
-            console.log('Already on the correct network');
             setShouldRender(false);
             return;
         }
         setShouldRender(true);
-
-        // Listen for network changes
-        window.ethereum.on('chainChanged', async () => {
-            console.log('chainChanged event triggered');
-            try {
-                await checkNetwork();
-            } catch (error) {
-                console.error(error);
-            }
-        });
-    }, [config, connecting]);
+    }, [config]);
 
     useEffect(() => {
         void (async () => {
@@ -77,15 +66,34 @@ export const NetworkPanel = () => {
         })();
     }, [checkNetwork]);
 
+    useEffect(() => {
+        const { ethereum } = window as any;
+        if (!ethereum || !ethereum.on) return;
+
+        const handleNetworkChange = async () => {
+            console.log('MetaMask network changed.');
+            await checkNetwork();
+        };
+
+        ethereum.on('chainChanged', handleNetworkChange);
+        ethereum.on('accountsChanged', handleNetworkChange);
+        ethereum.on('networkChanged', handleNetworkChange);
+
+        return () => {
+            ethereum.removeListener('chainChanged', handleNetworkChange);
+            ethereum.removeListener('accountsChanged', handleNetworkChange);
+            ethereum.removeListener('networkChanged', handleNetworkChange);
+        };
+    }, [checkNetwork]); // Dependency on checkNetwork ensures it's using the latest instance
+
     const switchMetamaskNetwork = useCallback(
         async (provider: EthereumProvider) => {
             if (!config) {
-                console.warn('no config found');
+                console.warn('No config found');
                 return;
             }
             const gotChainId = (provider as any).networkVersion || 'unknown';
             if (gotChainId === config.networkID) {
-                console.log('already on the correct network');
                 return;
             }
             const chainId = `0x${BigInt(config.networkID).toString(16)}`;
@@ -122,23 +130,20 @@ export const NetworkPanel = () => {
 
     const switchNetwork = useCallback(async () => {
         if (connecting) {
-            console.warn('already switching network');
+            console.warn('Already switching network');
             return;
         }
+        setConnecting(true);
         try {
-            console.log('clicked');
             const metamask = (await detectEthereumProvider()) as EthereumProvider;
             if (!metamask) {
-                console.warn('browser provider not available');
+                console.warn('Browser provider not available');
+                setConnecting(false);
                 return;
             }
-            try {
-                await switchMetamaskNetwork(metamask);
-            } catch (err) {
-                console.error(`failed to switch network:`, err);
-            }
+            await switchMetamaskNetwork(metamask);
         } catch (err) {
-            console.error(`connect: ${err}`);
+            console.error(`Failed to switch network:`, err);
         } finally {
             setConnecting(false);
         }
