@@ -28,51 +28,6 @@ export const WalletProviderProvider = ({ children, config }: { children: ReactNo
     const [walletConnectURI, setWalletConnectURI] = useState<string | null>(null);
     const [autoconnectProvider, setAutoconnectProvider] = useLocalStorage(`ds/autoconnectprovider`, '');
     const [burnerPhrase, setBurnerPhrase] = useLocalStorage(`ds/burnerphrase`, '');
-    const [failedToSwitchNetwork, setFailedToSwitchNetwork] = useState(false);
-
-    const switchMetamaskNetwork = useCallback(
-        async (provider: EthereumProvider) => {
-            if (!config) {
-                return;
-            }
-            if (failedToSwitchNetwork) {
-                return;
-            }
-            const gotChainId = (provider as any).networkVersion || 'unknown';
-            if (gotChainId === config.networkID) {
-                return;
-            }
-            const chainId = `0x${BigInt(config.networkID).toString(16)}`;
-            try {
-                await provider.request({
-                    method: 'wallet_switchEthereumChain',
-                    params: [{ chainId }],
-                });
-            } catch (switchErr: any) {
-                // This error code indicates that the chain has not been added to MetaMask.
-                if (switchErr.code === 4902) {
-                    await provider.request({
-                        method: 'wallet_addEthereumChain',
-                        params: [
-                            {
-                                chainId,
-                                chainName: config.networkName,
-                                rpcUrls: [config.networkEndpoint],
-                                nativeCurrency: {
-                                    name: 'ETH',
-                                    symbol: 'ETH',
-                                    decimals: 18,
-                                },
-                            },
-                        ],
-                    });
-                } else {
-                    throw switchErr;
-                }
-            }
-        },
-        [config, failedToSwitchNetwork]
-    );
 
     const connectMetamask = useCallback(async () => {
         try {
@@ -80,12 +35,6 @@ export const WalletProviderProvider = ({ children, config }: { children: ReactNo
             if (!metamask) {
                 console.warn('browser provider not available');
                 return;
-            }
-            try {
-                await switchMetamaskNetwork(metamask);
-            } catch (err) {
-                console.error(`failed to switch network: ${err}`);
-                setFailedToSwitchNetwork(true);
             }
             setProvider({ method: 'metamask', provider: metamask });
             await metamask.request({ method: 'eth_requestAccounts' });
@@ -96,7 +45,7 @@ export const WalletProviderProvider = ({ children, config }: { children: ReactNo
         } finally {
             setConnecting(false);
         }
-    }, [setAutoconnectProvider, switchMetamaskNetwork]);
+    }, [setAutoconnectProvider]);
 
     const connectWalletConnect = useCallback(async (): Promise<unknown> => {
         try {
