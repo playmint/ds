@@ -184,15 +184,13 @@ contract CheatsRule is Rule {
         uint8 equipSlot,
         bytes24[] memory slotContents
     ) private {
-        if (bytes4(equipee) == Kind.Tile.selector) {
-            (int16 z, int16 q, int16 r, int16 s) = state.getTileCoords(equipee);
-            require(Bounds.isInBounds(q, r, s), "coords out of bounds");
+        require(bytes4(equipee) == Kind.Tile.selector, "tile bags only");
+        
+        (int16 z, int16 q, int16 r, int16 s) = state.getTileCoords(equipee);
+        require(Bounds.isInBounds(q, r, s), "coords out of bounds");
 
-            _checkIsOwnerOrZone(state, ctx, z);
-        } else {
-            require(state.getOwner(equipee) == Node.Player(ctx.sender), "owner only");
-        }
-
+        _checkIsOwnerOrZone(state, ctx, z);
+        
         for (uint8 i = 0; i < slotContents.length; i++) {
             state.clearItemSlot(bag, i);
         }
