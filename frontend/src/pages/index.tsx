@@ -559,23 +559,6 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                     <span>Zones</span>
                 </h2>
                 <StyledPanel className="zonePanel">
-                    <div style={{ display: 'flex' }}>
-                        <ZoneFilterSelect
-                            hasZones={playerZones.length > 0}
-                            isInZone={!!currentZone}
-                            isFeaturedZone={featuredZones.length > 0}
-                            onSelectionChange={handleSelectionChange}
-                            selectedKey={selectedFilter}
-                        />
-                        {player && (
-                            <ZoneMinter
-                                gameAddress={gameAddress}
-                                style={{ marginLeft: 'auto' }}
-                                walletProvider={walletProvider}
-                                wallet={wallet}
-                            />
-                        )}
-                    </div>
                     <div className="ZoneListHeader">
                         <div className="zoneImage"></div>
                         <div className="zoneProperties">
@@ -585,6 +568,40 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                             <div>Vistors</div>
                         </div>
                     </div>
+                    {playerZones.length > 0 && (
+                        <>
+                            <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                                Your Zones
+                                {player && (
+                                    <ZoneMinter
+                                        gameAddress={gameAddress}
+                                        style={{ marginLeft: 'auto' }}
+                                        walletProvider={walletProvider}
+                                        wallet={wallet}
+                                    />
+                                )}
+                            </div>
+                            <ul>
+                                {playerZones.map((z) => (
+                                    <ZoneItem
+                                        key={z.id}
+                                        zone={z}
+                                        units={units}
+                                        currentBlock={block || 0}
+                                        unitTimeoutBlocks={unitTimeoutBlocks}
+                                        zoneUnitLimit={zoneUnitLimit}
+                                    />
+                                ))}
+                            </ul>
+                        </>
+                    )}
+                    <ZoneFilterSelect
+                        hasZones={playerZones.length > 0}
+                        isInZone={!!currentZone}
+                        isFeaturedZone={featuredZones.length > 0}
+                        onSelectionChange={handleSelectionChange}
+                        selectedKey={selectedFilter}
+                    />
                     <ul>
                         {(selectedFilter == ZoneFilter.AllZones
                             ? zones
