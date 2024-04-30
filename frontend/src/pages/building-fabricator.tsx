@@ -4,6 +4,7 @@ import { FactoryBuilding } from '@app/components/map/FactoryBuilding';
 import { GroundPlane } from '@app/components/map/GroundPlane';
 import { Tile } from '@app/components/map/Tile';
 import { NavPanel } from '@app/components/panels/nav-panel';
+import { NetworkPanel } from '@app/components/panels/network-panel';
 import { getItemStructure } from '@app/helpers';
 import { useConfig } from '@app/hooks/use-config';
 import { GameStateProvider, useGlobal, usePlayer } from '@app/hooks/use-game-state';
@@ -1686,6 +1687,7 @@ export default function ShellPage() {
     return (
         <UnityMapProvider showLoading={false} display="none">
             <WalletProviderProvider config={config}>
+                <NetworkPanel />
                 <GameStateProvider config={config}>
                     <SessionProvider>
                         <InventoryProvider>

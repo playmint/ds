@@ -235,7 +235,7 @@ export const WalletItemsItem: FunctionComponent<{
             <div className="buttonContainer">
                 {provider && provider.method === 'metamask' && (
                     <WalletItemsActionButton onClick={addTokensMetamask} className="completeWalletItemsButton">
-                        Add Tokens To Metamask
+                        Add Tokens To MetaMask
                     </WalletItemsActionButton>
                 )}
             </div>

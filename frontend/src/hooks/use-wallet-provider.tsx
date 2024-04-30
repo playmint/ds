@@ -183,7 +183,7 @@ export const WalletProviderProvider = ({ children, config }: { children: ReactNo
                         <h3>CONNECT USING...</h3>
                         {config?.wallets?.metamask !== false && (
                             <div>
-                                <ActionButton onClick={connectMetamask}>Metamask</ActionButton>
+                                <ActionButton onClick={connectMetamask}>MetaMask</ActionButton>
                             </div>
                         )}
                         {config?.wallets?.walletconnect !== false && (

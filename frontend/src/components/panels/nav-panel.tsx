@@ -34,8 +34,9 @@ const AccountButton = styled.button`
 `;
 
 const NavContainer = styled.div`
-    position: relative;
-    z-index: 10;
+    position: relative !important;
+    align-self: flex-start;
+    z-index: 99999;
     display: flex;
     justify-content: flex-start;
     height: 5rem;

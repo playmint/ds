@@ -20,6 +20,7 @@ import DownstreamLogo from '@app/assets/downstream-logo-dark.svg';
 import Image from 'next/image';
 import styled from 'styled-components';
 import { NavPanel } from '@app/components/panels/nav-panel';
+import { NetworkPanel } from '@app/components/panels/network-panel';
 import { Button, Key, Label, ListBox, ListBoxItem, Popover, Select, SelectValue } from 'react-aria-components';
 
 const StyledIndex = styled.div`
@@ -550,6 +551,7 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
 
     return (
         <StyledIndex>
+            <NetworkPanel />
             <NavPanel className="navPanel" />
             <div className="page">
                 <Image src={DownstreamLogo} alt="Downstream Logo" className="logo" />

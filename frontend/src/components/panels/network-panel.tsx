@@ -1,10 +1,11 @@
 import { useConfig } from '@app/hooks/use-config';
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { EthereumProvider, WalletProvider } from '@downstream/core';
 import detectEthereumProvider from '@metamask/detect-provider';
 import styled from 'styled-components';
 import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { TextButton } from '@app/styles/button.styles';
+import { useWalletProvider } from '@app/hooks/use-wallet-provider';
 
 const Banner = styled(StyledHeaderPanel)`
     position: relative;
@@ -32,15 +33,18 @@ export interface WalletContextValue {
     provider?: WalletProvider;
 }
 
-export const WalletProviderContext = createContext<WalletContextValue>({});
-export const useWalletProvider = () => useContext(WalletProviderContext);
-
 export const NetworkPanel = () => {
     const config = useConfig();
     const [connecting, setConnecting] = useState<boolean>(false);
     const [shouldRender, setShouldRender] = useState<boolean>(true);
+    const { provider } = useWalletProvider();
 
     const checkNetwork = useCallback(async () => {
+        if (provider?.method.toLowerCase() !== 'metamask') {
+            setShouldRender(false);
+            return;
+        }
+
         const metamask = (await detectEthereumProvider()) as EthereumProvider;
         if (!metamask || !config) {
             console.warn('Browser provider not available or no config found');
@@ -54,7 +58,7 @@ export const NetworkPanel = () => {
             return;
         }
         setShouldRender(true);
-    }, [config]);
+    }, [config, provider?.method]);
 
     useEffect(() => {
         void (async () => {
@@ -75,14 +79,20 @@ export const NetworkPanel = () => {
             await checkNetwork();
         };
 
+        console.log('Adding MetaMask event listeners');
+
         ethereum.on('chainChanged', handleNetworkChange);
         ethereum.on('accountsChanged', handleNetworkChange);
         ethereum.on('networkChanged', handleNetworkChange);
+        ethereum.on('connect', handleNetworkChange);
+        ethereum.on('disconnect', handleNetworkChange);
 
         return () => {
             ethereum.removeListener('chainChanged', handleNetworkChange);
             ethereum.removeListener('accountsChanged', handleNetworkChange);
             ethereum.removeListener('networkChanged', handleNetworkChange);
+            ethereum.removeListener('connect', handleNetworkChange);
+            ethereum.removeListener('disconnect', handleNetworkChange);
         };
     }, [checkNetwork]); // Dependency on checkNetwork ensures it's using the latest instance
 
