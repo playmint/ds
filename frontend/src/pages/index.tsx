@@ -398,7 +398,6 @@ const ZoneFilterSelect = ({
             <Popover>
                 <ListBox>
                     <ListBoxItem id={ZoneFilter.AllZones}>All Zones</ListBoxItem>
-                    {hasZones && <ListBoxItem id={ZoneFilter.PlayerZones}>Your Zones</ListBoxItem>}
                     {isInZone && <ListBoxItem id={ZoneFilter.CurrentZone}>Current Zone</ListBoxItem>}
                     {isFeaturedZone && <ListBoxItem id={ZoneFilter.FeaturedZones}>Featured Zones</ListBoxItem>}
                 </ListBox>
