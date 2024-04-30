@@ -374,13 +374,11 @@ type Zone = GetZonesQuery['game']['state']['zones'][0];
 type ZoneUnit = GetZonesQuery['game']['state']['mobileUnits'][0];
 
 const ZoneFilterSelect = ({
-    hasZones,
     isInZone,
     isFeaturedZone,
     onSelectionChange,
     selectedKey,
 }: {
-    hasZones: boolean;
     isInZone: boolean;
     isFeaturedZone: boolean;
     onSelectionChange: (key: Key) => any;
@@ -596,7 +594,6 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                     )}
                     <div style={{ display: 'flex', alignItems: 'flex-end' }}>
                         <ZoneFilterSelect
-                            hasZones={playerZones.length > 0}
                             isInZone={!!currentZone}
                             isFeaturedZone={featuredZones.length > 0}
                             onSelectionChange={handleSelectionChange}
