@@ -5,6 +5,8 @@ import {
     AssignedQuestFragment,
     ZoneWithBags,
     WorldTileFragment,
+    QUEST_STATUS_COMPLETED,
+    QUEST_STATUS_ACCEPTED,
 } from '@app/../../core/src';
 import { Locatable, getCoords } from '@app/helpers/tile';
 import { useGlobal } from '@app/hooks/use-game-state';
@@ -428,7 +430,14 @@ export const QuestPanel: FunctionComponent<QuestPanelProps> = ({
         <StyledQuestPanel className="no-scrollbars">
             {acceptedQuests.length === 0 &&
                 zone?.autoquests
-                    .filter((autoquests) => !acceptedQuests.some((quest) => quest.node.id === autoquests.id))
+                    .filter(
+                        (autoquests) =>
+                            !player?.zone?.quests.some(
+                                (quest) =>
+                                    quest.node.id === autoquests.id &&
+                                    (quest.status === QUEST_STATUS_COMPLETED || quest.status === QUEST_STATUS_ACCEPTED)
+                            )
+                    )
                     .map((autoquest) => (
                         <AutoQuestItem
                             key={autoquest.id}
