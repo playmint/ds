@@ -185,12 +185,12 @@ contract CheatsRule is Rule {
         bytes24[] memory slotContents
     ) private {
         require(bytes4(equipee) == Kind.Tile.selector, "tile bags only");
-        
+
         (int16 z, int16 q, int16 r, int16 s) = state.getTileCoords(equipee);
         require(Bounds.isInBounds(q, r, s), "coords out of bounds");
 
         _checkIsOwnerOrZone(state, ctx, z);
-        
+
         for (uint8 i = 0; i < slotContents.length; i++) {
             state.clearItemSlot(bag, i);
         }
