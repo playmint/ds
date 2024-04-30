@@ -595,13 +595,24 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                             </ul>
                         </>
                     )}
-                    <ZoneFilterSelect
-                        hasZones={playerZones.length > 0}
-                        isInZone={!!currentZone}
-                        isFeaturedZone={featuredZones.length > 0}
-                        onSelectionChange={handleSelectionChange}
-                        selectedKey={selectedFilter}
-                    />
+                    <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                        <ZoneFilterSelect
+                            hasZones={playerZones.length > 0}
+                            isInZone={!!currentZone}
+                            isFeaturedZone={featuredZones.length > 0}
+                            onSelectionChange={handleSelectionChange}
+                            selectedKey={selectedFilter}
+                        />
+                        {player && playerZones.length == 0 && (
+                            <ZoneMinter
+                                gameAddress={gameAddress}
+                                style={{ marginLeft: 'auto' }}
+                                walletProvider={walletProvider}
+                                wallet={wallet}
+                            />
+                        )}
+                    </div>
+
                     <ul>
                         {(selectedFilter == ZoneFilter.AllZones
                             ? zones
