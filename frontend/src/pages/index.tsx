@@ -374,12 +374,10 @@ type ZoneUnit = GetZonesQuery['game']['state']['mobileUnits'][0];
 
 const ZoneFilterSelect = ({
     isInZone,
-    isFeaturedZone,
     onSelectionChange,
     selectedKey,
 }: {
     isInZone: boolean;
-    isFeaturedZone: boolean;
     onSelectionChange: (key: Key) => any;
     selectedKey?: Key;
 }) => {
@@ -465,7 +463,6 @@ const ZoneItem = ({
     const name = zone.name?.value ? ethers.decodeBytes32String(zone.name.value) : `unnamed`;
     const description = zone.description?.value ? zone.description.value : '';
     const imageUrl = zone.url?.value ? zone.url.value : '';
-    const isFeatured = zone.isFeatured?.value === 1 ? true : false;
 
     const url = `/zones/${id}`;
     const zoneUnits = units.filter((u) => u.location?.tile?.coords && u.location.tile?.coords[0] === zone.key);
@@ -533,8 +530,6 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
         if (selectedFilter === ZoneFilter.PlayerZones && playerZones.length === 0) {
             setSelectedFilter(ZoneFilter.AllZones);
         } else if (selectedFilter === ZoneFilter.CurrentZone && !currentZone) {
-            setSelectedFilter(ZoneFilter.AllZones);
-        } else if (selectedFilter === ZoneFilter.FeaturedZones && featuredZones.length === 0) {
             setSelectedFilter(ZoneFilter.AllZones);
         }
     }, [currentZone, playerZones, selectedFilter, featuredZones]);
@@ -610,7 +605,6 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                     <div style={{ display: 'flex', alignItems: 'flex-end' }}>
                         <ZoneFilterSelect
                             isInZone={!!currentZone}
-                            isFeaturedZone={featuredZones.length > 0}
                             onSelectionChange={handleSelectionChange}
                             selectedKey={selectedFilter}
                         />
@@ -631,8 +625,6 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                             ? playerZones
                             : selectedFilter == ZoneFilter.CurrentZone && currentZone
                             ? [currentZone]
-                            : selectedFilter == ZoneFilter.FeaturedZones
-                            ? featuredZones
                             : zones
                         ).map((z) => (
                             <ZoneItem
