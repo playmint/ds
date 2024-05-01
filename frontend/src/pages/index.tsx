@@ -275,7 +275,6 @@ enum ZoneFilter {
     AllZones,
     PlayerZones,
     CurrentZone,
-    FeaturedZones,
 }
 
 const ZoneMinter = ({
@@ -397,7 +396,6 @@ const ZoneFilterSelect = ({
                 <ListBox>
                     <ListBoxItem id={ZoneFilter.AllZones}>All Zones</ListBoxItem>
                     {isInZone && <ListBoxItem id={ZoneFilter.CurrentZone}>Current Zone</ListBoxItem>}
-                    {isFeaturedZone && <ListBoxItem id={ZoneFilter.FeaturedZones}>Featured Zones</ListBoxItem>}
                 </ListBox>
             </Popover>
         </Select>
@@ -483,7 +481,7 @@ const ZoneItem = ({
             <div className="zoneImage">{imageUrl && <img src={imageUrl} alt="Zone" />}</div>
             <div className="zoneProperties">
                 <div>
-                    <Link href={url}>{name}</Link> {isFeatured && '⭐'}
+                    <Link href={url}>{name}</Link>
                 </div>
                 <div>{description}</div>
                 <div>{owner}</div>
@@ -565,6 +563,23 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                             <div>Vistors</div>
                         </div>
                     </div>
+                    {featuredZones.length > 0 && (
+                        <>
+                            Spotlight
+                            <ul>
+                                {featuredZones.map((z) => (
+                                    <ZoneItem
+                                        key={z.id}
+                                        zone={z}
+                                        units={units}
+                                        currentBlock={block || 0}
+                                        unitTimeoutBlocks={unitTimeoutBlocks}
+                                        zoneUnitLimit={zoneUnitLimit}
+                                    />
+                                ))}
+                            </ul>
+                        </>
+                    )}
                     {playerZones.length > 0 && (
                         <>
                             <div style={{ display: 'flex', alignItems: 'flex-end' }}>
