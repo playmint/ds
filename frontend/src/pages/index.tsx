@@ -667,16 +667,23 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                             ? [currentZone]
                             : zones
                         )
-                            .sort(
-                                (a, b) =>
-                                    units
-                                        .filter((u) => u.location?.tile?.coords && u.location.tile?.coords[0] === b.key)
-                                        .filter((u) => u.location && u.location.time + unitTimeoutBlocks > (block || 0))
-                                        .length -
-                                    units
-                                        .filter((u) => u.location?.tile?.coords && u.location.tile?.coords[0] === a.key)
-                                        .filter((u) => u.location && u.location.time + unitTimeoutBlocks > (block || 0))
-                                        .length
+                            .sort((a, b) =>
+                                selectedSorting === ZoneSorting.Newest
+                                    ? b.key - a.key
+                                    : units
+                                          .filter(
+                                              (u) => u.location?.tile?.coords && u.location.tile?.coords[0] === b.key
+                                          )
+                                          .filter(
+                                              (u) => u.location && u.location.time + unitTimeoutBlocks > (block || 0)
+                                          ).length -
+                                      units
+                                          .filter(
+                                              (u) => u.location?.tile?.coords && u.location.tile?.coords[0] === a.key
+                                          )
+                                          .filter(
+                                              (u) => u.location && u.location.time + unitTimeoutBlocks > (block || 0)
+                                          ).length
                             )
                             .map((z) => (
                                 <ZoneItem
