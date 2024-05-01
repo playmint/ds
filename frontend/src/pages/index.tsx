@@ -532,7 +532,7 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
         } else if (selectedFilter === ZoneFilter.CurrentZone && !currentZone) {
             setSelectedFilter(ZoneFilter.AllZones);
         }
-    }, [currentZone, playerZones, selectedFilter, featuredZones]);
+    }, [currentZone, playerZones, selectedFilter]);
 
     const handleSelectionChange = useCallback((key: Key) => {
         setSelectedFilter(key);
