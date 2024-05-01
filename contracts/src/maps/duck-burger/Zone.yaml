@@ -1,0 +1,8 @@
+---
+kind: ZoneKind
+spec:
+  name: Duck Burger
+  description: Ducks vs Burgers
+  url: images/building-totems/Block_Van.png
+  contract:
+    file: ./Zone.sol
