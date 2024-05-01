@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7692780186446959822}
   - component: {fileID: 164232996782042835}
   m_Layer: 0
-  m_Name: Base_18
+  m_Name: Base_15
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -195,6 +195,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: cee69c57fd2671c49bad9a3859a5d052,
         type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: cee69c57fd2671c49bad9a3859a5d052,
+        type: 3}
+      propertyPath: m_LightProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: cee69c57fd2671c49bad9a3859a5d052,
+        type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 350e1b89b29f442e1ae981fd04ecfca4, type: 2}
@@ -202,6 +212,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Base_18_Outline
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: cee69c57fd2671c49bad9a3859a5d052,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cee69c57fd2671c49bad9a3859a5d052, type: 3}

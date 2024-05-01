@@ -195,6 +195,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: cc00a7344c29da943a4e9462c63aa868,
         type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: cc00a7344c29da943a4e9462c63aa868,
+        type: 3}
+      propertyPath: m_LightProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: cc00a7344c29da943a4e9462c63aa868,
+        type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 350e1b89b29f442e1ae981fd04ecfca4, type: 2}
@@ -202,6 +212,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Roof_19_Outline
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: cc00a7344c29da943a4e9462c63aa868,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cc00a7344c29da943a4e9462c63aa868, type: 3}
