@@ -16,12 +16,19 @@ contract ZoneTest is Test, GameTest {
     }
 
     function test_mint() public {
-        zoneOwnership.mintTo{value: 1 ether}(address(1));
+        for (uint256 i = 1; i <= 100; i++) {
+            zoneOwnership.mintTo{value: 1 ether}(address(1));
+        }
+
+        console2.log("100 zones have been minted.");
+
+        // Output the data for zone 1
         string memory dataURI1 = zoneOwnership.tokenURI(1);
-        console2.log(dataURI1);
-        zoneOwnership.mintTo{value: 1 ether}(address(1));
-        string memory dataURI2 = zoneOwnership.tokenURI(2);
-        console2.log(dataURI2);
+        console2.log("Data for zone 1: ", dataURI1);
+
+        // Output the data for zone 42
+        string memory dataURI2 = zoneOwnership.tokenURI(42);
+        console2.log("Data for zone 42: ", dataURI2);
     }
 
     function test_transferZoneOwnership() public {
@@ -49,10 +56,10 @@ contract ZoneTest is Test, GameTest {
     }
 
     function test_RevertMintMaxSupplyReached() public {
-        uint256 slot = stdstore.target(address(zoneOwnership)).sig("currentTokenId()").find();
+        uint256 slot = stdstore.target(address(zoneOwnership)).sig("lastTokenId()").find();
         bytes32 loc = bytes32(slot);
-        bytes32 mockedCurrentTokenId = bytes32(abi.encode(32000));
-        vm.store(address(zoneOwnership), loc, mockedCurrentTokenId);
+        bytes32 mockedLastTokenId = bytes32(abi.encode(32000));
+        vm.store(address(zoneOwnership), loc, mockedLastTokenId);
         vm.expectRevert(MaxSupply.selector);
         zoneOwnership.mintTo{value: 1 ether}(address(1));
     }

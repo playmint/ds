@@ -21,7 +21,7 @@ contract Zones721 is ERC721 {
     uint256 public mintPrice = 1 ether;
     string public baseURI = "https://assets.downstream.game";
 
-    uint256 public currentTokenId;
+    uint256 public lastTokenId;
     address owner; // The ZoneRule owns this
     State state;
 
@@ -79,7 +79,7 @@ contract Zones721 is ERC721 {
         _;
     }
 
-    constructor(address _owner) ERC721("DownstreamZone", "DSZ") {
+    constructor(address _owner) ERC721("Downstream Zone", "DSZ") {
         owner = _owner;
     }
 
@@ -87,11 +87,11 @@ contract Zones721 is ERC721 {
         if (msg.value != mintPrice) {
             revert MintPriceNotPaid();
         }
-        uint256 newTokenId = currentTokenId + 1;
+        uint256 newTokenId = lastTokenId + 1;
         if (newTokenId > TOTAL_SUPPLY) {
             revert MaxSupply();
         }
-        currentTokenId = newTokenId;
+        lastTokenId = newTokenId;
         _safeMint(recipient, newTokenId);
 
         // setup zone data
@@ -172,11 +172,11 @@ contract Zones721 is ERC721 {
             "[",
             getTraitLocation(tokenId),
             ",",
-            getTraitGooType(),
+            getTraitGooType(tokenId),
             ",",
-            getTraitTileRotation(),
+            getTraitTileRotation(tokenId),
             ",",
-            getTraitHistoricalGovernance(),
+            getTraitHistoricalGovernance(tokenId),
             "]"
         );
     }
@@ -187,33 +187,33 @@ contract Zones721 is ERC721 {
         );
     }
 
-    function getTraitGooType() internal view returns (bytes memory) {
+    function getTraitGooType(uint256 tokenId) internal view returns (bytes memory) {
         return abi.encodePacked(
             "{\"trait_type\": \"",
             GOO_TYPE_LABEL,
             "\", \"value\": \"",
-            GOO_TYPE_VALUES[getTraitIndex(currentTokenId, GOO_TYPE_LABEL, GOO_TYPE_COUNT)],
+            GOO_TYPE_VALUES[getTraitIndex(tokenId, GOO_TYPE_LABEL, GOO_TYPE_COUNT)],
             "\"}"
         );
     }
 
-    function getTraitTileRotation() internal view returns (bytes memory) {
+    function getTraitTileRotation(uint256 tokenId) internal view returns (bytes memory) {
         return abi.encodePacked(
             "{\"trait_type\": \"",
             TILE_ROTATION_LABEL,
             "\", \"value\": \"",
-            TILE_ROTATION_VALUES[getTraitIndex(currentTokenId, TILE_ROTATION_LABEL, TILE_ROTATION_COUNT)],
+            TILE_ROTATION_VALUES[getTraitIndex(tokenId, TILE_ROTATION_LABEL, TILE_ROTATION_COUNT)],
             "\"}"
         );
     }
 
-    function getTraitHistoricalGovernance() internal view returns (bytes memory) {
+    function getTraitHistoricalGovernance(uint256 tokenId) internal view returns (bytes memory) {
         return abi.encodePacked(
             "{\"trait_type\": \"",
             HISTORICAL_GOVERNANCE_LABEL,
             "\", \"value\": \"",
             HISTORICAL_GOVERNANCE_VALUES[getTraitIndex(
-                currentTokenId, HISTORICAL_GOVERNANCE_LABEL, HISTORICAL_GOVERNANCE_COUNT
+                tokenId, HISTORICAL_GOVERNANCE_LABEL, HISTORICAL_GOVERNANCE_COUNT
             )],
             "\"}"
         );
