@@ -92,7 +92,7 @@ export const Onboarding = ({
     const canSpawn = activeUnits.length < zoneUnitLimit || isZoneOwner;
 
     const networkName = useConfig()?.networkName;
-    const network = useConfig()?.networkName === 'hexwoodlocal' ? 'local' : networkName;
+    const network = networkName === 'hexwoodlocal' ? 'local' : networkName;
 
     return (
         <StyledOnboarding>
