@@ -1,4 +1,5 @@
 /** @format */
+import { NetworkPanel } from '@app/components/panels/network-panel';
 import Shell from '@app/components/views/shell';
 import { useConfig } from '@app/hooks/use-config';
 import { GameStateProvider } from '@app/hooks/use-game-state';
@@ -25,6 +26,7 @@ export default function ZonePage({ id }: ZonePageProps) {
     return (
         <UnityMapProvider>
             <WalletProviderProvider config={config}>
+                <NetworkPanel />
                 <GameStateProvider config={config} zoneId={zoneId}>
                     <SessionProvider>
                         <InventoryProvider>
