@@ -5,6 +5,7 @@ import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { ActionButton } from '@app/styles/button.styles';
 import { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import { useConfig } from '@app/hooks/use-config';
 
 export interface OnboardingProps {
     zone: ZoneWithBags;
@@ -37,6 +38,7 @@ export const Onboarding = ({
 }: OnboardingProps) => {
     const [isSpawningMobileUnit, setIsSpawningMobileUnit] = useState<boolean>(false);
 
+    const zoneId = Number(BigInt.asIntN(16, zone.key));
     const spawnMobileUnit = useCallback(() => {
         if (!player) {
             return;
@@ -44,7 +46,7 @@ export const Onboarding = ({
         if (!zone) {
             return;
         }
-        const zoneId = Number(BigInt.asIntN(16, zone.key));
+
         const inactiveUnits = zone.mobileUnits.filter(
             (u) => u.nextLocation && u.nextLocation.time + unitTimeoutBlocks <= block
         );
@@ -74,7 +76,7 @@ export const Onboarding = ({
                 console.error('failed to spawn mobileUnit:', e);
             })
             .finally(() => setIsSpawningMobileUnit(false));
-    }, [block, player, unitTimeoutBlocks, zone, zoneUnitLimit]);
+    }, [block, player, unitTimeoutBlocks, zone, zoneId, zoneUnitLimit]);
 
     const zoneName = zone.name?.value ? decodeString(zone.name.value) : `unnamed`;
     const zoneDescription = zone.description?.value ? zone.description.value : `no description`;
@@ -88,6 +90,9 @@ export const Onboarding = ({
     const isZoneOwner = address === zone?.owner?.addr;
     // Zone owners can spawn into a zone even when it's at capacity
     const canSpawn = activeUnits.length < zoneUnitLimit || isZoneOwner;
+
+    const networkName = useConfig()?.networkName;
+    const network = networkName === 'hexwoodlocal' ? 'local' : networkName;
 
     return (
         <StyledOnboarding>
@@ -121,6 +126,21 @@ export const Onboarding = ({
                             Building Fabricator
                         </a>
                         <br />
+                        <br />
+                        <p>
+                            Run this command in the{' '}
+                            <a
+                                href="https://github.com/playmint/ds/blob/main/contracts/src/maps/tutorial-room-1/README.md#4-deploy-the-new-tiles"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                ds-cli
+                            </a>{' '}
+                            to deploy a map to your zone:
+                        </p>
+                        <b>
+                            ds apply -n {network} -z {zoneId} -R -f .
+                        </b>
                     </fieldset>
                 )}
                 <br />
