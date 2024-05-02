@@ -587,8 +587,6 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                     <span>Zones</span>
                 </h2>
                 <StyledPanel className="zonePanel">
-                        &emsp;
-                        <ZoneSortSelect onSelectionChange={handleSortSelectionChange} selectedKey={selectedSorting} />
                     <div className="ZoneListHeader">
                         <div className="zoneImage"></div>
                         <div className="zoneProperties">
@@ -648,6 +646,8 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                             onSelectionChange={handleSelectionChange}
                             selectedKey={selectedFilter}
                         />
+                        &emsp;
+                        <ZoneSortSelect onSelectionChange={handleSortSelectionChange} selectedKey={selectedSorting} />
                         {player && playerZones.length == 0 && (
                             <ZoneMinter
                                 gameAddress={gameAddress}
@@ -657,7 +657,6 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                             />
                         )}
                     </div>
-
                     <ul>
                         {(selectedFilter == ZoneFilter.AllZones
                             ? zones
