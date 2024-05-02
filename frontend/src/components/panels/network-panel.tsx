@@ -8,25 +8,36 @@ import { TextButton } from '@app/styles/button.styles';
 import { useWalletProvider } from '@app/hooks/use-wallet-provider';
 
 const Banner = styled(StyledHeaderPanel)`
-    position: relative;
-    top: 0;
+    position: fixed;
+    bottom: 0;
     width: 100%;
-    background-color: #f9f9f9;
+    background-color: rgba(249, 249, 249, 0.8);
+    backdrop-filter: blur(10px);
     z-index: 9999;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 20px 0;
-    border-top: 0px;
+    border-top: 3px solid black;
     border-left: 0px;
     border-right: 0px;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
+    border-bottom: 0px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
 `;
 
 const Text = styled.p`
     margin: 0;
     padding-right: 20px;
+`;
+
+const CloseButton = styled.button`
+    position: absolute;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
 `;
 
 export interface WalletContextValue {
@@ -38,6 +49,10 @@ export const NetworkPanel = () => {
     const [connecting, setConnecting] = useState<boolean>(false);
     const [shouldRender, setShouldRender] = useState<boolean>(true);
     const { provider } = useWalletProvider();
+
+    const closeBanner = () => {
+        setShouldRender(false);
+    };
 
     const checkNetwork = useCallback(async () => {
         if (provider?.method.toLowerCase() !== 'metamask') {
@@ -169,6 +184,7 @@ export const NetworkPanel = () => {
                 You need to switch to the <b>{config?.networkName}</b> network in MetaMask
             </Text>
             <TextButton onClick={switchNetwork}>Switch Network</TextButton>
+            <CloseButton onClick={closeBanner}>x</CloseButton>
         </Banner>
     );
 };
