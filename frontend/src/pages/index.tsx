@@ -276,7 +276,6 @@ enum ZoneFilter {
     AllZones,
     PlayerZones,
     CurrentZone,
-    FeaturedZones,
 }
 
 const ZoneMinter = ({
@@ -375,15 +374,11 @@ type Zone = GetZonesQuery['game']['state']['zones'][0];
 type ZoneUnit = GetZonesQuery['game']['state']['mobileUnits'][0];
 
 const ZoneFilterSelect = ({
-    hasZones,
     isInZone,
-    isFeaturedZone,
     onSelectionChange,
     selectedKey,
 }: {
-    hasZones: boolean;
     isInZone: boolean;
-    isFeaturedZone: boolean;
     onSelectionChange: (key: Key) => any;
     selectedKey?: Key;
 }) => {
@@ -399,9 +394,7 @@ const ZoneFilterSelect = ({
             <Popover>
                 <ListBox>
                     <ListBoxItem id={ZoneFilter.AllZones}>All Zones</ListBoxItem>
-                    {hasZones && <ListBoxItem id={ZoneFilter.PlayerZones}>Your Zones</ListBoxItem>}
                     {isInZone && <ListBoxItem id={ZoneFilter.CurrentZone}>Current Zone</ListBoxItem>}
-                    {isFeaturedZone && <ListBoxItem id={ZoneFilter.FeaturedZones}>Featured Zones</ListBoxItem>}
                 </ListBox>
             </Popover>
         </Select>
@@ -471,7 +464,6 @@ const ZoneItem = ({
     const name = zone.name?.value ? ethers.decodeBytes32String(zone.name.value) : `unnamed`;
     const description = zone.description?.value ? zone.description.value : '';
     const imageUrl = zone.url?.value ? zone.url.value : '';
-    const isFeatured = zone.isFeatured?.value === 1 ? true : false;
 
     const url = `/zones/${id}`;
     const zoneUnits = units.filter((u) => u.location?.tile?.coords && u.location.tile?.coords[0] === zone.key);
@@ -487,7 +479,7 @@ const ZoneItem = ({
             <div className="zoneImage">{imageUrl && <img src={imageUrl} alt="Zone" />}</div>
             <div className="zoneProperties">
                 <div>
-                    <Link href={url}>{name}</Link> {isFeatured && '⭐'}
+                    <Link href={url}>{name}</Link>
                 </div>
                 <div>{description}</div>
                 <div>{owner}</div>
@@ -540,10 +532,8 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
             setSelectedFilter(ZoneFilter.AllZones);
         } else if (selectedFilter === ZoneFilter.CurrentZone && !currentZone) {
             setSelectedFilter(ZoneFilter.AllZones);
-        } else if (selectedFilter === ZoneFilter.FeaturedZones && featuredZones.length === 0) {
-            setSelectedFilter(ZoneFilter.AllZones);
         }
-    }, [currentZone, playerZones, selectedFilter, featuredZones]);
+    }, [currentZone, playerZones, selectedFilter]);
 
     const handleSelectionChange = useCallback((key: Key) => {
         setSelectedFilter(key);
@@ -561,23 +551,6 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                     <span>Zones</span>
                 </h2>
                 <StyledPanel className="zonePanel">
-                    <div style={{ display: 'flex' }}>
-                        <ZoneFilterSelect
-                            hasZones={playerZones.length > 0}
-                            isInZone={!!currentZone}
-                            isFeaturedZone={featuredZones.length > 0}
-                            onSelectionChange={handleSelectionChange}
-                            selectedKey={selectedFilter}
-                        />
-                        {player && (
-                            <ZoneMinter
-                                gameAddress={gameAddress}
-                                style={{ marginLeft: 'auto' }}
-                                walletProvider={walletProvider}
-                                wallet={wallet}
-                            />
-                        )}
-                    </div>
                     <div className="ZoneListHeader">
                         <div className="zoneImage"></div>
                         <div className="zoneProperties">
@@ -587,6 +560,66 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                             <div>Vistors</div>
                         </div>
                     </div>
+                    {featuredZones.length > 0 && (
+                        <>
+                            Spotlight
+                            <ul>
+                                {featuredZones.map((z) => (
+                                    <ZoneItem
+                                        key={z.id}
+                                        zone={z}
+                                        units={units}
+                                        currentBlock={block || 0}
+                                        unitTimeoutBlocks={unitTimeoutBlocks}
+                                        zoneUnitLimit={zoneUnitLimit}
+                                    />
+                                ))}
+                            </ul>
+                        </>
+                    )}
+                    {playerZones.length > 0 && (
+                        <>
+                            <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                                Your Zones
+                                {player && (
+                                    <ZoneMinter
+                                        gameAddress={gameAddress}
+                                        style={{ marginLeft: 'auto' }}
+                                        walletProvider={walletProvider}
+                                        wallet={wallet}
+                                    />
+                                )}
+                            </div>
+                            <ul>
+                                {playerZones.map((z) => (
+                                    <ZoneItem
+                                        key={z.id}
+                                        zone={z}
+                                        units={units}
+                                        currentBlock={block || 0}
+                                        unitTimeoutBlocks={unitTimeoutBlocks}
+                                        zoneUnitLimit={zoneUnitLimit}
+                                    />
+                                ))}
+                            </ul>
+                        </>
+                    )}
+                    <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                        <ZoneFilterSelect
+                            isInZone={!!currentZone}
+                            onSelectionChange={handleSelectionChange}
+                            selectedKey={selectedFilter}
+                        />
+                        {player && playerZones.length == 0 && (
+                            <ZoneMinter
+                                gameAddress={gameAddress}
+                                style={{ marginLeft: 'auto' }}
+                                walletProvider={walletProvider}
+                                wallet={wallet}
+                            />
+                        )}
+                    </div>
+
                     <ul>
                         {(selectedFilter == ZoneFilter.AllZones
                             ? zones
@@ -594,8 +627,6 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                             ? playerZones
                             : selectedFilter == ZoneFilter.CurrentZone && currentZone
                             ? [currentZone]
-                            : selectedFilter == ZoneFilter.FeaturedZones
-                            ? featuredZones
                             : zones
                         ).map((z) => (
                             <ZoneItem
