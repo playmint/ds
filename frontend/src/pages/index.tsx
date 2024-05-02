@@ -278,6 +278,11 @@ enum ZoneFilter {
     CurrentZone,
 }
 
+enum ZoneSorting {
+    Newest,
+    ActiveUnits,
+}
+
 const ZoneMinter = ({
     gameAddress,
     style,
@@ -401,6 +406,32 @@ const ZoneFilterSelect = ({
     );
 };
 
+const ZoneSortSelect = ({
+    onSelectionChange,
+    selectedKey,
+}: {
+    onSelectionChange: (key: Key) => any;
+    selectedKey?: Key;
+}) => {
+    return (
+        <Select className="zoneFilter" onSelectionChange={onSelectionChange} selectedKey={selectedKey}>
+            <Label className="filterLabel">Sort</Label>
+            <Button>
+                <SelectValue />
+                <span aria-hidden="true" style={{ marginLeft: '10px' }}>
+                    ▼
+                </span>
+            </Button>
+            <Popover>
+                <ListBox>
+                    <ListBoxItem id={ZoneFilter.AllZones}>Newest</ListBoxItem>
+                    <ListBoxItem id={ZoneFilter.PlayerZones}>Active Units</ListBoxItem>
+                </ListBox>
+            </Popover>
+        </Select>
+    );
+};
+
 const ZoneItem = ({
     zone,
     units,
@@ -500,6 +531,7 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
     const unitTimeoutBlocks = parseInt(global?.gameSettings?.unitTimeoutBlocks?.value || '0x0', 16);
     const zoneUnitLimit = parseInt(global?.gameSettings?.zoneUnitLimit?.value || '0x0', 16);
     const [selectedFilter, setSelectedFilter] = useState<Key>(ZoneFilter.AllZones);
+    const [selectedSorting, setSelectedSorting] = useState<Key>(ZoneSorting.Newest);
     const { provider: walletProvider } = useWalletProvider();
     const { wallet } = useWallet();
 
@@ -537,6 +569,10 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
 
     const handleSelectionChange = useCallback((key: Key) => {
         setSelectedFilter(key);
+    }, []);
+
+    const handleSortSelectionChange = useCallback((key: Key) => {
+        setSelectedSorting(key);
     }, []);
 
     return (
@@ -610,6 +646,8 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                             onSelectionChange={handleSelectionChange}
                             selectedKey={selectedFilter}
                         />
+                        &emsp;
+                        <ZoneSortSelect onSelectionChange={handleSortSelectionChange} selectedKey={selectedSorting} />
                         {player && playerZones.length == 0 && (
                             <ZoneMinter
                                 gameAddress={gameAddress}
@@ -619,7 +657,6 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                             />
                         )}
                     </div>
-
                     <ul>
                         {(selectedFilter == ZoneFilter.AllZones
                             ? zones
@@ -628,16 +665,35 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                             : selectedFilter == ZoneFilter.CurrentZone && currentZone
                             ? [currentZone]
                             : zones
-                        ).map((z) => (
-                            <ZoneItem
-                                key={z.id}
-                                zone={z}
-                                units={units}
-                                currentBlock={block || 0}
-                                unitTimeoutBlocks={unitTimeoutBlocks}
-                                zoneUnitLimit={zoneUnitLimit}
-                            />
-                        ))}
+                        )
+                            .sort((a, b) =>
+                                selectedSorting === ZoneSorting.Newest
+                                    ? b.key - a.key
+                                    : units
+                                          .filter(
+                                              (u) => u.location?.tile?.coords && u.location.tile?.coords[0] === b.key
+                                          )
+                                          .filter(
+                                              (u) => u.location && u.location.time + unitTimeoutBlocks > (block || 0)
+                                          ).length -
+                                      units
+                                          .filter(
+                                              (u) => u.location?.tile?.coords && u.location.tile?.coords[0] === a.key
+                                          )
+                                          .filter(
+                                              (u) => u.location && u.location.time + unitTimeoutBlocks > (block || 0)
+                                          ).length
+                            )
+                            .map((z) => (
+                                <ZoneItem
+                                    key={z.id}
+                                    zone={z}
+                                    units={units}
+                                    currentBlock={block || 0}
+                                    unitTimeoutBlocks={unitTimeoutBlocks}
+                                    zoneUnitLimit={zoneUnitLimit}
+                                />
+                            ))}
                     </ul>
                 </StyledPanel>
             </div>
