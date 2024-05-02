@@ -26,7 +26,7 @@ contract ZoneTest is Test, GameTest {
         string memory dataURI1 = zoneOwnership.tokenURI(1);
         console2.log("Data for zone 1: ", dataURI1);
 
-        // Pick a random zone to output the data
+        // Output the data for zone 42
         string memory dataURI2 = zoneOwnership.tokenURI(42);
         console2.log("Data for zone 42: ", dataURI2);
     }
