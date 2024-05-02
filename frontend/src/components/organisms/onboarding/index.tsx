@@ -5,6 +5,7 @@ import { StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { ActionButton } from '@app/styles/button.styles';
 import { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import { useConfig } from '@app/hooks/use-config';
 
 export interface OnboardingProps {
     zone: ZoneWithBags;
@@ -90,12 +91,8 @@ export const Onboarding = ({
     // Zone owners can spawn into a zone even when it's at capacity
     const canSpawn = activeUnits.length < zoneUnitLimit || isZoneOwner;
 
-    const url = new URL(window.location.href);
-    let subdomain = url.hostname.split('.')[0];
-    // Check if local
-    if (subdomain === 'localhost' || subdomain === '127') {
-        subdomain = 'local';
-    }
+    const networkName = useConfig()?.networkName;
+    const network = useConfig()?.networkName === 'hexwoodlocal' ? 'local' : networkName;
 
     return (
         <StyledOnboarding>
@@ -142,7 +139,7 @@ export const Onboarding = ({
                             to deploy a map to your zone:
                         </p>
                         <b>
-                            ds apply -n {subdomain} -z {zoneId} -R -f .
+                            ds apply -n {network} -z {zoneId} -R -f .
                         </b>
                     </fieldset>
                 )}
