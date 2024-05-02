@@ -765,8 +765,8 @@ const InputItem = ({
     );
 };
 
-const FACTORY_TOPS = Array.from({ length: 17 }, (_, i) => i + 1).map((n) => (n < 10 ? `0${n}` : `${n}`));
-const FACTORY_BOTTOMS = Array.from({ length: 14 }, (_, i) => i + 1).map((n) => (n < 10 ? `0${n}` : `${n}`));
+const FACTORY_TOPS = Array.from({ length: 19 }, (_, i) => i + 1).map((n) => (n < 10 ? `0${n}` : `${n}`));
+const FACTORY_BOTTOMS = Array.from({ length: 16 }, (_, i) => i + 1).map((n) => (n < 10 ? `0${n}` : `${n}`));
 const PALLETE = ['blue', 'pink', 'yellow', 'green', 'red', 'purple'];
 const ITEM_ICONS = [
     'xx-01',
