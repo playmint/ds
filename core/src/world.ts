@@ -37,7 +37,6 @@ export function makeZone(cog: Source<CogServices>, zoneID: string) {
                 ...flatMapBags(res.game.state.zone.mobileUnits),
                 ...flatMapBags(res.game.state.zone.buildings),
                 ...flatMapBags(res.game.state.zone.tiles),
-                ...flatMapBags(res.game.state.zone.sessions),
             ];
 
             // include the bags in the zone

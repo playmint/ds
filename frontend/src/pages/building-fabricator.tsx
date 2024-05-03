@@ -1144,7 +1144,6 @@ const BuildingFabricator = () => {
                 buildings: [],
                 tiles: [],
                 mobileUnits: [],
-                sessions: [],
                 autoquests: [],
                 allData: [],
             };

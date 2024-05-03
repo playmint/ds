@@ -26,7 +26,7 @@ import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
 import { QuestPanel } from '@app/components/panels/quest-panel';
-import { getBagsAtEquipee, getBuildingAtTile, getSessionsAtTile } from '@downstream/core/src/utils';
+import { getBagsAtEquipee, getBuildingAtTile } from '@downstream/core/src/utils';
 import { StyledBasePanel, StyledHeaderPanel } from '@app/styles/base-panel.styles';
 import { WalletItemsPanel } from '@app/components/panels/wallet-items-panel';
 
@@ -78,15 +78,18 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     }, [player?.zone?.quests]);
     const unfinalisedCombatSessions = useMemo(
         () =>
-            (zone?.sessions || []).filter((s) => {
-                const oneSideZero =
-                    s.attackers.filter((paticipant) => paticipant.node.id != nullBytes24).length == 0 ||
-                    s.defenders.filter((paticipant) => paticipant.node.id != nullBytes24).length == 0;
-                const combatStarted = blockNumber && blockNumber >= (s.attackTile?.startBlock || 0);
-                return oneSideZero || combatStarted;
-            }),
+            (tiles || [])
+                .filter((t) => !!t.session)
+                .map((t) => t.session)
+                .filter((s) => {
+                    const oneSideZero =
+                        (s?.attackers || []).filter((paticipant) => paticipant.node.id != nullBytes24).length == 0 ||
+                        (s?.defenders || []).filter((paticipant) => paticipant.node.id != nullBytes24).length == 0;
+                    const combatStarted = blockNumber && blockNumber >= (s?.attackTile?.startBlock || 0);
+                    return oneSideZero || combatStarted;
+                }),
 
-        [zone?.sessions, blockNumber]
+        [tiles, blockNumber]
     );
     // Only attempt to finalise every other block to not hammer the server
     const combatSessionTick = Math.floor(blockNumber / 2);
@@ -224,36 +227,6 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     return { equipIndex: bag.equipee?.key || 0, bag, ownerId: t.id, parentTile: t };
                 });
 
-                // Combat rewards
-                if (selectedMobileUnit) {
-                    const selectedRewardBags = getSessionsAtTile(zone?.sessions || [], t).flatMap((cs) => {
-                        return cs.bags
-                            .filter((bag) => {
-                                if (!cs.defenceTile || cs.defenceTile.tile.id !== t.id) {
-                                    return false;
-                                }
-                                // reward containing bags have an ID that is made up of 16bits of sessionID and 48bits of MobileUnitID
-                                // bagIDs are 64bits
-                                const bagMobileUnitID = BigInt.asUintN(32, BigInt(bag.id) >> BigInt(16));
-                                const truncatedMobileUnitID = BigInt.asUintN(32, BigInt(selectedMobileUnit.id));
-                                return bagMobileUnitID === truncatedMobileUnitID;
-                            })
-                            ?.map((bag): SelectedBag => {
-                                return {
-                                    equipIndex: bag.equipee?.key || 0,
-                                    bag,
-                                    ownerId: cs.id, // Very confusing because I expected the `ownerId` to be the unit's ID
-                                    parentTile: t,
-                                    isCombatReward: true,
-                                };
-                            });
-                    });
-
-                    if (selectedRewardBags) {
-                        selectedBags.push(...selectedRewardBags);
-                    }
-                }
-
                 setSelectedBags(selectedBags);
                 break;
         }
@@ -300,7 +273,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         (s) =>
                             ({
                                 name: 'FINALISE_COMBAT',
-                                args: [s.id],
+                                args: [s?.id],
                             } as CogAction)
                     );
 
@@ -401,7 +374,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         selectedElementID={selectedMapElement?.id}
                         pluginBuildingProperties={displayBuildingDataModifiedByPlugins}
                     />
-                    <CombatSessions tiles={tiles || []} sessions={zone?.sessions || []} />
+                    <CombatSessions tiles={tiles || []} />
                 </>
             )}
             <div className="hud-container">
@@ -464,19 +437,16 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     {player && playerUnits.length > 0 && (
                         <TileInfoPanel kinds={kinds || []} ui={ui || []} unitTimeoutBlocks={unitTimeoutBlocks} />
                     )}
-                    {selectedTiles &&
-                        selectedTiles.length > 0 &&
-                        blockNumber &&
-                        getSessionsAtTile(zone?.sessions || [], selectedTiles[0]).length > 0 && (
-                            <CombatSummary
-                                className="action"
-                                selectedTiles={selectedTiles}
-                                zone={zone}
-                                player={player}
-                                selectedMobileUnit={selectedMobileUnit}
-                                blockNumber={blockNumber}
-                            />
-                        )}
+                    {selectedTiles && selectedTiles.length > 0 && blockNumber && !!selectedTiles[0].session && (
+                        <CombatSummary
+                            className="action"
+                            selectedTiles={selectedTiles}
+                            zone={zone}
+                            player={player}
+                            selectedMobileUnit={selectedMobileUnit}
+                            blockNumber={blockNumber}
+                        />
+                    )}
                     {selectedTileBags && selectedTileBags.length > 0 && (
                         <StyledBasePanel>
                             {selectedTileBags.map((selectedBag) => {

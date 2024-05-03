@@ -1,10 +1,4 @@
-import {
-    BagFragment,
-    WorldBuildingFragment,
-    WorldCombatSessionFragment,
-    WorldMobileUnitFragment,
-    WorldTileFragment,
-} from './gql/graphql';
+import { BagFragment, WorldBuildingFragment, WorldMobileUnitFragment } from './gql/graphql';
 
 const bagsCache = new WeakMap<any, Map<string, BagFragment[]>>();
 
@@ -32,8 +26,4 @@ export function getBagsAtEquipee(bags: BagFragment[], equipee: { id: string }) {
     }
 
     return cache.get(equipee.id) || [];
-}
-
-export function getSessionsAtTile(sessions: WorldCombatSessionFragment[], tile: WorldTileFragment) {
-    return sessions.filter((s) => s.attackTile?.tile?.id === tile.id || s.defenceTile?.tile?.id === tile.id);
 }

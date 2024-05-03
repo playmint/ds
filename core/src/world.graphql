@@ -144,9 +144,6 @@ fragment WorldCombatSession on Node {
             id
         }
     }
-    bags: nodes(match: { kinds: "Bag", via: { rel: "Equip", dir: OUT } }) {
-        ...Bag
-    }
 }
 
 fragment WorldTile on Node {
@@ -168,6 +165,9 @@ fragment WorldTile on Node {
     }
     bags: nodes(match: { kinds: "Bag", via: { rel: "Equip", dir: OUT } }) {
         ...Bag
+    }
+    session: node(match: { kinds: "CombatSession", via: { rel: "Has", dir: OUT } }) {
+        ...WorldCombatSession
     }
 }
 
@@ -204,9 +204,6 @@ fragment ZoneState on Node {
     }
     mobileUnits: nodes(match: { kinds: "MobileUnit", via: { rel: "Parent", dir: IN } }) {
         ...WorldMobileUnit
-    }
-    sessions: nodes(match: { kinds: "CombatSession", via: { rel: "Parent", dir: IN } }) {
-        ...WorldCombatSession
     }
     tiles: nodes(match: { kinds: "Tile", via: { rel: "Parent", dir: IN } }) {
         ...WorldTile
