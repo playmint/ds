@@ -79,12 +79,11 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const unfinalisedCombatSessions = useMemo(
         () =>
             (zone?.sessions || []).filter((s) => {
-                const isNotFinalised = !s.isFinalised;
                 const oneSideZero =
                     s.attackers.filter((paticipant) => paticipant.node.id != nullBytes24).length == 0 ||
                     s.defenders.filter((paticipant) => paticipant.node.id != nullBytes24).length == 0;
                 const combatStarted = blockNumber && blockNumber >= (s.attackTile?.startBlock || 0);
-                return isNotFinalised && (oneSideZero || combatStarted);
+                return oneSideZero || combatStarted;
             }),
 
         [zone?.sessions, blockNumber]
@@ -468,8 +467,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                     {selectedTiles &&
                         selectedTiles.length > 0 &&
                         blockNumber &&
-                        getSessionsAtTile(zone?.sessions || [], selectedTiles[0]).filter((s) => !s.isFinalised).length >
-                            0 && (
+                        getSessionsAtTile(zone?.sessions || [], selectedTiles[0]).length > 0 && (
                             <CombatSummary
                                 className="action"
                                 selectedTiles={selectedTiles}

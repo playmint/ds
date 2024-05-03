@@ -134,9 +134,6 @@ fragment WorldCombatSession on Node {
         name
         value
     }
-    isFinalised: edge(match: { kinds: "CombatSession", via: { rel: "IsFinalised" } }) {
-        flag: weight
-    }
     attackers: edges(match: { via: { rel: "CombatAttacker" } }) {
         node {
             id

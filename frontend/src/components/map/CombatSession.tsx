@@ -12,7 +12,7 @@ export const CombatSessions = memo(
                 return [];
             }
             return tiles
-                .filter((t) => getSessionsAtTile(sessions, t).some((s) => !s.isFinalised))
+                .filter((t) => getSessionsAtTile(sessions, t).some(() => true))
                 .map((t) => (
                     <TileHighlight
                         key={`session-${t.id}`}
