@@ -8,6 +8,7 @@ import {Schema, Node, Q, R, S, Kind} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 import "@ds/utils/LibString.sol";
+import {IDuckBurgerZone} from "./IZone.sol";
 
 using Schema for State;
 
@@ -304,6 +305,14 @@ contract DuckBurgerHQ is BuildingKind {
         _setDataOnBuilding(dispatcher, buildingId, "prizePool", bytes32(0));
         _setDataOnBuilding(dispatcher, buildingId, "buildingKindIdDuck", bytes32(0));
         _setDataOnBuilding(dispatcher, buildingId, "buildingKindIdBurger", bytes32(0));
+
+        State state = ds.getState();
+        bytes24 buildingTile = state.getFixedLocation(buildingId);
+        (int16 z, int16 q, int16 r, int16 s) = getTileCoords(buildingTile);
+        bytes24 zone = Node.Zone(z);
+        IDuckBurgerZone zoneImpl = IDuckBurgerZone(state.getImplementation(zone));
+        require(zoneImpl != IDuckBurgerZone(address(0)), "Zone implementation not found");
+        zoneImpl.reset(ds, Node.Tile(z, q, r, s));
     }
 
     function _getPrizeBalance(State state, bytes24 buildingId) internal view returns (uint64) {
@@ -391,5 +400,17 @@ contract DuckBurgerHQ is BuildingKind {
 
     function _setDataOnBuilding(Dispatcher dispatcher, bytes24 buildingId, string memory key, bytes32 value) internal {
         dispatcher.dispatch(abi.encodeCall(Actions.SET_DATA_ON_BUILDING, (buildingId, key, value)));
+    }
+
+    function getTileCoords(bytes24 tile) internal pure returns (int16 z, int16 q, int16 r, int16 s) {
+        int16[4] memory keys = INT16_ARRAY(tile);
+        return (keys[0], keys[1], keys[2], keys[3]);
+    }
+
+    function INT16_ARRAY(bytes24 id) internal pure returns (int16[4] memory keys) {
+        keys[0] = int16(int192(uint192(id) >> 48));
+        keys[1] = int16(int192(uint192(id) >> 32));
+        keys[2] = int16(int192(uint192(id) >> 16));
+        keys[3] = int16(int192(uint192(id)));
     }
 }
