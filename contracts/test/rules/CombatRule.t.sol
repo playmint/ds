@@ -86,7 +86,9 @@ contract CombatRuleTest is Test, GameTest {
 
         // Should be allowed to start a combat session after a finished session has been finalised
         vm.roll(block.number + COMBAT_JOIN_WINDOW_BLOCKS);
-        dispatcher.dispatch(abi.encodeCall(Actions.FINALISE_COMBAT, (Node.CombatSession(1))));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.FINALISE_COMBAT, (Node.CombatSession(Node.Tile(0, 0, 0, 0), targetTileID)))
+        );
 
         dispatcher.dispatch(abi.encodeCall(Actions.START_COMBAT, (mobileUnit0, targetTileID, attackers, defenders)));
 
@@ -138,7 +140,9 @@ contract CombatRuleTest is Test, GameTest {
 
         // Fast forward to end of join window and finalise
         vm.roll(block.number + COMBAT_JOIN_WINDOW_BLOCKS);
-        dispatcher.dispatch(abi.encodeCall(Actions.FINALISE_COMBAT, (Node.CombatSession(1))));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.FINALISE_COMBAT, (Node.CombatSession(Node.Tile(0, 0, 0, 0), targetTileID)))
+        );
     }
 
     function _constructBuilding() private returns (bytes24) {

@@ -21,7 +21,6 @@ interface Rel {
     function Combat() external;
     function CombatAttacker() external;
     function CombatDefender() external;
-    function IsFinalised() external;
     function HasTask() external;
     function HasQuest() external;
     function ID() external;
@@ -212,8 +211,10 @@ library Node {
         return CompoundKeyEncoder.INT16_ARRAY(Kind.Building.selector, [z, q, r, s]);
     }
 
-    function CombatSession(uint64 id) internal pure returns (bytes24) {
-        return CompoundKeyEncoder.UINT64(Kind.CombatSession.selector, id);
+    function CombatSession(bytes24 attTileID, bytes24 defTileID) internal pure returns (bytes24) {
+        return CompoundKeyEncoder.UINT64(
+            Kind.CombatSession.selector, uint64(uint256(keccak256(abi.encodePacked(attTileID, defTileID))))
+        );
     }
 
     function Hash(bytes20 hash) internal pure returns (bytes24) {
@@ -222,10 +223,6 @@ library Node {
 
     function ID(bytes20 id) internal pure returns (bytes24) {
         return CompoundKeyEncoder.BYTES(Kind.Hash.selector, id);
-    }
-
-    function RewardBag(bytes24 sessionID, bytes24 entityID) internal pure returns (bytes24) {
-        return Node.Bag(uint64(uint16(uint192(sessionID) & type(uint16).max) | (uint48(uint192(entityID)) << 16)));
     }
 
     function Atom(uint64 atomType) internal pure returns (bytes24) {
@@ -536,15 +533,6 @@ library Schema {
         return state.get(Rel.Material.selector, slot, kind);
     }
 
-    function getIsFinalised(State state, bytes24 sessionID) internal view returns (bool) {
-        ( /*bytes24 sessionNode*/ , uint64 isFinalised) = state.get(Rel.IsFinalised.selector, 0, sessionID);
-        return isFinalised > 0;
-    }
-
-    function setIsFinalised(State state, bytes24 sessionID, bool isFinalised) internal {
-        state.set(Rel.IsFinalised.selector, 0, sessionID, sessionID, isFinalised ? 1 : 0);
-    }
-
     function getSid(State, /*state*/ bytes24 mobileUnitID) internal pure returns (uint32) {
         // NOTE: This is intentional. Where 'sid' is reauired by actions, it is typed as uint32
         return uint32(CompoundKeyDecoder.UINT64(mobileUnitID));
@@ -729,6 +717,17 @@ library Schema {
         state.set(Rel.Has.selector, 0, defenceTile, sessionID, startBlock);
     }
 
+    function unsetCombatTiles(State state, bytes24 sessionID, bytes24 attackTile, bytes24 defenceTile)
+        internal
+    {
+        state.set(Rel.Has.selector, uint8(CombatSideKey.ATTACK), sessionID, bytes24(0), 0);
+        state.set(Rel.Has.selector, uint8(CombatSideKey.DEFENCE), sessionID, bytes24(0), 0);
+
+        // We make a relationship from tile to session so we can check if a particular tile is in session
+        state.set(Rel.Has.selector, 0, attackTile, bytes24(0), 0);
+        state.set(Rel.Has.selector, 0, defenceTile, bytes24(0), 0);
+    }
+
     function getCombatTiles(State state, bytes24 sessionID)
         internal
         view
@@ -736,5 +735,13 @@ library Schema {
     {
         (attackTile, startBlock) = state.get(Rel.Has.selector, uint8(CombatSideKey.ATTACK), sessionID);
         (defenceTile,) = state.get(Rel.Has.selector, uint8(CombatSideKey.DEFENCE), sessionID);
+    }
+
+    function getCombatSession(State state, bytes24 tileID)
+        internal
+        view
+        returns (bytes24 sessionID, uint64 startBlock)
+    {
+        (sessionID, startBlock) = state.get(Rel.Has.selector, 0, tileID);
     }
 }
