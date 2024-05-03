@@ -74,10 +74,6 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
         return null;
     }
 
-    if (latestSession.isFinalised) {
-        return null;
-    }
-
     const combatStartRemainingSecs = Math.max(0, latestSession.attackTile.startBlock - blockNumber) * BLOCK_TIME_SECS;
     // const hasCombatStarted = blockNumber >= latestSession.attackTile.startBlock;
 

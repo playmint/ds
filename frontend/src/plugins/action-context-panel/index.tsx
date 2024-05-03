@@ -693,7 +693,7 @@ const Combat: FunctionComponent<CombatProps> = ({
             return { path: [], valid: false, reason: 'no selected tile' };
         }
         const selectedTileBuilding = getBuildingAtTile(buildings, selectedTile);
-        const activeSession = getSessionsAtTile(sessions, selectedTile).find((s) => !s.isFinalised);
+        const activeSession = getSessionsAtTile(sessions, selectedTile).find(() => true);
         if (!activeSession && !selectedTileBuilding) {
             return { path: [], valid: false, reason: 'no building to attack or session to join' };
         }
@@ -730,7 +730,7 @@ const Combat: FunctionComponent<CombatProps> = ({
             return { path: [], valid: false, reason: 'no route to destination' };
         }
         const destTileHasDifferentActiveSession =
-            activeSession && getSessionsAtTile(sessions, destTile).find((s) => !s.isFinalised)?.id !== activeSession.id;
+            activeSession && getSessionsAtTile(sessions, destTile).find(() => true)?.id !== activeSession.id;
         const isImposible = path.length === 1 && getTileDistance(fromTile, destTile) > 1;
         if (isImposible) {
             return { path: [], valid: false, reason: 'no route to destination' };
@@ -781,7 +781,7 @@ const Combat: FunctionComponent<CombatProps> = ({
                 },
             ];
         });
-        const hasActiveSession = getSessionsAtTile(sessions, defenceTile).some((s) => !s.isFinalised);
+        const hasActiveSession = getSessionsAtTile(sessions, defenceTile).some(() => true);
         if (!hasActiveSession) {
             actions.push([
                 {
@@ -821,7 +821,7 @@ const Combat: FunctionComponent<CombatProps> = ({
     ]);
 
     const highlights: WorldTileFragment[] = [defenceTile, attackTile].filter((t): t is WorldTileFragment => !!t);
-    const joining = attackTile && getSessionsAtTile(sessions, attackTile).some((s) => !s.isFinalised);
+    const joining = attackTile && getSessionsAtTile(sessions, attackTile).some(() => true);
     const help = valid
         ? `Attack ${defenceTileBuilding?.kind?.name?.value}`
         : `Select a tile with a building to attack. ${reason}`;

@@ -200,7 +200,7 @@ const PostCombatState: FunctionComponent<PostCombatStateProps> = (props) => {
                 <CombatParticipants attackers={attackers} defenders={defenders} />
             </div>
             <div className="footer">
-                <PostCombatFooter closeModal={closeModal} isFinalised={!!session.isFinalised} />
+                <PostCombatFooter closeModal={closeModal} isFinalised={!!session} />
             </div>
         </StyledCombatModal>
     );
