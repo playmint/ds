@@ -111,7 +111,6 @@ contract DownstreamGame is BaseGame {
         state.registerEdgeType(Rel.Combat.selector, "Combat", WeightKind.UINT64);
         state.registerEdgeType(Rel.CombatAttacker.selector, "CombatAttacker", WeightKind.UINT64);
         state.registerEdgeType(Rel.CombatDefender.selector, "CombatDefender", WeightKind.UINT64);
-        state.registerEdgeType(Rel.IsFinalised.selector, "IsFinalised", WeightKind.UINT64);
         state.registerEdgeType(Rel.HasQuest.selector, "HasQuest", WeightKind.UINT64);
         state.registerEdgeType(Rel.HasTask.selector, "HasTask", WeightKind.UINT64);
         state.registerEdgeType(Rel.ID.selector, "ID", WeightKind.UINT64);

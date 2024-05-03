@@ -63,7 +63,8 @@ contract InventoryRule is Rule {
         uint64 qty
     ) private {
         require(
-            state.getOwner(fromEquipee) == Node.Player(sender) || bytes4(fromEquipee) == Kind.Building.selector,
+            state.getOwner(fromEquipee) == Node.Player(sender) || bytes4(fromEquipee) == Kind.Building.selector
+                || bytes4(fromEquipee) == Kind.CombatSession.selector,
             "fromEquipee not owned by sender"
         );
 

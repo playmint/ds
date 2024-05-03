@@ -32,6 +32,8 @@ import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {IZoneKind} from "@ds/ext/ZoneKind.sol";
 
+import "forge-std/console.sol";
+
 using Schema for State;
 
 uint64 constant COMBAT_JOIN_WINDOW_BLOCKS = 7;
@@ -56,7 +58,6 @@ struct EquipActionInfo {
 
 contract CombatRule is Rule {
     Game game;
-    uint64 public prevCombatSessionID = 0; // combat sessions are incremented
 
     event SessionUpdate(uint64 indexed sessionID, bytes combatActions);
 
@@ -71,8 +72,8 @@ contract CombatRule is Rule {
                 // If destination has active session then join
                 (bytes24 nextTileID, uint64 arrivalBlockNum) =
                     state.get(Rel.Location.selector, uint8(LocationKey.NEXT), mobileUnit);
-                bytes24 sessionID = _getActiveSession(state, nextTileID, ctx);
-                if (sessionID != 0) {
+                (bytes24 sessionID, uint64 startBlock) = state.getCombatSession(nextTileID);
+                if (sessionID != 0 && arrivalBlockNum <= startBlock) {
                     _joinSession(state, sessionID, nextTileID, arrivalBlockNum, mobileUnit);
                 }
             }
@@ -90,11 +91,11 @@ contract CombatRule is Rule {
 
             {
                 // If prev tile has an active session then leave
-                (bytes24 prevTileID, /*uint64 arrivalBlockNum*/ ) =
+                (bytes24 prevTileID, uint64 arrivalBlockNum) =
                     state.get(Rel.Location.selector, uint8(LocationKey.PREV), mobileUnit);
-                bytes24 sessionID = _getActiveSession(state, prevTileID, ctx);
+                (bytes24 sessionID, /*uint64 startBlock*/ ) = state.getCombatSession(prevTileID);
                 if (sessionID != 0) {
-                    _leaveSession(state, sessionID, prevTileID, mobileUnit, ctx);
+                    _leaveSession(state, sessionID, prevTileID, arrivalBlockNum, mobileUnit);
                 }
             }
 
@@ -102,7 +103,7 @@ contract CombatRule is Rule {
                 // If destination has active session then join
                 (bytes24 nextTileID, uint64 arrivalBlockNum) =
                     state.get(Rel.Location.selector, uint8(LocationKey.NEXT), mobileUnit);
-                bytes24 sessionID = _getActiveSession(state, nextTileID, ctx);
+                (bytes24 sessionID, /*uint64 startBlock*/ ) = state.getCombatSession(nextTileID);
                 if (sessionID != 0) {
                     _joinSession(state, sessionID, nextTileID, arrivalBlockNum, mobileUnit);
                 }
@@ -129,10 +130,15 @@ contract CombatRule is Rule {
             }
 
             // Revert if either of the tiles have an active combat session
-            if (_getActiveSession(state, mobileUnitTile, ctx) != 0) revert("CombatSessionAlreadyActive");
-            if (_getActiveSession(state, targetTileID, ctx) != 0) revert("CombatSessionAlreadyActive");
+            bytes24 sessionID;
+            {
+                (sessionID, /*uint64 startBlock*/ ) = state.getCombatSession(mobileUnitTile);
+                require(sessionID == bytes24(0), "CombatSessionAlreadyActive");
+                (sessionID, /*uint64 startBlock*/ ) = state.getCombatSession(targetTileID);
+                require(sessionID == bytes24(0), "CombatSessionAlreadyActive");
+            }
 
-            bytes24 sessionID = _startSession(state, mobileUnitTile, targetTileID, attackers, defenders, ctx);
+            sessionID = _startSession(state, mobileUnitTile, targetTileID, attackers, defenders, ctx);
 
             // Call into the zone kind
             {
@@ -149,9 +155,9 @@ contract CombatRule is Rule {
         if (bytes4(action) == Actions.FINALISE_COMBAT.selector) {
             (bytes24 sessionID) = abi.decode(action[4:], (bytes24));
 
-            ( /*bytes24 attackTileID*/ , uint64 combatStartBlock) = state.getAttackTile(sessionID);
+            (bytes24 attackTileID, uint64 combatStartBlock) = state.getAttackTile(sessionID);
 
-            require(!state.getIsFinalised(sessionID), "Combat session already finalised");
+            require(attackTileID != bytes24(0), "Combat session already finalised or never not existed");
 
             CombatState memory combatState = calcCombatState(state, sessionID);
 
@@ -170,7 +176,7 @@ contract CombatRule is Rule {
     function _finaliseSession(State state, CombatState memory combatState, bytes24 sessionID) private {
         // No winner
         if (combatState.winState == CombatWinState.NONE) {
-            state.setIsFinalised(sessionID, true);
+            _destroySession(state, sessionID);
             return;
         }
 
@@ -189,38 +195,36 @@ contract CombatRule is Rule {
         }
 
         if (bytes4(buildingState.entityID) == Kind.Building.selector) {
-            // Spawn bags with winnings for each of the mobileUnits
-            // FIXME: If there is any way of making this less gassy? stack to deep to cache totalDamageInflicted and the building's materials!
+            // Make an ephemeral bag to hold the rewards. Because we're using EXPORT_ITEM rule, items need to come from a bag.
+            // Purposefully didn't attach the bag to the building to avoid potential bag clashes
+            bytes24 rewardBag = _makeRewardBag(state, sessionID);
+
             for (uint8 i; i < MAX_ENTITIES_PER_SIDE; i++) {
                 if (!winnerStates[i].isPresent) continue;
-                // Create bag using a combination of sessionID and entityID
-                // TODO: Don't give buildings rewards? (leaving in as a sink for now)
-                state.set(Rel.Equip.selector, i, sessionID, Node.RewardBag(sessionID, winnerStates[i].entityID), 0); // Session -> Bag
-                _setBagOwner(state, Node.RewardBag(sessionID, winnerStates[i].entityID), winnerStates[i].entityID);
 
                 uint256 damagePercent = (winnerStates[i].damageInflicted * 100) / _getTotalDamageInflicted(winnerStates);
+                if (damagePercent == 0) continue;
 
-                for (uint8 j; j < 4; j++) {
-                    (bytes24 item, uint64 qty) = state.getMaterial(state.getBuildingKind(buildingState.entityID), j);
-                    // NOTE: divide by 200 instead of 100 if we want to halve the rewards as per the combat spec
-                    state.setItemSlot(
-                        Node.RewardBag(sessionID, winnerStates[i].entityID),
-                        j,
-                        item,
-                        uint64((damagePercent * qty) / 100)
+                // xfer to wallet (don't transfer to buildings)
+                if (bytes4(winnerStates[i].entityID) == Kind.MobileUnit.selector) {
+                    _transferRewards(
+                        state,
+                        sessionID,
+                        state.getOwnerAddress(state.getOwner(winnerStates[i].entityID)),
+                        buildingState.entityID,
+                        damagePercent,
+                        rewardBag
                     );
                 }
             }
-
-            // TODO: If the building has a bag, then transfer to the mobileUnit with the most damage inflicted
 
             // Destroy the building
             // TODO: Maybe the building rule should be doing this so all building construction/destruction logic is in the same place
             //       The building rule would need to be able to check that the action was dispatched by the CombatRule
             _destroyBuilding(state, buildingState.entityID);
-        }
 
-        state.setIsFinalised(sessionID, true);
+            _destroyRewardBag(state, sessionID);
+        }
 
         // Call into the zone kind
         {
@@ -233,6 +237,60 @@ contract CombatRule is Rule {
                 }
             }
         }
+
+        _destroySession(state, sessionID);
+    }
+
+    function _transferRewards(
+        State state,
+        bytes24 sessionID,
+        address ownerAddress,
+        bytes24 buildingInstance,
+        uint256 damagePercent,
+        bytes24 rewardBag
+    ) internal {
+        Dispatcher dispatcher = game.getDispatcher();
+        for (uint8 j; j < 4; j++) {
+            (bytes24 item, uint64 qty) = state.getMaterial(state.getBuildingKind(buildingInstance), j);
+            if (item == bytes24(0)) continue; // I think I could just return here as all slots after first empty *should* be empty
+            
+            uint64 rewardQty = uint64((damagePercent * qty) / 100);
+            if (rewardQty == 0) continue;
+
+            // NOTE: divide by 200 instead of 100 if we want to halve the rewards as per the combat spec
+            state.setItemSlot(rewardBag, j, item, rewardQty);
+
+            dispatcher.dispatch(
+                abi.encodeCall(
+                    Actions.EXPORT_ITEM,
+                    (
+                        sessionID, // from equipee
+                        0, // equipSlot
+                        j, // fromItemSlot
+                        ownerAddress, // to
+                        uint64((damagePercent * qty) / 100) // qty
+                    )
+                )
+            );
+        }
+    }
+
+    function _makeRewardBag(State state, bytes24 sessionID) private returns (bytes24 rewardBag) {
+        rewardBag = Node.Bag(CompoundKeyDecoder.UINT64(sessionID));
+        state.setEquipSlot(sessionID, 0, rewardBag);
+        return rewardBag;
+    }
+
+    function _destroyRewardBag(State state, bytes24 sessionID) private {
+        // NOTE: The bag had no owner or parent. It would also be empty so I'm not
+        // going to iterate over the slots to clear them
+        state.setEquipSlot(sessionID, 0, bytes24(0));
+    }
+
+    function _destroySession(State state, bytes24 sessionID) internal {
+        state.setParent(sessionID, bytes24(0));
+        (bytes24 attackTile, bytes24 defenceTile,) = state.getCombatTiles(sessionID);
+        state.unsetCombatTiles(sessionID, attackTile, defenceTile);
     }
 
     function _destroyBuilding(State state, bytes24 buildingInstance) private {
@@ -508,13 +566,6 @@ contract CombatRule is Rule {
         }
     }
 
-    function _getActiveSession(State state, bytes24 tileID, Context calldata /*ctx*/ ) private view returns (bytes24) {
-        (bytes24 sessionID, uint64 startBlockNum) = state.get(Rel.Has.selector, 0, tileID);
-        if (startBlockNum > 0 && !state.getIsFinalised(sessionID)) return sessionID;
-
-        return 0;
-    }
-
     function _startSession(
         State state,
         bytes24 attTileID,
@@ -523,13 +574,9 @@ contract CombatRule is Rule {
         bytes24[] memory defenders,
         Context calldata ctx
     ) private returns (bytes24 sessionID) {
-        // Create a new session
-        prevCombatSessionID++;
-        uint64 rawSessionID = prevCombatSessionID;
-
         {
-            // Link the session to the tiles
-            sessionID = Node.CombatSession(rawSessionID);
+            // Create a new session and link the session to the tiles
+            sessionID = Node.CombatSession(attTileID, defTileID);
             state.setParent(sessionID, state.getParent(attTileID));
             state.setCombatTiles(sessionID, attTileID, defTileID, ctx.clock + COMBAT_JOIN_WINDOW_BLOCKS);
 
@@ -592,10 +639,13 @@ contract CombatRule is Rule {
         State state,
         bytes24 sessionID,
         bytes24 mobileUnitTileID,
-        uint64, /*arrivalBlockNum*/
+        uint64 arrivalBlockNum,
         bytes24 mobileUnitID
     ) private {
-        (bytes24 attackTileID, /*uint64 combatStartBlock*/ ) = state.getAttackTile(sessionID);
+        (bytes24 attackTileID, uint64 combatStartBlock) = state.getAttackTile(sessionID);
+        if (arrivalBlockNum > combatStartBlock) {
+            return; // no-op. Not reverting as this get's called during mobile unit movement
+        }
 
         // Find an empty slot of the combatSide the unit is joining
         for (uint8 i = 0; i < MAX_ENTITIES_PER_SIDE; i++) {
@@ -628,10 +678,13 @@ contract CombatRule is Rule {
         State state,
         bytes24 sessionID,
         bytes24 mobileUnitTileID,
-        bytes24 mobileUnitID,
-        Context calldata /*ctx*/
+        uint64 arrivalBlockNum,
+        bytes24 mobileUnitID
     ) private {
-        (bytes24 attackTileID, /*uint64 combatStartBlock*/ ) = state.getAttackTile(sessionID);
+        (bytes24 attackTileID, uint64 combatStartBlock) = state.getAttackTile(sessionID);
+        if (arrivalBlockNum > combatStartBlock) {
+            return; // no-op. Not reverting as this get's called during mobile unit movement
+        }
 
         // Find slot belonging to unitID and set to zero
         for (uint8 i = 0; i < MAX_ENTITIES_PER_SIDE; i++) {
@@ -666,15 +719,15 @@ contract CombatRule is Rule {
         }
     }
 
-    function _setBagOwner(State state, bytes24 bag, bytes24 entityID) private {
-        require(bytes4(bag) == Kind.Bag.selector, "Owner set fail - not a bag node");
+    // function _setBagOwner(State state, bytes24 bag, bytes24 entityID) private {
+    //     require(bytes4(bag) == Kind.Bag.selector, "Owner set fail - not a bag node");
 
-        if (bytes4(entityID) == Kind.MobileUnit.selector) {
-            state.setOwner(bag, state.getOwner(entityID));
-        } else {
-            state.setOwner(bag, entityID);
-        }
-    }
+    //     if (bytes4(entityID) == Kind.MobileUnit.selector) {
+    //         state.setOwner(bag, state.getOwner(entityID));
+    //     } else {
+    //         state.setOwner(bag, entityID);
+    //     }
+    // }
 
     // -- MATH
 
