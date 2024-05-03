@@ -157,7 +157,7 @@ contract CombatRule is Rule {
 
             (bytes24 attackTileID, uint64 combatStartBlock) = state.getAttackTile(sessionID);
 
-            require(attackTileID != bytes24(0), "Combat session already finalised or never not existed");
+            require(attackTileID != bytes24(0), "Combat session already finalised or never existed");
 
             CombatState memory combatState = calcCombatState(state, sessionID);
 
@@ -253,7 +253,7 @@ contract CombatRule is Rule {
         for (uint8 j; j < 4; j++) {
             (bytes24 item, uint64 qty) = state.getMaterial(state.getBuildingKind(buildingInstance), j);
             if (item == bytes24(0)) continue; // I think I could just return here as all slots after first empty *should* be empty
-            
+
             uint64 rewardQty = uint64((damagePercent * qty) / 100);
             if (rewardQty == 0) continue;
 

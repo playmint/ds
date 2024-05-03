@@ -94,14 +94,7 @@ export const TaskItem: FunctionComponent<TaskItemProps> = ({
                 />
             );
         case 'combat':
-            return (
-                <TaskCombat
-                    sessions={zone?.sessions || []}
-                    task={taskMemo}
-                    playerUnitIDs={playerUnitIDs}
-                    setTaskCompletion={setTaskCompletion}
-                />
-            );
+            return <TaskCombat task={taskMemo} playerUnitIDs={playerUnitIDs} setTaskCompletion={setTaskCompletion} />;
         case 'deployBuilding':
             return (
                 <TaskDeployBuilding

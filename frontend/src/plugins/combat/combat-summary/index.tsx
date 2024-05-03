@@ -4,7 +4,6 @@ import { ConnectedPlayer, WorldMobileUnitFragment, ZoneWithBags, WorldTileFragme
 import { Dialog } from '@app/components/molecules/dialog';
 import { LIFE_MUL, getMaterialStats, getMobileUnitStats } from '@app/plugins/combat/helpers';
 import { ComponentProps } from '@app/types/component-props';
-import { getSessionsAtTile } from '@downstream/core/src/utils';
 import { FunctionComponent, useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { CombatModal } from '../combat-modal';
@@ -45,8 +44,6 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
 
     if (!zone) return null;
 
-    const sessions = zone.sessions || [];
-
     // const handleFinaliseCombat = () => {
     //     if (!latestSession) {
     //         return;
@@ -61,16 +58,13 @@ export const CombatSummary: FunctionComponent<CombatSummaryProps> = (props: Comb
     //     player.dispatchAndWait(action).catch((err) => console.error(err));
     // };
 
-    const selectedTileSessions = selectedTiles.length > 0 ? getSessionsAtTile(sessions, selectedTiles[0]) : [];
-    if (selectedTiles.length === 0 || selectedTileSessions.length === 0) {
+    if (selectedTiles.length === 0) {
         return null;
     }
 
-    const latestSession = selectedTileSessions.sort((a, b) => {
-        return a.attackTile && b.attackTile ? b.attackTile.startBlock - a.attackTile.startBlock : 0;
-    })[0];
+    const latestSession = selectedTiles[0].session;
 
-    if (!latestSession.attackTile) {
+    if (!latestSession || !latestSession.attackTile) {
         return null;
     }
 

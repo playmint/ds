@@ -10,12 +10,7 @@ import {
     WorldTileFragment,
 } from '@downstream/core';
 import { BagFragment, WorldCombatSessionFragment } from '@downstream/core/src/gql/graphql';
-import {
-    getBagsAtEquipee,
-    getBuildingAtTile,
-    getMobileUnitsAtTile,
-    getSessionsAtTile,
-} from '@downstream/core/src/utils';
+import { getBagsAtEquipee, getBuildingAtTile, getMobileUnitsAtTile } from '@downstream/core/src/utils';
 import { AbiCoder, BigNumberish, BytesLike, hexlify } from 'ethers';
 
 export const NUM_STAT_KINDS = 3; // LIFE, DEFENCE, ATTACK
@@ -258,13 +253,4 @@ export const getTileEntities = (
     const mobileUnits = getMobileUnitsAtTile(zone?.mobileUnits || [], tile);
     entities.push(...mobileUnits.map((unit) => unitToCombatParticipantProps(unit, zone, player)));
     return entities;
-};
-
-export const getLatestCombatSession = (sessions: WorldCombatSessionFragment[], tile: WorldTileFragment) => {
-    const tileSessions = getSessionsAtTile(sessions, tile);
-    return tileSessions.length > 0
-        ? tileSessions.sort((a, b) => {
-              return a.attackTile && b.attackTile ? b.attackTile.startBlock - a.attackTile.startBlock : 0;
-          })[0]
-        : undefined;
 };

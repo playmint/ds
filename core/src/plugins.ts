@@ -120,7 +120,6 @@ export function makePluginUI(
                                     : undefined,
                                 world: {
                                     ...(state.zone || {}),
-                                    sessions: [],
                                 },
                                 selected: state.selected,
                             },

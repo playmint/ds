@@ -717,9 +717,7 @@ library Schema {
         state.set(Rel.Has.selector, 0, defenceTile, sessionID, startBlock);
     }
 
-    function unsetCombatTiles(State state, bytes24 sessionID, bytes24 attackTile, bytes24 defenceTile)
-        internal
-    {
+    function unsetCombatTiles(State state, bytes24 sessionID, bytes24 attackTile, bytes24 defenceTile) internal {
         state.set(Rel.Has.selector, uint8(CombatSideKey.ATTACK), sessionID, bytes24(0), 0);
         state.set(Rel.Has.selector, uint8(CombatSideKey.DEFENCE), sessionID, bytes24(0), 0);
 

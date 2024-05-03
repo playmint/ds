@@ -20,8 +20,7 @@ import { getCoords, getTileDistance, getTileHeight, isBlockerTile } from '@app/h
 import { useGlobal, usePlayer, useSelection, useZone } from '@app/hooks/use-game-state';
 import { getBagId, getBuildingId } from '@app/plugins/inventory/helpers';
 import { ComponentProps } from '@app/types/component-props';
-import { WorldCombatSessionFragment } from '@downstream/core/src/gql/graphql';
-import { getBagsAtEquipee, getBuildingAtTile, getSessionsAtTile } from '@downstream/core/src/utils';
+import { getBagsAtEquipee, getBuildingAtTile } from '@downstream/core/src/utils';
 import React, { FunctionComponent, Key, useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { styles } from './action-context-panel.styles';
@@ -644,7 +643,6 @@ interface CombatProps {
     player?: ConnectedPlayer;
     tiles?: WorldTileFragment[];
     pluginTileProperties: PluginMapProperty[];
-    sessions: WorldCombatSessionFragment[];
     buildings: WorldBuildingFragment[];
     mobileUnits: WorldMobileUnitFragment[];
     mobileUnit?: WorldMobileUnitFragment;
@@ -656,7 +654,6 @@ const Combat: FunctionComponent<CombatProps> = ({
     selectIntent,
     selectedTiles,
     mobileUnits,
-    sessions,
     buildings,
     player,
     tiles,
@@ -693,7 +690,7 @@ const Combat: FunctionComponent<CombatProps> = ({
             return { path: [], valid: false, reason: 'no selected tile' };
         }
         const selectedTileBuilding = getBuildingAtTile(buildings, selectedTile);
-        const activeSession = getSessionsAtTile(sessions, selectedTile).find(() => true);
+        const activeSession = selectedTile.session;
         if (!activeSession && !selectedTileBuilding) {
             return { path: [], valid: false, reason: 'no building to attack or session to join' };
         }
@@ -729,8 +726,7 @@ const Combat: FunctionComponent<CombatProps> = ({
         if (!destTile) {
             return { path: [], valid: false, reason: 'no route to destination' };
         }
-        const destTileHasDifferentActiveSession =
-            activeSession && getSessionsAtTile(sessions, destTile).find(() => true)?.id !== activeSession.id;
+        const destTileHasDifferentActiveSession = activeSession && destTile.session?.id !== activeSession.id;
         const isImposible = path.length === 1 && getTileDistance(fromTile, destTile) > 1;
         if (isImposible) {
             return { path: [], valid: false, reason: 'no route to destination' };
@@ -753,7 +749,7 @@ const Combat: FunctionComponent<CombatProps> = ({
             defenceTile,
             defenceTileBuilding,
         };
-    }, [mobileUnit, tiles, mobileUnits, selectedTiles, buildings, sessions, pluginTileProperties]);
+    }, [mobileUnit, tiles, mobileUnits, selectedTiles, buildings, pluginTileProperties]);
 
     const attackTile = path.slice(-1).find(() => true);
 
@@ -781,7 +777,7 @@ const Combat: FunctionComponent<CombatProps> = ({
                 },
             ];
         });
-        const hasActiveSession = getSessionsAtTile(sessions, defenceTile).some(() => true);
+        const hasActiveSession = !!defenceTile.session;
         if (!hasActiveSession) {
             actions.push([
                 {
@@ -810,7 +806,6 @@ const Combat: FunctionComponent<CombatProps> = ({
         mobileUnitId,
         path,
         attackers,
-        sessions,
         defenceTile,
         setActionQueue,
         clearIntent,
@@ -821,7 +816,7 @@ const Combat: FunctionComponent<CombatProps> = ({
     ]);
 
     const highlights: WorldTileFragment[] = [defenceTile, attackTile].filter((t): t is WorldTileFragment => !!t);
-    const joining = attackTile && getSessionsAtTile(sessions, attackTile).some(() => true);
+    const joining = attackTile && !!attackTile.session;
     const help = valid
         ? `Attack ${defenceTileBuilding?.kind?.name?.value}`
         : `Select a tile with a building to attack. ${reason}`;
@@ -963,7 +958,6 @@ export const ActionContextPanel: FunctionComponent<ActionContextPanelProps> = ({
                 tiles={tiles || []}
                 pluginTileProperties={pluginTileProperties || []}
                 buildings={zone?.buildings || []}
-                sessions={zone?.sessions || []}
                 setActionQueue={setActionQueue}
             />
         );
