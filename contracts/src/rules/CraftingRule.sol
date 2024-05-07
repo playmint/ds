@@ -9,7 +9,7 @@ import "cog/IDispatcher.sol";
 import {Kind, Schema, Node, Rel, BuildingCategory} from "@ds/schema/Schema.sol";
 import {BagUtils} from "@ds/utils/BagUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
-import {ItemKind} from "@ds/ext/ItemKind.sol";
+import {IItemKind} from "@ds/ext/ItemKind.sol";
 import {IZoneKind} from "@ds/ext/ZoneKind.sol";
 
 using Schema for State;
@@ -96,12 +96,22 @@ contract CraftingRule is Rule {
 
         (bytes24 outputItem, uint64 outputQty) = _craftFromBag(state, buildingKind, inBag, outBag, 0);
 
+        // Call into the output item's implementation
+        {
+            IItemKind itemImplementation = IItemKind(state.getImplementation(outputItem));
+            if (address(itemImplementation) != address(0)) {
+                itemImplementation.onCraft(game, Node.Player(sender), buildingInstance, outputItem, outputQty);
+            }
+        }
+
         // Call into the zone kind
-        bytes24 location = state.getFixedLocation(buildingInstance);
-        bytes24 nZone = Node.Zone(state.getTileZone(location));
-        IZoneKind zoneImplementation = IZoneKind(state.getImplementation(nZone));
-        if (address(zoneImplementation) != address(0)) {
-            zoneImplementation.onCraft(game, nZone, Node.Player(sender), buildingInstance, outputItem, outputQty);
+        {
+            bytes24 location = state.getFixedLocation(buildingInstance);
+            bytes24 nZone = Node.Zone(state.getTileZone(location));
+            IZoneKind zoneImplementation = IZoneKind(state.getImplementation(nZone));
+            if (address(zoneImplementation) != address(0)) {
+                zoneImplementation.onCraft(game, nZone, Node.Player(sender), buildingInstance, outputItem, outputQty);
+            }
         }
     }
 

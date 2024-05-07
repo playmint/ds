@@ -11,6 +11,7 @@ import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BagUtils} from "@ds/utils/BagUtils.sol";
 import {Items1155} from "../Items1155.sol";
+import {IItemKind} from "@ds/ext/ItemKind.sol";
 import {IZoneKind} from "@ds/ext/ZoneKind.sol";
 
 using Schema for State;
@@ -40,17 +41,72 @@ contract InventoryRule is Rule {
                 uint64 qty
             ) = abi.decode(action[4:], (bytes24, bytes24[2], uint8[2], uint8[2], bytes24, uint64));
             _transferItem(state, ctx.clock, ctx.sender, actor, equipees, equipSlots, itemSlots, toBagId, qty);
+
         } else if (bytes4(action) == Actions.EXPORT_ITEM.selector) {
             (bytes24 fromEquipee, uint8 fromEquipSlot, uint8 fromItemSlot, address toAddress, uint64 qty) =
                 abi.decode(action[4:], (bytes24, uint8, uint8, address, uint64));
             _exportItem(state, ctx.sender, fromEquipee, fromEquipSlot, fromItemSlot, toAddress, qty);
+
         } else if (bytes4(action) == Actions.IMPORT_ITEM.selector) {
             (bytes24 itemId, bytes24 toEquipee, uint8 toEquipSlot, uint8 toItemSlot, uint64 qty) =
                 abi.decode(action[4:], (bytes24, bytes24, uint8, uint8, uint64));
             _importItem(state, ctx.sender, itemId, toEquipee, toEquipSlot, toItemSlot, qty);
+
+        } else if (bytes4(action) == Actions.ITEM_USE.selector) {
+            (bytes24 itemID, bytes24 mobileUnitID, bytes memory payload) = abi.decode(action[4:], (bytes24, bytes24, bytes));
+            _useItem(state, itemID, mobileUnitID, payload, ctx);
+
+        } else if (bytes4(action) == Actions.SET_DATA_ON_ITEM.selector) {
+            (bytes24 itemID, string memory key, bytes32 data) = abi.decode(action[4:], (bytes24, string, bytes32));
+            _setDataOnItem(state, ctx, itemID, key, data);
+
         }
 
         return state;
+    }
+
+    function _useItem(State state, bytes24 itemID, bytes24 mobileUnitID, bytes memory payload, Context calldata ctx) internal {
+        // check player owns mobileUnit
+        if (Node.Player(ctx.sender) != state.getOwner(mobileUnitID)) {
+            revert("MobileUnitNotOwnedByPlayer");
+        }
+        // check that the mobileUnit has this item in first few bags and slots
+        require(_hasItem(state, mobileUnitID, itemID), "MobileUnitNotHoldingItem");
+        // get implementation else no-op
+        IItemKind implementation = IItemKind(state.getImplementation(itemID));
+        if (address(implementation) == address(0)) {
+            return;
+        }
+        // call the implementation
+        implementation.use(game, itemID, mobileUnitID, payload);
+    }
+
+    function _hasItem(State state, bytes24 mobileUnitID, bytes24 itemID) private view returns (bool) {
+        for ( uint8 equipIndex=0; equipIndex<5; equipIndex++) {
+            bytes24 unitBag = state.getEquipSlot(mobileUnitID, equipIndex);
+            if (unitBag == 0) {
+                continue;
+            }
+            for ( uint8 slotIndex=0; slotIndex<5; slotIndex++ ) {
+                (bytes24 inventoryItem, uint64 inventoryBalance) = state.getItemSlot(unitBag, equipIndex);
+                if (inventoryItem == itemID && inventoryBalance > 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    function _setDataOnItem(State state, Context calldata ctx, bytes24 itemID, string memory key, bytes32 data)
+        private
+    {
+        require(bytes4(itemID) == Kind.Item.selector, "invalid id");
+
+        address implementation = state.getImplementation(itemID);
+
+        require(ctx.sender == implementation, "caller must be item implemenation");
+
+        state.setData(itemID, key, data);
     }
 
     function _exportItem(

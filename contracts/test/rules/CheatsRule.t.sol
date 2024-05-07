@@ -147,6 +147,34 @@ contract CheatsRuleTest is Test, GameTest {
         assertEq(qty, 100, "expected bag with item1 to be on tile");
     }
 
+    // function testSpawnBagWithRestrictedItem() public {
+    //     // spawn tile
+    //     (int16 z, int16 q, int16 r, int16 s) = (0, 1, 0, -1);
+    //     vm.prank(address(dev));
+    //     dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (z, q, r, s)));
+
+    //     // create an item that has an implementation that disallows spawning
+    //     BlackGoo blackGooContract = 
+    //     dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (buildingKind, buildingContractAddr)));
+
+
+    //     // spawn a bag on a tile
+    //     uint8 equipSlot = 0;
+    //     bytes24[] memory slotContents = new bytes24[](1);
+    //     uint64[] memory slotBalances = new uint64[](1);
+    //     slotContents[0] = ItemUtils.GreenGoo();
+    //     slotBalances[0] = 100;
+
+    //     vm.prank(address(dev));
+    //     dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_BAG, (z, q, r, s, equipSlot, slotContents, slotBalances)));
+
+    //     bytes24 tile = Node.Tile(z, q, r, s);
+    //     bytes24 bag = state.getEquipSlot(tile, equipSlot);
+    //     (bytes24 item, uint64 qty) = state.getItemSlot(bag, 0);
+    //     assertEq(item, slotContents[0], "expected bag with item1 to be on tile");
+    //     assertEq(qty, 100, "expected bag with item1 to be on tile");
+    // }
+
     function testDestroyBag() public {
         // spawn tile
         (int16 z, int16 q, int16 r, int16 s) = (0, 1, 0, -1);
@@ -171,3 +199,4 @@ contract CheatsRuleTest is Test, GameTest {
         assertEq(state.getEquipSlot(equipee, equipSlot), bytes24(0), "expected bag to be removed from tile");
     }
 }
+

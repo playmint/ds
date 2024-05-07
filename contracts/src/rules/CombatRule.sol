@@ -31,6 +31,7 @@ import {
 import {TileUtils} from "@ds/utils/TileUtils.sol";
 import {ItemUtils} from "@ds/utils/ItemUtils.sol";
 import {IZoneKind} from "@ds/ext/ZoneKind.sol";
+import {IItemKind} from "@ds/ext/ItemKind.sol";
 
 import "forge-std/console.sol";
 
@@ -257,6 +258,8 @@ contract CombatRule is Rule {
             uint64 rewardQty = uint64((damagePercent * qty) / 100);
             if (rewardQty == 0) continue;
 
+            if (!_canRewardItem(state, sessionID, Node.Player(ownerAddress), item, rewardQty)) continue;
+
             // NOTE: divide by 200 instead of 100 if we want to halve the rewards as per the combat spec
             state.setItemSlot(rewardBag, j, item, rewardQty);
 
@@ -291,6 +294,18 @@ contract CombatRule is Rule {
         state.removeParent(sessionID);
         (bytes24 attackTile, bytes24 defenceTile,) = state.getCombatTiles(sessionID);
         state.unsetCombatTiles(sessionID, attackTile, defenceTile);
+    }
+
+    function _canRewardItem(State state, bytes24 sessionID, bytes24 winner, bytes24 itemID, uint64 itemQty) private returns (bool) {
+        IItemKind itemImplementation = IItemKind(state.getImplementation(itemID));
+        if (address(itemImplementation) == address(0)) {
+            return true;
+        }
+        try itemImplementation.onReward(game, winner, sessionID, itemID, itemQty) {
+            return true;
+        } catch {
+            return false;
+        }
     }
 
     function _destroyBuilding(State state, bytes24 buildingInstance) private {
