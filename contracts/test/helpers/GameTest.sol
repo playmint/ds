@@ -26,7 +26,6 @@ import {CombatRule} from "@ds/rules/CombatRule.sol";
 import {NamingRule} from "@ds/rules/NamingRule.sol";
 import {BagRule} from "@ds/rules/BagRule.sol";
 import {ExtractionRule} from "@ds/rules/ExtractionRule.sol";
-import {BaseGoo} from "@ds/BaseGoo.sol";
 
 using Schema for State;
 
@@ -147,18 +146,6 @@ abstract contract GameTest {
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.GreenGoo(), "Green Goo", "15-185")));
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.BlueGoo(), "Blue Goo", "32-96")));
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.RedGoo(), "Red Goo", "22-256")));
-
-        // ... and their implementation
-        address gooImplementation = address(new BaseGoo());
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (ItemUtils.GreenGoo(), gooImplementation))
-        );
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (ItemUtils.BlueGoo(), gooImplementation))
-        );
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (ItemUtils.RedGoo(), gooImplementation))
-        );
 
         // make the dev sender the owner of zone 0
         state.setOwner(Node.Zone(int16(0)), Node.Player(address(dev)));
