@@ -8,9 +8,6 @@ spec:
       name: Complete Deletion Preparation quest
       quest: Deletion Preparation
     - kind: questComplete
-      name: Complete Deletion Duty quest
-      quest: Deletion Duty
-    - kind: questComplete
       name: Complete Goo Harvesting quest
       quest: Goo Harvesting
   next: ["Calling All Users"]
