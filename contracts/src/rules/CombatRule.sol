@@ -284,11 +284,11 @@ contract CombatRule is Rule {
     function _destroyRewardBag(State state, bytes24 sessionID) private {
         // NOTE: The bag had no owner or parent. It would also be empty so I'm not
         // going to iterate over the slots to clear them
-        state.setEquipSlot(sessionID, 0, bytes24(0));
+        state.remove(Rel.Equip.selector, 0, sessionID);
     }
 
     function _destroySession(State state, bytes24 sessionID) internal {
-        state.setParent(sessionID, bytes24(0));
+        state.removeParent(sessionID);
         (bytes24 attackTile, bytes24 defenceTile,) = state.getCombatTiles(sessionID);
         state.unsetCombatTiles(sessionID, attackTile, defenceTile);
     }

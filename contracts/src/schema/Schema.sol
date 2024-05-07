@@ -718,12 +718,11 @@ library Schema {
     }
 
     function unsetCombatTiles(State state, bytes24 sessionID, bytes24 attackTile, bytes24 defenceTile) internal {
-        state.set(Rel.Has.selector, uint8(CombatSideKey.ATTACK), sessionID, bytes24(0), 0);
-        state.set(Rel.Has.selector, uint8(CombatSideKey.DEFENCE), sessionID, bytes24(0), 0);
+        state.remove(Rel.Has.selector, uint8(CombatSideKey.ATTACK), sessionID);
+        state.remove(Rel.Has.selector, uint8(CombatSideKey.DEFENCE), sessionID);
 
-        // We make a relationship from tile to session so we can check if a particular tile is in session
-        state.set(Rel.Has.selector, 0, attackTile, bytes24(0), 0);
-        state.set(Rel.Has.selector, 0, defenceTile, bytes24(0), 0);
+        state.remove(Rel.Has.selector, 0, attackTile);
+        state.remove(Rel.Has.selector, 0, defenceTile);
     }
 
     function getCombatTiles(State state, bytes24 sessionID)
