@@ -25,7 +25,7 @@ import { ReactNode, createContext, useContext, useEffect, useMemo, useRef, useSt
 import { useSources } from './use-game-state';
 import { AvailablePluginFragment } from '@downstream/core/src/gql/graphql';
 import { getBagsAtEquipee, getBuildingAtTile } from '@downstream/core/src/utils';
-import { pipe, map, toPromise } from 'wonka';
+import { pipe, take, map, toPromise } from 'wonka';
 
 // hack to force hot module reloading to give up
 export { disableSessionRefresh } from './use-session';
@@ -46,6 +46,7 @@ export const usePluginState = () => useContext(PluginContext);
 
 export const PluginResponseProvider = ({ config, children }: PluginContextProviderProps) => {
     const { client, zone, player, selection, global, logger, questMsgSender, availablePlugins } = useSources();
+    const { tiles: selectedTiles, mobileUnit: selectedMobileUnit } = selection || {};
     const [plugins, setPlugins] = useState<PluginConfig[]>();
     const [ui, setUI] = useState<PluginUpdateResponse[]>([]);
     const [sandbox, setSandbox] = useState<Comlink.Remote<Sandbox>>();
@@ -71,24 +72,53 @@ export const PluginResponseProvider = ({ config, children }: PluginContextProvid
         };
     }, [config]);
 
+    const selectedTile = useMemo(() => (selectedTiles || []).find(() => true), [selectedTiles]);
+
+    const selectedBuildingKindId: string | undefined = useMemo(() => {
+        if (!selectedTile) {
+            return;
+        }
+        return getBuildingAtTile(zone?.buildings || [], selectedTile)?.kind?.id;
+    }, [selectedTile, zone?.buildings]);
+
+    const selectedUnitItemIds: string[] = useMemo(() => {
+        if (!zone?.bags) {
+            return [];
+        }
+        if (!selectedMobileUnit) {
+            return [];
+        }
+        const mobileUnitBags = selectedMobileUnit ? getBagsAtEquipee(zone.bags, selectedMobileUnit) : [];
+        return [...new Set(mobileUnitBags.flatMap((bag) => bag.slots.map((slot) => slot.item.id)))].sort();
+    }, [selectedMobileUnit, zone?.bags]);
+    const zoneId = zone?.id;
+
+    const availablePluginHash = (availablePlugins || [])
+        .map((p) => p.id)
+        .sort()
+        .join(',');
+    const selectedUnitItemHash = selectedUnitItemIds.join(',');
     const selectedPlugins: Map<string, AvailablePluginFragment> = useMemo(() => {
         const selectedPlugins = new Map<string, AvailablePluginFragment>();
         if (!availablePlugins) {
             return selectedPlugins;
         }
-        if (!zone) {
+        if (!zoneId) {
             return selectedPlugins;
         }
-        console.log('rebuilding selectedPlugins');
         availablePlugins
-            .filter((plugin) => isAutoloadableBuildingPlugin({ plugin, selection, zone }))
+            .filter((plugin) => isAutoloadablePlugin({ plugin, selectedBuildingKindId, selectedUnitItemIds, zoneId }))
             .forEach((p) => {
                 selectedPlugins.set(p.id, p);
             });
         return selectedPlugins;
-    }, [availablePlugins, selection, zone]);
+        // use hashes to avoid object issues, ignoring on purpose so be careful
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [availablePluginHash, selectedBuildingKindId, selectedUnitItemHash, zoneId]);
 
     // query for the plugin sources
+    //
+    const selectedPluginsHash = [...selectedPlugins.keys()].join(',');
     useEffect(() => {
         if (!client) {
             return;
@@ -97,10 +127,10 @@ export const PluginResponseProvider = ({ config, children }: PluginContextProvid
         pipe(
             client.query(GetPluginSrcDocument, { gameID: client.gameID, pluginIDs }),
             map((result) => result.game.state.plugins),
+            take(1),
             toPromise
         )
             .then((pluginSources) => {
-                console.log('updating plugin srcs');
                 const plugins = pluginSources
                     .map(({ id, src }) => {
                         const p = selectedPlugins.get(id);
@@ -122,7 +152,9 @@ export const PluginResponseProvider = ({ config, children }: PluginContextProvid
             .catch(() => {
                 console.warn('failed to fetch plugin srcs', pluginIDs);
             });
-    }, [client, selectedPlugins]);
+        // use hashes to avoid object issues, ignoring on purpose so be careful
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [client, selectedPluginsHash]);
 
     useEffect(() => {
         if (!sandbox) {
@@ -424,16 +456,17 @@ export function sleep(ms: number): Promise<null> {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function isAutoloadableBuildingPlugin({
+function isAutoloadablePlugin({
     plugin,
-    selection,
-    zone,
+    selectedBuildingKindId,
+    selectedUnitItemIds,
+    zoneId,
 }: {
     plugin: AvailablePluginFragment;
-    selection?: Selection;
-    zone: ZoneWithBags;
+    selectedBuildingKindId?: string;
+    selectedUnitItemIds: string[];
+    zoneId: string;
 }) {
-    const { tiles, mobileUnit } = selection || {};
     if (!plugin.supports) {
         return false;
     }
@@ -442,7 +475,7 @@ function isAutoloadableBuildingPlugin({
         return false;
     }
     // filter out zone plugins for other zones
-    if (pluginTypeForNodeKind(plugin.supports?.kind) == PluginType.ZONE && plugin.supports?.id != zone.id) {
+    if (pluginTypeForNodeKind(plugin.supports?.kind) == PluginType.ZONE && plugin.supports?.id != zoneId) {
         return false;
     }
     if (plugin.alwaysActive?.value == 'true') {
@@ -450,29 +483,15 @@ function isAutoloadableBuildingPlugin({
     }
     switch (pluginTypeForNodeKind(plugin.supports.kind)) {
         case PluginType.BUILDING:
-            if (!tiles) {
+            if (!selectedBuildingKindId) {
                 return false;
             }
-            if (tiles.length !== 1) {
-                return false;
-            }
-            const selectedTile = tiles.find(() => true);
-            if (!selectedTile) {
-                return false;
-            }
-            const selectedBuilding = getBuildingAtTile(zone.buildings, selectedTile);
-            if (!selectedBuilding) {
-                return false;
-            }
-            return plugin.supports.id == selectedBuilding.kind?.id;
+            return plugin.supports.id == selectedBuildingKindId;
         case PluginType.ITEM:
-            if (!mobileUnit) {
+            if (!selectedUnitItemIds) {
                 return false;
             }
-            const unitItemKindIds = getBagsAtEquipee(zone.bags, mobileUnit).flatMap((bag) =>
-                bag.slots.filter((slot) => slot.balance > 0).flatMap((slot) => slot.item.id)
-            );
-            return unitItemKindIds.some((id) => plugin.supports?.id === id);
+            return selectedUnitItemIds.some((id) => plugin.supports?.id === id);
         default:
             return false;
     }
