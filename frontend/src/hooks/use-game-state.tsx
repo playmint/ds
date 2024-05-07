@@ -202,6 +202,7 @@ export const GameStateProvider = ({ config, zoneId, children }: DSContextProvide
 
     const value = useMemo(() => {
         return {
+            client,
             zone,
             global,
             player,
@@ -210,14 +211,14 @@ export const GameStateProvider = ({ config, zoneId, children }: DSContextProvide
             availablePlugins,
             ...(sources || {}),
         };
-    }, [sources, zone, global, player, availablePlugins, selection, selectors]);
+    }, [sources, zone, global, player, availablePlugins, selection, selectors, client]);
 
     return <DSContext.Provider value={value}>{children}</DSContext.Provider>;
 };
 
 export function useCogClient(): CogServices | undefined {
-    const sources = useSources();
-    return useSource(sources.client);
+    const { client } = useSources();
+    return client;
 }
 
 // fetch the player and dispatcher for the currently connected wallet.
