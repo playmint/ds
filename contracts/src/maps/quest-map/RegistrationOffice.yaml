@@ -15,9 +15,9 @@ spec:
     quantity: 100
   inputs:
   - name: Green Goo
-    quantity: 100
+    quantity: 80
   - name: Blue Goo
-    quantity: 100
+    quantity: 80
   outputs:
   - name: Registration Receipt
     quantity: 1
