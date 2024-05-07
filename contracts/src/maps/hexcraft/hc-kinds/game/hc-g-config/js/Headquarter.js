@@ -13,6 +13,26 @@ export default async function update(state) {
   // An action can set a form submit handler which will be called after the action along with the form values
   let handleFormSubmit;
 
+  const formatAndLogResetIds = () => {
+    const buildingKindIds = [];
+    const tileIds = [];
+  
+    state.world.buildings.forEach(building => {
+      buildingKindIds.push(`bytes24(${building.kind.id})`);
+      tileIds.push(`bytes24(${building.location.tile.id})`);
+    });
+  
+    let output = 'buildingKindIds = [\n';
+    output += buildingKindIds.map(id => `\t${id},`).join('\n');
+    output += '\n];\n';
+  
+    output += 'tileIds = [\n';
+    output += tileIds.map(id => `\t${id},`).join('\n');
+    output += '\n];';
+  
+    console.log(output);
+  };
+
   const join = () => {
     const mobileUnit = getMobileUnit(state);
 
@@ -49,6 +69,21 @@ export default async function update(state) {
       name: "BUILDING_USE",
       args: [selectedBuilding.id, mobileUnit.id, payload],
     });
+
+    // formatAndLogResetIds();
+  };
+
+  const resetWorld = () => {
+    console.log('state', state);
+    const mobileUnit = getMobileUnit(state);
+    const payload = ds.encodeCall("function reset()", []);
+    
+    ds.dispatch({
+      name: "BUILDING_USE",
+      args: [selectedBuilding.id, payload],
+    });
+    
+    // formatAndLogResetIds();
   };
 
   // \todo
@@ -256,7 +291,14 @@ export default async function update(state) {
     type: "action",
     action: reset,
     disabled: false,
-  });
+  },
+  {
+    text: "Reset World",
+    type: "action",
+    action: resetWorld,
+    disabled: false,
+  }
+);
 
   // console.log({ htmlBlock });
   return {

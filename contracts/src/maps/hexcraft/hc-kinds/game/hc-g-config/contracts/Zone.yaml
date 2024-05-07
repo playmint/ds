@@ -1,0 +1,8 @@
+---
+kind: ZoneKind
+spec:
+  name: Hexcraft
+  description: A class-based MOBA, developed by 1kx
+  url: images/building-totems/Block_Van.png
+  contract:
+    file: ./Zone.sol
