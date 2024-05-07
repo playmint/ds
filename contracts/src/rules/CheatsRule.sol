@@ -12,11 +12,16 @@ import {
     BiomeKind,
     FacingDirectionKind,
     BuildingCategory,
-    BuildingBlockNumKey
+    BuildingBlockNumKey,
+    Q,
+    R,
+    S,
+    Z
 } from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {Bounds} from "@ds/utils/Bounds.sol";
 import {IZoneKind} from "@ds/ext/ZoneKind.sol";
+import {IItemKind} from "@ds/ext/ItemKind.sol";
 
 using Schema for State;
 
@@ -47,7 +52,7 @@ contract CheatsRule is Rule {
                 uint64[] memory slotBalances
             ) = abi.decode(action[4:], (int16, int16, int16, int16, uint8, bytes24[], uint64[]));
 
-            _spawnBag(state, ctx, z, q, r, s, equipSlot, slotContents, slotBalances);
+            _spawnBag(state, ctx, [z, q, r, s], equipSlot, slotContents, slotBalances);
         } else if (bytes4(action) == Actions.DEV_SPAWN_BUILDING.selector) {
             (bytes24 buildingKind, int16 z, int16 q, int16 r, int16 s, FacingDirectionKind facingDirection) =
                 abi.decode(action[4:], (bytes24, int16, int16, int16, int16, FacingDirectionKind));
@@ -86,23 +91,26 @@ contract CheatsRule is Rule {
     function _spawnBag(
         State state,
         Context calldata ctx,
-        int16 z,
-        int16 q,
-        int16 r,
-        int16 s,
+        int16[4] memory coords,
         uint8 equipSlot,
         bytes24[] memory slotContents,
         uint64[] memory slotBalances
     ) private {
-        require(Bounds.isInBounds(q, r, s), "coords out of bounds");
-        bytes24 bag = Node.Bag(uint64(uint256(keccak256(abi.encode("devbag", z, q, r, s, equipSlot)))));
+        require(Bounds.isInBounds(coords[Q], coords[R], coords[S]), "coords out of bounds");
+        bytes24 bag = Node.Bag(
+            uint64(uint256(keccak256(abi.encode("devbag", coords[Z], coords[Q], coords[R], coords[S], equipSlot))))
+        );
+        bytes24 zone = Node.Zone(coords[Z]);
         for (uint8 i = 0; i < slotContents.length; i++) {
             state.setItemSlot(bag, i, slotContents[i], slotBalances[i]);
+            IItemKind itemImplementation = IItemKind(state.getImplementation(slotContents[i]));
+            if (address(itemImplementation) != address(0)) {
+                itemImplementation.onSpawn(game, state.getOwner(zone), zone, slotContents[i], slotBalances[i]);
+            }
         }
         {
-            bytes24 zone = Node.Zone(z);
-            _checkIsOwnerOrZone(state, ctx, z);
-            bytes24 tile = Node.Tile(z, q, r, s);
+            _requireIsOwnerOrZone(state, ctx, coords[Z]);
+            bytes24 tile = Node.Tile(coords[Z], coords[Q], coords[R], coords[S]);
             require(state.getBiome(tile) == BiomeKind.DISCOVERED, "tile must be discovered");
             state.setEquipSlot(tile, equipSlot, bag);
             state.setParent(bag, zone);
@@ -113,7 +121,7 @@ contract CheatsRule is Rule {
     function _spawnTile(State state, Context calldata ctx, int16 z, int16 q, int16 r, int16 s) private {
         bytes24 zone = Node.Zone(z);
         require(Bounds.isInBounds(q, r, s), "coords out of bounds");
-        _checkIsOwnerOrZone(state, ctx, z);
+        _requireIsOwnerOrZone(state, ctx, z);
         bytes24 tile = Node.Tile(z, q, r, s);
         state.setParent(tile, zone);
         state.setBiome(tile, BiomeKind.DISCOVERED);
@@ -122,13 +130,13 @@ contract CheatsRule is Rule {
 
     function _assignAutoQuest(State state, Context calldata ctx, string memory name, int16 zone) private {
         bytes24 nZone = Node.Zone(zone);
-        _checkIsOwnerOrZone(state, ctx, zone);
+        _requireIsOwnerOrZone(state, ctx, zone);
         bytes24 quest = Node.Quest(zone, name);
         state.setParent(quest, nZone);
     }
 
     function _destroyAutoQuest(State state, Context calldata ctx, string memory name, int16 zone) private {
-        _checkIsOwnerOrZone(state, ctx, zone);
+        _requireIsOwnerOrZone(state, ctx, zone);
         bytes24 quest = Node.Quest(zone, name);
         state.removeParent(quest);
     }
@@ -146,7 +154,7 @@ contract CheatsRule is Rule {
     ) internal {
         bytes24 zone = Node.Zone(z);
         require(Bounds.isInBounds(q, r, s), "coords out of bounds");
-        _checkIsOwnerOrZone(state, ctx, z);
+        _requireIsOwnerOrZone(state, ctx, z);
         bytes24 buildingInstance = Node.Building(z, q, r, s);
 
         state.setBuildingKind(buildingInstance, buildingKind);
@@ -189,7 +197,7 @@ contract CheatsRule is Rule {
         (int16 z, int16 q, int16 r, int16 s) = state.getTileCoords(equipee);
         require(Bounds.isInBounds(q, r, s), "coords out of bounds");
 
-        _checkIsOwnerOrZone(state, ctx, z);
+        _requireIsOwnerOrZone(state, ctx, z);
 
         for (uint8 i = 0; i < slotContents.length; i++) {
             state.clearItemSlot(bag, i);
@@ -203,7 +211,7 @@ contract CheatsRule is Rule {
 
     function _destroyTile(State state, Context calldata ctx, int16 z, int16 q, int16 r, int16 s) private {
         require(Bounds.isInBounds(q, r, s), "coords out of bounds");
-        _checkIsOwnerOrZone(state, ctx, z);
+        _requireIsOwnerOrZone(state, ctx, z);
 
         bytes24 tile = Node.Tile(z, q, r, s);
         state.removeBiome(tile);
@@ -212,7 +220,7 @@ contract CheatsRule is Rule {
 
     function _destroyBuilding(State state, Context calldata ctx, int16 z, int16 q, int16 r, int16 s) private {
         require(Bounds.isInBounds(q, r, s), "coords out of bounds");
-        _checkIsOwnerOrZone(state, ctx, z);
+        _requireIsOwnerOrZone(state, ctx, z);
 
         bytes24 buildingInstance = Node.Building(z, q, r, s);
         // bytes24 buildingKind = state.getBuildingKind(buildingInstance);
@@ -235,7 +243,7 @@ contract CheatsRule is Rule {
         // }
     }
 
-    function _checkIsOwnerOrZone(State state, Context calldata ctx, int16 zoneKey) internal view {
+    function _requireIsOwnerOrZone(State state, Context calldata ctx, int16 zoneKey) internal view {
         // zone implementations are allowed to call the owner functions
         bytes24 zone = Node.Zone(zoneKey);
         address impl = state.getImplementation(zone);
