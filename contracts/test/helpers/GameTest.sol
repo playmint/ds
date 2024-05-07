@@ -42,10 +42,6 @@ contract Dev {
         ds = game;
     }
 
-    function disableCheats() public {
-        ds.getDispatcher().dispatch(abi.encodeCall(Actions.DEV_DISABLE_CHEATS, ()));
-    }
-
     function spawnBag(
         address owner,
         bytes24 equipNode,
