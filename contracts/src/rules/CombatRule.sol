@@ -297,7 +297,10 @@ contract CombatRule is Rule {
         state.unsetCombatTiles(sessionID, attackTile, defenceTile);
     }
 
-    function _canRewardItem(State state, bytes24 sessionID, bytes24 winner, bytes24 itemID, uint64 itemQty) private returns (bool) {
+    function _canRewardItem(State state, bytes24 sessionID, bytes24 winner, bytes24 itemID, uint64 itemQty)
+        private
+        returns (bool)
+    {
         IItemKind itemImplementation = IItemKind(state.getImplementation(itemID));
         if (address(itemImplementation) == address(0)) {
             return true;

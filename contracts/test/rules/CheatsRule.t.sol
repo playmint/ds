@@ -154,9 +154,8 @@ contract CheatsRuleTest is Test, GameTest {
     //     dispatcher.dispatch(abi.encodeCall(Actions.DEV_SPAWN_TILE, (z, q, r, s)));
 
     //     // create an item that has an implementation that disallows spawning
-    //     BlackGoo blackGooContract = 
+    //     BlackGoo blackGooContract =
     //     dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (buildingKind, buildingContractAddr)));
-
 
     //     // spawn a bag on a tile
     //     uint8 equipSlot = 0;
@@ -199,4 +198,3 @@ contract CheatsRuleTest is Test, GameTest {
         assertEq(state.getEquipSlot(equipee, equipSlot), bytes24(0), "expected bag to be removed from tile");
     }
 }
-
