@@ -1,0 +1,31 @@
+---
+kind: BuildingKind
+spec:
+  category: factory
+  name: Special Factory
+  description: This building will craft special items!
+  model: 05-05
+  color: 0
+  contract:
+    file: ./SpecialFactory.sol
+  plugin:
+    file: ./SpecialFactory.js
+  materials:
+    - name: Red Goo
+      quantity: 10
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+    - name: Special Item
+      quantity: 2
+  inputs:
+    - name: Red Goo
+      quantity: 10
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+  outputs:
+    - name: Special Item
+      quantity: 1
