@@ -65,62 +65,33 @@ contract ItemKind is IItemKind {
     }
 
     function onCraft(
-        Game ds,
+        Game, /*ds*/
         bytes24, /*buildingKindAccount*/
-        bytes24 buildingInstanceID,
-        bytes24 itemID,
+        bytes24, /*buildingInstanceID*/
+        bytes24, /*itemID*/
         uint64 /*itemQty*/
     ) external virtual {
-        // by default the Item and the BuildingKind performing the crafting
-        // must have the same owner. override this function and make it a no-op
-        // and your item will be free to be crafted by any building. override
-        // and just revert and nobody will be able to craft
-        State state = ds.getState();
-        bytes24 buildingKind = state.getBuildingKind(buildingInstanceID);
-        bytes24 buildingKindOwner = state.getOwner(buildingKind);
-        require(buildingKindOwner != 0x0, "no building kind owner found");
-        bytes24 itemKind = itemID;
-        bytes24 itemKindOwner = state.getOwner(itemKind);
-        require(
-            itemKindOwner == buildingKindOwner,
-            "crafting this item is restricted to building kinds made by the item owner"
-        );
+        // override to control which buildings can craft your item with CRAFT action
     }
 
     function onExtract(
-        Game ds,
+        Game, /*ds*/
         bytes24, /*buildingKindAccount*/
-        bytes24 buildingInstanceID,
-        bytes24 itemID,
+        bytes24, /*buildingInstanceID*/
+        bytes24, /*itemID*/
         uint64 /*itemQty*/
     ) external virtual {
-        // same behaviour as onCraft
-        // override to control who can use your item with EXTRACT actions
-        State state = ds.getState();
-        bytes24 buildingKind = state.getBuildingKind(buildingInstanceID);
-        bytes24 buildingKindOwner = state.getOwner(buildingKind);
-        require(buildingKindOwner != 0x0, "no building kind owner found");
-        bytes24 itemKind = itemID;
-        bytes24 itemKindOwner = state.getOwner(itemKind);
-        require(
-            itemKindOwner == buildingKindOwner,
-            "crafting this item is restricted to building kinds made by the item owner"
-        );
+        // override to control which buildings can use your item with EXTRACT actions
     }
 
-    function onSpawn(Game ds, bytes24 zoneOwner, bytes24, /*zoneID*/ bytes24 itemID, uint64 /*itemQty*/ )
+    function onSpawn(Game, /*ds*/ bytes24, /*zoneOwner*/ bytes24, /*zoneID*/ bytes24, /*itemID*/ uint64 /*itemQty*/ )
         external
         virtual
     {
-        // items can only be spaawed into zones owned by the owner by default
-        // override to make more or less permissive
-        State state = ds.getState();
-        bytes24 itemKind = itemID;
-        bytes24 itemKindOwner = state.getOwner(itemKind);
-        require(zoneOwner == itemKindOwner, "spawning this item is restricted to owner only");
+        // override to control which zones can spawn this item into existence with DEV_SPAWN_BAG
     }
 
-    function onReward(Game ds, bytes24, /*winner*/ bytes24, /*sessionID*/ bytes24, /*itemID*/ uint64 /*itemQty*/ )
+    function onReward(Game, /*ds*/ bytes24, /*winner*/ bytes24, /*sessionID*/ bytes24, /*itemID*/ uint64 /*itemQty*/ )
         external
         virtual
     {
