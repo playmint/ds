@@ -41,31 +41,29 @@ contract InventoryRule is Rule {
                 uint64 qty
             ) = abi.decode(action[4:], (bytes24, bytes24[2], uint8[2], uint8[2], bytes24, uint64));
             _transferItem(state, ctx.clock, ctx.sender, actor, equipees, equipSlots, itemSlots, toBagId, qty);
-
         } else if (bytes4(action) == Actions.EXPORT_ITEM.selector) {
             (bytes24 fromEquipee, uint8 fromEquipSlot, uint8 fromItemSlot, address toAddress, uint64 qty) =
                 abi.decode(action[4:], (bytes24, uint8, uint8, address, uint64));
             _exportItem(state, ctx.sender, fromEquipee, fromEquipSlot, fromItemSlot, toAddress, qty);
-
         } else if (bytes4(action) == Actions.IMPORT_ITEM.selector) {
             (bytes24 itemId, bytes24 toEquipee, uint8 toEquipSlot, uint8 toItemSlot, uint64 qty) =
                 abi.decode(action[4:], (bytes24, bytes24, uint8, uint8, uint64));
             _importItem(state, ctx.sender, itemId, toEquipee, toEquipSlot, toItemSlot, qty);
-
         } else if (bytes4(action) == Actions.ITEM_USE.selector) {
-            (bytes24 itemID, bytes24 mobileUnitID, bytes memory payload) = abi.decode(action[4:], (bytes24, bytes24, bytes));
+            (bytes24 itemID, bytes24 mobileUnitID, bytes memory payload) =
+                abi.decode(action[4:], (bytes24, bytes24, bytes));
             _useItem(state, itemID, mobileUnitID, payload, ctx);
-
         } else if (bytes4(action) == Actions.SET_DATA_ON_ITEM.selector) {
             (bytes24 itemID, string memory key, bytes32 data) = abi.decode(action[4:], (bytes24, string, bytes32));
             _setDataOnItem(state, ctx, itemID, key, data);
-
         }
 
         return state;
     }
 
-    function _useItem(State state, bytes24 itemID, bytes24 mobileUnitID, bytes memory payload, Context calldata ctx) internal {
+    function _useItem(State state, bytes24 itemID, bytes24 mobileUnitID, bytes memory payload, Context calldata ctx)
+        internal
+    {
         // check player owns mobileUnit
         if (Node.Player(ctx.sender) != state.getOwner(mobileUnitID)) {
             revert("MobileUnitNotOwnedByPlayer");
@@ -82,12 +80,12 @@ contract InventoryRule is Rule {
     }
 
     function _hasItem(State state, bytes24 mobileUnitID, bytes24 itemID) private view returns (bool) {
-        for ( uint8 equipIndex=0; equipIndex<5; equipIndex++) {
+        for (uint8 equipIndex = 0; equipIndex < 5; equipIndex++) {
             bytes24 unitBag = state.getEquipSlot(mobileUnitID, equipIndex);
             if (unitBag == 0) {
                 continue;
             }
-            for ( uint8 slotIndex=0; slotIndex<5; slotIndex++ ) {
+            for (uint8 slotIndex = 0; slotIndex < 5; slotIndex++) {
                 (bytes24 inventoryItem, uint64 inventoryBalance) = state.getItemSlot(unitBag, equipIndex);
                 if (inventoryItem == itemID && inventoryBalance > 0) {
                     return true;

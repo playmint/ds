@@ -150,9 +150,15 @@ abstract contract GameTest {
 
         // ... and their implementation
         address gooImplementation = address(new BaseGoo());
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (ItemUtils.GreenGoo(), gooImplementation)));
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (ItemUtils.BlueGoo(), gooImplementation)));
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (ItemUtils.RedGoo(), gooImplementation)));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (ItemUtils.GreenGoo(), gooImplementation))
+        );
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (ItemUtils.BlueGoo(), gooImplementation))
+        );
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (ItemUtils.RedGoo(), gooImplementation))
+        );
 
         // make the dev sender the owner of zone 0
         state.setOwner(Node.Zone(int16(0)), Node.Player(address(dev)));

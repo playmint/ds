@@ -94,9 +94,15 @@ contract GameDeployer is Script {
 
         // custom base goo implementation
         address gooImplementation = address(new BaseGoo());
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (ItemUtils.GreenGoo(), gooImplementation)));
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (ItemUtils.BlueGoo(), gooImplementation)));
-        dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (ItemUtils.RedGoo(), gooImplementation)));
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (ItemUtils.GreenGoo(), gooImplementation))
+        );
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (ItemUtils.BlueGoo(), gooImplementation))
+        );
+        dispatcher.dispatch(
+            abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (ItemUtils.RedGoo(), gooImplementation))
+        );
 
         //register starter items
         dispatcher.dispatch(
