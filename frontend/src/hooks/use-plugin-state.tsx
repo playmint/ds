@@ -89,7 +89,13 @@ export const PluginResponseProvider = ({ config, children }: PluginContextProvid
             return [];
         }
         const mobileUnitBags = selectedMobileUnit ? getBagsAtEquipee(zone.bags, selectedMobileUnit) : [];
-        return [...new Set(mobileUnitBags.flatMap((bag) => bag.slots.map((slot) => slot.item.id)))].sort();
+        return [
+            ...new Set(
+                mobileUnitBags
+                    .flatMap((bag) => bag.slots.map((slot) => (slot.item && slot.balance > 0 ? slot.item.id : null)))
+                    .filter((id): id is string => !!id)
+            ),
+        ].sort();
     }, [selectedMobileUnit, zone?.bags]);
     const zoneId = zone?.id;
 
