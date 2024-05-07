@@ -1,0 +1,12 @@
+---
+kind: Item
+spec:
+  name: Special Item
+  icon: 28-111
+  contract:
+    file: ./SpecialItem.sol
+  goo:
+    red: 0
+    green: 0
+    blue: 5
+  stackable: true

@@ -1,0 +1,21 @@
+---
+kind: BuildingKind
+spec:
+  name: Special Extractor
+  description: Extracts Special Items
+  category: extractor
+  model: blue
+  contract:
+    file: ./SpecialExtractor.sol
+  plugin:
+    file: ./GenericExtractor.js
+  materials:
+    - name: Green Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+    - name: Red Goo
+      quantity: 10
+  outputs:
+    - name: Special Item
+      quantity: 1
