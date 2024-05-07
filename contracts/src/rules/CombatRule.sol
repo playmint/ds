@@ -258,6 +258,7 @@ contract CombatRule is Rule {
             uint64 rewardQty = uint64((damagePercent * qty) / 100);
             if (rewardQty == 0) continue;
 
+            // skip rewarding this item is item contract says no
             if (!_canRewardItem(state, sessionID, Node.Player(ownerAddress), item, rewardQty)) continue;
 
             // NOTE: divide by 200 instead of 100 if we want to halve the rewards as per the combat spec

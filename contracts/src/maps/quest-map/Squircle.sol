@@ -5,15 +5,15 @@ import {Game} from "cog/IGame.sol";
 import {ItemKind} from "@ds/ext/ItemKind.sol";
 
 contract Squircle is ItemKind {
-    function onRegisterRecipeOutput(
-        Game, /*ds*/
-        bytes24, /*player*/
-        bytes24, /*buildingKind*/
-        bytes24[4] memory, /*inputItem*/
-        uint64[4] memory, /*inputQty*/
-        bytes24, /*outputItem*/
-        uint64 /*outputQty*/
-    ) public pure returns (bool) {
-        return true;
+    function onCraft(
+        Game /*ds*/,                    // game contract
+        bytes24 /*player*/,             // player performing CRAFT
+        bytes24 /*buildingInstanceID*/, // building instance CRAFTing occured
+        bytes24 /*itemID*/,             // Squircle item id
+        uint64 /*itemQty*/              // how many are getting crafted
+    ) pure public override {
+        // the base rule is to only allow the owner to craft, but here we
+        // override the default to do no checking so anyone can craft this item
+        return;
     }
 }

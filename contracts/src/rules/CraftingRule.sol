@@ -9,16 +9,18 @@ import "cog/IDispatcher.sol";
 import {Kind, Schema, Node, Rel, BuildingCategory} from "@ds/schema/Schema.sol";
 import {BagUtils} from "@ds/utils/BagUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
-import {IItemKind} from "@ds/ext/ItemKind.sol";
+import {IItemKind, ItemKind} from "@ds/ext/ItemKind.sol";
 import {IZoneKind} from "@ds/ext/ZoneKind.sol";
 
 using Schema for State;
 
 contract CraftingRule is Rule {
     Game game;
+    ItemKind defaultItemKindImplementation;
 
     constructor(Game g) {
         game = g;
+        defaultItemKindImplementation = new ItemKind();
     }
 
     function reduce(State state, bytes calldata action, Context calldata ctx) public returns (State) {
@@ -63,6 +65,9 @@ contract CraftingRule is Rule {
         //        but we currently depend on the annotation in various graphql places
         state.annotate(itemKind, "name", name);
         state.annotate(itemKind, "icon", icon);
+
+        // set the default implementation
+        state.setImplementation(itemKind, address(defaultItemKindImplementation));
     }
 
     function _craftFromBuildingInputs(State state, address sender, bytes24 buildingInstance) private {
