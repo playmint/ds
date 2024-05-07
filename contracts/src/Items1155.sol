@@ -14,6 +14,9 @@ contract Items1155 is ERC1155 {
     address owner; // The InventoryRule owns this
     State state;
 
+    string public name = "Downstream Items";
+    string public symbol = "DSI";
+
     constructor(address _owner, State _state) {
         owner = _owner;
         state = _state;
