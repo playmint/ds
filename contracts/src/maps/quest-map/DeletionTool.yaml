@@ -3,7 +3,7 @@ spec:
   name: Deletion Tool
   icon: 07-39
   goo:
-    red: 50
-    green: 25
-    blue: 25
+    red: 40
+    green: 20
+    blue: 20
   stackable: false

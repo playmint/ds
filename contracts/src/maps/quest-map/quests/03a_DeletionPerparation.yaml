@@ -10,4 +10,3 @@ spec:
       item:
         name: Deletion Tool
         quantity: 1
-  next: ["Deletion Duty"]
