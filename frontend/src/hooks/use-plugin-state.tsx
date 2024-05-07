@@ -300,7 +300,7 @@ async function getPluginState({
 }): Promise<PluginUpdateResponse | null> {
     let plugin: ActivePlugin | null | undefined;
     try {
-        const dispatch = player ? player.dispatchAndWait : noopDispatcher;
+        const dispatch = player ? player.dispatch : noopDispatcher;
         if (!config.id) {
             console.warn(`plugin has no id, skipping`);
             return null;
