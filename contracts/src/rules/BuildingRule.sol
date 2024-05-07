@@ -365,21 +365,6 @@ contract BuildingRule is Rule {
             // check that the output item has been registerd
             bytes24 outputOwner = state.getOwner(outputItem);
             require(outputOwner != 0x0, "output item must be a registered item");
-
-            // if player is not the owner of the item, then ask the item implementation contract
-            // if it's ok to use this item as an output
-            if (outputOwner != player) {
-                address implementation = state.getImplementation(outputItem);
-                require(
-                    implementation != address(0),
-                    "you are not the owner of the output item and no item contract exists to ask for permission"
-                );
-                ItemKind kind = ItemKind(implementation);
-                require(
-                    kind.onRegisterRecipeOutput(game, player, buildingKind, inputItem, inputQty, outputItem, outputQty),
-                    "owner of the output item denied use in crafting"
-                );
-            }
         }
 
         // calc total output atoms

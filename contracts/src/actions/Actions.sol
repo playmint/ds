@@ -212,4 +212,8 @@ interface Actions {
     function ZONE_USE(bytes24 mobileUnitID, bytes calldata payload) external;
 
     function SET_DATA_ON_ZONE(bytes24 zoneID, string memory key, bytes32 data) external;
+
+    function ITEM_USE(bytes24 itemID, bytes24 mobileUnitID, bytes calldata payload) external;
+
+    function SET_DATA_ON_ITEM(bytes24 itemID, string memory key, bytes32 data) external;
 }

@@ -22,7 +22,7 @@ import {
 } from "@ds/schema/Schema.sol";
 import {BagUtils} from "@ds/utils/BagUtils.sol";
 import {Actions} from "@ds/actions/Actions.sol";
-import {ItemKind} from "@ds/ext/ItemKind.sol";
+import {IItemKind} from "@ds/ext/ItemKind.sol";
 import {IZoneKind} from "@ds/ext/ZoneKind.sol";
 
 using Schema for State;
@@ -129,12 +129,22 @@ contract ExtractionRule is Rule {
 
         state.setItemSlot(outBag, 0, outputItemID, bagBal + qty);
 
+        // Call into the output item's implementation
+        {
+            IItemKind itemImplementation = IItemKind(state.getImplementation(outputItemID));
+            if (address(itemImplementation) != address(0)) {
+                itemImplementation.onExtract(game, Node.Player(ctx.sender), buildingInstance, outputItemID, qty);
+            }
+        }
+
         // Call into the zone kind
-        bytes24 location = state.getFixedLocation(buildingInstance);
-        bytes24 nZone = Node.Zone(state.getTileZone(location));
-        IZoneKind zoneImplementation = IZoneKind(state.getImplementation(nZone));
-        if (address(zoneImplementation) != address(0)) {
-            zoneImplementation.onExtract(game, nZone, Node.Player(ctx.sender), buildingInstance, outputItemID, qty);
+        {
+            bytes24 location = state.getFixedLocation(buildingInstance);
+            bytes24 nZone = Node.Zone(state.getTileZone(location));
+            IZoneKind zoneImplementation = IZoneKind(state.getImplementation(nZone));
+            if (address(zoneImplementation) != address(0)) {
+                zoneImplementation.onExtract(game, nZone, Node.Player(ctx.sender), buildingInstance, outputItemID, qty);
+            }
         }
     }
 
