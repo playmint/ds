@@ -20,16 +20,16 @@ interface IItemKind {
     // called when someone tries to CRAFT this item
     function onCraft(
         Game ds,
-        bytes24 player, // player doing the crafting
+        bytes24 entity, // account issuing the CRAFT
         bytes24 buildingInstanceID, // where is crafting happening
         bytes24 itemID, // your item id
         uint64 itemQty // amount getting crafted
     ) external;
     
-    // called when someone tries to EXTRACT this item
+    // called when a building kind contract tries to EXTRACT this item
     function onExtract(
         Game ds,
-        bytes24 player, // who is extracting
+        bytes24 entity, // account issuing EXTRACT
         bytes24 buildingInstanceID, // where is exaction happening
         bytes24 itemID, // your item id
         uint64 itemQty // how many are getting extracted
@@ -38,7 +38,7 @@ interface IItemKind {
     // called when someone tries to use their zone's DEV_SPAWN_BAG powers to spawn this item
     function onSpawn(
         Game ds,
-        bytes24 player, // player doing the spawning
+        bytes24 zoneOwner, // player doing the spawning
         bytes24 zoneID, // zone where items are trying to be spawned
         bytes24 itemID, // your item id
         uint64 itemQty // how many are being spawned
@@ -48,7 +48,7 @@ interface IItemKind {
     // revert during this hook will skip distribution of this item
     function onReward(
         Game ds,
-        bytes24 player, // the player getting rewarded
+        bytes24 winner, // the player getting rewarded
         bytes24 sessionID, // combat session where item is being distributed from
         bytes24 itemID, // your item id
         uint64 itemQty // how many are being distributed
@@ -69,7 +69,7 @@ contract ItemKind is IItemKind {
 
     function onCraft(
         Game ds,
-        bytes24 /*player*/,
+        bytes24 /*buildingKindAccount*/,
         bytes24 buildingInstanceID,
         bytes24 itemID,
         uint64 /*itemQty*/
@@ -84,12 +84,12 @@ contract ItemKind is IItemKind {
         require(buildingKindOwner != 0x0, 'no building kind owner found');
         bytes24 itemKind = itemID;
         bytes24 itemKindOwner = state.getOwner(itemKind);
-        require(itemKindOwner == buildingKindOwner, 'crafting this item is restricted to buildings made by the item owner');
+        require(itemKindOwner == buildingKindOwner, 'crafting this item is restricted to building kinds made by the item owner');
     }
 
     function onExtract(
         Game ds,
-        bytes24 /*player*/,
+        bytes24 /*buildingKindAccount*/,
         bytes24 buildingInstanceID,
         bytes24 itemID,
         uint64 /*itemQty*/
@@ -102,22 +102,22 @@ contract ItemKind is IItemKind {
         require(buildingKindOwner != 0x0, 'no building kind owner found');
         bytes24 itemKind = itemID;
         bytes24 itemKindOwner = state.getOwner(itemKind);
-        require(itemKindOwner == buildingKindOwner, 'crafting this item is restricted to buildings made by the item owner');
+        require(itemKindOwner == buildingKindOwner, 'crafting this item is restricted to building kinds made by the item owner');
     }
 
     function onSpawn(
         Game ds,
-        bytes24 player,
+        bytes24 zoneOwner,
         bytes24 /*zoneID*/,
         bytes24 itemID,
         uint64 /*itemQty*/
     ) external virtual {
-        // only only by default ... override to control who and where
-        // DEV_SPAWN_BAG can be used with your item
+        // items can only be spaawed into zones owned by the owner by default
+        // override to make more or less permissive
         State state = ds.getState();
         bytes24 itemKind = itemID;
         bytes24 itemKindOwner = state.getOwner(itemKind);
-        require(player == itemKindOwner, 'spawning this item is restricted to owner only');
+        require(zoneOwner == itemKindOwner, 'spawning this item is restricted to owner only');
     }
 
     function onReward(
