@@ -26,7 +26,6 @@ import {BagRule} from "@ds/rules/BagRule.sol";
 import {ExtractionRule} from "@ds/rules/ExtractionRule.sol";
 import {QuestRule} from "@ds/rules/QuestRule.sol";
 import {ZoneRule} from "@ds/rules/ZoneRule.sol";
-import {BaseGoo} from "@ds/BaseGoo.sol";
 
 using Schema for State;
 
@@ -91,18 +90,6 @@ contract GameDeployer is Script {
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.GreenGoo(), "Green Goo", "15-185")));
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.BlueGoo(), "Blue Goo", "32-96")));
         dispatcher.dispatch(abi.encodeCall(Actions.REGISTER_ITEM_KIND, (ItemUtils.RedGoo(), "Red Goo", "22-256")));
-
-        // custom base goo implementation
-        address gooImplementation = address(new BaseGoo());
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (ItemUtils.GreenGoo(), gooImplementation))
-        );
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (ItemUtils.BlueGoo(), gooImplementation))
-        );
-        dispatcher.dispatch(
-            abi.encodeCall(Actions.REGISTER_KIND_IMPLEMENTATION, (ItemUtils.RedGoo(), gooImplementation))
-        );
 
         //register starter items
         dispatcher.dispatch(
