@@ -3,8 +3,8 @@ import {
     ActivePlugin,
     CogAction,
     ConnectedPlayer,
-    DispatchFunc,
     GameConfig,
+    GetPluginSrcDocument,
     GlobalState,
     Logger,
     PluginConfig,
@@ -14,18 +14,17 @@ import {
     PluginType,
     PluginUpdateResponse,
     QueuedSequencerAction,
-    GetPluginSrcDocument,
     Sandbox,
     Selection,
     ZoneWithBags,
     apiv1,
 } from '@app/../../core/src';
-import * as Comlink from 'comlink';
-import { ReactNode, createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useSources } from './use-game-state';
 import { AvailablePluginFragment } from '@downstream/core/src/gql/graphql';
 import { getBagsAtEquipee, getBuildingAtTile } from '@downstream/core/src/utils';
-import { pipe, take, map, toPromise } from 'wonka';
+import * as Comlink from 'comlink';
+import { ReactNode, createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { map, pipe, take, toPromise } from 'wonka';
+import { useSources } from './use-game-state';
 
 // hack to force hot module reloading to give up
 export { disableSessionRefresh } from './use-session';
@@ -47,6 +46,7 @@ export const usePluginState = () => useContext(PluginContext);
 export const PluginResponseProvider = ({ config, children }: PluginContextProviderProps) => {
     const { client, zone, player, selection, global, logger, questMsgSender, availablePlugins } = useSources();
     const { tiles: selectedTiles, mobileUnit: selectedMobileUnit } = selection || {};
+    const [pluginLoading, setPluginLoading] = useState<Map<string, boolean>>(new Map());
     const [plugins, setPlugins] = useState<PluginConfig[]>();
     const [ui, setUI] = useState<PluginUpdateResponse[]>([]);
     const [sandbox, setSandbox] = useState<Comlink.Remote<Sandbox>>();
@@ -162,6 +162,25 @@ export const PluginResponseProvider = ({ config, children }: PluginContextProvid
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [client, selectedPluginsHash]);
 
+    // return a plugin dispatcher wrapped with some loading states
+    const pluginDispatch: PluginDispatchFunc = useMemo(() => {
+        const dispatch = player?.dispatchAndWait ? player.dispatchAndWait : noopDispatcher;
+        return (id: string, ...actions: CogAction[]): Promise<boolean> => {
+            setPluginLoading((pluginLoading) => {
+                return new Map(pluginLoading.set(id, true));
+            });
+            return dispatch(...actions)
+                .then(() => sleep(1000))
+                .then(() => true)
+                .catch(() => false)
+                .finally(() => {
+                    setPluginLoading((pluginLoading) => {
+                        return new Map(pluginLoading.set(id, false));
+                    });
+                });
+        };
+    }, [player?.dispatchAndWait]);
+
     useEffect(() => {
         if (!sandbox) {
             return;
@@ -187,11 +206,22 @@ export const PluginResponseProvider = ({ config, children }: PluginContextProvid
         if (!questMsgSender) {
             return;
         }
-        getPluginStates({ sandbox, player, zone, global, selection, plugins, logger, questMsgSender })
+        getPluginStates({
+            sandbox,
+            player,
+            zone,
+            global,
+            selection,
+            plugins,
+            logger,
+            questMsgSender,
+            dispatch: pluginDispatch,
+            loading: pluginLoading,
+        })
             .then((ui) => ui.filter((data): data is PluginUpdateResponse => !!data))
             .then((ui) => setUI(ui))
             .catch((err) => console.error('failed to get plugin states', err));
-    }, [sandbox, player, zone, global, plugins, selection, logger, questMsgSender]);
+    }, [sandbox, player, zone, global, plugins, selection, logger, questMsgSender, pluginDispatch, pluginLoading]);
 
     return <PluginContext.Provider value={ui}>{children}</PluginContext.Provider>;
 };
@@ -199,21 +229,25 @@ export const PluginResponseProvider = ({ config, children }: PluginContextProvid
 async function getPluginStates({
     sandbox,
     player,
+    dispatch,
     zone,
     global,
     selection,
     plugins,
     logger,
     questMsgSender,
+    loading,
 }: {
     sandbox: Comlink.Remote<Sandbox>;
     player: ConnectedPlayer;
+    dispatch: PluginDispatchFunc;
     zone: ZoneWithBags;
     global: GlobalState;
     selection: Selection;
     plugins: PluginConfig[];
     logger: Logger;
     questMsgSender: Logger;
+    loading: Map<string, boolean>;
 }) {
     let a = activeBySandbox.get(sandbox);
     if (!a) {
@@ -248,11 +282,12 @@ async function getPluginStates({
                     config,
                     sandbox,
                     active,
-                    player,
+                    dispatch,
                     zone,
                     global,
                     logger,
                     questMsgSender,
+                    loading: !!loading.get(config.id),
                 })
             )
         );
@@ -283,24 +318,25 @@ async function getPluginState({
     config,
     sandbox,
     active,
-    player,
+    dispatch,
     zone,
     global,
     logger,
     questMsgSender,
+    loading,
 }: {
     config: PluginConfig;
     sandbox: Comlink.Remote<Sandbox>;
     active: Map<string, ActivePlugin>;
-    player: ConnectedPlayer;
+    dispatch: PluginDispatchFunc;
     zone: ZoneWithBags;
     global: GlobalState;
     logger: Logger;
     questMsgSender: Logger;
+    loading: boolean;
 }): Promise<PluginUpdateResponse | null> {
     let plugin: ActivePlugin | null | undefined;
     try {
-        const dispatch = player ? player.dispatch : noopDispatcher;
         if (!config.id) {
             console.warn(`plugin has no id, skipping`);
             return null;
@@ -324,6 +360,7 @@ async function getPluginState({
             console.warn(`plugin-timeout: ${config.id} took longer than 1000ms`);
             return null;
         }
+        res.loading = loading;
         return res;
     } catch (err: any) {
         if (err?.message && err?.message == 'SANDBOX_OOM') {
@@ -385,7 +422,7 @@ async function noopDispatcher(..._actions: CogAction[]): Promise<QueuedSequencer
  */
 export async function loadPlugin(
     sandbox: Comlink.Remote<Sandbox>,
-    dispatch: DispatchFunc,
+    dispatch: PluginDispatchFunc,
     logger: Logger,
     questMsgSender: Logger,
     config: PluginConfig
@@ -409,13 +446,8 @@ export async function loadPlugin(
     // plugins triggering dispatch calls on load or responding
     // to state changes in update
 
-    const pluginDispatch: PluginDispatchFunc = (...actions: CogAction[]) =>
-        dispatch(...actions)
-            .then(() => true)
-            .catch(() => false);
-
     const context = await sandbox.newContext(
-        Comlink.proxy(pluginDispatch),
+        Comlink.proxy(dispatch),
         Comlink.proxy(logger),
         Comlink.proxy(questMsgSender),
         config

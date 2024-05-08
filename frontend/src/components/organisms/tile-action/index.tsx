@@ -1,12 +1,13 @@
-/** @format */
-
+import spinner from '@app/../public/loaders/spinner.svg';
 import { ActionButton } from '@app/styles/button.styles';
 import { PluginStateButtonAction, PluginStateComponentContent, PluginSubmitCallValues } from '@downstream/core';
 import DOMPurify from 'dompurify';
+import Image from 'next/image';
 import { useEffect } from 'react';
 import styled, { css } from 'styled-components';
 
 const StylePluginContent = styled.div`
+    position: relative;
     ${({ canUse }: { canUse: boolean }) => css`
         opacity: ${canUse ? 1 : 0.5};
     `}
@@ -38,6 +39,30 @@ export const initDOMPurify = () => {
         }
     });
     DP.inited = true;
+};
+
+export const PluginLoading = () => {
+    return (
+        <div
+            style={{
+                borderRadius: 'var(--panel-border-radius)',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                bottom: 0,
+                right: 0,
+                opacity: '0.8',
+                background: 'white',
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}
+        >
+            <Image src={spinner} width={48} alt="loading" style={{ display: 'inline-block' }} />
+        </div>
+    );
 };
 
 export const PluginContent = ({

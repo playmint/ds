@@ -333,13 +333,14 @@ export interface PluginUpdateResponse {
     config: PluginConfig;
     state: PluginState;
     error?: string;
+    loading?: boolean;
 }
 
 export type PluginSubmitProxy = (ref: string, values: PluginSubmitCallValues) => Promise<void>;
 
 export type DispatchFunc = (...actions: CogAction[]) => Promise<QueuedSequencerAction>;
 
-export type PluginDispatchFunc = (...actions: CogAction[]) => Promise<boolean>;
+export type PluginDispatchFunc = (id: string, ...actions: CogAction[]) => Promise<boolean>;
 
 export type AvailablePlugin = AvailablePluginFragment;
 export type AvailableBuildingKind = BuildingKindFragment;
