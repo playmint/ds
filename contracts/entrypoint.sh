@@ -49,31 +49,7 @@ done
 sleep 2
 
 
-forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545" --slow --private-key "${DEPLOYER_PRIVATE_KEY}"
-
-echo "+---------------------+"
-echo "| deploying fixtures  |"
-echo "+---------------------+"
-SERVICES_HTTP=${SERVICES_URL_HTTP:-"http://localhost:8080/query"}
-SERVICES_WS=${SERVICES_URL_WS:-"ws://localhost:8080/query"}
-while ! curl -sf -X GET "${SERVICES_HTTP}" >/dev/null; do
-	echo "waiting for services to respond..."
-	sleep 1
-done
-echo "waiting for services to settle..."
-sleep 5
-
-MAP=${MAP:-"default"}
-echo "ds apply ${MAP}..."
-ds -k "${DEPLOYER_PRIVATE_KEY}" -n local --ws-endpoint="${SERVICES_WS}" --http-endpoint="${SERVICES_HTTP}" apply -z 1 -R -f "./src/maps/${MAP}"
-
-# postinstall script
-if [ -f "./src/maps/${MAP}/postinstall.js" ]; then
-    echo "+------------------------+"
-    echo "| executing postinstall  |"
-    echo "+------------------------+"
-    node "./src/maps/${MAP}/postinstall.js"
-fi
+forge script script/Deploy.sol:GameDeployer --broadcast --rpc-url "http://localhost:8545" --private-key "${DEPLOYER_PRIVATE_KEY}"
 
 echo "+-------+"
 echo "| ready |"

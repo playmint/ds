@@ -10,7 +10,7 @@ services:
       - 8545:8545
     environment:
       CHAIN_ID: "22300"
-      EXTRA_ANVIL_ARGS: "--transaction-block-keeper 250"
+      EXTRA_ANVIL_ARGS: "--transaction-block-keeper 250 --gas-limit 100000000 --silent"
       DEPLOYER_PRIVATE_KEY: "0x6335c92c05660f35b36148bbfb2105a68dd40275ebf16eff9524d487fb5d57a8"
       TONK_URL_HTTP: "http://tonk-web-server:8082"
       SERVICES_URL_HTTP: "http://cog:8080/query"
@@ -18,6 +18,7 @@ services:
       MAP: "${MAP}"
     volumes:
       - ./contracts/src:/contracts/src
+      - deployments:/contracts/out
 
   frontend:
     build:
@@ -38,21 +39,28 @@ services:
       - -c
       - |
         echo "waiting contracts"
-        /wait-for -it contracts:8545 -t 300
+        /wait-for -it contracts:8545 -t 300 -f /deployments/latest.json
+        echo "configure conrtact addrs"
+        jq < /deployments/latest.json
         echo "starting"
-        exec /ds-node
+        exec env \
+          INDEXER_GAME_ADDRESS=$(jq -r .game < /deployments/latest.json) \
+          INDEXER_STATE_ADDRESS=$(jq -r .state < /deployments/latest.json) \
+          INDEXER_ROUTER_ADDRESS=$(jq -r .router < /deployments/latest.json) \
+          /ds-node
     environment:
       CHAIN_ID: "22300"
       SEQUENCER_PRIVATE_KEY: "095a37ef5b5d87db7fe50551725cb64804c8c554868d3d729c0dd17f0e664c87"
       SEQUENCER_PROVIDER_URL_HTTP: "http://contracts:8545"
-      SEQUENCER_PROVIDER_URL_WS: "ws://contracts:8545"
+      SEQUENCER_BATCH_TIME_TARGET: "500"
       INDEXER_PROVIDER_URL_HTTP: "http://contracts:8545"
-      INDEXER_PROVIDER_URL_WS: "ws://contracts:8545"
       INDEXER_TELEMETRY_ENABLE: "false"
     ports:
       - 8080:8080
     depends_on:
       - contracts
+    volumes:
+      - deployments:/deployments
 
   redis:
     profiles: [tonk]
@@ -84,3 +92,6 @@ services:
       REDIS_URL: "redis://redis:6379"
       RUST_LOG: "info"
       ALLOWED_ORIGIN: "http://localhost:3000"
+
+volumes:
+  deployments:
