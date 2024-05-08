@@ -3,7 +3,7 @@ chain: redstone
 indexer:
   providerUrlHttp: https://rpc.redstonechain.com
   pendingExpiry: 3
-  headOffset: 1
+  headOffset: 0
   logLevel: "info"
 sequencer:
   providerUrlHttp: https://rpc.redstonechain.com
