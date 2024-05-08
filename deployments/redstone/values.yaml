@@ -2,8 +2,8 @@ chainId: 690
 chain: redstone
 indexer:
   providerUrlHttp: https://rpc.redstonechain.com
-  pendingExpiry: 3
-  headOffset: 0
+  pendingExpiry: 5
+  headOffset: 1
   logLevel: "info"
 sequencer:
   providerUrlHttp: https://rpc.redstonechain.com
