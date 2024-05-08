@@ -11,11 +11,10 @@ import {Actions, FacingDirectionKind} from "@ds/actions/Actions.sol";
 using Schema for State;
 
 contract HexcraftZone is ZoneKind, IHexcraftZone {
-
     bytes24[88] public buildingKindIds;
     bytes24[88] public tileIds;
 
-    // buildingKindIds and tileIds are listed in the same order 
+    // buildingKindIds and tileIds are listed in the same order
     constructor() {
         buildingKindIds = [
             bytes24(0xbe92755c0000000000000000580ea6c80000000000000001),
@@ -199,27 +198,28 @@ contract HexcraftZone is ZoneKind, IHexcraftZone {
         ];
     }
 
-    function use(Game ds, bytes24 zoneID, bytes24 mobileUnitID, bytes calldata payload) public override(IHexcraftZone, ZoneKind) {}
+    function use(Game ds, bytes24 zoneID, bytes24 mobileUnitID, bytes calldata payload)
+        public
+        override(IHexcraftZone, ZoneKind)
+    {}
 
-    function resetWorld(Game ds, bytes24 selectedBuildingId) public{
+    function resetWorld(Game ds, bytes24 selectedBuildingId) public {
         _resetWorld(ds, selectedBuildingId);
     }
 
     function _resetWorld(Game ds, bytes24 buildingId) internal {
         State state = ds.getState();
         bytes24 buildingTile = state.getFixedLocation(buildingId);
-        (int16 z, , , ) = getTileCoords(buildingTile);
+        (int16 z,,,) = getTileCoords(buildingTile);
 
-    for (uint16 i = 0; i < buildingKindIds.length; i++) {
-        (, int16 q, int16 r, int16 s) = getTileCoords(tileIds[i]);
-        bytes24 building = buildingKindIds[i];
-        ds.getDispatcher().dispatch(
-            abi.encodeCall(
-                Actions.DEV_SPAWN_BUILDING, (building, z, q, r, s, FacingDirectionKind.RIGHT)
-            )
-        );
+        for (uint16 i = 0; i < buildingKindIds.length; i++) {
+            (, int16 q, int16 r, int16 s) = getTileCoords(tileIds[i]);
+            bytes24 building = buildingKindIds[i];
+            ds.getDispatcher().dispatch(
+                abi.encodeCall(Actions.DEV_SPAWN_BUILDING, (building, z, q, r, s, FacingDirectionKind.RIGHT))
+            );
+        }
     }
-}
 
     function getTileCoords(bytes24 tile) internal pure returns (int16 z, int16 q, int16 r, int16 s) {
         int16[4] memory keys = INT16_ARRAY(tile);

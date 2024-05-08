@@ -40,11 +40,9 @@ contract Headquarter is BuildingKind {
             _start(ds, state, buildingInstance, redBaseID, blueBaseId);
         } else if ((bytes4)(payload) == this.reset.selector) {
             _reset(ds, buildingInstance);
-        }
-        else if ((bytes4)(payload) == this.resetWorld.selector) {
+        } else if ((bytes4)(payload) == this.resetWorld.selector) {
             _resetWorld(ds, buildingInstance);
-        }
-         else {
+        } else {
             revert("Invalid payload");
         }
     }
@@ -56,7 +54,7 @@ contract Headquarter is BuildingKind {
     function _resetWorld(Game ds, bytes24 buildingInstance) private {
         State state = ds.getState();
         bytes24 buildingTile = state.getFixedLocation(buildingInstance);
-        (int16 z, , , ) = getTileCoords(buildingTile);
+        (int16 z,,,) = getTileCoords(buildingTile);
         bytes24 zone = Node.Zone(z);
         IHexcraftZone zoneImpl = IHexcraftZone(state.getImplementation(zone));
         require(zoneImpl != IHexcraftZone(address(0)), "Zone implementation not found");
