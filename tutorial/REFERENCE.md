@@ -107,14 +107,6 @@ _options explained_
 ```ds destroy -n local -z 1 -k <private key> -R f <exported folder>```
 
 
-#### Deploy as the initial map
-
-- Stop any local running build.
-- Copy your map manifest and building source to [contracts/src/maps](../contracts/src/maps)<map-folder>
-- Re-run with `MAP=<map-folder> docker compose up`
-    - You can also set the MAP environment variable in the [.env file](../.env)
-    - This map passed through the MAP flag will always be assigned Zone 1
-
 ## Adding Game Logic
 
 The files exported from the Building Fabricator act as a starting point for implementing your own logic.
