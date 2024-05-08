@@ -107,7 +107,6 @@ contract HexcraftZone is ZoneKind, IHexcraftZone {
             bytes24(0xbe92755c000000000000000060c91df80000000000000003),
             bytes24(0xbe92755c00000000000000002c692fb70000000000000003)
         ];
-        // ZONE IS GONNA BE WRONG CAUSE TILE IDS ARE HARD CODED!!!!!!!!!
         tileIds = [
             bytes24(0xe5a62ffc0000000000000000000000000001ffff0008fff9),
             bytes24(0xe5a62ffc0000000000000000000000000001ffff0009fff8),
@@ -200,26 +199,23 @@ contract HexcraftZone is ZoneKind, IHexcraftZone {
         ];
     }
 
-    function use(Game ds, bytes24 zoneID, bytes24 mobileUnitID, bytes calldata payload) public override(IHexcraftZone, ZoneKind) {
-        
-    }
+    function use(Game ds, bytes24 zoneID, bytes24 mobileUnitID, bytes calldata payload) public override(IHexcraftZone, ZoneKind) {}
 
     function resetWorld(Game ds, bytes24 selectedBuildingId) public{
         _resetWorld(ds, selectedBuildingId);
     }
 
     function _resetWorld(Game ds, bytes24 buildingId) internal {
-
         State state = ds.getState();
         bytes24 buildingTile = state.getFixedLocation(buildingId);
         (int16 z, , , ) = getTileCoords(buildingTile);
 
     for (uint16 i = 0; i < buildingKindIds.length; i++) {
         (, int16 q, int16 r, int16 s) = getTileCoords(tileIds[i]);
-
+        bytes24 building = buildingKindIds[i];
         ds.getDispatcher().dispatch(
             abi.encodeCall(
-                Actions.DEV_SPAWN_BUILDING, (buildingKindIds[i], z, q, r, s, FacingDirectionKind.RIGHT)
+                Actions.DEV_SPAWN_BUILDING, (building, z, q, r, s, FacingDirectionKind.RIGHT)
             )
         );
     }

@@ -74,16 +74,16 @@ export default async function update(state) {
   };
 
   const resetWorld = () => {
-    console.log('state', state);
+    //console.log('state', state);
     const mobileUnit = getMobileUnit(state);
-    const payload = ds.encodeCall("function reset()", []);
+    const payload = ds.encodeCall("function resetWorld()", []);
     
     ds.dispatch({
       name: "BUILDING_USE",
-      args: [selectedBuilding.id, payload],
+      args: [selectedBuilding.id, mobileUnit.id, payload],
     });
     
-    // formatAndLogResetIds();
+    formatAndLogResetIds();
   };
 
   // \todo
