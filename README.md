@@ -29,7 +29,7 @@ The repository needs cloning with LFS and recursive submodules.
   git clone --recurse-submodules https://github.com/playmint/ds
   ```
 
-## **_⚠️ 🖥 Windows_** 
+## **_⚠️ 🖥 Windows_**
 
 Windows users must ensure they have symlinks enabled.
 
@@ -98,13 +98,13 @@ make dev
 ```
 In your browser, open `http://localhost:3000/`
 
-### Rebuilding after core changes: 
+### Rebuilding after core changes:
 If you have built the map during the `make dev` flow and since, there have been changes in the Unity scene
 you will need to rebuild the map. To do this, it is adviced to clean all build artifacts with
 
 ```
 make clean
-``` 
+```
 
 Once you are done, you can either build everything again with `make dev` or you can just
 build the map by using the `make map` command.
@@ -115,37 +115,17 @@ build the map by using the `make map` command.
 
 # Running locally with different maps
 
-By Default, running `make dev` will spawn a one hex sized map and running with `docker` will spawn (the only  slightly larger) "tiny" map. 
+By Default, running `make dev` will spawn a one hex sized map and running with `docker` will spawn (the only  slightly larger) "tiny" map.
 
-## 1. Using pre-built Maps
+## 1. Apply a map after deploying
 
-The `ds/contracts/src/maps/` folder contains a few pre-made maps.
-
-In order to force one of these maps to be deployed with a local build of the game you need to set the MAP env variable.
-
-For `docker` builds this must be done by editing the `.env` file in the root
-of the repository. 
-
-```
-MAP=quest-map
-```
-
-For `make` builds (and OSX docker builds) the MAP variable can be set as part of the make command; e.g. 
-
-```
-MAP=quest-map make dev
-```
+After doing a standard `docker` or `make` build, you can run the `ds apply` command and point it at one of the map folders. For example: `ds apply -n local -z 1 -R -f ./contracts/src/maps/quest-map/`
 
 ## 2. Claiming a zone
 
 Once your build has succeeded, `http://localhost:3000/` will take you to the Downstream homepage. Here you can sign in via Metamask, Wallet connect or use one of our Burner wallets. When deploying locally, a wallet called the "LocalDevAccoint" will already own Zone 1. You can connect using said wallet to speed things up. If you want to claim a new one using any other login method, make sure to note down the Zone Number as you will need to pass it through our `ds cli` tool using the `-z` flag.
 
-
-## 3. Apply a map after deploying
-
-After doing a standard `docker` or `make` build, you can run the `ds apply` command and point it at one of the map folders. For example: `ds apply -n local -z 1 -R -f ./contracts/src/maps/quest-map/`
-
-## 4. Build your own map and deploy it
+## 3. Build your own map and deploy it
 
 Once the game is running locally, browsing to `http://localhost:3000/tile-fabricator` will show the Tile Fabricator.
 
@@ -154,23 +134,24 @@ Once in the Tile Fabricator, you can design and export a map file. If you want t
 If you then rename the .yml file to a .yaml and move it to your desired location, you will be able to run the ds apply command, like so:
 `ds apply -n local -z 1 -f ./path/to/mymap.yaml`
 
-## 5. Destroying a map
+## 4. Destroying a map
 
 The `ds destroy` command essentially acts as the reverse of the `ds apply` command. If the user applies a manifest, running the `ds destroy` command and passing the same manifest will remove it. It is important to note that if you modify the files you recently applied, the destroy command will not work properly. It is worth keeping a copy of anything you have applied in the state you applied it in.
 
 As an example, if the user was to run this command from the root of the repository `ds apply -n local -z 1 -R -f contracts/src/maps/tutorial-room-1`, they will deploy the kinds, tiles, buildings and bags specified in the folder. If the user then runs `ds destroy -n local -z 1 -R -f contracts/src/maps/tutorial-room-1`, the tiles, buildings and bags specified in the manifest will be removed. The only thing that will remain deployed will be the kinds.
 
-## 6. Generating the performance-test map
+## 5. Generating the performance-test map
 
 This is only possible with the `make` deploy flow and cannot be triggered for a `docker` build. To generate the performance-test map (used to push the limits of number of tiles and plugins) run:
 
 ```
 NUM_ARENAS=4 make contracts/src/maps/performance-test
-``` 
+```
 
 ...this generates a map configuration in `contracts/src/maps/performance-test`
 
-You can then either start locally via `MAP=performance-test make dev` or manually `ds apply -n local -z 1 -R -f contracts/src/maps/performance-test`
+You can then apply manually with: `ds apply -n local -z 1 -R -f contracts/src/maps/performance-test`
+
 </details>
 
 # References
