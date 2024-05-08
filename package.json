@@ -15,10 +15,11 @@
   "dependencies": {
     "@inquirer/prompts": "^3.0.2",
     "@inquirer/select": "^1.2.7",
+    "@playmint/ds-cli": "^0.0.34",
     "inquirer": "^9.2.10",
     "octokit": "^3.1.0",
     "semver": "^7.5.4",
-    "yargs": "^17.7.2",
-    "yaml": "^2.3.1"
+    "yaml": "^2.3.1",
+    "yargs": "^17.7.2"
   }
 }
