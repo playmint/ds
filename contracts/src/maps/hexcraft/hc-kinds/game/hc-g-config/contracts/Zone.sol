@@ -214,10 +214,16 @@ contract HexcraftZone is ZoneKind, IHexcraftZone {
 
         for (uint16 i = 0; i < buildingKindIds.length; i++) {
             (, int16 q, int16 r, int16 s) = getTileCoords(tileIds[i]);
-            bytes24 building = buildingKindIds[i];
-            ds.getDispatcher().dispatch(
-                abi.encodeCall(Actions.DEV_SPAWN_BUILDING, (building, z, q, r, s, FacingDirectionKind.RIGHT))
-            );
+
+            bytes24 existingBuildingOnThisTile = Node.Building(z, q, r, s);
+
+            bytes24 buildingKind = buildingKindIds[i];
+
+            if (state.getBuildingKind(existingBuildingOnThisTile) != buildingKind) {
+                ds.getDispatcher().dispatch(
+                    abi.encodeCall(Actions.DEV_SPAWN_BUILDING, (buildingKind, z, q, r, s, FacingDirectionKind.RIGHT))
+                );
+            }
         }
     }
 
