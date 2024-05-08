@@ -12,7 +12,6 @@ jobs:
     uses: ./.github/workflows/build.yaml
     with:
       DEPLOYMENT_DOMAIN: downstream.game
-      DEPLOYMENT_MAP: quest-map
       DEPLOYMENT_ENVIRONMENT: hexwood0
       DEPLOYMENT_PRIORITY: default
       DEPLOYMENT_CHAIN: anvil
