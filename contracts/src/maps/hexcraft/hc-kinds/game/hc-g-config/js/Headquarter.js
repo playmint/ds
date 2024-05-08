@@ -8,30 +8,30 @@ export default async function update(state) {
   //
   // Action handler functions
   //
-  // console.log("update 0");
 
   // An action can set a form submit handler which will be called after the action along with the form values
   let handleFormSubmit;
 
-  const formatAndLogResetIds = () => {
-    const buildingKindIds = [];
-    const tileIds = [];
+// EXAMPLE FUNCTION: This function compiles a list of buildingKindIds and tileIds to be used in the solidity Zone resetWorld function
+//   const formatAndLogResetIds = () => {
+//     const buildingKindIds = [];
+//     const tileIds = [];
   
-    state.world.buildings.forEach(building => {
-      buildingKindIds.push(`bytes24(${building.kind.id})`);
-      tileIds.push(`bytes24(${building.location.tile.id})`);
-    });
+//     state.world.buildings.forEach(building => {
+//       buildingKindIds.push(`bytes24(${building.kind.id})`);
+//       tileIds.push(`bytes24(${building.location.tile.id})`);
+//     });
   
-    let output = 'buildingKindIds = [\n';
-    output += buildingKindIds.map(id => `\t${id},`).join('\n');
-    output += '\n];\n';
+//     let output = 'buildingKindIds = [\n';
+//     output += buildingKindIds.map(id => `\t${id},`).join('\n');
+//     output += '\n];\n';
   
-    output += 'tileIds = [\n';
-    output += tileIds.map(id => `\t${id},`).join('\n');
-    output += '\n];';
+//     output += 'tileIds = [\n';
+//     output += tileIds.map(id => `\t${id},`).join('\n');
+//     output += '\n];';
   
-    console.log(output);
-  };
+//     console.log(output);
+//   };
 
   const join = () => {
     const mobileUnit = getMobileUnit(state);
@@ -69,12 +69,9 @@ export default async function update(state) {
       name: "BUILDING_USE",
       args: [selectedBuilding.id, mobileUnit.id, payload],
     });
-
-    // formatAndLogResetIds();
   };
 
   const resetWorld = () => {
-    //console.log('state', state);
     const mobileUnit = getMobileUnit(state);
     const payload = ds.encodeCall("function resetWorld()", []);
     
@@ -83,7 +80,7 @@ export default async function update(state) {
       args: [selectedBuilding.id, mobileUnit.id, payload],
     });
     
-    formatAndLogResetIds();
+    //formatAndLogResetIds();
   };
 
   // \todo
