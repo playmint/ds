@@ -9,7 +9,7 @@ import {
     WorldMobileUnitFragment,
     ZoneWithBags,
 } from '@app/../../core/src';
-import { PluginContent } from '@app/components/organisms/tile-action';
+import { PluginContent, PluginLoading } from '@app/components/organisms/tile-action';
 import {
     //GOO_BIG_THRESH,
     GOO_BLUE,
@@ -132,10 +132,11 @@ interface TileBuildingProps {
 const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, zone, mobileUnit, ui, canUse }) => {
     const { tiles: selectedTiles } = useSelection();
     const selectedTile = selectedTiles?.[0];
-    const component = (ui || [])
+    const pluginData = (ui || [])
         .filter((p) => p.config.type === PluginType.BUILDING && p.config.kindID === building.kind?.id)
-        .flatMap((p) => p.state.components)
+        .flatMap((p) => p)
         .find(() => true);
+    const component = pluginData?.state.components.find(() => true);
 
     const buildingKind = (kinds || []).find((k) => k.id == building.kind?.id);
     const inputs = buildingKind?.inputs.sort(byKey) || [];
@@ -239,6 +240,7 @@ const TileBuilding: FunctionComponent<TileBuildingProps> = ({ building, kinds, z
                 <span className="label" style={{ width: '30%' }}>
                     <strong>LIFE:</strong> {life > 99999 ? 'MAX' : life}
                 </span>
+                {pluginData?.loading && <PluginLoading />}
             </div>
         </StyledTileInfoPanel>
     );

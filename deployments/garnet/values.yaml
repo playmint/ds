@@ -2,8 +2,8 @@ chainId: 17069
 chain: garnet
 indexer:
   providerUrlHttp: https://rpc.garnetchain.com
-  pendingExpiry: 6
-  headOffset: 2
+  pendingExpiry: 5
+  headOffset: 1
   logLevel: "info"
 sequencer:
   providerUrlHttp: https://rpc.garnetchain.com

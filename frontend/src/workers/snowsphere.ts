@@ -150,7 +150,7 @@ async function newContext(
                     console.warn(`plugin-${config.id}: invalid dispatch call`, actions);
                     return;
                 }
-                dispatch(...actions)
+                dispatch(config.id, ...actions)
                     .then(() => console.log(`plugin-${config.id}: dispatched`, actions))
                     .catch((err) => console.error(`plugin-${config.id}: failed dispatch: ${err}`));
                 return 'ok'; // TODO: return queue id
