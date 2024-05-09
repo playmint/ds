@@ -120,7 +120,7 @@ const nodeToManifest = (node): z.infer<typeof Manifest> => {
         const spec = {
             name: buildingKindName,
             location,
-            facingDirection: node.facingDirection?.value || FacingDirectionTypes[0],
+            facingDirection: node.facingDirection?.value || FacingDirectionTypes[1],
         };
         const status = { owner, id };
         return { kind, spec, status };
