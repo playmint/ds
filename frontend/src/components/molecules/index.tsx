@@ -498,7 +498,7 @@ export const ZoneRow = ({
     }, [onClickEnter, id]);
 
     return (
-        <div style={{ paddingTop: 10 }}>
+        <div style={{ paddingTop: 10, margin: '8px 0' }}>
             <div
                 style={{
                     width: '100%',
