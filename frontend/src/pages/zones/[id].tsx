@@ -1,4 +1,3 @@
-/** @format */
 import { NetworkPanel } from '@app/components/panels/network-panel';
 import Shell from '@app/components/views/shell';
 import { useConfig } from '@app/hooks/use-config';
