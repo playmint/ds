@@ -38,6 +38,7 @@ import styled from 'styled-components';
 const StyledIndex = styled.div`
     width: 1216px;
     margin: 0 auto;
+    zoom: 90%;
 `;
 
 const ZoneMinter = ({
