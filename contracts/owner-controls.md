@@ -1,10 +1,10 @@
 # Game Owner Controls
 
 ### Set featured zone
-cast send --rpc-url <URL> --private-key <private-key> <contract-address> "setZoneIsFeatured(uint64,bool)" <zone-number> true
+`cast send --rpc-url <URL> --private-key <private-key> <contract-address> "setZoneIsFeatured(uint64,bool)" <zone-number> true`
 
 ### Remove featured zone
-cast send --rpc-url <URL> --private-key <private-key> <contract-address> "setZoneIsFeatured(uint64,bool)" <zone-number> false
+`cast send --rpc-url <URL> --private-key <private-key> <contract-address> "setZoneIsFeatured(uint64,bool)" <zone-number> false`
 
 ### Change maximum active units per zone
 `cast send --rpc-url <URL> --private-key <private-key> <contract-address> "setZoneUnitLimit(uint64)" <number>`
