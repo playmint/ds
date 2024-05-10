@@ -140,7 +140,7 @@ const ZoneMintButton = ({
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', ...style }}>
             {player && wallet ? (
                 <HeroButton onClick={createZone} disabled={minting}>
-                    {minting ? `loading` : `CREATE ZONE ${displayPrice}`}
+                    {minting ? `loading` : `CLAIM ZONE ${displayPrice}`}
                 </HeroButton>
             ) : (
                 <HeroButton onClick={() => {}} disabled={true}>
@@ -289,7 +289,6 @@ const ZoneIndex = ({ config }: { config: Partial<GameConfig> | undefined }) => {
             </div>
             <HeroPanel>
                 <Image src={iconUnit} alt="unit" />
-                <HeroText>CREATE YOUR OWN ZONE</HeroText>
                 <div
                     style={{
                         width: 800,
@@ -304,10 +303,10 @@ const ZoneIndex = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                         marginBottom: 18,
                     }}
                 >
-                    You do not need a zone to expore other player creations. Claim a zone to take control of the rules
-                    and build your own world.
-                    <ZoneMintButton gameAddress={gameAddress} style={{ marginTop: 18 }} onMint={onMint} />
+                    Jump into the welcome zone and player made creations to get inspired. Once {`you're`} ready to build
+                    something new, claim a zone to start work on your masterpiece!
                 </div>
+                <ZoneMintButton gameAddress={gameAddress} style={{ marginTop: 18 }} onMint={onMint} />
             </HeroPanel>
             <div>
                 <SpotlightTitle>SPOTLIGHT</SpotlightTitle>
