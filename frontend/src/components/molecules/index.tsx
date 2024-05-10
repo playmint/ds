@@ -1,5 +1,5 @@
 import userIcon from '@app/assets/user-01.svg';
-import buttonRing from '@app/assets/buttonRing.svg';
+import buttonRing from '@app/assets/buttonring.svg';
 import signInOff from '@app/assets/log-in-03.svg';
 import signInOn from '@app/assets/log-in-03-white.svg';
 import playmintLogo from '@app/assets/playmint-footer-logo.svg';
