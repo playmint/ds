@@ -310,14 +310,18 @@ const ZoneIndex = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                 <FilterBar onChangeFilter={setFilterFunc} playerAddress={player?.addr}>
                     SHOWING {filteredAndSortedZones.length} LOCATIONS
                 </FilterBar>
-                <ZoneList
-                    zones={filteredAndSortedZones}
-                    blockNumber={blockNumber}
-                    unitTimeoutBlocks={unitTimeoutBlocks}
-                    units={units}
-                    unitZoneLimit={zoneUnitLimit}
-                    onClickEnter={onClickEnter}
-                />
+                {filteredAndSortedZones.length > 0 ? (
+                    <ZoneList
+                        zones={filteredAndSortedZones}
+                        blockNumber={blockNumber}
+                        unitTimeoutBlocks={unitTimeoutBlocks}
+                        units={units}
+                        unitZoneLimit={zoneUnitLimit}
+                        onClickEnter={onClickEnter}
+                    />
+                ) : (
+                    <p style={{ textAlign: 'center' }}>NO ZONES MATCH FILTER</p>
+                )}
             </div>
             <PlaymintFooter />
             <EmbossedBottomPanel />
