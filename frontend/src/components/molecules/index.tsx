@@ -932,7 +932,7 @@ export const HeroPanel = ({ children }: { children: React.ReactNode }) => {
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
-                marginBottom: 16,
+                marginBottom: 64,
             }}
         >
             <Rivet styles={{ top: 12, left: 16 }} />
@@ -1007,3 +1007,25 @@ export const HeroButton = ({
         </div>
     );
 };
+
+export const SpotlightTitle = ({ children }: { children: React.ReactNode }) => (
+    <div
+        style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 16,
+            flexDirection: 'row',
+            flexWrap: 'nowrap',
+            marginTop: 16,
+        }}
+    >
+        <div
+            style={{ borderTop: '2px #CFCBD7 solid', borderLeft: '2px #CFCBD7 solid', height: 16, width: '100%' }}
+        ></div>
+        <div style={{ position: 'relative', top: -5 }}>{children}</div>
+        <div
+            style={{ borderTop: '2px #CFCBD7 solid', borderRight: '2px #CFCBD7 solid', height: 16, width: '100%' }}
+        ></div>
+    </div>
+);

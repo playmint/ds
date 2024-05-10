@@ -10,6 +10,7 @@ import {
     Sticker,
     HeroText,
     HeroButton,
+    SpotlightTitle,
 } from '@app/components/molecules';
 import { NetworkPanel } from '@app/components/panels/network-panel';
 import { useConfig } from '@app/hooks/use-config';
@@ -271,13 +272,7 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                 </div>
             </HeroPanel>
             <div>
-                <h2
-                    style={{
-                        textShadow: '0px 1px 0px #FFF',
-                    }}
-                >
-                    Spotlight
-                </h2>
+                <SpotlightTitle>SPOTLIGHT</SpotlightTitle>
                 <ZoneList
                     zones={featuredZones}
                     blockNumber={blockNumber}
