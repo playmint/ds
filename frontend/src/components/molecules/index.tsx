@@ -1053,7 +1053,8 @@ export const FilterBar = ({
     onChangeFilter: (filter: ZoneFilterFunc) => void;
 }) => {
     const [textQuery, setTextQuery] = useState<string>('');
-    const [toggleValue, setToggleValue] = useState<string>('ACTIVE');
+    const [toggleValueRaw, setToggleValue] = useState<string>('ACTIVE');
+    const toggleValue = useMemo(() => (textQuery.length > 0 ? 'ALL' : toggleValueRaw), [textQuery, toggleValueRaw]);
     const textFilterFunc = useCallback<ZoneFilterFunc>(
         (zone: ZoneWithActivity) => {
             if (textQuery.length === 0) {
