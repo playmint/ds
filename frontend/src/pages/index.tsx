@@ -127,7 +127,7 @@ const ZoneMintButton = ({
             console.log('tx submitted', tx);
             await tx.wait();
             onMint();
-            setError(`mint success!, find your zone in the list below`);
+            setError(`Mint successful! Please find your Zone in the list below!`);
         } catch (err) {
             console.error('MINTFAIL:', err);
             setError(`failed, do you have enough ETH?`);
