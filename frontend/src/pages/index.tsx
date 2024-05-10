@@ -11,6 +11,11 @@ import {
     HeroText,
     HeroButton,
     SpotlightTitle,
+    FilterBar,
+    ZoneFilterFunc,
+    Zone,
+    ZoneUnit,
+    ZoneWithActivity,
 } from '@app/components/molecules';
 import { NetworkPanel } from '@app/components/panels/network-panel';
 import { useConfig } from '@app/hooks/use-config';
@@ -30,8 +35,14 @@ import {
     Zones721__factory,
 } from '@downstream/core';
 
-type Zone = GetZonesQuery['game']['state']['zones'][0];
-type ZoneUnit = GetZonesQuery['game']['state']['mobileUnits'][0];
+const ByKey = (a: ZoneWithActivity, b: ZoneWithActivity) => (b.id - a.id ? 1 : -1);
+const byActivity = (a: ZoneWithActivity, b: ZoneWithActivity) => {
+    const activeCount = b.activeUnits.length - a.activeUnits.length;
+    if (activeCount === 0) {
+        return b.lastActiveUnit - a.lastActiveUnit;
+    }
+    return activeCount;
+};
 
 import styled from 'styled-components';
 import { NavPanel } from '@app/components/panels/nav-panel';
@@ -40,6 +51,9 @@ const StyledIndex = styled.div`
     width: 1216px;
     margin: 0 auto;
     zoom: 90%;
+    input:focus {
+        outline: none;
+    }
 `;
 
 const ZoneMintButton = ({ gameAddress, style }: { gameAddress: string; style?: React.CSSProperties }) => {
@@ -104,6 +118,7 @@ const ZoneMintButton = ({ gameAddress, style }: { gameAddress: string; style?: R
             const tx = await zonesContract.mintTo(player.addr, { value: mintPrice });
             console.log('tx submitted', tx);
             await tx.wait();
+            setError(`mint success!, find your zone in the list below`);
         } catch (err) {
             console.error('MINTFAIL:', err);
             setError(`failed, do you have enough ETH?`);
@@ -114,7 +129,7 @@ const ZoneMintButton = ({ gameAddress, style }: { gameAddress: string; style?: R
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', ...style }}>
-            {player ? (
+            {player && wallet ? (
                 <HeroButton onClick={createZone} disabled={minting}>
                     {minting ? `loading` : `CREATE ZONE ${displayPrice}`}
                 </HeroButton>
@@ -130,13 +145,9 @@ const ZoneMintButton = ({ gameAddress, style }: { gameAddress: string; style?: R
 
 const ZoneList = ({
     zones,
-    units,
-    unitTimeoutBlocks,
-    unitZoneLimit,
-    blockNumber,
     onClickEnter,
 }: {
-    zones: Zone[];
+    zones: ZoneWithActivity[];
     units: ZoneUnit[];
     blockNumber: number;
     unitTimeoutBlocks: number;
@@ -145,34 +156,24 @@ const ZoneList = ({
 }) => {
     return (
         <div>
-            {zones.map((zone) => {
-                const zoneUnits = units.filter(
-                    (u) => u.location?.tile?.coords && u.location.tile?.coords[0] === zone.key
-                );
-                const activeUnits = zoneUnits.filter(
-                    (u) => u.location && u.location.time + unitTimeoutBlocks > blockNumber
-                );
-                const id = Number(BigInt.asIntN(16, BigInt(zone.key)));
-                const name = zone.name?.value ? ethers.decodeBytes32String(zone.name.value) : `Zone #${id}`;
-                return (
-                    <ZoneRow
-                        key={zone.key}
-                        id={id}
-                        name={name}
-                        description={zone.description?.value || `Unknown zone #${id}`}
-                        activeUnits={activeUnits.length}
-                        maxUnits={unitZoneLimit}
-                        imageURL={zone.url?.value ? zone.url.value : 'https://assets.downstream.game/tile.png'}
-                        onClickEnter={onClickEnter}
-                        ownerAddress={zone.owner?.addr || '0x0'}
-                    />
-                );
-            })}
+            {zones.map((zone) => (
+                <ZoneRow
+                    key={zone.key}
+                    id={zone.id}
+                    name={zone.name}
+                    description={zone.description?.value || `Unknown zone #${zone.id}`}
+                    activeUnits={zone.activeUnits.length}
+                    maxUnits={zone.maxUnits}
+                    imageURL={zone.url?.value ? zone.url.value : 'https://assets.downstream.game/tile.png'}
+                    onClickEnter={onClickEnter}
+                    ownerAddress={zone.owner?.addr || '0x0'}
+                />
+            ))}
         </div>
     );
 };
 
-const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
+const ZoneIndex = ({ config }: { config: Partial<GameConfig> | undefined }) => {
     const router = useRouter();
     const player = usePlayer();
     const client = useCogClient();
@@ -180,17 +181,9 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
     const global = useGlobal();
     const unitTimeoutBlocks = parseInt(global?.gameSettings?.unitTimeoutBlocks?.value || '0x0', 16);
     const zoneUnitLimit = parseInt(global?.gameSettings?.zoneUnitLimit?.value || '0x0', 16);
-    // const [selectedFilter, setSelectedFilter] = useState<Key>(ZoneFilter.AllZones);
-    // const [selectedSorting, setSelectedSorting] = useState<Key>(ZoneSorting.Newest);
     const gameAddress = zonesData?.game?.id || '0x0';
-    const zones = zonesData?.game?.state?.zones || [];
     const blockNumber = zonesData?.game?.state?.block || 0;
-    const units = zonesData?.game?.state?.mobileUnits || [];
-    // const playerZones = zones.filter((z) => z.owner?.addr && z.owner?.addr === player?.addr);
-    // const playerUnit = units.find((u) => u.owner?.addr && u.owner?.addr === player?.addr);
-    // const currentZone = zones.find(
-    //     (z) => playerUnit?.location?.tile?.coords && z.key === playerUnit.location.tile.coords[0]
-    // );
+    const units = useMemo(() => zonesData?.game?.state?.mobileUnits || [], [zonesData?.game?.state?.mobileUnits]);
 
     // load the zones data
     useEffect(() => {
@@ -207,10 +200,41 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
         return unsubscribe;
     }, [client, config?.gameID]);
 
-    // TODO: where does this go?
-    const onClickInfo = useCallback(() => {
-        window.location.href = 'https://downstream.game';
-    }, []);
+    // normalize the zone data
+    const zones: ZoneWithActivity[] = useMemo(() => {
+        return (zonesData?.game?.state?.zones || [])
+            .map((zone: Zone) => {
+                const id = Number(BigInt.asIntN(16, BigInt(zone.key)));
+                const name = zone.name?.value ? ethers.decodeBytes32String(zone.name.value) : `Zone #${id}`;
+                const zoneUnits = units.filter(
+                    (u) => u.location?.tile?.coords && u.location.tile?.coords[0] === zone.key
+                );
+                const activeUnits = zoneUnits.filter(
+                    (u) => u.location && u.location.time + unitTimeoutBlocks > blockNumber
+                );
+                const lastActiveUnit = activeUnits.reduce(
+                    (lastActiveUnit, u) =>
+                        u.location && u.location.time > lastActiveUnit ? u.location.time : lastActiveUnit,
+                    0
+                );
+                // best guess at what "active" means....
+                // someone should have entered the zone at some point
+                // number of deployed tiles > 1
+                const isActive = zone.tileCount > 1 && lastActiveUnit > 0;
+                return {
+                    ...zone,
+                    id,
+                    name,
+                    activeUnits,
+                    zoneUnits,
+                    maxUnits: zoneUnitLimit,
+                    lastActiveUnit,
+                    isActive,
+                };
+            })
+            .sort(ByKey);
+    }, [blockNumber, unitTimeoutBlocks, units, zoneUnitLimit, zonesData?.game?.state?.zones]);
+    const [filterFunc, setFilterFuncRaw] = useState<ZoneFilterFunc>(() => () => true);
 
     const onClickDiscord = useCallback(() => {
         window.location.href = 'https://discord.gg/SG3fwmgGXH';
@@ -224,13 +248,13 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
         [router]
     );
 
-    const playerZones = zones.filter((z) => z.owner?.addr && z.owner?.addr === player?.addr);
-    const featuredZones = zones.filter((z) => z.isFeatured?.value === 1);
-    const filteredZones = zonesData?.game?.state?.zones || [];
-    const filteredAndSortedZones = filteredZones.sort((a, b) => (b.key - a.key ? 1 : -1));
-    const filterName = 'All Zones';
+    const featuredZones = useMemo(() => zones.filter((z) => z.isFeatured?.value === 1), [zones]);
+    const filteredAndSortedZones = useMemo(() => zones.filter(filterFunc).sort(byActivity), [zones, filterFunc]);
 
     const navPanelStyle = useMemo(() => ({ height: '64px' }), []);
+    const setFilterFunc = useCallback((f: ZoneFilterFunc) => {
+        return setFilterFuncRaw(() => f);
+    }, []);
 
     return (
         <StyledIndex>
@@ -282,14 +306,10 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                     onClickEnter={onClickEnter}
                 />
             </div>
-            <div style={{ marginTop: 16 }}>
-                <h2
-                    style={{
-                        textShadow: '0px 1px 0px #FFF',
-                    }}
-                >
-                    All Zones
-                </h2>
+            <div style={{ marginTop: 64 }}>
+                <FilterBar onChangeFilter={setFilterFunc} playerAddress={player?.addr}>
+                    SHOWING {filteredAndSortedZones.length} LOCATIONS
+                </FilterBar>
                 <ZoneList
                     zones={filteredAndSortedZones}
                     blockNumber={blockNumber}
@@ -344,7 +364,7 @@ export default function IndexPage() {
                                 here
                             </a>
                         </div>
-                        <Index config={config} />
+                        <ZoneIndex config={config} />
                         <div style={{ width: '100%', position: 'absolute', top: 200 }}>
                             <Sticker image="unit" style={{ position: 'absolute', left: -0, top: 80 }} />
                             <Sticker image="eye" style={{ position: 'absolute', right: -0, top: 130 }} />

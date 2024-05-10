@@ -281,6 +281,7 @@ query GetZones($gameID: ID!) {
                     id
                     addr: key
                 }
+                tileCount: count(match: { kinds: "Tile", via: { rel: "Parent", dir: IN } })
             }
             mobileUnits: nodes(match: { kinds: "MobileUnit" }) {
                 id
