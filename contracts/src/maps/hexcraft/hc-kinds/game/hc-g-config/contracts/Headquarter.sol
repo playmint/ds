@@ -8,6 +8,7 @@ import {Schema, Node, Q, R, S, Kind} from "@ds/schema/Schema.sol";
 import {Actions} from "@ds/actions/Actions.sol";
 import {BuildingKind} from "@ds/ext/BuildingKind.sol";
 import "@ds/utils/LibString.sol";
+import {IHexcraftZone} from "./IZone.sol";
 
 using Schema for State;
 
@@ -26,6 +27,8 @@ contract Headquarter is BuildingKind {
 
     function reset() external {}
 
+    function resetWorld() external {}
+
     function use(Game ds, bytes24 buildingInstance, bytes24 actor, bytes calldata payload) public override {
         State state = GetState(ds);
 
@@ -37,12 +40,38 @@ contract Headquarter is BuildingKind {
             _start(ds, state, buildingInstance, redBaseID, blueBaseId);
         } else if ((bytes4)(payload) == this.reset.selector) {
             _reset(ds, buildingInstance);
+        } else if ((bytes4)(payload) == this.resetWorld.selector) {
+            _resetWorld(ds, buildingInstance);
+        } else {
+            revert("Invalid payload");
         }
     }
 
     /*
      * Functions to handle game logic
      */
+
+    function _resetWorld(Game ds, bytes24 buildingInstance) private {
+        State state = ds.getState();
+        bytes24 buildingTile = state.getFixedLocation(buildingInstance);
+        (int16 z,,,) = getTileCoords(buildingTile);
+        bytes24 zone = Node.Zone(z);
+        IHexcraftZone zoneImpl = IHexcraftZone(state.getImplementation(zone));
+        require(zoneImpl != IHexcraftZone(address(0)), "Zone implementation not found");
+        zoneImpl.resetWorld(ds, buildingInstance);
+    }
+
+    function getTileCoords(bytes24 tile) internal pure returns (int16 z, int16 q, int16 r, int16 s) {
+        int16[4] memory keys = INT16_ARRAY(tile);
+        return (keys[0], keys[1], keys[2], keys[3]);
+    }
+
+    function INT16_ARRAY(bytes24 id) internal pure returns (int16[4] memory keys) {
+        keys[0] = int16(int192(uint192(id) >> 48));
+        keys[1] = int16(int192(uint192(id) >> 32));
+        keys[2] = int16(int192(uint192(id) >> 16));
+        keys[3] = int16(int192(uint192(id)));
+    }
 
     function _join(Game ds, bytes24 unitId, bytes24 buildingId) private {
         // check game not in progress
