@@ -1193,7 +1193,7 @@ export const ToggleButtons = ({
                 borderRadius: 8,
                 justifyContent: 'flex-start',
                 alignItems: 'flex-start',
-                gap: 2,
+                gap: 3,
                 display: 'inline-flex',
             }}
         >
@@ -1210,9 +1210,7 @@ export const ToggleButtons = ({
                                 ? '#FB7001'
                                 : 'linear-gradient(0deg, #F7F5FA 0%, #F7F5FA 100%), linear-gradient(180deg, #EDEBF2 0%, rgba(228, 225, 235, 0) 66%)',
                         boxShadow:
-                            active === value
-                                ? '0px 2px 0px rgba(255, 255, 255, 0.24) inset'
-                                : '0px 2px 0px white inset',
+                            active === value ? '0px 2px 0px rgba(0, 0, 0, 0.2) inset' : '0px 2px 0px white inset',
                         borderRadius: 5.5,
                         justifyContent: 'center',
                         alignItems: 'center',
