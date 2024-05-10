@@ -1,5 +1,3 @@
-// import userIcon from './images/user-01.png';
-// import DownstreamLogo from '@app/assets/downstream-logo-dark.svg';
 import userIcon from '@app/assets/user-01.svg';
 import buttonRing from '@app/assets/buttonRing.svg';
 import signInOff from '@app/assets/log-in-03.svg';
@@ -9,10 +7,12 @@ import downstreamLogo from '@app/assets/downstream-title.svg';
 import iconInfo from '@app/assets/icon-info.svg';
 import iconDiscord from '@app/assets/icon-discord.svg';
 import iconSparkles from '@app/assets/icon-sparkles.svg';
+import iconMag from '@app/assets/icon-mag.svg';
 import stickerEye from '@app/assets/sticker-eye.png';
 import stickerUnit from '@app/assets/sticker-unit.png';
 import Image from 'next/image';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { GetZonesQuery } from '@downstream/core';
 
 export const Sticker = ({ image, style }: { image: 'eye' | 'unit'; style: React.CSSProperties }) => {
     const iconSrc = useMemo(() => {
@@ -1029,3 +1029,197 @@ export const SpotlightTitle = ({ children }: { children: React.ReactNode }) => (
         ></div>
     </div>
 );
+
+export type Zone = GetZonesQuery['game']['state']['zones'][0];
+export type ZoneUnit = GetZonesQuery['game']['state']['mobileUnits'][0];
+export interface ZoneWithActivity extends Omit<Zone, 'id' | 'name'> {
+    id: number;
+    name: string;
+    activeUnits: ZoneUnit[];
+    lastActiveUnit: number;
+    zoneUnits: ZoneUnit[];
+    maxUnits: number;
+    isActive: boolean;
+}
+export type ZoneFilterFunc = (zone: ZoneWithActivity) => boolean;
+
+export const FilterBar = ({
+    playerAddress,
+    children,
+    onChangeFilter,
+}: {
+    playerAddress?: string;
+    children: React.ReactNode;
+    onChangeFilter: (filter: ZoneFilterFunc) => void;
+}) => {
+    const [textQuery, setTextQuery] = useState<string>('');
+    const [toggleValue, setToggleValue] = useState<string>('ACTIVE');
+    const textFilterFunc = useCallback<ZoneFilterFunc>(
+        (zone: ZoneWithActivity) => {
+            if (textQuery.length === 0) {
+                return true;
+            }
+            const description = zone.description?.value || `Unknown zone #${zone.id}`;
+            const text = `${zone.name} ${description}`;
+            return text.toLowerCase().includes(textQuery.toLowerCase());
+        },
+        [textQuery]
+    );
+    const toggleFilterFunc = useMemo<ZoneFilterFunc>(() => {
+        switch (toggleValue) {
+            case 'ACTIVE':
+                return (zone: ZoneWithActivity) => {
+                    return zone.isActive;
+                };
+            case 'YOURS':
+                return (zone: ZoneWithActivity) =>
+                    playerAddress && zone.owner?.addr && zone.owner?.addr === playerAddress;
+            default: // ALL
+                return () => true;
+        }
+    }, [playerAddress, toggleValue]);
+    const filterFuncs = useMemo(() => {
+        const filterFuncs: ZoneFilterFunc[] = [];
+        filterFuncs.push(textFilterFunc);
+        filterFuncs.push(toggleFilterFunc);
+        return filterFuncs;
+    }, [textFilterFunc, toggleFilterFunc]);
+
+    useEffect(() => {
+        onChangeFilter((zone) => filterFuncs.every((func) => func(zone)));
+    }, [filterFuncs, onChangeFilter]);
+
+    return (
+        <div
+            style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: 16,
+                flexDirection: 'row',
+                flexWrap: 'nowrap',
+                marginTop: 16,
+                marginBottom: 32,
+            }}
+        >
+            <ToggleButtons options={['ALL', 'ACTIVE', 'YOURS']} onChange={setToggleValue} active={toggleValue} />
+            <div style={{ position: 'relative', top: -5, width: '100%', textAlign: 'center' }}>{children}</div>
+            <div
+                style={{
+                    width: 360,
+                    height: '58px',
+                    padding: 3,
+                    background: '#24202B',
+                    boxShadow: '0px 2px 0px white',
+                    borderRadius: 8,
+                    justifyContent: 'flex-start',
+                    alignItems: 'flex-start',
+                    gap: 2,
+                    display: 'inline-flex',
+                }}
+            >
+                <div
+                    style={{
+                        width: 350,
+                        flex: '1 1 0',
+                        alignSelf: 'stretch',
+                        paddingLeft: 16,
+                        paddingRight: 16,
+                        background: 'linear-gradient(0deg, #F7F5FA 0%, #F7F5FA 100%)',
+                        borderRadius: 5.5,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        gap: 12,
+                        display: 'flex',
+                    }}
+                >
+                    <div style={{ width: 24, height: 24, position: 'relative' }}>
+                        <Image
+                            src={iconMag}
+                            alt="mag"
+                            style={{
+                                width: 18,
+                                height: 18,
+                                left: 3,
+                                top: 3,
+                                position: 'absolute',
+                            }}
+                        />
+                    </div>
+                    <input
+                        value={textQuery}
+                        onChange={(e) => setTextQuery(e.target.value)}
+                        type="text"
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            color: '#A8A2B5',
+                            fontSize: 16,
+                            fontFamily: 'Recursive',
+                            fontWeight: '500',
+                            wordWrap: 'break-word',
+                            background: 'transparent',
+                            border: 'none',
+                        }}
+                        placeholder="Search names..."
+                    />
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export const ToggleButtons = ({
+    onChange,
+    options,
+    active,
+}: {
+    onChange: (v: string) => void;
+    options: string[];
+    active: string;
+}) => {
+    return (
+        <div
+            style={{
+                height: '64px',
+                padding: 3,
+                background: '#24202B',
+                boxShadow: '0px 2px 0px white',
+                borderRadius: 8,
+                justifyContent: 'flex-start',
+                alignItems: 'flex-start',
+                gap: 2,
+                display: 'inline-flex',
+            }}
+        >
+            {options.map((value) => (
+                <div
+                    key={value}
+                    style={{
+                        width: 100,
+                        height: 58,
+                        paddingLeft: 16,
+                        paddingRight: 16,
+                        background:
+                            active === value
+                                ? '#FB7001'
+                                : 'linear-gradient(0deg, #F7F5FA 0%, #F7F5FA 100%), linear-gradient(180deg, #EDEBF2 0%, rgba(228, 225, 235, 0) 66%)',
+                        boxShadow:
+                            active === value
+                                ? '0px 2px 0px rgba(255, 255, 255, 0.24) inset'
+                                : '0px 2px 0px white inset',
+                        borderRadius: 5.5,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        gap: 12,
+                        display: 'flex',
+                        cursor: 'pointer',
+                    }}
+                    onClick={() => onChange(value)}
+                >
+                    {value}
+                </div>
+            ))}
+        </div>
+    );
+};
