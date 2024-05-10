@@ -8,7 +8,6 @@ import {
     IconButton,
     ZoneRow,
     Sticker,
-    HeroText,
     HeroButton,
     SpotlightTitle,
     FilterBar,
