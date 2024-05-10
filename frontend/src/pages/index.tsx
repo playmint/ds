@@ -17,7 +17,7 @@ import { GameStateProvider, useCogClient, useGlobal, usePlayer, useWallet } from
 import { SessionProvider } from '@app/hooks/use-session';
 import { WalletProviderProvider, useWalletProvider } from '@app/hooks/use-wallet-provider';
 import Image from 'next/image';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import iconUnit from '@app/assets/icon-unit.svg';
 import { pipe, subscribe } from 'wonka';
@@ -26,7 +26,6 @@ import {
     GameConfig,
     GetZonesDocument,
     GetZonesQuery,
-    Wallet,
     Zones721__factory,
 } from '@downstream/core';
 
@@ -34,6 +33,7 @@ type Zone = GetZonesQuery['game']['state']['zones'][0];
 type ZoneUnit = GetZonesQuery['game']['state']['mobileUnits'][0];
 
 import styled from 'styled-components';
+import { NavPanel } from '@app/components/panels/nav-panel';
 
 const StyledIndex = styled.div`
     width: 1216px;
@@ -41,18 +41,10 @@ const StyledIndex = styled.div`
     zoom: 90%;
 `;
 
-const ZoneMinter = ({
-    gameAddress,
-    style,
-    walletProvider,
-    wallet,
-}: {
-    gameAddress: string;
-    style?: React.CSSProperties;
-    walletProvider?: any;
-    wallet?: Wallet;
-}) => {
+const ZoneMintButton = ({ gameAddress, style }: { gameAddress: string; style?: React.CSSProperties }) => {
     const player = usePlayer();
+    const { provider: walletProvider } = useWalletProvider();
+    const { wallet } = useWallet();
     const provider = walletProvider?.provider;
     const [error, setError] = useState<string>();
     const [mintPrice, setMintPrice] = useState<bigint>();
@@ -121,9 +113,13 @@ const ZoneMinter = ({
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', ...style }}>
-            {player && (
+            {player ? (
                 <HeroButton onClick={createZone} disabled={minting}>
                     {minting ? `loading` : `CREATE ZONE ${displayPrice}`}
+                </HeroButton>
+            ) : (
+                <HeroButton onClick={() => {}} disabled={true}>
+                    CONNECT WALLET FIRST
                 </HeroButton>
             )}
             {error}
@@ -185,8 +181,6 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
     const zoneUnitLimit = parseInt(global?.gameSettings?.zoneUnitLimit?.value || '0x0', 16);
     // const [selectedFilter, setSelectedFilter] = useState<Key>(ZoneFilter.AllZones);
     // const [selectedSorting, setSelectedSorting] = useState<Key>(ZoneSorting.Newest);
-    const { provider: walletProvider } = useWalletProvider();
-    const { wallet } = useWallet();
     const gameAddress = zonesData?.game?.id || '0x0';
     const zones = zonesData?.game?.state?.zones || [];
     const blockNumber = zonesData?.game?.state?.block || 0;
@@ -235,6 +229,8 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
     const filteredAndSortedZones = filteredZones.sort((a, b) => (b.key - a.key ? 1 : -1));
     const filterName = 'All Zones';
 
+    const navPanelStyle = useMemo(() => ({ height: '64px' }), []);
+
     return (
         <StyledIndex>
             <EmbossedTopPanel />
@@ -248,7 +244,7 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                     minHeight: '80px',
                 }}
             >
-                <IconButton icon="info" onClick={onClickInfo} />
+                <NavPanel style={navPanelStyle} />
                 <DownstreamLogo />
                 <IconButton icon="discord" onClick={onClickDiscord} />
             </div>
@@ -271,12 +267,7 @@ const Index = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                 >
                     You do not need a zone to expore other player creations. Claim a zone to take control of the rules
                     and build your own world.
-                    <ZoneMinter
-                        gameAddress={gameAddress}
-                        style={{ marginTop: 18 }}
-                        walletProvider={walletProvider}
-                        wallet={wallet}
-                    />
+                    <ZoneMintButton gameAddress={gameAddress} style={{ marginTop: 18 }} />
                 </div>
             </HeroPanel>
             <div>

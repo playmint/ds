@@ -4,7 +4,7 @@ import { useSession } from '@app/hooks/use-session';
 import { GlobalUnityContext } from '@app/hooks/use-unity-instance';
 import { useWalletProvider } from '@app/hooks/use-wallet-provider';
 import { ActionButton, TextButton } from '@app/styles/button.styles';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Dialog } from '../molecules/dialog';
 import { ZoneWithBags } from '@downstream/core';
@@ -21,6 +21,7 @@ const AccountButton = styled.button`
     padding: 0 1.6rem;
     margin: 0;
     border-radius: 1rem;
+    min-width: 62px;
 
     > svg {
         margin-left: 0.2rem;
@@ -57,6 +58,7 @@ export const NavPanel = ({
     walletItemsActive,
     zone,
     className,
+    style,
 }: {
     questsCount?: number;
     questsActive?: boolean;
@@ -65,6 +67,7 @@ export const NavPanel = ({
     walletItemsActive?: boolean;
     zone?: ZoneWithBags;
     className?: string;
+    style?: React.CSSProperties;
 }) => {
     const { connect, disconnect: forgetProvider, provider } = useWalletProvider();
     const { clearSession } = useSession();
@@ -179,8 +182,10 @@ export const NavPanel = ({
         setZoneUrl(zone?.url?.value || '');
     }, [zone?.name?.value, zone?.description?.value, zone?.url?.value]);
 
+    const overrides = useMemo(() => style || {}, [style]);
+
     return (
-        <NavContainer className={className}>
+        <NavContainer className={className} style={overrides}>
             {showAccountDialog && hasConnection && (
                 <Dialog onClose={closeAccountDialog} width="304px" height="">
                     <div style={{ padding: 0 }}>
