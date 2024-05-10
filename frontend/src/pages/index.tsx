@@ -56,7 +56,15 @@ const StyledIndex = styled.div`
     }
 `;
 
-const ZoneMintButton = ({ gameAddress, style }: { gameAddress: string; style?: React.CSSProperties }) => {
+const ZoneMintButton = ({
+    gameAddress,
+    onMint,
+    style,
+}: {
+    gameAddress: string;
+    style?: React.CSSProperties;
+    onMint: () => void;
+}) => {
     const player = usePlayer();
     const { provider: walletProvider } = useWalletProvider();
     const { wallet } = useWallet();
@@ -118,6 +126,7 @@ const ZoneMintButton = ({ gameAddress, style }: { gameAddress: string; style?: R
             const tx = await zonesContract.mintTo(player.addr, { value: mintPrice });
             console.log('tx submitted', tx);
             await tx.wait();
+            onMint();
             setError(`mint success!, find your zone in the list below`);
         } catch (err) {
             console.error('MINTFAIL:', err);
@@ -125,7 +134,7 @@ const ZoneMintButton = ({ gameAddress, style }: { gameAddress: string; style?: R
         } finally {
             setMinting(false);
         }
-    }, [minting, player, provider, wallet, gameAddress]);
+    }, [minting, player, provider, wallet, gameAddress, onMint]);
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', ...style }}>
@@ -174,6 +183,7 @@ const ZoneList = ({
 };
 
 const ZoneIndex = ({ config }: { config: Partial<GameConfig> | undefined }) => {
+    const [toggleValueRaw, setToggleValue] = useState<string>('ACTIVE');
     const router = useRouter();
     const player = usePlayer();
     const client = useCogClient();
@@ -256,6 +266,10 @@ const ZoneIndex = ({ config }: { config: Partial<GameConfig> | undefined }) => {
         return setFilterFuncRaw(() => f);
     }, []);
 
+    const onMint = useCallback(() => {
+        setToggleValue('YOURS');
+    }, []);
+
     return (
         <StyledIndex>
             <EmbossedTopPanel />
@@ -292,7 +306,7 @@ const ZoneIndex = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                 >
                     You do not need a zone to expore other player creations. Claim a zone to take control of the rules
                     and build your own world.
-                    <ZoneMintButton gameAddress={gameAddress} style={{ marginTop: 18 }} />
+                    <ZoneMintButton gameAddress={gameAddress} style={{ marginTop: 18 }} onMint={onMint} />
                 </div>
             </HeroPanel>
             <div>
@@ -307,7 +321,12 @@ const ZoneIndex = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                 />
             </div>
             <div style={{ marginTop: 64 }}>
-                <FilterBar onChangeFilter={setFilterFunc} playerAddress={player?.addr}>
+                <FilterBar
+                    onChangeFilter={setFilterFunc}
+                    playerAddress={player?.addr}
+                    toggleValueRaw={toggleValueRaw}
+                    setToggleValue={setToggleValue}
+                >
                     SHOWING {filteredAndSortedZones.length} LOCATIONS
                 </FilterBar>
                 {filteredAndSortedZones.length > 0 ? (

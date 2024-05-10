@@ -1047,13 +1047,16 @@ export const FilterBar = ({
     playerAddress,
     children,
     onChangeFilter,
+    toggleValueRaw,
+    setToggleValue,
 }: {
     playerAddress?: string;
     children: React.ReactNode;
     onChangeFilter: (filter: ZoneFilterFunc) => void;
+    toggleValueRaw: string;
+    setToggleValue: (v: string) => void;
 }) => {
     const [textQuery, setTextQuery] = useState<string>('');
-    const [toggleValueRaw, setToggleValue] = useState<string>('ACTIVE');
     const toggleValue = useMemo(() => (textQuery.length > 0 ? 'ALL' : toggleValueRaw), [textQuery, toggleValueRaw]);
     const textFilterFunc = useCallback<ZoneFilterFunc>(
         (zone: ZoneWithActivity) => {
@@ -1070,7 +1073,8 @@ export const FilterBar = ({
         switch (toggleValue) {
             case 'ACTIVE':
                 return (zone: ZoneWithActivity) => {
-                    return zone.isActive;
+                    const isYours = playerAddress && zone.owner?.addr && zone.owner?.addr === playerAddress;
+                    return zone.isActive || isYours;
                 };
             case 'YOURS':
                 return (zone: ZoneWithActivity) =>
