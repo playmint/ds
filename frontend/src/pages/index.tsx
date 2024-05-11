@@ -221,7 +221,7 @@ const ZoneIndex = ({ config }: { config: Partial<GameConfig> | undefined }) => {
                 const activeUnits = zoneUnits.filter(
                     (u) => u.location && u.location.time + unitTimeoutBlocks > blockNumber
                 );
-                const lastActiveUnit = activeUnits.reduce(
+                const lastActiveUnit = zoneUnits.reduce(
                     (lastActiveUnit, u) =>
                         u.location && u.location.time > lastActiveUnit ? u.location.time : lastActiveUnit,
                     0
