@@ -35,7 +35,7 @@ import { styles } from './shell.styles';
 // fails for zone ids above 40. As a temporary measure to limit confusion we
 // will disable the construct button on these zones while we consider options
 // see: https://github.com/playmint/ds/issues/1402
-const isBuggyZone = (id: number) => id >= 40;
+const isBuggyZone = (id: number) => id > 40;
 
 export interface ShellProps extends ComponentProps {}
 
