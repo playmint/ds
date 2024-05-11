@@ -31,6 +31,12 @@ import styled from 'styled-components';
 import { pipe, subscribe } from 'wonka';
 import { styles } from './shell.styles';
 
+// there is a bug that means that the CONSTRUCT_BUILDING_MOBILE_UNIT action
+// fails for zone ids above 40. As a temporary measure to limit confusion we
+// will disable the construct button on these zones while we consider options
+// see: https://github.com/playmint/ds/issues/1402
+const isBuggyZone = (id: number) => id >= 40;
+
 export interface ShellProps extends ComponentProps {}
 
 const StyledShell = styled('div')`
@@ -63,6 +69,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const kinds = global?.buildingKinds || [];
     const unitTimeoutBlocks = parseInt(global?.gameSettings?.unitTimeoutBlocks?.value || '0x0', 16);
     const zoneUnitLimit = parseInt(global?.gameSettings?.zoneUnitLimit?.value || '0x0', 16);
+    const zoneId = parseInt(zone?.key || 0, 16);
 
     const ui = usePluginState();
     const [questsActive, setQuestsActive] = useState<boolean>(true);
@@ -413,7 +420,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
                         <div className="flex-spacer"></div>
                         <div className="bottom-middle">
                             <ActionContextPanel pluginTileProperties={pluginTileProperties} />
-                            <ActionBar />
+                            <ActionBar move={true} combat={true} construct={!isBuggyZone(zoneId)} />
                         </div>
                         <div className="flex-spacer"></div>
                     </div>
