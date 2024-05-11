@@ -79,6 +79,8 @@ const WalletItemsItemStyles = () => css`
     .taskContainer {
         font-size: 1.4rem;
         padding: var(--panel-padding) var(--panel-padding) 0 var(--panel-padding);
+        overflow: scroll;
+        max-height: 22rem;
     }
 
     .buttonContainer {
