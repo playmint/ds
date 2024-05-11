@@ -8,6 +8,10 @@ fragment Item on Node {
         id
         value
     }
+    allData {
+        name
+        value
+    }
 }
 
 fragment ItemSlot on Edge {

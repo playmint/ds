@@ -3,6 +3,8 @@ kind: Item
 spec:
   name: Cocktail
   icon: 02-40
+  contract:
+    file: ./Cocktail.sol
   plugin:
     file: ./Cocktail.js
   goo:
