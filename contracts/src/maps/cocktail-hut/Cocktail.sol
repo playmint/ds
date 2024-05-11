@@ -10,7 +10,6 @@ import {Actions} from "@ds/actions/Actions.sol";
 using Schema for State;
 
 contract Cocktail is ItemKind {
-
     string constant KEY_SIPS = "sips";
 
     // encode/decode signatures
@@ -20,13 +19,13 @@ contract Cocktail is ItemKind {
     function use(
         Game ds,
         bytes24 itemID, // item being used
-        bytes24 /*mobileUnitID*/, // unit useing the item
+        bytes24, /*mobileUnitID*/ // unit useing the item
         bytes calldata payload // a blob of data for you to decide what to do with
     ) external override {
         if ((bytes4)(payload) == this.sip.selector) {
             _sip(ds, itemID);
         } else {
-            revert('unknown use action');
+            revert("unknown use action");
         }
     }
 
@@ -54,27 +53,29 @@ contract Cocktail is ItemKind {
         );
     }
 
-    function onExtract(Game /*ds*/, bytes24, /*entity*/ bytes24 /*buildingInstanceID*/, bytes24 /*itemID*/, uint64 /*itemQty*/ )
-        external
-        override
-        pure
-    {
-        revert('cannot extract cocktails');
+    function onExtract(
+        Game, /*ds*/
+        bytes24, /*entity*/
+        bytes24, /*buildingInstanceID*/
+        bytes24, /*itemID*/
+        uint64 /*itemQty*/
+    ) external pure override {
+        revert("cannot extract cocktails");
     }
 
-    function onSpawn(Game /*ds*/, bytes24 /*zoneOwner*/, bytes24, /*zoneID*/ bytes24 /*itemID*/, uint64 /*itemQty*/ )
+    function onSpawn(Game, /*ds*/ bytes24, /*zoneOwner*/ bytes24, /*zoneID*/ bytes24, /*itemID*/ uint64 /*itemQty*/ )
         external
-        override
         pure
+        override
     {
-        revert('cannot spawn cocktails');
+        revert("cannot spawn cocktails");
     }
 
-    function onReward(Game /*ds*/, bytes24, /*winner*/ bytes24 /*sessionID*/, bytes24 /*itemID*/, uint64 /*itemQty*/ )
+    function onReward(Game, /*ds*/ bytes24, /*winner*/ bytes24, /*sessionID*/ bytes24, /*itemID*/ uint64 /*itemQty*/ )
         external
-        override
         pure
+        override
     {
-        revert('cocktail spilt during combat');
+        revert("cocktail spilt during combat");
     }
 }
