@@ -51,7 +51,7 @@ When the zone is deployed, this shows up on the zone select page:
 We're also using the yaml file to implement logic to our zone.
 
 ## Zone.js
-In this exmaple, `Zone.js` is just being used to colour the tiles:
+In this example, `Zone.js` is just being used to colour the tiles:
 ```js
 const z = hexToSignedDecimal(state.world.key);
     const middleCoords = [z, 0, 7, -7];
@@ -106,7 +106,27 @@ It only pushes the tile to the list if it matches a certain coord.
 ## Zone.sol
 Take a look at the example `Zone.sol` file and you will notice that it may look similar to a BuildingKind solidity file.
 
-There are however some new concepts being used here that we haven't yet convered.
+There are however some new concepts being used here that we haven't yet covered.
+
+In our example, we'll setup the file like this:
+```solidity
+pragma solidity ^0.8.13;
+
+import {Game} from "cog/IGame.sol";
+import {State, CompoundKeyDecoder} from "cog/IState.sol";
+import {Schema, CombatWinState} from "@ds/schema/Schema.sol";
+import {ZoneKind} from "@ds/ext/ZoneKind.sol";
+import {Actions} from "@ds/actions/Actions.sol";
+
+using Schema for State;
+
+contract Zone is ZoneKind { 
+    ...
+```
+
+We're importing `ZoneKind` so we can make use of the built-in hooks.
+
+
 
 I've predefined a list of tile IDs that we're going to use to stop units from walking on them:
 
@@ -137,7 +157,7 @@ I've predefined a list of tile IDs that we're going to use to stop units from wa
     }
 ```
 
-We're using a `constructor` to set the `unwalableTiles` array values.
+We're using a `constructor` to set the `unwalkableTiles` array values.
 
 The way I created this list in the first place, was by making code in `Zone.js` that compiled the tile IDs of the unwalkable tiles that could be copy & pasted straight into the solidity code:
 ```js
@@ -185,13 +205,15 @@ In our example, we're using:
 ```
 This code checks where the unit is trying to move to. If they're trying to move to a tile that exists in the `unwalkableTiles` array, the movement will not be allowed.
 
+In our case, this is all the red tiles. Once you've implemented this, you can apply the map, and notice the unit will skip over the red tiles.
+
 ### onCombatStart
 ```solidity
     function onCombatStart(Game /*ds*/, bytes24 /*zoneID*/, bytes24 /*mobileUnitID*/, bytes24 /*sessionID*/) external pure override {
         revert("Combat is disabled in this zone");
     }
 ```
-Because we have access to this hook, we can do things like removing combat in a zone, or perhaps limitting combat based on game logic. In this example, we're simply disabling combat as a whole.
+Because we have access to this hook, we can do things like removing combat in a zone, or perhaps limiting combat based on game logic. In this example, we're simply disabling combat as a whole.
 
 With this implemented, when a unit tries to enter combat in this zone, nothing will happen:
 
@@ -200,7 +222,7 @@ With this implemented, when a unit tries to enter combat in this zone, nothing w
 ### use
 The ZoneKind has the unique ability to be able to access "dev" actions. Which are some of the actions that are used during the `ds apply`/`ds destroy` commands like spawning and removing buildings and tiles.
 
-For the zone, instead of dispatching `BUILDING_USE`, we dispatch `ZONE_USE`, and it interact with the zone's solidity logic.
+For the zone, instead of dispatching `BUILDING_USE`, we dispatch `ZONE_USE`, and it interacts with the zone's solidity logic.
 
 We've added this function:
 ```solidity
@@ -232,7 +254,7 @@ function use(Game ds, bytes24, /*zoneID*/ bytes24, /*mobileUnitID*/ bytes callda
     }
 ```
 
-Note see what function way passed in via the payload:
+Note see what function was passed in via the payload:
 ```solidity
 if ((bytes4)(payload) == this.toggleUnwalkableTiles.selector)
 ```
