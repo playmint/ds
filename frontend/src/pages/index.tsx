@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { lookupENSName } from '@app/helpers';
 import {
     DownstreamLogo,
     EmbossedBottomPanel,
@@ -162,6 +163,20 @@ const ZoneList = ({
     unitZoneLimit: number;
     onClickEnter: (id: number) => void;
 }) => {
+    const [ensNames, setEnsNames] = useState({});
+
+    useEffect(() => {
+        zones.forEach(async (zone) => {
+            if (zone.owner?.addr) {
+                const ensName = await lookupENSName(zone.owner.addr);
+                setEnsNames((prevNames) => ({
+                    ...prevNames,
+                    [zone.owner?.addr]: ensName,
+                }));
+            }
+        });
+    }, [zones]);
+
     return (
         <div>
             {zones.map((zone) => (
@@ -174,7 +189,7 @@ const ZoneList = ({
                     maxUnits={zone.maxUnits}
                     imageURL={zone.url?.value ? zone.url.value : 'https://assets.downstream.game/tile.png'}
                     onClickEnter={onClickEnter}
-                    ownerAddress={zone.owner?.addr || '0x0'}
+                    ownerAddress={ensNames[zone.owner?.addr] || zone.owner?.addr || '0x0'}
                 />
             ))}
         </div>

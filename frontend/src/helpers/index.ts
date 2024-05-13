@@ -39,6 +39,17 @@ export const decodeString = (value: string): string => {
     }
 };
 
+export async function lookupENSName(address: string) {
+    const ensProvider = ethers.getDefaultProvider('mainnet');
+    try {
+        const name = await ensProvider.lookupAddress(address);
+        return name || address;
+    } catch (error) {
+        console.error('ENS lookup failed', error);
+        return address;
+    }
+}
+
 export const getItemStructure = (itemId: string) => {
     return [...itemId]
         .slice(2)
