@@ -28,7 +28,14 @@ export default async function update(state) {
                 key: "color",
                 id: tileId,
                 value: "#EC5C61",
-            });
+            },
+            {
+                type: "tile",
+                key: "blocker",
+                id: tileId,
+                value: 'true',
+            },
+        );
             //printThese.push(tileId);
         }
     });

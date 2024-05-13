@@ -21,6 +21,19 @@ Enter the [tile-fabricator](http://localhost:3000/tile-fabricator) and draw the 
 
 Now that we're on `tutorial-room-7`, we are going to draw this over the `tutorial-room-1` area.
 
+### ds destroy
+
+If you already have `tutorial-room-1` applied to your zone, then you may want to use the `ds destroy` command to remove it before applying the new map over the top.
+
+`ds destroy` works similarly to `ds apply`, but it essentially does the oposite.
+
+Navigate to the `tutorial-room-1` map directory and run this command:
+```ds
+ds destroy -n <network> -z <zone ID> -R -f .
+```
+
+You will then see the tiles and buildings being destroyed in the game, and in the console output.
+
 ## 3. Zone files
 To implement the ZoneKind, you need to create these files:
 - Zone.yaml
@@ -76,7 +89,7 @@ const z = hexToSignedDecimal(state.world.key);
     });
 ```
 
-I'm using similar helper function as we used to create the dico room ([tutorial-room-4](https://github.com/playmint/ds/blob/main/contracts/src/maps/tutorial-room-4/README.md)), but with some slight modifications to create a walkable path, represented by green tiles, and an unwalkable path, represented by red tiles.
+I'm using similar helper function as we used to create the disco room ([tutorial-room-4](https://github.com/playmint/ds/blob/main/contracts/src/maps/tutorial-room-4/README.md)), but with some slight modifications to create a walkable path, represented by green tiles, and an unwalkable path, represented by red tiles.
 
 As you can see in this modified function:
 ```js
@@ -206,6 +219,39 @@ In our example, we're using:
 This code checks where the unit is trying to move to. If they're trying to move to a tile that exists in the `unwalkableTiles` array, the movement will not be allowed.
 
 In our case, this is all the red tiles. Once you've implemented this, you can apply the map, and notice the unit will skip over the red tiles.
+
+Once you've confirmed that the unit is unable to walk on the red tiles, we can modify our plugin code so that the pathfinding on the frontend completely avoids walking on the red tiles:
+```js
+allRoomTiles.forEach((tileId) => {
+        if (walkableTiles.includes(tileId)) {
+            map.push({
+                type: "tile",
+                key: "color",
+                id: tileId,
+                value: "#32B25A",
+            });
+        } else {
+            map.push({
+                type: "tile",
+                key: "color",
+                id: tileId,
+                value: "#EC5C61",
+            },
+            // ADD THIS TO TURN THE RED TILES INTO "blocker" TILES
+            {
+                type: "tile",
+                key: "blocker",
+                id: tileId,
+                value: 'true',
+            },
+        );
+        }
+    });
+```
+
+With this change, you should see that the pathfinding is going around the red tiles:
+
+<img src="./readme-images/path-finding.png" width=600>
 
 ### onCombatStart
 ```solidity
