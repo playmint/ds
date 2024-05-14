@@ -362,29 +362,6 @@ export default function IndexPage() {
                             position: 'relative',
                         }}
                     >
-                        <div
-                            style={{
-                                top: 0,
-                                left: 0,
-                                width: '100%',
-                                padding: 16,
-                                backgroundColor: 'rgba(0,0,0,0.99)',
-                                color: 'white',
-                                fontSize: 18,
-                                zIndex: 1000,
-                                textAlign: 'center',
-                            }}
-                        >
-                            Working on something cool? Sign up for the Redstone hackathon{' '}
-                            <a
-                                href="https://t.co/LX7XzmFpby"
-                                target="_blank"
-                                rel="noreferrer"
-                                style={{ color: 'white' }}
-                            >
-                                here
-                            </a>
-                        </div>
                         <ZoneIndex config={config} />
                         <div style={{ width: '100%', position: 'absolute', top: 200 }}>
                             <Sticker image="unit" style={{ position: 'absolute', left: -0, top: 80 }} />
