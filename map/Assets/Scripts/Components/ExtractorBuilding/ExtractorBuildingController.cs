@@ -14,6 +14,10 @@ public class ExtractorBuildingController : BaseComponentController<ExtractorBuil
     [SerializeField]
     private Renderer gooRenderer;
 
+    [SerializeField]
+    Material normalMat,
+        highlightMat;
+
     public Material redOutlineMat,
         greenOutlineMat;
 
@@ -21,7 +25,7 @@ public class ExtractorBuildingController : BaseComponentController<ExtractorBuil
 
     protected void Start()
     {
-        _defaultColor = renderers[0].material.GetColor("_EmissionColor");
+        //_defaultColor = renderers[0].material.GetColor("_EmissionColor");
     }
 
     protected void Update()
@@ -51,7 +55,7 @@ public class ExtractorBuildingController : BaseComponentController<ExtractorBuil
             }
             foreach (Renderer rend in renderers)
             {
-                rend.material.SetColor("_EmissionColor", _defaultColor);
+                rend.material = normalMat;//rend.material.SetColor("_EmissionColor", _defaultColor);
             }
         }
         else if (_nextData.selected == "highlight")
@@ -62,7 +66,7 @@ public class ExtractorBuildingController : BaseComponentController<ExtractorBuil
             }
             foreach (Renderer rend in renderers)
             {
-                rend.material.SetColor("_EmissionColor", highlightColor);
+                rend.material = highlightMat;//rend.material.SetColor("_EmissionColor", highlightColor);
             }
         }
         else
@@ -73,7 +77,7 @@ public class ExtractorBuildingController : BaseComponentController<ExtractorBuil
             }
             foreach (Renderer rend in renderers)
             {
-                rend.material.SetColor("_EmissionColor", _defaultColor);
+                rend.material = normalMat;//rend.material.SetColor("_EmissionColor", _defaultColor);
             }
         }
     }
