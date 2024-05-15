@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: BlockerMat
+  m_Name: BlockerMatHighlight
   m_Shader: {fileID: -6465566751694194690, guid: d7db171aebad540b28d5c39951f862f1,
     type: 3}
   m_ValidKeywords: []
@@ -144,8 +144,8 @@ Material:
     - _Color: {r: 0.18369521, g: 0.32670623, b: 0.6792453, a: 1}
     - _DynamicColor: {r: 0, g: 0, b: 0, a: 0}
     - _DynamicShadowColor: {r: 0, g: 0, b: 0, a: 0}
-    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _ShadowColor: {r: 0.37254897, g: 0.43529406, b: 0.6, a: 1}
+    - _EmissionColor: {r: 0.078431375, g: 0.34509805, b: 0.48235294, a: 1}
+    - _ShadowColor: {r: 0.372549, g: 0.4352941, b: 0.6, a: 1}
     - _SpecColor: {r: 0.19999993, g: 0.19999993, b: 0.19999993, a: 0}
     - _SpecularColor: {r: 0.50507295, g: 0.57370824, b: 0.7075471, a: 1}
   m_BuildTextureStacks: []

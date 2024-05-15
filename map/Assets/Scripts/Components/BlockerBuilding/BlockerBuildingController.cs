@@ -15,6 +15,10 @@ public class BlockerBuildingController : BaseComponentController<BlockerBuilding
     [SerializeField]
     Transform meshParent;
 
+    [SerializeField]
+    Material normalMat,
+        highlightMat;
+
     public Material redOutlineMat,
         greenOutlineMat;
 
@@ -55,7 +59,7 @@ public class BlockerBuildingController : BaseComponentController<BlockerBuilding
             }
             foreach (Renderer rend in renderers)
             {
-                rend.material.SetColor("_EmissionColor", _defaultColor);
+                rend.material = normalMat;//rend.material.SetColor("_EmissionColor", _defaultColor);
             }
         }
         else if (_nextData.selected == "highlight")
@@ -66,7 +70,7 @@ public class BlockerBuildingController : BaseComponentController<BlockerBuilding
             }
             foreach (Renderer rend in renderers)
             {
-                rend.material.SetColor("_EmissionColor", highlightColor);
+                rend.material = highlightMat;//rend.material.SetColor("_EmissionColor", highlightColor);
             }
         }
         else
@@ -77,7 +81,7 @@ public class BlockerBuildingController : BaseComponentController<BlockerBuilding
             }
             foreach (Renderer rend in renderers)
             {
-                rend.material.SetColor("_EmissionColor", _defaultColor);
+                rend.material = normalMat;//.SetColor("_EmissionColor", _defaultColor);
             }
         }
 
@@ -95,6 +99,6 @@ public class BlockerBuildingController : BaseComponentController<BlockerBuilding
             .GetComponentInChildren<Renderer>();
 
         outlineObjs[0] = renderers[0].transform.GetChild(0).GetComponent<Renderer>();
-        _defaultColor = renderers[0].material.GetColor("_EmissionColor");
+        //_defaultColor = renderers[0].material.GetColor("_EmissionColor");
     }
 }
