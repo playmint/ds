@@ -141,11 +141,11 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 0.4816661, g: 0.60048074, b: 0.8301887, a: 1}
-    - _Color: {r: 0.16398183, g: 0.28227723, b: 0.5188679, a: 1}
+    - _Color: {r: 0.18369521, g: 0.32670623, b: 0.6792453, a: 1}
     - _DynamicColor: {r: 0, g: 0, b: 0, a: 0}
     - _DynamicShadowColor: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _ShadowColor: {r: 0.1860092, g: 0.26322892, b: 0.4150943, a: 1}
+    - _ShadowColor: {r: 0.372549, g: 0.4352941, b: 0.6, a: 1}
     - _SpecColor: {r: 0.19999993, g: 0.19999993, b: 0.19999993, a: 0}
-    - _SpecularColor: {r: 0.15873083, g: 0.2356056, b: 0.38679245, a: 1}
+    - _SpecularColor: {r: 0.50507295, g: 0.57370824, b: 0.7075471, a: 1}
   m_BuildTextureStacks: []
