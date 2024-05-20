@@ -211,7 +211,7 @@ const ZoneList = ({
             });
             observer.current?.disconnect();
         };
-    }, [ensNames, zones]);
+    }, [ensNames]);
 
     return (
         <div>
