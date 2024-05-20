@@ -165,21 +165,21 @@ const ZoneList = ({
 }) => {
     const [ensNames, setEnsNames] = useState<{ [key: string]: string | null }>({});
 
-    const handleVisibilityChange = async (ownerAddress: string) => {
-        // console.log('a zone is on screen');
-        if (ownerAddress && !ensNames[ownerAddress]) {
-            const ensName = await lookupENSName(ownerAddress);
-            setEnsNames((prevNames) => ({
-                ...prevNames,
-                [ownerAddress]: ensName,
-            }));
-        }
-    };
-
     const zoneRefs = useRef<(HTMLDivElement | null)[]>([]);
     const observer = useRef<IntersectionObserver | null>(null);
 
     useEffect(() => {
+        const handleVisibilityChange = async (ownerAddress: string) => {
+            //console.log('a zone is on screen');
+            if (ownerAddress && !ensNames[ownerAddress]) {
+                const ensName = await lookupENSName(ownerAddress);
+                setEnsNames((prevNames) => ({
+                    ...prevNames,
+                    [ownerAddress]: ensName,
+                }));
+            }
+        };
+
         observer.current = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
@@ -196,21 +196,22 @@ const ZoneList = ({
             { threshold: 0.1 }
         );
 
-        zoneRefs.current.forEach((ref) => {
+        const currentRefs = zoneRefs.current;
+        currentRefs.forEach((ref) => {
             if (ref) {
                 observer.current?.observe(ref);
             }
         });
 
         return () => {
-            zoneRefs.current.forEach((ref) => {
+            currentRefs.forEach((ref) => {
                 if (ref) {
                     observer.current?.unobserve(ref);
                 }
             });
             observer.current?.disconnect();
         };
-    }, [zones]);
+    }, [ensNames, zones]);
 
     return (
         <div>
