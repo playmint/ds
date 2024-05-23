@@ -55,7 +55,7 @@ public class ExtractorBuildingController : BaseComponentController<ExtractorBuil
             }
             foreach (Renderer rend in renderers)
             {
-                rend.material = normalMat;//rend.material.SetColor("_EmissionColor", _defaultColor);
+                rend.material = normalMat; //rend.material.SetColor("_EmissionColor", _defaultColor);
             }
         }
         else if (_nextData.selected == "highlight")
@@ -66,7 +66,7 @@ public class ExtractorBuildingController : BaseComponentController<ExtractorBuil
             }
             foreach (Renderer rend in renderers)
             {
-                rend.material = highlightMat;//rend.material.SetColor("_EmissionColor", highlightColor);
+                rend.material = highlightMat; //rend.material.SetColor("_EmissionColor", highlightColor);
             }
         }
         else
@@ -77,7 +77,7 @@ public class ExtractorBuildingController : BaseComponentController<ExtractorBuil
             }
             foreach (Renderer rend in renderers)
             {
-                rend.material = normalMat;//rend.material.SetColor("_EmissionColor", _defaultColor);
+                rend.material = normalMat; //rend.material.SetColor("_EmissionColor", _defaultColor);
             }
         }
     }

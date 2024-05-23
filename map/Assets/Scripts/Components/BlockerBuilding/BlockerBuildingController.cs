@@ -59,7 +59,7 @@ public class BlockerBuildingController : BaseComponentController<BlockerBuilding
             }
             foreach (Renderer rend in renderers)
             {
-                rend.material = normalMat;//rend.material.SetColor("_EmissionColor", _defaultColor);
+                rend.material = normalMat; //rend.material.SetColor("_EmissionColor", _defaultColor);
             }
         }
         else if (_nextData.selected == "highlight")
@@ -70,7 +70,7 @@ public class BlockerBuildingController : BaseComponentController<BlockerBuilding
             }
             foreach (Renderer rend in renderers)
             {
-                rend.material = highlightMat;//rend.material.SetColor("_EmissionColor", highlightColor);
+                rend.material = highlightMat; //rend.material.SetColor("_EmissionColor", highlightColor);
             }
         }
         else
@@ -81,7 +81,7 @@ public class BlockerBuildingController : BaseComponentController<BlockerBuilding
             }
             foreach (Renderer rend in renderers)
             {
-                rend.material = normalMat;//.SetColor("_EmissionColor", _defaultColor);
+                rend.material = normalMat; //.SetColor("_EmissionColor", _defaultColor);
             }
         }
 
