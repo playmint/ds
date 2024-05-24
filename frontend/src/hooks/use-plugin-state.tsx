@@ -35,7 +35,10 @@ export interface PluginContextProviderProps {
     children?: ReactNode;
 }
 
-export type PluginContextStore = PluginUpdateResponse[];
+export type PluginContextStore = {
+    ui: PluginUpdateResponse[];
+    audioBuffers?: Float32Array[];
+};
 
 const activeBySandbox = new WeakMap<any, Map<string, ActivePlugin>>();
 
@@ -50,6 +53,7 @@ export const PluginResponseProvider = ({ config, children }: PluginContextProvid
     const [plugins, setPlugins] = useState<PluginConfig[]>();
     const [ui, setUI] = useState<PluginUpdateResponse[]>([]);
     const [sandbox, setSandbox] = useState<Comlink.Remote<Sandbox>>();
+    const [audioBuffers, setAudioBuffers] = useState<Float32Array[] | undefined>();
     const workerRef = useRef<Worker>();
 
     useEffect(() => {
@@ -219,11 +223,22 @@ export const PluginResponseProvider = ({ config, children }: PluginContextProvid
             loading: pluginLoading,
         })
             .then((ui) => ui.filter((data): data is PluginUpdateResponse => !!data))
-            .then((ui) => setUI(ui))
+            .then((ui) => {
+                const audioBuffers = ui.map((res) => res.state.audioBuffer).filter((ab): ab is Float32Array => !!ab);
+                if (audioBuffers.length > 0) {
+                    setAudioBuffers(audioBuffers);
+                }
+                return setUI(ui);
+            })
             .catch((err) => console.error('failed to get plugin states', err));
     }, [sandbox, player, zone, global, plugins, selection, logger, questMsgSender, pluginDispatch, pluginLoading]);
 
-    return <PluginContext.Provider value={ui}>{children}</PluginContext.Provider>;
+    const pluginStates = {
+        ui,
+        audioBuffers,
+    };
+
+    return <PluginContext.Provider value={pluginStates}>{children}</PluginContext.Provider>;
 };
 
 async function getPluginStates({

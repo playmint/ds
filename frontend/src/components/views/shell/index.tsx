@@ -71,7 +71,7 @@ export const Shell: FunctionComponent<ShellProps> = () => {
     const zoneUnitLimit = parseInt(global?.gameSettings?.zoneUnitLimit?.value || '0x0', 16);
     const zoneId = parseInt(zone?.key || 0, 16);
 
-    const ui = usePluginState();
+    const { ui, audioBuffers } = usePluginState();
     const [questsActive, setQuestsActive] = useState<boolean>(true);
     const toggleQuestsActive = useCallback(() => setQuestsActive((prev) => !prev), []);
     const [walletItemsActive, setWalletItemsActive] = useState<boolean>(false);
@@ -108,6 +108,32 @@ export const Shell: FunctionComponent<ShellProps> = () => {
             setPrevCombatSessionTick(combatSessionTick);
         }
     }, [combatSessionTick, prevCombatSessionTick]);
+
+    // -- Audio
+
+    const [audioContext, setAudioContext] = useState<AudioContext>();
+    useEffect(() => {
+        setAudioContext(new AudioContext());
+    }, []);
+
+    useEffect(() => {
+        if (!audioContext) return;
+        if (!audioBuffers) return;
+        audioBuffers
+            .filter((soundData) => !!soundData && soundData.length > 0)
+            .forEach((soundData) => {
+                if (!soundData) return;
+                // console.log('Playing sound');
+
+                const offlineContext = new OfflineAudioContext(1, soundData.length, 44100);
+                const audioBuffer = offlineContext.createBuffer(1, soundData.length, 44100);
+                audioBuffer.getChannelData(0).set(soundData);
+                const source = audioContext.createBufferSource();
+                source.buffer = audioBuffer;
+                source.connect(audioContext.destination);
+                source.start();
+            });
+    }, [audioBuffers, audioContext]);
 
     const pluginTileProperties = ui?.flatMap((res) => res.state.map.filter((prop) => prop.type === 'tile')) || [];
 

@@ -327,6 +327,7 @@ export interface PluginMapProperty {
 export interface PluginState {
     components: PluginStateComponent[];
     map: PluginMapProperty[];
+    audioBuffer?: Float32Array;
 }
 
 export interface PluginUpdateResponse {

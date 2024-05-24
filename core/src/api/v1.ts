@@ -50,6 +50,7 @@ export interface PluginV1Response {
     version?: 1;
     components?: PluginV1Component[];
     map?: PluginV1MapProperty[];
+    audioBuffer?: Float32Array;
 }
 
 export type PluginResponse = PluginV1Response;
@@ -134,6 +135,7 @@ export function normalizePluginState(res: PluginResponse, submitProxy: PluginSub
                   value: kv.value || '',
               }))
             : [],
+        audioBuffer: res.audioBuffer && res.audioBuffer.length > 0 ? res.audioBuffer : undefined,
     };
 }
 
