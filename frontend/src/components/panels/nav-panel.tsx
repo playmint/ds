@@ -1,4 +1,4 @@
-import { decodeString } from '@app/helpers';
+import { decodeString, lookupENSName } from '@app/helpers';
 import { usePlayer, useWallet } from '@app/hooks/use-game-state';
 import { useSession } from '@app/hooks/use-session';
 import { GlobalUnityContext } from '@app/hooks/use-unity-instance';
@@ -77,9 +77,25 @@ export const NavPanel = ({
     const [zoneName, setZoneName] = useState(decodeString(zone?.name?.value ?? '') || '');
     const [zoneDescription, setZoneDescription] = useState(zone?.description?.value || '');
     const [zoneUrl, setZoneUrl] = useState(zone?.url?.value || '');
+    const [ensNames, setEnsNames] = useState<{ [key: string]: string | null }>({});
 
     const hasConnection = player || wallet;
     const address = player?.addr || wallet?.address || '';
+
+    useEffect(() => {
+        if (showAccountDialog) {
+            if (address) {
+                lookupENSName(address)
+                    .then((n) =>
+                        setEnsNames((prevNames) => ({
+                            ...prevNames,
+                            [address]: n,
+                        }))
+                    )
+                    .catch(console.error);
+            }
+        }
+    }, [address, showAccountDialog]);
 
     const isZoneOwner = address === zone?.owner?.addr;
 
@@ -190,9 +206,7 @@ export const NavPanel = ({
                 <Dialog onClose={closeAccountDialog} width="304px" height="">
                     <div style={{ padding: 0 }}>
                         <h3>SETTINGS</h3>
-                        <p>
-                            {address.slice(0, 9)}...{address.slice(-9)}
-                        </p>
+                        <p>{ensNames[address] || `${address.slice(0, 9)}...${address.slice(-9)}`}</p>
                         <br />
 
                         {isZoneOwner && (

@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { lookupENSName } from '@app/helpers';
 import {
     DownstreamLogo,
     EmbossedBottomPanel,
@@ -22,7 +23,7 @@ import { GameStateProvider, useCogClient, useGlobal, usePlayer, useWallet } from
 import { SessionProvider } from '@app/hooks/use-session';
 import { WalletProviderProvider, useWalletProvider } from '@app/hooks/use-wallet-provider';
 import Image from 'next/image';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import iconUnit from '@app/assets/icon-unit.svg';
 import { pipe, subscribe } from 'wonka';
@@ -162,20 +163,75 @@ const ZoneList = ({
     unitZoneLimit: number;
     onClickEnter: (id: number) => void;
 }) => {
+    const [ensNames, setEnsNames] = useState<{ [key: string]: string | null }>({});
+
+    const zoneRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const observer = useRef<IntersectionObserver | null>(null);
+
+    useEffect(() => {
+        const handleVisibilityChange = async (ownerAddress: string) => {
+            //console.log('a zone is on screen');
+            if (ownerAddress && !ensNames[ownerAddress]) {
+                const ensName = await lookupENSName(ownerAddress);
+                setEnsNames((prevNames) => ({
+                    ...prevNames,
+                    [ownerAddress]: ensName,
+                }));
+            }
+        };
+
+        observer.current = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const ownerAddress = entry.target.getAttribute('data-owner-address');
+                        if (ownerAddress) {
+                            handleVisibilityChange(ownerAddress)
+                                .then(() => {})
+                                .catch((err) => console.error(err));
+                        }
+                    }
+                });
+            },
+            { threshold: 0.1 }
+        );
+
+        const currentRefs = zoneRefs.current;
+        currentRefs.forEach((ref) => {
+            if (ref) {
+                observer.current?.observe(ref);
+            }
+        });
+
+        return () => {
+            currentRefs.forEach((ref) => {
+                if (ref) {
+                    observer.current?.unobserve(ref);
+                }
+            });
+            observer.current?.disconnect();
+        };
+    }, [ensNames]);
+
     return (
         <div>
-            {zones.map((zone) => (
-                <ZoneRow
-                    key={zone.key}
-                    id={zone.id}
-                    name={zone.name}
-                    description={zone.description?.value || `Unknown zone #${zone.id}`}
-                    activeUnits={zone.activeUnits.length}
-                    maxUnits={zone.maxUnits}
-                    imageURL={zone.url?.value ? zone.url.value : 'https://assets.downstream.game/tile.png'}
-                    onClickEnter={onClickEnter}
-                    ownerAddress={zone.owner?.addr || '0x0'}
-                />
+            {zones.map((zone, index) => (
+                <div
+                    key={zone.id}
+                    ref={(el) => (zoneRefs.current[index] = el)}
+                    data-owner-address={zone.owner?.addr || '0x0'}
+                >
+                    <ZoneRow
+                        id={zone.id}
+                        name={zone.name}
+                        description={zone.description?.value || `Unknown zone #${zone.id}`}
+                        activeUnits={zone.activeUnits.length}
+                        maxUnits={zone.maxUnits}
+                        imageURL={zone.url?.value ? zone.url.value : 'https://assets.downstream.game/tile.png'}
+                        onClickEnter={onClickEnter}
+                        ownerAddress={ensNames[zone.owner?.addr] || zone.owner?.addr || '0x0'}
+                    />
+                </div>
             ))}
         </div>
     );

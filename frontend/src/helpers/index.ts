@@ -39,6 +39,37 @@ export const decodeString = (value: string): string => {
     }
 };
 
+const ensCache: { [address: string]: string | null } = {};
+let ensActiveChecks = 0;
+
+export async function lookupENSName(address: string): Promise<string | null> {
+    // Check if the address is already in the ensCache
+    if (ensCache.hasOwnProperty(address)) {
+        return ensCache[address];
+    }
+
+    // Lookup max 5 addresses at a time
+    if (ensActiveChecks >= 5) {
+        return null;
+    }
+
+    const ensProvider = ethers.getDefaultProvider('mainnet');
+    try {
+        ensActiveChecks++;
+        ensCache[address] = null;
+        const name = await ensProvider.lookupAddress(address);
+        // Cache the result, even if it's null
+        ensCache[address] = name;
+        return name;
+    } catch (error) {
+        console.error('ENS lookup failed', error);
+        ensCache[address] = null;
+        return null;
+    } finally {
+        ensActiveChecks--;
+    }
+}
+
 export const getItemStructure = (itemId: string) => {
     return [...itemId]
         .slice(2)
