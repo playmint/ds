@@ -75,7 +75,7 @@ export const Buildings = memo(
                     const coords = getCoords(b.location.tile);
                     const height = getTileHeightFromCoords(coords);
                     const selected = selectedElementID === b.id ? 'outline' : 'none';
-                    const rotation = b.facingDirection == FacingDirectionKind.RIGHT ? -30 : 30;
+                    const rotation = b.facingDirection && b.facingDirection == FacingDirectionKind.LEFT ? 30 : -30;
                     const tile = tiles.find(({ id }) => id === b.location?.tile.id);
                     const overrideModel = (pluginBuildingProperties || [])
                         .find((prop) => prop.id == b.id && prop.key == 'model')
