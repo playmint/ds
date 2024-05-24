@@ -1,0 +1,10 @@
+---
+kind: ZoneKind
+spec:
+  name: tutorial-room-7
+  description: This zone shows off what you can do with a ZoneKind
+  url: images/building-totems/Block_Van.png
+  contract:
+    file: ./Zone.sol
+  plugin:
+    file: ./Zone.js

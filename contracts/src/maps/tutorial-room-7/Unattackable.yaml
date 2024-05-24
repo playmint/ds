@@ -1,0 +1,17 @@
+---
+kind: BuildingKind
+spec:
+  name: Unattackable
+  description: Ha ha you can't touch me...
+  category: custom
+  model: 05-05
+  color: 0
+  plugin:
+    file: ./Unattackable.js
+  materials:
+    - name: Red Goo
+      quantity: 10
+    - name: Blue Goo
+      quantity: 10
+    - name: Green Goo
+      quantity: 10
