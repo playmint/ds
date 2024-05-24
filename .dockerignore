@@ -21,3 +21,4 @@
 /contracts/node_modules/
 /contracts/lib/cog/services/
 !/contracts/lib/cog/services/schema/
+/map/ProjectSettings/ScriptableBuildPipeline.json
