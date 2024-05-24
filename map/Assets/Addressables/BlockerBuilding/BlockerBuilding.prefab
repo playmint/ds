@@ -175,6 +175,8 @@ MonoBehaviour:
   - {fileID: 826128996734995767, guid: f7255aea57fa44c53b7d167f78fe3f90, type: 3}
   - {fileID: 3040610030318258577, guid: e382352fc3a20468e9ef5b61295a409e, type: 3}
   meshParent: {fileID: 4472640675847714449}
+  normalMat: {fileID: 2100000, guid: 2a4326e1551ea4c3c82ef0fc4beed969, type: 2}
+  highlightMat: {fileID: 2100000, guid: 9a419ded6caf843d98457f5a00aa9efc, type: 2}
   redOutlineMat: {fileID: 2100000, guid: ce6f5126ced564b2895e09480182616f, type: 2}
   greenOutlineMat: {fileID: 2100000, guid: 350e1b89b29f442e1ae981fd04ecfca4, type: 2}
 --- !u!4 &4472640675847714449 stripped
