@@ -17,7 +17,7 @@ In order to deploy a map to your zone, you will need to download `ds-cli`, you c
 | example | task |
 |---|---|
 | `ds apply -n redstone -z <your-zone-number> -f BasicFactory.yaml` | Apply manifest files (deploy buildings and maps) |
-| `ds destroy -n local -z <your-zone-number>  -f BasicFactory.yaml` | Reverses an apply of manifest files, esentially the oppose of 'apply' |
+| `ds destroy -n redstone -z <your-zone-number>  -f BasicFactory.yaml` | Reverses an apply of manifest files, esentially the oppose of 'apply' |
 | `ds apply help` | help on apply command |
 | `ds destroy help` | help on destroy command |
 | `ds get -n redstone items` | Get ids for all items |

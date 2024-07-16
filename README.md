@@ -1,14 +1,21 @@
 
 <img src="tutorial/images/header.png">
 
-___Downstream is a fully onchain game platform and creation tool.___
+___Downstream is a fully onchain game platform and creation tool running on Redstone.___
 
 
-# Build your own game with Downstream
+# Build your own game on Downstream Redstone
 
-Follow the guide to [build your own game with Downstream](./tutorial/README.md).
+Downstream is deployed to Redstone, a mainnet L2!
 
-# Build and run a local platform instance
+Follow the guide to [start building on mainnet](./tutorial/README.md).
+
+------------------------------------
+
+# [Advanced] Instructions for Local Development
+
+<details>
+<summary>Expand for more information! </summary>
 
 <h3>Get building on top of Downstream</h3>
 <details>
@@ -153,6 +160,7 @@ NUM_ARENAS=4 make contracts/src/maps/performance-test
 You can then apply manually with: `ds apply -n local -z 1 -R -f contracts/src/maps/performance-test`
 
 </details>
-
+</details>
+    
 # References
 __[For more information, check the reference page](/tutorial/REFERENCE.md)__
