@@ -71,7 +71,7 @@ Once the tool has deployed the map, navigate back to your Zone and check out you
 
 ## Deploying your first building kind
 
-### 1. The buidling Fabcricator
+### 1. The Building Fabricator
 Browse to [redstone.downstream.game/building-fabricator](https://redstone.downstream.game/building-fabricator)
 
 <img src="images/building-fabricator.png" width="200">
