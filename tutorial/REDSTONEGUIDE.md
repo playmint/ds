@@ -14,7 +14,7 @@ Downstream is deployed to Redstone, a mainnet L2! The following steps will teach
 
 &nbsp; &nbsp; &nbsp; &nbsp; [You can find a guide to adding a new network here](https://support.metamask.io/networks-and-sidechains/managing-networks/how-to-add-a-custom-network-rpc/)
 
-3. You will need to bridge some ETH from Ethereum mainnet to Redstone. A zone costs 0.001 ETH but you will likely need to purchase more to cover the gas costs of bridging the ETH. [You can find out how to buy ETH here!](https://portfolio.metamask.io/)
+3. You will need to bridge some ETH from Ethereum mainnet to Redstone. A zone costs 0.001 ETH but you will likely need to purchase more to cover the gas costs of bridging the ETH. [You can find out how to buy ETH here.](https://portfolio.metamask.io/)
 
 4. Once you have your ETH, you can bridge it to Redstone [here.](https://redstone.xyz/deposit)
 
@@ -22,7 +22,7 @@ Downstream is deployed to Redstone, a mainnet L2! The following steps will teach
 
 Finally! Time to claim your zone!
 
-Navigate to [Downstream](https://redstone.downstream.game/), connect your wallet, sign the requested transaction and select the "CLAIM ZONE" button.
+Navigate to [Downstream](https://redstone.downstream.game/), connect your wallet, sign the message in the metamask popup and select the "CLAIM ZONE" button. Metamask will open again and you will then be asked to purchase the Zone with your Redstone ETH.
 
 __Please Note:__ If your Metamask is currently set to Ethereum Mainnet, you should be asked to switch networks to Redstone
 
@@ -58,7 +58,7 @@ Once you are happy, press the __Export__ button in the top right menu and you wi
 
 ### 3. Use ds-cli to deploy it
 
-Open your platform's command line interface and navigate to the folder containing your map `.yaml` file.
+Open your platform's command line interface and navigate to the folder containing your map `.yml` file.
 
 Run the following `ds-cli` command and replace `<zone-number>` with your zone number: `ds apply -n redstone -z <zone-number> -R -f .`
 
@@ -78,7 +78,7 @@ Browse to [redstone.downstream.game/building-fabricator](https://redstone.downst
 
 The Building Fabricator allows you to deploy buildings and items to Downstream without having to leave the game! Once configured hit the __Deploy__ button.
 
-For the next step, hit the __Export__ button to get the building's source files and move them into the same folder as your `map.yaml` file from earlier
+For the next step, hit the __Export__ button to get the building's source files and move them into the same folder as your `map.yml` file from earlier
 
 ### 2. Import your building into the Tile Fabricator and adding it to your map
 
