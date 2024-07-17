@@ -14,7 +14,7 @@ Downstream is deployed to Redstone, a mainnet L2! The following steps will teach
 
 &nbsp; &nbsp; &nbsp; &nbsp; [You can find a guide to adding a new network here](https://support.metamask.io/networks-and-sidechains/managing-networks/how-to-add-a-custom-network-rpc/)
 
-3. You will need to bridge some ETH from Etherium mainnet to Redstone. A zone costs 0.001 ETH but you will likely need to purcahse more to cover the gas costs of bridging the ETH. [You can find out how to buy ETH here!](https://portfolio.metamask.io/)
+3. You will need to bridge some ETH from Ethereum mainnet to Redstone. A zone costs 0.001 ETH but you will likely need to purchase more to cover the gas costs of bridging the ETH. [You can find out how to buy ETH here!](https://portfolio.metamask.io/)
 
 4. Once you have your ETH, you can bridge it to Redstone [here.](https://redstone.xyz/deposit)
 
@@ -60,7 +60,7 @@ Once you are happy, press the __Export__ button in the top right menu and you wi
 
 Open your platform's command line interface and navigate to the folder containing your map `.yaml` file.
 
-Run the following `ds-cli` command and replace `<zone-nunber>` with your zone number: `ds apply -n redstone -z <zone-number> -R -f .`
+Run the following `ds-cli` command and replace `<zone-number>` with your zone number: `ds apply -n redstone -z <zone-number> -R -f .`
 
 For example, if your zone ID is 1, then the command will look like this: `ds apply -n redstone -z 1 -R -f .`
 
@@ -82,8 +82,8 @@ For the next step, hit the __Export__ button to get the building's source files 
 
 ### 2. Import your building into the Tile Fabricator and adding it to your map
 
-If you navigate back to the Tile Fabricator, you will notice an __import__ button. This will bring up your system's file explorer. If you navigate to the folder containing your building's source files, select them and confirm the dialoge, the building you have deployed will be added to the __Brush__ drop down!
+If you navigate back to the Tile Fabricator, you will notice an __import__ button. This will bring up your system's file explorer. If you navigate to the folder containing your building's source files, select them and confirm the dialogue, the building you have deployed will be added to the __Brush__ drop down!
 
 <img src="images/tileFabPanel.png" width="200">
 
-If you select your building and add it to the map and then follow the same export and apply steps above, you will be able to redploy your map and it will now contain your new building!
+If you select your building and add it to the map and then follow the same export and apply steps above, you will be able to redeploy your map and it will now contain your new building!
