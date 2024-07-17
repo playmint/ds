@@ -87,3 +87,11 @@ If you navigate back to the Tile Fabricator, you will notice an __import__ butto
 <img src="images/tileFabPanel.png" width="200">
 
 If you select your building and add it to the map and then follow the same export and apply steps above, you will be able to redeploy your map and it will now contain your new building!
+
+----------------------------------
+
+## Further Reading
+
+Check out the [Redstone Cheat Sheet](./RSCHEATSHEET.md) for more detail on the process outlined above
+
+Check out the [Local Dev Tutorials](./ADVANCEDTUTORIALS.md) to set up your own local instance of Downstream and learn a lot more about how everything is built and how you can start building your own games!
