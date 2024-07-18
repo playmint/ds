@@ -33,8 +33,8 @@ __[All example games can be found here](../contracts/src/maps)__
 | labyrinth   |<img src="images/map-labyrinth.png" width="200">| Game from [RockawayX](https://github.com/rockawayx-labs/ds-dx). Uses: Doors; Password hashing; Combat Stats; Item checking; Quests; Map reset|
 | duck-burger |<img src="images/map-tonk.png" width="200">     | Game by [Playmint](https://www.playmint.com). Learn how to make DVB using [Tutorial 5](../contracts/src/maps/tutorial-room-5/)|
 
-#### Please note:
-Tonk attack requires Tonk services to be running: Run with docker using the `tonk` profile: `docker compose --profile tonk up`
+> [!IMPORTANT]  
+> Tonk attack requires Tonk services to be running: Run with docker using the `tonk` profile: `docker compose --profile tonk up`
 
 ### References
 __[For more information, check the reference page](./REFERENCE.md)__
