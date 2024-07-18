@@ -154,25 +154,3 @@ Dapps on the same chain could interact with these items in standard ways.
 Any Downstream building can interact with any other contract, including other onchain games, deployed to the same chain.
 
 Any other contract on the same chain can interact with the Downstream's read-only contract api but would not be able to send write actions.
-
-### Local instance
-
-Build and run a local Downstream instance with Docker. Follow the instructions for "_running with docker_" in the root [README](../README.md).
-
-The game will be running at [localhost:3000/](http://localhost:3000/).
-
-To enter a map, select Zone 1 from the list or naviage to [localhost:3000/zones/1](http://localhost:3000/zones/1)
-
-<img src="images/fresh-local-downstream.png" width="200">
-
-During development, its recommended to always connect with the LocalDevAccount option.
-
-When working locally, zone 1 is always assigned to the LocalDevAccount
-
-
-# Video Guides
-
-| Video             | Demonstrates         |
-|-------------------|----------------------|
-| <a href="https://drive.google.com/file/d/1rvXt3Fs4M0-yn83Mc0iAG9HlhIJpSDRl/view?usp=drive_link"><img src="images/dvb-thumb.png" width="200"></a>  | Build and run; Default Map; Deploy example buildings;|
-| <a href="https://drive.google.com/file/d/1f6xYuzhBMBFMIYWe_Xb8Sr2vIhLukORY/view?usp=drive_link"><img src="images/dvb2-thumb.png" width="200"></a> | Tile Fabricator; Custom Map; |
