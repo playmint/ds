@@ -18,9 +18,5 @@ Specific questions? Drop into our [Discord](https://discord.gg/MvYb9PBjGW) where
 
 ------------------------------------
 
-### [Advanced] Tutorials for Local development
-
-__[For more the Local Development Tutorials, click here](./ADVANCEDTUTORIALS.md)__
-
 ### References
 See the [References](./REFERENCE.md) for more detailed information on common tooling and commands.
