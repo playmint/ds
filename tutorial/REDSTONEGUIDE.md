@@ -92,6 +92,8 @@ If you select your building and add it to the map and then follow the same expor
 
 ## Further Reading
 
-Check out the [Redstone Cheat Sheet](./RSCHEATSHEET.md) for more detail on the process outlined above
+Check out the [Reference Page](./REFERENCE.md) for more detail on the process outlined above
 
-Check out the [Local Dev Tutorials](./ADVANCEDTUTORIALS.md) to set up your own local instance of Downstream and learn a lot more about how everything is built and how you can start building your own games!
+
+
+
