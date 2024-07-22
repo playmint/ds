@@ -13,21 +13,14 @@ Once complete, your map should something look like this:
 
 
 # 1. Setup
-Follow steps 1 through 4 of `tutorial-room-1` to get started. This will walk you through:
-- Deploying the game
-- Spawning a unit
-- Creating a map
-- Deploying new tiles
 
-[tutorial-room-1/README.md](../tutorial-room-1/README.md)
-
-The only change we want to make to these steps is in _Creating a map_. As this is the next room in the tutorial series, we will be creating our map at a different angle so it doesn't overlap with tutorial-room-1.
+We are going to put together the map below, it is the second spoke of tutorial Island! There is intentionally a choke point so we can show off Doors!
 
 <img src="./readme-images/step1.png" width=600>
 
 We're using this particular shape to demonstrate the functionality of the gate. We will use the bottleneck to ensure there is no way around the gate.
 
-Run the game and use the [tile-fabricator](http://localhost:3000/tile-fabricator) to create tiles following the shape shown in the example above.
+Run the game and use the [tile-fabricator](http://redstone.downstream.game/tile-fabricator) to create tiles following the shape shown in the example above.
 
 Once you've painted the tiles, click export, and save the output file as `Locations.yaml` in a new project folder on your computer.
 
@@ -57,7 +50,7 @@ spec:
 
 **Note:** later, we'll be using the item ID to verify the unit has the key in their inventory. If you're following along and want to use the same ID as we do, you should use the same name. Otherwise, you can run the command `ds get items -n local` while running the game to get a list of all the items in your world with their IDs.
 
-One thing here that isn't clear is the icon. The best way to pick an icon is to open the [building-fabricator](http://localhost:3000/building-fabricator) where you can easily flick through the item icons available.
+One thing here that isn't clear is the icon. The best way to pick an icon is to open the [building-fabricator](http://redstone.downstream.game/building-fabricator) where you can easily flick through the item icons available.
 
 You can change how much goo it costs the unit to craft this item.
 
@@ -154,7 +147,7 @@ spec:
   facingDirection: LEFT
 ```
 
-Before continuing, you may want to use `ds apply` ([see tutorial-room-1](https://github.com/playmint/ds/blob/main/contracts/src/maps/tutorial-room-1/README.md#8-deploy-the-whole-map-folder)) to check your progress!
+Before continuing, you may want to use `ds apply` ([see tutorial-room-1](https://github.com/playmint/ds/blob/main/contracts/src/maps/tutorial-room-1/README.md#6-deploy-the-whole-map-folder)) to check your progress!
 
 
 # 5. Gate
@@ -386,7 +379,7 @@ spec:
   location: [8, -1, -7]
   facingDirection: RIGHT
 ```
-2. Run `ds apply` ([see tutorial-room-1](https://github.com/playmint/ds/blob/main/contracts/src/maps/tutorial-room-1/README.md#8-deploy-the-whole-map-folder)) and refresh!
+2. Run `ds apply` ([see tutorial-room-1](https://github.com/playmint/ds/blob/main/contracts/src/maps/tutorial-room-1/README.md#6-deploy-the-whole-map-folder)) and refresh!
 
 
 # You did it, good job! 🥳

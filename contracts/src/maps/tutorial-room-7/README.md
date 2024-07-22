@@ -29,7 +29,7 @@ If you already have `tutorial-room-1` applied to your zone, then you may want to
 
 Navigate to the `tutorial-room-1` map directory and run this command:
 ```ds
-ds destroy -n <network> -z <zone ID> -R -f .
+ds destroy -n redstone -z <zone-number> -R -f .
 ```
 
 You will then see the tiles and buildings being destroyed in the game, and in the console output.
@@ -332,3 +332,10 @@ Here you can see the use of `ZONE_USE`.
 Now, when the button on this building is clicked, the tiles either get spawned, or destroyed:
 
 <img src="./readme-images/toggle-tiles.png" width=600>
+
+Finally, navigate to the `tutorial-room-7` map directory and run this command:
+```ds
+ds apply -n redstone -z <zone-number> -R -f .
+```
+
+You should then have a completed Tutorial Island! Congratulations!

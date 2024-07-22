@@ -55,8 +55,8 @@ _Some common tasks:_
 
 | example | task |
 |---|---|
-| `ds apply -n redstone -z 1 -f BasicFactory.yaml -k <private key>` | Apply manifest files (deploy buildings and maps) |
-| `ds destroy -n redstone -z 1 -f BasicFactory.yaml -k <private key>` | Reverses an apply of manifest files, esentially the oppose of 'apply' |
+| `ds apply -n redstone -z 1 -f BasicFactory.yaml` | Apply manifest files (deploy buildings and maps) |
+| `ds destroy -n redstone -z 1 -f BasicFactory.yaml` | Reverses an apply of manifest files, esentially the oppose of 'apply' |
 | `ds apply help` | help on apply command |
 | `ds destroy help` | help on destroy command |
 | `ds get -n redstone items` | Get ids for all items |
@@ -77,14 +77,14 @@ _options explained_
 #### Command line signing
 
 >[!CAUTION]
->Do not use a private key for any account you care about. You can use the Downstream connection dialogue box to copy the private key if connected with a burner. Or you can leave this option out and ds will give you a wallet connect QR code to sign.
+>It is advised to use a Private Key against Redstone due to security concerns. If you are working in a loval dev environment, make sure you are not using a Private Key for an account you care about or use the burner account system to generate a throwaway private key.
 
 #### Deploy a single building
 
 - Use the __building-fabricator__ to _export_ building sources.
 - Use __ds__ to deploy it to Downstream:
 
-```ds apply -n redstone -z 1 -k <private key> -f ./BasicFactory.yaml```
+```ds apply -n redstone -z <zone-number> -f ./BasicFactory.yaml```
 
 #### Zones
 
@@ -100,7 +100,7 @@ _options explained_
 - Combine them all in a single folder.
 - Use `ds apply` to deploy them to Downstream:
 
-```ds apply -n redstone -z 1 -k <private key> -R f <exported folder>```
+```ds apply -n redstone -z <zone-number> -R f <exported folder>```
 
 
 #### Destroy a map folder over the current map
@@ -110,7 +110,7 @@ _options explained_
 
 **Please note:** If you have modified the files you have applied to a zone, you will no longer be able to pass them through `ds destroy`. It is prudent to keep a copy of the files you have applied in the state you applied them in.
   
-```ds destroy -n redstone -z 1 -k <private key> -R f <exported folder>```
+```ds destroy -n redstone -z <zone-number> -R f <exported folder>```
 
 
 ## Adding Game Logic
