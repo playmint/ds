@@ -77,7 +77,7 @@ _options explained_
 #### Command line signing
 
 >[!CAUTION]
->It is advised to use a Private Key against Redstone due to security concerns. If you are working in a loval dev environment, make sure you are not using a Private Key for an account you care about or use the burner account system to generate a throwaway private key.
+>It is strongly advised NOT to use a Private Key against Redstone due to security concerns. This option is intended for use with local dev environment only. If you are working in a loval dev environment, make sure you are not using a Private Key for an account you care about or use the burner account system to generate a throwaway private key.
 
 #### Deploy a single building
 
