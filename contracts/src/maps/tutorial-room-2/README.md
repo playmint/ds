@@ -14,7 +14,7 @@ Once complete, your map should something look like this:
 
 # 1. Setup
 
-We are going to put together the map below, it is the second spoke of tutorial Island! There is intentionally a choke point so we can show off Doors!
+As this is the next room in the tutorial series, we will be creating our map at a different angle so it doesn't overlap with tutorial-room-1. One important feature of this map is a choke point to block off using a door.
 
 <img src="./readme-images/step1.png" width=600>
 
