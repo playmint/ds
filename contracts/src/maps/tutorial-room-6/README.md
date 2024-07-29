@@ -8,13 +8,12 @@ We will follow the steps below to create a simple downstream map with a building
 
 ## Prerequisites
 
--   This repository cloned to your desktop. (Instructions in the top [readme](../../../../README.md).)
--   [Docker Desktop](https://docs.docker.com/get-docker/)
--   [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+-   Follow the set up in (Instructions in the [Redstone Guide](../../../../tutorial/REDSTONEGUIDE.md).)
+-   Complete tutorials 1-5
 
 ## 1. Preparation
 
-Before starting, ensure that you have deployed an instance of Downstream locally using Docker. You can find instructions on how to do that in [Tutorial 1 here](../tutorial-room-1/README.md).
+Before starting, ensure that you have deployed an instance of Downstream locally using Docker. You can find instructions on how to do that in the [Redstone Guide](../../../../tutorial/REDSTONEGUIDE.md).
 
 Make a folder to contain the files that will comprise the map for this tutorial e.g. `/Tutorial6Map`
 
@@ -198,9 +197,9 @@ Next we call the helper function and move the unit to the east by offsetting the
 
 ## 4. See what we have done so far in action
 
-It's now a good point to see if what we have made is actually working as expected. Let's make a quick map using the **Tile Fabricator**. If you're unfamiliar with the Tile Fabricator, take a look at step 3 of [Tutorial 1 here](../tutorial-room-1/README.md).
+It's now a good point to see if what we have made is actually working as expected. Let's make a quick map using the **Tile Fabricator**. If you're unfamiliar with the Tile Fabricator, check out [Tutorial 1 here](../tutorial-room-1/README.md).
 
-Open [http://localhost:3000/tile-fabricator] and sketch out a map of the following shape.
+Open the [tile-fabricator](http://redstone.downstream.game/tile-fabricator) and sketch out a map of the following shape.
 
 <img src="./readme-images/step4a.png" width=200>
 
@@ -212,15 +211,15 @@ Select the 'Unit Controller' from the brush list and place on the map.
 
 We'll now export the tiles, rename the output yaml to `Locations.yaml` and move the file to our map folder i.e. `/Tutorial6Map`
 
-With the map tiles defined and the building location set we can now deploy our map using the cli tool and see the results of our work. If you're unfamiliar with the cli tool or how to obtain the private key from your burner wallet, please look at step 4 in [Tutorial 1 here](../tutorial-room-1/README.md).
+With the map tiles defined and the building location set we can now deploy our map using the cli tool and see the results of our work. 
 
 Run the following from the root of your map folder
 
 ```bash
-ds apply -n local -z 1 -k <private-key> -R -f .
+ds apply -n redstone -z <zone-number> -R -f .
 ```
 
-If we now refresh Open [http://localhost:3000/zones/1] we will see our map with our Unit Controller building on it. To spawn a unit from the building we'll first need to spawn our own unit and walk up to the building in order to interact with the building's UI.
+If we now navigate to your zone on [Downstream Redstone](http://redstone.downstream.game) we will see our map with our Unit Controller building on it. To spawn a unit from the building we'll first need to spawn our own unit and walk up to the building in order to interact with the building's UI.
 
 <img src="./readme-images/step4c.png" width=200>
 
@@ -430,3 +429,7 @@ contract UnitController is BuildingKind {
     }
 ...
 ```
+## Finally!
+
+Gather all of your file, deploy them using `ds apply -n redstone -z <zone-number> -R -f .` and check out your zone on [Redstone Downstream](redstone.downstream.game)!
+

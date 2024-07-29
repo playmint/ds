@@ -14,11 +14,9 @@ Once complete, your map should something look like this:
 
 ## 1. Setup
 
-Follow steps 1 through 4 of `tutorial-room-1` to get started. This will walk you through:
-- Deploying the game
-- Spawning a unit
-- Creating a map
-- Deploying new tiles
+Please ensure you have completed Tutorials 1-3.
+
+Let's create the disco room! 
 
 https://github.com/playmint/ds/blob/main/contracts/src/maps/tutorial-room-1/README.md
 
@@ -190,7 +188,7 @@ function themedRandomColour(){
 
 if `disco` is false, it makes each tile (except for the one the unit is standing on) blue.
 
-And for colouring the tiles, that's it! Once you've passed in the `map` array we pushed to, to the `map`, feel free to [give it a test run](https://github.com/playmint/ds/blob/main/contracts/src/maps/tutorial-room-1/README.md#8-deploy-the-whole-map-folder)!
+And for colouring the tiles, that's it! Once you've passed in the `map` array we pushed to, to the `map`, feel free to [give it a test run](https://github.com/playmint/ds/blob/main/contracts/src/maps/tutorial-room-1/README.md#6-deploy-the-whole-map-folder)!
 
 ```js
 return {
@@ -412,6 +410,16 @@ return {
 ```
 
 <img src="./readme-images/step5.png" width=600>
+
+## 6. Deploy your files
+
+We will use the Downstream CLI to deploy our newly created building to our local Downstream instance.
+
+Run the following in a terminal in the folder with your exported building source (refer to tutorial 1 for more information).
+
+```
+ds apply -n redstone -z <zone-number> -R -f ./
+```
 
 ## You did it, good job! 🥳
 

@@ -12,11 +12,11 @@ Follow the guide to [start building on mainnet](./tutorial/README.md).
 
 ------------------------------------
     
-# References
+## References
 __[For more information, check the reference page](/tutorial/REFERENCE.md)__
 
 ------------------------------------
 
-# Contributors
+## Contributors
 
 For people looking to contribute to the repository, please __[click here](./CONTRIBUTORS.md)__

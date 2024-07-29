@@ -10,48 +10,24 @@ Once complete, you will have used the core Downstream tools to create a map that
 
 ## Prerequisites
 
--   This repository cloned to your desktop. (Instructions in the top [readme](../../../../README.md).)
--   [Docker Desktop](https://docs.docker.com/get-docker/)
--   [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+-   Follow the set up in (Instructions in the [Redstone Guide](../../../../tutorial/REDSTONEGUIDE.md).)
+-   Complete tutorials 1-4
 
-# 1. Deploy the game (The next 4 steps are identical to tutorial 1)
 
-First, deploy an instance of Downstream locally using Docker.
-
-From a terminal in the repository root run:
-
-```bash
-docker compose up --pull=always
-```
-
-After some time (this could take up to 5 minutes), you should see "ready" in the terminal output:
-
-    contracts-1  | +-------+
-    contracts-1  | | ready |
-    contracts-1  | +-------+
-
-You can now open a web browser and navigate to [http://localhost:3000/zones/1](http://localhost:3000/zones/1) to load the game.
-
-You should see a blue world, with a single hex tile in the center and the **Welcome to Downstream** dialogue box:
-
-<img src="./readme-images/step1.png" width=200>
-
-# 2. Spawn a Unit
+# 1. Spawn a Unit
 
 First click the **Connect Wallet** button.
-Then, select **Burner**.
-
-<img src="./readme-images/step2a.png" width=200>
+Select **Metamask** and follow the login flow.
 
 You can now click "Spawn Unit" and you should see your Unit on the center tile:
 
 <img src="./readme-images/step2b.png" width=200>
 
-# 3. Create a map
+# 2. Create a map
 
 There is no where for the Unit to go so we will now expand the world by creating some tiles.
 
-First, open the the **tile-fabricator**, by opening a web browser and navigating to [http://localhost:3000/tile-fabricator].
+First, open the the **tile-fabricator**, by opening a web browser and navigating to the [tile-fabricator](http://redstone.downstream.game/tile-fabricator).
 
 Now, draw a map design:
 
@@ -73,49 +49,22 @@ Finally, create a new folder in your desktop. This folder is your 'map' and will
 -   Copy the exported tiles manifest into the folder.
 -   Rename it to `Locations.yaml`.
 
-# 4. Deploy the new tiles
+# 3. Deploy the new tiles
 
 We will use the Downstream CLI to deploy our newly created tiles to our local Downstream instance.
 
-First, install the CLI. From a terminal run:
+In a terminal at your new folder run the following, where `<zone-number>` can be pasted from the one you just copied:
 
 ```bash
-npm i -g @playmint/ds-cli
+ds apply -n redstone -z <zone-number> -f Locations.yaml
 ```
 
-Check it is installed from any terminal folder by running:
+-   Browse to your zone on [Downstream Redstone]([http://redstone.downstream.game]).
 
-```bash
-ds help
-```
-
-Now copy your Burner private key from Downstream:
-
--   Browse to [localhost:3000/zones/1]([http://localhost:3000/zones/1]).
--   Click the player icon at the top left.
-
-<img src="./readme-images/step4a.png" width=200>
-
--   Click **show**
-
-<img src="./readme-images/step4b.png" width=200>
-
--   Highlight and copy the key.
-
-Finally, run the command to deploy your map:
-In a terminal at your new folder run the following, where `<private-key>` can be pasted from the one you just copied:
-
-```bash
-ds apply -n local -z 1 -k <private-key> -f Locations.yaml
-```
-
-You should see the terminal output display a series of ✅s for each tile that is deployed.
-
-Browse to [localhost:3000/zones/1]([http://localhost:3000/zones/1]) and you should see your newly created map and be able to move your Unit around it!
 
 <img src="./readme-images/step4c.png" width=200>
 
-# 5. Create a new type of building to increment an on-chain counter
+# 4. Create a new type of building to increment an on-chain counter
 
 The map is currently empty and there are no buildings to build. So first we are going to create a new type of `custom` building which will be used to increment an on-chain counter.
 
@@ -219,7 +168,7 @@ spec:
           quantity: 10
 ```
 
-# 6. Implement the counter incrementor
+# 5. Implement the counter incrementor
 
 ## Call the contract from the building's plugin code
 
@@ -257,7 +206,7 @@ function _increment(Game ds, bytes24 buildingInstance) internal {
 }
 ```
 
-# 7. Reading the count value from within the plugin
+# 6. Reading the count value from within the plugin
 
 We need to get the `count` value that we set in the previous step. This value is set on the building instance so let's find our counter building instance.
 
@@ -311,7 +260,7 @@ and within the `update` function we are now able to get the value by calling `ge
 const count = getDataInt(counterHQ, "count");
 ```
 
-# 8. Display the count variable
+# 7. Display the count variable
 
 We are now going to display the count by finding all `Counter` buildings within a two tile reference from our `CounterHQ` and supplying them with the `count` value we obtained in the previous step.
 
@@ -404,21 +353,21 @@ Now we have both the `count` value and the `counter` buildings we can tell the m
         ...
 ```
 
-# 9. Seeing this in action by placing the buildings on the map
+# 8. Seeing this in action by placing the buildings on the map
 
 At this stage we have a set of tiles without any buildings on them so let's deploy our newly created buildings and use the tile fabricator to choose where they are located.
 
 At a terminal In your map folder run:
 
 ```bash
-ds apply -n local -z 1 -k <private-key> -R -f .
+ds apply -n redstone -z <zone-number> -R -f .
 ```
 
 This will deploy both `CounterHQ` and the `Counter` building along with the tiles that were placed earlier.
 
 <img src="./readme-images/step9a.png" width=200>
 
-open the **tile-fabricator**, by opening a web browser and navigating to [http://localhost:3000/tile-fabricator]. If it was already open then you'll need to refresh the page.
+open the **tile-fabricator**, by opening a web browser and navigating to the [tile-fabricator](http://redstone.downstream.game/tile-fabricator). If it was already open then you'll need to refresh the page.
 
 In the 'brush' list you should now see our custom buildings
 
@@ -439,12 +388,12 @@ Run the deploy command again which will redeploy all tiles and building definiti
 ds apply -n local -z 1 -k <private-key> -R -f .
 ```
 
-Browse to or refresh [localhost:3000/zones/1]([http://localhost:3000/zones/1]) and you should see the Counter HQ building along with the two Counter buildings on the map. By moving your Unit next to the HQ building and selecting it, you will be able to increment the counter via the building's plugin UI.
+Browse to or refresh your zone on [Redstone Downstream]([http://redstone.downstream.game]) and you should see the Counter HQ building along with the two Counter buildings on the map. By moving your Unit next to the HQ building and selecting it, you will be able to increment the counter via the building's plugin UI.
 
 <img src="./readme-images/step9d.png" width=200>
 <img src="./readme-images/step9e.png" width=200>
 
-# 10. Create a new type of building to start a countdown timer
+# 9. Create a new type of building to start a countdown timer
 
 First, make a `Countdown.js`, `Countdown.sol` and a `Countdown.yaml` file in the same folder as `Locations.yaml`.
 
@@ -619,7 +568,7 @@ spec:
           quantity: 10
 ```
 
-# 11. Implement the start timer functions in both the plugin and contract
+# 10. Implement the start timer functions in both the plugin and contract
 
 The implementation of the timer is essentially the case of setting a future block number for when the timer will end. The current block number is passed into the main `update` function which we can add to the number of blocks we want the timer to last for.
 
@@ -677,7 +626,7 @@ Currently the plugin is calling the `CountdownHQ` contract however it isn't curr
     }
 ```
 
-# 12. Displaying the countdown
+# 11. Displaying the countdown
 
 We are currently setting start and end block numbers to act as the duration of our countdown however we are not displaying this countdown yet.
 
@@ -757,7 +706,7 @@ Lastly we need to map each of the countdown buildings to map objects that drive 
         }),
 ```
 
-# 13. Placing the CountdownHQ and two countdown buildings on the map
+# 12. Placing the CountdownHQ and two countdown buildings on the map
 
 We have now implemented everything needed to start and display a countdown however we still need to place the buildings on the map. We can redeploy our map as before to be able to place our new buildings in the **tile fabricator** or if we know the coordinates we wish to place the buildings we can define the locations directly in yaml. To do this make a `Buildings.yaml` file in the same folder as `Locations.yaml` and paste the following.
 
@@ -786,7 +735,7 @@ spec:
 Now deploy the map as before and you should see our new buildings on the map.
 
 ```bash
-ds apply -n local -z 1 -k <private-key> -R -f .
+ds apply -n redstone -z <zone-number> -R -f .
 ```
 
 <img src="./readme-images/step13.png" width=300>

@@ -90,6 +90,10 @@ If you select your building and add it to the map and then follow the same expor
 
 ----------------------------------
 
+## What's next? 
+
+Why not try following our [Advanced tutorials](./ADVANCEDTUTORIALS.md) to learn more about Downstream's mechanics and build Tutorial Island!
+
 ## Further Reading
 
 Check out the [Reference Page](./REFERENCE.md) for more detail on the process outlined above

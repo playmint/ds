@@ -5,7 +5,7 @@
 We will follow the steps below to create a series of quests which you will use to guide the player to complete various tasks.
 
 ## 1. Preparation
-- Before starting, ensure that you have deployed an instance of Downstream locally using Docker. You can find instructions on how to do that in [Tutorial 1 here](../tutorial-room-1/README.md).
+- Make sure you have followed [Tutorial 1](../tutorial-room-1/README.md) & [Tutorial 2](../tutorial-room-2/README.md).
 - You should also copy the CastleOfTreasure .yaml, .sol and .js files out of the tutorial room 3 folder and paste them into your working folder. To save you some time drawing a map, you can also copy the Tile.yaml.
 
 
@@ -119,7 +119,7 @@ We will use the Downstream CLI to deploy our newly created building to our local
 Run the following in a terminal in the folder with your exported building source (refer to tutorial 1 for more information).
 
 ```
-ds apply -n local -z 1 -k <private-key> -R -f ./
+ds apply -n redstone -z <zone-number> -R -f ./
 ```
 
 You should see an output like this:

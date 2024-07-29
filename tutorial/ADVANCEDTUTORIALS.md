@@ -1,5 +1,10 @@
 # Advanced Tutorials
 
+## Foreword
+
+Going through the followiwng tutorials will give you a much deeper sense of the functionality built into Downstream. Before going ahead with these tutorials, you will need to have gone through the set up either found in the [Redstone Guide](./REDSTONEGUIDE.md). The first tutorial will go back over some of the fundementals already covered in the Redstone Guide but it is aimed at creating the first spoke of Tutorial Island!
+
+
 ### Tutorials
 |Tutorial|Preview|Features|
 |:-------|:-----:|:-------|
@@ -9,6 +14,9 @@
 |__[4. Disco Room](../contracts/src/maps/tutorial-room-4/README.md)__|<img src="images/tutRoom4.png" width="200">|Tile Colors, Unit Costumes, Billboards, Custom UI|
 |__[5. Measuring Success](../contracts/src/maps/tutorial-room-5/README.md)__|<img src="images/tutRoom5.png" width="200">|Counters, Timers, Display Buildings, Custom Onchain State
 |__[6. Unit Control Room](../contracts/src/maps/tutorial-room-6/README.md)__|<img src="images/tutRoom6.png" width="200">|Controlling Unit Actions via Buildings
+|__[7. Zone Kinds](../contracts/src/maps/tutorial-room-7/README.md)__|<img src="../contracts/src/maps/tutorial-room-7/readme-images/screenshot.png" width="200">|Zone kinds (Mega Advanced Functionality)
+
+
 
 ### Complete maps
 __[All example maps can be found here](../contracts/src/maps)__ 
