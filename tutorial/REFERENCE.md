@@ -1,6 +1,6 @@
 # Reference
 
-## Setting up a wallt for Redstone and Claiming a zone
+## Setting up a wallet for Redstone and Claiming a zone
 
 Downstream is deployed to Redstone, a mainnet L2! The following steps will teach you how to set up Metamask, purchase ETH, bridge it to Redstone and claim your Downstream Zone! 
 
